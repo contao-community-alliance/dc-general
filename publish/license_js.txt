@@ -1,0 +1,8 @@
+/**
+ * backboneit_dctableextended
+ * Extended form driver for Contao CMS
+ *
+ * @copyright  backboneIT | Oliver Hoff 2011
+ * @author     Oliver Hoff <oliver@hofff.com>
+ * @license    http://opensource.org/licenses/lgpl-3.0.html
+ */

@@ -1,0 +1,11 @@
+h1. Changelog
+
+h2. 0.1.0 beta1
+
+* 19 *Fix*: Temporarily integrated fix for page picker not opening until core ticket is done 
+* 18 *Fix*: Finally driver injection...
+* 13 *Fix*: Again driver injection code
+* 10 *Fix*: Driver injection not working properly
+* 10 *Change*: Modified subpalette reload mechanism to work without GET-Param "act"
+* 7 *Fix*: Extended label (helpwizard and others) has not been displayed
+* 6 Initial release, feedback requested

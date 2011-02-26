@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="backboneit_dctableextended" default="build" basedir=".">
+  
+	<property name="yui.jar" value="../_java/lib/yui/yuicompressor-2.4.2.jar" />
+	<property name="build.dir" value="build" />
+	<property name="build.module" value="${build.dir}/TL_ROOT/system/modules/backboneit_dctableextended" />
+	  
+	<target name="yuicompress">
+		<java jar="${yui.jar}" fork="true">
+			<arg value="-v" />
+			<arg value="-o" />
+			<arg value="${yui.dest}" />
+			<arg value="--type" />
+			<arg value="${yui.type}" />
+			<arg value="--charset" />
+			<arg value="UTF-8" />
+			<arg value="--line-break" />
+			<arg value="60" />
+			<arg value="${yui.src}" />
+		</java>
+	</target>
+	
+	<target name="build">
+		<delete dir="${build.dir}" />
+		<mkdir dir="${build.dir}/TL_ROOT" />
+		<copy todir="${build.dir}/TL_ROOT">
+			<fileset dir="TL_ROOT" includes="**/*.php" />
+			<filterchain>
+				<headfilter lines="-1" skip="1" />
+				<concatfilter prepend="publish/license_php.txt" />
+			</filterchain>
+		</copy>
+		<copy todir="${build.dir}/TL_ROOT">
+			<fileset dir="TL_ROOT" excludes="**/*.php" />
+		</copy>
+
+		<antcall target="yuicompress">
+			<param name="yui.src"  value="${build.module}/js/dctableextended.js" />
+			<param name="yui.dest" value="${build.module}/js/dctableextended.yui.js" />
+			<param name="yui.type" value="js" />
+		</antcall>
+	  	<concat destfile="${build.module}/js/dctableextended.js" >
+	  		<filelist dir="${build.module}/js" files="dctableextended.yui.js" />
+			<filterchain>
+				<concatfilter prepend="publish/license_js.txt" />
+			</filterchain>
+	  	</concat>
+		<delete file="${build.module}/js/dctableextended.yui.js" />
+	  	<gzip src="${build.module}/js/dctableextended.js" destfile="${build.module}/js/dctableextended.js.gz" />
+
+	  	<zip destfile="${build.dir}/backboneit_dctableextended.zip">
+	  		<zipfileset dir="${build.dir}/TL_ROOT" />
+	  	</zip>
+	</target>
+</project>

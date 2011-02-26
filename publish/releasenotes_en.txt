@@ -1,0 +1,25 @@
+=== Titel
+Extended DC_Table Driver
+
+
+=== Suchbegriffe
+api,driver,subpalette,palette,extended
+
+
+=== Teaser
+Allows the definition of subpalettes and offers a strong base for other driver developments.
+
+
+=== Beschreibung
+<h3>Features:</h3>
+<ul>
+<li>Supports definition of recursive subpalettes</li>
+<li>Markup outsourced into templates</li>
+<li>Cleaned up structure of loading and storing process</li>
+<li>Good base for extension of the edit, editAll and overrideAll modes</li>
+</ul>
+<h3>Tickets:</h3>
+<p>http://www.contao-forge.org/projects/dctableextended/issues</p>
+
+=== Freigabe-Notizen und Änderungs-Log
+<p>see manual link</p>

@@ -1,0 +1,25 @@
+=== Titel
+Erweiterter DC_Table Treiber
+
+
+=== Suchbegriffe
+api,treiber,subpalette,palette,extended
+
+
+=== Teaser
+Ermöglicht Definition von rekursiven Subpaletten und bietet eine klare Grundlage für andere Entwickler.
+
+
+=== Beschreibung
+<h3>Eigenschaften:</h3>
+<ul>
+<li>Unterstützt rekursive Subpaletten</li>
+<li>Auslagerung des Markups in Templates</li>
+<li>Klarere Strukurierung des Lade- und Speicherprozess</li>
+<li>Sauberer Ausgangspunkt zur Erweiterung der edit, editAll und overrideAll Modis</li>
+</ul>
+<h3>Tickets:</h3>
+<p>http://www.contao-forge.org/projects/dctableextended/issues</p>
+
+=== Freigabe-Notizen und Änderungs-Log
+<p>siehe Handbuch-Link</p>
