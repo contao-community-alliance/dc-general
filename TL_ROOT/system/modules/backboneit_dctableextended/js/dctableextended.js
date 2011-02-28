@@ -1,6 +1,6 @@
 if(!$try(function() { return BBIT; })) BBIT = {};
 
-(function() {
+(function($) {
 
 	window.addEvent("domready", function() {
 		$$("form.tableextended").each(function(form) {
@@ -84,9 +84,8 @@ if(!$try(function() { return BBIT; })) BBIT = {};
 			
 			fieldset = function(event) {
 				this.blur();
-				var parent = this.getParent("fieldset").toggleClass("collapsed");
+				var parent = this.getParent("fieldset").toggleClass("collapsed"), id = parent.get("id");
 				
-				var id = parent.get("id");
 				if(!id) return false;
 				
 				fsReq.send('isAjax=1&action=toggleFieldset&id=' + id.substr(4)
@@ -101,4 +100,4 @@ if(!$try(function() { return BBIT; })) BBIT = {};
 	
 	});
 	
-})();
+})(document.id);
