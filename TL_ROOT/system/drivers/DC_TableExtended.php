@@ -801,7 +801,7 @@ class DC_TableExtended extends DC_Table {
 		if(!is_array($arrData))
 			return;
 			
-		$this->Database->prepare('UPDATE' . $objData->fromTable . ' %s WHERE id = ?')->set($arrData)->execute($this->intId);
+		$this->Database->prepare('UPDATE ' . $objData->fromTable . ' %s WHERE id = ?')->set($arrData)->execute($this->intId);
 		$this->Database->prepare('UPDATE tl_version SET active=\'\' WHERE pid = ?')->execute($this->intId);
 		$this->Database->prepare('UPDATE tl_version SET active = 1 WHERE pid = ? AND version = ?')->execute($this->intId, $strVersion);
 
