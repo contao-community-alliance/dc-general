@@ -2,6 +2,7 @@ h1. Changelog
 
 h2. 0.1.0 beta1
 
+* 22 *Change*: Temporary integrated a workaround for ticket #2980
 * 20 *Fix*: Fixed typo in version restore code
 * 19 *Fix*: Temporarily integrated fix for page picker not opening until core ticket is done 
 * 18 *Fix*: Finally driver injection...
