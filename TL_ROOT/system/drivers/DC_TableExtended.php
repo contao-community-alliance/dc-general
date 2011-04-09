@@ -153,9 +153,9 @@ class DC_TableExtended extends DC_Table {
 		// FIXME TEMPORARY WORKAROUND! To be fixed in the core: Controller::prepareForWidget(..)
 		if(isset(self::$arrDates[$arrConfig['eval']['rgxp']])
 		&& !$arrConfig['eval']['mandatory']
-		&& $this->varValue == 0)
+		&& $this->varValue === 0)
 			$this->varValue = '';
-		
+			
 		// OH: why not $required = $mandatory always? source: DataContainer 226
 		$arrConfig['eval']['required'] = $this->varValue == '' && $arrConfig['eval']['mandatory'] ? true : false;
 		// OH: the whole prepareForWidget(..) thing is an only mess
