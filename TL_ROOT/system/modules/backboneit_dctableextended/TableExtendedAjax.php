@@ -24,7 +24,7 @@ class TableExtendedAjax extends Backend {
 		$intID = intval(substr($strSelector, $intPos + 1));
 		$strSelector = substr($strSelector, 0, $intPos);
 		
-		echo $objDC->$strMethod($intID, $strSelector);
+		echo json_encode(array('content' => $objDC->$strMethod($intID, $strSelector), 'token' => REQUEST_TOKEN));
 		
 		exit;
 	}

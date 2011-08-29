@@ -36,12 +36,22 @@ if(!$try(function() { return BBIT; })) BBIT = {};
 				
 				if(event = $("sub_" + id))
 					event.destroy();
-				
-				req.send('FORM_SUBMIT=' + self.table + '&isAjax=1&action=toggleSubpaletteExtended&id=' + id + '&' + value);
+
+				req.post(Object.append(
+					{
+						isAjax: 1,
+						REQUEST_TOKEN: REQUEST_TOKEN,
+						action: "toggleSubpaletteExtended",
+						FORM_SUBMIT: self.table,
+						id: id
+					},
+					value.parseQueryString()
+				));
 			};
 			
-			req = new Request({
+			req = new Request.Contao({
 				url: window.location.href,
+				method: "post",
 				evalScripts: false,
 				evalResponse: false,
 				onRequest: AjaxRequest.displayBox.pass("Loading data …"),
@@ -69,7 +79,7 @@ if(!$try(function() { return BBIT; })) BBIT = {};
 					window.fireEvent("subpalette");
 				}
 			});
-			req.success = function(text, xml) {	req.onSuccess(text.trim(), xml); };
+			//req.success = function(text, xml) {	req.onSuccess(text.trim(), xml); };
 			
 			form.getElements("div.selector[id^=widget_]")
 				.addEvent("click", toggle)
@@ -78,7 +88,7 @@ if(!$try(function() { return BBIT; })) BBIT = {};
 					self.selectors[widget.get("id")] = widget.toQueryString();
 				});
 			
-			fsReq = new Request({
+			fsReq = new Request.Contao({
 				url: window.location.href
 			});
 			
@@ -88,10 +98,15 @@ if(!$try(function() { return BBIT; })) BBIT = {};
 				
 				if(!id) return false;
 				
-				fsReq.send('isAjax=1&action=toggleFieldset&id=' + id.substr(4)
-					+ '&table=' + self.table
-					+ '&state=' + (parent.hasClass("collapsed") ? "0" : "1"));
-				
+				fsReq.post({
+					isAjax: 1,
+					action: "toggleFieldset",
+					id: id.substr(4),
+					table: self.table,
+					state: parent.hasClass("collapsed") ? "0" : "1",
+					REQUEST_TOKEN: REQUEST_TOKEN
+				});
+					
 				return false;
 			};
 			
