@@ -23,3 +23,6 @@ Allows the definition of subpalettes and offers a strong base for other driver d
 
 === Freigabe-Notizen und Änderungs-Log
 <p>see manual link</p>
+
+=== Handbuch-Link
+http://www.contao-forge.org/projects/dctableextended/wiki

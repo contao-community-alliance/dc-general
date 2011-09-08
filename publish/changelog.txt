@@ -1,5 +1,12 @@
 h1. Changelog
 
+h2. 0.2.0 stable
+
+*This version is only compatible to Contao 2.10.0 and upwards, for Contao 2.9.x use 0.1.0 versions*
+
+* 1 *Change*: Removed page picker fix
+* 1 Contao 2.10.0 compatibility (REQUEST_TOKENS)
+
 h2. 0.1.0 beta1
 
 * 22 *Change*: Temporary integrated a workaround for ticket #2980

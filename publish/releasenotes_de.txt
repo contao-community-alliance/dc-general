@@ -23,3 +23,6 @@ Ermöglicht Definition von rekursiven Subpaletten und bietet eine klare Grundlag
 
 === Freigabe-Notizen und Änderungs-Log
 <p>siehe Handbuch-Link</p>
+
+=== Handbuch-Link
+http://www.contao-forge.org/projects/dctableextended/wiki
