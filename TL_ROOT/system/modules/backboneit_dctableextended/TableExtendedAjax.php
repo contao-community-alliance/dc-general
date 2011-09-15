@@ -24,8 +24,12 @@ class TableExtendedAjax extends Backend {
 		$intID = intval(substr($strSelector, $intPos + 1));
 		$strSelector = substr($strSelector, 0, $intPos);
 		
-		echo json_encode(array('content' => $objDC->$strMethod($intID, $strSelector), 'token' => REQUEST_TOKEN));
+		$strReturn = $objDC->$strMethod($intID, $strSelector);
 		
+		echo version_compare(VERSION, '2.10', '<')
+			? $strReturn
+			: json_encode(array('content' => $strReturn, 'token' => REQUEST_TOKEN));
+				
 		exit;
 	}
 

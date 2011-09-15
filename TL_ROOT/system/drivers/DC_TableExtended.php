@@ -36,6 +36,10 @@ class DC_TableExtended extends DC_Table {
 	
 	public function __construct($strTable) {
 		parent::__construct($strTable);
+		$this->initialize();
+	}
+	
+	protected function initialize() {
 		$this->import('Encryption');
 		$this->import('BackendUser', 'User');
 		$this->blnSubmitted = $this->Input->post('FORM_SUBMIT') == $this->strTable;
@@ -44,7 +48,7 @@ class DC_TableExtended extends DC_Table {
 		$this->arrStates = $this->Session->get('fieldset_states');
 		$this->arrStates = $this->arrStates[$strTable];
 		$this->strFieldTemplate = $this->getTemplate('be_tableextended_field');
-		$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/backboneit_dctableextended/js/dctableextended.js';
+		$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/backboneit_dctableextended/js/dctableextended' . (version_compare(VERSION, '2.10', '<') ? '-2.9' : '') . '.js';
 	}
 	
 	protected function compileRootPalette(&$arrRootPalette) {
@@ -267,9 +271,11 @@ class DC_TableExtended extends DC_Table {
 		if(isset($this->arrProcessed[$strField]))
 			return;
 		$this->arrProcessed[$strField] = true;
+		$this->strField = $strField;
+		$this->strInputName = $strField . '_' . $this->intWidgetID; //$this->intId;
 		
 		if(!$this->blnSubmitted // no form submit
-		|| !isset($this->arrInputs[$strField . '_' . $this->intWidgetID])
+		|| !isset($this->arrInputs[$this->strInputName])
 		|| !isset($this->arrFields[$strField]) // field excluded or not selected
 		|| !($objWidget = $this->getWidget($strField)) instanceof Widget) // not a widget
 			return;
@@ -285,7 +291,7 @@ class DC_TableExtended extends DC_Table {
 			return;
 		
 		$varNew = $objWidget->value;
-		$arrConfig = $this->arrFields[$this->strField];
+		$arrConfig = $this->arrFields[$strField];
 			
 		if(is_array($varNew)) {
 			ksort($varNew);
@@ -333,55 +339,64 @@ class DC_TableExtended extends DC_Table {
 			return;
 		}
 		
-		if(is_array($varNew))
-			$varNew = serialize($varNew);
-			
 		// value hasnt changed
-		if($this->objActiveRecord->$strField == $varNew && !$arrConfig['eval']['alwaysSave'])
-			return;
+		if(!$arrConfig['eval']['alwaysSave']) {
+			if(deserialize($this->objActiveRecord->$strField) == $varNew)
+				return;
+			if($arrConfig['eval']['doNotSaveEmpty'] && $varNew != '') // value is empty
+				return;
+		}
 		
 		if($varNew != '') {
-			if($arrConfig['eval']['encrypt'])
-				$varNew = $this->Encryption->encrypt($varNew);
+			if($arrConfig['eval']['encrypt']) {
+				$varNew = $this->Encryption->encrypt(is_array($varNew) ? serialize($varNew) : $varNew);
 		
-			elseif($arrConfig['eval']['unique']) {
-				$objUnique = $this->Database->prepare('
-					SELECT
-						*
-					FROM 
-						' . $this->strTable . '
-					WHERE
-						' . $strField . ' = ?
-					AND
-						id != ?
-				')->execute($varNew, $this->intId);
-		
-				if($objUnique->numRows) {
-					$this->noReload = true;
-					$objWidget->addError(sprintf($GLOBALS['TL_LANG']['ERR']['unique'], $objWidget->label));
-					return;
-				}
-			}
-			
+			} elseif($arrConfig['eval']['unique'] && !$this->isUniqueValue($varNew)) {
+				$this->noReload = true;
+				$objWidget->addError(sprintf($GLOBALS['TL_LANG']['ERR']['unique'], $objWidget->label));
+				return;
+				
 			// OH: completly correct would be "if" instead of "elseif",
 			// but this is a very rare case, where only one value is stored in the field
 			// and a new value must differ from the existing value
 			// lets treat fallback and unique as exclusive
-			elseif($arrConfig['eval']['fallback'])
-				$this->Database->execute('UPDATE ' . $this->strTable . ' SET ' . $strField . ' = \'\'');
-		} elseif($arrConfig['eval']['doNotSaveEmpty']) // value is empty
-			return;
-			
-		$objUpdateStmt = $this->Database->prepare(
-			'UPDATE ' . $this->strTable . ' SET ' . $this->strField . ' = ? WHERE id = ?'
-		)->execute($varNew, $this->intId);
-
-		if(!$objUpdateStmt->affectedRows)
+			} elseif($arrConfig['eval']['fallback']) {
+				$this->resetFallback();
+			}		
+		}
+		
+		if(!$this->storeValue())
 			return;
 		elseif(!$arrConfig['eval']['submitOnChange'] && $this->objActiveRecord->$strField != $varNew)
 			$this->blnCreateNewVersion = true;
 		
 		$this->objActiveRecord->$strField = $varNew;
+	}
+	
+	protected function isUniqueValue($varNew) {
+		$objUnique = $this->Database->prepare('
+			SELECT
+				*
+			FROM 
+				' . $this->strTable . '
+			WHERE
+				' . $this->strField . ' = ?
+			AND
+				id != ?
+		')->execute($varNew, $this->intId);
+		
+		return !$objUnique->numRows;
+	}
+	
+	protected function resetFallback() {
+		$this->Database->query('UPDATE ' . $this->strTable . ' SET ' . $this->strField . ' = \'\'');
+	}
+	
+	protected function storeValue() {
+		$objUpdateStmt = $this->Database->prepare(
+			'UPDATE ' . $this->strTable . ' SET ' . $this->strField . ' = ? WHERE id = ?'
+		)->execute($varNew, $this->intId);
+		return $objUpdateStmt->affectedRows;
 	}
 	
 	public function edit($intID = null, $strSelector = null) {
@@ -481,7 +496,7 @@ class DC_TableExtended extends DC_Table {
 
 				$this->redirect($strUrl);
 			}
-
+			
 			$this->reload();
 		}
 		
@@ -669,6 +684,62 @@ class DC_TableExtended extends DC_Table {
 		));
 		
 		return $objTemplate->parse();
+	}
+	
+	protected function defaultButtons() {
+		
+	}
+	
+	protected function executeSaveButton() {
+		$this->reload();
+	}
+	
+	protected function executeSaveAndCloseButton() {
+		setcookie('BE_PAGE_OFFSET', 0, 0, '/');
+		$this->redirect($this->getReferer());
+	}
+
+	protected function executeSaveAndEditButton() {
+		setcookie('BE_PAGE_OFFSET', 0, 0, '/');
+		$strUrl = $this->addToUrl($GLOBALS['TL_DCA'][$this->strTable]['list']['operations']['edit']['href']);
+
+		$strUrl = preg_replace('/(&amp;)?s2e=[^&]*/i', '', $strUrl);
+		$strUrl = preg_replace('/(&amp;)?act=[^&]*/i', '', $strUrl);
+
+		$this->redirect($strUrl);
+	}
+	
+	protected function executeSaveAndBackButton() {
+		setcookie('BE_PAGE_OFFSET', 0, 0, '/');
+		if($this->ptable == '') {
+			$this->redirect($this->Environment->script . '?do=' . $this->Input->get('do'));
+		
+		} elseif($this->ptable == 'tl_theme' && $this->strTable == 'tl_style_sheet') { // TODO: try to abstract this
+			$this->redirect($this->getReferer(false, $this->strTable));
+		
+		} else {
+			$this->redirect($this->getReferer(false, $this->ptable));
+		}
+	}
+	
+	protected function executeSaveAndCreateButton() {
+		setcookie('BE_PAGE_OFFSET', 0, 0, '/');
+		$strUrl = $this->Environment->script . '?do=' . $this->Input->get('do');
+
+		if(isset($_GET['table']))
+			$strUrl .= '&amp;table=' . $this->Input->get('table');
+
+		if($this->treeView) {
+			$strUrl .= '&amp;act=create&amp;mode=1&amp;pid=' . $this->intId;
+
+		} elseif($GLOBALS['TL_DCA'][$this->strTable]['list']['sorting']['mode'] == 4) { // Parent view
+			$strUrl .= $this->Database->fieldExists('sorting', $this->strTable) ? '&amp;act=create&amp;mode=1&amp;pid=' . $this->intId . '&amp;id=' . $this->activeRecord->pid : '&amp;act=create&amp;mode=2&amp;pid=' . $this->activeRecord->pid;
+		
+		} else { // List view
+			$strUrl .= strlen($this->ptable) ? '&amp;act=create&amp;mode=2&amp;pid=' . CURRENT_ID : '&amp;act=create';
+		}
+		
+		$this->redirect($strUrl);
 	}
 	
 	// get current IDs from session
