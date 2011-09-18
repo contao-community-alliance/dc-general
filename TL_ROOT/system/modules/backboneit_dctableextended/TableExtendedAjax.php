@@ -2,26 +2,19 @@
 
 class TableExtendedAjax extends Backend {
 	
-	private static $arrMethods = array(
-		'edit' => true,
-		'editAll' => true
-	);
-	
 	public function executePostActions($strAction, $objDC) {
 		if($strAction != 'toggleSubpaletteExtended'
 		|| !$objDC instanceof DC_TableExtended)
 			return;
 		
-//		$strMethod = $this->Input->get('act');
-//		if(!isset(self::$arrMethods[$strMethod]))
-//			exit;
 		$strMethod = $this->Input->get('act') == 'editAll' ? 'editAll' : 'edit';
 		
 		$strSelector = $this->Input->post('FORM_INPUTS');
 		$strSelector = reset($strSelector);
 		
-		$intPos = strrpos($strSelector, '_');
-		$intID = intval(substr($strSelector, $intPos + 1));
+		$intPos = strrpos($strSelector, '::');
+		$intID = substr($strSelector, $intPos + 2);
+		if(!is_numeric($intID)) $intID = base64_decode(str_replace('_', '=', substr($intID, 1)));
 		$strSelector = substr($strSelector, 0, $intPos);
 		
 		$strReturn = $objDC->$strMethod($intID, $strSelector);

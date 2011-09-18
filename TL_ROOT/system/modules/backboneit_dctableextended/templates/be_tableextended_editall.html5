@@ -38,8 +38,11 @@
 
 <div class="tl_formbody_submit">
 <div class="tl_submit_container">
-<input type="submit" name="save" id="save" class="tl_submit" accesskey="s" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['save']); ?>" /> 
-<input type="submit" name="saveNclose" id="saveNclose" class="tl_submit" accesskey="c" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['saveNclose']); ?>" />
+<?php foreach($this->buttons as $strButton => $strLabel): ?>
+<input type="submit" name="<?php echo $strButton; ?>"
+	id="<?php echo $strButton; ?>" class="tl_submit" accesskey="s"
+	value="<?php echo $strLabel ?>" /> 
+<?php endforeach; ?>
 </div>
 </div>
 

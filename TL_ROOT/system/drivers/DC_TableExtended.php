@@ -4,22 +4,19 @@ require_once 'DC_Table.php';
 
 class DC_TableExtended extends DC_Table {
 	
-	protected $arrInputs; // set: fields submitted
+	protected $arrDCA; // the DCA of this table
 	protected $blnSubmitted;
 	protected $blnAutoSubmitted;
-	protected $strFieldTemplate;
 	protected $arrStates; // field set states
+	protected $arrInputs; // set: fields submitted
 	
-	protected $arrSelectors; // set: selectors fields, that need a dynamic reload
+	protected $strMode; // edit, editAll, overrideAll
 	protected $arrFields; // map: fields possible for editing -> field dca
+	protected $arrWidgets = array(); // map: field -> widget
+	protected $arrProcessed = array(); // set: fields processed
+	protected $arrButtons = array();
 	
 	protected $intWidgetID;
-	
-	protected $arrRootPalette; // tree: parsed palette
-	protected $arrSubpalettes; // map: selector -> subpalette (depending on active record, null if not palette not parsed)
-	
-	protected $arrWidgets; // map: field -> widget
-	protected $arrProcessed; // set: fields processed
 	
 	private static $arrDates = array(
 		'date' => true,
@@ -36,96 +33,49 @@ class DC_TableExtended extends DC_Table {
 	
 	public function __construct($strTable) {
 		parent::__construct($strTable);
+		$this->arrDCA = $GLOBALS['TL_DCA'][$strTable];
 		$this->initialize();
+		$this->addAdminFields();
+	}
+	
+	public function __get($strKey) {
+		switch($strKey) {
+			case 'treeView':
+				return $this->treeView;
+				break;
+
+			default:
+				return parent::__get($strKey);
+				break;
+		}
 	}
 	
 	protected function initialize() {
 		$this->import('Encryption');
 		$this->import('BackendUser', 'User');
-		$this->blnSubmitted = $this->Input->post('FORM_SUBMIT') == $this->strTable;
-		$this->blnAutoSubmitted = $this->Input->post('SUBMIT_TYPE') == 'auto';
-		$this->arrInputs = ($arrInputs = $this->Input->post('FORM_INPUTS')) ? array_flip($arrInputs) : array();
-		$this->arrStates = $this->Session->get('fieldset_states');
-		$this->arrStates = $this->arrStates[$strTable];
-		$this->strFieldTemplate = $this->getTemplate('be_tableextended_field');
+		$this->import('Session');
+		$this->blnSubmitted		= $_POST['FORM_SUBMIT'] == $this->strTable;
+		$this->blnAutoSubmitted	= $_POST['SUBMIT_TYPE'] == 'auto';
+		$this->arrInputs		= $_POST['FORM_INPUTS'] ? array_flip($this->Input->post('FORM_INPUTS')) : array();
+		$this->arrStates		= $this->Session->get('fieldset_states');
+		$this->arrStates		= (array) $this->arrStates[$this->strTable];
 		$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/backboneit_dctableextended/js/dctableextended' . (version_compare(VERSION, '2.10', '<') ? '-2.9' : '') . '.js';
 	}
 	
-	protected function compileRootPalette(&$arrRootPalette) {
-		$strClass = 'tl_tbox';
-		
-		foreach($arrRootPalette as &$arrFieldset) {
-			if($strLegend = &$arrFieldset['legend']) {
-				$arrClasses = explode(':', substr($strLegend, 1, -1));
-				$strLegend = array_shift($arrClasses);
-				$arrClasses = array_flip($arrClasses);
-				if(isset($this->arrStates[$strLegend])) {
-					if($this->arrStates[$strLegend])
-						unset($arrClasses['hide']);
-					else
-						$arrClasses['collapsed'] = true;
-				}
-				$strClass .= ' ' . implode(' ', array_keys($arrClasses));
-				$arrFieldset['label'] = isset($GLOBALS['TL_LANG'][$this->strTable][$strLegend]) ? $GLOBALS['TL_LANG'][$this->strTable][$strLegend] : $strLegend;
-			}
-			
-			$arrFieldset['class'] = $strClass;
-			$arrFieldset['palette'] = $this->generatePalette($arrFieldset['palette']);
-			
-			$strClass = 'tl_box';
-		}
-	}
-	
-	protected function generatePalette(array $arrPalette) {
-		ob_start();
-		foreach($arrPalette as $varField) {
-			if(is_array($varField)) {
-				echo '<div id="sub_' . $strName /* this is the input name from the last loop */ . '">', $this->generatePalette($varField), '</div>';
-			} else {
-				$objWidget = $this->getWidget($varField);
-				if(!$objWidget instanceof Widget) {
-					echo $objWidget;
-					continue;
-				}
-	
-				$arrConfig = $this->arrFields[$varField];
-				
-				$strClass = $arrConfig['eval']['tl_class'];
-				
-				// this should be correctly specified in DCAs
-//				if($arrConfig['inputType'] == 'checkbox'
-//				&& !$arrConfig['eval']['multiple']
-//				&& strpos($strClass, 'w50') !== false
-//				&& strpos($strClass, 'cbx') === false)
-//					$strClass .= ' cbx';
-					
-				if($arrConfig['eval']['submitOnChange'] && isset($this->arrSelectors[$varField])) {
-					$objWidget->onclick = '';
-					$objWidget->onchange = '';
-					$strClass .= ' selector';
-				}
-		
-				$strName = specialchars($objWidget->name);
-				$blnUpdate = $arrConfig['update'];
-				$strDatepicker = $arrConfig['eval']['datepicker'] ? sprintf($arrConfig['eval']['datepicker'], 'ctrl_' . specialchars($objWidget->id)) : null;
-		
-				include($this->strFieldTemplate);
-			}
-		}
-		return ob_get_clean();
-	}
-	
-	protected function getWidget($strField) {
+	public function getWidget($strField) {
 		if(isset($this->arrWidgets[$strField]))
 			return $this->arrWidgets[$strField];
 			
-		$arrConfig = &$this->arrFields[$strField];
-		if(!is_array($arrConfig))
+		if(!$this->isEditableField($strField))
+			return;
+			
+		$arrConfig = $this->getFieldDefinition($strField);
+		if(!$arrConfig)
 			return;
 		
 		$this->strField = $strField;
-		$this->strInputName = $strField . '_' . $this->intWidgetID; //$this->intId;
-		$this->varValue = deserialize($arrConfig['eval']['encrypt'] ? $this->Encryption->decrypt($this->objActiveRecord->$strField) : $this->objActiveRecord->$strField);
+		$this->strInputName = $strField . '::' . $this->intWidgetID;
+		$this->varValue = deserialize(/*$arrConfig['eval']['encrypt'] ? $this->Encryption->decrypt($this->objActiveRecord->$strField) : */$this->objActiveRecord->$strField);
 	
 		if(is_array($arrConfig['load_callback'])) {
 			foreach($arrConfig['load_callback'] as $arrCallback) {
@@ -143,15 +93,13 @@ class DC_TableExtended extends DC_Table {
 		$arrConfig['eval']['xlabel'] = $this->getXLabel($arrConfig);
 		if(is_array($arrConfig['input_field_callback'])) {
 			$this->import($arrConfig['input_field_callback'][0]);
-			$objWidget = $this->$arrConfig['input_field_callback'][0]->$arrConfig['input_field_callback'][1]($this, $arrConfig['eval']['xlabel']);
+			$objWidget = $this->{$arrConfig['input_field_callback'][0]}->{$arrConfig['input_field_callback'][1]}($this, $arrConfig['eval']['xlabel']);
 			return $this->arrWidgets[$strField] = isset($objWidget) ? $objWidget : ''; 
 		}
 		
 		$strClass = $GLOBALS['BE_FFL'][$arrConfig['inputType']];
 		if(!$this->classFileExists($strClass)) {
-			if($GLOBALS['TL_CONFIG']['debugMode'])
-				throw new Exception("[DCA Config Error] No widget class found for input-type [{$arrConfig['inputType']}].");
-			return;
+			throw new Exception("[DCA Config Error] No widget class found for input-type [{$arrConfig['inputType']}].");
 		}
 		
 		// FIXME TEMPORARY WORKAROUND! To be fixed in the core: Controller::prepareForWidget(..)
@@ -270,14 +218,18 @@ class DC_TableExtended extends DC_Table {
 	protected function processInput($strField) {
 		if(isset($this->arrProcessed[$strField]))
 			return;
+			
 		$this->arrProcessed[$strField] = true;
 		$this->strField = $strField;
-		$this->strInputName = $strField . '_' . $this->intWidgetID; //$this->intId;
+		$this->strInputName = $strField . '::' . $this->intWidgetID;
 		
 		if(!$this->blnSubmitted // no form submit
 		|| !isset($this->arrInputs[$this->strInputName])
-		|| !isset($this->arrFields[$strField]) // field excluded or not selected
-		|| !($objWidget = $this->getWidget($strField)) instanceof Widget) // not a widget
+		|| !$this->isEditableField($strField))
+			return;
+		
+		$objWidget = $this->getWidget($strField);
+		if(!($objWidget instanceof Widget))
 			return;
 		
 		$objWidget->validate();
@@ -291,7 +243,7 @@ class DC_TableExtended extends DC_Table {
 			return;
 		
 		$varNew = $objWidget->value;
-		$arrConfig = $this->arrFields[$strField];
+		$arrConfig = $this->getFieldDefinition($strField);
 			
 		if(is_array($varNew)) {
 			ksort($varNew);
@@ -322,7 +274,7 @@ class DC_TableExtended extends DC_Table {
 					break;
 			}
 
-			if(!varNew)
+			if(!$varNew)
 				$varNew = '';
 		}
 	
@@ -349,7 +301,7 @@ class DC_TableExtended extends DC_Table {
 		
 		if($varNew != '') {
 			if($arrConfig['eval']['encrypt']) {
-				$varNew = $this->Encryption->encrypt(is_array($varNew) ? serialize($varNew) : $varNew);
+				//$varNew = $this->Encryption->encrypt(is_array($varNew) ? serialize($varNew) : $varNew);
 		
 			} elseif($arrConfig['eval']['unique'] && !$this->isUniqueValue($varNew)) {
 				$this->noReload = true;
@@ -365,7 +317,7 @@ class DC_TableExtended extends DC_Table {
 			}		
 		}
 		
-		if(!$this->storeValue())
+		if(!$this->storeValue($varNew))
 			return;
 		elseif(!$arrConfig['eval']['submitOnChange'] && $this->objActiveRecord->$strField != $varNew)
 			$this->blnCreateNewVersion = true;
@@ -375,14 +327,10 @@ class DC_TableExtended extends DC_Table {
 	
 	protected function isUniqueValue($varNew) {
 		$objUnique = $this->Database->prepare('
-			SELECT
-				*
-			FROM 
-				' . $this->strTable . '
-			WHERE
-				' . $this->strField . ' = ?
-			AND
-				id != ?
+			SELECT	*
+			FROM	' . $this->strTable . '
+			WHERE	' . $this->strField . ' = ?
+			AND		id != ?
 		')->execute($varNew, $this->intId);
 		
 		return !$objUnique->numRows;
@@ -392,50 +340,52 @@ class DC_TableExtended extends DC_Table {
 		$this->Database->query('UPDATE ' . $this->strTable . ' SET ' . $this->strField . ' = \'\'');
 	}
 	
-	protected function storeValue() {
+	protected function storeValue($varNew) {
 		$objUpdateStmt = $this->Database->prepare(
 			'UPDATE ' . $this->strTable . ' SET ' . $this->strField . ' = ? WHERE id = ?'
 		)->execute($varNew, $this->intId);
 		return $objUpdateStmt->affectedRows;
 	}
 	
+	protected function setWidgetID($intID) {
+		if(preg_match('/^[0-9]+$/', $intID)) {
+			$this->intWidgetID = intval($intID);
+		} else {
+			$this->intWidgetID = 'b' . str_replace('=', '_', base64_encode($intID));
+		}
+	}
+	
 	public function edit($intID = null, $strSelector = null) {
+		$this->strMode = 'edit';
 		$this->checkEditable();
 		
-		if($intID)
-			$this->intId = $intID;
-		$this->intWidgetID = $this->intId;
+		$intID && $this->intId = $intID;
+		$this->setWidgetID($this->intId);
 		
 		$this->checkVersion(); //version switched?
 		
-		if(!$this->filterFields())
-			return '';
-			
-		$this->calculateSelectors();
+		$this->loadEditableFields();
+		if(!$this->hasEditableFields())
+			return $this->redirect($this->getReferer());
 			
 		$this->loadActiveRecord();
 		$this->createInitialVersion($this->strTable, $this->intId);
-		
 		$this->blnCreateNewVersion = false; // just in case...
-		$this->calculatePalettes();
 		
-//		echo '<pre>'; print_r($intID); echo '</pre>';
-//		echo '<pre>'; print_r($strSelector); echo '</pre>';
-//		echo '<pre>'; print_r($this->arrInputs); echo '</pre>';
-//		echo '<pre>'; print_r($this->arrFields); echo '</pre>';
-//		echo '<pre>'; print_r($this->arrSelectors); echo '</pre>';
-//		echo '<pre>'; print_r($this->arrRootPalette); echo '</pre>';
-//		echo '<pre>'; print_r($this->arrSubpalettes); echo '</pre>';
-//		exit;
-
+		$objPaletteBuilder = new PaletteBuilder($this);
+		
 		if($intID && $strSelector) {
-			if(is_array($arrSubpalette = $this->arrSubpalettes[$strSelector]))
-				return '<div id="sub_' . $strSelector . '_' . $intID . '">' . $this->generatePalette($arrSubpalette) . '</div>';
-			return '';
+			return $objPaletteBuilder->generateAjaxPalette(
+				$strSelector,
+				$strSelector . '::' . $this->intWidgetID,
+				$this->getTemplate('be_tableextended_field')
+			);
 		}
 		
+		$this->loadDefaultButtons();
+		
 		if($this->blnSubmitted && !$this->noReload) {
-			$this->executeCallbacks($GLOBALS['TL_DCA'][$this->strTable]['config']['onsubmit_callback'], $this);
+			$this->executeCallbacks($this->arrDCA['config']['onsubmit_callback'], $this);
 
 			// Save the current version
 			if($this->blnCreateNewVersion && !$this->blnAutoSubmitted) {
@@ -444,68 +394,26 @@ class DC_TableExtended extends DC_Table {
 			}
 
 			// Set the current timestamp (-> DO NOT CHANGE THE ORDER version - timestamp)
-			$this->Database->prepare(
-				'UPDATE ' . $this->strTable . ' SET tstamp = ? WHERE id = ?'
-			)->execute(time(), $this->intId);
+			$this->updateTimestamp();
 
 			$_SESSION['TL_INFO'] = '';
 			$_SESSION['TL_ERROR'] = '';
 			$_SESSION['TL_CONFIRM'] = '';
 
-			setcookie('BE_PAGE_OFFSET', 0, 0, '/');
-			
-			if(isset($_POST['saveNclose']))
-				$this->redirect($this->getReferer());
-
-			elseif(isset($_POST['saveNedit'])) {
-				$strUrl = $this->addToUrl($GLOBALS['TL_DCA'][$this->strTable]['list']['operations']['edit']['href']);
-
-				$strUrl = preg_replace('/(&amp;)?s2e=[^&]*/i', '', $strUrl);
-				$strUrl = preg_replace('/(&amp;)?act=[^&]*/i', '', $strUrl);
-
-				$this->redirect($strUrl);
-			}
-
-			elseif(isset($_POST['saveNback'])) {
-				if($this->ptable == '')
-					$this->redirect($this->Environment->script . '?do=' . $this->Input->get('do'));
-				
-				elseif($this->ptable == 'tl_theme' && $this->strTable == 'tl_style_sheet') // TODO: try to abstract this
-					$this->redirect($this->getReferer(false, $this->strTable));
-				
-				else
-					$this->redirect($this->getReferer(false, $this->ptable));
-			}
-
-			elseif(isset($_POST['saveNcreate'])) {
-				$strUrl = $this->Environment->script . '?do=' . $this->Input->get('do');
-
-				if(isset($_GET['table']))
-					$strUrl .= '&amp;table=' . $this->Input->get('table');
-
-				if($this->treeView)
-					$strUrl .= '&amp;act=create&amp;mode=1&amp;pid=' . $this->intId;
-
-				// Parent view
-				elseif($GLOBALS['TL_DCA'][$this->strTable]['list']['sorting']['mode'] == 4)
-					$strUrl .= $this->Database->fieldExists('sorting', $this->strTable) ? '&amp;act=create&amp;mode=1&amp;pid=' . $this->intId . '&amp;id=' . $this->activeRecord->pid : '&amp;act=create&amp;mode=2&amp;pid=' . $this->activeRecord->pid;
-				
-				// List view
-				else
-					$strUrl .= strlen($this->ptable) ? '&amp;act=create&amp;mode=2&amp;pid=' . CURRENT_ID : '&amp;act=create';
-
-				$this->redirect($strUrl);
+			foreach($this->getButtonsDefinition() as $strButtonKey => $arrCallback) {
+				if(isset($_POST[$strButtonKey])) {
+					$this->import($arrCallback[0]);
+					$this->{$arrCallback[0]}->{$arrCallback[1]}($this);
+				}
 			}
 			
 			$this->reload();
 		}
 		
-		$this->compileRootPalette($this->arrRootPalette);
-		
 		$objTemplate = new BackendTemplate('be_tableextended_edit');
 		
 		$objTemplate->setData(array(
-			'fieldsets'		=> $this->arrRootPalette,
+			'fieldsets'		=> $objPaletteBuilder->generateFieldsets($this->getTemplate('be_tableextended_field'), $this->arrStates),
 			'oldBE'			=> $GLOBALS['TL_CONFIG']['oldBeTheme'],
 			'versions'		=> $this->getVersions(),
 			'subHeadline'	=> sprintf($GLOBALS['TL_LANG']['MSC']['editRecord'], $this->intId ? 'ID ' . $this->intId : ''),
@@ -513,52 +421,59 @@ class DC_TableExtended extends DC_Table {
 			'enctype'		=> $this->blnUploadable ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
 			'onsubmit'		=> implode(' ', $this->onsubmit),
 			'error'			=> $this->noReload,
-			'createButton'	=> !$GLOBALS['TL_DCA'][$this->strTable]['config']['closed'],
-			'editButton'	=> $this->Input->get('s2e'),
-			'backButton'	=> $GLOBALS['TL_DCA'][$this->strTable]['list']['sorting']['mode'] == 4
-				|| strlen($this->ptable)
-				|| $GLOBALS['TL_DCA'][$this->strTable]['config']['switchToEdit']
+			'buttons'		=> $this->getButtonLabels()
 		));
 		
 		return $objTemplate->parse();
 	}
 	
 	public function editAll($intID = false, $strSelector = false) {
-		$arrIDs = $this->getIDs();
+		$this->strMode = 'editAll';
 		$this->checkEditable();
+		$arrIDs = $this->getIDs();
 		
-		if(!$this->filterFields(true)) // no fields set
+		if(!$this->loadEditableFields(true))
 			return $this->generateFieldsForm();
+		if(!$this->hasEditableFields())
+			return $this->redirect($this->getReferer());
+			
 		if($strSelector && $intID)
 			return isset($arrIDs[$intID]) ? $this->edit($intID, $strSelector) : '';
 			
-		$this->calculateSelectors();
-		$arrRootPalettes = array();
+		$arrPBs = array();
 		foreach($arrIDs as $intID => &$blnCreateNewVersion) {
-			$this->intId = $this->intWidgetID = $intID;
+			$this->intId = $intID;
+			$this->setWidgetID($this->intId);
+			$this->arrWidgets = array();
+			$this->arrProcessed = array();
+			
 			$this->loadActiveRecord();
 			$this->createInitialVersion($this->strTable, $intID);
-			$blnCreateNewVersion = $this->calculatePalettes();
+			$this->blnCreateNewVersion = false;
 			
-			if(count($this->arrRootPalette)) {
-				if($this->objActiveRecord->title)
-					$strTitle = $this->objActiveRecord->title . ' (ID ' . $intID . ')';
-				else
-					$strTitle = 'ID ' . $intID;
+			$objPB = new PaletteBuilder($this);
 			
-				$arrRootPalettes[$intID] = array(
-					'title' => $strTitle,
-					'widgets' => $this->arrWidgets,
-					'palette' => $this->arrRootPalette
-				);
-			}
-		}
+			$blnCreateNewVersion = $this->blnCreateNewVersion;
+			
+			if($objPB->isEmpty())
+				continue;
 
+			$arrPBs[$intID] = array(
+				'title' => $this->objActiveRecord->title
+					? $this->objActiveRecord->title . ' (ID ' . $intID . ')'
+					: 'ID ' . $intID,
+				'widgets'	=> $this->arrWidgets,
+				'pb'		=> $objPB
+			);
+		}
+		
+		$this->loadDefaultButtons();
+		
 		if($this->blnSubmitted && !$this->noReload) {
 			foreach($arrIDs as $intID => $blnCreateNewVersion) {
 				$this->intId = $intID;
 				$this->loadActiveRecord(true); // needed for consistence with onsubmit_callback
-				$this->executeCallbacks($GLOBALS['TL_DCA'][$this->strTable]['config']['onsubmit_callback'], $this);
+				$this->executeCallbacks($this->arrDCA['config']['onsubmit_callback'], $this);
 			
 				// Create a new version
 				if($blnCreateNewVersion && !$this->blnAutoSubmitted) {
@@ -567,67 +482,83 @@ class DC_TableExtended extends DC_Table {
 				}
 
 				// Set current timestamp (-> DO NOT CHANGE ORDER version - timestamp)
-				$this->Database->prepare(
-					'UPDATE ' . $this->strTable . ' SET tstamp = ? WHERE id = ?'
-				)->execute(time(), $intID);
+				$this->updateTimestamp();
 			}
 			
-			// Reload the page to prevent _POST variables from being sent twice
-			if($this->Input->post('saveNclose')) {
-				setcookie('BE_PAGE_OFFSET', 0, 0, '/');
-				$this->redirect($this->getReferer());
+			foreach($this->getButtonsDefinition() as $strButtonKey => $arrCallback) {
+				if(isset($_POST[$strButtonKey])) {
+					$this->import($arrCallback[0]);
+					$this->{$arrCallback[0]}->{$arrCallback[1]}($this);
+				}
 			}
-
+			
 			$this->reload();
 		}
 		
-		foreach($arrRootPalettes as $intID => &$arrRootPalette) {
-			$this->intId = $this->intWidgetID = $intID;
-			$this->loadActiveRecord($this->blnSubmitted); // use cache if form was submitted
-			$this->arrWidgets = $arrRootPalette['widgets'];
-			$this->compileRootPalette($arrRootPalette['palette']);
+		$strTemplate = $this->getTemplate('be_tableextended_field');
+		foreach($arrPBs as $intID => &$arrPalette) {
+			$this->intId = $intID;
+			$this->setWidgetID($this->intId);
+			$this->loadActiveRecord($this->blnSubmitted); // do not use cache if form was submitted
+			$this->arrWidgets = $arrPalette['widgets'];
+			$arrPalette['palette'] = $arrPalette['pb']->generateFieldsets($strTemplate, $this->arrStates);
 		}
 		
 		$objTemplate = new BackendTemplate('be_tableextended_editall');
 		
 		$strTableEsc = specialchars($this->strTable);
 		$objTemplate->setData(array(
-			'rootPalettes' => $arrRootPalettes,
-			'oldBE' => $GLOBALS['TL_CONFIG']['oldBeTheme'],
-			'table' => $this->strTable,
-			'tableEsc' => $strTableEsc,
-			'subHeadline' => sprintf($GLOBALS['TL_LANG']['MSC']['all_info'], $strTableEsc),
-			'action' => ampersand($this->Environment->request, true),
-			'enctype' => $this->blnUploadable ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
-//			'onsubmit' => implode(' ', $this->onsubmit),
-			'error' => $this->noReload
+			'rootPalettes'	=> $arrPBs,
+			'oldBE'			=> $GLOBALS['TL_CONFIG']['oldBeTheme'],
+			'table'			=> $this->strTable,
+			'tableEsc'		=> $strTableEsc,
+			'subHeadline'	=> sprintf($GLOBALS['TL_LANG']['MSC']['all_info'], $strTableEsc),
+			'action'		=> ampersand($this->Environment->request, true),
+			'enctype'		=> $this->blnUploadable ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
+//			'onsubmit'		=> implode(' ', $this->onsubmit),
+			'error'			=> $this->noReload,
+			'buttons'		=> $this->getButtonLabels()
 		));
 		
 		return $objTemplate->parse();
 	}
 	
 	public function overrideAll() {
-		$arrIDs = $this->getIDs($intRootID);
+		$this->strMode = 'overrideAll';
 		$this->checkEditable();
+		$arrIDs = $this->getIDs($intRootID);
 		
-		if(!$this->filterFields(true)) // no fields set
+		if(!$this->loadEditableFields(true))
 			return $this->generateFieldsForm();
-		foreach($this->arrFields as &$arrConfig) {
+		if(!$this->hasEditableFields())
+			return $this->redirect($this->getReferer());
+		
+		foreach(array_keys($this->arrFields) as $strField) {
+			$arrConfig = &$this->arrDCA['fields'][$strField];
 			$arrConfig['update'] = ($arrConfig['inputType'] == 'checkbox' || $arrConfig['inputType'] == 'checkboxWizard')
 					&& $arrConfig['eval']['multiple'];
 			$arrConfig['eval']['alwaysSave'] = true;
 			unset($arrConfig['eval']['submitOnChange']);
+			unset($arrConfig);
 		}
 		
-		$this->intWidgetID = $intRootID;
+		$this->loadDefaultButtons();
+		
+		$this->setWidgetID($intRootID);
 		if($this->blnSubmitted) {
 			end($arrIDs); // traverse array backwards to keep calculated palette of first entry
 			while(null !== ($intID = key($arrIDs))) {
 				$this->intId = $intID;
+				$this->arrWidgets = array();
+				$this->arrProcessed = array();
+			
 				$this->loadActiveRecord();
 				$this->createInitialVersion($this->strTable, $intID);
+				$this->blnCreateNewVersion = false;
 				
-				$arrIDs[$intID] = $this->calculatePalettes();
+				$objPB = new PaletteBuilder($this);
+				
+				$arrIDs[$intID] = $this->blnCreateNewVersion;
 				prev($arrIDs);
 			}
 			
@@ -636,7 +567,7 @@ class DC_TableExtended extends DC_Table {
 					$this->intId = $intID;
 					
 					$this->loadActiveRecord(true); // needed for consistence with onsubmit_callback
-					$this->executeCallbacks($GLOBALS['TL_DCA'][$this->strTable]['config']['onsubmit_callback'], $this);
+					$this->executeCallbacks($this->arrDCA['config']['onsubmit_callback'], $this);
 
 					// Create a new version
 					if($blnCreateNewVersion) {
@@ -645,16 +576,16 @@ class DC_TableExtended extends DC_Table {
 					}
 
 					// Set current timestamp (-> DO NOT CHANGE ORDER version - timestamp)
-					$this->Database->prepare(
-						'UPDATE ' . $this->strTable . ' SET tstamp = ? WHERE id = ?'
-					)->execute(time(), $this->intId);
+					$this->updateTimestamp();
 				}
 				
-				if($this->Input->post('saveNclose')) {
-					setcookie('BE_PAGE_OFFSET', 0, 0, '/');
-					$this->redirect($this->getReferer());
+				foreach($this->getButtonsDefinition() as $strButtonKey => $arrCallback) {
+					if(isset($_POST[$strButtonKey])) {
+						$this->import($arrCallback[0]);
+						$this->{$arrCallback[0]}->{$arrCallback[1]}($this);
+					}
 				}
-
+				
 				$this->reload();
 			}
 		} else {
@@ -663,83 +594,68 @@ class DC_TableExtended extends DC_Table {
 			$this->loadActiveRecord();
 			$this->createInitialVersion($this->strTable, $intRootID);
 			
-			$this->calculatePalettes();
+			$objPB = new PaletteBuilder($this);
 		}
-		
-		$this->compileRootPalette($this->arrRootPalette);
 		
 		$objTemplate = new BackendTemplate('be_tableextended_overrideall');
 		
 		$strTableEsc = specialchars($this->strTable);
 		$objTemplate->setData(array(
-			'fieldsets' => $this->arrRootPalette,
-			'oldBE' => $GLOBALS['TL_CONFIG']['oldBeTheme'],
-			'subHeadline' => sprintf($GLOBALS['TL_LANG']['MSC']['all_info'], $strTableEsc),
-			'table' => $this->strTable,
-			'tableEsc' => $strTableEsc,
-			'action' => ampersand($this->Environment->request, true),
-			'enctype' => $this->blnUploadable ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
-//			'onsubmit' => implode(' ', $this->onsubmit),
-			'error' => $this->noReload
+			'fieldsets'		=> $objPB->generateFieldsets($this->getTemplate('be_tableextended_field'), $this->arrStates),
+			'oldBE'			=> $GLOBALS['TL_CONFIG']['oldBeTheme'],
+			'subHeadline'	=> sprintf($GLOBALS['TL_LANG']['MSC']['all_info'], $strTableEsc),
+			'table'			=> $this->strTable,
+			'tableEsc'		=> $strTableEsc,
+			'action'		=> ampersand($this->Environment->request, true),
+			'enctype'		=> $this->blnUploadable ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
+//			'onsubmit'		=> implode(' ', $this->onsubmit),
+			'error'			=> $this->noReload,
+			'buttons'		=> $this->getButtonLabels()
 		));
 		
 		return $objTemplate->parse();
 	}
 	
-	protected function defaultButtons() {
-		
+	protected function updateTimestamp() {
+		$this->Database->prepare(
+			'UPDATE ' . $this->strTable . ' SET tstamp = ? WHERE id = ?'
+		)->execute(time(), $this->intId);
 	}
 	
-	protected function executeSaveButton() {
-		$this->reload();
+	protected function loadDefaultButtons() {
+		$this->arrDCA['buttons']['save'] = array('TableExtendedButtons', 'save');
+		$this->arrDCA['buttons']['saveNclose'] = array('TableExtendedButtons', 'saveAndClose');
+		
+		if($this->strMode != 'edit')
+			return;
+			
+		if($this->Input->get('s2e'))
+			$this->arrDCA['buttons']['saveNedit'] = array('TableExtendedButtons', 'saveAndEdit');
+		
+		if($this->arrDCA['list']['sorting']['mode'] == 4
+		|| strlen($this->ptable)
+		|| $this->arrDCA['config']['switchToEdit'])
+			$this->arrDCA['buttons']['saveNback'] = array('TableExtendedButtons', 'saveAndBack');
+		
+		if(!$this->arrDCA['config']['closed'])
+			$this->arrDCA['buttons']['saveNcreate'] = array('TableExtendedButtons', 'saveAndCreate');
 	}
 	
-	protected function executeSaveAndCloseButton() {
-		setcookie('BE_PAGE_OFFSET', 0, 0, '/');
-		$this->redirect($this->getReferer());
-	}
-
-	protected function executeSaveAndEditButton() {
-		setcookie('BE_PAGE_OFFSET', 0, 0, '/');
-		$strUrl = $this->addToUrl($GLOBALS['TL_DCA'][$this->strTable]['list']['operations']['edit']['href']);
-
-		$strUrl = preg_replace('/(&amp;)?s2e=[^&]*/i', '', $strUrl);
-		$strUrl = preg_replace('/(&amp;)?act=[^&]*/i', '', $strUrl);
-
-		$this->redirect($strUrl);
-	}
-	
-	protected function executeSaveAndBackButton() {
-		setcookie('BE_PAGE_OFFSET', 0, 0, '/');
-		if($this->ptable == '') {
-			$this->redirect($this->Environment->script . '?do=' . $this->Input->get('do'));
+	protected function getButtonLabels() {
+		$arrButtons = array();
 		
-		} elseif($this->ptable == 'tl_theme' && $this->strTable == 'tl_style_sheet') { // TODO: try to abstract this
-			$this->redirect($this->getReferer(false, $this->strTable));
-		
-		} else {
-			$this->redirect($this->getReferer(false, $this->ptable));
-		}
-	}
-	
-	protected function executeSaveAndCreateButton() {
-		setcookie('BE_PAGE_OFFSET', 0, 0, '/');
-		$strUrl = $this->Environment->script . '?do=' . $this->Input->get('do');
-
-		if(isset($_GET['table']))
-			$strUrl .= '&amp;table=' . $this->Input->get('table');
-
-		if($this->treeView) {
-			$strUrl .= '&amp;act=create&amp;mode=1&amp;pid=' . $this->intId;
-
-		} elseif($GLOBALS['TL_DCA'][$this->strTable]['list']['sorting']['mode'] == 4) { // Parent view
-			$strUrl .= $this->Database->fieldExists('sorting', $this->strTable) ? '&amp;act=create&amp;mode=1&amp;pid=' . $this->intId . '&amp;id=' . $this->activeRecord->pid : '&amp;act=create&amp;mode=2&amp;pid=' . $this->activeRecord->pid;
-		
-		} else { // List view
-			$strUrl .= strlen($this->ptable) ? '&amp;act=create&amp;mode=2&amp;pid=' . CURRENT_ID : '&amp;act=create';
+		foreach(array_keys($this->getButtonsDefinition()) as $strButton) {
+			if(isset($GLOBALS['TL_LANG'][$this->strTable][$strButton])) {
+				$strLabel = $GLOBALS['TL_LANG'][$this->strTable][$strButton];
+			} elseif(isset($GLOBALS['TL_LANG']['MSC'][$strButton])) {
+				$strLabel = $GLOBALS['TL_LANG']['MSC'][$strButton];
+			} else {
+				$strLabel = $strButton;
+			}
+			$arrButtons[$strButton] = $strLabel;
 		}
 		
-		$this->redirect($strUrl);
+		return $arrButtons;
 	}
 	
 	// get current IDs from session
@@ -756,7 +672,8 @@ class DC_TableExtended extends DC_Table {
 	
 	protected function generateFieldsForm() {
 		$arrFields = array();
-		foreach($this->arrFields as $strField => $arrConfig) {
+		foreach(array_keys($this->arrFields) as $strField) {
+			$arrConfig = $this->getFieldDefinition($strField);
 			$strField = specialchars($strField);
 			$arrFields[$strField] = $arrConfig['label'][0]
 				? $arrConfig['label'][0]
@@ -776,32 +693,11 @@ class DC_TableExtended extends DC_Table {
 		return $objTemplate->parse();
 	}
 	
-	protected function filterFields($blnUserSelection = false) {
-		if(isset($this->arrFields))
-			return count($this->arrFields);
-			
-		$arrFields = $GLOBALS['TL_DCA'][$this->strTable]['fields'];
-		
-		if($this->User->isAdmin) {
-			if(!isset($arrFields['sorting']) && $this->Database->fieldExists('sorting', $this->strTable))
-				$arrFields['sorting'] = array(
-					'label'		=> &$GLOBALS['TL_LANG']['MSC']['sorting'],
-					'inputType'	=> 'text',
-					'eval'		=> array('rgxp' => 'digit')
-				);
-	
-			if(!isset($arrFields['pid']) && $this->Database->fieldExists('pid', $this->strTable))
-				$arrFields['pid'] = array(
-					'label'		=> &$GLOBALS['TL_LANG']['MSC']['pid'],
-					'inputType'	=> 'text',
-					'eval'		=> array('rgxp'=>'digit')
-				);
-		}
-		
-		$this->arrFields = array_filter($arrFields, create_function('$arr', 'return !$arr[\'exclude\'];'));
+	protected function loadEditableFields($blnUserSelection = false) {
+		$this->arrFields = array_flip(array_keys(array_filter($this->arrDCA['fields'], create_function('$arr', 'return !$arr[\'exclude\'];'))));
 		
 		if(!$blnUserSelection)
-			return count($this->arrFields);
+			return true;
 			
 		if(!$this->Input->get('fields'))
 			return false;
@@ -818,18 +714,36 @@ class DC_TableExtended extends DC_Table {
 		
 		$this->arrFields = array_intersect_key($this->arrFields, array_flip($arrSession['CURRENT'][$this->strTable]));
 
-		return count($this->arrFields);
+		return true;
 	}
 	
-	protected function loadActiveRecord($blnUseCache = false) {
-		$strMethod = $blnUseCache ? 'executeUncached' : 'execute';
+	protected function addAdminFields() {
+		if(!$this->User->isAdmin)
+			return;
+		
+		if(!isset($this->arrDCA['fields']['sorting']) && $this->Database->fieldExists('sorting', $this->strTable)) {
+			$this->arrDCA['fields']['sorting'] = array(
+				'label'		=> &$GLOBALS['TL_LANG']['MSC']['sorting'],
+				'inputType'	=> 'text',
+				'eval'		=> array('rgxp' => 'digit')
+			);
+		}
+
+		if(!isset($this->arrDCA['fields']['pid']) && $this->Database->fieldExists('pid', $this->strTable)) {
+			$this->arrDCA['fields']['pid'] = array(
+				'label'		=> &$GLOBALS['TL_LANG']['MSC']['pid'],
+				'inputType'	=> 'text',
+				'eval'		=> array('rgxp'=>'digit')
+			);
+		}
+	}
+	
+	protected function loadActiveRecord($blnDontUseCache = false) {
+		$strMethod = $blnDontUseCache ? 'executeUncached' : 'execute';
 		$objRow = $this->Database->prepare('
-			SELECT
-				*
-			FROM
-				' . $this->strTable . '
-			WHERE
-				id = ?
+			SELECT	*
+			FROM	' . $this->strTable . '
+			WHERE	id = ?
 		')->limit(1)->$strMethod($this->intId);
 
 		if($objRow->numRows)
@@ -840,7 +754,7 @@ class DC_TableExtended extends DC_Table {
 	}
 	
 	protected function checkVersion() {
-		if(!$GLOBALS['TL_DCA'][$this->strTable]['config']['enableVersioning'])
+		if(!$this->arrDCA['config']['enableVersioning'])
 			return;
 		
 		if(!$this->Input->post('FORM_SUBMIT') == 'tl_version')
@@ -858,16 +772,11 @@ class DC_TableExtended extends DC_Table {
 	protected function setVersion($strVersion) {
 		
 		$objData = $this->Database->prepare('
-			SELECT
-				*
-			FROM
-				tl_version
-			WHERE
-				fromTable = ?
-			AND
-				pid = ?
-			AND
-				version = ?
+			SELECT	*
+			FROM	tl_version
+			WHERE	fromTable = ?
+			AND		pid = ?
+			AND		version = ?
 		')->limit(1)->execute($this->strTable, $this->intId, $strVersion);
 
 		if(!$objData->numRows)
@@ -885,7 +794,7 @@ class DC_TableExtended extends DC_Table {
 		$this->log(sprintf('Version %s of record ID %s (table %s) has been restored', $strVersion, $this->intId, $this->strTable), 'DC_Table edit()', TL_GENERAL);
 
 		$this->executeCallbacks(
-			$GLOBALS['TL_DCA'][$this->strTable]['config']['onrestore_callback'],
+			$this->arrDCA['config']['onrestore_callback'],
 			$this->intId,
 			$this->strTable,
 			$arrData,
@@ -894,29 +803,21 @@ class DC_TableExtended extends DC_Table {
 	}
 	
 	protected function getVersions() {
-		if(!$GLOBALS['TL_DCA'][$this->strTable]['config']['enableVersioning'])
+		if(!$this->arrDCA['config']['enableVersioning'])
 			return;
 			
 		$objVersion = $this->Database->prepare('
-			SELECT
-				tstamp,
-				version,
-				username,
-				active
-			FROM
-				tl_version
-			WHERE
-				fromTable = ?
-			AND
-				pid = ?
-			ORDER BY
-				version DESC
+			SELECT	tstamp, version, username, active
+			FROM	tl_version
+			WHERE	fromTable = ?
+			AND		pid = ?
+			ORDER BY version DESC
 		')->execute($this->strTable, $this->intId);
 
 		if(!$objVersion->numRows)
 			return;
 		
-		return $objVersion;
+		return $objVersion->fetchAllAssoc();
 	}
 	
 	public function checkEditable() {
@@ -928,177 +829,39 @@ class DC_TableExtended extends DC_Table {
 	}
 	
 	public function isEditable() {
-		return !$GLOBALS['TL_DCA'][$this->strTable]['config']['notEditable'];
+		return !$this->arrDCA['config']['notEditable'];
 	}
 	
-	// calculates all fields which could have a subpalette
-	protected function calculateSelectors() {
-		if(isset($this->arrSelectors))
-			return;
-		$this->arrSelectors = array();
-		
-		if($arrSubpalettes = $GLOBALS['TL_DCA'][$this->strTable]['subpalettes'])
-			$this->calculateSelectorsHelper($arrSubpalettes);
+	public function hasEditableFields() {
+		return count($this->arrFields) != 0;
 	}
 	
-	private function calculateSelectorsHelper($arrSubpalettes) {
-		if(!$arrSubpalettes)
-			return;
-			
-		foreach($arrSubpalettes as $strField => $varSubpalette) {
-			if(isset($this->arrFields[$strField]))
-				$this->arrSelectors[$strField] = true; // mark field
-			if(!is_array($varSubpalette))
-				continue;
-				
-			foreach($varSubpalette as $arrNested)
-				if(is_array($arrNested))
-					$this->calculateSelectorsHelper($arrNested['subpalettes']);
-		}
+	public function isEditableField($strField) {
+		return isset($this->arrFields[$strField]);
 	}
 	
-	protected function calculatePalettes() {
-		$this->arrSubpalettes = array();
-		$this->arrRootPalette = array();
-		$this->arrProcessed = array();
-		$this->arrWidgets = array();
-		$this->blnCreateNewVersion = false;
-		
-		$arrStack = count($GLOBALS['TL_DCA'][$this->strTable]['subpalettes'])
-			? array($GLOBALS['TL_DCA'][$this->strTable]['subpalettes'])
-			: array();
-		
-		foreach(trimsplit(';', $this->selectRootPalette()) as $strPalette) {
-			if($strPalette[0] == '{')
-				list($strLegend, $strPalette) = explode(',', $strPalette, 2);
-				
-			$arrPalette = array();
-			$this->parsePalette($strPalette, $arrPalette, $arrStack);
-			
-			if($arrPalette) {
-				$this->arrRootPalette[] = array(
-					'legend' => $strLegend,
-					'palette' => $arrPalette
-				);
-			}
-		}
-		
-		return $this->blnCreateNewVersion;
+	public function getSubpalettesDefinition() {
+		return is_array($this->arrDCA['subpalettes']) ? $this->arrDCA['subpalettes'] : array();
 	}
 	
-	/**
-	 * @param unknown_type $strPalette
-	 * 		the palette string to parse
-	 * @param array $arrPalette
-	 * 		the field stack of the current palette (to inline subpalettes with uneditable selector)
-	 * @param array $arrStack
-	 * 		the context stack of subpalettes
-	 * @return string|string
-	 */
-	protected function parsePalette($strPalette, array &$arrPalette, array &$arrStack) {		
-		if(!$strPalette)
-			return;
-		$intSize = count($arrStack);
-		
-		foreach(trimsplit(',', $strPalette) as $strField) {
-			if(!$strField)
-				continue;
-			
-			if(isset($this->arrFields[$strField])) {
-				$this->processInput($strField);
-				$arrPalette[] = $strField;
-				$arrSubpalette = array();
-				$this->parsePalette($this->getSubpalette($strField, $arrStack), $arrSubpalette, $arrStack);
-				if($arrSubpalette) {
-					$arrPalette[] = &$arrSubpalette;
-					if($this->arrSubpalettes[$strField])
-						$this->arrSubpalettes[$strField] = &$arrSubpalette;
-					unset($arrSubpalette);
-				}
-			} else // selector field not editable, inline editable fields of active subpalette
-				$this->parsePalette($this->getSubpalette($strField, $arrStack), $arrPalette, $arrStack);
-			
-			if($intSize !== count($arrStack))
-				array_pop($arrStack);
-		}
+	public function getPalettesDefinition() {
+		return is_array($this->arrDCA['palettes']) ? $this->arrDCA['palettes'] : array();
 	}
 	
-	/**
-	 * @param unknown_type $strField
-	 * 		the selector of the subpalette in question
-	 * @param array $arrPalette
-	 * 		an existing field stack
-	 * @param array $arrStack
-	 * 		context stack of subpalettes
-	 */
-	protected function getSubpalette($strField, array &$arrStack) {
-		if($this->arrSubpalettes[$strField]) {
-			if($GLOBALS['TL_CONFIG']['debugMode'])
-				throw new Exception("[DCA Config Error] Recursive subpalette detected. Involved field: [$strField]");
-			return;
-		}
-		
-		for($i = count($arrStack) - 1; $i > -1; $i--) {
-			$varSubpalette = $arrStack[$i][$strField];
-			
-			// switch by selector value
-			if(isset($varSubpalette)) {
-				$this->arrSubpalettes[$strField] = true; // mark for dynamic reload
-				if(is_array($varSubpalette))
-					$varSubpalette = $varSubpalette[$this->objActiveRecord->$strField];
-				elseif($this->objActiveRecord->$strField) // old style
-					return $varSubpalette;
-				else
-					continue;
-			} else {
-				$varSubpalette = $arrStack[$i][$strField . '_' . $this->objActiveRecord->$strField];
-			}
-			
-			if(is_string($varSubpalette)) { // simple subpalette
-				return $varSubpalette;
-			} elseif(is_array($varSubpalette)) {
-				if(is_array($varSubpalette['subpalettes']))
-					$arrStack[] = $varSubpalette['subpalettes'];
-				return $varSubpalette['palette'];
-			}
-		}
+	public function getButtonsDefinition() {
+		return is_array($this->arrDCA['buttons']) ? $this->arrDCA['buttons'] : array();
 	}
-
-	protected function selectRootPalette() {
-		$arrPalettes = $GLOBALS['TL_DCA'][$this->strTable]['palettes'];
-		$arrSelectors = $arrPalettes['__selector__'];
-		
-		if(!$arrSelectors)
-			return $arrPalettes['default'];
-		
-		$arrKeys = array();
-		foreach($arrSelectors as $strSelector) {
-			$this->processInput($strSelector);
-			$varValue = $this->objActiveRecord->$strSelector;
-			
-			if(!strlen($varValue))
-				continue;
-			
-			// !!! DO NOT USE $this->arrFields, it could be an excluded or unselected field
-			if($GLOBALS['TL_DCA'][$this->strTable]['fields'][$strSelector]['inputType'] == 'checkbox'
-			&& !$GLOBALS['TL_DCA'][$this->strTable]['fields'][$strSelector]['eval']['multiple'])
-				$arrKeys[] = $strSelector;
-			else
-				$arrKeys[] = $varValue;
-		}
-
-		// Build possible palette names from the selector values
-		if(!$arrKeys)
-			return $arrPalettes['default'];
-		elseif(count($arrKeys) > 1)
-			$arrKeys = $this->combiner($arrKeys);
-			
-		// Get an existing palette
-		foreach($arrKeys as $strKey)
-			if(strlen($arrPalettes[$strKey]))
-				return $arrPalettes[$strKey];
-		
-		return $arrPalettes['default'];
+	
+	public function getFieldDefinition($strField) {
+		return is_array($this->arrDCA['fields'][$strField]) ? $this->arrDCA['fields'][$strField] : null;
+	}
+	
+	public function getValue($strField) {
+//		echo " field: $strField";
+//		var_dump($this->objActiveRecord->$strField);
+		$this->processInput($strField);
+//		var_dump($this->objActiveRecord->$strField);
+		return $this->objActiveRecord->$strField;
 	}
 		
 	protected function executeCallbacks($varCallbacks) {
@@ -1120,11 +883,5 @@ class DC_TableExtended extends DC_Table {
 		}
 		return $arrResults;
 	}
-	
-//	public function isValidOption($strField, $strKey) {
-//		$this->createWidgets(array($strField));
-//		return !isset($this->arrWidgetConfigs[$strField]['options'])
-//			|| isset($this->arrWidgetConfigs[$strField]['options'][$strKey]);
-//	}
 	
 }
