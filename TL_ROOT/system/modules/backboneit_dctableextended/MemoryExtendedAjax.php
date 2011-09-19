@@ -1,10 +1,10 @@
 <?php
 
-class TableExtendedAjax extends Backend {
+class MemoryExtendedAjax extends Backend {
 	
-	public function executePostActions($strAction, $objDC) {
+	public function hookExecutePostActions($strAction, $objDC) {
 		if($strAction != 'toggleSubpaletteExtended'
-		|| !$objDC instanceof DC_TableExtended)
+		|| !$objDC instanceof DC_MemoryExtended)
 			return;
 		
 		$strMethod = $this->Input->get('act') == 'editAll' ? 'editAll' : 'edit';

@@ -256,7 +256,7 @@ class DC_TableExtended extends DC_MemoryExtended implements listable {
 	protected function storeValue($varNew) {
 		$objUpdateStmt = $this->Database->prepare(
 			'UPDATE ' . $this->strTable . ' SET ' . $this->strField . ' = ? WHERE id = ?'
-		)->execute($varNew, $this->intId);
+		)->execute(array($varNew, $this->intId));
 		return $objUpdateStmt->affectedRows;
 	}
 	

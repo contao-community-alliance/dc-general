@@ -3,7 +3,7 @@
 <form action="<?php echo ampersand($this->Environment->request, true); ?>" id="tl_version" class="tl_form" method="post">
 <div class="tl_formbody">
 <input type="hidden" name="FORM_SUBMIT" value="tl_version" />
-<input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>" />
+<input type="hidden" name="FORM_LEASE" value="<?php echo specialchars($this->lease); ?>" />
 <select name="version" class="tl_select">
 <?php foreach($this->versions as $arrVersion): ?>
 	<option value="<?php echo $arrVersion['version']; ?>"<?php if($arrVersion['active']): ?> selected="selected"<?php endif; ?>>
@@ -29,7 +29,7 @@
   <?php if($this->onsubmit): ?> onsubmit="<?php echo $this->onsubmit; ?>"<?php endif; ?>>
 <div class="tl_formbody_edit">
 <input type="hidden" name="FORM_SUBMIT" value="<?php echo specialchars($this->table); ?>" />
-<input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>" />
+<input type="hidden" name="FORM_LEASE" value="<?php echo specialchars($this->lease); ?>" />
 <?php if($this->error): ?>
   <p class="tl_error"><?php echo $GLOBALS['TL_LANG']['ERR']['general']; ?></p>
   <script type="text/javascript">

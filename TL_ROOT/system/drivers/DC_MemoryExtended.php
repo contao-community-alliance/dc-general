@@ -5,6 +5,7 @@ class DC_MemoryExtended extends DataContainer implements editable {
 	protected $arrDCA; // the DCA of this table
 	protected $blnSubmitted;
 	protected $blnAutoSubmitted;
+	protected $strLease; // the form lease id
 	protected $arrStates; // field set states
 	protected $arrInputs; // set: fields submitted
 	
@@ -38,6 +39,7 @@ class DC_MemoryExtended extends DataContainer implements editable {
 		$this->import('BackendUser', 'User');
 		$this->blnSubmitted		= $_POST['FORM_SUBMIT'] == $this->strTable;
 		$this->blnAutoSubmitted	= $_POST['SUBMIT_TYPE'] == 'auto';
+		$this->strLease			= $_POST['FORM_LEASE'] ? $this->Input->post('FORM_LEASE') : md5(mt_rand());
 		$this->arrInputs		= $_POST['FORM_INPUTS'] ? array_flip($this->Input->post('FORM_INPUTS')) : array();
 		$this->arrStates		= $this->Session->get('fieldset_states');
 		$this->arrStates		= (array) $this->arrStates[$this->strTable];
@@ -51,6 +53,18 @@ class DC_MemoryExtended extends DataContainer implements editable {
 	
 	public function __get($strKey) {
 		switch($strKey) {
+			case 'submitted':
+				return $this->blnSubmitted;
+				break;
+				
+			case 'autoSubmitted':
+				return $this->blnAutoSubmitted;
+				break;
+				
+			case 'lease':
+				return $this->strLease;
+				break;
+				
 			case 'createNewVersion':
 				return $this->blnCreateNewVersion;
 				break;
@@ -130,6 +144,7 @@ class DC_MemoryExtended extends DataContainer implements editable {
 			'versions'		=> $this->getVersions(),
 			'subHeadline'	=> sprintf($GLOBALS['TL_LANG']['MSC']['editRecord'], $this->intId ? 'ID ' . $this->intId : ''),
 			'table'			=> $this->strTable,
+			'lease'			=> $this->strLease,
 			'enctype'		=> $this->blnUploadable ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
 			'onsubmit'		=> implode(' ', $this->onsubmit),
 			'error'			=> $this->noReload,
@@ -176,10 +191,7 @@ class DC_MemoryExtended extends DataContainer implements editable {
 	}
 	
 	public function getValue($strField) {
-//		echo " field: $strField";
-//		var_dump($this->objActiveRecord->$strField);
 		$this->processInput($strField);
-//		var_dump($this->objActiveRecord->$strField);
 		return $this->objActiveRecord->$strField;
 	}
 	
@@ -520,21 +532,43 @@ class DC_MemoryExtended extends DataContainer implements editable {
 	}
 	
 	protected function loadActiveRecord($blnDontUseCache = false) {
+		if(!$this->arrDCA['config']['disableSessionStorage']) {
+			$arrRecords = $this->Session->get(__CLASS__); // simple move-to-front cache
+			$arrRecords || $arrRecords = array();
+			$strKey = $this->strTable . '$' . $this->strLease;
+			if(isset($arrRecords[$strKey])) {
+				$this->objActiveRecord = $arrRecords[$strKey];
+				unset($arrRecords[$strKey]);
+				$arrRecords[$strKey] = $this->objActiveRecord;
+			} else {
+				$this->objActiveRecord = $this->getDefaultRecord();
+				$arrRecords[$strKey] = $this->objActiveRecord;
+				count($arrRecords) > 10 && array_pop($arrRecords);
+			}
+			$this->Session->set(__CLASS__, $arrRecords);
+		} else {
+			$this->objActiveRecord = $this->getDefaultRecord();
+		}
+		
 		$arrCB = $this->arrDCA['config']['loadActiveRecord'];
-		if(!$arrCB) {
-			$this->objActiveRecord = new stdClass();
-			return $this->objActiveRecord;
+		if($arrCB) {
+			$this->import($arrCB[0]);
+			$this->objActiveRecord = (object) $this->{$arrCB[0]}->{$arrCB[1]}($this, $blnDontUseCache);
+		
+//			if(!is_object($this->objActiveRecord)) {
+//				$this->log('Could not load record ID "' . $this->intId . '" of table "' . $this->strTable . '"!', 'DC_TableExtended::loadActiveRecord()', TL_ERROR);
+//				$this->redirect('contao/main.php?act=error');
+//			}
 		}
-		
-		$this->import($arrCB[0]);
-		$this->objActiveRecord = (object) $this->{$arrCB[0]}->{$arrCB[1]}($this, $blnDontUseCache);
-		
-		if(!is_array($this->objActiveRecord)) {
-			$this->log('Could not load record ID "' . $this->intId . '" of table "' . $this->strTable . '"!', 'DC_TableExtended::loadActiveRecord()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+	}
+	
+	public function getDefaultRecord() {
+		$objRecord = new stdClass();
+		foreach(array_keys($this->arrFields) as $strField) {
+			$arrConfig = $this->getFieldDefinition($strField);
+			isset($arrConfig['default']) && $objRecord->$strField = $arrConfig['default'];
 		}
-		
-		return $this->objActiveRecord;
+		return $objRecord;
 	}
 	
 	protected function loadDefaultButtons() {
@@ -571,7 +605,7 @@ class DC_MemoryExtended extends DataContainer implements editable {
 		if(!$this->getSubpalettesDefinition())
 			return;
 
-		foreach($this->arrFields as $strField) {
+		foreach(array_keys($this->arrFields) as $strField) {
 			$arrConfig = $this->getFieldDefinition($strField);
 			if(!isset($arrConfig['eval']['rte']))
 				continue;
