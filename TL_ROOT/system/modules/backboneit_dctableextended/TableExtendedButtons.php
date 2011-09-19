@@ -6,18 +6,9 @@ class TableExtendedButtons extends Backend {
 		parent::__construct();
 	}
 
-	public function save(DC_TableExtended $objDC) {
-		$this->reload();
-	}
-	
-	public function saveAndClose(DC_TableExtended $objDC) {
-		setcookie('BE_PAGE_OFFSET', 0, 0, '/');
-		$this->redirect($this->getReferer());
-	}
-
 	public function saveAndEdit(DC_TableExtended $objDC) {
 		setcookie('BE_PAGE_OFFSET', 0, 0, '/');
-		$strUrl = $this->addToUrl($objDC->arrDCA['list']['operations']['edit']['href']);
+		$strUrl = $this->addToUrl($objDC->dca['list']['operations']['edit']['href']);
 
 		$strUrl = preg_replace('/(&amp;)?s2e=[^&]*/i', '', $strUrl);
 		$strUrl = preg_replace('/(&amp;)?act=[^&]*/i', '', $strUrl);
@@ -30,7 +21,8 @@ class TableExtendedButtons extends Backend {
 		if($objDC->parentTable == '') {
 			$this->redirect($this->Environment->script . '?do=' . $this->Input->get('do'));
 		
-		} elseif($objDC->parentTable == 'tl_theme' && $objDC->table == 'tl_style_sheet') { // TODO: try to abstract this
+		} elseif(($objDC->parentTable == 'tl_theme' && $objDC->table == 'tl_style_sheet')
+		|| ($objDC->parentTable == 'tl_page' && $objDC->table == 'tl_article')) { // TODO: try to abstract this
 			$this->redirect($this->getReferer(false, $objDC->table));
 		
 		} else {
@@ -48,7 +40,7 @@ class TableExtendedButtons extends Backend {
 		if($objDC->treeView) {
 			$strUrl .= '&amp;act=create&amp;mode=1&amp;pid=' . $objDC->id;
 
-		} elseif($objDC->arrDCA['list']['sorting']['mode'] == 4) { // Parent view
+		} elseif($objDC->dca['list']['sorting']['mode'] == 4) { // Parent view
 			$strUrl .= $this->Database->fieldExists('sorting', $objDC->table)
 				? '&amp;act=create&amp;mode=1&amp;pid=' . $objDC->id . '&amp;id=' . $objDC->activeRecord->pid
 				: '&amp;act=create&amp;mode=2&amp;pid=' . $objDC->activeRecord->pid;

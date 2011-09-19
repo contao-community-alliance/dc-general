@@ -1,6 +1,6 @@
 <?php
 
-class PaletteBuilder {
+class PaletteBuilder extends Controller {
 
 	protected $objDC;
 	
@@ -12,7 +12,8 @@ class PaletteBuilder {
 	
 	protected $arrStack = array();
 	
-	public function __construct(DC_TableExtended $objDC) {
+	public function __construct(DC_MemoryExtended $objDC) {
+		parent::__construct();
 		$this->objDC = $objDC;
 		$this->arrStack[] = $objDC->getSubpalettesDefinition(); 
 		$this->calculateSelectors($this->arrStack[0]);
@@ -106,6 +107,11 @@ class PaletteBuilder {
 				$strDatepicker = $arrConfig['eval']['datepicker'] ? sprintf($arrConfig['eval']['datepicker'], 'ctrl_' . specialchars($objWidget->id)) : null;
 		
 				include($strFieldTemplate);
+				
+				if(strncmp($arrConfig['eval']['rte'], 'tiny', 4) === 0
+				&& (version_compare(VERSION, '2.10', '>=') || $this->Input->post('isAjax'))) {
+					echo '<script>tinyMCE.execCommand("mceAddControl", false, "ctrl_' . $strName . '");</script>';
+				}
 			}
 		}
 		return ob_get_clean();
