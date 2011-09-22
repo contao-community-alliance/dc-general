@@ -36,7 +36,7 @@ class DC_TableExtended extends DC_MemoryExtended implements listable {
 	
 	public function edit($intID = null, $strSelector = null) {
 		$this->strMode = 'edit';
-		return parent::edit($intID, $strSelector);
+		return $this->generateEdit($intID, $strSelector);
 	}
 	
 	public function editAll($intID = false, $strSelector = false) {

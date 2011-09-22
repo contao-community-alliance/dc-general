@@ -19,7 +19,6 @@ BBIT.TableExtended = new Class({
 	
 	initialize: function(form) {
 		this.table = form.getElement("input[name=FORM_SUBMIT]").get("value");
-		this.lease = form.getElement("input[name=FORM_LEASE]").get("value");
 		if(!this.table) return undef;
 		
 		var self = this, req, fsReq, toggle, script, fieldset;
@@ -44,7 +43,6 @@ BBIT.TableExtended = new Class({
 					REQUEST_TOKEN: REQUEST_TOKEN,
 					action: "toggleSubpaletteExtended",
 					FORM_SUBMIT: self.table,
-					FORM_LEASE: self.lease,
 					id: id
 				},
 				value.parseQueryString()

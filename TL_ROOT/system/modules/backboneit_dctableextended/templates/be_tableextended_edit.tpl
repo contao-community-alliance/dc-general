@@ -29,7 +29,6 @@
   <?php if($this->onsubmit): ?> onsubmit="<?php echo $this->onsubmit; ?>"<?php endif; ?>>
 <div class="tl_formbody_edit">
 <input type="hidden" name="FORM_SUBMIT" value="<?php echo specialchars($this->table); ?>" />
-<input type="hidden" name="FORM_LEASE" value="<?php echo specialchars($this->lease); ?>" />
 <?php if($this->error): ?>
   <p class="tl_error"><?php echo $GLOBALS['TL_LANG']['ERR']['general']; ?></p>
   <script type="text/javascript">

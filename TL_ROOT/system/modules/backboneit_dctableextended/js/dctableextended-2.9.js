@@ -19,7 +19,6 @@ if(!$try(function() { return BBIT; })) BBIT = {};
 		
 		initialize: function(form) {
 			this.table = form.getElement("input[name=FORM_SUBMIT]").get("value");
-			this.lease = form.getElement("input[name=FORM_LEASE]").get("value");
 			if(!this.table) return null;
 			
 			var self = this, req, fsReq, toggle, script, fieldset;
@@ -38,7 +37,7 @@ if(!$try(function() { return BBIT; })) BBIT = {};
 				if(event = $("sub_" + id))
 					event.destroy();
 
-				req.send('FORM_SUBMIT=' + self.table + '&FORM_LEASE=' + self.lease + '&isAjax=1&action=toggleSubpaletteExtended&id=' + id + '&' + value);
+				req.send('FORM_SUBMIT=' + self.table + '&isAjax=1&action=toggleSubpaletteExtended&id=' + id + '&' + value);
 			};
 			
 			req = new Request({

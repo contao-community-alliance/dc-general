@@ -5,7 +5,8 @@ class DC_MemoryExtended extends DataContainer implements editable {
 	protected $arrDCA; // the DCA of this table
 	protected $blnSubmitted;
 	protected $blnAutoSubmitted;
-	protected $strLease; // the form lease id
+	protected $strLease; // the form lease
+	protected $blnIsNewLease; // if this is a new form
 	protected $arrStates; // field set states
 	protected $arrInputs; // set: fields submitted
 	
@@ -35,11 +36,12 @@ class DC_MemoryExtended extends DataContainer implements editable {
 			trigger_error('Could not load data container configuration', E_USER_ERROR);
 		}
 		
+		$this->getLease();
+		
 //		$this->import('Encryption');
 		$this->import('BackendUser', 'User');
 		$this->blnSubmitted		= $_POST['FORM_SUBMIT'] == $this->strTable;
 		$this->blnAutoSubmitted	= $_POST['SUBMIT_TYPE'] == 'auto';
-		$this->strLease			= $_POST['FORM_LEASE'] ? $this->Input->post('FORM_LEASE') : md5(mt_rand());
 		$this->arrInputs		= $_POST['FORM_INPUTS'] ? array_flip($this->Input->post('FORM_INPUTS')) : array();
 		$this->arrStates		= $this->Session->get('fieldset_states');
 		$this->arrStates		= (array) $this->arrStates[$this->strTable];
@@ -61,10 +63,6 @@ class DC_MemoryExtended extends DataContainer implements editable {
 				return $this->blnAutoSubmitted;
 				break;
 				
-			case 'lease':
-				return $this->strLease;
-				break;
-				
 			case 'createNewVersion':
 				return $this->blnCreateNewVersion;
 				break;
@@ -80,6 +78,11 @@ class DC_MemoryExtended extends DataContainer implements editable {
 	}
 	
 	public function edit($intID = null, $strSelector = null) {
+		$this->isNewLease() && $this->redirect($this->addToUrl('lease=' . $this->getLease()));
+		return $this->generateEdit($intID, $strSelector);
+	}
+	
+	public function generateEdit($intID = null, $strSelector = null) {
 		$this->checkEditable();
 		
 		$intID && $this->intId = $intID;
@@ -174,6 +177,10 @@ class DC_MemoryExtended extends DataContainer implements editable {
 	
 	public function isEditableField($strField) {
 		return isset($this->arrFields[$strField]);
+	}
+	
+	public function &getDCAReference() {
+		return $this->arrDCA;
 	}
 	
 	public function getSubpalettesDefinition() {
@@ -533,24 +540,51 @@ class DC_MemoryExtended extends DataContainer implements editable {
 		return true;
 	}
 	
-	public function getSessionRecordKey() {
-		return $this->strTable . '$' . $this->strLease;
+	public function isNewLease() {
+		return $this->blnIsNewLease;
 	}
 	
-	public function getSessionRecord($blnMoveToFront = false) {
+	public function getLease() {
+		if(isset($this->strLease))
+			return $this->strLease;
+		if(isset($_GET['lease']))
+			return $this->strLease = $this->Input->get('lease');
+		$this->blnIsNewLease = true;
+		return $this->strLease = md5(mt_rand());
+	}
+	
+	public function getSessionRecordKey() {
+		return $this->strTable . '$' . $this->getLease();
+	}
+	
+	public function hasSessionRecord() {
 		if($this->arrDCA['config']['disableSessionStorage'])
-			return;
+			return false;
 		
 		$arrRecords = $this->Session->get(__CLASS__);
 		if(!is_array($arrRecords))
-			return;
+			return false;
+			
+		return isset($arrRecords[$this->getSessionRecordKey()]);
+	}
+	
+	public function getSessionRecord($blnCreate = true, $blnMoveToFront = true) {
+		$arrRecords = $this->Session->get(__CLASS__);
+		if(!is_array($arrRecords))
+			return $this->setSessionRecord($this->getDefaultRecord());
 			
 		$strKey = $this->getSessionRecordKey();
-		$objRecord = $arrRecords[$strKey];
-		if($blnMoveToFront) {
-			unset($arrRecords[$strKey]);
-			$arrRecords[$strKey] = $objRecord;
-			$this->Session->set(__CLASS__, $arrRecords);
+		
+		if(isset($arrRecords[$strKey])) {
+			$objRecord = $arrRecords[$strKey];
+			if($blnMoveToFront) {
+				unset($arrRecords[$strKey]);
+				$arrRecords[$strKey] = $objRecord;
+				$this->Session->set(__CLASS__, $arrRecords);
+			}
+			
+		} elseif($blnCreate) {
+			$objRecord = $this->setSessionRecord($this->getDefaultRecord());
 		}
 		
 		return $objRecord;
@@ -566,12 +600,9 @@ class DC_MemoryExtended extends DataContainer implements editable {
 	}
 	
 	protected function loadActiveRecord($blnDontUseCache = false) {
-		if($this->arrDCA['config']['disableSessionStorage']) {
-			$this->objActiveRecord = $this->getDefaultRecord();
-		} elseif($this->objActiveRecord = $this->getSessionRecord(true)) {
-		} else {
-			$this->objActiveRecord = $this->setSessionRecord($this->getDefaultRecord());
-		}
+		$this->objActiveRecord = $this->arrDCA['config']['disableSessionStorage']
+			? $this->getDefaultRecord()
+			: $this->getSessionRecord(); 
 		
 		$arrCB = $this->arrDCA['config']['loadActiveRecord'];
 		if($arrCB) {
@@ -587,8 +618,7 @@ class DC_MemoryExtended extends DataContainer implements editable {
 	
 	public function getDefaultRecord() {
 		$objRecord = new stdClass();
-		foreach(array_keys($this->arrFields) as $strField) {
-			$arrConfig = $this->getFieldDefinition($strField);
+		foreach($this->arrDCA['fields'] as $strField => $arrConfig) {
 			isset($arrConfig['default']) && $objRecord->$strField = $arrConfig['default'];
 		}
 		return $objRecord;
