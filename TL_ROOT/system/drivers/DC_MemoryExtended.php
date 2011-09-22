@@ -124,10 +124,12 @@ class DC_MemoryExtended extends DataContainer implements editable {
 			$_SESSION['TL_ERROR'] = '';
 			$_SESSION['TL_CONFIRM'] = '';
 
-			foreach($this->getButtonsDefinition() as $strButtonKey => $arrCallback) {
-				if(isset($_POST[$strButtonKey])) {
-					$this->import($arrCallback[0]);
-					$this->{$arrCallback[0]}->{$arrCallback[1]}($this);
+			if(!$this->blnAutoSubmitted) {
+				foreach($this->getButtonsDefinition() as $strButtonKey => $arrCallback) {
+					if(isset($_POST[$strButtonKey])) {
+						$this->import($arrCallback[0]);
+						$this->{$arrCallback[0]}->{$arrCallback[1]}($this);
+					}
 				}
 			}
 			
@@ -531,23 +533,44 @@ class DC_MemoryExtended extends DataContainer implements editable {
 		return true;
 	}
 	
-	protected function loadActiveRecord($blnDontUseCache = false) {
-		if(!$this->arrDCA['config']['disableSessionStorage']) {
-			$arrRecords = $this->Session->get(__CLASS__); // simple move-to-front cache
-			$arrRecords || $arrRecords = array();
-			$strKey = $this->strTable . '$' . $this->strLease;
-			if(isset($arrRecords[$strKey])) {
-				$this->objActiveRecord = $arrRecords[$strKey];
-				unset($arrRecords[$strKey]);
-				$arrRecords[$strKey] = $this->objActiveRecord;
-			} else {
-				$this->objActiveRecord = $this->getDefaultRecord();
-				$arrRecords[$strKey] = $this->objActiveRecord;
-				count($arrRecords) > 10 && array_pop($arrRecords);
-			}
+	public function getSessionRecordKey() {
+		return $this->strTable . '$' . $this->strLease;
+	}
+	
+	public function getSessionRecord($blnMoveToFront = false) {
+		if($this->arrDCA['config']['disableSessionStorage'])
+			return;
+		
+		$arrRecords = $this->Session->get(__CLASS__);
+		if(!is_array($arrRecords))
+			return;
+			
+		$strKey = $this->getSessionRecordKey();
+		$objRecord = $arrRecords[$strKey];
+		if($blnMoveToFront) {
+			unset($arrRecords[$strKey]);
+			$arrRecords[$strKey] = $objRecord;
 			$this->Session->set(__CLASS__, $arrRecords);
-		} else {
+		}
+		
+		return $objRecord;
+	}
+	
+	public function setSessionRecord($objRecord) {
+		$arrRecords = $this->Session->get(__CLASS__);
+		$arrRecords || $arrRecords = array();
+		$arrRecords[$this->getSessionRecordKey()] = $objRecord;
+		count($arrRecords) > 10 && array_shift($arrRecords);
+		$this->Session->set(__CLASS__, $arrRecords);
+		return $objRecord;
+	}
+	
+	protected function loadActiveRecord($blnDontUseCache = false) {
+		if($this->arrDCA['config']['disableSessionStorage']) {
 			$this->objActiveRecord = $this->getDefaultRecord();
+		} elseif($this->objActiveRecord = $this->getSessionRecord(true)) {
+		} else {
+			$this->objActiveRecord = $this->setSessionRecord($this->getDefaultRecord());
 		}
 		
 		$arrCB = $this->arrDCA['config']['loadActiveRecord'];
