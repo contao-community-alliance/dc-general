@@ -71,6 +71,7 @@
 </form>
 <script>
 window.addEvent('domready', function() {
-  $$(<?php echo json_encode($this->table); ?> + ' input[type="text"]').focus();
+var e = $$("#" + <?php echo json_encode($this->table); ?> + ' input[type="text"]')[0];
+e && e.focus();
 });
 </script>

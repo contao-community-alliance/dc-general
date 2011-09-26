@@ -17,7 +17,7 @@ class DC_MemoryExtended extends DataContainer implements editable {
 	protected $arrProcessed = array(); // set: fields processed
 	protected $arrButtons = array();
 	
-	protected $intWidgetID;
+	protected $varWidgetID;
 	
 	protected static $arrDates = array(
 		'date' => true,
@@ -71,6 +71,10 @@ class DC_MemoryExtended extends DataContainer implements editable {
 				return $this->dca;
 				break;
 				
+			case 'wid':
+				return $this->varWidgetID;
+				break;
+				
 			default:
 				return parent::__get($strKey);
 				break;
@@ -103,7 +107,7 @@ class DC_MemoryExtended extends DataContainer implements editable {
 		if($intID && $strSelector) {
 			return $objPaletteBuilder->generateAjaxPalette(
 				$strSelector,
-				$strSelector . '::' . $this->intWidgetID,
+				$strSelector . '::' . $this->varWidgetID,
 				$this->getTemplate('be_tableextended_field')
 			);
 		}
@@ -216,7 +220,7 @@ class DC_MemoryExtended extends DataContainer implements editable {
 			return;
 		
 		$this->strField = $strField;
-		$this->strInputName = $strField . '::' . $this->intWidgetID;
+		$this->strInputName = $strField . '::' . $this->varWidgetID;
 		$this->varValue = deserialize(/*$arrConfig['eval']['encrypt'] ? $this->Encryption->decrypt($this->objActiveRecord->$strField) : */$this->objActiveRecord->$strField);
 	
 		if(is_array($arrConfig['load_callback'])) {
@@ -363,7 +367,7 @@ class DC_MemoryExtended extends DataContainer implements editable {
 			
 		$this->arrProcessed[$strField] = true;
 		$this->strField = $strField;
-		$this->strInputName = $strField . '::' . $this->intWidgetID;
+		$this->strInputName = $strField . '::' . $this->varWidgetID;
 		
 		if(!$this->blnSubmitted // no form submit
 		|| !isset($this->arrInputs[$this->strInputName])
@@ -648,9 +652,9 @@ class DC_MemoryExtended extends DataContainer implements editable {
 	
 	protected function setWidgetID($intID) {
 		if(preg_match('/^[0-9]+$/', $intID)) {
-			$this->intWidgetID = intval($intID);
+			$this->varWidgetID = intval($intID);
 		} else {
-			$this->intWidgetID = 'b' . str_replace('=', '_', base64_encode($intID));
+			$this->varWidgetID = 'b' . str_replace('=', '_', base64_encode($intID));
 		}
 	}
 	
@@ -667,7 +671,7 @@ class DC_MemoryExtended extends DataContainer implements editable {
 				continue;
 
 			list($strFile, $strType) = explode('|', $arrConfig['eval']['rte']);
-			$strID = 'ctrl_' . $strField . '::' . $this->intWidgetID;
+			$strID = 'ctrl_' . $strField . '::' . $this->varWidgetID;
 
 			$GLOBALS['TL_RTE'][$strFile][$strID] = array(
 				'id'   => $strID,
