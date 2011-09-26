@@ -113,10 +113,9 @@ class DC_MemoryExtended extends DataContainer implements editable {
 		}
 		
 		$this->loadDefaultButtons();
+		$this->blnSubmitted && !$this->noReload && $this->executeCallbacks($this->arrDCA['config']['onsubmit_callback'], $this);
 		
 		if($this->blnSubmitted && !$this->noReload) {
-			$this->executeCallbacks($this->arrDCA['config']['onsubmit_callback'], $this);
-
 			// Save the current version
 			if($this->blnCreateNewVersion && !$this->blnAutoSubmitted) {
 				$this->createNewVersion($this->strTable, $this->intId);
@@ -542,6 +541,16 @@ class DC_MemoryExtended extends DataContainer implements editable {
 		$this->arrFields = array_intersect_key($this->arrFields, array_flip($arrSession['CURRENT'][$this->strTable]));
 
 		return true;
+	}
+	
+	public function addError($strMessage, $strField = null) {
+		$this->noReload = true;
+		$strField && $objWidget = $this->getWidget($strField);
+		if($objWidget) {
+			$objWidget->addError($strMessage);
+		} else {
+			$_SESSION['TL_ERROR'][] = $strMessage;
+		}
 	}
 	
 	public function isNewLease() {
