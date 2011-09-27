@@ -26,9 +26,12 @@
 		<copy todir="${build.dir}/TL_ROOT">
 			<fileset dir="TL_ROOT" excludes="**/*.php" />
 		</copy>
-		
+
 		<!-- dctableextended.js -->
-		<antcall target="minjs"><param name="minjs.file"  value="dctableextended.js" /></antcall>		
+		<antcall target="minjs"><param name="minjs.file"  value="dctableextended.js" /></antcall>
+		
+		<!-- dctableextended-2.9.js -->
+		<antcall target="minjs"><param name="minjs.file"  value="dctableextended-2.9.js" /></antcall>
 		
 	  	<zip destfile="${build.dir}/backboneit_dctableextended.zip">
 	  		<zipfileset dir="${build.dir}/TL_ROOT" />

@@ -11,6 +11,7 @@
   
 <div class="tl_formbody_edit">
 <input type="hidden" name="FORM_SUBMIT" value="<?php echo $this->table; ?>_all" />
+<input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>" />
 <?php if($this->error): ?>
 <p class="tl_error"><?php echo $GLOBALS['TL_LANG']['ERR']['general']; ?></p>
 <?php endif; ?>

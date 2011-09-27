@@ -1,5 +1,10 @@
 h1. Changelog
 
+h2. 0.3.0 beta1
+
+* 1 *Fix*: Add request token to field selection in edit all and override mode 
+* 1 *Feature*: Introduced DC_MemoryExtended, inspired by DC_Memory extension
+
 h2. 0.2.0 stable
 
 *This version is only compatible to Contao 2.10.0 and upwards, for Contao 2.9.x use 0.1.0 versions*
