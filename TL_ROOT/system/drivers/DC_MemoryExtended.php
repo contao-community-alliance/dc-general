@@ -126,10 +126,6 @@ class DC_MemoryExtended extends DataContainer implements editable {
 			// Set the current timestamp (-> DO NOT CHANGE THE ORDER version - timestamp)
 			$this->updateTimestamp();
 
-			$_SESSION['TL_INFO'] = '';
-			$_SESSION['TL_ERROR'] = '';
-			$_SESSION['TL_CONFIRM'] = '';
-
 			if(!$this->blnAutoSubmitted) {
 				foreach($this->getButtonsDefinition() as $strButtonKey => $arrCallback) {
 					if(isset($_POST[$strButtonKey])) {

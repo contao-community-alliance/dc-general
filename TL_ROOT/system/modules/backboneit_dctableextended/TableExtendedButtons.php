@@ -8,6 +8,11 @@ class TableExtendedButtons extends Backend {
 
 	public function saveAndEdit(DC_TableExtended $objDC) {
 		setcookie('BE_PAGE_OFFSET', 0, 0, '/');
+
+		$_SESSION['TL_INFO'] = '';
+		$_SESSION['TL_ERROR'] = '';
+		$_SESSION['TL_CONFIRM'] = '';
+		
 		$strUrl = $this->addToUrl($objDC->dca['list']['operations']['edit']['href']);
 
 		$strUrl = preg_replace('/(&amp;)?s2e=[^&]*/i', '', $strUrl);
@@ -18,6 +23,11 @@ class TableExtendedButtons extends Backend {
 	
 	public function saveAndBack(DC_TableExtended $objDC) {
 		setcookie('BE_PAGE_OFFSET', 0, 0, '/');
+
+		$_SESSION['TL_INFO'] = '';
+		$_SESSION['TL_ERROR'] = '';
+		$_SESSION['TL_CONFIRM'] = '';
+		
 		if($objDC->parentTable == '') {
 			$this->redirect($this->Environment->script . '?do=' . $this->Input->get('do'));
 		
@@ -32,6 +42,11 @@ class TableExtendedButtons extends Backend {
 	
 	public function saveAndCreate(DC_TableExtended $objDC) {
 		setcookie('BE_PAGE_OFFSET', 0, 0, '/');
+
+		$_SESSION['TL_INFO'] = '';
+		$_SESSION['TL_ERROR'] = '';
+		$_SESSION['TL_CONFIRM'] = '';
+		
 		$strUrl = $this->Environment->script . '?do=' . $this->Input->get('do');
 
 		if(isset($_GET['table']))

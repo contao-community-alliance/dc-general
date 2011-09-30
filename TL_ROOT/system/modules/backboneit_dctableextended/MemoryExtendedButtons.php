@@ -12,6 +12,11 @@ class MemoryExtendedButtons extends Backend {
 	
 	public function saveAndClose(DC_MemoryExtended $objDC) {
 		setcookie('BE_PAGE_OFFSET', 0, 0, '/');
+
+		$_SESSION['TL_INFO'] = '';
+		$_SESSION['TL_ERROR'] = '';
+		$_SESSION['TL_CONFIRM'] = '';
+			
 		$this->redirect($this->getReferer());
 	}
 	
