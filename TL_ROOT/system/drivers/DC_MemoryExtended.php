@@ -549,6 +549,10 @@ class DC_MemoryExtended extends DataContainer implements editable {
 		}
 	}
 	
+	public function hasErrors() {
+		return $this->noReload;
+	}
+	
 	public function isNewLease() {
 		return $this->blnIsNewLease;
 	}
