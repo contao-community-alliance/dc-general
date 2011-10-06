@@ -68,7 +68,7 @@ class DC_MemoryExtended extends DataContainer implements editable {
 				break;
 				
 			case 'dca':
-				return $this->dca;
+				return $this->arrDCA;
 				break;
 				
 			case 'wid':

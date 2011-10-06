@@ -2,6 +2,7 @@ h1. Changelog
 
 h2. 0.3.0 beta1
 
+* 5 *Fix*: Removed typo in dynamic get for "dca"
 * 4 *Change*: The session messages are now cleaned individual by each button itself
 * 1 *Fix*: Add request token to field selection in edit all and override mode 
 * 1 *Feature*: Introduced DC_MemoryExtended, inspired by DC_Memory extension
