@@ -104,7 +104,7 @@ class PaletteBuilder extends Controller {
 		
 				$strName = specialchars($objWidget->name);
 				$blnUpdate = $arrConfig['update'];
-				$strDatepicker = $arrConfig['eval']['datepicker'] ? sprintf($arrConfig['eval']['datepicker'], 'ctrl_' . specialchars($objWidget->id)) : null;
+				$strDatepicker = $arrConfig['eval']['datepicker'] ? sprintf($arrConfig['eval']['datepicker'], json_encode('ctrl_' . $objWidget->id)) : null;
 		
 				include($strFieldTemplate);
 				

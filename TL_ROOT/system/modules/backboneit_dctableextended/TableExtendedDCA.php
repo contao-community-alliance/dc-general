@@ -37,6 +37,8 @@ class TableExtendedDCA extends Backend {
 		return $arrOptions;
 	}
 	
+	
+	
 	private static $objInstance;
 	
 	public static function getInstance() {
@@ -45,4 +47,24 @@ class TableExtendedDCA extends Backend {
 		return self::$objInstance;
 	}
 
+	
+
+	/***** 2.9 COMPAT *****/
+
+	public function fixPagePicker($strTable) {
+		if($strTable != 'tl_content')
+			return;
+			
+		foreach($GLOBALS['TL_DCA']['tl_content']['fields']['url']['wizard'] as &$arrCallback) {
+			if($arrCallback[0] == 'tl_content' && $arrCallback[1] == 'pagePicker') {
+				$arrCallback[0] = 'TableExtendedDCA';
+				break;
+			}
+		}
+	}
+	
+	public function pagePicker(DataContainer $dc) {
+		return ' ' . $this->generateImage('pickpage.gif', $GLOBALS['TL_LANG']['MSC']['pagepicker'], 'style="vertical-align:top; cursor:pointer;" onclick="Backend.pickPage(\'ctrl_' . $dc->inputName . '\')"');
+	}
+	
 }

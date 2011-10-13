@@ -2,6 +2,10 @@ h1. Changelog
 
 h2. 0.3.0 beta1
 
+* 6 *Fix*: Replaced "::" separator with "--" for valid id attribute
+* 6 *Fix*: 2.9 compat - reintroduced page picker fix
+* 6 *Fix*: 2.9 compat - do not use TinyMCE preloading
+* 6 *Fix*: Do json_encode on widget ID for date picker initialization
 * 5 *Fix*: Removed typo in dynamic get for "dca"
 * 4 *Change*: The session messages are now cleaned individual by each button itself
 * 1 *Fix*: Add request token to field selection in edit all and override mode 

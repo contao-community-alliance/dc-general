@@ -107,7 +107,7 @@ class DC_MemoryExtended extends DataContainer implements editable {
 		if($intID && $strSelector) {
 			return $objPaletteBuilder->generateAjaxPalette(
 				$strSelector,
-				$strSelector . '::' . $this->varWidgetID,
+				$strSelector . '--' . $this->varWidgetID,
 				$this->getTemplate('be_tableextended_field')
 			);
 		}
@@ -138,7 +138,7 @@ class DC_MemoryExtended extends DataContainer implements editable {
 			$this->reload();
 		}
 		
-		$this->preloadTinyMce();
+		version_compare(VERSION, '2.10', '<') || $this->preloadTinyMce();
 		
 		$objTemplate = new BackendTemplate('be_tableextended_edit');
 		
@@ -155,6 +155,7 @@ class DC_MemoryExtended extends DataContainer implements editable {
 			'buttons'		=> $this->getButtonLabels()
 		));
 		
+		version_compare(VERSION, '2.10', '<') && $GLOBALS['TL_JAVASCRIPT'] = array_unique($GLOBALS['TL_JAVASCRIPT']);
 		return $objTemplate->parse();
 	}
 	
@@ -215,7 +216,7 @@ class DC_MemoryExtended extends DataContainer implements editable {
 			return;
 		
 		$this->strField = $strField;
-		$this->strInputName = $strField . '::' . $this->varWidgetID;
+		$this->strInputName = $strField . '--' . $this->varWidgetID;
 		$this->varValue = deserialize(/*$arrConfig['eval']['encrypt'] ? $this->Encryption->decrypt($this->objActiveRecord->$strField) : */$this->objActiveRecord->$strField);
 	
 		if(is_array($arrConfig['load_callback'])) {
@@ -362,7 +363,7 @@ class DC_MemoryExtended extends DataContainer implements editable {
 			
 		$this->arrProcessed[$strField] = true;
 		$this->strField = $strField;
-		$this->strInputName = $strField . '::' . $this->varWidgetID;
+		$this->strInputName = $strField . '--' . $this->varWidgetID;
 		
 		if(!$this->blnSubmitted // no form submit
 		|| !isset($this->arrInputs[$this->strInputName])
@@ -680,7 +681,7 @@ class DC_MemoryExtended extends DataContainer implements editable {
 				continue;
 
 			list($strFile, $strType) = explode('|', $arrConfig['eval']['rte']);
-			$strID = 'ctrl_' . $strField . '::' . $this->varWidgetID;
+			$strID = 'ctrl_' . $strField . '--' . $this->varWidgetID;
 
 			$GLOBALS['TL_RTE'][$strFile][$strID] = array(
 				'id'   => $strID,

@@ -12,7 +12,7 @@ class MemoryExtendedAjax extends Backend {
 		$strSelector = $this->Input->post('FORM_INPUTS');
 		$strSelector = reset($strSelector);
 		
-		$intPos = strrpos($strSelector, '::');
+		$intPos = strrpos($strSelector, '--');
 		$intID = substr($strSelector, $intPos + 2);
 		if(!is_numeric($intID)) $intID = base64_decode(str_replace('_', '=', substr($intID, 1)));
 		$strSelector = substr($strSelector, 0, $intPos);
