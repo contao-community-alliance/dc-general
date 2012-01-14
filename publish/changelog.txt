@@ -2,6 +2,7 @@ h1. Changelog
 
 h2. 0.3.0 beta1
 
+* 8 *Fix*: Fixed bug in "doNotSaveEmpty" option, which caused the input not to be saved at all
 * 6 *Fix*: Replaced "::" separator with "--" for valid id attribute
 * 6 *Fix*: 2.9 compat - reintroduced page picker fix
 * 6 *Fix*: 2.9 compat - do not use TinyMCE preloading

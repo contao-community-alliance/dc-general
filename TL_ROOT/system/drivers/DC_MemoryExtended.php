@@ -437,7 +437,7 @@ class DC_MemoryExtended extends DataContainer implements editable {
 		if(!$arrConfig['eval']['alwaysSave']) {
 			if(deserialize($this->objActiveRecord->$strField) == $varNew)
 				return;
-			if($arrConfig['eval']['doNotSaveEmpty'] && $varNew != '') // value is empty
+			if($arrConfig['eval']['doNotSaveEmpty'] && $varNew == '') // value is empty
 				return;
 		}
 		
