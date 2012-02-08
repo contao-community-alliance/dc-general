@@ -2,7 +2,7 @@ h1. Changelog
 
 h2. 0.3.0 stable
 
-* 1 *Fix*: Fixed date picker for Contao 2.10+
+* 2 *Fix*: Fixed date picker for Contao 2.10+
 
 h2. 0.3.0 beta1
 

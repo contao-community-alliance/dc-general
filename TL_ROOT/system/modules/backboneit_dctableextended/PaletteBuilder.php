@@ -104,6 +104,7 @@ class PaletteBuilder extends Controller {
 		
 				$strName = specialchars($objWidget->name);
 				$blnUpdate = $arrConfig['update'];
+				$strDatepicker = '';
 				if($arrConfig['eval']['datepicker']) {
 					if(version_compare(VERSION, '2.10', '>=')) {
 						$strDatepicker = $this->buildPagePicker($objWidget);
@@ -242,8 +243,7 @@ class PaletteBuilder extends Controller {
 	}
 	
 	protected function buildPagePicker($objWidget) {
-		$strRgxp = $arrData['eval']['rgxp'];
-		$strFormat = $GLOBALS['TL_CONFIG'][$strRgxp . 'Format'];
+		$strFormat = $GLOBALS['TL_CONFIG'][$objWidget->rgxp . 'Format'];
 		
 		$arrConfig = array(
 			'allowEmpty'	=> true,
@@ -259,7 +259,7 @@ class PaletteBuilder extends Controller {
       		'monthShort'	=> $GLOBALS['TL_LANG']['MSC']['monthShortLength']
 		);
 		
-		switch($strRgxp) {
+		switch($objWidget->rgxp) {
 			case 'datim':
 				$arrConfig['timePicker'] = true;
 				break;
