@@ -104,8 +104,14 @@ class PaletteBuilder extends Controller {
 		
 				$strName = specialchars($objWidget->name);
 				$blnUpdate = $arrConfig['update'];
-				$strDatepicker = $arrConfig['eval']['datepicker'] ? sprintf($arrConfig['eval']['datepicker'], json_encode('ctrl_' . $objWidget->id)) : null;
-		
+				if($arrConfig['eval']['datepicker']) {
+					if(version_compare(VERSION, '2.10', '>=')) {
+						$strDatepicker = $this->buildPagePicker($objWidget);
+					} else {
+						$strDatepicker = sprintf($arrConfig['eval']['datepicker'], json_encode('ctrl_' . $objWidget->id));
+					}
+				}
+				
 				include($strFieldTemplate);
 				
 				if(strncmp($arrConfig['eval']['rte'], 'tiny', 4) === 0
@@ -233,6 +239,38 @@ class PaletteBuilder extends Controller {
 				return $arrPalettes[$strKey];
 		
 		return $arrPalettes['default'];
+	}
+	
+	protected function buildPagePicker($objWidget) {
+		$strRgxp = $arrData['eval']['rgxp'];
+		$strFormat = $GLOBALS['TL_CONFIG'][$strRgxp . 'Format'];
+		
+		$arrConfig = array(
+			'allowEmpty'	=> true,
+			'toggleElements'=> '#toggle_' . $objWidget->id,
+			'pickerClass'	=> 'datepicker_dashboard',
+			'format'		=> $strFormat,
+			'inputOutputFormat' => $strFormat,
+			'positionOffset'=> array('x' => 130, 'y' => -185),
+      		'startDay'		=> $GLOBALS['TL_LANG']['MSC']['weekOffset'],
+			'days'			=> array_values($GLOBALS['TL_LANG']['DAYS']),
+      		'dayShort'		=> $GLOBALS['TL_LANG']['MSC']['dayShortLength'],
+      		'months'		=> array_values($GLOBALS['TL_LANG']['MONTHS']),
+      		'monthShort'	=> $GLOBALS['TL_LANG']['MSC']['monthShortLength']
+		);
+		
+		switch($strRgxp) {
+			case 'datim':
+				$arrConfig['timePicker'] = true;
+				break;
+
+			case 'time':
+				$arrConfig['timePickerOnly'] = true;
+				break;
+
+		}
+
+		return 'new DatePicker(' . json_encode('#ctrl_' . $objWidget->id) . ', ' . json_encode($arrConfig) . ');';
 	}
 	
 	public static function combiner($names) {

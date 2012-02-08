@@ -1,10 +1,13 @@
 <div id="widget_<?php echo $strName; ?>" class="widget <?php echo $strClass; ?>">
   <input type="hidden" value="<?php echo $strName; ?>" name="FORM_INPUTS[]" />
-  <?php echo $objWidget->parse(); if($strDatepicker): ?>
-  <script type="text/javascript"><!--//--><![CDATA[//><!--
-    window.addEvent('domready', function() { <?php echo $strDatepicker; ?> });
-  //--><!]]></script>
-  <?php endif; if($strUpdate): ?>
+  <?php echo $objWidget->parse(); ?>
+  <?php if($strDatepicker): ?>
+ 	<img src="plugins/datepicker/icon.gif" width="20" height="20" id="toggle_<?php echo $objWidget->id; ?>" style="vertical-align:-6px;">
+ 	<script type="text/javascript"><!--//--><![CDATA[//><!--
+      window.addEvent('domready', function() { <?php echo $strDatepicker; ?> });
+    //--><!]]></script>
+  <?php endif; ?>
+  <?php if($strUpdate): ?>
   <h3 style="padding-top:7px"><label for="ctrl_<?php echo $strName; ?>_update"><?php echo $GLOBALS['TL_LANG']['MSC']['updateMode']; ?></label></h3>
   <div id="ctrl_<?php echo $strName; ?>_update" class="tl_radio_container">
     <input type="radio" name="<?php echo $strName; ?>_update" id="opt_<?php echo $strName; ?>_update_1" class="tl_radio" value="add" onfocus="Backend.getScrollOffset();" /> <label for="opt_<?php echo $strName; ?>_update_1"><?php echo $GLOBALS['TL_LANG']['MSC']['updateAdd']; ?></label><br />

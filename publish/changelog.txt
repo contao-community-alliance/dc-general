@@ -1,5 +1,9 @@
 h1. Changelog
 
+h2. 0.3.0 stable
+
+* 1 *Fix*: Fixed date picker for Contao 2.10+
+
 h2. 0.3.0 beta1
 
 * 8 *Fix*: Fixed bug in "doNotSaveEmpty" option, which caused the input not to be saved at all
