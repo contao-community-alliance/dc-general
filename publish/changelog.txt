@@ -2,6 +2,7 @@ h1. Changelog
 
 h2. 0.3.0 stable
 
+* 3 *Fix*: Fixed "doNotSaveEmpty" to overrule "alwaysSave"
 * 2 *Fix*: Fixed date picker for Contao 2.10+
 
 h2. 0.3.0 beta1
