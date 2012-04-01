@@ -1,5 +1,9 @@
 h1. Changelog
 
+h2. 1.0.0 stable
+
+* 1 *Change*: Removed auto-injections. Extensions that need the driver for legacy DC_Table DCAs are required to overwrite the driver by its own.
+
 h2. 0.3.0 stable
 
 * 3 *Fix*: Fixed "doNotSaveEmpty" to overrule "alwaysSave"

@@ -412,11 +412,6 @@ class DC_TableExtended extends DC_MemoryExtended implements listable {
 		}
 	}
 	
-	public function delete() {
-		$arrArgs = func_get_args();
-		return $this->delegateToDCTable('delete', $arrArgs);
-	}
-	
 	public function show() {
 		$arrArgs = func_get_args();
 		return $this->delegateToDCTable('show', $arrArgs);
@@ -425,11 +420,6 @@ class DC_TableExtended extends DC_MemoryExtended implements listable {
 	public function showAll() {
 		$arrArgs = func_get_args();
 		return $this->delegateToDCTable('showAll', $arrArgs);
-	}
-	
-	public function undo() {
-		$arrArgs = func_get_args();
-		return $this->delegateToDCTable('undo', $arrArgs);
 	}
 	
 	public function create() {
@@ -442,9 +432,39 @@ class DC_TableExtended extends DC_MemoryExtended implements listable {
 		return $this->delegateToDCTable('cut', $arrArgs);
 	}
 	
+	public function cutAll() {
+		$arrArgs = func_get_args();
+		return $this->delegateToDCTable('cutAll', $arrArgs);
+	}
+	
 	public function copy() {
 		$arrArgs = func_get_args();
 		return $this->delegateToDCTable('copy', $arrArgs);
+	}
+	
+	public function copyAll() {
+		$arrArgs = func_get_args();
+		return $this->delegateToDCTable('copyAll', $arrArgs);
+	}
+	
+	public function delete() {
+		$arrArgs = func_get_args();
+		return $this->delegateToDCTable('delete', $arrArgs);
+	}
+	
+	public function deleteAll() {
+		$arrArgs = func_get_args();
+		return $this->delegateToDCTable('deleteAll', $arrArgs);
+	}
+	
+	public function deleteChilds() {
+		$arrArgs = func_get_args();
+		return $this->delegateToDCTable('deleteChilds', $arrArgs);
+	}
+	
+	public function undo() {
+		$arrArgs = func_get_args();
+		return $this->delegateToDCTable('undo', $arrArgs);
 	}
 	
 	public function move() {

@@ -15,8 +15,8 @@ class TableExtendedDCA extends Backend {
 	
 	public function setup($strTable) {
 		$strDC = &$GLOBALS['TL_DCA'][$strTable]['config']['dataContainer'];
-		if($strDC == 'Table' && $this->isExtendedTable($strTable))
-			$strDC = 'TableExtended';
+		if($strDC == 'TableExtended' && !$this->isExtendedTable($strTable))
+			$strDC = 'Table';
 	}
 	
 	public function getExclusionOptions() {

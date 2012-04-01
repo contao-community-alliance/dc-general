@@ -24,7 +24,7 @@
  * Extended form driver for Contao CMS
  *
  * PHP version 5
- * @copyright  backboneIT | Oliver Hoff 2011
+ * @copyright  backboneIT | Oliver Hoff 2010-2012
  * @author     Oliver Hoff <oliver@hofff.com>
  * @license    http://opensource.org/licenses/lgpl-3.0.html
  */

@@ -29,7 +29,7 @@ class DC_MemoryExtended extends DataContainer implements editable {
 		parent::__construct();
 		$this->strTable = $strTable;
 		$this->arrDCA = $arrDCA ? $arrDCA : $GLOBALS['TL_DCA'][$strTable];
-		 
+		
 		// Check whether the table is defined
 		if(!strlen($this->strTable) || !count($this->arrDCA)) {
 			$this->log('Could not load data container configuration for "' . $strTable . '"', 'DC_Table __construct()', TL_ERROR);
