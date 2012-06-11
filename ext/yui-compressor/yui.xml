@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="yui" basedir=".">
+	
+	<dirname property="yui.basedir" file="${ant.file.yui}"/>
+	<property name="yui.jar" value="${yui.basedir}/yuicompressor-2.4.2.jar" />
+	
+	<property name="minjs.src" value="src" />
+	<property name="minjs.license" value="publish/license_js.txt" />
+	
+	<property name="mincss.src" value="src" />
+	<property name="mincss.license" value="publish/license_css.txt" />
+	
+	<target name="minjs.nosrc" unless="minjs.keepsrc">
+		<echo>Deleting source file.</echo>
+	  	<delete dir="${minjs.deldir}" />
+	</target>
+	 
+	<target name="minjs">
+		<echo>Minify JS ${minjs.file}...</echo>
+	  	<concat destfile="${minjs.dir}/${minjs.src}/${minjs.file}" >
+	  		<filelist dir="${minjs.dir}" files="${minjs.file}" />
+			<filterchain>
+				<concatfilter prepend="${minjs.license}" />
+			</filterchain>
+	  	</concat>
+		<antcall target="yuicompress">
+			<param name="yui.src"  value="${minjs.dir}/${minjs.file}" />
+			<param name="yui.dest" value="${minjs.dir}/${minjs.file}.yui" />
+			<param name="yui.type" value="js" />
+		</antcall>
+	  	<concat destfile="${minjs.dir}/${minjs.file}" >
+	  		<filelist dir="${minjs.dir}" files="${minjs.file}.yui" />
+			<filterchain>
+				<concatfilter prepend="${minjs.license}" />
+			</filterchain>
+	  	</concat>
+		<delete file="${minjs.dir}/${minjs.file}.yui" />
+		<antcall target="minjs.nosrc">
+			<param name="minjs.deldir" value="${minjs.dir}/${minjs.src}" />
+		</antcall>
+		<gzip src="${minjs.dir}/${minjs.file}" destfile="${minjs.dir}/${minjs.file}.gz" />
+		<echo>Done.</echo>
+	</target>
+	
+	<target name="mincss.nosrc" unless="${mincss.keepsrc}">
+		<echo>Deleting source file.</echo>
+	  	<delete dir="${mincss.dir}/${mincss.src}" />
+	</target>
+	
+	<target name="mincss">
+		<echo>Minify CSS ${mincss.file}...</echo>
+	  	<concat destfile="${mincss.dir}/${mincss.src}/${mincss.file}">
+	  		<filelist dir="${mincss.dir}" files="${mincss.file}" />
+			<filterchain>
+				<headfilter lines="-1" skip="1" />
+				<concatfilter prepend="${mincss.license}" />
+			</filterchain>
+	  	</concat>
+		<antcall target="yuicompress">
+			<param name="yui.src"  value="${mincss.dir}/${mincss.file}" />
+			<param name="yui.dest" value="${mincss.dir}/${mincss.file}.yui" />
+			<param name="yui.type" value="css" />
+		</antcall>
+	  	<concat destfile="${mincss.dir}/${mincss.file}">
+	  		<filelist dir="${mincss.dir}" files="${mincss.file}.yui" />
+			<filterchain>
+				<concatfilter prepend="${mincss.license}" />
+			</filterchain>
+	  	</concat>
+		<delete file="${mincss.dir}/${mincss.file}.yui" />
+		<antcall target="mincss.nosrc">
+			<param name="mincss.deldir" value="${mincss.dir}/${mincss.src}" />
+		</antcall>
+	  	<gzip src="${mincss.dir}/${mincss.file}" destfile="${mincss.dir}/${mincss.file}.gz" />
+		<echo>Done.</echo>
+	</target>
+		
+	<target name="yuicompress">
+		<java jar="${yui.jar}" fork="true">
+			<arg value="-v" />
+			<arg value="-o" />
+			<arg value="${yui.dest}" />
+			<arg value="--type" />
+			<arg value="${yui.type}" />
+			<arg value="--charset" />
+			<arg value="UTF-8" />
+			<arg value="--line-break" />
+			<arg value="60" />
+			<arg value="${yui.src}" />
+		</java>
+	</target>
+</project>
