@@ -4,7 +4,7 @@ class MemoryExtendedAjax extends Backend {
 	
 	public function hookExecutePostActions($strAction, $objDC) {
 		if($strAction != 'toggleSubpaletteExtended'
-		|| !$objDC instanceof DC_MemoryExtended)
+		|| !$objDC instanceof DC_General)
 			return;
 		
 		$strMethod = $this->Input->get('act') == 'editAll' ? 'editAll' : 'edit';

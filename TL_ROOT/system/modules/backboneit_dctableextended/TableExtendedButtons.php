@@ -6,7 +6,7 @@ class TableExtendedButtons extends Backend {
 		parent::__construct();
 	}
 
-	public function saveAndEdit(DC_TableExtended $objDC) {
+	public function saveAndEdit(DC_General $objDC) {
 		setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
 		$_SESSION['TL_INFO'] = '';
@@ -21,7 +21,7 @@ class TableExtendedButtons extends Backend {
 		$this->redirect($strUrl);
 	}
 	
-	public function saveAndBack(DC_TableExtended $objDC) {
+	public function saveAndBack(DC_General $objDC) {
 		setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
 		$_SESSION['TL_INFO'] = '';
@@ -40,7 +40,7 @@ class TableExtendedButtons extends Backend {
 		}
 	}
 	
-	public function saveAndCreate(DC_TableExtended $objDC) {
+	public function saveAndCreate(DC_General $objDC) {
 		setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
 		$_SESSION['TL_INFO'] = '';

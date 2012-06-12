@@ -6,11 +6,11 @@ class MemoryExtendedButtons extends Backend {
 		parent::__construct();
 	}
 
-	public function save(DC_MemoryExtended $objDC) {
+	public function save(DC_General $objDC) {
 		$this->reload();
 	}
 	
-	public function saveAndClose(DC_MemoryExtended $objDC) {
+	public function saveAndClose(DC_General $objDC) {
 		setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
 		$_SESSION['TL_INFO'] = '';
