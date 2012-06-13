@@ -467,7 +467,87 @@ class DC_TableTest extends DC_General implements listable
         }
     }
 
-    
+    public function show()
+    {
+        $arrArgs = func_get_args();
+        return $this->delegateToDCTable('show', $arrArgs);
+    }
+
+    public function showAll()
+    {
+        $arrArgs = func_get_args();
+        return $this->delegateToDCTable('showAll', $arrArgs);
+    }
+
+    public function create()
+    {
+        $arrArgs = func_get_args();
+        return $this->delegateToDCTable('create', $arrArgs);
+    }
+
+    public function cut()
+    {
+        $arrArgs = func_get_args();
+        return $this->delegateToDCTable('cut', $arrArgs);
+    }
+
+    public function cutAll()
+    {
+        $arrArgs = func_get_args();
+        return $this->delegateToDCTable('cutAll', $arrArgs);
+    }
+
+    public function copy()
+    {
+        $arrArgs = func_get_args();
+        return $this->delegateToDCTable('copy', $arrArgs);
+    }
+
+    public function copyAll()
+    {
+        $arrArgs = func_get_args();
+        return $this->delegateToDCTable('copyAll', $arrArgs);
+    }
+
+    public function delete()
+    {
+        $arrArgs = func_get_args();
+        return $this->delegateToDCTable('delete', $arrArgs);
+    }
+
+    public function deleteAll()
+    {
+        $arrArgs = func_get_args();
+        return $this->delegateToDCTable('deleteAll', $arrArgs);
+    }
+
+    public function deleteChilds()
+    {
+        $arrArgs = func_get_args();
+        return $this->delegateToDCTable('deleteChilds', $arrArgs);
+    }
+
+    public function undo()
+    {
+        $arrArgs = func_get_args();
+        return $this->delegateToDCTable('undo', $arrArgs);
+    }
+
+    public function move()
+    {
+        $arrArgs = func_get_args();
+        return $this->delegateToDCTable('move', $arrArgs);
+    }
+
+    protected function delegateToDCTable($strMethod, $arrArgs)
+    {
+        return call_user_func_array(array($this->objDCTable, $strMethod), $arrArgs);
+    }
+
+    public function getPalette()
+    {
+        return "";
+    }
 
 }
 
