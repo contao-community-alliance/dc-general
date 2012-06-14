@@ -1,4 +1,7 @@
-<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
+<?php
+
+if (!defined('TL_ROOT'))
+    die('You can not access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -27,7 +30,7 @@
  * @license    GNU/LGPL
  * @filesource
  */
-class GeneralView_Default implements InterfaceGeneralView
+class GeneralView_Default extends Controller implements InterfaceGeneralView
 {
 
     public function copy(DC_General $objDcGeneral)
@@ -61,8 +64,67 @@ class GeneralView_Default implements InterfaceGeneralView
     }
 
     public function edit(DC_General $objDcGeneral)
-    {
-        return "<div> <p> Not impl. now! </p> </div>";
+    {        
+        $objPaletteBuilder = new PaletteBuilder($objDcGeneral);
+        
+        $objTemplate = new BackendTemplate('be_general_edit');
+        $objTemplate->setData(array(
+            'fieldsets' => $objPaletteBuilder->generateFieldsets('be_general_field', array()),
+            'oldBE' => $GLOBALS['TL_CONFIG']['oldBeTheme'],
+            'versions' => $objDcGeneral->getDataProvider()->getVersions($objDcGeneral->getId()),
+            'subHeadline' => sprintf($GLOBALS['TL_LANG']['MSC']['editRecord'], $objDcGeneral->getId() ? 'ID ' . $objDcGeneral->getId() : ''),
+            'table' => $objDcGeneral->getTable(),
+            'enctype' => $objDcGeneral->isUploadable() ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
+            //'onsubmit' => implode(' ', $this->onsubmit),
+            'error' => $this->noReload,
+            'buttons' => $objDcGeneral->getButtonLabels()
+        ));
+                        
+        return $objTemplate->parse();
+
+        // Old stuff and so -----------
+
+//        if ($intID && $strSelector)
+//        {
+//            return $objPaletteBuilder->generateAjaxPalette(
+//                            $strSelector, $strSelector . '--' . $this->varWidgetID, $this->getTemplate('be_tableextended_field')
+//            );
+//        }
+//
+//        $this->loadDefaultButtons();
+//        $this->blnSubmitted && !$this->noReload && $this->executeCallbacks($this->arrDCA['config']['onsubmit_callback'], $this);
+//
+//        if ($this->blnSubmitted && !$this->noReload)
+//        {
+//            // Save the current version
+//            if ($this->blnCreateNewVersion && !$this->blnAutoSubmitted)
+//            {
+//                $this->createNewVersion($this->strTable, $this->intId);
+//                $this->executeCallbacks($this->arrDCA['config']['onversion_callback'], $this->strTable, $this->intId, $this);
+//                $this->log(sprintf('A new version of %s ID %s has been created', $this->strTable, $this->intId), 'DC_Table edit()', TL_GENERAL);
+//            }
+//
+//            // Set the current timestamp (-> DO NOT CHANGE THE ORDER version - timestamp)
+//            $this->updateTimestamp($this->strTable, $this->intId);
+//
+//            if (!$this->blnAutoSubmitted)
+//            {
+//                foreach ($this->getButtonsDefinition() as $strButtonKey => $arrCallback)
+//                {
+//                    if (isset($_POST[$strButtonKey]))
+//                    {
+//                        $this->import($arrCallback[0]);
+//                        $this->{$arrCallback[0]}->{$arrCallback[1]}($this);
+//                    }
+//                }
+//            }
+//
+//            $this->reload();
+//        }
+//
+//        version_compare(VERSION, '2.10', '<') || $this->preloadTinyMce();
+//
+//        $objTemplate = new BackendTemplate('be_tableextended_edit');
     }
 
     public function move(DC_General $objDcGeneral)
