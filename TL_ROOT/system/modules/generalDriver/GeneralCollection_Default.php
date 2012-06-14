@@ -181,6 +181,16 @@ class GeneralCollection_Default implements InterfaceGeneralCollection
         {
             array_unshift($this->arrCollection, $objModel);
         }
+    } 
+    
+    /**
+     * Get a iterator for this collection
+     * 
+     * @return ArrayIterator 
+     */
+    public function getIterator()
+    {
+        return new ArrayIterator($this->arrCollection);
     }
 }
 
