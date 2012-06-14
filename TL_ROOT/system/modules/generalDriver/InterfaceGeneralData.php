@@ -38,6 +38,8 @@ interface InterfaceGeneralData
      * Fetch a single record by id.
      * 
      * @param int ID
+     * 
+     * @return InterfaceGeneralModel
      */
     public function fetch($id);
 
@@ -45,8 +47,10 @@ interface InterfaceGeneralData
      * Fetch multiple records by ids.
      * 
      * @param array A list of id's
+     * 
+     * @return InterfaceGeneralCollection
      */
-    public function fetchEach(array $ids);
+    public function fetchEach($ids);
 
     /**
      * Fetch all records (optional limited).
@@ -55,8 +59,10 @@ interface InterfaceGeneralData
      * @param int $intStart optional offset to start retrival from
      * @param int $intAmount optional limit to limit the amount of retrieved items
      * @param array $arrFilter a list with filter options
+     * 
+     * @return InterfaceGeneralCollection
      */
-    public function fetchAll($blnIdOnly = false, $intStart = 0, $intAmount = 0, array $arrFilter = array());
+    public function fetchAll($blnIdOnly = false, $intStart = 0, $intAmount = 0, $arrFilter = array());
 
     /**
      * Return the amount of total items.
@@ -65,7 +71,7 @@ interface InterfaceGeneralData
      * 
      * @return int
      */
-    public function getCount(array $arrFilter = array());
+    public function getCount($arrFilter = array());
 
     /**
      * save back an item
@@ -73,14 +79,14 @@ interface InterfaceGeneralData
      * @param bool $recursive
      * Save child records, for each property a child provider is registered.
      */
-    public function save($item, bool $recursive = false);
+    public function save($item, $recursive = false);
 
     /**
      * Save a collection of items.
      *
      * @param Collection $items a list with all items
      */
-    public function saveEach(Collection $items, bool $recursive = false);
+    public function saveEach(InterfaceGeneralCollection $items, $recursive = false);
 
     /**
      * Delete an item.
@@ -93,15 +99,16 @@ interface InterfaceGeneralData
      * Set the values of current row back to another
      * Version.
      * 
-     * @param type $strVersion
-     * @return type 
+     * @param int $intID ID of current record
+     * @param string $strVersion Version number
+     * @return void 
      */
     public function setVersion($intID, $strVersion);
 
     /**
      * Return a list with all versions for this row
      * 
-     * @return array 
+     * @return InterfaceGeneralCollection 
      */
     public function getVersions($intID);
 
@@ -110,6 +117,8 @@ interface InterfaceGeneralData
      * 
      * Documentation: 
      *      Evaluation - fallback => If true the field can only be assigned once per table.
+     * 
+     * @return void
      */
     public function resetFallback($strField);
 
@@ -118,6 +127,8 @@ interface InterfaceGeneralData
      * 
      * Documentation: 
      *      Evaluation - unique => If true the field value cannot be saved if it exists already.
+     * 
+     * @return boolean
      */
     public function isUniqueValue($strField, $varNew);
 }

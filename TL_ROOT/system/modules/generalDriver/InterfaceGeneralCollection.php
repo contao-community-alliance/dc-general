@@ -26,7 +26,7 @@
  * @license    GNU/LGPL
  * @filesource
  */
-interface InterfaceGeneralCollection
+interface InterfaceGeneralCollection extends IteratorAggregate
 {
 
     /**
