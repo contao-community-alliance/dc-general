@@ -1,4 +1,7 @@
-<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
+<?php
+
+if (!defined('TL_ROOT'))
+    die('You can not access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -35,7 +38,7 @@ class GeneralData_Default implements InterfaceGeneralData
      * Name of current table
      * @var string 
      */
-    protected $strTabel = null;
+    protected $strTable = null;
 
     /**
      * Database
@@ -54,7 +57,7 @@ class GeneralData_Default implements InterfaceGeneralData
         }
 
         // Init Vars
-        $this->strTabel = $arrConfig["table"];
+        $this->strTable = $arrConfig["table"];
 
         // Init Helper
         $this->objDatabase = Database::getInstance();
@@ -67,45 +70,71 @@ class GeneralData_Default implements InterfaceGeneralData
         // Not impl now       
     }
 
-    public function fetch($id)
+    public function fetch($intId)
+    {
+        $arrResult = $this->objDatabase
+                ->prepare("SELECT * FROM $this->strTable WHERE id=?")
+                ->execute($intId)
+                ->fetchAllAssoc();
+
+        if (count($arrResult) == 0)
+        {
+            return null;
+        }
+
+        $objModel = new GeneralModel_Default();
+
+        foreach ($arrResult[0] as $key => $value)
+        {
+            $objModel->setProperty($key, $value);
+        }
+
+        return $objModel;
+    }
+
+    public function fetchAll($blnIdOnly = false, $intStart = 0, $intAmount = 0, $arrFilter = null)
     {
         
     }
 
-    public function fetchAll($blnIdOnly = false, $intStart = 0, $intAmount = 0, array $arrFilter = array())
+    public function fetchEach($ids)
     {
         
     }
 
-    public function fetchEach(array $ids)
-    {
-        
-    }
-
-    public function getCount(array $arrFilter = array())
+    public function getCount($arrFilter = array())
     {
         
     }
 
     public function getVersions($intID)
     {
-        $objVersion = $this->objDatabase
+        $arrVersion = $this->objDatabase
                 ->prepare('SELECT tstamp, version, username, active FROM tl_version WHERE fromTable = ? AND pid = ? ORDER BY version DESC')
-                ->execute($this->strTable, $intID);
+                ->execute($this->strTable, $intID)
+                ->fetchAllAssoc();
 
-        if (!$objVersion->numRows)
+
+        if (count($arrVersion) == 0)
         {
-            return;
-        }
-        
-        $objReturn = new GeneralModel_Default();
-        
-        foreach ($objVersion->fetchAllAssoc() as $key => $value)
-        {
-            $objReturn->setProperty($key, $value);
+            return null;
         }
 
-        return $objReturn;
+        $objCollection = new GeneralCollection_Default();
+
+        foreach ($arrVersion as $versionValue)
+        {
+            $objReturn = new GeneralModel_Default();
+
+            foreach ($versionValue as $key => $value)
+            {
+                $objReturn->setProperty($key, $value);
+            }
+            
+            $objCollection->add($objReturn);
+        }
+        
+        return $objCollection;
     }
 
     public function isUniqueValue($strField, $varNew)
@@ -127,12 +156,12 @@ class GeneralData_Default implements InterfaceGeneralData
         $this->objDatabase->query('UPDATE ' . $this->strTable . ' SET ' . $strField . ' = \'\'');
     }
 
-    public function save($item, bool $recursive = false)
+    public function save($item, $recursive = false)
     {
         
     }
 
-    public function saveEach(Collection $items, bool $recursive = false)
+    public function saveEach(InterfaceGeneralCollection $items, $recursive = false)
     {
         
     }
@@ -148,7 +177,7 @@ class GeneralData_Default implements InterfaceGeneralData
         {
             return;
         }
-        
+
         $arrData = deserialize($objData->data);
 
         if (!is_array($arrData))
@@ -160,11 +189,11 @@ class GeneralData_Default implements InterfaceGeneralData
                 ->prepare('UPDATE ' . $objData->fromTable . ' %s WHERE id = ?')
                 ->set($arrData)
                 ->execute($intID);
-        
+
         $this->Database
                 ->prepare('UPDATE tl_version SET active=\'\' WHERE pid = ?')
                 ->execute($intID);
-        
+
         $this->Database
                 ->prepare('UPDATE tl_version SET active = 1 WHERE pid = ? AND version = ?')
                 ->execute($intID, $strVersion);
