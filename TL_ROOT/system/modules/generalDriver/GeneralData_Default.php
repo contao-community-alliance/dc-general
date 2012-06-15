@@ -156,14 +156,43 @@ class GeneralData_Default implements InterfaceGeneralData
         $this->objDatabase->query('UPDATE ' . $this->strTable . ' SET ' . $strField . ' = \'\'');
     }
 
-    public function save($item, $recursive = false)
-    {
+    public function save(InterfaceGeneralModel $objItem, $recursive = false)
+    {        
+        $arrSet = array();
         
+        foreach ($objItem as $key => $value)
+        {
+            if($key == "id")
+            {
+                continue;
+            }
+            
+            $arrSet[$key] = $value;
+        }
+        
+        
+        if($objItem->getProperty("id") == null || $objItem->getProperty("id") == "")
+        {
+            $this->objDatabase
+                    ->prepare("INSERT INTO $this->strTable %s")
+                    ->set($arrSet)
+                    ->execute();
+        }
+        else
+        {
+             $this->objDatabase
+                    ->prepare("UPDATE $this->strTable %s WHERE id=?")
+                    ->set($arrSet)
+                    ->execute($objItem->getProperty("id"));
+        }
     }
 
-    public function saveEach(InterfaceGeneralCollection $items, $recursive = false)
+    public function saveEach(InterfaceGeneralCollection $objItems, $recursive = false)
     {
-        
+        foreach ($objItems as $key => $value)
+        {
+            $this->save($value);
+        }
     }
 
     public function setVersion($intID, $strVersion)
