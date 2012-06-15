@@ -76,15 +76,16 @@ interface InterfaceGeneralData
     /**
      * save back an item
      *
+     * @param InterfaceGeneralModel $objItem
      * @param bool $recursive
      * Save child records, for each property a child provider is registered.
      */
-    public function save($item, $recursive = false);
+     public function save(InterfaceGeneralModel $objItem, $recursive = false);
 
     /**
      * Save a collection of items.
      *
-     * @param Collection $items a list with all items
+     * @param InterfaceGeneralCollection $items a list with all items
      */
     public function saveEach(InterfaceGeneralCollection $items, $recursive = false);
 
