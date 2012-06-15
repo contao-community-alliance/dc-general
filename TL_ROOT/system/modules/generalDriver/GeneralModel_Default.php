@@ -29,6 +29,7 @@
  */
 class GeneralModel_Default implements InterfaceGeneralModel
 {
+
     /**
      * A list with all Properties.
      * 
@@ -81,8 +82,18 @@ class GeneralModel_Default implements InterfaceGeneralModel
         {
             return true;
         }
-        
+
         return false;
+    }
+
+    /**
+     * Get a iterator for this collection
+     * 
+     * @return ArrayIterator 
+     */
+    public function getIterator()
+    {
+        return new ArrayIterator($this->arrProperties);
     }
 
 }
