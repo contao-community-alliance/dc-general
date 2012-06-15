@@ -142,7 +142,7 @@ class PaletteBuilder extends Controller
                         $strDatepicker = sprintf($arrConfig['eval']['datepicker'], json_encode('ctrl_' . $objWidget->id));
                     }
                 }
-                
+                                
                 $objTemplateFoo = new BackendTemplate($strFieldTemplate);
                 $objTemplateFoo->strName = $strName;
                 $objTemplateFoo->strClass = $strClass;

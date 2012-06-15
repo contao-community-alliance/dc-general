@@ -33,40 +33,42 @@ if (!defined('TL_ROOT'))
 class GeneralView_Default extends Controller implements InterfaceGeneralView
 {
 
+    protected $notImplMsg = "<div style='text-align:center; font-weight:bold; padding:40px;'>This function/view is not implemented.</div>";
+
     public function copy(DC_General $objDcGeneral)
     {
-        return "<div> <p> Not impl. now! </p> </div>";
+        return $this->notImplMsg;
     }
 
     public function copyAll(DC_General $objDcGeneral)
     {
-        return "<div> <p> Not impl. now! </p> </div>";
+        return $this->notImplMsg;
     }
 
     public function create(DC_General $objDcGeneral)
     {
-        return "<div> <p> Not impl. now! </p> </div>";
+        return $this->notImplMsg;
     }
 
     public function cut(DC_General $objDcGeneral)
     {
-        return "<div> <p> Not impl. now! </p> </div>";
+        return $this->notImplMsg;
     }
 
     public function cutAll(DC_General $objDcGeneral)
     {
-        return "<div> <p> Not impl. now! </p> </div>";
+        return $this->notImplMsg;
     }
 
     public function delete(DC_General $objDcGeneral)
     {
-        return "<div> <p> Not impl. now! </p> </div>";
+        return $this->notImplMsg;
     }
 
     public function edit(DC_General $objDcGeneral)
-    {        
+    {
         $objPaletteBuilder = new PaletteBuilder($objDcGeneral);
-        
+
         $objTemplate = new BackendTemplate('be_general_edit');
         $objTemplate->setData(array(
             'fieldsets' => $objPaletteBuilder->generateFieldsets('be_general_field', array()),
@@ -79,11 +81,12 @@ class GeneralView_Default extends Controller implements InterfaceGeneralView
             'error' => $this->noReload,
             'buttons' => $objDcGeneral->getButtonLabels()
         ));
-                        
+        
+        version_compare(VERSION, '2.10', '<') && $GLOBALS['TL_JAVASCRIPT'] = array_unique($GLOBALS['TL_JAVASCRIPT']);
+
         return $objTemplate->parse();
 
         // Old stuff and so -----------
-
 //        if ($intID && $strSelector)
 //        {
 //            return $objPaletteBuilder->generateAjaxPalette(
@@ -129,27 +132,27 @@ class GeneralView_Default extends Controller implements InterfaceGeneralView
 
     public function move(DC_General $objDcGeneral)
     {
-        return "<div> <p> Not impl. now! </p> </div>";
+        return $this->notImplMsg;
     }
 
     public function show(DC_General $objDcGeneral)
     {
-        return "<div> <p> Not impl. now! </p> </div>";
+        return $this->notImplMsg;
     }
 
     public function showAll(DC_General $objDcGeneral)
     {
-        return "<div> <p> Not impl. now! </p> </div>";
+        return $this->notImplMsg;
     }
 
     public function undo(DC_General $objDcGeneral)
     {
-        return "<div> <p> Not impl. now! </p> </div>";
+        return $this->notImplMsg;
     }
 
     public function generateAjaxPalette(DC_General $objDcGeneral, $strSelector, $strInputName, $strFieldTemplate)
     {
-        return "<div> <p> Not impl. now! </p> </div>";
+        return $this->notImplMsg;
     }
 
 }
