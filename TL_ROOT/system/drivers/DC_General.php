@@ -200,10 +200,10 @@ class DC_General extends DataContainer implements editable, listable
     }
 
     /**
-     * Load the dataprovider and view handler, 
+     * Load the datacontroller, 
      * if not set try to load the default one.
      */
-    protected function loadProviderAndHandler()
+    protected function loadController()
     {
         // Load controller
         if (isset($this->arrDCA['dca_config']['controller']) && isset($this->arrDCA['dca_config']['controller_config']))
@@ -221,8 +221,14 @@ class DC_General extends DataContainer implements editable, listable
             $arrConfig = array();
             $this->objController = new GeneralController_Default();
         }
+    }
 
-
+    /**
+     * Load the dataview handler, 
+     * if not set try to load the default one.
+     */
+    protected function loadView()
+    {
         // Load view
         if (isset($this->arrDCA['dca_config']['view']) && isset($this->arrDCA['dca_config']['view_config']))
         {
@@ -239,8 +245,14 @@ class DC_General extends DataContainer implements editable, listable
             $arrConfig = array();
             $this->objViewHandler = new GeneralView_Default();
         }
+    }
 
-        // Load data provider
+    /**
+     * Load the dataprovider, 
+     * if not set try to load the default one.
+     */
+    protected function loadDataProvider()
+    {
         if (isset($this->arrDCA['dca_config']['data']) && isset($this->arrDCA['dca_config']['data_config']))
         {
             $arrConfig = $this->arrDCA['dca_config']['data_config'];
@@ -258,6 +270,18 @@ class DC_General extends DataContainer implements editable, listable
             );
             $this->objDataProvider = new GeneralData_Default($arrConfig);
         }
+    }
+
+    /**
+     * Load the dataprovider and view handler, 
+     * if not set try to load the default one.
+     */
+    protected function loadProviderAndHandler()
+    {
+        // Load controller, view and provider.
+        $this->loadController();
+        $this->loadView();
+        $this->loadDataProvider();
     }
 
     /**
