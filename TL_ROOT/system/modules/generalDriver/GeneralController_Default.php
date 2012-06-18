@@ -77,7 +77,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         $objDBModel = $objDC->getDataProvider()->fetch($objDC->getId());
         if($objDBModel == null)
         {
-            $objDBModel = new GeneralModel_Default();
+            $objDBModel = $objDC->getDataProvider()->getEmpty();
         }
         $objDC->setCurrentModel($objDBModel);
        
@@ -86,7 +86,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         {
             if (isset($_POST["save"]))
             {     
-                $objCurrentModel = new GeneralModel_Default();
+                $objCurrentModel = $objDC->getDataProvider()->getEmpty();
                 
                 foreach ($objDC->getFieldList() as $key => $value)
                 {

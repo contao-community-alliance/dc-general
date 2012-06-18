@@ -70,6 +70,16 @@ class GeneralData_Default implements InterfaceGeneralData
         // Not impl now       
     }
 
+    /**
+     * Fetch an empty single record (new item).
+     * 
+     * @return InterfaceGeneralModel
+     */
+    public function getEmpty()
+    {
+        return new GeneralModel_Default();
+    }
+
     public function fetch($intId)
     {
         $arrResult = $this->objDatabase

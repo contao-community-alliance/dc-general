@@ -44,6 +44,13 @@ interface InterfaceGeneralData
     public function fetch($id);
 
     /**
+     * Fetch an empty single record (new item).
+     * 
+     * @return InterfaceGeneralModel
+     */
+    public function getEmpty();
+
+    /**
      * Fetch multiple records by ids.
      * 
      * @param array A list of id's
