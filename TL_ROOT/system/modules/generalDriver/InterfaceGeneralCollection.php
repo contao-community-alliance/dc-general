@@ -111,7 +111,7 @@ interface InterfaceGeneralCollection extends IteratorAggregate
      *
      * @return Collection
      */
-    public function sort(callback $callback);
+    public function sort($callback);
 }
 
 

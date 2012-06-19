@@ -158,13 +158,13 @@ class GeneralCollection_Default implements InterfaceGeneralCollection
     /**
      * Sort the records and return the new sorted collection.
      *
-     * @param callback $callback
+     * @param mixed $callback
      *
      * @return Collection
      */
-    public function sort(callback $callback)
+    public function sort($callback)
     {
-        // Not impl now;
+        uasort($this->arrCollection, $callback);
     }
 
     /**
