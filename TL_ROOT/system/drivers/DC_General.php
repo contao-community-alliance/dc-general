@@ -349,56 +349,6 @@ class DC_General extends DataContainer implements editable, listable
             $this->objChildDataProvider = new $this->arrDCA['dca_config']['data_child']($arrConfig, $this);
         }
     }
-    
-    /**
-     * Load the collection handler, 
-     * if not set try to load the default one.
-     */
-    public function getNewCollection()
-    {        
-        // Load collection
-        if (isset($this->arrDCA['dca_config']['collection']))
-        {            
-            if(class_exists($this->arrDCA['dca_config']['collection']))
-            {
-                return new $this->arrDCA['dca_config']['collection']();
-            }
-            else
-            {
-                $this->log('Collection class do not exists', "$this->arrDCA['dca_config']['collection']", TL_ERROR);
-                $this->redirect('contao/main.php?act=error');
-            }
-        }
-        else
-        {  
-            return new GeneralCollection_Default();
-        }
-    }
-    
-    /**
-     * Load the model handler, 
-     * if not set try to load the default one.
-     */    
-    public function getNewModel()
-    {
-        // Load model
-        if (isset($this->arrDCA['dca_config']['model']))
-        {
-            if(class_exists($this->arrDCA['dca_config']['model']))
-            {
-                return new $this->arrDCA['dca_config']['model']();
-            }
-            else
-            {
-                $this->log('Model class do not exists', "$this->arrDCA['dca_config']['model']", TL_ERROR);
-                $this->redirect('contao/main.php?act=error');
-            }
-        }
-        else
-        {
-            return new GeneralModel_Default();
-        }
-    }
 
     /**
      * Load the dataprovider and view handler, 
