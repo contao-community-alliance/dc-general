@@ -81,8 +81,9 @@ class GeneralView_Default extends Controller implements InterfaceGeneralView
             'error' => $this->noReload,
             'buttons' => $objDcGeneral->getButtonLabels()
         ));
-        
-        version_compare(VERSION, '2.10', '<') && $GLOBALS['TL_JAVASCRIPT'] = array_unique($GLOBALS['TL_JAVASCRIPT']);
+
+        // Set JS
+        $GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/generalDriver/html/js/generalDriver.js';
 
         return $objTemplate->parse();
 
@@ -142,7 +143,9 @@ class GeneralView_Default extends Controller implements InterfaceGeneralView
 
     public function showAll(DC_General $objDcGeneral)
     {
-        return $this->notImplMsg;
+        $objView = new ViewBuilder($objDcGeneral);
+        
+        return $objView->listView();
     }
 
     public function undo(DC_General $objDcGeneral)
