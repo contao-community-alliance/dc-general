@@ -29,19 +29,52 @@
 class GeneralController_Default extends Controller implements InterfaceGeneralController
 {
 
-    protected $notImplMsg = "<div style='text-align:center; font-weight:bold; padding:40px;'>This function/view is not implemented.</div>";
+    protected $notImplMsg = "<div style='text-align:center; font-weight:bold; padding:40px;'>The function/view &quot;%s&quot; is not implemented.</div>";
 
     public function __call($name, $arguments)
     {
         switch ($name)
         {
             default:
-                return $this->notImplMsg;
+                return sprintf($this->notImplMsg, $name);
                 break;
         };
     }
 
-    public function edit(DC_General $objDC)
+    /**
+     * Perform low level saving of the current model in a DC.
+     * NOTE: the model will get populated with the new values within this function.
+     * Therefore the current submitted data will be stored within the model but only on
+     * success also be saved into the DB.
+     * 
+     * @param DC_General $objDC the DC that adapts the save operation.
+     * 
+     * @return bool true if the save operation was successful, false otherwise.
+     */
+    protected function doSave(DC_General $objDC)
+    {
+        $objDBModel = $objDC->getCurrentModel();
+        // process input and update changed properties.
+        foreach ($objDC->getFieldList() as $key => $value)
+        {
+            $varNewValue = $objDC->processInput($key);
+            if($objDBModel->getProperty($key) != $varNewValue)
+            {
+                $objDBModel->setProperty($key, $varNewValue);
+            }
+        }
+        // if we may not store the value, we keep the changes
+        // in the current model and return (DO NOT SAVE!).
+        if ($objDC->isNoReload() == true)
+        {
+            return false;
+        }
+        // everything went ok, now save the new values.
+        $objDC->getDataProvider()->save($objDBModel);
+        return true;
+    }
+
+    protected function edit(DC_General $objDC)
     {
         // Check if table is editable
         if (!$objDC->isEditable())
@@ -66,14 +99,12 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         // Set buttons
         $objDC->addButton("save");
         $objDC->addButton("saveNclose");
-        $objDC->addButton("gogogo");
-        $objDC->addButton("foo");
 
         // Load record from data provider
         $objDBModel = $objDC->getDataProvider()->fetch($objDC->getId());
-        if ($objDBModel == null)
+        if($objDBModel == null)
         {
-            $objDBModel = $objDC->getNewModel();
+            $objDBModel = $objDC->getDataProvider()->getEmpty();
         }
         $objDC->setCurrentModel($objDBModel);
 
@@ -82,42 +113,23 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         {
             if (isset($_POST["save"]))
             {
-                $objCurrentModel = $objDC->getNewModel();
-
-                foreach ($objDC->getFieldList() as $key => $value)
+                // process input and update changed properties.
+                if ($this->doSave($objDC))
                 {
-                    $objCurrentModel->setProperty($key, $objDC->processInput($key));
+                    $this->reload();
                 }
-
-                if ($objDC->isNoReload() == true)
-                {
-                    return;
-                }
-
-                foreach ($objCurrentModel as $key => $value)
-                {
-                    if ($objDBModel->getProperty($key) != $value)
-                    {
-                        $objCurrentModel->setProperty("id", $objDC->getId());
-                        $objDC->getDataProvider()->save($objCurrentModel);
-                    }
-                }
-
-                $this->reload();
             }
             else if (isset($_POST["saveNclose"]))
             {
-                setcookie('BE_PAGE_OFFSET', 0, 0, '/');
-
-                $_SESSION['TL_INFO'] = '';
-                $_SESSION['TL_ERROR'] = '';
-                $_SESSION['TL_CONFIRM'] = '';
-
-                $this->redirect($this->getReferer());
-            }
-            else if (isset($_POST["gogogo"]))
-            {
-                return "<div style='text-align:center; font-weight:bold; padding:40px;'>Run forest run.</div>";
+                // process input and update changed properties.
+                if ($this->doSave($objDC))
+                {
+                    setcookie('BE_PAGE_OFFSET', 0, 0, '/');
+                    $_SESSION['TL_INFO']    = '';
+                    $_SESSION['TL_ERROR']   = '';
+                    $_SESSION['TL_CONFIRM'] = '';
+                    $this->redirect($this->getReferer());
+                }
             }
         }
     }
