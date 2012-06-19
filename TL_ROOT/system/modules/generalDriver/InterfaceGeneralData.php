@@ -32,7 +32,7 @@ interface InterfaceGeneralData
     /**
      * 
      */
-    public function __construct(array $arrConfig);
+    public function __construct(array $arrConfig, DC_General $objDC);
 
     /**
      * Fetch a single record by id.
@@ -59,10 +59,11 @@ interface InterfaceGeneralData
      * @param int $intStart optional offset to start retrival from
      * @param int $intAmount optional limit to limit the amount of retrieved items
      * @param array $arrFilter a list with filter options
+     * @param array $arrSorting a list with all sortings
      * 
      * @return InterfaceGeneralCollection
      */
-    public function fetchAll($blnIdOnly = false, $intStart = 0, $intAmount = 0, $arrFilter = array());
+    public function fetchAll($blnIdOnly = false, $intStart = 0, $intAmount = 0, $arrFilter = array(), $arrSorting = array());
 
     /**
      * Return the amount of total items.
@@ -132,6 +133,13 @@ interface InterfaceGeneralData
      * @return boolean
      */
     public function isUniqueValue($strField, $varNew);
+    
+    /**
+     * Check if the value exists in the table
+     * 
+     * @return boolean 
+     */
+    public function fieldExists($strField);
 }
 
 ?>

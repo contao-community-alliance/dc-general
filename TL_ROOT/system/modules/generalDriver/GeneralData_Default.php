@@ -1,5 +1,4 @@
 <?php
-
 if (!defined('TL_ROOT'))
     die('You can not access this file directly!');
 
@@ -34,11 +33,13 @@ class GeneralData_Default implements InterfaceGeneralData
 {
     // Vars --------------------------------------------------------------------
 
+    protected $objDc;
+
     /**
-     * Name of current table
+     * Name of current source
      * @var string 
      */
-    protected $strTable = null;
+    protected $strSource = null;
 
     /**
      * Database
@@ -48,16 +49,18 @@ class GeneralData_Default implements InterfaceGeneralData
 
     // Constructor and co ------------------------------------------------------
 
-    public function __construct(array $arrConfig)
+    public function __construct(array $arrConfig, DC_General $objDc)
     {
         // Check Vars
-        if (!isset($arrConfig["table"]))
+        if (!isset($arrConfig["source"]))
         {
             throw new Excpetion("Missing table name.");
         }
+        
+        $this->objDc = $objDc;
 
         // Init Vars
-        $this->strTable = $arrConfig["table"];
+        $this->strSource = $arrConfig["source"];
 
         // Init Helper
         $this->objDatabase = Database::getInstance();
@@ -73,7 +76,7 @@ class GeneralData_Default implements InterfaceGeneralData
     public function fetch($intId)
     {
         $arrResult = $this->objDatabase
-                ->prepare("SELECT * FROM $this->strTable WHERE id=?")
+                ->prepare("SELECT * FROM $this->strSource WHERE id=?")
                 ->execute($intId)
                 ->fetchAllAssoc();
 
@@ -82,7 +85,7 @@ class GeneralData_Default implements InterfaceGeneralData
             return null;
         }
 
-        $objModel = new GeneralModel_Default();
+        $objModel = $this->objDc->getNewModel();
 
         foreach ($arrResult[0] as $key => $value)
         {
@@ -92,9 +95,77 @@ class GeneralData_Default implements InterfaceGeneralData
         return $objModel;
     }
 
-    public function fetchAll($blnIdOnly = false, $intStart = 0, $intAmount = 0, $arrFilter = null)
+    public function fetchAll($blnIdOnly = false, $intStart = 0, $intAmount = 0, $arrFilter = null, $arrSorting = null)
     {
+        $boolSetWhere = FALSE;
         
+        $query = "SELECT " . (($blnIdOnly) ? "id" : "*") . " FROM " . $this->strSource;
+
+        if (!is_null($arrFilter))
+        {
+            foreach($arrFilter AS $key => $mixedFilter)
+            {
+                if(is_array($mixedFilter))
+                {
+                    $query .= " WHERE " . $key . " IN(" . implode(',', $mixedFilter) . ")";
+                }
+                unset($arrFilter[$key]);
+            } 
+            
+            if(count($arrFilter) > 0)
+            {
+                $query .= (($boolSetWhere) ? " WHERE " : " AND ") . implode(' AND ', $arrFilter);
+            }
+        }
+        
+        if(!is_null($arrSorting))
+        {
+            $strSortOrder = '';
+            
+            foreach($arrSorting AS $key => $mixedField)
+            {
+                if(is_array($mixedField))
+                {
+                    if($mixedField['action'] == 'findInSet')
+                    {
+                        $arrSorting[$key] = $this->Database->findInSet($mixedField['field'], $mixedField['keys']);
+                    }
+                }
+                
+                if($key === 'sortOrder')
+                {
+                    $strSortOrder = $mixedField;
+                    unset($arrSorting[$key]);
+                }
+            }
+            
+            $query .= " ORDER BY " . implode(', ', $arrSorting) . $strSortOrder;
+        }       
+        
+        $arrResult = $this->objDatabase
+                ->prepare($query)
+                ->limit($intAmount, $intStart)
+                ->execute()
+                ->fetchAllAssoc();
+        
+        if (count($arrResult) == 0)
+        {
+            return $this->objDc->getNewCollection();
+        }
+        
+        $objCollection = $this->objDc->getNewCollection();
+        foreach ($arrResult as $key => $arrValue)
+        {
+            $objModel = $this->objDc->getNewModel();
+            foreach ($arrValue as $k => $v)
+            {
+                $objModel->setProperty($k, $v);
+            }
+            
+            $objCollection->add($objModel);
+        }
+        
+        return $objCollection;
     }
 
     public function fetchEach($ids)
@@ -111,7 +182,7 @@ class GeneralData_Default implements InterfaceGeneralData
     {
         $arrVersion = $this->objDatabase
                 ->prepare('SELECT tstamp, version, username, active FROM tl_version WHERE fromTable = ? AND pid = ? ORDER BY version DESC')
-                ->execute($this->strTable, $intID)
+                ->execute($this->strSource, $intID)
                 ->fetchAllAssoc();
 
 
@@ -120,27 +191,27 @@ class GeneralData_Default implements InterfaceGeneralData
             return null;
         }
 
-        $objCollection = new GeneralCollection_Default();
+        $objCollection = $this->objDc->getNewCollection();
 
         foreach ($arrVersion as $versionValue)
         {
-            $objReturn = new GeneralModel_Default();
+            $objReturn = $this->objDc->getNewModel();
 
             foreach ($versionValue as $key => $value)
             {
                 $objReturn->setProperty($key, $value);
             }
-            
+
             $objCollection->add($objReturn);
         }
-        
+
         return $objCollection;
     }
 
     public function isUniqueValue($strField, $varNew)
     {
         $objUnique = $this->objDatabase
-                ->prepare('SELECT * FROM ' . $this->strTable . ' WHERE ' . $strField . ' = ? ')
+                ->prepare('SELECT * FROM ' . $this->strSource . ' WHERE ' . $strField . ' = ? ')
                 ->execute($varNew);
 
         if ($objUnique->numRows == 0)
@@ -153,35 +224,35 @@ class GeneralData_Default implements InterfaceGeneralData
 
     public function resetFallback($strField)
     {
-        $this->objDatabase->query('UPDATE ' . $this->strTable . ' SET ' . $strField . ' = \'\'');
+        $this->objDatabase->query('UPDATE ' . $this->strSource . ' SET ' . $strField . ' = \'\'');
     }
 
     public function save(InterfaceGeneralModel $objItem, $recursive = false)
-    {        
+    {
         $arrSet = array();
-        
+
         foreach ($objItem as $key => $value)
         {
-            if($key == "id")
+            if ($key == "id")
             {
                 continue;
             }
-            
+
             $arrSet[$key] = $value;
         }
-        
-        
-        if($objItem->getProperty("id") == null || $objItem->getProperty("id") == "")
+
+
+        if ($objItem->getProperty("id") == null || $objItem->getProperty("id") == "")
         {
             $this->objDatabase
-                    ->prepare("INSERT INTO $this->strTable %s")
+                    ->prepare("INSERT INTO $this->strSource %s")
                     ->set($arrSet)
                     ->execute();
         }
         else
         {
-             $this->objDatabase
-                    ->prepare("UPDATE $this->strTable %s WHERE id=?")
+            $this->objDatabase
+                    ->prepare("UPDATE $this->strSource %s WHERE id=?")
                     ->set($arrSet)
                     ->execute($objItem->getProperty("id"));
         }
@@ -200,7 +271,7 @@ class GeneralData_Default implements InterfaceGeneralData
         $objData = $this->Database->
                 prepare('SELECT * FROM tl_version WHERE fromTable = ? AND pid = ? AND version = ? ')
                 ->limit(1)
-                ->execute($this->strTable, $intID, $strVersion);
+                ->execute($this->strSource, $intID, $strVersion);
 
         if (!$objData->numRows)
         {
@@ -227,12 +298,17 @@ class GeneralData_Default implements InterfaceGeneralData
                 ->prepare('UPDATE tl_version SET active = 1 WHERE pid = ? AND version = ?')
                 ->execute($intID, $strVersion);
 
-        $this->log(sprintf('Version %s of record ID %s (table %s) has been restored', $strVersion, $intID, $this->strTable), 'DC_Table edit()', TL_GENERAL);
+        $this->log(sprintf('Version %s of record ID %s (table %s) has been restored', $strVersion, $intID, $this->strSource), 'DC_Table edit()', TL_GENERAL);
 
         // ToDo: Add Callback
 //        $this->executeCallbacks(
-//                $this->arrDCA['config']['onrestore_callback'], $this->intId, $this->strTable, $arrData, $strVersion
+//                $this->arrDCA['config']['onrestore_callback'], $this->intId, $this->strSource, $arrData, $strVersion
 //        );
+    }
+
+    public function fieldExists($strField)
+    {
+        return $this->objDatabase->fieldExists($strField, $this->strSource);
     }
 
 }
