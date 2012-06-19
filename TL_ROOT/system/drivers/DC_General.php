@@ -42,12 +42,42 @@ class DC_General extends DataContainer implements editable, listable
      * @var String 
      */
     protected $strTable = null;
+    
+    /**
+     * Name of the parent table
+     * @var String 
+     */
+    protected $strParentTable = null;
+    
+    /**
+     * Name of the child table
+     * @var String 
+     */
+    protected $strChildTable = null;
 
     /**
      * Name of current field
      * @var String 
      */
     protected $strField = null;
+    
+    /**
+     * Parameter to sort the collection
+     * @var array
+     */
+    protected $arrSorting = null;
+    
+    /**
+     * Parameter to filter the collection
+     * @var array
+     */
+    protected $arrFilter = null;
+    
+    /**
+     * Value vor the limit in the view
+     * @var string
+     */
+    protected $strLimit = null;
 
     /**
      * DCA configuration
@@ -134,6 +164,24 @@ class DC_General extends DataContainer implements editable, listable
     protected $objDataProvider = null;
 
     /**
+     * The provider that shall be used for data retrival.
+     * @var InterfaceGeneralData
+     */
+    protected $objParentDataProvider = null;
+    
+    /**
+     * The provider that shall be used for data retrival.
+     * @var InterfaceGeneralData
+     */
+    protected $objChildDataProvider = null;
+
+    /**
+     * ID of the button container
+     * @param string
+     */
+    protected $strButtonId = null;    
+    
+    /**
      * The provider that shall be used for view retrival.
      * @var InterfaceGeneralView 
      */
@@ -177,10 +225,6 @@ class DC_General extends DataContainer implements editable, listable
         // ToDo: SH: Switch FE|BE user =?
         $this->import('BackendUser', 'User');
 
-        // Set JS
-        // ToDo: SH: JS change, maybe callback or config ?
-        $GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/generalDriver/hmtl/js/dctableextended' . (version_compare(VERSION, '2.10', '<') ? '-2.9' : '') . '.js';
-
         // Set vars
         $this->intId = $this->Input->get('id');
         $this->blnSubmitted = $_POST['FORM_SUBMIT'] == $this->strTable;
@@ -222,7 +266,6 @@ class DC_General extends DataContainer implements editable, listable
             $this->objController = new GeneralController_Default();
         }
 
-
         // Load view
         if (isset($this->arrDCA['dca_config']['view']) && isset($this->arrDCA['dca_config']['view_config']))
         {
@@ -239,24 +282,108 @@ class DC_General extends DataContainer implements editable, listable
             $arrConfig = array();
             $this->objViewHandler = new GeneralView_Default();
         }
-
+        
         // Load data provider
         if (isset($this->arrDCA['dca_config']['data']) && isset($this->arrDCA['dca_config']['data_config']))
         {
             $arrConfig = $this->arrDCA['dca_config']['data_config'];
-            $this->objDataProvider = new $this->arrDCA['dca_config']['data']($arrConfig);
+            $this->objDataProvider = new $this->arrDCA['dca_config']['data']($arrConfig, $this);
         }
         else if (isset($this->arrDCA['dca_config']['data']) && !isset($this->arrDCA['dca_config']['data_config']))
         {
             $arrConfig = array();
-            $this->objDataProvider = new $this->arrDCA['dca_config']['data']($arrConfig);
+            $this->objDataProvider = new $this->arrDCA['dca_config']['data']($arrConfig, $this);
         }
         else
         {
             $arrConfig = array(
-                "table" => $this->strTable,
+                "source" => $this->strTable,
             );
-            $this->objDataProvider = new GeneralData_Default($arrConfig);
+            $this->objDataProvider = new GeneralData_Default($arrConfig, $this);
+        }
+        
+        // Load parent data provider
+        if (isset($this->arrDCA['dca_config']['data_parent']) && isset($this->arrDCA['dca_config']['data_parent_config']))
+        {
+            if(isset($this->arrDCA['dca_config']['data_parent_config']['source']))
+            {
+                $this->strParentTable = $this->arrDCA['dca_config']['data_parent_config']['source'];
+            }
+            
+            $arrConfig = $this->arrDCA['dca_config']['data_parent_config'];
+            $this->objParentDataProvider = new $this->arrDCA['dca_config']['data_parent']($arrConfig, $this);
+        }
+        else if (isset($this->arrDCA['dca_config']['data_parent']) && !isset($this->arrDCA['dca_config']['data_parent_config']))
+        {
+            $arrConfig = array();
+            $this->objParentDataProvider = new $this->arrDCA['dca_config']['data_parent']($arrConfig, $this);
+        }
+        
+        // Load child data provider
+        if (isset($this->arrDCA['dca_config']['data_child']) && isset($this->arrDCA['dca_config']['data_child_config']))
+        {
+            if(isset($this->arrDCA['dca_config']['data_child_config']['source']))
+            {
+                $this->strChildTable = $this->arrDCA['dca_config']['data_child_config']['source'];
+            }            
+            
+            $arrConfig = $this->arrDCA['dca_config']['data_child_config'];
+            $this->objChildDataProvider = new $this->arrDCA['dca_config']['data_child']($arrConfig, $this);
+        }
+        else if (isset($this->arrDCA['dca_config']['data_child']) && !isset($this->arrDCA['dca_config']['data_child_config']))
+        {
+            $arrConfig = array();
+            $this->objChildDataProvider = new $this->arrDCA['dca_config']['data_child']($arrConfig, $this);
+        }
+    }
+    
+    /**
+     * Load the collection handler, 
+     * if not set try to load the default one.
+     */
+    public function getNewCollection()
+    {        
+        // Load collection
+        if (isset($this->arrDCA['dca_config']['collection']))
+        {            
+            if(class_exists($this->arrDCA['dca_config']['collection']))
+            {
+                return new $this->arrDCA['dca_config']['collection']();
+            }
+            else
+            {
+                $this->log('Collection class do not exists', "$this->arrDCA['dca_config']['collection']", TL_ERROR);
+                $this->redirect('contao/main.php?act=error');
+            }
+        }
+        else
+        {  
+            return new GeneralCollection_Default();
+        }
+    }
+    
+    /**
+     * Load the model handler, 
+     * if not set try to load the default one.
+     */    
+    public function getNewModel()
+    {
+        // Load model
+        if (isset($this->arrDCA['dca_config']['model']))
+        {
+            if(class_exists($this->arrDCA['dca_config']['model']))
+            {
+                return new $this->arrDCA['dca_config']['model']();
+            }
+            else
+            {
+                $this->log('Model class do not exists', "$this->arrDCA['dca_config']['model']", TL_ERROR);
+                $this->redirect('contao/main.php?act=error');
+            }
+        }
+        else
+        {
+            return new GeneralModel_Default();
         }
     }
 
@@ -282,7 +409,32 @@ class DC_General extends DataContainer implements editable, listable
     {
         return $this->strTable;
     }
+    
+    public function getParentTable()
+    {
+        return $this->strParentTable;
+    }
 
+    public function getChildTable()
+    {
+        return $this->strChildTable;
+    }
+   
+    public function getSorting()
+    {
+        return $this->arrSorting;
+    }
+    
+    public function getFilter()
+    {
+        return $this->arrFilter;
+    }
+    
+    public function getLimit()
+    {
+        return $this->strLimit;
+    }    
+    
     public function getDCA()
     {
         return $this->arrDCA;
@@ -317,10 +469,24 @@ class DC_General extends DataContainer implements editable, listable
     {
         return $this->objDataProvider;
     }
+    public function getParentDataProvider()
+    {
+        return $this->objParentDataProvider;
+    }    
+
+    public function getChildDataProvider()
+    {
+        return $this->objChildDataProvider;
+    }
 
     public function getViewHandler()
     {
         return $this->objViewHandler;
+    }
+    
+    public function getButtonId()
+    {
+        return $this->strButtonId;
     }
 
     public function getObjController()
@@ -328,15 +494,55 @@ class DC_General extends DataContainer implements editable, listable
         return $this->objController;
     }
 
+    public function setParentTable($strParentTable)
+    {
+        $this->strParentTable = $strParentTable;
+    }    
+    
+    public function setChildTable($strChildTable)
+    {
+        $this->strChildTable = $strChildTable;
+    }    
+    
+    public function setSorting($arrSorting)
+    {
+        $this->arrSorting = $arrSorting;
+    }
+    
+    public function setFilter($arrFilter)
+    {
+        $this->arrFilter = $arrFilter;
+    }
+    
+    public function setLimit($strLimit)
+    {
+        $this->strLimit = $strLimit;
+    }
+    
     public function setDataProvider($objDataProvider)
     {
         $this->objDataProvider = $objDataProvider;
     }
+    
+    public function setParentDataProvider($objParentDataProvider)
+    {
+        $this->objParentDataProvider = $objParentDataProvider;
+    }
+    
+    public function setChildDataProvider($objChildDataProvider)
+    {
+        $this->objChildDataProvider = $objChildDataProvider;
+    }    
 
     public function setViewHandler($objViewHandler)
     {
         $this->objViewHandler = $objViewHandler;
     }
+    
+    public function setButtonId($strButtonId)
+    {
+        $this->strButtonId = $strButtonId;
+    }        
 
     public function setControllerHandler($objController)
     {
@@ -967,6 +1173,7 @@ class DC_General extends DataContainer implements editable, listable
 
     public function __call($name, $arguments)
     {
+        FB::log($name, $arguments);
         $strReturn = call_user_func_array(array($this->objController, $name), $arguments);
         if ($strReturn != null && $strReturn != "")
         {
