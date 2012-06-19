@@ -42,13 +42,13 @@ class DC_General extends DataContainer implements editable, listable
      * @var String 
      */
     protected $strTable = null;
-    
+
     /**
      * Name of the parent table
      * @var String 
      */
     protected $strParentTable = null;
-    
+
     /**
      * Name of the child table
      * @var String 
@@ -60,19 +60,25 @@ class DC_General extends DataContainer implements editable, listable
      * @var String 
      */
     protected $strField = null;
-    
+
     /**
      * Parameter to sort the collection
      * @var array
      */
     protected $arrSorting = null;
-    
+
+    /**
+     * Value for the first sorting
+     * @var string
+     */
+    protected $strFirstSorting = null;
+
     /**
      * Parameter to filter the collection
      * @var array
      */
     protected $arrFilter = null;
-    
+
     /**
      * Value vor the limit in the view
      * @var string
@@ -168,7 +174,7 @@ class DC_General extends DataContainer implements editable, listable
      * @var InterfaceGeneralData
      */
     protected $objParentDataProvider = null;
-    
+
     /**
      * The provider that shall be used for data retrival.
      * @var InterfaceGeneralData
@@ -179,8 +185,8 @@ class DC_General extends DataContainer implements editable, listable
      * ID of the button container
      * @param string
      */
-    protected $strButtonId = null;    
-    
+    protected $strButtonId = null;
+
     /**
      * The provider that shall be used for view retrival.
      * @var InterfaceGeneralView 
@@ -208,7 +214,7 @@ class DC_General extends DataContainer implements editable, listable
     public function __construct($strTable, array $arrDCA = null, $blnOnloadCallback = true)
     {
         parent::__construct();
-
+        
         // Basic vars Init
         $this->strTable = $strTable;
         $this->arrDCA = ($arrDCA != null) ? $arrDCA : $GLOBALS['TL_DCA'][$this->strTable];
@@ -314,15 +320,15 @@ class DC_General extends DataContainer implements editable, listable
             );
             $this->objDataProvider = new GeneralData_Default($arrConfig, $this);
         }
-        
+
         // Load parent data provider
         if (isset($this->arrDCA['dca_config']['data_parent']) && isset($this->arrDCA['dca_config']['data_parent_config']))
         {
-            if(isset($this->arrDCA['dca_config']['data_parent_config']['source']))
+            if (isset($this->arrDCA['dca_config']['data_parent_config']['source']))
             {
                 $this->strParentTable = $this->arrDCA['dca_config']['data_parent_config']['source'];
             }
-            
+
             $arrConfig = $this->arrDCA['dca_config']['data_parent_config'];
             $this->objParentDataProvider = new $this->arrDCA['dca_config']['data_parent']($arrConfig, $this);
         }
@@ -331,15 +337,15 @@ class DC_General extends DataContainer implements editable, listable
             $arrConfig = array();
             $this->objParentDataProvider = new $this->arrDCA['dca_config']['data_parent']($arrConfig, $this);
         }
-        
+
         // Load child data provider
         if (isset($this->arrDCA['dca_config']['data_child']) && isset($this->arrDCA['dca_config']['data_child_config']))
         {
-            if(isset($this->arrDCA['dca_config']['data_child_config']['source']))
+            if (isset($this->arrDCA['dca_config']['data_child_config']['source']))
             {
                 $this->strChildTable = $this->arrDCA['dca_config']['data_child_config']['source'];
-            }            
-            
+            }
+
             $arrConfig = $this->arrDCA['dca_config']['data_child_config'];
             $this->objChildDataProvider = new $this->arrDCA['dca_config']['data_child']($arrConfig, $this);
         }
@@ -384,7 +390,7 @@ class DC_General extends DataContainer implements editable, listable
     {
         return $this->strTable;
     }
-    
+
     public function getParentTable()
     {
         return $this->strParentTable;
@@ -394,22 +400,27 @@ class DC_General extends DataContainer implements editable, listable
     {
         return $this->strChildTable;
     }
-   
+
     public function getSorting()
     {
         return $this->arrSorting;
     }
-    
+
+    public function getFirstSorting()
+    {
+        return $this->strFirstSorting;
+    }
+
     public function getFilter()
     {
         return $this->arrFilter;
     }
-    
+
     public function getLimit()
     {
         return $this->strLimit;
-    }    
-    
+    }
+
     public function getDCA()
     {
         return $this->arrDCA;
@@ -444,10 +455,11 @@ class DC_General extends DataContainer implements editable, listable
     {
         return $this->objDataProvider;
     }
+
     public function getParentDataProvider()
     {
         return $this->objParentDataProvider;
-    }    
+    }
 
     public function getChildDataProvider()
     {
@@ -458,7 +470,7 @@ class DC_General extends DataContainer implements editable, listable
     {
         return $this->objViewHandler;
     }
-    
+
     public function getButtonId()
     {
         return $this->strButtonId;
@@ -472,52 +484,57 @@ class DC_General extends DataContainer implements editable, listable
     public function setParentTable($strParentTable)
     {
         $this->strParentTable = $strParentTable;
-    }    
-    
+    }
+
     public function setChildTable($strChildTable)
     {
         $this->strChildTable = $strChildTable;
-    }    
-    
+    }
+
     public function setSorting($arrSorting)
     {
         $this->arrSorting = $arrSorting;
     }
-    
+
+    public function setFirstSorting($strFirstSorting)
+    {
+        $this->strFirstSorting = $strFirstSorting;
+    }
+
     public function setFilter($arrFilter)
     {
         $this->arrFilter = $arrFilter;
     }
-    
+
     public function setLimit($strLimit)
     {
         $this->strLimit = $strLimit;
     }
-    
+
     public function setDataProvider($objDataProvider)
     {
         $this->objDataProvider = $objDataProvider;
     }
-    
+
     public function setParentDataProvider($objParentDataProvider)
     {
         $this->objParentDataProvider = $objParentDataProvider;
     }
-    
+
     public function setChildDataProvider($objChildDataProvider)
     {
         $this->objChildDataProvider = $objChildDataProvider;
-    }    
+    }
 
     public function setViewHandler($objViewHandler)
     {
         $this->objViewHandler = $objViewHandler;
     }
-    
+
     public function setButtonId($strButtonId)
     {
         $this->strButtonId = $strButtonId;
-    }        
+    }
 
     public function setControllerHandler($objController)
     {
@@ -762,7 +779,7 @@ class DC_General extends DataContainer implements editable, listable
 
         /* $arrConfig['eval']['encrypt'] ? $this->Encryption->decrypt($this->objActiveRecord->$strField) : */
         $varValue = deserialize($this->objCurrentModel->getProperty($strField));
-        
+
         // Load Callback
         if (is_array($arrConfig['load_callback']))
         {
@@ -803,7 +820,7 @@ class DC_General extends DataContainer implements editable, listable
         $arrConfig['eval']['required'] = $varValue == '' && $arrConfig['eval']['mandatory'] ? true : false;
         // OH: the whole prepareForWidget(..) thing is an only mess
         // widgets should parse the configuration by themselfs, depending on what they need
-        $arrPrepared                   = $this->prepareForWidget($arrConfig, $strInputName, $varValue, $strField, $this->strTable);
+        $arrPrepared = $this->prepareForWidget($arrConfig, $strInputName, $varValue, $strField, $this->strTable);
 
         //$arrConfig['options'] = $arrPrepared['options'];
 
@@ -829,7 +846,7 @@ class DC_General extends DataContainer implements editable, listable
      * @return void 
      */
     public function processInput($strField)
-    {      
+    {
         // Check if we have allready processed this field
         if (isset($this->arrProcessed[$strField]) && $this->arrProcessed[$strField] === true)
         {
@@ -864,7 +881,7 @@ class DC_General extends DataContainer implements editable, listable
         {
             $this->noReload = true;
             return null;
-        }        
+        }
 
         if (!$objWidget->submitInput())
         {
@@ -872,9 +889,9 @@ class DC_General extends DataContainer implements editable, listable
         }
 
         // Get value and config
-        $varNew    = $objWidget->value;
+        $varNew = $objWidget->value;
         $arrConfig = $this->getFieldDefinition($strField);
-        
+
         // If array sort
         if (is_array($varNew))
         {
@@ -884,7 +901,7 @@ class DC_General extends DataContainer implements editable, listable
         else if ($varNew != '' && isset(self::$arrDates[$arrConfig['eval']['rgxp']]))
         { // OH: this should be a widget feature
             $objDate = new Date($varNew, $GLOBALS['TL_CONFIG'][$arrConfig['eval']['rgxp'] . 'Format']);
-            $varNew  = $objDate->tstamp;
+            $varNew = $objDate->tstamp;
         }
 
         //Handle multi-select fields in "override all" mode
@@ -916,7 +933,7 @@ class DC_General extends DataContainer implements editable, listable
                 $varNew = '';
             }
         }
-        
+
         // Call the save callbacks
         try
         {
@@ -963,7 +980,7 @@ class DC_General extends DataContainer implements editable, listable
         }
 
         $this->arrProcessed[$strField] = $varNew;
-        
+
         return $varNew;
 
 //        // Check on value has not changed
@@ -980,7 +997,6 @@ class DC_General extends DataContainer implements editable, listable
 //        {
 //            $this->blnCreateNewVersion = true;
 //        }
-
     }
 
     /**
@@ -1025,7 +1041,7 @@ class DC_General extends DataContainer implements editable, listable
             return array();
         }
 
-        $arrArgs    = array_slice(func_get_args(), 1);
+        $arrArgs = array_slice(func_get_args(), 1);
         $arrResults = array();
 
         foreach ($varCallbacks as $arrCallback)
@@ -1034,11 +1050,162 @@ class DC_General extends DataContainer implements editable, listable
             {
                 $this->import($arrCallback[0]);
                 $arrCallback[0] = $this->{$arrCallback[0]};
-                $arrResults[]   = call_user_func_array($arrCallback, $arrArgs);
+                $arrResults[] = call_user_func_array($arrCallback, $arrArgs);
             }
         }
 
         return $arrResults;
+    }
+
+    /**
+     * Return the formatted group header as string
+     * 
+     * @param string
+     * @param mixed
+     * @param integer
+     * @param InterfaceGeneralModel
+     * @return string
+     */
+    protected function formatCurrentValue($field, $value, $mode, InterfaceGeneralModel $objParentModel = null)
+    {
+        if ($this->arrDCA['fields'][$field]['inputType'] == 'checkbox' && !$this->arrDCA['fields'][$field]['eval']['multiple'])
+        {
+            $remoteNew = ($value != '') ? ucfirst($GLOBALS['TL_LANG']['MSC']['yes']) : ucfirst($GLOBALS['TL_LANG']['MSC']['no']);
+        }
+        elseif (isset($this->arrDCA['fields'][$field]['foreignKey']))
+        {
+            $key = explode('.', $this->arrDCA['fields'][$field]['foreignKey'], 2);
+
+            if($objParentModel->hasProperties())
+            {
+                $remoteNew = $objParentModel->getProperty('value');
+            }
+        }
+        elseif (in_array($mode, array(1, 2)))
+        {
+            $remoteNew = ($value != '') ? ucfirst(utf8_substr($value, 0, 1)) : '-';
+        }
+        elseif (in_array($mode, array(3, 4)))
+        {
+            if (!isset($this->arrDCA['fields'][$field]['length']))
+            {
+                $this->arrDCA['fields'][$field]['length'] = 2;
+            }
+
+            $remoteNew = ($value != '') ? ucfirst(utf8_substr($value, 0, $this->arrDCA['fields'][$field]['length'])) : '-';
+        }
+        elseif (in_array($mode, array(5, 6)))
+        {
+            $remoteNew = ($value != '') ? $this->parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $value) : '-';
+        }
+        elseif (in_array($mode, array(7, 8)))
+        {
+            $remoteNew = ($value != '') ? date('Y-m', $value) : '-';
+            $intMonth = ($value != '') ? (date('m', $value) - 1) : '-';
+
+            if (isset($GLOBALS['TL_LANG']['MONTHS'][$intMonth]))
+            {
+                $remoteNew = ($value != '') ? $GLOBALS['TL_LANG']['MONTHS'][$intMonth] . ' ' . date('Y', $value) : '-';
+            }
+        }
+        elseif (in_array($mode, array(9, 10)))
+        {
+            $remoteNew = ($value != '') ? date('Y', $value) : '-';
+        }
+        else
+        {
+            if ($this->arrDCA['fields'][$field]['inputType'] == 'checkbox' && !$this->arrDCA['fields'][$field]['eval']['multiple'])
+            {
+                $remoteNew = ($value != '') ? $field : '';
+            }
+            elseif (is_array($this->arrDCA['fields'][$field]['reference']))
+            {
+                $remoteNew = $this->arrDCA['fields'][$field]['reference'][$value];
+            }
+            elseif (array_is_assoc($this->arrDCA['fields'][$field]['options']))
+            {
+                $remoteNew = $this->arrDCA['fields'][$field]['options'][$value];
+            }
+            else
+            {
+                $remoteNew = $value;
+            }
+
+            if (is_array($remoteNew))
+            {
+                $remoteNew = $remoteNew[0];
+            }
+
+            if (empty($remoteNew))
+            {
+                $remoteNew = '-';
+            }
+        }
+
+        return $remoteNew;
+    }
+
+    /**
+     * Return the formatted group header as string
+     * @param string
+     * @param mixed
+     * @param integer
+     * @param array
+     * @return string
+     */
+    protected function formatGroupHeader($field, $value, $mode, $row)
+    {
+        $group = '';
+        static $lookup = array();
+
+        if (array_is_assoc($this->arrDCA['fields'][$field]['options']))
+        {
+            $group = $this->arrDCA['fields'][$field]['options'][$value];
+        }
+        elseif (is_array($this->arrDCA['fields'][$field]['options_callback']))
+        {
+            if (!isset($lookup[$field]))
+            {
+                $strClass = $this->arrDCA['fields'][$field]['options_callback'][0];
+                $strMethod = $this->arrDCA['fields'][$field]['options_callback'][1];
+
+                $this->import($strClass);
+                $lookup[$field] = $this->$strClass->$strMethod($this);
+            }
+
+            $group = $lookup[$field][$value];
+        }
+        else
+        {
+            $group = is_array($this->arrDCA['fields'][$field]['reference'][$value]) ? $this->arrDCA['fields'][$field]['reference'][$value][0] : $this->arrDCA['fields'][$field]['reference'][$value];
+        }
+
+        if (empty($group))
+        {
+            $group = is_array($this->arrDCA[$value]) ? $this->arrDCA[$value][0] : $this->arrDCA[$value];
+        }
+
+        if (empty($group))
+        {
+            $group = $value;
+
+            if ($this->arrDCA['fields'][$field]['eval']['isBoolean'] && $value != '-')
+            {
+                $group = is_array($this->arrDCA['fields'][$field]['label']) ? $this->arrDCA['fields'][$field]['label'][0] : $this->arrDCA['fields'][$field]['label'];
+            }
+        }
+
+        // Call the group callback ($group, $sortingMode, $firstOrderBy, $row, $this)
+        if (is_array($this->arrDCA['list']['label']['group_callback']))
+        {
+            $strClass = $this->arrDCA['list']['label']['group_callback'][0];
+            $strMethod = $this->arrDCA['list']['label']['group_callback'][1];
+
+            $this->import($strClass);
+            $group = $this->$strClass->$strMethod($group, $mode, $field, $row, $this);
+        }
+
+        return $group;
     }
 
     /**
