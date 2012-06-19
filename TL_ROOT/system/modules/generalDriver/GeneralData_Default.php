@@ -78,11 +78,28 @@ class GeneralData_Default implements InterfaceGeneralData
      * 
      * @return InterfaceGeneralModel
      */
-    public function getEmpty()
+    public function getEmptyModel()
     {
         return new GeneralModel_Default();
     }
+    
+    /**
+     * Fetch an empty single collection (new item).
+     * 
+     * @return InterfaceGeneralModel
+     */
+    public function getEmptyCollection()
+    {
+        return new GeneralCollection_Default();
+    }
 
+    /**
+     * Fetch a single record by id.
+     * 
+     * @param int ID
+     * 
+     * @return InterfaceGeneralModel
+     */    
     public function fetch($intId)
     {
         $arrResult = $this->objDatabase
@@ -95,7 +112,7 @@ class GeneralData_Default implements InterfaceGeneralData
             return null;
         }
 
-        $objModel = $this->objDc->getNewModel();
+        $objModel = $this->getEmptyModel();
 
         foreach ($arrResult[0] as $key => $value)
         {
@@ -105,6 +122,17 @@ class GeneralData_Default implements InterfaceGeneralData
         return $objModel;
     }
 
+    /**
+     * Fetch all records (optional limited).
+     * 
+     * @param bool $blnIdOnly if true, only the ids are returned, if false real models are returned.
+     * @param int $intStart optional offset to start retrival from
+     * @param int $intAmount optional limit to limit the amount of retrieved items
+     * @param array $arrFilter a list with filter options
+     * @param array $arrSorting a list with all sortings
+     * 
+     * @return InterfaceGeneralCollection
+     */    
     public function fetchAll($blnIdOnly = false, $intStart = 0, $intAmount = 0, $arrFilter = null, $arrSorting = null)
     {
         $boolSetWhere = FALSE;
@@ -160,13 +188,13 @@ class GeneralData_Default implements InterfaceGeneralData
         
         if (count($arrResult) == 0)
         {
-            return $this->objDc->getNewCollection();
+            return $this->getEmptyCollection();
         }
         
-        $objCollection = $this->objDc->getNewCollection();
+        $objCollection = $this->getEmptyCollection();
         foreach ($arrResult as $key => $arrValue)
         {
-            $objModel = $this->objDc->getNewModel();
+            $objModel = $this->getEmptyModel();
             foreach ($arrValue as $k => $v)
             {
                 $objModel->setProperty($k, $v);
@@ -201,11 +229,11 @@ class GeneralData_Default implements InterfaceGeneralData
             return null;
         }
 
-        $objCollection = $this->objDc->getNewCollection();
+        $objCollection = $this->getEmptyCollection();
 
         foreach ($arrVersion as $versionValue)
         {
-            $objReturn = $this->objDc->getNewModel();
+            $objReturn = $this->getEmptyModel();
 
             foreach ($versionValue as $key => $value)
             {
@@ -316,6 +344,11 @@ class GeneralData_Default implements InterfaceGeneralData
 //        );
     }
 
+    /**
+     * Check if the value exists in the table
+     * 
+     * @return boolean 
+     */    
     public function fieldExists($strField)
     {
         return $this->objDatabase->fieldExists($strField, $this->strSource);

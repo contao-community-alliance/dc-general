@@ -35,6 +35,20 @@ interface InterfaceGeneralData
     public function __construct(array $arrConfig, DC_General $objDC);
 
     /**
+     * Fetch an empty single record (new item).
+     * 
+     * @return InterfaceGeneralModel
+     */
+    public function getEmptyModel();
+    
+    /**
+     * Fetch an empty new collection.
+     * 
+     * @return InterfaceGeneralCollection
+     */
+    public function getEmptyCollection();    
+    
+    /**
      * Fetch a single record by id.
      * 
      * @param int ID
@@ -42,13 +56,6 @@ interface InterfaceGeneralData
      * @return InterfaceGeneralModel
      */
     public function fetch($id);
-
-    /**
-     * Fetch an empty single record (new item).
-     * 
-     * @return InterfaceGeneralModel
-     */
-    public function getEmpty();
 
     /**
      * Fetch multiple records by ids.
