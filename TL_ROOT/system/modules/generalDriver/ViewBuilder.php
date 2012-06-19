@@ -1,6 +1,4 @@
-<?php
-if (!defined('TL_ROOT'))
-    die('You cannot access this file directly!');
+<?php if (!defined('TL_ROOT')) die('You cannot access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -139,17 +137,58 @@ class ViewBuilder extends Backend
 
     public function listRecords()
     {
+        $arrDCA = $this->objDc->getDCA();
+
         $arrReturn = array();
-        
+
         if ($this->objDc->getCurrentCollecion()->length() < 1)
         {
             $arrReturn[] = '<p class="tl_empty">' . $GLOBALS['TL_LANG']['MSC']['noResult'] . '</p>';
         }
         else
         {
-            $arrReturn[] = '<p class="tl_empty">cooming soon</p>';
+            // TODO outsource to template
+            if ($this->Input->get('act') == 'select')
+            {
+                $arrReturn[] = '<form action="' . ampersand($this->Environment->request, true) . '" id="tl_select" class="tl_form" method="post">
+                    <div class="tl_formbody">
+                    <input type="hidden" name="FORM_SUBMIT" value="tl_select">
+                    <input type="hidden" name="REQUEST_TOKEN" value="' . REQUEST_TOKEN . '">';
+            }
+
+            $arrReturn[] = '<div class="tl_listing_container list_view">' . (($this->Input->get('act') == 'select') ? '
+                <div class="tl_select_trigger">
+                <label for="tl_select_trigger" class="tl_select_label">' . $GLOBALS['TL_LANG']['MSC']['selectAll'] . '</label> <input type="checkbox" id="tl_select_trigger" onclick="Backend.toggleCheckboxes(this)" class="tl_tree_checkbox">
+                </div>' : '') . '<table class="tl_listing">';
+
+
+            // TODO set Field view
+            $arrReturn[] = 'Coming soon';
+
+            // Close table
+            $arrReturn[] = '</table>';
+
+            $arrReturn[] = '</div>';
+
+            // Close form
+            if ($this->Input->get('act') == 'select')
+            {
+                $arrReturn[] = '
+
+<div class="tl_formbody_submit" style="text-align:right;">
+
+<div class="tl_submit_container">' . (!$arrDCA['config']['notDeletable'] ? '
+  <input type="submit" name="delete" id="delete" class="tl_submit" accesskey="d" onclick="return confirm(\'' . $GLOBALS['TL_LANG']['MSC']['delAllConfirm'] . '\');" value="' . specialchars($GLOBALS['TL_LANG']['MSC']['deleteSelected']) . '"> ' : '') . (!$arrDCA['config']['notEditable'] ? '
+  <input type="submit" name="override" id="override" class="tl_submit" accesskey="v" value="' . specialchars($GLOBALS['TL_LANG']['MSC']['overrideSelected']) . '"> 
+  <input type="submit" name="edit" id="edit" class="tl_submit" accesskey="s" value="' . specialchars($GLOBALS['TL_LANG']['MSC']['editSelected']) . '"> ' : '') . '
+</div>
+
+</div>
+</div>
+</form>';
+            }
         }
-        
+
         return implode('', $arrReturn);
     }
 
