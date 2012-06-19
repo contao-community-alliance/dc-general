@@ -35,17 +35,13 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
     {
         switch ($name)
         {
-            case "edit":
-                return $this->runEdit($arguments[0]);
-                break;
-            
             default:
                 return $this->notImplMsg;
                 break;
         };
     }
 
-    protected function runEdit(DC_General $objDC)
+    public function edit(DC_General $objDC)
     {
         // Check if table is editable
         if (!$objDC->isEditable())
@@ -72,22 +68,22 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         $objDC->addButton("saveNclose");
         $objDC->addButton("gogogo");
         $objDC->addButton("foo");
-        
+
         // Load record from data provider
         $objDBModel = $objDC->getDataProvider()->fetch($objDC->getId());
-        if($objDBModel == null)
+        if ($objDBModel == null)
         {
-            $objDBModel = new GeneralModel_Default();
+            $objDBModel = $objDC->getNewModel();
         }
         $objDC->setCurrentModel($objDBModel);
-       
+
         // Check submit
         if ($objDC->isSubmitted() == true)
         {
             if (isset($_POST["save"]))
-            {     
-                $objCurrentModel = new GeneralModel_Default();
-                
+            {
+                $objCurrentModel = $objDC->getNewModel();
+
                 foreach ($objDC->getFieldList() as $key => $value)
                 {
                     $objCurrentModel->setProperty($key, $objDC->processInput($key));
@@ -97,24 +93,24 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                 {
                     return;
                 }
-                
+
                 foreach ($objCurrentModel as $key => $value)
                 {
-                    if($objDBModel->getProperty($key) != $value)
+                    if ($objDBModel->getProperty($key) != $value)
                     {
-                        $objCurrentModel->setProperty("id", $objDC->getId());                        
+                        $objCurrentModel->setProperty("id", $objDC->getId());
                         $objDC->getDataProvider()->save($objCurrentModel);
                     }
                 }
-                
+
                 $this->reload();
             }
             else if (isset($_POST["saveNclose"]))
             {
                 setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
-                $_SESSION['TL_INFO']    = '';
-                $_SESSION['TL_ERROR']   = '';
+                $_SESSION['TL_INFO'] = '';
+                $_SESSION['TL_ERROR'] = '';
                 $_SESSION['TL_CONFIRM'] = '';
 
                 $this->redirect($this->getReferer());
@@ -125,20 +121,116 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             }
         }
     }
-    
-    protected function runShowAll(DC_General $objDC)
+
+    public function showAll(DC_General $objDC)
     {
+        $objDC->setButtonId('tl_buttons');
+
         $this->listView($objDC);
     }
-    
+
     protected function listView(DC_General $objDC)
     {
-//        $arrDCA = $objDC->getDCA();
-//                
-//        // Load record from data provider
-//        $objDBModel = $objDC->getDataProvider();        
-//                
-//        $objDC->setCurrentModel($objDBModel);
+        $arrDCA = $objDC->getDCA();
+
+        $objDataProvider = ($arrDCA['list']['sorting']['mode'] == 6) ? $objDC->getParentDataProvider() : $objDC->getDataProvider();
+
+        $arrFilterIds = $arrDCA['list']['sorting']['root'];
+
+        // TODO implement panel filter from session
+        $arrFilter = $objDC->getFilter();
+        if (is_array($arrFilterIds) && count($arrFilterIds) > 0)
+        {
+            if (is_null($arrFilter))
+            {
+                $arrFilter = array();
+            }
+
+            $arrFilter['id'] = array_map('intval', $arrFilterIds);
+        }
+
+        $mixedOrderBy = $arrDCA['list']['sorting']['fields'];
+
+        // TODO implement panel sorting from session
+        if (!is_null($objDC->getSorting()))
+        {
+            $mixedOrderBy = $objDC->getSorting();
+        }
+
+        if (is_array($mixedOrderBy) && strlen($mixedOrderBy[0]))
+        {
+            foreach ($mixedOrderBy as $key => $strField)
+            {
+                if ($arrDCA['fields'][$strField]['eval']['findInSet'])
+                {
+                    if (is_array($arrDCA['fields'][$strField]['options_callback']))
+                    {
+                        $strClass = $arrDCA['fields'][$strField]['options_callback'][0];
+                        $strMethod = $arrDCA['fields'][$strField]['options_callback'][1];
+
+                        $this->import($strClass);
+                        $keys = $this->$strClass->$strMethod($this);
+                    }
+                    else
+                    {
+                        $keys = $arrDCA['fields'][$strField]['options'];
+                    }
+
+                    if (array_is_assoc($keys))
+                    {
+                        $keys = array_keys($keys);
+                    }
+
+                    $mixedOrderBy[$key] = array(
+                        'field' => $strField,
+                        'keys' => $keys,
+                        'action' => 'findInSet'
+                    );
+                }
+            }
+        }
+
+        // Set sort order
+        if ($arrDCA['list']['sorting']['mode'] == 1 && ($arrDCA['list']['sorting']['flag'] % 2) == 0)
+        {
+            $mixedOrderBy['sortOrder'] = " DESC";
+        }
+
+        // Set Limit
+        // TODO implement panel limit from session
+        $arrLimit = array(0, 0);
+        if (!is_null($objDC->getLimit()))
+        {
+            $arrLimit = explode(',', $objDC->getLimit());
+        }
+
+        // Load record from data provider
+        $objCollection = $objDataProvider->fetchAll(false, $arrLimit[0], $arrLimit[1], $arrFilter, $mixedOrderBy);
+        
+        // Rename each pid to its label and resort the result (sort by parent table)
+        if ($arrDCA['list']['sorting']['mode'] == 3 && $objDataProvider->fieldExists('pid'))
+        {
+            $showFields = $arrDCA['list']['label']['fields'];
+
+            foreach ($objCollection as $objModel)
+            {
+                $objFieldModel = $objDC->getParentDataProvider()->fetch($objModel->getProperty('id'));
+                $objModel->setProperty('pid', $objFieldModel->getProperty($showFields[0]));
+            }
+            
+            $objCollection->sort(array($this, 'sortCollectionPid'));
+        }
+
+        $objDC->setCurrentCollecion($objCollection);
+    }
+    
+    public function sortCollectionPid(InterfaceGeneralModel $a, InterfaceGeneralModel $b)
+    {
+        if ($a->getProperty('pid') == $b->getProperty('pid')) {
+            return 0;
+        }
+        
+        return ($a->getProperty('pid') < $b->getProperty('pid')) ? -1 : 1;
     }
 
 }
