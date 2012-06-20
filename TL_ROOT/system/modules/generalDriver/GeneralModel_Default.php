@@ -54,6 +54,14 @@ class GeneralModel_Default implements InterfaceGeneralModel
             return null;
         }
     }
+    
+    /**
+     * @see InterfaceGeneralModel::getPropertiesAsArray()
+     */
+    public function getPropertiesAsArray()
+    {
+        return $this->arrProperties;
+    }    
 
     /**
      * @see InterfaceGeneralModel::setProperty()
@@ -70,6 +78,17 @@ class GeneralModel_Default implements InterfaceGeneralModel
 
         $this->arrProperties[$strPropertyName] = $varValue;
     }
+    
+    /**
+     * @see InterfaceGeneralModel::setPropertiesAsArray()
+     */
+    public function setPropertiesAsArray($arrProperties)
+    {
+        if(is_array($arrProperties))
+        {
+            $this->arrProperties = $arrProperties;
+        }
+    }    
 
     /**
      * @see InterfaceGeneralModel::hasProperties()

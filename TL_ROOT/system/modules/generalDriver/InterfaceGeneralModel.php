@@ -30,14 +30,28 @@ interface InterfaceGeneralModel extends IteratorAggregate
 {
 
     /**
-     * Fetch property from Model. 
+     * Fetch property from model. 
      */
     public function getProperty($strPropertyName);
 
     /**
-     * Update property in Model 
+     * Fetch all properties from model.
+     * 
+     * return array
+     */
+    public function getPropertiesAsArray();
+    
+    /**
+     * Update property in model.
      */
     public function setProperty($strPropertyName, $varValue);
+    
+    /**
+     * Update all properties in model.
+     * 
+     * @param array $arrProperties
+     */
+    public function setPropertiesAsArray($arrProperties);
     
     /**
      * Check if this model have any properties.
