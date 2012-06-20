@@ -38,6 +38,12 @@ class DC_General extends DataContainer implements editable, listable
     protected $intId = null;
 
     /**
+     * List with all ids for the views
+     * @var type 
+     */
+    protected $arrRootIds = null;
+
+    /**
      * Name of current table
      * @var String 
      */
@@ -306,19 +312,19 @@ class DC_General extends DataContainer implements editable, listable
         if (isset($this->arrDCA['dca_config']['data']) && isset($this->arrDCA['dca_config']['data_config']))
         {
             $arrConfig = $this->arrDCA['dca_config']['data_config'];
-            $this->objDataProvider = new $this->arrDCA['dca_config']['data']($arrConfig, $this);
+            $this->objDataProvider = new $this->arrDCA['dca_config']['data']($arrConfig);
         }
         else if (isset($this->arrDCA['dca_config']['data']) && !isset($this->arrDCA['dca_config']['data_config']))
         {
             $arrConfig = array();
-            $this->objDataProvider = new $this->arrDCA['dca_config']['data']($arrConfig, $this);
+            $this->objDataProvider = new $this->arrDCA['dca_config']['data']($arrConfig);
         }
         else
         {
             $arrConfig = array(
                 "source" => $this->strTable,
             );
-            $this->objDataProvider = new GeneralData_Default($arrConfig, $this);
+            $this->objDataProvider = new GeneralData_Default($arrConfig);
         }
 
         // Load parent data provider
@@ -330,12 +336,12 @@ class DC_General extends DataContainer implements editable, listable
             }
 
             $arrConfig = $this->arrDCA['dca_config']['data_parent_config'];
-            $this->objParentDataProvider = new $this->arrDCA['dca_config']['data_parent']($arrConfig, $this);
+            $this->objParentDataProvider = new $this->arrDCA['dca_config']['data_parent']($arrConfig);
         }
         else if (isset($this->arrDCA['dca_config']['data_parent']) && !isset($this->arrDCA['dca_config']['data_parent_config']))
         {
             $arrConfig = array();
-            $this->objParentDataProvider = new $this->arrDCA['dca_config']['data_parent']($arrConfig, $this);
+            $this->objParentDataProvider = new $this->arrDCA['dca_config']['data_parent']($arrConfig);
         }
 
         // Load child data provider
@@ -347,12 +353,12 @@ class DC_General extends DataContainer implements editable, listable
             }
 
             $arrConfig = $this->arrDCA['dca_config']['data_child_config'];
-            $this->objChildDataProvider = new $this->arrDCA['dca_config']['data_child']($arrConfig, $this);
+            $this->objChildDataProvider = new $this->arrDCA['dca_config']['data_child']($arrConfig);
         }
         else if (isset($this->arrDCA['dca_config']['data_child']) && !isset($this->arrDCA['dca_config']['data_child_config']))
         {
             $arrConfig = array();
-            $this->objChildDataProvider = new $this->arrDCA['dca_config']['data_child']($arrConfig, $this);
+            $this->objChildDataProvider = new $this->arrDCA['dca_config']['data_child']($arrConfig);
         }
     }
 
@@ -384,6 +390,11 @@ class DC_General extends DataContainer implements editable, listable
     public function getId()
     {
         return $this->intId;
+    }
+    
+    public function getRootIds()
+    {
+        return $this->arrRootIds;
     }
 
     public function getTable()
@@ -479,6 +490,11 @@ class DC_General extends DataContainer implements editable, listable
     public function getObjController()
     {
         return $this->objController;
+    }
+    
+    public function setRootIds($arrRootIds)
+    {
+        $this->arrRootIds = $arrRootIds;
     }
 
     public function setParentTable($strParentTable)
@@ -1063,23 +1079,23 @@ class DC_General extends DataContainer implements editable, listable
      * @param string
      * @param mixed
      * @param integer
-     * @param InterfaceGeneralModel
      * @return string
      */
-    protected function formatCurrentValue($field, $value, $mode, InterfaceGeneralModel $objParentModel = null)
+    public function formatCurrentValue($field, $value, $mode)
     {
         if ($this->arrDCA['fields'][$field]['inputType'] == 'checkbox' && !$this->arrDCA['fields'][$field]['eval']['multiple'])
         {
             $remoteNew = ($value != '') ? ucfirst($GLOBALS['TL_LANG']['MSC']['yes']) : ucfirst($GLOBALS['TL_LANG']['MSC']['no']);
         }
         elseif (isset($this->arrDCA['fields'][$field]['foreignKey']))
-        {
-            $key = explode('.', $this->arrDCA['fields'][$field]['foreignKey'], 2);
-
+        {   
+            // TODO cas handling
+            /*
             if($objParentModel->hasProperties())
             {
                 $remoteNew = $objParentModel->getProperty('value');
             }
+            */
         }
         elseif (in_array($mode, array(1, 2)))
         {
@@ -1150,10 +1166,10 @@ class DC_General extends DataContainer implements editable, listable
      * @param string
      * @param mixed
      * @param integer
-     * @param array
+     * @param InterfaceGeneralModel
      * @return string
      */
-    protected function formatGroupHeader($field, $value, $mode, $row)
+    public function formatGroupHeader($field, $value, $mode, $objModelRow)
     {
         $group = '';
         static $lookup = array();
@@ -1194,7 +1210,7 @@ class DC_General extends DataContainer implements editable, listable
                 $group = is_array($this->arrDCA['fields'][$field]['label']) ? $this->arrDCA['fields'][$field]['label'][0] : $this->arrDCA['fields'][$field]['label'];
             }
         }
-
+        
         // Call the group callback ($group, $sortingMode, $firstOrderBy, $row, $this)
         if (is_array($this->arrDCA['list']['label']['group_callback']))
         {
@@ -1202,7 +1218,7 @@ class DC_General extends DataContainer implements editable, listable
             $strMethod = $this->arrDCA['list']['label']['group_callback'][1];
 
             $this->import($strClass);
-            $group = $this->$strClass->$strMethod($group, $mode, $field, $row, $this);
+            $group = $this->$strClass->$strMethod($group, $mode, $field, $objModelRow->getProperties(), $this);
         }
 
         return $group;
