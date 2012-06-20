@@ -97,6 +97,23 @@ class ViewBuilder extends Backend
 
         return implode('', $arrReturn);
     }
+    
+    public function panel()
+    {
+        $arrDCA = $this->objDc->getDCA();
+        $arrReturn = array();
+        
+        if(is_array($this->objDc->getPanelView()) && count($this->objDc->getPanelView()) > 0)
+        {        
+            $objTemplate = new BackendTemplate('be_general_panel');
+            $objTemplate->action = ampersand($this->Environment->request, true);
+            $objTemplate->theme = $this->getTheme();
+            $objTemplate->panel = $this->objDc->getPanelView();
+            $arrReturn[] = $objTemplate->parse();
+        }
+        
+        return implode('', $arrReturn);        
+    }
 
     /**
      * Generate header display buttons

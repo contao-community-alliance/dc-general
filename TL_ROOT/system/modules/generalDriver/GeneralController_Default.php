@@ -141,12 +141,22 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         $objDC->setButtonId('tl_buttons');
         
         // Get the IDs of all root records (list view or parent view)
-	if (is_array($arrDCA['list']['sorting']['root']))
-	{
+        if (is_array($arrDCA['list']['sorting']['root']))
+        {
             $objDC->setRootIds(array_unique($arrDCA['list']['sorting']['root']));
-	}        
+        }
 
-        $this->listView($objDC);
+        if ($arrDCA['list']['sorting']['mode'] == 4)
+        {
+            // TODO implemetn parentView
+            $this->parentView($objDC);
+        }
+        else
+        {
+            $this->listView($objDC);
+        }
+        
+        $this->panel($objDC);
     }
 
     protected function listView(DC_General $objDC)
@@ -271,8 +281,8 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             // TODO set global current in DC_General
             /* $this->current[] = $objModelRow->getProperty('id'); */
             $showFields = $arrCurrentDCA['list']['label']['fields'];
-            
-            if(!is_array($objModelRow->getProperty('view')))
+
+            if (!is_array($objModelRow->getProperty('view')))
             {
                 $arrView = array();
             }
@@ -297,14 +307,14 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                 {
                     // TODO case handling
                     /*
-                    list($strKey, $strTable) = explode(':', $v);
-                    list($strTable, $strField) = explode('.', $strTable);
+                      list($strKey, $strTable) = explode(':', $v);
+                      list($strTable, $strField) = explode('.', $strTable);
 
-                    $objRef = $this->Database->prepare("SELECT " . $strField . " FROM " . $strTable . " WHERE id=?")
-                            ->limit(1)
-                            ->execute($row[$strKey]);
+                      $objRef = $this->Database->prepare("SELECT " . $strField . " FROM " . $strTable . " WHERE id=?")
+                      ->limit(1)
+                      ->execute($row[$strKey]);
 
-                    $args[$k] = $objRef->numRows ? $objRef->$strField : '';
+                      $args[$k] = $objRef->numRows ? $objRef->$strField : '';
                      */
                 }
                 elseif (in_array($arrDCA['fields'][$v]['flag'], array(5, 6, 7, 8, 9, 10)))
@@ -368,26 +378,26 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             // Remove empty brackets (), [], {}, <> and empty tags from the label
             $label = preg_replace('/\( *\) ?|\[ *\] ?|\{ *\} ?|< *> ?/i', '', $label);
             $label = preg_replace('/<[^>]+>\s*<\/[^>]+>/i', '', $label);
-            
+
             // Build sorting groups
             if ($arrDCA['list']['sorting']['mode'] > 0)
             {
                 $current = $objModelRow->getProperty($objDC->getFirstSorting());
                 $orderBy = $arrDCA['list']['sorting']['fields'];
                 $sortingMode = (count($orderBy) == 1 && $objDC->getFirstSorting() == $orderBy[0] && strlen($arrDCA['list']['sorting']['flag']) && !strlen($arrDCA['fields'][$objDC->getFirstSorting()]['flag'])) ? $arrDCA['list']['sorting']['flag'] : $arrDCA['fields'][$objDC->getFirstSorting()]['flag'];
-                
+
                 $remoteNew = $objDC->formatCurrentValue($objDC->getFirstSorting(), $current, $sortingMode);
 
                 // Add the group header
                 if (!$arrDCA['list']['sorting']['disableGrouping'] && ($remoteNew != $remoteCur || $remoteCur === false))
                 {
                     $arrView['group'] = array(
-                        'class' => $groupclass, 
+                        'class' => $groupclass,
                         'value' => $objDC->formatGroupHeader($objDC->getFirstSorting(), $remoteNew, $sortingMode, $objModelRow)
                     );
-                    
+
                     $groupclass = 'tl_folder_list';
-                    $remoteCur = $remoteNew;                    
+                    $remoteCur = $remoteNew;
                 }
             }
 
@@ -404,11 +414,178 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             {
                 $arrView['lable'] = $label;
             }
-            
+
             $objModelRow->setProperty('view', $arrView);
         }
-        
+
         $objDC->setCurrentCollecion($objCollection);
+    }
+
+    /**
+     * Build the sort panel and write it to DC_General
+     */
+    protected function panel(DC_General $objDC)
+    {
+        $arrDCA = $objDC->getDCA();
+        
+        $arrPanelView = array();
+
+//        $filter = $this->filterMenu();
+//        $search = $this->searchMenu();
+        $limit = $this->limitMenu($objDC);
+//        $sort = $this->sortMenu();
+
+        /*if (!strlen($filter) && !strlen($search) && !strlen($limit) && !strlen($sort))
+        {
+            return '';
+        }*/
+
+        if (!strlen($arrDCA['list']['sorting']['panelLayout']))
+        {
+            return '';
+        }
+
+        if ($this->Input->post('FORM_SUBMIT') == 'tl_filters')
+        {
+            $this->reload();
+        }
+
+        $panelLayout = $arrDCA['list']['sorting']['panelLayout'];
+        $arrPanels = trimsplit(';', $panelLayout);
+        $intLast = count($arrPanels) - 1;
+
+        for ($i = 0; $i < count($arrPanels); $i++)
+        {
+            $arrSubPanels = trimsplit(',', $arrPanels[$i]);
+
+            foreach ($arrSubPanels as $strSubPanel)
+            {
+                if (is_array($$strSubPanel) && count($$strSubPanel) > 0)
+                {
+                    $arrPanelView[$strSubPanel] = $$strSubPanel;
+                }                
+            }
+        }
+        
+        if(count($arrPanelView) > 0)
+        {
+            $objDC->setPanelView($arrPanelView);
+        }
+    }
+
+    /**
+     * Return a select menu to limit results
+     * @param boolean
+     * @return string
+     */
+    protected function limitMenu(DC_General $objDC, $blnOptional = false)
+    {
+        $arrDCA = $objDC->getDCA();
+        $arrPanelView = array();
+        
+        $session = $this->Session->getData();
+        $filter = ($arrDCA['list']['sorting']['mode'] == 4) ? $objDC->getTable() . '_' . CURRENT_ID : $objDC->getTable();
+
+        // Set limit from user input
+        if ($this->Input->post('FORM_SUBMIT') == 'tl_filters' || $this->Input->post('FORM_SUBMIT') == 'tl_filters_limit')
+        {
+            if ($this->Input->post('tl_limit') != 'tl_limit')
+            {
+                $session['filter'][$filter]['limit'] = $this->Input->post('tl_limit');
+            }
+            else
+            {
+                unset($session['filter'][$filter]['limit']);
+            }
+
+            $this->Session->setData($session);
+
+            if ($this->Input->post('FORM_SUBMIT') == 'tl_filters_limit')
+            {
+                $this->reload();
+            }
+        }
+
+        // Set limit from table configuration
+        else
+        {
+            $this->limit = strlen($session['filter'][$filter]['limit']) ? (($session['filter'][$filter]['limit'] == 'all') ? null : $session['filter'][$filter]['limit']) : '0,' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
+            
+            // TODO change with own data count request            
+            $total = $objDC->getCurrentCollecion()->length();
+            $blnIsMaxResultsPerPage = false;
+
+            // Overall limit
+            if ($total > $GLOBALS['TL_CONFIG']['maxResultsPerPage'] && (is_null($this->limit) || preg_replace('/^.*,/i', '', $this->limit) == $GLOBALS['TL_CONFIG']['maxResultsPerPage']))
+            {
+                if (is_null($this->limit))
+                {
+                    $this->limit = '0,' . $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
+                }
+
+                $blnIsMaxResultsPerPage = true;
+                $GLOBALS['TL_CONFIG']['resultsPerPage'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
+                $session['filter'][$filter]['limit'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
+            }
+
+            // Build options
+            if ($total > 0)
+            {
+                $arrPanelView['option'][0] = array();
+                $options_total = ceil($total / $GLOBALS['TL_CONFIG']['resultsPerPage']);
+
+                // Reset limit if other parameters have decreased the number of results
+                if (!is_null($this->limit) && ($this->limit == '' || preg_replace('/,.*$/i', '', $this->limit) > $total))
+                {
+                    $this->limit = '0,' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
+                }
+                
+                // Build options
+                for ($i = 0; $i < $options_total; $i++)
+                {
+                    $this_limit = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']) . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
+                    $upper_limit = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + $GLOBALS['TL_CONFIG']['resultsPerPage']);
+
+                    if ($upper_limit > $total)
+                    {
+                        $upper_limit = $total;
+                    }
+
+                    $arrPanelView['option'][] = array(
+                        'value' => $this_limit,
+                        'select' => $this->optionSelected($this->limit, $this_limit),
+                        'content' => ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + 1) . ' - ' . $upper_limit
+                    );                    
+                }
+
+                if (!$blnIsMaxResultsPerPage)
+                {
+                    $arrPanelView['option'][] = array(
+                        'value' => 'all',
+                        'select' => $this->optionSelected($this->limit, null),
+                        'content' => $GLOBALS['TL_LANG']['MSC']['filterAll']
+                    );
+                }
+            }
+
+            // Return if there is only one page
+            if ($blnOptional && ($total < 1 || $options_total < 2))
+            {
+                return array();
+            }
+
+            $arrPanelView['select'] = array(
+                'class' => (($session['filter'][$filter]['limit'] != 'all' && $total > $GLOBALS['TL_CONFIG']['resultsPerPage']) ? ' active' : '')
+            );
+            
+            $arrPanelView['option'][0] = array(
+                'value' => 'tl_limit',
+                'select' => '',
+                'content' => $GLOBALS['TL_LANG']['MSC']['filterRecords']
+            );
+        }
+
+        return $arrPanelView;
     }
 
     public function sortCollectionPid(InterfaceGeneralModel $a, InterfaceGeneralModel $b)

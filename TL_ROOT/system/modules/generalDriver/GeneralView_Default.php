@@ -145,7 +145,7 @@ class GeneralView_Default extends Controller implements InterfaceGeneralView
     {
         $objView = new ViewBuilder($objDcGeneral);
         
-        return $objView->listView();
+        return $objView->panel() . $objView->listView();
     }
 
     public function undo(DC_General $objDcGeneral)

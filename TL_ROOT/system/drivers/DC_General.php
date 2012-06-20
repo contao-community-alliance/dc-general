@@ -42,6 +42,12 @@ class DC_General extends DataContainer implements editable, listable
      * @var type 
      */
     protected $arrRootIds = null;
+    
+    /**
+     * Container for panel information
+     * @var array
+     */
+    protected $arrPanelView = null;
 
     /**
      * Name of current table
@@ -497,6 +503,16 @@ class DC_General extends DataContainer implements editable, listable
         $this->arrRootIds = $arrRootIds;
     }
 
+    public function setPanelView($arrPanelView)
+    {
+        $this->arrPanelView = $arrPanelView;
+    }    
+    
+    public function getPanelView()
+    {
+        return $this->arrPanelView;
+    }
+
     public function setParentTable($strParentTable)
     {
         $this->strParentTable = $strParentTable;
@@ -837,6 +853,8 @@ class DC_General extends DataContainer implements editable, listable
         // OH: the whole prepareForWidget(..) thing is an only mess
         // widgets should parse the configuration by themselfs, depending on what they need
         $arrPrepared = $this->prepareForWidget($arrConfig, $strInputName, $varValue, $strField, $this->strTable);
+        
+        var_dump($arrPrepared);
 
         //$arrConfig['options'] = $arrPrepared['options'];
 
@@ -1089,7 +1107,7 @@ class DC_General extends DataContainer implements editable, listable
         }
         elseif (isset($this->arrDCA['fields'][$field]['foreignKey']))
         {   
-            // TODO cas handling
+            // TODO case handling
             /*
             if($objParentModel->hasProperties())
             {
