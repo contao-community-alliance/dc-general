@@ -74,7 +74,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         return true;
     }
 
-    protected function edit(DC_General $objDC)
+    public function edit(DC_General $objDC)
     {
         // Check if table is editable
         if (!$objDC->isEditable())
@@ -136,7 +136,15 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
 
     public function showAll(DC_General $objDC)
     {
+        $arrDCA = $objDC->getDCA();
+        
         $objDC->setButtonId('tl_buttons');
+        
+        // Get the IDs of all root records (list view or parent view)
+	if (is_array($arrDCA['list']['sorting']['root']))
+	{
+            $objDC->setRootIds(array_unique($arrDCA['list']['sorting']['root']));
+	}        
 
         $this->listView($objDC);
     }
@@ -251,13 +259,8 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             }
 
             $objCollection->sort(array($this, 'sortCollectionPid'));
-        }
+        }       
 
-        $objDC->setCurrentCollecion($objCollection);
-
-        return;
-
-        // Code-Refactoring        
         // Process result and add label and buttons
         $remoteCur = false;
         $groupclass = 'tl_folder_tlist';
@@ -265,8 +268,18 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         foreach ($objCollection as $objModelRow)
         {
             $args = array();
-            $this->current[] = $objModelRow->getProperty('id');
+            // TODO set global current in DC_General
+            /* $this->current[] = $objModelRow->getProperty('id'); */
             $showFields = $arrCurrentDCA['list']['label']['fields'];
+            
+            if(!is_array($objModelRow->getProperty('view')))
+            {
+                $arrView = array();
+            }
+            else
+            {
+                $arrView = $objModelRow->getProperty('view');
+            }
 
             // Label
             foreach ($showFields as $k => $v)
@@ -282,6 +295,8 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
 
                 if (strpos($v, ':') !== false)
                 {
+                    // TODO case handling
+                    /*
                     list($strKey, $strTable) = explode(':', $v);
                     list($strTable, $strField) = explode('.', $strTable);
 
@@ -290,57 +305,58 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                             ->execute($row[$strKey]);
 
                     $args[$k] = $objRef->numRows ? $objRef->$strField : '';
+                     */
                 }
                 elseif (in_array($arrDCA['fields'][$v]['flag'], array(5, 6, 7, 8, 9, 10)))
                 {
                     if ($arrDCA['fields'][$v]['eval']['rgxp'] == 'date')
                     {
-                        $args[$k] = $this->parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $row[$v]);
+                        $args[$k] = $this->parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $objModelRow->getProperty($v));
                     }
                     elseif ($arrDCA['fields'][$v]['eval']['rgxp'] == 'time')
                     {
-                        $args[$k] = $this->parseDate($GLOBALS['TL_CONFIG']['timeFormat'], $row[$v]);
+                        $args[$k] = $this->parseDate($GLOBALS['TL_CONFIG']['timeFormat'], $objModelRow->getProperty($v));
                     }
                     else
                     {
-                        $args[$k] = $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $row[$v]);
+                        $args[$k] = $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $objModelRow->getProperty($v));
                     }
                 }
                 elseif ($arrDCA['fields'][$v]['inputType'] == 'checkbox' && !$arrDCA['fields'][$v]['eval']['multiple'])
                 {
-                    $args[$k] = strlen($row[$v]) ? $arrCurrentDCA['fields'][$v]['label'][0] : '';
+                    $args[$k] = strlen($objModelRow->getProperty($v)) ? $arrCurrentDCA['fields'][$v]['label'][0] : '';
                 }
                 else
                 {
-                    $row_v = deserialize($row[$v]);
+                    $row = deserialize($objModelRow->getProperty($v));
 
-                    if (is_array($row_v))
+                    if (is_array($row))
                     {
                         $args_k = array();
 
-                        foreach ($row_v as $option)
+                        foreach ($row as $option)
                         {
                             $args_k[] = strlen($arrCurrentDCA['fields'][$v]['reference'][$option]) ? $arrCurrentDCA['fields'][$v]['reference'][$option] : $option;
                         }
 
                         $args[$k] = implode(', ', $args_k);
                     }
-                    elseif (isset($arrCurrentDCA['fields'][$v]['reference'][$row[$v]]))
+                    elseif (isset($arrCurrentDCA['fields'][$v]['reference'][$objModelRow->getProperty($v)]))
                     {
-                        $args[$k] = is_array($arrCurrentDCA['fields'][$v]['reference'][$row[$v]]) ? $arrCurrentDCA['fields'][$v]['reference'][$row[$v]][0] : $arrCurrentDCA['fields'][$v]['reference'][$row[$v]];
+                        $args[$k] = is_array($arrCurrentDCA['fields'][$v]['reference'][$objModelRow->getProperty($v)]) ? $arrCurrentDCA['fields'][$v]['reference'][$objModelRow->getProperty($v)][0] : $arrCurrentDCA['fields'][$v]['reference'][$objModelRow->getProperty($v)];
                     }
-                    elseif (array_is_assoc($arrCurrentDCA['fields'][$v]['options']) && isset($arrCurrentDCA['fields'][$v]['options'][$row[$v]]))
+                    elseif (array_is_assoc($arrCurrentDCA['fields'][$v]['options']) && isset($arrCurrentDCA['fields'][$v]['options'][$objModelRow->getProperty($v)]))
                     {
-                        $args[$k] = $arrCurrentDCA['fields'][$v]['options'][$row[$v]];
+                        $args[$k] = $arrCurrentDCA['fields'][$v]['options'][$objModelRow->getProperty($v)];
                     }
                     else
                     {
-                        $args[$k] = $row[$v];
+                        $args[$k] = $objModelRow->getProperty($v);
                     }
                 }
             }
 
-            // Shorten the label it if it is too long
+            // Shorten the label if it is too long
             $label = vsprintf((strlen($arrDCA['list']['label']['format']) ? $arrDCA['list']['label']['format'] : '%s'), $args);
 
             if ($arrDCA['list']['label']['maxCharacters'] > 0 && $arrDCA['list']['label']['maxCharacters'] < strlen(strip_tags($label)))
@@ -352,52 +368,47 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             // Remove empty brackets (), [], {}, <> and empty tags from the label
             $label = preg_replace('/\( *\) ?|\[ *\] ?|\{ *\} ?|< *> ?/i', '', $label);
             $label = preg_replace('/<[^>]+>\s*<\/[^>]+>/i', '', $label);
-
+            
             // Build sorting groups
-//				if ($arrDCA['list']['sorting']['mode'] > 0)
-//				{
-//					$current = $row[$firstOrderBy];
-//					$orderBy = $arrDCA['list']['sorting']['fields'];
-//					$sortingMode = (count($orderBy) == 1 && $firstOrderBy == $orderBy[0] && strlen($arrDCA['list']['sorting']['flag']) && !strlen($arrDCA['fields'][$firstOrderBy]['flag'])) ? $arrDCA['list']['sorting']['flag'] : $arrDCA['fields'][$firstOrderBy]['flag'];
-//					$remoteNew = $objDC->formatCurrentValue($firstOrderBy, $current, $sortingMode);
-//
-//					// Add the group header
-//					if (!$arrDCA['list']['sorting']['disableGrouping'] && ($remoteNew != $remoteCur || $remoteCur === false))
-//					{
-//						$group = $this->formatGroupHeader($firstOrderBy, $remoteNew, $sortingMode, $row);
-//						$remoteCur = $remoteNew;
-//
-//						$return .= '
-//  <tr>
-//    <td colspan="2" class="'.$groupclass.'">'.$group.'</td>
-//  </tr>';
-//						$groupclass = 'tl_folder_list';
-//					}
-//				}
-//				$return .= '
-//  <tr onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);">
-//    <td class="tl_file_list">';
-//
-//				// Call label callback ($row, $label, $this)
-//				if (is_array($arrDCA['list']['label']['label_callback']))
-//				{
-//					$strClass = $arrDCA['list']['label']['label_callback'][0];
-//					$strMethod = $arrDCA['list']['label']['label_callback'][1];
-//
-//					$this->import($strClass);
-//					$return .= $this->$strClass->$strMethod($row, $label, $this);
-//				}
-//				else
-//				{
-//					$return .= $label;
-//				}
-//
-//				// Buttons ($row, $table, $root, $blnCircularReference, $childs, $previous, $next)
-//				$return .= '</td>'.(($this->Input->get('act') == 'select') ? '
-//    <td class="tl_file_list tl_right_nowrap"><input type="checkbox" name="IDS[]" id="ids_'.$row['id'].'" class="tl_tree_checkbox" value="'.$row['id'].'"></td>' : '
-//    <td class="tl_file_list tl_right_nowrap">'.$this->generateButtons($row, $this->strTable, $this->root).'</td>') . '
-//  </tr>';
+            if ($arrDCA['list']['sorting']['mode'] > 0)
+            {
+                $current = $objModelRow->getProperty($objDC->getFirstSorting());
+                $orderBy = $arrDCA['list']['sorting']['fields'];
+                $sortingMode = (count($orderBy) == 1 && $objDC->getFirstSorting() == $orderBy[0] && strlen($arrDCA['list']['sorting']['flag']) && !strlen($arrDCA['fields'][$objDC->getFirstSorting()]['flag'])) ? $arrDCA['list']['sorting']['flag'] : $arrDCA['fields'][$objDC->getFirstSorting()]['flag'];
+                
+                $remoteNew = $objDC->formatCurrentValue($objDC->getFirstSorting(), $current, $sortingMode);
+
+                // Add the group header
+                if (!$arrDCA['list']['sorting']['disableGrouping'] && ($remoteNew != $remoteCur || $remoteCur === false))
+                {
+                    $arrView['group'] = array(
+                        'class' => $groupclass, 
+                        'value' => $objDC->formatGroupHeader($objDC->getFirstSorting(), $remoteNew, $sortingMode, $objModelRow)
+                    );
+                    
+                    $groupclass = 'tl_folder_list';
+                    $remoteCur = $remoteNew;                    
+                }
+            }
+
+            // Call label callback ($objModelRow, $label, $this)
+            if (is_array($arrDCA['list']['label']['label_callback']))
+            {
+                $strClass = $arrDCA['list']['label']['label_callback'][0];
+                $strMethod = $arrDCA['list']['label']['label_callback'][1];
+
+                $this->import($strClass);
+                $arrView['lable'] = $this->$strClass->$strMethod($objModelRow, $label, $this);
+            }
+            else
+            {
+                $arrView['lable'] = $label;
+            }
+            
+            $objModelRow->setProperty('view', $arrView);
         }
+        
+        $objDC->setCurrentCollecion($objCollection);
     }
 
     public function sortCollectionPid(InterfaceGeneralModel $a, InterfaceGeneralModel $b)

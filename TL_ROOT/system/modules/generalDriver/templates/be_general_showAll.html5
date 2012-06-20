@@ -1,0 +1,66 @@
+<?php if ($this->collection->length() < 1): ?>
+    <p class="tl_empty"><?php echo $GLOBALS['TL_LANG']['MSC']['noResult']; ?></p>
+<?php else: ?>
+    
+    <?php if ($this->select): ?>
+        <form action="<?php echo $this->action; ?>" id="tl_select" class="tl_form" method="post">
+            <div class="tl_formbody">
+                <input type="hidden" name="FORM_SUBMIT" value="tl_select">
+                <input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>">
+            <?php endif; ?>
+                
+            <div class="tl_listing_container list_view">
+                
+                <?php if ($this->select): ?>
+                    <div class="tl_select_trigger">
+                        <label for="tl_select_trigger" class="tl_select_label"><?php echo $GLOBALS['TL_LANG']['MSC']['selectAll']; ?></label>
+                        <input type="checkbox" id="tl_select_trigger" onclick="Backend.toggleCheckboxes(this)" class="tl_tree_checkbox">
+                    </div>
+                <?php endif; ?>
+                
+                <table class="tl_listing">
+                    <?php foreach ($this->collection as $objModelRow): ?>
+                        <?php $arrView = $objModelRow->getProperty('view'); ?>
+
+                        <?php if ($this->mode > 0): ?>
+                            <tr><td colspan="2" class="<?php echo $arrView['group']['class']; ?>"><?php echo $arrView['group']['value']; ?></td></tr>
+                        <?php endif; ?>
+
+                        <tr onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);">
+                            <td class="tl_file_list">
+                                <?php echo $arrView['lable']; ?>
+                            </td>
+
+                            <?php if ($this->select): ?>
+                                <td class="tl_file_list tl_right_nowrap">
+                                    <input type="checkbox" name="IDS[]" id="ids_<?php echo $objModelRow->getProperty('id'); ?>" class="tl_tree_checkbox" value="<?php echo $objModelRow->getProperty('id'); ?>">
+                                </td>
+                            <?php else: ?>
+                                <td class="tl_file_list tl_right_nowrap">
+                                    <?php echo $arrView['buttons']; ?>
+                                </td>
+                            <?php endif; ?>                
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+                
+            </div>
+
+            <?php if ($this->select): ?>
+                <div class="tl_formbody_submit" style="text-align:right;">
+                    <div class="tl_submit_container">
+                        <?php if (!$this->notDeletable): ?>
+                            <input type="submit" name="delete" id="delete" class="tl_submit" accesskey="d" onclick="return confirm('<?php echo $GLOBALS['TL_LANG']['MSC']['delAllConfirm']; ?>');" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['deleteSelected']); ?>">
+                        <?php endif; ?>
+
+                        <?php if (!$this->notEditable): ?>
+                            <input type="submit" name="override" id="override" class="tl_submit" accesskey="v" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['overrideSelected']); ?>"> 
+                            <input type="submit" name="edit" id="edit" class="tl_submit" accesskey="s" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['editSelected']); ?>">
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </form>
+    <?php endif; ?>  
+
+<?php endif; ?>

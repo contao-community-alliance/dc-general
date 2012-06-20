@@ -33,8 +33,23 @@
 class ViewBuilder extends Backend
 {
 
+    /**
+     * Contains data container
+     * @var DC_General
+     */
     protected $objDc;
+    
+    /**
+     * button id
+     * @var string
+     */
     protected $strBid;
+    
+    /**
+     * Flag for input select
+     * @var boolean
+     */
+    protected $blnSelect;
 
     /**
      * Initialize the object
@@ -44,20 +59,50 @@ class ViewBuilder extends Backend
         parent::__construct();
 
         $this->objDc = $objDc;
-
+        $this->blnSelect = ($this->Input->get('act') == 'select') ? TRUE : FALSE;
+        
         $this->displayButtons();
     }
 
+    /**
+     * Generate list view from current collection
+     * 
+     * @return string 
+     */
     public function listView()
-    {
-        $return = '';
+    {        
+        $arrDCA = $this->objDc->getDCA();        
+        $arrReturn = array();
+        
+        // Add display buttons
+        $arrReturn[] = $this->displayButtons();
+        
+        // Generate buttons
+        foreach($this->objDc->getCurrentCollecion() as $objModelRow)
+        {
+            $arrView = $objModelRow->getProperty('view');
+            $arrView['buttons'] = $this->generateButtons($objModelRow, $this->objDc->getTable(), $this->objDc->getRootIds());            
+            $objModelRow->setProperty('view', $arrView); 
+        }
+        
+        // Add template
+        $objTemplate = new BackendTemplate('be_general_showAll');
+        $objTemplate->collection = $this->objDc->getCurrentCollecion();
+        $objTemplate->select = $this->blnSelect;
+        $objTemplate->action = ampersand($this->Environment->request, true);
+        $objTemplate->mode = $arrDCA['list']['sorting']['mode'];
+        $objTemplate->notDeletable = $arrDCA['config']['notDeletable'];
+        $objTemplate->notEditable = $arrDCA['config']['notEditable'];
+        $arrReturn[] = $objTemplate->parse();
 
-        $return .= $this->displayButtons();
-        $return .= $this->listRecords();
-
-        return $return;
+        return implode('', $arrReturn);
     }
 
+    /**
+     * Generate header display buttons
+     * 
+     * @return string 
+     */
     public function displayButtons()
     {
         $arrDCA = $this->objDc->getDCA();
@@ -69,12 +114,12 @@ class ViewBuilder extends Backend
             $arrReturn[] = '<div id="' . $this->objDc->getButtonId() . '">';
 
             // Add back button
-            $arrReturn[] = (($this->Input->get('act') == 'select' || $this->objDc->getParentTable()) ? '<a href="' . $this->getReferer(true, $this->objDc->getParentTable()) . '" class="header_back" title="' . specialchars($GLOBALS['TL_LANG']['MSC']['backBT']) . '" accesskey="b" onclick="Backend.getScrollOffset();">' . $GLOBALS['TL_LANG']['MSC']['backBT'] . '</a>' : '');
+            $arrReturn[] = (($this->blnSelect || $this->objDc->getParentTable()) ? '<a href="' . $this->getReferer(true, $this->objDc->getParentTable()) . '" class="header_back" title="' . specialchars($GLOBALS['TL_LANG']['MSC']['backBT']) . '" accesskey="b" onclick="Backend.getScrollOffset();">' . $GLOBALS['TL_LANG']['MSC']['backBT'] . '</a>' : '');
 
             // Add divider
-            $arrReturn[] = (($this->objDc->getParentTable() && $this->Input->get('act') != 'select') ? ' &nbsp; :: &nbsp;' : '');
+            $arrReturn[] = (($this->objDc->getParentTable() && !$this->blnSelect) ? ' &nbsp; :: &nbsp;' : '');
 
-            if ($this->Input->get('act') != 'select')
+            if (!$this->blnSelect)
             {
                 // Add new button
                 $arrReturn[] = ' ' . (!$arrDCA['config']['closed'] ? '<a href="' . (strlen($this->objDc->getParentTable()) ? $this->addToUrl('act=create' . (($arrDCA['list']['sorting']['mode'] < 4) ? '&amp;mode=2' : '') . '&amp;pid=' . $this->objDc->getId()) : $this->addToUrl('act=create')) . '" class="header_new" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDc->getTable()]['new'][1]) . '" accesskey="n" onclick="Backend.getScrollOffset();">' . $GLOBALS['TL_LANG'][$this->objDc->getTable()]['new'][0] . '</a>' : '');
@@ -93,9 +138,77 @@ class ViewBuilder extends Backend
     }
 
     /**
+     * Compile buttons from the table configuration array and return them as HTML
+     * 
+     * @param InterfaceGeneralModel $objModelRow
+     * @param string $strTable
+     * @param array $arrRootIds
+     * @param boolean $blnCircularReference
+     * @param array $arrChildRecordIds
+     * @param int $strPrevious
+     * @param int $strNext
+     * @return string
+     */
+    public function generateButtons(InterfaceGeneralModel $objModelRow, $strTable, $arrRootIds = array(), $blnCircularReference = false, $arrChildRecordIds = null, $strPrevious = null, $strNext = null)
+    {
+        if (!count($GLOBALS['TL_DCA'][$strTable]['list']['operations']))
+        {
+            return '';
+        }
+
+        $return = '';
+
+        foreach ($GLOBALS['TL_DCA'][$strTable]['list']['operations'] as $k => $v)
+        {
+            $v = is_array($v) ? $v : array($v);
+            $label = strlen($v['label'][0]) ? $v['label'][0] : $k;
+            $title = sprintf((strlen($v['label'][1]) ? $v['label'][1] : $k), $objModelRow->getProperty('id'));
+            $attributes = strlen($v['attributes']) ? ' ' . ltrim(sprintf($v['attributes'], $objModelRow->getProperty('id'), $objModelRow->getProperty('id'))) : '';
+
+            // Call a custom function instead of using the default button
+            if (is_array($v['button_callback']))
+            {
+                $this->import($v['button_callback'][0]);
+                $return .= $this->$v['button_callback'][0]->$v['button_callback'][1]($objModelRow->getPropertiesAsArray(), $v['href'], $label, $title, $v['icon'], $attributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext);
+
+                continue;
+            }
+
+            // Generate all buttons except "move up" and "move down" buttons
+            if ($k != 'move' && $v != 'move')
+            {
+                $return .= '<a href="' . $this->addToUrl($v['href'] . '&amp;id=' . $objModelRow->getProperty('id')) . '" title="' . specialchars($title) . '"' . $attributes . '>' . $this->generateImage($v['icon'], $label) . '</a> ';
+                continue;
+            }
+
+            $arrDirections = array('up', 'down');
+            $arrRootIds = is_array($arrRootIds) ? $arrRootIds : array($arrRootIds);
+
+            foreach ($arrDirections as $dir)
+            {
+                $label = strlen($GLOBALS['TL_LANG'][$strTable][$dir][0]) ? $GLOBALS['TL_LANG'][$strTable][$dir][0] : $dir;
+                $title = strlen($GLOBALS['TL_LANG'][$strTable][$dir][1]) ? $GLOBALS['TL_LANG'][$strTable][$dir][1] : $dir;
+
+                $label = $this->generateImage($dir . '.gif', $label);
+                $href = strlen($v['href']) ? $v['href'] : '&amp;act=move';
+
+                if ($dir == 'up')
+                {
+                    $return .= ((is_numeric($strPrevious) && (!in_array($objModelRow->getProperty('id'), $arrRootIds) || !count($GLOBALS['TL_DCA'][$strTable]['list']['sorting']['root']))) ? '<a href="' . $this->addToUrl($href . '&amp;id=' . $objModelRow->getProperty('id')) . '&amp;sid=' . intval($strPrevious) . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> ' : $this->generateImage('up_.gif')) . ' ';
+                    continue;
+                }
+
+                $return .= ((is_numeric($strNext) && (!in_array($objModelRow->getProperty('id'), $arrRootIds) || !count($GLOBALS['TL_DCA'][$strTable]['list']['sorting']['root']))) ? '<a href="' . $this->addToUrl($href . '&amp;id=' . $objModelRow->getProperty('id')) . '&amp;sid=' . intval($strNext) . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> ' : $this->generateImage('down_.gif')) . ' ';
+            }
+        }
+
+        return trim($return);
+    }
+
+    /**
      * Compile global buttons from the table configuration array and return them as HTML
      * 
-     * @param boolean
+     * @param boolean $blnForceSeparator
      * @return string
      */
     protected function generateGlobalButtons($blnForceSeparator = false)
@@ -134,64 +247,7 @@ class ViewBuilder extends Backend
 
         return ($arrDCA['config']['closed'] && !$blnForceSeparator) ? preg_replace('/^ &#160; :: &#160; /', '', $return) : $return;
     }
-
-    public function listRecords()
-    {
-        $arrDCA = $this->objDc->getDCA();
-
-        $arrReturn = array();
-
-        if ($this->objDc->getCurrentCollecion()->length() < 1)
-        {
-            $arrReturn[] = '<p class="tl_empty">' . $GLOBALS['TL_LANG']['MSC']['noResult'] . '</p>';
-        }
-        else
-        {
-            // TODO outsource to template
-            if ($this->Input->get('act') == 'select')
-            {
-                $arrReturn[] = '<form action="' . ampersand($this->Environment->request, true) . '" id="tl_select" class="tl_form" method="post">
-                    <div class="tl_formbody">
-                    <input type="hidden" name="FORM_SUBMIT" value="tl_select">
-                    <input type="hidden" name="REQUEST_TOKEN" value="' . REQUEST_TOKEN . '">';
-            }
-
-            $arrReturn[] = '<div class="tl_listing_container list_view">' . (($this->Input->get('act') == 'select') ? '
-                <div class="tl_select_trigger">
-                <label for="tl_select_trigger" class="tl_select_label">' . $GLOBALS['TL_LANG']['MSC']['selectAll'] . '</label> <input type="checkbox" id="tl_select_trigger" onclick="Backend.toggleCheckboxes(this)" class="tl_tree_checkbox">
-                </div>' : '') . '<table class="tl_listing">';
-
-
-            // TODO set Field view
-            $arrReturn[] = 'Coming soon';
-
-            // Close table
-            $arrReturn[] = '</table>';
-
-            $arrReturn[] = '</div>';
-
-            // Close form
-            if ($this->Input->get('act') == 'select')
-            {
-                $arrReturn[] = '
-
-<div class="tl_formbody_submit" style="text-align:right;">
-
-<div class="tl_submit_container">' . (!$arrDCA['config']['notDeletable'] ? '
-  <input type="submit" name="delete" id="delete" class="tl_submit" accesskey="d" onclick="return confirm(\'' . $GLOBALS['TL_LANG']['MSC']['delAllConfirm'] . '\');" value="' . specialchars($GLOBALS['TL_LANG']['MSC']['deleteSelected']) . '"> ' : '') . (!$arrDCA['config']['notEditable'] ? '
-  <input type="submit" name="override" id="override" class="tl_submit" accesskey="v" value="' . specialchars($GLOBALS['TL_LANG']['MSC']['overrideSelected']) . '"> 
-  <input type="submit" name="edit" id="edit" class="tl_submit" accesskey="s" value="' . specialchars($GLOBALS['TL_LANG']['MSC']['editSelected']) . '"> ' : '') . '
-</div>
-
-</div>
-</div>
-</form>';
-            }
-        }
-
-        return implode('', $arrReturn);
-    }
-
+    
 }
 
 ?>
