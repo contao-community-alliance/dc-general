@@ -33,8 +33,6 @@ class GeneralData_Default implements InterfaceGeneralData
 {
     // Vars --------------------------------------------------------------------
 
-    protected $objDc;
-
     /**
      * Name of current source
      * @var string 
@@ -49,15 +47,13 @@ class GeneralData_Default implements InterfaceGeneralData
 
     // Constructor and co ------------------------------------------------------
 
-    public function __construct(array $arrConfig, DC_General $objDc)
+    public function __construct(array $arrConfig)
     {
         // Check Vars
         if (!isset($arrConfig["source"]))
         {
             throw new Excpetion("Missing table name.");
         }
-        
-        $this->objDc = $objDc;
 
         // Init Vars
         $this->strSource = $arrConfig["source"];

@@ -32,7 +32,7 @@ interface InterfaceGeneralData
     /**
      * 
      */
-    public function __construct(array $arrConfig, DC_General $objDC);
+    public function __construct(array $arrConfig);
 
     /**
      * Fetch an empty single record (new item).
