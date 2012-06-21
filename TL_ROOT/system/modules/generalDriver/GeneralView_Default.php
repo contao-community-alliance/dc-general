@@ -47,7 +47,7 @@ class GeneralView_Default extends Controller implements InterfaceGeneralView
 
     public function create(DC_General $objDcGeneral)
     {
-        return $this->notImplMsg;
+       return $this->edit($objDcGeneral);
     }
 
     public function cut(DC_General $objDcGeneral)

@@ -41,38 +41,76 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         };
     }
 
-    /**
-     * Perform low level saving of the current model in a DC.
-     * NOTE: the model will get populated with the new values within this function.
-     * Therefore the current submitted data will be stored within the model but only on
-     * success also be saved into the DB.
-     * 
-     * @param DC_General $objDC the DC that adapts the save operation.
-     * 
-     * @return bool true if the save operation was successful, false otherwise.
-     */
-    protected function doSave(DC_General $objDC)
+    // Core Functions ----------------------------------------------------------
+
+    public function create(DC_General $objDC)
     {
-        $objDBModel = $objDC->getCurrentModel();
-        // process input and update changed properties.
-        foreach ($objDC->getFieldList() as $key => $value)
+        // Check if table is editable
+        if (!$objDC->isEditable())
         {
-            $varNewValue = $objDC->processInput($key);
-            if ($objDBModel->getProperty($key) != $varNewValue)
+            $this->log('Table ' . $objDC->getTable() . ' is not editable', 'DC_General edit()', TL_ERROR);
+            $this->redirect('contao/main.php?act=error');
+        }
+
+        // Load fields and co
+        $objDC->loadEditableFields();
+        $objDC->setWidgetID($objDC->getId());
+
+        // Check if we have fields
+        if (!$objDC->hasEditableFields())
+        {
+            $this->redirect($this->getReferer());
+        }
+
+        // Load something
+        $objDC->preloadTinyMce();
+
+        // Set buttons
+        $objDC->addButton("save");
+        $objDC->addButton("saveNclose");
+
+        // Load record from data provider       
+        $objDBModel = $objDC->getDataProvider()->getEmptyModel();
+        $objDC->setCurrentModel($objDBModel);
+
+        // Check submit
+        if ($objDC->isSubmitted() == true)
+        {
+            if (isset($_POST["save"]))
             {
-                $objDBModel->setProperty($key, $varNewValue);
+                // process input and update changed properties.
+                if (($objModell = $this->doSave($objDC)) !== false)
+                {
+                    $this->redirect($this->addToUrl("id=" . $objDBModel->getID() . "&amp;act=edit"));
+                }
+            }
+            else if (isset($_POST["saveNclose"]))
+            {
+                // process input and update changed properties.
+                if ($this->doSave($objDC) !== false)
+                {
+                    setcookie('BE_PAGE_OFFSET', 0, 0, '/');
+                   
+                    $_SESSION['TL_INFO']    = '';
+                    $_SESSION['TL_ERROR']   = '';
+                    $_SESSION['TL_CONFIRM'] = '';
+                    
+                    $this->redirect($this->getReferer());
+                }
             }
         }
-        // if we may not store the value, we keep the changes
-        // in the current model and return (DO NOT SAVE!).
-        if ($objDC->isNoReload() == true)
-        {
-            return false;
-        }
-        // everything went ok, now save the new values.
-        $objDC->getDataProvider()->save($objDBModel);
-        return true;
     }
+
+    public function delete(DC_General $objDC)
+    {      
+        if(strlen($this->Input->get("id")) != 0 )
+        {
+            $objDC->getDataProvider()->delete($this->Input->get("id"));           
+        }
+        
+        $this->redirect($this->getReferer());
+    }
+
 
     public function edit(DC_General $objDC)
     {
@@ -104,7 +142,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         $objDBModel = $objDC->getDataProvider()->fetch($objDC->getId());
         if ($objDBModel == null)
         {
-            $objDBModel = $objDC->getDataProvider()->getEmpty();
+            $objDBModel = $objDC->getDataProvider()->getEmptyModel();
         }
         $objDC->setCurrentModel($objDBModel);
 
@@ -114,7 +152,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             if (isset($_POST["save"]))
             {
                 // process input and update changed properties.
-                if ($this->doSave($objDC))
+                if ($this->doSave($objDC) !== false)
                 {
                     $this->reload();
                 }
@@ -122,15 +160,19 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             else if (isset($_POST["saveNclose"]))
             {
                 // process input and update changed properties.
-                if ($this->doSave($objDC))
+                if ($this->doSave($objDC) !== false)
                 {
                     setcookie('BE_PAGE_OFFSET', 0, 0, '/');
-                    $_SESSION['TL_INFO'] = '';
-                    $_SESSION['TL_ERROR'] = '';
+                    
+                    $_SESSION['TL_INFO']    = '';
+                    $_SESSION['TL_ERROR']   = '';
                     $_SESSION['TL_CONFIRM'] = '';
+                    
                     $this->redirect($this->getReferer());
                 }
             }
+            
+            // Maybe Callbacks ?
         }
     }
 

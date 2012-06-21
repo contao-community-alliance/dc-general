@@ -1,6 +1,4 @@
-<?php
-if (!defined('TL_ROOT'))
-    die('You can not access this file directly!');
+<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -61,14 +59,9 @@ class GeneralData_Default implements InterfaceGeneralData
         // Init Helper
         $this->objDatabase = Database::getInstance();
     }
-
-    // Functions ---------------------------------------------------------------
-
-    public function delete($item)
-    {
-        // Not impl now       
-    }
-
+    
+    // Getter | Setter ---------------------------------------------------------
+   
     /**
      * Fetch an empty single record (new item).
      * 
@@ -78,7 +71,7 @@ class GeneralData_Default implements InterfaceGeneralData
     {
         return new GeneralModel_Default();
     }
-    
+
     /**
      * Fetch an empty single collection (new item).
      * 
@@ -89,13 +82,43 @@ class GeneralData_Default implements InterfaceGeneralData
         return new GeneralCollection_Default();
     }
 
+    // Functions ---------------------------------------------------------------
+
+    /**
+     * Delete an item.
+     * 
+     * @param int|string|InterfaceGeneralModel Id or the object itself, to delete
+     */
+    public function delete($item)
+    {
+        if (is_numeric($item) || is_string($item))
+        {
+            $this->objDatabase
+                    ->prepare("DELETE FROM $this->strSource WHERE id=?")
+                    ->execute($item);
+        }
+        else if (is_object($item) && is_a($item, "InterfaceGeneralModel"))
+        {
+            if (strlen($item->getID()) != 0)
+            {
+                $this->objDatabase
+                        ->prepare("DELETE FROM $this->strSource WHERE id=?")
+                        ->execute($item->getID());
+            }
+        }
+        else
+        {
+            throw new Exception("ID missing or given object not from type 'InterfaceGeneralModel'.");
+        }
+    }
+
     /**
      * Fetch a single record by id.
      * 
      * @param int ID
      * 
      * @return InterfaceGeneralModel
-     */    
+     */
     public function fetch($intId)
     {
         $arrResult = $this->objDatabase
@@ -112,6 +135,11 @@ class GeneralData_Default implements InterfaceGeneralData
 
         foreach ($arrResult[0] as $key => $value)
         {
+            if ($key == "id")
+            {
+                $objModel->setID($value);
+            }
+
             $objModel->setProperty($key, $value);
         }
 
@@ -128,88 +156,94 @@ class GeneralData_Default implements InterfaceGeneralData
      * @param array $arrSorting a list with all sortings
      * 
      * @return InterfaceGeneralCollection
-     */    
+     */
     public function fetchAll($blnIdOnly = false, $intStart = 0, $intAmount = 0, $arrFilter = null, $arrSorting = null)
     {
         $boolSetWhere = FALSE;
-        
+
         $query = "SELECT " . (($blnIdOnly) ? "id" : "*") . " FROM " . $this->strSource;
 
         if (!is_null($arrFilter))
         {
-            foreach($arrFilter AS $key => $mixedFilter)
+            foreach ($arrFilter AS $key => $mixedFilter)
             {
-                if(is_array($mixedFilter))
+                if (is_array($mixedFilter))
                 {
                     $query .= " WHERE " . $key . " IN(" . implode(',', $mixedFilter) . ")";
                 }
                 unset($arrFilter[$key]);
-            } 
-            
-            if(count($arrFilter) > 0)
+            }
+
+            if (count($arrFilter) > 0)
             {
                 $query .= (($boolSetWhere) ? " WHERE " : " AND ") . implode(' AND ', $arrFilter);
             }
         }
-        
-        if(!is_null($arrSorting))
+
+        if (!is_null($arrSorting))
         {
             $strSortOrder = '';
-            
-            foreach($arrSorting AS $key => $mixedField)
+
+            foreach ($arrSorting AS $key => $mixedField)
             {
-                if(is_array($mixedField))
+                if (is_array($mixedField))
                 {
-                    if($mixedField['action'] == 'findInSet')
+                    if ($mixedField['action'] == 'findInSet')
                     {
                         $arrSorting[$key] = $this->Database->findInSet($mixedField['field'], $mixedField['keys']);
                     }
                 }
-                
-                if($key === 'sortOrder')
+
+                if ($key === 'sortOrder')
                 {
                     $strSortOrder = $mixedField;
                     unset($arrSorting[$key]);
                 }
             }
-            
+
             $query .= " ORDER BY " . implode(', ', $arrSorting) . $strSortOrder;
-        }       
-        
+        }
+
         $arrResult = $this->objDatabase
                 ->prepare($query)
                 ->limit($intAmount, $intStart)
                 ->execute()
                 ->fetchAllAssoc();
-        
+
+        $objCollection = $this->getEmptyCollection();
+
         if (count($arrResult) == 0)
         {
-            return $this->getEmptyCollection();
+            return $objCollection;
         }
-        
-        $objCollection = $this->getEmptyCollection();
+
         foreach ($arrResult as $key => $arrValue)
         {
             $objModel = $this->getEmptyModel();
             foreach ($arrValue as $k => $v)
             {
+                if ($key == "id")
+                {
+                    $objModel->setID($value);
+                }
+
                 $objModel->setProperty($k, $v);
             }
-            
+
             $objCollection->add($objModel);
         }
-        
+
         return $objCollection;
     }
 
     public function fetchEach($ids)
     {
-        
+        throw new Exception("Unsupported Operation: Not supported yet.");
     }
 
     public function getCount($arrFilter = array())
     {
-        
+        throw new Exception("Unsupported Operation: Not supported yet.");
     }
 
     public function getVersions($intID)
@@ -276,20 +310,27 @@ class GeneralData_Default implements InterfaceGeneralData
         }
 
 
-        if ($objItem->getProperty("id") == null || $objItem->getProperty("id") == "")
+        if ($objItem->getID() == null || $objItem->getID() == "")
         {
-            $this->objDatabase
+            $objInsert = $this->objDatabase
                     ->prepare("INSERT INTO $this->strSource %s")
                     ->set($arrSet)
-                    ->execute();
+                    ->execute();            
+
+            if (strlen($objInsert->insertId) != 0)
+            {
+                $objItem->setID($objInsert->insertId);
+            }
         }
         else
         {
             $this->objDatabase
                     ->prepare("UPDATE $this->strSource %s WHERE id=?")
                     ->set($arrSet)
-                    ->execute($objItem->getProperty("id"));
+                    ->execute($objItem->getID());
         }
+
+        return $objItem;
     }
 
     public function saveEach(InterfaceGeneralCollection $objItems, $recursive = false)
@@ -302,8 +343,8 @@ class GeneralData_Default implements InterfaceGeneralData
 
     public function setVersion($intID, $strVersion)
     {
-        $objData = $this->Database->
-                prepare('SELECT * FROM tl_version WHERE fromTable = ? AND pid = ? AND version = ? ')
+        $objData = $this->Database
+                ->prepare('SELECT * FROM tl_version WHERE fromTable = ? AND pid = ? AND version = ? ')
                 ->limit(1)
                 ->execute($this->strSource, $intID, $strVersion);
 
@@ -344,7 +385,7 @@ class GeneralData_Default implements InterfaceGeneralData
      * Check if the value exists in the table
      * 
      * @return boolean 
-     */    
+     */
     public function fieldExists($strField)
     {
         return $this->objDatabase->fieldExists($strField, $this->strSource);
