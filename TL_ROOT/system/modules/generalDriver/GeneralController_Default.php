@@ -183,7 +183,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         $objCollection = $objDataProvider->fetchAll(false, $arrLimit[0], $arrLimit[1], $arrFilter, $this->getSorting());
 
         // Rename each pid to its label and resort the result (sort by parent table)
-        if ($this->dca['list']['sorting']['mode'] == 3 && $objDataProvider->fieldExists('pid'))
+        if ($this->dca['list']['sorting']['mode'] == 3)
         {
             $this->dc->setFirstSorting('pid');
             $showFields = $this->dca['list']['label']['fields'];
@@ -412,7 +412,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
 
         // TODO implement panel filter from session
         $arrFilter = $this->dc->getFilter();
-        if (is_array($arrFilterIds) && count($arrFilterIds) > 0)
+        if (is_array($arrFilterIds) && !empty($arrFilterIds))
         {
             if (is_null($arrFilter))
             {
@@ -463,7 +463,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             $mixedOrderBy = $this->dc->getSorting();
         }
 
-        if (is_array($mixedOrderBy) && strlen($mixedOrderBy[0]))
+        if (is_array($mixedOrderBy) && $mixedOrderBy[0] != '')
         {
             foreach ($mixedOrderBy as $key => $strField)
             {
@@ -479,7 +479,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                         $keys = $this->dca['fields'][$strField]['options'];
                     }
 
-                    if (array_is_assoc($keys))
+                    if ($GLOBALS['TL_DCA'][$this->strTable]['fields'][$v]['eval']['isAssociative'] || array_is_assoc($keys))
                     {
                         $keys = array_keys($keys);
                     }

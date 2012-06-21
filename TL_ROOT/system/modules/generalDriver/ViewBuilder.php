@@ -1,4 +1,6 @@
-<?php if (!defined('TL_ROOT')) die('You cannot access this file directly!');
+<?php
+if (!defined('TL_ROOT'))
+    die('You cannot access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -94,6 +96,7 @@ class ViewBuilder extends Backend
         $objTemplate->select = $this->blnSelect;
         $objTemplate->action = ampersand($this->Environment->request, true);
         $objTemplate->mode = $arrDCA['list']['sorting']['mode'];
+        $objTemplate->tableHead = $this->getTableHead();
         $objTemplate->notDeletable = $arrDCA['config']['notDeletable'];
         $objTemplate->notEditable = $arrDCA['config']['notEditable'];
         $arrReturn[] = $objTemplate->parse();
@@ -122,6 +125,30 @@ class ViewBuilder extends Backend
 
     // Helper ------------------------------------------------------------------
 
+    protected function getTableHead()
+    {
+        $arrTableHead = array();
+
+        // Generate the table header if the "show columns" option is active
+        if ($GLOBALS['TL_DCA'][$this->strTable]['list']['label']['showColumns'])
+        {
+            foreach ($GLOBALS['TL_DCA'][$this->strTable]['list']['label']['fields'] as $f)
+            {
+                $arrTableHead[] = array(
+                    'class' => 'tl_folder_tlist col_' . $f . (($f == $this->objDc->getFirstSorting()) ? ' ordered_by' : ''),
+                    'content' => $GLOBALS['TL_DCA'][$this->strTable]['fields'][$f]['label'][0]
+                );
+            }
+
+            $arrTableHead[] = array(
+                'class' => 'tl_folder_tlist tl_right_nowrap',
+                'content' => '&nbsp;'
+            );
+        }
+
+        return $arrTableHead;
+    }
+
     /**
      * Set label for each model 
      */
@@ -129,8 +156,15 @@ class ViewBuilder extends Backend
     {
         $arrDCA = $this->objDc->getDCA();
 
+        // Automatically add the "order by" field as last column if we do not have group headers
+        if ($arrDCA['list']['label']['showColumns'] && !in_array($this->objDc->getFirstSorting(), $arrDCA['list']['label']['fields']))
+        {
+            $arrDCA['list']['label']['fields'][] = $this->objDc->getFirstSorting();
+        }
+
         $remoteCur = false;
         $groupclass = 'tl_folder_tlist';
+        $eoCount = -1;
 
         foreach ($this->objDc->getCurrentCollecion() as $objModelRow)
         {
@@ -149,19 +183,21 @@ class ViewBuilder extends Backend
             $label = preg_replace('/\( *\) ?|\[ *\] ?|\{ *\} ?|< *> ?/i', '', $label);
             $label = preg_replace('/<[^>]+>\s*<\/[^>]+>/i', '', $label);
 
-            // Build sorting groups
+            // Build the sorting groups
             if ($arrDCA['list']['sorting']['mode'] > 0)
             {
 
                 $current = $objModelRow->getProperty($this->objDc->getFirstSorting());
                 $orderBy = $arrDCA['list']['sorting']['fields'];
-                $sortingMode = (count($orderBy) == 1 && $this->objDc->getFirstSorting() == $orderBy[0] && strlen($arrDCA['list']['sorting']['flag']) && !strlen($arrDCA['fields'][$this->objDc->getFirstSorting()]['flag'])) ? $arrDCA['list']['sorting']['flag'] : $arrDCA['fields'][$this->objDc->getFirstSorting()]['flag'];
+                $sortingMode = (count($orderBy) == 1 && $this->objDc->getFirstSorting() == $orderBy[0] && $arrDCA['list']['sorting']['flag'] != '' && $arrDCA['fields'][$this->objDc->getFirstSorting()]['flag'] == '') ? $arrDCA['list']['sorting']['flag'] : $arrDCA['fields'][$this->objDc->getFirstSorting()]['flag'];
 
                 $remoteNew = $this->objDc->formatCurrentValue($this->objDc->getFirstSorting(), $current, $sortingMode);
 
                 // Add the group header
-                if (!$arrDCA['list']['sorting']['disableGrouping'] && ($remoteNew != $remoteCur || $remoteCur === false))
+                if (!$arrDCA['list']['label']['showColumns'] && !$arrDCA['list']['sorting']['disableGrouping'] && ($remoteNew != $remoteCur || $remoteCur === false))
                 {
+                    $eoCount = -1;
+
                     $objModelRow->setProperty('%group%', array(
                         'class' => $groupclass,
                         'value' => $this->objDc->formatGroupHeader($this->objDc->getFirstSorting(), $remoteNew, $sortingMode, $objModelRow)
@@ -172,8 +208,46 @@ class ViewBuilder extends Backend
                 }
             }
 
+            $objModelRow->setProperty('%rowClass%', ((++$eoCount % 2 == 0) ? 'even' : 'odd'));
+
             // Call label callback
-            $objModelRow->setProperty('%label%', $this->objDc->labelCallback($objModelRow, $label, $this->arrDCA['list']['label']));
+            $mixedArgs = $this->objDc->labelCallback($objModelRow, $label, $this->arrDCA['list']['label'], $args);
+
+            // Handle strings and arrays (backwards compatibility)
+            if (!$arrDCA['list']['label']['showColumns'])
+            {
+                $label = is_array($mixedArgs) ? implode(' ', $mixedArgs) : $mixedArgs;
+            }
+            elseif (!is_array($mixedArgs))
+            {
+                $mixedArgs = array($mixedArgs);
+                $colspan = count($arrDCA['list']['label']['fields']);
+            }
+
+            $arrLabel = array();
+
+            // Add columns
+            if ($arrDCA['list']['label']['showColumns'])
+            {
+                foreach ($args as $j => $arg)
+                {
+                    $arrLabel = array(
+                        'colspan' => $colspan,
+                        'class' => 'tl_file_list col_' . $arrDCA['list']['label']['fields'][$j] . (($arrDCA['list']['label']['fields'][$j] == $this->objDc->getFirstSorting()) ? ' ordered_by' : ''),
+                        'content' => (($arg != '') ? $arg : '-')
+                    );
+                }
+            }
+            else
+            {
+                $arrLabel = array(
+                    'colspan' => NULL,
+                    'class' => 'tl_file_list',
+                    'content' => $label
+                );
+            }
+
+            $objModelRow->setProperty('%label%', $arrLabel);
         }
     }
 
@@ -244,7 +318,7 @@ class ViewBuilder extends Backend
                 {
                     $args[$k] = is_array($arrCurrentDCA['fields'][$v]['reference'][$objModelRow->getProperty($v)]) ? $arrCurrentDCA['fields'][$v]['reference'][$objModelRow->getProperty($v)][0] : $arrCurrentDCA['fields'][$v]['reference'][$objModelRow->getProperty($v)];
                 }
-                elseif (array_is_assoc($arrCurrentDCA['fields'][$v]['options']) && isset($arrCurrentDCA['fields'][$v]['options'][$objModelRow->getProperty($v)]))
+                elseif (($arrCurrentDCA['fields'][$v]['eval']['isAssociative'] || array_is_assoc($arrCurrentDCA['fields'][$v]['options'])) && isset($arrCurrentDCA['fields'][$v]['options'][$objModelRow->getProperty($v)]))
                 {
                     $args[$k] = $arrCurrentDCA['fields'][$v]['options'][$objModelRow->getProperty($v)];
                 }
@@ -270,7 +344,7 @@ class ViewBuilder extends Backend
         $arrDCA = $this->objDc->getDCA();
 
         $arrReturn = array();
-        if (!$arrDCA['config']['closed'] || count($arrDCA['list']['global_operations']))
+        if (!$arrDCA['config']['closed'] || !empty($arrDCA['list']['global_operations']))
         {
             // Add open wrapper
             $arrReturn[] = '<div id="' . $this->objDc->getButtonId() . '">';

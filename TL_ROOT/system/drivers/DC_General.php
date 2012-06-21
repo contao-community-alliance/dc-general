@@ -1351,11 +1351,12 @@ class DC_General extends DataContainer implements editable, listable
      * Call the customer label callback
      * 
      * @param InterfaceGeneralModel $objModelRow
-     * @param string $strLabel
+     * @param string $mixedLabel
      * @param array $arrDCA
+     * @param array $args
      * @return string 
      */
-    public function labelCallback(InterfaceGeneralModel $objModelRow, $strLabel, $arrDCA)
+    public function labelCallback(InterfaceGeneralModel $objModelRow, $mixedLabel, $arrDCA, $args)
     {
         if (is_array($arrDCA['label_callback']))
         {
@@ -1363,10 +1364,17 @@ class DC_General extends DataContainer implements editable, listable
             $strMethod = $arrDCA['label_callback'][1];
 
             $this->import($strClass);
-            $strLabel = $this->$strClass->$strMethod($objModelRow->getPropertiesAsArray(), $strLabel, $this);                
+            if(version_compare(VERSION, '2.10', '>'))
+            {
+                $mixedLabel = $this->$strClass->$strMethod($objModelRow->getPropertiesAsArray(), $mixedLabel, $this, $args);
+            }
+            else
+            {
+                $mixedLabel = $this->$strClass->$strMethod($objModelRow->getPropertiesAsArray(), $mixedLabel, $this);
+            }
         }
         
-        return $strLabel;
+        return $mixedLabel;
     }
     
     /**
