@@ -19,26 +19,29 @@
                 <?php endif; ?>
 
                 <table class="tl_listing<?php echo ($GLOBALS['TL_DCA'][$this->strTable]['list']['label']['showColumns']) ? ' showColumns' : ''; ?>">
+
+                    <?php if (count($this->tableHead > 0)): ?>
+                        <tr>
+                            <?php foreach ($this->tableHead as $arrTableHead): ?>
+                                <th class="<?php echo $arrTableHead['class']; ?>"><?php echo $arrTableHead['content']; ?></th>
+                            <?php endforeach; ?>
+                        </tr>
+                    <?php endif; ?>
+
                     <?php foreach ($this->collection as $objModelRow): ?>
                         <?php if ($this->mode > 0): ?>
                             <?php $arrGroup = $objModelRow->getProperty('%group%'); ?>
                             <tr><td colspan="2" class="<?php echo $arrGroup['class']; ?>"><?php echo $arrGroup['value']; ?></td></tr>
                         <?php endif; ?>
 
-                        <?php if (count($this->tableHead > 0)): ?>
-                            <tr>
-                                <?php foreach ($this->tableHead as $arrTableHead): ?>
-                                    <th class="<?php echo $arrTableHead['class']; ?>"><?php echo $arrTableHead['content']; ?></th>
-                                <?php endforeach; ?>
-                            </tr>
-                        <?php endif; ?>
-
                         <tr class="<?php echo $objModelRow->getProperty('%rowClass%'); ?>" onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);">
-                            <?php $arrLabel = $objModelRow->getProperty('%label%'); ?>
-                            
-                            <td <?php echo ((!is_null($arrLabel['colspan'])) ? 'colspan="' . $arrLabel['colspan'] . '"' : ''); ?> class="<?php echo $arrLabel['class']; ?>">
-                                <?php echo $arrLabel['content']; ?>
-                            </td>
+                            <?php $arrLabels = $objModelRow->getProperty('%label%'); ?>
+
+                            <?php foreach ($arrLabels as $arrLabel): ?>                            
+                                <td <?php echo ((!is_null($arrLabel['colspan'])) ? 'colspan="' . $arrLabel['colspan'] . '"' : ''); ?> class="<?php echo $arrLabel['class']; ?>">
+                                    <?php echo $arrLabel['content']; ?>
+                                </td>
+                            <?php endforeach; ?>
 
                             <?php if ($this->select): ?>
                                 <td class="tl_file_list tl_right_nowrap">
