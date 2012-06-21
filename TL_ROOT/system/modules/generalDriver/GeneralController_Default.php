@@ -41,38 +41,76 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         };
     }
 
-    /**
-     * Perform low level saving of the current model in a DC.
-     * NOTE: the model will get populated with the new values within this function.
-     * Therefore the current submitted data will be stored within the model but only on
-     * success also be saved into the DB.
-     * 
-     * @param DC_General $objDC the DC that adapts the save operation.
-     * 
-     * @return bool true if the save operation was successful, false otherwise.
-     */
-    protected function doSave(DC_General $objDC)
+    // Core Functions ----------------------------------------------------------
+
+    public function create(DC_General $objDC)
     {
-        $objDBModel = $objDC->getCurrentModel();
-        // process input and update changed properties.
-        foreach ($objDC->getFieldList() as $key => $value)
+        // Check if table is editable
+        if (!$objDC->isEditable())
         {
-            $varNewValue = $objDC->processInput($key);
-            if ($objDBModel->getProperty($key) != $varNewValue)
+            $this->log('Table ' . $objDC->getTable() . ' is not editable', 'DC_General edit()', TL_ERROR);
+            $this->redirect('contao/main.php?act=error');
+        }
+
+        // Load fields and co
+        $objDC->loadEditableFields();
+        $objDC->setWidgetID($objDC->getId());
+
+        // Check if we have fields
+        if (!$objDC->hasEditableFields())
+        {
+            $this->redirect($this->getReferer());
+        }
+
+        // Load something
+        $objDC->preloadTinyMce();
+
+        // Set buttons
+        $objDC->addButton("save");
+        $objDC->addButton("saveNclose");
+
+        // Load record from data provider       
+        $objDBModel = $objDC->getDataProvider()->getEmptyModel();
+        $objDC->setCurrentModel($objDBModel);
+
+        // Check submit
+        if ($objDC->isSubmitted() == true)
+        {
+            if (isset($_POST["save"]))
             {
-                $objDBModel->setProperty($key, $varNewValue);
+                // process input and update changed properties.
+                if (($objModell = $this->doSave($objDC)) !== false)
+                {
+                    $this->redirect($this->addToUrl("id=" . $objDBModel->getID() . "&amp;act=edit"));
+                }
+            }
+            else if (isset($_POST["saveNclose"]))
+            {
+                // process input and update changed properties.
+                if ($this->doSave($objDC) !== false)
+                {
+                    setcookie('BE_PAGE_OFFSET', 0, 0, '/');
+                   
+                    $_SESSION['TL_INFO']    = '';
+                    $_SESSION['TL_ERROR']   = '';
+                    $_SESSION['TL_CONFIRM'] = '';
+                    
+                    $this->redirect($this->getReferer());
+                }
             }
         }
-        // if we may not store the value, we keep the changes
-        // in the current model and return (DO NOT SAVE!).
-        if ($objDC->isNoReload() == true)
-        {
-            return false;
-        }
-        // everything went ok, now save the new values.
-        $objDC->getDataProvider()->save($objDBModel);
-        return true;
     }
+
+    public function delete(DC_General $objDC)
+    {      
+        if(strlen($this->Input->get("id")) != 0 )
+        {
+            $objDC->getDataProvider()->delete($this->Input->get("id"));           
+        }
+        
+        $this->redirect($this->getReferer());
+    }
+
 
     public function edit(DC_General $objDC)
     {
@@ -104,7 +142,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         $objDBModel = $objDC->getDataProvider()->fetch($objDC->getId());
         if ($objDBModel == null)
         {
-            $objDBModel = $objDC->getDataProvider()->getEmpty();
+            $objDBModel = $objDC->getDataProvider()->getEmptyModel();
         }
         $objDC->setCurrentModel($objDBModel);
 
@@ -114,7 +152,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             if (isset($_POST["save"]))
             {
                 // process input and update changed properties.
-                if ($this->doSave($objDC))
+                if ($this->doSave($objDC) !== false)
                 {
                     $this->reload();
                 }
@@ -122,24 +160,28 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             else if (isset($_POST["saveNclose"]))
             {
                 // process input and update changed properties.
-                if ($this->doSave($objDC))
+                if ($this->doSave($objDC) !== false)
                 {
                     setcookie('BE_PAGE_OFFSET', 0, 0, '/');
-                    $_SESSION['TL_INFO'] = '';
-                    $_SESSION['TL_ERROR'] = '';
+                    
+                    $_SESSION['TL_INFO']    = '';
+                    $_SESSION['TL_ERROR']   = '';
                     $_SESSION['TL_CONFIRM'] = '';
+                    
                     $this->redirect($this->getReferer());
                 }
             }
+            
+            // Maybe Callbacks ?
         }
     }
 
     public function showAll(DC_General $objDC)
     {
         $arrDCA = $objDC->getDCA();
-        
+
         $objDC->setButtonId('tl_buttons');
-        
+
         // Get the IDs of all root records (list view or parent view)
         if (is_array($arrDCA['list']['sorting']['root']))
         {
@@ -155,9 +197,48 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         {
             $this->listView($objDC);
         }
-        
+
         $this->panel($objDC);
     }
+
+    // Helper Functions --------------------------------------------------------
+
+    /**
+     * Perform low level saving of the current model in a DC.
+     * NOTE: the model will get populated with the new values within this function.
+     * Therefore the current submitted data will be stored within the model but only on
+     * success also be saved into the DB.
+     * 
+     * @param DC_General $objDC the DC that adapts the save operation.
+     * 
+     * @return bool|InterfaceGeneralModel Model if the save operation was successful, false otherwise.
+     */
+    protected function doSave(DC_General $objDC)
+    {
+        $objDBModel = $objDC->getCurrentModel();
+        // process input and update changed properties.
+        foreach ($objDC->getFieldList() as $key => $value)
+        {
+            $varNewValue = $objDC->processInput($key);
+            if ($objDBModel->getProperty($key) != $varNewValue)
+            {
+                $objDBModel->setProperty($key, $varNewValue);
+            }
+        }
+
+        // if we may not store the value, we keep the changes
+        // in the current model and return (DO NOT SAVE!).
+        if ($objDC->isNoReload() == true)
+        {
+            return false;
+        }
+
+        // everything went ok, now save the new values and 
+        // return model.
+        return $objDC->getDataProvider()->save($objDBModel);
+    }
+
+    // showAll Modis -----------------------------------------------------------
 
     protected function listView(DC_General $objDC)
     {
@@ -175,7 +256,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         else
         {
             $objDataProvider = $objDC->getDataProvider();
-            $arrCurrentDCA = $arrDCA;
+            $arrCurrentDCA   = $arrDCA;
         }
 
         $arrFilterIds = $arrDCA['list']['sorting']['root'];
@@ -214,7 +295,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                 {
                     if (is_array($arrDCA['fields'][$strField]['options_callback']))
                     {
-                        $strClass = $arrDCA['fields'][$strField]['options_callback'][0];
+                        $strClass  = $arrDCA['fields'][$strField]['options_callback'][0];
                         $strMethod = $arrDCA['fields'][$strField]['options_callback'][1];
 
                         $this->import($strClass);
@@ -269,10 +350,10 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             }
 
             $objCollection->sort(array($this, 'sortCollectionPid'));
-        }       
+        }
 
         // Process result and add label and buttons
-        $remoteCur = false;
+        $remoteCur  = false;
         $groupclass = 'tl_folder_tlist';
 
         foreach ($objCollection as $objModelRow)
@@ -382,8 +463,8 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             // Build sorting groups
             if ($arrDCA['list']['sorting']['mode'] > 0)
             {
-                $current = $objModelRow->getProperty($objDC->getFirstSorting());
-                $orderBy = $arrDCA['list']['sorting']['fields'];
+                $current     = $objModelRow->getProperty($objDC->getFirstSorting());
+                $orderBy     = $arrDCA['list']['sorting']['fields'];
                 $sortingMode = (count($orderBy) == 1 && $objDC->getFirstSorting() == $orderBy[0] && strlen($arrDCA['list']['sorting']['flag']) && !strlen($arrDCA['fields'][$objDC->getFirstSorting()]['flag'])) ? $arrDCA['list']['sorting']['flag'] : $arrDCA['fields'][$objDC->getFirstSorting()]['flag'];
 
                 $remoteNew = $objDC->formatCurrentValue($objDC->getFirstSorting(), $current, $sortingMode);
@@ -397,14 +478,14 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                     );
 
                     $groupclass = 'tl_folder_list';
-                    $remoteCur = $remoteNew;
+                    $remoteCur  = $remoteNew;
                 }
             }
 
             // Call label callback ($objModelRow, $label, $this)
             if (is_array($arrDCA['list']['label']['label_callback']))
             {
-                $strClass = $arrDCA['list']['label']['label_callback'][0];
+                $strClass  = $arrDCA['list']['label']['label_callback'][0];
                 $strMethod = $arrDCA['list']['label']['label_callback'][1];
 
                 $this->import($strClass);
@@ -427,7 +508,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
     protected function panel(DC_General $objDC)
     {
         $arrDCA = $objDC->getDCA();
-        
+
         $arrPanelView = array();
 
 //        $filter = $this->filterMenu();
@@ -435,10 +516,10 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         $limit = $this->limitMenu($objDC);
 //        $sort = $this->sortMenu();
 
-        /*if (!strlen($filter) && !strlen($search) && !strlen($limit) && !strlen($sort))
-        {
-            return '';
-        }*/
+        /* if (!strlen($filter) && !strlen($search) && !strlen($limit) && !strlen($sort))
+          {
+          return '';
+          } */
 
         if (!strlen($arrDCA['list']['sorting']['panelLayout']))
         {
@@ -451,8 +532,8 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         }
 
         $panelLayout = $arrDCA['list']['sorting']['panelLayout'];
-        $arrPanels = trimsplit(';', $panelLayout);
-        $intLast = count($arrPanels) - 1;
+        $arrPanels   = trimsplit(';', $panelLayout);
+        $intLast     = count($arrPanels) - 1;
 
         for ($i = 0; $i < count($arrPanels); $i++)
         {
@@ -463,11 +544,11 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                 if (is_array($$strSubPanel) && count($$strSubPanel) > 0)
                 {
                     $arrPanelView[$strSubPanel] = $$strSubPanel;
-                }                
+                }
             }
         }
-        
-        if(count($arrPanelView) > 0)
+
+        if (count($arrPanelView) > 0)
         {
             $objDC->setPanelView($arrPanelView);
         }
@@ -480,11 +561,11 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
      */
     protected function limitMenu(DC_General $objDC, $blnOptional = false)
     {
-        $arrDCA = $objDC->getDCA();
+        $arrDCA       = $objDC->getDCA();
         $arrPanelView = array();
-        
+
         $session = $this->Session->getData();
-        $filter = ($arrDCA['list']['sorting']['mode'] == 4) ? $objDC->getTable() . '_' . CURRENT_ID : $objDC->getTable();
+        $filter  = ($arrDCA['list']['sorting']['mode'] == 4) ? $objDC->getTable() . '_' . CURRENT_ID : $objDC->getTable();
 
         // Set limit from user input
         if ($this->Input->post('FORM_SUBMIT') == 'tl_filters' || $this->Input->post('FORM_SUBMIT') == 'tl_filters_limit')
@@ -510,9 +591,9 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         else
         {
             $this->limit = strlen($session['filter'][$filter]['limit']) ? (($session['filter'][$filter]['limit'] == 'all') ? null : $session['filter'][$filter]['limit']) : '0,' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
-            
+
             // TODO change with own data count request            
-            $total = $objDC->getCurrentCollecion()->length();
+            $total                  = $objDC->getCurrentCollecion()->length();
             $blnIsMaxResultsPerPage = false;
 
             // Overall limit
@@ -523,9 +604,9 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                     $this->limit = '0,' . $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
                 }
 
-                $blnIsMaxResultsPerPage = true;
+                $blnIsMaxResultsPerPage                 = true;
                 $GLOBALS['TL_CONFIG']['resultsPerPage'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
-                $session['filter'][$filter]['limit'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
+                $session['filter'][$filter]['limit']    = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
             }
 
             // Build options
@@ -539,11 +620,11 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                 {
                     $this->limit = '0,' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
                 }
-                
+
                 // Build options
                 for ($i = 0; $i < $options_total; $i++)
                 {
-                    $this_limit = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']) . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
+                    $this_limit  = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']) . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
                     $upper_limit = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + $GLOBALS['TL_CONFIG']['resultsPerPage']);
 
                     if ($upper_limit > $total)
@@ -555,7 +636,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                         'value' => $this_limit,
                         'select' => $this->optionSelected($this->limit, $this_limit),
                         'content' => ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + 1) . ' - ' . $upper_limit
-                    );                    
+                    );
                 }
 
                 if (!$blnIsMaxResultsPerPage)
@@ -577,7 +658,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             $arrPanelView['select'] = array(
                 'class' => (($session['filter'][$filter]['limit'] != 'all' && $total > $GLOBALS['TL_CONFIG']['resultsPerPage']) ? ' active' : '')
             );
-            
+
             $arrPanelView['option'][0] = array(
                 'value' => 'tl_limit',
                 'select' => '',
