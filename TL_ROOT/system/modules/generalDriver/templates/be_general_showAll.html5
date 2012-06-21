@@ -35,7 +35,6 @@
 
                         <tr class="<?php echo $objModelRow->getProperty('%rowClass%'); ?>" onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);">
                             <?php $arrLabel = $objModelRow->getProperty('%label%'); ?>
-                            <?php FB::log($arrLabel); ?>
                             
                             <td <?php echo ((!is_null($arrLabel['colspan'])) ? 'colspan="' . $arrLabel['colspan'] . '"' : ''); ?> class="<?php echo $arrLabel['class']; ?>">
                                 <?php echo $arrLabel['content']; ?>

@@ -164,13 +164,19 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
 
     protected function listView()
     {
-        if ($this->dca['list']['sorting']['mode'] == 6)
+        if ($arrDCA['list']['sorting']['mode'] == 6)
         {
-            $objDataProvider = $this->dc->getParentDataProvider();
+            $objDataProvider = $objDC->getParentDataProvider();
+
+            $this->loadDataContainer($objDC->getParentTable());
+            $objTmpDC = new DC_General($objDC->getParentTable());
+
+            $arrCurrentDCA = $objTmpDC->getDCA();
         }
         else
         {
-            $objDataProvider = $this->dc->getDataProvider();
+            $objDataProvider = $objDC->getDataProvider();
+            $arrCurrentDCA = $arrDCA;
         }
 
         // Get Filter
@@ -283,6 +289,95 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         {
             $this->dc->setPanelView($arrPanelView);
         }
+    }
+
+    /**
+     * Return a search form that allows to search results using regular expressions
+     * 
+     * @return string
+     */
+    protected function searchMenu()
+    {
+        $searchFields = array();
+        $session = $this->Session->getData();
+
+        // Get search fields
+        foreach ($this->dca['fields'] as $k => $v)
+        {
+            if ($v['search'])
+            {
+                $searchFields[] = $k;
+            }
+        }
+
+        // Return if there are no search fields
+        if (empty($searchFields))
+        {
+            return '';
+        }
+
+        // Store search value in the current session
+        if ($this->Input->post('FORM_SUBMIT') == 'tl_filters')
+        {
+            $session['search'][$this->dc->getTable()]['value'] = '';
+            $session['search'][$this->dc->getTable()]['field'] = $this->Input->post('tl_field', true);
+
+            // Make sure the regular expression is valid
+            if ($this->Input->postRaw('tl_value') != '')
+            {
+                try
+                {
+                    $this->Database->prepare("SELECT * FROM " . $this->strTable . " WHERE " . $this->Input->post('tl_field', true) . " REGEXP ?")
+                            ->limit(1)
+                            ->execute($this->Input->postRaw('tl_value'));
+
+                    $session['search'][$this->dc->getTable()]['value'] = $this->Input->postRaw('tl_value');
+                }
+                catch (Exception $e)
+                {
+                    
+                }
+            }
+
+            $this->Session->setData($session);
+        }
+
+        // Set search value from session
+        elseif ($session['search'][$this->dc->getTable()]['value'] != '')
+        {
+            if (substr($GLOBALS['TL_CONFIG']['dbCollation'], -3) == '_ci')
+            {
+                $this->procedure[] = "LOWER(CAST(" . $session['search'][$this->dc->getTable()]['field'] . " AS CHAR)) REGEXP LOWER(?)";
+            }
+            else
+            {
+                $this->procedure[] = "CAST(" . $session['search'][$this->dc->getTable()]['field'] . " AS CHAR) REGEXP ?";
+            }
+
+            $this->values[] = $session['search'][$this->dc->getTable()]['value'];
+        }
+
+        $options_sorter = array();
+
+        foreach ($searchFields as $field)
+        {
+            $option_label = strlen($this->dca['fields'][$field]['label'][0]) ? $this->dca['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
+            $options_sorter[utf8_romanize($option_label) . '_' . $field] = array(
+                'value' => specialchars($field),
+                'select' => (($field == $session['search'][$this->dc->getTable()]['field']) ? ' selected="selected"' : ''),
+                'content' => $option_label
+            );
+        }
+
+        // Sort by option values
+        $options_sorter = natcaseksort($options_sorter);
+        $active = strlen($session['search'][$this->dc->getTable()]['value']) ? true : false;
+
+        $arrPanelView['select'] = array(
+            'class' => 'tl_select' . ($active ? ' active' : '')
+        );
+
+        return array_merge($arrPanelView, $options_sorter);
     }
 
     /**
@@ -479,7 +574,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                         $keys = $this->dca['fields'][$strField]['options'];
                     }
 
-                    if ($GLOBALS['TL_DCA'][$this->strTable]['fields'][$v]['eval']['isAssociative'] || array_is_assoc($keys))
+                    if ($this->dca['fields'][$v]['eval']['isAssociative'] || array_is_assoc($keys))
                     {
                         $keys = array_keys($keys);
                     }

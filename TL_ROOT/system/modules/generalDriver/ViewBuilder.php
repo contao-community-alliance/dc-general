@@ -263,6 +263,9 @@ class ViewBuilder extends Backend
 
         if ($arrDCA['list']['sorting']['mode'] == 6)
         {
+            $this->loadDataContainer($objDC->getParentTable());
+            $objTmpDC = new DC_General($objDC->getParentTable());
+
             $arrCurrentDCA = $objTmpDC->getDCA();
         }
         else
