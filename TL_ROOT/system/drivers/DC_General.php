@@ -1344,6 +1344,107 @@ class DC_General extends DataContainer implements editable, listable
             );
         }
     }
+    
+    // Callbacks ---------------------------------------------------------------
+    
+    /**
+     * Call the customer label callback
+     * 
+     * @param InterfaceGeneralModel $objModelRow
+     * @param string $strLabel
+     * @param array $arrDCA
+     * @return string 
+     */
+    public function labelCallback(InterfaceGeneralModel $objModelRow, $strLabel, $arrDCA)
+    {
+        if (is_array($arrDCA['label_callback']))
+        {
+            $strClass = $arrDCA['label_callback'][0];
+            $strMethod = $arrDCA['label_callback'][1];
+
+            $this->import($strClass);
+            $strLabel = $this->$strClass->$strMethod($objModelRow->getPropertiesAsArray(), $strLabel, $this);                
+        }
+        
+        return $strLabel;
+    }
+    
+    /**
+     * Call the button callback for the regular operations
+     * 
+     * @param InterfaceGeneralModel $objModelRow
+     * @param array $arrDCA
+     * @param string $strLabel
+     * @param string $strTitle
+     * @param array $arrAttributes
+     * @param string $strTable
+     * @param array $arrRootIds
+     * @param array $arrChildRecordIds
+     * @param boolean $blnCircularReference
+     * @param string $strPrevious
+     * @param string $strNext
+     * @return string|null 
+     */
+    public function buttonCallback($objModelRow, $arrDCA, $strLabel, $strTitle, $arrAttributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext)
+    {
+        // Call a custom function instead of using the default button
+        if (is_array($arrDCA['button_callback']))
+        {
+            $strClass = $arrDCA['button_callback'][0];
+            $strMethod = $arrDCA['button_callback'][1];            
+            
+            $this->import($strClass);
+            return $this->$strClass->$strMethod($objModelRow->getPropertiesAsArray(), $arrDCA['href'], $strLabel, $strTitle, $arrDCA['icon'], $arrAttributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext);
+        }
+        
+        return NULL;
+    }
+    
+    /**
+     * Call the button callback for the global operations
+     * 
+     * @param array $arrDCA
+     * @param str $strLabel
+     * @param str $strTitle
+     * @param array $arrAttributes
+     * @param string $strTable
+     * @param array $arrRootIds
+     * @return string|null 
+     */
+    public function globalButtonCallback($arrDCA, $strLabel, $strTitle, $arrAttributes, $strTable, $arrRootIds)
+    {
+        // Call a custom function instead of using the default button
+        if (is_array($arrDCA['button_callback']))
+        {
+            $strClass = $arrDCA['button_callback'][0];
+            $strMethod = $arrDCA['button_callback'][1];            
+            
+            $this->import($strClass);
+            return $this->$strClass->$strMethod($arrDCA['href'], $strLabel, $strTitle, $arrDCA['icon'], $arrAttributes, $strTable, $arrRootIds);
+        }
+        
+        return NULL;
+    }
+    
+    /**
+     * Call the options callback for the fields
+     * 
+     * @param type $arrDCA
+     * @return array|null 
+     */
+    public function optionsCallback($arrDCA)
+    {
+        if (is_array($arrDCA['options_callback']))
+        {
+            $strClass = $arrDCA['options_callback'][0];
+            $strMethod = $arrDCA['options_callback'][1];
+
+            $this->import($strClass);
+            return $this->$strClass->$strMethod($this);
+        }
+        
+        return NULL;
+    }
 
     // Interface funtions ------------------------------------------------------
 
