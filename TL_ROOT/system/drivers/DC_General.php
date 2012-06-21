@@ -853,8 +853,6 @@ class DC_General extends DataContainer implements editable, listable
         // OH: the whole prepareForWidget(..) thing is an only mess
         // widgets should parse the configuration by themselfs, depending on what they need
         $arrPrepared = $this->prepareForWidget($arrConfig, $strInputName, $varValue, $strField, $this->strTable);
-        
-        var_dump($arrPrepared);
 
         //$arrConfig['options'] = $arrPrepared['options'];
 
@@ -909,11 +907,11 @@ class DC_General extends DataContainer implements editable, listable
 
         // Validate
         $objWidget->validate();
-
+        
         // Check 
         if ($objWidget->hasErrors())
         {
-            $this->noReload = true;
+            $this->blnNoReload = true;
             return null;
         }
 

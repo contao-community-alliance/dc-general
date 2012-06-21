@@ -1,4 +1,6 @@
-<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
+<?php
+if (!defined('TL_ROOT'))
+    die('You can not access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -42,6 +44,41 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
     }
 
     // Core Functions ----------------------------------------------------------
+
+    /**
+     * Perform low level saving of the current model in a DC.
+     * NOTE: the model will get populated with the new values within this function.
+     * Therefore the current submitted data will be stored within the model but only on
+     * success also be saved into the DB.
+     * 
+     * @param DC_General $objDC the DC that adapts the save operation.
+     * 
+     * @return bool|InterfaceGeneralModel Model if the save operation was successful, false otherwise.
+     */
+    protected function doSave(DC_General $objDC)
+    {
+        $objDBModel = $objDC->getCurrentModel();
+        // process input and update changed properties.
+        foreach ($objDC->getFieldList() as $key => $value)
+        {
+            $varNewValue = $objDC->processInput($key);
+            if ($objDBModel->getProperty($key) != $varNewValue)
+            {
+                $objDBModel->setProperty($key, $varNewValue);
+            }
+        }
+
+        // if we may not store the value, we keep the changes
+        // in the current model and return (DO NOT SAVE!).
+        if ($objDC->isNoReload() == true)
+        {
+            return false;
+        }
+
+        // everything went ok, now save the new values and 
+        // return model.
+        return $objDC->getDataProvider()->save($objDBModel);
+    }
 
     public function create(DC_General $objDC)
     {
@@ -90,11 +127,11 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                 if ($this->doSave($objDC) !== false)
                 {
                     setcookie('BE_PAGE_OFFSET', 0, 0, '/');
-                   
-                    $_SESSION['TL_INFO']    = '';
-                    $_SESSION['TL_ERROR']   = '';
+
+                    $_SESSION['TL_INFO'] = '';
+                    $_SESSION['TL_ERROR'] = '';
                     $_SESSION['TL_CONFIRM'] = '';
-                    
+
                     $this->redirect($this->getReferer());
                 }
             }
@@ -102,15 +139,14 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
     }
 
     public function delete(DC_General $objDC)
-    {      
-        if(strlen($this->Input->get("id")) != 0 )
+    {
+        if (strlen($this->Input->get("id")) != 0)
         {
-            $objDC->getDataProvider()->delete($this->Input->get("id"));           
+            $objDC->getDataProvider()->delete($this->Input->get("id"));
         }
-        
+
         $this->redirect($this->getReferer());
     }
-
 
     public function edit(DC_General $objDC)
     {
@@ -163,15 +199,15 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                 if ($this->doSave($objDC) !== false)
                 {
                     setcookie('BE_PAGE_OFFSET', 0, 0, '/');
-                    
-                    $_SESSION['TL_INFO']    = '';
-                    $_SESSION['TL_ERROR']   = '';
+
+                    $_SESSION['TL_INFO'] = '';
+                    $_SESSION['TL_ERROR'] = '';
                     $_SESSION['TL_CONFIRM'] = '';
-                    
+
                     $this->redirect($this->getReferer());
                 }
             }
-            
+
             // Maybe Callbacks ?
         }
     }
@@ -206,19 +242,19 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
 
     protected function listView()
     {
-        if ($arrDCA['list']['sorting']['mode'] == 6)
+        if ($this->dca['list']['sorting']['mode'] == 6)
         {
-            $objDataProvider = $objDC->getParentDataProvider();
+            $objDataProvider = $this->dc->getParentDataProvider();
 
-            $this->loadDataContainer($objDC->getParentTable());
-            $objTmpDC = new DC_General($objDC->getParentTable());
+            $this->loadDataContainer($this->dc->getParentTable());
+            $objTmpDC = new DC_General($this->dc->getParentTable());
 
             $arrCurrentDCA = $objTmpDC->getDCA();
         }
         else
         {
-            $objDataProvider = $objDC->getDataProvider();
-            $arrCurrentDCA = $arrDCA;
+            $objDataProvider = $this->dc->getDataProvider();
+            $arrCurrentDCA = $this->dca;
         }
 
         // Get Filter
