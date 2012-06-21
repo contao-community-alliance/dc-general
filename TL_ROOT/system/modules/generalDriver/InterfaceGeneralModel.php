@@ -30,6 +30,20 @@ interface InterfaceGeneralModel extends IteratorAggregate
 {
 
     /**
+     * Copy this model, without the id.
+     * 
+     * @return InterfaceGeneralModel
+     */
+    public function __clone();
+    
+    /**
+     * Get the id for this modell.
+     * 
+     * @return string The ID for this modell.
+     */
+    public function getID();
+
+    /**
      * Fetch property from model. 
      */
     public function getProperty($strPropertyName);
@@ -40,6 +54,13 @@ interface InterfaceGeneralModel extends IteratorAggregate
      * return array
      */
     public function getPropertiesAsArray();
+    
+   /**
+    * Set the id for this object  
+    * 
+    * @param mixed $mixID Could be a integer, string or anything else
+    */
+    public function setID($mixID);
     
     /**
      * Update property in model.
