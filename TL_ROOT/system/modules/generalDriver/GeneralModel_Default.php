@@ -44,11 +44,8 @@ class GeneralModel_Default implements InterfaceGeneralModel
      * @return InterfaceGeneralModel
      */
     public function __clone()
-    {
-        $objModelle = new GeneralModel_Default();
-        $objModelle->setPropertiesAsArray($this->getPropertiesAsArray());
-
-        return $objModelle;
+    {        
+        $this->mixID = null;
     }
 
     /**
@@ -127,13 +124,8 @@ class GeneralModel_Default implements InterfaceGeneralModel
     {
         if (is_array($arrProperties))
         {
-            if ($this->mixID != null)
+            if (array_key_exists("id", $arrProperties))
             {
-                unset($arrProperties["id"]);
-            }
-            else if ($this->mixID == null && array_key_exists("id", $arrProperties))
-            {
-                $this->mixID = $arrProperties["id"];
                 unset($arrProperties["id"]);
             }
 
