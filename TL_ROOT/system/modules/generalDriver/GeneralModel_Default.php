@@ -36,6 +36,30 @@ class GeneralModel_Default implements InterfaceGeneralModel
      * @param array $strPropertyName 
      */
     protected $arrProperties = array();
+    protected $mixID = null;
+
+    /**
+     * Copy this model, without the id.
+     * 
+     * @return InterfaceGeneralModel
+     */
+    public function __clone()
+    {
+        $objModelle = new GeneralModel_Default();
+        $objModelle->setPropertiesAsArray($this->getPropertiesAsArray());
+
+        return $objModelle;
+    }
+
+    /**
+     * Get the id for this modell.
+     * 
+     * @return string The ID for this modell.
+     */
+    public function getID()
+    {
+        return $this->mixID;
+    }
 
     /**
      * @see InterfaceGeneralModel::getProperty()
@@ -54,14 +78,31 @@ class GeneralModel_Default implements InterfaceGeneralModel
             return null;
         }
     }
-    
+
     /**
      * @see InterfaceGeneralModel::getPropertiesAsArray()
      */
     public function getPropertiesAsArray()
     {
-        return $this->arrProperties;
-    }    
+        $arrArray = $this->arrProperties;
+        $arrArray["id"] = $this->mixID;
+        
+        return $arrArray;
+    }
+    
+    /**
+     * Set the id for this modell. 
+     * This works only once.  
+     * 
+     * @param mixed $mixID Could be a integer, string or anything else
+     */
+    public function setID($mixID)
+    {
+        if($this->mixID == null)
+        {
+            $this->mixID = $mixID;
+        }
+    }
 
     /**
      * @see InterfaceGeneralModel::setProperty()
@@ -78,17 +119,27 @@ class GeneralModel_Default implements InterfaceGeneralModel
 
         $this->arrProperties[$strPropertyName] = $varValue;
     }
-    
+
     /**
      * @see InterfaceGeneralModel::setPropertiesAsArray()
      */
     public function setPropertiesAsArray($arrProperties)
     {
-        if(is_array($arrProperties))
+        if (is_array($arrProperties))
         {
+            if ($this->mixID != null)
+            {
+                unset($arrProperties["id"]);
+            }
+            else if ($this->mixID == null && array_key_exists("id", $arrProperties))
+            {
+                $this->mixID = $arrProperties["id"];
+                unset($arrProperties["id"]);
+            }
+
             $this->arrProperties = $arrProperties;
         }
-    }    
+    }
 
     /**
      * @see InterfaceGeneralModel::hasProperties()
@@ -114,7 +165,6 @@ class GeneralModel_Default implements InterfaceGeneralModel
     {
         return new ArrayIterator($this->arrProperties);
     }
-
 }
 
 ?>
