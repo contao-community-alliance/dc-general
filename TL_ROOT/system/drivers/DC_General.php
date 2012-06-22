@@ -230,6 +230,13 @@ class DC_General extends DataContainer implements editable, listable
         // Basic vars Init
         $this->strTable = $strTable;
         $this->arrDCA = ($arrDCA != null) ? $arrDCA : $GLOBALS['TL_DCA'][$this->strTable];
+        
+        // Callback
+        $strTable = $this->oncreateCallback($strTable);        
+        if($strTable != null && $strTable != '')
+        {
+             $this->strTable = $strTable;
+        }
 
         // Check whether the table is defined
         if (!strlen($this->strTable) || !count($this->arrDCA))
@@ -781,6 +788,31 @@ class DC_General extends DataContainer implements editable, listable
             $this->mixWidgetID = 'b' . str_replace('=', '_', base64_encode($intID));
         }
     }
+    
+    /**
+     * Getter for the contao DC_Driver
+     * 
+     * @param String $strKey
+     * @return mixed 
+     */
+    public function __get($strKey)
+    {
+        switch ($strKey)
+        {
+            case "ptable":
+                return $this->strParentTable;
+
+            case "ctable":
+                return $this->strChildTable;
+                
+            case "field":
+                return $this->strField;
+
+            default:
+                return parent::__get($strKey);
+                break;
+        }
+    }
 
     // Functions ---------------------------------------------------------------
 
@@ -895,6 +927,7 @@ class DC_General extends DataContainer implements editable, listable
 
         $this->arrProcessed[$strField] = true;
         $strInputName = $strField . '_' . $this->mixWidgetID;
+        $this->strField = $strField;
 
         // Return if no submit, field is not editable or not in input
         if ($this->blnSubmitted == false || !isset($this->arrInputs[$strInputName]) || $this->isEditableField($strField) == false)
@@ -973,14 +1006,7 @@ class DC_General extends DataContainer implements editable, listable
         // Call the save callbacks
         try
         {
-            if (is_array($arrConfig['save_callback']))
-            {
-                foreach ($arrConfig['save_callback'] as $arrCallback)
-                {
-                    $this->import($arrCallback[0]);
-                    $varNew = $this->$arrCallback[0]->$arrCallback[1]($varNew, $this);
-                }
-            }
+            $varNew = $this->saveCallback($arrConfig, $varNew);
         }
         catch (Exception $e)
         {
@@ -1018,21 +1044,6 @@ class DC_General extends DataContainer implements editable, listable
         $this->arrProcessed[$strField] = $varNew;
 
         return $varNew;
-
-//        // Check on value has not changed
-//        if (deserialize($this->objActiveRecord->$strField) == $varNew && !$arrConfig['eval']['alwaysSave'])
-//        {
-//            return;
-//        }
-//
-//        if (!$this->storeValue($this->strField, $this->strTable, $this->intId, $varNew))
-//        {
-//            return;
-//        }
-//        else if (!$arrConfig['eval']['submitOnChange'] && $this->objActiveRecord->$strField != $varNew)
-//        {
-//            $this->blnCreateNewVersion = true;
-//        }
     }
 
     /**
@@ -1407,7 +1418,7 @@ class DC_General extends DataContainer implements editable, listable
             return $this->$strClass->$strMethod($objModelRow->getPropertiesAsArray(), $arrDCA['href'], $strLabel, $strTitle, $arrDCA['icon'], $arrAttributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext);
         }
         
-        return NULL;
+        return null;
     }
     
     /**
@@ -1433,7 +1444,7 @@ class DC_General extends DataContainer implements editable, listable
             return $this->$strClass->$strMethod($arrDCA['href'], $strLabel, $strTitle, $arrDCA['icon'], $arrAttributes, $strTable, $arrRootIds);
         }
         
-        return NULL;
+        return null;
     }
     
     /**
@@ -1453,7 +1464,71 @@ class DC_General extends DataContainer implements editable, listable
             return $this->$strClass->$strMethod($this);
         }
         
-        return NULL;
+        return null;
+    }
+    
+    /**
+     * Call on create. 
+     * 
+     * @param String $strTable Current Table
+     * @return String Current Table 
+     */
+    public function oncreateCallback($strTable)
+    {
+        // HOOK: add custom create function to allow generating DCA etc. including table name change.
+        if (array_key_exists('oncreate_callback', $GLOBALS['TL_DCA'][$strTable]['config']) && is_array($GLOBALS['TL_DCA'][$strTable]['config']['oncreate_callback']))
+        {
+            foreach ($GLOBALS['TL_DCA'][$strTable]['config']['oncreate_callback'] as $callback)
+            {
+                $this->import($callback[0]);
+                $strTable = $this->$callback[0]->$callback[1]($strTable, $this);
+            }
+        }
+        
+        return $strTable;
+    }
+    
+    /**
+     * Call the delete callback
+     * 
+     * @param array $arrDCA
+     * @return void 
+     */
+    public function ondeleteCallback($arrDCA)
+    {
+        // Call ondelete_callback
+        if (is_array($arrDCA['config']['ondelete_callback']))
+        {
+            foreach ($arrDCA['config']['ondelete_callback'] as $callback)
+            {
+                if (is_array($callback))
+                {
+                    $this->import($callback[0]);
+                    $this->$callback[0]->$callback[1]($this);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Calls the onsave callback for widgets
+     * 
+     * @param array $arrDCA Current DCA
+     * @param mixed $varNew current value
+     * @return mixed 
+     */
+    public function saveCallback($arrDCA, $varNew)
+    {
+        if (is_array($arrDCA['save_callback']))
+        {
+            foreach ($arrDCA['save_callback'] as $arrCallback)
+            {
+                $this->import($arrCallback[0]);
+                $varNew = $this->$arrCallback[0]->$arrCallback[1]($varNew, $this);
+            }
+        }
+        
+        return $varNew;
     }
 
     // Interface funtions ------------------------------------------------------
