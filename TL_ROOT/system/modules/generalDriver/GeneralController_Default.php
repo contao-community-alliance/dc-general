@@ -1,6 +1,4 @@
-<?php
-if (!defined('TL_ROOT'))
-    die('You can not access this file directly!');
+<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -100,9 +98,11 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             return false;
         }
 
+        $objDC->getDataProvider()->save($objDBModel);
+
         // everything went ok, now save the new values and 
         // return model.
-        return $objDC->getDataProvider()->save($objDBModel);
+        return $objDBModel;
     }
 
     public function create(DC_General $objDC)
@@ -153,8 +153,8 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                 {
                     setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
-                    $_SESSION['TL_INFO'] = '';
-                    $_SESSION['TL_ERROR'] = '';
+                    $_SESSION['TL_INFO']    = '';
+                    $_SESSION['TL_ERROR']   = '';
                     $_SESSION['TL_CONFIRM'] = '';
 
                     $this->redirect($this->getReferer());
@@ -225,8 +225,8 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                 {
                     setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
-                    $_SESSION['TL_INFO'] = '';
-                    $_SESSION['TL_ERROR'] = '';
+                    $_SESSION['TL_INFO']    = '';
+                    $_SESSION['TL_ERROR']   = '';
                     $_SESSION['TL_CONFIRM'] = '';
 
                     $this->redirect($this->getReferer());
@@ -235,6 +235,20 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
 
             // Maybe Callbacks ?
         }
+    }
+
+    public function show(DC_General $objDC)
+    {
+        // Load record from data provider
+        $objDBModel = $objDC->getDataProvider()->fetch($objDC->getId());
+
+        if ($objDBModel == null)
+        {
+            $this->log('Could not find ID ' . $objDC->getId() . ' in Table ' . $objDC->getTable() . '.', 'DC_General show()', TL_ERROR);
+            $this->redirect('contao/main.php?act=error');
+        }
+
+        $objDC->setCurrentModel($objDBModel);
     }
 
     public function showAll(DC_General $objDC)
