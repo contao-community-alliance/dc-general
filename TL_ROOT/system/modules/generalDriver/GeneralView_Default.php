@@ -47,7 +47,7 @@ class GeneralView_Default extends Controller implements InterfaceGeneralView
 
     public function create(DC_General $objDcGeneral)
     {
-       return $this->edit($objDcGeneral);
+        return $this->edit($objDcGeneral);
     }
 
     public function cut(DC_General $objDcGeneral)
@@ -136,15 +136,161 @@ class GeneralView_Default extends Controller implements InterfaceGeneralView
         return $this->notImplMsg;
     }
 
+    /**
+     * Show Informations about a data set
+     * 
+     * @param DC_General $objDcGeneral
+     * @return String 
+     */
     public function show(DC_General $objDcGeneral)
     {
-        return $this->notImplMsg;
+        // Init
+        $arrDCA = $objDcGeneral->getDCA();
+        $fields = array();
+        $allowedFields = array('pid', 'sorting', 'tstamp');
+        $arrFieldValues = array();
+        $arrFieldLabels = array();
+
+        // Get fields
+        $objModel = $objDcGeneral->getCurrentModel();
+        foreach ($objModel as $key => $value)
+        {
+            $fields[] = $key;
+        }
+
+        // Get allowed fieds from dca
+        if (is_array($arrDCA['fields']))
+        {
+            $allowedFields = array_unique(array_merge($allowedFields, array_keys($arrDCA['fields'])));
+        }
+
+        $fields = array_intersect($allowedFields, $fields);
+
+
+        // Show all allowed fields
+        foreach ($fields as $strFieldName)
+        {
+            if (!in_array($strFieldName, $allowedFields)
+                    || $arrDCA['fields'][$strFieldName]['inputType'] == 'password'
+                    || $arrDCA['fields'][$strFieldName]['eval']['doNotShow']
+                    || $arrDCA['fields'][$strFieldName]['eval']['hideInput'])
+            {
+                continue;
+            }
+
+            // Special treatment for table tl_undo
+            if ($objDcGeneral->getTable() == 'tl_undo' && $strFieldName == 'data')
+            {
+                continue;
+            }
+
+            // Load value from model
+            $value = deserialize($objModel->getProperty($strFieldName));
+            
+            // Get the field value
+            if (isset($arrDCA['fields'][$strFieldName]['foreignKey']))
+            {
+                $temp = array();
+                $chunks = explode('.', $arrDCA['fields'][$strFieldName]['foreignKey'], 2);
+
+                // ToDo: SH: todo :P
+                
+                foreach ((array) $value as $v)
+                {
+//                    $objKey = $this->Database->prepare("SELECT " . $chunks[1] . " AS value FROM " . $chunks[0] . " WHERE id=?")
+//                            ->limit(1)
+//                            ->execute($v);
+//
+//                    if ($objKey->numRows)
+//                    {
+//                        $temp[] = $objKey->value;
+//                    }
+                }
+
+//                $row[$i] = implode(', ', $temp);
+            }
+            // Decode array
+            else if (is_array($value))
+            {
+                foreach ($value as $kk => $vv)
+                {
+                    if (is_array($vv))
+                    {
+                        $vals       = array_values($vv);
+                        $value[$kk] = $vals[0] . ' (' . $vals[1] . ')';
+                    }
+                }
+
+                $arrFieldValues[$strFieldName] = implode(', ', $value);
+            }
+            // Date Formate
+            else if ($arrDCA['fields'][$strFieldName]['eval']['rgxp'] == 'date')
+            {
+                $arrFieldValues[$strFieldName] = $this->parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $value);
+            }
+            // Date Formate
+            else if ($arrDCA['fields'][$strFieldName]['eval']['rgxp'] == 'time')
+            {
+                $arrFieldValues[$strFieldName] = $this->parseDate($GLOBALS['TL_CONFIG']['timeFormat'], $value);
+            }
+             // Date Formate
+            else if ($arrDCA['fields'][$strFieldName]['eval']['rgxp'] == 'datim' || in_array($arrDCA['fields'][$strFieldName]['flag'], array(5, 6, 7, 8, 9, 10)) || $strFieldName == 'tstamp')
+            {
+                $arrFieldValues[$strFieldName] = $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $value);
+            }
+            else if ($arrDCA['fields'][$strFieldName]['inputType'] == 'checkbox' && !$arrDCA['fields'][$strFieldName]['eval']['multiple'])
+            {
+                $arrFieldValues[$strFieldName] = strlen($value) ? $GLOBALS['TL_LANG']['MSC']['yes'] : $GLOBALS['TL_LANG']['MSC']['no'];
+            }
+            else if ($arrDCA['fields'][$strFieldName]['inputType'] == 'textarea' && ($arrDCA['fields'][$strFieldName]['eval']['allowHtml'] || $arrDCA['fields'][$strFieldName]['eval']['preserveTags']))
+            {
+                $arrFieldValues[$strFieldName] = nl2br_html5(specialchars($value));
+            }
+            else if (is_array($arrDCA['fields'][$strFieldName]['reference']))
+            {
+                $arrFieldValues[$strFieldName] = isset($arrDCA['fields'][$strFieldName]['reference'][$objModel->getProperty($strFieldName)]) ?
+                        ((is_array($arrDCA['fields'][$strFieldName]['reference'][$objModel->getProperty($strFieldName)])) ?
+                                $arrDCA['fields'][$strFieldName]['reference'][$objModel->getProperty($strFieldName)][0] :
+                                $arrDCA['fields'][$strFieldName]['reference'][$objModel->getProperty($strFieldName)]) :
+                        $objModel->getProperty($strFieldName);
+            }
+            else if (array_is_assoc($arrDCA['fields'][$strFieldName]['options']))
+            {
+                $arrFieldValues[$strFieldName] = $arrDCA['fields'][$strFieldName]['options'][$objModel->getProperty($strFieldName)];
+            }
+            else
+            {
+                $arrFieldValues[$strFieldName] = $objModel->getProperty($strFieldName);
+            }
+
+            // Label
+            if (count($arrDCA['fields'][$strFieldName]['label']))
+            {
+                $arrFieldLabels[$strFieldName] = is_array($arrDCA['fields'][$strFieldName]['label']) ? $arrDCA['fields'][$strFieldName]['label'][0] : $arrDCA['fields'][$strFieldName]['label'];
+            }
+            else
+            {
+                $arrFieldLabels[$strFieldName] = is_array($GLOBALS['TL_LANG']['MSC'][$strFieldName]) ? $GLOBALS['TL_LANG']['MSC'][$strFieldName][0] : $GLOBALS['TL_LANG']['MSC'][$strFieldName];
+            }
+
+            if (!strlen($arrFieldLabels[$strFieldName]))
+            {
+                $arrFieldLabels[$strFieldName] = $strFieldName;
+            }
+        }
+
+        $objTemplate = new BackendTemplate("dcbe_general_show");
+        $objTemplate->headline = sprintf($GLOBALS['TL_LANG']['MSC']['showRecord'], ($objDcGeneral->getId() ? 'ID ' . $objDcGeneral->getId() : ''));
+        $objTemplate->arrFields = $arrFieldValues;
+        $objTemplate->arrLabels = $arrFieldLabels;
+
+        return $objTemplate->parse();
     }
 
     public function showAll(DC_General $objDcGeneral)
     {
         $objView = new ViewBuilder($objDcGeneral);
-        
+
         return $objView->panel() . $objView->listView();
     }
 
