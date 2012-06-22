@@ -3,51 +3,54 @@
         <input type="hidden" name="FORM_SUBMIT" value="tl_filters">
         <input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>">
 
-        <?php foreach ($this->panel as $arrPanel): ?>
+        <?php for ($i = 0; $i < count($this->panel); $i++): ?>
 
             <div class="tl_panel">
 
-                <?php $arrKeys = array_keys($arrPanel); ?>
-                <?php for ($i = 0; $i < count($arrPanel); $i++): ?>
+                <?php if ($i == (count($this->panel) - 1)): ?>
+                    <div class="tl_submit_panel tl_subpanel">
+                        <input type="image" name="filter" id="filter" src="<?php echo TL_FILES_URL; ?>system/themes/<?php echo $this->theme; ?>/images/reload.gif" class="tl_img_submit" title="<?php echo $GLOBALS['TL_LANG']['MSC']['apply']; ?>" alt="<?php echo $GLOBALS['TL_LANG']['MSC']['apply']; ?>">
+                    </div>
+                <?php endif; ?>
 
-                    <?php if ($i == 0): ?>
-                        <div class="tl_submit_panel tl_subpanel">
-                            <input type="image" name="filter" id="filter" src="<?php echo TL_FILES_URL; ?>system/themes/<?php echo $this->theme; ?>/images/reload.gif" class="tl_img_submit" title="<?php echo $GLOBALS['TL_LANG']['MSC']['apply']; ?>" alt="<?php echo $GLOBALS['TL_LANG']['MSC']['apply']; ?>">
+                <?php foreach ($this->panel[$i] as $strKey => $arrPanel): ?>
+
+                    <?php if ($strKey === 'filter'): ?>
+
+                        <div class="tl_filter tl_subpanel">
+                            <strong><?php echo $GLOBALS['TL_LANG']['MSC']['filter']; ?>:</strong>
                         </div>
-                    <?php endif; ?>
 
-                    <?php if ($arrKeys[$i] === 'sort'): ?>
+                    <?php elseif ($strKey === 'sort'): ?>
 
                         <div class="tl_sorting tl_subpanel">
-                            <strong><?php echo $GLOBALS['TL_LANG']['MSC']['sortBy']; ?>:</strong> 
+                            <strong><?php echo $GLOBALS['TL_LANG']['MSC']['sortBy']; ?>:</strong>
                             <select name="tl_sort" id="tl_sort" class="tl_select">
-                                <?php foreach ($arrPanel[$arrKeys[$i]]['option'] as $arrOption): ?>                                
+                                <?php foreach ($arrPanel['option'] as $arrOption): ?>
                                     <option value="<?php echo $arrOption['value']; ?>"<?php echo $arrOption['select']; ?>><?php echo $arrOption['content']; ?></option>';
-                                <?php endforeach; ?>                         
+                                <?php endforeach; ?>
                             </select>
-                        </div>                
+                        </div>
 
-                    <?php elseif ($arrKeys[$i] === 'search'): ?>
+                    <?php elseif ($strKey === 'search'): ?>
 
                         <div class="tl_search tl_subpanel">
                             <strong><?php echo $GLOBALS['TL_LANG']['MSC']['search']; ?>:</strong>
-                            <select name="tl_field" class="<?php echo $arrPanel[$arrKeys[$i]]['select']['class']; ?>">
-                                <?php foreach ($arrPanel[$arrKeys[$i]]['option'] as $arrOption): ?>                                
+                            <select name="tl_field" class="<?php echo $arrPanel['select']['class']; ?>">
+                                <?php foreach ($arrPanel['option'] as $arrOption): ?>
                                     <option value="<?php echo $arrOption['value']; ?>"<?php echo $arrOption['select']; ?>><?php echo $arrOption['content']; ?></option>';
-                                <?php endforeach; ?>                            
+                                <?php endforeach; ?>
                             </select>
                             <span> = </span>
-                            <input type="text" name="tl_value" class="<?php echo $arrPanel[$arrKeys[$i]]['input']['class']; ?>" value="<?php echo $arrPanel[$arrKeys[$i]]['input']['value']; ?>">
+                            <input type="text" name="tl_value" class="<?php echo $arrPanel['input']['class']; ?>" value="<?php echo $arrPanel['input']['value']; ?>">
                         </div>
 
-                        <?php // endif; ?>
-
-                    <?php elseif ($arrKeys[$i] === 'limit'): ?>
+                    <?php elseif ($strKey === 'limit'): ?>
 
                         <div class="tl_limit tl_subpanel">
                             <strong><?php echo $GLOBALS['TL_LANG']['MSC']['showOnly']; ?>:</strong>
-                            <select name="tl_limit" class="tl_select<?php echo $arrPanel[$arrKeys[$i]]['select']['class']; ?>" onchange="this.form.submit()">
-                                <?php foreach ($arrPanel[$arrKeys[$i]]['option'] as $arrOption): ?>
+                            <select name="tl_limit" class="tl_select<?php echo $arrPanel['select']['class']; ?>" onchange="this.form.submit()">
+                                <?php foreach ($arrPanel['option'] as $arrOption): ?>
                                     <option value="<?php echo $arrOption['value']; ?>"<?php echo $arrOption['select']; ?>><?php echo $arrOption['content']; ?></option>';
                                 <?php endforeach; ?>
                             </select>
@@ -55,13 +58,13 @@
 
                     <?php endif; ?>
 
-                <?php endfor; ?>
+                <?php endforeach; ?>
 
                 <div class="clear"></div>
 
             </div>
 
-        <?php endforeach; ?>
+        <?php endfor; ?>
 
     </div>
 </form>
