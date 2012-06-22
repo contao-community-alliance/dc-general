@@ -341,7 +341,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         $arrPanelView = array();
 
 //        $filter = $this->filterMenu();
-//        $search = $this->searchMenu();
+        $search = $this->searchMenu();
         $limit = $this->limitMenu();
 //        $sort = $this->sortMenu();
 
@@ -372,8 +372,13 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             {
                 if (is_array($$strSubPanel) && count($$strSubPanel) > 0)
                 {
-                    $arrPanelView[$strSubPanel] = $$strSubPanel;
+                    $arrPanelView[$i][$strSubPanel] = $$strSubPanel;
                 }
+            }
+            
+            if (is_array($arrPanelView[$i]))
+            {
+                $arrPanelView[$i] = array_reverse($arrPanelView[$i]);
             }
         }
 
@@ -392,6 +397,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
     {
         $searchFields = array();
         $session = $this->Session->getData();
+        $arrPanelView = array();
 
         // Get search fields
         foreach ($this->dca['fields'] as $k => $v)
@@ -417,18 +423,19 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             // Make sure the regular expression is valid
             if ($this->Input->postRaw('tl_value') != '')
             {
-                try
-                {
-                    $this->Database->prepare("SELECT * FROM " . $this->strTable . " WHERE " . $this->Input->post('tl_field', true) . " REGEXP ?")
-                            ->limit(1)
-                            ->execute($this->Input->postRaw('tl_value'));
-
-                    $session['search'][$this->dc->getTable()]['value'] = $this->Input->postRaw('tl_value');
-                }
-                catch (Exception $e)
-                {
-                    
-                }
+                // TODO
+//                try
+//                {
+//                    $this->Database->prepare("SELECT * FROM " . $this->strTable . " WHERE " . $this->Input->post('tl_field', true) . " REGEXP ?")
+//                            ->limit(1)
+//                            ->execute($this->Input->postRaw('tl_value'));
+//
+//                    $session['search'][$this->dc->getTable()]['value'] = $this->Input->postRaw('tl_value');
+//                }
+//                catch (Exception $e)
+//                {
+//                    
+//                }
             }
 
             $this->Session->setData($session);
@@ -467,6 +474,11 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
 
         $arrPanelView['select'] = array(
             'class' => 'tl_select' . ($active ? ' active' : '')
+        );
+        
+        $arrPanelView['input'] = array(
+            'class' => 'tl_text' . (($active) ? ' active' : ''),
+            'value' => specialchars($session['search'][$this->dc->getTable()]['value'])
         );
 
         return array_merge($arrPanelView, $options_sorter);

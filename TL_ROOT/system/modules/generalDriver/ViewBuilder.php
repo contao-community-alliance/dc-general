@@ -60,7 +60,8 @@ class ViewBuilder extends Backend
     {
         parent::__construct();
 
-        $this->objDc = $objDc;
+        $this->dc = $objDc;
+        $this->dca = $this->dc->getDCA();
         $this->blnSelect = ($this->Input->get('act') == 'select') ? TRUE : FALSE;
 
         $this->displayButtons();
@@ -75,7 +76,6 @@ class ViewBuilder extends Backend
      */
     public function listView()
     {
-        $arrDCA = $this->objDc->getDCA();
         $arrReturn = array();
 
         // Add display buttons
@@ -85,20 +85,20 @@ class ViewBuilder extends Backend
         $this->setLabel();
 
         // Generate buttons
-        foreach ($this->objDc->getCurrentCollecion() as $objModelRow)
+        foreach ($this->dc->getCurrentCollecion() as $objModelRow)
         {
-            $objModelRow->setProperty('%buttons%', $this->generateButtons($objModelRow, $this->objDc->getTable(), $this->objDc->getRootIds()));
+            $objModelRow->setProperty('%buttons%', $this->generateButtons($objModelRow, $this->dc->getTable(), $this->dc->getRootIds()));
         }
 
         // Add template
         $objTemplate = new BackendTemplate('be_general_showAll');
-        $objTemplate->collection = $this->objDc->getCurrentCollecion();
+        $objTemplate->collection = $this->dc->getCurrentCollecion();
         $objTemplate->select = $this->blnSelect;
         $objTemplate->action = ampersand($this->Environment->request, true);
-        $objTemplate->mode = $arrDCA['list']['sorting']['mode'];
+        $objTemplate->mode = $this->dca['list']['sorting']['mode'];
         $objTemplate->tableHead = $this->getTableHead();
-        $objTemplate->notDeletable = $arrDCA['config']['notDeletable'];
-        $objTemplate->notEditable = $arrDCA['config']['notEditable'];
+        $objTemplate->notDeletable = $this->dca['config']['notDeletable'];
+        $objTemplate->notEditable = $this->dca['config']['notEditable'];
         $arrReturn[] = $objTemplate->parse();
 
         return implode('', $arrReturn);
@@ -108,15 +108,14 @@ class ViewBuilder extends Backend
 
     public function panel()
     {
-        $arrDCA = $this->objDc->getDCA();
         $arrReturn = array();
 
-        if (is_array($this->objDc->getPanelView()) && count($this->objDc->getPanelView()) > 0)
+        if (is_array($this->dc->getPanelView()) && count($this->dc->getPanelView()) > 0)
         {
             $objTemplate = new BackendTemplate('be_general_panel');
             $objTemplate->action = ampersand($this->Environment->request, true);
             $objTemplate->theme = $this->getTheme();
-            $objTemplate->panel = $this->objDc->getPanelView();
+            $objTemplate->panel = $this->dc->getPanelView();
             $arrReturn[] = $objTemplate->parse();
         }
 
@@ -130,13 +129,13 @@ class ViewBuilder extends Backend
         $arrTableHead = array();
 
         // Generate the table header if the "show columns" option is active
-        if ($GLOBALS['TL_DCA'][$this->strTable]['list']['label']['showColumns'])
+        if ($this->dca['list']['label']['showColumns'])
         {
-            foreach ($GLOBALS['TL_DCA'][$this->strTable]['list']['label']['fields'] as $f)
+            foreach ($this->dca['list']['label']['fields'] as $f)
             {
                 $arrTableHead[] = array(
-                    'class' => 'tl_folder_tlist col_' . $f . (($f == $this->objDc->getFirstSorting()) ? ' ordered_by' : ''),
-                    'content' => $GLOBALS['TL_DCA'][$this->strTable]['fields'][$f]['label'][0]
+                    'class' => 'tl_folder_tlist col_' . $f . (($f == $this->dc->getFirstSorting()) ? ' ordered_by' : ''),
+                    'content' => $this->dca['fields'][$f]['label'][0]
                 );
             }
 
@@ -145,7 +144,7 @@ class ViewBuilder extends Backend
                 'content' => '&nbsp;'
             );
         }
-
+        
         return $arrTableHead;
     }
 
@@ -154,29 +153,27 @@ class ViewBuilder extends Backend
      */
     protected function setLabel()
     {
-        $arrDCA = $this->objDc->getDCA();
-
         // Automatically add the "order by" field as last column if we do not have group headers
-        if ($arrDCA['list']['label']['showColumns'] && !in_array($this->objDc->getFirstSorting(), $arrDCA['list']['label']['fields']))
+        if ($this->dca['list']['label']['showColumns'] && !in_array($this->dc->getFirstSorting(), $this->dca['list']['label']['fields']))
         {
-            $arrDCA['list']['label']['fields'][] = $this->objDc->getFirstSorting();
+            $this->dca['list']['label']['fields'][] = $this->dc->getFirstSorting();
         }
 
         $remoteCur = false;
         $groupclass = 'tl_folder_tlist';
         $eoCount = -1;
 
-        foreach ($this->objDc->getCurrentCollecion() as $objModelRow)
+        foreach ($this->dc->getCurrentCollecion() as $objModelRow)
         {
             $args = $this->getLabelArguments($objModelRow);
 
             // Shorten the label if it is too long
-            $label = vsprintf((strlen($arrDCA['list']['label']['format']) ? $arrDCA['list']['label']['format'] : '%s'), $args);
+            $label = vsprintf((strlen($this->dca['list']['label']['format']) ? $this->dca['list']['label']['format'] : '%s'), $args);
 
-            if ($arrDCA['list']['label']['maxCharacters'] > 0 && $arrDCA['list']['label']['maxCharacters'] < strlen(strip_tags($label)))
+            if ($this->dca['list']['label']['maxCharacters'] > 0 && $this->dca['list']['label']['maxCharacters'] < strlen(strip_tags($label)))
             {
                 $this->import('String');
-                $label = trim($this->String->substrHtml($label, $arrDCA['list']['label']['maxCharacters'])) . ' …';
+                $label = trim($this->String->substrHtml($label, $this->dca['list']['label']['maxCharacters'])) . ' …';
             }
 
             // Remove empty brackets (), [], {}, <> and empty tags from the label
@@ -184,23 +181,23 @@ class ViewBuilder extends Backend
             $label = preg_replace('/<[^>]+>\s*<\/[^>]+>/i', '', $label);
 
             // Build the sorting groups
-            if ($arrDCA['list']['sorting']['mode'] > 0)
+            if ($this->dca['list']['sorting']['mode'] > 0)
             {
 
-                $current = $objModelRow->getProperty($this->objDc->getFirstSorting());
-                $orderBy = $arrDCA['list']['sorting']['fields'];
-                $sortingMode = (count($orderBy) == 1 && $this->objDc->getFirstSorting() == $orderBy[0] && $arrDCA['list']['sorting']['flag'] != '' && $arrDCA['fields'][$this->objDc->getFirstSorting()]['flag'] == '') ? $arrDCA['list']['sorting']['flag'] : $arrDCA['fields'][$this->objDc->getFirstSorting()]['flag'];
+                $current = $objModelRow->getProperty($this->dc->getFirstSorting());
+                $orderBy = $this->dca['list']['sorting']['fields'];
+                $sortingMode = (count($orderBy) == 1 && $this->dc->getFirstSorting() == $orderBy[0] && $this->dca['list']['sorting']['flag'] != '' && $this->dca['fields'][$this->dc->getFirstSorting()]['flag'] == '') ? $this->dca['list']['sorting']['flag'] : $this->dca['fields'][$this->dc->getFirstSorting()]['flag'];
 
-                $remoteNew = $this->objDc->formatCurrentValue($this->objDc->getFirstSorting(), $current, $sortingMode);
+                $remoteNew = $this->dc->formatCurrentValue($this->dc->getFirstSorting(), $current, $sortingMode);
 
                 // Add the group header
-                if (!$arrDCA['list']['label']['showColumns'] && !$arrDCA['list']['sorting']['disableGrouping'] && ($remoteNew != $remoteCur || $remoteCur === false))
+                if (!$this->dca['list']['label']['showColumns'] && !$this->dca['list']['sorting']['disableGrouping'] && ($remoteNew != $remoteCur || $remoteCur === false))
                 {
                     $eoCount = -1;
 
                     $objModelRow->setProperty('%group%', array(
                         'class' => $groupclass,
-                        'value' => $this->objDc->formatGroupHeader($this->objDc->getFirstSorting(), $remoteNew, $sortingMode, $objModelRow)
+                        'value' => $this->dc->formatGroupHeader($this->dc->getFirstSorting(), $remoteNew, $sortingMode, $objModelRow)
                     ));
 
                     $groupclass = 'tl_folder_list';
@@ -210,37 +207,42 @@ class ViewBuilder extends Backend
 
             $objModelRow->setProperty('%rowClass%', ((++$eoCount % 2 == 0) ? 'even' : 'odd'));
 
+            $colspan = 1;
+            
             // Call label callback
-            $mixedArgs = $this->objDc->labelCallback($objModelRow, $label, $this->arrDCA['list']['label'], $args);
-
-            // Handle strings and arrays (backwards compatibility)
-            if (!$arrDCA['list']['label']['showColumns'])
+            $mixedArgs = $this->dc->labelCallback($objModelRow, $label, $this->arrDCA['list']['label'], $args);
+            
+            if (is_array($this->arrDCA['list']['label']['label_callback']))
             {
-                $label = is_array($mixedArgs) ? implode(' ', $mixedArgs) : $mixedArgs;
-            }
-            elseif (!is_array($mixedArgs))
-            {
-                $mixedArgs = array($mixedArgs);
-                $colspan = count($arrDCA['list']['label']['fields']);
+                // Handle strings and arrays (backwards compatibility)
+                if (!$this->dca['list']['label']['showColumns'])
+                {
+                    $label = is_array($mixedArgs) ? implode(' ', $mixedArgs) : $mixedArgs;
+                }
+                elseif (!is_array($mixedArgs))
+                {
+                    $mixedArgs = array($mixedArgs);
+                    $colspan = count($this->dca['list']['label']['fields']);
+                }
             }
 
             $arrLabel = array();
 
             // Add columns
-            if ($arrDCA['list']['label']['showColumns'])
+            if ($this->dca['list']['label']['showColumns'])
             {
                 foreach ($args as $j => $arg)
                 {
-                    $arrLabel = array(
+                    $arrLabel[] = array(
                         'colspan' => $colspan,
-                        'class' => 'tl_file_list col_' . $arrDCA['list']['label']['fields'][$j] . (($arrDCA['list']['label']['fields'][$j] == $this->objDc->getFirstSorting()) ? ' ordered_by' : ''),
+                        'class' => 'tl_file_list col_' . $this->dca['list']['label']['fields'][$j] . (($this->dca['list']['label']['fields'][$j] == $this->dc->getFirstSorting()) ? ' ordered_by' : ''),
                         'content' => (($arg != '') ? $arg : '-')
                     );
                 }
             }
             else
             {
-                $arrLabel = array(
+                $arrLabel[] = array(
                     'colspan' => NULL,
                     'class' => 'tl_file_list',
                     'content' => $label
@@ -258,10 +260,8 @@ class ViewBuilder extends Backend
      * @return array
      */
     protected function getLabelArguments($objModelRow)
-    {
-        $arrDCA = $this->objDc->getDCA();
-
-        if ($arrDCA['list']['sorting']['mode'] == 6)
+    {       
+        if ($this->dca['list']['sorting']['mode'] == 6)
         {
             $this->loadDataContainer($objDC->getParentTable());
             $objTmpDC = new DC_General($objDC->getParentTable());
@@ -270,7 +270,7 @@ class ViewBuilder extends Backend
         }
         else
         {
-            $arrCurrentDCA = $arrDCA;
+            $arrCurrentDCA = $this->dca;
         }
 
         $args = array();
@@ -283,13 +283,13 @@ class ViewBuilder extends Backend
             {
                 $args[$k] = $objModelRow->getProperty('%args%');
             }
-            elseif (in_array($arrDCA['fields'][$v]['flag'], array(5, 6, 7, 8, 9, 10)))
+            elseif (in_array($this->dca['fields'][$v]['flag'], array(5, 6, 7, 8, 9, 10)))
             {
-                if ($arrDCA['fields'][$v]['eval']['rgxp'] == 'date')
+                if ($this->dca['fields'][$v]['eval']['rgxp'] == 'date')
                 {
                     $args[$k] = $this->parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $objModelRow->getProperty($v));
                 }
-                elseif ($arrDCA['fields'][$v]['eval']['rgxp'] == 'time')
+                elseif ($this->dca['fields'][$v]['eval']['rgxp'] == 'time')
                 {
                     $args[$k] = $this->parseDate($GLOBALS['TL_CONFIG']['timeFormat'], $objModelRow->getProperty($v));
                 }
@@ -298,7 +298,7 @@ class ViewBuilder extends Backend
                     $args[$k] = $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $objModelRow->getProperty($v));
                 }
             }
-            elseif ($arrDCA['fields'][$v]['inputType'] == 'checkbox' && !$arrDCA['fields'][$v]['eval']['multiple'])
+            elseif ($this->dca['fields'][$v]['inputType'] == 'checkbox' && !$this->dca['fields'][$v]['eval']['multiple'])
             {
                 $args[$k] = strlen($objModelRow->getProperty($v)) ? $arrCurrentDCA['fields'][$v]['label'][0] : '';
             }
@@ -344,24 +344,22 @@ class ViewBuilder extends Backend
      */
     public function displayButtons()
     {
-        $arrDCA = $this->objDc->getDCA();
-
         $arrReturn = array();
-        if (!$arrDCA['config']['closed'] || !empty($arrDCA['list']['global_operations']))
+        if (!$this->dca['config']['closed'] || !empty($this->dca['list']['global_operations']))
         {
             // Add open wrapper
-            $arrReturn[] = '<div id="' . $this->objDc->getButtonId() . '">';
+            $arrReturn[] = '<div id="' . $this->dc->getButtonId() . '">';
 
             // Add back button
-            $arrReturn[] = (($this->blnSelect || $this->objDc->getParentTable()) ? '<a href="' . $this->getReferer(true, $this->objDc->getParentTable()) . '" class="header_back" title="' . specialchars($GLOBALS['TL_LANG']['MSC']['backBT']) . '" accesskey="b" onclick="Backend.getScrollOffset();">' . $GLOBALS['TL_LANG']['MSC']['backBT'] . '</a>' : '');
+            $arrReturn[] = (($this->blnSelect || $this->dc->getParentTable()) ? '<a href="' . $this->getReferer(true, $this->dc->getParentTable()) . '" class="header_back" title="' . specialchars($GLOBALS['TL_LANG']['MSC']['backBT']) . '" accesskey="b" onclick="Backend.getScrollOffset();">' . $GLOBALS['TL_LANG']['MSC']['backBT'] . '</a>' : '');
 
             // Add divider
-            $arrReturn[] = (($this->objDc->getParentTable() && !$this->blnSelect) ? ' &nbsp; :: &nbsp;' : '');
+            $arrReturn[] = (($this->dc->getParentTable() && !$this->blnSelect) ? ' &nbsp; :: &nbsp;' : '');
 
             if (!$this->blnSelect)
             {
                 // Add new button
-                $arrReturn[] = ' ' . (!$arrDCA['config']['closed'] ? '<a href="' . (strlen($this->objDc->getParentTable()) ? $this->addToUrl('act=create' . (($arrDCA['list']['sorting']['mode'] < 4) ? '&amp;mode=2' : '') . '&amp;pid=' . $this->objDc->getId()) : $this->addToUrl('act=create')) . '" class="header_new" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDc->getTable()]['new'][1]) . '" accesskey="n" onclick="Backend.getScrollOffset();">' . $GLOBALS['TL_LANG'][$this->objDc->getTable()]['new'][0] . '</a>' : '');
+                $arrReturn[] = ' ' . (!$this->dca['config']['closed'] ? '<a href="' . (strlen($this->dc->getParentTable()) ? $this->addToUrl('act=create' . (($this->dca['list']['sorting']['mode'] < 4) ? '&amp;mode=2' : '') . '&amp;pid=' . $this->dc->getId()) : $this->addToUrl('act=create')) . '" class="header_new" title="' . specialchars($GLOBALS['TL_LANG'][$this->dc->getTable()]['new'][1]) . '" accesskey="n" onclick="Backend.getScrollOffset();">' . $GLOBALS['TL_LANG'][$this->dc->getTable()]['new'][0] . '</a>' : '');
 
                 // Add global buttons
                 $arrReturn[] = $this->generateGlobalButtons();
@@ -405,7 +403,7 @@ class ViewBuilder extends Backend
             $attributes = strlen($v['attributes']) ? ' ' . ltrim(sprintf($v['attributes'], $objModelRow->getProperty('id'), $objModelRow->getProperty('id'))) : '';
 
             // Call a custom function instead of using the default button
-            $strButtonCallback = $this->objDc->buttonCallback($objModelRow, $v, $label, $title, $attributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext);
+            $strButtonCallback = $this->dc->buttonCallback($objModelRow, $v, $label, $title, $attributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext);
             if (!is_null($strButtonCallback))
             {
                 $return .= $strButtonCallback;
@@ -450,16 +448,14 @@ class ViewBuilder extends Backend
      * @return string
      */
     protected function generateGlobalButtons($blnForceSeparator = false)
-    {
-        $arrDCA = $this->objDc->getDCA();
-
-        if (!is_array($arrDCA['list']['global_operations']))
+    {       
+        if (!is_array($this->dca['list']['global_operations']))
         {
             return '';
         }
 
         $return = '';
-        foreach ($arrDCA['list']['global_operations'] as $k => $v)
+        foreach ($this->dca['list']['global_operations'] as $k => $v)
         {
             $v = is_array($v) ? $v : array($v);
             $label = is_array($v['label']) ? $v['label'][0] : $v['label'];
@@ -472,7 +468,7 @@ class ViewBuilder extends Backend
             }
 
             // Call a custom function instead of using the default button
-            $strButtonCallback = $this->objDc->globalButtonCallback($v, $label, $title, $attributes, $this->objDc->getTable(), $this->objDc->getRootIds());
+            $strButtonCallback = $this->dc->globalButtonCallback($v, $label, $title, $attributes, $this->dc->getTable(), $this->dc->getRootIds());
             if (!is_null($strButtonCallback))
             {
                 $return .= $strButtonCallback;
@@ -482,7 +478,7 @@ class ViewBuilder extends Backend
             $return .= ' &#160; :: &#160; <a href="' . $this->addToUrl($v['href']) . '" class="' . $v['class'] . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> ';
         }
 
-        return ($arrDCA['config']['closed'] && !$blnForceSeparator) ? preg_replace('/^ &#160; :: &#160; /', '', $return) : $return;
+        return ($this->dca['config']['closed'] && !$blnForceSeparator) ? preg_replace('/^ &#160; :: &#160; /', '', $return) : $return;
     }
 
 }
