@@ -32,19 +32,19 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
 {
 
     protected $notImplMsg = "<div style='text-align:center; font-weight:bold; padding:40px;'>The function/view &quot;%s&quot; is not implemented.</div>";
-    
+
     /**
      *
      * @var Session
      */
     protected $objSession = null;
-    
+
     /**
      *
      * @var DC_General
      */
     protected $dc;
-    
+
     /**
      *
      * @var array
@@ -54,7 +54,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
     public function __construct()
     {
         parent::__construct();
-        
+
         $this->objSession = Session::getInstance();
     }
 
@@ -249,7 +249,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         {
             $this->dc->setRootIds(array_unique($this->dca['list']['sorting']['root']));
         }
-        
+
         $this->panel($this->dc);
 
         if ($this->dca['list']['sorting']['mode'] == 4)
@@ -354,7 +354,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
 //        $filter = $this->filterMenu();
         $search = $this->searchMenu();
         $limit = $this->limitMenu();
-//        $sort = $this->sortMenu();
+        $sort = $this->sortMenu();
 
         /* if (!strlen($filter) && !strlen($search) && !strlen($limit) && !strlen($sort))
           {
@@ -386,7 +386,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                     $arrPanelView[$i][$strSubPanel] = $$strSubPanel;
                 }
             }
-            
+
             if (is_array($arrPanelView[$i]))
             {
                 $arrPanelView[$i] = array_reverse($arrPanelView[$i]);
@@ -418,13 +418,13 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                 $searchFields[] = $k;
             }
         }
-        
+
         // Return if there are no search fields
         if (empty($searchFields))
         {
-            return '';
+            return array();
         }
-        
+
         // Store search value in the current session
         if ($this->Input->post('FORM_SUBMIT') == 'tl_filters')
         {
@@ -436,19 +436,19 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             {
                 try
                 {
-                    $objTest = $this->dc->getDataProvider()->fetchAll(false, 0, 1, array($this->Input->post('tl_field', true) . " REGEXP '" . $this->Input->postRaw('tl_value') . "'"));
-                    
+                    $this->dc->getDataProvider()->fetchAll(false, 0, 1, array($this->Input->post('tl_field', true) . " REGEXP '" . $this->Input->postRaw('tl_value') . "'"));
+
                     $session['search'][$this->dc->getTable()]['value'] = $this->Input->postRaw('tl_value');
                 }
                 catch (Exception $e)
                 {
-//                    var_dump($e->getMessage());
+                    
                 }
             }
 
             $this->objSession->setData($session);
-        }        
-        
+        }
+
         // Set search value from session
         else if ($session['search'][$this->dc->getTable()]['value'] != '')
         {
@@ -461,38 +461,30 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                 $this->dc->setFilter(array("CAST(" . $session['search'][$this->dc->getTable()]['field'] . " AS CHAR) REGEXP '" . $session['search'][$this->dc->getTable()]['value'] . "'"));
             }
         }
-        
-        FB::log($session['search']);
-        FB::log($this->Input->post());
-        FB::log($this->Input->postRaw('tl_value'));
-        FB::log($session['search'][$this->dc->getTable()]['value']);
-        
-//        exit();
 
         $arrOptions = array();
 
         foreach ($searchFields as $field)
         {
-            $option_label = strlen($this->dca['fields'][$field]['label'][0]) ? $this->dca['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
-            
-            $arrOptions[utf8_romanize($option_label) . '_' . $field] = array(
-                'sort' => utf8_romanize($option_label) . '_' . $field,
+            $mixedOptionsLabel = strlen($this->dca['fields'][$field]['label'][0]) ? $this->dca['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
+
+            $arrOptions[utf8_romanize($mixedOptionsLabel) . '_' . $field] = array(
                 'value' => specialchars($field),
                 'select' => (($field == $session['search'][$this->dc->getTable()]['field']) ? ' selected="selected"' : ''),
-                'content' => $option_label
+                'content' => $mixedOptionsLabel
             );
         }
 
         // Sort by option values
         uksort($arrOptions, 'strcasecmp');
         $arrPanelView['option'] = $arrOptions;
-        
+
         $active = strlen($session['search'][$this->dc->getTable()]['value']) ? true : false;
 
         $arrPanelView['select'] = array(
             'class' => 'tl_select' . ($active ? ' active' : '')
         );
-        
+
         $arrPanelView['input'] = array(
             'class' => 'tl_text' . (($active) ? ' active' : ''),
             'value' => specialchars($session['search'][$this->dc->getTable()]['value'])
@@ -507,11 +499,11 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
      * @return string
      */
     protected function limitMenu($blnOptional = false)
-    {        
+    {
         $arrPanelView = array();
 
         $session = $this->objSession->getData();
-        
+
         $filter = ($this->dca['list']['sorting']['mode'] == 4) ? $this->dc->getTable() . '_' . CURRENT_ID : $this->dc->getTable();
 
         // Set limit from user input
@@ -536,8 +528,8 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
 
         // Set limit from table configuration
         else
-        {   
-            if(strlen($session['filter'][$filter]['limit']))
+        {
+            if (strlen($session['filter'][$filter]['limit']))
             {
                 $this->dc->setLimit((($session['filter'][$filter]['limit'] == 'all') ? null : $session['filter'][$filter]['limit']));
             }
@@ -558,7 +550,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                     $this->dc->setLimit('0,' . $GLOBALS['TL_CONFIG']['maxResultsPerPage']);
                 }
 
-                $blnIsMaxResultsPerPage = true;                
+                $blnIsMaxResultsPerPage = true;
                 $GLOBALS['TL_CONFIG']['resultsPerPage'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
                 $session['filter'][$filter]['limit'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
             }
@@ -623,6 +615,91 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         return $arrPanelView;
     }
 
+    /**
+     * Return a select menu that allows to sort results by a particular field
+     * @return string
+     */
+    protected function sortMenu()
+    {
+        $arrPanelView = array();
+
+        if ($this->dca['list']['sorting']['mode'] != 2 && $this->dca['list']['sorting']['mode'] != 4)
+        {
+            return array();
+        }
+
+        $sortingFields = array();
+
+        // Get sorting fields
+        foreach ($this->dca['fields'] as $k => $v)
+        {
+            if ($v['sorting'])
+            {
+                $sortingFields[] = $k;
+            }
+        }
+
+        // Return if there are no sorting fields
+        if (empty($sortingFields))
+        {
+            return array();
+        }
+
+        $this->bid = 'tl_buttons_a';
+        $session = $this->objSession->getData();
+        $orderBy = $this->dca['list']['sorting']['fields'];
+        $firstOrderBy = preg_replace('/\s+.*$/i', '', $orderBy[0]);
+
+        // Add PID to order fields
+        if ($this->dca['list']['sorting']['mode'] == 3 && $this->dc->getDataProvider()->fieldExists('pid'))
+        {
+            array_unshift($orderBy, 'pid');
+        }
+
+        // Set sorting from user input
+        if ($this->Input->post('FORM_SUBMIT') == 'tl_filters')
+        {
+            $session['sorting'][$this->strTable] = in_array($this->dca['fields'][$this->Input->post('tl_sort')]['flag'], array(2, 4, 6, 8, 10, 12)) ? $this->Input->post('tl_sort') . ' DESC' : $this->Input->post('tl_sort');
+            $this->objSession->setData($session);
+        }
+
+        // Overwrite the "orderBy" value with the session value
+        elseif (strlen($session['sorting'][$this->strTable]))
+        {
+            $overwrite = preg_quote(preg_replace('/\s+.*$/i', '', $session['sorting'][$this->strTable]), '/');
+            $orderBy = array_diff($orderBy, preg_grep('/^' . $overwrite . '/i', $orderBy));
+
+            array_unshift($orderBy, $session['sorting'][$this->strTable]);
+
+            $this->dc->setFirstSorting($overwrite);
+            $this->dc->setSorting($orderBy);
+        }
+
+        $arrOptions = array();
+
+        foreach ($sortingFields as $field)
+        {
+            $mixedOptionsLabel = strlen($this->dca['fields'][$field]['label'][0]) ? $this->dca['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
+
+            if (is_array($mixedOptionsLabel))
+            {
+                $mixedOptionsLabel = $mixedOptionsLabel[0];
+            }
+
+            $arrOptions[$mixedOptionsLabel] = array(
+                'value' => specialchars($field),
+                'select' => ((!strlen($session['sorting'][$this->strTable]) && $field == $firstOrderBy || $field == str_replace(' DESC', '', $session['sorting'][$this->strTable])) ? ' selected="selected"' : ''),
+                'content' => $mixedOptionsLabel
+            );
+        }
+
+        // Sort by option values
+        uksort($arrOptions, 'strcasecmp');
+        $arrPanelView['option'] = $arrOptions;
+
+        return $arrPanelView;
+    }
+
     // Helper ------------------------------------------------------------------
 
     /**
@@ -645,7 +722,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
 
             $arrFilter['id'] = array_map('intval', $arrFilterIds);
         }
-        
+
         return $arrFilter;
     }
 
@@ -728,9 +805,9 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
 
     public function sortSearchOptions($a, $b)
     {
-        return strtolower($a)<strtolower($b);
+        return strtolower($a) < strtolower($b);
     }
-    
+
     public function sortCollectionPid(InterfaceGeneralModel $a, InterfaceGeneralModel $b)
     {
         if ($a->getProperty('pid') == $b->getProperty('pid'))
