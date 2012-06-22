@@ -165,6 +165,15 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
 
     public function delete(DC_General $objDC)
     {
+        $arrDCA = $objDC->getDCA;
+        
+        if ($arrDCA['config']['notDeletable'])
+        {
+            $this->log('Table "' . $objDC->getTable() . '" is not deletable', 'DC_Table delete()', TL_ERROR);
+            $this->redirect('contao/main.php?act=error');
+        }
+        
+        
         if (strlen($this->Input->get("id")) != 0)
         {
             $objDC->getDataProvider()->delete($this->Input->get("id"));
