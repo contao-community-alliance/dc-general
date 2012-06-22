@@ -356,14 +356,9 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         $limit = $this->limitMenu();
         $sort = $this->sortMenu();
 
-        /* if (!strlen($filter) && !strlen($search) && !strlen($limit) && !strlen($sort))
-          {
-          return '';
-          } */
-
-        if (!strlen($this->dca['list']['sorting']['panelLayout']))
+        if (!strlen($this->dca['list']['sorting']['panelLayout']) || !is_array($filter) && !is_array($search) && !is_array($limit) && !is_array($sort))
         {
-            return '';
+            return;
         }
 
         if ($this->Input->post('FORM_SUBMIT') == 'tl_filters')
@@ -801,11 +796,6 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         }
 
         return $mixedOrderBy;
-    }
-
-    public function sortSearchOptions($a, $b)
-    {
-        return strtolower($a) < strtolower($b);
     }
 
     public function sortCollectionPid(InterfaceGeneralModel $a, InterfaceGeneralModel $b)
