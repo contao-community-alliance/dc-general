@@ -32,6 +32,31 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
 {
 
     protected $notImplMsg = "<div style='text-align:center; font-weight:bold; padding:40px;'>The function/view &quot;%s&quot; is not implemented.</div>";
+    
+    /**
+     *
+     * @var Session
+     */
+    protected $objSession = null;
+    
+    /**
+     *
+     * @var DC_General
+     */
+    protected $dc;
+    
+    /**
+     *
+     * @var array
+     */
+    protected $dca;
+
+    public function __construct()
+    {
+        parent::__construct();
+        
+        $this->objSession = Session::getInstance();
+    }
 
     public function __call($name, $arguments)
     {
@@ -224,6 +249,8 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         {
             $this->dc->setRootIds(array_unique($this->dca['list']['sorting']['root']));
         }
+        
+        $this->panel($this->dc);
 
         if ($this->dca['list']['sorting']['mode'] == 4)
         {
@@ -234,8 +261,6 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         {
             $this->listView();
         }
-
-        $this->panel($this->dc);
     }
 
     // showAll Modis -----------------------------------------------------------
@@ -382,7 +407,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
     protected function searchMenu()
     {
         $searchFields = array();
-        $session = $this->Session->getData();
+        $session = $this->objSession->getData();
         $arrPanelView = array();
 
         // Get search fields
@@ -393,13 +418,13 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                 $searchFields[] = $k;
             }
         }
-
+        
         // Return if there are no search fields
         if (empty($searchFields))
         {
             return '';
         }
-
+        
         // Store search value in the current session
         if ($this->Input->post('FORM_SUBMIT') == 'tl_filters')
         {
@@ -409,45 +434,49 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             // Make sure the regular expression is valid
             if ($this->Input->postRaw('tl_value') != '')
             {
-                // TODO
-//                try
-//                {
-//                    $this->Database->prepare("SELECT * FROM " . $this->strTable . " WHERE " . $this->Input->post('tl_field', true) . " REGEXP ?")
-//                            ->limit(1)
-//                            ->execute($this->Input->postRaw('tl_value'));
-//
-//                    $session['search'][$this->dc->getTable()]['value'] = $this->Input->postRaw('tl_value');
-//                }
-//                catch (Exception $e)
-//                {
-//                    
-//                }
+                try
+                {
+                    $objTest = $this->dc->getDataProvider()->fetchAll(false, 0, 1, array($this->Input->post('tl_field', true) . " REGEXP '" . $this->Input->postRaw('tl_value') . "'"));
+                    
+                    $session['search'][$this->dc->getTable()]['value'] = $this->Input->postRaw('tl_value');
+                }
+                catch (Exception $e)
+                {
+//                    var_dump($e->getMessage());
+                }
             }
 
-            $this->Session->setData($session);
-        }
-
+            $this->objSession->setData($session);
+        }        
+        
         // Set search value from session
-        elseif ($session['search'][$this->dc->getTable()]['value'] != '')
+        else if ($session['search'][$this->dc->getTable()]['value'] != '')
         {
             if (substr($GLOBALS['TL_CONFIG']['dbCollation'], -3) == '_ci')
             {
-                $this->procedure[] = "LOWER(CAST(" . $session['search'][$this->dc->getTable()]['field'] . " AS CHAR)) REGEXP LOWER(?)";
+                $this->dc->setFilter(array("LOWER(CAST(" . $session['search'][$this->dc->getTable()]['field'] . " AS CHAR)) REGEXP LOWER('" . $session['search'][$this->dc->getTable()]['value'] . "')"));
             }
             else
             {
-                $this->procedure[] = "CAST(" . $session['search'][$this->dc->getTable()]['field'] . " AS CHAR) REGEXP ?";
+                $this->dc->setFilter(array("CAST(" . $session['search'][$this->dc->getTable()]['field'] . " AS CHAR) REGEXP '" . $session['search'][$this->dc->getTable()]['value'] . "'"));
             }
-
-            $this->values[] = $session['search'][$this->dc->getTable()]['value'];
         }
+        
+        FB::log($session['search']);
+        FB::log($this->Input->post());
+        FB::log($this->Input->postRaw('tl_value'));
+        FB::log($session['search'][$this->dc->getTable()]['value']);
+        
+//        exit();
 
-        $options_sorter = array();
+        $arrOptions = array();
 
         foreach ($searchFields as $field)
         {
             $option_label = strlen($this->dca['fields'][$field]['label'][0]) ? $this->dca['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
-            $options_sorter[utf8_romanize($option_label) . '_' . $field] = array(
+            
+            $arrOptions[utf8_romanize($option_label) . '_' . $field] = array(
+                'sort' => utf8_romanize($option_label) . '_' . $field,
                 'value' => specialchars($field),
                 'select' => (($field == $session['search'][$this->dc->getTable()]['field']) ? ' selected="selected"' : ''),
                 'content' => $option_label
@@ -455,7 +484,9 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         }
 
         // Sort by option values
-        $options_sorter = natcaseksort($options_sorter);
+        uksort($arrOptions, 'strcasecmp');
+        $arrPanelView['option'] = $arrOptions;
+        
         $active = strlen($session['search'][$this->dc->getTable()]['value']) ? true : false;
 
         $arrPanelView['select'] = array(
@@ -467,7 +498,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             'value' => specialchars($session['search'][$this->dc->getTable()]['value'])
         );
 
-        return array_merge($arrPanelView, $options_sorter);
+        return $arrPanelView;
     }
 
     /**
@@ -476,10 +507,11 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
      * @return string
      */
     protected function limitMenu($blnOptional = false)
-    {
+    {        
         $arrPanelView = array();
 
-        $session = $this->Session->getData();
+        $session = $this->objSession->getData();
+        
         $filter = ($this->dca['list']['sorting']['mode'] == 4) ? $this->dc->getTable() . '_' . CURRENT_ID : $this->dc->getTable();
 
         // Set limit from user input
@@ -494,7 +526,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                 unset($session['filter'][$filter]['limit']);
             }
 
-            $this->Session->setData($session);
+            $this->objSession->setData($session);
 
             if ($this->Input->post('FORM_SUBMIT') == 'tl_filters_limit')
             {
@@ -504,36 +536,43 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
 
         // Set limit from table configuration
         else
-        {
-            $this->limit = strlen($session['filter'][$filter]['limit']) ? (($session['filter'][$filter]['limit'] == 'all') ? null : $session['filter'][$filter]['limit']) : '0,' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
+        {   
+            if(strlen($session['filter'][$filter]['limit']))
+            {
+                $this->dc->setLimit((($session['filter'][$filter]['limit'] == 'all') ? null : $session['filter'][$filter]['limit']));
+            }
+            else
+            {
+                $this->dc->setLimit('0,' . $GLOBALS['TL_CONFIG']['resultsPerPage']);
+            }
 
             // TODO change with own data count request            
-            $total = $this->dc->getCurrentCollecion()->length();
+            $intCount = $this->dc->getDataProvider()->getCount($this->getFilter());
             $blnIsMaxResultsPerPage = false;
 
             // Overall limit
-            if ($total > $GLOBALS['TL_CONFIG']['maxResultsPerPage'] && (is_null($this->limit) || preg_replace('/^.*,/i', '', $this->limit) == $GLOBALS['TL_CONFIG']['maxResultsPerPage']))
+            if ($intCount > $GLOBALS['TL_CONFIG']['maxResultsPerPage'] && (is_null($this->dc->getLimit()) || preg_replace('/^.*,/i', '', $this->dc->getLimit()) == $GLOBALS['TL_CONFIG']['maxResultsPerPage']))
             {
-                if (is_null($this->limit))
+                if (is_null($this->dc->getLimit()))
                 {
-                    $this->limit = '0,' . $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
+                    $this->dc->setLimit('0,' . $GLOBALS['TL_CONFIG']['maxResultsPerPage']);
                 }
 
-                $blnIsMaxResultsPerPage = true;
+                $blnIsMaxResultsPerPage = true;                
                 $GLOBALS['TL_CONFIG']['resultsPerPage'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
                 $session['filter'][$filter]['limit'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
             }
 
             // Build options
-            if ($total > 0)
+            if ($intCount > 0)
             {
                 $arrPanelView['option'][0] = array();
-                $options_total = ceil($total / $GLOBALS['TL_CONFIG']['resultsPerPage']);
+                $options_total = ceil($intCount / $GLOBALS['TL_CONFIG']['resultsPerPage']);
 
                 // Reset limit if other parameters have decreased the number of results
-                if (!is_null($this->limit) && ($this->limit == '' || preg_replace('/,.*$/i', '', $this->limit) > $total))
+                if (!is_null($this->dc->getLimit()) && ($this->dc->getLimit() == '' || preg_replace('/,.*$/i', '', $this->dc->getLimit()) > $intCount))
                 {
-                    $this->limit = '0,' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
+                    $this->dc->setLimit('0,' . $GLOBALS['TL_CONFIG']['resultsPerPage']);
                 }
 
                 // Build options
@@ -542,14 +581,14 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                     $this_limit = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']) . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
                     $upper_limit = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + $GLOBALS['TL_CONFIG']['resultsPerPage']);
 
-                    if ($upper_limit > $total)
+                    if ($upper_limit > $intCount)
                     {
-                        $upper_limit = $total;
+                        $upper_limit = $intCount;
                     }
 
                     $arrPanelView['option'][] = array(
                         'value' => $this_limit,
-                        'select' => $this->optionSelected($this->limit, $this_limit),
+                        'select' => $this->optionSelected($this->dc->getLimit(), $this_limit),
                         'content' => ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + 1) . ' - ' . $upper_limit
                     );
                 }
@@ -558,20 +597,20 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                 {
                     $arrPanelView['option'][] = array(
                         'value' => 'all',
-                        'select' => $this->optionSelected($this->limit, null),
+                        'select' => $this->optionSelected($this->dc->getLimit(), null),
                         'content' => $GLOBALS['TL_LANG']['MSC']['filterAll']
                     );
                 }
             }
 
             // Return if there is only one page
-            if ($blnOptional && ($total < 1 || $options_total < 2))
+            if ($blnOptional && ($intCount < 1 || $options_total < 2))
             {
                 return array();
             }
 
             $arrPanelView['select'] = array(
-                'class' => (($session['filter'][$filter]['limit'] != 'all' && $total > $GLOBALS['TL_CONFIG']['resultsPerPage']) ? ' active' : '')
+                'class' => (($session['filter'][$filter]['limit'] != 'all' && $intCount > $GLOBALS['TL_CONFIG']['resultsPerPage']) ? ' active' : '')
             );
 
             $arrPanelView['option'][0] = array(
@@ -606,7 +645,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
 
             $arrFilter['id'] = array_map('intval', $arrFilterIds);
         }
-
+        
         return $arrFilter;
     }
 
@@ -687,6 +726,11 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         return $mixedOrderBy;
     }
 
+    public function sortSearchOptions($a, $b)
+    {
+        return strtolower($a)<strtolower($b);
+    }
+    
     public function sortCollectionPid(InterfaceGeneralModel $a, InterfaceGeneralModel $b)
     {
         if ($a->getProperty('pid') == $b->getProperty('pid'))

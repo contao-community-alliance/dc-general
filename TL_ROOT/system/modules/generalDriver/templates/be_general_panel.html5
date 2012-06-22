@@ -10,29 +10,29 @@
                 <?php $arrKeys = array_keys($arrPanel); ?>
                 <?php for ($i = 0; $i < count($arrPanel); $i++): ?>
 
-                    <?php if ($i == (count($arrPanel) - 1)): ?>
+                    <?php if ($i == 0): ?>
                         <div class="tl_submit_panel tl_subpanel">
                             <input type="image" name="filter" id="filter" src="<?php echo TL_FILES_URL; ?>system/themes/<?php echo $this->theme; ?>/images/reload.gif" class="tl_img_submit" title="<?php echo $GLOBALS['TL_LANG']['MSC']['apply']; ?>" alt="<?php echo $GLOBALS['TL_LANG']['MSC']['apply']; ?>">
                         </div>
                     <?php endif; ?>
-
+                
                     <?php if ($arrKeys[$i] === 'search'): ?>
-
+                
                         <div class="tl_search tl_subpanel">
                             <strong><?php echo $GLOBALS['TL_LANG']['MSC']['search']; ?>:</strong>
-                            <select name="tl_field" class="<?php echo $arrPanel[$arrKeys[$i]]['class']; ?>">
-                                <?php foreach ($arrPanel[$arrKeys[$i]]['option'] as $arrOption): ?>
+                            <select name="tl_field" class="<?php echo $arrPanel[$arrKeys[$i]]['select']['class']; ?>">
+                                <?php foreach ($arrPanel[$arrKeys[$i]]['option'] as $arrOption): ?>                                
                                     <option value="<?php echo $arrOption['value']; ?>"<?php echo $arrOption['select']; ?>><?php echo $arrOption['content']; ?></option>';
                                 <?php endforeach; ?>                            
                             </select>
                             <span> = </span>
-                            <input type="text" name="tl_value" class="<?php echo $arrPanel['input']['class']; ?>" value="<?php echo $arrPanel['input']['value']; ?>">
+                            <input type="text" name="tl_value" class="<?php echo $arrPanel[$arrKeys[$i]]['input']['class']; ?>" value="<?php echo $arrPanel[$arrKeys[$i]]['input']['value']; ?>">
                         </div>
 
-                    <?php endif; ?>
+                    <?php // endif; ?>
 
-                    <?php if ($arrKeys[$i] === 'limit'): ?>
-
+                    <?php elseif ($arrKeys[$i] === 'limit'): ?>
+                
                         <div class="tl_limit tl_subpanel">
                             <strong><?php echo $GLOBALS['TL_LANG']['MSC']['showOnly']; ?>:</strong>
                             <select name="tl_limit" class="tl_select<?php echo $arrPanel[$arrKeys[$i]]['select']['class']; ?>" onchange="this.form.submit()">
@@ -43,8 +43,6 @@
                         </div>
 
                     <?php endif; ?>
-
-
 
                 <?php endfor; ?>
 

@@ -535,6 +535,10 @@ class DC_General extends DataContainer implements editable, listable
 
     public function setFilter($arrFilter)
     {
+        if(is_array($this->arrFilter))
+        {
+            $this->arrFilter = array_merge($this->arrFilter, $arrField);
+        }
         $this->arrFilter = $arrFilter;
     }
 

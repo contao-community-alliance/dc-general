@@ -59,9 +59,9 @@ class GeneralData_Default implements InterfaceGeneralData
         // Init Helper
         $this->objDatabase = Database::getInstance();
     }
-    
+
     // Getter | Setter ---------------------------------------------------------
-   
+
     /**
      * Fetch an empty single record (new item).
      * 
@@ -159,24 +159,26 @@ class GeneralData_Default implements InterfaceGeneralData
      */
     public function fetchAll($blnIdOnly = false, $intStart = 0, $intAmount = 0, $arrFilter = null, $arrSorting = null)
     {
-        $boolSetWhere = FALSE;
+        $boolSetWhere = true;
 
         $query = "SELECT " . (($blnIdOnly) ? "id" : "*") . " FROM " . $this->strSource;
-
+        
         if (!is_null($arrFilter))
         {
             foreach ($arrFilter AS $key => $mixedFilter)
             {
                 if (is_array($mixedFilter))
                 {
-                    $query .= " WHERE " . $key . " IN(" . implode(',', $mixedFilter) . ")";
+                    $query .= (($boolSetWhere) ? " WHERE " : " AND ") . $key . " IN(" . implode(',', $mixedFilter) . ")";
+                    unset($arrFilter[$key]);
+                    $boolSetWhere = false;
                 }
-                unset($arrFilter[$key]);
             }
-
+            
             if (count($arrFilter) > 0)
             {
                 $query .= (($boolSetWhere) ? " WHERE " : " AND ") . implode(' AND ', $arrFilter);
+                $boolSetWhere = false;                
             }
         }
 
@@ -203,7 +205,12 @@ class GeneralData_Default implements InterfaceGeneralData
 
             $query .= " ORDER BY " . implode(', ', $arrSorting) . $strSortOrder;
         }
-
+        
+        $objTest = $this->objDatabase
+                ->prepare($query)
+                ->limit($intAmount, $intStart)
+                ->execute();
+        
         $arrResult = $this->objDatabase
                 ->prepare($query)
                 ->limit($intAmount, $intStart)
@@ -243,7 +250,34 @@ class GeneralData_Default implements InterfaceGeneralData
 
     public function getCount($arrFilter = array())
     {
-        throw new Exception("Unsupported Operation: Not supported yet.");
+        $boolSetWhere = true;
+
+        $query = "SELECT COUNT(*) AS count FROM " . $this->strSource;
+
+        if (!is_null($arrFilter))
+        {
+            foreach ($arrFilter AS $key => $mixedFilter)
+            {
+                if (is_array($mixedFilter))
+                {
+                    $query .= (($boolSetWhere) ? " WHERE " : " AND ") . $key . " IN(" . implode(',', $mixedFilter) . ")";
+                    $boolSetWhere = false;
+                }
+                unset($arrFilter[$key]);
+            }
+
+            if (count($arrFilter) > 0)
+            {
+                $query .= (($boolSetWhere) ? " WHERE " : " AND ") . implode(' AND ', $arrFilter);
+                $boolSetWhere = false;
+            }
+        }
+
+        $objCount = $this->objDatabase
+                ->prepare($query)
+                ->execute();
+        
+        return $objCount->count;
     }
 
     public function getVersions($intID)
@@ -315,7 +349,7 @@ class GeneralData_Default implements InterfaceGeneralData
             $objInsert = $this->objDatabase
                     ->prepare("INSERT INTO $this->strSource %s")
                     ->set($arrSet)
-                    ->execute();            
+                    ->execute();
 
             if (strlen($objInsert->insertId) != 0)
             {
