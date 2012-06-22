@@ -1,6 +1,4 @@
-<?php
-if (!defined('TL_ROOT'))
-    die('You can not access this file directly!');
+<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -75,9 +73,11 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             return false;
         }
 
+        $objDC->getDataProvider()->save($objDBModel);
+
         // everything went ok, now save the new values and 
         // return model.
-        return $objDC->getDataProvider()->save($objDBModel);
+        return $objDBModel;
     }
 
     public function create(DC_General $objDC)
@@ -128,8 +128,8 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                 {
                     setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
-                    $_SESSION['TL_INFO'] = '';
-                    $_SESSION['TL_ERROR'] = '';
+                    $_SESSION['TL_INFO']    = '';
+                    $_SESSION['TL_ERROR']   = '';
                     $_SESSION['TL_CONFIRM'] = '';
 
                     $this->redirect($this->getReferer());
@@ -200,8 +200,8 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                 {
                     setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
-                    $_SESSION['TL_INFO'] = '';
-                    $_SESSION['TL_ERROR'] = '';
+                    $_SESSION['TL_INFO']    = '';
+                    $_SESSION['TL_ERROR']   = '';
                     $_SESSION['TL_CONFIRM'] = '';
 
                     $this->redirect($this->getReferer());
@@ -210,6 +210,20 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
 
             // Maybe Callbacks ?
         }
+    }
+
+    public function show(DC_General $objDC)
+    {
+        // Load record from data provider
+        $objDBModel = $objDC->getDataProvider()->fetch($objDC->getId());
+
+        if ($objDBModel == null)
+        {
+            $this->log('Could not find ID ' . $objDC->getId() . ' in Table ' . $objDC->getTable() . '.', 'DC_General show()', TL_ERROR);
+            $this->redirect('contao/main.php?act=error');
+        }
+
+        $objDC->setCurrentModel($objDBModel);
     }
 
     public function showAll(DC_General $objDC)
@@ -254,7 +268,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         else
         {
             $objDataProvider = $this->dc->getDataProvider();
-            $arrCurrentDCA = $this->dca;
+            $arrCurrentDCA   = $this->dca;
         }
 
         // Get Filter
@@ -347,8 +361,8 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         }
 
         $panelLayout = $this->dca['list']['sorting']['panelLayout'];
-        $arrPanels = trimsplit(';', $panelLayout);
-        $intLast = count($arrPanels) - 1;
+        $arrPanels   = trimsplit(';', $panelLayout);
+        $intLast     = count($arrPanels) - 1;
 
         for ($i = 0; $i < count($arrPanels); $i++)
         {
@@ -439,7 +453,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
 
         foreach ($searchFields as $field)
         {
-            $option_label = strlen($this->dca['fields'][$field]['label'][0]) ? $this->dca['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
+            $option_label                                                = strlen($this->dca['fields'][$field]['label'][0]) ? $this->dca['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
             $options_sorter[utf8_romanize($option_label) . '_' . $field] = array(
                 'value' => specialchars($field),
                 'select' => (($field == $session['search'][$this->dc->getTable()]['field']) ? ' selected="selected"' : ''),
@@ -449,7 +463,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
 
         // Sort by option values
         $options_sorter = natcaseksort($options_sorter);
-        $active = strlen($session['search'][$this->dc->getTable()]['value']) ? true : false;
+        $active         = strlen($session['search'][$this->dc->getTable()]['value']) ? true : false;
 
         $arrPanelView['select'] = array(
             'class' => 'tl_select' . ($active ? ' active' : '')
@@ -468,7 +482,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
         $arrPanelView = array();
 
         $session = $this->Session->getData();
-        $filter = ($this->dca['list']['sorting']['mode'] == 4) ? $this->dc->getTable() . '_' . CURRENT_ID : $this->dc->getTable();
+        $filter  = ($this->dca['list']['sorting']['mode'] == 4) ? $this->dc->getTable() . '_' . CURRENT_ID : $this->dc->getTable();
 
         // Set limit from user input
         if ($this->Input->post('FORM_SUBMIT') == 'tl_filters' || $this->Input->post('FORM_SUBMIT') == 'tl_filters_limit')
@@ -496,7 +510,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             $this->limit = strlen($session['filter'][$filter]['limit']) ? (($session['filter'][$filter]['limit'] == 'all') ? null : $session['filter'][$filter]['limit']) : '0,' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
 
             // TODO change with own data count request            
-            $total = $this->dc->getCurrentCollecion()->length();
+            $total                  = $this->dc->getCurrentCollecion()->length();
             $blnIsMaxResultsPerPage = false;
 
             // Overall limit
@@ -507,9 +521,9 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                     $this->limit = '0,' . $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
                 }
 
-                $blnIsMaxResultsPerPage = true;
+                $blnIsMaxResultsPerPage                 = true;
                 $GLOBALS['TL_CONFIG']['resultsPerPage'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
-                $session['filter'][$filter]['limit'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
+                $session['filter'][$filter]['limit']    = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
             }
 
             // Build options
@@ -527,7 +541,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
                 // Build options
                 for ($i = 0; $i < $options_total; $i++)
                 {
-                    $this_limit = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']) . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
+                    $this_limit  = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']) . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
                     $upper_limit = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + $GLOBALS['TL_CONFIG']['resultsPerPage']);
 
                     if ($upper_limit > $total)
