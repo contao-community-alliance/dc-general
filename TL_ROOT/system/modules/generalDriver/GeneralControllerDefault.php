@@ -82,7 +82,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     {
         $objDBModel = $objDC->getCurrentModel();
         // process input and update changed properties.
-        foreach ($objDC->getFieldList() as $key => $value)
+        foreach (array_keys($objDC->getFieldList()) as $key)
         {
             $varNewValue = $objDC->processInput($key);
             if ($objDBModel->getProperty($key) != $varNewValue)
@@ -166,14 +166,14 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     public function delete(DC_General $objDC)
     {
         $arrDCA = $objDC->getDCA;
-        
+
         if ($arrDCA['config']['notDeletable'])
         {
             $this->log('Table "' . $objDC->getTable() . '" is not deletable', 'DC_Table delete()', TL_ERROR);
             $this->redirect('contao/main.php?act=error');
         }
-        
-        
+
+
         if (strlen($this->Input->get("id")) != 0)
         {
             $objDC->getDataProvider()->delete($this->Input->get("id"));
@@ -302,7 +302,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         else
         {
             $objDataProvider = $this->dc->getDataProvider();
-            $arrCurrentDCA = $this->dca;
+            $arrCurrentDCA   = $this->dca;
         }
 
         // Get Filter
@@ -329,13 +329,12 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $objCollection->sort(array($this, 'sortCollectionPid'));
         }
 
-        $args = array();
         // TODO set global current in DC_General
         /* $this->current[] = $objModelRow->getProperty('id'); */
         $showFields = $arrCurrentDCA['list']['label']['fields'];
 
         // Label
-        foreach ($showFields as $k => $v)
+        foreach ($showFields as $v)
         {
             // Decrypt the value
             if ($this->dca['fields'][$v]['eval']['encrypt'])
@@ -376,8 +375,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 //        $filter = $this->filterMenu();
         $search = $this->searchMenu();
-        $limit = $this->limitMenu();
-        $sort = $this->sortMenu();
+        $limit  = $this->limitMenu();
+        $sort   = $this->sortMenu();
 
         if (!strlen($this->dca['list']['sorting']['panelLayout']) || !is_array($filter) && !is_array($search) && !is_array($limit) && !is_array($sort))
         {
@@ -390,8 +389,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         $panelLayout = $this->dca['list']['sorting']['panelLayout'];
-        $arrPanels = trimsplit(';', $panelLayout);
-        $intLast = count($arrPanels) - 1;
+        $arrPanels   = trimsplit(';', $panelLayout);
 
         for ($i = 0; $i < count($arrPanels); $i++)
         {
@@ -425,7 +423,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     protected function searchMenu()
     {
         $searchFields = array();
-        $session = $this->objSession->getData();
+        $session      = $this->objSession->getData();
         $arrPanelView = array();
 
         // Get search fields
@@ -460,7 +458,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 }
                 catch (Exception $e)
                 {
-                    
+                    // Do nothing
                 }
             }
 
@@ -557,7 +555,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             }
 
             // TODO change with own data count request            
-            $intCount = $this->dc->getDataProvider()->getCount($this->getFilter());
+            $intCount               = $this->dc->getDataProvider()->getCount($this->getFilter());
             $blnIsMaxResultsPerPage = false;
 
             // Overall limit
@@ -568,9 +566,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     $this->dc->setLimit('0,' . $GLOBALS['TL_CONFIG']['maxResultsPerPage']);
                 }
 
-                $blnIsMaxResultsPerPage = true;
+                $blnIsMaxResultsPerPage                 = true;
                 $GLOBALS['TL_CONFIG']['resultsPerPage'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
-                $session['filter'][$filter]['limit'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
+                $session['filter'][$filter]['limit']    = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
             }
 
             // Build options
@@ -588,7 +586,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 // Build options
                 for ($i = 0; $i < $options_total; $i++)
                 {
-                    $this_limit = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']) . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
+                    $this_limit  = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']) . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
                     $upper_limit = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + $GLOBALS['TL_CONFIG']['resultsPerPage']);
 
                     if ($upper_limit > $intCount)
@@ -664,8 +662,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         $this->dc->setButtonId('tl_buttons_a');
-        $session = $this->objSession->getData();
-        $orderBy = $this->dca['list']['sorting']['fields'];
+        $session      = $this->objSession->getData();
+        $orderBy      = $this->dca['list']['sorting']['fields'];
         $firstOrderBy = preg_replace('/\s+.*$/i', '', $orderBy[0]);
 
         // Add PID to order fields
@@ -685,7 +683,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         elseif (strlen($session['sorting'][$this->strTable]))
         {
             $overwrite = preg_quote(preg_replace('/\s+.*$/i', '', $session['sorting'][$this->strTable]), '/');
-            $orderBy = array_diff($orderBy, preg_grep('/^' . $overwrite . '/i', $orderBy));
+            $orderBy   = array_diff($orderBy, preg_grep('/^' . $overwrite . '/i', $orderBy));
 
             array_unshift($orderBy, $session['sorting'][$this->strTable]);
 
