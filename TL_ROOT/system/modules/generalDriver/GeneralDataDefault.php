@@ -205,17 +205,17 @@ class GeneralDataDefault implements InterfaceGeneralData
 
             $query .= " ORDER BY " . implode(', ', $arrSorting) . $strSortOrder;
         }
-        
-        $objTest = $this->objDatabase
-                ->prepare($query)
-                ->limit($intAmount, $intStart)
-                ->execute();
-        
+
         $arrResult = $this->objDatabase
                 ->prepare($query)
                 ->limit($intAmount, $intStart)
                 ->execute()
                 ->fetchAllAssoc();
+       
+        if($blnIdOnly)
+        {
+            return $arrResult;
+        }
 
         $objCollection = $this->getEmptyCollection();
 
