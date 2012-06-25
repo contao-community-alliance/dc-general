@@ -1,4 +1,7 @@
-<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
+<?php
+
+if (!defined('TL_ROOT'))
+    die('You can not access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -81,6 +84,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     protected function doSave(DC_General $objDC)
     {
         $objDBModel = $objDC->getCurrentModel();
+
         // process input and update changed properties.
         foreach ($objDC->getFieldList() as $key => $value)
         {
@@ -98,13 +102,39 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             return false;
         }
 
-        $objDC->getDataProvider()->save($objDBModel);
+        // Compare version and current record. 
+        // If not the same create a new version
+        $mixCurrentVersion = $objDC->getDataProvider()->getActiveVersion($objDBModel->getID());
+        if ($mixCurrentVersion != 0)
+        {
+            $mixCurrentVersion = $objDC->getDataProvider()->getVersion($objDBModel->getID(), $mixCurrentVersion);
+
+            if($objDC->getDataProvider()->sameModels($objDBModel, $mixCurrentVersion) == false)
+            {
+                // TODO: FE|BE switch
+                $this->import('BackendUser', 'User');
+                $objDC->getDataProvider()->saveVersion($objDBModel, $this->User->username);
+            }
+        }
+        else
+        {
+            // TODO: FE|BE switch
+            $this->import('BackendUser', 'User');
+            $objDC->getDataProvider()->saveVersion($objDBModel, $this->User->username);
+        }
 
         // everything went ok, now save the new values and 
         // return model.
+        $objDC->getDataProvider()->save($objDBModel);
+
         return $objDBModel;
     }
 
+    /**
+     * Create function 
+     *  
+     * @param DC_General $objDC 
+     */
     public function create(DC_General $objDC)
     {
         // Check if table is editable
@@ -166,14 +196,14 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     public function delete(DC_General $objDC)
     {
         $arrDCA = $objDC->getDCA;
-        
+
         if ($arrDCA['config']['notDeletable'])
         {
             $this->log('Table "' . $objDC->getTable() . '" is not deletable', 'DC_Table delete()', TL_ERROR);
             $this->redirect('contao/main.php?act=error');
         }
-        
-        
+
+
         if (strlen($this->Input->get("id")) != 0)
         {
             $objDC->getDataProvider()->delete($this->Input->get("id"));
@@ -189,6 +219,24 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             $this->log('Table ' . $objDC->getTable() . ' is not editable', 'DC_General edit()', TL_ERROR);
             $this->redirect('contao/main.php?act=error');
+        }
+
+        // Load an older Version
+        if (strlen($this->Input->post("version")) != 0 && $objDC->isVersionSubmit())
+        {
+            // Load record from version 
+            $objVersionModel = $objDC->getDataProvider()->getVersion($objDC->getId(), $this->Input->post("version"));
+            $objDC->getDataProvider()->save($objVersionModel);
+            $objDC->getDataProvider()->setVersionActive($objDC->getId(), $this->Input->post("version"));
+            
+            // Callback onrestoreCallback
+            $arrData = $objVersionModel->getPropertiesAsArray();
+            $arrData["id"] = $objVersionModel->getID();
+            
+            $objDC->getCallbackClass()->onrestoreCallback($objDC->getId(), $objDC->getTable(), $arrData, $this->Input->post("version"));
+            
+            // Reload page with new recored
+            $this->reload();
         }
 
         // Load fields and co
@@ -302,7 +350,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         else
         {
             $objDataProvider = $this->dc->getDataProvider();
-            $arrCurrentDCA = $this->dca;
+            $arrCurrentDCA   = $this->dca;
         }
 
         // Get Filter
@@ -376,8 +424,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 //        $filter = $this->filterMenu();
         $search = $this->searchMenu();
-        $limit = $this->limitMenu();
-        $sort = $this->sortMenu();
+        $limit  = $this->limitMenu();
+        $sort   = $this->sortMenu();
 
         if (!strlen($this->dca['list']['sorting']['panelLayout']) || !is_array($filter) && !is_array($search) && !is_array($limit) && !is_array($sort))
         {
@@ -390,8 +438,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         $panelLayout = $this->dca['list']['sorting']['panelLayout'];
-        $arrPanels = trimsplit(';', $panelLayout);
-        $intLast = count($arrPanels) - 1;
+        $arrPanels   = trimsplit(';', $panelLayout);
+        $intLast     = count($arrPanels) - 1;
 
         for ($i = 0; $i < count($arrPanels); $i++)
         {
@@ -425,7 +473,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     protected function searchMenu()
     {
         $searchFields = array();
-        $session = $this->objSession->getData();
+        $session      = $this->objSession->getData();
         $arrPanelView = array();
 
         // Get search fields
@@ -487,8 +535,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $mixedOptionsLabel = strlen($this->dca['fields'][$field]['label'][0]) ? $this->dca['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
 
             $arrOptions[utf8_romanize($mixedOptionsLabel) . '_' . $field] = array(
-                'value' => specialchars($field),
-                'select' => (($field == $session['search'][$this->dc->getTable()]['field']) ? ' selected="selected"' : ''),
+                'value'   => specialchars($field),
+                'select'  => (($field == $session['search'][$this->dc->getTable()]['field']) ? ' selected="selected"' : ''),
                 'content' => $mixedOptionsLabel
             );
         }
@@ -557,7 +605,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             }
 
             // TODO change with own data count request            
-            $intCount = $this->dc->getDataProvider()->getCount($this->getFilter());
+            $intCount               = $this->dc->getDataProvider()->getCount($this->getFilter());
             $blnIsMaxResultsPerPage = false;
 
             // Overall limit
@@ -568,9 +616,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     $this->dc->setLimit('0,' . $GLOBALS['TL_CONFIG']['maxResultsPerPage']);
                 }
 
-                $blnIsMaxResultsPerPage = true;
+                $blnIsMaxResultsPerPage                 = true;
                 $GLOBALS['TL_CONFIG']['resultsPerPage'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
-                $session['filter'][$filter]['limit'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
+                $session['filter'][$filter]['limit']    = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
             }
 
             // Build options
@@ -588,7 +636,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 // Build options
                 for ($i = 0; $i < $options_total; $i++)
                 {
-                    $this_limit = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']) . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
+                    $this_limit  = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']) . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
                     $upper_limit = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + $GLOBALS['TL_CONFIG']['resultsPerPage']);
 
                     if ($upper_limit > $intCount)
@@ -597,8 +645,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     }
 
                     $arrPanelView['option'][] = array(
-                        'value' => $this_limit,
-                        'select' => $this->optionSelected($this->dc->getLimit(), $this_limit),
+                        'value'   => $this_limit,
+                        'select'  => $this->optionSelected($this->dc->getLimit(), $this_limit),
                         'content' => ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + 1) . ' - ' . $upper_limit
                     );
                 }
@@ -606,8 +654,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 if (!$blnIsMaxResultsPerPage)
                 {
                     $arrPanelView['option'][] = array(
-                        'value' => 'all',
-                        'select' => $this->optionSelected($this->dc->getLimit(), null),
+                        'value'   => 'all',
+                        'select'  => $this->optionSelected($this->dc->getLimit(), null),
                         'content' => $GLOBALS['TL_LANG']['MSC']['filterAll']
                     );
                 }
@@ -624,8 +672,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             );
 
             $arrPanelView['option'][0] = array(
-                'value' => 'tl_limit',
-                'select' => '',
+                'value'   => 'tl_limit',
+                'select'  => '',
                 'content' => $GLOBALS['TL_LANG']['MSC']['filterRecords']
             );
         }
@@ -664,8 +712,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         $this->dc->setButtonId('tl_buttons_a');
-        $session = $this->objSession->getData();
-        $orderBy = $this->dca['list']['sorting']['fields'];
+        $session      = $this->objSession->getData();
+        $orderBy      = $this->dca['list']['sorting']['fields'];
         $firstOrderBy = preg_replace('/\s+.*$/i', '', $orderBy[0]);
 
         // Add PID to order fields
@@ -685,7 +733,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         elseif (strlen($session['sorting'][$this->strTable]))
         {
             $overwrite = preg_quote(preg_replace('/\s+.*$/i', '', $session['sorting'][$this->strTable]), '/');
-            $orderBy = array_diff($orderBy, preg_grep('/^' . $overwrite . '/i', $orderBy));
+            $orderBy   = array_diff($orderBy, preg_grep('/^' . $overwrite . '/i', $orderBy));
 
             array_unshift($orderBy, $session['sorting'][$this->strTable]);
 
@@ -705,8 +753,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             }
 
             $arrOptions[$mixedOptionsLabel] = array(
-                'value' => specialchars($field),
-                'select' => ((!strlen($session['sorting'][$this->strTable]) && $field == $firstOrderBy || $field == str_replace(' DESC', '', $session['sorting'][$this->strTable])) ? ' selected="selected"' : ''),
+                'value'   => specialchars($field),
+                'select'  => ((!strlen($session['sorting'][$this->strTable]) && $field == $firstOrderBy || $field == str_replace(' DESC', '', $session['sorting'][$this->strTable])) ? ' selected="selected"' : ''),
                 'content' => $mixedOptionsLabel
             );
         }
@@ -788,7 +836,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             {
                 if ($this->dca['fields'][$strField]['eval']['findInSet'])
                 {
-                    $arrOptionsCallback = $this->dc->optionsCallback($this->dca['fields'][$strField]);
+                    $arrOptionsCallback = $this->dc->getCallbackClass()->optionsCallback($this->dca['fields'][$strField]);
+
                     if (!is_null($arrOptionsCallback))
                     {
                         $keys = $arrOptionsCallback;
@@ -804,8 +853,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     }
 
                     $mixedOrderBy[$key] = array(
-                        'field' => $strField,
-                        'keys' => $keys,
+                        'field'  => $strField,
+                        'keys'   => $keys,
                         'action' => 'findInSet'
                     );
                 }
