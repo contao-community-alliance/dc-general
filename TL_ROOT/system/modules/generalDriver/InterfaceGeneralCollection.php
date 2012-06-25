@@ -43,7 +43,7 @@ interface InterfaceGeneralCollection extends IteratorAggregate
      *
      * @return Model
      */
-    public function get(int $index);
+    public function get($index);
 
     /**
      * Alias for push.
@@ -95,7 +95,7 @@ interface InterfaceGeneralCollection extends IteratorAggregate
      *
      * @return void
      */
-    public function insert(int $index, InterfaceGeneralModel $model);
+    public function insert($index, InterfaceGeneralModel $model);
 
     /**
      * Make a reverse sorted collection.
