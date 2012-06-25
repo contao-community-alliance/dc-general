@@ -158,7 +158,7 @@ class GeneralDataDefault implements InterfaceGeneralData
      * @return InterfaceGeneralCollection
      */
     public function fetchAll($blnIdOnly = false, $intStart = 0, $intAmount = 0, $arrFilter = null, $arrSorting = null)
-    {
+    {        
         $boolSetWhere = true;
 
         $query = "SELECT " . (($blnIdOnly) ? "id" : "*") . " FROM " . $this->strSource;
@@ -182,7 +182,7 @@ class GeneralDataDefault implements InterfaceGeneralData
             }
         }
 
-        if (!is_null($arrSorting))
+        if (!is_null($arrSorting) && is_array($arrSorting) && count($arrSorting) > 0)
         {
             $strSortOrder = '';
 
@@ -192,7 +192,7 @@ class GeneralDataDefault implements InterfaceGeneralData
                 {
                     if ($mixedField['action'] == 'findInSet')
                     {
-                        $arrSorting[$key] = $this->Database->findInSet($mixedField['field'], $mixedField['keys']);
+                        $arrSorting[$key] = $this->objDatabase->findInSet($mixedField['field'], $mixedField['keys']);
                     }
                 }
 
