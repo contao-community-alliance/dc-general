@@ -27,7 +27,7 @@
  * @license    GNU/LGPL
  * @filesource
  */
-class GeneralModel_Default implements InterfaceGeneralModel
+class GeneralModelDefault implements InterfaceGeneralModel
 {
 
     /**

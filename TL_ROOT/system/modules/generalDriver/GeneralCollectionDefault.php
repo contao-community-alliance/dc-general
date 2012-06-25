@@ -27,7 +27,7 @@
  * @license    GNU/LGPL
  * @filesource
  */
-class GeneralCollection_Default implements InterfaceGeneralCollection
+class GeneralCollectionDefault implements InterfaceGeneralCollection
 {
 
     /**

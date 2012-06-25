@@ -26,7 +26,7 @@
  * @license    GNU/LGPL
  * @filesource
  */
-class GeneralController_Default extends Controller implements InterfaceGeneralController
+class GeneralControllerDefault extends Controller implements InterfaceGeneralController
 {
 
     protected $notImplMsg = "<div style='text-align:center; font-weight:bold; padding:40px;'>The function/view &quot;%s&quot; is not implemented.</div>";
@@ -322,7 +322,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
 
             foreach ($objCollection as $objModel)
             {
-                $objFieldModel = $this->dc->getParentDataProvider()->fetch($objModel->getProperty('id'));
+                $objFieldModel = $this->dc->getParentDataProvider()->fetch($objModel->getID());
                 $objModel->setProperty('pid', $objFieldModel->getProperty($showFields[0]));
             }
 
@@ -413,7 +413,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
 
         if (count($arrPanelView) > 0)
         {
-            $this->dc->setPanelView($arrPanelView);
+            $this->dc->setPanelView(array_values($arrPanelView));
         }
     }
 
@@ -663,7 +663,7 @@ class GeneralController_Default extends Controller implements InterfaceGeneralCo
             return array();
         }
 
-        $this->bid = 'tl_buttons_a';
+        $this->dc->setButtonId('tl_buttons_a');
         $session = $this->objSession->getData();
         $orderBy = $this->dca['list']['sorting']['fields'];
         $firstOrderBy = preg_replace('/\s+.*$/i', '', $orderBy[0]);

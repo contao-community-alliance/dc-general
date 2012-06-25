@@ -27,7 +27,7 @@
  * @license    GNU/LGPL
  * @filesource
  */
-class GeneralData_Default implements InterfaceGeneralData
+class GeneralDataDefault implements InterfaceGeneralData
 {
     // Vars --------------------------------------------------------------------
 
@@ -69,7 +69,7 @@ class GeneralData_Default implements InterfaceGeneralData
      */
     public function getEmptyModel()
     {
-        return new GeneralModel_Default();
+        return new GeneralModelDefault();
     }
 
     /**
@@ -79,7 +79,7 @@ class GeneralData_Default implements InterfaceGeneralData
      */
     public function getEmptyCollection()
     {
-        return new GeneralCollection_Default();
+        return new GeneralCollectionDefault();
     }
 
     // Functions ---------------------------------------------------------------

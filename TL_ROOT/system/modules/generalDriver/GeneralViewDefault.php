@@ -30,7 +30,7 @@ if (!defined('TL_ROOT'))
  * @license    GNU/LGPL
  * @filesource
  */
-class GeneralView_Default extends Controller implements InterfaceGeneralView
+class GeneralViewDefault extends Controller implements InterfaceGeneralView
 {
 
     protected $notImplMsg = "<div style='text-align:center; font-weight:bold; padding:40px;'>This function/view is not implemented.</div>";
