@@ -1,4 +1,7 @@
-<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
+<?php
+
+if (!defined('TL_ROOT'))
+    die('You can not access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -162,7 +165,7 @@ class GeneralDataDefault implements InterfaceGeneralData
         $boolSetWhere = true;
 
         $query = "SELECT " . (($blnIdOnly) ? "id" : "*") . " FROM " . $this->strSource;
-        
+
         if (!is_null($arrFilter))
         {
             foreach ($arrFilter AS $key => $mixedFilter)
@@ -174,11 +177,11 @@ class GeneralDataDefault implements InterfaceGeneralData
                     $boolSetWhere = false;
                 }
             }
-            
+
             if (count($arrFilter) > 0)
             {
                 $query .= (($boolSetWhere) ? " WHERE " : " AND ") . implode(' AND ', $arrFilter);
-                $boolSetWhere = false;                
+                $boolSetWhere = false;
             }
         }
 
@@ -205,12 +208,12 @@ class GeneralDataDefault implements InterfaceGeneralData
 
             $query .= " ORDER BY " . implode(', ', $arrSorting) . $strSortOrder;
         }
-        
+
         $objTest = $this->objDatabase
                 ->prepare($query)
                 ->limit($intAmount, $intStart)
                 ->execute();
-        
+
         $arrResult = $this->objDatabase
                 ->prepare($query)
                 ->limit($intAmount, $intStart)
@@ -276,38 +279,8 @@ class GeneralDataDefault implements InterfaceGeneralData
         $objCount = $this->objDatabase
                 ->prepare($query)
                 ->execute();
-        
+
         return $objCount->count;
-    }
-
-    public function getVersions($intID)
-    {
-        $arrVersion = $this->objDatabase
-                ->prepare('SELECT tstamp, version, username, active FROM tl_version WHERE fromTable = ? AND pid = ? ORDER BY version DESC')
-                ->execute($this->strSource, $intID)
-                ->fetchAllAssoc();
-
-
-        if (count($arrVersion) == 0)
-        {
-            return null;
-        }
-
-        $objCollection = $this->getEmptyCollection();
-
-        foreach ($arrVersion as $versionValue)
-        {
-            $objReturn = $this->getEmptyModel();
-
-            foreach ($versionValue as $key => $value)
-            {
-                $objReturn->setProperty($key, $value);
-            }
-
-            $objCollection->add($objReturn);
-        }
-
-        return $objCollection;
     }
 
     public function isUniqueValue($strField, $varNew)
@@ -339,8 +312,15 @@ class GeneralDataDefault implements InterfaceGeneralData
             {
                 continue;
             }
-
-            $arrSet[$key] = $value;
+            
+            if(is_array($value))
+            {
+                $arrSet[$key] = serialize($value);
+            }
+            else
+            {
+                $arrSet[$key] = $value;
+            }
         }
 
 
@@ -375,46 +355,6 @@ class GeneralDataDefault implements InterfaceGeneralData
         }
     }
 
-    public function setVersion($intID, $strVersion)
-    {
-        $objData = $this->Database
-                ->prepare('SELECT * FROM tl_version WHERE fromTable = ? AND pid = ? AND version = ? ')
-                ->limit(1)
-                ->execute($this->strSource, $intID, $strVersion);
-
-        if (!$objData->numRows)
-        {
-            return;
-        }
-
-        $arrData = deserialize($objData->data);
-
-        if (!is_array($arrData))
-        {
-            return;
-        }
-
-        $this->Database
-                ->prepare('UPDATE ' . $objData->fromTable . ' %s WHERE id = ?')
-                ->set($arrData)
-                ->execute($intID);
-
-        $this->Database
-                ->prepare('UPDATE tl_version SET active=\'\' WHERE pid = ?')
-                ->execute($intID);
-
-        $this->Database
-                ->prepare('UPDATE tl_version SET active = 1 WHERE pid = ? AND version = ?')
-                ->execute($intID, $strVersion);
-
-        $this->log(sprintf('Version %s of record ID %s (table %s) has been restored', $strVersion, $intID, $this->strSource), 'DC_Table edit()', TL_GENERAL);
-
-        // ToDo: Add Callback
-//        $this->executeCallbacks(
-//                $this->arrDCA['config']['onrestore_callback'], $this->intId, $this->strSource, $arrData, $strVersion
-//        );
-    }
-
     /**
      * Check if the value exists in the table
      * 
@@ -423,6 +363,196 @@ class GeneralDataDefault implements InterfaceGeneralData
     public function fieldExists($strField)
     {
         return $this->objDatabase->fieldExists($strField, $this->strSource);
+    }
+
+    // Version Functions -------------------------------------------------------
+
+    public function getVersion($mixID, $mixVersion)
+    {
+        $objVersion = $this->objDatabase
+                ->prepare("SELECT * FROM tl_version WHERE pid=? AND version=? AND fromTable=?")
+                ->execute($mixID, $mixVersion, $this->strSource);
+
+        if ($objVersion->numRows == 0)
+        {
+            return null;
+        }
+
+        $arrData = deserialize($objVersion->data);
+
+        if (!is_array($arrData) || count($arrData) == 0)
+        {
+            return null;
+        }
+
+        $objModell = $this->getEmptyModel();
+        $objModell->setID($mixID);
+        foreach ($arrData as $key => $value)
+        {
+            if ($key == "id")
+            {
+                continue;
+            }
+
+            $objModell->setProperty($key, $value);
+        }
+
+        return $objModell;
+    }
+
+    /**
+     * Return a list with all versions for this row
+     * 
+     * @param mixed $mixID The ID of record
+     * 
+     * @return InterfaceGeneralCollection 
+     */
+    public function getVersions($mixID, $blnOnlyActve = false)
+    {
+        if ($blnOnlyActve)
+        {
+            $arrVersion = $this->objDatabase
+                ->prepare('SELECT tstamp, version, username, active FROM tl_version WHERE fromTable = ? AND pid = ? AND active = 1')
+                ->execute($this->strSource, $mixID)
+                ->fetchAllAssoc();
+        }
+        else
+        {
+            $arrVersion = $this->objDatabase
+                    ->prepare('SELECT tstamp, version, username, active FROM tl_version WHERE fromTable = ? AND pid = ? ORDER BY version DESC')
+                    ->execute($this->strSource, $mixID)
+                    ->fetchAllAssoc();
+        }
+
+        if (count($arrVersion) == 0)
+        {
+            return null;
+        }
+
+        $objCollection = $this->getEmptyCollection();
+
+        foreach ($arrVersion as $versionValue)
+        {
+            $objReturn = $this->getEmptyModel();
+            $objReturn->setID($mixID);
+
+            foreach ($versionValue as $key => $value)
+            {
+                if ($key == "id")
+                {
+                    continue;
+                }
+
+                $objReturn->setProperty($key, $value);
+            }
+
+            $objCollection->add($objReturn);
+        }
+
+        return $objCollection;
+    }
+
+    public function saveVersion(InterfaceGeneralModel $objModel, $strUsername)
+    {
+        $objCount = $this->objDatabase
+                ->prepare("SELECT count(*) as mycount FROM tl_version WHERE pid=? AND fromTable = ?")
+                ->execute($objModel->getID(),  $this->strSource);
+
+        $mixNewVersion = intval($objCount->mycount) + 1;
+        
+        $mixData       = $objModel->getPropertiesAsArray();
+        $mixData["id"] = $objModel->getID();
+        $mixData       = serialize($mixData);
+
+        $arrInsert = array();
+        $arrInsert['pid']       = $objModel->getID();
+        $arrInsert['tstamp']    = time();
+        $arrInsert['version']   = $mixNewVersion;
+        $arrInsert['fromTable'] = $this->strSource;
+        $arrInsert['username']  = $strUsername;
+        $arrInsert['data']      = $mixData;
+
+        $this->objDatabase->prepare('INSERT INTO tl_version %s')
+                ->set($arrInsert)
+                ->execute();
+
+        $this->setVersionActive($objModel->getID(), $mixNewVersion);
+    }
+
+    /**
+     * Set a Version as active. 
+     * 
+     * @param mix $mixID The ID of record
+     * @param mix $mixVersion The ID of the Version
+     */
+    public function setVersionActive($mixID, $mixVersion)
+    {
+        $this->objDatabase
+                ->prepare('UPDATE tl_version SET active=\'\' WHERE pid = ? AND fromTable = ?')
+                ->execute($mixID, $this->strSource);
+
+        $this->objDatabase
+                ->prepare('UPDATE tl_version SET active = 1 WHERE pid = ? AND version = ? AND fromTable = ?')
+                ->execute($mixID, $mixVersion, $this->strSource);
+    }
+    
+    /**
+     * Return the active version from a record
+     * 
+     * @param mix $mixID The ID of record
+     * 
+     * @return mix Version ID 
+     */
+    public function getActiveVersion($mixID)
+    {
+        $objVersionID = $this->objDatabase
+                ->prepare("SELECT version FROM tl_version WHERE pid = ? AND fromTable = ? AND active = 1")
+                ->execute($mixID, $this->strSource);
+        
+        if($objVersionID->numRows == 0)
+        {
+            return null;
+        }
+        
+        return $objVersionID->version;
+    }
+    
+    /**
+     * Check if two models have the same properties
+     * 
+     * @param InterfaceGeneralModel $objModel1
+     * @param InterfaceGeneralModel $objModel2
+     * 
+     * return boolean True - If both models are same, false if not
+     */
+    public function sameModels($objModel1, $objModel2)
+    {
+        foreach ($objModel1 as $key => $value)
+        {
+            if ($key == "id")
+            {
+                continue;
+            }
+
+            if (is_array($value))
+            {
+                if (!is_array($objModel2->getProperty($key)))
+                {
+                    return false;
+                }
+
+                if (serialize($value) != serialize($objModel2->getProperty($key)))
+                {
+                    return false;
+                }
+            }
+            else if ($value != $objModel2->getProperty($key))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 }
