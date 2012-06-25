@@ -116,6 +116,12 @@ class DC_General extends DataContainer implements editable, listable
     protected $blnAutoSubmitted = false;
 
     /**
+     * State of versionsubmit
+     * @var boolean 
+     */
+    protected $blnVersionSubmit = false;
+
+    /**
      * Flag to show if the site can be reloaded
      * @var boolean 
      */
@@ -218,6 +224,12 @@ class DC_General extends DataContainer implements editable, listable
     protected $objController = null;
 
     /**
+     * The class with all Callbacks
+     * @var InterfaceGeneralCallback 
+     */
+    protected $objCallbackClass = null;
+
+    /**
      * Lookup for special regex
      * @var array 
      */
@@ -233,6 +245,9 @@ class DC_General extends DataContainer implements editable, listable
     {
         parent::__construct();
         
+        // Callback
+        $strTable = $this->oncreateCallback($strTable);
+
         // Basic vars Init
         $this->strTable = $strTable;
         $this->arrDCA = ($arrDCA != null) ? $arrDCA : $GLOBALS['TL_DCA'][$this->strTable];
@@ -253,6 +268,7 @@ class DC_General extends DataContainer implements editable, listable
         $this->intId = $this->Input->get('id');
         $this->blnSubmitted = $_POST['FORM_SUBMIT'] == $this->strTable;
         $this->blnAutoSubmitted = $_POST['SUBMIT_TYPE'] == 'auto';
+        $this->blnVersionSubmit = $_POST['FORM_SUBMIT'] == 'tl_version';
         $this->arrInputs = $_POST['FORM_INPUTS'] ? array_flip($this->Input->post('FORM_INPUTS')) : array();
         $this->arrStates = $this->Session->get('fieldset_states');
         $this->arrStates = (array) $this->arrStates[$this->strTable];
@@ -263,8 +279,49 @@ class DC_General extends DataContainer implements editable, listable
         // Callback
         if ($blnOnloadCallback == true)
         {
-            $this->executeCallbacks($this->arrDCA['config']['onload_callback'], $this);
+            $this->objCallbackClass->onloadCallback($strTable);
         }
+    }
+
+    /**
+     * Call the oncreate callback 
+     * 
+     * @param string $strTable
+     * @return string name of current table
+     */
+    protected function oncreateCallback($strTable)
+    {
+        $strCurrentTable = $strTable;
+
+        if (array_key_exists('oncreate_callback', $GLOBALS['TL_DCA'][$strTable]['config']) && is_array($GLOBALS['TL_DCA'][$strTable]['config']['oncreate_callback']))
+        {
+            foreach ($GLOBALS['TL_DCA'][$strTable]['config']['oncreate_callback'] as $callback)
+            {
+                $this->import($callback[0]);
+                $strCurrentTable = $this->$callback[0]->$callback[1]($strTable, $this);
+
+                if ($strCurrentTable != null)
+                {
+                    $strTable = $strCurrentTable;
+                }
+            }
+        }
+        
+        return $strTable;
+    }
+
+    /**
+     * Load the dataprovider and view handler, 
+     * if not set try to load the default one.
+     */
+    protected function loadProviderAndHandler()
+    {
+        
+        // Load controller, view and provider.
+        $this->loadController();
+        $this->loadView();
+        $this->loadDataProvider();
+        $this->loadCallbackClass();
     }
 
     /**
@@ -336,6 +393,7 @@ class DC_General extends DataContainer implements editable, listable
             $arrConfig = array(
                 "source" => $this->strTable,
             );
+            
             $this->objDataProvider = new GeneralDataDefault($arrConfig);
         }
 
@@ -375,15 +433,21 @@ class DC_General extends DataContainer implements editable, listable
     }
 
     /**
-     * Load the dataprovider and view handler, 
-     * if not set try to load the default one.
+     * Load the main callback class 
      */
-    protected function loadProviderAndHandler()
+    protected function loadCallbackClass()
     {
-        // Load controller, view and provider.
-        $this->loadController();
-        $this->loadView();
-        $this->loadDataProvider();
+        // Load callback class
+        if (isset($this->arrDCA['dca_config']['callback']))
+        {
+            $this->objCallbackClass = new $this->arrDCA['dca_config']['callback']();
+        }
+        else
+        {
+            $this->objCallbackClass = new GeneralCallbackDefault();
+        }        
+        
+        $this->objCallbackClass->setDC($this);
     }
 
     /**
@@ -459,6 +523,11 @@ class DC_General extends DataContainer implements editable, listable
         return $this->blnAutoSubmitted;
     }
 
+    public function isVersionSubmit()
+    {
+        return $this->blnVersionSubmit;
+    }
+
     public function isNoReload()
     {
         return $this->blnNoReload;
@@ -492,6 +561,15 @@ class DC_General extends DataContainer implements editable, listable
     public function getViewHandler()
     {
         return $this->objViewHandler;
+    }
+    
+    /**
+     * et the callback class for this dc
+     * @return InterfaceGeneralCallback 
+     */
+    public function getCallbackClass()
+    {
+        return $this->objCallbackClass;
     }
 
     public function getButtonId()
@@ -894,7 +972,7 @@ class DC_General extends DataContainer implements editable, listable
         }
 
         // OH: xlabel, wizard: two ways to rome? wizards are the better way I think
-        $objWidget->wizard = implode('', $this->executeCallbacks($arrConfig['wizard'], $this));
+        $objWidget->wizard = implode('',$this->objCallbackClass->executeCallbacks($arrConfig['wizard'], $this));
 
         return $this->arrWidgets[$strField] = $objWidget;
     }
@@ -997,14 +1075,7 @@ class DC_General extends DataContainer implements editable, listable
         // Call the save callbacks
         try
         {
-            if (is_array($arrConfig['save_callback']))
-            {
-                foreach ($arrConfig['save_callback'] as $arrCallback)
-                {
-                    $this->import($arrCallback[0]);
-                    $varNew = $this->$arrCallback[0]->$arrCallback[1]($varNew, $this);
-                }
-            }
+            $varNew = $this->objCallbackClass->saveCallback($arrConfig, $varNew);
         }
         catch (Exception $e)
         {
@@ -1033,7 +1104,7 @@ class DC_General extends DataContainer implements editable, listable
                 $objWidget->addError(sprintf($GLOBALS['TL_LANG']['ERR']['unique'], $objWidget->label));
                 return null;
             }
-            elseif ($arrConfig['eval']['fallback'])
+            else if ($arrConfig['eval']['fallback'])
             {
                 $this->objDataProvider->resetFallback($strField);
             }
@@ -1042,21 +1113,6 @@ class DC_General extends DataContainer implements editable, listable
         $this->arrProcessed[$strField] = $varNew;
 
         return $varNew;
-
-//        // Check on value has not changed
-//        if (deserialize($this->objActiveRecord->$strField) == $varNew && !$arrConfig['eval']['alwaysSave'])
-//        {
-//            return;
-//        }
-//
-//        if (!$this->storeValue($this->strField, $this->strTable, $this->intId, $varNew))
-//        {
-//            return;
-//        }
-//        else if (!$arrConfig['eval']['submitOnChange'] && $this->objActiveRecord->$strField != $varNew)
-//        {
-//            $this->blnCreateNewVersion = true;
-//        }
     }
 
     /**
@@ -1079,45 +1135,6 @@ class DC_General extends DataContainer implements editable, listable
     // Helper ------------------------------------------------------------------
 
     /**
-     * Exectue a callback
-     * 
-     * @param array $varCallbacks
-     * @return array 
-     */
-    public function executeCallbacks($varCallbacks)
-    {
-        if ($varCallbacks === null)
-        {
-            return array();
-        }
-
-        if (is_string($varCallbacks))
-        {
-            $varCallbacks = $GLOBALS['TL_HOOKS'][$varCallbacks];
-        }
-
-        if (!is_array($varCallbacks))
-        {
-            return array();
-        }
-
-        $arrArgs    = array_slice(func_get_args(), 1);
-        $arrResults = array();
-
-        foreach ($varCallbacks as $arrCallback)
-        {
-            if (is_array($arrCallback))
-            {
-                $this->import($arrCallback[0]);
-                $arrCallback[0] = $this->{$arrCallback[0]};
-                $arrResults[]   = call_user_func_array($arrCallback, $arrArgs);
-            }
-        }
-
-        return $arrResults;
-    }
-
-    /**
      * Return the formatted group header as string
      * 
      * @param string
@@ -1133,7 +1150,7 @@ class DC_General extends DataContainer implements editable, listable
         }
         elseif (isset($this->arrDCA['fields'][$field]['foreignKey']))
         {
-            // TODO case handling
+            // TODO: case handling
             /*
               if($objParentModel->hasProperties())
               {
@@ -1213,7 +1230,7 @@ class DC_General extends DataContainer implements editable, listable
      * @param InterfaceGeneralModel
      * @return string
      */
-    public function formatGroupHeader($field, $value, $mode, $objModelRow)
+    public function formatGroupHeader($field, $value, $mode, InterfaceGeneralModel $objModelRow)
     {
         $group  = '';
         static $lookup = array();
@@ -1222,15 +1239,11 @@ class DC_General extends DataContainer implements editable, listable
         {
             $group = $this->arrDCA['fields'][$field]['options'][$value];
         }
-        elseif (is_array($this->arrDCA['fields'][$field]['options_callback']))
+        else if (is_array($this->arrDCA['fields'][$field]['options_callback']))
         {
             if (!isset($lookup[$field]))
             {
-                $strClass  = $this->arrDCA['fields'][$field]['options_callback'][0];
-                $strMethod = $this->arrDCA['fields'][$field]['options_callback'][1];
-
-                $this->import($strClass);
-                $lookup[$field] = $this->$strClass->$strMethod($this);
+                $lookup[$field] = $this->objCallbackClass->optionsCallback();
             }
 
             $group = $lookup[$field][$value];
@@ -1254,16 +1267,8 @@ class DC_General extends DataContainer implements editable, listable
                 $group = is_array($this->arrDCA['fields'][$field]['label']) ? $this->arrDCA['fields'][$field]['label'][0] : $this->arrDCA['fields'][$field]['label'];
             }
         }
-
-        // Call the group callback ($group, $sortingMode, $firstOrderBy, $row, $this)
-        if (is_array($this->arrDCA['list']['label']['group_callback']))
-        {
-            $strClass  = $this->arrDCA['list']['label']['group_callback'][0];
-            $strMethod = $this->arrDCA['list']['label']['group_callback'][1];
-
-            $this->import($strClass);
-            $group = $this->$strClass->$strMethod($group, $mode, $field, $objModelRow->getProperties(), $this);
-        }
+        
+        $group = $this->objCallbackClass->groupCallback($group, $mode, $field, $objModelRow->getPropertiesAsArray());
 
         return $group;
     }
@@ -1369,115 +1374,6 @@ class DC_General extends DataContainer implements editable, listable
                 'type' => $strType
             );
         }
-    }
-
-    // Callbacks ---------------------------------------------------------------
-
-    /**
-     * Call the customer label callback
-     * 
-     * @param InterfaceGeneralModel $objModelRow
-     * @param string $mixedLabel
-     * @param array $arrDCA
-     * @param array $args
-     * @return string 
-     */
-    public function labelCallback(InterfaceGeneralModel $objModelRow, $mixedLabel, $arrDCA, $args)
-    {
-        if (is_array($arrDCA['label_callback']))
-        {
-            $strClass  = $arrDCA['label_callback'][0];
-            $strMethod = $arrDCA['label_callback'][1];
-
-            $this->import($strClass);
-            if (version_compare(VERSION, '2.10', '>'))
-            {
-                $mixedLabel = $this->$strClass->$strMethod($objModelRow->getPropertiesAsArray(), $mixedLabel, $this, $args);
-            }
-            else
-            {
-                $mixedLabel = $this->$strClass->$strMethod($objModelRow->getPropertiesAsArray(), $mixedLabel, $this);
-            }
-        }
-
-        return $mixedLabel;
-    }
-
-    /**
-     * Call the button callback for the regular operations
-     * 
-     * @param InterfaceGeneralModel $objModelRow
-     * @param array $arrDCA
-     * @param string $strLabel
-     * @param string $strTitle
-     * @param array $arrAttributes
-     * @param string $strTable
-     * @param array $arrRootIds
-     * @param array $arrChildRecordIds
-     * @param boolean $blnCircularReference
-     * @param string $strPrevious
-     * @param string $strNext
-     * @return string|null 
-     */
-    public function buttonCallback($objModelRow, $arrDCA, $strLabel, $strTitle, $arrAttributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext)
-    {
-        // Call a custom function instead of using the default button
-        if (is_array($arrDCA['button_callback']))
-        {
-            $strClass  = $arrDCA['button_callback'][0];
-            $strMethod = $arrDCA['button_callback'][1];
-
-            $this->import($strClass);
-            return $this->$strClass->$strMethod($objModelRow->getPropertiesAsArray(), $arrDCA['href'], $strLabel, $strTitle, $arrDCA['icon'], $arrAttributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext);
-        }
-
-        return NULL;
-    }
-
-    /**
-     * Call the button callback for the global operations
-     * 
-     * @param array $arrDCA
-     * @param str $strLabel
-     * @param str $strTitle
-     * @param array $arrAttributes
-     * @param string $strTable
-     * @param array $arrRootIds
-     * @return string|null 
-     */
-    public function globalButtonCallback($arrDCA, $strLabel, $strTitle, $arrAttributes, $strTable, $arrRootIds)
-    {
-        // Call a custom function instead of using the default button
-        if (is_array($arrDCA['button_callback']))
-        {
-            $strClass  = $arrDCA['button_callback'][0];
-            $strMethod = $arrDCA['button_callback'][1];
-
-            $this->import($strClass);
-            return $this->$strClass->$strMethod($arrDCA['href'], $strLabel, $strTitle, $arrDCA['icon'], $arrAttributes, $strTable, $arrRootIds);
-        }
-
-        return NULL;
-    }
-
-    /**
-     * Call the options callback for the fields
-     * 
-     * @param type $arrDCA
-     * @return array|null 
-     */
-    public function optionsCallback($arrDCA)
-    {
-        if (is_array($arrDCA['options_callback']))
-        {
-            $strClass  = $arrDCA['options_callback'][0];
-            $strMethod = $arrDCA['options_callback'][1];
-
-            $this->import($strClass);
-            return $this->$strClass->$strMethod($this);
-        }
-
-        return NULL;
     }
 
     // Interface funtions ------------------------------------------------------

@@ -1,7 +1,4 @@
-<?php
-
-if (!defined('TL_ROOT'))
-    die('You cannot access this file directly!');
+<?php if (!defined('TL_ROOT')) die('You cannot access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -266,8 +263,8 @@ class ViewBuilder extends Backend
             $colspan = 1;
 
             // Call label callback
-            $mixedArgs = $this->dc->labelCallback($objModelRow, $label, $this->arrDCA['list']['label'], $args);
-
+            $mixedArgs = $this->dc->getCallbackClass()->labelCallback($objModelRow, $label, $this->arrDCA['list']['label'], $args);            
+            
             if (is_array($this->arrDCA['list']['label']['label_callback']))
             {
                 // Handle strings and arrays (backwards compatibility)
@@ -458,7 +455,7 @@ class ViewBuilder extends Backend
             $attributes = strlen($v['attributes']) ? ' ' . ltrim(sprintf($v['attributes'], $objModelRow->getProperty('id'), $objModelRow->getProperty('id'))) : '';
 
             // Call a custom function instead of using the default button
-            $strButtonCallback = $this->dc->buttonCallback($objModelRow, $v, $label, $title, $attributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext);
+            $strButtonCallback = $this->dc->getCallbackClass()->buttonCallback($objModelRow, $v, $label, $title, $attributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext);
             if (!is_null($strButtonCallback))
             {
                 $return .= $strButtonCallback;
@@ -523,7 +520,7 @@ class ViewBuilder extends Backend
             }
 
             // Call a custom function instead of using the default button
-            $strButtonCallback = $this->dc->globalButtonCallback($v, $label, $title, $attributes, $this->dc->getTable(), $this->dc->getRootIds());
+            $strButtonCallback = $this->dc->getCallbackClass()->globalButtonCallback($v, $label, $title, $attributes, $this->dc->getTable(), $this->dc->getRootIds());
             if (!is_null($strButtonCallback))
             {
                 $return .= $strButtonCallback;

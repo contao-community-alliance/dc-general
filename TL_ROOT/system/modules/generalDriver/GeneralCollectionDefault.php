@@ -52,9 +52,9 @@ class GeneralCollectionDefault implements InterfaceGeneralCollection
      *
      * @param int $intIndex
      *
-     * @return InterfaceGeneralModel|null
+     * @return InterfaceGeneralModel
      */
-    public function get(int $intIndex)
+    public function get($intIndex)
     {
         if (key_exists($intIndex, $this->arrCollection))
         {
@@ -77,7 +77,7 @@ class GeneralCollectionDefault implements InterfaceGeneralCollection
      *
      * @return void
      */
-    public function insert(int $intIndex, InterfaceGeneralModel $objModel)
+    public function insert($intIndex, InterfaceGeneralModel $objModel)
     {
         if ($objModel->hasProperties())
         {

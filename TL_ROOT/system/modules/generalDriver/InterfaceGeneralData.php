@@ -112,21 +112,49 @@ interface InterfaceGeneralData
     public function delete($item);
 
     /**
-     * Set the values of current row back to another
-     * Version.
+     * Save a new Version of a record
      * 
      * @param int $intID ID of current record
      * @param string $strVersion Version number
      * @return void 
      */
-    public function setVersion($intID, $strVersion);
+    public function saveVersion(InterfaceGeneralModel $objModel, $strUsername);
+
+    /**
+     * Return a model based of the version information
+     * 
+     * @param mix $mixID The ID of record
+     * @param mix $mixVersion The ID of the Version
+     * 
+     * @return InterfaceGeneralModel 
+     */
+    public function getVersion($mixID, $mixVersion);
 
     /**
      * Return a list with all versions for this row
      * 
+     * @param mixed $mixID The ID of record
+     * 
      * @return InterfaceGeneralCollection 
      */
-    public function getVersions($intID);
+    public function getVersions($mixID);
+
+    /**
+     * Set a Version as active. 
+     * 
+     * @param mix $mixID The ID of record
+     * @param mix $mixVersion The ID of the Version
+     */
+    public function setVersionActive($mixID, $mixVersion);
+    
+    /**
+     * Return the active version from a record
+     * 
+     * @param mix $mixID The ID of record
+     * 
+     * @return mix Version ID 
+     */
+    public function getActiveVersion($mixID);
 
     /**
      * Reste the fallback field 
@@ -154,6 +182,16 @@ interface InterfaceGeneralData
      * @return boolean 
      */
     public function fieldExists($strField);
+    
+    /**
+     * Check if two models have the same properties
+     * 
+     * @param InterfaceGeneralModel $objModel1
+     * @param InterfaceGeneralModel $objModel2
+     * 
+     * return boolean True - If both models are same, false if not
+     */
+    public function sameModels($objModel1 , $objModel2);
 }
 
 ?>
