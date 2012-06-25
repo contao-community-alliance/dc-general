@@ -289,9 +289,18 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
     public function showAll(DC_General $objDcGeneral)
     {
+        $arrDCA = $objDcGeneral->getDCA();
+        
         $objView = new ViewBuilder($objDcGeneral);
 
-        return $objView->panel() . $objView->listView();
+        if ($arrDCA['list']['sorting']['mode'] == 4)
+        {
+            return $objView->panel() . $objView->parentView();
+        }
+        else
+        {
+            return $objView->panel() . $objView->listView();
+        }        
     }
 
     public function undo(DC_General $objDcGeneral)

@@ -277,7 +277,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
         if ($this->dca['list']['sorting']['mode'] == 4)
         {
-            // TODO implemetn parentView
             $this->parentView();
         }
         else
@@ -294,6 +293,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             $objDataProvider = $this->dc->getParentDataProvider();
 
+            $this->loadLanguageFile($this->dc->getParentTable());
             $this->loadDataContainer($this->dc->getParentTable());
             $objTmpDC = new DC_General($this->dc->getParentTable());
 
@@ -305,14 +305,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $arrCurrentDCA   = $this->dca;
         }
 
-        // Get Filter
-        $arrFilter = $this->getFilter();
-
         // Get limits
         $arrLimit = $this->getLimit();
 
         // Load record from data provider
-        $objCollection = $objDataProvider->fetchAll(false, $arrLimit[0], $arrLimit[1], $arrFilter, $this->getSorting());
+        $objCollection = $objDataProvider->fetchAll(false, $arrLimit[0], $arrLimit[1], $this->getFilter(), $this->getListViewSorting());
 
         // Rename each pid to its label and resort the result (sort by parent table)
         if ($this->dca['list']['sorting']['mode'] == 3)
@@ -362,6 +359,22 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         $this->dc->setCurrentCollecion($objCollection);
+    }
+
+    /**
+     * Show header of the parent table and list all records of the current table
+     * @return string
+     */
+    protected function parentView()
+    {
+        // Get limits
+        $arrLimit = $this->getLimit();
+
+        // Load record from data provider
+        $this->dc->setCurrentCollecion($this->dc->getDataProvider()->fetchAll(false, $arrLimit[0], $arrLimit[1], $this->getFilter(), $this->getParentViewSorting()));
+
+        // Load record from parent data provider
+        $this->dc->setCurrentParentCollection($this->dc->getParentDataProvider()->fetchAll(false, 0, 1, array("id = '" . CURRENT_ID . "'"), array()));
     }
 
     // Panel -------------------------------------------------------------------
@@ -760,21 +773,20 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     }
 
     /**
-     * Get sorting for the data provider
+     * Get sorting for the list view data provider
      * 
      * @return mixed 
      */
-    protected function getSorting()
+    protected function getListViewSorting()
     {
         $mixedOrderBy = $this->dca['list']['sorting']['fields'];
 
-        // TODO implement panel firstSort from session
         if (is_null($this->dc->getFirstSorting()))
         {
             $this->dc->setFirstSorting(preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]));
         }
 
-        // TODO implement panel sorting from session
+        // Check if current sorting is set
         if (!is_null($this->dc->getSorting()))
         {
             $mixedOrderBy = $this->dc->getSorting();
@@ -807,6 +819,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                         'action' => 'findInSet'
                     );
                 }
+                else
+                {
+                    $mixedOrderBy[$key] = $strField;
+                }
             }
         }
 
@@ -815,6 +831,58 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             $mixedOrderBy['sortOrder'] = " DESC";
         }
+
+        return $mixedOrderBy;
+    }
+
+    /**
+     * Get sorting for the parent view data provider
+     * 
+     * @return mixed 
+     */
+    protected function getParentViewSorting()
+    {
+        $mixedOrderBy = array();
+        $firstOrderBy = array();
+
+        // Check if current sorting is set
+        if (!is_null($this->dc->getSorting()))
+        {
+            $mixedOrderBy = $this->dc->getSorting();
+        }
+
+        if (is_array($mixedOrderBy) && $mixedOrderBy[0] != '')
+        {
+            $firstOrderBy = preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]);
+
+            // Order by the foreign key
+            // TODO
+            /* if (isset($this->dca['fields'][$firstOrderBy]['foreignKey']))
+              {
+              $key             = explode('.', $this->dca['fields'][$firstOrderBy]['foreignKey'], 2);
+              $query           = "SELECT *, (SELECT " . $key[1] . " FROM " . $key[0] . " WHERE " . $this->strTable . "." . $firstOrderBy . "=" . $key[0] . ".id) AS foreignKey FROM " . $this->strTable;
+              $mixedOrderBy[0] = 'foreignKey';
+              } */
+        }
+        elseif (is_array($GLOBALS['TL_DCA'][$this->dc->getTable()]['list']['sorting']['fields']))
+        {
+            $mixedOrderBy = $GLOBALS['TL_DCA'][$this->dc->getTable()]['list']['sorting']['fields'];
+            $firstOrderBy = preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]);
+        }
+
+        if (is_array($mixedOrderBy) && $mixedOrderBy[0] != '')
+        {
+            foreach ($mixedOrderBy as $key => $strField)
+            {
+                $mixedOrderBy[$key] = array(
+                    'field' => $strField,
+                    'keys' => $keys,
+                    'action' => 'findInSet'
+                );
+            }
+        }
+
+        $this->dc->setFirstSorting($firstOrderBy);
 
         return $mixedOrderBy;
     }

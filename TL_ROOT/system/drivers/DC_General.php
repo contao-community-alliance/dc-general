@@ -42,7 +42,7 @@ class DC_General extends DataContainer implements editable, listable
      * @var type 
      */
     protected $arrRootIds = null;
-    
+
     /**
      * Container for panel information
      * @var array
@@ -168,6 +168,12 @@ class DC_General extends DataContainer implements editable, listable
      * @var InterfaceGeneralCollection 
      */
     protected $objCurrentCollecion = null;
+
+    /**
+     * Current parent collection
+     * @var InterfaceGeneralCollection
+     */
+    protected $objCurrentParentCollection = null;
 
     /**
      * Current model
@@ -397,7 +403,7 @@ class DC_General extends DataContainer implements editable, listable
     {
         return $this->intId;
     }
-    
+
     public function getRootIds()
     {
         return $this->arrRootIds;
@@ -497,7 +503,7 @@ class DC_General extends DataContainer implements editable, listable
     {
         return $this->objController;
     }
-    
+
     public function setRootIds($arrRootIds)
     {
         $this->arrRootIds = $arrRootIds;
@@ -506,8 +512,8 @@ class DC_General extends DataContainer implements editable, listable
     public function setPanelView($arrPanelView)
     {
         $this->arrPanelView = $arrPanelView;
-    }    
-    
+    }
+
     public function getPanelView()
     {
         return $this->arrPanelView;
@@ -535,7 +541,7 @@ class DC_General extends DataContainer implements editable, listable
 
     public function setFilter($arrFilter)
     {
-        if(is_array($this->arrFilter))
+        if (is_array($this->arrFilter))
         {
             $this->arrFilter = array_merge($this->arrFilter, $arrField);
         }
@@ -588,11 +594,11 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      *
-     * @param InterfaceGeneralCollection $objCurrentCollecion 
+     * @return InterfaceGeneralCollection
      */
-    public function setCurrentCollecion(InterfaceGeneralCollection $objCurrentCollecion)
+    public function getCurrentParentCollection()
     {
-        $this->objCurrentCollecion = $objCurrentCollecion;
+        return $this->objCurrentParentCollection;
     }
 
     /**
@@ -602,6 +608,24 @@ class DC_General extends DataContainer implements editable, listable
     public function getCurrentModel()
     {
         return $this->objCurrentModel;
+    }
+
+    /**
+     *
+     * @param InterfaceGeneralCollection $objCurrentCollecion 
+     */  
+    public function setCurrentParentCollection(InterfaceGeneralCollection $objCurrentParentCollection)
+    {
+        $this->objCurrentParentCollection = $objCurrentParentCollection;
+    }
+
+    /**
+     *
+     * @param InterfaceGeneralCollection $objCurrentCollecion 
+     */
+    public function setCurrentCollecion(InterfaceGeneralCollection $objCurrentCollecion)
+    {
+        $this->objCurrentCollecion = $objCurrentCollecion;
     }
 
     /**
@@ -856,7 +880,7 @@ class DC_General extends DataContainer implements editable, listable
         $arrConfig['eval']['required'] = $varValue == '' && $arrConfig['eval']['mandatory'] ? true : false;
         // OH: the whole prepareForWidget(..) thing is an only mess
         // widgets should parse the configuration by themselfs, depending on what they need
-        $arrPrepared = $this->prepareForWidget($arrConfig, $strInputName, $varValue, $strField, $this->strTable);
+        $arrPrepared                   = $this->prepareForWidget($arrConfig, $strInputName, $varValue, $strField, $this->strTable);
 
         //$arrConfig['options'] = $arrPrepared['options'];
 
@@ -911,7 +935,7 @@ class DC_General extends DataContainer implements editable, listable
 
         // Validate
         $objWidget->validate();
-        
+
         // Check 
         if ($objWidget->hasErrors())
         {
@@ -925,7 +949,7 @@ class DC_General extends DataContainer implements editable, listable
         }
 
         // Get value and config
-        $varNew = $objWidget->value;
+        $varNew    = $objWidget->value;
         $arrConfig = $this->getFieldDefinition($strField);
 
         // If array sort
@@ -937,7 +961,7 @@ class DC_General extends DataContainer implements editable, listable
         else if ($varNew != '' && isset(self::$arrDates[$arrConfig['eval']['rgxp']]))
         { // OH: this should be a widget feature
             $objDate = new Date($varNew, $GLOBALS['TL_CONFIG'][$arrConfig['eval']['rgxp'] . 'Format']);
-            $varNew = $objDate->tstamp;
+            $varNew  = $objDate->tstamp;
         }
 
         //Handle multi-select fields in "override all" mode
@@ -1077,7 +1101,7 @@ class DC_General extends DataContainer implements editable, listable
             return array();
         }
 
-        $arrArgs = array_slice(func_get_args(), 1);
+        $arrArgs    = array_slice(func_get_args(), 1);
         $arrResults = array();
 
         foreach ($varCallbacks as $arrCallback)
@@ -1086,7 +1110,7 @@ class DC_General extends DataContainer implements editable, listable
             {
                 $this->import($arrCallback[0]);
                 $arrCallback[0] = $this->{$arrCallback[0]};
-                $arrResults[] = call_user_func_array($arrCallback, $arrArgs);
+                $arrResults[]   = call_user_func_array($arrCallback, $arrArgs);
             }
         }
 
@@ -1108,14 +1132,14 @@ class DC_General extends DataContainer implements editable, listable
             $remoteNew = ($value != '') ? ucfirst($GLOBALS['TL_LANG']['MSC']['yes']) : ucfirst($GLOBALS['TL_LANG']['MSC']['no']);
         }
         elseif (isset($this->arrDCA['fields'][$field]['foreignKey']))
-        {   
+        {
             // TODO case handling
             /*
-            if($objParentModel->hasProperties())
-            {
-                $remoteNew = $objParentModel->getProperty('value');
-            }
-            */
+              if($objParentModel->hasProperties())
+              {
+              $remoteNew = $objParentModel->getProperty('value');
+              }
+             */
         }
         elseif (in_array($mode, array(1, 2)))
         {
@@ -1137,7 +1161,7 @@ class DC_General extends DataContainer implements editable, listable
         elseif (in_array($mode, array(7, 8)))
         {
             $remoteNew = ($value != '') ? date('Y-m', $value) : '-';
-            $intMonth = ($value != '') ? (date('m', $value) - 1) : '-';
+            $intMonth  = ($value != '') ? (date('m', $value) - 1) : '-';
 
             if (isset($GLOBALS['TL_LANG']['MONTHS'][$intMonth]))
             {
@@ -1191,7 +1215,7 @@ class DC_General extends DataContainer implements editable, listable
      */
     public function formatGroupHeader($field, $value, $mode, $objModelRow)
     {
-        $group = '';
+        $group  = '';
         static $lookup = array();
 
         if (array_is_assoc($this->arrDCA['fields'][$field]['options']))
@@ -1202,7 +1226,7 @@ class DC_General extends DataContainer implements editable, listable
         {
             if (!isset($lookup[$field]))
             {
-                $strClass = $this->arrDCA['fields'][$field]['options_callback'][0];
+                $strClass  = $this->arrDCA['fields'][$field]['options_callback'][0];
                 $strMethod = $this->arrDCA['fields'][$field]['options_callback'][1];
 
                 $this->import($strClass);
@@ -1230,11 +1254,11 @@ class DC_General extends DataContainer implements editable, listable
                 $group = is_array($this->arrDCA['fields'][$field]['label']) ? $this->arrDCA['fields'][$field]['label'][0] : $this->arrDCA['fields'][$field]['label'];
             }
         }
-        
+
         // Call the group callback ($group, $sortingMode, $firstOrderBy, $row, $this)
         if (is_array($this->arrDCA['list']['label']['group_callback']))
         {
-            $strClass = $this->arrDCA['list']['label']['group_callback'][0];
+            $strClass  = $this->arrDCA['list']['label']['group_callback'][0];
             $strMethod = $this->arrDCA['list']['label']['group_callback'][1];
 
             $this->import($strClass);
@@ -1346,9 +1370,9 @@ class DC_General extends DataContainer implements editable, listable
             );
         }
     }
-    
+
     // Callbacks ---------------------------------------------------------------
-    
+
     /**
      * Call the customer label callback
      * 
@@ -1362,11 +1386,11 @@ class DC_General extends DataContainer implements editable, listable
     {
         if (is_array($arrDCA['label_callback']))
         {
-            $strClass = $arrDCA['label_callback'][0];
+            $strClass  = $arrDCA['label_callback'][0];
             $strMethod = $arrDCA['label_callback'][1];
 
             $this->import($strClass);
-            if(version_compare(VERSION, '2.10', '>'))
+            if (version_compare(VERSION, '2.10', '>'))
             {
                 $mixedLabel = $this->$strClass->$strMethod($objModelRow->getPropertiesAsArray(), $mixedLabel, $this, $args);
             }
@@ -1375,10 +1399,10 @@ class DC_General extends DataContainer implements editable, listable
                 $mixedLabel = $this->$strClass->$strMethod($objModelRow->getPropertiesAsArray(), $mixedLabel, $this);
             }
         }
-        
+
         return $mixedLabel;
     }
-    
+
     /**
      * Call the button callback for the regular operations
      * 
@@ -1400,16 +1424,16 @@ class DC_General extends DataContainer implements editable, listable
         // Call a custom function instead of using the default button
         if (is_array($arrDCA['button_callback']))
         {
-            $strClass = $arrDCA['button_callback'][0];
-            $strMethod = $arrDCA['button_callback'][1];            
-            
+            $strClass  = $arrDCA['button_callback'][0];
+            $strMethod = $arrDCA['button_callback'][1];
+
             $this->import($strClass);
             return $this->$strClass->$strMethod($objModelRow->getPropertiesAsArray(), $arrDCA['href'], $strLabel, $strTitle, $arrDCA['icon'], $arrAttributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext);
         }
-        
+
         return NULL;
     }
-    
+
     /**
      * Call the button callback for the global operations
      * 
@@ -1426,16 +1450,16 @@ class DC_General extends DataContainer implements editable, listable
         // Call a custom function instead of using the default button
         if (is_array($arrDCA['button_callback']))
         {
-            $strClass = $arrDCA['button_callback'][0];
-            $strMethod = $arrDCA['button_callback'][1];            
-            
+            $strClass  = $arrDCA['button_callback'][0];
+            $strMethod = $arrDCA['button_callback'][1];
+
             $this->import($strClass);
             return $this->$strClass->$strMethod($arrDCA['href'], $strLabel, $strTitle, $arrDCA['icon'], $arrAttributes, $strTable, $arrRootIds);
         }
-        
+
         return NULL;
     }
-    
+
     /**
      * Call the options callback for the fields
      * 
@@ -1446,13 +1470,13 @@ class DC_General extends DataContainer implements editable, listable
     {
         if (is_array($arrDCA['options_callback']))
         {
-            $strClass = $arrDCA['options_callback'][0];
+            $strClass  = $arrDCA['options_callback'][0];
             $strMethod = $arrDCA['options_callback'][1];
 
             $this->import($strClass);
             return $this->$strClass->$strMethod($this);
         }
-        
+
         return NULL;
     }
 

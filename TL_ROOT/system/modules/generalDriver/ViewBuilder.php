@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('TL_ROOT'))
     die('You cannot access this file directly!');
 
@@ -63,8 +64,6 @@ class ViewBuilder extends Backend
         $this->dc = $objDc;
         $this->dca = $this->dc->getDCA();
         $this->blnSelect = ($this->Input->get('act') == 'select') ? TRUE : FALSE;
-
-        $this->displayButtons();
     }
 
     // View --------------------------------------------------------------------
@@ -79,7 +78,10 @@ class ViewBuilder extends Backend
         $arrReturn = array();
 
         // Add display buttons
-        $arrReturn[] = $this->displayButtons();
+        if (!$this->dca['config']['closed'] || !empty($this->dca['list']['global_operations']))
+        {
+            $arrReturn[] = $this->displayButtons($this->dc->getButtonId());
+        }
 
         // Set label
         $this->setLabel();
@@ -102,6 +104,60 @@ class ViewBuilder extends Backend
         $arrReturn[] = $objTemplate->parse();
 
         return implode('', $arrReturn);
+    }
+
+    public function parentView()
+    {
+        // Load language file and data container array of the parent table
+        $this->loadLanguageFile($this->dc->getParentTable());
+        $this->loadDataContainer($this->dc->getParentTable());
+
+        $objParentDC  = new DC_General($this->dc->getParentTable());
+        $arrParentDCA = $objParentDC->getDCA();
+
+        $blnHasSorting = $this->dca['list']['sorting']['fields'][0] == 'sorting';
+
+        $arrReturn = array();
+
+        $arrReturn[] = $this->displayButtons(tl_buttons);
+
+        if ($this->dc->getCurrentParentCollection()->length() == 0)
+        {
+            return implode('', $arrReturn);
+        }
+
+        // Add template
+        $objTemplate = new BackendTemplate('dcbe_general_parentView');
+        $objTemplate->collection = $this->dc->getCurrentCollecion();
+        $objTemplate->select = $this->blnSelect;
+        $objTemplate->action = ampersand($this->Environment->request, true);
+        $objTemplate->mode = $this->dca['list']['sorting']['mode'];
+        $objTemplate->table = $this->dc->getTable();
+
+        $objTemplate->editHeader = array(
+            'content' => $this->generateImage('edit.gif', $GLOBALS['TL_LANG'][$this->strTable]['editheader'][0]),
+            'href' => preg_replace('/&(amp;)?table=[^& ]*/i', (strlen($this->dc->getParentTable()) ? '&amp;table=' . $this->dc->getParentTable() : ''), $this->addToUrl('act=edit')),
+            'title' => specialchars($GLOBALS['TL_LANG'][$this->dc->getTable()]['editheader'][1])
+        );
+
+        $objTemplate->pasteNew = array(
+            'content' => $this->generateImage('new.gif', $GLOBALS['TL_LANG'][$this->strTable]['pasteafter'][0]),
+            'href' => $this->addToUrl('act=create&amp;mode=2&amp;pid='.$objParent->id.'&amp;id='.$this->intId),
+            'title' => specialchars($GLOBALS['TL_LANG'][$this->strTable]['pastenew'][0])
+        );
+
+        $objTemplate->pasteAfter = array(
+            'content' => $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->strTable]['pasteafter'][0], 'class="blink"'),
+            'href' => $this->addToUrl('act='.$arrClipboard['mode'].'&amp;mode=2&amp;pid='.$objParent->id . (!$blnMultiboard ? '&amp;id='.$arrClipboard['id'] : '')),
+            'title' => specialchars($GLOBALS['TL_LANG'][$this->strTable]['pasteafter'][0])
+        );
+
+        $objTemplate->notDeletable = $this->dca['config']['notDeletable'];
+        $objTemplate->notEditable = $this->dca['config']['notEditable'];
+        $objTemplate->notEditableParent = $arrParentDCA['config']['notEditable'];
+        $arrReturn[] = $objTemplate->parse();
+
+        return implode('', $arrReturn);     
     }
 
     // Panel -------------------------------------------------------------------
@@ -144,7 +200,7 @@ class ViewBuilder extends Backend
                 'content' => '&nbsp;'
             );
         }
-        
+
         return $arrTableHead;
     }
 
@@ -159,9 +215,9 @@ class ViewBuilder extends Backend
             $this->dca['list']['label']['fields'][] = $this->dc->getFirstSorting();
         }
 
-        $remoteCur = false;
+        $remoteCur  = false;
         $groupclass = 'tl_folder_tlist';
-        $eoCount = -1;
+        $eoCount    = -1;
 
         foreach ($this->dc->getCurrentCollecion() as $objModelRow)
         {
@@ -184,8 +240,8 @@ class ViewBuilder extends Backend
             if ($this->dca['list']['sorting']['mode'] > 0)
             {
 
-                $current = $objModelRow->getProperty($this->dc->getFirstSorting());
-                $orderBy = $this->dca['list']['sorting']['fields'];
+                $current     = $objModelRow->getProperty($this->dc->getFirstSorting());
+                $orderBy     = $this->dca['list']['sorting']['fields'];
                 $sortingMode = (count($orderBy) == 1 && $this->dc->getFirstSorting() == $orderBy[0] && $this->dca['list']['sorting']['flag'] != '' && $this->dca['fields'][$this->dc->getFirstSorting()]['flag'] == '') ? $this->dca['list']['sorting']['flag'] : $this->dca['fields'][$this->dc->getFirstSorting()]['flag'];
 
                 $remoteNew = $this->dc->formatCurrentValue($this->dc->getFirstSorting(), $current, $sortingMode);
@@ -201,17 +257,17 @@ class ViewBuilder extends Backend
                     ));
 
                     $groupclass = 'tl_folder_list';
-                    $remoteCur = $remoteNew;
+                    $remoteCur  = $remoteNew;
                 }
             }
 
             $objModelRow->setProperty('%rowClass%', ((++$eoCount % 2 == 0) ? 'even' : 'odd'));
 
             $colspan = 1;
-            
+
             // Call label callback
             $mixedArgs = $this->dc->labelCallback($objModelRow, $label, $this->arrDCA['list']['label'], $args);
-            
+
             if (is_array($this->arrDCA['list']['label']['label_callback']))
             {
                 // Handle strings and arrays (backwards compatibility)
@@ -260,7 +316,7 @@ class ViewBuilder extends Backend
      * @return array
      */
     protected function getLabelArguments($objModelRow)
-    {       
+    {
         if ($this->dca['list']['sorting']['mode'] == 6)
         {
             $this->loadDataContainer($objDC->getParentTable());
@@ -340,36 +396,35 @@ class ViewBuilder extends Backend
     /**
      * Generate header display buttons
      * 
+     * @param string $strButtonId
      * @return string 
      */
-    public function displayButtons()
+    public function displayButtons($strButtonId)
     {
         $arrReturn = array();
-        if (!$this->dca['config']['closed'] || !empty($this->dca['list']['global_operations']))
+
+        // Add open wrapper
+        $arrReturn[] = '<div id="' . $strButtonId . '">';
+
+        // Add back button
+        $arrReturn[] = (($this->blnSelect || $this->dc->getParentTable()) ? '<a href="' . $this->getReferer(true, $this->dc->getParentTable()) . '" class="header_back" title="' . specialchars($GLOBALS['TL_LANG']['MSC']['backBT']) . '" accesskey="b" onclick="Backend.getScrollOffset();">' . $GLOBALS['TL_LANG']['MSC']['backBT'] . '</a>' : '');
+
+        // Add divider
+        $arrReturn[] = (($this->dc->getParentTable() && !$this->blnSelect) ? ' &nbsp; :: &nbsp;' : '');
+
+        if (!$this->blnSelect)
         {
-            // Add open wrapper
-            $arrReturn[] = '<div id="' . $this->dc->getButtonId() . '">';
+            // Add new button
+            $arrReturn[] = ' ' . (!$this->dca['config']['closed'] ? '<a href="' . (strlen($this->dc->getParentTable()) ? $this->addToUrl('act=create' . (($this->dca['list']['sorting']['mode'] < 4) ? '&amp;mode=2' : '') . '&amp;pid=' . $this->dc->getId()) : $this->addToUrl('act=create')) . '" class="header_new" title="' . specialchars($GLOBALS['TL_LANG'][$this->dc->getTable()]['new'][1]) . '" accesskey="n" onclick="Backend.getScrollOffset();">' . $GLOBALS['TL_LANG'][$this->dc->getTable()]['new'][0] . '</a>' : '');
 
-            // Add back button
-            $arrReturn[] = (($this->blnSelect || $this->dc->getParentTable()) ? '<a href="' . $this->getReferer(true, $this->dc->getParentTable()) . '" class="header_back" title="' . specialchars($GLOBALS['TL_LANG']['MSC']['backBT']) . '" accesskey="b" onclick="Backend.getScrollOffset();">' . $GLOBALS['TL_LANG']['MSC']['backBT'] . '</a>' : '');
-
-            // Add divider
-            $arrReturn[] = (($this->dc->getParentTable() && !$this->blnSelect) ? ' &nbsp; :: &nbsp;' : '');
-
-            if (!$this->blnSelect)
-            {
-                // Add new button
-                $arrReturn[] = ' ' . (!$this->dca['config']['closed'] ? '<a href="' . (strlen($this->dc->getParentTable()) ? $this->addToUrl('act=create' . (($this->dca['list']['sorting']['mode'] < 4) ? '&amp;mode=2' : '') . '&amp;pid=' . $this->dc->getId()) : $this->addToUrl('act=create')) . '" class="header_new" title="' . specialchars($GLOBALS['TL_LANG'][$this->dc->getTable()]['new'][1]) . '" accesskey="n" onclick="Backend.getScrollOffset();">' . $GLOBALS['TL_LANG'][$this->dc->getTable()]['new'][0] . '</a>' : '');
-
-                // Add global buttons
-                $arrReturn[] = $this->generateGlobalButtons();
-            }
-
-            // Add close wrapper
-            $arrReturn[] = '</div>';
-
-            $arrReturn[] = $this->getMessages(true);
+            // Add global buttons
+            $arrReturn[] = $this->generateGlobalButtons();
         }
+
+        // Add close wrapper
+        $arrReturn[] = '</div>';
+
+        $arrReturn[] = $this->getMessages(true);
 
         return implode('', $arrReturn);
     }
@@ -398,8 +453,8 @@ class ViewBuilder extends Backend
         foreach ($GLOBALS['TL_DCA'][$strTable]['list']['operations'] as $k => $v)
         {
             $v = is_array($v) ? $v : array($v);
-            $label = strlen($v['label'][0]) ? $v['label'][0] : $k;
-            $title = sprintf((strlen($v['label'][1]) ? $v['label'][1] : $k), $objModelRow->getProperty('id'));
+            $label      = strlen($v['label'][0]) ? $v['label'][0] : $k;
+            $title      = sprintf((strlen($v['label'][1]) ? $v['label'][1] : $k), $objModelRow->getProperty('id'));
             $attributes = strlen($v['attributes']) ? ' ' . ltrim(sprintf($v['attributes'], $objModelRow->getProperty('id'), $objModelRow->getProperty('id'))) : '';
 
             // Call a custom function instead of using the default button
@@ -426,7 +481,7 @@ class ViewBuilder extends Backend
                 $title = strlen($GLOBALS['TL_LANG'][$strTable][$dir][1]) ? $GLOBALS['TL_LANG'][$strTable][$dir][1] : $dir;
 
                 $label = $this->generateImage($dir . '.gif', $label);
-                $href = strlen($v['href']) ? $v['href'] : '&amp;act=move';
+                $href  = strlen($v['href']) ? $v['href'] : '&amp;act=move';
 
                 if ($dir == 'up')
                 {
@@ -448,7 +503,7 @@ class ViewBuilder extends Backend
      * @return string
      */
     protected function generateGlobalButtons($blnForceSeparator = false)
-    {       
+    {
         if (!is_array($this->dca['list']['global_operations']))
         {
             return '';
@@ -458,8 +513,8 @@ class ViewBuilder extends Backend
         foreach ($this->dca['list']['global_operations'] as $k => $v)
         {
             $v = is_array($v) ? $v : array($v);
-            $label = is_array($v['label']) ? $v['label'][0] : $v['label'];
-            $title = is_array($v['label']) ? $v['label'][1] : $v['label'];
+            $label      = is_array($v['label']) ? $v['label'][0] : $v['label'];
+            $title      = is_array($v['label']) ? $v['label'][1] : $v['label'];
             $attributes = strlen($v['attributes']) ? ' ' . ltrim($v['attributes']) : '';
 
             if (!strlen($label))
