@@ -69,9 +69,9 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
     {
         $objPaletteBuilder = new PaletteBuilder($objDcGeneral);
 
-        $objTemplate = new BackendTemplate('be_general_edit');
+        $objTemplate = new BackendTemplate('dcbe_general_edit');
         $objTemplate->setData(array(
-            'fieldsets' => $objPaletteBuilder->generateFieldsets('be_general_field', array()),
+            'fieldsets' => $objPaletteBuilder->generateFieldsets('dcbe_general_field', array()),
             'oldBE' => $GLOBALS['TL_CONFIG']['oldBeTheme'],
             'versions' => $objDcGeneral->getDataProvider()->getVersions($objDcGeneral->getId()),
             'subHeadline' => sprintf($GLOBALS['TL_LANG']['MSC']['editRecord'], $objDcGeneral->getId() ? 'ID ' . $objDcGeneral->getId() : ''),

@@ -91,7 +91,7 @@ class ViewBuilder extends Backend
         }
 
         // Add template
-        $objTemplate = new BackendTemplate('be_general_showAll');
+        $objTemplate = new BackendTemplate('dcbe_general_showAll');
         $objTemplate->collection = $this->dc->getCurrentCollecion();
         $objTemplate->select = $this->blnSelect;
         $objTemplate->action = ampersand($this->Environment->request, true);
@@ -112,7 +112,7 @@ class ViewBuilder extends Backend
 
         if (is_array($this->dc->getPanelView()) && count($this->dc->getPanelView()) > 0)
         {
-            $objTemplate = new BackendTemplate('be_general_panel');
+            $objTemplate = new BackendTemplate('dcbe_general_panel');
             $objTemplate->action = ampersand($this->Environment->request, true);
             $objTemplate->theme = $this->getTheme();
             $objTemplate->panel = $this->dc->getPanelView();
