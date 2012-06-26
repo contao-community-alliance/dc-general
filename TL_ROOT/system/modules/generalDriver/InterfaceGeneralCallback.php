@@ -53,6 +53,7 @@ interface InterfaceGeneralCallback
      * @param InterfaceGeneralModel $objModelRow
      * @param string $mixedLabel
      * @param array $args
+     * 
      * @return string 
      */
     public function labelCallback(InterfaceGeneralModel $objModelRow, $mixedLabel, $args);
@@ -70,6 +71,7 @@ interface InterfaceGeneralCallback
      * @param boolean $blnCircularReference
      * @param string $strPrevious
      * @param string $strNext
+     * 
      * @return string|null 
      */
     public function buttonCallback($objModelRow, $strLabel, $strTitle, $arrAttributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext);
@@ -82,6 +84,7 @@ interface InterfaceGeneralCallback
      * @param array $arrAttributes
      * @param string $strTable
      * @param array $arrRootIds
+     * 
      * @return string|null 
      */
     public function globalButtonCallback($strLabel, $strTitle, $arrAttributes, $strTable, $arrRootIds);
@@ -117,6 +120,7 @@ interface InterfaceGeneralCallback
      * @param type $mode
      * @param type $field
      * @param InterfaceGeneralModel $objModelRow
+     * 
      * @return type 
      */
     public function groupCallback($group, $mode, $field, $objModelRow);
@@ -126,9 +130,24 @@ interface InterfaceGeneralCallback
      * 
      * @param array $arrConfig Configuration of the widget
      * @param mixed $varNew New Value
+     * 
      * @return mixed 
      */
     public function saveCallback($arrConfig, $varNew);
+
+    /**
+     * Call ondelete_callback
+     * 
+     * @return void
+     */
+    public function ondeleteCallback();
+
+    /**
+     * Call the onsubmit_callback 
+     * 
+     * @return void
+     */
+    public function onsubmitCallback();
 }
 
 ?>
