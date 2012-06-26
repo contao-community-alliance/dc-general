@@ -81,6 +81,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     protected function doSave(DC_General $objDC)
     {
         $objDBModel = $objDC->getCurrentModel();
+        $arrDCA     = $objDC->getDCA();
 
         // process input and update changed properties.
         foreach (array_keys($objDC->getFieldList()) as $key)
@@ -98,32 +99,44 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             return false;
         }
-
-        // Compare version and current record. 
-        // If not the same create a new version
-        $mixCurrentVersion = $objDC->getDataProvider()->getActiveVersion($objDBModel->getID());
-        if ($mixCurrentVersion != 0)
+        
+        // Callback
+        $objDC->getCallbackClass()->onsubmitCallback();
+        
+        // Refresh timestamp
+        if($objDC->getDataProvider()->fieldExists("tstamp") == true)
         {
-            $mixCurrentVersion = $objDC->getDataProvider()->getVersion($objDBModel->getID(), $mixCurrentVersion);
+            $objDBModel->setProperty("tstamp", time());
+        }
 
-            if($objDC->getDataProvider()->sameModels($objDBModel, $mixCurrentVersion) == false)
+        // everything went ok, now save the new record 
+        $objDC->getDataProvider()->save($objDBModel);
+        
+         // Check if versioning is enabled
+        if (isset($arrDCA['config']['enableVersioning']) && $arrDCA['config']['enableVersioning'] == true)
+        {
+            // Compare version and current record
+            $mixCurrentVersion = $objDC->getDataProvider()->getActiveVersion($objDBModel->getID());
+            if ($mixCurrentVersion != null)
+            {
+                $mixCurrentVersion = $objDC->getDataProvider()->getVersion($objDBModel->getID(), $mixCurrentVersion);
+
+                if ($objDC->getDataProvider()->sameModels($objDBModel, $mixCurrentVersion) == false)
+                {
+                    // TODO: FE|BE switch
+                    $this->import('BackendUser', 'User');
+                    $objDC->getDataProvider()->saveVersion($objDBModel, $this->User->username);
+                }
+            }
+            else
             {
                 // TODO: FE|BE switch
                 $this->import('BackendUser', 'User');
                 $objDC->getDataProvider()->saveVersion($objDBModel, $this->User->username);
             }
         }
-        else
-        {
-            // TODO: FE|BE switch
-            $this->import('BackendUser', 'User');
-            $objDC->getDataProvider()->saveVersion($objDBModel, $this->User->username);
-        }
 
-        // everything went ok, now save the new values and 
-        // return model.
-        $objDC->getDataProvider()->save($objDBModel);
-
+        // Return the current model
         return $objDBModel;
     }
 
@@ -193,17 +206,32 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     public function delete(DC_General $objDC)
     {
         $arrDCA = $objDC->getDCA;
+        $intRecordID = $this->Input->get("id");
 
+        // Check if is it allowed to delete a record
         if ($arrDCA['config']['notDeletable'])
         {
             $this->log('Table "' . $objDC->getTable() . '" is not deletable', 'DC_Table delete()', TL_ERROR);
             $this->redirect('contao/main.php?act=error');
         }
 
-
-        if (strlen($this->Input->get("id")) != 0)
+        // Check if we have a id
+        if (strlen($intRecordID) == 0)
         {
-            $objDC->getDataProvider()->delete($this->Input->get("id"));
+            $this->reload();
+        }
+        
+        // Callback
+        $objDC->setCurrentModel($objDC->getDataProvider()->fetch($intRecordID));
+        $objDC->getCallbackClass()->ondeleteCallback();
+        
+        // Delete record
+        $objDC->getDataProvider()->delete($intRecordID);
+
+        // Add a log entry unless we are deleting from tl_log itself
+        if ($this->strTable != 'tl_log')
+        {
+            $this->log('DELETE FROM ' . $objDC->getTable() . ' WHERE id=' . $intRecordID, 'DC_General - Controller - delete()', TL_GENERAL);
         }
 
         $this->redirect($this->getReferer());
