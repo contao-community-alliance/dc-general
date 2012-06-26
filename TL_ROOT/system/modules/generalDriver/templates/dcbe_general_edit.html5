@@ -74,8 +74,17 @@
 </div>
 </form>
 <script>
-window.addEvent('domready', function() {
-var e = $$("#" + <?php echo json_encode($this->table); ?> + ' input[type="text"]')[0];
-e && e.focus();
-});
+    window.addEvent('domready', function() {
+        var e = $$("#" + <?php echo json_encode($this->table); ?> + ' input[type="text"]')[0];
+        e && e.focus();
+    });
 </script>
+
+<?php if($this->noReload): ?>
+<script>
+    window.addEvent('domready', function() {
+        Backend.vScrollTo(($('<?php echo $this->table; ?>').getElement('label.error').getPosition().y - 20));
+    });
+</script>
+<?php endif; ?>
+
