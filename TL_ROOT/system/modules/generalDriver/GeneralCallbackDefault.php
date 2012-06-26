@@ -326,6 +326,46 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 
         return $varNew;
     }
+    
+    /**
+     * Call ondelete_callback
+     */
+    public function ondeleteCallback()
+    {
+        // Load DCA
+        $arrDCA = $this->objDC->getDCA();
+
+        // Call ondelete_callback
+        if (is_array($arrDCA['config']['ondelete_callback']))
+        {
+            foreach ($arrDCA['config']['ondelete_callback'] as $callback)
+            {
+                if (is_array($callback))
+                {
+                    $this->import($callback[0]);
+                    $this->$callback[0]->$callback[1]($this->objDC);
+                }
+            }
+        }
+    }
+
+    /**
+     * Call the onsubmit_callback 
+     */
+    public function onsubmitCallback()
+    {
+        // Load DCA
+        $arrDCA = $this->objDC->getDCA();
+        
+        if (is_array($arrDCA['config']['onsubmit_callback']))
+        {
+            foreach ($arrDCA['config']['onsubmit_callback'] as $callback)
+            {
+                $this->import($callback[0]);
+                $this->$callback[0]->$callback[1]($this->objDC);
+            }
+        }
+    }
 
 }
 
