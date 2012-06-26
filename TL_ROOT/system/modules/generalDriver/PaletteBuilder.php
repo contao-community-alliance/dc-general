@@ -22,7 +22,7 @@ class PaletteBuilder extends Controller
         $this->objDC = $objDC;
         $this->objCurrentModel = $this->objDC->getCurrentModel();
         $this->arrStack[] = $objDC->getSubpalettesDefinition();
-
+        
         $this->calculateSelectors($this->arrStack[0]);
         $this->parseRootPalette();
     }
@@ -44,8 +44,14 @@ class PaletteBuilder extends Controller
 
     public function generateAjaxPalette($strSelector, $strInputName, $strFieldTemplate)
     {
-        return is_array($this->arrAjaxPalettes[$strSelector]) ? sprintf('<div id="sub_%s">%s</div>', $strInputName, $this->generatePalette($this->arrAjaxPalettes[$strSelector], $strFieldTemplate)
-                ) : '';
+        if(is_array($this->arrAjaxPalettes[$strSelector]))
+        {
+            return sprintf('<div id="sub_%s">%s</div>', $strInputName, $this->generatePalette($this->arrAjaxPalettes[$strSelector], $strFieldTemplate));
+        }
+        else
+        {
+            return '';
+        }
     }
 
     public function generateFieldsets($strFieldTemplate, array $arrStates)
@@ -296,9 +302,8 @@ class PaletteBuilder extends Controller
         foreach (self::combiner($arrKeys) as $strKey)
             if (is_string($arrPalettes[$strKey]))
                 return $arrPalettes[$strKey];
-            
-        var_dump($arrPalettes);
-        exiT();
+
+        // ToDo: ??? why exit on this place 
 
         return $arrPalettes['default'];
     }

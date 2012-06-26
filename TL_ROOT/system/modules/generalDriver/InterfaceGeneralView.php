@@ -50,8 +50,8 @@ interface InterfaceGeneralView
     public function showAll(DC_General $objDcGeneral);
 
     public function undo(DC_General $objDcGeneral);
-    
-    public function generateAjaxPalette(DC_General $objDcGeneral, $strSelector, $strInputName, $strFieldTemplate);
+
+    public function generateAjaxPalette(DC_General $objDcGeneral, $strMethod, $strSelector);
 }
 
 ?>

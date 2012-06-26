@@ -272,7 +272,7 @@ class DC_General extends DataContainer implements editable, listable
         $this->arrInputs = $_POST['FORM_INPUTS'] ? array_flip($this->Input->post('FORM_INPUTS')) : array();
         $this->arrStates = $this->Session->get('fieldset_states');
         $this->arrStates = (array) $this->arrStates[$this->strTable];
-
+        
         // Load
         $this->loadProviderAndHandler();
 
@@ -315,8 +315,7 @@ class DC_General extends DataContainer implements editable, listable
      * if not set try to load the default one.
      */
     protected function loadProviderAndHandler()
-    {
-        
+    {        
         // Load controller, view and provider.
         $this->loadController();
         $this->loadView();
@@ -883,6 +882,16 @@ class DC_General extends DataContainer implements editable, listable
             $this->mixWidgetID = 'b' . str_replace('=', '_', base64_encode($intID));
         }
     }
+    
+    /**
+     * Return the current widget id 
+     * 
+     * @return mixed 
+     */
+    public function getWidgetID()
+    {
+        return $this->mixWidgetID;
+    }
 
     // Functions ---------------------------------------------------------------
 
@@ -1387,6 +1396,17 @@ class DC_General extends DataContainer implements editable, listable
         }
 
         return call_user_func_array(array($this->objViewHandler, $name), $arguments);
+    }
+
+    public function generateAjaxPalette($strMethod, $strSelector)
+    {
+        $strReturn = $this->objController->generateAjaxPalette($this, $strMethod, $strSelector);
+        if ($strReturn != null && $strReturn != "")
+        {
+            return $strReturn;
+        }
+
+        return $this->objViewHandler->generateAjaxPalette($this, $strMethod, $strSelector);
     }
 
     public function copy()
