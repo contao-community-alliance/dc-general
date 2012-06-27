@@ -105,6 +105,15 @@ class ViewBuilder extends Backend
 
     public function parentView()
     {
+        $arrReturn = array();
+
+        $arrReturn[] = $this->displayButtons('tl_buttons');
+
+        if (is_null($this->dc->getParentTable()) || $this->dc->getCurrentParentCollection()->length() == 0)
+        {
+            return implode('', $arrReturn);
+        }
+
         // Load language file and data container array of the parent table
         $this->loadLanguageFile($this->dc->getParentTable());
         $this->loadDataContainer($this->dc->getParentTable());
@@ -113,15 +122,6 @@ class ViewBuilder extends Backend
         $arrParentDCA = $objParentDC->getDCA();
 
         $blnHasSorting = $this->dca['list']['sorting']['fields'][0] == 'sorting';
-
-        $arrReturn = array();
-
-        $arrReturn[] = $this->displayButtons(tl_buttons);
-
-        if ($this->dc->getCurrentParentCollection()->length() == 0)
-        {
-            return implode('', $arrReturn);
-        }
 
         // Add template
         $objTemplate = new BackendTemplate('dcbe_general_parentView');
@@ -139,13 +139,13 @@ class ViewBuilder extends Backend
 
         $objTemplate->pasteNew = array(
             'content' => $this->generateImage('new.gif', $GLOBALS['TL_LANG'][$this->strTable]['pasteafter'][0]),
-            'href' => $this->addToUrl('act=create&amp;mode=2&amp;pid='.$objParent->id.'&amp;id='.$this->intId),
+            'href' => $this->addToUrl('act=create&amp;mode=2&amp;pid=' . $objParent->id . '&amp;id=' . $this->intId),
             'title' => specialchars($GLOBALS['TL_LANG'][$this->strTable]['pastenew'][0])
         );
 
         $objTemplate->pasteAfter = array(
             'content' => $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->strTable]['pasteafter'][0], 'class="blink"'),
-            'href' => $this->addToUrl('act='.$arrClipboard['mode'].'&amp;mode=2&amp;pid='.$objParent->id . (!$blnMultiboard ? '&amp;id='.$arrClipboard['id'] : '')),
+            'href' => $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=' . $objParent->id . (!$blnMultiboard ? '&amp;id=' . $arrClipboard['id'] : '')),
             'title' => specialchars($GLOBALS['TL_LANG'][$this->strTable]['pasteafter'][0])
         );
 
@@ -154,7 +154,7 @@ class ViewBuilder extends Backend
         $objTemplate->notEditableParent = $arrParentDCA['config']['notEditable'];
         $arrReturn[] = $objTemplate->parse();
 
-        return implode('', $arrReturn);     
+        return implode('', $arrReturn);
     }
 
     // Panel -------------------------------------------------------------------
@@ -199,6 +199,106 @@ class ViewBuilder extends Backend
         }
 
         return $arrTableHead;
+    }
+
+    protected function getFormattedHeaderFields()
+    {
+        $add = array();
+        $headerFields = $this->dca['list']['sorting']['headerFields'];
+
+        foreach ($headerFields as $v)
+        {
+            $_v = deserialize($this->dc->getCurrentParentCollection()->get(0)->getProperty($v));
+
+            if (is_array($_v))
+            {
+                $_v = implode(', ', $_v);
+            }
+            elseif ($GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['inputType'] == 'checkbox' && !$GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['eval']['multiple'])
+            {
+                $_v = strlen($_v) ? $GLOBALS['TL_LANG']['MSC']['yes'] : $GLOBALS['TL_LANG']['MSC']['no'];
+            }
+            elseif ($_v && $GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['eval']['rgxp'] == 'date')
+            {
+                $_v = $this->parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $_v);
+            }
+            elseif ($_v && $GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['eval']['rgxp'] == 'time')
+            {
+                $_v = $this->parseDate($GLOBALS['TL_CONFIG']['timeFormat'], $_v);
+            }
+            elseif ($_v && $GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['eval']['rgxp'] == 'datim')
+            {
+                $_v = $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $_v);
+                // TODO
+//            } elseif ($v == 'tstamp') {
+//                $objMaxTstamp = $this->Database->prepare("SELECT MAX(tstamp) AS tstamp FROM " . $this->strTable . " WHERE pid=?")
+//                        ->execute($objParent->id);
+//
+//                if (!$objMaxTstamp->tstamp) {
+//                    $objMaxTstamp->tstamp = $objParent->tstamp;
+//                }
+//
+//                $_v = $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], max($objParent->tstamp, $objMaxTstamp->tstamp));
+//            } elseif (isset($GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['foreignKey'])) {
+//                $arrForeignKey = explode('.', $GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['foreignKey'], 2);
+//
+//                $objLabel = $this->Database->prepare("SELECT " . $arrForeignKey[1] . " AS value FROM " . $arrForeignKey[0] . " WHERE id=?")
+//                        ->limit(1)
+//                        ->execute($_v);
+//
+//                if ($objLabel->numRows) {
+//                    $_v = $objLabel->value;
+//                }
+            }
+            elseif (is_array($GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['reference'][$_v]))
+            {
+                $_v = $GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['reference'][$_v][0];
+            }
+            elseif (isset($GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['reference'][$_v]))
+            {
+                $_v = $GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['reference'][$_v];
+            }
+            elseif ($GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['eval']['isAssociative'] || array_is_assoc($GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['options']))
+            {
+                $_v = $GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['options'][$_v];
+            }
+
+            // Add the sorting field
+            if ($_v != '')
+            {
+                $key       = isset($GLOBALS['TL_LANG'][$this->ptable][$v][0]) ? $GLOBALS['TL_LANG'][$this->ptable][$v][0] : $v;
+                $add[$key] = $_v;
+            }
+        }
+
+        // Trigger the header_callback (see #3417)
+        if (is_array($GLOBALS['TL_DCA'][$table]['list']['sorting']['header_callback']))
+        {
+            $strClass  = $GLOBALS['TL_DCA'][$table]['list']['sorting']['header_callback'][0];
+            $strMethod = $GLOBALS['TL_DCA'][$table]['list']['sorting']['header_callback'][1];
+
+            $this->import($strClass);
+            $add = $this->$strClass->$strMethod($add, $this);
+        }
+
+        // Output the header data
+        $return .= '
+
+<table class="tl_header_table">';
+
+        foreach ($add as $k => $v)
+        {
+            if (is_array($v))
+            {
+                $v = $v[0];
+            }
+
+            $return .= '
+  <tr>
+    <td><span class="tl_label">' . $k . ':</span> </td>
+    <td>' . $v . '</td>
+  </tr>';
+        }
     }
 
     /**
@@ -263,8 +363,8 @@ class ViewBuilder extends Backend
             $colspan = 1;
 
             // Call label callback
-            $mixedArgs = $this->dc->getCallbackClass()->labelCallback($objModelRow, $label, $this->arrDCA['list']['label'], $args);            
-            
+            $mixedArgs = $this->dc->getCallbackClass()->labelCallback($objModelRow, $label, $this->arrDCA['list']['label'], $args);
+
             if (is_array($this->arrDCA['list']['label']['label_callback']))
             {
                 // Handle strings and arrays (backwards compatibility)
