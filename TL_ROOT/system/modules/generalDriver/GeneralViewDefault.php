@@ -291,7 +291,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
     public function showAll(DC_General $objDcGeneral)
     {
         $arrDCA = $objDcGeneral->getDCA();
-        
+
         $objView = new ViewBuilder($objDcGeneral);
 
         if ($arrDCA['list']['sorting']['mode'] == 4)
@@ -301,7 +301,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         else
         {
             return $objView->panel() . $objView->listView();
-        }        
+        }
     }
 
     public function undo(DC_General $objDcGeneral)
@@ -309,9 +309,13 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         return $this->notImplMsg;
     }
 
-    public function generateAjaxPalette(DC_General $objDcGeneral, $strSelector, $strInputName, $strFieldTemplate)
+    public function generateAjaxPalette(DC_General $objDcGeneral, $strMethod, $strSelector)
     {
-        return $this->notImplMsg;
+        $objPaletteBuilder = new PaletteBuilder($objDcGeneral);
+
+        return $objPaletteBuilder->generateAjaxPalette(
+                        $strSelector, $strSelector . '_' . $objDcGeneral->getWidgetID(), 'dcbe_general_field'
+        );
     }
 
 }

@@ -148,6 +148,16 @@ interface InterfaceGeneralCallback
      * @return void
      */
     public function onsubmitCallback();
+
+    /**
+     * Call the oncreate_callback
+     * 
+     * @param mixed $insertID The id from the new record
+     * @param array $arrRecord the new record 
+     * 
+     * @return void
+     */
+    public function oncreateCallback($insertID, $arrRecord);
 }
 
 ?>

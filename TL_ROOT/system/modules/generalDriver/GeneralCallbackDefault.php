@@ -367,6 +367,30 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
         }
     }
 
+    /**
+     * Call the oncreate_callback
+     * 
+     * @param mixed $insertID The id from the new record
+     * @param array $arrRecord the new record 
+     * 
+     * @return void
+     */
+    public function oncreateCallback($insertID, $arrRecord)
+    {
+        // Load DCA
+        $arrDCA = $this->objDC->getDCA();
+
+        // Call the oncreate_callback
+        if (is_array($arrDCA['config']['oncreate_callback']))
+        {
+            foreach ($arrDCA['config']['oncreate_callback'] as $callback)
+            {
+                $this->import($callback[0]);
+                $this->$callback[0]->$callback[1]($this->objDC->getTable(), $insertID, $arrRecord, $this->objDC);
+            }
+        }
+    }
+
 }
 
 ?>

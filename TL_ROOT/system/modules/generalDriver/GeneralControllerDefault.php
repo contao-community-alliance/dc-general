@@ -79,9 +79,15 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      * @return bool|InterfaceGeneralModel Model if the save operation was successful, false otherwise.
      */
     protected function doSave(DC_General $objDC)
-    {
+    {        
         $objDBModel = $objDC->getCurrentModel();
         $arrDCA     = $objDC->getDCA();
+        
+        // Check if table is closed
+        if($arrDCA['config']['closed'] == true)
+        {
+            $this->redirect($this->getReferer());
+        }
 
         // process input and update changed properties.
         foreach (array_keys($objDC->getFieldList()) as $key)
@@ -99,20 +105,20 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             return false;
         }
-
+        
         // Callback
         $objDC->getCallbackClass()->onsubmitCallback();
-
+        
         // Refresh timestamp
-        if ($objDC->getDataProvider()->fieldExists("tstamp") == true)
+        if($objDC->getDataProvider()->fieldExists("tstamp") == true)
         {
             $objDBModel->setProperty("tstamp", time());
         }
 
         // everything went ok, now save the new record 
         $objDC->getDataProvider()->save($objDBModel);
-
-        // Check if versioning is enabled
+        
+         // Check if versioning is enabled
         if (isset($arrDCA['config']['enableVersioning']) && $arrDCA['config']['enableVersioning'] == true)
         {
             // Compare version and current record
@@ -183,13 +189,18 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 // process input and update changed properties.
                 if (($objModell = $this->doSave($objDC)) !== false)
                 {
+                    // Callback
+                    $objDC->getCallbackClass()->oncreateCallback($objDBModel->getID(), $objDBModel->getPropertiesAsArray());
+                    // Log
+                    $this->log('A new entry in table "' . $objDC->getTable() . '" has been created (ID: ' . $objModell->getID() . ')', 'DC_General - Controller - create()', TL_GENERAL);
+                    // Redirect
                     $this->redirect($this->addToUrl("id=" . $objDBModel->getID() . "&amp;act=edit"));
                 }
             }
             else if (isset($_POST["saveNclose"]))
             {
                 // process input and update changed properties.
-                if ($this->doSave($objDC) !== false)
+                if (($objModell = $this->doSave($objDC)) !== false)
                 {
                     setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
@@ -197,6 +208,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     $_SESSION['TL_ERROR']   = '';
                     $_SESSION['TL_CONFIRM'] = '';
 
+                    // Callback
+                    $objDC->getCallbackClass()->oncreateCallback($objDBModel->getID(), $objDBModel->getPropertiesAsArray());
+                    // Log
+                    $this->log('A new entry in table "' . $objDC->getTable() . '" has been created (ID: ' . $objModell->getID() . ')', 'DC_General - Controller - create()', TL_GENERAL);
+                    // Redirect
                     $this->redirect($this->getReferer());
                 }
             }
@@ -211,7 +227,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         // Check if is it allowed to delete a record
         if ($arrDCA['config']['notDeletable'])
         {
-            $this->log('Table "' . $objDC->getTable() . '" is not deletable', 'DC_Table delete()', TL_ERROR);
+            $this->log('Table "' . $objDC->getTable() . '" is not deletable', 'DC_General - Controller - delete()', TL_ERROR);
             $this->redirect('contao/main.php?act=error');
         }
 
@@ -220,11 +236,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             $this->reload();
         }
-
+        
         // Callback
         $objDC->setCurrentModel($objDC->getDataProvider()->fetch($intRecordID));
         $objDC->getCallbackClass()->ondeleteCallback();
-
+        
         // Delete record
         $objDC->getDataProvider()->delete($intRecordID);
 
@@ -242,7 +258,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         // Check if table is editable
         if (!$objDC->isEditable())
         {
-            $this->log('Table ' . $objDC->getTable() . ' is not editable', 'DC_General edit()', TL_ERROR);
+            $this->log('Table ' . $objDC->getTable() . ' is not editable', 'DC_General - Controller - edit()', TL_ERROR);
             $this->redirect('contao/main.php?act=error');
         }
 
@@ -251,6 +267,14 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             // Load record from version 
             $objVersionModel = $objDC->getDataProvider()->getVersion($objDC->getId(), $this->Input->post("version"));
+
+            // Redirect if there is no record with the given ID
+            if ($objVersionModel == null)
+            {
+                $this->log('Could not load record ID ' . $objDC->getId() . ' of table "' . $objDC->getTable() . '"', 'DC_General - Controller - edit()', TL_ERROR);
+                $this->redirect('contao/main.php?act=error');
+            }
+
             $objDC->getDataProvider()->save($objVersionModel);
             $objDC->getDataProvider()->setVersionActive($objDC->getId(), $this->Input->post("version"));
 
@@ -259,6 +283,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $arrData["id"] = $objVersionModel->getID();
 
             $objDC->getCallbackClass()->onrestoreCallback($objDC->getId(), $objDC->getTable(), $arrData, $this->Input->post("version"));
+
+            $this->log(sprintf('Version %s of record ID %s (table %s) has been restored', $this->Input->post('version'), $objDC->getId(), $objDC->getTable()), 'DC_General - Controller - edit()', TL_GENERAL);
 
             // Reload page with new recored
             $this->reload();
@@ -288,6 +314,22 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $objDBModel = $objDC->getDataProvider()->getEmptyModel();
         }
         $objDC->setCurrentModel($objDBModel);
+
+        // Check if we have a auto submit
+        if ($objDC->isAutoSubmitted())
+        {
+            // process input and update changed properties.
+            foreach (array_keys($objDC->getFieldList()) as $key)
+            {
+                $varNewValue = $objDC->processInput($key);
+                if ($objDBModel->getProperty($key) != $varNewValue)
+                {
+                    $objDBModel->setProperty($key, $varNewValue);
+                }
+            }
+            
+            $objDC->setCurrentModel($objDBModel);
+        }
 
         // Check submit
         if ($objDC->isSubmitted() == true)
@@ -356,6 +398,37 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             $this->listView();
         }
+    }
+    
+    public function generateAjaxPalette(DC_General $objDC, $strMethod, $strSelector)
+    {
+        // Check if table is editable
+        if (!$objDC->isEditable())
+        {
+            $this->log('Table ' . $objDC->getTable() . ' is not editable', 'DC_General edit()', TL_ERROR);
+            $this->redirect('contao/main.php?act=error');
+        }
+        
+         // Load fields and co
+        $objDC->loadEditableFields();
+        $objDC->setWidgetID($objDC->getId());
+
+        // Check if we have fields
+        if (!$objDC->hasEditableFields())
+        {
+            $this->redirect($this->getReferer());
+        }
+        
+         // Load something
+        $objDC->preloadTinyMce();
+
+        // Load record from data provider
+        $objDBModel = $objDC->getDataProvider()->fetch($objDC->getId());
+        if ($objDBModel == null)
+        {
+            $objDBModel = $objDC->getDataProvider()->getEmptyModel();
+        }
+        $objDC->setCurrentModel($objDBModel);
     }
 
     // showAll Modis -----------------------------------------------------------
@@ -577,8 +650,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $mixedOptionsLabel = strlen($this->dca['fields'][$field]['label'][0]) ? $this->dca['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
 
             $arrOptions[utf8_romanize($mixedOptionsLabel) . '_' . $field] = array(
-                'value' => specialchars($field),
-                'select' => (($field == $session['search'][$this->dc->getTable()]['field']) ? ' selected="selected"' : ''),
+                'value'   => specialchars($field),
+                'select'  => (($field == $session['search'][$this->dc->getTable()]['field']) ? ' selected="selected"' : ''),
                 'content' => $mixedOptionsLabel
             );
         }
@@ -687,8 +760,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     }
 
                     $arrPanelView['option'][] = array(
-                        'value' => $this_limit,
-                        'select' => $this->optionSelected($this->dc->getLimit(), $this_limit),
+                        'value'   => $this_limit,
+                        'select'  => $this->optionSelected($this->dc->getLimit(), $this_limit),
                         'content' => ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + 1) . ' - ' . $upper_limit
                     );
                 }
@@ -696,8 +769,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 if (!$blnIsMaxResultsPerPage)
                 {
                     $arrPanelView['option'][] = array(
-                        'value' => 'all',
-                        'select' => $this->optionSelected($this->dc->getLimit(), null),
+                        'value'   => 'all',
+                        'select'  => $this->optionSelected($this->dc->getLimit(), null),
                         'content' => $GLOBALS['TL_LANG']['MSC']['filterAll']
                     );
                 }
@@ -714,8 +787,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             );
 
             $arrPanelView['option'][0] = array(
-                'value' => 'tl_limit',
-                'select' => '',
+                'value'   => 'tl_limit',
+                'select'  => '',
                 'content' => $GLOBALS['TL_LANG']['MSC']['filterRecords']
             );
         }
@@ -795,8 +868,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             }
 
             $arrOptions[$mixedOptionsLabel] = array(
-                'value' => specialchars($field),
-                'select' => ((!strlen($session['sorting'][$this->strTable]) && $field == $firstOrderBy || $field == str_replace(' DESC', '', $session['sorting'][$this->strTable])) ? ' selected="selected"' : ''),
+                'value'   => specialchars($field),
+                'select'  => ((!strlen($session['sorting'][$this->strTable]) && $field == $firstOrderBy || $field == str_replace(' DESC', '', $session['sorting'][$this->strTable])) ? ' selected="selected"' : ''),
                 'content' => $mixedOptionsLabel
             );
         }
@@ -894,8 +967,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     }
 
                     $mixedOrderBy[$key] = array(
-                        'field' => $strField,
-                        'keys' => $keys,
+                        'field'  => $strField,
+                        'keys'   => $keys,
                         'action' => 'findInSet'
                     );
                 }

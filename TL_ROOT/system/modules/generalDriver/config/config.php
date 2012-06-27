@@ -2,7 +2,7 @@
 
 /**
  * Contao Open Source CMS
- * Copyright (C) 2005-2011 Leo Feyer
+ * Copyright (C) 2005-2010 Leo Feyer
  *
  * Formerly known as TYPOlight Open Source CMS.
  *
@@ -22,36 +22,16 @@
  *
  * PHP version 5
  * @copyright  MEN AT WORK 2012
- * @package    generalDriver
+ * @copyright  Oliver Hoff 2012
+ * @package    drivers
  * @license    GNU/LGPL
  * @filesource
  */
-interface InterfaceGeneralView
-{
 
-    public function copy(DC_General $objDcGeneral);
+/**
+ * Hooks 
+ */
+$GLOBALS['TL_HOOKS']['executePostActions'][] = array('GeneralAjax', 'hookExecutePostActions');
 
-    public function copyAll(DC_General $objDcGeneral);
-
-    public function create(DC_General $objDcGeneral);
-
-    public function cut(DC_General $objDcGeneral);
-
-    public function cutAll(DC_General $objDcGeneral);
-
-    public function delete(DC_General $objDcGeneral);
-
-    public function edit(DC_General $objDcGeneral);
-
-    public function move(DC_General $objDcGeneral);
-
-    public function show(DC_General $objDcGeneral);
-
-    public function showAll(DC_General $objDcGeneral);
-
-    public function undo(DC_General $objDcGeneral);
-
-    public function generateAjaxPalette(DC_General $objDcGeneral, $strMethod, $strSelector);
-}
 
 ?>
