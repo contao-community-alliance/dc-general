@@ -99,20 +99,20 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             return false;
         }
-        
+
         // Callback
         $objDC->getCallbackClass()->onsubmitCallback();
-        
+
         // Refresh timestamp
-        if($objDC->getDataProvider()->fieldExists("tstamp") == true)
+        if ($objDC->getDataProvider()->fieldExists("tstamp") == true)
         {
             $objDBModel->setProperty("tstamp", time());
         }
 
         // everything went ok, now save the new record 
         $objDC->getDataProvider()->save($objDBModel);
-        
-         // Check if versioning is enabled
+
+        // Check if versioning is enabled
         if (isset($arrDCA['config']['enableVersioning']) && $arrDCA['config']['enableVersioning'] == true)
         {
             // Compare version and current record
@@ -205,7 +205,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     public function delete(DC_General $objDC)
     {
-        $arrDCA = $objDC->getDCA;
+        $arrDCA      = $objDC->getDCA;
         $intRecordID = $this->Input->get("id");
 
         // Check if is it allowed to delete a record
@@ -220,11 +220,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             $this->reload();
         }
-        
+
         // Callback
         $objDC->setCurrentModel($objDC->getDataProvider()->fetch($intRecordID));
         $objDC->getCallbackClass()->ondeleteCallback();
-        
+
         // Delete record
         $objDC->getDataProvider()->delete($intRecordID);
 
@@ -253,13 +253,13 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $objVersionModel = $objDC->getDataProvider()->getVersion($objDC->getId(), $this->Input->post("version"));
             $objDC->getDataProvider()->save($objVersionModel);
             $objDC->getDataProvider()->setVersionActive($objDC->getId(), $this->Input->post("version"));
-            
+
             // Callback onrestoreCallback
-            $arrData = $objVersionModel->getPropertiesAsArray();
+            $arrData       = $objVersionModel->getPropertiesAsArray();
             $arrData["id"] = $objVersionModel->getID();
-            
+
             $objDC->getCallbackClass()->onrestoreCallback($objDC->getId(), $objDC->getTable(), $arrData, $this->Input->post("version"));
-            
+
             // Reload page with new recored
             $this->reload();
         }
@@ -348,7 +348,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
         $this->panel($this->dc);
 
-        if ($this->dca['list']['sorting']['mode'] == 4)
+        if ($this->dca['list']['sorting']['mode'] == 4 && !is_null($this->dc->getParentTable()))
         {
             $this->parentView();
         }
@@ -403,31 +403,34 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         /* $this->current[] = $objModelRow->getProperty('id'); */
         $showFields = $arrCurrentDCA['list']['label']['fields'];
 
-        // Label
-        foreach ($showFields as $v)
-        {
-            // Decrypt the value
-            if ($this->dca['fields'][$v]['eval']['encrypt'])
+        if(is_array($showFields))
+        {        
+            // Label
+            foreach ($showFields as $v)
             {
-                $objModelRow->setProperty($v, deserialize($objModelRow->getProperty($v)));
+                // Decrypt the value
+                if ($this->dca['fields'][$v]['eval']['encrypt'])
+                {
+                    $objModelRow->setProperty($v, deserialize($objModelRow->getProperty($v)));
 
-                $this->import('Encryption');
-                $objModelRow->setProperty($v, $this->Encryption->decrypt($objModelRow->getProperty($v)));
-            }
+                    $this->import('Encryption');
+                    $objModelRow->setProperty($v, $this->Encryption->decrypt($objModelRow->getProperty($v)));
+                }
 
-            if (strpos($v, ':') !== false)
-            {
-                // TODO case handling
-                /*
-                  list($strKey, $strTable) = explode(':', $v);
-                  list($strTable, $strField) = explode('.', $strTable);
+                if (strpos($v, ':') !== false)
+                {
+                    // TODO case handling
+                    /*
+                    list($strKey, $strTable) = explode(':', $v);
+                    list($strTable, $strField) = explode('.', $strTable);
 
-                  $objRef = $this->Database->prepare("SELECT " . $strField . " FROM " . $strTable . " WHERE id=?")
-                  ->limit(1)
-                  ->execute($row[$strKey]);
+                    $objRef = $this->Database->prepare("SELECT " . $strField . " FROM " . $strTable . " WHERE id=?")
+                    ->limit(1)
+                    ->execute($row[$strKey]);
 
-                  $objModelRow->setProperty('%args%', (($objRef->numRows) ? $objRef->$strField : ''));
-                 */
+                    $objModelRow->setProperty('%args%', (($objRef->numRows) ? $objRef->$strField : ''));
+                    */
+                }
             }
         }
 
@@ -446,8 +449,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         // Load record from data provider
         $this->dc->setCurrentCollecion($this->dc->getDataProvider()->fetchAll(false, $arrLimit[0], $arrLimit[1], $this->getFilter(), $this->getParentViewSorting()));
 
-        // Load record from parent data provider
-        $this->dc->setCurrentParentCollection($this->dc->getParentDataProvider()->fetchAll(false, 0, 1, array("id = '" . CURRENT_ID . "'"), array()));
+        if (!is_null($this->dc->getParentTable()))
+        {
+            // Load record from parent data provider
+            $this->dc->setCurrentParentCollection($this->dc->getParentDataProvider()->fetchAll(false, 0, 1, array("id = '" . CURRENT_ID . "'"), array()));
+        }
     }
 
     // Panel -------------------------------------------------------------------
@@ -571,8 +577,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $mixedOptionsLabel = strlen($this->dca['fields'][$field]['label'][0]) ? $this->dca['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
 
             $arrOptions[utf8_romanize($mixedOptionsLabel) . '_' . $field] = array(
-                'value'   => specialchars($field),
-                'select'  => (($field == $session['search'][$this->dc->getTable()]['field']) ? ' selected="selected"' : ''),
+                'value' => specialchars($field),
+                'select' => (($field == $session['search'][$this->dc->getTable()]['field']) ? ' selected="selected"' : ''),
                 'content' => $mixedOptionsLabel
             );
         }
@@ -681,8 +687,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     }
 
                     $arrPanelView['option'][] = array(
-                        'value'   => $this_limit,
-                        'select'  => $this->optionSelected($this->dc->getLimit(), $this_limit),
+                        'value' => $this_limit,
+                        'select' => $this->optionSelected($this->dc->getLimit(), $this_limit),
                         'content' => ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + 1) . ' - ' . $upper_limit
                     );
                 }
@@ -690,8 +696,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 if (!$blnIsMaxResultsPerPage)
                 {
                     $arrPanelView['option'][] = array(
-                        'value'   => 'all',
-                        'select'  => $this->optionSelected($this->dc->getLimit(), null),
+                        'value' => 'all',
+                        'select' => $this->optionSelected($this->dc->getLimit(), null),
                         'content' => $GLOBALS['TL_LANG']['MSC']['filterAll']
                     );
                 }
@@ -708,8 +714,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             );
 
             $arrPanelView['option'][0] = array(
-                'value'   => 'tl_limit',
-                'select'  => '',
+                'value' => 'tl_limit',
+                'select' => '',
                 'content' => $GLOBALS['TL_LANG']['MSC']['filterRecords']
             );
         }
@@ -789,8 +795,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             }
 
             $arrOptions[$mixedOptionsLabel] = array(
-                'value'   => specialchars($field),
-                'select'  => ((!strlen($session['sorting'][$this->strTable]) && $field == $firstOrderBy || $field == str_replace(' DESC', '', $session['sorting'][$this->strTable])) ? ' selected="selected"' : ''),
+                'value' => specialchars($field),
+                'select' => ((!strlen($session['sorting'][$this->strTable]) && $field == $firstOrderBy || $field == str_replace(' DESC', '', $session['sorting'][$this->strTable])) ? ' selected="selected"' : ''),
                 'content' => $mixedOptionsLabel
             );
         }
@@ -888,8 +894,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     }
 
                     $mixedOrderBy[$key] = array(
-                        'field'  => $strField,
-                        'keys'   => $keys,
+                        'field' => $strField,
+                        'keys' => $keys,
                         'action' => 'findInSet'
                     );
                 }
