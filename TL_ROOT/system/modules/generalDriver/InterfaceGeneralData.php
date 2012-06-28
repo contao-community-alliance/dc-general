@@ -69,15 +69,11 @@ interface InterfaceGeneralData
     /**
      * Fetch all records (optional limited).
      * 
-     * @param bool $blnIdOnly if true, only the ids are returned, if false real models are returned.
-     * @param int $intStart optional offset to start retrival from
-     * @param int $intAmount optional limit to limit the amount of retrieved items
-     * @param array $arrFilter a list with filter options
-     * @param array $arrSorting a list with all sortings
+     * @param GeneralDataConfigDefault $objConfig
      * 
      * @return InterfaceGeneralCollection
      */
-    public function fetchAll($blnIdOnly = false, $intStart = 0, $intAmount = 0, $arrFilter = array(), $arrSorting = array());
+    public function fetchAll($objConfig);
 
     /**
      * Return the amount of total items.
