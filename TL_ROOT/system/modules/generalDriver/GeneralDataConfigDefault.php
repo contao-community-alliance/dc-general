@@ -1,0 +1,221 @@
+<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
+
+/**
+ * Contao Open Source CMS
+ * Copyright (C) 2005-2011 Leo Feyer
+ *
+ * Formerly known as TYPOlight Open Source CMS.
+ *
+ * This program is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation, either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this program. If not, please visit the Free
+ * Software Foundation website at <http://www.gnu.org/licenses/>.
+ *
+ * PHP version 5
+ * @see InterfaceGeneralData
+ * @copyright  MEN AT WORK 2012
+ * @package    generalDriver
+ * @license    GNU/LGPL
+ * @filesource
+ */
+class GeneralDataConfigDefault
+{
+
+    protected $intId = null;
+    protected $blnIdOnly  = false;
+    protected $intStart   = 0;
+    protected $intAmount  = 0;
+    protected $arrFilter  = null;
+    protected $arrSorting = null;
+    protected $arrData    = array();
+    
+    /**
+     * Create object
+     * 
+     * @return GeneralDataConfigDefault 
+     */
+    public function __construct()
+    {
+        return $this;
+    }
+    
+    /**
+     * Get specific id
+     * 
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->intId;
+    }
+
+    /**
+     * Set specific id
+     * 
+     * @param integer $intId
+     * @return GeneralDataConfigDefault
+     */
+    public function setId($intId)
+    {
+        $this->intId = $intId;
+        
+        return $this;
+    }    
+    
+    /**
+     * Return flag if only ids should be returned
+     * 
+     * @return boolean
+     */
+    public function getIdOnly()
+    {
+        return $this->blnIdOnly;
+    }
+
+    /**
+     * Set flag for return id only
+     * 
+     * @return boolean
+     * @return GeneralDataConfigDefault
+     */
+    public function setIdOnly($blnIdOnly)
+    {
+        $this->blnIdOnly = $blnIdOnly;
+        
+        return $this;
+    }
+
+    /**
+     * Get the offset to start with
+     * 
+     * @return integer 
+     */
+    public function getStart()
+    {
+        return $this->intStart;
+    }
+
+    /**
+     * Set the offset to start with
+     * 
+     * @param integer $intStart
+     * @return GeneralDataConfigDefault
+     */
+    public function setStart($intStart)
+    {
+        $this->intStart = $intStart;
+        
+        return $this; 
+    }
+
+    /**
+     * Get the limit for results 
+     * 
+     * @return integer 
+     */
+    public function getAmount()
+    {
+        return $this->intAmount;
+    }
+
+    /**
+     * Set the limit for results
+     * 
+     * @param integer $intAmount
+     * @return GeneralDataConfigDefault
+     */
+    public function setAmount($intAmount)
+    {
+        $this->intAmount = $intAmount;
+        
+        return $this; 
+    }
+
+    /**
+     * Get the list with filter options
+     * 
+     * @return array 
+     */
+    public function getFilter()
+    {
+        return $this->arrFilter;
+    }
+
+    /**
+     * Set the list with filter options
+     * 
+     * @return array
+     * @return GeneralDataConfigDefault
+     */
+    public function setFilter($arrFilter)
+    {
+        $this->arrFilter = $arrFilter;
+        
+        return $this; 
+    }
+
+    /**
+     * Get the list with all sortings
+     * 
+     * @return array 
+     */
+    public function getSorting()
+    {
+        return $this->arrSorting;
+    }
+
+    /**
+     * Set the list with all sortings
+     * 
+     * @return array
+     * @return GeneralDataConfigDefault
+     */
+    public function setSorting($arrSorting)
+    {
+        $this->arrSorting = $arrSorting;
+        
+        return $this; 
+    }
+
+    /**
+     * Get the additional information
+     * 
+     * @param string $strKey
+     * @return mixed || null 
+     */
+    public function __get($strKey)
+    {
+        if (isset($this->arrData[$strKey]))
+        {
+            return $this->arrData[$strKey];
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    /**
+     * Set the additional information
+     * 
+     * @param string $strKey
+     * @param mixed $varValue
+     * @return GeneralDataConfigDefault
+     */
+    public function __set($strKey, $varValue)
+    {
+        $this->arrData[$strKey] = $varValue;
+        
+        return $this; 
+    }
+
+}
