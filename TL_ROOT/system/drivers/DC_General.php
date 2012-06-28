@@ -170,6 +170,12 @@ class DC_General extends DataContainer implements editable, listable
     protected $mixWidgetID = null;
 
     /**
+     * Includes all data provider
+     * @var type 
+     */
+    protected $arrDataProvider = array();
+
+    /**
      * Current collection
      * @var InterfaceGeneralCollection 
      */
@@ -192,18 +198,6 @@ class DC_General extends DataContainer implements editable, listable
      * @var InterfaceGeneralData 
      */
     protected $objDataProvider = null;
-
-    /**
-     * The provider that shall be used for data retrival.
-     * @var InterfaceGeneralData
-     */
-    protected $objParentDataProvider = null;
-
-    /**
-     * The provider that shall be used for data retrival.
-     * @var InterfaceGeneralData
-     */
-    protected $objChildDataProvider = null;
 
     /**
      * ID of the button container
@@ -244,7 +238,7 @@ class DC_General extends DataContainer implements editable, listable
     public function __construct($strTable, array $arrDCA = null, $blnOnloadCallback = true)
     {
         parent::__construct();
-        
+
         // Callback
         $strTable = $this->oncreateCallback($strTable);
 
@@ -272,7 +266,7 @@ class DC_General extends DataContainer implements editable, listable
         $this->arrInputs = $_POST['FORM_INPUTS'] ? array_flip($this->Input->post('FORM_INPUTS')) : array();
         $this->arrStates = $this->Session->get('fieldset_states');
         $this->arrStates = (array) $this->arrStates[$this->strTable];
-        
+
         // Load
         $this->loadProviderAndHandler();
 
@@ -306,7 +300,7 @@ class DC_General extends DataContainer implements editable, listable
                 }
             }
         }
-        
+
         return $strTable;
     }
 
@@ -315,7 +309,7 @@ class DC_General extends DataContainer implements editable, listable
      * if not set try to load the default one.
      */
     protected function loadProviderAndHandler()
-    {        
+    {
         // Load controller, view and provider.
         $this->loadController();
         $this->loadView();
@@ -372,62 +366,50 @@ class DC_General extends DataContainer implements editable, listable
     }
 
     /**
-     * Load the dataprovider, 
+     * Load the data provider, 
      * if not set try to load the default one.
      */
     protected function loadDataProvider()
     {
-        if (isset($this->arrDCA['dca_config']['data']) && isset($this->arrDCA['dca_config']['data_config']))
+        $arrSourceConfigs = $this->arrDCA['dca_config'];
+
+        // Set default data provider
+        if (isset($arrSourceConfigs['default']))
         {
-            $arrConfig = $this->arrDCA['dca_config']['data_config'];
-            $this->objDataProvider = new $this->arrDCA['dca_config']['data']($arrConfig);
-        }
-        else if (isset($this->arrDCA['dca_config']['data']) && !isset($this->arrDCA['dca_config']['data_config']))
-        {
-            $arrConfig = array();
-            $this->objDataProvider = new $this->arrDCA['dca_config']['data']($arrConfig);
+            $this->arrDataProvider[$this->strTable] = $this->arrDCA['dca_config']['default'];
+            unset($arrSourceConfigs['default']);
         }
         else
         {
             $arrConfig = array(
-                "source" => $this->strTable,
+                'class' => 'GeneralDataDefault',
+                'source' => $this->strTable
             );
-            
-            $this->objDataProvider = new GeneralDataDefault($arrConfig);
+
+            $this->arrDataProvider[$this->strTable] = $arrConfig;
         }
 
-        // Load parent data provider
-        if (isset($this->arrDCA['dca_config']['data_parent']) && isset($this->arrDCA['dca_config']['data_parent_config']))
+        // Set all additional data provider
+        if (is_array($arrSourceConfigs))
         {
-            if (isset($this->arrDCA['dca_config']['data_parent_config']['source']))
+            foreach ($arrSourceConfigs as $strSource => $arrConfig)
             {
-                $this->strParentTable = $this->arrDCA['dca_config']['data_parent_config']['source'];
+                if (is_array($arrConfig) && array_key_exists('source', $arrConfig))
+                {
+                    switch ($strSource)
+                    {
+                        case 'parent':
+                            $this->strParentTable = $arrConfig['source'];
+                            $strSource = 'parent';
+                            break;
+                        case 'child':
+                            $this->strChildTable = $arrConfig['source'];
+                            $strSource = 'child';
+                            break;
+                    }
+                    $this->arrDataProvider[$strSource] = $arrConfig;
+                }
             }
-
-            $arrConfig = $this->arrDCA['dca_config']['data_parent_config'];
-            $this->objParentDataProvider = new $this->arrDCA['dca_config']['data_parent']($arrConfig);
-        }
-        else if (isset($this->arrDCA['dca_config']['data_parent']) && !isset($this->arrDCA['dca_config']['data_parent_config']))
-        {
-            $arrConfig = array();
-            $this->objParentDataProvider = new $this->arrDCA['dca_config']['data_parent']($arrConfig);
-        }
-
-        // Load child data provider
-        if (isset($this->arrDCA['dca_config']['data_child']) && isset($this->arrDCA['dca_config']['data_child_config']))
-        {
-            if (isset($this->arrDCA['dca_config']['data_child_config']['source']))
-            {
-                $this->strChildTable = $this->arrDCA['dca_config']['data_child_config']['source'];
-            }
-
-            $arrConfig = $this->arrDCA['dca_config']['data_child_config'];
-            $this->objChildDataProvider = new $this->arrDCA['dca_config']['data_child']($arrConfig);
-        }
-        else if (isset($this->arrDCA['dca_config']['data_child']) && !isset($this->arrDCA['dca_config']['data_child_config']))
-        {
-            $arrConfig = array();
-            $this->objChildDataProvider = new $this->arrDCA['dca_config']['data_child']($arrConfig);
         }
     }
 
@@ -444,8 +426,8 @@ class DC_General extends DataContainer implements editable, listable
         else
         {
             $this->objCallbackClass = new GeneralCallbackDefault();
-        }        
-        
+        }
+
         $this->objCallbackClass->setDC($this);
     }
 
@@ -461,6 +443,43 @@ class DC_General extends DataContainer implements editable, listable
     }
 
     // Getter and Setter -------------------------------------------------------
+
+    public function getDataProvider($strSource = null)
+    {
+        if (is_null($strSource))
+        {
+            $strSource = $this->strTable;
+        }
+
+        if (array_key_exists($strSource, $this->arrDataProvider))
+        {
+            if (is_object($this->arrDataProvider[$strSource]))
+            {
+                return $this->arrDataProvider[$strSource];
+            }
+            else
+            {
+                $arrConfig = $this->arrDataProvider[$strSource];
+
+                if (array_key_exists('class', $arrConfig))
+                {
+                    $strClass = $arrConfig['class'];
+                    unset($arrConfig['class']);
+                    $this->arrDataProvider[$strSource] = new $strClass($arrConfig);
+                }
+                else
+                {
+                    $this->arrDataProvider[$strSource] = new GeneralDataDefault($arrConfig);
+                }
+            }
+        }
+        else
+        {
+            $this->arrDataProvider[$strSource] = new GeneralDataDefault(array('source' => $strSource));
+        }
+
+        return $this->arrDataProvider[$strSource];
+    }
 
     public function getId()
     {
@@ -542,26 +561,11 @@ class DC_General extends DataContainer implements editable, listable
         return $this->arrStates;
     }
 
-    public function getDataProvider()
-    {
-        return $this->objDataProvider;
-    }
-
-    public function getParentDataProvider()
-    {
-        return $this->objParentDataProvider;
-    }
-
-    public function getChildDataProvider()
-    {
-        return $this->objChildDataProvider;
-    }
-
     public function getViewHandler()
     {
         return $this->objViewHandler;
     }
-    
+
     /**
      * et the callback class for this dc
      * @return InterfaceGeneralCallback 
@@ -630,21 +634,6 @@ class DC_General extends DataContainer implements editable, listable
         $this->strLimit = $strLimit;
     }
 
-    public function setDataProvider($objDataProvider)
-    {
-        $this->objDataProvider = $objDataProvider;
-    }
-
-    public function setParentDataProvider($objParentDataProvider)
-    {
-        $this->objParentDataProvider = $objParentDataProvider;
-    }
-
-    public function setChildDataProvider($objChildDataProvider)
-    {
-        $this->objChildDataProvider = $objChildDataProvider;
-    }
-
     public function setViewHandler($objViewHandler)
     {
         $this->objViewHandler = $objViewHandler;
@@ -690,7 +679,7 @@ class DC_General extends DataContainer implements editable, listable
     /**
      *
      * @param InterfaceGeneralCollection $objCurrentCollecion 
-     */  
+     */
     public function setCurrentParentCollection(InterfaceGeneralCollection $objCurrentParentCollection)
     {
         $this->objCurrentParentCollection = $objCurrentParentCollection;
@@ -882,7 +871,7 @@ class DC_General extends DataContainer implements editable, listable
             $this->mixWidgetID = 'b' . str_replace('=', '_', base64_encode($intID));
         }
     }
-    
+
     /**
      * Return the current widget id 
      * 
@@ -981,7 +970,7 @@ class DC_General extends DataContainer implements editable, listable
         }
 
         // OH: xlabel, wizard: two ways to rome? wizards are the better way I think
-        $objWidget->wizard = implode('',$this->objCallbackClass->executeCallbacks($arrConfig['wizard'], $this));
+        $objWidget->wizard = implode('', $this->objCallbackClass->executeCallbacks($arrConfig['wizard'], $this));
 
         return $this->arrWidgets[$strField] = $objWidget;
     }
@@ -1276,7 +1265,7 @@ class DC_General extends DataContainer implements editable, listable
                 $group = is_array($this->arrDCA['fields'][$field]['label']) ? $this->arrDCA['fields'][$field]['label'][0] : $this->arrDCA['fields'][$field]['label'];
             }
         }
-        
+
         $group = $this->objCallbackClass->groupCallback($group, $mode, $field, $objModelRow->getPropertiesAsArray());
 
         return $group;
