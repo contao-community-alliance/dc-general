@@ -34,21 +34,20 @@
 
                 </div>                  
 
-
                 <table class="tl_header_table">
 
-                    <?php /* foreach($add as $k => $v): ?>
-                      <tr>
-                      <td><span class="tl_label">Key</span> </td>
-                      <td>Value</td>
-                      </tr>
-                      <?php endforeach; */ ?>
+                    <?php foreach ($this->header as $key => $value): ?>
+                        <tr>
+                            <td><span class="tl_label"><?php echo $key; ?></span> </td>
+                            <td><?php echo $value; ?></td>
+                        </tr>
+                    <?php endforeach; ?>
 
                 </table>
             </div>
 
             <?php if ($this->collection->length() == 0): ?>
-            
+
                 <p class="tl_empty_parent_view"><?php echo $GLOBALS['TL_LANG']['MSC']['noResult']; ?></p>
 
             <?php else: ?>
@@ -56,7 +55,7 @@
                 <script>
                     Backend.makeParentViewSortable("ul_<?php echo CURRENT_ID; ?>");
                 </script>
-                
+
             <?php endif; ?>
         </div>
 

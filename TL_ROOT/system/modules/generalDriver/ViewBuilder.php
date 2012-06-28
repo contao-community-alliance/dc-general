@@ -118,10 +118,8 @@ class ViewBuilder extends Backend
         $this->loadLanguageFile($this->dc->getParentTable());
         $this->loadDataContainer($this->dc->getParentTable());
 
-        $objParentDC  = new DC_General($this->dc->getParentTable());
-        $arrParentDCA = $objParentDC->getDCA();
-
-        $blnHasSorting = $this->dca['list']['sorting']['fields'][0] == 'sorting';
+        $objParentDC = new DC_General($this->dc->getParentTable());
+        $this->parentDc = $objParentDC->getDCA();
 
         // Add template
         $objTemplate = new BackendTemplate('dcbe_general_parentView');
@@ -130,28 +128,29 @@ class ViewBuilder extends Backend
         $objTemplate->action = ampersand($this->Environment->request, true);
         $objTemplate->mode = $this->dca['list']['sorting']['mode'];
         $objTemplate->table = $this->dc->getTable();
+        $objTemplate->header = $this->getFormattedHeaderFields();
 
         $objTemplate->editHeader = array(
             'content' => $this->generateImage('edit.gif', $GLOBALS['TL_LANG'][$this->strTable]['editheader'][0]),
-            'href' => preg_replace('/&(amp;)?table=[^& ]*/i', (strlen($this->dc->getParentTable()) ? '&amp;table=' . $this->dc->getParentTable() : ''), $this->addToUrl('act=edit')),
-            'title' => specialchars($GLOBALS['TL_LANG'][$this->dc->getTable()]['editheader'][1])
+            'href'    => preg_replace('/&(amp;)?table=[^& ]*/i', (strlen($this->dc->getParentTable()) ? '&amp;table=' . $this->dc->getParentTable() : ''), $this->addToUrl('act=edit')),
+            'title'   => specialchars($GLOBALS['TL_LANG'][$this->dc->getTable()]['editheader'][1])
         );
 
         $objTemplate->pasteNew = array(
             'content' => $this->generateImage('new.gif', $GLOBALS['TL_LANG'][$this->strTable]['pasteafter'][0]),
-            'href' => $this->addToUrl('act=create&amp;mode=2&amp;pid=' . $objParent->id . '&amp;id=' . $this->intId),
-            'title' => specialchars($GLOBALS['TL_LANG'][$this->strTable]['pastenew'][0])
+            'href'    => $this->addToUrl('act=create&amp;mode=2&amp;pid=' . $objParent->id . '&amp;id=' . $this->intId),
+            'title'   => specialchars($GLOBALS['TL_LANG'][$this->strTable]['pastenew'][0])
         );
 
         $objTemplate->pasteAfter = array(
             'content' => $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->strTable]['pasteafter'][0], 'class="blink"'),
-            'href' => $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=' . $objParent->id . (!$blnMultiboard ? '&amp;id=' . $arrClipboard['id'] : '')),
-            'title' => specialchars($GLOBALS['TL_LANG'][$this->strTable]['pasteafter'][0])
+            'href'    => $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=' . $objParent->id . (!$blnMultiboard ? '&amp;id=' . $arrClipboard['id'] : '')),
+            'title'   => specialchars($GLOBALS['TL_LANG'][$this->strTable]['pasteafter'][0])
         );
 
         $objTemplate->notDeletable = $this->dca['config']['notDeletable'];
         $objTemplate->notEditable = $this->dca['config']['notEditable'];
-        $objTemplate->notEditableParent = $arrParentDCA['config']['notEditable'];
+        $objTemplate->notEditableParent = $this->parentDc['config']['notEditable'];
         $arrReturn[] = $objTemplate->parse();
 
         return implode('', $arrReturn);
@@ -187,13 +186,13 @@ class ViewBuilder extends Backend
             foreach ($this->dca['list']['label']['fields'] as $f)
             {
                 $arrTableHead[] = array(
-                    'class' => 'tl_folder_tlist col_' . $f . (($f == $this->dc->getFirstSorting()) ? ' ordered_by' : ''),
+                    'class'   => 'tl_folder_tlist col_' . $f . (($f == $this->dc->getFirstSorting()) ? ' ordered_by' : ''),
                     'content' => $this->dca['fields'][$f]['label'][0]
                 );
             }
 
             $arrTableHead[] = array(
-                'class' => 'tl_folder_tlist tl_right_nowrap',
+                'class'   => 'tl_folder_tlist tl_right_nowrap',
                 'content' => '&nbsp;'
             );
         }
@@ -210,81 +209,63 @@ class ViewBuilder extends Backend
         {
             $_v = deserialize($this->dc->getCurrentParentCollection()->get(0)->getProperty($v));
 
-            if (is_array($_v))
+            if ($v != 'tstamp' || !isset($this->parentDc['fields'][$v]['foreignKey']))
             {
-                $_v = implode(', ', $_v);
-            }
-            elseif ($GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['inputType'] == 'checkbox' && !$GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['eval']['multiple'])
-            {
-                $_v = strlen($_v) ? $GLOBALS['TL_LANG']['MSC']['yes'] : $GLOBALS['TL_LANG']['MSC']['no'];
-            }
-            elseif ($_v && $GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['eval']['rgxp'] == 'date')
-            {
-                $_v = $this->parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $_v);
-            }
-            elseif ($_v && $GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['eval']['rgxp'] == 'time')
-            {
-                $_v = $this->parseDate($GLOBALS['TL_CONFIG']['timeFormat'], $_v);
-            }
-            elseif ($_v && $GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['eval']['rgxp'] == 'datim')
-            {
-                $_v = $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $_v);
-                // TODO
-//            } elseif ($v == 'tstamp') {
-//                $objMaxTstamp = $this->Database->prepare("SELECT MAX(tstamp) AS tstamp FROM " . $this->strTable . " WHERE pid=?")
-//                        ->execute($objParent->id);
-//
-//                if (!$objMaxTstamp->tstamp) {
-//                    $objMaxTstamp->tstamp = $objParent->tstamp;
-//                }
-//
-//                $_v = $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], max($objParent->tstamp, $objMaxTstamp->tstamp));
-//            } elseif (isset($GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['foreignKey'])) {
-//                $arrForeignKey = explode('.', $GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['foreignKey'], 2);
-//
-//                $objLabel = $this->Database->prepare("SELECT " . $arrForeignKey[1] . " AS value FROM " . $arrForeignKey[0] . " WHERE id=?")
-//                        ->limit(1)
-//                        ->execute($_v);
-//
-//                if ($objLabel->numRows) {
-//                    $_v = $objLabel->value;
-//                }
-            }
-            elseif (is_array($GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['reference'][$_v]))
-            {
-                $_v = $GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['reference'][$_v][0];
-            }
-            elseif (isset($GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['reference'][$_v]))
-            {
-                $_v = $GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['reference'][$_v];
-            }
-            elseif ($GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['eval']['isAssociative'] || array_is_assoc($GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['options']))
-            {
-                $_v = $GLOBALS['TL_DCA'][$this->ptable]['fields'][$v]['options'][$_v];
+                if (is_array($_v))
+                {
+                    $_v = implode(', ', $_v);
+                }
+                elseif ($this->parentDc['fields'][$v]['inputType'] == 'checkbox' && !$this->parentDc['fields'][$v]['eval']['multiple'])
+                {
+                    $_v = strlen($_v) ? $GLOBALS['TL_LANG']['MSC']['yes'] : $GLOBALS['TL_LANG']['MSC']['no'];
+                }
+                elseif ($_v && $this->parentDc['fields'][$v]['eval']['rgxp'] == 'date')
+                {
+                    $_v = $this->parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $_v);
+                }
+                elseif ($_v && $this->parentDc['fields'][$v]['eval']['rgxp'] == 'time')
+                {
+                    $_v = $this->parseDate($GLOBALS['TL_CONFIG']['timeFormat'], $_v);
+                }
+                elseif ($_v && $this->parentDc['fields'][$v]['eval']['rgxp'] == 'datim')
+                {
+                    $_v = $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $_v);
+                }
+                elseif (is_array($this->parentDc['fields'][$v]['reference'][$_v]))
+                {
+                    $_v = $this->parentDc['fields'][$v]['reference'][$_v][0];
+                }
+                elseif (isset($this->parentDc['fields'][$v]['reference'][$_v]))
+                {
+                    $_v = $this->parentDc['fields'][$v]['reference'][$_v];
+                }
+                elseif ($this->parentDc['fields'][$v]['eval']['isAssociative'] || array_is_assoc($this->parentDc['fields'][$v]['options']))
+                {
+                    $_v = $this->parentDc['fields'][$v]['options'][$_v];
+                }
             }
 
             // Add the sorting field
             if ($_v != '')
             {
-                $key       = isset($GLOBALS['TL_LANG'][$this->ptable][$v][0]) ? $GLOBALS['TL_LANG'][$this->ptable][$v][0] : $v;
+                $key       = isset($GLOBALS['TL_LANG'][$this->dc->getParentTable()][$v][0]) ? $GLOBALS['TL_LANG'][$this->dc->getParentTable()][$v][0] : $v;
                 $add[$key] = $_v;
             }
         }
 
-        // Trigger the header_callback (see #3417)
-        if (is_array($GLOBALS['TL_DCA'][$table]['list']['sorting']['header_callback']))
+        // TODO Outsource
+        // Trigger the header_callback
+        if (is_array($this->dca['list']['sorting']['header_callback']))
         {
-            $strClass  = $GLOBALS['TL_DCA'][$table]['list']['sorting']['header_callback'][0];
-            $strMethod = $GLOBALS['TL_DCA'][$table]['list']['sorting']['header_callback'][1];
+            $strClass  = $this->dca['list']['sorting']['header_callback'][0];
+            $strMethod = $this->dca['list']['sorting']['header_callback'][1];
 
             $this->import($strClass);
             $add = $this->$strClass->$strMethod($add, $this);
         }
 
-        // Output the header data
-        $return .= '
-
-<table class="tl_header_table">';
+        $arrHeader = array();
+        // Set header data
 
         foreach ($add as $k => $v)
         {
@@ -293,12 +274,10 @@ class ViewBuilder extends Backend
                 $v = $v[0];
             }
 
-            $return .= '
-  <tr>
-    <td><span class="tl_label">' . $k . ':</span> </td>
-    <td>' . $v . '</td>
-  </tr>';
+            $arrHeader[$k] = $v;
         }
+
+        return $arrHeader;
     }
 
     /**
@@ -326,7 +305,7 @@ class ViewBuilder extends Backend
             if ($this->dca['list']['label']['maxCharacters'] > 0 && $this->dca['list']['label']['maxCharacters'] < strlen(strip_tags($label)))
             {
                 $this->import('String');
-                $label = trim($this->String->substrHtml($label, $this->dca['list']['label']['maxCharacters'])) . ' …';
+                $label = trim($this->String->substrHtml($label, $this->dca['list']['label']['maxCharacters'])) . ' â€¦';
             }
 
             // Remove empty brackets (), [], {}, <> and empty tags from the label
@@ -388,7 +367,7 @@ class ViewBuilder extends Backend
                 {
                     $arrLabel[] = array(
                         'colspan' => $colspan,
-                        'class' => 'tl_file_list col_' . $this->dca['list']['label']['fields'][$j] . (($this->dca['list']['label']['fields'][$j] == $this->dc->getFirstSorting()) ? ' ordered_by' : ''),
+                        'class'   => 'tl_file_list col_' . $this->dca['list']['label']['fields'][$j] . (($this->dca['list']['label']['fields'][$j] == $this->dc->getFirstSorting()) ? ' ordered_by' : ''),
                         'content' => (($arg != '') ? $arg : '-')
                     );
                 }
@@ -397,7 +376,7 @@ class ViewBuilder extends Backend
             {
                 $arrLabel[] = array(
                     'colspan' => NULL,
-                    'class' => 'tl_file_list',
+                    'class'   => 'tl_file_list',
                     'content' => $label
                 );
             }
