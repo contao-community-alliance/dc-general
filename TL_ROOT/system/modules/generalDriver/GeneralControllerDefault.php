@@ -388,6 +388,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $this->dc->setRootIds(array_unique($this->dca['list']['sorting']['root']));
         }
 
+        if ($this->Input->get('table') && !is_null($objDC->getParentTable()) && $objDC->getDataProvider()->fieldExists('pid', $this->strTable))
+        {
+            $objDC->setFilter(array("pid = '" . CURRENT_ID . "'"));
+        }
+
         $this->panel($this->dc);
 
         if ($this->dca['list']['sorting']['mode'] == 4 && !is_null($this->dc->getParentTable()))
@@ -538,7 +543,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $objConfig->setStart($arrLimit[0])
                 ->setAmount($arrLimit[1])
                 ->setFilter($this->getFilter())
-                ->setSorting($this->getListViewSorting());
+                ->setSorting($this->getParentViewSorting());
 
         $this->dc->setCurrentCollecion($this->dc->getDataProvider()->fetchAll($objConfig));
 
@@ -1076,14 +1081,16 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             $firstOrderBy = preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]);
 
-            // Order by the foreign key
             // TODO
-            /* if (isset($this->dca['fields'][$firstOrderBy]['foreignKey']))
-              {
-              $key             = explode('.', $this->dca['fields'][$firstOrderBy]['foreignKey'], 2);
-              $query           = "SELECT *, (SELECT " . $key[1] . " FROM " . $key[0] . " WHERE " . $this->strTable . "." . $firstOrderBy . "=" . $key[0] . ".id) AS foreignKey FROM " . $this->strTable;
-              $mixedOrderBy[0] = 'foreignKey';
-              } */
+            // Order by the foreign key
+//            if (isset($this->dca['fields'][$firstOrderBy]['foreignKey']))
+//            {
+//                $key             = explode('.', $this->dca['fields'][$firstOrderBy]['foreignKey'], 2);
+//                
+//                $query           = "SELECT *, (SELECT " . $key[1] . " FROM " . $key[0] . " WHERE " . $this->strTable . "." . $firstOrderBy . "=" . $key[0] . ".id) AS foreignKey FROM " . $this->strTable;
+//                
+//                $mixedOrderBy[0] = 'foreignKey';
+//            }
         }
         elseif (is_array($GLOBALS['TL_DCA'][$this->dc->getTable()]['list']['sorting']['fields']))
         {
@@ -1095,11 +1102,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             foreach ($mixedOrderBy as $key => $strField)
             {
-                $mixedOrderBy[$key] = array(
-                    'field'  => $strField,
-                    'keys'   => $keys,
-                    'action' => 'findInSet'
-                );
+                $mixedOrderBy[$key] = $strField;
             }
         }
 

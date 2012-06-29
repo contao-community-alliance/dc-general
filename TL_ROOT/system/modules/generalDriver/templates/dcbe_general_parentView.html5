@@ -44,7 +44,45 @@
                     <?php endforeach; ?>
 
                 </table>
+
             </div>
+
+            <?php if ($this->view['sorting']): ?>
+                <ul id="ul_<?php echo CURRENT_ID; ?>" class="sortable">
+                <?php endif; ?>
+
+                <?php foreach ($this->collection as $objModel): ?>        
+
+                    <?php if ($this->view['sorting']): ?>
+                        <li id="li_<?php echo $objModel->getID(); ?>">
+                        <?php endif; ?>
+
+                        <?php if (strlen($objModel->getProperty('%header%')) > 0): ?>
+                            <div class="tl_content_header">' . $group . '</div>';
+                        <?php endif; ?>
+
+                        <div class="tl_content<?php echo $objModel->getProperty('%class%'); ?>" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
+                            <div class="tl_content_right">
+
+                                <?php if ($this->select): ?>
+                                    <input type="checkbox" name="IDS[]" id="ids_<?php echo $objModel->getID(); ?>" class="tl_tree_checkbox" value="<?php echo $objModel->getID(); ?>">
+                                <?php endif; ?>
+
+                            </div>
+
+                            <?php echo $objModel->getProperty('%content%'); ?>
+
+                        </div>
+
+                        <?php if ($this->view['sorting']): ?>
+                        </li>
+                    <?php endif; ?>
+
+                <?php endforeach; ?>
+
+                <?php if ($this->view['sorting']): ?>
+                </ul>
+            <?php endif; ?>
 
             <?php if ($this->collection->length() == 0): ?>
 
