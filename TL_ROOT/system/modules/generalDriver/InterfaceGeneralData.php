@@ -51,20 +51,20 @@ interface InterfaceGeneralData
     /**
      * Fetch a single record by id.
      * 
-     * @param int ID
+     * @param GeneralDataConfigDefault $objConfig
      * 
      * @return InterfaceGeneralModel
      */
-    public function fetch($id);
+    public function fetch(GeneralDataConfigDefault $objConfig);
 
     /**
      * Fetch multiple records by ids.
      * 
-     * @param array A list of id's
+     * @param GeneralDataConfigDefault $objConfig
      * 
      * @return InterfaceGeneralCollection
      */
-    public function fetchEach($ids);
+    public function fetchEach(GeneralDataConfigDefault $objConfig);
 
     /**
      * Fetch all records (optional limited).
@@ -73,16 +73,16 @@ interface InterfaceGeneralData
      * 
      * @return InterfaceGeneralCollection
      */
-    public function fetchAll($objConfig);
+    public function fetchAll(GeneralDataConfigDefault $objConfig);
 
     /**
      * Return the amount of total items.
      *
-     * @param array $arrFilter a list with filter options
+     * @param GeneralDataConfigDefault $objConfig
      * 
      * @return int
      */
-    public function getCount($arrFilter = array());
+    public function getCount(GeneralDataConfigDefault $objConfig);
 
     /**
      * save back an item

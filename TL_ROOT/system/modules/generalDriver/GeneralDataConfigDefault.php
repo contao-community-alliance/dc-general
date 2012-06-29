@@ -43,9 +43,14 @@ class GeneralDataConfigDefault
      * 
      * @return GeneralDataConfigDefault 
      */
-    public function __construct()
+    private function __construct()
     {
         return $this;
+    }
+    
+    public static function init()
+    {
+        return new GeneralDataConfigDefault();
     }
     
     /**

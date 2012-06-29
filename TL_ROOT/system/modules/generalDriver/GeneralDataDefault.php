@@ -115,15 +115,15 @@ class GeneralDataDefault implements InterfaceGeneralData
     /**
      * Fetch a single record by id.
      * 
-     * @param int ID
+     * @param GeneralDataConfigDefault $objConfig
      * 
      * @return InterfaceGeneralModel
      */
-    public function fetch($intId)
+    public function fetch(GeneralDataConfigDefault $objConfig)
     {
         $arrResult = $this->objDatabase
                 ->prepare("SELECT * FROM $this->strSource WHERE id=?")
-                ->execute($intId)
+                ->execute($objConfig->getId())
                 ->fetchAllAssoc();
 
         if (count($arrResult) == 0)
@@ -153,7 +153,7 @@ class GeneralDataDefault implements InterfaceGeneralData
      * 
      * @return InterfaceGeneralCollection
      */
-    public function fetchAll($objConfig)
+    public function fetchAll(GeneralDataConfigDefault $objConfig)
     {        
         $boolSetWhere = true;
         $arrFilter = $objConfig->getFilter();
@@ -243,14 +243,29 @@ class GeneralDataDefault implements InterfaceGeneralData
         return $objCollection;
     }
 
-    public function fetchEach($ids)
+    /**
+     * Fetch multiple records by ids.
+     * 
+     * @param GeneralDataConfigDefault $objConfig
+     * 
+     * @return InterfaceGeneralCollection
+     */    
+    public function fetchEach(GeneralDataConfigDefault $objConfig)
     {
         throw new Exception("Unsupported Operation: Not supported yet.");
     }
 
-    public function getCount($arrFilter = array())
+    /**
+     * Return the amount of total items.
+     *
+     * @param GeneralDataConfigDefault $objConfig
+     * 
+     * @return int
+     */    
+    public function getCount(GeneralDataConfigDefault $objConfig)
     {
         $boolSetWhere = true;
+        $arrFilter = $objConfig->getFilter();
 
         $query = "SELECT COUNT(*) AS count FROM " . $this->strSource;
 
