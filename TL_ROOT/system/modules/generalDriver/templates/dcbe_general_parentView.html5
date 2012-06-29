@@ -58,7 +58,7 @@
                         <?php endif; ?>
 
                         <?php if (strlen($objModel->getProperty('%header%')) > 0): ?>
-                            <div class="tl_content_header">' . $group . '</div>';
+                            <div class="tl_content_header"><?php echo $objModel->getProperty('%header%'); ?></div>
                         <?php endif; ?>
 
                         <div class="tl_content<?php echo $objModel->getProperty('%class%'); ?>" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">

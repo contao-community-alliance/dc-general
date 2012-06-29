@@ -504,17 +504,17 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
                 if (strpos($v, ':') !== false)
                 {
-                    // TODO case handling
-                    /*
-                      list($strKey, $strTable) = explode(':', $v);
-                      list($strTable, $strField) = explode('.', $strTable);
+                    list($strKey, $strTable) = explode(':', $v);
+                    list($strTable, $strField) = explode('.', $strTable);
 
-                      $objRef = $this->Database->prepare("SELECT " . $strField . " FROM " . $strTable . " WHERE id=?")
-                      ->limit(1)
-                      ->execute($row[$strKey]);
 
-                      $objModelRow->setProperty('%args%', (($objRef->numRows) ? $objRef->$strField : ''));
-                     */
+                    $objModel = $this->dc->getDataProvider($strTable)->fetch(
+                            GeneralDataConfigDefault::init()
+                                    ->setId($row[$strKey])
+                                    ->setFields(array($strField))
+                    );
+
+                    $objModelRow->setProperty('%args%', (($objModel->hasProperties()) ? $objModel->getProperty($strField) : ''));
                 }
             }
         }
@@ -528,7 +528,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      */
     protected function parentView()
     {
-//        $blnHasSorting = $this->dca['list']['sorting']['fields'][0] == 'sorting';
         // Load language file and data container array of the parent table
         $this->loadLanguageFile($this->dc->getParentTable());
         $this->loadDataContainer($this->dc->getParentTable());
@@ -545,17 +544,27 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 ->setAmount($arrLimit[1])
                 ->setFilter($this->getFilter())
                 ->setSorting($this->getParentViewSorting());
+        
+        if($this->foreignKey)
+        {
+            $objConfig->setFields($this->arrFields);
+        }
 
         $this->dc->setCurrentCollecion($this->dc->getDataProvider()->fetchAll($objConfig));
 
         if (!is_null($this->dc->getParentTable()))
         {
-            // Load record from parent data provider
-            $objConfig->setAmount(1)
-                    ->setFilter(array("id = '" . CURRENT_ID . "'"))
-                    ->setSorting(array());
 
-            $this->dc->setCurrentParentCollection($this->dc->getDataProvider('parent')->fetchAll($objConfig));
+            // Load record from parent data provider
+            $objCollection = $this->dc->getDataProvider('parent')->getEmptyCollection();
+            $objCollection->add(
+                    $this->dc->getDataProvider('parent')->fetch(
+                            GeneralDataConfigDefault::init()
+                                    ->setId(CURRENT_ID)
+                    )
+            );
+
+            $this->dc->setCurrentParentCollection($objCollection);
 
             // List all records of the child table
             if (!$this->Input->get('act') || $this->Input->get('act') == 'paste' || $this->Input->get('act') == 'select')
@@ -568,29 +577,34 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
                     if ($v == 'tstamp')
                     {
-                        //TODO Database                        
-                        $objMaxTstamp = Database::getInstance()->prepare("SELECT MAX(tstamp) AS tstamp FROM " . $this->dc->getTable() . " WHERE pid=?")
-                                ->execute($this->dc->getCurrentParentCollection()->get(0)->getID());
+                        $objCollection = $this->dc->getDataProvider()->fetchAll(
+                                GeneralDataConfigDefault::init()
+                                        ->setFilter(array("pid = '" . $this->dc->getCurrentParentCollection()->get(0)->getID() . "'"))
+                                        ->setFields(array('MAX(tstamp) AS tstamp'))
+                        );
 
-                        if (!$objMaxTstamp->tstamp)
+                        $objTStampModel = $objCollection->get(0);
+
+                        if (!$objTStampModel->getProperty('tstamp'))
                         {
-                            $objMaxTstamp->tstamp = $this->dc->getCurrentParentCollection()->get(0)->getProperty($v);
+                            $objTStampModel->setProperty('tstamp', $this->dc->getCurrentParentCollection()->get(0)->getProperty($v));
                         }
 
-                        $this->dc->getCurrentParentCollection()->get(0)->setProperty($v, $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], max($this->dc->getCurrentParentCollection()->get(0)->getProperty($v), $objMaxTstamp->tstamp)));
+                        $this->dc->getCurrentParentCollection()->get(0)->setProperty($v, $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], max($this->dc->getCurrentParentCollection()->get(0)->getProperty($v), $objTStampModel->getProperty('tstamp'))));
                     }
                     elseif (isset($this->parentDc['fields'][$v]['foreignKey']))
                     {
                         $arrForeignKey = explode('.', $this->parentDc['fields'][$v]['foreignKey'], 2);
 
-                        // TODO Database
-                        $objLabel = Database::getInstance()->prepare("SELECT " . $arrForeignKey[1] . " AS value FROM " . $arrForeignKey[0] . " WHERE id=?")
-                                ->limit(1)
-                                ->execute($_v);
+                        $objLabelModel = $this->dc->getDataProvider($arrForeignKey[0])->fetch(
+                                GeneralDataConfigDefault::init()
+                                        ->setId($_v)
+                                        ->setFields(array($arrForeignKey[1] . " AS value"))
+                        );
 
-                        if ($objLabel->numRows)
+                        if ($objLabelModel->hasProperties())
                         {
-                            $this->dc->getCurrentParentCollection()->get(0)->setProperty($v, $objLabel->value);
+                            $this->dc->getCurrentParentCollection()->get(0)->setProperty($v, $objLabelModel->getProperty('value'));
                         }
                     }
                 }
@@ -792,7 +806,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             {
                 $this->dc->setLimit('0,' . $GLOBALS['TL_CONFIG']['resultsPerPage']);
             }
-               
+
             $intCount               = $this->dc->getDataProvider()->getCount(GeneralDataConfigDefault::init()->setFilter($this->getFilter()));
             $blnIsMaxResultsPerPage = false;
 
@@ -987,7 +1001,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      */
     protected function getLimit()
     {
-        // TODO implement panel limit from session
         $arrLimit = array(0, 0);
         if (!is_null($this->dc->getLimit()))
         {
@@ -1081,16 +1094,21 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             $firstOrderBy = preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]);
 
-            // TODO
             // Order by the foreign key
-//            if (isset($this->dca['fields'][$firstOrderBy]['foreignKey']))
-//            {
-//                $key             = explode('.', $this->dca['fields'][$firstOrderBy]['foreignKey'], 2);
-//                
-//                $query           = "SELECT *, (SELECT " . $key[1] . " FROM " . $key[0] . " WHERE " . $this->strTable . "." . $firstOrderBy . "=" . $key[0] . ".id) AS foreignKey FROM " . $this->strTable;
-//                
-//                $mixedOrderBy[0] = 'foreignKey';
-//            }
+            if (isset($this->dca['fields'][$firstOrderBy]['foreignKey']))
+            {
+                $key = explode('.', $this->dca['fields'][$firstOrderBy]['foreignKey'], 2);
+
+                $this->foreignKey = true;
+                
+                // TODO remove sql
+                $this->arrFields = array(
+                    '*',
+                    "(SELECT " . $key[1] . " FROM " . $key[0] . " WHERE " . $this->dc->getTable() . "." . $firstOrderBy . "=" . $key[0] . ".id) AS foreignKey"
+                );
+
+                $mixedOrderBy[0] = 'foreignKey';
+            }
         }
         elseif (is_array($GLOBALS['TL_DCA'][$this->dc->getTable()]['list']['sorting']['fields']))
         {
