@@ -214,7 +214,13 @@ class GeneralDataDefault implements InterfaceGeneralData
        
         if($objConfig->getIdOnly())
         {
-            return $arrResult;
+            $arrIds = array();
+            foreach($arrResult as $intId)
+            {
+                $arrIds[] = $intId['id'];
+            }
+
+            return $arrIds;
         }
 
         $objCollection = $this->getEmptyCollection();
@@ -252,7 +258,35 @@ class GeneralDataDefault implements InterfaceGeneralData
      */    
     public function fetchEach(GeneralDataConfigDefault $objConfig)
     {
-        throw new Exception("Unsupported Operation: Not supported yet.");
+        $arrResult = $this->objDatabase
+                ->prepare("SELECT * FROM $this->strSource WHERE id IN(" . implode(', ', $objConfig->getIds()) . ")")
+                ->execute()
+                ->fetchAllAssoc();
+
+        $objCollection = $this->getEmptyCollection();
+        
+        if (count($arrResult) == 0)
+        {
+            return $objCollection;
+        }
+
+        foreach ($arrResult as $key => $arrValue)
+        {
+            $objModel = $this->getEmptyModel();
+            foreach ($arrValue as $key => $value)
+            {
+                if ($key == "id")
+                {
+                    $objModel->setID($value);
+                }
+
+                $objModel->setProperty($key, $value);
+            }
+
+            $objCollection->add($objModel);
+        }
+
+        return $objCollection;
     }
 
     /**

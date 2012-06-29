@@ -31,6 +31,7 @@ class GeneralDataConfigDefault
 {
 
     protected $intId = null;
+    protected $arrIds = array();
     protected $blnIdOnly  = false;
     protected $intStart   = 0;
     protected $intAmount  = 0;
@@ -75,6 +76,30 @@ class GeneralDataConfigDefault
         
         return $this;
     }    
+
+    /**
+     * Get specific ids
+     * 
+     * @return array 
+     */
+    public function getIds()
+    {
+        return $this->arrIds;
+    }
+
+    /**
+     * Set specific ids
+     * 
+     * @param array $arrIds 
+     */
+    public function setIds($arrIds)
+    {
+        $this->arrIds = $arrIds;
+        
+        return $this;
+    }
+
+    
     
     /**
      * Return flag if only ids should be returned

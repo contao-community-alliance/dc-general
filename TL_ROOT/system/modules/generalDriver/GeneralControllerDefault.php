@@ -461,12 +461,13 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
         // Load record from data provider
         $objConfig = GeneralDataConfigDefault::init()
+                ->setIdOnly(true)
                 ->setStart($arrLimit[0])
                 ->setAmount($arrLimit[1])
                 ->setFilter($this->getFilter())
                 ->setSorting($this->getListViewSorting());
 
-        $objCollection = $objDataProvider->fetchAll($objConfig);
+        $objCollection = $objDataProvider->fetchEach(GeneralDataConfigDefault::init()->setIds($objDataProvider->fetchAll($objConfig)));
 
         // Rename each pid to its label and resort the result (sort by parent table)
         if ($this->dca['list']['sorting']['mode'] == 3)
