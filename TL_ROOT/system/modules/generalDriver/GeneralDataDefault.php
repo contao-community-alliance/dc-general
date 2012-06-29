@@ -227,14 +227,14 @@ class GeneralDataDefault implements InterfaceGeneralData
         foreach ($arrResult as $key => $arrValue)
         {
             $objModel = $this->getEmptyModel();
-            foreach ($arrValue as $k => $v)
+            foreach ($arrValue as $key => $value)
             {
                 if ($key == "id")
                 {
                     $objModel->setID($value);
                 }
 
-                $objModel->setProperty($k, $v);
+                $objModel->setProperty($key, $value);
             }
 
             $objCollection->add($objModel);
