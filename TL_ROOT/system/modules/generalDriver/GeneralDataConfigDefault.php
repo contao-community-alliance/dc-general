@@ -30,15 +30,16 @@
 class GeneralDataConfigDefault
 {
 
-    protected $intId = null;
+    protected $intId  = null;
     protected $arrIds = array();
     protected $blnIdOnly  = false;
     protected $intStart   = 0;
     protected $intAmount  = 0;
     protected $arrFilter  = null;
     protected $arrSorting = null;
+    protected $arrFields  = null;
     protected $arrData    = array();
-    
+
     /**
      * Create object
      * 
@@ -48,12 +49,12 @@ class GeneralDataConfigDefault
     {
         return $this;
     }
-    
+
     public static function init()
     {
         return new GeneralDataConfigDefault();
     }
-    
+
     /**
      * Get specific id
      * 
@@ -73,9 +74,9 @@ class GeneralDataConfigDefault
     public function setId($intId)
     {
         $this->intId = $intId;
-        
+
         return $this;
-    }    
+    }
 
     /**
      * Get specific ids
@@ -95,12 +96,10 @@ class GeneralDataConfigDefault
     public function setIds($arrIds)
     {
         $this->arrIds = $arrIds;
-        
+
         return $this;
     }
 
-    
-    
     /**
      * Return flag if only ids should be returned
      * 
@@ -120,7 +119,7 @@ class GeneralDataConfigDefault
     public function setIdOnly($blnIdOnly)
     {
         $this->blnIdOnly = $blnIdOnly;
-        
+
         return $this;
     }
 
@@ -143,8 +142,8 @@ class GeneralDataConfigDefault
     public function setStart($intStart)
     {
         $this->intStart = $intStart;
-        
-        return $this; 
+
+        return $this;
     }
 
     /**
@@ -166,8 +165,8 @@ class GeneralDataConfigDefault
     public function setAmount($intAmount)
     {
         $this->intAmount = $intAmount;
-        
-        return $this; 
+
+        return $this;
     }
 
     /**
@@ -189,8 +188,8 @@ class GeneralDataConfigDefault
     public function setFilter($arrFilter)
     {
         $this->arrFilter = $arrFilter;
-        
-        return $this; 
+
+        return $this;
     }
 
     /**
@@ -212,9 +211,31 @@ class GeneralDataConfigDefault
     public function setSorting($arrSorting)
     {
         $this->arrSorting = $arrSorting;
-        
-        return $this; 
+
+        return $this;
     }
+    
+    /**
+     * Get the nessessary fields
+     * 
+     * @return array 
+     */
+    public function getFields()
+    {
+        return $this->arrFields;
+    }
+
+    /**
+     * Set the nessessary fields
+     *  
+     * @param array $arrFields 
+     */
+    public function setFields($arrFields)
+    {
+        $this->arrFields = $arrFields;
+        
+        return $this;
+    }    
 
     /**
      * Get the additional information
@@ -244,8 +265,8 @@ class GeneralDataConfigDefault
     public function __set($strKey, $varValue)
     {
         $this->arrData[$strKey] = $varValue;
-        
-        return $this; 
+
+        return $this;
     }
 
 }

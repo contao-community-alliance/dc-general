@@ -121,8 +121,15 @@ class GeneralDataDefault implements InterfaceGeneralData
      */
     public function fetch(GeneralDataConfigDefault $objConfig)
     {
+        $strFields = '*';
+        
+        if(!is_null($objConfig->getFields()))
+        {
+            $strFields = implode('', $objConfig->getFields());
+        }
+        
         $arrResult = $this->objDatabase
-                ->prepare("SELECT * FROM $this->strSource WHERE id=?")
+                ->prepare("SELECT " . $strFields . " FROM $this->strSource WHERE id = ?")
                 ->execute($objConfig->getId())
                 ->fetchAllAssoc();
 
@@ -158,10 +165,19 @@ class GeneralDataDefault implements InterfaceGeneralData
         $boolSetWhere = true;
         $arrFilter = $objConfig->getFilter();
         $arrSorting = $objConfig->getSorting();
-
-        $query = "SELECT " . (($objConfig->getIdOnly()) ? "id" : "*") . " FROM " . $this->strSource;
-
         
+        $strFields = '*';
+        
+        if($objConfig->getIdOnly())
+        {
+            $strFields = 'id';
+        }
+        else if(!is_null($objConfig->getFields()))
+        {
+            $strFields = implode(', ', $objConfig->getFields());
+        }
+
+        $query = "SELECT " . $strFields . " FROM " . $this->strSource;
         
         if (!is_null($arrFilter))
         {
@@ -258,8 +274,15 @@ class GeneralDataDefault implements InterfaceGeneralData
      */    
     public function fetchEach(GeneralDataConfigDefault $objConfig)
     {
+        $strFields = '*';
+        
+        if(!is_null($objConfig->getFields()))
+        {
+            $strFields = implode('', $objConfig->getFields());
+        }        
+        
         $arrResult = $this->objDatabase
-                ->prepare("SELECT * FROM $this->strSource WHERE id IN(" . implode(', ', $objConfig->getIds()) . ")")
+                ->prepare("SELECT " . $strFields . " FROM $this->strSource WHERE id IN(" . implode(', ', $objConfig->getIds()) . ")")
                 ->execute()
                 ->fetchAllAssoc();
 
