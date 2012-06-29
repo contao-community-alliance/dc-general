@@ -228,8 +228,8 @@ class DC_General extends DataContainer implements editable, listable
      * @var array 
      */
     private static $arrDates = array(
-        'date' => true,
-        'time' => true,
+        'date'  => true,
+        'time'  => true,
         'datim' => true
     );
 
@@ -382,7 +382,7 @@ class DC_General extends DataContainer implements editable, listable
         else
         {
             $arrConfig = array(
-                'class' => 'GeneralDataDefault',
+                'class'  => 'GeneralDataDefault',
                 'source' => $this->strTable
             );
 
@@ -444,6 +444,13 @@ class DC_General extends DataContainer implements editable, listable
 
     // Getter and Setter -------------------------------------------------------
 
+    /**
+     * Return default data provider if no source is given. Else search for config 
+     * for given param or return default data provider for given source.
+     * 
+     * @param string $strSource
+     * @return InterfaceGeneralData
+     */
     public function getDataProvider($strSource = null)
     {
         if (is_null($strSource))
@@ -1135,9 +1142,9 @@ class DC_General extends DataContainer implements editable, listable
     /**
      * Return the formatted group header as string
      * 
-     * @param string
-     * @param mixed
-     * @param integer
+     * @param string $field
+     * @param mixed $value
+     * @param integer $mode
      * @return string
      */
     public function formatCurrentValue($field, $value, $mode)
@@ -1367,7 +1374,7 @@ class DC_General extends DataContainer implements editable, listable
             $strID = 'ctrl_' . $strField . '_' . $this->mixWidgetID;
 
             $GLOBALS['TL_RTE'][$strFile][$strID] = array(
-                'id' => $strID,
+                'id'   => $strID,
                 'file' => $strFile,
                 'type' => $strType
             );
