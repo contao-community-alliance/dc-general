@@ -68,6 +68,8 @@
                                     <input type="checkbox" name="IDS[]" id="ids_<?php echo $objModel->getID(); ?>" class="tl_tree_checkbox" value="<?php echo $objModel->getID(); ?>">
                                 <?php endif; ?>
 
+                                <?php echo $objModel->getProperty('%buttons%'); ?>
+
                             </div>
 
                             <?php echo $objModel->getProperty('%content%'); ?>

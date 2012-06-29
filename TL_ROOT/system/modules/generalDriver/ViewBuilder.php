@@ -269,8 +269,10 @@ class ViewBuilder extends Backend
         {
             $strGroup = '';
 
-            foreach ($this->dc->getCurrentCollecion() as $objModel)
+            for ($i = 0; $i < $this->dc->getCurrentCollecion()->length(); $i++)
             {
+                $objModel = $this->dc->getCurrentCollecion()->get($i);
+
                 // TODO set current
 //                $this->current[] = $objModel->getID();                
                 // Decrypt encrypted value
@@ -299,17 +301,23 @@ class ViewBuilder extends Backend
                     }
                 }
 
-//                $objModel->setProperty('%class%', ($this->dca['list']['sorting']['child_record_class'] != '') ? ' ' . $this->dca['list']['sorting']['child_record_class'] : '');
+                $objModel->setProperty('%class%', ($this->dca['list']['sorting']['child_record_class'] != '') ? ' ' . $this->dca['list']['sorting']['child_record_class'] : '');
+
                 // Regular buttons
-                else
+                if (!$this->blnSelect)
                 {
-                    $return .= $this->generateButtons($objModel, $this->dc->getTable(), $this->root, false, null, $row[($i - 1)]['id'], $row[($i + 1)]['id']);
+                    $strPrevious = ((!is_null($this->dc->getCurrentCollecion()->get($i - 1))) ? $this->dc->getCurrentCollecion()->get($i - 1)->getID() : null);
+                    $strNext     = ((!is_null($this->dc->getCurrentCollecion()->get($i + 1))) ? $this->dc->getCurrentCollecion()->get($i + 1)->getID() : null);
+
+                    $buttons = $this->generateButtons($objModel, $this->dc->getTable(), $this->dc->getRootIds(), false, null, $strPrevious, $strNext);
 
                     // Sortable table
                     if ($this->parentView['sorting'])
                     {
-                        $objModel->setProperty('%buttons%', $this->generateParentViewButtons($objModel));
+                        $buttons .= $this->generateParentViewButtons($objModel);
                     }
+
+                    $objModel->setProperty('%buttons%', $buttons);
                 }
 
                 // TODO outsource callback
