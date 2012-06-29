@@ -30,7 +30,7 @@
 
                     <?php foreach ($this->collection as $objModelRow): ?>
                         <?php if ($this->mode > 0): ?>
-                            <?php $arrGroup = $objModelRow->getProperty('%group%'); ?>
+                            <?php $arrGroup  = $objModelRow->getProperty('%group%'); ?>
                             <tr><td colspan="2" class="<?php echo $arrGroup['class']; ?>"><?php echo $arrGroup['value']; ?></td></tr>
                         <?php endif; ?>
 
