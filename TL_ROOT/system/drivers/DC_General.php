@@ -371,12 +371,12 @@ class DC_General extends DataContainer implements editable, listable
      */
     protected function loadDataProvider()
     {
-        $arrSourceConfigs = $this->arrDCA['dca_config'];
-
+        $arrSourceConfigs = $this->arrDCA['dca_config']['data_provider'];
+        
         // Set default data provider
         if (isset($arrSourceConfigs['default']))
         {
-            $this->arrDataProvider[$this->strTable] = $this->arrDCA['dca_config']['default'];
+            $this->arrDataProvider[$this->strTable] = $this->arrDCA['dca_config']['data_provider']['default'];
             unset($arrSourceConfigs['default']);
         }
         else
@@ -458,6 +458,8 @@ class DC_General extends DataContainer implements editable, listable
             $strSource = $this->strTable;
         }
 
+        $arrConfig = array();
+        
         if (array_key_exists($strSource, $this->arrDataProvider))
         {
             if (is_object($this->arrDataProvider[$strSource]))
@@ -467,24 +469,27 @@ class DC_General extends DataContainer implements editable, listable
             else
             {
                 $arrConfig = $this->arrDataProvider[$strSource];
-
+                
                 if (array_key_exists('class', $arrConfig))
                 {
                     $strClass = $arrConfig['class'];
                     unset($arrConfig['class']);
-                    $this->arrDataProvider[$strSource] = new $strClass($arrConfig);
+                    $this->arrDataProvider[$strSource] = new $strClass();
                 }
                 else
                 {
-                    $this->arrDataProvider[$strSource] = new GeneralDataDefault($arrConfig);
-                }
+                    $this->arrDataProvider[$strSource] = new GeneralDataDefault();                    
+                }                
             }
         }
         else
         {
-            $this->arrDataProvider[$strSource] = new GeneralDataDefault(array('source' => $strSource));
+            $arrConfig = array('source' => $strSource);
+            $this->arrDataProvider[$strSource] = new GeneralDataDefault();
         }
-
+        
+        $this->arrDataProvider[$strSource]->setBaseConfig($arrConfig);
+        
         return $this->arrDataProvider[$strSource];
     }
 
@@ -631,9 +636,12 @@ class DC_General extends DataContainer implements editable, listable
     {
         if (is_array($this->arrFilter))
         {
-            $this->arrFilter = array_merge($this->arrFilter, $arrField);
+            $this->arrFilter = array_merge($this->arrFilter, $arrFilter);
         }
-        $this->arrFilter = $arrFilter;
+        else
+        {        
+            $this->arrFilter = $arrFilter;
+        }
     }
 
     public function setLimit($strLimit)
