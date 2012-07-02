@@ -30,10 +30,20 @@ interface InterfaceGeneralData
 {
     
     /**
+     * Set base config with source and other neccesary prameter
      * 
+     * @param array $arrConfig
+     * @throws Excpetion 
      */
-    public function __construct(array $arrConfig);
+    public function setBaseConfig(array $arrConfig);
 
+    /**
+     * Return empty config object
+     * 
+     * @return InterfaceGeneralDataConfig
+     */
+    public function getEmptyConfig();
+    
     /**
      * Fetch an empty single record (new item).
      * 

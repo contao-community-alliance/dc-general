@@ -45,7 +45,21 @@ class GeneralDataDefault implements InterfaceGeneralData
 
     // Constructor and co ------------------------------------------------------
 
-    public function __construct(array $arrConfig)
+    public function __construct()
+    {
+        // Init Helper
+        $this->objDatabase = Database::getInstance();        
+    }
+
+    // Getter | Setter ---------------------------------------------------------
+
+    /**
+     * Set base config with source and other neccesary prameter
+     * 
+     * @param array $arrConfig
+     * @throws Excpetion 
+     */
+    public function setBaseConfig(array $arrConfig)
     {
         // Check Vars
         if (!isset($arrConfig["source"]))
@@ -55,13 +69,19 @@ class GeneralDataDefault implements InterfaceGeneralData
 
         // Init Vars
         $this->strSource = $arrConfig["source"];
-
-        // Init Helper
-        $this->objDatabase = Database::getInstance();
     }
 
-    // Getter | Setter ---------------------------------------------------------
 
+    /**
+     * Return empty config object
+     * 
+     * @return InterfaceGeneralDataConfig
+     */
+    public function getEmptyConfig()
+    {
+        return GeneralDataConfigDefault::init();
+    }
+    
     /**
      * Fetch an empty single record (new item).
      * 

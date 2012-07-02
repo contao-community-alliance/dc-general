@@ -238,7 +238,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         // Callback
-        $objDC->setCurrentModel($objDC->getDataProvider()->fetch(GeneralDataConfigDefault::init()->setId($intRecordID)));
+        $objDC->setCurrentModel($objDC->getDataProvider()->fetch($objDC->getDataProvider()->getEmptyConfig()->setId($intRecordID)));
         $objDC->getCallbackClass()->ondeleteCallback();
 
         // Delete record
@@ -308,7 +308,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $objDC->addButton("saveNclose");
 
         // Load record from data provider
-        $objDBModel = $objDC->getDataProvider()->fetch(GeneralDataConfigDefault::init()->setId($objDC->getId()));
+        $objDBModel = $objDC->getDataProvider()->fetch($objDC->getDataProvider()->getEmptyConfig()->setId($objDC->getId()));
         if ($objDBModel == null)
         {
             $objDBModel = $objDC->getDataProvider()->getEmptyModel();
@@ -364,7 +364,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     public function show(DC_General $objDC)
     {
         // Load record from data provider
-        $objDBModel = $objDC->getDataProvider()->fetch(GeneralDataConfigDefault::init()->setId($objDC->getId()));
+        $objDBModel = $objDC->getDataProvider()->fetch($objDC->getDataProvider()->getEmptyConfig()->setId($objDC->getId()));
 
         if ($objDBModel == null)
         {
@@ -428,7 +428,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $objDC->preloadTinyMce();
 
         // Load record from data provider
-        $objDBModel = $objDC->getDataProvider()->fetch(GeneralDataConfigDefault::init()->setId($objDC->getId()));
+        $objDBModel = $objDC->getDataProvider()->fetch($objDC->getDataProvider()->getEmptyConfig()->setId($objDC->getId()));
         if ($objDBModel == null)
         {
             $objDBModel = $objDC->getDataProvider()->getEmptyModel();
@@ -460,14 +460,14 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $arrLimit = $this->getLimit();
 
         // Load record from data provider
-        $objConfig = GeneralDataConfigDefault::init()
+        $objConfig = $this->dc->getDataProvider()->getEmptyConfig()
                 ->setIdOnly(true)
                 ->setStart($arrLimit[0])
                 ->setAmount($arrLimit[1])
                 ->setFilter($this->getFilter())
                 ->setSorting($this->getListViewSorting());
 
-        $objCollection = $objDataProvider->fetchEach(GeneralDataConfigDefault::init()->setIds($objDataProvider->fetchAll($objConfig)));
+        $objCollection = $objDataProvider->fetchEach($this->dc->getDataProvider()->getEmptyConfig()->setIds($objDataProvider->fetchAll($objConfig)));
 
         // Rename each pid to its label and resort the result (sort by parent table)
         if ($this->dca['list']['sorting']['mode'] == 3)
@@ -477,7 +477,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
             foreach ($objCollection as $objModel)
             {
-                $objFieldModel = $this->dc->getDataProvider('parent')->fetch(GeneralDataConfigDefault::init()->setId($objModel->getID()));
+                $objFieldModel = $this->dc->getDataProvider('parent')->fetch($this->dc->getDataProvider()->getEmptyConfig()->setId($objModel->getID()));
                 $objModel->setProperty('pid', $objFieldModel->getProperty($showFields[0]));
             }
 
@@ -509,7 +509,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 
                     $objModel = $this->dc->getDataProvider($strTable)->fetch(
-                            GeneralDataConfigDefault::init()
+                            $this->dc->getDataProvider()->getEmptyConfig()
                                     ->setId($row[$strKey])
                                     ->setFields(array($strField))
                     );
@@ -539,7 +539,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $arrLimit = $this->getLimit();
 
         // Load record from data provider
-        $objConfig = GeneralDataConfigDefault::init()
+        $objConfig = $this->dc->getDataProvider()->getEmptyConfig()
                 ->setStart($arrLimit[0])
                 ->setAmount($arrLimit[1])
                 ->setFilter($this->getFilter())
@@ -559,7 +559,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $objCollection = $this->dc->getDataProvider('parent')->getEmptyCollection();
             $objCollection->add(
                     $this->dc->getDataProvider('parent')->fetch(
-                            GeneralDataConfigDefault::init()
+                            $this->dc->getDataProvider()->getEmptyConfig()
                                     ->setId(CURRENT_ID)
                     )
             );
@@ -578,7 +578,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     if ($v == 'tstamp')
                     {
                         $objCollection = $this->dc->getDataProvider()->fetchAll(
-                                GeneralDataConfigDefault::init()
+                                $this->dc->getDataProvider()->getEmptyConfig()
                                         ->setFilter(array("pid = '" . $this->dc->getCurrentParentCollection()->get(0)->getID() . "'"))
                                         ->setFields(array('MAX(tstamp) AS tstamp'))
                         );
@@ -597,7 +597,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                         $arrForeignKey = explode('.', $this->parentDc['fields'][$v]['foreignKey'], 2);
 
                         $objLabelModel = $this->dc->getDataProvider($arrForeignKey[0])->fetch(
-                                GeneralDataConfigDefault::init()
+                                $this->dc->getDataProvider()->getEmptyConfig()
                                         ->setId($_v)
                                         ->setFields(array($arrForeignKey[1] . " AS value"))
                         );
@@ -700,7 +700,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             {
                 try
                 {
-                    $objConfig = GeneralDataConfigDefault::init()
+                    $objConfig = $this->dc->getDataProvider()->getEmptyConfig()
                             ->setAmount(1)
                             ->setFilter(array($this->Input->post('tl_field', true) . " REGEXP '" . $this->Input->postRaw('tl_value') . "'"))
                             ->setSorting($this->getListViewSorting());
@@ -721,6 +721,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         // Set search value from session
         else if ($session['search'][$this->dc->getTable()]['value'] != '')
         {
+            FB::log($this->dc->getFilter());
+            
             if (substr($GLOBALS['TL_CONFIG']['dbCollation'], -3) == '_ci')
             {
                 $this->dc->setFilter(array("LOWER(CAST(" . $session['search'][$this->dc->getTable()]['field'] . " AS CHAR)) REGEXP LOWER('" . $session['search'][$this->dc->getTable()]['value'] . "')"));
@@ -729,6 +731,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             {
                 $this->dc->setFilter(array("CAST(" . $session['search'][$this->dc->getTable()]['field'] . " AS CHAR) REGEXP '" . $session['search'][$this->dc->getTable()]['value'] . "'"));
             }
+            
+            FB::log($this->dc->getFilter());
         }
 
         $arrOptions = array();
@@ -807,7 +811,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 $this->dc->setLimit('0,' . $GLOBALS['TL_CONFIG']['resultsPerPage']);
             }
 
-            $intCount               = $this->dc->getDataProvider()->getCount(GeneralDataConfigDefault::init()->setFilter($this->getFilter()));
+            $intCount               = $this->dc->getDataProvider()->getCount($this->dc->getDataProvider()->getEmptyConfig()->setFilter($this->getFilter()));
             $blnIsMaxResultsPerPage = false;
 
             // Overall limit
