@@ -27,43 +27,16 @@
  * @license    GNU/LGPL
  * @filesource
  */
-class GeneralDataConfigDefault implements InterfaceGeneralDataConfig
+interface InterfaceGeneralDataConfig
 {
-
-    protected $intId  = null;
-    protected $arrIds = array();
-    protected $blnIdOnly  = false;
-    protected $intStart   = 0;
-    protected $intAmount  = 0;
-    protected $arrFilter  = null;
-    protected $arrSorting = null;
-    protected $arrFields  = null;
-    protected $arrData    = array();
-
-    /**
-     * Create object
-     * 
-     * @return GeneralDataConfigDefault 
-     */
-    private function __construct()
-    {
-        return $this;
-    }
-
-    public static function init()
-    {
-        return new GeneralDataConfigDefault();
-    }
+    public static function init();
 
     /**
      * Get specific id
      * 
      * @return integer 
      */
-    public function getId()
-    {
-        return $this->intId;
-    }
+    public function getId();
 
     /**
      * Set specific id
@@ -71,44 +44,28 @@ class GeneralDataConfigDefault implements InterfaceGeneralDataConfig
      * @param integer $intId
      * @return GeneralDataConfigDefault
      */
-    public function setId($intId)
-    {
-        $this->intId = $intId;
-
-        return $this;
-    }
+    public function setId($intId);
 
     /**
      * Get specific ids
      * 
      * @return array 
      */
-    public function getIds()
-    {
-        return $this->arrIds;
-    }
+    public function getIds();
 
     /**
      * Set specific ids
      * 
      * @param array $arrIds 
      */
-    public function setIds($arrIds)
-    {
-        $this->arrIds = $arrIds;
-
-        return $this;
-    }
+    public function setIds($arrIds);
 
     /**
      * Return flag if only ids should be returned
      * 
      * @return boolean
      */
-    public function getIdOnly()
-    {
-        return $this->blnIdOnly;
-    }
+    public function getIdOnly();
 
     /**
      * Set flag for return id only
@@ -116,22 +73,14 @@ class GeneralDataConfigDefault implements InterfaceGeneralDataConfig
      * @return boolean
      * @return GeneralDataConfigDefault
      */
-    public function setIdOnly($blnIdOnly)
-    {
-        $this->blnIdOnly = $blnIdOnly;
-
-        return $this;
-    }
+    public function setIdOnly($blnIdOnly);
 
     /**
      * Get the offset to start with
      * 
      * @return integer 
      */
-    public function getStart()
-    {
-        return $this->intStart;
-    }
+    public function getStart();
 
     /**
      * Set the offset to start with
@@ -139,22 +88,14 @@ class GeneralDataConfigDefault implements InterfaceGeneralDataConfig
      * @param integer $intStart
      * @return GeneralDataConfigDefault
      */
-    public function setStart($intStart)
-    {
-        $this->intStart = $intStart;
-
-        return $this;
-    }
+    public function setStart($intStart);
 
     /**
      * Get the limit for results 
      * 
      * @return integer 
      */
-    public function getAmount()
-    {
-        return $this->intAmount;
-    }
+    public function getAmount();
 
     /**
      * Set the limit for results
@@ -162,22 +103,14 @@ class GeneralDataConfigDefault implements InterfaceGeneralDataConfig
      * @param integer $intAmount
      * @return GeneralDataConfigDefault
      */
-    public function setAmount($intAmount)
-    {
-        $this->intAmount = $intAmount;
-
-        return $this;
-    }
+    public function setAmount($intAmount);
 
     /**
      * Get the list with filter options
      * 
      * @return array 
      */
-    public function getFilter()
-    {
-        return $this->arrFilter;
-    }
+    public function getFilter();
 
     /**
      * Set the list with filter options
@@ -185,22 +118,14 @@ class GeneralDataConfigDefault implements InterfaceGeneralDataConfig
      * @return array
      * @return GeneralDataConfigDefault
      */
-    public function setFilter($arrFilter)
-    {
-        $this->arrFilter = $arrFilter;
-
-        return $this;
-    }
+    public function setFilter($arrFilter);
 
     /**
      * Get the list with all sortings
      * 
      * @return array 
      */
-    public function getSorting()
-    {
-        return $this->arrSorting;
-    }
+    public function getSorting();
 
     /**
      * Set the list with all sortings
@@ -208,34 +133,21 @@ class GeneralDataConfigDefault implements InterfaceGeneralDataConfig
      * @return array
      * @return GeneralDataConfigDefault
      */
-    public function setSorting($arrSorting)
-    {
-        $this->arrSorting = $arrSorting;
-
-        return $this;
-    }
+    public function setSorting($arrSorting);
     
     /**
      * Get the nessessary fields
      * 
      * @return array 
      */
-    public function getFields()
-    {
-        return $this->arrFields;
-    }
+    public function getFields();
 
     /**
      * Set the nessessary fields
      *  
      * @param array $arrFields 
      */
-    public function setFields($arrFields)
-    {
-        $this->arrFields = $arrFields;
-        
-        return $this;
-    }    
+    public function setFields($arrFields);  
 
     /**
      * Get the additional information
@@ -243,17 +155,7 @@ class GeneralDataConfigDefault implements InterfaceGeneralDataConfig
      * @param string $strKey
      * @return mixed || null 
      */
-    public function get($strKey)
-    {
-        if (isset($this->arrData[$strKey]))
-        {
-            return $this->arrData[$strKey];
-        }
-        else
-        {
-            return null;
-        }
-    }
+    public function get($strKey);
 
     /**
      * Set the additional information
@@ -262,11 +164,6 @@ class GeneralDataConfigDefault implements InterfaceGeneralDataConfig
      * @param mixed $varValue
      * @return GeneralDataConfigDefault
      */
-    public function set($strKey, $varValue)
-    {
-        $this->arrData[$strKey] = $varValue;
-
-        return $this;
-    }
+    public function set($strKey, $varValue);
 
 }
