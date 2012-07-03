@@ -48,7 +48,7 @@ class GeneralDataDefault implements InterfaceGeneralData
     public function __construct()
     {
         // Init Helper
-        $this->objDatabase = Database::getInstance();        
+        $this->objDatabase = Database::getInstance();
     }
 
     // Getter | Setter ---------------------------------------------------------
@@ -71,7 +71,6 @@ class GeneralDataDefault implements InterfaceGeneralData
         $this->strSource = $arrConfig["source"];
     }
 
-
     /**
      * Return empty config object
      * 
@@ -81,7 +80,7 @@ class GeneralDataDefault implements InterfaceGeneralData
     {
         return GeneralDataConfigDefault::init();
     }
-    
+
     /**
      * Fetch an empty single record (new item).
      * 
@@ -142,12 +141,17 @@ class GeneralDataDefault implements InterfaceGeneralData
     public function fetch(GeneralDataConfigDefault $objConfig)
     {
         $strFields = '*';
-        
-        if(!is_null($objConfig->getFields()))
+
+        if (!is_null($objConfig->getFields()))
         {
             $strFields = implode('', $objConfig->getFields());
+
+            if (!stristr($strFields, 'DISTINCT'))
+            {
+                $strFields = 'id, ' . $strFields;
+            }
         }
-        
+
         $arrResult = $this->objDatabase
                 ->prepare("SELECT " . $strFields . " FROM $this->strSource WHERE id = ?")
                 ->execute($objConfig->getId())
@@ -181,24 +185,29 @@ class GeneralDataDefault implements InterfaceGeneralData
      * @return InterfaceGeneralCollection
      */
     public function fetchAll(GeneralDataConfigDefault $objConfig)
-    {        
+    {
         $boolSetWhere = true;
-        $arrFilter = $objConfig->getFilter();
-        $arrSorting = $objConfig->getSorting();
-        
+        $arrFilter    = $objConfig->getFilter();
+        $arrSorting   = $objConfig->getSorting();
+
         $strFields = '*';
-        
-        if($objConfig->getIdOnly())
+
+        if ($objConfig->getIdOnly())
         {
             $strFields = 'id';
         }
-        else if(!is_null($objConfig->getFields()))
+        else if (!is_null($objConfig->getFields()))
         {
             $strFields = implode(', ', $objConfig->getFields());
+
+            if (!stristr($strFields, 'DISTINCT'))
+            {
+                $strFields = 'id, ' . $strFields;
+            }
         }
 
         $query = "SELECT " . $strFields . " FROM " . $this->strSource;
-        
+
         if (!is_null($arrFilter))
         {
             foreach ($arrFilter AS $key => $mixedFilter)
@@ -247,11 +256,11 @@ class GeneralDataDefault implements InterfaceGeneralData
                 ->limit($objConfig->getAmount(), $objConfig->getStart())
                 ->execute()
                 ->fetchAllAssoc();
-       
-        if($objConfig->getIdOnly())
+
+        if ($objConfig->getIdOnly())
         {
             $arrIds = array();
-            foreach($arrResult as $intId)
+            foreach ($arrResult as $intId)
             {
                 $arrIds[] = $intId['id'];
             }
@@ -291,23 +300,55 @@ class GeneralDataDefault implements InterfaceGeneralData
      * @param GeneralDataConfigDefault $objConfig
      * 
      * @return InterfaceGeneralCollection
-     */    
+     */
     public function fetchEach(GeneralDataConfigDefault $objConfig)
     {
-        $strFields = '*';
-        
-        if(!is_null($objConfig->getFields()))
+        $arrSorting = $objConfig->getSorting();
+        $strFields  = '*';
+
+        if (!is_null($objConfig->getFields()))
         {
             $strFields = implode('', $objConfig->getFields());
-        }        
-        
+
+            if (!stristr($strFields, 'DISTINCT'))
+            {
+                $strFields = 'id, ' . $strFields;
+            }
+        }
+
+        $query = "SELECT " . $strFields . " FROM $this->strSource WHERE id IN(" . implode(', ', $objConfig->getIds()) . ")";
+
+        if (!is_null($arrSorting) && is_array($arrSorting) && count($arrSorting) > 0)
+        {
+            $strSortOrder = '';
+
+            foreach ($arrSorting AS $key => $mixedField)
+            {
+                if (is_array($mixedField))
+                {
+                    if ($mixedField['action'] == 'findInSet')
+                    {
+                        $arrSorting[$key] = $this->objDatabase->findInSet($mixedField['field'], $mixedField['keys']);
+                    }
+                }
+
+                if ($key === 'sortOrder')
+                {
+                    $strSortOrder = $mixedField;
+                    unset($arrSorting[$key]);
+                }
+            }
+
+            $query .= " ORDER BY " . implode(', ', $arrSorting) . $strSortOrder;
+        }
+
         $arrResult = $this->objDatabase
-                ->prepare("SELECT " . $strFields . " FROM $this->strSource WHERE id IN(" . implode(', ', $objConfig->getIds()) . ")")
+                ->prepare($query)
                 ->execute()
                 ->fetchAllAssoc();
 
         $objCollection = $this->getEmptyCollection();
-        
+
         if (count($arrResult) == 0)
         {
             return $objCollection;
@@ -338,11 +379,11 @@ class GeneralDataDefault implements InterfaceGeneralData
      * @param GeneralDataConfigDefault $objConfig
      * 
      * @return int
-     */    
+     */
     public function getCount(GeneralDataConfigDefault $objConfig)
     {
         $boolSetWhere = true;
-        $arrFilter = $objConfig->getFilter();
+        $arrFilter    = $objConfig->getFilter();
 
         $query = "SELECT COUNT(*) AS count FROM " . $this->strSource;
 
@@ -401,8 +442,8 @@ class GeneralDataDefault implements InterfaceGeneralData
             {
                 continue;
             }
-            
-            if(is_array($value))
+
+            if (is_array($value))
             {
                 $arrSet[$key] = serialize($value);
             }
@@ -501,9 +542,9 @@ class GeneralDataDefault implements InterfaceGeneralData
         if ($blnOnlyActve)
         {
             $arrVersion = $this->objDatabase
-                ->prepare('SELECT tstamp, version, username, active FROM tl_version WHERE fromTable = ? AND pid = ? AND active = 1')
-                ->execute($this->strSource, $mixID)
-                ->fetchAllAssoc();
+                    ->prepare('SELECT tstamp, version, username, active FROM tl_version WHERE fromTable = ? AND pid = ? AND active = 1')
+                    ->execute($this->strSource, $mixID)
+                    ->fetchAllAssoc();
         }
         else
         {
@@ -545,10 +586,10 @@ class GeneralDataDefault implements InterfaceGeneralData
     {
         $objCount = $this->objDatabase
                 ->prepare("SELECT count(*) as mycount FROM tl_version WHERE pid=? AND fromTable = ?")
-                ->execute($objModel->getID(),  $this->strSource);
+                ->execute($objModel->getID(), $this->strSource);
 
         $mixNewVersion = intval($objCount->mycount) + 1;
-        
+
         $mixData       = $objModel->getPropertiesAsArray();
         $mixData["id"] = $objModel->getID();
         $mixData       = serialize($mixData);
@@ -584,7 +625,7 @@ class GeneralDataDefault implements InterfaceGeneralData
                 ->prepare('UPDATE tl_version SET active = 1 WHERE pid = ? AND version = ? AND fromTable = ?')
                 ->execute($mixID, $mixVersion, $this->strSource);
     }
-    
+
     /**
      * Return the active version from a record
      * 
@@ -597,15 +638,15 @@ class GeneralDataDefault implements InterfaceGeneralData
         $objVersionID = $this->objDatabase
                 ->prepare("SELECT version FROM tl_version WHERE pid = ? AND fromTable = ? AND active = 1")
                 ->execute($mixID, $this->strSource);
-        
-        if($objVersionID->numRows == 0)
+
+        if ($objVersionID->numRows == 0)
         {
             return null;
         }
-        
+
         return $objVersionID->version;
     }
-    
+
     /**
      * Check if two models have the same properties
      * 
