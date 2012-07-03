@@ -86,6 +86,32 @@ class GeneralCollectionDefault implements InterfaceGeneralCollection
     }
 
     /**
+     * Remove the given index or model from the collection and renew the index.
+     * ATTENTION: Don't use key to unset in foreach because of the new index.
+     * 
+     * @param mixed $mixedValue
+     */
+    public function remove($mixedValue)
+    {
+        if (is_object($mixedValue))
+        {
+            foreach ($this->arrCollection as $intIndex => $objModel)
+            {
+                if ($mixedValue === $objModel)
+                {
+                    unset($this->arrCollection[$intIndex]);
+                }
+            }
+        }
+        else
+        {
+            unset($this->arrCollection[$mixedValue]);
+        }
+
+        $this->arrCollection = array_values($this->arrCollection);
+    }
+
+    /**
      * Get length of this collection.
      *
      * @return int
@@ -165,6 +191,8 @@ class GeneralCollectionDefault implements InterfaceGeneralCollection
     public function sort($callback)
     {
         uasort($this->arrCollection, $callback);
+
+        $this->arrCollection = array_values($this->arrCollection);
     }
 
     /**
@@ -181,8 +209,8 @@ class GeneralCollectionDefault implements InterfaceGeneralCollection
         {
             array_unshift($this->arrCollection, $objModel);
         }
-    } 
-    
+    }
+
     /**
      * Get a iterator for this collection
      * 
@@ -192,6 +220,7 @@ class GeneralCollectionDefault implements InterfaceGeneralCollection
     {
         return new ArrayIterator($this->arrCollection);
     }
+
 }
 
 ?>
