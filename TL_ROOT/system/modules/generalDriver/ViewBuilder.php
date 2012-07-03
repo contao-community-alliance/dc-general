@@ -236,15 +236,12 @@ class ViewBuilder extends Backend
             }
         }
 
-        // TODO Outsource
         // Trigger the header_callback
-        if (is_array($this->dca['list']['sorting']['header_callback']))
-        {
-            $strClass  = $this->dca['list']['sorting']['header_callback'][0];
-            $strMethod = $this->dca['list']['sorting']['header_callback'][1];
+        $arrHeaderCallback = $this->dc->getCallbackClass()->headerCallback($add);
 
-            $this->import($strClass);
-            $add = $this->$strClass->$strMethod($add, $this);
+        if (!is_null($arrHeaderCallback))
+        {
+            $add = $arrHeaderCallback;
         }
 
         $arrHeader = array();
@@ -320,13 +317,7 @@ class ViewBuilder extends Backend
                     $objModel->setProperty('%buttons%', $buttons);
                 }
 
-                // TODO outsource callback
-                $strClass  = $this->dca['list']['sorting']['child_record_callback'][0];
-                $strMethod = $this->dca['list']['sorting']['child_record_callback'][1];
-
-                $this->import($strClass);
-
-                $objModel->setProperty('%content%', $this->$strClass->$strMethod($objModel->getPropertiesAsArray()));
+                $objModel->setProperty('%content%', $this->dc->getCallbackClass()->childRecordCallback($objModel->getPropertiesAsArray()));
             }
         }
     }
@@ -459,7 +450,7 @@ class ViewBuilder extends Backend
             // Call label callback            
             $mixedArgs = $this->dc->getCallbackClass()->labelCallback($objModelRow, $label, $this->dca['list']['label'], $args);
 
-            if (is_array($this->dca['list']['label']['label_callback']))
+            if (!is_null($mixedArgs))
             {
                 // Handle strings and arrays (backwards compatibility)
                 if (!$this->dca['list']['label']['showColumns'])

@@ -86,6 +86,22 @@ interface InterfaceGeneralCallback
     public function globalButtonCallback($strLabel, $strTitle, $arrAttributes, $strTable, $arrRootIds);
 
     /**
+     * Call the header callback
+     * 
+     * @param array $arrAdd
+     * @return array|null
+     */
+    public function headerCallback($arrAdd);
+
+    /**
+     * Call the child record callback
+     * 
+     * @param array $arrRow
+     * @return string|null
+     */
+    public function childRecordCallback($arrRow);
+
+    /**
      * Call the options callback for given the fields
      * 
      * @param string $strField
@@ -102,6 +118,15 @@ interface InterfaceGeneralCallback
      * @param int $intVersion Version which was restored
      */
     public function onrestoreCallback($intID, $strTable, $arrData, $intVersion);
+
+    /**
+     * Call the load callback
+     * 
+     * @param string $strField
+     * @param array $arrValue
+     * @return array|null 
+     */
+    public function loadCallback($strField, $arrValue);
 
     /**
      * Call onload_callback (e.g. to check permissions)

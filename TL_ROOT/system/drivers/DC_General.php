@@ -372,7 +372,7 @@ class DC_General extends DataContainer implements editable, listable
     protected function loadDataProvider()
     {
         $arrSourceConfigs = $this->arrDCA['dca_config']['data_provider'];
-        
+
         // Set default data provider
         if (isset($arrSourceConfigs['default']))
         {
@@ -459,7 +459,7 @@ class DC_General extends DataContainer implements editable, listable
         }
 
         $arrConfig = array();
-        
+
         if (array_key_exists($strSource, $this->arrDataProvider))
         {
             if (is_object($this->arrDataProvider[$strSource]))
@@ -469,7 +469,7 @@ class DC_General extends DataContainer implements editable, listable
             else
             {
                 $arrConfig = $this->arrDataProvider[$strSource];
-                
+
                 if (array_key_exists('class', $arrConfig))
                 {
                     $strClass = $arrConfig['class'];
@@ -478,8 +478,8 @@ class DC_General extends DataContainer implements editable, listable
                 }
                 else
                 {
-                    $this->arrDataProvider[$strSource] = new GeneralDataDefault();                    
-                }                
+                    $this->arrDataProvider[$strSource] = new GeneralDataDefault();
+                }
             }
         }
         else
@@ -487,9 +487,9 @@ class DC_General extends DataContainer implements editable, listable
             $arrConfig = array('source' => $strSource);
             $this->arrDataProvider[$strSource] = new GeneralDataDefault();
         }
-        
+
         $this->arrDataProvider[$strSource]->setBaseConfig($arrConfig);
-        
+
         return $this->arrDataProvider[$strSource];
     }
 
@@ -639,7 +639,7 @@ class DC_General extends DataContainer implements editable, listable
             $this->arrFilter = array_merge($this->arrFilter, $arrFilter);
         }
         else
-        {        
+        {
             $this->arrFilter = $arrFilter;
         }
     }
@@ -932,16 +932,11 @@ class DC_General extends DataContainer implements editable, listable
         $varValue = deserialize($this->objCurrentModel->getProperty($strField));
 
         // Load Callback
-        if (is_array($arrConfig['load_callback']))
+        $mixedValue = $this->objCallbackClass->loadCallback($varValue);
+
+        if (!is_null($mixedValue))
         {
-            foreach ($arrConfig['load_callback'] as $arrCallback)
-            {
-                if (is_array($arrCallback))
-                {
-                    $this->import($arrCallback[0]);
-                    $varValue = $this->$arrCallback[0]->$arrCallback[1]($varValue, $this);
-                }
-            }
+            $varValue = $mixedValue;
         }
 
         $arrConfig['eval']['xlabel'] = $this->getXLabel($arrConfig);
