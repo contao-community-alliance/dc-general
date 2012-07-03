@@ -1,7 +1,4 @@
-<?php
-
-if (!defined('TL_ROOT'))
-    die('You can not access this file directly!');
+<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -53,7 +50,6 @@ interface InterfaceGeneralCallback
      * @param InterfaceGeneralModel $objModelRow
      * @param string $mixedLabel
      * @param array $args
-     * 
      * @return string 
      */
     public function labelCallback(InterfaceGeneralModel $objModelRow, $mixedLabel, $args);
@@ -90,11 +86,12 @@ interface InterfaceGeneralCallback
     public function globalButtonCallback($strLabel, $strTitle, $arrAttributes, $strTable, $arrRootIds);
 
     /**
-     * Call the options callback for the fields
+     * Call the options callback for given the fields
      * 
+     * @param string $strField
      * @return array|null 
      */
-    public function optionsCallback();
+    public function optionsCallback($strField);
 
     /**
      * Call the onrestore callback
