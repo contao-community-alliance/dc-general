@@ -49,6 +49,13 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      */
     protected $dca;
 
+    /**
+     * Field for the function sortCollection
+     * 
+     * @var string $arrColSort
+     */
+    protected $arrColSort;
+
     public function __construct()
     {
         parent::__construct();
@@ -86,6 +93,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         // Check if table is closed
         if ($arrDCA['config']['closed'] == true)
         {
+            // TODO show alarm message
             $this->redirect($this->getReferer());
         }
 
@@ -93,6 +101,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         foreach (array_keys($objDC->getFieldList()) as $key)
         {
             $varNewValue = $objDC->processInput($key);
+
             if ($objDBModel->getProperty($key) != $varNewValue)
             {
                 $objDBModel->setProperty($key, $varNewValue);
@@ -245,7 +254,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $objDC->getDataProvider()->delete($intRecordID);
 
         // Add a log entry unless we are deleting from tl_log itself
-        if ($this->strTable != 'tl_log')
+        if ($this->dc->getTable() != 'tl_log')
         {
             $this->log('DELETE FROM ' . $objDC->getTable() . ' WHERE id=' . $intRecordID, 'DC_General - Controller - delete()', TL_GENERAL);
         }
@@ -382,6 +391,15 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
         $this->dc->setButtonId('tl_buttons');
 
+        // Custom filter
+        if (is_array($this->dca['list']['sorting']['filter']) && !empty($this->dca['list']['sorting']['filter']))
+        {
+            foreach ($this->dca['list']['sorting']['filter'] as $filter)
+            {
+                $this->dc->setFilter(array($filter[0] . " = '" . $filter[1] . "'"));
+            }
+        }
+
         // Get the IDs of all root records (list view or parent view)
         if (is_array($this->dca['list']['sorting']['root']))
         {
@@ -467,7 +485,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 ->setFilter($this->getFilter())
                 ->setSorting($this->getListViewSorting());
 
-        $objCollection = $objDataProvider->fetchEach($this->dc->getDataProvider()->getEmptyConfig()->setIds($objDataProvider->fetchAll($objConfig)));
+        $objCollection = $objDataProvider->fetchEach($this->dc->getDataProvider()->getEmptyConfig()->setIds($objDataProvider->fetchAll($objConfig))->setSorting($this->getListViewSorting()));
 
         // Rename each pid to its label and resort the result (sort by parent table)
         if ($this->dca['list']['sorting']['mode'] == 3)
@@ -481,7 +499,12 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 $objModel->setProperty('pid', $objFieldModel->getProperty($showFields[0]));
             }
 
-            $objCollection->sort(array($this, 'sortCollectionPid'));
+            $this->arrColSort = array(
+                'field'   => 'pid',
+                'reverse' => false
+            );
+
+            $objCollection->sort(array($this, 'sortCollection'));
         }
 
         // TODO set global current in DC_General
@@ -544,8 +567,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 ->setAmount($arrLimit[1])
                 ->setFilter($this->getFilter())
                 ->setSorting($this->getParentViewSorting());
-        
-        if($this->foreignKey)
+
+        if ($this->foreignKey)
         {
             $objConfig->setFields($this->arrFields);
         }
@@ -621,7 +644,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     {
         $arrPanelView = array();
 
-//        $filter = $this->filterMenu();
+        $filter = $this->filterMenu();
         $search = $this->searchMenu();
         $limit  = $this->limitMenu();
         $sort   = $this->sortMenu();
@@ -661,6 +684,41 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             $this->dc->setPanelView(array_values($arrPanelView));
         }
+    }
+
+    /**
+     * Generate the filter panel and return it as HTML string
+     * @return string
+     */
+    protected function filterMenu()
+    {
+        $this->dc->setButtonId('tl_buttons_a');
+        $arrSortingFields = array();
+        $arrSession = $this->Session->getData();
+        $strFilter  = ($this->dca['list']['sorting']['mode'] == 4) ? $this->dc->getTable() . '_' . CURRENT_ID : $this->dc->getTable();
+
+        // Get sorting fields
+        foreach ($this->dca['fields'] as $k => $v)
+        {
+            if ($v['filter'])
+            {
+                $arrSortingFields[] = $k;
+            }
+        }
+
+        // Return if there are no sorting fields
+        if (empty($arrSortingFields))
+        {
+            return array();
+        }
+
+        // Set filter
+        $arrSession = $this->filterMenuSetFilter($arrSortingFields, $arrSession, $strFilter);
+
+        // Add options
+        $arrPanelView = $this->filterMenuAddOptions($arrSortingFields, $arrSession, $strFilter);
+
+        return $arrPanelView;
     }
 
     /**
@@ -721,8 +779,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         // Set search value from session
         else if ($session['search'][$this->dc->getTable()]['value'] != '')
         {
-            FB::log($this->dc->getFilter());
-            
             if (substr($GLOBALS['TL_CONFIG']['dbCollation'], -3) == '_ci')
             {
                 $this->dc->setFilter(array("LOWER(CAST(" . $session['search'][$this->dc->getTable()]['field'] . " AS CHAR)) REGEXP LOWER('" . $session['search'][$this->dc->getTable()]['value'] . "')"));
@@ -731,8 +787,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             {
                 $this->dc->setFilter(array("CAST(" . $session['search'][$this->dc->getTable()]['field'] . " AS CHAR) REGEXP '" . $session['search'][$this->dc->getTable()]['value'] . "'"));
             }
-            
-            FB::log($this->dc->getFilter());
         }
 
         $arrOptions = array();
@@ -931,17 +985,17 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         // Set sorting from user input
         if ($this->Input->post('FORM_SUBMIT') == 'tl_filters')
         {
-            $session['sorting'][$this->strTable] = in_array($this->dca['fields'][$this->Input->post('tl_sort')]['flag'], array(2, 4, 6, 8, 10, 12)) ? $this->Input->post('tl_sort') . ' DESC' : $this->Input->post('tl_sort');
+            $session['sorting'][$this->dc->getTable()] = in_array($this->dca['fields'][$this->Input->post('tl_sort')]['flag'], array(2, 4, 6, 8, 10, 12)) ? $this->Input->post('tl_sort') . ' DESC' : $this->Input->post('tl_sort');
             $this->objSession->setData($session);
         }
 
         // Overwrite the "orderBy" value with the session value
-        elseif (strlen($session['sorting'][$this->strTable]))
+        elseif (strlen($session['sorting'][$this->dc->getTable()]))
         {
-            $overwrite = preg_quote(preg_replace('/\s+.*$/i', '', $session['sorting'][$this->strTable]), '/');
+            $overwrite = preg_quote(preg_replace('/\s+.*$/i', '', $session['sorting'][$this->dc->getTable()]), '/');
             $orderBy   = array_diff($orderBy, preg_grep('/^' . $overwrite . '/i', $orderBy));
 
-            array_unshift($orderBy, $session['sorting'][$this->strTable]);
+            array_unshift($orderBy, $session['sorting'][$this->dc->getTable()]);
 
             $this->dc->setFirstSorting($overwrite);
             $this->dc->setSorting($orderBy);
@@ -960,7 +1014,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
             $arrOptions[$mixedOptionsLabel] = array(
                 'value'   => specialchars($field),
-                'select'  => ((!strlen($session['sorting'][$this->strTable]) && $field == $firstOrderBy || $field == str_replace(' DESC', '', $session['sorting'][$this->strTable])) ? ' selected="selected"' : ''),
+                'select'  => ((!strlen($session['sorting'][$this->dc->getTable()]) && $field == $firstOrderBy || $field == str_replace(' DESC', '', $session['sorting'][$this->dc->getTable()])) ? ' selected="selected"' : ''),
                 'content' => $mixedOptionsLabel
             );
         }
@@ -1040,7 +1094,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             {
                 if ($this->dca['fields'][$strField]['eval']['findInSet'])
                 {
-                    $arrOptionsCallback = $this->dc->getCallbackClass()->optionsCallback($this->dca['fields'][$strField]);
+                    $arrOptionsCallback = $this->dc->getCallbackClass()->optionsCallback($strField);
 
                     if (!is_null($arrOptionsCallback))
                     {
@@ -1104,7 +1158,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 $key = explode('.', $this->dca['fields'][$firstOrderBy]['foreignKey'], 2);
 
                 $this->foreignKey = true;
-                
+
                 // TODO remove sql
                 $this->arrFields = array(
                     '*',
@@ -1133,14 +1187,429 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         return $mixedOrderBy;
     }
 
-    public function sortCollectionPid(InterfaceGeneralModel $a, InterfaceGeneralModel $b)
+    /**
+     * Set filter from user input and table configuration for filter menu
+     * 
+     * @param array $arrSortingFields
+     * @param array $arrSession
+     * @param string $strFilter
+     * @return array 
+     */
+    protected function filterMenuSetFilter($arrSortingFields, $arrSession, $strFilter)
     {
-        if ($a->getProperty('pid') == $b->getProperty('pid'))
+        // Set filter from user input
+        if ($this->Input->post('FORM_SUBMIT') == 'tl_filters')
+        {
+            foreach ($arrSortingFields as $field)
+            {
+                if ($this->Input->post($field, true) != 'tl_' . $field)
+                {
+                    $arrSession['filter'][$strFilter][$field] = $this->Input->post($field, true);
+                }
+                else
+                {
+                    unset($arrSession['filter'][$strFilter][$field]);
+                }
+            }
+
+            $this->Session->setData($arrSession);
+        }
+
+        // Set filter from table configuration
+        else
+        {
+            foreach ($arrSortingFields as $field)
+            {
+                if (isset($arrSession['filter'][$strFilter][$field]))
+                {
+
+                    // Sort by day
+                    if (in_array($this->dca['fields'][$field]['flag'], array(5, 6)))
+                    {
+                        if ($arrSession['filter'][$strFilter][$field] == '')
+                        {
+                            $this->dc->setFilter(array($field . " = ''"));
+                        }
+                        else
+                        {
+                            $objDate = new Date($arrSession['filter'][$strFilter][$field]);
+                            $this->dc->setFilter(array($field . " BETWEEN '" . $objDate->dayBegin . "' AND '" . $objDate->dayEnd . "'"));
+                        }
+                    }
+
+                    // Sort by month
+                    elseif (in_array($this->dca['fields'][$field]['flag'], array(7, 8)))
+                    {
+                        if ($arrSession['filter'][$strFilter][$field] == '')
+                        {
+                            $this->dc->setFilter(array($field . " = ''"));
+                        }
+                        else
+                        {
+                            $objDate = new Date($arrSession['filter'][$strFilter][$field]);
+                            $this->dc->setFilter(array($field . " BETWEEN '" . $objDate->monthBegin . "' AND '" . $objDate->monthEnd . "'"));
+                        }
+                    }
+
+                    // Sort by year
+                    elseif (in_array($this->dca['fields'][$field]['flag'], array(9, 10)))
+                    {
+                        if ($arrSession['filter'][$strFilter][$field] == '')
+                        {
+                            $this->dc->setFilter(array($field . " = ''"));
+                        }
+                        else
+                        {
+                            $objDate = new Date($arrSession['filter'][$strFilter][$field]);
+                            $this->dc->setFilter(array($field . " BETWEEN '" . $objDate->yearBegin . "' AND '" . $objDate->yearEnd . "'"));
+                        }
+                    }
+
+                    // Manual filter
+                    elseif ($this->dca['fields'][$field]['eval']['multiple'])
+                    {
+                        // TODO fiond in set
+                        // CSV lists (see #2890)
+                        /* if (isset($this->dca['fields'][$field]['eval']['csv']))
+                          {
+                          $this->procedure[] = $this->Database->findInSet('?', $field, true);
+                          $this->values[] = $session['filter'][$filter][$field];
+                          }
+                          else
+                          {
+                          $this->procedure[] = $field . ' LIKE ?';
+                          $this->values[] = '%"' . $session['filter'][$filter][$field] . '"%';
+                          } */
+                    }
+
+                    // Other sort algorithm
+                    else
+                    {
+                        $this->dc->setFilter(array($field . " = '" . $arrSession['filter'][$strFilter][$field] . "'"));
+                    }
+                }
+            }
+        }
+
+        return $arrSession;
+    }
+
+    /**
+     * Add sorting options to filter menu
+     * 
+     * @param array $arrSortingFields
+     * @param array $arrSession
+     * @param string $strFilter
+     * @return array 
+     */
+    protected function filterMenuAddOptions($arrSortingFields, $arrSession, $strFilter)
+    {
+        $arrPanelView = array();
+
+        // Add sorting options
+        foreach ($arrSortingFields as $cnt => $field)
+        {
+            $arrProcedure = array();
+
+            if ($this->dca['list']['sorting']['mode'] == 4)
+            {
+
+                $arrProcedure[] = "pid = '" . CURRENT_ID . "'";
+            }
+
+            if (!is_null($this->dc->getRootIds()) && is_array($this->dc->getRootIds()))
+            {
+                $arrProcedure[] = "id IN(" . implode(',', array_map('intval', $this->dc->getRootIds())) . ")";
+            }
+
+            $objCollection = $this->dc->getDataProvider()->fetchAll($this->dc->getDataProvider()->getEmptyConfig()->setFields(array("DISTINCT(" . $field . ")"))->setFilter($arrProcedure));
+
+            // Begin select menu            
+            $arrPanelView[$field] = array(
+                'select' => array(
+                    'name'   => $field,
+                    'id'     => $field,
+                    'class'  => 'tl_select' . (isset($arrSession['filter'][$strFilter][$field]) ? ' active' : '')
+                ),
+                'option' => array(
+                    array(
+                        'value'   => 'tl_' . $field,
+                        'content' => (is_array($this->dca['fields'][$field]['label']) ? $this->dca['fields'][$field]['label'][0] : $this->dca['fields'][$field]['label'])
+                    ),
+                    array(
+                        'value'   => 'tl_' . $field,
+                        'content' => '---'
+                    )
+                )
+            );
+
+            if ($objCollection->length() > 0)
+            {
+                $options = array();
+
+                foreach ($objCollection as $intIndex => $objModel)
+                {
+                    $options[$intIndex] = $objModel->getProperty($field);
+                }
+
+                // Sort by day
+                if (in_array($GLOBALS['TL_DCA'][$this->strTable]['fields'][$field]['flag'], array(5, 6)))
+                {
+                    $this->arrColSort = array(
+                        'field'   => $field,
+                        'reverse' => ($this->dca['fields'][$field]['flag'] == 6) ? true : false
+                    );
+
+                    $objCollection->sort(array($this, 'sortCollection'));
+
+                    foreach ($objCollection as $intIndex => $objModel)
+                    {
+                        if ($objModel->getProperty($field) == '')
+                        {
+                            $options[$objModel->getProperty($field)] = '-';
+                        }
+                        else
+                        {
+                            $options[$objModel->getProperty($field)] = $this->parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $objModel->getProperty($field));
+                        }
+
+                        unset($options[$intIndex]);
+                    }
+                }
+
+                // Sort by month
+                elseif (in_array($this->dca['fields'][$field]['flag'], array(7, 8)))
+                {
+                    $this->arrColSort = array(
+                        'field'   => $field,
+                        'reverse' => ($this->dca['fields'][$field]['flag'] == 8) ? true : false
+                    );
+
+                    $objCollection->sort(array($this, 'sortCollection'));
+
+                    foreach ($objCollection as $intIndex => $objModel)
+                    {
+                        if ($objModel->getProperty($field) == '')
+                        {
+                            $options[$objModel->getProperty($field)] = '-';
+                        }
+                        else
+                        {
+                            $options[$objModel->getProperty($field)] = date('Y-m', $objModel->getProperty($field));
+                            $intMonth                                = (date('m', $objModel->getProperty($field)) - 1);
+
+                            if (isset($GLOBALS['TL_LANG']['MONTHS'][$intMonth]))
+                            {
+                                $options[$objModel->getProperty($field)] = $GLOBALS['TL_LANG']['MONTHS'][$intMonth] . ' ' . date('Y', $objModel->getProperty($field));
+                            }
+                        }
+
+                        unset($options[$intIndex]);
+                    }
+                }
+
+                // Sort by year
+                elseif (in_array($this->dca['fields'][$field]['flag'], array(9, 10)))
+                {
+                    $this->arrColSort = array(
+                        'field'   => $field,
+                        'reverse' => ($this->dca['fields'][$field]['flag'] == 10) ? true : false
+                    );
+
+                    $objCollection->sort(array($this, 'sortCollection'));
+
+                    foreach ($objCollection as $intIndex => $objModel)
+                    {
+                        if ($objModel->getProperty($field) == '')
+                        {
+                            $options[$objModel->getProperty($field)] = '-';
+                        }
+                        else
+                        {
+                            $options[$objModel->getProperty($field)] = date('Y', $objModel->getProperty($field));
+                        }
+
+                        unset($options[$intIndex]);
+                    }
+                }
+
+                // Manual filter
+                if ($this->dca['fields'][$field]['eval']['multiple'])
+                {
+                    $moptions = array();
+
+                    foreach ($objCollection as $objModel)
+                    {
+                        if (isset($this->dca['fields'][$field]['eval']['csv']))
+                        {
+                            $doptions = trimsplit($this->dca['fields'][$field]['eval']['csv'], $objModel->getProperty($field));
+                        }
+                        else
+                        {
+                            $doptions = deserialize($objModel->getProperty($field));
+                        }
+
+                        if (is_array($doptions))
+                        {
+                            $moptions = array_merge($moptions, $doptions);
+                        }
+                    }
+
+                    $options = $moptions;
+                }
+
+                $options            = array_unique($options);
+                $arrOptionsCallback = array();
+
+                // Load options callback
+                if (is_array($this->dca['fields'][$field]['options_callback']) && !$this->dca['fields'][$field]['reference'])
+                {
+                    $arrOptionsCallback = $this->dc->getCallbackClass()->optionsCallback($field);
+
+                    // Sort options according to the keys of the callback array
+                    if (!is_null($arrOptionsCallback))
+                    {
+                        $options = array_intersect(array_keys($arrOptionsCallback), $options);
+                    }
+                }
+
+                $arrOptions = array();
+                $arrSortOptions = array();
+                $blnDate = in_array($this->dca['fields'][$field]['flag'], array(5, 6, 7, 8, 9, 10));
+
+                // Options                
+                foreach ($options as $kk => $vv)
+                {
+                    $value = $blnDate ? $kk : $vv;
+
+                    // Replace the ID with the foreign key
+                    if (isset($this->dca['fields'][$field]['foreignKey']))
+                    {
+                        $key = explode('.', $this->dca['fields'][$field]['foreignKey'], 2);
+
+                        $objModel = $this->dc->getDataProvider($key[0])->fetch(
+                                $this->dc->getDataProvider($key[0])->getEmptyConfig()
+                                        ->setId($vv)
+                                        ->setFields(array($key[1] . ' AS value'))
+                        );
+
+                        if ($objModel->hasProperties())
+                        {
+                            $vv = $objModel->getProperty('value');
+                        }
+                    }
+
+                    // Replace boolean checkbox value with "yes" and "no"
+                    elseif ($this->dca['fields'][$field]['eval']['isBoolean'] || ($this->dca['fields'][$field]['inputType'] == 'checkbox' && !$this->dca['fields'][$field]['eval']['multiple']))
+                    {
+                        $vv = ($vv != '') ? $GLOBALS['TL_LANG']['MSC']['yes'] : $GLOBALS['TL_LANG']['MSC']['no'];
+                    }
+
+                    // Options callback
+                    elseif (!is_null($arrOptionsCallback))
+                    {
+                        $vv = $arrOptionsCallback[$vv];
+                    }
+
+                    // Get the name of the parent record
+                    elseif ($field == 'pid')
+                    {
+                        // Load language file and data container array of the parent table
+                        $this->loadLanguageFile($this->dc->getParentTable());
+                        $this->loadDataContainer($this->dc->getParentTable());
+
+                        $objParentDC  = new DC_General($this->dc->getParentTable());
+                        $arrParentDca = $objParentDC->getDCA();
+
+                        $showFields = $arrParentDca['list']['label']['fields'];
+
+                        if (!$showFields[0])
+                        {
+                            $showFields[0] = 'id';
+                        }
+
+                        $objModel = $this->dc->getDataProvider('parent')->fetch(
+                                $this->dc->getDataProvider('parent')->getEmptyConfig()
+                                        ->setId($vv)
+                                        ->setFields(array($showFields[0]))
+                        );
+
+                        if ($objModel->hasProperties())
+                        {
+                            $vv = $objModel->getProperty($showFields[0]);
+                        }
+                    }
+
+                    $strOptionsLabel = '';
+
+                    // Use reference array
+                    if (isset($this->dca['fields'][$field]['reference']))
+                    {
+                        $strOptionsLabel = is_array($this->dca['fields'][$field]['reference'][$vv]) ? $this->dca['fields'][$field]['reference'][$vv][0] : $this->dca['fields'][$field]['reference'][$vv];
+                    }
+
+                    // Associative array
+                    elseif ($this->dca['fields'][$field]['eval']['isAssociative'] || array_is_assoc($this->dca['fields'][$field]['options']))
+                    {
+                        $strOptionsLabel = $this->dca['fields'][$field]['options'][$vv];
+                    }
+
+                    // No empty options allowed
+                    if (!strlen($strOptionsLabel))
+                    {
+                        $strOptionsLabel = strlen($vv) ? $vv : '-';
+                    }
+
+                    $arrOptions[utf8_romanize($strOptionsLabel)] = array(
+                        'value'   => specialchars($value),
+                        'select'  => ((isset($arrSession['filter'][$strFilter][$field]) && $value == $arrSession['filter'][$strFilter][$field]) ? ' selected="selected"' : ''),
+                        'content' => $strOptionsLabel
+                    );
+
+                    $arrSortOptions[] = utf8_romanize($strOptionsLabel);
+                }
+
+                // Sort by option values
+                if (!$blnDate)
+                {
+                    natcasesort($arrSortOptions);
+
+                    if (in_array($this->dca['fields'][$field]['flag'], array(2, 4, 12)))
+                    {
+                        $arrSortOptions = array_reverse($arrSortOptions, true);
+                    }
+                }
+
+                foreach ($arrSortOptions as $value)
+                {
+                    $arrPanelView[$field]['option'][] = $arrOptions[$value];
+                }
+            }
+            // Force a line-break after six elements
+            if ((($cnt + 1) % 6) == 0)
+            {
+                $arrPanelView[] = 'new';
+            }
+        }
+
+        return $arrPanelView;
+    }
+
+    public function sortCollection(InterfaceGeneralModel $a, InterfaceGeneralModel $b)
+    {
+        if ($a->getProperty($this->arrColSort['field']) == $b->getProperty($this->arrColSort['field']))
         {
             return 0;
         }
 
-        return ($a->getProperty('pid') < $b->getProperty('pid')) ? -1 : 1;
+        if (!$this->arrColSort['reverse'])
+        {
+            return ($a->getProperty($this->arrColSort['field']) < $b->getProperty($this->arrColSort['field'])) ? -1 : 1;
+        }
+        else
+        {
+            return ($a->getProperty($this->arrColSort['field']) < $b->getProperty($this->arrColSort['field'])) ? 1 : -1;
+        }
     }
 
 }
