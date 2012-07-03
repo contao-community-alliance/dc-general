@@ -145,7 +145,8 @@ interface InterfaceGeneralDataConfig
     /**
      * Set the nessessary fields
      *  
-     * @param array $arrFields 
+     * @param array $arrFields
+     * @return GeneralDataConfigDefault
      */
     public function setFields($arrFields);  
 

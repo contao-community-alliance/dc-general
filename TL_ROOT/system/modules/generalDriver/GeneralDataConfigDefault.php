@@ -214,7 +214,7 @@ class GeneralDataConfigDefault implements InterfaceGeneralDataConfig
 
         return $this;
     }
-    
+
     /**
      * Get the nessessary fields
      * 
@@ -228,14 +228,15 @@ class GeneralDataConfigDefault implements InterfaceGeneralDataConfig
     /**
      * Set the nessessary fields
      *  
-     * @param array $arrFields 
+     * @param array $arrFields
+     * @return GeneralDataConfigDefault
      */
     public function setFields($arrFields)
     {
         $this->arrFields = $arrFields;
-        
+
         return $this;
-    }    
+    }
 
     /**
      * Get the additional information
