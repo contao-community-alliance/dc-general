@@ -123,7 +123,7 @@ class ViewBuilder extends Backend
         $this->loadDataContainer($this->dc->getParentTable());
 
         $objParentDC = new DC_General($this->dc->getParentTable());
-        $this->parentDc = $objParentDC->getDCA();
+        $this->parentDca = $objParentDC->getDCA();
 
         // Add template
         $objTemplate = new BackendTemplate('dcbe_general_parentView');
@@ -157,7 +157,7 @@ class ViewBuilder extends Backend
 
         $objTemplate->notDeletable = $this->dca['config']['notDeletable'];
         $objTemplate->notEditable = $this->dca['config']['notEditable'];
-        $objTemplate->notEditableParent = $this->parentDc['config']['notEditable'];
+        $objTemplate->notEditableParent = $this->parentDca['config']['notEditable'];
         $arrReturn[] = $objTemplate->parse();
 
         return implode('', $arrReturn);
@@ -192,39 +192,39 @@ class ViewBuilder extends Backend
         {
             $_v = deserialize($this->dc->getCurrentParentCollection()->get(0)->getProperty($v));
 
-            if ($v != 'tstamp' || !isset($this->parentDc['fields'][$v]['foreignKey']))
+            if ($v != 'tstamp' || !isset($this->parentDca['fields'][$v]['foreignKey']))
             {
                 if (is_array($_v))
                 {
                     $_v = implode(', ', $_v);
                 }
-                elseif ($this->parentDc['fields'][$v]['inputType'] == 'checkbox' && !$this->parentDc['fields'][$v]['eval']['multiple'])
+                elseif ($this->parentDca['fields'][$v]['inputType'] == 'checkbox' && !$this->parentDca['fields'][$v]['eval']['multiple'])
                 {
                     $_v = strlen($_v) ? $GLOBALS['TL_LANG']['MSC']['yes'] : $GLOBALS['TL_LANG']['MSC']['no'];
                 }
-                elseif ($_v && $this->parentDc['fields'][$v]['eval']['rgxp'] == 'date')
+                elseif ($_v && $this->parentDca['fields'][$v]['eval']['rgxp'] == 'date')
                 {
                     $_v = $this->parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $_v);
                 }
-                elseif ($_v && $this->parentDc['fields'][$v]['eval']['rgxp'] == 'time')
+                elseif ($_v && $this->parentDca['fields'][$v]['eval']['rgxp'] == 'time')
                 {
                     $_v = $this->parseDate($GLOBALS['TL_CONFIG']['timeFormat'], $_v);
                 }
-                elseif ($_v && $this->parentDc['fields'][$v]['eval']['rgxp'] == 'datim')
+                elseif ($_v && $this->parentDca['fields'][$v]['eval']['rgxp'] == 'datim')
                 {
                     $_v = $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $_v);
                 }
-                elseif (is_array($this->parentDc['fields'][$v]['reference'][$_v]))
+                elseif (is_array($this->parentDca['fields'][$v]['reference'][$_v]))
                 {
-                    $_v = $this->parentDc['fields'][$v]['reference'][$_v][0];
+                    $_v = $this->parentDca['fields'][$v]['reference'][$_v][0];
                 }
-                elseif (isset($this->parentDc['fields'][$v]['reference'][$_v]))
+                elseif (isset($this->parentDca['fields'][$v]['reference'][$_v]))
                 {
-                    $_v = $this->parentDc['fields'][$v]['reference'][$_v];
+                    $_v = $this->parentDca['fields'][$v]['reference'][$_v];
                 }
-                elseif ($this->parentDc['fields'][$v]['eval']['isAssociative'] || array_is_assoc($this->parentDc['fields'][$v]['options']))
+                elseif ($this->parentDca['fields'][$v]['eval']['isAssociative'] || array_is_assoc($this->parentDca['fields'][$v]['options']))
                 {
-                    $_v = $this->parentDc['fields'][$v]['options'][$_v];
+                    $_v = $this->parentDca['fields'][$v]['options'][$_v];
                 }
             }
 
@@ -456,10 +456,10 @@ class ViewBuilder extends Backend
 
             $colspan = 1;
 
-            // Call label callback
-            $mixedArgs = $this->dc->getCallbackClass()->labelCallback($objModelRow, $label, $this->arrDCA['list']['label'], $args);
+            // Call label callback            
+            $mixedArgs = $this->dc->getCallbackClass()->labelCallback($objModelRow, $label, $this->dca['list']['label'], $args);
 
-            if (is_array($this->arrDCA['list']['label']['label_callback']))
+            if (is_array($this->dca['list']['label']['label_callback']))
             {
                 // Handle strings and arrays (backwards compatibility)
                 if (!$this->dca['list']['label']['showColumns'])
