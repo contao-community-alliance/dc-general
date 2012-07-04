@@ -932,7 +932,7 @@ class DC_General extends DataContainer implements editable, listable
         $varValue = deserialize($this->objCurrentModel->getProperty($strField));
 
         // Load Callback
-        $mixedValue = $this->objCallbackClass->loadCallback($varValue);
+        $mixedValue = $this->objCallbackClass->loadCallback($strField, $varValue);
 
         if (!is_null($mixedValue))
         {
