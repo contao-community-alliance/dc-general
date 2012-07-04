@@ -1388,13 +1388,13 @@ class DC_General extends DataContainer implements editable, listable
 
     public function __call($name, $arguments)
     {
-        $strReturn = call_user_func_array(array($this->objController, $name), $arguments);
+        $strReturn = call_user_func_array(array($this->objController, $name), array_merge(array($this), $arguments));
         if ($strReturn != null && $strReturn != "")
         {
             return $strReturn;
         }
 
-        return call_user_func_array(array($this->objViewHandler, $name), $arguments);
+        return call_user_func_array(array($this->objViewHandler, $name), array_merge(array($this), $arguments));
     }
 
     public function generateAjaxPalette($strMethod, $strSelector)
