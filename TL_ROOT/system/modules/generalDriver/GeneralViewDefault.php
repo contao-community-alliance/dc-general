@@ -67,6 +67,18 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
     public function edit(DC_General $objDcGeneral)
     {
+        $objLanguagesSupported = null;
+        
+        // Check if DP is multilanguage
+        if (is_a($objDcGeneral->getDataProvider(), "InterfaceGeneralDataML"))
+        {
+            $objLanguagesSupported = $objDcGeneral->getDataProvider()->getLanguages($objDcGeneral->getId());
+            
+            include(TL_ROOT . '/system/config/languages.php');        
+            
+            $strCurrentLanguage = $objDcGeneral->getDataProvider()->getCurrentLanguage();
+        }
+        
         $objPaletteBuilder = new PaletteBuilder($objDcGeneral);
 
         $objTemplate = new BackendTemplate('dcbe_general_edit');
@@ -74,7 +86,9 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             'fieldsets' => $objPaletteBuilder->generateFieldsets('dcbe_general_field', array()),
             'oldBE' => $GLOBALS['TL_CONFIG']['oldBeTheme'],
             'versions' => $objDcGeneral->getDataProvider()->getVersions($objDcGeneral->getId()),
+            'language' => $objLanguagesSupported,
             'subHeadline' => sprintf($GLOBALS['TL_LANG']['MSC']['editRecord'], $objDcGeneral->getId() ? 'ID ' . $objDcGeneral->getId() : ''),
+            'languageHeadline' => strlen($strCurrentLanguage) != 0 ? $GLOBALS['TL_LANG']['MSC']['language'] . " " . $languages[$strCurrentLanguage] : '',
             'table' => $objDcGeneral->getTable(),
             'enctype' => $objDcGeneral->isUploadable() ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
             //'onsubmit' => implode(' ', $this->onsubmit),

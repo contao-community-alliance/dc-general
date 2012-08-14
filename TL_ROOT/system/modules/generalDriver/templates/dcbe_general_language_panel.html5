@@ -1,0 +1,22 @@
+<form action="<?php echo $this->action; ?>" class="tl_form" method="post">
+    <div class="tl_formbody">
+        <input type="hidden" name="FORM_SUBMIT" value="tl_language_switch">
+        <input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>">
+
+        <div class="tl_panel">
+            <div class="tl_submit_panel tl_subpanel">
+                <input type="image" name="filter" id="language_switch" src="<?php echo TL_FILES_URL; ?>system/themes/<?php echo $this->theme; ?>/images/reload.gif" class="tl_img_submit" title="<?php echo $GLOBALS['TL_LANG']['MSC']['apply']; ?>" alt="<?php echo $GLOBALS['TL_LANG']['MSC']['apply']; ?>">
+            </div>
+            <div class="tl_sorting tl_subpanel">
+                <strong><?php echo $GLOBALS['TL_LANG']['MSC']['sortBy']; ?>:</strong>
+                <select name="tl_sort" id="tl_sort" class="tl_select">                    
+                    <?php foreach ($this->objLanguages as $value): ?>
+                        <option value="<?php echo $value->getID(); ?>"<?php echo $arrOption['select']; ?>><?php echo $value->getProperty("name"); ?></option>';
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="clear"></div>
+        </div>
+
+    </div>
+</form>
