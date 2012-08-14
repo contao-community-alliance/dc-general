@@ -91,11 +91,19 @@ interface InterfaceGeneralCollection extends IteratorAggregate
      * (do not fill with empty records!).
      *
      * @param int $index
-     * @param Model $model
+     * @param InterfaceGeneralModel $model
      *
      * @return void
      */
     public function insert($index, InterfaceGeneralModel $model);
+
+    /**
+     * Remove the given index or model from the collection and renew the index.
+     * ATTENTION: Don't use key to unset in foreach because of the new index.
+     * 
+     * @param mixed $mixedValue
+     */
+    public function remove($mixedValue);
 
     /**
      * Make a reverse sorted collection.
@@ -113,6 +121,5 @@ interface InterfaceGeneralCollection extends IteratorAggregate
      */
     public function sort($callback);
 }
-
 
 ?>

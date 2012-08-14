@@ -44,7 +44,6 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
     {
         $this->objDC = $objDC;
     }
-    
 
     /**
      * Exectue a callback
@@ -90,34 +89,34 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
      * 
      * @param InterfaceGeneralModel $objModelRow
      * @param string $mixedLabel
-     * @param array $arrDCA
      * @param array $args
      * @return string 
      */
     public function labelCallback(InterfaceGeneralModel $objModelRow, $mixedLabel, $args)
     {
         // Load DCA
-        $arrDCA = $this->objDC->getDCA();
-        
+        $arrDCA      = $this->objDC->getDCA();
+        $arrCallback = $arrDCA['list']['label']['label_callback'];
+
         // Check Callback
-        if (is_array($arrDCA['label_callback']))
+        if (is_array($arrCallback))
         {
-            $strClass  = $arrDCA['label_callback'][0];
-            $strMethod = $arrDCA['label_callback'][1];
+            $strClass  = $arrCallback[0];
+            $strMethod = $arrCallback[1];
 
             $this->import($strClass);
 
             if (version_compare(VERSION, '2.10', '>'))
             {
-                $mixedLabel = $this->$strClass->$strMethod($objModelRow->getPropertiesAsArray(), $mixedLabel, $this->objDC, $args);
+                return $this->$strClass->$strMethod($objModelRow->getPropertiesAsArray(), $mixedLabel, $this->objDC, $args);
             }
             else
             {
-                $mixedLabel = $this->$strClass->$strMethod($objModelRow->getPropertiesAsArray(), $mixedLabel, $this->objDC);
+                return $this->$strClass->$strMethod($objModelRow->getPropertiesAsArray(), $mixedLabel, $this->objDC);
             }
         }
 
-        return $mixedLabel;
+        return null;
     }
 
     /**
@@ -150,19 +149,8 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
             $this->import($strClass);
 
             return $this->$strClass->$strMethod(
-                        $objModelRow->getPropertiesAsArray(), 
-                        $arrDCA['href'], 
-                        $strLabel, 
-                        $strTitle, 
-                        $arrDCA['icon'], 
-                        $arrAttributes, 
-                        $strTable, 
-                        $arrRootIds, 
-                        $arrChildRecordIds, 
-                        $blnCircularReference, 
-                        $strPrevious, 
-                        $strNext
-                    );
+                            $objModelRow->getPropertiesAsArray(), $arrDCA['href'], $strLabel, $strTitle, $arrDCA['icon'], $arrAttributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext
+            );
         }
 
         return null;
@@ -194,25 +182,74 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
             return $this->$strClass->$strMethod($arrDCA['href'], $strLabel, $strTitle, $arrDCA['icon'], $arrAttributes, $strTable, $arrRootIds);
         }
 
-        return NULL;
+        return null;
     }
 
     /**
-     * Call the options callback for the fields
+     * Call the header callback
      * 
-     * @param type $arrDCA
-     * @return array|null 
+     * @param array $arrAdd
+     * @return array|null
      */
-    public function optionsCallback()
+    public function headerCallback($arrAdd)
     {
         // Load DCA
-        $arrDCA = $this->objDC->getDCA();
+        $arrDCA      = $this->objDC->getDCA();
+        $arrCallback = $arrDCA['list']['sorting']['header_callback'];
+
+        if (is_array($arrCallback))
+        {
+            $strClass  = $arrCallback[0];
+            $strMethod = $arrCallback[1];
+
+            $this->import($strClass);
+            return $this->$strClass->$strMethod($arrAdd, $this->objDC);
+        }
+
+        return null;
+    }
+
+    /**
+     * Call the child record callback
+     * 
+     * @param array $arrRow
+     * @return string|null
+     */
+    public function childRecordCallback($arrRow)
+    {
+        // Load DCA
+        $arrDCA      = $this->objDC->getDCA();
+        $arrCallback = $arrDCA['list']['sorting']['child_record_callback'];
+
+        if (is_array($arrCallback))
+        {
+            $strClass  = $arrCallback[0];
+            $strMethod = $arrCallback[1];
+
+            $this->import($strClass);
+            return $this->$strClass->$strMethod($arrRow);
+        }
+
+        return null;
+    }
+
+    /**
+     * Call the options callback for given the fields
+     * 
+     * @param string $strField
+     * @return array|null 
+     */
+    public function optionsCallback($strField)
+    {
+        // Load DCA
+        $arrDCA      = $this->objDC->getDCA();
+        $arrCallback = $arrDCA['fields'][$strField]['options_callback'];
 
         // Check Callback
-        if (is_array($arrDCA['options_callback']))
+        if (is_array($arrCallback))
         {
-            $strClass  = $arrDCA['options_callback'][0];
-            $strMethod = $arrDCA['options_callback'][1];
+            $strClass  = $arrCallback[0];
+            $strMethod = $arrCallback[1];
 
             $this->import($strClass);
             return $this->$strClass->$strMethod($this->objDC);
@@ -241,11 +278,45 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
             {
                 if (is_array($callback))
                 {
-                    $this->import($callback[0]);                    
+                    $this->import($callback[0]);
                     $this->$callback[0]->$callback[1]($intID, $strTable, $arrData, $intVersion);
                 }
             }
         }
+    }
+
+    /**
+     * Call the load callback
+     * 
+     * @param string field
+     * @param array $arrValue
+     * @return array|null 
+     */
+    public function loadCallback($strField, $arrValue)
+    {
+        // Load DCA
+        $arrDCA       = $this->objDC->getDCA();
+        $arrCallbacks = $arrDCA['fields'][$strField]['load_callback'];
+
+        // Load Callback
+        if (is_array($arrCallbacks))
+        {
+            foreach ($arrCallbacks as $arrCallback)
+            {
+                if (is_array($arrCallback))
+                {
+                    $strClass  = $arrCallback[0];
+                    $strMethod = $arrCallback[1];
+
+                    $this->import($strClass);
+                    $arrValue = $this->$strClass->$strMethod($varValue, $this->objDC);
+                }
+            }
+
+            return $arrValue;
+        }
+
+        return null;
     }
 
     /**
@@ -285,7 +356,7 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
     {
         // Load DCA
         $arrDCA = $this->objDC->getDCA();
-       
+
         $currentGroup = $group;
 
         // Check Callback
@@ -296,16 +367,16 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 
             $this->import($strClass);
             $currentGroup = $this->$strClass->$strMethod($currentGroup, $mode, $field, $objModelRow->getPropertiesAsArray(), $this);
-            
+
             if ($currentGroup == null)
             {
                 $group = $currentGroup;
             }
         }
-        
+
         return $group;
     }
-    
+
     /**
      * Call the save callback for a widget
      * 
@@ -326,7 +397,7 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 
         return $varNew;
     }
-    
+
     /**
      * Call ondelete_callback
      */
@@ -356,7 +427,7 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
     {
         // Load DCA
         $arrDCA = $this->objDC->getDCA();
-        
+
         if (is_array($arrDCA['config']['onsubmit_callback']))
         {
             foreach ($arrDCA['config']['onsubmit_callback'] as $callback)

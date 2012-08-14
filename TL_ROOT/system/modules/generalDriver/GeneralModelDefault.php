@@ -44,7 +44,7 @@ class GeneralModelDefault implements InterfaceGeneralModel
      * @return InterfaceGeneralModel
      */
     public function __clone()
-    {        
+    {
         $this->mixID = null;
     }
 
@@ -81,12 +81,12 @@ class GeneralModelDefault implements InterfaceGeneralModel
      */
     public function getPropertiesAsArray()
     {
-        $arrArray = $this->arrProperties;
+        $arrArray       = $this->arrProperties;
         $arrArray["id"] = $this->mixID;
-        
+
         return $arrArray;
     }
-    
+
     /**
      * Set the id for this modell. 
      * This works only once.  
@@ -95,7 +95,7 @@ class GeneralModelDefault implements InterfaceGeneralModel
      */
     public function setID($mixID)
     {
-        if($this->mixID == null)
+        if ($this->mixID == null)
         {
             $this->mixID = $mixID;
         }
@@ -109,11 +109,6 @@ class GeneralModelDefault implements InterfaceGeneralModel
      */
     public function setProperty($strPropertyName, $varValue)
     {
-        if ($varValue == null)
-        {
-            return;
-        }
-
         $this->arrProperties[$strPropertyName] = $varValue;
     }
 
@@ -157,6 +152,7 @@ class GeneralModelDefault implements InterfaceGeneralModel
     {
         return new ArrayIterator($this->arrProperties);
     }
+
 }
 
 ?>
