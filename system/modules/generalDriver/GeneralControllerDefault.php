@@ -56,6 +56,14 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      */
     protected $arrColSort;
 
+    /**
+     * Const Language
+     */
+
+    const LANGUAGE_SL         = 1;
+    const LANGUAGE_ML         = 2;
+    const LANGUAGE_NO_SUPPORT = 3;
+
     public function __construct()
     {
         parent::__construct();
@@ -73,7 +81,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         };
     }
 
-    // Core Functions ----------------------------------------------------------
+    // Support Functions -------------------------------------------------------
 
     /**
      * Perform low level saving of the current model in a DC.
@@ -156,16 +164,78 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     }
 
     /**
-     * Create function 
-     *  
-     * @param DC_General $objDC 
+     * Check if the curren model support multi language.
+     * Load the language from SESSION, POST or use a fallback.
+     * 
+     * @param DC_General $objDC
+     * @return int return the mode multilanguage, singellanguage or unsupportet language
      */
+    protected function checkLanguage(DC_General $objDC)
+    {
+        // Load basic informations
+        $objDataProvider       = $objDC->getDataProvider();
+        $intID                 = $objDC->getId();
+        $objLanguagesSupported = $objDC->getDataProvider()->getLanguages($intID);
+
+        // Load language from Session 
+        $arrSession = $this->Session->get("dc_general");
+        if (!is_array($arrSession))
+        {
+            $arrSession = array();
+        }
+        
+        // try to get the language from session
+        if(isset($arrSession["ml_support"][$objDC->getTable()][$intID]))
+        {
+            $strCurrentLanguage = $arrSession["ml_support"][$objDC->getTable()][$intID];
+        }
+        else
+        {
+            $strCurrentLanguage = $GLOBALS['TL_LANGUAGE'];
+        }
+
+        //Check if we have some languages
+        if ($objLanguagesSupported == null)
+        {
+            return self::LANGUAGE_SL;
+        }
+
+        // Make a array from the collection
+        $arrLanguage = array();
+        foreach ($objLanguagesSupported as $value)
+        {
+            $arrLanguage[$value->getID()] = $value->getProperty("name");
+        }
+
+        // Get/Check the new language
+        if (strlen($this->Input->post("language")) != 0 && $_POST['FORM_SUBMIT'] == 'language_switch')
+        {
+            if (key_exists($this->Input->post("language"), $arrLanguage))
+            {
+                $strCurrentLanguage = $this->Input->post("language");
+                $arrSession["ml_support"][$objDC->getTable()][$intID] = $strCurrentLanguage;
+            }
+            else
+            {
+                return self::LANGUAGE_NO_SUPPORT;
+            }
+        }
+
+        $this->Session->set("dc_general", $arrSession);
+        
+        $objDataProvider->setCurrentLanguage($strCurrentLanguage);
+        
+        return self::LANGUAGE_ML;
+    }
+
+    // Core Functions ----------------------------------------------------------
+
     public function create(DC_General $objDC)
     {
         // Check if table is editable
         if (!$objDC->isEditable())
         {
-            $this->log('Table ' . $objDC->getTable() . ' is not editable', 'DC_General edit()', TL_ERROR);
+            $this->log('Table ' . $objDC->getTable() . ' is not editable', 'DC_General - Controller - create()', TL_ERROR);
             $this->redirect('contao/main.php?act=error');
         }
 
@@ -185,6 +255,16 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         // Set buttons
         $objDC->addButton("save");
         $objDC->addButton("saveNclose");
+
+        // Check if DP is multilanguage
+        if (is_a($objDC->getDataProvider(), "InterfaceGeneralDataML"))
+        {
+            
+        }
+        else
+        {
+            
+        }
 
         // Load record from data provider       
         $objDBModel = $objDC->getDataProvider()->getEmptyModel();
@@ -270,9 +350,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $this->log('Table ' . $objDC->getTable() . ' is not editable', 'DC_General - Controller - edit()', TL_ERROR);
             $this->redirect('contao/main.php?act=error');
         }
-        
+
         // Check if DP is multilanguage
-        if(is_a($objDC->getDataProvider(), "InterfaceGeneralDataML"))
+        if (is_a($objDC->getDataProvider(), "InterfaceGeneralDataML"))
         {
             return $this->editML($objDC);
         }
@@ -281,7 +361,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             return $this->editSL($objDC);
         }
     }
-    
+
     protected function editSL(DC_General $objDC)
     {
         $objDataProvider = $objDC->getDataProvider();
@@ -387,20 +467,28 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     protected function editML(DC_General $objDC)
     {
-        $objDataProvider = $objDC->getDataProvider();
-        $strCurrentLanguage = "de";
-        $intID = $objDC->getId();
+        $objDataProvider       = $objDC->getDataProvider();
+        $strCurrentLanguage    = "de";
+        $intID                 = $objDC->getId();
         $objLanguagesSupported = $objDC->getDataProvider()->getLanguages($intID);
-        
-        if($objLanguagesSupported == null)
+
+        //Check if we have some languages
+        if ($objLanguagesSupported == null)
         {
             return $this->editSL($objDC);
         }
-               
+
+        // Make a array from the collection
+        $arrLanguage = array();
+        foreach ($objLanguagesSupported as $key => $value)
+        {
+            $arrLanguage[$value->getID()] = $value->getProperty("name");
+        }
+
         // Get/Check the new language
         if (strlen($this->Input->post("language")) != 0 && $_POST['FORM_SUBMIT'] == 'language_switch')
         {
-            if (key_exists($this->Input->post("language"), $objLanguagesSupported))
+            if (key_exists($this->Input->post("language"), $arrLanguage))
             {
                 $strCurrentLanguage = $this->Input->post("language");
 
@@ -432,7 +520,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         $objDataProvider->setCurrentLanguage($strCurrentLanguage);
-        
+
         // Load an older Version
         if (strlen($this->Input->post("version")) != 0 && $objDC->isVersionSubmit())
         {
@@ -549,7 +637,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     public function showAll(DC_General $objDC)
     {
-        $this->dc = $objDC;
+        $this->dc  = $objDC;
         $this->dca = $objDC->getDCA();
 
         $this->dc->setButtonId('tl_buttons');
@@ -718,7 +806,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->loadLanguageFile($this->dc->getParentTable());
         $this->loadDataContainer($this->dc->getParentTable());
 
-        $objParentDC = new DC_General($this->dc->getParentTable());
+        $objParentDC    = new DC_General($this->dc->getParentTable());
         $this->parentDc = $objParentDC->getDCA();
 
         // Get limits

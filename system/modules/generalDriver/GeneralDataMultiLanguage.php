@@ -31,23 +31,33 @@ class GeneralDataMultiLanguage extends GeneralDataDefault implements InterfaceGe
 {
 
     protected $strCurrentLanguage;
+    
+    public function __construct()
+    {
+        $this->strCurrentLanguage = "en";
+        
+        parent::__construct();
+    }
 
 
     public function getLanguages($mixID)
     {
-        include(TL_ROOT . '/system/config/languages.php');        
-        
         $objCollection = $this->getEmptyCollection();
+
+        $objModel = $this->getEmptyModel();
+        $objModel->setID("de");
+        $objModel->setProperty("name", "Deutsch");
+        if($this->strCurrentLanguage == "de") $objModel->setProperty("active", true);
+
+        $objCollection->add($objModel);
+
+        $objModel = $this->getEmptyModel();
+        $objModel->setID("en");
+        $objModel->setProperty("name", "English");
+        if($this->strCurrentLanguage == "en") $objModel->setProperty("active", true);        
         
-        foreach ($languages as $key => $value)
-        {
-            $objModel = $this->getEmptyModel();
-            $objModel->setID($key);
-            $objModel->setProperty("name", $value);
-            
-            $objCollection->add($objModel);
-        }
-        
+        $objCollection->add($objModel);
+
         return $objCollection;
     }
 
@@ -60,7 +70,7 @@ class GeneralDataMultiLanguage extends GeneralDataDefault implements InterfaceGe
     {
         $this->strCurrentLanguage = $strLanguage;
     }
-    
+
     public function fetch(GeneralDataConfigDefault $objConfig)
     {
         return parent::fetch($objConfig);

@@ -74,8 +74,8 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         {
             $objLanguagesSupported = $objDcGeneral->getDataProvider()->getLanguages($objDcGeneral->getId());
             
-            include(TL_ROOT . '/system/config/languages.php');        
-            
+            //include(TL_ROOT . '/system/config/languages.php');        
+                        
             $strCurrentLanguage = $objDcGeneral->getDataProvider()->getCurrentLanguage();
         }
         
