@@ -61,6 +61,15 @@ class GeneralDataMultiLanguage extends GeneralDataDefault implements InterfaceGe
         return $objCollection;
     }
 
+    public function getFallbackLanguage($mixID)
+    {
+        $objModel = $this->getEmptyModel();
+        $objModel->setID("en");
+        $objModel->setProperty("name", "English");
+        
+        return $objModel;
+    }
+
     public function getCurrentLanguage()
     {
         return $this->strCurrentLanguage;

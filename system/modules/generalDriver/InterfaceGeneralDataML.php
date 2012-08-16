@@ -36,6 +36,14 @@ interface InterfaceGeneralDataML extends InterfaceGeneralData
      * @return InterfaceGeneralCollection 
      */
     public function getLanguages($mixID);
+    
+    /**
+     * Get the fallback language
+     * 
+     * @param mixed $mixID The ID of record
+     * @return InterfaceGeneralModel
+     */
+    public function getFallbackLanguage($mixID);
 
     /**
      * Set the working language for the whole dataprovider.

@@ -1251,7 +1251,7 @@ class DC_General extends DataContainer implements editable, listable
         {
             if (!isset($lookup[$field]))
             {
-                $lookup[$field] = $this->objCallbackClass->optionsCallback();
+                $lookup[$field] = $this->objCallbackClass->optionsCallback($field);
             }
 
             $group = $lookup[$field][$value];

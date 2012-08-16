@@ -1,3 +1,21 @@
+<?php if($this->language): ?>
+<div class="tl_panel">
+<form action="<?php echo ampersand($this->Environment->request, true); ?>" id="language_switch" class="tl_form" method="post">
+<div class="tl_formbody">
+<input type="hidden" name="FORM_SUBMIT" value="language_switch" />
+<input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>" />
+<select name="language" class="tl_select">
+<?php foreach($this->language as $objLanguage): ?>
+	<option value="<?php echo $objLanguage->getID(); ?>"<?php if($objLanguage->getProperty('active')): ?> selected="selected"<?php endif; ?>>
+            <?php echo $objLanguage->getProperty('name'); ?> 
+	</option>
+<?php endforeach; ?>
+</select> <input type="submit" name="switchLanguage" id="switchLanguage" class="tl_submit" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['editSelected']); ?>" />
+</div>
+</form>
+</div>
+<?php endif; ?>
+
 <div id="tl_buttons">
     <a href="<?php echo $this->getReferer(true); ?>" class="header_back" title="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['backBT']); ?>" accesskey="b" onclick="Backend.getScrollOffset();">
         <?php echo $GLOBALS['TL_LANG']['MSC']['backBT'] ?>

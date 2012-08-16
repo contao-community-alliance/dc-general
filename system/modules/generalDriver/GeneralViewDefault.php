@@ -72,10 +72,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         // Check if DP is multilanguage
         if (is_a($objDcGeneral->getDataProvider(), "InterfaceGeneralDataML"))
         {
-            $objLanguagesSupported = $objDcGeneral->getDataProvider()->getLanguages($objDcGeneral->getId());
-            
-            //include(TL_ROOT . '/system/config/languages.php');        
-                        
+            $objLanguagesSupported = $objDcGeneral->getDataProvider()->getLanguages($objDcGeneral->getId());                        
             $strCurrentLanguage = $objDcGeneral->getDataProvider()->getCurrentLanguage();
         }
         
@@ -165,6 +162,13 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         $allowedFields = array('pid', 'sorting', 'tstamp');
         $arrFieldValues = array();
         $arrFieldLabels = array();
+        
+        // Check if DP is multilanguage
+        if (is_a($objDcGeneral->getDataProvider(), "InterfaceGeneralDataML"))
+        {
+            $objLanguagesSupported = $objDcGeneral->getDataProvider()->getLanguages($objDcGeneral->getId());                        
+            $strCurrentLanguage = $objDcGeneral->getDataProvider()->getCurrentLanguage();
+        }
 
         // Get fields
         $objModel = $objDcGeneral->getCurrentModel();
@@ -294,10 +298,11 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             }
         }
 
-        $objTemplate = new BackendTemplate("dcbe_general_show");
-        $objTemplate->headline = sprintf($GLOBALS['TL_LANG']['MSC']['showRecord'], ($objDcGeneral->getId() ? 'ID ' . $objDcGeneral->getId() : ''));
+        $objTemplate            = new BackendTemplate("dcbe_general_show");
+        $objTemplate->headline  = sprintf($GLOBALS['TL_LANG']['MSC']['showRecord'], ($objDcGeneral->getId() ? 'ID ' . $objDcGeneral->getId() : ''));
         $objTemplate->arrFields = $arrFieldValues;
         $objTemplate->arrLabels = $arrFieldLabels;
+        $objTemplate->language  = $objLanguagesSupported;
 
         return $objTemplate->parse();
     }

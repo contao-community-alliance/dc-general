@@ -62,7 +62,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     const LANGUAGE_SL         = 1;
     const LANGUAGE_ML         = 2;
-    const LANGUAGE_NO_SUPPORT = 3;
 
     public function __construct()
     {
@@ -183,9 +182,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             $arrSession = array();
         }
-        
+
         // try to get the language from session
-        if(isset($arrSession["ml_support"][$objDC->getTable()][$intID]))
+        if (isset($arrSession["ml_support"][$objDC->getTable()][$intID]))
         {
             $strCurrentLanguage = $arrSession["ml_support"][$objDC->getTable()][$intID];
         }
@@ -212,19 +211,25 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             if (key_exists($this->Input->post("language"), $arrLanguage))
             {
-                $strCurrentLanguage = $this->Input->post("language");
+                $strCurrentLanguage                                   = $this->Input->post("language");
+                $arrSession["ml_support"][$objDC->getTable()][$intID] = $strCurrentLanguage;
+            }
+            else if (key_exists($strCurrentLanguage, $arrLanguage))
+            {
                 $arrSession["ml_support"][$objDC->getTable()][$intID] = $strCurrentLanguage;
             }
             else
             {
-                return self::LANGUAGE_NO_SUPPORT;
+                $objlanguageFallback                                  = $objDataProvider->getFallbackLanguage();
+                $strCurrentLanguage                                   = $objlanguageFallback->getID();
+                $arrSession["ml_support"][$objDC->getTable()][$intID] = $strCurrentLanguage;
             }
         }
 
         $this->Session->set("dc_general", $arrSession);
-        
+
         $objDataProvider->setCurrentLanguage($strCurrentLanguage);
-        
+
         return self::LANGUAGE_ML;
     }
 
@@ -251,20 +256,13 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
         // Load something
         $objDC->preloadTinyMce();
+        
+        // Check load multi language check
+        $this->checkLanguage($objDC);
 
         // Set buttons
         $objDC->addButton("save");
         $objDC->addButton("saveNclose");
-
-        // Check if DP is multilanguage
-        if (is_a($objDC->getDataProvider(), "InterfaceGeneralDataML"))
-        {
-            
-        }
-        else
-        {
-            
-        }
 
         // Load record from data provider       
         $objDBModel = $objDC->getDataProvider()->getEmptyModel();
@@ -350,20 +348,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $this->log('Table ' . $objDC->getTable() . ' is not editable', 'DC_General - Controller - edit()', TL_ERROR);
             $this->redirect('contao/main.php?act=error');
         }
+        
+        // Check load multi language check
+        $this->checkLanguage($objDC);
 
-        // Check if DP is multilanguage
-        if (is_a($objDC->getDataProvider(), "InterfaceGeneralDataML"))
-        {
-            return $this->editML($objDC);
-        }
-        else
-        {
-            return $this->editSL($objDC);
-        }
-    }
-
-    protected function editSL(DC_General $objDC)
-    {
         $objDataProvider = $objDC->getDataProvider();
 
         // Load an older Version
@@ -465,164 +453,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
     }
 
-    protected function editML(DC_General $objDC)
-    {
-        $objDataProvider       = $objDC->getDataProvider();
-        $strCurrentLanguage    = "de";
-        $intID                 = $objDC->getId();
-        $objLanguagesSupported = $objDC->getDataProvider()->getLanguages($intID);
-
-        //Check if we have some languages
-        if ($objLanguagesSupported == null)
-        {
-            return $this->editSL($objDC);
-        }
-
-        // Make a array from the collection
-        $arrLanguage = array();
-        foreach ($objLanguagesSupported as $key => $value)
-        {
-            $arrLanguage[$value->getID()] = $value->getProperty("name");
-        }
-
-        // Get/Check the new language
-        if (strlen($this->Input->post("language")) != 0 && $_POST['FORM_SUBMIT'] == 'language_switch')
-        {
-            if (key_exists($this->Input->post("language"), $arrLanguage))
-            {
-                $strCurrentLanguage = $this->Input->post("language");
-
-                // Save current language in session
-                $arrSession = $this->Session->get("dc_general");
-
-                if (!is_array($arrSession))
-                {
-                    $arrSession = array();
-                }
-
-                $arrSession["ml_support"][$objDC->getTable()][$intID] = $strCurrentLanguage;
-                $this->Session->set("dc_general", $arrSession);
-            }
-            else
-            {
-                $this->log('Language "' . $this->Input->post("language") . '" for able ' . $objDC->getTable() . ' are not exsists', 'DC_General - Controller - edit()', TL_ERROR);
-                $this->redirect('contao/main.php?act=error');
-            }
-        }
-        else
-        {
-            // Load current language from session, if set
-            $arrSession = $this->Session->get("dc_general");
-            if (is_array($arrSession) && isset($arrSession["ml_support"][$objDC->getTable()][$intID]))
-            {
-                $strCurrentLanguage = $arrSession["ml_support"][$objDC->getTable()][$intID];
-            }
-        }
-
-        $objDataProvider->setCurrentLanguage($strCurrentLanguage);
-
-        // Load an older Version
-        if (strlen($this->Input->post("version")) != 0 && $objDC->isVersionSubmit())
-        {
-            // Load record from version 
-            $objVersionModel = $objDataProvider->getVersion($objDC->getId(), $this->Input->post("version"));
-
-            // Redirect if there is no record with the given ID
-            if ($objVersionModel == null)
-            {
-                $this->log('Could not load record ID ' . $objDC->getId() . ' of table "' . $objDC->getTable() . '"', 'DC_General - Controller - edit()', TL_ERROR);
-                $this->redirect('contao/main.php?act=error');
-            }
-
-            $objDataProvider->save($objVersionModel);
-            $objDataProvider->setVersionActive($objDC->getId(), $this->Input->post("version"));
-
-            // Callback onrestoreCallback
-            $arrData       = $objVersionModel->getPropertiesAsArray();
-            $arrData["id"] = $objVersionModel->getID();
-
-            $objDC->getCallbackClass()->onrestoreCallback($objDC->getId(), $objDC->getTable(), $arrData, $this->Input->post("version"));
-
-            $this->log(sprintf('Version %s of record ID %s (table %s) has been restored', $this->Input->post('version'), $objDC->getId(), $objDC->getTable()), 'DC_General - Controller - edit()', TL_GENERAL);
-
-            // Reload page with new recored
-            $this->reload();
-        }
-
-        // Load fields and co
-        $objDC->loadEditableFields();
-        $objDC->setWidgetID($objDC->getId());
-
-        // Check if we have fields
-        if (!$objDC->hasEditableFields())
-        {
-            $this->redirect($this->getReferer());
-        }
-
-        // Load something
-        $objDC->preloadTinyMce();
-
-        // Set buttons
-        $objDC->addButton("save");
-        $objDC->addButton("saveNclose");
-
-        // Load record from data provider
-        $objDBModel = $objDataProvider->fetch($objDC->getDataProvider()->getEmptyConfig()->setId($objDC->getId()));
-        if ($objDBModel == null)
-        {
-            $objDBModel = $objDataProvider->getEmptyModel();
-        }
-        $objDBModel->setProperty("currentLanguage", $strCurrentLanguage);
-        $objDC->setCurrentModel($objDBModel);
-
-        // Check if we have a auto submit
-        if ($objDC->isAutoSubmitted())
-        {
-            // process input and update changed properties.
-            foreach (array_keys($objDC->getFieldList()) as $key)
-            {
-                $varNewValue = $objDC->processInput($key);
-                if ($objDBModel->getProperty($key) != $varNewValue)
-                {
-                    $objDBModel->setProperty($key, $varNewValue);
-                }
-            }
-
-            $objDC->setCurrentModel($objDBModel);
-        }
-
-        // Check submit
-        if ($objDC->isSubmitted() == true)
-        {
-            if (isset($_POST["save"]))
-            {
-                // process input and update changed properties.
-                if ($this->doSave($objDC) !== false)
-                {
-                    $this->reload();
-                }
-            }
-            else if (isset($_POST["saveNclose"]))
-            {
-                // process input and update changed properties.
-                if ($this->doSave($objDC) !== false)
-                {
-                    setcookie('BE_PAGE_OFFSET', 0, 0, '/');
-
-                    $_SESSION['TL_INFO']    = '';
-                    $_SESSION['TL_ERROR']   = '';
-                    $_SESSION['TL_CONFIRM'] = '';
-
-                    $this->redirect($this->getReferer());
-                }
-            }
-
-            // Maybe Callbacks ?
-        }
-    }
-
     public function show(DC_General $objDC)
     {
+        // Load check multi language
+        $this->checkLanguage($objDC);
+        
         // Load record from data provider
         $objDBModel = $objDC->getDataProvider()->fetch($objDC->getDataProvider()->getEmptyConfig()->setId($objDC->getId()));
 
@@ -674,6 +509,13 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
     }
 
+    /**
+     * ToDo: Bugy 
+     * 
+     * @param DC_General $objDC
+     * @param type $strMethod
+     * @param type $strSelector
+     */
     public function generateAjaxPalette(DC_General $objDC, $strMethod, $strSelector)
     {
         // Check if table is editable
