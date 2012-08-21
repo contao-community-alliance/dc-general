@@ -122,6 +122,12 @@ class DC_General extends DataContainer implements editable, listable
     protected $blnVersionSubmit = false;
 
     /**
+     * State of languagesubmit
+     * @var boolean 
+     */
+    protected $blnLanguageSubmit = false;
+
+    /**
      * Flag to show if the site can be reloaded
      * @var boolean 
      */
@@ -244,7 +250,7 @@ class DC_General extends DataContainer implements editable, listable
 
         // Basic vars Init
         $this->strTable = $strTable;
-        $this->arrDCA = ($arrDCA != null) ? $arrDCA : $GLOBALS['TL_DCA'][$this->strTable];
+        $this->arrDCA   = ($arrDCA != null) ? $arrDCA : $GLOBALS['TL_DCA'][$this->strTable];
 
         // Check whether the table is defined
         if (!strlen($this->strTable) || !count($this->arrDCA))
@@ -260,9 +266,12 @@ class DC_General extends DataContainer implements editable, listable
 
         // Set vars
         $this->intId = $this->Input->get('id');
-        $this->blnSubmitted = $_POST['FORM_SUBMIT'] == $this->strTable;
-        $this->blnAutoSubmitted = $_POST['SUBMIT_TYPE'] == 'auto';
-        $this->blnVersionSubmit = $_POST['FORM_SUBMIT'] == 'tl_version';
+
+        $this->blnSubmitted      = $_POST['FORM_SUBMIT'] == $this->strTable;
+        $this->blnAutoSubmitted  = $_POST['SUBMIT_TYPE'] == 'auto';
+        $this->blnVersionSubmit  = $_POST['FORM_SUBMIT'] == 'tl_version';
+        $this->blnLanguageSubmit = $_POST['FORM_SUBMIT'] == 'language_switch';
+
         $this->arrInputs = $_POST['FORM_INPUTS'] ? array_flip($this->Input->post('FORM_INPUTS')) : array();
         $this->arrStates = $this->Session->get('fieldset_states');
         $this->arrStates = (array) $this->arrStates[$this->strTable];
@@ -326,7 +335,7 @@ class DC_General extends DataContainer implements editable, listable
         // Load controller
         if (isset($this->arrDCA['dca_config']['controller']) && isset($this->arrDCA['dca_config']['controller_config']))
         {
-            $arrConfig = $this->arrDCA['dca_config']['controller_config'];
+            $arrConfig           = $this->arrDCA['dca_config']['controller_config'];
             $this->objController = new $this->arrDCA['dca_config']['controller']();
         }
         else if (isset($this->arrDCA['dca_config']['controller']) && !isset($this->arrDCA['dca_config']['controller_config']))
@@ -339,6 +348,8 @@ class DC_General extends DataContainer implements editable, listable
             $arrConfig = array();
             $this->objController = new GeneralControllerDefault();
         }
+
+        $this->objController->setDC($this);
     }
 
     /**
@@ -350,7 +361,7 @@ class DC_General extends DataContainer implements editable, listable
         // Load view
         if (isset($this->arrDCA['dca_config']['view']) && isset($this->arrDCA['dca_config']['view_config']))
         {
-            $arrConfig = $this->arrDCA['dca_config']['view_config'];
+            $arrConfig            = $this->arrDCA['dca_config']['view_config'];
             $this->objViewHandler = new $this->arrDCA['dca_config']['view']();
         }
         else if (isset($this->arrDCA['dca_config']['view']) && !isset($this->arrDCA['dca_config']['view_config']))
@@ -363,6 +374,8 @@ class DC_General extends DataContainer implements editable, listable
             $arrConfig = array();
             $this->objViewHandler = new GeneralViewDefault();
         }
+
+        $this->objViewHandler->setDC($this);
     }
 
     /**
@@ -400,13 +413,15 @@ class DC_General extends DataContainer implements editable, listable
                     {
                         case 'parent':
                             $this->strParentTable = $arrConfig['source'];
-                            $strSource = 'parent';
+                            $strSource            = 'parent';
                             break;
+
                         case 'child':
                             $this->strChildTable = $arrConfig['source'];
-                            $strSource = 'child';
+                            $strSource           = 'child';
                             break;
                     }
+
                     $this->arrDataProvider[$strSource] = $arrConfig;
                 }
             }
@@ -472,7 +487,7 @@ class DC_General extends DataContainer implements editable, listable
 
                 if (array_key_exists('class', $arrConfig))
                 {
-                    $strClass = $arrConfig['class'];
+                    $strClass                          = $arrConfig['class'];
                     unset($arrConfig['class']);
                     $this->arrDataProvider[$strSource] = new $strClass();
                 }
@@ -484,7 +499,7 @@ class DC_General extends DataContainer implements editable, listable
         }
         else
         {
-            $arrConfig = array('source' => $strSource);
+            $arrConfig = array('source'                           => $strSource);
             $this->arrDataProvider[$strSource] = new GeneralDataDefault();
         }
 
@@ -579,7 +594,7 @@ class DC_General extends DataContainer implements editable, listable
     }
 
     /**
-     * et the callback class for this dc
+     * Get the callback class for this dc
      * @return InterfaceGeneralCallback 
      */
     public function getCallbackClass()
@@ -943,7 +958,7 @@ class DC_General extends DataContainer implements editable, listable
         if (is_array($arrConfig['input_field_callback']))
         {
             $this->import($arrConfig['input_field_callback'][0]);
-            $objWidget = $this->{$arrConfig['input_field_callback'][0]}->{$arrConfig['input_field_callback'][1]}($this, $arrConfig['eval']['xlabel']);
+            $objWidget                   = $this->{$arrConfig['input_field_callback'][0]}->{$arrConfig['input_field_callback'][1]}($this, $arrConfig['eval']['xlabel']);
             return $this->arrWidgets[$strField] = isset($objWidget) ? $objWidget : '';
         }
 
@@ -970,7 +985,7 @@ class DC_General extends DataContainer implements editable, listable
 
         //$arrConfig['options'] = $arrPrepared['options'];
 
-        $objWidget = new $strClass($arrPrepared);
+        $objWidget                = new $strClass($arrPrepared);
         // OH: what is this? source: DataContainer 232
         $objWidget->currentRecord = $this->intId;
 
@@ -1004,7 +1019,7 @@ class DC_General extends DataContainer implements editable, listable
         }
 
         $this->arrProcessed[$strField] = true;
-        $strInputName = $strField . '_' . $this->mixWidgetID;
+        $strInputName                  = $strField . '_' . $this->mixWidgetID;
 
         // Return if no submit, field is not editable or not in input
         if ($this->blnSubmitted == false || !isset($this->arrInputs[$strInputName]) || $this->isEditableField($strField) == false)
@@ -1399,112 +1414,112 @@ class DC_General extends DataContainer implements editable, listable
 
     public function generateAjaxPalette($strMethod, $strSelector)
     {
-        $strReturn = $this->objController->generateAjaxPalette($this, $strMethod, $strSelector);
+        $strReturn = $this->objController->generateAjaxPalette($strMethod, $strSelector);
         if ($strReturn != null && $strReturn != "")
         {
             return $strReturn;
         }
 
-        return $this->objViewHandler->generateAjaxPalette($this, $strMethod, $strSelector);
+        return $this->objViewHandler->generateAjaxPalette($strMethod, $strSelector);
     }
 
     public function copy()
     {
-        $strReturn = $this->objController->copy($this);
+        $strReturn = $this->objController->copy();
         if ($strReturn != null && $strReturn != "")
         {
             return $strReturn;
         }
 
-        return $this->objViewHandler->copy($this);
+        return $this->objViewHandler->copy();
     }
 
     public function create()
     {
-        $strReturn = $this->objController->create($this);
+        $strReturn = $this->objController->create();
         if ($strReturn != null && $strReturn != "")
         {
             return $strReturn;
         }
 
-        return $this->objViewHandler->create($this);
+        return $this->objViewHandler->create();
     }
 
     public function cut()
     {
-        $strReturn = $this->objController->cut($this);
+        $strReturn = $this->objController->cut();
         if ($strReturn != null && $strReturn != "")
         {
             return $strReturn;
         }
 
-        return $this->objViewHandler->cut($this);
+        return $this->objViewHandler->cut();
     }
 
     public function delete()
     {
-        $strReturn = $this->objController->delete($this);
+        $strReturn = $this->objController->delete();
         if ($strReturn != null && $strReturn != "")
         {
             return $strReturn;
         }
 
-        return $this->objViewHandler->delete($this);
+        return $this->objViewHandler->delete();
     }
 
     public function edit()
     {
-        $strReturn = $this->objController->edit($this);
+        $strReturn = $this->objController->edit();
         if ($strReturn != null && $strReturn != "")
         {
             return $strReturn;
         }
 
-        return $this->objViewHandler->edit($this);
+        return $this->objViewHandler->edit();
     }
 
     public function move()
     {
-        $strReturn = $this->objController->move($this);
+        $strReturn = $this->objController->move();
         if ($strReturn != null && $strReturn != "")
         {
             return $strReturn;
         }
 
-        return $this->objViewHandler->move($this);
+        return $this->objViewHandler->move();
     }
 
     public function show()
     {
-        $strReturn = $this->objController->show($this);
+        $strReturn = $this->objController->show();
         if ($strReturn != null && $strReturn != "")
         {
             return $strReturn;
         }
 
-        return $this->objViewHandler->show($this);
+        return $this->objViewHandler->show();
     }
 
     public function showAll()
     {
-        $strReturn = $this->objController->showAll($this);
+        $strReturn = $this->objController->showAll();
         if ($strReturn != null && $strReturn != "")
         {
             return $strReturn;
         }
 
-        return $this->objViewHandler->showAll($this);
+        return $this->objViewHandler->showAll();
     }
 
     public function undo()
     {
-        $strReturn = $this->objController->undo($this);
+        $strReturn = $this->objController->undo();
         if ($strReturn != null && $strReturn != "")
         {
             return $strReturn;
         }
 
-        return $this->objViewHandler->undo($this);
+        return $this->objViewHandler->undo();
     }
 
 }
