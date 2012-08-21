@@ -1,4 +1,7 @@
-<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
+<?php
+
+if (!defined('TL_ROOT'))
+    die('You can not access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -43,6 +46,16 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
     public function setDC($objDC)
     {
         $this->objDC = $objDC;
+    }
+
+    /**
+     * get the DC
+     * 
+     * @return DC_General $objDC
+     */
+    public function getDC()
+    {
+        return $this->objDC;
     }
 
     /**
@@ -460,6 +473,35 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
                 $this->$callback[0]->$callback[1]($this->objDC->getTable(), $insertID, $arrRecord, $this->objDC);
             }
         }
+    }
+
+    /**
+     * Get the current pallette
+     * 
+     * @param DC_General $objDC
+     * @param array $arrPalette
+     */
+    public function parseRootPaletteCallback($arrPalette)
+    {
+        // Load DCA
+        $arrDCA = $this->objDC->getDCA();
+
+        // Call the oncreate_callback
+        if (is_array($arrDCA['config']['parseRootPalette_callback']))
+        {
+            foreach ($arrDCA['config']['parseRootPalette_callback'] as $callback)
+            {
+                $this->import($callback[0]);
+                $mixReturn = $this->$callback[0]->$callback[1]($this->objDC, $arrPalette);
+                
+                if(is_array($mixReturn))
+                {
+                    $arrPalette = $mixReturn;
+                }
+            }
+        }
+        
+        return $arrPalette;
     }
 
 }
