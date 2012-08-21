@@ -28,7 +28,20 @@
  */
 interface InterfaceGeneralController
 {
-    
+
+    /**
+     * Set the DC
+     * 
+     * @param DC_General $objDC
+     */
+    public function setDC($objDC);
+
+    /**
+     * Get the DC
+     * 
+     * @return DC_General 
+     */
+    public function getDC();
 }
 
 ?>

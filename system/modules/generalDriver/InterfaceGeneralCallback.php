@@ -30,19 +30,26 @@ interface InterfaceGeneralCallback
 {
 
     /**
+     * Set the DC
+     * 
+     * @param DC_General $objDC
+     */
+    public function setDC($objDC);
+
+    /**
+     * Get the DC
+     * 
+     * @return DC_General 
+     */
+    public function getDC();
+
+    /**
      * Exectue a callback
      * 
      * @param array $varCallbacks
      * @return array 
      */
     public function executeCallbacks($varCallbacks);
-
-    /**
-     * Set the DC
-     * 
-     * @param DC_General $objDC
-     */
-    public function setDC($objDC);
 
     /**
      * Call the customer label callback
@@ -180,6 +187,15 @@ interface InterfaceGeneralCallback
      * @return void
      */
     public function oncreateCallback($insertID, $arrRecord);
+    
+    
+    /**
+     * Get the current pallette
+     * 
+     * @param DC_General $objDC
+     * @param array $arrPalette
+     */
+    public function parseRootPaletteCallback($arrPalette);
 }
 
 ?>

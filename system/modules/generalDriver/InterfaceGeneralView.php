@@ -1,4 +1,7 @@
-<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
+<?php
+
+if (!defined('TL_ROOT'))
+    die('You can not access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -29,29 +32,43 @@
 interface InterfaceGeneralView
 {
 
-    public function copy(DC_General $objDcGeneral);
+    /**
+     * Set the DC
+     * 
+     * @param DC_General $objDC
+     */
+    public function setDC($objDC);
 
-    public function copyAll(DC_General $objDcGeneral);
+    /**
+     * Get the DC
+     * 
+     * @return DC_General 
+     */
+    public function getDC();
 
-    public function create(DC_General $objDcGeneral);
+    public function copy();
 
-    public function cut(DC_General $objDcGeneral);
+    public function copyAll();
 
-    public function cutAll(DC_General $objDcGeneral);
+    public function create();
 
-    public function delete(DC_General $objDcGeneral);
+    public function cut();
 
-    public function edit(DC_General $objDcGeneral);
+    public function cutAll();
 
-    public function move(DC_General $objDcGeneral);
+    public function delete();
 
-    public function show(DC_General $objDcGeneral);
+    public function edit();
 
-    public function showAll(DC_General $objDcGeneral);
+    public function move();
 
-    public function undo(DC_General $objDcGeneral);
+    public function show();
 
-    public function generateAjaxPalette(DC_General $objDcGeneral, $strMethod, $strSelector);
+    public function showAll();
+
+    public function undo();
+
+    public function generateAjaxPalette($strMethod, $strSelector);
 }
 
 ?>
