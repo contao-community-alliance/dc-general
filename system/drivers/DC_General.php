@@ -230,6 +230,12 @@ class DC_General extends DataContainer implements editable, listable
     protected $objCallbackClass = null;
 
     /**
+     * The child DC
+     * @var DC_General
+     */
+    protected $objChildDC = null;
+
+    /**
      * Lookup for special regex
      * @var array 
      */
@@ -731,6 +737,24 @@ class DC_General extends DataContainer implements editable, listable
     public function setCurrentModel(InterfaceGeneralModel $objCurrentModel)
     {
         $this->objCurrentModel = $objCurrentModel;
+    }
+
+    /**
+     * Return the Child DC
+     * @return DC_General
+     */
+    public function getChildDC()
+    {
+        return $this->objChildDC;
+    }
+
+    /**
+     * Set the Child DC
+     * @param DC_General $objChildDC
+     */
+    public function setChildDC($objChildDC)
+    {
+        $this->objChildDC = $objChildDC;
     }
 
     /**
@@ -1399,7 +1423,11 @@ class DC_General extends DataContainer implements editable, listable
         }
     }
 
-    // Interface funtions ------------------------------------------------------
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * Interface funtions
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     public function __call($name, $arguments)
     {

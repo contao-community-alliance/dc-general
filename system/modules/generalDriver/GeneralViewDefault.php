@@ -1,4 +1,7 @@
-<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
+<?php
+
+if (!defined('TL_ROOT'))
+    die('You can not access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -403,11 +406,16 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             case 3:
                 $strReturn = $this->listView();
                 break;
-            
+
             case 4:
                 $strReturn = $this->parentView();
                 break;
-                
+
+            case 5:
+            case 6:
+                $strReturn = $this->treeView($this->arrDCA['list']['sorting']['mode']);
+                break;
+
             default:
                 return $this->notImplMsg;
                 break;
@@ -881,6 +889,148 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         $arrReturn[]                    = $objTemplate->parse();
 
         return implode('', $arrReturn);
+    }
+
+    protected function treeView($intMode = 5)
+    {
+
+        // Init some Vars
+        switch ($intMode)
+        {
+            case 5:
+                $treeClass = 'tl_tree';
+                break;
+
+            case 6:
+                $treeClass = 'tl_tree_xtnd';
+                break;
+        }
+
+        // Load some infromations from DCA
+        $arrNeededFields = $this->arrDCA['list']['label']['fields'];
+        $arrLablesFields = $this->arrDCA['list']['label']['fields'];
+        $arrRootEntries  = $this->arrDCA['dca_config']['rootEntries'];
+        $arrChildFilter  = $this->arrDCA['dca_config']['joinCondition']['self'];
+        $arrTitlePattern = $this->arrDCA['list']['label']['format'];
+
+        // Label + Icon
+        $strLabelText = (strlen($this->arrDCA['config']['label']) == 0 ) ? 'DC General Tree View Ultimate' : $this->arrDCA['config']['label'];
+        $strLabelIcon = strlen($this->arrDCA['list']['sorting']['icon']) ? $this->arrDCA['list']['sorting']['icon'] : 'pagemounts.gif';
+
+        $arrChildFilerPattern = array();
+
+        // Build Filter array for childs
+        if (is_array($arrChildFilter) && count($arrChildFilter) != 0)
+        {
+            foreach ($arrChildFilter as $key => $value)
+            {
+                if ($value['srcField'] != '')
+                {
+                    $arrNeededFields[]                    = trim($value['srcField']);
+                    $arrChildFilerPattern[$key]['field']  = $value['srcField'];
+                    $arrChildFilerPattern[$key]['patern'] = $value['dstField'] . ' ' . $value['operation'] . ' %s';
+                }
+                else
+                {
+                    $arrChildFilerPattern[$key]['patern'] = $value['dstField'] . ' ' . $value['operation'];
+                }
+            }
+        }
+        else
+        {
+            $arrNeededFields[]                 = 'id';
+            $arrChildFilerPattern[0]['field']  = 'id';
+            $arrChildFilerPattern[0]['patern'] = 'pid = %s';
+        }
+
+        // Build data array
+        $arrTableTreeData = array();
+
+        //Create new Config
+        $objRootConfig = $this->objDC->getDataProvider()->getEmptyConfig();
+
+        // Set fields limit
+        $objRootConfig->setFields(array_keys(array_flip($arrNeededFields)));
+
+        // Set Filter for root elements
+        /**
+         * TODO: @SH: Benutzen einer Callback Klasse um die
+         * Rootentries Beziehung nachträglich zu berechnen.
+         */
+        if (is_array($arrRootEntries) && count($arrRootEntries) != 0)
+        {
+            $objRootConfig->setFilter($arrRootEntries);
+        }
+        else
+        {
+            // Use default settings
+            $objRootConfig->setFilter(array('pid=0'));
+        }
+
+        $objRootCollection = $this->objDC->getDataProvider()->fetchAll($objRootConfig);
+
+        foreach ($objRootCollection as $objRootModel)
+        {
+            // Build full lable
+            $arrField = array();
+            foreach ($arrLablesFields as $strField)
+            {
+                $arrField[] = $objRootModel->getProperty($strField);
+            }
+
+            $arrTableTreeData[$objRootModel->getID()]['title'] = vsprintf($arrTitlePattern, $arrField);
+            $arrTableTreeData[$objRootModel->getID()]['level'] = 0;
+            $arrTableTreeData[$objRootModel->getID()]['open']  = true;
+
+            // Get childs
+            if ($arrTableTreeData[$objRootModel->getID()]['open'] == true)
+            {
+
+                $arrFilter = array();
+
+                foreach ($arrChildFilerPattern as $keyFilter => $valueFilter)
+                {
+                    if (isset($valueFilter['field']) && $valueFilter['field'] != '')
+                    {
+                        $arrFilter[] = vsprintf($valueFilter['patern'], $objRootModel->getProperty($valueFilter['field']));
+                    }
+                    else
+                    {
+                        $arrFilter[] = $valueFilter['patern'];
+                    }
+                }
+
+                $objChildConfig = $this->objDC->getDataProvider()->getEmptyConfig();
+                $objChildConfig->setFilter($arrFilter);
+
+                $objChildCollection = $this->objDC->getDataProvider()->fetchAll($objChildConfig);
+
+                foreach ($objChildCollection as $objChildModel)
+                {
+                    // Build full lable
+                    $arrField = array();
+                    foreach ($arrLablesFields as $strField)
+                    {
+                        $arrField[] = $objChildModel->getProperty($strField);
+                    }
+
+                    $arrTableTreeData[$objChildModel->getID()]['title'] = vsprintf($arrTitlePattern, $arrField);
+                    $arrTableTreeData[$objChildModel->getID()]['level'] = 1;
+                    $arrTableTreeData[$objChildModel->getID()]['open']  = true;
+                }
+            }
+        }
+
+        // Build template
+        $objTemplate                   = new BackendTemplate('dcbe_general_treeview');
+        $objTemplate->treeClass        = $treeClass;
+        $objTemplate->strLabelIcon     = $this->generateImage($strLabelIcon);
+        $objTemplate->strLabelText     = $strLabelText;
+        $objTemplate->arrTableTreeData = $arrTableTreeData;
+        $objTemplate->intMode          = $intMode;
+
+        // Return :P
+        return $objTemplate->parse();
     }
 
     // Panel -------------------------------------------------------------------

@@ -50,7 +50,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      *
      * @var array
      */
-    protected $dca;
+    protected $arrDCA;
 
     /**
      * Field for the function sortCollection
@@ -234,7 +234,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             if (key_exists($this->Input->post("language"), $arrLanguage))
             {
-                $strCurrentLanguage                                   = $this->Input->post("language");
+                $strCurrentLanguage                                         = $this->Input->post("language");
                 $arrSession["ml_support"][$this->objDC->getTable()][$intID] = $strCurrentLanguage;
             }
             else if (key_exists($strCurrentLanguage, $arrLanguage))
@@ -243,8 +243,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             }
             else
             {
-                $objlanguageFallback                                  = $objDataProvider->getFallbackLanguage();
-                $strCurrentLanguage                                   = $objlanguageFallback->getID();
+                $objlanguageFallback                                        = $objDataProvider->getFallbackLanguage();
+                $strCurrentLanguage                                         = $objlanguageFallback->getID();
                 $arrSession["ml_support"][$this->objDC->getTable()][$intID] = $strCurrentLanguage;
             }
         }
@@ -505,24 +505,24 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     public function showAll()
     {
-        $this->objDC = $this->objDC;
-        $this->dca   = $this->objDC->getDCA();
+        $this->objDC  = $this->objDC;
+        $this->arrDCA = $this->objDC->getDCA();
 
         $this->objDC->setButtonId('tl_buttons');
 
         // Custom filter
-        if (is_array($this->dca['list']['sorting']['filter']) && !empty($this->dca['list']['sorting']['filter']))
+        if (is_array($this->arrDCA['list']['sorting']['filter']) && !empty($this->arrDCA['list']['sorting']['filter']))
         {
-            foreach ($this->dca['list']['sorting']['filter'] as $filter)
+            foreach ($this->arrDCA['list']['sorting']['filter'] as $filter)
             {
                 $this->objDC->setFilter(array($filter[0] . " = '" . $filter[1] . "'"));
             }
         }
 
         // Get the IDs of all root records (list view or parent view)
-        if (is_array($this->dca['list']['sorting']['root']))
+        if (is_array($this->arrDCA['list']['sorting']['root']))
         {
-            $this->objDC->setRootIds(array_unique($this->dca['list']['sorting']['root']));
+            $this->objDC->setRootIds(array_unique($this->arrDCA['list']['sorting']['root']));
         }
 
         if ($this->Input->get('table') && !is_null($this->objDC->getParentTable()) && $this->objDC->getDataProvider()->fieldExists('pid'))
@@ -532,13 +532,27 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
         $this->panel($this->objDC);
 
-        if ($this->dca['list']['sorting']['mode'] == 4 && !is_null($this->objDC->getParentTable()))
+        // Switch mode
+        switch ($this->arrDCA['list']['sorting']['mode'])
         {
-            $this->parentView();
-        }
-        else
-        {
-            $this->listView();
+            case 1:
+            case 2:
+            case 3:
+                $strReturn = $this->listView();
+                break;
+
+            case 4:
+                $strReturn = $this->parentView();
+                break;
+
+            case 5:
+            case 6:
+//                $strReturn = $this->treeView($this->arrDCA['list']['sorting']['mode']);
+                break;
+
+            default:
+                return $this->notImplMsg;
+                break;
         }
     }
 
@@ -582,23 +596,17 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     // showAll Modis -----------------------------------------------------------
 
+    protected function treeView($intMode)
+    {
+        $this->loadLanguageFile($this->objDC->getChildTable());
+        $this->loadDataContainer($this->objDC->getChildTable());
+        $this->objDC->setChildDC(new DC_General($this->objDC->getChildTable()));
+    }
+
     protected function listView()
     {
-        if ($this->dca['list']['sorting']['mode'] == 6)
-        {
-            $objDataProvider = $this->objDC->getDataProvider('parent');
-
-            $this->loadLanguageFile($this->objDC->getParentTable());
-            $this->loadDataContainer($this->objDC->getParentTable());
-            $objTmpDC = new DC_General($this->objDC->getParentTable());
-
-            $arrCurrentDCA = $objTmpDC->getDCA();
-        }
-        else
-        {
-            $objDataProvider = $this->objDC->getDataProvider();
-            $arrCurrentDCA   = $this->dca;
-        }
+        $objDataProvider = $this->objDC->getDataProvider();
+        $arrCurrentDCA   = $this->arrDCA;
 
         // Get limits
         $arrLimit = $this->getLimit();
@@ -614,10 +622,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $objCollection = $objDataProvider->fetchEach($this->objDC->getDataProvider()->getEmptyConfig()->setIds($objDataProvider->fetchAll($objConfig))->setSorting($this->getListViewSorting()));
 
         // Rename each pid to its label and resort the result (sort by parent table)
-        if ($this->dca['list']['sorting']['mode'] == 3)
+        if ($this->arrDCA['list']['sorting']['mode'] == 3)
         {
             $this->objDC->setFirstSorting('pid');
-            $showFields = $this->dca['list']['label']['fields'];
+            $showFields = $this->arrDCA['list']['label']['fields'];
 
             foreach ($objCollection as $objModel)
             {
@@ -643,7 +651,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             foreach ($showFields as $v)
             {
                 // Decrypt the value
-                if ($this->dca['fields'][$v]['eval']['encrypt'])
+                if ($this->arrDCA['fields'][$v]['eval']['encrypt'])
                 {
                     $objModelRow->setProperty($v, deserialize($objModelRow->getProperty($v)));
 
@@ -718,7 +726,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             // List all records of the child table
             if (!$this->Input->get('act') || $this->Input->get('act') == 'paste' || $this->Input->get('act') == 'select')
             {
-                $headerFields = $this->dca['list']['sorting']['headerFields'];
+                $headerFields = $this->arrDCA['list']['sorting']['headerFields'];
 
                 foreach ($headerFields as $v)
                 {
@@ -775,7 +783,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $limit  = $this->limitMenu();
         $sort   = $this->sortMenu();
 
-        if (!strlen($this->dca['list']['sorting']['panelLayout']) || !is_array($filter) && !is_array($search) && !is_array($limit) && !is_array($sort))
+        if (!strlen($this->arrDCA['list']['sorting']['panelLayout']) || !is_array($filter) && !is_array($search) && !is_array($limit) && !is_array($sort))
         {
             return;
         }
@@ -785,7 +793,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $this->reload();
         }
 
-        $panelLayout = $this->dca['list']['sorting']['panelLayout'];
+        $panelLayout = $this->arrDCA['list']['sorting']['panelLayout'];
         $arrPanels   = trimsplit(';', $panelLayout);
 
         for ($i = 0; $i < count($arrPanels); $i++)
@@ -821,10 +829,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->objDC->setButtonId('tl_buttons_a');
         $arrSortingFields = array();
         $arrSession = $this->Session->getData();
-        $strFilter  = ($this->dca['list']['sorting']['mode'] == 4) ? $this->objDC->getTable() . '_' . CURRENT_ID : $this->objDC->getTable();
+        $strFilter  = ($this->arrDCA['list']['sorting']['mode'] == 4) ? $this->objDC->getTable() . '_' . CURRENT_ID : $this->objDC->getTable();
 
         // Get sorting fields
-        foreach ($this->dca['fields'] as $k => $v)
+        foreach ($this->arrDCA['fields'] as $k => $v)
         {
             if ($v['filter'])
             {
@@ -859,7 +867,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $arrPanelView = array();
 
         // Get search fields
-        foreach ($this->dca['fields'] as $k => $v)
+        foreach ($this->arrDCA['fields'] as $k => $v)
         {
             if ($v['search'])
             {
@@ -919,7 +927,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
         foreach ($searchFields as $field)
         {
-            $mixedOptionsLabel = strlen($this->dca['fields'][$field]['label'][0]) ? $this->dca['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
+            $mixedOptionsLabel = strlen($this->arrDCA['fields'][$field]['label'][0]) ? $this->arrDCA['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
 
             $arrOptions[utf8_romanize($mixedOptionsLabel) . '_' . $field] = array(
                 'value'   => specialchars($field),
@@ -957,7 +965,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
         $session = $this->objSession->getData();
 
-        $filter = ($this->dca['list']['sorting']['mode'] == 4) ? $this->objDC->getTable() . '_' . CURRENT_ID : $this->objDC->getTable();
+        $filter = ($this->arrDCA['list']['sorting']['mode'] == 4) ? $this->objDC->getTable() . '_' . CURRENT_ID : $this->objDC->getTable();
 
         // Set limit from user input
         if ($this->Input->post('FORM_SUBMIT') == 'tl_filters' || $this->Input->post('FORM_SUBMIT') == 'tl_filters_limit')
@@ -1075,7 +1083,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     {
         $arrPanelView = array();
 
-        if ($this->dca['list']['sorting']['mode'] != 2 && $this->dca['list']['sorting']['mode'] != 4)
+        if ($this->arrDCA['list']['sorting']['mode'] != 2 && $this->arrDCA['list']['sorting']['mode'] != 4)
         {
             return array();
         }
@@ -1083,7 +1091,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $sortingFields = array();
 
         // Get sorting fields
-        foreach ($this->dca['fields'] as $k => $v)
+        foreach ($this->arrDCA['fields'] as $k => $v)
         {
             if ($v['sorting'])
             {
@@ -1099,11 +1107,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
         $this->objDC->setButtonId('tl_buttons_a');
         $session      = $this->objSession->getData();
-        $orderBy      = $this->dca['list']['sorting']['fields'];
+        $orderBy      = $this->arrDCA['list']['sorting']['fields'];
         $firstOrderBy = preg_replace('/\s+.*$/i', '', $orderBy[0]);
 
         // Add PID to order fields
-        if ($this->dca['list']['sorting']['mode'] == 3 && $this->objDC->getDataProvider()->fieldExists('pid'))
+        if ($this->arrDCA['list']['sorting']['mode'] == 3 && $this->objDC->getDataProvider()->fieldExists('pid'))
         {
             array_unshift($orderBy, 'pid');
         }
@@ -1111,7 +1119,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         // Set sorting from user input
         if ($this->Input->post('FORM_SUBMIT') == 'tl_filters')
         {
-            $session['sorting'][$this->objDC->getTable()] = in_array($this->dca['fields'][$this->Input->post('tl_sort')]['flag'], array(2, 4, 6, 8, 10, 12)) ? $this->Input->post('tl_sort') . ' DESC' : $this->Input->post('tl_sort');
+            $session['sorting'][$this->objDC->getTable()] = in_array($this->arrDCA['fields'][$this->Input->post('tl_sort')]['flag'], array(2, 4, 6, 8, 10, 12)) ? $this->Input->post('tl_sort') . ' DESC' : $this->Input->post('tl_sort');
             $this->objSession->setData($session);
         }
 
@@ -1131,7 +1139,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
         foreach ($sortingFields as $field)
         {
-            $mixedOptionsLabel = strlen($this->dca['fields'][$field]['label'][0]) ? $this->dca['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
+            $mixedOptionsLabel = strlen($this->arrDCA['fields'][$field]['label'][0]) ? $this->arrDCA['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
 
             if (is_array($mixedOptionsLabel))
             {
@@ -1161,7 +1169,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      */
     protected function getFilter()
     {
-        $arrFilterIds = $this->dca['list']['sorting']['root'];
+        $arrFilterIds = $this->arrDCA['list']['sorting']['root'];
 
         // TODO implement panel filter from session
         $arrFilter = $this->objDC->getFilter();
@@ -1201,7 +1209,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      */
     protected function getListViewSorting()
     {
-        $mixedOrderBy = $this->dca['list']['sorting']['fields'];
+        $mixedOrderBy = $this->arrDCA['list']['sorting']['fields'];
 
         if (is_null($this->objDC->getFirstSorting()))
         {
@@ -1218,7 +1226,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             foreach ($mixedOrderBy as $key => $strField)
             {
-                if ($this->dca['fields'][$strField]['eval']['findInSet'])
+                if ($this->arrDCA['fields'][$strField]['eval']['findInSet'])
                 {
                     $arrOptionsCallback = $this->objDC->getCallbackClass()->optionsCallback($strField);
 
@@ -1228,10 +1236,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     }
                     else
                     {
-                        $keys = $this->dca['fields'][$strField]['options'];
+                        $keys = $this->arrDCA['fields'][$strField]['options'];
                     }
 
-                    if ($this->dca['fields'][$v]['eval']['isAssociative'] || array_is_assoc($keys))
+                    if ($this->arrDCA['fields'][$v]['eval']['isAssociative'] || array_is_assoc($keys))
                     {
                         $keys = array_keys($keys);
                     }
@@ -1250,7 +1258,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         // Set sort order
-        if ($this->dca['list']['sorting']['mode'] == 1 && ($this->dca['list']['sorting']['flag'] % 2) == 0)
+        if ($this->arrDCA['list']['sorting']['mode'] == 1 && ($this->arrDCA['list']['sorting']['flag'] % 2) == 0)
         {
             $mixedOrderBy['sortOrder'] = " DESC";
         }
@@ -1279,9 +1287,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $firstOrderBy = preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]);
 
             // Order by the foreign key
-            if (isset($this->dca['fields'][$firstOrderBy]['foreignKey']))
+            if (isset($this->arrDCA['fields'][$firstOrderBy]['foreignKey']))
             {
-                $key = explode('.', $this->dca['fields'][$firstOrderBy]['foreignKey'], 2);
+                $key = explode('.', $this->arrDCA['fields'][$firstOrderBy]['foreignKey'], 2);
 
                 $this->foreignKey = true;
 
@@ -1350,7 +1358,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 {
 
                     // Sort by day
-                    if (in_array($this->dca['fields'][$field]['flag'], array(5, 6)))
+                    if (in_array($this->arrDCA['fields'][$field]['flag'], array(5, 6)))
                     {
                         if ($arrSession['filter'][$strFilter][$field] == '')
                         {
@@ -1364,7 +1372,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     }
 
                     // Sort by month
-                    elseif (in_array($this->dca['fields'][$field]['flag'], array(7, 8)))
+                    elseif (in_array($this->arrDCA['fields'][$field]['flag'], array(7, 8)))
                     {
                         if ($arrSession['filter'][$strFilter][$field] == '')
                         {
@@ -1378,7 +1386,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     }
 
                     // Sort by year
-                    elseif (in_array($this->dca['fields'][$field]['flag'], array(9, 10)))
+                    elseif (in_array($this->arrDCA['fields'][$field]['flag'], array(9, 10)))
                     {
                         if ($arrSession['filter'][$strFilter][$field] == '')
                         {
@@ -1392,7 +1400,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     }
 
                     // Manual filter
-                    elseif ($this->dca['fields'][$field]['eval']['multiple'])
+                    elseif ($this->arrDCA['fields'][$field]['eval']['multiple'])
                     {
                         // TODO fiond in set
                         // CSV lists (see #2890)
@@ -1437,7 +1445,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             $arrProcedure = array();
 
-            if ($this->dca['list']['sorting']['mode'] == 4)
+            if ($this->arrDCA['list']['sorting']['mode'] == 4)
             {
 
                 $arrProcedure[] = "pid = '" . CURRENT_ID . "'";
@@ -1460,7 +1468,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 'option' => array(
                     array(
                         'value'   => 'tl_' . $field,
-                        'content' => (is_array($this->dca['fields'][$field]['label']) ? $this->dca['fields'][$field]['label'][0] : $this->dca['fields'][$field]['label'])
+                        'content' => (is_array($this->arrDCA['fields'][$field]['label']) ? $this->arrDCA['fields'][$field]['label'][0] : $this->arrDCA['fields'][$field]['label'])
                     ),
                     array(
                         'value'   => 'tl_' . $field,
@@ -1483,7 +1491,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 {
                     $this->arrColSort = array(
                         'field'   => $field,
-                        'reverse' => ($this->dca['fields'][$field]['flag'] == 6) ? true : false
+                        'reverse' => ($this->arrDCA['fields'][$field]['flag'] == 6) ? true : false
                     );
 
                     $objCollection->sort(array($this, 'sortCollection'));
@@ -1504,11 +1512,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 }
 
                 // Sort by month
-                elseif (in_array($this->dca['fields'][$field]['flag'], array(7, 8)))
+                elseif (in_array($this->arrDCA['fields'][$field]['flag'], array(7, 8)))
                 {
                     $this->arrColSort = array(
                         'field'   => $field,
-                        'reverse' => ($this->dca['fields'][$field]['flag'] == 8) ? true : false
+                        'reverse' => ($this->arrDCA['fields'][$field]['flag'] == 8) ? true : false
                     );
 
                     $objCollection->sort(array($this, 'sortCollection'));
@@ -1535,11 +1543,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 }
 
                 // Sort by year
-                elseif (in_array($this->dca['fields'][$field]['flag'], array(9, 10)))
+                elseif (in_array($this->arrDCA['fields'][$field]['flag'], array(9, 10)))
                 {
                     $this->arrColSort = array(
                         'field'   => $field,
-                        'reverse' => ($this->dca['fields'][$field]['flag'] == 10) ? true : false
+                        'reverse' => ($this->arrDCA['fields'][$field]['flag'] == 10) ? true : false
                     );
 
                     $objCollection->sort(array($this, 'sortCollection'));
@@ -1560,15 +1568,15 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 }
 
                 // Manual filter
-                if ($this->dca['fields'][$field]['eval']['multiple'])
+                if ($this->arrDCA['fields'][$field]['eval']['multiple'])
                 {
                     $moptions = array();
 
                     foreach ($objCollection as $objModel)
                     {
-                        if (isset($this->dca['fields'][$field]['eval']['csv']))
+                        if (isset($this->arrDCA['fields'][$field]['eval']['csv']))
                         {
-                            $doptions = trimsplit($this->dca['fields'][$field]['eval']['csv'], $objModel->getProperty($field));
+                            $doptions = trimsplit($this->arrDCA['fields'][$field]['eval']['csv'], $objModel->getProperty($field));
                         }
                         else
                         {
@@ -1588,7 +1596,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 $arrOptionsCallback = array();
 
                 // Load options callback
-                if (is_array($this->dca['fields'][$field]['options_callback']) && !$this->dca['fields'][$field]['reference'])
+                if (is_array($this->arrDCA['fields'][$field]['options_callback']) && !$this->arrDCA['fields'][$field]['reference'])
                 {
                     $arrOptionsCallback = $this->objDC->getCallbackClass()->optionsCallback($field);
 
@@ -1601,7 +1609,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
                 $arrOptions = array();
                 $arrSortOptions = array();
-                $blnDate = in_array($this->dca['fields'][$field]['flag'], array(5, 6, 7, 8, 9, 10));
+                $blnDate = in_array($this->arrDCA['fields'][$field]['flag'], array(5, 6, 7, 8, 9, 10));
 
                 // Options                
                 foreach ($options as $kk => $vv)
@@ -1609,9 +1617,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     $value = $blnDate ? $kk : $vv;
 
                     // Replace the ID with the foreign key
-                    if (isset($this->dca['fields'][$field]['foreignKey']))
+                    if (isset($this->arrDCA['fields'][$field]['foreignKey']))
                     {
-                        $key = explode('.', $this->dca['fields'][$field]['foreignKey'], 2);
+                        $key = explode('.', $this->arrDCA['fields'][$field]['foreignKey'], 2);
 
                         $objModel = $this->objDC->getDataProvider($key[0])->fetch(
                                 $this->objDC->getDataProvider($key[0])->getEmptyConfig()
@@ -1626,7 +1634,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     }
 
                     // Replace boolean checkbox value with "yes" and "no"
-                    elseif ($this->dca['fields'][$field]['eval']['isBoolean'] || ($this->dca['fields'][$field]['inputType'] == 'checkbox' && !$this->dca['fields'][$field]['eval']['multiple']))
+                    elseif ($this->arrDCA['fields'][$field]['eval']['isBoolean'] || ($this->arrDCA['fields'][$field]['inputType'] == 'checkbox' && !$this->arrDCA['fields'][$field]['eval']['multiple']))
                     {
                         $vv = ($vv != '') ? $GLOBALS['TL_LANG']['MSC']['yes'] : $GLOBALS['TL_LANG']['MSC']['no'];
                     }
@@ -1669,15 +1677,15 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     $strOptionsLabel = '';
 
                     // Use reference array
-                    if (isset($this->dca['fields'][$field]['reference']))
+                    if (isset($this->arrDCA['fields'][$field]['reference']))
                     {
-                        $strOptionsLabel = is_array($this->dca['fields'][$field]['reference'][$vv]) ? $this->dca['fields'][$field]['reference'][$vv][0] : $this->dca['fields'][$field]['reference'][$vv];
+                        $strOptionsLabel = is_array($this->arrDCA['fields'][$field]['reference'][$vv]) ? $this->arrDCA['fields'][$field]['reference'][$vv][0] : $this->arrDCA['fields'][$field]['reference'][$vv];
                     }
 
                     // Associative array
-                    elseif ($this->dca['fields'][$field]['eval']['isAssociative'] || array_is_assoc($this->dca['fields'][$field]['options']))
+                    elseif ($this->arrDCA['fields'][$field]['eval']['isAssociative'] || array_is_assoc($this->arrDCA['fields'][$field]['options']))
                     {
-                        $strOptionsLabel = $this->dca['fields'][$field]['options'][$vv];
+                        $strOptionsLabel = $this->arrDCA['fields'][$field]['options'][$vv];
                     }
 
                     // No empty options allowed
@@ -1700,7 +1708,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 {
                     natcasesort($arrSortOptions);
 
-                    if (in_array($this->dca['fields'][$field]['flag'], array(2, 4, 12)))
+                    if (in_array($this->arrDCA['fields'][$field]['flag'], array(2, 4, 12)))
                     {
                         $arrSortOptions = array_reverse($arrSortOptions, true);
                     }
