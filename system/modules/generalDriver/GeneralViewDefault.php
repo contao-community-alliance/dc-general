@@ -404,24 +404,22 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             case 1:
             case 2:
             case 3:
-                $strReturn = $this->listView();
+                return $this->panel() . $this->listView();
                 break;
 
             case 4:
-                $strReturn = $this->parentView();
+                return $this->panel() . $this->parentView();
                 break;
 
             case 5:
             case 6:
-                $strReturn = $this->treeView($this->arrDCA['list']['sorting']['mode']);
+                return $this->treeView($this->arrDCA['list']['sorting']['mode']);
                 break;
 
             default:
                 return $this->notImplMsg;
                 break;
         }
-
-        return $this->panel() . $strReturn;
     }
 
     public function undo()
@@ -897,11 +895,11 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         switch ($intMode)
         {
             case 5:
-                $treeClass = 'tl_tree';
+                $treeClass = 'tree';
                 break;
 
             case 6:
-                $treeClass = 'tl_tree_xtnd';
+                $treeClass = 'tree_xtnd';
                 break;
         }
 
@@ -909,21 +907,22 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         $strLabelText = (strlen($this->arrDCA['config']['label']) == 0 ) ? 'DC General Tree View Ultimate' : $this->arrDCA['config']['label'];
         $strLabelIcon = strlen($this->arrDCA['list']['sorting']['icon']) ? $this->arrDCA['list']['sorting']['icon'] : 'pagemounts.gif';
 
-        $strHTML = $this->generateTreeView($this->objDC->getCurrentCollecion(), $intMode);
+        $strHTML = $this->generateTreeView($this->objDC->getCurrentCollecion(), $intMode, $treeClass);
 
         // Build template
-        $objTemplate               = new BackendTemplate('dcbe_general_treeview');
-        $objTemplate->treeClass    = $treeClass;
-        $objTemplate->strLabelIcon = $this->generateImage($strLabelIcon);
-        $objTemplate->strLabelText = $strLabelText;
-        $objTemplate->strHTML      = $strHTML;
-        $objTemplate->intMode      = $intMode;
+        $objTemplate                   = new BackendTemplate('dcbe_general_treeview');
+        $objTemplate->treeClass        = 'tl_' . $treeClass;
+        $objTemplate->strLabelIcon     = $this->generateImage($strLabelIcon);
+        $objTemplate->strLabelText     = $strLabelText;
+        $objTemplate->strHTML          = $strHTML;
+        $objTemplate->intMode          = $intMode;
+        $objTemplate->strGlobalsButton = $this->displayButtons($this->objDC->getButtonId());
 
         // Return :P
         return $objTemplate->parse();
     }
 
-    protected function generateTreeView($objCollection, $intMode)
+    protected function generateTreeView($objCollection, $intMode, $treeClass)
     {
         $strHTML = '';
 
@@ -931,9 +930,12 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         {
             $objModel->setProperty('dc_gen_buttons', $this->generateButtons($objModel, $this->objDC->getTable()));
 
-            $objEntryTemplate           = new BackendTemplate('dcbe_general_treeview_entry');
-            $objEntryTemplate->objModel = $objModel;
-            $objEntryTemplate->intMode  = $intMode;
+            $strToggleID = $this->objDC->getTable() . '_' . $treeClass . '_' . $objModel->getID();
+
+            $objEntryTemplate              = new BackendTemplate('dcbe_general_treeview_entry');
+            $objEntryTemplate->objModel    = $objModel;
+            $objEntryTemplate->intMode     = $intMode;
+            $objEntryTemplate->strToggleID = $strToggleID;
 
             $strHTML .= $objEntryTemplate->parse();
             $strHTML .= "\n";
@@ -942,7 +944,8 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             {
                 $objChildTemplate                 = new BackendTemplate('dcbe_general_treeview_child');
                 $objChildTemplate->objParentModel = $objModel;
-                $objChildTemplate->strHTML        = $this->generateTreeView($objModel->getProperty('dc_gen_children_collection'), $intMode);
+                $objChildTemplate->strToggleID    = $strToggleID;
+                $objChildTemplate->strHTML        = $this->generateTreeView($objModel->getProperty('dc_gen_children_collection'), $intMode, $treeClass);
                 $objChildTemplate->strTable       = $this->objDC->getTable();
 
                 $strHTML .= $objChildTemplate->parse();

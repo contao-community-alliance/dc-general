@@ -245,10 +245,17 @@ class DC_General extends DataContainer implements editable, listable
         'datim' => true
     );
 
+    /**
+     * Timer
+     */
+    protected $intTimerStart;
+
     // Constructor and co. -----------------------------------------------------
 
     public function __construct($strTable, array $arrDCA = null, $blnOnloadCallback = true)
     {
+        $this->intTimerStart = microtime(true);
+        
         parent::__construct();
 
         // Callback
@@ -1470,7 +1477,7 @@ class DC_General extends DataContainer implements editable, listable
             return $strReturn;
         }
 
-        return $this->objViewHandler->create();
+        return $this->setupTimer() . $this->objViewHandler->create();
     }
 
     public function cut()
@@ -1503,7 +1510,7 @@ class DC_General extends DataContainer implements editable, listable
             return $strReturn;
         }
 
-        return $this->objViewHandler->edit();
+        return $this->setupTimer() . $this->objViewHandler->edit();
     }
 
     public function move()
@@ -1525,7 +1532,8 @@ class DC_General extends DataContainer implements editable, listable
             return $strReturn;
         }
 
-        return $this->objViewHandler->show();
+        return $this->setupTimer() . $this->objViewHandler->show();
+        ;
     }
 
     public function showAll()
@@ -1536,7 +1544,8 @@ class DC_General extends DataContainer implements editable, listable
             return $strReturn;
         }
 
-        return $this->objViewHandler->showAll();
+
+        return $this->setupTimer() . $this->objViewHandler->showAll();
     }
 
     public function undo()
@@ -1548,6 +1557,11 @@ class DC_General extends DataContainer implements editable, listable
         }
 
         return $this->objViewHandler->undo();
+    }
+
+    protected function setupTimer()
+    {
+        return '<div style="padding:5px; border:1px solid gray; margin:7px; position:absolute;"> Runtime: ' . number_format((microtime(true) - $this->intTimerStart), 4) . ' Sec. - ' . $this->getReadableSize(memory_get_peak_usage(true)) . '</div>';
     }
 
 }

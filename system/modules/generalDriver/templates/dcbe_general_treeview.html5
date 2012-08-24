@@ -1,4 +1,6 @@
 
+<?php echo $this->strGlobalsButton; ?>
+
 <div class="tl_listing_container tree_view" id="tl_listing">
     <ul class="tl_listing <?php echo $this->treeClass; ?>">
 

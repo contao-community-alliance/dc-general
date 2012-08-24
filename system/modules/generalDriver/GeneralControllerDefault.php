@@ -604,6 +604,14 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $arrRootEntries  = $this->arrDCA['dca_config']['rootEntries'];
         $arrChildFilter  = $this->arrDCA['dca_config']['joinCondition']['self'];
 
+        $strToggleID = $this->objDC->getTable() . '_tree';
+
+        $arrToggle = $this->Session->get($strToggleID);
+        if (!is_array($arrToggle))
+        {
+            $arrToggle = array();
+        }
+
         // Init some vars
         $objTableTreeData     = $this->objDC->getDataProvider()->getEmptyCollection();
         $objRootConfig        = $this->objDC->getDataProvider()->getEmptyConfig();
@@ -667,7 +675,16 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
             $objRootModel->setProperty('dc_gen_tv_title', vsprintf($arrTitlePattern, $arrField));
             $objRootModel->setProperty('dc_gen_tv_level', 0);
-            $objRootModel->setProperty('dc_gen_tv_open', true);
+
+            // Get toogle state
+            if ($arrToggle[$objRootModel->getID()] == 1)
+            {
+                $objRootModel->setProperty('dc_gen_tv_open', true);
+            }
+            else
+            {
+                $objRootModel->setProperty('dc_gen_tv_open', false);
+            }
 
             // Check if we have children
             if ($this->hasChildren($arrChildFilerPattern, $objRootModel) == true)
@@ -682,7 +699,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             // If open load all children
             if ($objRootModel->getProperty('dc_gen_tv_children') == true && $objRootModel->getProperty('dc_gen_tv_open') == true)
             {
-                $objRootModel->setProperty('dc_gen_children_collection', $this->generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrChildFilerPattern, 1, $objRootModel));
+                $objRootModel->setProperty('dc_gen_children_collection', $this->generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrChildFilerPattern, 1, $objRootModel, $arrToggle));
             }
         }
 
@@ -721,10 +738,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
     }
 
-    protected function generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrFilterPattern, $intLevel, $objParentModel)
+    protected function generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrFilterPattern, $intLevel, $objParentModel, $arrToggle)
     {
         $objCollection = $this->objDC->getDataProvider()->getEmptyCollection();
-        $arrFilter = array();
+        $arrFilter     = array();
 
         // Build filter Settings
         foreach ($arrFilterPattern as $valueFilter)
@@ -761,7 +778,16 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
             $objChildModel->setProperty('dc_gen_tv_title', vsprintf($arrTitlePattern, $arrField));
             $objChildModel->setProperty('dc_gen_tv_level', $intLevel);
-            $objChildModel->setProperty('dc_gen_tv_open', true);
+
+            // Get toogle state
+            if ($arrToggle[$objChildModel->getID()] == 1)
+            {
+                $objChildModel->setProperty('dc_gen_tv_open', true);
+            }
+            else
+            {
+                $objChildModel->setProperty('dc_gen_tv_open', false);
+            }
 
             // Check if we have children
             if ($this->hasChildren($arrFilterPattern, $objChildModel) == true)
@@ -775,10 +801,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
             if ($objChildModel->getProperty('dc_gen_tv_children') == true && $objChildModel->getProperty('dc_gen_tv_open') == true)
             {
-                $objChildModel->setProperty('dc_gen_children_collection', $this->generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrFilterPattern, $intLevel + 1, $objChildModel));         
+                $objChildModel->setProperty('dc_gen_children_collection', $this->generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrFilterPattern, $intLevel + 1, $objChildModel, $arrToggle));
             }
         }
-        
+
         return $objCollection;
     }
 
