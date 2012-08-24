@@ -1457,6 +1457,17 @@ class DC_General extends DataContainer implements editable, listable
 
         return $this->objViewHandler->generateAjaxPalette($strMethod, $strSelector);
     }
+    
+    public function ajaxTreeView($intID, $intLevel)
+    {      
+        $strReturn = $this->objController->ajaxTreeView($intID, $intLevel);
+        if ($strReturn != null && $strReturn != "")
+        {
+            return $strReturn;
+        }
+        
+        return $this->objViewHandler->ajaxTreeView($intID, $intLevel);
+    }
 
     public function copy()
     {

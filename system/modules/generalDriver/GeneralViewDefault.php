@@ -427,6 +427,26 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         return $this->notImplMsg;
     }
 
+    public function ajaxTreeView($intID, $intLevel)
+    {        
+        // Init some Vars
+        switch ($this->arrDCA['list']['sorting']['mode'])
+        {
+            case 5:
+                $treeClass = 'tree';
+                break;
+
+            case 6:
+                $treeClass = 'tree_xtnd';
+                break;
+        }
+
+        $strHTML = $this->generateTreeView($this->objDC->getCurrentCollecion(), $this->arrDCA['list']['sorting']['mode'], $treeClass);
+
+        // Return :P
+        return $strHTML;
+    }
+
     public function generateAjaxPalette($strMethod, $strSelector)
     {
         $objPaletteBuilder = new PaletteBuilder($this->objDC);
