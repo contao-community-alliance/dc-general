@@ -1,0 +1,49 @@
+
+<div class="tl_listing_container tree_view" id="tl_listing">
+    <ul class="tl_listing <?php echo $this->treeClass; ?>">
+        
+        <li class="tl_folder_top">
+            <div class="tl_left"> 
+                <?php echo $this->strLabelIcon ?> 
+                <label><?php echo $this->strLabelText; ?></label> 
+            </div>
+            <div class="tl_right"></div> 
+            <div style="clear:both;"></div>
+        </li>
+
+        <?php foreach ($this->arrTableTreeData as $intDataID => $mixData): ?>
+
+            <li class="<?php echo ($mixData['level'] == 0) ? 'tl_folder' : 'tl_file'; ?>">
+                <div class="tl_left" style="padding-left:<?php echo $mixData['level'] * 23 ?>px;">
+                    <a href="<?php echo $this->addToUrl('ptg=' . $intDataID); ?>" title="<?php echo ($mixData['open']) ? $GLOBALS['TL_LANG']['MSC']['collapseNode'] : $GLOBALS['TL_LANG']['MSC']['expandNode']; ?>" onclick="Backend.getScrollOffset(); return AjaxRequest.toggleStructure(this, '<?php echo $intDataID; ?>', 0, <?php echo $this->intMode; ?>);">
+                        <img src="system/themes/default/images/<?php echo ($mixData['open']) ? 'folMinus.gif' : 'folPlus.gif'; ?>" width="18" height="18" alt="" style="margin-right:2px;">
+                    </a>
+                    <a href="music-academy.html" title="In einem neuen Fenster ansehen" target="_blank">
+                        <img src="system/themes/default/images/root.gif" width="18" height="18" alt="">
+                    </a>
+                    <a href="contao/main.php?do=page&amp;node=<?php echo $intDataID; ?>">
+                        <strong><?php echo $mixData['title']; ?></strong>
+                    </a>
+                </div>
+                <div class="tl_right">
+                    <span>DUMMY DATEN -></span>
+                    <a href="contao/main.php?do=page&amp;act=edit&amp;id=1" title="Seite ID 1 bearbeiten">
+                        <img src="system/themes/default/images/edit.gif" width="12" height="16" alt="Seite bearbeiten">
+                    </a> 
+                    <a href="contao/main.php?do=page&amp;act=delete&amp;id=1" title="Seite ID 1 löschen" onclick="if (!confirm('Soll der Eintrag ID 1 wirklich gelöscht werden?')) return false; Backend.getScrollOffset();">
+                        <img src="system/themes/default/images/delete.gif" width="14" height="16" alt="Seite löschen">
+                    </a> 
+                    <a href="contao/main.php?do=page&amp;act=show&amp;id=1" title="Details der Seite ID 1 anzeigen">
+                        <img src="system/themes/default/images/show.gif" width="14" height="16" alt="Seitendetails">
+                    </a> 
+                </div>
+                <div style="clear:both;"></div>
+            </li>
+
+        <?php endforeach; ?>
+
+    </ul>
+
+</div>    
+
+
