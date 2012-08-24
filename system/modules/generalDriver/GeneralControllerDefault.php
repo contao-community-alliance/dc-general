@@ -546,8 +546,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 break;
 
             case 5:
-            case 6:
-//                $strReturn = $this->treeView($this->arrDCA['list']['sorting']['mode']);
+                $strReturn = $this->treeViewM5();
                 break;
 
             default:
@@ -596,11 +595,191 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     // showAll Modis -----------------------------------------------------------
 
-    protected function treeView($intMode)
+    protected function treeViewM5()
     {
-        $this->loadLanguageFile($this->objDC->getChildTable());
-        $this->loadDataContainer($this->objDC->getChildTable());
-        $this->objDC->setChildDC(new DC_General($this->objDC->getChildTable()));
+        // Load some infromations from DCA
+        $arrNeededFields = $this->arrDCA['list']['label']['fields'];
+        $arrLablesFields = $this->arrDCA['list']['label']['fields'];
+        $arrTitlePattern = $this->arrDCA['list']['label']['format'];
+        $arrRootEntries  = $this->arrDCA['dca_config']['rootEntries'];
+        $arrChildFilter  = $this->arrDCA['dca_config']['joinCondition']['self'];
+
+        // Init some vars
+        $objTableTreeData     = $this->objDC->getDataProvider()->getEmptyCollection();
+        $objRootConfig        = $this->objDC->getDataProvider()->getEmptyConfig();
+        $arrChildFilerPattern = array();
+
+        // Build a filter array for the join conditions
+        if (is_array($arrChildFilter) && count($arrChildFilter) != 0)
+        {
+            foreach ($arrChildFilter as $key => $value)
+            {
+                if ($value['srcField'] != '')
+                {
+                    $arrNeededFields[]                    = trim($value['srcField']);
+                    $arrChildFilerPattern[$key]['field']  = $value['srcField'];
+                    $arrChildFilerPattern[$key]['patern'] = $value['dstField'] . ' ' . $value['operation'] . ' %s';
+                }
+                else
+                {
+                    $arrChildFilerPattern[$key]['patern'] = $value['dstField'] . ' ' . $value['operation'];
+                }
+            }
+        }
+        else
+        {
+            $arrNeededFields[]                 = 'id';
+            $arrChildFilerPattern[0]['field']  = 'id';
+            $arrChildFilerPattern[0]['patern'] = 'pid = %s';
+        }
+
+        // Set fields limit
+        $objRootConfig->setFields(array_keys(array_flip($arrNeededFields)));
+
+        // Set Filter for root elements
+        /**
+         * TODO: @SH: Benutzen einer Callback Klasse um die
+         * Rootentries Beziehung nachträglich zu berechnen.
+         */
+        if (is_array($arrRootEntries) && count($arrRootEntries) != 0)
+        {
+            $objRootConfig->setFilter($arrRootEntries);
+        }
+        else
+        {
+            // Use default settings
+            $objRootConfig->setFilter(array('pid=0'));
+        }
+
+        // Fetch all root elements
+        $objRootCollection = $this->objDC->getDataProvider()->fetchAll($objRootConfig);
+
+        foreach ($objRootCollection as $objRootModel)
+        {
+            $objTableTreeData->add($objRootModel);
+
+            // Build full lable
+            $arrField = array();
+            foreach ($arrLablesFields as $strField)
+            {
+                $arrField[] = $objRootModel->getProperty($strField);
+            }
+
+            $objRootModel->setProperty('dc_gen_tv_title', vsprintf($arrTitlePattern, $arrField));
+            $objRootModel->setProperty('dc_gen_tv_level', 0);
+            $objRootModel->setProperty('dc_gen_tv_open', true);
+
+            // Check if we have children
+            if ($this->hasChildren($arrChildFilerPattern, $objRootModel) == true)
+            {
+                $objRootModel->setProperty('dc_gen_tv_children', true);
+            }
+            else
+            {
+                $objRootModel->setProperty('dc_gen_tv_children', false);
+            }
+
+            // If open load all children
+            if ($objRootModel->getProperty('dc_gen_tv_children') == true && $objRootModel->getProperty('dc_gen_tv_open') == true)
+            {
+                $objRootModel->setProperty('dc_gen_children_collection', $this->generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrChildFilerPattern, 1, $objRootModel));
+            }
+        }
+
+        $this->objDC->setCurrentCollecion($objTableTreeData);
+    }
+
+    protected function hasChildren($arrFilterPattern, $objParentModel)
+    {
+        $arrFilter = array();
+
+        // Build filter Settings
+        foreach ($arrFilterPattern as $valueFilter)
+        {
+            if (isset($valueFilter['field']) && $valueFilter['field'] != '')
+            {
+                $arrFilter[] = vsprintf($valueFilter['patern'], $objParentModel->getProperty($valueFilter['field']));
+            }
+            else
+            {
+                $arrFilter[] = $valueFilter['patern'];
+            }
+        }
+
+        // Create a new Config
+        $objConfig = $this->objDC->getDataProvider()->getEmptyConfig();
+        $objConfig->setFilter($arrFilter);
+
+        // Fetch all children
+        if ($this->objDC->getDataProvider()->getCount($objConfig) != 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    protected function generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrFilterPattern, $intLevel, $objParentModel)
+    {
+        $objCollection = $this->objDC->getDataProvider()->getEmptyCollection();
+        $arrFilter = array();
+
+        // Build filter Settings
+        foreach ($arrFilterPattern as $valueFilter)
+        {
+            if (isset($valueFilter['field']) && $valueFilter['field'] != '')
+            {
+                $arrFilter[] = vsprintf($valueFilter['patern'], $objParentModel->getProperty($valueFilter['field']));
+            }
+            else
+            {
+                $arrFilter[] = $valueFilter['patern'];
+            }
+        }
+
+        // Create a new Config
+        $objChildConfig = $this->objDC->getDataProvider()->getEmptyConfig();
+        $objChildConfig->setFilter($arrFilter);
+        $objChildConfig->setFields(array_keys(array_flip($arrNeededFields)));
+
+        // Fetch all children
+        $objChildCollection = $this->objDC->getDataProvider()->fetchAll($objChildConfig);
+
+        // Run each entry
+        foreach ($objChildCollection as $objChildModel)
+        {
+            $objCollection->add($objChildModel);
+
+            // Build full lable
+            $arrField = array();
+            foreach ($arrLablesFields as $strField)
+            {
+                $arrField[] = $objChildModel->getProperty($strField);
+            }
+
+            $objChildModel->setProperty('dc_gen_tv_title', vsprintf($arrTitlePattern, $arrField));
+            $objChildModel->setProperty('dc_gen_tv_level', $intLevel);
+            $objChildModel->setProperty('dc_gen_tv_open', true);
+
+            // Check if we have children
+            if ($this->hasChildren($arrFilterPattern, $objChildModel) == true)
+            {
+                $objChildModel->setProperty('dc_gen_tv_children', true);
+            }
+            else
+            {
+                $objChildModel->setProperty('dc_gen_tv_children', false);
+            }
+
+            if ($objChildModel->getProperty('dc_gen_tv_children') == true && $objChildModel->getProperty('dc_gen_tv_open') == true)
+            {
+                $objChildModel->setProperty('dc_gen_children_collection', $this->generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrFilterPattern, $intLevel + 1, $objChildModel));         
+            }
+        }
+        
+        return $objCollection;
     }
 
     protected function listView()

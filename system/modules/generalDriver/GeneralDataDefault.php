@@ -1,4 +1,7 @@
-<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
+<?php
+
+if (!defined('TL_ROOT'))
+    die('You can not access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -316,14 +319,14 @@ class GeneralDataDefault implements InterfaceGeneralData
             }
         }
 
-        if(!is_array($objConfig->getIds()) || count($objConfig->getIds()) == 0)
+        if (!is_array($objConfig->getIds()) || count($objConfig->getIds()) == 0)
         {
             $query = "SELECT " . $strFields . " FROM $this->strSource";
         }
         else
         {
             $query = "SELECT " . $strFields . " FROM $this->strSource WHERE id IN(" . implode(', ', $objConfig->getIds()) . ")";
-        }        
+        }
 
         if (!is_null($arrSorting) && is_array($arrSorting) && count($arrSorting) > 0)
         {
@@ -348,7 +351,7 @@ class GeneralDataDefault implements InterfaceGeneralData
 
             $query .= " ORDER BY " . implode(', ', $arrSorting) . $strSortOrder;
         }
-        
+
         $arrResult = $this->objDatabase
                 ->prepare($query)
                 ->execute()
@@ -402,8 +405,10 @@ class GeneralDataDefault implements InterfaceGeneralData
                 {
                     $query .= (($boolSetWhere) ? " WHERE " : " AND ") . $key . " IN(" . implode(',', $mixedFilter) . ")";
                     $boolSetWhere = false;
+
+                    // ToDo: Patrick schlagen
+                    unset($arrFilter[$key]);
                 }
-                unset($arrFilter[$key]);
             }
 
             if (count($arrFilter) > 0)

@@ -1,0 +1,17 @@
+<li class="<?php echo ($this->objModel->getProperty('dc_gen_tv_level') == 0) ? 'tl_folder' : 'tl_file'; ?>" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
+    <div class="tl_left" style="padding-left:<?php echo $this->objModel->getProperty('dc_gen_tv_level') * 20 ?>px;">
+        <?php if ($this->objModel->getProperty('dc_gen_tv_children') == true): ?>
+            <a href="<?php echo $this->addToUrl('ptg=' . $this->objModel->getID()); ?>" title="<?php echo ($this->objModel->getProperty('dc_gen_tv_open')) ? $GLOBALS['TL_LANG']['MSC']['collapseNode'] : $GLOBALS['TL_LANG']['MSC']['expandNode']; ?>" onclick="Backend.getScrollOffset(); return AjaxRequest.toggleStructure(this, '<?php echo $this->objModel->getID(); ?>', 0, <?php echo $this->intMode; ?>);">
+                <img src="system/themes/default/images/<?php echo ($this->objModel->getProperty('dc_gen_tv_open')) ? 'folMinus.gif' : 'folPlus.gif'; ?>" width="18" height="18" alt="" style="margin-right:-2px;">
+            </a>
+        <?php endif; ?>
+        <!-- <a href="contao/main.php?do=page&amp;node=<?php echo $this->objModel->getID(); ?>"> -->
+            <img src="system/themes/default/images/regular.gif" width="18" height="18" alt="" <?php if ($this->objModel->getProperty('dc_gen_tv_children') == false): ?> style="margin-left:20px"<?php endif; ?>>
+            <strong><?php echo $this->objModel->getProperty('dc_gen_tv_title'); ?></strong>
+        <!-- </a>  -->
+    </div>
+    <div class="tl_right">
+        <?php echo $this->objModel->getProperty('dc_gen_buttons'); ?> 
+    </div>
+    <div style="clear:both;"></div>
+</li>
