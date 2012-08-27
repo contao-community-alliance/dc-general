@@ -60,6 +60,12 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     protected $arrColSort;
 
     /**
+     * State of Show/Close all
+     * @var boolean 
+     */
+    protected $blnShowAllEntries = false;
+
+    /**
      * Const Language
      */
 
@@ -74,7 +80,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     {
         parent::__construct();
 
+        // Init Helper
         $this->objSession = Session::getInstance();
+
+        // Check some vars
+        $this->blnShowAllEntries = ($this->Input->get('ptg') == 'all') ? 1 : 0;
     }
 
     public function __call($name, $arguments)
@@ -503,6 +513,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->objDC->setCurrentModel($objDBModel);
     }
 
+    public function paste()
+    {
+        $this->showAll();
+    }
+
     public function showAll()
     {
         $this->objDC  = $this->objDC;
@@ -558,7 +573,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     public function ajaxTreeView($intID, $intLevel)
     {
         $this->arrDCA = $this->objDC->getDCA();
-        
+
         // Load some infromations from DCA
         $arrNeededFields = $this->arrDCA['list']['label']['fields'];
         $arrLablesFields = $this->arrDCA['list']['label']['fields'];
@@ -712,6 +727,24 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $arrToggle = array();
         }
 
+        // Check if the open/close all is active
+        if ($this->blnShowAllEntries == true)
+        {
+            if (key_exists('all', $arrToggle))
+            {
+                $arrToggle = array();
+            }
+            else
+            {
+                $arrToggle = array();
+                $arrToggle['all'] = 1;
+            }
+
+            // Save in session and redirect
+            $this->Session->set($strToggleID, $arrToggle);
+            $this->redirect('contao/main.php?do=' . $this->objDC->getTable());
+        }
+
         // Init some vars
         $objTableTreeData     = $this->objDC->getDataProvider()->getEmptyCollection();
         $objRootConfig        = $this->objDC->getDataProvider()->getEmptyConfig();
@@ -775,9 +808,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
             $objRootModel->setProperty('dc_gen_tv_title', vsprintf($arrTitlePattern, $arrField));
             $objRootModel->setProperty('dc_gen_tv_level', 0);
-
+            
             // Get toogle state
-            if ($arrToggle[$objRootModel->getID()] == 1)
+            if ($arrToggle['all'] == 1 && !(key_exists($objRootModel->getID(), $arrToggle) && $arrToggle[$objRootModel->getID()] == 0))
             {
                 $objRootModel->setProperty('dc_gen_tv_open', true);
             }
@@ -880,7 +913,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $objChildModel->setProperty('dc_gen_tv_level', $intLevel);
 
             // Get toogle state
-            if ($arrToggle[$objChildModel->getID()] == 1)
+            if ($arrToggle['all'] == 1 && !(key_exists($objChildModel->getID(), $arrToggle) && $arrToggle[$objChildModel->getID()] == 0))
             {
                 $objChildModel->setProperty('dc_gen_tv_open', true);
             }

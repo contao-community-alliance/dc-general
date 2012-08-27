@@ -32,24 +32,30 @@ if (!defined('TL_ROOT'))
  */
 class GeneralViewDefault extends Controller implements InterfaceGeneralView
 {
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * Vars
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
-    // Palettes/View vars
+    // Palettes/View vars ---------------------------
+
     protected $arrSelectors = array();
     protected $arrAjaxPalettes = array();
     protected $arrRootPalette = array();
-    protected $blnSelect = false;
-    protected $arrDCA    = array();
-    // Multilanguage vars
+    protected $arrDCA = array();
+    // Multilanguage vars ---------------------------
     protected $strCurrentLanguage;
     protected $blnMLSupport = false;
-    // Overall Vars
+    // Overall Vars ---------------------------------
     protected $notImplMsg   = "<div style='text-align:center; font-weight:bold; padding:40px;'>This function/view is not implemented.</div>";
-    // Objects
+    // Objects --------------------------------------
+
     /**
      * Driver class
      * @var DC_General 
      */
-    protected $objDC        = null;
+    protected $objDC = null;
 
     /**
      * The current working model
@@ -63,9 +69,11 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
      */
     protected $objLanguagesSupported = null;
 
-    /* -------------------------------------------------------------------------
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
      * Magic function
-     */
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     /**
      * Initialize the object
@@ -73,13 +81,13 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
     public function __construct()
     {
         parent::__construct();
-
-        $this->blnSelect = ($this->Input->get('act') == 'select') ? TRUE : FALSE;
     }
 
-    /* -------------------------------------------------------------------------
-     * Getter & Setter
-     */
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     *  Getter & Setter
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     public function getDC()
     {
@@ -107,9 +115,11 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         return !count($this->arrRootPalette);
     }
 
-    /* -------------------------------------------------------------------------
-     * Core Support functions
-     */
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     *  Core Support functions
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     /**
      * Check if the dataprovider is multilanguage.
@@ -136,46 +146,96 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         }
     }
 
+    /**
+     * Load the current model from driver
+     */
     protected function loadCurrentModel()
     {
         $this->objCurrentModel = $this->objDC->getCurrentModel();
     }
 
+    /**
+     * Load the dca from driver
+     */
     protected function loadCurrentDCA()
     {
         $this->arrDCA = $this->objDC->getDCA();
     }
 
-    /* -------------------------------------------------------------------------
-     * Core function
-     */
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     *  Core function
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
+    /**
+     * @todo All
+     * @return Stirng
+     */
     public function copy()
     {
         return $this->notImplMsg;
     }
 
+    /**
+     * @todo All
+     * @return type
+     */
     public function copyAll()
     {
         return $this->notImplMsg;
     }
 
+    /**
+     * @see edit()
+     * @return stirng
+     */
     public function create()
     {
         return $this->edit();
     }
 
+    /**
+     * @todo All
+     * @return type
+     */
     public function cut()
     {
         return $this->notImplMsg;
     }
 
+    /**
+     * @todo All
+     * @return type
+     */
     public function cutAll()
     {
         return $this->notImplMsg;
     }
 
+    /**
+     * @todo All
+     * @return type
+     */
     public function delete()
+    {
+        return $this->notImplMsg;
+    }
+
+    /**
+     * @todo All
+     * @return type
+     */
+    public function move()
+    {
+        return $this->notImplMsg;
+    }
+
+    /**
+     * @todo All
+     * @return type
+     */
+    public function undo()
     {
         return $this->notImplMsg;
     }
@@ -187,6 +247,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
      */
     public function edit()
     {
+        // Load basic informations
         $this->checkLanguage();
         $this->loadCurrentModel();
 
@@ -225,56 +286,46 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 //        }
     }
 
-    public function move()
-    {
-        return $this->notImplMsg;
-    }
-
     /**
      * Show Informations about a data set
-     * 
-     * @param DC_General $objDcGeneral
+     *
      * @return String 
      */
     public function show()
     {
+        // Load basic informations
+        $this->checkLanguage();
+        $this->loadCurrentModel();
+        $this->loadCurrentDCA();
+
         // Init
-        $arrDCA = $this->objDC->getDCA();
         $fields = array();
-        $allowedFields = array('pid', 'sorting', 'tstamp');
         $arrFieldValues = array();
         $arrFieldLabels = array();
+        $allowedFields = array('pid', 'sorting', 'tstamp');
 
-        // Check if DP is multilanguage
-        if (is_a($this->objDC->getDataProvider(), "InterfaceGeneralDataML"))
-        {
-            $objLanguagesSupported    = $this->objDC->getDataProvider()->getLanguages($this->objDC->getId());
-            $this->strCurrentLanguage = $this->objDC->getDataProvider()->getCurrentLanguage();
-        }
-
-        // Get fields
-        $objModel = $this->objDC->getCurrentModel();
-        foreach ($objModel as $key => $value)
+        foreach ($this->objCurrentModel as $key => $value)
         {
             $fields[] = $key;
         }
 
         // Get allowed fieds from dca
-        if (is_array($arrDCA['fields']))
+        if (is_array($this->arrDCA['fields']))
         {
-            $allowedFields = array_unique(array_merge($allowedFields, array_keys($arrDCA['fields'])));
+            $allowedFields = array_unique(array_merge($allowedFields, array_keys($this->arrDCA['fields'])));
         }
 
         $fields = array_intersect($allowedFields, $fields);
 
-
         // Show all allowed fields
         foreach ($fields as $strFieldName)
         {
+            $arrFieldConfig = $this->arrDCA['fields'][$strFieldName];
+
             if (!in_array($strFieldName, $allowedFields)
-                    || $arrDCA['fields'][$strFieldName]['inputType'] == 'password'
-                    || $arrDCA['fields'][$strFieldName]['eval']['doNotShow']
-                    || $arrDCA['fields'][$strFieldName]['eval']['hideInput'])
+                    || $arrFieldConfig['inputType'] == 'password'
+                    || $arrFieldConfig['eval']['doNotShow']
+                    || $arrFieldConfig['eval']['hideInput'])
             {
                 continue;
             }
@@ -285,89 +336,13 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                 continue;
             }
 
-            // Load value from model
-            $value = deserialize($objModel->getProperty($strFieldName));
-
-            // Get the field value
-            if (isset($arrDCA['fields'][$strFieldName]['foreignKey']))
-            {
-                $temp = array();
-                $chunks = explode('.', $arrDCA['fields'][$strFieldName]['foreignKey'], 2);
-
-                // ToDo: SH: todo :P
-
-                foreach ((array) $value as $v)
-                {
-//                    $objKey = $this->Database->prepare("SELECT " . $chunks[1] . " AS value FROM " . $chunks[0] . " WHERE id=?")
-//                            ->limit(1)
-//                            ->execute($v);
-//
-//                    if ($objKey->numRows)
-//                    {
-//                        $temp[] = $objKey->value;
-//                    }
-                }
-
-//                $row[$i] = implode(', ', $temp);
-            }
-            // Decode array
-            else if (is_array($value))
-            {
-                foreach ($value as $kk => $vv)
-                {
-                    if (is_array($vv))
-                    {
-                        $vals       = array_values($vv);
-                        $value[$kk] = $vals[0] . ' (' . $vals[1] . ')';
-                    }
-                }
-
-                $arrFieldValues[$strFieldName] = implode(', ', $value);
-            }
-            // Date Formate
-            else if ($arrDCA['fields'][$strFieldName]['eval']['rgxp'] == 'date')
-            {
-                $arrFieldValues[$strFieldName] = $this->parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $value);
-            }
-            // Date Formate
-            else if ($arrDCA['fields'][$strFieldName]['eval']['rgxp'] == 'time')
-            {
-                $arrFieldValues[$strFieldName] = $this->parseDate($GLOBALS['TL_CONFIG']['timeFormat'], $value);
-            }
-            // Date Formate
-            else if ($arrDCA['fields'][$strFieldName]['eval']['rgxp'] == 'datim' || in_array($arrDCA['fields'][$strFieldName]['flag'], array(5, 6, 7, 8, 9, 10)) || $strFieldName == 'tstamp')
-            {
-                $arrFieldValues[$strFieldName] = $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $value);
-            }
-            else if ($arrDCA['fields'][$strFieldName]['inputType'] == 'checkbox' && !$arrDCA['fields'][$strFieldName]['eval']['multiple'])
-            {
-                $arrFieldValues[$strFieldName] = strlen($value) ? $GLOBALS['TL_LANG']['MSC']['yes'] : $GLOBALS['TL_LANG']['MSC']['no'];
-            }
-            else if ($arrDCA['fields'][$strFieldName]['inputType'] == 'textarea' && ($arrDCA['fields'][$strFieldName]['eval']['allowHtml'] || $arrDCA['fields'][$strFieldName]['eval']['preserveTags']))
-            {
-                $arrFieldValues[$strFieldName] = nl2br_html5(specialchars($value));
-            }
-            else if (is_array($arrDCA['fields'][$strFieldName]['reference']))
-            {
-                $arrFieldValues[$strFieldName] = isset($arrDCA['fields'][$strFieldName]['reference'][$objModel->getProperty($strFieldName)]) ?
-                        ((is_array($arrDCA['fields'][$strFieldName]['reference'][$objModel->getProperty($strFieldName)])) ?
-                                $arrDCA['fields'][$strFieldName]['reference'][$objModel->getProperty($strFieldName)][0] :
-                                $arrDCA['fields'][$strFieldName]['reference'][$objModel->getProperty($strFieldName)]) :
-                        $objModel->getProperty($strFieldName);
-            }
-            else if (array_is_assoc($arrDCA['fields'][$strFieldName]['options']))
-            {
-                $arrFieldValues[$strFieldName] = $arrDCA['fields'][$strFieldName]['options'][$objModel->getProperty($strFieldName)];
-            }
-            else
-            {
-                $arrFieldValues[$strFieldName] = $objModel->getProperty($strFieldName);
-            }
+            // Make it human readable
+            $arrFieldValues[$strFieldName] = $this->objDC->getReadableFieldValue($strFieldName, deserialize($this->objCurrentModel->getProperty($strFieldName)));
 
             // Label
-            if (count($arrDCA['fields'][$strFieldName]['label']))
+            if (count($arrFieldConfig['label']))
             {
-                $arrFieldLabels[$strFieldName] = is_array($arrDCA['fields'][$strFieldName]['label']) ? $arrDCA['fields'][$strFieldName]['label'][0] : $arrDCA['fields'][$strFieldName]['label'];
+                $arrFieldLabels[$strFieldName] = is_array($arrFieldConfig['label']) ? $arrFieldConfig['label'][0] : $arrFieldConfig['label'];
             }
             else
             {
@@ -380,11 +355,12 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             }
         }
 
+        // Create new template
         $objTemplate            = new BackendTemplate("dcbe_general_show");
         $objTemplate->headline  = sprintf($GLOBALS['TL_LANG']['MSC']['showRecord'], ($this->objDC->getId() ? 'ID ' . $this->objDC->getId() : ''));
         $objTemplate->arrFields = $arrFieldValues;
         $objTemplate->arrLabels = $arrFieldLabels;
-        $objTemplate->language  = $objLanguagesSupported;
+        $objTemplate->language  = $this->objLanguagesSupported;
 
         return $objTemplate->parse();
     }
@@ -395,8 +371,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         $this->loadCurrentModel();
         $this->loadCurrentDCA();
 
-        // Create panels
-        $strReturn = "";
+        $strReturn = '';
 
         // Switch mode
         switch ($this->arrDCA['list']['sorting']['mode'])
@@ -404,31 +379,45 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             case 1:
             case 2:
             case 3:
-                return $this->panel() . $this->listView();
+                $strReturn = $this->listView();
                 break;
 
             case 4:
-                return $this->panel() . $this->parentView();
+                $strReturn = $this->parentView();
                 break;
 
             case 5:
             case 6:
-                return $this->treeView($this->arrDCA['list']['sorting']['mode']);
+                $strReturn = $this->treeView($this->arrDCA['list']['sorting']['mode']);
                 break;
 
             default:
                 return $this->notImplMsg;
                 break;
         }
+
+        // Add panels
+        switch ($this->arrDCA['list']['sorting']['mode'])
+        {
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                $strReturn = $this->panel() . $strReturn;
+        }
+
+        // Return all
+        return $strReturn;
     }
 
-    public function undo()
-    {
-        return $this->notImplMsg;
-    }
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * AJAX Calls
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     public function ajaxTreeView($intID, $intLevel)
-    {        
+    {
         // Init some Vars
         switch ($this->arrDCA['list']['sorting']['mode'])
         {
@@ -454,6 +443,179 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         return $objPaletteBuilder->generateAjaxPalette(
                         $strSelector, $strSelector . '_' . $objDcGeneral->getWidgetID(), 'dcbe_general_field'
         );
+    }
+
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * Sub Views
+     * Helper functions for the main views
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
+
+    /**
+     * Generate list view from current collection
+     * 
+     * @return string 
+     */
+    protected function listView()
+    {
+        $arrReturn = array();
+
+        // Add display buttons
+        if (!$this->arrDCA['config']['closed'] || !empty($this->arrDCA['list']['global_operations']))
+        {
+            $arrReturn[] = $this->displayButtons($this->objDC->getButtonId());
+        }
+
+        // Set label
+        $this->setListViewLabel();
+
+        // Generate buttons
+        foreach ($this->objDC->getCurrentCollecion() as $objModelRow)
+        {
+            $objModelRow->setProperty('%buttons%', $this->generateButtons($objModelRow, $this->objDC->getTable(), $this->objDC->getRootIds()));
+        }
+
+        // Add template
+        $objTemplate               = new BackendTemplate('dcbe_general_listView');
+        $objTemplate->collection   = $this->objDC->getCurrentCollecion();
+        $objTemplate->select       = $this->objDC->isSelectSubmit();
+        $objTemplate->action       = ampersand($this->Environment->request, true);
+        $objTemplate->mode         = $this->arrDCA['list']['sorting']['mode'];
+        $objTemplate->tableHead    = $this->getTableHead();
+        $objTemplate->notDeletable = $this->arrDCA['config']['notDeletable'];
+        $objTemplate->notEditable  = $this->arrDCA['config']['notEditable'];
+        $arrReturn[]               = $objTemplate->parse();
+
+        return implode('', $arrReturn);
+    }
+
+    protected function parentView()
+    {
+        $arrReturn = array();
+
+        $this->parentView = array(
+            'sorting' => $this->arrDCA['list']['sorting']['fields'][0] == 'sorting'
+        );
+
+        $arrReturn[] = $this->displayButtons('tl_buttons');
+
+        if (is_null($this->objDC->getParentTable()) || $this->objDC->getCurrentParentCollection()->length() == 0)
+        {
+            return implode('', $arrReturn);
+        }
+
+        // Load language file and data container array of the parent table
+        $this->loadLanguageFile($this->objDC->getParentTable());
+        $this->loadDataContainer($this->objDC->getParentTable());
+
+        $objParentDC     = new DC_General($this->objDC->getParentTable());
+        $this->parentDca = $objParentDC->getDCA();
+
+        // Add template
+        $objTemplate             = new BackendTemplate('dcbe_general_parentView');
+        $objTemplate->collection = $this->objDC->getCurrentCollecion();
+        $objTemplate->select     = $this->objDC->isSelectSubmit();
+        $objTemplate->action     = ampersand($this->Environment->request, true);
+        $objTemplate->mode       = $this->arrDCA['list']['sorting']['mode'];
+        $objTemplate->table      = $this->objDC->getTable();
+        $objTemplate->tableHead  = $this->parentView['headerGroup'];
+        $objTemplate->header     = $this->getParentViewFormattedHeaderFields();
+
+        $this->setRecords();
+
+        $objTemplate->editHeader = array(
+            'content' => $this->generateImage('edit.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['editheader'][0]),
+            'href'    => preg_replace('/&(amp;)?table=[^& ]*/i', (strlen($this->objDC->getParentTable()) ? '&amp;table=' . $this->objDC->getParentTable() : ''), $this->addToUrl('act=edit')),
+            'title'   => specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['editheader'][1])
+        );
+
+        $objTemplate->pasteNew = array(
+            'content' => $this->generateImage('new.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0]),
+            'href'    => $this->addToUrl('act=create&amp;mode=2&amp;pid=' . $this->objDC->getCurrentParentCollection()->get(0)->getID() . '&amp;id=' . $this->intId),
+            'title'   => specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pastenew'][0])
+        );
+
+        $objTemplate->pasteAfter = array(
+            'content' => $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0], 'class="blink"'),
+            'href'    => $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=' . $this->objDC->getCurrentParentCollection()->get(0)->getID() . (!$blnMultiboard ? '&amp;id=' . $arrClipboard['id'] : '')),
+            'title'   => specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0])
+        );
+
+        $objTemplate->notDeletable      = $this->arrDCA['config']['notDeletable'];
+        $objTemplate->notEditable       = $this->arrDCA['config']['notEditable'];
+        $objTemplate->notEditableParent = $this->parentDca['config']['notEditable'];
+        $arrReturn[]                    = $objTemplate->parse();
+
+        return implode('', $arrReturn);
+    }
+
+    protected function treeView($intMode = 5)
+    {
+        // Init some Vars
+        switch ($intMode)
+        {
+            case 5:
+                $treeClass = 'tree';
+                break;
+
+            case 6:
+                $treeClass = 'tree_xtnd';
+                break;
+        }
+
+        // Label + Icon
+        $strLabelText = (strlen($this->arrDCA['config']['label']) == 0 ) ? 'DC General Tree View Ultimate' : $this->arrDCA['config']['label'];
+        $strLabelIcon = strlen($this->arrDCA['list']['sorting']['icon']) ? $this->arrDCA['list']['sorting']['icon'] : 'pagemounts.gif';
+
+        // Create treeview
+        $strHTML = $this->generateTreeView($this->objDC->getCurrentCollecion(), $intMode, $treeClass);
+
+        // Build template
+        $objTemplate                   = new BackendTemplate('dcbe_general_treeview');
+        $objTemplate->treeClass        = 'tl_' . $treeClass;
+        $objTemplate->strLabelIcon     = $this->generateImage($strLabelIcon);
+        $objTemplate->strLabelText     = $strLabelText;
+        $objTemplate->strHTML          = $strHTML;
+        $objTemplate->intMode          = $intMode;
+        $objTemplate->strGlobalsButton = $this->displayButtons($this->objDC->getButtonId());
+
+        // Return :P
+        return $objTemplate->parse();
+    }
+
+    protected function generateTreeView($objCollection, $intMode, $treeClass)
+    {
+        $strHTML = '';
+
+        foreach ($objCollection as $objModel)
+        {
+            $objModel->setProperty('dc_gen_buttons', $this->generateButtons($objModel, $this->objDC->getTable()));
+
+            $strToggleID = $this->objDC->getTable() . '_' . $treeClass . '_' . $objModel->getID();
+
+            $objEntryTemplate              = new BackendTemplate('dcbe_general_treeview_entry');
+            $objEntryTemplate->objModel    = $objModel;
+            $objEntryTemplate->intMode     = $intMode;
+            $objEntryTemplate->strToggleID = $strToggleID;
+
+            $strHTML .= $objEntryTemplate->parse();
+            $strHTML .= "\n";
+
+            if ($objModel->getProperty('dc_gen_tv_children') == true && $objModel->getProperty('dc_gen_tv_open') == true)
+            {
+                $objChildTemplate                 = new BackendTemplate('dcbe_general_treeview_child');
+                $objChildTemplate->objParentModel = $objModel;
+                $objChildTemplate->strToggleID    = $strToggleID;
+                $objChildTemplate->strHTML        = $this->generateTreeView($objModel->getProperty('dc_gen_children_collection'), $intMode, $treeClass);
+                $objChildTemplate->strTable       = $this->objDC->getTable();
+
+                $strHTML .= $objChildTemplate->parse();
+                $strHTML .= "\n";
+            }
+        }
+
+        return $strHTML;
     }
 
     /* /////////////////////////////////////////////////////////////////////////
@@ -807,194 +969,9 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
     /* /////////////////////////////////////////////////////////////////////////
      * -------------------------------------------------------------------------
-     * View Helper Functions
+     * parentView helper functions
      * -------------------------------------------------------------------------
      * ////////////////////////////////////////////////////////////////////// */
-
-    /**
-     * Generate list view from current collection
-     * 
-     * @return string 
-     */
-    protected function listView()
-    {
-        $arrReturn = array();
-
-        // Add display buttons
-        if (!$this->arrDCA['config']['closed'] || !empty($this->arrDCA['list']['global_operations']))
-        {
-            $arrReturn[] = $this->displayButtons($this->objDC->getButtonId());
-        }
-
-        // Set label
-        $this->setListViewLabel();
-
-        // Generate buttons
-        foreach ($this->objDC->getCurrentCollecion() as $objModelRow)
-        {
-            $objModelRow->setProperty('%buttons%', $this->generateButtons($objModelRow, $this->objDC->getTable(), $this->objDC->getRootIds()));
-        }
-
-        // Add template
-        $objTemplate               = new BackendTemplate('dcbe_general_listView');
-        $objTemplate->collection   = $this->objDC->getCurrentCollecion();
-        $objTemplate->select       = $this->blnSelect;
-        $objTemplate->action       = ampersand($this->Environment->request, true);
-        $objTemplate->mode         = $this->arrDCA['list']['sorting']['mode'];
-        $objTemplate->tableHead    = $this->getTableHead();
-        $objTemplate->notDeletable = $this->arrDCA['config']['notDeletable'];
-        $objTemplate->notEditable  = $this->arrDCA['config']['notEditable'];
-        $arrReturn[]               = $objTemplate->parse();
-
-        return implode('', $arrReturn);
-    }
-
-    protected function parentView()
-    {
-        $arrReturn = array();
-
-        $this->parentView = array(
-            'sorting' => $this->arrDCA['list']['sorting']['fields'][0] == 'sorting'
-        );
-
-        $arrReturn[] = $this->displayButtons('tl_buttons');
-
-        if (is_null($this->objDC->getParentTable()) || $this->objDC->getCurrentParentCollection()->length() == 0)
-        {
-            return implode('', $arrReturn);
-        }
-
-        // Load language file and data container array of the parent table
-        $this->loadLanguageFile($this->objDC->getParentTable());
-        $this->loadDataContainer($this->objDC->getParentTable());
-
-        $objParentDC     = new DC_General($this->objDC->getParentTable());
-        $this->parentDca = $objParentDC->getDCA();
-
-        // Add template
-        $objTemplate             = new BackendTemplate('dcbe_general_parentView');
-        $objTemplate->collection = $this->objDC->getCurrentCollecion();
-        $objTemplate->select     = $this->blnSelect;
-        $objTemplate->action     = ampersand($this->Environment->request, true);
-        $objTemplate->mode       = $this->arrDCA['list']['sorting']['mode'];
-        $objTemplate->table      = $this->objDC->getTable();
-        $objTemplate->tableHead  = $this->parentView['headerGroup'];
-        $objTemplate->header     = $this->getParentViewFormattedHeaderFields();
-
-        $this->setRecords();
-
-        $objTemplate->editHeader = array(
-            'content' => $this->generateImage('edit.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['editheader'][0]),
-            'href'    => preg_replace('/&(amp;)?table=[^& ]*/i', (strlen($this->objDC->getParentTable()) ? '&amp;table=' . $this->objDC->getParentTable() : ''), $this->addToUrl('act=edit')),
-            'title'   => specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['editheader'][1])
-        );
-
-        $objTemplate->pasteNew = array(
-            'content' => $this->generateImage('new.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0]),
-            'href'    => $this->addToUrl('act=create&amp;mode=2&amp;pid=' . $this->objDC->getCurrentParentCollection()->get(0)->getID() . '&amp;id=' . $this->intId),
-            'title'   => specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pastenew'][0])
-        );
-
-        $objTemplate->pasteAfter = array(
-            'content' => $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0], 'class="blink"'),
-            'href'    => $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=' . $this->objDC->getCurrentParentCollection()->get(0)->getID() . (!$blnMultiboard ? '&amp;id=' . $arrClipboard['id'] : '')),
-            'title'   => specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0])
-        );
-
-        $objTemplate->notDeletable      = $this->arrDCA['config']['notDeletable'];
-        $objTemplate->notEditable       = $this->arrDCA['config']['notEditable'];
-        $objTemplate->notEditableParent = $this->parentDca['config']['notEditable'];
-        $arrReturn[]                    = $objTemplate->parse();
-
-        return implode('', $arrReturn);
-    }
-
-    protected function treeView($intMode = 5)
-    {
-        // Init some Vars
-        switch ($intMode)
-        {
-            case 5:
-                $treeClass = 'tree';
-                break;
-
-            case 6:
-                $treeClass = 'tree_xtnd';
-                break;
-        }
-
-        // Label + Icon
-        $strLabelText = (strlen($this->arrDCA['config']['label']) == 0 ) ? 'DC General Tree View Ultimate' : $this->arrDCA['config']['label'];
-        $strLabelIcon = strlen($this->arrDCA['list']['sorting']['icon']) ? $this->arrDCA['list']['sorting']['icon'] : 'pagemounts.gif';
-
-        $strHTML = $this->generateTreeView($this->objDC->getCurrentCollecion(), $intMode, $treeClass);
-
-        // Build template
-        $objTemplate                   = new BackendTemplate('dcbe_general_treeview');
-        $objTemplate->treeClass        = 'tl_' . $treeClass;
-        $objTemplate->strLabelIcon     = $this->generateImage($strLabelIcon);
-        $objTemplate->strLabelText     = $strLabelText;
-        $objTemplate->strHTML          = $strHTML;
-        $objTemplate->intMode          = $intMode;
-        $objTemplate->strGlobalsButton = $this->displayButtons($this->objDC->getButtonId());
-
-        // Return :P
-        return $objTemplate->parse();
-    }
-
-    protected function generateTreeView($objCollection, $intMode, $treeClass)
-    {
-        $strHTML = '';
-
-        foreach ($objCollection as $objModel)
-        {
-            $objModel->setProperty('dc_gen_buttons', $this->generateButtons($objModel, $this->objDC->getTable()));
-
-            $strToggleID = $this->objDC->getTable() . '_' . $treeClass . '_' . $objModel->getID();
-
-            $objEntryTemplate              = new BackendTemplate('dcbe_general_treeview_entry');
-            $objEntryTemplate->objModel    = $objModel;
-            $objEntryTemplate->intMode     = $intMode;
-            $objEntryTemplate->strToggleID = $strToggleID;
-
-            $strHTML .= $objEntryTemplate->parse();
-            $strHTML .= "\n";
-
-            if ($objModel->getProperty('dc_gen_tv_children') == true && $objModel->getProperty('dc_gen_tv_open') == true)
-            {
-                $objChildTemplate                 = new BackendTemplate('dcbe_general_treeview_child');
-                $objChildTemplate->objParentModel = $objModel;
-                $objChildTemplate->strToggleID    = $strToggleID;
-                $objChildTemplate->strHTML        = $this->generateTreeView($objModel->getProperty('dc_gen_children_collection'), $intMode, $treeClass);
-                $objChildTemplate->strTable       = $this->objDC->getTable();
-
-                $strHTML .= $objChildTemplate->parse();
-                $strHTML .= "\n";
-            }
-        }
-
-        return $strHTML;
-    }
-
-    // Panel -------------------------------------------------------------------
-
-    protected function panel()
-    {
-        $arrReturn = array();
-
-        if (is_array($this->objDC->getPanelView()) && count($this->objDC->getPanelView()) > 0)
-        {
-            $objTemplate         = new BackendTemplate('dcbe_general_panel');
-            $objTemplate->action = ampersand($this->Environment->request, true);
-            $objTemplate->theme  = $this->getTheme();
-            $objTemplate->panel  = $this->objDC->getPanelView();
-            $arrReturn[]         = $objTemplate->parse();
-        }
-
-        return implode('', $arrReturn);
-    }
-
-    // parentView helper functions ---------------------------------------------
 
     protected function getParentViewFormattedHeaderFields()
     {
@@ -1114,7 +1091,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                 $objModel->setProperty('%class%', ($this->arrDCA['list']['sorting']['child_record_class'] != '') ? ' ' . $this->arrDCA['list']['sorting']['child_record_class'] : '');
 
                 // Regular buttons
-                if (!$this->blnSelect)
+                if (!$this->objDC->isSelectSubmit())
                 {
                     $strPrevious = ((!is_null($this->objDC->getCurrentCollecion()->get($i - 1))) ? $this->objDC->getCurrentCollecion()->get($i - 1)->getID() : null);
                     $strNext     = ((!is_null($this->objDC->getCurrentCollecion()->get($i + 1))) ? $this->objDC->getCurrentCollecion()->get($i + 1)->getID() : null);
@@ -1173,7 +1150,11 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         return implode('', $arrReturn);
     }
 
-    // listView helper functions -----------------------------------------------
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * listView helper functions
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     protected function getTableHead()
     {
@@ -1386,7 +1367,11 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         return $args;
     }
 
-    // Button functions --------------------------------------------------------
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * Button functions
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     /**
      * Generate header display buttons
@@ -1402,12 +1387,12 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         $arrReturn[] = '<div id="' . $strButtonId . '">';
 
         // Add back button
-        $arrReturn[] = (($this->blnSelect || $this->objDC->getParentTable()) ? '<a href="' . $this->getReferer(true, $this->objDC->getParentTable()) . '" class="header_back" title="' . specialchars($GLOBALS['TL_LANG']['MSC']['backBT']) . '" accesskey="b" onclick="Backend.getScrollOffset();">' . $GLOBALS['TL_LANG']['MSC']['backBT'] . '</a>' : '');
+        $arrReturn[] = (($this->objDC->isSelectSubmit() || $this->objDC->getParentTable()) ? '<a href="' . $this->getReferer(true, $this->objDC->getParentTable()) . '" class="header_back" title="' . specialchars($GLOBALS['TL_LANG']['MSC']['backBT']) . '" accesskey="b" onclick="Backend.getScrollOffset();">' . $GLOBALS['TL_LANG']['MSC']['backBT'] . '</a>' : '');
 
         // Add divider
-        $arrReturn[] = (($this->objDC->getParentTable() && !$this->blnSelect) ? ' &nbsp; :: &nbsp;' : '');
+        $arrReturn[] = (($this->objDC->getParentTable() && !$this->objDC->isSelectSubmit()) ? ' &nbsp; :: &nbsp;' : '');
 
-        if (!$this->blnSelect)
+        if (!$this->objDC->isSelectSubmit())
         {
             // Add new button
             $arrReturn[] = ' ' . (!$this->arrDCA['config']['closed'] ? '<a href="' . (strlen($this->objDC->getParentTable()) ? $this->addToUrl('act=create' . (($this->arrDCA['list']['sorting']['mode'] < 4) ? '&amp;mode=2' : '') . '&amp;pid=' . $this->objDC->getId()) : $this->addToUrl('act=create')) . '" class="header_new" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['new'][1]) . '" accesskey="n" onclick="Backend.getScrollOffset();">' . $GLOBALS['TL_LANG'][$this->objDC->getTable()]['new'][0] . '</a>' : '');
@@ -1422,6 +1407,63 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         $arrReturn[] = $this->getMessages(true);
 
         return implode('', $arrReturn);
+    }
+
+    /**
+     * Compile global buttons from the table configuration array and return them as HTML
+     * 
+     * @param boolean $blnForceSeparator
+     * @return string
+     */
+    protected function generateGlobalButtons($blnForceSeparator = false)
+    {
+        if (!is_array($this->arrDCA['list']['global_operations']))
+        {
+            return '';
+        }
+
+        $return = '';
+
+        switch ($this->arrDCA['list']['sorting']['mode'])
+        {
+            case 5:
+            case 6:
+                // Open/close all nodes
+                $return .= '&#160; :: &#160; <a href="'
+                        . $this->addToUrl('ptg=all')
+                        . '" class="header_toggle" title="'
+                        . specialchars($GLOBALS['TL_LANG']['MSC']['toggleNodes'])
+                        . '">'
+                        . $GLOBALS['TL_LANG']['MSC']['toggleNodes']
+                        . '</a> '
+                        . "\n";
+                break;
+        }
+
+        foreach ($this->arrDCA['list']['global_operations'] as $k => $v)
+        {
+            $v = is_array($v) ? $v : array($v);
+            $label      = is_array($v['label']) ? $v['label'][0] : $v['label'];
+            $title      = is_array($v['label']) ? $v['label'][1] : $v['label'];
+            $attributes = strlen($v['attributes']) ? ' ' . ltrim($v['attributes']) : '';
+
+            if (!strlen($label))
+            {
+                $label = $k;
+            }
+
+            // Call a custom function instead of using the default button
+            $strButtonCallback = $this->objDC->getCallbackClass()->globalButtonCallback($v, $label, $title, $attributes, $this->objDC->getTable(), $this->objDC->getRootIds());
+            if (!is_null($strButtonCallback))
+            {
+                $return .= $strButtonCallback;
+                continue;
+            }
+
+            $return .= ' &#160; :: &#160; <a href="' . $this->addToUrl($v['href']) . '" class="' . $v['class'] . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> ';
+        }
+
+        return ($this->arrDCA['config']['closed'] && !$blnForceSeparator) ? preg_replace('/^ &#160; :: &#160; /', '', $return) : $return;
     }
 
     /**
@@ -1491,44 +1533,26 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         return trim($return);
     }
 
-    /**
-     * Compile global buttons from the table configuration array and return them as HTML
-     * 
-     * @param boolean $blnForceSeparator
-     * @return string
-     */
-    protected function generateGlobalButtons($blnForceSeparator = false)
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * Panel
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
+
+    protected function panel()
     {
-        if (!is_array($this->arrDCA['list']['global_operations']))
+        $arrReturn = array();
+
+        if (is_array($this->objDC->getPanelView()) && count($this->objDC->getPanelView()) > 0)
         {
-            return '';
+            $objTemplate         = new BackendTemplate('dcbe_general_panel');
+            $objTemplate->action = ampersand($this->Environment->request, true);
+            $objTemplate->theme  = $this->getTheme();
+            $objTemplate->panel  = $this->objDC->getPanelView();
+            $arrReturn[]         = $objTemplate->parse();
         }
 
-        $return = '';
-        foreach ($this->arrDCA['list']['global_operations'] as $k => $v)
-        {
-            $v = is_array($v) ? $v : array($v);
-            $label      = is_array($v['label']) ? $v['label'][0] : $v['label'];
-            $title      = is_array($v['label']) ? $v['label'][1] : $v['label'];
-            $attributes = strlen($v['attributes']) ? ' ' . ltrim($v['attributes']) : '';
-
-            if (!strlen($label))
-            {
-                $label = $k;
-            }
-
-            // Call a custom function instead of using the default button
-            $strButtonCallback = $this->objDC->getCallbackClass()->globalButtonCallback($v, $label, $title, $attributes, $this->objDC->getTable(), $this->objDC->getRootIds());
-            if (!is_null($strButtonCallback))
-            {
-                $return .= $strButtonCallback;
-                continue;
-            }
-
-            $return .= ' &#160; :: &#160; <a href="' . $this->addToUrl($v['href']) . '" class="' . $v['class'] . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> ';
-        }
-
-        return ($this->arrDCA['config']['closed'] && !$blnForceSeparator) ? preg_replace('/^ &#160; :: &#160; /', '', $return) : $return;
+        return implode('', $arrReturn);
     }
 
 }

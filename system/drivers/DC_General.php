@@ -29,7 +29,14 @@
  */
 class DC_General extends DataContainer implements editable, listable
 {
-    // Vars --------------------------------------------------------------------
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     *  Vars
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
+
+
+    // Basic Vars ------------------
 
     /**
      * Id of the item currently in edit view 
@@ -38,10 +45,64 @@ class DC_General extends DataContainer implements editable, listable
     protected $intId = null;
 
     /**
-     * List with all ids for the views
-     * @var type 
+     * Name of current table
+     * @var String 
      */
-    protected $arrRootIds = null;
+    protected $strTable = null;
+
+    /**
+     * DCA configuration
+     * @var array 
+     */
+    protected $arrDCA = null;
+
+    // Core Objects ----------------
+
+    /**
+     * The provider that shall be used for data retrival.
+     * @var InterfaceGeneralData 
+     */
+    protected $objDataProvider = null;
+
+    /**
+     * The provider that shall be used for view retrival.
+     * @var InterfaceGeneralView 
+     */
+    protected $objViewHandler = null;
+
+    /**
+     * The controller that shall be used .
+     * @var InterfaceGeneralController 
+     */
+    protected $objController = null;
+
+    /**
+     * The class with all Callbacks
+     * @var InterfaceGeneralCallback 
+     */
+    protected $objCallbackClass = null;
+
+    // Config ----------------------
+
+    /**
+     * Flag to show if the site can be reloaded
+     * @var boolean 
+     */
+    protected $blnNoReload = false;
+
+    /**
+     * True if we have a widget which is uploadable
+     * @var boolean 
+     */
+    protected $blnUploadable = false;
+
+    /**
+     * ID of the button container
+     * @param string
+     */
+    protected $strButtonId = null;
+
+    // View ------------------------
 
     /**
      * Container for panel information
@@ -49,11 +110,7 @@ class DC_General extends DataContainer implements editable, listable
      */
     protected $arrPanelView = null;
 
-    /**
-     * Name of current table
-     * @var String 
-     */
-    protected $strTable = null;
+    // Parent & Child --------------
 
     /**
      * Name of the parent table
@@ -67,6 +124,8 @@ class DC_General extends DataContainer implements editable, listable
      */
     protected $strChildTable = null;
 
+    // Current Values ---------------
+
     /**
      * Name of current field
      * @var String 
@@ -74,34 +133,18 @@ class DC_General extends DataContainer implements editable, listable
     protected $strField = null;
 
     /**
-     * Parameter to sort the collection
-     * @var array
+     * Current model
+     * @var InterfaceGeneralModel 
      */
-    protected $arrSorting = null;
+    protected $objCurrentModel = null;
 
     /**
-     * Value for the first sorting
-     * @var string
+     * Current collection
+     * @var InterfaceGeneralCollection 
      */
-    protected $strFirstSorting = null;
+    protected $objCurrentCollecion = null;
 
-    /**
-     * Parameter to filter the collection
-     * @var array
-     */
-    protected $arrFilter = null;
-
-    /**
-     * Value vor the limit in the view
-     * @var string
-     */
-    protected $strLimit = null;
-
-    /**
-     * DCA configuration
-     * @var array 
-     */
-    protected $arrDCA = null;
+    // Submitting ------------------
 
     /**
      * State of dca
@@ -128,16 +171,49 @@ class DC_General extends DataContainer implements editable, listable
     protected $blnLanguageSubmit = false;
 
     /**
-     * Flag to show if the site can be reloaded
+     * State of select submit
      * @var boolean 
      */
-    protected $blnNoReload = false;
+    protected $blnSelectSubmit = false;
+
+    // Debug -----------------------
 
     /**
-     * True if we have a widget which is uploadable
-     * @var boolean 
+     * Timer
      */
-    protected $blnUploadable = false;
+    protected $intTimerStart;
+
+    // Misc. -----------------------
+
+    /**
+     * List with all ids for the views
+     * @var type 
+     */
+    protected $arrRootIds = null;
+
+    /**
+     * Parameter to sort the collection
+     * @var array
+     */
+    protected $arrSorting = null;
+
+    /**
+     * Value for the first sorting
+     * @var string
+     */
+    protected $strFirstSorting = null;
+
+    /**
+     * Parameter to filter the collection
+     * @var array
+     */
+    protected $arrFilter = null;
+
+    /**
+     * Value vor the limit in the view
+     * @var string
+     */
+    protected $strLimit = null;
 
     /**
      * Input values
@@ -182,52 +258,10 @@ class DC_General extends DataContainer implements editable, listable
     protected $arrDataProvider = array();
 
     /**
-     * Current collection
-     * @var InterfaceGeneralCollection 
-     */
-    protected $objCurrentCollecion = null;
-
-    /**
      * Current parent collection
      * @var InterfaceGeneralCollection
      */
     protected $objCurrentParentCollection = null;
-
-    /**
-     * Current model
-     * @var InterfaceGeneralModel 
-     */
-    protected $objCurrentModel = null;
-
-    /**
-     * The provider that shall be used for data retrival.
-     * @var InterfaceGeneralData 
-     */
-    protected $objDataProvider = null;
-
-    /**
-     * ID of the button container
-     * @param string
-     */
-    protected $strButtonId = null;
-
-    /**
-     * The provider that shall be used for view retrival.
-     * @var InterfaceGeneralView 
-     */
-    protected $objViewHandler = null;
-
-    /**
-     * The controller that shall be used .
-     * @var InterfaceGeneralController 
-     */
-    protected $objController = null;
-
-    /**
-     * The class with all Callbacks
-     * @var InterfaceGeneralCallback 
-     */
-    protected $objCallbackClass = null;
 
     /**
      * The child DC
@@ -245,17 +279,16 @@ class DC_General extends DataContainer implements editable, listable
         'datim' => true
     );
 
-    /**
-     * Timer
-     */
-    protected $intTimerStart;
-
-    // Constructor and co. -----------------------------------------------------
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     *  Constructor and co.
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     public function __construct($strTable, array $arrDCA = null, $blnOnloadCallback = true)
     {
         $this->intTimerStart = microtime(true);
-        
+
         parent::__construct();
 
         // Callback
@@ -277,19 +310,8 @@ class DC_General extends DataContainer implements editable, listable
         // ToDo: SH: Switch FE|BE user =?
         $this->import('BackendUser', 'User');
 
-        // Set vars
-        $this->intId = $this->Input->get('id');
-
-        $this->blnSubmitted      = $_POST['FORM_SUBMIT'] == $this->strTable;
-        $this->blnAutoSubmitted  = $_POST['SUBMIT_TYPE'] == 'auto';
-        $this->blnVersionSubmit  = $_POST['FORM_SUBMIT'] == 'tl_version';
-        $this->blnLanguageSubmit = $_POST['FORM_SUBMIT'] == 'language_switch';
-
-        $this->arrInputs = $_POST['FORM_INPUTS'] ? array_flip($this->Input->post('FORM_INPUTS')) : array();
-        $this->arrStates = $this->Session->get('fieldset_states');
-        $this->arrStates = (array) $this->arrStates[$this->strTable];
-
         // Load
+        $this->checkPostGet();
         $this->loadProviderAndHandler();
 
         // Callback
@@ -470,7 +492,58 @@ class DC_General extends DataContainer implements editable, listable
         $this->arrFields = array_flip(array_keys(array_filter($this->arrDCA['fields'], create_function('$arr', 'return !$arr[\'exclude\'];'))));
     }
 
-    // Getter and Setter -------------------------------------------------------
+    /**
+     * Check all post/get informations
+     */
+    public function checkPostGet()
+    {
+        $this->intId = $this->Input->get('id');
+
+        $this->blnSubmitted      = $_POST['FORM_SUBMIT'] == $this->strTable;
+        $this->blnAutoSubmitted  = $_POST['SUBMIT_TYPE'] == 'auto';
+        $this->blnVersionSubmit  = $_POST['FORM_SUBMIT'] == 'tl_version';
+        $this->blnLanguageSubmit = $_POST['FORM_SUBMIT'] == 'language_switch';
+        $this->blnSelectSubmit   = ($this->Input->get('act') == 'select') ? TRUE : FALSE;
+
+        $this->arrInputs = $_POST['FORM_INPUTS'] ? array_flip($this->Input->post('FORM_INPUTS')) : array();
+        $this->arrStates = $this->Session->get('fieldset_states');
+        $this->arrStates = (array) $this->arrStates[$this->strTable];
+    }
+
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     *  Getter and Setter
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
+
+    // Submitting ---------------------------    
+
+    public function isSubmitted()
+    {
+        return $this->blnSubmitted;
+    }
+
+    public function isAutoSubmitted()
+    {
+        return $this->blnAutoSubmitted;
+    }
+
+    public function isVersionSubmit()
+    {
+        return $this->blnVersionSubmit;
+    }
+    
+    public function isLanguageSubmit()
+    {
+        return $this->blnLanguageSubmit;
+    }
+    
+    public function isSelectSubmit()
+    {
+        return $this->blnSelectSubmit;
+    }
+
+    // MVC ----------------------------------
 
     /**
      * Return default data provider if no source is given. Else search for config 
@@ -520,6 +593,37 @@ class DC_General extends DataContainer implements editable, listable
 
         return $this->arrDataProvider[$strSource];
     }
+
+    public function getViewHandler()
+    {
+        return $this->objViewHandler;
+    }
+    
+    public function setViewHandler($objViewHandler)
+    {
+        $this->objViewHandler = $objViewHandler;
+    }
+
+    /**
+     * Get the callback class for this dc
+     * @return InterfaceGeneralCallback 
+     */
+    public function getCallbackClass()
+    {
+        return $this->objCallbackClass;
+    }
+
+    public function getControllerHandler()
+    {
+        return $this->objController;
+    }
+    
+    public function setControllerHandler($objController)
+    {
+        $this->objController = $objController;
+    }
+
+    // Msc. ---------------------------------
 
     public function getId()
     {
@@ -571,21 +675,6 @@ class DC_General extends DataContainer implements editable, listable
         return $this->arrDCA;
     }
 
-    public function isSubmitted()
-    {
-        return $this->blnSubmitted;
-    }
-
-    public function isAutoSubmitted()
-    {
-        return $this->blnAutoSubmitted;
-    }
-
-    public function isVersionSubmit()
-    {
-        return $this->blnVersionSubmit;
-    }
-
     public function isNoReload()
     {
         return $this->blnNoReload;
@@ -601,28 +690,9 @@ class DC_General extends DataContainer implements editable, listable
         return $this->arrStates;
     }
 
-    public function getViewHandler()
-    {
-        return $this->objViewHandler;
-    }
-
-    /**
-     * Get the callback class for this dc
-     * @return InterfaceGeneralCallback 
-     */
-    public function getCallbackClass()
-    {
-        return $this->objCallbackClass;
-    }
-
     public function getButtonId()
     {
         return $this->strButtonId;
-    }
-
-    public function getObjController()
-    {
-        return $this->objController;
     }
 
     public function setRootIds($arrRootIds)
@@ -677,19 +747,9 @@ class DC_General extends DataContainer implements editable, listable
         $this->strLimit = $strLimit;
     }
 
-    public function setViewHandler($objViewHandler)
-    {
-        $this->objViewHandler = $objViewHandler;
-    }
-
     public function setButtonId($strButtonId)
     {
         $this->strButtonId = $strButtonId;
-    }
-
-    public function setControllerHandler($objController)
-    {
-        $this->objController = $objController;
     }
 
     /**
@@ -943,7 +1003,11 @@ class DC_General extends DataContainer implements editable, listable
         return $this->mixWidgetID;
     }
 
-    // Functions ---------------------------------------------------------------
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * Functions
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     /**
      * Get/Create a widget 
@@ -1186,7 +1250,11 @@ class DC_General extends DataContainer implements editable, listable
         return '<p class="tl_help' . (!$GLOBALS['TL_CONFIG']['oldBeTheme'] ? ' tl_tip' : '') . '">' . $return . '</p>';
     }
 
-    // Helper ------------------------------------------------------------------
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * Helper
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     /**
      * Return the formatted group header as string
@@ -1432,6 +1500,108 @@ class DC_General extends DataContainer implements editable, listable
 
     /* /////////////////////////////////////////////////////////////////////////
      * -------------------------------------------------------------------------
+     * Field Helper Functions
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
+
+    /**
+     * Get for a field the readable value
+     * 
+     * @param string $strFieldName
+     * @param mixed $mixValue
+     * @return mixed [string|int]
+     */
+    public function getReadableFieldValue($strFieldName, $mixValue)
+    {
+        if (!key_exists($strFieldName, $this->arrDCA['fields']))
+        {
+            return $mixValue;
+        }
+
+        // Load the config for current field
+        $arrFieldConfig = $this->arrDCA['fields'][$strFieldName];
+        $mixModelField  = $this->objCurrentModel->getProperty($strFieldName);
+
+        /*
+         * @todo Maybe the controlle should handle this ?
+         */
+        if (isset($arrFieldConfig['foreignKey']))
+        {
+            $temp = array();
+            $chunks = explode('.', $arrFieldConfig['foreignKey'], 2);
+
+
+            foreach ((array) $value as $v)
+            {
+//                    $objKey = $this->Database->prepare("SELECT " . $chunks[1] . " AS value FROM " . $chunks[0] . " WHERE id=?")
+//                            ->limit(1)
+//                            ->execute($v);
+//
+//                    if ($objKey->numRows)
+//                    {
+//                        $temp[] = $objKey->value;
+//                    }
+            }
+
+//                $row[$i] = implode(', ', $temp);
+        }
+        // Decode array
+        else if (is_array($mixValue))
+        {
+            foreach ($mixValue as $kk => $vv)
+            {
+                if (is_array($vv))
+                {
+                    $vals          = array_values($vv);
+                    $mixValue[$kk] = $vals[0] . ' (' . $vals[1] . ')';
+                }
+            }
+
+            return implode(', ', $mixValue);
+        }
+        // Date Formate
+        else if ($arrFieldConfig['eval']['rgxp'] == 'date')
+        {
+            return $this->parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $mixValue);
+        }
+        // Date Formate
+        else if ($arrFieldConfig['eval']['rgxp'] == 'time')
+        {
+            return $this->parseDate($GLOBALS['TL_CONFIG']['timeFormat'], $mixValue);
+        }
+        // Date Formate
+        else if ($arrFieldConfig['eval']['rgxp'] == 'datim' || in_array($arrFieldConfig['flag'], array(5, 6, 7, 8, 9, 10)) || $strFieldName == 'tstamp')
+        {
+            return $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $mixValue);
+        }
+        else if ($arrFieldConfig['inputType'] == 'checkbox' && !$arrFieldConfig['eval']['multiple'])
+        {
+            return strlen($mixValue) ? $GLOBALS['TL_LANG']['MSC']['yes'] : $GLOBALS['TL_LANG']['MSC']['no'];
+        }
+        else if ($arrFieldConfig['inputType'] == 'textarea' && ($arrFieldConfig['eval']['allowHtml'] || $arrFieldConfig['eval']['preserveTags']))
+        {
+            return nl2br_html5(specialchars($mixValue));
+        }
+        else if (is_array($arrFieldConfig['reference']))
+        {
+            return isset($arrFieldConfig['reference'][$mixModelField]) ?
+                    ((is_array($arrFieldConfig['reference'][$mixModelField])) ?
+                            $arrFieldConfig['reference'][$mixModelField][0] :
+                            $arrFieldConfig['reference'][$mixModelField]) :
+                    $mixModelField;
+        }
+        else if (array_is_assoc($arrFieldConfig['options']))
+        {
+            return $arrFieldConfig['options'][$mixModelField];
+        }
+        else
+        {
+            return $mixValue;
+        }
+    }
+
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
      * Interface funtions
      * -------------------------------------------------------------------------
      * ////////////////////////////////////////////////////////////////////// */
@@ -1457,15 +1627,15 @@ class DC_General extends DataContainer implements editable, listable
 
         return $this->objViewHandler->generateAjaxPalette($strMethod, $strSelector);
     }
-    
+
     public function ajaxTreeView($intID, $intLevel)
-    {      
+    {
         $strReturn = $this->objController->ajaxTreeView($intID, $intLevel);
         if ($strReturn != null && $strReturn != "")
         {
             return $strReturn;
         }
-        
+
         return $this->objViewHandler->ajaxTreeView($intID, $intLevel);
     }
 
