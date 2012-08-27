@@ -2,14 +2,14 @@
 <?php echo $this->strGlobalsButton; ?>
 
 <div class="tl_listing_container tree_view" id="tl_listing">
-    <ul class="tl_listing <?php echo $this->treeClass; ?>">
+    <ul class="tl_listing <?php echo $this->treeClass; ?>" >
 
         <li class="tl_folder_top">
             <div class="tl_left"> 
                 <?php echo $this->strLabelIcon ?> 
                 <label><?php echo $this->strLabelText; ?></label> 
             </div>
-            <div class="tl_right"></div> 
+            <div class="tl_right"><?php echo ($this->strRootPasteinto != '') ? $this->strRootPasteinto : '';  ?></div> 
             <div style="clear:both;"></div>
         </li>
 

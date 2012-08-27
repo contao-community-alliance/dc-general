@@ -568,6 +568,13 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         $strLabelText = (strlen($this->arrDCA['config']['label']) == 0 ) ? 'DC General Tree View Ultimate' : $this->arrDCA['config']['label'];
         $strLabelIcon = strlen($this->arrDCA['list']['sorting']['icon']) ? $this->arrDCA['list']['sorting']['icon'] : 'pagemounts.gif';
 
+        // Rootpage pasteinto
+        if ($this->Input->get('act') == 'paste')
+        {
+            $imagePasteInto = $this->generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0], 'class="blink"');
+            $strRootPasteinto = '<a href="' . $this->addToUrl('act=' . $this->Input->get('mode') . '&amp;mode=2&amp;pid=0&amp;id=') . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">' . $imagePasteInto . '</a> ';
+        }
+        
         // Create treeview
         $strHTML = $this->generateTreeView($this->objDC->getCurrentCollecion(), $intMode, $treeClass);
 
@@ -579,7 +586,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         $objTemplate->strHTML          = $strHTML;
         $objTemplate->intMode          = $intMode;
         $objTemplate->strGlobalsButton = $this->displayButtons($this->objDC->getButtonId());
-
+        $objTemplate->strRootPasteinto = $strRootPasteinto;
         // Return :P
         return $objTemplate->parse();
     }
@@ -1394,8 +1401,22 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
         if (!$this->objDC->isSelectSubmit())
         {
-            // Add new button
-            $arrReturn[] = ' ' . (!$this->arrDCA['config']['closed'] ? '<a href="' . (strlen($this->objDC->getParentTable()) ? $this->addToUrl('act=create' . (($this->arrDCA['list']['sorting']['mode'] < 4) ? '&amp;mode=2' : '') . '&amp;pid=' . $this->objDC->getId()) : $this->addToUrl('act=create')) . '" class="header_new" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['new'][1]) . '" accesskey="n" onclick="Backend.getScrollOffset();">' . $GLOBALS['TL_LANG'][$this->objDC->getTable()]['new'][0] . '</a>' : '');
+            switch ($this->arrDCA['list']['sorting']['mode'])
+            {
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                    // Add new button
+                    $arrReturn[] = ' ' . (!$this->arrDCA['config']['closed'] ? '<a href="' . (strlen($this->objDC->getParentTable()) ? $this->addToUrl('act=create' . (($this->arrDCA['list']['sorting']['mode'] < 4) ? '&amp;mode=2' : '') . '&amp;pid=' . $this->objDC->getId()) : $this->addToUrl('act=create')) . '" class="header_new" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['new'][1]) . '" accesskey="n" onclick="Backend.getScrollOffset();">' . $GLOBALS['TL_LANG'][$this->objDC->getTable()]['new'][0] . '</a>' : '');
+                    break;
+
+                case 5:
+                case 6:
+                    // Add new button
+                    $arrReturn[] = (!$GLOBALS['TL_DCA'][$this->strTable]['config']['closed']) ? '<a href="' . $this->addToUrl('act=paste&amp;mode=create') . '" class="header_new" title="' . specialchars($GLOBALS['TL_LANG'][$this->strTable]['new'][1]) . '" accesskey="n" onclick="Backend.getScrollOffset()">' . $GLOBALS['TL_LANG'][$this->objDC->getTable()]['new'][0] . '</a>' : '';
+                    break;
+            }
 
             // Add global buttons
             $arrReturn[] = $this->generateGlobalButtons();
@@ -1528,6 +1549,16 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
                 $return .= ((is_numeric($strNext) && (!in_array($objModelRow->getProperty('id'), $arrRootIds) || !count($GLOBALS['TL_DCA'][$strTable]['list']['sorting']['root']))) ? '<a href="' . $this->addToUrl($href . '&amp;id=' . $objModelRow->getProperty('id')) . '&amp;sid=' . intval($strNext) . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> ' : $this->generateImage('down_.gif')) . ' ';
             }
+        }
+
+        // Add paste into/after icons
+        if ($this->Input->get('act') == 'paste')
+        {
+            $imagePasteAfter = $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0], 'class="blink"');
+            $return .= '<a href="' . $this->addToUrl('act=' . $this->Input->get('mode') . '&amp;mode=1&amp;pid=' . $objModelRow->getID() . '&amp;id=') . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0]) . '" onclick="Backend.getScrollOffset()">' . $imagePasteAfter . '</a> ';
+
+            $imagePasteInto = $this->generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0], 'class="blink"');
+            $return .= '<a href="' . $this->addToUrl('act=' . $this->Input->get('mode') . '&amp;mode=2&amp;pid=' . $objModelRow->getID() . '&amp;id=') . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">' . $imagePasteInto . '</a> ';
         }
 
         return trim($return);

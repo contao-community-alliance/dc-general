@@ -72,9 +72,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     const LANGUAGE_SL = 1;
     const LANGUAGE_ML = 2;
 
-    /* -------------------------------------------------------------------------
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
      * Magic functions
-     */
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     public function __construct()
     {
@@ -97,6 +99,22 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         };
     }
 
+    /**
+     * Load the current model from driver
+     */
+    protected function loadCurrentModel()
+    {
+        $this->objCurrentModel = $this->objDC->getCurrentModel();
+    }
+
+    /**
+     * Load the dca from driver
+     */
+    protected function loadCurrentDCA()
+    {
+        $this->arrDCA = $this->objDC->getDCA();
+    }
+
     /* -------------------------------------------------------------------------
      * Getter & Setter
      */
@@ -111,9 +129,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->objDC = $objDC;
     }
 
-    /* -------------------------------------------------------------------------
-     * Support Functions
-     */
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     *  Core Support functions
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     /**
      * Perform low level saving of the current model in a DC.
@@ -270,6 +290,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     public function create()
     {
+        // Load current values
+        $this->loadCurrentDCA();
+
         // Check if table is editable
         if (!$this->objDC->isEditable())
         {
@@ -300,6 +323,57 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         // Load record from data provider       
         $objDBModel = $this->objDC->getDataProvider()->getEmptyModel();
         $this->objDC->setCurrentModel($objDBModel);
+
+        if ($this->arrDCA['list']['sorting']['mode'] == 5 && $this->Input->get('mode') != '')
+        {
+            // check if the pid id/word is set
+            if ($this->Input->get('pid') == '')
+            {
+                $this->log('Missing pid for new entry in ' . $this->objDC->getTable(), 'DC_General - Controller - create()', TL_ERROR);
+                $this->redirect('contao/main.php?act=error');
+            }
+
+            // Get the join field
+            if ($this->arrDCA['dca_config']['joinCondition']['self'] == '')
+            {
+                $strDstField  = 'pid';
+                $strSrcField  = 'id';
+                $strOperation = '=';
+            }
+            else
+            {
+                $strDstField  = $this->arrDCA['dca_config']['joinCondition']['self'][0]['dstField'];
+                $strSrcField  = $this->arrDCA['dca_config']['joinCondition']['self'][0]['srcField'];
+                $strOperation = $this->arrDCA['dca_config']['joinCondition']['self'][0]['operation'];
+            }
+
+            switch ($this->Input->get('mode'))
+            {
+                case 1:
+                    $strFilter       = $strSrcField . $strOperation . $this->Input->get('pid');
+                    $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
+                    $objParentConfig->setFilter(array($strFilter));
+
+                    $objParentModel = $this->objDC->getDataProvider()->fetchAll($objParentConfig);
+
+                    foreach ($objParentModel as $value)
+                    {
+                        $objDBModel->setProperty($strDstField, $value->getProperty($strDstField));
+                        break;
+                    }                   
+                    
+                    break;
+
+                case 2:
+                    $objDBModel->setProperty($strDstField, $this->Input->get('pid'));
+                    break;
+
+                default:
+                    $this->log('Unknown create mode for new entry in ' . $this->objDC->getTable(), 'DC_General - Controller - create()', TL_ERROR);
+                    $this->redirect('contao/main.php?act=error');
+                    break;
+            }
+        }
 
         // Check if we have a auto submit
         if ($this->objDC->isAutoSubmitted())
@@ -808,7 +882,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
             $objRootModel->setProperty('dc_gen_tv_title', vsprintf($arrTitlePattern, $arrField));
             $objRootModel->setProperty('dc_gen_tv_level', 0);
-            
+
             // Get toogle state
             if ($arrToggle['all'] == 1 && !(key_exists($objRootModel->getID(), $arrToggle) && $arrToggle[$objRootModel->getID()] == 0))
             {
