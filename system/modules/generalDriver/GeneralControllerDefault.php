@@ -115,9 +115,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->arrDCA = $this->objDC->getDCA();
     }
 
-    /* -------------------------------------------------------------------------
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
      * Getter & Setter
-     */
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     public function getDC()
     {
@@ -127,6 +129,165 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     public function setDC($objDC)
     {
         $this->objDC = $objDC;
+    }
+
+    /**
+     * Get filter for the data provider
+     * 
+     * @return array();
+     */
+    protected function getFilter()
+    {
+        $arrFilterIds = $this->arrDCA['list']['sorting']['root'];
+
+        // TODO implement panel filter from session
+        $arrFilter = $this->objDC->getFilter();
+        if (is_array($arrFilterIds) && !empty($arrFilterIds))
+        {
+            if (is_null($arrFilter))
+            {
+                $arrFilter = array();
+            }
+
+            $arrFilter['id'] = array_map('intval', $arrFilterIds);
+        }
+
+        return $arrFilter;
+    }
+
+    /**
+     * Get limit for the data provider
+     * 
+     * @return array 
+     */
+    protected function getLimit()
+    {
+        $arrLimit = array(0, 0);
+        if (!is_null($this->objDC->getLimit()))
+        {
+            $arrLimit = explode(',', $this->objDC->getLimit());
+        }
+
+        return $arrLimit;
+    }
+
+    /**
+     * Get sorting for the list view data provider
+     * 
+     * @return mixed 
+     */
+    protected function getListViewSorting()
+    {
+        $mixedOrderBy = $this->arrDCA['list']['sorting']['fields'];
+
+        if (is_null($this->objDC->getFirstSorting()))
+        {
+            $this->objDC->setFirstSorting(preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]));
+        }
+
+        // Check if current sorting is set
+        if (!is_null($this->objDC->getSorting()))
+        {
+            $mixedOrderBy = $this->objDC->getSorting();
+        }
+
+        if (is_array($mixedOrderBy) && $mixedOrderBy[0] != '')
+        {
+            foreach ($mixedOrderBy as $key => $strField)
+            {
+                if ($this->arrDCA['fields'][$strField]['eval']['findInSet'])
+                {
+                    $arrOptionsCallback = $this->objDC->getCallbackClass()->optionsCallback($strField);
+
+                    if (!is_null($arrOptionsCallback))
+                    {
+                        $keys = $arrOptionsCallback;
+                    }
+                    else
+                    {
+                        $keys = $this->arrDCA['fields'][$strField]['options'];
+                    }
+
+                    if ($this->arrDCA['fields'][$v]['eval']['isAssociative'] || array_is_assoc($keys))
+                    {
+                        $keys = array_keys($keys);
+                    }
+
+                    $mixedOrderBy[$key] = array(
+                        'field'  => $strField,
+                        'keys'   => $keys,
+                        'action' => 'findInSet'
+                    );
+                }
+                else
+                {
+                    $mixedOrderBy[$key] = $strField;
+                }
+            }
+        }
+
+        // Set sort order
+        if ($this->arrDCA['list']['sorting']['mode'] == 1 && ($this->arrDCA['list']['sorting']['flag'] % 2) == 0)
+        {
+            $mixedOrderBy['sortOrder'] = " DESC";
+        }
+
+        return $mixedOrderBy;
+    }
+
+    /**
+     * Get sorting for the parent view data provider
+     * 
+     * @return mixed 
+     */
+    protected function getParentViewSorting()
+    {
+        $mixedOrderBy = array();
+        $firstOrderBy = array();
+
+        // Check if current sorting is set
+        if (!is_null($this->objDC->getSorting()))
+        {
+            $mixedOrderBy = $this->objDC->getSorting();
+        }
+
+        if (is_array($mixedOrderBy) && $mixedOrderBy[0] != '')
+        {
+            $firstOrderBy = preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]);
+
+            // Order by the foreign key
+            if (isset($this->arrDCA['fields'][$firstOrderBy]['foreignKey']))
+            {
+                $key = explode('.', $this->arrDCA['fields'][$firstOrderBy]['foreignKey'], 2);
+
+                $this->foreignKey = true;
+
+                // TODO remove sql
+                $this->arrFields = array(
+                    '*',
+                    "(SELECT " . $key[1] . " FROM " . $key[0] . " WHERE " . $this->objDC->getTable() . "." . $firstOrderBy . "=" . $key[0] . ".id) AS foreignKey"
+                );
+
+                $mixedOrderBy[0] = 'foreignKey';
+            }
+        }
+        elseif (is_array($GLOBALS['TL_DCA'][$this->objDC->getTable()]['list']['sorting']['fields']))
+        {
+            $mixedOrderBy = $GLOBALS['TL_DCA'][$this->objDC->getTable()]['list']['sorting']['fields'];
+            $firstOrderBy = preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]);
+        }
+
+        if (is_array($mixedOrderBy) && $mixedOrderBy[0] != '')
+        {
+            foreach ($mixedOrderBy as $key => $strField)
+            {
+                $mixedOrderBy[$key] = $strField;
+            }
+        }
+
+        $this->objDC->setFirstSorting($firstOrderBy);
+
+        return $mixedOrderBy;
     }
 
     /* /////////////////////////////////////////////////////////////////////////
@@ -286,7 +447,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         return self::LANGUAGE_ML;
     }
 
-    // Core Functions ----------------------------------------------------------
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * Core Functions
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     public function create()
     {
@@ -360,8 +525,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     {
                         $objDBModel->setProperty($strDstField, $value->getProperty($strDstField));
                         break;
-                    }                   
-                    
+                    }
+
                     break;
 
                 case 2:
@@ -425,15 +590,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     public function delete()
     {
-        $arrDCA      = $this->objDC->getDCA;
-        $intRecordID = $this->Input->get("id");
+        // Load current values
+        $this->loadCurrentDCA();
 
-        // Check if is it allowed to delete a record
-        if ($arrDCA['config']['notDeletable'])
-        {
-            $this->log('Table "' . $this->objDC->getTable() . '" is not deletable', 'DC_General - Controller - delete()', TL_ERROR);
-            $this->redirect('contao/main.php?act=error');
-        }
+        // Init some vars
+        $intRecordID = $this->objDC->getId();
 
         // Check if we have a id
         if (strlen($intRecordID) == 0)
@@ -441,19 +602,83 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $this->reload();
         }
 
+        // Check if is it allowed to delete a record
+        if ($this->arrDCA['config']['notDeletable'])
+        {
+            $this->log('Table "' . $this->objDC->getTable() . '" is not deletable', 'DC_General - Controller - delete()', TL_ERROR);
+            $this->redirect('contao/main.php?act=error');
+        }
+
         // Callback
         $this->objDC->setCurrentModel($this->objDC->getDataProvider()->fetch($this->objDC->getDataProvider()->getEmptyConfig()->setId($intRecordID)));
         $this->objDC->getCallbackClass()->ondeleteCallback();
 
-        // Delete record
-        $this->objDC->getDataProvider()->delete($intRecordID);
+        $arrDelIDs = array();
 
-        // Add a log entry unless we are deleting from tl_log itself
-        if ($this->objDC->getTable() != 'tl_log')
+        // Delete record
+        switch ($this->arrDCA['list']['sorting']['mode'])
         {
-            $this->log('DELETE FROM ' . $this->objDC->getTable() . ' WHERE id=' . $intRecordID, 'DC_General - Controller - delete()', TL_GENERAL);
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                $arrDelIDs = array();
+                $arrDelIDs[] = $intRecordID;
+                break;
+
+            case 5:
+            case 6:
+                // Get the join field
+                if ($this->arrDCA['dca_config']['joinCondition']['self'] == '')
+                {
+                    $strDstField  = 'pid';
+                    $strSrcField  = 'id';
+                    $strOperation = '=';
+                }
+                else
+                {
+                    $strDstField  = $this->arrDCA['dca_config']['joinCondition']['self'][0]['dstField'];
+                    $strSrcField  = $this->arrDCA['dca_config']['joinCondition']['self'][0]['srcField'];
+                    $strOperation = $this->arrDCA['dca_config']['joinCondition']['self'][0]['operation'];
+                }
+
+                $arrDelIDs = array();
+                $arrDelIDs[] = $intRecordID;
+
+                // Get all child entries
+                for ($i = 0; $i < count($arrDelIDs); $i++)
+                {
+                    // Get the current model
+                    $objTempModel = $this->objDC->getDataProvider()->fetch($this->objDC->getDataProvider()->getEmptyConfig()->setId($arrDelIDs[$i]));
+
+                    // Build filter
+                    $strFilter      = $strDstField . $strOperation . $objTempModel->getProperty($strSrcField);
+                    $objChildConfig = $this->objDC->getDataProvider()->getEmptyConfig();
+                    $objChildConfig->setFilter(array($strFilter));
+
+                    // Get child collection
+                    $objChildCollection = $this->objDC->getDataProvider()->fetchAll($objChildConfig);
+
+                    foreach ($objChildCollection as $value)
+                    {
+                        $arrDelIDs[] = $value->getID();
+                    }
+                }
+                break;
         }
 
+        // Delete all entries
+        foreach ($arrDelIDs as $value)
+        {
+            $this->objDC->getDataProvider()->delete($value);
+
+            // Add a log entry unless we are deleting from tl_log itself
+            if ($this->objDC->getTable() != 'tl_log')
+            {
+                $this->log('DELETE FROM ' . $this->objDC->getTable() . ' WHERE id=' . $value, 'DC_General - Controller - delete()', TL_GENERAL);
+            }
+        }
+        
         $this->redirect($this->getReferer());
     }
 
@@ -782,7 +1007,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->objDC->setCurrentModel($objDBModel);
     }
 
-    // showAll Modis -----------------------------------------------------------
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * showAll Modis
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     protected function treeViewM5()
     {
@@ -911,38 +1140,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         $this->objDC->setCurrentCollecion($objTableTreeData);
-    }
-
-    protected function hasChildren($arrFilterPattern, $objParentModel)
-    {
-        $arrFilter = array();
-
-        // Build filter Settings
-        foreach ($arrFilterPattern as $valueFilter)
-        {
-            if (isset($valueFilter['field']) && $valueFilter['field'] != '')
-            {
-                $arrFilter[] = vsprintf($valueFilter['patern'], $objParentModel->getProperty($valueFilter['field']));
-            }
-            else
-            {
-                $arrFilter[] = $valueFilter['patern'];
-            }
-        }
-
-        // Create a new Config
-        $objConfig = $this->objDC->getDataProvider()->getEmptyConfig();
-        $objConfig->setFilter($arrFilter);
-
-        // Fetch all children
-        if ($this->objDC->getDataProvider()->getCount($objConfig) != 0)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
     }
 
     protected function generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrFilterPattern, $intLevel, $objParentModel, $arrToggle)
@@ -1181,7 +1378,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
     }
 
-    // Panel -------------------------------------------------------------------
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * Panel
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     /**
      * Build the sort panel and write it to DC_General
@@ -1368,7 +1569,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /**
      * Return a select menu to limit results
+     * 
      * @param boolean
+     * 
      * @return string
      */
     protected function limitMenu($blnOptional = false)
@@ -1489,6 +1692,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /**
      * Return a select menu that allows to sort results by a particular field
+     * 
      * @return string
      */
     protected function sortMenu()
@@ -1572,165 +1776,50 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         return $arrPanelView;
     }
 
-    // Helper ------------------------------------------------------------------
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * Helper
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     /**
-     * Get filter for the data provider
+     * Check if a entry has some childs
      * 
-     * @return array();
+     * @param array $arrFilterPattern
+     * @param InterfaceGeneralModel $objParentModel
+     * 
+     * @return boolean True => has children | False => no children
      */
-    protected function getFilter()
+    protected function hasChildren($arrFilterPattern, $objParentModel)
     {
-        $arrFilterIds = $this->arrDCA['list']['sorting']['root'];
+        $arrFilter = array();
 
-        // TODO implement panel filter from session
-        $arrFilter = $this->objDC->getFilter();
-        if (is_array($arrFilterIds) && !empty($arrFilterIds))
+        // Build filter Settings
+        foreach ($arrFilterPattern as $valueFilter)
         {
-            if (is_null($arrFilter))
+            if (isset($valueFilter['field']) && $valueFilter['field'] != '')
             {
-                $arrFilter = array();
+                $arrFilter[] = vsprintf($valueFilter['patern'], $objParentModel->getProperty($valueFilter['field']));
             }
-
-            $arrFilter['id'] = array_map('intval', $arrFilterIds);
-        }
-
-        return $arrFilter;
-    }
-
-    /**
-     * Get limit for the data provider
-     * 
-     * @return array 
-     */
-    protected function getLimit()
-    {
-        $arrLimit = array(0, 0);
-        if (!is_null($this->objDC->getLimit()))
-        {
-            $arrLimit = explode(',', $this->objDC->getLimit());
-        }
-
-        return $arrLimit;
-    }
-
-    /**
-     * Get sorting for the list view data provider
-     * 
-     * @return mixed 
-     */
-    protected function getListViewSorting()
-    {
-        $mixedOrderBy = $this->arrDCA['list']['sorting']['fields'];
-
-        if (is_null($this->objDC->getFirstSorting()))
-        {
-            $this->objDC->setFirstSorting(preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]));
-        }
-
-        // Check if current sorting is set
-        if (!is_null($this->objDC->getSorting()))
-        {
-            $mixedOrderBy = $this->objDC->getSorting();
-        }
-
-        if (is_array($mixedOrderBy) && $mixedOrderBy[0] != '')
-        {
-            foreach ($mixedOrderBy as $key => $strField)
+            else
             {
-                if ($this->arrDCA['fields'][$strField]['eval']['findInSet'])
-                {
-                    $arrOptionsCallback = $this->objDC->getCallbackClass()->optionsCallback($strField);
-
-                    if (!is_null($arrOptionsCallback))
-                    {
-                        $keys = $arrOptionsCallback;
-                    }
-                    else
-                    {
-                        $keys = $this->arrDCA['fields'][$strField]['options'];
-                    }
-
-                    if ($this->arrDCA['fields'][$v]['eval']['isAssociative'] || array_is_assoc($keys))
-                    {
-                        $keys = array_keys($keys);
-                    }
-
-                    $mixedOrderBy[$key] = array(
-                        'field'  => $strField,
-                        'keys'   => $keys,
-                        'action' => 'findInSet'
-                    );
-                }
-                else
-                {
-                    $mixedOrderBy[$key] = $strField;
-                }
+                $arrFilter[] = $valueFilter['patern'];
             }
         }
 
-        // Set sort order
-        if ($this->arrDCA['list']['sorting']['mode'] == 1 && ($this->arrDCA['list']['sorting']['flag'] % 2) == 0)
+        // Create a new Config
+        $objConfig = $this->objDC->getDataProvider()->getEmptyConfig();
+        $objConfig->setFilter($arrFilter);
+
+        // Fetch all children
+        if ($this->objDC->getDataProvider()->getCount($objConfig) != 0)
         {
-            $mixedOrderBy['sortOrder'] = " DESC";
+            return true;
         }
-
-        return $mixedOrderBy;
-    }
-
-    /**
-     * Get sorting for the parent view data provider
-     * 
-     * @return mixed 
-     */
-    protected function getParentViewSorting()
-    {
-        $mixedOrderBy = array();
-        $firstOrderBy = array();
-
-        // Check if current sorting is set
-        if (!is_null($this->objDC->getSorting()))
+        else
         {
-            $mixedOrderBy = $this->objDC->getSorting();
+            return false;
         }
-
-        if (is_array($mixedOrderBy) && $mixedOrderBy[0] != '')
-        {
-            $firstOrderBy = preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]);
-
-            // Order by the foreign key
-            if (isset($this->arrDCA['fields'][$firstOrderBy]['foreignKey']))
-            {
-                $key = explode('.', $this->arrDCA['fields'][$firstOrderBy]['foreignKey'], 2);
-
-                $this->foreignKey = true;
-
-                // TODO remove sql
-                $this->arrFields = array(
-                    '*',
-                    "(SELECT " . $key[1] . " FROM " . $key[0] . " WHERE " . $this->objDC->getTable() . "." . $firstOrderBy . "=" . $key[0] . ".id) AS foreignKey"
-                );
-
-                $mixedOrderBy[0] = 'foreignKey';
-            }
-        }
-        elseif (is_array($GLOBALS['TL_DCA'][$this->objDC->getTable()]['list']['sorting']['fields']))
-        {
-            $mixedOrderBy = $GLOBALS['TL_DCA'][$this->objDC->getTable()]['list']['sorting']['fields'];
-            $firstOrderBy = preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]);
-        }
-
-        if (is_array($mixedOrderBy) && $mixedOrderBy[0] != '')
-        {
-            foreach ($mixedOrderBy as $key => $strField)
-            {
-                $mixedOrderBy[$key] = $strField;
-            }
-        }
-
-        $this->objDC->setFirstSorting($firstOrderBy);
-
-        return $mixedOrderBy;
     }
 
     /**
