@@ -52,6 +52,7 @@ class GeneralDataDefault implements InterfaceGeneralData
     {
         // Init Helper
         $this->objDatabase = Database::getInstance();
+        $this->objUser = BackendUser::getInstance();
     }
 
     // Getter | Setter ---------------------------------------------------------
@@ -115,6 +116,9 @@ class GeneralDataDefault implements InterfaceGeneralData
     {
         if (is_numeric($item) || is_string($item))
         {
+            // Insert undo
+            $this->insertUndo('DELETE FROM ' . $this->strSource . ' WHERE id = ' . $item, 'SELECT * FROM ' . $this->strSource . '  WHERE id = ' . $item, $this->strSource);
+
             $this->objDatabase
                     ->prepare("DELETE FROM $this->strSource WHERE id=?")
                     ->execute($item);
@@ -123,6 +127,9 @@ class GeneralDataDefault implements InterfaceGeneralData
         {
             if (strlen($item->getID()) != 0)
             {
+                // Insert undo
+                $this->insertUndo('DELETE FROM ' . $this->strSource . ' WHERE id = ' . $item->getID(), 'SELECT * FROM ' . $this->strSource . '  WHERE id = ' . $item->getID(), $this->strSource);
+
                 $this->objDatabase
                         ->prepare("DELETE FROM $this->strSource WHERE id=?")
                         ->execute($item->getID());
@@ -695,6 +702,37 @@ class GeneralDataDefault implements InterfaceGeneralData
         }
 
         return true;
+    }
+
+    // Undo --------------------------------------------------------------------
+
+    protected function insertUndo($strSourceSQL, $strSaveSQL, $strTable)
+    {
+        // Load row
+        $arrResult = $this->objDatabase
+                ->prepare($strSaveSQL)
+                ->executeUncached()
+                ->fetchAllAssoc();
+
+        // Check if we have a result
+        if (count($arrResult) == 0)
+        {
+            return;
+        }
+
+        // Save information in array
+        $arrSave = array();
+        foreach ($arrResult as $value)
+        {
+            $arrSave[$strTable][] = $value;
+        }
+
+        $strPrefix = '<span style="color:#b3b3b3; padding-right:3px;">(DC General)</span>';
+
+        // Write into undo
+        $this->objDatabase
+                ->prepare("INSERT INTO tl_undo (pid, tstamp, fromTable, query, affectedRows, data) VALUES (?, ?, ?, ?, ?, ?)")
+                ->execute($this->objUser->id, time(), $strTable, $strPrefix . $strSourceSQL, count($arrSave[$strTable]), serialize($arrSave));
     }
 
 }
