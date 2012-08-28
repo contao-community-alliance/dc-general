@@ -144,6 +144,12 @@ class DC_General extends DataContainer implements editable, listable
      */
     protected $objCurrentCollecion = null;
 
+    /**
+     * Clipboard informations
+     * @var array
+     */
+    protected $arrClipboard = array();
+
     // Submitting ------------------
 
     /**
@@ -175,6 +181,14 @@ class DC_General extends DataContainer implements editable, listable
      * @var boolean 
      */
     protected $blnSelectSubmit = false;
+
+    // States ----------------------
+
+    /**
+     * State of clipboard
+     * @var boolean 
+     */
+    protected $blnClipboard = false;
 
     // Debug -----------------------
 
@@ -516,7 +530,7 @@ class DC_General extends DataContainer implements editable, listable
      * -------------------------------------------------------------------------
      * ////////////////////////////////////////////////////////////////////// */
 
-    // Submitting ---------------------------    
+    // Submitting / State -------------------    
 
     public function isSubmitted()
     {
@@ -532,15 +546,45 @@ class DC_General extends DataContainer implements editable, listable
     {
         return $this->blnVersionSubmit;
     }
-    
+
     public function isLanguageSubmit()
     {
         return $this->blnLanguageSubmit;
     }
-    
+
     public function isSelectSubmit()
     {
         return $this->blnSelectSubmit;
+    }
+
+    public function isClipboard()
+    {
+        return $this->blnClipboard;
+    }
+
+    /**
+     * Check if this DCA is editable
+     * 
+     * @return boolean 
+     */
+    public function isEditable()
+    {
+        return !$this->arrDCA['config']['notEditable'];
+    }
+
+    /**
+     * Check if this DCA is closed
+     * 
+     * @return boolean 
+     */
+    public function isClosed()
+    {
+        return $this->arrDCA['config']['closed'];
+    }
+
+    public function setClipboardState($blnState)
+    {
+        $this->blnClipboard = ($blnState == 1 || $blnState == true) ? true : false;
     }
 
     // MVC ----------------------------------
@@ -598,7 +642,7 @@ class DC_General extends DataContainer implements editable, listable
     {
         return $this->objViewHandler;
     }
-    
+
     public function setViewHandler($objViewHandler)
     {
         $this->objViewHandler = $objViewHandler;
@@ -617,10 +661,22 @@ class DC_General extends DataContainer implements editable, listable
     {
         return $this->objController;
     }
-    
+
     public function setControllerHandler($objController)
     {
         $this->objController = $objController;
+    }
+
+    // Current Values -----------------------
+
+    public function getClipboard()
+    {
+        return $this->arrClipboard;
+    }
+
+    public function setClipboard($arrClipboard)
+    {
+        $this->arrClipboard = $arrClipboard;
     }
 
     // Msc. ---------------------------------
@@ -822,16 +878,6 @@ class DC_General extends DataContainer implements editable, listable
     public function setChildDC($objChildDC)
     {
         $this->objChildDC = $objChildDC;
-    }
-
-    /**
-     * Check if this DCA is editable
-     * 
-     * @return boolean 
-     */
-    public function isEditable()
-    {
-        return !$this->arrDCA['config']['notEditable'];
     }
 
     /**

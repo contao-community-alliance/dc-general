@@ -569,10 +569,12 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         $strLabelIcon = strlen($this->arrDCA['list']['sorting']['icon']) ? $this->arrDCA['list']['sorting']['icon'] : 'pagemounts.gif';
 
         // Rootpage pasteinto
-        if ($this->Input->get('act') == 'paste')
+        if ($this->objDC->isClipboard())
         {
+            $arrClipboard = $this->objDC->getClipboard();
+
             $imagePasteInto   = $this->generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0], 'class="blink"');
-            $strRootPasteinto = '<a href="' . $this->addToUrl('act=' . $this->Input->get('mode') . '&amp;mode=2&amp;pid=0&amp;id=') . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">' . $imagePasteInto . '</a> ';
+            $strRootPasteinto = '<a href="' . $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=0&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs']) . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">' . $imagePasteInto . '</a> ';
         }
 
         // Create treeview
@@ -587,6 +589,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         $objTemplate->intMode          = $intMode;
         $objTemplate->strGlobalsButton = $this->displayButtons($this->objDC->getButtonId());
         $objTemplate->strRootPasteinto = $strRootPasteinto;
+
         // Return :P
         return $objTemplate->parse();
     }
@@ -1468,9 +1471,9 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             $return .= ' &#160; :: &#160; <a href="' . $this->addToUrl($v['href']) . '" class="' . $v['class'] . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> ';
         }
 
-        if ($this->Input->get('act') == 'paste')
+        if ($this->objDC->isClipboard())
         {
-            $return .= ' &#160; :: &#160; <a href="contao/main.php?do=' . $this->objDC->getTable() . '" class="header_clipboard" title="' . specialchars($GLOBALS['TL_LANG']['MSC']['clearClipboard']) . '" accesskey="x">' . $GLOBALS['TL_LANG']['MSC']['clearClipboard'] . '</a>';
+            $return .= ' &#160; :: &#160; <a href="' . $this->addToUrl('clipboard=1') . '" class="header_clipboard" title="' . specialchars($GLOBALS['TL_LANG']['MSC']['clearClipboard']) . '" accesskey="x">' . $GLOBALS['TL_LANG']['MSC']['clearClipboard'] . '</a>';
         }
 
         return ($this->arrDCA['config']['closed'] && !$blnForceSeparator) ? preg_replace('/^ &#160; :: &#160; /', '', $return) : $return;
@@ -1541,13 +1544,15 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         }
 
         // Add paste into/after icons
-        if ($this->Input->get('act') == 'paste')
+        if ($this->objDC->isClipboard())
         {
+            $arrClipboard = $this->objDC->getClipboard();
+
             $imagePasteAfter = $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0], 'class="blink"');
-            $return .= '<a href="' . $this->addToUrl('act=' . $this->Input->get('mode') . '&amp;mode=1&amp;pid=' . $objModelRow->getID() . '&amp;id=') . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0]) . '" onclick="Backend.getScrollOffset()">' . $imagePasteAfter . '</a> ';
+            $return .= '<a href="' . $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=1&amp;pid=' . $objModelRow->getID() . '&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs']) . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0]) . '" onclick="Backend.getScrollOffset()">' . $imagePasteAfter . '</a> ';
 
             $imagePasteInto = $this->generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0], 'class="blink"');
-            $return .= '<a href="' . $this->addToUrl('act=' . $this->Input->get('mode') . '&amp;mode=2&amp;pid=' . $objModelRow->getID() . '&amp;id=') . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">' . $imagePasteInto . '</a> ';
+            $return .= '<a href="' . $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=' . $objModelRow->getID() . '&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs']) . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">' . $imagePasteInto . '</a> ';
         }
 
         return trim($return);

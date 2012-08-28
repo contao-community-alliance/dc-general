@@ -9,7 +9,7 @@
                 <?php echo $this->strLabelIcon ?> 
                 <label><?php echo $this->strLabelText; ?></label> 
             </div>
-            <div class="tl_right"><?php echo ($this->strRootPasteinto != '') ? $this->strRootPasteinto : '';  ?></div> 
+            <div class="tl_right"><?php echo (strlen($this->strRootPasteinto)) ? $this->strRootPasteinto : '';  ?></div> 
             <div style="clear:both;"></div>
         </li>
 

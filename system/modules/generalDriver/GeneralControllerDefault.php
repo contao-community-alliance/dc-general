@@ -31,8 +31,13 @@ if (!defined('TL_ROOT'))
  */
 class GeneralControllerDefault extends Controller implements InterfaceGeneralController
 {
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * Vars
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
-    protected $notImplMsg = "<div style='text-align:center; font-weight:bold; padding:40px;'>The function/view &quot;%s&quot; is not implemented.</div>";
+    // Obejcts -----------------------
 
     /**
      *
@@ -46,11 +51,31 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      */
     protected $objDC;
 
+    // Current -----------------------
+
     /**
      *
      * @var array
      */
     protected $arrDCA;
+
+    // States ------------------------
+
+    /**
+     * State of Show/Close all
+     * 
+     * @var boolean 
+     */
+    protected $blnShowAllEntries = false;
+
+    // Misc. -------------------------
+
+    /**
+     * Error msg
+     * 
+     * @var string
+     */
+    protected $notImplMsg = "<div style='text-align:center; font-weight:bold; padding:40px;'>The function/view &quot;%s&quot; is not implemented.</div>";
 
     /**
      * Field for the function sortCollection
@@ -59,11 +84,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      */
     protected $arrColSort;
 
-    /**
-     * State of Show/Close all
-     * @var boolean 
-     */
-    protected $blnShowAllEntries = false;
+    // Const -------------------------
 
     /**
      * Const Language
@@ -447,11 +468,223 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         return self::LANGUAGE_ML;
     }
 
+    /**
+     * Check clipboard state. Clear or save state of it.
+     */
+    protected function checkClipboard($strResetMode = null)
+    {
+        $arrClipboard = $this->Session->get('CLIPBOARD');
+
+        // Clear 
+        if ($strResetMode != null)
+        {
+            if ($strResetMode == $arrClipboard[$this->objDC->getTable()]['mode'])
+            {
+                $this->objDC->setClipboardState(false);
+
+                unset($arrClipboard[$this->objDC->getTable()]);
+                $this->Session->set('CLIPBOARD', $arrClipboard);
+
+                return;
+            }
+        }
+
+        // Clear 
+        if ($this->Input->get('clipboard') == '1')
+        {
+            $this->objDC->setClipboardState(false);
+
+            unset($arrClipboard[$this->objDC->getTable()]);
+            $this->Session->set('CLIPBOARD', $arrClipboard);
+
+            $this->redirect('contao/main.php?do=' . $this->objDC->getTable());
+        }
+        // Add new entry
+        else if ($this->Input->get('act') == 'paste')
+        {
+            $this->objDC->setClipboardState(true);
+
+            $arrClipboard[$this->objDC->getTable()] = array(
+                'id'     => $this->Input->get('id'),
+                'childs' => $this->Input->get('childs'),
+                'mode'   => $this->Input->get('mode')
+            );
+
+            $this->objDC->setClipboard($arrClipboard[$this->objDC->getTable()]);
+        }
+        // Check clipboard from session
+        else if (key_exists($this->objDC->getTable(), $arrClipboard))
+        {
+            $this->objDC->setClipboardState(true);
+            $this->objDC->setClipboard($arrClipboard[$this->objDC->getTable()]);
+        }
+
+        $this->Session->set('CLIPBOARD', $arrClipboard);
+    }
+
     /* /////////////////////////////////////////////////////////////////////////
      * -------------------------------------------------------------------------
      * Core Functions
      * -------------------------------------------------------------------------
      * ////////////////////////////////////////////////////////////////////// */
+
+    public function copy()
+    {
+        // Load current DCA
+        $this->loadCurrentDCA();
+
+        // Check if table is editable
+        if (!$this->objDC->isEditable())
+        {
+            $this->log('Table ' . $this->objDC->getTable() . ' is not editable', 'DC_General - Controller - copy()', TL_ERROR);
+            $this->redirect('contao/main.php?act=error');
+        }
+
+        // Check if table is editable
+        if ($this->objDC->isClosed())
+        {
+            $this->log('Table ' . $this->objDC->getTable() . ' is closed', 'DC_General - Controller - copy()', TL_ERROR);
+            $this->redirect('contao/main.php?act=error');
+        }
+
+        // Init Vars 
+        $intMode   = $this->Input->get('mode');
+        $intPid    = $this->Input->get('pid');
+        $intId     = $this->Input->get('id');
+        $intChilds = $this->Input->get('childs');
+
+        if (strlen($intMode) == 0 || strlen($intPid) == 0 || strlen($intId) == 0)
+        {
+            $this->log('Missing parameter for copy in ' . $this->objDC->getTable(), 'DC_General - Controller - copy()', TL_ERROR);
+            $this->redirect('contao/main.php?act=error');
+        }
+
+        if ($intChilds == 1)
+        {
+            
+        }
+        else
+        {
+            
+        }
+
+        $objDataProvider = $this->objDC->getDataProvider();
+
+        $objDBModel   = $objDataProvider->fetch($objDataProvider->getEmptyConfig()->setId($intId));
+        $objCopyModel = $objDataProvider->getEmptyModel();
+
+        $arrProperties = $objDBModel->getPropertiesAsArray();
+        $objCopyModel->setPropertiesAsArray($arrProperties);
+
+        if ($this->arrDCA['list']['sorting']['mode'] == 5)
+        {
+            // Get the join field
+            if ($this->arrDCA['dca_config']['joinCondition']['self'] == '')
+            {
+                $strDstField  = 'pid';
+                $strSrcField  = 'id';
+                $strOperation = '=';
+            }
+            else
+            {
+                $strDstField  = $this->arrDCA['dca_config']['joinCondition']['self'][0]['dstField'];
+                $strSrcField  = $this->arrDCA['dca_config']['joinCondition']['self'][0]['srcField'];
+                $strOperation = $this->arrDCA['dca_config']['joinCondition']['self'][0]['operation'];
+            }
+
+            switch ($this->Input->get('mode'))
+            {
+                case 1:
+                    $strFilter       = $strSrcField . $strOperation . $intPid;
+                    $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
+                    $objParentConfig->setFilter(array($strFilter));
+
+                    $objParentModel = $this->objDC->getDataProvider()->fetchAll($objParentConfig);
+
+                    foreach ($objParentModel as $value)
+                    {
+                        $objCopyModel->setProperty($strDstField, $value->getProperty($strDstField));
+                        break;
+                    }
+
+                    break;
+
+                case 2:
+                    $objCopyModel->setProperty($strDstField, $intPid);
+                    break;
+
+                default:
+                    $this->log('Unknown create mode for copy in ' . $this->objDC->getTable(), 'DC_General - Controller - copy()', TL_ERROR);
+                    $this->redirect('contao/main.php?act=error');
+                    break;
+            }
+        }
+
+        $objDataProvider->save($objCopyModel);
+
+        $this->checkClipboard('copy');
+
+        $this->redirect('contao/main.php?do=' . $this->objDC->getTable());
+    }
+
+    /**
+     * @todo Make it fine
+     * 
+     * @param type $intSrcID
+     * @param type $intDstID
+     * @param type $intMode
+     * @param type $blnChilds
+     * @param type $strDstField
+     * @param type $strSrcField
+     * @param type $strOperation
+     */
+    protected function insertModel($intSrcID, $intDstID, $intMode, $blnChilds, $strDstField, $strSrcField, $strOperation)
+    {
+        // Get dataprovider
+        $objDataProvider = $this->objDC->getDataProvider();
+
+        // Load the basic model
+        $objSrcModel = $objDataProvider->fetch($objDataProvider->getEmptyConfig()->setId($intSrcID));
+
+        // Create a empty model for the copy
+        $objCopyModel = $objDataProvider->getEmptyModel();
+
+        // Load all params
+        $arrProperties = $objSrcModel->getPropertiesAsArray();
+
+
+        $objCopyModel->setPropertiesAsArray($arrProperties);
+
+        switch ($this->Input->get('mode'))
+        {
+            case 1:
+                $strFilter       = $strSrcField . $strOperation . $intPid;
+                $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
+                $objParentConfig->setFilter(array($strFilter));
+
+                $objParentModel = $this->objDC->getDataProvider()->fetchAll($objParentConfig);
+
+                foreach ($objParentModel as $value)
+                {
+                    $objCopyModel->setProperty($strDstField, $value->getProperty($strDstField));
+                    break;
+                }
+
+                break;
+
+            case 2:
+                $objCopyModel->setProperty($strDstField, $intPid);
+                break;
+
+            default:
+                $this->log('Unknown create mode for copy in ' . $this->objDC->getTable(), 'DC_General - Controller - copy()', TL_ERROR);
+                $this->redirect('contao/main.php?act=error');
+                break;
+        }
+
+
+        $objDataProvider->save($objCopyModel);
+    }
 
     public function create()
     {
@@ -678,7 +911,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 $this->log('DELETE FROM ' . $this->objDC->getTable() . ' WHERE id=' . $value, 'DC_General - Controller - delete()', TL_GENERAL);
             }
         }
-        
+
         $this->redirect($this->getReferer());
     }
 
@@ -795,6 +1028,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
     }
 
+    /**
+     * Show informations about one entry
+     */
     public function show()
     {
         // Load check multi language
@@ -812,15 +1048,19 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->objDC->setCurrentModel($objDBModel);
     }
 
-    public function paste()
-    {
-        $this->showAll();
-    }
-
+    /**
+     * Show all entries from a table
+     * 
+     * @return void | String if error
+     */
     public function showAll()
     {
-        $this->objDC  = $this->objDC;
-        $this->arrDCA = $this->objDC->getDCA();
+        // Load current values
+        $this->loadCurrentDCA();
+        $this->loadCurrentModel();
+
+        // Check clipboard
+        $this->checkClipboard();
 
         $this->objDC->setButtonId('tl_buttons');
 
