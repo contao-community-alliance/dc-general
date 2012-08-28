@@ -571,10 +571,10 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         // Rootpage pasteinto
         if ($this->Input->get('act') == 'paste')
         {
-            $imagePasteInto = $this->generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0], 'class="blink"');
+            $imagePasteInto   = $this->generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0], 'class="blink"');
             $strRootPasteinto = '<a href="' . $this->addToUrl('act=' . $this->Input->get('mode') . '&amp;mode=2&amp;pid=0&amp;id=') . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">' . $imagePasteInto . '</a> ';
         }
-        
+
         // Create treeview
         $strHTML = $this->generateTreeView($this->objDC->getCurrentCollecion(), $intMode, $treeClass);
 
@@ -1445,22 +1445,6 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
         $return = '';
 
-        switch ($this->arrDCA['list']['sorting']['mode'])
-        {
-            case 5:
-            case 6:
-                // Open/close all nodes
-                $return .= '&#160; :: &#160; <a href="'
-                        . $this->addToUrl('ptg=all')
-                        . '" class="header_toggle" title="'
-                        . specialchars($GLOBALS['TL_LANG']['MSC']['toggleNodes'])
-                        . '">'
-                        . $GLOBALS['TL_LANG']['MSC']['toggleNodes']
-                        . '</a> '
-                        . "\n";
-                break;
-        }
-
         foreach ($this->arrDCA['list']['global_operations'] as $k => $v)
         {
             $v = is_array($v) ? $v : array($v);
@@ -1482,6 +1466,11 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             }
 
             $return .= ' &#160; :: &#160; <a href="' . $this->addToUrl($v['href']) . '" class="' . $v['class'] . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> ';
+        }
+
+        if ($this->Input->get('act') == 'paste')
+        {
+            $return .= ' &#160; :: &#160; <a href="contao/main.php?do=' . $this->objDC->getTable() . '" class="header_clipboard" title="' . specialchars($GLOBALS['TL_LANG']['MSC']['clearClipboard']) . '" accesskey="x">' . $GLOBALS['TL_LANG']['MSC']['clearClipboard'] . '</a>';
         }
 
         return ($this->arrDCA['config']['closed'] && !$blnForceSeparator) ? preg_replace('/^ &#160; :: &#160; /', '', $return) : $return;
