@@ -66,6 +66,11 @@ class GeneralModelDefault implements InterfaceGeneralModel
      */
     public function getProperty($strPropertyName)
     {
+        if($strPropertyName == 'id')
+        {
+            return $this->getID();
+        }
+        
         if (key_exists($strPropertyName, $this->arrProperties))
         {
             return $this->arrProperties[$strPropertyName];
