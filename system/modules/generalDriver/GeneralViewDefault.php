@@ -1,7 +1,4 @@
-<?php
-
-if (!defined('TL_ROOT'))
-    die('You can not access this file directly!');
+<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -1505,7 +1502,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             $v = is_array($v) ? $v : array($v);
             $label      = strlen($v['label'][0]) ? $v['label'][0] : $k;
             $title      = sprintf((strlen($v['label'][1]) ? $v['label'][1] : $k), $objModelRow->getProperty('id'));
-            $attributes = strlen($v['attributes']) ? ' ' . ltrim(sprintf($v['attributes'], $objModelRow->getProperty('id'), $objModelRow->getProperty('id'))) : '';
+            $attributes = strlen($v['attributes']) ? ' ' . ltrim(sprintf($v['attributes'], $objModelRow->getID(), $objModelRow->getID())) : '';
 
             // Call a custom function instead of using the default button
             $strButtonCallback = $this->objDC->getCallbackClass()->buttonCallback($objModelRow, $v, $label, $title, $attributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext);
@@ -1518,7 +1515,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             // Generate all buttons except "move up" and "move down" buttons
             if ($k != 'move' && $v != 'move')
             {
-                $return .= '<a href="' . $this->addToUrl($v['href'] . '&amp;id=' . $objModelRow->getProperty('id')) . '" title="' . specialchars($title) . '"' . $attributes . '>' . $this->generateImage($v['icon'], $label) . '</a> ';
+                $return .= '<a href="' . $this->addToUrl($v['href'] . '&amp;id=' . $objModelRow->getID()) . '" title="' . specialchars($title) . '"' . $attributes . '>' . $this->generateImage($v['icon'], $label) . '</a> ';
                 continue;
             }
 
@@ -1548,11 +1545,30 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         {
             $arrClipboard = $this->objDC->getClipboard();
 
-            $imagePasteAfter = $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0], 'class="blink"');
-            $return .= '<a href="' . $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=1&amp;pid=' . $objModelRow->getID() . '&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs']) . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0]) . '" onclick="Backend.getScrollOffset()">' . $imagePasteAfter . '</a> ';
+            // Check if the id is in the ignore list
+            if ($arrClipboard['mode'] == 'cut' && in_array($objModelRow->getID(), $arrClipboard['ignoredIDs']))
+            {
+                $return .= $imagePasteAfter = $this->generateImage('pasteafter_.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0], 'class="blink"');
+                $return .= ' ';
+                $return .= $imagePasteInto  = $this->generateImage('pasteinto_.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0], 'class="blink"');
+                $return .= ' ';
+            }
+            else
+            {
+                $imagePasteAfter = $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0], 'class="blink"');
+                $return .= '<a href="'
+                        . $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=1&amp;pid=' . $objModelRow->getID() . '&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs'])
+                        . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0]) . '" onclick="Backend.getScrollOffset()">'
+                        . $imagePasteAfter
+                        . '</a> ';
 
-            $imagePasteInto = $this->generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0], 'class="blink"');
-            $return .= '<a href="' . $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=' . $objModelRow->getID() . '&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs']) . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">' . $imagePasteInto . '</a> ';
+                $imagePasteInto = $this->generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0], 'class="blink"');
+                $return .= '<a href="'
+                        . $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=' . $objModelRow->getID() . '&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs'])
+                        . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">'
+                        . $imagePasteInto
+                        . '</a> ';
+            }
         }
 
         return trim($return);
