@@ -65,6 +65,12 @@ class DC_General extends DataContainer implements editable, listable
     protected $objDataProvider = null;
 
     /**
+     * Includes all data provider
+     * @var type 
+     */
+    protected $arrDataProvider = array();
+
+    /**
      * The provider that shall be used for view retrival.
      * @var InterfaceGeneralView 
      */
@@ -81,6 +87,12 @@ class DC_General extends DataContainer implements editable, listable
      * @var InterfaceGeneralCallback 
      */
     protected $objCallbackClass = null;
+
+    /**
+     * The child DC
+     * @var DC_General
+     */
+    protected $objChildDC = null;
 
     // Config ----------------------
 
@@ -266,22 +278,12 @@ class DC_General extends DataContainer implements editable, listable
     protected $mixWidgetID = null;
 
     /**
-     * Includes all data provider
-     * @var type 
-     */
-    protected $arrDataProvider = array();
-
-    /**
      * Current parent collection
      * @var InterfaceGeneralCollection
      */
     protected $objCurrentParentCollection = null;
 
-    /**
-     * The child DC
-     * @var DC_General
-     */
-    protected $objChildDC = null;
+    // Const. ----------------------
 
     /**
      * Lookup for special regex
@@ -301,8 +303,10 @@ class DC_General extends DataContainer implements editable, listable
 
     public function __construct($strTable, array $arrDCA = null, $blnOnloadCallback = true)
     {
+        // Set start timer
         $this->intTimerStart = microtime(true);
 
+        // Call parent
         parent::__construct();
 
         // Callback
@@ -321,8 +325,19 @@ class DC_General extends DataContainer implements editable, listable
 
         // Import
         $this->import('Encryption');
-        // ToDo: SH: Switch FE|BE user =?
-        $this->import('BackendUser', 'User');
+
+        // Switch user for FE / BE support
+        switch (TL_MODE)
+        {
+            case 'FE':
+                $this->import('FrontendUser', 'User');
+                break;
+
+            default:
+            case 'BE':
+                $this->import('BackendUser', 'User');
+                break;
+        }
 
         // Load
         $this->checkPostGet();
@@ -513,13 +528,39 @@ class DC_General extends DataContainer implements editable, listable
     {
         $this->intId = $this->Input->get('id');
 
-        $this->blnSubmitted      = $_POST['FORM_SUBMIT'] == $this->strTable;
-        $this->blnAutoSubmitted  = $_POST['SUBMIT_TYPE'] == 'auto';
-        $this->blnVersionSubmit  = $_POST['FORM_SUBMIT'] == 'tl_version';
-        $this->blnLanguageSubmit = $_POST['FORM_SUBMIT'] == 'language_switch';
-        $this->blnSelectSubmit   = ($this->Input->get('act') == 'select') ? TRUE : FALSE;
+        $this->blnSubmitted      = false;
+        $this->blnVersionSubmit  = false;
+        $this->blnLanguageSubmit = false;
+        $this->blnSelectSubmit   = false;
+
+        // Form Submit check
+        switch ($_POST['FORM_SUBMIT'])
+        {
+            case $this->strTable:
+                $this->blnSubmitted = true;
+                break;
+
+            case 'tl_version':
+                $this->blnVersionSubmit = true;
+                break;
+
+            case 'language_switch':
+                $this->blnLanguageSubmit = true;
+                break;
+        }
+
+        // Act check
+        switch ($this->Input->get('act'))
+        {
+            case 'select':
+                $this->blnSelectSubmit = true;
+                break;
+        }
+
+        $this->blnAutoSubmitted = $_POST['SUBMIT_TYPE'] == 'auto';
 
         $this->arrInputs = $_POST['FORM_INPUTS'] ? array_flip($this->Input->post('FORM_INPUTS')) : array();
+
         $this->arrStates = $this->Session->get('fieldset_states');
         $this->arrStates = (array) $this->arrStates[$this->strTable];
     }
@@ -677,6 +718,65 @@ class DC_General extends DataContainer implements editable, listable
     public function setClipboard($arrClipboard)
     {
         $this->arrClipboard = $arrClipboard;
+    }
+
+    // Join Conditions & Co. ----------------
+
+    /**
+     * Return a array with the join conditions for a special table.
+     * If no value is found in the dca, the default id=pid conditions will be used.
+     * 
+     * @param string $strTable Name of condition
+     * @return array 
+     */
+    public function getJoinConditions($strTable)
+    {
+        $arrReturn = array();
+
+        // Get the join field
+        if ($this->arrDCA['dca_config']['joinCondition'][$strTable] == '')
+        {
+            $arrReturn[0]['pid']       = 'pid';
+            $arrReturn[0]['id']        = 'id';
+            $arrReturn[0]['operation'] = '=';
+        }
+        else
+        {
+            // Counter
+            $i = 0;
+
+            // Run each value
+            foreach ($this->arrDCA['dca_config']['joinCondition'][$strTable] as $key => $value)
+            {
+                $arrReturn[$i]['pid']       = $value['pid'];
+                $arrReturn[$i]['id']        = $value['id'];
+                $arrReturn[$i]['operation'] = $value['operation'];
+
+                $i++;
+            }
+        }
+
+        return $arrReturn;
+    }
+
+    /**
+     * Get the defenition of a root entry
+     * 
+     * @todo @SH: Add a callback here
+     * 
+     * @return array
+     */
+    public function getRootEntries()
+    {
+        if (is_array($this->arrDCA['dca_config']['rootEntries']) && count($this->arrDCA['dca_config']['rootEntries']) != 0)
+        {
+            return $this->arrDCA['dca_config']['rootEntries'];
+        }
+        else
+        {
+            // Use default settings
+            return array('pid=0');
+        }
     }
 
     // Msc. ---------------------------------
