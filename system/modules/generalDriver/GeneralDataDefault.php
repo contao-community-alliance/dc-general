@@ -1,7 +1,4 @@
-<?php
-
-if (!defined('TL_ROOT'))
-    die('You can not access this file directly!');
+<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -32,7 +29,11 @@ if (!defined('TL_ROOT'))
  */
 class GeneralDataDefault implements InterfaceGeneralData
 {
-    // Vars --------------------------------------------------------------------
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * Vars
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     /**
      * Name of current source
@@ -46,16 +47,24 @@ class GeneralDataDefault implements InterfaceGeneralData
      */
     protected $objDatabase = null;
 
-    // Constructor and co ------------------------------------------------------
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * Constructor and co
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     public function __construct()
     {
         // Init Helper
         $this->objDatabase = Database::getInstance();
-        $this->objUser = BackendUser::getInstance();
+        $this->objUser     = BackendUser::getInstance();
     }
 
-    // Getter | Setter ---------------------------------------------------------
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * Getter | Setter
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     /**
      * Set base config with source and other neccesary prameter
@@ -105,7 +114,119 @@ class GeneralDataDefault implements InterfaceGeneralData
         return new GeneralCollectionDefault();
     }
 
-    // Functions ---------------------------------------------------------------
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * Helper Functions
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
+
+    /**
+     * Build the field list 
+     * 
+     * @param GeneralDataConfigDefault $objConfig
+     * 
+     * @return string
+     */
+    protected function buildFieldQuery($objConfig)
+    {
+        $strFields = '*';
+
+        if ($objConfig->getIdOnly())
+        {
+            $strFields = 'id';
+        }
+        else if (!is_null($objConfig->getFields()))
+        {
+            $strFields = implode(', ', $objConfig->getFields());
+
+            if (!stristr($strFields, 'DISTINCT'))
+            {
+                $strFields = 'id, ' . $strFields;
+            }
+        }
+
+        return $strFields;
+    }
+
+    /**
+     * Build the Where
+     * 
+     * @param GeneralDataConfigDefault $objConfig,
+     * 
+     * @return string
+     */
+    protected function buildFilterQuery($objConfig)
+    {
+        $arrFilter    = $objConfig->getFilter();
+        $boolSetWhere = true;
+        $strReturn    = '';
+
+        if (!is_null($arrFilter))
+        {
+            foreach ($arrFilter AS $key => $mixedFilter)
+            {
+                if (is_array($mixedFilter))
+                {
+                    $strReturn .= (($boolSetWhere) ? " WHERE " : " AND ") . $key . " IN(" . implode(',', $mixedFilter) . ")";
+                    unset($arrFilter[$key]);
+                    $boolSetWhere = false;
+                }
+            }
+
+            if (count($arrFilter) > 0)
+            {
+                $strReturn .= (($boolSetWhere) ? ' WHERE ' : ' AND ') . implode(' AND ', $arrFilter);
+                $boolSetWhere = false;
+            }
+        }
+
+        return $strReturn;
+    }
+
+    /**
+     * Build the order by
+     * 
+     * @param GeneralDataConfigDefault $objConfig
+     * 
+     * @return string
+     */
+    protected function buildSortingQuery($objConfig)
+    {
+        $arrSorting = $objConfig->getSorting();
+        $strReturn  = '';
+
+        if (!is_null($arrSorting) && is_array($arrSorting) && count($arrSorting) > 0)
+        {
+            $strSortOrder = '';
+
+            foreach ($arrSorting AS $key => $mixedField)
+            {
+                if (is_array($mixedField))
+                {
+                    if ($mixedField['action'] == 'findInSet')
+                    {
+                        $arrSorting[$key] = $this->objDatabase->findInSet($mixedField['field'], $mixedField['keys']);
+                    }
+                }
+
+                if ($key === 'sortOrder')
+                {
+                    $strSortOrder = $mixedField;
+                    unset($arrSorting[$key]);
+                }
+            }
+
+            $strReturn .= ' ORDER BY ' . implode(', ', $arrSorting) . $strSortOrder;
+        }
+
+        return $strReturn;
+    }
+
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * Functions
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     /**
      * Delete an item.
@@ -142,7 +263,7 @@ class GeneralDataDefault implements InterfaceGeneralData
     }
 
     /**
-     * Fetch a single record by id.
+     * Fetch a single/first record by id/filter.
      * 
      * @param GeneralDataConfigDefault $objConfig
      * 
@@ -150,22 +271,29 @@ class GeneralDataDefault implements InterfaceGeneralData
      */
     public function fetch(GeneralDataConfigDefault $objConfig)
     {
-        $strFields = '*';
-
-        if (!is_null($objConfig->getFields()))
+        if ($objConfig->getId() != null)
         {
-            $strFields = implode('', $objConfig->getFields());
+            $strQuery = "SELECT " . $this->buildFieldQuery($objConfig) . " FROM $this->strSource WHERE id = ?";
 
-            if (!stristr($strFields, 'DISTINCT'))
-            {
-                $strFields = 'id, ' . $strFields;
-            }
+            $arrResult = $this->objDatabase
+                    ->prepare($strQuery)
+                    ->execute($objConfig->getId())
+                    ->fetchAllAssoc();
         }
+        else
+        {
+            // Build SQL
+            $query = "SELECT " . $this->buildFieldQuery($objConfig) . " FROM " . $this->strSource;
+            $query .= $this->buildFilterQuery($objConfig);
+            $query .= $this->buildSortingQuery($objConfig);
 
-        $arrResult = $this->objDatabase
-                ->prepare("SELECT " . $strFields . " FROM $this->strSource WHERE id = ?")
-                ->execute($objConfig->getId())
-                ->fetchAllAssoc();
+            // Execute db query
+            $arrResult = $this->objDatabase
+                    ->prepare($query)
+                    ->limit(1, 0)
+                    ->execute()
+                    ->fetchAllAssoc();
+        }
 
         if (count($arrResult) == 0)
         {
@@ -196,71 +324,12 @@ class GeneralDataDefault implements InterfaceGeneralData
      */
     public function fetchAll(GeneralDataConfigDefault $objConfig)
     {
-        $boolSetWhere = true;
-        $arrFilter    = $objConfig->getFilter();
-        $arrSorting   = $objConfig->getSorting();
+        // Build SQL
+        $query = "SELECT " . $this->buildFieldQuery($objConfig) . " FROM " . $this->strSource;
+        $query .= $this->buildFilterQuery($objConfig);
+        $query .= $this->buildSortingQuery($objConfig);
 
-        $strFields = '*';
-
-        if ($objConfig->getIdOnly())
-        {
-            $strFields = 'id';
-        }
-        else if (!is_null($objConfig->getFields()))
-        {
-            $strFields = implode(', ', $objConfig->getFields());
-
-            if (!stristr($strFields, 'DISTINCT'))
-            {
-                $strFields = 'id, ' . $strFields;
-            }
-        }
-
-        $query = "SELECT " . $strFields . " FROM " . $this->strSource;
-
-        if (!is_null($arrFilter))
-        {
-            foreach ($arrFilter AS $key => $mixedFilter)
-            {
-                if (is_array($mixedFilter))
-                {
-                    $query .= (($boolSetWhere) ? " WHERE " : " AND ") . $key . " IN(" . implode(',', $mixedFilter) . ")";
-                    unset($arrFilter[$key]);
-                    $boolSetWhere = false;
-                }
-            }
-
-            if (count($arrFilter) > 0)
-            {
-                $query .= (($boolSetWhere) ? " WHERE " : " AND ") . implode(' AND ', $arrFilter);
-                $boolSetWhere = false;
-            }
-        }
-
-        if (!is_null($arrSorting) && is_array($arrSorting) && count($arrSorting) > 0)
-        {
-            $strSortOrder = '';
-
-            foreach ($arrSorting AS $key => $mixedField)
-            {
-                if (is_array($mixedField))
-                {
-                    if ($mixedField['action'] == 'findInSet')
-                    {
-                        $arrSorting[$key] = $this->objDatabase->findInSet($mixedField['field'], $mixedField['keys']);
-                    }
-                }
-
-                if ($key === 'sortOrder')
-                {
-                    $strSortOrder = $mixedField;
-                    unset($arrSorting[$key]);
-                }
-            }
-
-            $query .= " ORDER BY " . implode(', ', $arrSorting) . $strSortOrder;
-        }
-
+        // Execute db query
         $arrResult = $this->objDatabase
                 ->prepare($query)
                 ->limit($objConfig->getAmount(), $objConfig->getStart())
@@ -514,7 +583,11 @@ class GeneralDataDefault implements InterfaceGeneralData
         return $this->objDatabase->fieldExists($strField, $this->strSource);
     }
 
-    // Version Functions -------------------------------------------------------
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * Version Functions
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     public function getVersion($mixID, $mixVersion)
     {
@@ -704,7 +777,11 @@ class GeneralDataDefault implements InterfaceGeneralData
         return true;
     }
 
-    // Undo --------------------------------------------------------------------
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * Undo
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     protected function insertUndo($strSourceSQL, $strSaveSQL, $strTable)
     {
