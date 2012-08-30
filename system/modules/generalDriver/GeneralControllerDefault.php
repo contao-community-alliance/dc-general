@@ -60,8 +60,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     protected $arrDCA;
 
     /**
-     * A list with all current ID`s 
-     * 
+     * A list with all current ID`s
+     *
      * @var array
      */
     protected $arrInsertIDs = array();
@@ -70,8 +70,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /**
      * State of Show/Close all
-     * 
-     * @var boolean 
+     *
+     * @var boolean
      */
     protected $blnShowAllEntries = false;
 
@@ -79,14 +79,14 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /**
      * Error msg
-     * 
+     *
      * @var string
      */
     protected $notImplMsg = "<div style='text-align:center; font-weight:bold; padding:40px;'>The function/view &quot;%s&quot; is not implemented.</div>";
 
     /**
      * Field for the function sortCollection
-     * 
+     *
      * @var string $arrColSort
      */
     protected $arrColSort;
@@ -161,7 +161,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /**
      * Get filter for the data provider
-     * 
+     *
      * @return array();
      */
     protected function getFilter()
@@ -185,8 +185,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /**
      * Get limit for the data provider
-     * 
-     * @return array 
+     *
+     * @return array
      */
     protected function getLimit()
     {
@@ -201,8 +201,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /**
      * Get sorting for the list view data provider
-     * 
-     * @return mixed 
+     *
+     * @return mixed
      */
     protected function getListViewSorting()
     {
@@ -265,8 +265,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /**
      * Get sorting for the parent view data provider
-     * 
-     * @return mixed 
+     *
+     * @return mixed
      */
     protected function getParentViewSorting()
     {
@@ -329,9 +329,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      * NOTE: the model will get populated with the new values within this function.
      * Therefore the current submitted data will be stored within the model but only on
      * success also be saved into the DB.
-     * 
+     *
      * @param DC_General $this->objDC the DC that adapts the save operation.
-     * 
+     *
      * @return bool|InterfaceGeneralModel Model if the save operation was successful, false otherwise.
      */
     protected function doSave()
@@ -373,7 +373,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $objDBModel->setProperty("tstamp", time());
         }
 
-        // everything went ok, now save the new record 
+        // everything went ok, now save the new record
         $this->objDC->getDataProvider()->save($objDBModel);
 
         // Check if versioning is enabled
@@ -407,7 +407,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     /**
      * Check if the curren model support multi language.
      * Load the language from SESSION, POST or use a fallback.
-     * 
+     *
      * @param DC_General $this->objDC
      * @return int return the mode multilanguage, singellanguage or unsupportet language
      */
@@ -418,7 +418,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $intID                 = $this->objDC->getId();
         $objLanguagesSupported = $this->objDC->getDataProvider()->getLanguages($intID);
 
-        // Load language from Session 
+        // Load language from Session
         $arrSession = $this->Session->get("dc_general");
         if (!is_array($arrSession))
         {
@@ -488,7 +488,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $this->objDC->setClipboardState(false);
             unset($arrClipboard[$this->objDC->getTable()]);
         }
-        // Clear 
+        // Clear
         else if ($this->Input->get('clipboard') == '1')
         {
             $this->objDC->setClipboardState(false);
@@ -611,7 +611,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 // Check mode insert into/after
                 switch ($intMode)
                 {
-                    // Insert After => Get the parent from he target id 
+                    // Insert After => Get the parent from he target id
                     case 1:
                         $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
                         $objParentConfig->setId($intPid);
@@ -627,7 +627,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                         $objSrcModel->setProperty($arrJoinCondition[0]['pid'], $objParentModel->getProperty($arrJoinCondition[0]['id']));
                         break;
 
-                    // Insert Into => use the pid 
+                    // Insert Into => use the pid
                     case 2:
                         if ($intPid == 0)
                         {
@@ -684,7 +684,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         switch ($this->arrDCA['list']['sorting']['mode'])
         {
             case 5:
-                // Init Vars 
+                // Init Vars
                 $intMode = $this->Input->get('mode');
                 $intPid  = $this->Input->get('pid');
                 $intId   = $this->Input->get('id');
@@ -712,7 +712,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /**
      * @todo Make it fine
-     * 
+     *
      * @param type $intSrcID
      * @param type $intDstID
      * @param type $intMode
@@ -770,7 +770,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         // Check mode insert into/after
         switch ($intMode)
         {
-            //Insert After => Get the parent from he target id 
+            //Insert After => Get the parent from he target id
             case 1:
                 $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
                 $objParentConfig->setId($intIdTarget);
@@ -786,7 +786,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 $objCopyModel->setProperty($strFieldPid, $objParentModel->getProperty($strFieldId));
                 break;
 
-            // Insert Into => use the pid 
+            // Insert Into => use the pid
             case 2:
                 if ($intIdTarget == 0)
                 {
@@ -863,7 +863,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->objDC->addButton("save");
         $this->objDC->addButton("saveNclose");
 
-        // Load record from data provider       
+        // Load record from data provider
         $objDBModel = $this->objDC->getDataProvider()->getEmptyModel();
         $this->objDC->setCurrentModel($objDBModel);
 
@@ -1068,7 +1068,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         // Load an older Version
         if (strlen($this->Input->post("version")) != 0 && $this->objDC->isVersionSubmit())
         {
-            // Load record from version 
+            // Load record from version
             $objVersionModel = $objDataProvider->getVersion($this->objDC->getId(), $this->Input->post("version"));
 
             // Redirect if there is no record with the given ID
@@ -1186,7 +1186,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /**
      * Show all entries from a table
-     * 
+     *
      * @return void | String if error
      */
     public function showAll()
@@ -1315,6 +1315,13 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $objRootModel->setProperty('dc_gen_tv_title', vsprintf($arrTitlePattern, $arrField));
             $objRootModel->setProperty('dc_gen_tv_level', $intLevel + 1);
 
+            // Callback
+            $strLabel = $this->objDC->getCallbackClass()->labelCallback($objRootModel, $objRootModel->getProperty('dc_gen_tv_title'), $arrField);
+            if ($strLabel != '')
+            {
+                $objRootModel->setProperty('dc_gen_tv_title', $strLabel);
+            }
+
             // Get toogle state
             if ($arrToggle[$objRootModel->getID()] == 1)
             {
@@ -1346,8 +1353,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     }
 
     /**
-     * ToDo: Bugy 
-     * 
+     * ToDo: Bugy
+     *
      * @param DC_General $this->objDC
      * @param type $strMethod
      * @param type $strSelector
@@ -1476,6 +1483,13 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $objRootModel->setProperty('dc_gen_tv_title', vsprintf($arrTitlePattern, $arrField));
             $objRootModel->setProperty('dc_gen_tv_level', 0);
 
+            // Callback
+            $strLabel = $this->objDC->getCallbackClass()->labelCallback($objRootModel, $objRootModel->getProperty('dc_gen_tv_title'), $arrField);
+            if ($strLabel != '')
+            {
+                $objRootModel->setProperty('dc_gen_tv_title', $strLabel);
+            }
+
             // Get toogle state
             if ($arrToggle['all'] == 1 && !(key_exists($objRootModel->getID(), $arrToggle) && $arrToggle[$objRootModel->getID()] == 0))
             {
@@ -1546,6 +1560,13 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
             $objChildModel->setProperty('dc_gen_tv_title', vsprintf($arrTitlePattern, $arrField));
             $objChildModel->setProperty('dc_gen_tv_level', $intLevel);
+
+            // Callback
+            $strLabel = $this->objDC->getCallbackClass()->labelCallback($objChildModel, $objChildModel->getProperty('dc_gen_tv_title'), $arrField);
+            if ($strLabel != '')
+            {
+                $objChildModel->setProperty('dc_gen_tv_title', $strLabel);
+            }
 
             // Get toogle state
             if ($arrToggle['all'] == 1 && !(key_exists($objChildModel->getID(), $arrToggle) && $arrToggle[$objChildModel->getID()] == 0))
@@ -1834,7 +1855,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /**
      * Return a search form that allows to search results using regular expressions
-     * 
+     *
      * @return string
      */
     protected function searchMenu()
@@ -1933,9 +1954,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /**
      * Return a select menu to limit results
-     * 
+     *
      * @param boolean
-     * 
+     *
      * @return string
      */
     protected function limitMenu($blnOptional = false)
@@ -2056,7 +2077,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /**
      * Return a select menu that allows to sort results by a particular field
-     * 
+     *
      * @return string
      */
     protected function sortMenu()
@@ -2148,10 +2169,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /**
      * Check if a entry has some childs
-     * 
+     *
      * @param array $arrFilterPattern
      * @param InterfaceGeneralModel $objParentModel
-     * 
+     *
      * @return boolean True => has children | False => no children
      */
     protected function hasChildren($arrFilterPattern, $objParentModel)
@@ -2188,11 +2209,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /**
      * Set filter from user input and table configuration for filter menu
-     * 
+     *
      * @param array $arrSortingFields
      * @param array $arrSession
      * @param string $strFilter
-     * @return array 
+     * @return array
      */
     protected function filterMenuSetFilter($arrSortingFields, $arrSession, $strFilter)
     {
@@ -2295,11 +2316,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /**
      * Add sorting options to filter menu
-     * 
+     *
      * @param array $arrSortingFields
      * @param array $arrSession
      * @param string $strFilter
-     * @return array 
+     * @return array
      */
     protected function filterMenuAddOptions($arrSortingFields, $arrSession, $strFilter)
     {
@@ -2323,7 +2344,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
             $objCollection = $this->objDC->getDataProvider()->fetchAll($this->objDC->getDataProvider()->getEmptyConfig()->setFields(array("DISTINCT(" . $field . ")"))->setFilter($arrProcedure));
 
-            // Begin select menu            
+            // Begin select menu
             $arrPanelView[$field] = array(
                 'select' => array(
                     'name'   => $field,
@@ -2476,7 +2497,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 $arrSortOptions = array();
                 $blnDate = in_array($this->arrDCA['fields'][$field]['flag'], array(5, 6, 7, 8, 9, 10));
 
-                // Options                
+                // Options
                 foreach ($options as $kk => $vv)
                 {
                     $value = $blnDate ? $kk : $vv;
