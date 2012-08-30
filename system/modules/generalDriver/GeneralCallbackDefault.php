@@ -34,13 +34,13 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 
     /**
      * The DC
-     * @var DC_General 
+     * @var DC_General
      */
     private $objDC;
 
     /**
      * Set the DC
-     * 
+     *
      * @param DC_General $objDC
      */
     public function setDC($objDC)
@@ -50,7 +50,7 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 
     /**
      * get the DC
-     * 
+     *
      * @return DC_General $objDC
      */
     public function getDC()
@@ -60,9 +60,9 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 
     /**
      * Exectue a callback
-     * 
+     *
      * @param array $varCallbacks
-     * @return array 
+     * @return array
      */
     public function executeCallbacks($varCallbacks)
     {
@@ -99,11 +99,11 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 
     /**
      * Call the customer label callback
-     * 
+     *
      * @param InterfaceGeneralModel $objModelRow
      * @param string $mixedLabel
      * @param array $args
-     * @return string 
+     * @return string
      */
     public function labelCallback(InterfaceGeneralModel $objModelRow, $mixedLabel, $args)
     {
@@ -134,7 +134,7 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 
     /**
      * Call the button callback for the regular operations
-     * 
+     *
      * @param InterfaceGeneralModel $objModelRow
      * @param array $arrDCA
      * @param string $strLabel
@@ -146,23 +146,20 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
      * @param boolean $blnCircularReference
      * @param string $strPrevious
      * @param string $strNext
-     * @return string|null 
+     * @return string|null
      */
-    public function buttonCallback($objModelRow, $strLabel, $strTitle, $arrAttributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext)
+    public function buttonCallback($objModelRow, $arrOperation, $strLabel, $strTitle, $arrAttributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext)
     {
-        // Load DCA
-        $arrDCA = $this->objDC->getDCA();
-
         // Check Callback
-        if (is_array($arrDCA['button_callback']))
+        if (is_array($arrOperation['button_callback']))
         {
-            $strClass  = $arrDCA['button_callback'][0];
-            $strMethod = $arrDCA['button_callback'][1];
+            $strClass  = $arrOperation['button_callback'][0];
+            $strMethod = $arrOperation['button_callback'][1];
 
             $this->import($strClass);
 
             return $this->$strClass->$strMethod(
-                            $objModelRow->getPropertiesAsArray(), $arrDCA['href'], $strLabel, $strTitle, $arrDCA['icon'], $arrAttributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext
+                            $objModelRow->getPropertiesAsArray(), $arrOperation['href'], $strLabel, $strTitle, $arrOperation['icon'], $arrAttributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext
             );
         }
 
@@ -171,14 +168,14 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 
     /**
      * Call the button callback for the global operations
-     * 
+     *
      * @param array $arrDCA
      * @param str $strLabel
      * @param str $strTitle
      * @param array $arrAttributes
      * @param string $strTable
      * @param array $arrRootIds
-     * @return string|null 
+     * @return string|null
      */
     public function globalButtonCallback($strLabel, $strTitle, $arrAttributes, $strTable, $arrRootIds)
     {
@@ -200,7 +197,7 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 
     /**
      * Call the header callback
-     * 
+     *
      * @param array $arrAdd
      * @return array|null
      */
@@ -224,7 +221,7 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 
     /**
      * Call the child record callback
-     * 
+     *
      * @param array $arrRow
      * @return string|null
      */
@@ -248,9 +245,9 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 
     /**
      * Call the options callback for given the fields
-     * 
+     *
      * @param string $strField
-     * @return array|null 
+     * @return array|null
      */
     public function optionsCallback($strField)
     {
@@ -273,7 +270,7 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 
     /**
      * Trigger the onrestore_callback
-     * 
+     *
      * @param int $intID ID of current dataset
      * @param string $strTable Name of current Table
      * @param array $arrData Array with all Data
@@ -300,10 +297,10 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 
     /**
      * Call the load callback
-     * 
+     *
      * @param string field
      * @param array $arrValue
-     * @return array|null 
+     * @return array|null
      */
     public function loadCallback($strField, $arrValue)
     {
@@ -334,7 +331,7 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 
     /**
      * Call onload_callback (e.g. to check permissions)
-     * 
+     *
      * @param string $strTable name of current table
      */
     public function onloadCallback()
@@ -357,13 +354,13 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
     }
 
     /**
-     * Call the group callback 
-     * 
+     * Call the group callback
+     *
      * @param type $group
      * @param type $mode
      * @param type $field
      * @param InterfaceGeneralModel $objModelRow
-     * @return type 
+     * @return type
      */
     public function groupCallback($group, $mode, $field, $objModelRow)
     {
@@ -392,10 +389,10 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 
     /**
      * Call the save callback for a widget
-     * 
+     *
      * @param array $arrConfig Configuration of the widget
      * @param mixed $varNew New Value
-     * @return mixed 
+     * @return mixed
      */
     public function saveCallback($arrConfig, $varNew)
     {
@@ -434,7 +431,7 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
     }
 
     /**
-     * Call the onsubmit_callback 
+     * Call the onsubmit_callback
      */
     public function onsubmitCallback()
     {
@@ -453,10 +450,10 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 
     /**
      * Call the oncreate_callback
-     * 
+     *
      * @param mixed $insertID The id from the new record
-     * @param array $arrRecord the new record 
-     * 
+     * @param array $arrRecord the new record
+     *
      * @return void
      */
     public function oncreateCallback($insertID, $arrRecord)
@@ -477,7 +474,7 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 
     /**
      * Get the current pallette
-     * 
+     *
      * @param DC_General $objDC
      * @param array $arrPalette
      */
@@ -493,14 +490,14 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
             {
                 $this->import($callback[0]);
                 $mixReturn = $this->$callback[0]->$callback[1]($this->objDC, $arrPalette);
-                
+
                 if(is_array($mixReturn))
                 {
                     $arrPalette = $mixReturn;
                 }
             }
         }
-        
+
         return $arrPalette;
     }
 
