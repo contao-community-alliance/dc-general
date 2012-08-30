@@ -495,6 +495,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     protected function checkClipboard($strResetMode = null)
     {
         $arrClipboard = $this->Session->get('CLIPBOARD');
+        if(!is_array($arrClipboard))
+        {
+            $arrClipboard = array();
+        }
 
         // Clear mode
         if ($strResetMode != null && $strResetMode == $arrClipboard[$this->objDC->getTable()]['mode'])
