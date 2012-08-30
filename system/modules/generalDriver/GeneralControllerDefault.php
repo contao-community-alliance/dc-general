@@ -318,6 +318,19 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         return $mixedOrderBy;
     }
 
+    protected function redirectHome()
+    {
+        if ($this->Input->get('table') && $this->Input->get('id'))
+        {
+            $this->redirect(sprintf('contao/main.php?do=%s&table=%s&id=%s',
+                                    $this->Input->get('do'),
+                                    $this->objDC->getTable(),
+                                    $this->Input->get('id')
+                                    ));
+        }
+        $this->redirect('contao/main.php?do=' . $this->Input->get('do'));
+    }
+
     /* /////////////////////////////////////////////////////////////////////////
      * -------------------------------------------------------------------------
      *  Core Support functions
@@ -496,7 +509,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             unset($arrClipboard[$this->objDC->getTable()]);
             $this->Session->set('CLIPBOARD', $arrClipboard);
 
-            $this->redirect('contao/main.php?do=' . $this->objDC->getTable());
+            $this->redirectHome();
         }
         // Add new entry
         else if ($this->Input->get('act') == 'paste')
@@ -658,7 +671,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->checkClipboard('cut');
 
         // Redirect
-        $this->redirect('contao/main.php?do=' . $this->objDC->getTable());
+        $this->redirectHome();
     }
 
     public function copy()
@@ -707,7 +720,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->checkClipboard('copy');
 
         // Redirect
-        $this->redirect('contao/main.php?do=' . $this->objDC->getTable());
+        $this->redirectHome();
     }
 
     /**
@@ -1428,7 +1441,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
             // Save in session and redirect
             $this->Session->set($strToggleID, $arrToggle);
-            $this->redirect('contao/main.php?do=' . $this->objDC->getTable());
+            $this->redirectHome();
         }
 
         // Init some vars
