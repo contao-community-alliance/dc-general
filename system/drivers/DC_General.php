@@ -747,7 +747,7 @@ class DC_General extends DataContainer implements editable, listable
             $i = 0;
 
             // Run each value
-            foreach ($this->arrDCA['dca_config']['joinCondition'][$strTable] as $key => $value)
+            foreach ($this->arrDCA['dca_config']['joinCondition'][$strTable] as $value)
             {
                 $arrReturn[$i]['srcField']  = $value['srcField'];
                 $arrReturn[$i]['dstField']  = $value['dstField'];
@@ -764,21 +764,38 @@ class DC_General extends DataContainer implements editable, listable
      * Get the defenition of a root entry
      * 
      * @todo @SH: Add a callback here
-     * @todo @SH: Make it like the join conditions field | operation | value
      * 
      * @return array
      */
-    public function getRootEntries()
+    public function getRootConditions($strTable)
     {
-        if (is_array($this->arrDCA['dca_config']['rootEntries']) && count($this->arrDCA['dca_config']['rootEntries']) != 0)
+        $arrReturn = array();
+
+        // Get the join field
+        if ($this->arrDCA['dca_config']['rootEntries'][$strTable] == '')
         {
-            return $this->arrDCA['dca_config']['rootEntries'];
+            // Default
+            $arrReturn[0]['field']     = 'pid';
+            $arrReturn[0]['operation'] = '=';
+            $arrReturn[0]['value']     = 0;
         }
         else
         {
-            // Use default settings
-            return array('pid=0');
+            // Counter
+            $i = 0;
+
+            // Run each value
+            foreach ($this->arrDCA['dca_config']['rootEntries'][$strTable] as $value)
+            {
+                $arrReturn[$i]['field']     = $value['field'];
+                $arrReturn[$i]['operation'] = $value['operation'];
+                $arrReturn[$i]['value']     = $value['value'];
+
+                $i++;
+            }
         }
+
+        return $arrReturn;
     }
 
     // Msc. ---------------------------------

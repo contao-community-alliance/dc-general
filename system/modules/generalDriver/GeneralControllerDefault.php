@@ -580,6 +580,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      * -------------------------------------------------------------------------
      * ////////////////////////////////////////////////////////////////////// */
 
+    /**
+     * Cut and paste
+     */
     public function cut()
     {
         // Load current DCA
@@ -621,42 +624,58 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             case 5:
                 // Get the join field
                 $arrJoinCondition = $this->objDC->getJoinConditions('self');
+                $arrRootCondition = $this->objDC->getRootConditions('self');
 
                 // Check mode insert into/after
                 switch ($intMode)
                 {
                     // Insert After => Get the parent from he target id
                     case 1:
-                        $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
-                        $objParentConfig->setId($intPid);
-                        $objParentModel  = $this->objDC->getDataProvider()->fetch($objParentConfig);
-
-                        $strFilter = $arrJoinCondition[0]['srcField'] . $arrJoinCondition[0]['operation'] . $objParentModel->getProperty($arrJoinCondition[0]['dstField']);
-
-                        $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
-                        $objParentConfig->setFilter(array($strFilter));
-
-                        $objParentModel = $this->objDC->getDataProvider()->fetch($objParentConfig);
-
+                        $objParentModel = $this->getParent('self', null, $intPid);
                         $objSrcModel->setProperty($arrJoinCondition[0]['dstField'], $objParentModel->getProperty($arrJoinCondition[0]['srcField']));
+
+//                        $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
+//                        $objParentConfig->setId($intPid);
+//                        $objParentModel  = $this->objDC->getDataProvider()->fetch($objParentConfig);
+//
+//                        $strFilter = $arrJoinCondition[0]['srcField'] . $arrJoinCondition[0]['operation'] . $objParentModel->getProperty($arrJoinCondition[0]['dstField']);
+//
+//                        $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
+//                        $objParentConfig->setFilter(array($strFilter));
+//
+//                        $objParentModel = $this->objDC->getDataProvider()->fetch($objParentConfig);
+
+
                         break;
 
                     // Insert Into => use the pid
                     case 2:
-                        if ($intPid == 0)
+                        if ($this->isRootEntry('self', $intPid))
                         {
-                            $objSrcModel->setProperty($arrJoinCondition[0]['dstField'], 0);
+                            $objSrcModel->setProperty($arrRootCondition[0]['field'], $arrRootCondition[0]['value']);
                         }
                         else
                         {
                             $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
                             $objParentConfig->setId($intPid);
-                            $objParentModel  = $this->objDC->getDataProvider()->fetch($objParentConfig);
+
+                            $objParentModel = $this->objDC->getDataProvider()->fetch($objParentConfig);
 
                             $objSrcModel->setProperty($arrJoinCondition[0]['dstField'], $objParentModel->getProperty($arrJoinCondition[0]['srcField']));
                         }
 
-
+//                        if ($intPid == 0)
+//                        {
+//                            $objSrcModel->setProperty($arrJoinCondition[0]['dstField'], 0);
+//                        }
+//                        else
+//                        {
+//                            $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
+//                            $objParentConfig->setId($intPid);
+//                            $objParentModel  = $this->objDC->getDataProvider()->fetch($objParentConfig);
+//
+//                            $objSrcModel->setProperty($arrJoinCondition[0]['dstField'], $objParentModel->getProperty($arrJoinCondition[0]['srcField']));
+//                        }
                         break;
 
                     default:
@@ -699,9 +718,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             case 5:
                 // Init Vars
-                $intMode = $this->Input->get('mode');
-                $intPid  = $this->Input->get('pid');
-                $intId   = $this->Input->get('id');
+                $intMode   = $this->Input->get('mode');
+                $intPid    = $this->Input->get('pid');
+                $intId     = $this->Input->get('id');
+                $intChilds = $this->Input->get('childs');
 
                 if (strlen($intMode) == 0 || strlen($intPid) == 0 || strlen($intId) == 0)
                 {
@@ -713,7 +733,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 $arrJoinCondition = $this->objDC->getJoinConditions('self');
 
                 // Insert the copy
-                $this->insertCopyModel($intId, $intPid, $intMode, 0, $arrJoinCondition[0]['srcField'], $arrJoinCondition[0]['dstField'], $arrJoinCondition[0]['operation']);
+                $this->insertCopyModel($intId, $intPid, $intMode, $intChilds, $arrJoinCondition[0]['srcField'], $arrJoinCondition[0]['dstField'], $arrJoinCondition[0]['operation']);
                 break;
         }
 
@@ -786,31 +806,49 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             //Insert After => Get the parent from he target id
             case 1:
-                $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
-                $objParentConfig->setId($intIdTarget);
-                $objParentModel  = $this->objDC->getDataProvider()->fetch($objParentConfig);
+//                $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
+//                $objParentConfig->setId($intIdTarget);
+//                $objParentModel  = $this->objDC->getDataProvider()->fetch($objParentConfig);
+//
+//                $strFilter = $strFieldId . $strOperation . $objParentModel->getProperty($strFieldPid);
+//
+//                $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
+//                $objParentConfig->setFilter(array($strFilter));
+//
+//                $objParentModel = $this->objDC->getDataProvider()->fetch($objParentConfig);
 
-                $strFilter = $strFieldId . $strOperation . $objParentModel->getProperty($strFieldPid);
-
-                $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
-                $objParentConfig->setFilter(array($strFilter));
-
-                $objParentModel = $this->objDC->getDataProvider()->fetch($objParentConfig);
+                $objParentModel = $this->getParent('self', null, $intIdTarget);
 
                 $objCopyModel->setProperty($strFieldPid, $objParentModel->getProperty($strFieldId));
                 break;
 
             // Insert Into => use the pid
             case 2:
-                if ($intIdTarget == 0)
+//                if ($intIdTarget == 0)
+//                {
+//                    $objCopyModel->setProperty($strFieldPid, 0);
+//                }
+//                else
+//                {
+//                    $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
+//                    $objParentConfig->setId($intIdTarget);
+//                    $objParentModel  = $this->objDC->getDataProvider()->fetch($objParentConfig);
+//
+//                    $objCopyModel->setProperty($strFieldPid, $objParentModel->getProperty($strFieldId));
+//                }
+
+                $arrRootCondition = $this->objDC->getRootConditions('self');
+
+                if ($this->isRootEntry('self', $intIdTarget))
                 {
-                    $objCopyModel->setProperty($strFieldPid, 0);
+                    $objCopyModel->setProperty($arrRootCondition[0]['field'], $arrRootCondition[0]['value']);
                 }
                 else
                 {
                     $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
                     $objParentConfig->setId($intIdTarget);
-                    $objParentModel  = $this->objDC->getDataProvider()->fetch($objParentConfig);
+
+                    $objParentModel = $this->objDC->getDataProvider()->fetch($objParentConfig);
 
                     $objCopyModel->setProperty($strFieldPid, $objParentModel->getProperty($strFieldId));
                 }
@@ -1264,30 +1302,30 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         // Init some vars
-        $objTableTreeData     = $this->objDC->getDataProvider()->getEmptyCollection();
-        $objRootConfig        = $this->objDC->getDataProvider()->getEmptyConfig();
-        $arrChildFilerPattern = array();
+        $objTableTreeData      = $this->objDC->getDataProvider()->getEmptyCollection();
+        $objRootConfig         = $this->objDC->getDataProvider()->getEmptyConfig();
+        $arrChildFilterPattern = array();
 
         // Build a filter array for the join conditions
         foreach ($arrChildFilter as $key => $value)
         {
             if ($value['srcField'] != '')
             {
-                $arrNeededFields[]                    = trim($value['srcField']);
-                $arrChildFilerPattern[$key]['field']  = $value['srcField'];
-                $arrChildFilerPattern[$key]['patern'] = $value['dstField'] . ' ' . $value['operation'] . ' %s';
+                $arrNeededFields[]                      = trim($value['srcField']);
+                $arrChildFilterPattern[$key]['field']   = $value['srcField'];
+                $arrChildFilterPattern[$key]['pattern'] = $value['dstField'] . ' ' . $value['operation'] . ' %s';
             }
             else
             {
-                $arrChildFilerPattern[$key]['patern'] = $value['dstField'] . ' ' . $value['operation'];
+                $arrChildFilterPattern[$key]['pattern'] = $value['dstField'] . ' ' . $value['operation'];
             }
-        }       
+        }
 
         // Set fields limit
         $objRootConfig->setFields(array_keys(array_flip($arrNeededFields)));
 
         // Set Filter for root elements
-        $objRootConfig->setFilter($this->objDC->getRootEntries());
+        $objRootConfig->setFilter($this->objDC->getRootConditions());
 
         // Fetch all root elements
         $objRootCollection = $this->objDC->getDataProvider()->fetchAll($objRootConfig);
@@ -1324,7 +1362,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             }
 
             // Check if we have children
-            if ($this->hasChildren($arrChildFilerPattern, $objRootModel) == true)
+            if ($this->hasChildren($arrChildFilterPattern, $objRootModel) == true)
             {
                 $objRootModel->setProperty('dc_gen_tv_children', true);
             }
@@ -1336,7 +1374,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             // If open load all children
             if ($objRootModel->getProperty('dc_gen_tv_children') == true && $objRootModel->getProperty('dc_gen_tv_open') == true)
             {
-                $objRootModel->setProperty('dc_gen_children_collection', $this->generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrChildFilerPattern, $intLevel + 2, $objRootModel, $arrToggle));
+                $objRootModel->setProperty('dc_gen_children_collection', $this->generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrChildFilterPattern, $intLevel + 2, $objRootModel, $arrToggle));
             }
         }
 
@@ -1393,15 +1431,18 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $arrNeededFields = $this->arrDCA['list']['label']['fields'];
         $arrLablesFields = $this->arrDCA['list']['label']['fields'];
         $arrTitlePattern = $this->arrDCA['list']['label']['format'];
-        $arrRootEntries  = $this->objDC->getRootEntries();
+        $arrRootEntries  = $this->objDC->getRootConditions('self');
         $arrChildFilter  = $this->objDC->getJoinConditions('self');
 
+        foreach ($arrRootEntries as $key => $value)
+        {
+            $arrNeededFields[]    = $value['field'];
+            $arrRootEntries[$key] = $value['field'] . $value['operation'] . $value['value'];
+        }
+
         $strToggleID = $this->objDC->getTable() . '_tree';
-        
-        
 
         $arrToggle = $this->Session->get($strToggleID);
-        var_dump($arrToggle);
         if (!is_array($arrToggle))
         {
             $arrToggle = array();
@@ -1426,22 +1467,22 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         // Init some vars
-        $objTableTreeData     = $this->objDC->getDataProvider()->getEmptyCollection();
-        $objRootConfig        = $this->objDC->getDataProvider()->getEmptyConfig();
-        $arrChildFilerPattern = array();
+        $objTableTreeData      = $this->objDC->getDataProvider()->getEmptyCollection();
+        $objRootConfig         = $this->objDC->getDataProvider()->getEmptyConfig();
+        $arrChildFilterPattern = array();
 
         // Build a filter array for the join conditions
         foreach ($arrChildFilter as $key => $value)
         {
             if ($value['dstField'] != '')
             {
-                $arrNeededFields[]                    = trim($value['srcField']);
-                $arrChildFilerPattern[$key]['field']  = $value['srcField'];
-                $arrChildFilerPattern[$key]['patern'] = $value['dstField'] . ' ' . $value['operation'] . ' %s';
+                $arrNeededFields[]                      = trim($value['srcField']);
+                $arrChildFilterPattern[$key]['field']   = $value['srcField'];
+                $arrChildFilterPattern[$key]['pattern'] = $value['dstField'] . ' ' . $value['operation'] . ' %s';
             }
             else
             {
-                $arrChildFilerPattern[$key]['patern'] = $value['dstField'] . ' ' . $value['operation'];
+                $arrChildFilterPattern[$key]['pattern'] = $value['dstField'] . ' ' . $value['operation'];
             }
         }
 
@@ -1475,11 +1516,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 $objRootModel->setProperty('dc_gen_tv_title', $strLabel);
             }
 
-            var_dump($arrToggle);
-            var_dump($objRootModel->getID());
-            
             // Get toogle state
-            if ($arrToggle['all'] == 1 && !(key_exists($objRootModel->getID(), $arrToggle) && $arrToggle[$objRootModel->getID()] == 0))
+            if ($arrToggle['all'] == 1 || !(key_exists($objRootModel->getID(), $arrToggle) && $arrToggle[$objRootModel->getID()] == 0))
             {
                 $objRootModel->setProperty('dc_gen_tv_open', true);
             }
@@ -1487,11 +1525,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             {
                 $objRootModel->setProperty('dc_gen_tv_open', false);
             }
-            
-            var_dump($objRootModel);
-            
+
             // Check if we have children
-            if ($this->hasChildren($arrChildFilerPattern, $objRootModel) == true)
+            if ($this->hasChildren($arrChildFilterPattern, $objRootModel) == true)
             {
                 $objRootModel->setProperty('dc_gen_tv_children', true);
             }
@@ -1503,7 +1539,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             // If open load all children
             if ($objRootModel->getProperty('dc_gen_tv_children') == true && $objRootModel->getProperty('dc_gen_tv_open') == true)
             {
-                $objRootModel->setProperty('dc_gen_children_collection', $this->generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrChildFilerPattern, 1, $objRootModel, $arrToggle));
+                $objRootModel->setProperty('dc_gen_children_collection', $this->generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrChildFilterPattern, 1, $objRootModel, $arrToggle));
             }
         }
 
@@ -1520,11 +1556,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             if (isset($valueFilter['field']) && $valueFilter['field'] != '')
             {
-                $arrFilter[] = vsprintf($valueFilter['patern'], $objParentModel->getProperty($valueFilter['field']));
+                $arrFilter[] = vsprintf($valueFilter['pattern'], $objParentModel->getProperty($valueFilter['field']));
             }
             else
             {
-                $arrFilter[] = $valueFilter['patern'];
+                $arrFilter[] = $valueFilter['pattern'];
             }
         }
 
@@ -2153,7 +2189,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /* /////////////////////////////////////////////////////////////////////////
      * -------------------------------------------------------------------------
-     * Helper
+     * Helper DataProvider
      * -------------------------------------------------------------------------
      * ////////////////////////////////////////////////////////////////////// */
 
@@ -2166,7 +2202,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      * @return boolean True => has children | False => no children
      */
     protected function hasChildren($arrFilterPattern, $objParentModel)
-    {        
+    {
         $arrFilter = array();
 
         // Build filter Settings
@@ -2174,11 +2210,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             if (isset($valueFilter['field']) && $valueFilter['field'] != '')
             {
-                $arrFilter[] = vsprintf($valueFilter['patern'], $objParentModel->getProperty($valueFilter['field']));
+                $arrFilter[] = vsprintf($valueFilter['pattern'], $objParentModel->getProperty($valueFilter['field']));
             }
             else
             {
-                $arrFilter[] = $valueFilter['patern'];
+                $arrFilter[] = $valueFilter['pattern'];
             }
         }
 
@@ -2196,6 +2232,65 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             return false;
         }
     }
+
+    protected function getParent($strTable, $objCurrentModel = null, $intCurrentID = null)
+    {
+        // Get the join field
+        $arrJoinCondition = $this->objDC->getJoinConditions($strTable);
+
+        // Check if something is set
+        if ($objCurrentModel == null && $intCurrentID == null)
+        {
+            return null;
+        }
+
+        // If we have only the id load current model
+        if ($objCurrentModel == null)
+        {
+            $objCurrentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
+            $objCurrentConfig->setId($intCurrentID);
+
+            $objCurrentModel = $this->objDC->getDataProvider()->fetch($objCurrentConfig);
+        }
+
+        // Build child to parent
+        $strFilter = $arrJoinCondition[0]['srcField'] . $arrJoinCondition[0]['operation'] . $objCurrentModel->getProperty($arrJoinCondition[0]['dstField']);
+
+        // Load model
+        $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
+        $objParentConfig->setFilter(array($strFilter));
+
+        return $this->objDC->getDataProvider()->fetch($objParentConfig);
+    }
+
+    protected function isRootEntry($strTable, $mixID)
+    {
+        // Get the join field
+        $arrRootCondition = $this->objDC->getRootConditions($strTable);
+
+        switch ($arrRootCondition[0]['operation'])
+        {
+            case '=':
+                return ($mixID == $arrRootCondition[0]['value']);
+
+            case '<':
+                return ($arrRootCondition[0]['value'] < $mixID);
+
+            case '>':
+                return ($arrRootCondition[0]['value'] > $mixID);
+
+            case '!=':
+                return ($arrRootCondition[0]['value'] != $mixID);
+        }
+
+        return false;
+    }
+
+    /* /////////////////////////////////////////////////////////////////////////
+     * -------------------------------------------------------------------------
+     * Helper
+     * -------------------------------------------------------------------------
+     * ////////////////////////////////////////////////////////////////////// */
 
     /**
      * Set filter from user input and table configuration for filter menu
