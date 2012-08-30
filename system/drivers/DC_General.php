@@ -736,8 +736,9 @@ class DC_General extends DataContainer implements editable, listable
         // Get the join field
         if ($this->arrDCA['dca_config']['joinCondition'][$strTable] == '')
         {
-            $arrReturn[0]['pid']       = 'pid';
-            $arrReturn[0]['id']        = 'id';
+            // Default
+            $arrReturn[0]['srcField']  = 'id';
+            $arrReturn[0]['dstField']  = 'pid';
             $arrReturn[0]['operation'] = '=';
         }
         else
@@ -748,8 +749,8 @@ class DC_General extends DataContainer implements editable, listable
             // Run each value
             foreach ($this->arrDCA['dca_config']['joinCondition'][$strTable] as $key => $value)
             {
-                $arrReturn[$i]['pid']       = $value['pid'];
-                $arrReturn[$i]['id']        = $value['id'];
+                $arrReturn[$i]['srcField']  = $value['srcField'];
+                $arrReturn[$i]['dstField']  = $value['dstField'];
                 $arrReturn[$i]['operation'] = $value['operation'];
 
                 $i++;
@@ -763,6 +764,7 @@ class DC_General extends DataContainer implements editable, listable
      * Get the defenition of a root entry
      * 
      * @todo @SH: Add a callback here
+     * @todo @SH: Make it like the join conditions field | operation | value
      * 
      * @return array
      */
