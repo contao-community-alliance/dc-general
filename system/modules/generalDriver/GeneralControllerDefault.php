@@ -984,7 +984,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     $this->redirect('contao/main.php?act=error');
                     break;
             }
-            
+
             // Reste clipboard
             $this->checkClipboard('create');
         }
@@ -1330,6 +1330,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             $arrToggle = array();
         }
+        
+        $arrToggle[$intID] = 1;
+        
+        $this->Session->set($strToggleID, $arrToggle);
 
         // Init some vars
         $objTableTreeData = $this->objDC->getDataProvider()->getEmptyCollection();
@@ -1354,8 +1358,21 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         // Set fields limit
         $objRootConfig->setFields(array_keys(array_flip($arrNeededFields)));
 
+        $arrJoinConditions = $this->objDC->getJoinConditions('self');
+        $arrCurrentFiler = array();
+
+        foreach ($arrJoinConditions as $key => $value)
+        {
+            $arrNeededFields[] = trim($value['srcField']);
+//            $arrCurrentFiler[]['field'] = $value['srcField'];
+            $arrCurrentFiler[] = $value['dstField'] . ' ' . $value['operation'] . $intID;
+
+
+//            $arrJoinConditions[$key] = $value['field'] . $value['operation'] . $value['value'];
+        }
+
         // Set Filter for root elements
-        $objRootConfig->setFilter($this->objDC->getRootConditions());
+        $objRootConfig->setFilter($arrCurrentFiler);
 
         // Fetch all root elements
         $objRootCollection = $this->objDC->getDataProvider()->fetchAll($objRootConfig);
@@ -1545,9 +1562,14 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             {
                 $objRootModel->setProperty('dc_gen_tv_title', $strLabel);
             }
-
+            
             // Get toogle state
-            if ($arrToggle['all'] == 1 || !(key_exists($objRootModel->getID(), $arrToggle) && $arrToggle[$objRootModel->getID()] == 0))
+            if ($arrToggle['all'] == 1 && !(key_exists($objRootModel->getID(), $arrToggle) && $arrToggle[$objRootModel->getID()] == 0))
+            {
+                $objRootModel->setProperty('dc_gen_tv_open', true);
+            }
+            // Get toogle state
+            else if (key_exists($objRootModel->getID(), $arrToggle) && $arrToggle[$objRootModel->getID()] == 1)
             {
                 $objRootModel->setProperty('dc_gen_tv_open', true);
             }
@@ -1623,9 +1645,14 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             {
                 $objChildModel->setProperty('dc_gen_tv_title', $strLabel);
             }
-
+            
             // Get toogle state
             if ($arrToggle['all'] == 1 && !(key_exists($objChildModel->getID(), $arrToggle) && $arrToggle[$objChildModel->getID()] == 0))
+            {
+                $objChildModel->setProperty('dc_gen_tv_open', true);
+            }
+             // Get toogle state
+            else if (key_exists($objChildModel->getID(), $arrToggle) && $arrToggle[$objChildModel->getID()] == 1)
             {
                 $objChildModel->setProperty('dc_gen_tv_open', true);
             }
