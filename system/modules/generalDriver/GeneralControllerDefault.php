@@ -242,8 +242,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     }
 
                     $mixedOrderBy[$key] = array(
-                        'field'  => $strField,
-                        'keys'   => $keys,
+                        'field' => $strField,
+                        'keys' => $keys,
                         'action' => 'findInSet'
                     );
                 }
@@ -350,7 +350,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     protected function doSave()
     {
         $objDBModel = $this->objDC->getCurrentModel();
-        $arrDCA     = $this->objDC->getDCA();
+        $arrDCA = $this->objDC->getDCA();
 
         // Check if table is closed
         if ($arrDCA['config']['closed'] == true)
@@ -428,8 +428,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     protected function checkLanguage()
     {
         // Load basic informations
-        $objDataProvider       = $this->objDC->getDataProvider();
-        $intID                 = $this->objDC->getId();
+        $objDataProvider = $this->objDC->getDataProvider();
+        $intID = $this->objDC->getId();
         $objLanguagesSupported = $this->objDC->getDataProvider()->getLanguages($intID);
 
         // Load language from Session
@@ -467,7 +467,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             if (key_exists($this->Input->post("language"), $arrLanguage))
             {
-                $strCurrentLanguage                                         = $this->Input->post("language");
+                $strCurrentLanguage = $this->Input->post("language");
                 $arrSession["ml_support"][$this->objDC->getTable()][$intID] = $strCurrentLanguage;
             }
             else if (key_exists($strCurrentLanguage, $arrLanguage))
@@ -476,8 +476,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             }
             else
             {
-                $objlanguageFallback                                        = $objDataProvider->getFallbackLanguage();
-                $strCurrentLanguage                                         = $objlanguageFallback->getID();
+                $objlanguageFallback = $objDataProvider->getFallbackLanguage();
+                $strCurrentLanguage = $objlanguageFallback->getID();
                 $arrSession["ml_support"][$this->objDC->getTable()][$intID] = $strCurrentLanguage;
             }
         }
@@ -518,9 +518,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $this->objDC->setClipboardState(true);
 
             $arrClipboard[$this->objDC->getTable()] = array(
-                'id'     => $this->Input->get('id'),
+                'id' => $this->Input->get('id'),
                 'childs' => $this->Input->get('childs'),
-                'mode'   => $this->Input->get('mode')
+                'mode' => $this->Input->get('mode')
             );
 
             switch ($this->Input->get('mode'))
@@ -603,8 +603,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         $intMode = $this->Input->get('mode');
-        $intPid  = $this->Input->get('pid');
-        $intId   = $this->Input->get('id');
+        $intPid = $this->Input->get('pid');
+        $intId = $this->Input->get('id');
 
         if (strlen($intMode) == 0 || strlen($intPid) == 0 || strlen($intId) == 0)
         {
@@ -622,18 +622,19 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         switch ($this->arrDCA['list']['sorting']['mode'])
         {
             case 5:
-                // Get the join field
-                $arrJoinCondition = $this->objDC->getJoinConditions('self');
-                $arrRootCondition = $this->objDC->getRootConditions('self');
-
+//                // Get the join field
+//                $arrJoinCondition = $this->objDC->getJoinConditions('self');
+//                $arrRootCondition = $this->objDC->getRootConditions('self');
                 // Check mode insert into/after
                 switch ($intMode)
                 {
                     // Insert After => Get the parent from he target id
                     case 1:
-                        $objParentModel = $this->getParent('self', null, $intPid);
-                        $objSrcModel->setProperty($arrJoinCondition[0]['dstField'], $objParentModel->getProperty($arrJoinCondition[0]['srcField']));
+                        $this->setParent($objSrcModel, $this->getParent('self', null, $intPid), 'self');
 
+
+//                        $objParentModel = $this->getParent('self', null, $intPid);
+//                        $objSrcModel->setProperty($arrJoinCondition[0]['dstField'], $objParentModel->getProperty($arrJoinCondition[0]['srcField']));
 //                        $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
 //                        $objParentConfig->setId($intPid);
 //                        $objParentModel  = $this->objDC->getDataProvider()->fetch($objParentConfig);
@@ -652,7 +653,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     case 2:
                         if ($this->isRootEntry('self', $intPid))
                         {
-                            $objSrcModel->setProperty($arrRootCondition[0]['field'], $arrRootCondition[0]['value']);
+                            $this->setRoot($objSrcModel, 'self');
+//                            $objSrcModel->setProperty($arrRootCondition[0]['field'], $arrRootCondition[0]['value']);
                         }
                         else
                         {
@@ -661,7 +663,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
                             $objParentModel = $this->objDC->getDataProvider()->fetch($objParentConfig);
 
-                            $objSrcModel->setProperty($arrJoinCondition[0]['dstField'], $objParentModel->getProperty($arrJoinCondition[0]['srcField']));
+                            $this->setParent($objSrcModel, $objParentModel, 'self');
+
+//                            $objSrcModel->setProperty($arrJoinCondition[0]['dstField'], $objParentModel->getProperty($arrJoinCondition[0]['srcField']));
                         }
 
 //                        if ($intPid == 0)
@@ -718,9 +722,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             case 5:
                 // Init Vars
-                $intMode   = $this->Input->get('mode');
-                $intPid    = $this->Input->get('pid');
-                $intId     = $this->Input->get('id');
+                $intMode = $this->Input->get('mode');
+                $intPid = $this->Input->get('pid');
+                $intId = $this->Input->get('id');
                 $intChilds = $this->Input->get('childs');
 
                 if (strlen($intMode) == 0 || strlen($intPid) == 0 || strlen($intId) == 0)
@@ -806,6 +810,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             //Insert After => Get the parent from he target id
             case 1:
+                $this->setParent($objCopyModel, $this->getParent('self', null, $intIdTarget), 'self');
+
 //                $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
 //                $objParentConfig->setId($intIdTarget);
 //                $objParentModel  = $this->objDC->getDataProvider()->fetch($objParentConfig);
@@ -816,10 +822,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 //                $objParentConfig->setFilter(array($strFilter));
 //
 //                $objParentModel = $this->objDC->getDataProvider()->fetch($objParentConfig);
-
-                $objParentModel = $this->getParent('self', null, $intIdTarget);
-
-                $objCopyModel->setProperty($strFieldPid, $objParentModel->getProperty($strFieldId));
+//                $objParentModel = $this->getParent('self', null, $intIdTarget);
+//
+//                $objCopyModel->setProperty($strFieldPid, $objParentModel->getProperty($strFieldId));
                 break;
 
             // Insert Into => use the pid
@@ -836,12 +841,13 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 //
 //                    $objCopyModel->setProperty($strFieldPid, $objParentModel->getProperty($strFieldId));
 //                }
-
-                $arrRootCondition = $this->objDC->getRootConditions('self');
+//
+//                $arrRootCondition = $this->objDC->getRootConditions('self');
 
                 if ($this->isRootEntry('self', $intIdTarget))
                 {
-                    $objCopyModel->setProperty($arrRootCondition[0]['field'], $arrRootCondition[0]['value']);
+                    $this->setRoot($objCopyModel, 'self');
+//                    $objCopyModel->setProperty($arrRootCondition[0]['field'], $arrRootCondition[0]['value']);
                 }
                 else
                 {
@@ -850,7 +856,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
                     $objParentModel = $this->objDC->getDataProvider()->fetch($objParentConfig);
 
-                    $objCopyModel->setProperty($strFieldPid, $objParentModel->getProperty($strFieldId));
+                    $this->setParent($objCopyModel, $objParentModel, 'self');
+
+//                    $objCopyModel->setProperty($strFieldPid, $objParentModel->getProperty($strFieldId));
                 }
 
                 break;
@@ -867,7 +875,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
         if ($blnChilds == true)
         {
-            $strFilter      = $strFieldPid . $strOperation . $objSrcModel->getProperty($strFieldId);
+            $strFilter = $strFieldPid . $strOperation . $objSrcModel->getProperty($strFieldId);
             $objChildConfig = $objDataProvider->getEmptyConfig()->setFilter(array($strFilter));
             $objChildCollection = $objDataProvider->fetchAll($objChildConfig);
 
@@ -929,27 +937,46 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             }
 
             // Get the join field
-            $arrJoinCondition = $this->objDC->getJoinConditions('self');
+//            $arrJoinCondition = $this->objDC->getJoinConditions('self');
 
             switch ($this->Input->get('mode'))
             {
                 case 1:
-                    $strFilter       = $arrJoinCondition[0]['srcField'] . $arrJoinCondition[0]['operation'] . $this->Input->get('pid');
-                    $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
-                    $objParentConfig->setFilter(array($strFilter));
 
-                    $objParentModel = $this->objDC->getDataProvider()->fetchAll($objParentConfig);
+//                    $strFilter = $arrJoinCondition[0]['srcField'] . $arrJoinCondition[0]['operation'] . $this->Input->get('pid');
+//                    $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
+//                    $objParentConfig->setFilter(array($strFilter));
+//
+//                    $objParentModel = $this->objDC->getDataProvider()->fetch($objParentConfig);
+//                    
+//                     foreach ($objParentModel as $value)
+//                    {
+//                        $objDBModel->setProperty($arrJoinCondition[0]['dstField'], $value->getProperty($arrJoinCondition[0]['dstField']));
+//                        break;
+//                    }
 
-                    foreach ($objParentModel as $value)
-                    {
-                        $objDBModel->setProperty($arrJoinCondition[0]['dstField'], $value->getProperty($arrJoinCondition[0]['dstField']));
-                        break;
-                    }
-
+                    $this->setParent($objDBModel, $this->getParent('self', $objCurrentModel, $this->Input->get('pid')), 'self');
                     break;
 
                 case 2:
-                    $objDBModel->setProperty($arrJoinCondition[0]['dstField'], $this->Input->get('pid'));
+
+                    if ($this->isRootEntry('self', $this->Input->get('pid')))
+                    {
+                        $this->setRoot($objDBModel, 'self');
+                    }
+                    else
+                    {
+                        $objParentConfig = $this->objDC->getDataProvider()->getEmptyConfig();
+                        $objParentConfig->setId($this->Input->get('pid'));
+
+                        $objParentModel = $this->objDC->getDataProvider()->fetch($objParentConfig);
+
+                        $this->setParent($objDBModel, $objParentModel, 'self');
+
+//                    $objCopyModel->setProperty($strFieldPid, $objParentModel->getProperty($strFieldId));
+                    }
+
+//                    $objDBModel->setProperty($arrJoinCondition[0]['dstField'], $this->Input->get('pid'));
                     break;
 
                 default:
@@ -957,6 +984,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     $this->redirect('contao/main.php?act=error');
                     break;
             }
+            
+            // Reste clipboard
+            $this->checkClipboard('create');
         }
 
         // Check if we have a auto submit
@@ -992,8 +1022,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 {
                     setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
-                    $_SESSION['TL_INFO']    = '';
-                    $_SESSION['TL_ERROR']   = '';
+                    $_SESSION['TL_INFO'] = '';
+                    $_SESSION['TL_ERROR'] = '';
                     $_SESSION['TL_CONFIRM'] = '';
 
                     // Callback
@@ -1058,7 +1088,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     $objTempModel = $this->objDC->getDataProvider()->fetch($this->objDC->getDataProvider()->getEmptyConfig()->setId($arrDelIDs[$i]));
 
                     // Build filter
-                    $strFilter      = $arrJoinCondition[0]['dstField'] . $arrJoinCondition[0]['operation'] . $objTempModel->getProperty($arrJoinCondition[0]['srcField']);
+                    $strFilter = $arrJoinCondition[0]['dstField'] . $arrJoinCondition[0]['operation'] . $objTempModel->getProperty($arrJoinCondition[0]['srcField']);
                     $objChildConfig = $this->objDC->getDataProvider()->getEmptyConfig();
                     $objChildConfig->setFilter(array($strFilter));
 
@@ -1119,7 +1149,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $objDataProvider->setVersionActive($this->objDC->getId(), $this->Input->post("version"));
 
             // Callback onrestoreCallback
-            $arrData       = $objVersionModel->getPropertiesAsArray();
+            $arrData = $objVersionModel->getPropertiesAsArray();
             $arrData["id"] = $objVersionModel->getID();
 
             $this->objDC->getCallbackClass()->onrestoreCallback($this->objDC->getId(), $this->objDC->getTable(), $arrData, $this->Input->post("version"));
@@ -1189,8 +1219,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 {
                     setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
-                    $_SESSION['TL_INFO']    = '';
-                    $_SESSION['TL_ERROR']   = '';
+                    $_SESSION['TL_INFO'] = '';
+                    $_SESSION['TL_ERROR'] = '';
                     $_SESSION['TL_CONFIRM'] = '';
 
                     $this->redirect($this->getReferer());
@@ -1291,7 +1321,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $arrNeededFields = $this->arrDCA['list']['label']['fields'];
         $arrLablesFields = $this->arrDCA['list']['label']['fields'];
         $arrTitlePattern = $this->arrDCA['list']['label']['format'];
-        $arrChildFilter  = $this->objDC->getJoinConditions('self');
+        $arrChildFilter = $this->objDC->getJoinConditions('self');
 
         $strToggleID = $this->objDC->getTable() . '_tree';
 
@@ -1302,8 +1332,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         // Init some vars
-        $objTableTreeData      = $this->objDC->getDataProvider()->getEmptyCollection();
-        $objRootConfig         = $this->objDC->getDataProvider()->getEmptyConfig();
+        $objTableTreeData = $this->objDC->getDataProvider()->getEmptyCollection();
+        $objRootConfig = $this->objDC->getDataProvider()->getEmptyConfig();
         $arrChildFilterPattern = array();
 
         // Build a filter array for the join conditions
@@ -1311,8 +1341,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             if ($value['srcField'] != '')
             {
-                $arrNeededFields[]                      = trim($value['srcField']);
-                $arrChildFilterPattern[$key]['field']   = $value['srcField'];
+                $arrNeededFields[] = trim($value['srcField']);
+                $arrChildFilterPattern[$key]['field'] = $value['srcField'];
                 $arrChildFilterPattern[$key]['pattern'] = $value['dstField'] . ' ' . $value['operation'] . ' %s';
             }
             else
@@ -1431,12 +1461,12 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $arrNeededFields = $this->arrDCA['list']['label']['fields'];
         $arrLablesFields = $this->arrDCA['list']['label']['fields'];
         $arrTitlePattern = $this->arrDCA['list']['label']['format'];
-        $arrRootEntries  = $this->objDC->getRootConditions('self');
-        $arrChildFilter  = $this->objDC->getJoinConditions('self');
+        $arrRootEntries = $this->objDC->getRootConditions('self');
+        $arrChildFilter = $this->objDC->getJoinConditions('self');
 
         foreach ($arrRootEntries as $key => $value)
         {
-            $arrNeededFields[]    = $value['field'];
+            $arrNeededFields[] = $value['field'];
             $arrRootEntries[$key] = $value['field'] . $value['operation'] . $value['value'];
         }
 
@@ -1467,8 +1497,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         // Init some vars
-        $objTableTreeData      = $this->objDC->getDataProvider()->getEmptyCollection();
-        $objRootConfig         = $this->objDC->getDataProvider()->getEmptyConfig();
+        $objTableTreeData = $this->objDC->getDataProvider()->getEmptyCollection();
+        $objRootConfig = $this->objDC->getDataProvider()->getEmptyConfig();
         $arrChildFilterPattern = array();
 
         // Build a filter array for the join conditions
@@ -1476,13 +1506,13 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             if ($value['dstField'] != '')
             {
-                $arrNeededFields[]                      = trim($value['srcField']);
-                $arrChildFilterPattern[$key]['field']   = $value['srcField'];
+                $arrNeededFields[] = trim($value['srcField']);
+                $arrChildFilterPattern[$key]['field'] = $value['srcField'];
                 $arrChildFilterPattern[$key]['pattern'] = $value['dstField'] . ' ' . $value['operation'] . ' %s';
             }
             else
             {
-                $arrChildFilterPattern[$key]['pattern'] = $value['dstField'] . ' ' . $value['operation'];
+                $arrChildFilterPattern[$key]['pattern'] = $value['srcField'] . ' ' . $value['operation'];
             }
         }
 
@@ -1549,7 +1579,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     protected function generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrFilterPattern, $intLevel, $objParentModel, $arrToggle)
     {
         $objCollection = $this->objDC->getDataProvider()->getEmptyCollection();
-        $arrFilter     = array();
+        $arrFilter = array();
 
         // Build filter Settings
         foreach ($arrFilterPattern as $valueFilter)
@@ -1626,7 +1656,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     protected function listView()
     {
         $objDataProvider = $this->objDC->getDataProvider();
-        $arrCurrentDCA   = $this->arrDCA;
+        $arrCurrentDCA = $this->arrDCA;
 
         // Get limits
         $arrLimit = $this->getLimit();
@@ -1654,7 +1684,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             }
 
             $this->arrColSort = array(
-                'field'   => 'pid',
+                'field' => 'pid',
                 'reverse' => false
             );
 
@@ -1709,7 +1739,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->loadLanguageFile($this->objDC->getParentTable());
         $this->loadDataContainer($this->objDC->getParentTable());
 
-        $objParentDC    = new DC_General($this->objDC->getParentTable());
+        $objParentDC = new DC_General($this->objDC->getParentTable());
         $this->parentDc = $objParentDC->getDCA();
 
         // Get limits
@@ -1804,8 +1834,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
         $filter = $this->filterMenu();
         $search = $this->searchMenu();
-        $limit  = $this->limitMenu();
-        $sort   = $this->sortMenu();
+        $limit = $this->limitMenu();
+        $sort = $this->sortMenu();
 
         if (!strlen($this->arrDCA['list']['sorting']['panelLayout']) || !is_array($filter) && !is_array($search) && !is_array($limit) && !is_array($sort))
         {
@@ -1818,7 +1848,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         $panelLayout = $this->arrDCA['list']['sorting']['panelLayout'];
-        $arrPanels   = trimsplit(';', $panelLayout);
+        $arrPanels = trimsplit(';', $panelLayout);
 
         for ($i = 0; $i < count($arrPanels); $i++)
         {
@@ -1853,7 +1883,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->objDC->setButtonId('tl_buttons_a');
         $arrSortingFields = array();
         $arrSession = $this->Session->getData();
-        $strFilter  = ($this->arrDCA['list']['sorting']['mode'] == 4) ? $this->objDC->getTable() . '_' . CURRENT_ID : $this->objDC->getTable();
+        $strFilter = ($this->arrDCA['list']['sorting']['mode'] == 4) ? $this->objDC->getTable() . '_' . CURRENT_ID : $this->objDC->getTable();
 
         // Get sorting fields
         foreach ($this->arrDCA['fields'] as $k => $v)
@@ -1887,7 +1917,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     protected function searchMenu()
     {
         $searchFields = array();
-        $session      = $this->objSession->getData();
+        $session = $this->objSession->getData();
         $arrPanelView = array();
 
         // Get search fields
@@ -1954,8 +1984,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $mixedOptionsLabel = strlen($this->arrDCA['fields'][$field]['label'][0]) ? $this->arrDCA['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
 
             $arrOptions[utf8_romanize($mixedOptionsLabel) . '_' . $field] = array(
-                'value'   => specialchars($field),
-                'select'  => (($field == $session['search'][$this->objDC->getTable()]['field']) ? ' selected="selected"' : ''),
+                'value' => specialchars($field),
+                'select' => (($field == $session['search'][$this->objDC->getTable()]['field']) ? ' selected="selected"' : ''),
                 'content' => $mixedOptionsLabel
             );
         }
@@ -2025,7 +2055,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 $this->objDC->setLimit('0,' . $GLOBALS['TL_CONFIG']['resultsPerPage']);
             }
 
-            $intCount               = $this->objDC->getDataProvider()->getCount($this->objDC->getDataProvider()->getEmptyConfig()->setFilter($this->getFilter()));
+            $intCount = $this->objDC->getDataProvider()->getCount($this->objDC->getDataProvider()->getEmptyConfig()->setFilter($this->getFilter()));
             $blnIsMaxResultsPerPage = false;
 
             // Overall limit
@@ -2036,9 +2066,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     $this->objDC->setLimit('0,' . $GLOBALS['TL_CONFIG']['maxResultsPerPage']);
                 }
 
-                $blnIsMaxResultsPerPage                 = true;
+                $blnIsMaxResultsPerPage = true;
                 $GLOBALS['TL_CONFIG']['resultsPerPage'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
-                $session['filter'][$filter]['limit']    = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
+                $session['filter'][$filter]['limit'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
             }
 
             // Build options
@@ -2056,7 +2086,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 // Build options
                 for ($i = 0; $i < $options_total; $i++)
                 {
-                    $this_limit  = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']) . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
+                    $this_limit = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']) . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
                     $upper_limit = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + $GLOBALS['TL_CONFIG']['resultsPerPage']);
 
                     if ($upper_limit > $intCount)
@@ -2065,8 +2095,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     }
 
                     $arrPanelView['option'][] = array(
-                        'value'   => $this_limit,
-                        'select'  => $this->optionSelected($this->objDC->getLimit(), $this_limit),
+                        'value' => $this_limit,
+                        'select' => $this->optionSelected($this->objDC->getLimit(), $this_limit),
                         'content' => ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + 1) . ' - ' . $upper_limit
                     );
                 }
@@ -2074,8 +2104,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 if (!$blnIsMaxResultsPerPage)
                 {
                     $arrPanelView['option'][] = array(
-                        'value'   => 'all',
-                        'select'  => $this->optionSelected($this->objDC->getLimit(), null),
+                        'value' => 'all',
+                        'select' => $this->optionSelected($this->objDC->getLimit(), null),
                         'content' => $GLOBALS['TL_LANG']['MSC']['filterAll']
                     );
                 }
@@ -2092,8 +2122,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             );
 
             $arrPanelView['option'][0] = array(
-                'value'   => 'tl_limit',
-                'select'  => '',
+                'value' => 'tl_limit',
+                'select' => '',
                 'content' => $GLOBALS['TL_LANG']['MSC']['filterRecords']
             );
         }
@@ -2133,8 +2163,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         $this->objDC->setButtonId('tl_buttons_a');
-        $session      = $this->objSession->getData();
-        $orderBy      = $this->arrDCA['list']['sorting']['fields'];
+        $session = $this->objSession->getData();
+        $orderBy = $this->arrDCA['list']['sorting']['fields'];
         $firstOrderBy = preg_replace('/\s+.*$/i', '', $orderBy[0]);
 
         // Add PID to order fields
@@ -2154,7 +2184,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         elseif (strlen($session['sorting'][$this->objDC->getTable()]))
         {
             $overwrite = preg_quote(preg_replace('/\s+.*$/i', '', $session['sorting'][$this->objDC->getTable()]), '/');
-            $orderBy   = array_diff($orderBy, preg_grep('/^' . $overwrite . '/i', $orderBy));
+            $orderBy = array_diff($orderBy, preg_grep('/^' . $overwrite . '/i', $orderBy));
 
             array_unshift($orderBy, $session['sorting'][$this->objDC->getTable()]);
 
@@ -2174,8 +2204,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             }
 
             $arrOptions[$mixedOptionsLabel] = array(
-                'value'   => specialchars($field),
-                'select'  => ((!strlen($session['sorting'][$this->objDC->getTable()]) && $field == $firstOrderBy || $field == str_replace(' DESC', '', $session['sorting'][$this->objDC->getTable()])) ? ' selected="selected"' : ''),
+                'value' => specialchars($field),
+                'select' => ((!strlen($session['sorting'][$this->objDC->getTable()]) && $field == $firstOrderBy || $field == str_replace(' DESC', '', $session['sorting'][$this->objDC->getTable()])) ? ' selected="selected"' : ''),
                 'content' => $mixedOptionsLabel
             );
         }
@@ -2233,6 +2263,12 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
     }
 
+    protected function setParent(InterfaceGeneralModel $objChildEntry, InterfaceGeneralModel $objParentEntry, $strTable)
+    {
+        $arrJoinCondition = $this->objDC->getJoinConditions($strTable);
+        $objChildEntry->setProperty($arrJoinCondition[0]['dstField'], $objParentEntry->getProperty($arrJoinCondition[0]['srcField']));
+    }
+
     protected function getParent($strTable, $objCurrentModel = null, $intCurrentID = null)
     {
         // Get the join field
@@ -2284,6 +2320,13 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         return false;
+    }
+
+    protected function setRoot(InterfaceGeneralModel $objCurrentEntry, $strTable)
+    {
+        // Get the join field
+        $arrRootCondition = $this->objDC->getRootConditions($strTable);
+        $objCurrentEntry->setProperty($arrRootCondition[0]['field'], $arrRootCondition[0]['value']);
     }
 
     /* /////////////////////////////////////////////////////////////////////////
@@ -2432,17 +2475,17 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             // Begin select menu
             $arrPanelView[$field] = array(
                 'select' => array(
-                    'name'   => $field,
-                    'id'     => $field,
-                    'class'  => 'tl_select' . (isset($arrSession['filter'][$strFilter][$field]) ? ' active' : '')
+                    'name' => $field,
+                    'id' => $field,
+                    'class' => 'tl_select' . (isset($arrSession['filter'][$strFilter][$field]) ? ' active' : '')
                 ),
                 'option' => array(
                     array(
-                        'value'   => 'tl_' . $field,
+                        'value' => 'tl_' . $field,
                         'content' => (is_array($this->arrDCA['fields'][$field]['label']) ? $this->arrDCA['fields'][$field]['label'][0] : $this->arrDCA['fields'][$field]['label'])
                     ),
                     array(
-                        'value'   => 'tl_' . $field,
+                        'value' => 'tl_' . $field,
                         'content' => '---'
                     )
                 )
@@ -2461,7 +2504,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 if (in_array($GLOBALS['TL_DCA'][$this->strTable]['fields'][$field]['flag'], array(5, 6)))
                 {
                     $this->arrColSort = array(
-                        'field'   => $field,
+                        'field' => $field,
                         'reverse' => ($this->arrDCA['fields'][$field]['flag'] == 6) ? true : false
                     );
 
@@ -2486,7 +2529,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 elseif (in_array($this->arrDCA['fields'][$field]['flag'], array(7, 8)))
                 {
                     $this->arrColSort = array(
-                        'field'   => $field,
+                        'field' => $field,
                         'reverse' => ($this->arrDCA['fields'][$field]['flag'] == 8) ? true : false
                     );
 
@@ -2501,7 +2544,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                         else
                         {
                             $options[$objModel->getProperty($field)] = date('Y-m', $objModel->getProperty($field));
-                            $intMonth                                = (date('m', $objModel->getProperty($field)) - 1);
+                            $intMonth = (date('m', $objModel->getProperty($field)) - 1);
 
                             if (isset($GLOBALS['TL_LANG']['MONTHS'][$intMonth]))
                             {
@@ -2517,7 +2560,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 elseif (in_array($this->arrDCA['fields'][$field]['flag'], array(9, 10)))
                 {
                     $this->arrColSort = array(
-                        'field'   => $field,
+                        'field' => $field,
                         'reverse' => ($this->arrDCA['fields'][$field]['flag'] == 10) ? true : false
                     );
 
@@ -2563,7 +2606,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     $options = $moptions;
                 }
 
-                $options            = array_unique($options);
+                $options = array_unique($options);
                 $arrOptionsCallback = array();
 
                 // Load options callback
@@ -2623,7 +2666,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                         $this->loadLanguageFile($this->objDC->getParentTable());
                         $this->loadDataContainer($this->objDC->getParentTable());
 
-                        $objParentDC  = new DC_General($this->objDC->getParentTable());
+                        $objParentDC = new DC_General($this->objDC->getParentTable());
                         $arrParentDca = $objParentDC->getDCA();
 
                         $showFields = $arrParentDca['list']['label']['fields'];
@@ -2666,8 +2709,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     }
 
                     $arrOptions[utf8_romanize($strOptionsLabel)] = array(
-                        'value'   => specialchars($value),
-                        'select'  => ((isset($arrSession['filter'][$strFilter][$field]) && $value == $arrSession['filter'][$strFilter][$field]) ? ' selected="selected"' : ''),
+                        'value' => specialchars($value),
+                        'select' => ((isset($arrSession['filter'][$strFilter][$field]) && $value == $arrSession['filter'][$strFilter][$field]) ? ' selected="selected"' : ''),
                         'content' => $strOptionsLabel
                     );
 
