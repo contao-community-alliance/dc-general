@@ -1162,40 +1162,40 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 $arrField[] = $objRootModel->getProperty($strField);
             }
 
-            $objRootModel->setProperty('dc_gen_tv_title', vsprintf($arrTitlePattern, $arrField));
-            $objRootModel->setProperty('dc_gen_tv_level', $intLevel + 1);
+            $objRootModel->setMeta('dc_gen_tv_title', vsprintf($arrTitlePattern, $arrField));
+            $objRootModel->setMeta('dc_gen_tv_level', $intLevel + 1);
 
             // Callback
-            $strLabel = $this->objDC->getCallbackClass()->labelCallback($objRootModel, $objRootModel->getProperty('dc_gen_tv_title'), $arrField);
+            $strLabel = $this->objDC->getCallbackClass()->labelCallback($objRootModel, $objRootModel->getMeta('dc_gen_tv_title'), $arrField);
             if ($strLabel != '')
             {
-                $objRootModel->setProperty('dc_gen_tv_title', $strLabel);
+                $objRootModel->setMeta('dc_gen_tv_title', $strLabel);
             }
 
             // Get toogle state
             if ($arrToggle[$objRootModel->getID()] == 1)
             {
-                $objRootModel->setProperty('dc_gen_tv_open', true);
+                $objRootModel->setMeta('dc_gen_tv_open', true);
             }
             else
             {
-                $objRootModel->setProperty('dc_gen_tv_open', false);
+                $objRootModel->setMeta('dc_gen_tv_open', false);
             }
 
             // Check if we have children
             if ($this->hasChildren($objRootModel, 'self') == true)
             {
-                $objRootModel->setProperty('dc_gen_tv_children', true);
+                $objRootModel->setMeta('dc_gen_tv_children', true);
             }
             else
             {
-                $objRootModel->setProperty('dc_gen_tv_children', false);
+                $objRootModel->setMeta('dc_gen_tv_children', false);
             }
 
             // If open load all children
-            if ($objRootModel->getProperty('dc_gen_tv_children') == true && $objRootModel->getProperty('dc_gen_tv_open') == true)
+            if ($objRootModel->setMeta('dc_gen_tv_children') == true && $objRootModel->getMeta('dc_gen_tv_open') == true)
             {
-                $objRootModel->setProperty('dc_gen_children_collection', $this->generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrChildFilterPattern, $intLevel + 2, $objRootModel, $arrToggle));
+                $objRootModel->setMeta('dc_gen_children_collection', $this->generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrChildFilterPattern, $intLevel + 2, $objRootModel, $arrToggle));
             }
         }
 
@@ -1559,45 +1559,45 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 $arrField[] = $objRootModel->getProperty($strField);
             }
 
-            $objRootModel->setProperty('dc_gen_tv_title', vsprintf($arrTitlePattern, $arrField));
-            $objRootModel->setProperty('dc_gen_tv_level', 0);
+            $objRootModel->setMeta('dc_gen_tv_title', vsprintf($arrTitlePattern, $arrField));
+            $objRootModel->setMeta('dc_gen_tv_level', 0);
 
             // Callback
-            $strLabel = $this->objDC->getCallbackClass()->labelCallback($objRootModel, $objRootModel->getProperty('dc_gen_tv_title'), $arrField);
+            $strLabel = $this->objDC->getCallbackClass()->labelCallback($objRootModel, $objRootModel->getMeta('dc_gen_tv_title'), $arrField);
             if ($strLabel != '')
             {
-                $objRootModel->setProperty('dc_gen_tv_title', $strLabel);
+                $objRootModel->setMeta('dc_gen_tv_title', $strLabel);
             }
 
             // Get toogle state
             if ($arrToggle['all'] == 1 && !(key_exists($objRootModel->getID(), $arrToggle) && $arrToggle[$objRootModel->getID()] == 0))
             {
-                $objRootModel->setProperty('dc_gen_tv_open', true);
+                $objRootModel->setMeta('dc_gen_tv_open', true);
             }
             // Get toogle state
             else if (key_exists($objRootModel->getID(), $arrToggle) && $arrToggle[$objRootModel->getID()] == 1)
             {
-                $objRootModel->setProperty('dc_gen_tv_open', true);
+                $objRootModel->setMeta('dc_gen_tv_open', true);
             }
             else
             {
-                $objRootModel->setProperty('dc_gen_tv_open', false);
+                $objRootModel->setMeta('dc_gen_tv_open', false);
             }
 
             // Check if we have children
             if ($this->hasChildren($objRootModel, 'self') == true)
             {
-                $objRootModel->setProperty('dc_gen_tv_children', true);
+                $objRootModel->setMeta('dc_gen_tv_children', true);
             }
             else
             {
-                $objRootModel->setProperty('dc_gen_tv_children', false);
+                $objRootModel->setMeta('dc_gen_tv_children', false);
             }
 
             // If open load all children
-            if ($objRootModel->getProperty('dc_gen_tv_children') == true && $objRootModel->getProperty('dc_gen_tv_open') == true)
+            if ($objRootModel->getMeta('dc_gen_tv_children') == true && $objRootModel->getMeta('dc_gen_tv_open') == true)
             {
-                $objRootModel->setProperty('dc_gen_children_collection', $this->generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrChildFilterPattern, 1, $objRootModel, $arrToggle));
+                $objRootModel->setMeta('dc_gen_children_collection', $this->generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrChildFilterPattern, 1, $objRootModel, $arrToggle));
             }
         }
 
@@ -1642,44 +1642,44 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 $arrField[] = $objChildModel->getProperty($strField);
             }
 
-            $objChildModel->setProperty('dc_gen_tv_title', vsprintf($arrTitlePattern, $arrField));
-            $objChildModel->setProperty('dc_gen_tv_level', $intLevel);
+            $objChildModel->setMeta('dc_gen_tv_title', vsprintf($arrTitlePattern, $arrField));
+            $objChildModel->setMeta('dc_gen_tv_level', $intLevel);
 
             // Callback
-            $strLabel = $this->objDC->getCallbackClass()->labelCallback($objChildModel, $objChildModel->getProperty('dc_gen_tv_title'), $arrField);
+            $strLabel = $this->objDC->getCallbackClass()->labelCallback($objChildModel, $objChildModel->getMeta('dc_gen_tv_title'), $arrField);
             if ($strLabel != '')
             {
-                $objChildModel->setProperty('dc_gen_tv_title', $strLabel);
+                $objChildModel->setMeta('dc_gen_tv_title', $strLabel);
             }
 
             // Get toogle state
             if ($arrToggle['all'] == 1 && !(key_exists($objChildModel->getID(), $arrToggle) && $arrToggle[$objChildModel->getID()] == 0))
             {
-                $objChildModel->setProperty('dc_gen_tv_open', true);
+                $objChildModel->setMeta('dc_gen_tv_open', true);
             }
             // Get toogle state
             else if (key_exists($objChildModel->getID(), $arrToggle) && $arrToggle[$objChildModel->getID()] == 1)
             {
-                $objChildModel->setProperty('dc_gen_tv_open', true);
+                $objChildModel->setMeta('dc_gen_tv_open', true);
             }
             else
             {
-                $objChildModel->setProperty('dc_gen_tv_open', false);
+                $objChildModel->setMeta('dc_gen_tv_open', false);
             }
 
             // Check if we have children
             if ($this->hasChildren($objChildModel, 'self') == true)
             {
-                $objChildModel->setProperty('dc_gen_tv_children', true);
+                $objChildModel->setMeta('dc_gen_tv_children', true);
             }
             else
             {
-                $objChildModel->setProperty('dc_gen_tv_children', false);
+                $objChildModel->setMeta('dc_gen_tv_children', false);
             }
 
-            if ($objChildModel->getProperty('dc_gen_tv_children') == true && $objChildModel->getProperty('dc_gen_tv_open') == true)
+            if ($objChildModel->getMeta('dc_gen_tv_children') == true && $objChildModel->getMeta('dc_gen_tv_open') == true)
             {
-                $objChildModel->setProperty('dc_gen_children_collection', $this->generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrFilterPattern, $intLevel + 1, $objChildModel, $arrToggle));
+                $objChildModel->setMeta('dc_gen_children_collection', $this->generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrFilterPattern, $intLevel + 1, $objChildModel, $arrToggle));
             }
         }
 
@@ -1754,7 +1754,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                                     ->setFields(array($strField))
                     );
 
-                    $objModelRow->setProperty('%args%', (($objModel->hasProperties()) ? $objModel->getProperty($strField) : ''));
+                    $objModelRow->setMeta('%args%', (($objModel->hasProperties()) ? $objModel->getProperty($strField) : ''));
                 }
             }
         }
