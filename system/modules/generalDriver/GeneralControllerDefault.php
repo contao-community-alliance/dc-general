@@ -1007,7 +1007,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->checkLanguage($this->objDC);
 
         // Load record from data provider
-        $objDBModel = $this->objDataProvider->fetch($this->objDataProvider->getDataProvider()->getEmptyConfig()->setId($this->objDC->getId()));
+        $objDBModel = $this->objDataProvider->fetch($this->objDataProvider->getEmptyConfig()->setId($this->objDC->getId()));
 
         if ($objDBModel == null)
         {
