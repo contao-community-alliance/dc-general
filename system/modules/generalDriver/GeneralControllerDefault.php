@@ -1183,7 +1183,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             }
 
             // Check if we have children
-            if ($this->hasChildren($arrChildFilterPattern, $objRootModel) == true)
+            if ($this->hasChildren($objRootModel, 'self') == true)
             {
                 $objRootModel->setProperty('dc_gen_tv_children', true);
             }
