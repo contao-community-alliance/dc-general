@@ -17,9 +17,6 @@ ToDo
 * Create
     * Mode 1,2,3,4,5
 * Delete
-    * Mode 1,2,3,4,5
-	
+    * Mode 1,2,3,4,5	
 * Clipboard
     * Getestet nur in Mode 5, sollte aber auch in den anderen gehen
-	
-
