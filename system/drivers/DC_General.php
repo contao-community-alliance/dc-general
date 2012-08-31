@@ -732,9 +732,9 @@ class DC_General extends DataContainer implements editable, listable
     public function getJoinConditions($strTable)
     {
         $arrReturn = array();
-
+        
         // Get the join field
-        if ($this->arrDCA['dca_config']['joinCondition'][$strTable] == '')
+        if (!key_exists($strTable, $this->arrDCA['dca_config']['joinCondition']) || $this->arrDCA['dca_config']['joinCondition'][$strTable] == '')
         {
             // Default
             $arrReturn[0]['srcField']  = 'id';
