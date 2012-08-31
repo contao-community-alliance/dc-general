@@ -100,6 +100,13 @@ interface InterfaceGeneralModel extends IteratorAggregate
      * @return boolean True|False
      */
     public function hasProperties();
+
+    /**
+     * Return the data provider name.
+     *
+     * @return string the name of the corresponding data provider.
+     */
+    public function getProviderName();
 }
 
 ?>

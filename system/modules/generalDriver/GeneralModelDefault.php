@@ -46,6 +46,12 @@ class GeneralModelDefault implements InterfaceGeneralModel
     protected $arrMetaInformation = array();
 
     /**
+	 * The name of the corresponding data provider.
+     * @var string
+     */
+    protected $strProviderName = null;
+
+    /**
      * Copy this model, without the id.
      *
      * @return InterfaceGeneralModel
@@ -198,6 +204,31 @@ class GeneralModelDefault implements InterfaceGeneralModel
         return new ArrayIterator($this->arrProperties);
     }
 
+    /**
+     * Sets the provider name in the model.
+	 * NOTE: this is intended to be used by the data provider only and not by any user.
+	 * Changing this by hand may cause unexpected behaviour. So DO NOT USE IT.
+     * For this reason, this method is not interfaced, as only the data provider knows how
+	 * to set itself to the model.
+	 *
+     * @param string the name of the corresponding data provider.
+	 *
+	 * @return void
+     */
+    public function setProviderName($strProviderName)
+    {
+        $this->strProviderName;
+    }
+
+    /**
+     * Return the data provider name.
+     *
+     * @return string the name of the corresponding data provider.
+     */
+    public function getProviderName()
+    {
+        return $this->strProviderName;
+    }
 }
 
 ?>
