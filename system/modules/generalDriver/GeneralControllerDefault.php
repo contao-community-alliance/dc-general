@@ -360,7 +360,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      * Load the language from SESSION, POST or use a fallback.
      *
      * @param DC_General $this->objDC
-     * 
+     *
      * @return int return the mode multilanguage, singellanguage or unsupportet language
      */
     protected function checkLanguage()
@@ -445,7 +445,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->objDC->setClipboardState(false);
         unset($arrClipboard[$this->objDC->getTable()]);
 
-        // Save 
+        // Save
         $this->saveClipboard($arrClipboard);
 
         // Redirect
@@ -656,7 +656,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /**
      * Copy a entry and all childs
-     * 
+     *
      * @return string error msg for an unknown mode
      */
     public function copy()
@@ -665,7 +665,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->loadCurrentDCA();
         $this->loadCurrentDataProvider();
 
-        // Check 
+        // Check
         $this->checkIsWritable();
 
         switch ($this->arrDCA['list']['sorting']['mode'])
@@ -751,7 +751,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     break;
 
                 case 2:
-                    if ($this->isRootEntry('self', $this->Input->get('pid')))
+                    if (($this->Input->get('pid') == 0) || $this->isRootEntry('self', $this->Input->get('pid')))
                     {
                         $this->setRoot($objDBModel, 'self');
                     }
@@ -912,7 +912,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->loadCurrentDCA();
         $this->loadCurrentDataProvider();
 
-        // Check 
+        // Check
         $this->checkIsWritable();
         $this->checkLanguage($this->objDC);
 
@@ -2267,10 +2267,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     protected function hasChildren($objParentModel, $strTable)
     {
         $arrFilter = array();
-        
+
         // Build filter Settings
         foreach ($this->objDC->getJoinConditions($strTable) as $valueFilter)
-        {            
+        {
             if (isset($valueFilter['srcField']) && $valueFilter['srcField'] != '')
             {
                 $arrFilter[] = $valueFilter['dstField'] . $valueFilter['operation'] . $objParentModel->getProperty($valueFilter['srcField']);
