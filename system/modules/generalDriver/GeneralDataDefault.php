@@ -150,6 +150,62 @@ class GeneralDataDefault implements InterfaceGeneralData
         return $strFields;
     }
 
+	/**
+	 * Combine a filter in standard filter array notation.
+	 * Supported operations are:
+	 * operation      needed arguments     argument type.
+	 * AND
+	 *                'childs'             array
+	 * OR
+	 *                'childs'             array
+	 * =
+	 *                'property'           string (the name of a property)
+	 *                'value'              literal
+	 * >
+	 *                'property'           string (the name of a property)
+	 *                'value'              literal
+	 * <
+	 *                'property'           string (the name of a property)
+	 *                'value'              literal
+	 * IN
+	 *                'property'           string (the name of a property)
+	 *                'values'             array of literal
+	 *
+	 * @param array $arrFilters the filter to be combined to a valid SQL filter query.
+	 *
+	 * @return string the combined WHERE clause.
+	 */
+	protected function calculateSubfilter($arrFilter)
+	{
+		if (!is_array($arrFilter))
+		{
+			throw new Exception('Error Processing subfilter: ' . var_export($arrFilter, true), 1);
+		}
+
+		switch ($arrFilter['operation'])
+		{
+			case 'AND':
+			case 'OR':
+				$arrCombine = array();
+				foreach ($arrFilter['childs'] as $arrChild)
+				{
+					$arrCombine[] = $this->calculateSubfilter($arrChild);
+				}
+				return implode(sprintf(' %s ', $arrFilter['operation']), $arrCombine);
+
+			case '=':
+			case '>':
+			case '<':
+				return sprintf('(%s %s \'%s\')', $arrFilter['property'], $arrFilter['operation'], mysql_real_escape_string($arrFilter['value']));
+
+			case 'IN':
+				return sprintf('(%s IN (%s))', $arrFilter['property'], '\'' . implode('\',\'', array_map('mysql_real_escape_string', $arrFilter['values'])) . '\'');
+
+			default:
+				throw new Exception('Error processing filter array ' . var_export($arrFilter, true), 1);
+		}
+	}
+
     /**
      * Build the Where
      *
@@ -159,30 +215,16 @@ class GeneralDataDefault implements InterfaceGeneralData
      */
     protected function buildFilterQuery($objConfig)
     {
-        $arrFilter    = $objConfig->getFilter();
-        $boolSetWhere = true;
-        $strReturn    = '';
+		$strReturn = $this->calculateSubfilter(
+			array
+			(
+				'operation' => 'AND',
+				'childs' => $objConfig->getFilter()
+			)
+		);
+		// combine filter syntax.
+		return $strReturn ? ' WHERE ' . $strReturn : '';
 
-        if (!is_null($arrFilter))
-        {
-            foreach ($arrFilter AS $key => $mixedFilter)
-            {
-                if (is_array($mixedFilter))
-                {
-                    $strReturn .= (($boolSetWhere) ? " WHERE " : " AND ") . $key . " IN(" . implode(',', $mixedFilter) . ")";
-                    unset($arrFilter[$key]);
-                    $boolSetWhere = false;
-                }
-            }
-
-            if (count($arrFilter) > 0)
-            {
-                $strReturn .= (($boolSetWhere) ? ' WHERE ' : ' AND ') . implode(' AND ', $arrFilter);
-                $boolSetWhere = false;
-            }
-        }
-
-        return $strReturn;
     }
 
     /**

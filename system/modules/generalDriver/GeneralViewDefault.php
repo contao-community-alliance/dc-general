@@ -614,7 +614,12 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                 $objChildTemplate                 = new BackendTemplate('dcbe_general_treeview_child');
                 $objChildTemplate->objParentModel = $objModel;
                 $objChildTemplate->strToggleID    = $strToggleID;
-                $objChildTemplate->strHTML        = $this->generateTreeView($objModel->getMeta('dc_gen_children_collection'), $intMode, $treeClass);
+				$strSubHTML = '';
+				foreach ($objModel->getMeta('dc_gen_children_collection') as $objCollection)
+				{
+					$strSubHTML .= $this->generateTreeView($objCollection, $intMode, $treeClass);
+				}
+                $objChildTemplate->strHTML        = $strSubHTML;
                 $objChildTemplate->strTable       = $this->objDC->getTable();
 
                 $strHTML .= $objChildTemplate->parse();

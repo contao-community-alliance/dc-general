@@ -39,20 +39,20 @@ class DC_General extends DataContainer implements editable, listable
     // Basic Vars ------------------
 
     /**
-     * Id of the item currently in edit view 
-     * @var int 
+     * Id of the item currently in edit view
+     * @var int
      */
     protected $intId = null;
 
     /**
      * Name of current table
-     * @var String 
+     * @var String
      */
     protected $strTable = null;
 
     /**
      * DCA configuration
-     * @var array 
+     * @var array
      */
     protected $arrDCA = null;
 
@@ -60,31 +60,31 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * The provider that shall be used for data retrival.
-     * @var InterfaceGeneralData 
+     * @var InterfaceGeneralData
      */
     protected $objDataProvider = null;
 
     /**
      * Includes all data provider
-     * @var type 
+     * @var type
      */
     protected $arrDataProvider = array();
 
     /**
      * The provider that shall be used for view retrival.
-     * @var InterfaceGeneralView 
+     * @var InterfaceGeneralView
      */
     protected $objViewHandler = null;
 
     /**
      * The controller that shall be used .
-     * @var InterfaceGeneralController 
+     * @var InterfaceGeneralController
      */
     protected $objController = null;
 
     /**
      * The class with all Callbacks
-     * @var InterfaceGeneralCallback 
+     * @var InterfaceGeneralCallback
      */
     protected $objCallbackClass = null;
 
@@ -98,13 +98,13 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Flag to show if the site can be reloaded
-     * @var boolean 
+     * @var boolean
      */
     protected $blnNoReload = false;
 
     /**
      * True if we have a widget which is uploadable
-     * @var boolean 
+     * @var boolean
      */
     protected $blnUploadable = false;
 
@@ -126,13 +126,13 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Name of the parent table
-     * @var String 
+     * @var String
      */
     protected $strParentTable = null;
 
     /**
      * Name of the child table
-     * @var String 
+     * @var String
      */
     protected $strChildTable = null;
 
@@ -140,19 +140,19 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Name of current field
-     * @var String 
+     * @var String
      */
     protected $strField = null;
 
     /**
      * Current model
-     * @var InterfaceGeneralModel 
+     * @var InterfaceGeneralModel
      */
     protected $objCurrentModel = null;
 
     /**
      * Current collection
-     * @var InterfaceGeneralCollection 
+     * @var InterfaceGeneralCollection
      */
     protected $objCurrentCollecion = null;
 
@@ -166,31 +166,31 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * State of dca
-     * @var boolean 
+     * @var boolean
      */
     protected $blnSubmitted = false;
 
     /**
      * State of auto submit
-     * @var boolean 
+     * @var boolean
      */
     protected $blnAutoSubmitted = false;
 
     /**
      * State of versionsubmit
-     * @var boolean 
+     * @var boolean
      */
     protected $blnVersionSubmit = false;
 
     /**
      * State of languagesubmit
-     * @var boolean 
+     * @var boolean
      */
     protected $blnLanguageSubmit = false;
 
     /**
      * State of select submit
-     * @var boolean 
+     * @var boolean
      */
     protected $blnSelectSubmit = false;
 
@@ -198,7 +198,7 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * State of clipboard
-     * @var boolean 
+     * @var boolean
      */
     protected $blnClipboard = false;
 
@@ -213,7 +213,7 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * List with all ids for the views
-     * @var type 
+     * @var type
      */
     protected $arrRootIds = null;
 
@@ -255,25 +255,25 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * A list with all field for this dca
-     * @var array 
+     * @var array
      */
     protected $arrFields = array();
 
     /**
      * A list with all widgets
-     * @var array 
+     * @var array
      */
     protected $arrWidgets = array();
 
     /**
      * List with all procesed widgets from submit.
-     * @var array 
+     * @var array
      */
     protected $arrProcessedWidgets = array();
 
     /**
      * The iltimate id for widgets
-     * @var type 
+     * @var type
      */
     protected $mixWidgetID = null;
 
@@ -287,7 +287,7 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Lookup for special regex
-     * @var array 
+     * @var array
      */
     private static $arrDates = array(
         'date'  => true,
@@ -351,8 +351,8 @@ class DC_General extends DataContainer implements editable, listable
     }
 
     /**
-     * Call the oncreate callback 
-     * 
+     * Call the oncreate callback
+     *
      * @param string $strTable
      * @return string name of current table
      */
@@ -378,7 +378,7 @@ class DC_General extends DataContainer implements editable, listable
     }
 
     /**
-     * Load the dataprovider and view handler, 
+     * Load the dataprovider and view handler,
      * if not set try to load the default one.
      */
     protected function loadProviderAndHandler()
@@ -391,7 +391,7 @@ class DC_General extends DataContainer implements editable, listable
     }
 
     /**
-     * Load the datacontroller, 
+     * Load the datacontroller,
      * if not set try to load the default one.
      */
     protected function loadController()
@@ -417,7 +417,7 @@ class DC_General extends DataContainer implements editable, listable
     }
 
     /**
-     * Load the dataview handler, 
+     * Load the dataview handler,
      * if not set try to load the default one.
      */
     protected function loadView()
@@ -443,7 +443,7 @@ class DC_General extends DataContainer implements editable, listable
     }
 
     /**
-     * Load the data provider, 
+     * Load the data provider,
      * if not set try to load the default one.
      */
     protected function loadDataProvider()
@@ -493,7 +493,7 @@ class DC_General extends DataContainer implements editable, listable
     }
 
     /**
-     * Load the main callback class 
+     * Load the main callback class
      */
     protected function loadCallbackClass()
     {
@@ -512,9 +512,9 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Load a list with all editable field
-     * 
+     *
      * @param boolean $blnUserSelection
-     * @return boolean 
+     * @return boolean
      */
     public function loadEditableFields()
     {
@@ -571,7 +571,7 @@ class DC_General extends DataContainer implements editable, listable
      * -------------------------------------------------------------------------
      * ////////////////////////////////////////////////////////////////////// */
 
-    // Submitting / State -------------------    
+    // Submitting / State -------------------
 
     public function isSubmitted()
     {
@@ -605,8 +605,8 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Check if this DCA is editable
-     * 
-     * @return boolean 
+     *
+     * @return boolean
      */
     public function isEditable()
     {
@@ -615,8 +615,8 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Check if this DCA is closed
-     * 
-     * @return boolean 
+     *
+     * @return boolean
      */
     public function isClosed()
     {
@@ -631,9 +631,9 @@ class DC_General extends DataContainer implements editable, listable
     // MVC ----------------------------------
 
     /**
-     * Return default data provider if no source is given. Else search for config 
+     * Return default data provider if no source is given. Else search for config
      * for given param or return default data provider for given source.
-     * 
+     *
      * @param string $strSource
      * @return InterfaceGeneralData
      */
@@ -691,7 +691,7 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Get the callback class for this dc
-     * @return InterfaceGeneralCallback 
+     * @return InterfaceGeneralCallback
      */
     public function getCallbackClass()
     {
@@ -725,77 +725,103 @@ class DC_General extends DataContainer implements editable, listable
     /**
      * Return a array with the join conditions for a special table.
      * If no value is found in the dca, the default id=pid conditions will be used.
-     * 
-     * @param string $strTable Name of condition
-     * @return array 
+     *
+	 * @param InterfaceGeneralModel $objParentModel the model that holds data from the src (aka parent).
+	 *
+     * @param string                $strDstTable    Name of table for "child"
+	 *
+     * @return array
      */
-    public function getJoinConditions($strTable)
+    public function getChildCondition(InterfaceGeneralModel $objParentModel, $strDstTable)
     {
-        $arrReturn = array();
-        
-        // Get the join field
-        if (!key_exists($strTable, $this->arrDCA['dca_config']['joinCondition']) || $this->arrDCA['dca_config']['joinCondition'][$strTable] == '')
-        {
-            // Default
-            $arrReturn[0]['srcField']  = 'id';
-            $arrReturn[0]['dstField']  = 'pid';
-            $arrReturn[0]['operation'] = '=';
-        }
-        else
-        {
-            // Counter
-            $i = 0;
+		$arrReturn = array();
 
-            // Run each value
-            foreach ($this->arrDCA['dca_config']['joinCondition'][$strTable] as $value)
-            {
-                $arrReturn[$i]['srcField']  = $value['srcField'];
-                $arrReturn[$i]['dstField']  = $value['dstField'];
-                $arrReturn[$i]['operation'] = $value['operation'];
+		$strSrcTable = $objParentModel->getProviderName();
 
-                $i++;
-            }
-        }
+		if ($strSrcTable == 'self')
+		{
+			$strSrcTable = $this->getTable();
+		}
 
-        return $arrReturn;
+		if ($strDstTable == 'self')
+		{
+			$strDstTable = $this->getTable();
+		}
+
+		$arrRootDefinitions = $this->arrDCA['dca_config']['childCondition'];
+		if (is_array($arrRootDefinitions) && !empty($arrRootDefinitions))
+		{
+			foreach ($arrRootDefinitions as $arrCondition)
+			{
+				$strFrom = $arrCondition['from'];
+				$strTo   = $arrCondition['to'];
+				// check table naming match
+				if ((($strFrom == $strSrcTable) || (($strFrom == 'self') && ($strSrcTable == $this->getTable())))
+				&& ((($strTo   == $strDstTable) || (($strTo   == 'self') && ($strDstTable == $this->getTable())))))
+				{
+					// now we have a valid condition found for the desired direction.
+					// We will now replace the local and remote parts in the subconditions with the desired values
+					// from the provided model.
+					foreach ($arrCondition['filter'] as $subCondition)
+					{
+						$arrNew = array
+						(
+							'operation' => $subCondition['operation'],
+							'property'  => $subCondition['local']
+						);
+						if ($subCondition['remote'])
+						{
+							$arrNew['value'] = $objParentModel->getProperty($subCondition['remote']);
+						} else if (isset($subCondition['remote_value'])) {
+							// NOTE: keep isset() above to also allow values of '0' and 'false'.
+							$arrNew['value'] = $subCondition['remote_value'];
+						} else {
+							throw new Exception('Error: neither remote field nor remote value specified in: ' . var_export($subCondition, true), 1);
+						}
+						$arrReturn[] = $arrNew;
+					}
+				}
+			}
+		}
+
+		// fallback to pid <=> id mapping (legacy dca).
+		if (empty($arrReturn))
+		{
+			$arrReturn[] = array
+			(
+				'operation' => $subCondition['operation'],
+				'property'  => 'pid',
+				'value'     => $objParentModel->getProperty($subCondition['id'])
+			);
+		}
+
+		return $arrReturn;
     }
 
     /**
-     * Get the defenition of a root entry
-     * 
+     * Get the definition of a root entry filter
+     *
      * @todo @SH: Add a callback here
-     * 
+     *
      * @return array
      */
     public function getRootConditions($strTable)
     {
         $arrReturn = array();
-
-        // Get the join field
-        if ($this->arrDCA['dca_config']['rootEntries'][$strTable] == '')
-        {
-            // Default
-            $arrReturn[0]['field']     = 'pid';
-            $arrReturn[0]['operation'] = '=';
-            $arrReturn[0]['value']     = 0;
-        }
-        else
-        {
-            // Counter
-            $i = 0;
-
-            // Run each value
-            foreach ($this->arrDCA['dca_config']['rootEntries'][$strTable] as $value)
-            {
-                $arrReturn[$i]['field']     = $value['field'];
-                $arrReturn[$i]['operation'] = $value['operation'];
-                $arrReturn[$i]['value']     = $value['value'];
-
-                $i++;
-            }
-        }
-
-        return $arrReturn;
+		// parse the condition into valid filter rules.
+		$arrFilters = $this->arrDCA['dca_config']['rootEntries'][$strTable]['filter'];
+		if ($arrFilters)
+		{
+			$arrReturn = $arrFilters;
+		} else {
+			$arrReturn[] = array
+			(
+				'property'  => 'pid',
+				'operation' => '=',
+				'value'     => 0
+			);
+		}
+		return $arrReturn;
     }
 
     // Msc. ---------------------------------
@@ -929,7 +955,7 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      *
-     * @return InterfaceGeneralCollection 
+     * @return InterfaceGeneralCollection
      */
     public function getCurrentCollecion()
     {
@@ -947,7 +973,7 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      *
-     * @return InterfaceGeneralModel 
+     * @return InterfaceGeneralModel
      */
     public function getCurrentModel()
     {
@@ -956,7 +982,7 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      *
-     * @param InterfaceGeneralCollection $objCurrentCollecion 
+     * @param InterfaceGeneralCollection $objCurrentCollecion
      */
     public function setCurrentParentCollection(InterfaceGeneralCollection $objCurrentParentCollection)
     {
@@ -965,7 +991,7 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      *
-     * @param InterfaceGeneralCollection $objCurrentCollecion 
+     * @param InterfaceGeneralCollection $objCurrentCollecion
      */
     public function setCurrentCollecion(InterfaceGeneralCollection $objCurrentCollecion)
     {
@@ -974,7 +1000,7 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      *
-     * @param InterfaceGeneralModel $objCurrentModel 
+     * @param InterfaceGeneralModel $objCurrentModel
      */
     public function setCurrentModel(InterfaceGeneralModel $objCurrentModel)
     {
@@ -1001,9 +1027,9 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Check if the field is edtiable
-     * 
+     *
      * @param string $strField
-     * @return boolean 
+     * @return boolean
      */
     public function isEditableField($strField)
     {
@@ -1012,8 +1038,8 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Check if we have editable fields
-     * 
-     * @return boolean 
+     *
+     * @return boolean
      */
     public function hasEditableFields()
     {
@@ -1022,8 +1048,8 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * True if we have a ubloadable widget
-     * 
-     * @return boolean 
+     *
+     * @return boolean
      */
     public function isUploadable()
     {
@@ -1032,8 +1058,8 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Get subpalettes definition
-     * 
-     * @return array 
+     *
+     * @return array
      */
     public function getSubpalettesDefinition()
     {
@@ -1042,8 +1068,8 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Get palettes definition
-     * 
-     * @return array 
+     *
+     * @return array
      */
     public function getPalettesDefinition()
     {
@@ -1052,8 +1078,8 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Get field definition
-     * 
-     * @return array 
+     *
+     * @return array
      */
     public function getFieldDefinition($strField)
     {
@@ -1062,8 +1088,8 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Return a list with all fields
-     * 
-     * @return array 
+     *
+     * @return array
      */
     public function getFieldList()
     {
@@ -1072,8 +1098,8 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Return a list with all buttons
-     * 
-     * @return array 
+     *
+     * @return array
      */
     public function getButtonsDefinition()
     {
@@ -1082,8 +1108,8 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Load for a button the language tag
-     * 
-     * @return array 
+     *
+     * @return array
      */
     public function getButtonLabel($strButton)
     {
@@ -1103,8 +1129,8 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Load for each button the language tag
-     * 
-     * @return array 
+     *
+     * @return array
      */
     public function getButtonLabels()
     {
@@ -1120,8 +1146,8 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Add a Button to the dca
-     * 
-     * @param String $strButton 
+     *
+     * @param String $strButton
      */
     public function addButton($strButton)
     {
@@ -1130,8 +1156,8 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Remove a button from dca
-     * 
-     * @param Stirng $strButton 
+     *
+     * @param Stirng $strButton
      */
     public function removeButton($strButton)
     {
@@ -1143,8 +1169,8 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Set/Create a widget id
-     * 
-     * @param int $intID 
+     *
+     * @param int $intID
      */
     public function setWidgetID($intID)
     {
@@ -1159,9 +1185,9 @@ class DC_General extends DataContainer implements editable, listable
     }
 
     /**
-     * Return the current widget id 
-     * 
-     * @return mixed 
+     * Return the current widget id
+     *
+     * @return mixed
      */
     public function getWidgetID()
     {
@@ -1175,8 +1201,8 @@ class DC_General extends DataContainer implements editable, listable
      * ////////////////////////////////////////////////////////////////////// */
 
     /**
-     * Get/Create a widget 
-     * 
+     * Get/Create a widget
+     *
      * @param string $strField
      * @return Widget
      */
@@ -1262,9 +1288,9 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Parse|Check|Validate each field and save it.
-     * 
+     *
      * @param string $strField Name of current field
-     * @return void 
+     * @return void
      */
     public function processInput($strField)
     {
@@ -1297,7 +1323,7 @@ class DC_General extends DataContainer implements editable, listable
         // Validate
         $objWidget->validate();
 
-        // Check 
+        // Check
         if ($objWidget->hasErrors())
         {
             $this->blnNoReload = true;
@@ -1400,8 +1426,8 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Generate the help msg for each field.
-     * 
-     * @return String 
+     *
+     * @return String
      */
     public function generateHelpText($strField)
     {
@@ -1423,7 +1449,7 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Return the formatted group header as string
-     * 
+     *
      * @param string $field
      * @param mixed $value
      * @param integer $mode
@@ -1562,9 +1588,9 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Get special lables
-     * 
+     *
      * @param array $arrConfig
-     * @return string 
+     * @return string
      */
     public function getXLabel($arrConfig)
     {
@@ -1627,8 +1653,8 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Function for preloading the tiny mce
-     * 
-     * @return type 
+     *
+     * @return type
      */
     public function preloadTinyMce()
     {
@@ -1671,7 +1697,7 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Get for a field the readable value
-     * 
+     *
      * @param string $strFieldName
      * @param mixed $mixValue
      * @return mixed [string|int]
