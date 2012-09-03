@@ -37,13 +37,13 @@ class GeneralDataDefault implements InterfaceGeneralData
 
     /**
      * Name of current source
-     * @var string 
+     * @var string
      */
     protected $strSource = null;
 
     /**
      * Database
-     * @var Database 
+     * @var Database
      */
     protected $objDatabase = null;
 
@@ -68,9 +68,9 @@ class GeneralDataDefault implements InterfaceGeneralData
 
     /**
      * Set base config with source and other neccesary prameter
-     * 
+     *
      * @param array $arrConfig
-     * @throws Excpetion 
+     * @throws Excpetion
      */
     public function setBaseConfig(array $arrConfig)
     {
@@ -86,7 +86,7 @@ class GeneralDataDefault implements InterfaceGeneralData
 
     /**
      * Return empty config object
-     * 
+     *
      * @return InterfaceGeneralDataConfig
      */
     public function getEmptyConfig()
@@ -96,17 +96,19 @@ class GeneralDataDefault implements InterfaceGeneralData
 
     /**
      * Fetch an empty single record (new item).
-     * 
+     *
      * @return InterfaceGeneralModel
      */
     public function getEmptyModel()
     {
-        return new GeneralModelDefault();
+        $objModel = new GeneralModelDefault();
+        $objModel->setProviderName($this->strSource);
+        return $objModel;
     }
 
     /**
      * Fetch an empty single collection (new item).
-     * 
+     *
      * @return InterfaceGeneralModel
      */
     public function getEmptyCollection()
@@ -121,10 +123,10 @@ class GeneralDataDefault implements InterfaceGeneralData
      * ////////////////////////////////////////////////////////////////////// */
 
     /**
-     * Build the field list 
-     * 
+     * Build the field list
+     *
      * @param GeneralDataConfigDefault $objConfig
-     * 
+     *
      * @return string
      */
     protected function buildFieldQuery($objConfig)
@@ -148,46 +150,88 @@ class GeneralDataDefault implements InterfaceGeneralData
         return $strFields;
     }
 
+	/**
+	 * Combine a filter in standard filter array notation.
+	 * Supported operations are:
+	 * operation      needed arguments     argument type.
+	 * AND
+	 *                'childs'             array
+	 * OR
+	 *                'childs'             array
+	 * =
+	 *                'property'           string (the name of a property)
+	 *                'value'              literal
+	 * >
+	 *                'property'           string (the name of a property)
+	 *                'value'              literal
+	 * <
+	 *                'property'           string (the name of a property)
+	 *                'value'              literal
+	 * IN
+	 *                'property'           string (the name of a property)
+	 *                'values'             array of literal
+	 *
+	 * @param array $arrFilters the filter to be combined to a valid SQL filter query.
+	 *
+	 * @return string the combined WHERE clause.
+	 */
+	protected function calculateSubfilter($arrFilter)
+	{
+		if (!is_array($arrFilter))
+		{
+			throw new Exception('Error Processing subfilter: ' . var_export($arrFilter, true), 1);
+		}
+
+		switch ($arrFilter['operation'])
+		{
+			case 'AND':
+			case 'OR':
+				$arrCombine = array();
+				foreach ($arrFilter['childs'] as $arrChild)
+				{
+					$arrCombine[] = $this->calculateSubfilter($arrChild);
+				}
+				return implode(sprintf(' %s ', $arrFilter['operation']), $arrCombine);
+
+			case '=':
+			case '>':
+			case '<':
+				return sprintf('(%s %s \'%s\')', $arrFilter['property'], $arrFilter['operation'], mysql_real_escape_string($arrFilter['value']));
+
+			case 'IN':
+				return sprintf('(%s IN (%s))', $arrFilter['property'], '\'' . implode('\',\'', array_map('mysql_real_escape_string', $arrFilter['values'])) . '\'');
+
+			default:
+				throw new Exception('Error processing filter array ' . var_export($arrFilter, true), 1);
+		}
+	}
+
     /**
      * Build the Where
-     * 
+     *
      * @param GeneralDataConfigDefault $objConfig,
-     * 
+     *
      * @return string
      */
     protected function buildFilterQuery($objConfig)
     {
-        $arrFilter    = $objConfig->getFilter();
-        $boolSetWhere = true;
-        $strReturn    = '';
+		$strReturn = $this->calculateSubfilter(
+			array
+			(
+				'operation' => 'AND',
+				'childs' => $objConfig->getFilter()
+			)
+		);
+		// combine filter syntax.
+		return $strReturn ? ' WHERE ' . $strReturn : '';
 
-        if (!is_null($arrFilter))
-        {
-            foreach ($arrFilter AS $key => $mixedFilter)
-            {
-                if (is_array($mixedFilter))
-                {
-                    $strReturn .= (($boolSetWhere) ? " WHERE " : " AND ") . $key . " IN(" . implode(',', $mixedFilter) . ")";
-                    unset($arrFilter[$key]);
-                    $boolSetWhere = false;
-                }
-            }
-
-            if (count($arrFilter) > 0)
-            {
-                $strReturn .= (($boolSetWhere) ? ' WHERE ' : ' AND ') . implode(' AND ', $arrFilter);
-                $boolSetWhere = false;
-            }
-        }
-
-        return $strReturn;
     }
 
     /**
      * Build the order by
-     * 
+     *
      * @param GeneralDataConfigDefault $objConfig
-     * 
+     *
      * @return string
      */
     protected function buildSortingQuery($objConfig)
@@ -230,7 +274,7 @@ class GeneralDataDefault implements InterfaceGeneralData
 
     /**
      * Delete an item.
-     * 
+     *
      * @param int|string|InterfaceGeneralModel Id or the object itself, to delete
      */
     public function delete($item)
@@ -264,9 +308,9 @@ class GeneralDataDefault implements InterfaceGeneralData
 
     /**
      * Fetch a single/first record by id/filter.
-     * 
+     *
      * @param GeneralDataConfigDefault $objConfig
-     * 
+     *
      * @return InterfaceGeneralModel
      */
     public function fetch(GeneralDataConfigDefault $objConfig)
@@ -317,9 +361,9 @@ class GeneralDataDefault implements InterfaceGeneralData
 
     /**
      * Fetch all records (optional limited).
-     * 
+     *
      * @param GeneralDataConfigDefault $objConfig
-     * 
+     *
      * @return InterfaceGeneralCollection
      */
     public function fetchAll(GeneralDataConfigDefault $objConfig)
@@ -375,9 +419,9 @@ class GeneralDataDefault implements InterfaceGeneralData
 
     /**
      * Fetch multiple records by ids.
-     * 
+     *
      * @param GeneralDataConfigDefault $objConfig
-     * 
+     *
      * @return InterfaceGeneralCollection
      */
     public function fetchEach(GeneralDataConfigDefault $objConfig)
@@ -463,7 +507,7 @@ class GeneralDataDefault implements InterfaceGeneralData
      * Return the amount of total items.
      *
      * @param GeneralDataConfigDefault $objConfig
-     * 
+     *
      * @return int
      */
     public function getCount(GeneralDataConfigDefault $objConfig)
@@ -575,8 +619,8 @@ class GeneralDataDefault implements InterfaceGeneralData
 
     /**
      * Check if the value exists in the table
-     * 
-     * @return boolean 
+     *
+     * @return boolean
      */
     public function fieldExists($strField)
     {
@@ -624,10 +668,10 @@ class GeneralDataDefault implements InterfaceGeneralData
 
     /**
      * Return a list with all versions for this row
-     * 
+     *
      * @param mixed $mixID The ID of record
-     * 
-     * @return InterfaceGeneralCollection 
+     *
+     * @return InterfaceGeneralCollection
      */
     public function getVersions($mixID, $blnOnlyActve = false)
     {
@@ -702,8 +746,8 @@ class GeneralDataDefault implements InterfaceGeneralData
     }
 
     /**
-     * Set a Version as active. 
-     * 
+     * Set a Version as active.
+     *
      * @param mix $mixID The ID of record
      * @param mix $mixVersion The ID of the Version
      */
@@ -720,10 +764,10 @@ class GeneralDataDefault implements InterfaceGeneralData
 
     /**
      * Return the active version from a record
-     * 
+     *
      * @param mix $mixID The ID of record
-     * 
-     * @return mix Version ID 
+     *
+     * @return mix Version ID
      */
     public function getActiveVersion($mixID)
     {
@@ -741,10 +785,10 @@ class GeneralDataDefault implements InterfaceGeneralData
 
     /**
      * Check if two models have the same properties
-     * 
+     *
      * @param InterfaceGeneralModel $objModel1
      * @param InterfaceGeneralModel $objModel2
-     * 
+     *
      * return boolean True - If both models are same, false if not
      */
     public function sameModels($objModel1, $objModel2)

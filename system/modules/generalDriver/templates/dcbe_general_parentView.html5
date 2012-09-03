@@ -32,7 +32,7 @@
 
                     <?php endif; ?>
 
-                </div>                  
+                </div>
 
                 <table class="tl_header_table">
 
@@ -51,28 +51,28 @@
                 <ul id="ul_<?php echo CURRENT_ID; ?>" class="sortable">
                 <?php endif; ?>
 
-                <?php foreach ($this->collection as $objModel): ?>        
+                <?php foreach ($this->collection as $objModel): ?>
 
                     <?php if ($this->view['sorting']): ?>
                         <li id="li_<?php echo $objModel->getID(); ?>">
                         <?php endif; ?>
 
-                        <?php if (strlen($objModel->getProperty('%header%')) > 0): ?>
-                            <div class="tl_content_header"><?php echo $objModel->getProperty('%header%'); ?></div>
+                        <?php if (strlen($objModel->getMeta('%header%')) > 0): ?>
+                            <div class="tl_content_header"><?php echo $objModel->getMeta('%header%'); ?></div>
                         <?php endif; ?>
 
-                        <div class="tl_content<?php echo $objModel->getProperty('%class%'); ?>" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
+                        <div class="tl_content<?php echo $objModel->getMeta('%class%'); ?>" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
                             <div class="tl_content_right">
 
                                 <?php if ($this->select): ?>
                                     <input type="checkbox" name="IDS[]" id="ids_<?php echo $objModel->getID(); ?>" class="tl_tree_checkbox" value="<?php echo $objModel->getID(); ?>">
                                 <?php endif; ?>
 
-                                <?php echo $objModel->getProperty('%buttons%'); ?>
+                                <?php echo $objModel->getMeta('%buttons%'); ?>
 
                             </div>
 
-                            <?php echo $objModel->getProperty('%content%'); ?>
+                            <?php echo $objModel->getMeta('%content%'); ?>
 
                         </div>
 
@@ -102,9 +102,9 @@
         <?php if ($this->select): ?>
             <div class="tl_formbody_submit" style="text-align:right">
                 <div class="tl_submit_container">
-                    <?php if ($this->notDeletable): ?>            
+                    <?php if ($this->notDeletable): ?>
                         <input type="submit" name="delete" id="delete" class="tl_submit" accesskey="d" onclick="return confirm('<?php echo $GLOBALS['TL_LANG']['MSC']['delAllConfirm']; ?>')" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['deleteSelected']); ?>">
-                    <?php endif; ?>                
+                    <?php endif; ?>
                     <input type="submit" name="cut" id="cut" class="tl_submit" accesskey="x" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['moveSelected']); ?>">
                     <input type="submit" name="copy" id="copy" class="tl_submit" accesskey="c" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['copySelected']); ?>">
                     <?php if ($this->notEditable): ?>

@@ -360,7 +360,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      * Load the language from SESSION, POST or use a fallback.
      *
      * @param DC_General $this->objDC
-     * 
+     *
      * @return int return the mode multilanguage, singellanguage or unsupportet language
      */
     protected function checkLanguage()
@@ -445,7 +445,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->objDC->setClipboardState(false);
         unset($arrClipboard[$this->objDC->getTable()]);
 
-        // Save 
+        // Save
         $this->saveClipboard($arrClipboard);
 
         // Redirect
@@ -656,7 +656,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /**
      * Copy a entry and all childs
-     * 
+     *
      * @return string error msg for an unknown mode
      */
     public function copy()
@@ -665,7 +665,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->loadCurrentDCA();
         $this->loadCurrentDataProvider();
 
-        // Check 
+        // Check
         $this->checkIsWritable();
 
         switch ($this->arrDCA['list']['sorting']['mode'])
@@ -751,7 +751,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     break;
 
                 case 2:
-                    if ($this->isRootEntry('self', $this->Input->get('pid')))
+                    if (($this->Input->get('pid') == 0) || $this->isRootEntry('self', $this->Input->get('pid')))
                     {
                         $this->setRoot($objDBModel, 'self');
                     }
@@ -912,7 +912,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->loadCurrentDCA();
         $this->loadCurrentDataProvider();
 
-        // Check 
+        // Check
         $this->checkIsWritable();
         $this->checkLanguage($this->objDC);
 
@@ -1162,40 +1162,40 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 $arrField[] = $objRootModel->getProperty($strField);
             }
 
-            $objRootModel->setProperty('dc_gen_tv_title', vsprintf($arrTitlePattern, $arrField));
-            $objRootModel->setProperty('dc_gen_tv_level', $intLevel + 1);
+            $objRootModel->setMeta('dc_gen_tv_title', vsprintf($arrTitlePattern, $arrField));
+            $objRootModel->setMeta('dc_gen_tv_level', $intLevel + 1);
 
             // Callback
-            $strLabel = $this->objDC->getCallbackClass()->labelCallback($objRootModel, $objRootModel->getProperty('dc_gen_tv_title'), $arrField);
+            $strLabel = $this->objDC->getCallbackClass()->labelCallback($objRootModel, $objRootModel->getMeta('dc_gen_tv_title'), $arrField);
             if ($strLabel != '')
             {
-                $objRootModel->setProperty('dc_gen_tv_title', $strLabel);
+                $objRootModel->setMeta('dc_gen_tv_title', $strLabel);
             }
 
             // Get toogle state
             if ($arrToggle[$objRootModel->getID()] == 1)
             {
-                $objRootModel->setProperty('dc_gen_tv_open', true);
+                $objRootModel->setMeta('dc_gen_tv_open', true);
             }
             else
             {
-                $objRootModel->setProperty('dc_gen_tv_open', false);
+                $objRootModel->setMeta('dc_gen_tv_open', false);
             }
 
             // Check if we have children
             if ($this->hasChildren($objRootModel, 'self') == true)
             {
-                $objRootModel->setProperty('dc_gen_tv_children', true);
+                $objRootModel->setMeta('dc_gen_tv_children', true);
             }
             else
             {
-                $objRootModel->setProperty('dc_gen_tv_children', false);
+                $objRootModel->setMeta('dc_gen_tv_children', false);
             }
 
             // If open load all children
-            if ($objRootModel->getProperty('dc_gen_tv_children') == true && $objRootModel->getProperty('dc_gen_tv_open') == true)
+            if ($objRootModel->setMeta('dc_gen_tv_children') == true && $objRootModel->getMeta('dc_gen_tv_open') == true)
             {
-                $objRootModel->setProperty('dc_gen_children_collection', $this->generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrChildFilterPattern, $intLevel + 2, $objRootModel, $arrToggle));
+                $objRootModel->setMeta('dc_gen_children_collection', $this->generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrChildFilterPattern, $intLevel + 2, $objRootModel, $arrToggle));
             }
         }
 
@@ -1485,14 +1485,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $arrLablesFields = $this->arrDCA['list']['label']['fields'];
         $arrTitlePattern = $this->arrDCA['list']['label']['format'];
         $arrRootEntries  = $this->objDC->getRootConditions('self');
-        $arrChildFilter  = $this->objDC->getJoinConditions('self');
 
-        foreach ($arrRootEntries as $key => $value)
-        {
-            $arrNeededFields[]    = $value['field'];
-            $arrRootEntries[$key] = $value['field'] . $value['operation'] . $value['value'];
-        }
-
+		// TODO: @CS we need this to be srctable_dsttable_tree for interoperability, for mode5 this will be self_self_tree but with strTable.
         $strToggleID = $this->objDC->getTable() . '_tree';
 
         $arrToggle = $this->Session->get($strToggleID);
@@ -1522,6 +1516,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         // Init some vars
         $objTableTreeData      = $this->objDC->getDataProvider()->getEmptyCollection();
         $objRootConfig         = $this->objDC->getDataProvider()->getEmptyConfig();
+/*
         $arrChildFilterPattern = array();
 
         // Build a filter array for the join conditions
@@ -1538,6 +1533,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 $arrChildFilterPattern[$key]['pattern'] = $value['srcField'] . ' ' . $value['operation'];
             }
         }
+*/
+
+		// TODO: @CS rebuild to new layout of filters here.
 
         // Set fields limit
         $objRootConfig->setFields(array_keys(array_flip($arrNeededFields)));
@@ -1548,143 +1546,165 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         // Fetch all root elements
         $objRootCollection = $this->objDC->getDataProvider()->fetchAll($objRootConfig);
 
-        foreach ($objRootCollection as $objRootModel)
-        {
-            $objTableTreeData->add($objRootModel);
-
-            // Build full lable
-            $arrField = array();
-            foreach ($arrLablesFields as $strField)
-            {
-                $arrField[] = $objRootModel->getProperty($strField);
-            }
-
-            $objRootModel->setProperty('dc_gen_tv_title', vsprintf($arrTitlePattern, $arrField));
-            $objRootModel->setProperty('dc_gen_tv_level', 0);
-
-            // Callback
-            $strLabel = $this->objDC->getCallbackClass()->labelCallback($objRootModel, $objRootModel->getProperty('dc_gen_tv_title'), $arrField);
-            if ($strLabel != '')
-            {
-                $objRootModel->setProperty('dc_gen_tv_title', $strLabel);
-            }
-
-            // Get toogle state
-            if ($arrToggle['all'] == 1 && !(key_exists($objRootModel->getID(), $arrToggle) && $arrToggle[$objRootModel->getID()] == 0))
-            {
-                $objRootModel->setProperty('dc_gen_tv_open', true);
-            }
-            // Get toogle state
-            else if (key_exists($objRootModel->getID(), $arrToggle) && $arrToggle[$objRootModel->getID()] == 1)
-            {
-                $objRootModel->setProperty('dc_gen_tv_open', true);
-            }
-            else
-            {
-                $objRootModel->setProperty('dc_gen_tv_open', false);
-            }
-
-            // Check if we have children
-            if ($this->hasChildren($objRootModel, 'self') == true)
-            {
-                $objRootModel->setProperty('dc_gen_tv_children', true);
-            }
-            else
-            {
-                $objRootModel->setProperty('dc_gen_tv_children', false);
-            }
-
-            // If open load all children
-            if ($objRootModel->getProperty('dc_gen_tv_children') == true && $objRootModel->getProperty('dc_gen_tv_open') == true)
-            {
-                $objRootModel->setProperty('dc_gen_children_collection', $this->generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrChildFilterPattern, 1, $objRootModel, $arrToggle));
-            }
-        }
-
+		foreach ($objRootCollection as $objRootModel)
+		{
+			$objTableTreeData->add($objRootModel);
+			$this->treeWalkModel($objRootModel, 0, $arrToggle, array('self'));
+		}
         $this->objDC->setCurrentCollecion($objTableTreeData);
     }
 
-    protected function generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrFilterPattern, $intLevel, $objParentModel, $arrToggle)
-    {
-        $objCollection = $this->objDC->getDataProvider()->getEmptyCollection();
-        $arrFilter     = array();
 
-        // Build filter Settings
-        foreach ($arrFilterPattern as $valueFilter)
-        {
-            if (isset($valueFilter['field']) && $valueFilter['field'] != '')
-            {
-                $arrFilter[] = vsprintf($valueFilter['pattern'], $objParentModel->getProperty($valueFilter['field']));
-            }
-            else
-            {
-                $arrFilter[] = $valueFilter['pattern'];
-            }
-        }
+	protected function calcLabelFields($strTable)
+	{
+		if ($strTable == $this->objDC->getTable())
+		{
+			// easy, take from DCA.
+			return $this->arrDCA['list']['label']['fields'];
+		}
 
-        // Create a new Config
-        $objChildConfig = $this->objDC->getDataProvider()->getEmptyConfig();
-        $objChildConfig->setFilter($arrFilter);
-        $objChildConfig->setFields(array_keys(array_flip($arrNeededFields)));
+		$arrChildDef = $this->arrDCA['dca_config']['child_list'];
+		if (array_key_exists($strTable, $arrChildDef) && isset($arrChildDef[$strTable]['fields'])) {
+			// check if defined in child conditions.
+			return $arrChildDef[$strTable]['fields'];
+		} else if (($strTable == 'self') && array_key_exists('self', $arrChildDef) && $arrChildDef['self']['fields']) {
+			return $arrChildDef['self']['fields'];
+		}
+	}
 
-        // Fetch all children
-        $objChildCollection = $this->objDC->getDataProvider()->fetchAll($objChildConfig);
+	protected function calcLabelPattern($strTable)
+	{
+		if ($strTable == $this->objDC->getTable())
+		{
+			// easy, take from DCA.
+			return $this->arrDCA['list']['label']['format'];
+		}
 
-        // Run each entry
-        foreach ($objChildCollection as $objChildModel)
-        {
-            $objCollection->add($objChildModel);
+		$arrChildDef = $this->arrDCA['dca_config']['child_list'];
+		if (array_key_exists($strTable, $arrChildDef) && isset($arrChildDef[$strTable]['format'])) {
+			// check if defined in child conditions.
+			return $arrChildDef[$strTable]['format'];
+		} else if (($strTable == 'self') && array_key_exists('self', $arrChildDef) && $arrChildDef['self']['format']) {
+			return $arrChildDef['self']['format'];
+		}
+	}
 
-            // Build full lable
-            $arrField = array();
-            foreach ($arrLablesFields as $strField)
-            {
-                $arrField[] = $objChildModel->getProperty($strField);
-            }
+	protected function calcNeededFields(InterfaceGeneralModel $objModel, $strDstTable)
+	{
+		$arrFields = $this->calcLabelFields($strDstTable);
+		$arrChildCond = $this->objDC->getChildCondition($objModel, $strDstTable);
+		foreach ($arrChildCond as $arrCond)
+		{
+			if ($arrCond['property'])
+			{
+				$arrFields[] = $arrCond['property'];
+			}
+		}
+		return $arrFields;
+	}
 
-            $objChildModel->setProperty('dc_gen_tv_title', vsprintf($arrTitlePattern, $arrField));
-            $objChildModel->setProperty('dc_gen_tv_level', $intLevel);
+	protected function buildLabel(InterfaceGeneralModel $objModel)
+	{
+		// Build full lable
+		$arrFields = array();
+		foreach ($this->calcLabelFields($objModel->getProviderName()) as $strField)
+		{
+			$arrFields[] = $objModel->getProperty($strField);
+		}
+		$objModel->setMeta('dc_gen_tv_title', vsprintf($this->calcLabelPattern($objModel->getProviderName()), $arrFields));
 
-            // Callback
-            $strLabel = $this->objDC->getCallbackClass()->labelCallback($objChildModel, $objChildModel->getProperty('dc_gen_tv_title'), $arrField);
-            if ($strLabel != '')
-            {
-                $objChildModel->setProperty('dc_gen_tv_title', $strLabel);
-            }
+		// Callback - let it override the just generated label
+		$strLabel = $this->objDC->getCallbackClass()->labelCallback($objModel, $objModel->getMeta('dc_gen_tv_title'), $arrFields);
+		if ($strLabel != '')
+		{
+			$objModel->setMeta('dc_gen_tv_title', $strLabel);
+		}
+	}
 
-            // Get toogle state
-            if ($arrToggle['all'] == 1 && !(key_exists($objChildModel->getID(), $arrToggle) && $arrToggle[$objChildModel->getID()] == 0))
-            {
-                $objChildModel->setProperty('dc_gen_tv_open', true);
-            }
-            // Get toogle state
-            else if (key_exists($objChildModel->getID(), $arrToggle) && $arrToggle[$objChildModel->getID()] == 1)
-            {
-                $objChildModel->setProperty('dc_gen_tv_open', true);
-            }
-            else
-            {
-                $objChildModel->setProperty('dc_gen_tv_open', false);
-            }
+	/**
+	 * This "renders" a model for tree view.
+	 *
+	 * @param InterfaceGeneralModel $objModel     the model to render.
+	 *
+	 * @param int                   $intLevel     the current level in the tree hierarchy.
+	 *
+	 * @param array                 $arrToggle    the array that determines the current toggle states for the table of the given model.
+	 *
+	 * @param array                 $arrSubTables the tables that shall be rendered "below" this item.
+	 *
+	 */
+	protected function treeWalkModel(InterfaceGeneralModel $objModel, $intLevel, $arrToggle, $arrSubTables = array())
+	{
+		$objModel->setMeta('dc_gen_tv_level', $intLevel);
 
-            // Check if we have children
-            if ($this->hasChildren($objChildModel, 'self') == true)
-            {
-                $objChildModel->setProperty('dc_gen_tv_children', true);
-            }
-            else
-            {
-                $objChildModel->setProperty('dc_gen_tv_children', false);
-            }
+		$this->buildLabel($objModel);
 
-            if ($objChildModel->getProperty('dc_gen_tv_children') == true && $objChildModel->getProperty('dc_gen_tv_open') == true)
-            {
-                $objChildModel->setProperty('dc_gen_children_collection', $this->generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrFilterPattern, $intLevel + 1, $objChildModel, $arrToggle));
-            }
-        }
+		if ($arrToggle['all'] == 1 && !(key_exists($objModel->getID(), $arrToggle) && $arrToggle[$objModel->getID()] == 0))
+		{
+			$objModel->setMeta('dc_gen_tv_open', true);
+		}
+		// Get toogle state
+		else if (key_exists($objModel->getID(), $arrToggle) && $arrToggle[$objModel->getID()] == 1)
+		{
+			$objModel->setMeta('dc_gen_tv_open', true);
+		}
+		else
+		{
+			$objModel->setMeta('dc_gen_tv_open', false);
+		}
 
-        return $objCollection;
-    }
+		$arrChildCollections = array();
+		foreach ($arrSubTables as $strSubTable)
+		{
+			// evaluate the child filter for this item.
+			$arrChildFilter  = $this->objDC->getChildCondition($objModel, $strSubTable);
+
+			// if we do not know how to render this table within here, continue with the next one.
+			if (!$arrChildFilter)
+			{
+				continue;
+			}
+
+			$objCollection = $this->objDC->getDataProvider($strSubTable)->getEmptyCollection();
+
+			// Create a new Config
+			$objChildConfig = $this->objDC->getDataProvider($strSubTable)->getEmptyConfig();
+			$objChildConfig->setFilter($arrChildFilter);
+
+			$objChildConfig->setFields($this->calcNeededFields($objModel, $strSubTable));
+
+			// Fetch all children
+			$objChildCollection = $this->objDC->getDataProvider()->fetchAll($objChildConfig);
+
+			if ($objChildCollection->length() > 0)
+			{
+				// TODO: @CS we need this to be srctable_dsttable_tree for interoperability, for mode5 this will be self_self_tree but with strTable.
+				$strToggleID = $this->objDC->getTable() . '_tree';
+
+				$arrSubToggle = $this->Session->get($strToggleID);
+				if (!is_array($arrSubToggle))
+				{
+					$arrSubToggle = array();
+				}
+
+				foreach ($objChildCollection as $objChildModel)
+				{
+					// TODO: determine the real subtables here.
+					$this->treeWalkModel($objChildModel, $intLevel+1, $arrSubToggle, $arrSubTables);
+				}
+				$arrChildCollections[] = $objChildCollection;
+			}
+		}
+
+		// If open store children
+		if (($objModel->getMeta('dc_gen_tv_open') == true) && $arrChildCollections)
+		{
+			$objModel->setMeta('dc_gen_children_collection', $arrChildCollections);
+			$objModel->setMeta('dc_gen_tv_children', true);
+		} else {
+			$objModel->setMeta('dc_gen_tv_children', false);
+		}
+	}
 
     protected function listView()
     {
@@ -1754,7 +1774,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                                     ->setFields(array($strField))
                     );
 
-                    $objModelRow->setProperty('%args%', (($objModel->hasProperties()) ? $objModel->getProperty($strField) : ''));
+                    $objModelRow->setMeta('%args%', (($objModel->hasProperties()) ? $objModel->getProperty($strField) : ''));
                 }
             }
         }
@@ -2267,10 +2287,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     protected function hasChildren($objParentModel, $strTable)
     {
         $arrFilter = array();
-        
+
         // Build filter Settings
-        foreach ($this->objDC->getJoinConditions($strTable) as $valueFilter)
-        {            
+        foreach ($this->objDC->getJoinConditions($objParentModel, $strTable) as $valueFilter)
+        {
             if (isset($valueFilter['srcField']) && $valueFilter['srcField'] != '')
             {
                 $arrFilter[] = $valueFilter['dstField'] . $valueFilter['operation'] . $objParentModel->getProperty($valueFilter['srcField']);

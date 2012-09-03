@@ -1,6 +1,5 @@
 <li class="parent" id="<?php echo $this->strToggleID; ?>">
-    <ul class="level_<?php echo $this->objParentModel->getProperty('dc_gen_tv_level'); ?>">
+    <ul class="level_<?php echo $this->objParentModel->getMeta('dc_gen_tv_level'); ?>">
         <?php echo $this->strHTML; ?>
     </ul>
 </li>
-        

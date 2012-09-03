@@ -32,15 +32,28 @@ class GeneralModelDefault implements InterfaceGeneralModel
 
     /**
      * A list with all Properties.
-     * 
-     * @param array $strPropertyName 
+     *
+     * @param array $strPropertyName
      */
     protected $arrProperties = array();
     protected $mixID = null;
 
     /**
+     * A list with all Properties.
+     *
+     * @param array $strPropertyName
+     */
+    protected $arrMetaInformation = array();
+
+    /**
+	 * The name of the corresponding data provider.
+     * @var string
+     */
+    protected $strProviderName = null;
+
+    /**
      * Copy this model, without the id.
-     * 
+     *
      * @return InterfaceGeneralModel
      */
     public function __clone()
@@ -50,7 +63,7 @@ class GeneralModelDefault implements InterfaceGeneralModel
 
     /**
      * Get the id for this modell.
-     * 
+     *
      * @return string The ID for this modell.
      */
     public function getID()
@@ -60,9 +73,9 @@ class GeneralModelDefault implements InterfaceGeneralModel
 
     /**
      * @see InterfaceGeneralModel::getProperty()
-     * 
+     *
      * @param String $strPropertyName
-     * @return null 
+     * @return null
      */
     public function getProperty($strPropertyName)
     {
@@ -70,7 +83,7 @@ class GeneralModelDefault implements InterfaceGeneralModel
         {
             return $this->getID();
         }
-        
+
         if (key_exists($strPropertyName, $this->arrProperties))
         {
             return $this->arrProperties[$strPropertyName];
@@ -93,9 +106,28 @@ class GeneralModelDefault implements InterfaceGeneralModel
     }
 
     /**
-     * Set the id for this modell. 
-     * This works only once.  
-     * 
+     * @see InterfaceGeneralModel::getMeta()
+	 *
+	 * @param string $strMetaName the meta information to retrieve.
+	 *
+	 * @return mixed|null the set meta information or null if undefined.
+     */
+    public function getMeta($strMetaName)
+    {
+        if (key_exists($strMetaName, $this->arrMetaInformation))
+        {
+            return $this->arrMetaInformation[$strMetaName];
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    /**
+     * Set the id for this modell.
+     * This works only once.
+     *
      * @param mixed $mixID Could be a integer, string or anything else
      */
     public function setID($mixID)
@@ -108,9 +140,9 @@ class GeneralModelDefault implements InterfaceGeneralModel
 
     /**
      * @see InterfaceGeneralModel::setProperty()
-     * 
+     *
      * @param String $strPropertyName
-     * @param mixed $varValue 
+     * @param mixed $varValue
      */
     public function setProperty($strPropertyName, $varValue)
     {
@@ -134,8 +166,22 @@ class GeneralModelDefault implements InterfaceGeneralModel
     }
 
     /**
+     * @see InterfaceGeneralModel::setMeta()
+	 *
+	 * @param string $strMetaName the meta information name.
+	 *
+	 * @param mixed $varValue the meta information to store.
+	 *
+	 * @return void
+     */
+    public function setMeta($strMetaName, $varValue)
+    {
+        $this->arrMeta[$strMetaName] = $varValue;
+    }
+
+    /**
      * @see InterfaceGeneralModel::hasProperties()
-     * 
+     *
      * @return boolean
      */
     public function hasProperties()
@@ -150,14 +196,39 @@ class GeneralModelDefault implements InterfaceGeneralModel
 
     /**
      * Get a iterator for this collection
-     * 
-     * @return ArrayIterator 
+     *
+     * @return ArrayIterator
      */
     public function getIterator()
     {
         return new ArrayIterator($this->arrProperties);
     }
 
+    /**
+     * Sets the provider name in the model.
+	 * NOTE: this is intended to be used by the data provider only and not by any user.
+	 * Changing this by hand may cause unexpected behaviour. So DO NOT USE IT.
+     * For this reason, this method is not interfaced, as only the data provider knows how
+	 * to set itself to the model.
+	 *
+     * @param string the name of the corresponding data provider.
+	 *
+	 * @return void
+     */
+    public function setProviderName($strProviderName)
+    {
+        $this->strProviderName;
+    }
+
+    /**
+     * Return the data provider name.
+     *
+     * @return string the name of the corresponding data provider.
+     */
+    public function getProviderName()
+    {
+        return $this->strProviderName;
+    }
 }
 
 ?>

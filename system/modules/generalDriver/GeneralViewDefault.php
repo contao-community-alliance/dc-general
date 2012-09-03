@@ -50,7 +50,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
     /**
      * Driver class
-     * @var DC_General 
+     * @var DC_General
      */
     protected $objDC = null;
 
@@ -121,7 +121,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
     /**
      * Check if the dataprovider is multilanguage.
      * Save the current language and language array.
-     * 
+     *
      * @return void
      */
     protected function checkLanguage()
@@ -239,7 +239,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
     /**
      * Generate the view for edit
-     * 
+     *
      * @return string
      */
     public function edit()
@@ -286,7 +286,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
     /**
      * Show Informations about a data set
      *
-     * @return String 
+     * @return String
      */
     public function show()
     {
@@ -451,8 +451,8 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
     /**
      * Generate list view from current collection
-     * 
-     * @return string 
+     *
+     * @return string
      */
     protected function listView()
     {
@@ -470,7 +470,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         // Generate buttons
         foreach ($this->objDC->getCurrentCollecion() as $objModelRow)
         {
-            $objModelRow->setProperty('%buttons%', $this->generateButtons($objModelRow, $this->objDC->getTable(), $this->objDC->getRootIds()));
+            $objModelRow->setMeta('%buttons%', $this->generateButtons($objModelRow, $this->objDC->getTable(), $this->objDC->getRootIds()));
         }
 
         // Add template
@@ -597,7 +597,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
         foreach ($objCollection as $objModel)
         {
-            $objModel->setProperty('dc_gen_buttons', $this->generateButtons($objModel, $this->objDC->getTable()));
+            $objModel->setMeta('dc_gen_buttons', $this->generateButtons($objModel, $this->objDC->getTable()));
 
             $strToggleID = $this->objDC->getTable() . '_' . $treeClass . '_' . $objModel->getID();
 
@@ -609,12 +609,17 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             $strHTML .= $objEntryTemplate->parse();
             $strHTML .= "\n";
 
-            if ($objModel->getProperty('dc_gen_tv_children') == true && $objModel->getProperty('dc_gen_tv_open') == true)
+            if ($objModel->getMeta('dc_gen_tv_children') == true && $objModel->getMeta('dc_gen_tv_open') == true)
             {
                 $objChildTemplate                 = new BackendTemplate('dcbe_general_treeview_child');
                 $objChildTemplate->objParentModel = $objModel;
                 $objChildTemplate->strToggleID    = $strToggleID;
-                $objChildTemplate->strHTML        = $this->generateTreeView($objModel->getProperty('dc_gen_children_collection'), $intMode, $treeClass);
+				$strSubHTML = '';
+				foreach ($objModel->getMeta('dc_gen_children_collection') as $objCollection)
+				{
+					$strSubHTML .= $this->generateTreeView($objCollection, $intMode, $treeClass);
+				}
+                $objChildTemplate->strHTML        = $strSubHTML;
                 $objChildTemplate->strTable       = $this->objDC->getTable();
 
                 $strHTML .= $objChildTemplate->parse();
@@ -633,7 +638,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
     /**
      * Get all selectors from dca
-     * 
+     *
      * @param array $arrSubpalettes
      * @return void
      */
@@ -728,7 +733,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             }
         }
 
-        // ToDo: ??? why exit on this place 
+        // ToDo: ??? why exit on this place
 
         return $arrPalettes['default'];
     }
@@ -1068,7 +1073,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                 $objModel = $this->objDC->getCurrentCollecion()->get($i);
 
                 // TODO set current
-//                $this->current[] = $objModel->getID();                
+//                $this->current[] = $objModel->getID();
                 // Decrypt encrypted value
                 foreach ($objModel as $k => $v)
                 {
@@ -1091,11 +1096,11 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                     if ($group != $strGroup)
                     {
                         $strGroup = $group;
-                        $objModel->setProperty('%header%', $group);
+                        $objModel->setMeta('%header%', $group);
                     }
                 }
 
-                $objModel->setProperty('%class%', ($this->arrDCA['list']['sorting']['child_record_class'] != '') ? ' ' . $this->arrDCA['list']['sorting']['child_record_class'] : '');
+                $objModel->setMeta('%class%', ($this->arrDCA['list']['sorting']['child_record_class'] != '') ? ' ' . $this->arrDCA['list']['sorting']['child_record_class'] : '');
 
                 // Regular buttons
                 if (!$this->objDC->isSelectSubmit())
@@ -1111,10 +1116,10 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                         $buttons .= $this->generateParentViewButtons($objModel);
                     }
 
-                    $objModel->setProperty('%buttons%', $buttons);
+                    $objModel->setMeta('%buttons%', $buttons);
                 }
 
-                $objModel->setProperty('%content%', $this->objDC->getCallbackClass()->childRecordCallback($objModel->getPropertiesAsArray()));
+                $objModel->setMeta('%content%', $this->objDC->getCallbackClass()->childRecordCallback($objModel->getPropertiesAsArray()));
             }
         }
     }
@@ -1234,7 +1239,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                 {
                     $eoCount = -1;
 
-                    $objModelRow->setProperty('%group%', array(
+                    $objModelRow->setMeta('%group%', array(
                         'class' => $groupclass,
                         'value' => $this->objDC->formatGroupHeader($this->objDC->getFirstSorting(), $remoteNew, $sortingMode, $objModelRow)
                     ));
@@ -1244,11 +1249,11 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                 }
             }
 
-            $objModelRow->setProperty('%rowClass%', ((++$eoCount % 2 == 0) ? 'even' : 'odd'));
+            $objModelRow->setMeta('%rowClass%', ((++$eoCount % 2 == 0) ? 'even' : 'odd'));
 
             $colspan = 1;
 
-            // Call label callback            
+            // Call label callback
             $mixedArgs = $this->objDC->getCallbackClass()->labelCallback($objModelRow, $label, $this->arrDCA['list']['label'], $args);
 
             if (!is_null($mixedArgs))
@@ -1288,13 +1293,13 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                 );
             }
 
-            $objModelRow->setProperty('%label%', $arrLabel);
+            $objModelRow->setMeta('%label%', $arrLabel);
         }
     }
 
     /**
      * Get arguments for label
-     * 
+     *
      * @param InterfaceGeneralModel $objModelRow
      * @return array
      */
@@ -1320,7 +1325,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         {
             if (strpos($v, ':') !== false)
             {
-                $args[$k] = $objModelRow->getProperty('%args%');
+                $args[$k] = $objModelRow->getMeta('%args%');
             }
             elseif (in_array($this->arrDCA['fields'][$v]['flag'], array(5, 6, 7, 8, 9, 10)))
             {
@@ -1382,9 +1387,9 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
     /**
      * Generate header display buttons
-     * 
+     *
      * @param string $strButtonId
-     * @return string 
+     * @return string
      */
     protected function displayButtons($strButtonId)
     {
@@ -1432,7 +1437,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
     /**
      * Compile global buttons from the table configuration array and return them as HTML
-     * 
+     *
      * @param boolean $blnForceSeparator
      * @return string
      */
@@ -1478,7 +1483,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
     /**
      * Compile buttons from the table configuration array and return them as HTML
-     * 
+     *
      * @param InterfaceGeneralModel $objModelRow
      * @param string $strTable
      * @param array $arrRootIds
