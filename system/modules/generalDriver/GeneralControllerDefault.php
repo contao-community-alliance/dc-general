@@ -741,7 +741,17 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $objDBModel = $this->objDataProvider->getEmptyModel();
         $this->objDC->setCurrentModel($objDBModel);
 
-        if ($this->arrDCA['list']['sorting']['mode'] == 5 && $this->Input->get('mode') != '')
+		if ($this->arrDCA['list']['sorting']['mode'] == 4)
+		{
+			// check if the pid id/word is set
+			if ($this->Input->get('pid') == '')
+			{
+				$this->log('Missing pid for new entry in ' . $this->objDC->getTable(), 'DC_General - Controller - create()', TL_ERROR);
+				$this->redirect('contao/main.php?act=error');
+			}
+
+			$objDBModel->setProperty('pid', $this->Input->get('pid'));
+		} else if ($this->arrDCA['list']['sorting']['mode'] == 5 && $this->Input->get('mode') != '')
         {
             // check if the pid id/word is set
             if ($this->Input->get('pid') == '')
