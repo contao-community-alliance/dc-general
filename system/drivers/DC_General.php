@@ -301,7 +301,7 @@ class DC_General extends DataContainer implements editable, listable
      * -------------------------------------------------------------------------
      * ////////////////////////////////////////////////////////////////////// */
 
-    public function __construct($strTable, array $arrDCA = null, $blnOnloadCallback = true)
+    public function __construct($strTable, array &$arrDCA = null, $blnOnloadCallback = true)
     {
         // Set start timer
         $this->intTimerStart = microtime(true);
@@ -314,7 +314,12 @@ class DC_General extends DataContainer implements editable, listable
 
         // Basic vars Init
         $this->strTable = $strTable;
-        $this->arrDCA   = ($arrDCA != null) ? $arrDCA : $GLOBALS['TL_DCA'][$this->strTable];
+		if ($arrDCA != null)
+		{
+			$this->arrDCA   = $arrDCA;
+		} else {
+			$this->arrDCA   = &$GLOBALS['TL_DCA'][$this->strTable];
+		}
 
         // Check whether the table is defined
         if (!strlen($this->strTable) || !count($this->arrDCA))
@@ -1250,7 +1255,7 @@ class DC_General extends DataContainer implements editable, listable
      */
     public function getWidget($strField)
     {
-        // Load from chache
+        // Load from cache
         if (isset($this->arrWidgets[$strField]))
         {
             return $this->arrWidgets[$strField];
@@ -1259,14 +1264,14 @@ class DC_General extends DataContainer implements editable, listable
         // Check if editable
         if (!$this->isEditableField($strField))
         {
-            return "";
+            return NULL;
         }
 
         // Get config and check it
         $arrConfig = $this->getFieldDefinition($strField);
         if (count($arrConfig) == 0)
         {
-            return "";
+            return NULL;
         }
 
         $strInputName = $strField . '_' . $this->mixWidgetID;
@@ -1294,7 +1299,7 @@ class DC_General extends DataContainer implements editable, listable
         $strClass = $GLOBALS['BE_FFL'][$arrConfig['inputType']];
         if (!$this->classFileExists($strClass))
         {
-            return $this->arrWidgets[$strField] = "";
+            return $this->arrWidgets[$strField] = NULL;
         }
 
         // FIXME TEMPORARY WORKAROUND! To be fixed in the core: Controller::prepareForWidget(..)
