@@ -1045,7 +1045,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             foreach ($this->arrDCA['list']['sorting']['filter'] as $filter)
             {
-                $this->objDC->setFilter(array($filter[0] . " = '" . $filter[1] . "'"));
+                $this->objDC->setFilter(array(array('operation' => '=', 'property' => $filter[0], 'value' => $filter[1])));
             }
         }
 
@@ -1055,9 +1055,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $this->objDC->setRootIds(array_unique($this->arrDCA['list']['sorting']['root']));
         }
 
+		// TODO: we need to transport all the fields from the root conditions via the url and set filters accordingly here.
         if ($this->Input->get('table') && !is_null($this->objDC->getParentTable()) && $this->objDC->getDataProvider()->fieldExists('pid'))
         {
-            $this->objDC->setFilter(array("pid = '" . CURRENT_ID . "'"));
+            $this->objDC->setFilter(array(array('operation' => '=', 'property' => 'pid', 'value' => CURRENT_ID)));
         }
 
         $this->panel($this->objDC);
@@ -1765,11 +1766,17 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
                     if ($v == 'tstamp')
                     {
-                        $objCollection = $this->objDC->getDataProvider()->fetchAll(
-                                $this->objDC->getDataProvider()->getEmptyConfig()
-                                        ->setFilter(array("pid = '" . $this->objDC->getCurrentParentCollection()->get(0)->getID() . "'"))
-                                        ->setFields(array('MAX(tstamp) AS tstamp'))
-                        );
+						$objCollection = $this->objDC->getDataProvider()->fetchAll(
+							$this->objDC->getDataProvider()->getEmptyConfig()
+								->setFilter(
+									$this->objDC->getChildCondition(
+										$this->objDC->getCurrentParentCollection()->get(0),
+										$this->objDC->getDataProvider()->getEmptyModel()->getProviderName()
+									)
+								)
+								// TODO: rework to be non SQL specific.
+								->setFields(array('MAX(tstamp) AS tstamp'))
+						);
 
                         $objTStampModel = $objCollection->get(0);
 
@@ -1787,6 +1794,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                         $objLabelModel = $this->objDC->getDataProvider($arrForeignKey[0])->fetch(
                                 $this->objDC->getDataProvider()->getEmptyConfig()
                                         ->setId($_v)
+										// TODO: rework to be non SQL specific.
                                         ->setFields(array($arrForeignKey[1] . " AS value"))
                         );
 
