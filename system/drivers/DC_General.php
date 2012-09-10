@@ -1341,6 +1341,8 @@ class DC_General extends DataContainer implements editable, listable
      */
     public function processInput($strField)
     {
+		// TODO: do we need to unset this again?
+		$this->strField = $strField;
         // Check if we have allready processed this field
         if (isset($this->arrProcessed[$strField]) && $this->arrProcessed[$strField] === true)
         {
