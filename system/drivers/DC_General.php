@@ -462,8 +462,15 @@ class DC_General extends DataContainer implements editable, listable
                 'class'  => 'GeneralDataDefault',
                 'source' => $this->strTable
             );
-
             $this->arrDataProvider[$this->strTable] = $arrConfig;
+
+			if ($this->arrDCA['config']['ptable'])
+			{
+				$arrSourceConfigs['parent'] = array(
+					'class'  => 'GeneralDataDefault',
+					'source' => $this->arrDCA['config']['ptable']
+				);
+			}
         }
 
         // Set all additional data provider
@@ -802,7 +809,7 @@ class DC_General extends DataContainer implements editable, listable
 			(
 				'operation' => '=',
 				'property'  => 'pid',
-				'value'     => 'id'
+				'value'     => $objParentModel->getProperty('id')
 			);
 		}
 
