@@ -195,7 +195,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             {
                 $arrFilter = array();
             }
-
+// FIXME: rewrite to new filter settings.
             $arrFilter['id'] = array_map('intval', $arrFilterIds);
         }
 
@@ -397,12 +397,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         else
         {
             $strCurrentLanguage = $GLOBALS['TL_LANGUAGE'];
-        }
-
-        //Check if we have some languages
-        if ($objLanguagesSupported == null)
-        {
-            return self::LANGUAGE_SL;
         }
 
         // Make a array from the collection
