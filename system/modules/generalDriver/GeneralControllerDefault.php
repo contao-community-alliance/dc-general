@@ -705,6 +705,19 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->resetClipboard(true);
     }
 
+	protected function updateModelFromPOST($objModel)
+	{
+		// process input and update changed properties.
+		foreach (array_keys($this->objDC->getFieldList()) as $key)
+		{
+			$varNewValue = $this->objDC->processInput($key);
+			if ($objModel->getProperty($key) != $varNewValue)
+			{
+				$objModel->setProperty($key, $varNewValue);
+			}
+		}
+	}
+
     /**
      * Create a new entry
      */
@@ -795,11 +808,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         // Check if we have a auto submit
         if ($this->objDC->isAutoSubmitted())
         {
-            // process input and update changed properties.
-            foreach (array_keys($this->objDC->getFieldList()) as $key)
-            {
-                $this->objDC->processInput($key);
-            }
+			$this->updateModelFromPOST($objDBModel);
         }
 
         // Check submit
@@ -967,17 +976,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         // Check if we have a auto submit
         if ($this->objDC->isAutoSubmitted())
         {
-            // process input and update changed properties.
-            foreach (array_keys($this->objDC->getFieldList()) as $key)
-            {
-                $varNewValue = $this->objDC->processInput($key);
-                if ($objDBModel->getProperty($key) != $varNewValue)
-                {
-                    $objDBModel->setProperty($key, $varNewValue);
-                }
-            }
-
-            $this->objDC->setCurrentModel($objDBModel);
+            $this->updateModelFromPOST($objDBModel);
         }
 
         // Check submit
