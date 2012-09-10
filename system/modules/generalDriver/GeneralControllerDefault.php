@@ -1091,12 +1091,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->loadCurrentDCA();
         $this->loadCurrentDataProvider();
 
-        // Load some infromations from DCA
-        $arrNeededFields = $this->arrDCA['list']['label']['fields'];
-        $arrLablesFields = $this->arrDCA['list']['label']['fields'];
-        $arrTitlePattern = $this->arrDCA['list']['label']['format'];
-        $arrChildFilter  = $this->objDC->getJoinConditions('self');
-
         $strToggleID = $this->objDC->getTable() . '_tree';
 
         $arrToggle = $this->Session->get($strToggleID);
@@ -1109,98 +1103,25 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
         $this->Session->set($strToggleID, $arrToggle);
 
-        // Init some vars
-        $objTableTreeData      = $this->objDataProvider->getEmptyCollection();
-        $objRootConfig         = $this->objDataProvider->getEmptyConfig();
-        $arrChildFilterPattern = array();
+		// Init some vars
+		$objTableTreeData      = $this->objDataProvider->getEmptyCollection();
+		$objRootConfig         = $this->objDataProvider->getEmptyConfig();
+		$objRootConfig->setId($intID);
 
-        // Build a filter array for the join conditions
-        foreach ($arrChildFilter as $key => $value)
-        {
-            if ($value['srcField'] != '')
-            {
-                $arrNeededFields[]                      = trim($value['srcField']);
-                $arrChildFilterPattern[$key]['field']   = $value['srcField'];
-                $arrChildFilterPattern[$key]['pattern'] = $value['dstField'] . ' ' . $value['operation'] . ' %s';
-            }
-            else
-            {
-                $arrChildFilterPattern[$key]['pattern'] = $value['dstField'] . ' ' . $value['operation'];
-            }
-        }
+		$objModel = $this->objDataProvider->fetch($objRootConfig);
 
-        // Set fields limit
-        $objRootConfig->setFields(array_keys(array_flip($arrNeededFields)));
+		$this->treeWalkModel($objModel, $intLevel, $arrToggle, array('self'));
 
-        $arrJoinConditions = $this->objDC->getJoinConditions('self');
-        $arrCurrentFiler   = array();
+		foreach ($objModel->getMeta('dc_gen_children_collection') as $objCollection)
+		{
+			foreach ($objCollection as $objSubModel)
+			{
+				$objTableTreeData->add($objSubModel);
+			}
+		}
 
-        foreach ($arrJoinConditions as $key => $value)
-        {
-            $arrNeededFields[] = trim($value['srcField']);
-//            $arrCurrentFiler[]['field'] = $value['srcField'];
-            $arrCurrentFiler[] = $value['dstField'] . ' ' . $value['operation'] . $intID;
-
-
-//            $arrJoinConditions[$key] = $value['field'] . $value['operation'] . $value['value'];
-        }
-
-        // Set Filter for root elements
-        $objRootConfig->setFilter($arrCurrentFiler);
-
-        // Fetch all root elements
-        $objRootCollection = $this->objDataProvider->fetchAll($objRootConfig);
-
-        foreach ($objRootCollection as $objRootModel)
-        {
-            $objTableTreeData->add($objRootModel);
-
-            // Build full lable
-            $arrField = array();
-            foreach ($arrLablesFields as $strField)
-            {
-                $arrField[] = $objRootModel->getProperty($strField);
-            }
-
-            $objRootModel->setMeta('dc_gen_tv_title', vsprintf($arrTitlePattern, $arrField));
-            $objRootModel->setMeta('dc_gen_tv_level', $intLevel + 1);
-
-            // Callback
-            $strLabel = $this->objDC->getCallbackClass()->labelCallback($objRootModel, $objRootModel->getMeta('dc_gen_tv_title'), $arrField);
-            if ($strLabel != '')
-            {
-                $objRootModel->setMeta('dc_gen_tv_title', $strLabel);
-            }
-
-            // Get toogle state
-            if ($arrToggle[$objRootModel->getID()] == 1)
-            {
-                $objRootModel->setMeta('dc_gen_tv_open', true);
-            }
-            else
-            {
-                $objRootModel->setMeta('dc_gen_tv_open', false);
-            }
-
-            // Check if we have children
-            if ($this->hasChildren($objRootModel, 'self') == true)
-            {
-                $objRootModel->setMeta('dc_gen_tv_children', true);
-            }
-            else
-            {
-                $objRootModel->setMeta('dc_gen_tv_children', false);
-            }
-
-            // If open load all children
-            if ($objRootModel->setMeta('dc_gen_tv_children') == true && $objRootModel->getMeta('dc_gen_tv_open') == true)
-            {
-                $objRootModel->setMeta('dc_gen_children_collection', $this->generateTreeViews($arrTitlePattern, $arrNeededFields, $arrLablesFields, $arrChildFilterPattern, $intLevel + 2, $objRootModel, $arrToggle));
-            }
-        }
-
-        $this->objDC->setCurrentCollecion($objTableTreeData);
-    }
+		$this->objDC->setCurrentCollecion($objTableTreeData);
+	}
 
     /**
      * ToDo: Bugy
@@ -1303,7 +1224,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             $varNewValue = $this->objDC->processInput($key);
 
-            if ($objDBModel->getProperty($key) != $varNewValue)
+            if (!is_null($varNewValue) && ($objDBModel->getProperty($key) != $varNewValue))
             {
                 $objDBModel->setProperty($key, $varNewValue);
             }
@@ -1564,10 +1485,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		}
 
 		$arrChildDef = $this->arrDCA['dca_config']['child_list'];
-		if (array_key_exists($strTable, $arrChildDef) && isset($arrChildDef[$strTable]['fields'])) {
+		if (is_array($arrChildDef) && array_key_exists($strTable, $arrChildDef) && isset($arrChildDef[$strTable]['fields'])) {
 			// check if defined in child conditions.
 			return $arrChildDef[$strTable]['fields'];
-		} else if (($strTable == 'self') && array_key_exists('self', $arrChildDef) && $arrChildDef['self']['fields']) {
+		} else if (($strTable == 'self') && is_array($arrChildDef) && array_key_exists('self', $arrChildDef) && $arrChildDef['self']['fields']) {
 			return $arrChildDef['self']['fields'];
 		}
 	}
@@ -1581,7 +1502,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		}
 
 		$arrChildDef = $this->arrDCA['dca_config']['child_list'];
-		if (array_key_exists($strTable, $arrChildDef) && isset($arrChildDef[$strTable]['format'])) {
+		if (is_array($arrChildDef) && array_key_exists($strTable, $arrChildDef) && isset($arrChildDef[$strTable]['format'])) {
 			// check if defined in child conditions.
 			return $arrChildDef[$strTable]['format'];
 		} else if (($strTable == 'self') && array_key_exists('self', $arrChildDef) && $arrChildDef['self']['format']) {
@@ -1704,6 +1625,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		} else {
 			$objModel->setMeta('dc_gen_tv_children', false);
 		}
+		$objModel->setMeta('dc_gen_tv_children', count($arrChildCollections));
 	}
 
     protected function listView()
@@ -2318,9 +2240,25 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     protected function setParent(InterfaceGeneralModel $objChildEntry, InterfaceGeneralModel $objParentEntry, $strTable)
     {
-        $arrJoinCondition = $this->objDC->getJoinConditions($strTable);
-        $objChildEntry->setProperty($arrJoinCondition[0]['dstField'], $objParentEntry->getProperty($arrJoinCondition[0]['srcField']));
-    }
+		$arrChildCondition = $this->objDC->getParentChildCondition($objParentEntry, $objChildEntry->getProviderName());
+		if (!($arrChildCondition && $arrChildCondition['setOn']))
+		{
+			throw new Exception("Can not calculate parent.", 1);
+		}
+
+		foreach ($arrChildCondition['setOn'] as $arrCondition)
+		{
+			if ($arrCondition['from_field'])
+			{
+				$objChildEntry->setProperty($arrCondition['to_field'], $objParentEntry->getProperty($arrCondition['from_field']));
+			} else if ($arrCondition['value'])
+			{
+				$objChildEntry->setProperty($arrCondition['to_field'], $arrCondition['value']);
+			} else {
+				throw new Exception("Error Processing child condition, neither from_field nor value specified: " . var_export($arrCondition, true), 1);
+			}
+		}
+	}
 
     protected function getParent($strTable, $objCurrentModel = null, $intCurrentID = null)
     {
@@ -2377,9 +2315,21 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     protected function setRoot(InterfaceGeneralModel $objCurrentEntry, $strTable)
     {
-        // Get the join field
-        $arrRootCondition = $this->objDC->getRootConditions($strTable);
-        $objCurrentEntry->setProperty($arrRootCondition[0]['field'], $arrRootCondition[0]['value']);
+		$arrRootSetter = $this->objDC->getRootSetter($strTable);
+		if (!($arrRootSetter && $arrRootSetter))
+		{
+			throw new Exception("Can not calculate parent.", 1);
+		}
+
+		foreach ($arrRootSetter as $arrCondition)
+		{
+			if (!($arrCondition['property'] && $arrCondition['value']))
+			{
+				$objCurrentEntry->setProperty($arrCondition['property'], $arrCondition['value']);
+			} else {
+				throw new Exception("Error Processing root condition, you need to specify property and value: " . var_export($arrCondition, true), 1);
+			}
+		}
     }
 
     /* /////////////////////////////////////////////////////////////////////////
