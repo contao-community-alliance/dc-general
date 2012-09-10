@@ -217,7 +217,7 @@ class GeneralModelDefault implements InterfaceGeneralModel
      */
     public function setProviderName($strProviderName)
     {
-        $this->strProviderName;
+        $this->strProviderName = $strProviderName;
     }
 
     /**
