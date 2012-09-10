@@ -130,10 +130,10 @@ interface InterfaceGeneralCallback
      * Call the load callback
      *
      * @param string $strField
-     * @param array $arrValue
-     * @return array|null
+     * @param mixed $varValue
+     * @return mixed|null
      */
-    public function loadCallback($strField, $arrValue);
+    public function loadCallback($strField, $varValue);
 
     /**
      * Call onload_callback (e.g. to check permissions)
