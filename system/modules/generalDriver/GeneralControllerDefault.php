@@ -368,7 +368,19 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         // Load basic informations
         $intID                 = $this->objDC->getId();
         $objDataProvider       = $this->objDC->getDataProvider();
-        $objLanguagesSupported = $this->objDC->getDataProvider()->getLanguages($intID);
+
+		if (in_array('InterfaceGeneralDataML', class_implements($objDataProvider)))
+		{
+			$objLanguagesSupported = $this->objDC->getDataProvider()->getLanguages($intID);
+		} else {
+			$objLanguagesSupported = NULL;
+		}
+
+		//Check if we have some languages
+		if ($objLanguagesSupported == null)
+		{
+			return self::LANGUAGE_SL;
+		}
 
         // Load language from Session
         $arrSession = $this->Session->get("dc_general");
