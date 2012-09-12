@@ -1602,8 +1602,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				continue;
 			}
 
-			$objCollection = $this->objDC->getDataProvider($strSubTable)->getEmptyCollection();
-
 			// Create a new Config
 			$objChildConfig = $this->objDC->getDataProvider($strSubTable)->getEmptyConfig();
 			$objChildConfig->setFilter($arrChildFilter);
@@ -1611,7 +1609,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			$objChildConfig->setFields($this->calcNeededFields($objModel, $strSubTable));
 
 			// Fetch all children
-			$objChildCollection = $this->objDC->getDataProvider()->fetchAll($objChildConfig);
+			$objChildCollection = $this->objDC->getDataProvider($strSubTable)->fetchAll($objChildConfig);
 
 			if ($objChildCollection->length() > 0)
 			{
@@ -1726,6 +1724,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      */
     protected function parentView()
     {
+		if (!CURRENT_ID)
+		{
+			throw new Exception("mode 4 need a proper parent defined, somehow none is defined?", 1);
+		}
         // Load language file and data container array of the parent table
         $this->loadLanguageFile($this->objDC->getParentTable());
         $this->loadDataContainer($this->objDC->getParentTable());
@@ -1772,7 +1774,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 foreach ($headerFields as $v)
                 {
                     $_v = deserialize($this->objDC->getCurrentParentCollection()->get(0)->getProperty($v));
-
+/*
                     if ($v == 'tstamp')
                     {
 						$objCollection = $this->objDC->getDataProvider()->fetchAll(
@@ -1796,7 +1798,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
                         $this->objDC->getCurrentParentCollection()->get(0)->setProperty($v, $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], max($this->objDC->getCurrentParentCollection()->get(0)->getProperty($v), $objTStampModel->getProperty('tstamp'))));
                     }
-                    elseif (isset($this->parentDc['fields'][$v]['foreignKey']))
+                    else
+*/
+                    if (isset($this->parentDc['fields'][$v]['foreignKey']))
                     {
                         $arrForeignKey = explode('.', $this->parentDc['fields'][$v]['foreignKey'], 2);
 
@@ -1804,12 +1808,12 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                                 $this->objDC->getDataProvider()->getEmptyConfig()
                                         ->setId($_v)
 										// TODO: rework to be non SQL specific.
-                                        ->setFields(array($arrForeignKey[1] . " AS value"))
+                                        ->setFields(array($arrForeignKey[1]))
                         );
 
                         if ($objLabelModel->hasProperties())
                         {
-                            $this->objDC->getCurrentParentCollection()->get(0)->setProperty($v, $objLabelModel->getProperty('value'));
+                            $this->objDC->getCurrentParentCollection()->get(0)->setProperty($v, $objLabelModel->getProperty($arrForeignKey[1]));
                         }
                     }
                 }
