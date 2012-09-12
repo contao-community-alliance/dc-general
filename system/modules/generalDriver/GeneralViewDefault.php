@@ -470,7 +470,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         // Generate buttons
         foreach ($this->objDC->getCurrentCollecion() as $objModelRow)
         {
-            $objModelRow->setMeta('%buttons%', $this->generateButtons($objModelRow, $this->objDC->getTable(), $this->objDC->getRootIds()));
+            $objModelRow->setMeta(DCGE::MODEL_BUTTONS, $this->generateButtons($objModelRow, $this->objDC->getTable(), $this->objDC->getRootIds()));
         }
 
         // Add template
@@ -597,7 +597,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
         foreach ($objCollection as $objModel)
         {
-            $objModel->setMeta('dc_gen_buttons', $this->generateButtons($objModel, $this->objDC->getTable()));
+            $objModel->setMeta(DCGE::MODEL_BUTTONS, $this->generateButtons($objModel, $this->objDC->getTable()));
 
             $strToggleID = $this->objDC->getTable() . '_' . $treeClass . '_' . $objModel->getID();
 
@@ -609,13 +609,13 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             $strHTML .= $objEntryTemplate->parse();
             $strHTML .= "\n";
 
-            if ($objModel->getMeta('dc_gen_tv_children') == true && $objModel->getMeta('dc_gen_tv_open') == true)
+            if ($objModel->getMeta(DCGE::TREE_VIEW_HAS_CHILDS) == true && $objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN) == true)
             {
                 $objChildTemplate                 = new BackendTemplate('dcbe_general_treeview_child');
                 $objChildTemplate->objParentModel = $objModel;
                 $objChildTemplate->strToggleID    = $strToggleID;
 				$strSubHTML = '';
-				foreach ($objModel->getMeta('dc_gen_children_collection') as $objCollection)
+				foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection)
 				{
 					$strSubHTML .= $this->generateTreeView($objCollection, $intMode, $treeClass);
 				}
@@ -715,7 +715,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             }
 
             $arrDef    = $this->objDC->getFieldDefinition($strSelector);
-            $arrKeys[] = $arrDef['inputType'] == 'checkbox' && !$arrDef['eval']['multiple'] ? $strSelector : $varValue;
+            $arrKeys[] = ($arrDef['inputType'] == 'checkbox' && !$arrDef['eval']['multiple']) ? $strSelector : $varValue;
         }
 
         // Build possible palette names from the selector values
@@ -1096,11 +1096,11 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                     if ($group != $strGroup)
                     {
                         $strGroup = $group;
-                        $objModel->setMeta('%header%', $group);
+                        $objModel->setMeta(DCGE::GROUP_HEADER, $group);
                     }
                 }
 
-                $objModel->setMeta('%class%', ($this->arrDCA['list']['sorting']['child_record_class'] != '') ? ' ' . $this->arrDCA['list']['sorting']['child_record_class'] : '');
+                $objModel->setMeta(DCGE::MODEL_CLASS, ($this->arrDCA['list']['sorting']['child_record_class'] != '') ? ' ' . $this->arrDCA['list']['sorting']['child_record_class'] : '');
 
                 // Regular buttons
                 if (!$this->objDC->isSelectSubmit())
@@ -1116,10 +1116,10 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                         $buttons .= $this->generateParentViewButtons($objModel);
                     }
 
-                    $objModel->setMeta('%buttons%', $buttons);
+                    $objModel->setMeta(DCGE::MODEL_BUTTONS, $buttons);
                 }
 
-                $objModel->setMeta('%content%', $this->objDC->getCallbackClass()->childRecordCallback($objModel->getPropertiesAsArray()));
+                $objModel->setMeta(DCGE::MODEL_LABEL_VALUE, $this->objDC->getCallbackClass()->childRecordCallback($objModel->getPropertiesAsArray()));
             }
         }
     }
@@ -1239,7 +1239,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                 {
                     $eoCount = -1;
 
-                    $objModelRow->setMeta('%group%', array(
+                    $objModelRow->setMeta(DCGE::MODEL_GROUP_VALUE, array(
                         'class' => $groupclass,
                         'value' => $this->objDC->formatGroupHeader($this->objDC->getFirstSorting(), $remoteNew, $sortingMode, $objModelRow)
                     ));
@@ -1249,7 +1249,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                 }
             }
 
-            $objModelRow->setMeta('%rowClass%', ((++$eoCount % 2 == 0) ? 'even' : 'odd'));
+            $objModelRow->setMeta(DCGE::MODEL_EVEN_ODD_CLASS, ((++$eoCount % 2 == 0) ? 'even' : 'odd'));
 
             $colspan = 1;
 
@@ -1293,7 +1293,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                 );
             }
 
-            $objModelRow->setMeta('%label%', $arrLabel);
+            $objModelRow->setMeta(DCGE::MODEL_LABEL_VALUE, $arrLabel);
         }
     }
 
@@ -1325,7 +1325,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         {
             if (strpos($v, ':') !== false)
             {
-                $args[$k] = $objModelRow->getMeta('%args%');
+                $args[$k] = $objModelRow->getMeta(DCGE::MODEL_LABEL_ARGS);
             }
             elseif (in_array($this->arrDCA['fields'][$v]['flag'], array(5, 6, 7, 8, 9, 10)))
             {
