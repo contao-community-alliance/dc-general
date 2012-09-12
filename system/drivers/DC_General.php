@@ -651,7 +651,7 @@ class DC_General extends DataContainer implements editable, listable
      */
     public function getDataProvider($strSource = null)
     {
-        if (is_null($strSource))
+        if (is_null($strSource) || ($strSource == 'self'))
         {
             $strSource = $this->strTable;
         }
