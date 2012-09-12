@@ -513,30 +513,9 @@ class GeneralDataDefault implements InterfaceGeneralData
     public function getCount(GeneralDataConfigDefault $objConfig)
     {
         $boolSetWhere = true;
-        $arrFilter    = $objConfig->getFilter();
 
         $query = "SELECT COUNT(*) AS count FROM " . $this->strSource;
-
-        if (!is_null($arrFilter))
-        {
-            foreach ($arrFilter AS $key => $mixedFilter)
-            {
-                if (is_array($mixedFilter))
-                {
-                    $query .= (($boolSetWhere) ? " WHERE " : " AND ") . $key . " IN(" . implode(',', $mixedFilter) . ")";
-                    $boolSetWhere = false;
-
-                    // ToDo: Patrick schlagen
-                    unset($arrFilter[$key]);
-                }
-            }
-
-            if (count($arrFilter) > 0)
-            {
-                $query .= (($boolSetWhere) ? " WHERE " : " AND ") . implode(' AND ', $arrFilter);
-                $boolSetWhere = false;
-            }
-        }
+		$query .= $this->buildFilterQuery($objConfig);
 
         $objCount = $this->objDatabase
                 ->prepare($query)

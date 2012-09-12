@@ -301,7 +301,7 @@ class DC_General extends DataContainer implements editable, listable
      * -------------------------------------------------------------------------
      * ////////////////////////////////////////////////////////////////////// */
 
-    public function __construct($strTable, array $arrDCA = null, $blnOnloadCallback = true)
+    public function __construct($strTable, array &$arrDCA = null, $blnOnloadCallback = true)
     {
         // Set start timer
         $this->intTimerStart = microtime(true);
@@ -314,7 +314,12 @@ class DC_General extends DataContainer implements editable, listable
 
         // Basic vars Init
         $this->strTable = $strTable;
-        $this->arrDCA   = ($arrDCA != null) ? $arrDCA : $GLOBALS['TL_DCA'][$this->strTable];
+		if ($arrDCA != null)
+		{
+			$this->arrDCA   = $arrDCA;
+		} else {
+			$this->arrDCA   = &$GLOBALS['TL_DCA'][$this->strTable];
+		}
 
         // Check whether the table is defined
         if (!strlen($this->strTable) || !count($this->arrDCA))
@@ -462,8 +467,15 @@ class DC_General extends DataContainer implements editable, listable
                 'class'  => 'GeneralDataDefault',
                 'source' => $this->strTable
             );
-
             $this->arrDataProvider[$this->strTable] = $arrConfig;
+
+			if ($this->arrDCA['config']['ptable'])
+			{
+				$arrSourceConfigs['parent'] = array(
+					'class'  => 'GeneralDataDefault',
+					'source' => $this->arrDCA['config']['ptable']
+				);
+			}
         }
 
         // Set all additional data provider
@@ -722,6 +734,33 @@ class DC_General extends DataContainer implements editable, listable
 
     // Join Conditions & Co. ----------------
 
+
+	public function getParentChildCondition(InterfaceGeneralModel $objParentModel, $strDstTable)
+	{
+		$arrChildDefinitions = $this->arrDCA['dca_config']['childCondition'];
+		if (is_array($arrChildDefinitions) && !empty($arrChildDefinitions))
+		{
+			$strSrcTable = $objParentModel->getProviderName();
+
+			if ($strSrcTable == 'self')
+			{
+				$strSrcTable = $this->getTable();
+			}
+
+			foreach ($arrChildDefinitions as $arrCondition)
+			{
+				$strFrom = $arrCondition['from'];
+				$strTo   = $arrCondition['to'];
+				// check table naming match
+				if ((($strFrom == $strSrcTable) || (($strFrom == 'self') && ($strSrcTable == $this->getTable())))
+				&& ((($strTo   == $strDstTable) || (($strTo   == 'self') && ($strDstTable == $this->getTable())))))
+				{
+					return $arrCondition;
+				}
+			}
+		}
+	}
+
     /**
      * Return a array with the join conditions for a special table.
      * If no value is found in the dca, the default id=pid conditions will be used.
@@ -736,51 +775,35 @@ class DC_General extends DataContainer implements editable, listable
     {
 		$arrReturn = array();
 
-		$strSrcTable = $objParentModel->getProviderName();
-
-		if ($strSrcTable == 'self')
-		{
-			$strSrcTable = $this->getTable();
-		}
-
 		if ($strDstTable == 'self')
 		{
 			$strDstTable = $this->getTable();
 		}
 
-		$arrRootDefinitions = $this->arrDCA['dca_config']['childCondition'];
-		if (is_array($arrRootDefinitions) && !empty($arrRootDefinitions))
+		$arrCondition = $this->getParentChildCondition($objParentModel, $strDstTable);
+
+		if (is_array($arrCondition) && !empty($arrCondition))
 		{
-			foreach ($arrRootDefinitions as $arrCondition)
+			// now we have a valid condition found for the desired direction.
+			// We will now replace the local and remote parts in the subconditions with the desired values
+			// from the provided model.
+			foreach ($arrCondition['filter'] as $subCondition)
 			{
-				$strFrom = $arrCondition['from'];
-				$strTo   = $arrCondition['to'];
-				// check table naming match
-				if ((($strFrom == $strSrcTable) || (($strFrom == 'self') && ($strSrcTable == $this->getTable())))
-				&& ((($strTo   == $strDstTable) || (($strTo   == 'self') && ($strDstTable == $this->getTable())))))
+				$arrNew = array
+				(
+					'operation' => $subCondition['operation'],
+					'property'  => $subCondition['local']
+				);
+				if ($subCondition['remote'])
 				{
-					// now we have a valid condition found for the desired direction.
-					// We will now replace the local and remote parts in the subconditions with the desired values
-					// from the provided model.
-					foreach ($arrCondition['filter'] as $subCondition)
-					{
-						$arrNew = array
-						(
-							'operation' => $subCondition['operation'],
-							'property'  => $subCondition['local']
-						);
-						if ($subCondition['remote'])
-						{
-							$arrNew['value'] = $objParentModel->getProperty($subCondition['remote']);
-						} else if (isset($subCondition['remote_value'])) {
-							// NOTE: keep isset() above to also allow values of '0' and 'false'.
-							$arrNew['value'] = $subCondition['remote_value'];
-						} else {
-							throw new Exception('Error: neither remote field nor remote value specified in: ' . var_export($subCondition, true), 1);
-						}
-						$arrReturn[] = $arrNew;
-					}
+					$arrNew['value'] = $objParentModel->getProperty($subCondition['remote']);
+				} else if (isset($subCondition['remote_value'])) {
+					// NOTE: keep isset() above to also allow values of '0' and 'false'.
+					$arrNew['value'] = $subCondition['remote_value'];
+				} else {
+					throw new Exception('Error: neither remote field nor remote value specified in: ' . var_export($subCondition, true), 1);
 				}
+				$arrReturn[] = $arrNew;
 			}
 		}
 
@@ -789,9 +812,9 @@ class DC_General extends DataContainer implements editable, listable
 		{
 			$arrReturn[] = array
 			(
-				'operation' => $subCondition['operation'],
+				'operation' => '=',
 				'property'  => 'pid',
-				'value'     => $objParentModel->getProperty($subCondition['id'])
+				'value'     => $objParentModel->getProperty('id')
 			);
 		}
 
@@ -823,6 +846,30 @@ class DC_General extends DataContainer implements editable, listable
 		}
 		return $arrReturn;
     }
+
+    /**
+     * Get the definition of a root entry setter
+     *
+     * @return array
+     */
+    public function getRootSetter($strTable)
+    {
+        $arrReturn = array();
+		// parse the condition into valid filter rules.
+		$arrFilters = $this->arrDCA['dca_config']['rootEntries'][$strTable]['setOn'];
+		if ($arrFilters)
+		{
+			$arrReturn = $arrFilters;
+		} else {
+			$arrReturn[] = array
+			(
+				'property'  => 'pid',
+				'value'     => 0
+			);
+		}
+		return $arrReturn;
+    }
+
 
     // Msc. ---------------------------------
 
@@ -1208,7 +1255,7 @@ class DC_General extends DataContainer implements editable, listable
      */
     public function getWidget($strField)
     {
-        // Load from chache
+        // Load from cache
         if (isset($this->arrWidgets[$strField]))
         {
             return $this->arrWidgets[$strField];
@@ -1217,14 +1264,14 @@ class DC_General extends DataContainer implements editable, listable
         // Check if editable
         if (!$this->isEditableField($strField))
         {
-            return "";
+            return NULL;
         }
 
         // Get config and check it
         $arrConfig = $this->getFieldDefinition($strField);
         if (count($arrConfig) == 0)
         {
-            return "";
+            return NULL;
         }
 
         $strInputName = $strField . '_' . $this->mixWidgetID;
@@ -1252,7 +1299,7 @@ class DC_General extends DataContainer implements editable, listable
         $strClass = $GLOBALS['BE_FFL'][$arrConfig['inputType']];
         if (!$this->classFileExists($strClass))
         {
-            return $this->arrWidgets[$strField] = "";
+            return $this->arrWidgets[$strField] = NULL;
         }
 
         // FIXME TEMPORARY WORKAROUND! To be fixed in the core: Controller::prepareForWidget(..)
@@ -1294,6 +1341,8 @@ class DC_General extends DataContainer implements editable, listable
      */
     public function processInput($strField)
     {
+		// TODO: do we need to unset this again?
+		$this->strField = $strField;
         // Check if we have allready processed this field
         if (isset($this->arrProcessed[$strField]) && $this->arrProcessed[$strField] === true)
         {

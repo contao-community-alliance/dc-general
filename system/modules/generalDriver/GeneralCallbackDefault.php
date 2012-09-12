@@ -298,11 +298,11 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
     /**
      * Call the load callback
      *
-     * @param string field
-     * @param array $arrValue
-     * @return array|null
+     * @param string $strField
+     * @param mixed $varValue
+     * @return mixed|null
      */
-    public function loadCallback($strField, $arrValue)
+    public function loadCallback($strField, $varValue)
     {
         // Load DCA
         $arrDCA       = $this->objDC->getDCA();
@@ -319,11 +319,11 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
                     $strMethod = $arrCallback[1];
 
                     $this->import($strClass);
-                    $arrValue = $this->$strClass->$strMethod($varValue, $this->objDC);
+                    $varValue = $this->$strClass->$strMethod($varValue, $this->objDC);
                 }
             }
 
-            return $arrValue;
+            return $varValue;
         }
 
         return null;

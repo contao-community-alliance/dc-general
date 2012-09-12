@@ -176,7 +176,7 @@ class GeneralModelDefault implements InterfaceGeneralModel
      */
     public function setMeta($strMetaName, $varValue)
     {
-        $this->arrMeta[$strMetaName] = $varValue;
+        $this->arrMetaInformation[$strMetaName] = $varValue;
     }
 
     /**
@@ -217,7 +217,7 @@ class GeneralModelDefault implements InterfaceGeneralModel
      */
     public function setProviderName($strProviderName)
     {
-        $this->strProviderName;
+        $this->strProviderName = $strProviderName;
     }
 
     /**
