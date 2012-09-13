@@ -1096,7 +1096,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                     if ($group != $strGroup)
                     {
                         $strGroup = $group;
-                        $objModel->setMeta(DCGE::GROUP_HEADER, $group);
+                        $objModel->setMeta(DCGE::MODEL_GROUP_HEADER, $group);
                     }
                 }
 
