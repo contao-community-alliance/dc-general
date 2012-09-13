@@ -1456,7 +1456,7 @@ class DC_General extends DataContainer implements editable, listable
             {
                 $varNew = $this->Encryption->encrypt(is_array($varNew) ? serialize($varNew) : $varNew);
             }
-            else if ($arrConfig['eval']['unique'] && !$this->getDataProvider($this->objCurrentModel->getProviderName())->isUniqueValue($strField, $varNew))
+            else if ($arrConfig['eval']['unique'] && !$this->getDataProvider($this->objCurrentModel->getProviderName())->isUniqueValue($strField, $varNew, $this->objCurrentModel->getID()))
             {
                 $this->noReload = true;
                 $objWidget->addError(sprintf($GLOBALS['TL_LANG']['ERR']['unique'], $objWidget->label));
