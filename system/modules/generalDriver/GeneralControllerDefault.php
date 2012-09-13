@@ -1128,7 +1128,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		$this->treeWalkModel($objModel, $intLevel, $arrToggle, array('self'));
 
-		foreach ($objModel->getMeta('dc_gen_children_collection') as $objCollection)
+		foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection)
 		{
 			foreach ($objCollection as $objSubModel)
 			{
@@ -1548,13 +1548,13 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		{
 			$arrFields[] = $objModel->getProperty($strField);
 		}
-		$objModel->setMeta('dc_gen_tv_title', vsprintf($this->calcLabelPattern($objModel->getProviderName()), $arrFields));
+		$objModel->setMeta(DCGE::TREE_VIEW_TITLE, vsprintf($this->calcLabelPattern($objModel->getProviderName()), $arrFields));
 
 		// Callback - let it override the just generated label
-		$strLabel = $this->objDC->getCallbackClass()->labelCallback($objModel, $objModel->getMeta('dc_gen_tv_title'), $arrFields);
+		$strLabel = $this->objDC->getCallbackClass()->labelCallback($objModel, $objModel->getMeta(DCGE::TREE_VIEW_TITLE), $arrFields);
 		if ($strLabel != '')
 		{
-			$objModel->setMeta('dc_gen_tv_title', $strLabel);
+			$objModel->setMeta(DCGE::TREE_VIEW_TITLE, $strLabel);
 		}
 	}
 
@@ -1572,22 +1572,22 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 */
 	protected function treeWalkModel(InterfaceGeneralModel $objModel, $intLevel, $arrToggle, $arrSubTables = array())
 	{
-		$objModel->setMeta('dc_gen_tv_level', $intLevel);
+		$objModel->setMeta(DCGE::TREE_VIEW_LEVEL, $intLevel);
 
 		$this->buildLabel($objModel);
 
 		if ($arrToggle['all'] == 1 && !(key_exists($objModel->getID(), $arrToggle) && $arrToggle[$objModel->getID()] == 0))
 		{
-			$objModel->setMeta('dc_gen_tv_open', true);
+			$objModel->setMeta(DCGE::TREE_VIEW_ISOPEN, true);
 		}
 		// Get toogle state
 		else if (key_exists($objModel->getID(), $arrToggle) && $arrToggle[$objModel->getID()] == 1)
 		{
-			$objModel->setMeta('dc_gen_tv_open', true);
+			$objModel->setMeta(DCGE::TREE_VIEW_IS_OPEN, true);
 		}
 		else
 		{
-			$objModel->setMeta('dc_gen_tv_open', false);
+			$objModel->setMeta(DCGE::TREE_VIEW_IS_OPEN, false);
 		}
 
 		$arrChildCollections = array();
@@ -1602,8 +1602,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				continue;
 			}
 
-			$objCollection = $this->objDC->getDataProvider($strSubTable)->getEmptyCollection();
-
 			// Create a new Config
 			$objChildConfig = $this->objDC->getDataProvider($strSubTable)->getEmptyConfig();
 			$objChildConfig->setFilter($arrChildFilter);
@@ -1611,7 +1609,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			$objChildConfig->setFields($this->calcNeededFields($objModel, $strSubTable));
 
 			// Fetch all children
-			$objChildCollection = $this->objDC->getDataProvider()->fetchAll($objChildConfig);
+			$objChildCollection = $this->objDC->getDataProvider($strSubTable)->fetchAll($objChildConfig);
 
 			if ($objChildCollection->length() > 0)
 			{
@@ -1630,18 +1628,24 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 					$this->treeWalkModel($objChildModel, $intLevel+1, $arrSubToggle, $arrSubTables);
 				}
 				$arrChildCollections[] = $objChildCollection;
+
+				// speed up, if not open, one item is enough to break as we have some childs.
+				if (!$objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN))
+				{
+					break;
+				}
 			}
 		}
 
 		// If open store children
-		if (($objModel->getMeta('dc_gen_tv_open') == true) && $arrChildCollections)
+		if ($objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN) && $arrChildCollections)
 		{
-			$objModel->setMeta('dc_gen_children_collection', $arrChildCollections);
-			$objModel->setMeta('dc_gen_tv_children', true);
+			$objModel->setMeta(DCGE::TREE_VIEW_CHILD_COLLECTION, $arrChildCollections);
+			$objModel->setMeta(DCGE::TREE_VIEW_HAS_CHILDS, true);
 		} else {
-			$objModel->setMeta('dc_gen_tv_children', false);
+			$objModel->setMeta(DCGE::TREE_VIEW_HAS_CHILDS, false);
 		}
-		$objModel->setMeta('dc_gen_tv_children', count($arrChildCollections));
+		$objModel->setMeta(DCGE::TREE_VIEW_HAS_CHILDS, count($arrChildCollections));
 	}
 
     protected function listView()
@@ -1712,7 +1716,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                                     ->setFields(array($strField))
                     );
 
-                    $objModelRow->setMeta('%args%', (($objModel->hasProperties()) ? $objModel->getProperty($strField) : ''));
+                    $objModelRow->setMeta(DCGE::MODEL_LABEL_ARGS, (($objModel->hasProperties()) ? $objModel->getProperty($strField) : ''));
                 }
             }
         }
@@ -1726,6 +1730,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      */
     protected function parentView()
     {
+		if (!CURRENT_ID)
+		{
+			throw new Exception("mode 4 need a proper parent defined, somehow none is defined?", 1);
+		}
         // Load language file and data container array of the parent table
         $this->loadLanguageFile($this->objDC->getParentTable());
         $this->loadDataContainer($this->objDC->getParentTable());
@@ -1772,7 +1780,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 foreach ($headerFields as $v)
                 {
                     $_v = deserialize($this->objDC->getCurrentParentCollection()->get(0)->getProperty($v));
-
+/*
                     if ($v == 'tstamp')
                     {
 						$objCollection = $this->objDC->getDataProvider()->fetchAll(
@@ -1796,7 +1804,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
                         $this->objDC->getCurrentParentCollection()->get(0)->setProperty($v, $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], max($this->objDC->getCurrentParentCollection()->get(0)->getProperty($v), $objTStampModel->getProperty('tstamp'))));
                     }
-                    elseif (isset($this->parentDc['fields'][$v]['foreignKey']))
+                    else
+*/
+                    if (isset($this->parentDc['fields'][$v]['foreignKey']))
                     {
                         $arrForeignKey = explode('.', $this->parentDc['fields'][$v]['foreignKey'], 2);
 
@@ -1804,12 +1814,12 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                                 $this->objDC->getDataProvider()->getEmptyConfig()
                                         ->setId($_v)
 										// TODO: rework to be non SQL specific.
-                                        ->setFields(array($arrForeignKey[1] . " AS value"))
+                                        ->setFields(array($arrForeignKey[1]))
                         );
 
                         if ($objLabelModel->hasProperties())
                         {
-                            $this->objDC->getCurrentParentCollection()->get(0)->setProperty($v, $objLabelModel->getProperty('value'));
+                            $this->objDC->getCurrentParentCollection()->get(0)->setProperty($v, $objLabelModel->getProperty($arrForeignKey[1]));
                         }
                     }
                 }

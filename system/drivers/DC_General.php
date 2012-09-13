@@ -651,7 +651,7 @@ class DC_General extends DataContainer implements editable, listable
      */
     public function getDataProvider($strSource = null)
     {
-        if (is_null($strSource))
+        if (is_null($strSource) || ($strSource == 'self'))
         {
             $strSource = $this->strTable;
         }
@@ -1456,7 +1456,7 @@ class DC_General extends DataContainer implements editable, listable
             {
                 $varNew = $this->Encryption->encrypt(is_array($varNew) ? serialize($varNew) : $varNew);
             }
-            else if ($arrConfig['eval']['unique'] && !$this->objDataProvider->isUniqueValue($strField, $varNew))
+            else if ($arrConfig['eval']['unique'] && !$this->getDataProvider($this->objCurrentModel->getProviderName())->isUniqueValue($strField, $varNew, $this->objCurrentModel->getID()))
             {
                 $this->noReload = true;
                 $objWidget->addError(sprintf($GLOBALS['TL_LANG']['ERR']['unique'], $objWidget->label));
@@ -1464,7 +1464,7 @@ class DC_General extends DataContainer implements editable, listable
             }
             else if ($arrConfig['eval']['fallback'])
             {
-                $this->objDataProvider->resetFallback($strField);
+                $this->getDataProvider($this->objCurrentModel->getProviderName())->resetFallback($strField);
             }
         }
 

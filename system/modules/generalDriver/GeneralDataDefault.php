@@ -524,13 +524,18 @@ class GeneralDataDefault implements InterfaceGeneralData
         return $objCount->count;
     }
 
-    public function isUniqueValue($strField, $varNew)
+    public function isUniqueValue($strField, $varNew, $intId = null)
     {
         $objUnique = $this->objDatabase
                 ->prepare('SELECT * FROM ' . $this->strSource . ' WHERE ' . $strField . ' = ? ')
                 ->execute($varNew);
 
         if ($objUnique->numRows == 0)
+        {
+            return true;
+        }
+
+        if (($objUnique->numRows == 1) && ($objUnique->id == $intId))
         {
             return true;
         }
