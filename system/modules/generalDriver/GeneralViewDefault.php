@@ -1064,63 +1064,60 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
     protected function setRecords()
     {
-        if (is_array($this->arrDCA['list']['sorting']['child_record_callback']))
+        $strGroup = '';
+
+        for ($i = 0; $i < $this->objDC->getCurrentCollecion()->length(); $i++)
         {
-            $strGroup = '';
+            $objModel = $this->objDC->getCurrentCollecion()->get($i);
 
-            for ($i = 0; $i < $this->objDC->getCurrentCollecion()->length(); $i++)
-            {
-                $objModel = $this->objDC->getCurrentCollecion()->get($i);
-
-                // TODO set current
+            // TODO set current
 //                $this->current[] = $objModel->getID();
-                // Decrypt encrypted value
-                foreach ($objModel as $k => $v)
+            // Decrypt encrypted value
+            foreach ($objModel as $k => $v)
+            {
+                if ($GLOBALS['TL_DCA'][$table]['fields'][$k]['eval']['encrypt'])
                 {
-                    if ($GLOBALS['TL_DCA'][$table]['fields'][$k]['eval']['encrypt'])
-                    {
-                        $v = deserialize($v);
+                    $v = deserialize($v);
 
-                        $this->import('Encryption');
-                        $objModel->setProperty($k, $this->Encryption->decrypt($v));
-                    }
+                    $this->import('Encryption');
+                    $objModel->setProperty($k, $this->Encryption->decrypt($v));
                 }
-
-                // Add the group header
-                if (!$this->arrDCA['list']['sorting']['disableGrouping'] && $this->objDC->getFirstSorting() != 'sorting')
-                {
-                    $sortingMode = (count($orderBy) == 1 && $this->objDC->getFirstSorting() == $orderBy[0] && $this->arrDCA['list']['sorting']['flag'] != '' && $this->arrDCA['fields'][$this->objDC->getFirstSorting()]['flag'] == '') ? $this->arrDCA['list']['sorting']['flag'] : $this->arrDCA['fields'][$this->objDC->getFirstSorting()]['flag'];
-                    $remoteNew   = $this->objDC->formatCurrentValue($this->objDC->getFirstSorting(), $objModel->getProperty($this->objDC->getFirstSorting()), $sortingMode);
-                    $group       = $this->objDC->formatGroupHeader($this->objDC->getFirstSorting(), $remoteNew, $sortingMode, $objModel);
-
-                    if ($group != $strGroup)
-                    {
-                        $strGroup = $group;
-                        $objModel->setMeta(DCGE::MODEL_GROUP_HEADER, $group);
-                    }
-                }
-
-                $objModel->setMeta(DCGE::MODEL_CLASS, ($this->arrDCA['list']['sorting']['child_record_class'] != '') ? ' ' . $this->arrDCA['list']['sorting']['child_record_class'] : '');
-
-                // Regular buttons
-                if (!$this->objDC->isSelectSubmit())
-                {
-                    $strPrevious = ((!is_null($this->objDC->getCurrentCollecion()->get($i - 1))) ? $this->objDC->getCurrentCollecion()->get($i - 1)->getID() : null);
-                    $strNext     = ((!is_null($this->objDC->getCurrentCollecion()->get($i + 1))) ? $this->objDC->getCurrentCollecion()->get($i + 1)->getID() : null);
-
-                    $buttons = $this->generateButtons($objModel, $this->objDC->getTable(), $this->objDC->getRootIds(), false, null, $strPrevious, $strNext);
-
-                    // Sortable table
-                    if ($this->parentView['sorting'])
-                    {
-                        $buttons .= $this->generateParentViewButtons($objModel);
-                    }
-
-                    $objModel->setMeta(DCGE::MODEL_BUTTONS, $buttons);
-                }
-
-                $objModel->setMeta(DCGE::MODEL_LABEL_VALUE, $this->objDC->getCallbackClass()->childRecordCallback($objModel->getPropertiesAsArray()));
             }
+
+            // Add the group header
+            if (!$this->arrDCA['list']['sorting']['disableGrouping'] && $this->objDC->getFirstSorting() != 'sorting')
+            {
+                $sortingMode = (count($orderBy) == 1 && $this->objDC->getFirstSorting() == $orderBy[0] && $this->arrDCA['list']['sorting']['flag'] != '' && $this->arrDCA['fields'][$this->objDC->getFirstSorting()]['flag'] == '') ? $this->arrDCA['list']['sorting']['flag'] : $this->arrDCA['fields'][$this->objDC->getFirstSorting()]['flag'];
+                $remoteNew   = $this->objDC->formatCurrentValue($this->objDC->getFirstSorting(), $objModel->getProperty($this->objDC->getFirstSorting()), $sortingMode);
+                $group       = $this->objDC->formatGroupHeader($this->objDC->getFirstSorting(), $remoteNew, $sortingMode, $objModel);
+
+                if ($group != $strGroup)
+                {
+                    $strGroup = $group;
+                    $objModel->setMeta(DCGE::MODEL_GROUP_HEADER, $group);
+                }
+            }
+
+            $objModel->setMeta(DCGE::MODEL_CLASS, ($this->arrDCA['list']['sorting']['child_record_class'] != '') ? ' ' . $this->arrDCA['list']['sorting']['child_record_class'] : '');
+
+            // Regular buttons
+            if (!$this->objDC->isSelectSubmit())
+            {
+                $strPrevious = ((!is_null($this->objDC->getCurrentCollecion()->get($i - 1))) ? $this->objDC->getCurrentCollecion()->get($i - 1)->getID() : null);
+                $strNext     = ((!is_null($this->objDC->getCurrentCollecion()->get($i + 1))) ? $this->objDC->getCurrentCollecion()->get($i + 1)->getID() : null);
+
+                $buttons = $this->generateButtons($objModel, $this->objDC->getTable(), $this->objDC->getRootIds(), false, null, $strPrevious, $strNext);
+
+                // Sortable table
+                if ($this->parentView['sorting'])
+                {
+                    $buttons .= $this->generateParentViewButtons($objModel);
+                }
+
+                $objModel->setMeta(DCGE::MODEL_BUTTONS, $buttons);
+            }
+
+            $objModel->setMeta(DCGE::MODEL_LABEL_VALUE, $this->objDC->getCallbackClass()->childRecordCallback($objModel));
         }
     }
 

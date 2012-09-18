@@ -657,7 +657,6 @@ class DC_General extends DataContainer implements editable, listable
         }
 
         $arrConfig = array();
-
         if (array_key_exists($strSource, $this->arrDataProvider))
         {
             if (is_object($this->arrDataProvider[$strSource]))
@@ -1053,6 +1052,32 @@ class DC_General extends DataContainer implements editable, listable
     {
         $this->objCurrentModel = $objCurrentModel;
     }
+
+	/**
+	 * Update the current model from a post request. Additionally, trigger meta palettes, if installed.
+	 */
+	public function updateModelFromPOST()
+	{
+		// Check if we have a auto submit
+		if ($this->isAutoSubmitted())
+		{
+			// process input and update changed properties.
+			foreach (array_keys($this->getFieldList()) as $strKey)
+			{
+				$varNewValue = $this->processInput($strKey);
+				if (($varNewValue !== NULL) && ($this->objCurrentModel->getProperty($strKey) != $varNewValue))
+				{
+					$this->objCurrentModel->setProperty($strKey, $varNewValue);
+				}
+			}
+		}
+
+		// TODO: is this really a wise idea here?
+		if(in_array('metapalettes', $this->Config->getActiveModules()))
+		{
+			MetaPalettes::getInstance()->generateSubSelectPalettes($this);
+		}
+	}
 
     /**
      * Return the Child DC
