@@ -103,10 +103,10 @@ interface InterfaceGeneralCallback
     /**
      * Call the child record callback
      *
-     * @param array $arrRow
+     * @param InterfaceGeneralModel $objModel
      * @return string|null
      */
-    public function childRecordCallback($arrRow);
+    public function childRecordCallback(InterfaceGeneralModel $objModel);
 
     /**
      * Call the options callback for given the fields

@@ -222,22 +222,22 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
     /**
      * Call the child record callback
      *
-     * @param array $arrRow
+     * @param InterfaceGeneralModel $objModel
      * @return string|null
      */
-    public function childRecordCallback($arrRow)
+    public function childRecordCallback(InterfaceGeneralModel $objModel)
     {
         // Load DCA
         $arrDCA      = $this->objDC->getDCA();
         $arrCallback = $arrDCA['list']['sorting']['child_record_callback'];
 
-        if (is_array($arrCallback))
+        if (is_array($arrCallback) && count($arrCallback))
         {
             $strClass  = $arrCallback[0];
             $strMethod = $arrCallback[1];
 
             $this->import($strClass);
-            return $this->$strClass->$strMethod($arrRow);
+            return $this->$strClass->$strMethod($objModel->getPropertiesAsArray());
         }
 
         return null;
