@@ -177,7 +177,10 @@ throw new Exception("Error Processing Request: " . $name, 1);
 			{
 				$arrFilters[] = array('operation' => '=', 'property' => $filter[0], 'value' => $filter[1]);
 			}
-			$this->getDC()->setFilter(array(array('operation' => 'AND', 'childs' => $arrFilters)));
+			if (count($arrFilters))
+			{
+				$this->getDC()->setFilter(array(array('operation' => 'AND', 'childs' => $arrFilters)));
+			}
 		}
 
 		if (is_array($arrDCA['list']['sorting']['root']) && !empty($arrDCA['list']['sorting']['root']))
@@ -187,7 +190,10 @@ throw new Exception("Error Processing Request: " . $name, 1);
 			{
 				$arrFilters[] = array('operation' => '=', 'property' => 'id', 'value' => $mixId);
 			}
-			$this->getDC()->setFilter(array(array('operation' => 'OR', 'childs' => $arrFilters)));
+			if (count($arrFilters))
+			{
+				$this->getDC()->setFilter(array(array('operation' => 'OR', 'childs' => $arrFilters)));
+			}
 		}
 
 		// TODO: we need to transport all the fields from the root conditions via the url and set filters accordingly here.
@@ -301,7 +307,7 @@ throw new Exception("Error Processing Request: " . $name, 1);
     protected function getParentViewSorting()
     {
         $mixedOrderBy = array();
-        $firstOrderBy = array();
+        $firstOrderBy = '';
 
         // Check if current sorting is set
         if (!is_null($this->getDC()->getSorting()))
