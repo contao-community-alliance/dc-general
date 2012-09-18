@@ -1503,7 +1503,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         {
             $v = is_array($v) ? $v : array($v);
             $label      = strlen($v['label'][0]) ? $v['label'][0] : $k;
-            $title      = sprintf((strlen($v['label'][1]) ? $v['label'][1] : $k), $objModelRow->getProperty('id'));
+            $title      = sprintf((strlen($v['label'][1]) ? $v['label'][1] : $k), $objModelRow->getID());
             $attributes = strlen($v['attributes']) ? ' ' . ltrim(sprintf($v['attributes'], $objModelRow->getID(), $objModelRow->getID())) : '';
 
             // Call a custom function instead of using the default button
@@ -1534,11 +1534,11 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
                 if ($dir == 'up')
                 {
-                    $return .= ((is_numeric($strPrevious) && (!in_array($objModelRow->getProperty('id'), $arrRootIds) || !count($GLOBALS['TL_DCA'][$strTable]['list']['sorting']['root']))) ? '<a href="' . $this->addToUrl($href . '&amp;id=' . $objModelRow->getProperty('id')) . '&amp;sid=' . intval($strPrevious) . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> ' : $this->generateImage('up_.gif')) . ' ';
+                    $return .= ((is_numeric($strPrevious) && (!in_array($objModelRow->getID(), $arrRootIds) || !count($GLOBALS['TL_DCA'][$strTable]['list']['sorting']['root']))) ? '<a href="' . $this->addToUrl($href . '&amp;id=' . $objModelRow->getID()) . '&amp;sid=' . intval($strPrevious) . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> ' : $this->generateImage('up_.gif')) . ' ';
                     continue;
                 }
 
-                $return .= ((is_numeric($strNext) && (!in_array($objModelRow->getProperty('id'), $arrRootIds) || !count($GLOBALS['TL_DCA'][$strTable]['list']['sorting']['root']))) ? '<a href="' . $this->addToUrl($href . '&amp;id=' . $objModelRow->getProperty('id')) . '&amp;sid=' . intval($strNext) . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> ' : $this->generateImage('down_.gif')) . ' ';
+                $return .= ((is_numeric($strNext) && (!in_array($objModelRow->getID(), $arrRootIds) || !count($GLOBALS['TL_DCA'][$strTable]['list']['sorting']['root']))) ? '<a href="' . $this->addToUrl($href . '&amp;id=' . $objModelRow->getID()) . '&amp;sid=' . intval($strNext) . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> ' : $this->generateImage('down_.gif')) . ' ';
             }
         }
 
@@ -1572,7 +1572,6 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                         . '</a> ';
             }
         }
-
         return trim($return);
     }
 
