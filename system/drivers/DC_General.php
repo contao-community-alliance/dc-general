@@ -125,12 +125,6 @@ class DC_General extends DataContainer implements editable, listable
     // Parent & Child --------------
 
     /**
-     * Name of the parent table
-     * @var String
-     */
-    protected $strParentTable = null;
-
-    /**
      * Name of the child table
      * @var String
      */
@@ -502,6 +496,7 @@ class DC_General extends DataContainer implements editable, listable
                 }
             }
         }
+		$this->arrDCA['dca_config']['data_provider'] = $arrSourceConfigs;
     }
 
     /**
@@ -651,7 +646,7 @@ class DC_General extends DataContainer implements editable, listable
      */
     public function getDataProvider($strSource = null)
     {
-        if (is_null($strSource) || ($strSource == 'self'))
+        if (($strSource == null) || ($strSource == 'self'))
         {
             $strSource = $this->strTable;
         }
@@ -667,6 +662,12 @@ class DC_General extends DataContainer implements editable, listable
             {
                 $arrConfig = $this->arrDataProvider[$strSource];
 
+				if ($arrConfig['source'])
+				{
+					$this->loadLanguageFile($arrConfig['source']);
+					$this->loadDataContainer($arrConfig['source']);
+				}
+
                 if (array_key_exists('class', $arrConfig))
                 {
                     $strClass                          = $arrConfig['class'];
@@ -681,7 +682,7 @@ class DC_General extends DataContainer implements editable, listable
         }
         else
         {
-            $arrConfig = array('source'                           => $strSource);
+            $arrConfig = array('source' => $strSource);
             $this->arrDataProvider[$strSource] = new GeneralDataDefault();
         }
 
@@ -887,10 +888,15 @@ class DC_General extends DataContainer implements editable, listable
         return $this->strTable;
     }
 
-    public function getParentTable()
-    {
-        return $this->strParentTable;
-    }
+	public function getParentTable()
+	{
+		$arrSourceConfigs = $this->arrDCA['dca_config']['data_provider'];
+		if (array_key_exists('parent', $arrSourceConfigs) && $arrSourceConfigs['parent']['source'])
+		{
+			return $arrSourceConfigs['parent']['source'];
+		}
+		return null;
+	}
 
     public function getChildTable()
     {
@@ -955,11 +961,6 @@ class DC_General extends DataContainer implements editable, listable
     public function getPanelView()
     {
         return $this->arrPanelView;
-    }
-
-    public function setParentTable($strParentTable)
-    {
-        $this->strParentTable = $strParentTable;
     }
 
     public function setChildTable($strChildTable)
