@@ -510,23 +510,21 @@ throw new Exception("Error Processing Request: " . $name, 1);
                     $arrIDs = array();
                     $arrIDs[] = $this->Input->get('id');
 
-                    // Get the join field
-                    $arrJoinCondition = $this->getDC()->getJoinConditions('self');
-
                     // Run each id
                     for ($i = 0; $i < count($arrIDs); $i++)
                     {
                         // Get current model
                         $objCurrentConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
                         $objCurrentConfig->setId($arrIDs[$i]);
-                        $objCurrentConfig->setFields(array($arrJoinCondition[0]['srcField']));
+//                        $objCurrentConfig->setFields(array($arrJoinCondition[0]['srcField']));
 
                         $objCurrentModel = $this->getDC()->getDataProvider()->fetch($objCurrentConfig);
 
-                        $strFilter = $arrJoinCondition[0]['dstField'] . $arrJoinCondition[0]['operation'] . $objCurrentModel->getProperty($arrJoinCondition[0]['srcField']);
+						// Get the join field
+						$arrJoinCondition = $this->getDC()->getChildCondition($objCurrentModel, 'self');
 
                         $objChildConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
-                        $objChildConfig->setFilter(array($strFilter));
+                        $objChildConfig->setFilter($arrJoinCondition);
                         $objChildConfig->setIdOnly(true);
 
                         $objChildCollection = $this->getDC()->getDataProvider()->fetchAll($objChildConfig);
@@ -638,12 +636,23 @@ throw new Exception("Error Processing Request: " . $name, 1);
                 {
                     // Insert After => Get the parent from he target id
                     case 1:
-                        $this->setParent($objSrcModel, $this->getParent('self', null, $intPid), 'self');
+						$objParent = $this->getParent('self', null, $intPid);
+						if ($objParent)
+						{
+							$this->setParent($objSrcModel, $objParent, 'self');
+						} else {
+							$this->setRoot($objSrcModel, 'self');
+						}
+
                         break;
 
                     // Insert Into => use the pid
                     case 2:
-                        if ($this->isRootEntry('self', $intPid))
+						if (!$intPid)
+						{
+							// no pid => insert at top level.
+							$this->setRoot($objSrcModel, 'self');
+						} else if ($this->isRootEntry('self', $intPid))
                         {
                             $this->setRoot($objSrcModel, 'self');
                         }
@@ -663,7 +672,6 @@ throw new Exception("Error Processing Request: " . $name, 1);
                         $this->redirect('contao/main.php?act=error');
                         break;
                 }
-
                 $this->objDataProvider->save($objSrcModel);
                 break;
 
@@ -1634,13 +1642,13 @@ throw new Exception("Error Processing Request: " . $name, 1);
 
         // Load record from data provider
         $objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()
-                ->setIdOnly(true)
+//                ->setIdOnly(true)
                 ->setStart($arrLimit[0])
                 ->setAmount($arrLimit[1])
                 ->setFilter($this->getFilter())
                 ->setSorting($this->getListViewSorting());
 
-        $objCollection = $objDataProvider->fetchEach($this->getDC()->getDataProvider()->getEmptyConfig()->setIds($objDataProvider->fetchAll($objConfig))->setSorting($this->getListViewSorting()));
+		$objCollection = $objDataProvider->fetchAll($objConfig);
 
         // Rename each pid to its label and resort the result (sort by parent table)
         if ($arrCurrentDCA['list']['sorting']['mode'] == 3)
@@ -2208,9 +2216,6 @@ throw new Exception("Error Processing Request: " . $name, 1);
 
     protected function getParent($strTable, $objCurrentModel = null, $intCurrentID = null)
     {
-        // Get the join field
-        $arrJoinCondition = $this->getDC()->getJoinConditions($strTable);
-
         // Check if something is set
         if ($objCurrentModel == null && $intCurrentID == null)
         {
