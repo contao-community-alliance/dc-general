@@ -738,7 +738,7 @@ class DC_General extends DataContainer implements editable, listable
 	public function getParentChildCondition(InterfaceGeneralModel $objParentModel, $strDstTable)
 	{
 		$arrChildDefinitions = $this->arrDCA['dca_config']['childCondition'];
-		if (is_array($arrChildDefinitions) && !empty($arrChildDefinitions))
+		if (is_array($arrChildDefinitions) && !empty($arrChildDefinitions) && $objParentModel)
 		{
 			$strSrcTable = $objParentModel->getProviderName();
 
@@ -870,6 +870,60 @@ class DC_General extends DataContainer implements editable, listable
 		return $arrReturn;
     }
 
+	protected function checkCondition(InterfaceGeneralModel $objParentModel, $arrFilter)
+	{
+		switch ($arrFilter['operation'])
+		{
+			case 'AND':
+			case 'OR':
+				if ($arrFilter['operation'] == 'AND')
+				{
+					foreach ($arrFilter['childs'] as $arrChild)
+					{
+						// AND => first false means false
+						if(!$this->checkCondition($objParentModel, $arrChild))
+						{
+							return false;
+						}
+					}
+					return true;
+				} else {
+					foreach ($arrFilter['childs'] as $arrChild)
+					{
+						// OR => first true means true
+						if ($this->checkCondition($objParentModel, $arrChild))
+						{
+							return true;
+						}
+					}
+					return false;
+				}
+				break;
+
+			case '=':
+				return ($objParentModel->getProperty($arrFilter['property']) == $arrFilter['value']);
+				break;
+			case '>':
+				return ($objParentModel->getProperty($arrFilter['property']) > $arrFilter['value']);
+				break;
+			case '<':
+				return ($objParentModel->getProperty($arrFilter['property']) < $arrFilter['value']);
+				break;
+
+			case 'IN':
+				return in_array($objParentModel->getProperty($arrFilter['property']), $arrFilter['value']);
+				break;
+
+			default:
+				throw new Exception('Error processing filter array - unknown operation ' . var_export($arrFilter, true), 1);
+		}
+	}
+
+	public function isRootItem(InterfaceGeneralModel $objParentModel, $strTable)
+	{
+		$arrRootConditions = $this->getRootConditions($strTable);
+		return $this->checkCondition($objParentModel, array('operation' => 'AND', 'childs' => $arrRootConditions));
+	}
 
     // Msc. ---------------------------------
 
