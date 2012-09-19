@@ -891,7 +891,7 @@ class DC_General extends DataContainer implements editable, listable
 	public function getParentTable()
 	{
 		$arrSourceConfigs = $this->arrDCA['dca_config']['data_provider'];
-		if (array_key_exists('parent', $arrSourceConfigs) && $arrSourceConfigs['parent']['source'])
+		if ($arrSourceConfigs && array_key_exists('parent', $arrSourceConfigs) && $arrSourceConfigs['parent']['source'])
 		{
 			return $arrSourceConfigs['parent']['source'];
 		}

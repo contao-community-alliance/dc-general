@@ -186,6 +186,10 @@ class GeneralDataDefault implements InterfaceGeneralData
 		{
 			case 'AND':
 			case 'OR':
+				if (!$arrFilter['childs'])
+				{
+					return '';
+				}
 				$arrCombine = array();
 				foreach ($arrFilter['childs'] as $arrChild)
 				{
