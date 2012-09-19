@@ -1410,7 +1410,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                 case 3:
                 case 4:
                     // Add new button
-                    $arrReturn[] = ' ' . (!$this->arrDCA['config']['closed'] ? '<a href="' . (strlen($this->objDC->getParentTable()) ? $this->addToUrl('act=create' . (($this->arrDCA['list']['sorting']['mode'] < 4) ? '&amp;mode=2' : '') . '&amp;pid=' . $this->objDC->getId()) : $this->addToUrl('act=create')) . '" class="header_new" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['new'][1]) . '" accesskey="n" onclick="Backend.getScrollOffset();">' . $GLOBALS['TL_LANG'][$this->objDC->getTable()]['new'][0] . '</a>' : '');
+                    $arrReturn[] = ' ' . (!$this->arrDCA['config']['closed'] ? '<a href="' . (strlen($this->objDC->getParentTable()) ? $this->addToUrl('id=&amp;act=create' . (($this->arrDCA['list']['sorting']['mode'] < 4) ? '&amp;mode=2' : '') . '&amp;pid=' . $this->objDC->getId()) : $this->addToUrl('act=create')) . '" class="header_new" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['new'][1]) . '" accesskey="n" onclick="Backend.getScrollOffset();">' . $GLOBALS['TL_LANG'][$this->objDC->getTable()]['new'][0] . '</a>' : '');
                     break;
 
                 case 5:

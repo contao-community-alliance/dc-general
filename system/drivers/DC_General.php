@@ -738,7 +738,7 @@ class DC_General extends DataContainer implements editable, listable
 	public function getParentChildCondition(InterfaceGeneralModel $objParentModel, $strDstTable)
 	{
 		$arrChildDefinitions = $this->arrDCA['dca_config']['childCondition'];
-		if (is_array($arrChildDefinitions) && !empty($arrChildDefinitions) && $objParentModel)
+		if (is_array($arrChildDefinitions) && !empty($arrChildDefinitions))
 		{
 			$strSrcTable = $objParentModel->getProviderName();
 
@@ -758,6 +758,29 @@ class DC_General extends DataContainer implements editable, listable
 					return $arrCondition;
 				}
 			}
+		} else {
+			// fallback to pid <=> id mapping (legacy dca).
+			return array
+			(
+				'from' => 'self',
+				'to' => $strDstTable,
+				'setOn' => array
+				(
+					array(
+						'to_field'    => 'pid',
+						'from_field'  => 'id',
+					),
+				),
+				'filter' => array
+				(
+					array
+					(
+						'local'       => 'pid',
+						'remote'      => 'id',
+						'operation'   => '=',
+					)
+				)
+			);
 		}
 	}
 
@@ -767,12 +790,12 @@ class DC_General extends DataContainer implements editable, listable
      *
 	 * @param InterfaceGeneralModel $objParentModel the model that holds data from the src (aka parent).
 	 *
-     * @param string                $strDstTable    Name of table for "child"
+	 * @param string                $strDstTable    Name of table for "child"
 	 *
-     * @return array
-     */
-    public function getChildCondition(InterfaceGeneralModel $objParentModel, $strDstTable)
-    {
+	 * @return array
+	 */
+	public function getChildCondition(InterfaceGeneralModel $objParentModel, $strDstTable)
+	{
 		$arrReturn = array();
 
 		if ($strDstTable == 'self')
@@ -819,7 +842,7 @@ class DC_General extends DataContainer implements editable, listable
 		}
 
 		return $arrReturn;
-    }
+	}
 
     /**
      * Get the definition of a root entry filter
@@ -1113,17 +1136,13 @@ class DC_General extends DataContainer implements editable, listable
 	 */
 	public function updateModelFromPOST()
 	{
-		// Check if we have a auto submit
-		if ($this->isAutoSubmitted())
+		// process input and update changed properties.
+		foreach (array_keys($this->getFieldList()) as $strKey)
 		{
-			// process input and update changed properties.
-			foreach (array_keys($this->getFieldList()) as $strKey)
+			$varNewValue = $this->processInput($strKey);
+			if (($varNewValue !== NULL) && ($this->objCurrentModel->getProperty($strKey) != $varNewValue))
 			{
-				$varNewValue = $this->processInput($strKey);
-				if (($varNewValue !== NULL) && ($this->objCurrentModel->getProperty($strKey) != $varNewValue))
-				{
-					$this->objCurrentModel->setProperty($strKey, $varNewValue);
-				}
+				$this->objCurrentModel->setProperty($strKey, $varNewValue);
 			}
 		}
 

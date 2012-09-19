@@ -765,7 +765,17 @@ throw new Exception("Error Processing Request: " . $name, 1);
         $this->getDC()->setCurrentModel($objDBModel);
 
         $arrDCA = $this->getDC()->getDCA();
-		if ($arrDCA['list']['sorting']['mode'] == 4)
+
+		if ($arrDCA['list']['sorting']['mode'] < 4)
+		{
+			// check if the pid id/word is set
+			if ($this->Input->get('pid'))
+			{
+				$objParentDP = $this->objDC->getDataProvider('parent');
+				$objParent = $objParentDP->fetch($objParentDP->getEmptyConfig()->setId($this->Input->get('pid')));
+				$this->setParent($objDBModel, $objParent, 'self');
+			}
+		} else if ($arrDCA['list']['sorting']['mode'] == 4)
 		{
 			// check if the pid id/word is set
 			if ($this->Input->get('pid') == '')
