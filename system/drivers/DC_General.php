@@ -347,6 +347,13 @@ class DC_General extends DataContainer implements editable, listable
         {
             $this->objCallbackClass->onloadCallback($strTable);
         }
+
+		// execute AJAX request, called from Backend::getBackendModule
+		// we have to do this here, as otherwise the script will exit as it only checks for DC_Table and DC_File decendant classes. :/
+		if ($_POST && $this->Environment->isAjaxRequest)
+		{
+			$this->getControllerHandler()->executePostActions();
+		}
     }
 
     /**
@@ -1455,7 +1462,7 @@ class DC_General extends DataContainer implements editable, listable
         $strInputName                  = $strField . '_' . $this->mixWidgetID;
 
         // Return if no submit, field is not editable or not in input
-        if ($this->blnSubmitted == false || !isset($this->arrInputs[$strInputName]) || $this->isEditableField($strField) == false)
+        if (!($this->blnSubmitted && isset($this->arrInputs[$strInputName]) && $this->isEditableField($strField)))
         {
             return null;
         }
@@ -1955,15 +1962,15 @@ class DC_General extends DataContainer implements editable, listable
         return call_user_func_array(array($this->objViewHandler, $name), array_merge(array($this), $arguments));
     }
 
-    public function generateAjaxPalette($strMethod, $strSelector)
+    public function generateAjaxPalette($strSelector)
     {
-        $strReturn = $this->objController->generateAjaxPalette($strMethod, $strSelector);
+        $strReturn = $this->objController->generateAjaxPalette($strSelector);
         if ($strReturn != null && $strReturn != "")
         {
             return $strReturn;
         }
 
-        return $this->objViewHandler->generateAjaxPalette($strMethod, $strSelector);
+        return $this->objViewHandler->generateAjaxPalette($strSelector);
     }
 
     public function ajaxTreeView($intID, $intLevel)

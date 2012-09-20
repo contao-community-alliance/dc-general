@@ -31,15 +31,15 @@ interface InterfaceGeneralView
 
     /**
      * Set the DC
-     * 
+     *
      * @param DC_General $objDC
      */
     public function setDC($objDC);
 
     /**
      * Get the DC
-     * 
-     * @return DC_General 
+     *
+     * @return DC_General
      */
     public function getDC();
 
@@ -65,7 +65,7 @@ interface InterfaceGeneralView
 
     public function undo();
 
-    public function generateAjaxPalette($strMethod, $strSelector);
+    public function generateAjaxPalette($strSelector);
 }
 
 ?>

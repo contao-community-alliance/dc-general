@@ -1164,41 +1164,46 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->getDC()->setCurrentCollecion($objTableTreeData);
     }
 
-    /**
-     * ToDo: Bugy
-     *
-     * @param type $strMethod
-     * @param type $strSelector
-     */
-    public function generateAjaxPalette($strMethod, $strSelector)
-    {
-        // Check if table is editable
-        if (!$this->getDC()->isEditable())
-        {
-            $this->log('Table ' . $this->getDC()->getTable() . ' is not editable', 'DC_General edit()', TL_ERROR);
-            $this->redirect('contao/main.php?act=error');
-        }
+	/**
+	 * Loads the current model from the data provider and overrides the selector
+	 *
+	 * @param type $strSelector the name of the checkbox toggling the palette.
+	 */
+	public function generateAjaxPalette($strSelector)
+	{
+		// Load some vars
+		$this->loadCurrentDataProvider();
 
-        // Load fields and co
-        $this->getDC()->loadEditableFields();
-        $this->getDC()->setWidgetID($this->getDC()->getId());
+		// Check
+		$this->checkIsWritable();
+		$this->checkLanguage($this->getDC());
 
-        // Check if we have fields
-        if (!$this->getDC()->hasEditableFields())
-        {
-            $this->redirect($this->getReferer());
-        }
+		// Load fields and co
+		$this->getDC()->loadEditableFields();
+		$this->getDC()->setWidgetID($this->getDC()->getId());
 
-        // Load something
-        $this->getDC()->preloadTinyMce();
+		// Check if we have fields
+		if (!$this->getDC()->hasEditableFields())
+		{
+			$this->redirect($this->getReferer());
+		}
 
-        // Load record from data provider
-        $objDBModel = $this->getDC()->getDataProvider()->fetch($this->getDC()->getDataProvider()->getEmptyConfig()->setId($this->getDC()->getId()));
-        if ($objDBModel == null)
-        {
-            $objDBModel = $this->getDC()->getDataProvider()->getEmptyModel();
-        }
-        $this->getDC()->setCurrentModel($objDBModel);
+		// Load something
+		$this->getDC()->preloadTinyMce();
+
+		$objDataProvider = $this->getDC()->getDataProvider();
+
+		// Load record from data provider
+		$objDBModel = $objDataProvider->fetch($objDataProvider->getEmptyConfig()->setId($this->getDC()->getId()));
+		if ($objDBModel == null)
+		{
+			$objDBModel = $objDataProvider->getEmptyModel();
+		}
+
+		$this->getDC()->setCurrentModel($objDBModel);
+
+		// override the setting from POST now.
+		$objDBModel->setProperty($strSelector, intval($this->Input->post('state')));
     }
 
     /* /////////////////////////////////////////////////////////////////////////
@@ -2882,6 +2887,53 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
     }
 
+	/**
+	 * Ajax actions that do require a data container object
+	 * @param DataContainer
+	 */
+	public function executePostActions()
+	{
+		header('Content-Type: text/html; charset=' . $GLOBALS['TL_CONFIG']['characterSet']);
+
+		switch ($this->Input->post('action'))
+		{
+			// Toggle subpalettes
+			case 'toggleSubpalette':
+				$this->import('BackendUser', 'User');
+
+				$arrDCA = $this->getDC()->getDCA();
+
+				// Check whether the field is a selector field and allowed for regular users (thanks to Fabian Mihailowitsch) (see #4427)
+				if (!is_array($arrDCA['palettes']['__selector__'])
+				|| !in_array($this->Input->post('field'), $arrDCA['palettes']['__selector__'])
+				|| ($arrDCA['fields'][$this->Input->post('field')]['exclude']
+					&& !$this->User->hasAccess($this->getDC()->getTable() . '::' . $this->Input->post('field'), 'alexf')))
+				{
+					$this->log('Field "' . $this->Input->post('field') . '" is not an allowed selector field (possible SQL injection attempt)', 'DC_General executePostActions()', TL_ERROR);
+					header('HTTP/1.1 400 Bad Request');
+					die('Bad Request');
+				}
+
+				if ($this->Input->get('act') == 'editAll')
+				{
+					throw new Exception("Ajax editAll unimplemented, I do not know what to do.", 1);
+					if ($this->Input->post('load'))
+					{
+						echo $this->getDC()->editAll();
+					}
+				}
+				else
+				{
+					if ($this->Input->post('load'))
+					{
+						echo $this->getDC()->generateAjaxPalette($this->Input->post('field'));
+					}
+				}
+				exit; break;
+			default:
+				// do nothing, the normal workflow from Backend will kick in now.
+		}
+	}
 }
 
 ?>

@@ -26,7 +26,7 @@
 <select name="language" class="tl_select">
 <?php foreach($this->language as $objLanguage): ?>
 	<option value="<?php echo $objLanguage->getID(); ?>"<?php if($objLanguage->getProperty('active')): ?> selected="selected"<?php endif; ?>>
-            <?php echo $objLanguage->getProperty('name'); ?> 
+            <?php echo $objLanguage->getProperty('name'); ?>
 	</option>
 <?php endforeach; ?>
 </select> <input type="submit" name="switchLanguage" id="switchLanguage" class="tl_submit" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['editSelected']); ?>" />
@@ -67,7 +67,7 @@
 </div>
 <?php endforeach; else: foreach($this->fieldsets as $arrFieldset): if($arrFieldset['legend']): ?>
 <fieldset id="pal_<?php echo specialchars($arrFieldset['legend']); ?>" class="<?php echo $arrFieldset['class']; ?> block">
-<legend><?php echo $arrFieldset['label']; ?></legend>
+<legend onclick="AjaxRequest.toggleFieldset(this,'<?php echo specialchars($arrFieldset['legend']); ?>','<?php echo specialchars($this->table); ?>')"><?php echo $arrFieldset['label']; ?></legend>
   <?php echo $arrFieldset['palette']; ?>
 </fieldset>
 <?php else: ?>
@@ -84,7 +84,7 @@
 <?php foreach($this->buttons as $strButton => $strLabel): ?>
 <input type="submit" name="<?php echo $strButton; ?>"
 	id="<?php echo $strButton; ?>" class="tl_submit" accesskey="s"
-	value="<?php echo $strLabel ?>" /> 
+	value="<?php echo $strLabel ?>" />
 <?php endforeach; ?>
 </div>
 
