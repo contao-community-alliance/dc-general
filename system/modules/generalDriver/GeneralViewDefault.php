@@ -1532,28 +1532,48 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             // Generate all buttons except "move up" and "move down" buttons
             if ($k != 'move' && $v != 'move')
             {
-
-                //pdp=tl_dca&pid=2&dpd=tl_dcasetting&id=3&after=
-
-                $strPDP = $this->objDC->getDataProvider('parent');
-                
-                if($strPDP != null)
+                switch ($k)
                 {
-                    $strPDP = $strPDP->getEmptyModel()->getProviderName();
+                    case 'cut':
+                        $strCDP = $this->objDC->getDataProvider('self')->getEmptyModel()->getProviderName();
+                        $strPDP = $this->objDC->getDataProvider('parent');
+                        if ($strPDP != null)
+                        {
+                            $strPDP = $strPDP->getEmptyModel()->getProviderName();
+
+                            $return .= '<a href="'
+                                    . $this->addToUrl($v['href'] . '&amp;id=' . $objModelRow->getID() . '&amp;pdp=' . $strPDP . '&amp;cdp=' . $strCDP)
+                                    . '" title="' . specialchars($title)
+                                    . '"'
+                                    . $attributes
+                                    . '>'
+                                    . $this->generateImage($v['icon'], $label)
+                                    . '</a>';
+                        }
+                        else
+                        {
+                            $return .= '<a href="'
+                                    . $this->addToUrl($v['href'] . '&amp;id=' . $objModelRow->getID())
+                                    . '" title="' . specialchars($title)
+                                    . '"'
+                                    . $attributes
+                                    . '>'
+                                    . $this->generateImage($v['icon'], $label)
+                                    . '</a>';
+                        }
+                        break;
+
+                    default:
+                        $return .= '<a href="'
+                                . $this->addToUrl($v['href'] . '&amp;id=' . $objModelRow->getID())
+                                . '" title="' . specialchars($title)
+                                . '"'
+                                . $attributes
+                                . '>'
+                                . $this->generateImage($v['icon'], $label)
+                                . '</a>';
+                        break;
                 }
-                
-                
-                $strCDP = $this->objDC->getDataProvider('self')->getEmptyModel()->getProviderName();
-
-                $return .= '<a href="'
-                        . $this->addToUrl($v['href'] . '&amp;id=' . $objModelRow->getID() . '&amp;pdp=' .$strPDP . '&amp;cdp=' .$strCDP )
-                        . '" title="' . specialchars($title)
-                        . '"'
-                        . $attributes
-                        . '>'
-                        . $this->generateImage($v['icon'], $label)
-                        . '</a>';
-
                 continue;
             }
 
@@ -1592,16 +1612,32 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             }
             else
             {
+                // Add ext. information
+                $strAdd2UrlAfter = 'act=' . $arrClipboard['mode'] . '&amp;mode=1&amp;pid=' . $objModelRow->getID() . '&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs'];
+                $strAdd2UrlInto  = 'act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=' . $objModelRow->getID() . '&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs'];
+
+                if ($arrClipboard['pdp'] != '')
+                {
+                    $strAdd2UrlAfter .= '&amp;pdp=' . $arrClipboard['pdp'];
+                    $strAdd2UrlInto .= '&amp;pdp=' . $arrClipboard['pdp'];
+                }
+
+                if ($arrClipboard['cdp'] != '')
+                {
+                    $strAdd2UrlAfter .= '&amp;cdp=' . $arrClipboard['cdp'];
+                    $strAdd2UrlInto .= '&amp;cdp=' . $arrClipboard['cdp'];
+                }
+
                 $imagePasteAfter = $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0], 'class="blink"');
                 $return .= '<a href="'
-                        . $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=1&amp;pid=' . $objModelRow->getID() . '&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs'])
+                        . $this->addToUrl($strAdd2UrlAfter)
                         . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0]) . '" onclick="Backend.getScrollOffset()">'
                         . $imagePasteAfter
                         . '</a> ';
 
                 $imagePasteInto = $this->generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0], 'class="blink"');
                 $return .= '<a href="'
-                        . $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=' . $objModelRow->getID() . '&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs'])
+                        . $this->addToUrl($strAdd2UrlInto)
                         . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">'
                         . $imagePasteInto
                         . '</a> ';

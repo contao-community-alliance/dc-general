@@ -169,7 +169,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             return $arrFilter;
 
         $arrDCA = $this->getDC()->getDCA();
-        
+
         // Custom filter
         if (is_array($arrDCA['list']['sorting']['filter']) && !empty($arrDCA['list']['sorting']['filter']))
         {
@@ -487,9 +487,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      * Check clipboard state. Clear or save state of it.
      */
     protected function checkClipboard()
-    {
+    {        
         $arrClipboard = $this->loadClipboard();
-
+        
         // Reset Clipboard
         if ($this->Input->get('clipboard') == '1')
         {
@@ -503,9 +503,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $arrClipboard[$this->getDC()->getTable()] = array(
                 'id'     => $this->Input->get('id'),
                 'childs' => $this->Input->get('childs'),
-                'mode'   => $this->Input->get('mode')
+                'mode'   => $this->Input->get('mode'),
+                'pdp'    => $this->Input->get('pdp'),
+                'cdp'    => $this->Input->get('cdp'),
             );
-
+            
             switch ($this->Input->get('mode'))
             {
                 case 'cut':
@@ -515,7 +517,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
                     // Run each id
                     for ($i = 0; $i < count($arrIDs); $i++)
-                    {
+                    {                        
                         // Get current model
                         $objCurrentConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
                         $objCurrentConfig->setId($arrIDs[$i]);
@@ -534,7 +536,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
                         foreach ($objChildCollection as $key => $value)
                         {
-                            $arrIDs[] = $value;
+                            if(!in_array($value, $arrIDs))
+                            {
+                                $arrIDs[] = $value;
+                            }
                         }
                     }
 
@@ -1405,22 +1410,22 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     protected function reorderSorting($objConfig = null)
     {
-        if($objConfig == null)
+        if ($objConfig == null)
         {
             $objConfig = $this->objDataProvider->getEmptyConfig();
         }
-        
+
         // Search for the lowest sorting        
         $objConfig->setFields(array('sorting'));
         $objConfig->setSorting(array('sorting'));
         $arrCollection = $this->objDataProvider->fetchAll($objConfig);
-        
-        $i = 1;
+
+        $i        = 1;
         $intCount = 128;
 
         foreach ($arrCollection as $value)
         {
-            $value->setProperty('sorting', $intCount * $i++ );
+            $value->setProperty('sorting', $intCount * $i++);
             $this->objDataProvider->save($value);
         }
     }
