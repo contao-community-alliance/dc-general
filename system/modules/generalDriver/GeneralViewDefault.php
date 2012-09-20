@@ -269,18 +269,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             'noReload'         => $this->objDC->isNoReload()
         ));
 
-        // Set JS
-        $GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/generalDriver/html/js/generalDriver.js';
-
         return $objTemplate->parse();
-
-        // Old stuff and so -----------
-//        if ($intID && $strSelector)
-//        {
-//            return $objPaletteBuilder->generateAjaxPalette(
-//                            $strSelector, $strSelector . '--' . $this->varWidgetID, $this->getTemplate('be_tableextended_field')
-//            );
-//        }
     }
 
     /**
@@ -431,15 +420,6 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
         // Return :P
         return $strHTML;
-    }
-
-    public function generateAjaxPalette($strMethod, $strSelector)
-    {
-        $objPaletteBuilder = new PaletteBuilder($this->objDC);
-
-        return $objPaletteBuilder->generateAjaxPalette(
-                        $strSelector, $strSelector . '_' . $objDcGeneral->getWidgetID(), 'dcbe_general_field'
-        );
     }
 
     /* /////////////////////////////////////////////////////////////////////////
@@ -708,7 +688,6 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         foreach ($arrSelectors as $strSelector)
         {
             $varValue = $this->objCurrentModel->getProperty($strSelector);
-
             if (!strlen($varValue))
             {
                 continue;
@@ -814,7 +793,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         }
     }
 
-    public function generateFieldsets($strFieldTemplate, array $arrStates)
+    public function generateFieldsets($strFieldTemplate)
     {
         $arrRootPalette = $this->arrRootPalette;
 
@@ -849,6 +828,27 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         return $arrRootPalette;
     }
 
+	/**
+	 * Generates a subpalette for the given selector (field name)
+	 *
+	 * @param string $strSelector the name of the selector field.
+	 *
+	 * @return string the generated HTML code.
+	 */
+	public function generateAjaxPalette($strSelector)
+	{
+		// Load basic informations
+		$this->checkLanguage();
+		$this->loadCurrentModel();
+
+		// Get all selectors
+		$this->arrStack[] = $this->objDC->getSubpalettesDefinition();
+		$this->calculateSelectors($this->arrStack[0]);
+		$this->parseRootPalette();
+
+		return is_array($this->arrAjaxPalettes[$strSelector]) ? $this->generatePalette($this->arrAjaxPalettes[$strSelector], 'dcbe_general_field') : '';
+	}
+
     protected function generatePalette(array $arrPalette, $strFieldTemplate)
     {
         ob_start();
@@ -880,13 +880,6 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 //				&& strpos($strClass, 'w50') !== false
 //				&& strpos($strClass, 'cbx') === false)
 //					$strClass .= ' cbx';
-
-                if ($arrConfig['eval']['submitOnChange'] && $this->isSelector($varField))
-                {
-                    $objWidget->onclick  = '';
-                    $objWidget->onchange = '';
-                    $strClass .= ' selector';
-                }
 
                 $strName       = specialchars($objWidget->name);
                 $blnUpdate     = $arrConfig['update'];
