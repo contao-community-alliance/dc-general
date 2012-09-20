@@ -120,8 +120,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         switch ($name)
         {
             default:
-throw new Exception("Error Processing Request: " . $name, 1);
-                            return sprintf($this->notImplMsg, $name);
+                throw new Exception("Error Processing Request: " . $name, 1);
+                return sprintf($this->notImplMsg, $name);
                 break;
         };
     }
@@ -158,66 +158,67 @@ throw new Exception("Error Processing Request: " . $name, 1);
         $this->objDC = $objDC;
     }
 
-	/**
-	 * Get filter for the data provider
-	 * @return array();
-	 */
-	protected function getFilter()
-	{
-		$arrFilter = $this->getDC()->getFilter();
-		if ($arrFilter)
-			return $arrFilter;
+    /**
+     * Get filter for the data provider
+     * @return array();
+     */
+    protected function getFilter()
+    {
+        $arrFilter = $this->getDC()->getFilter();
+        if ($arrFilter)
+            return $arrFilter;
 
-		$arrDCA = $this->getDC()->getDCA();
-		// Custom filter
-		if (is_array($arrDCA['list']['sorting']['filter']) && !empty($arrDCA['list']['sorting']['filter']))
-		{
-			$arrFilters=array();
-			foreach ($arrDCA['list']['sorting']['filter'] as $filter)
-			{
-				$arrFilters[] = array('operation' => '=', 'property' => $filter[0], 'value' => $filter[1]);
-			}
-			if (count($arrFilters))
-			{
-				$this->getDC()->setFilter(array(array('operation' => 'AND', 'childs' => $arrFilters)));
-			}
-		}
+        $arrDCA = $this->getDC()->getDCA();
+        
+        // Custom filter
+        if (is_array($arrDCA['list']['sorting']['filter']) && !empty($arrDCA['list']['sorting']['filter']))
+        {
+            $arrFilters = array();
+            foreach ($arrDCA['list']['sorting']['filter'] as $filter)
+            {
+                $arrFilters[] = array('operation' => '=', 'property'  => $filter[0], 'value'     => $filter[1]);
+            }
+            if (count($arrFilters))
+            {
+                $this->getDC()->setFilter(array(array('operation' => 'AND', 'childs'    => $arrFilters)));
+            }
+        }
 
-		if (is_array($arrDCA['list']['sorting']['root']) && !empty($arrDCA['list']['sorting']['root']))
-		{
-			$arrFilters=array();
-			foreach ($arrDCA['list']['sorting']['root'] as $mixId)
-			{
-				$arrFilters[] = array('operation' => '=', 'property' => 'id', 'value' => $mixId);
-			}
-			if (count($arrFilters))
-			{
-				$this->getDC()->setFilter(array(array('operation' => 'OR', 'childs' => $arrFilters)));
-			}
-		}
+        if (is_array($arrDCA['list']['sorting']['root']) && !empty($arrDCA['list']['sorting']['root']))
+        {
+            $arrFilters = array();
+            foreach ($arrDCA['list']['sorting']['root'] as $mixId)
+            {
+                $arrFilters[] = array('operation' => '=', 'property'  => 'id', 'value'     => $mixId);
+            }
+            if (count($arrFilters))
+            {
+                $this->getDC()->setFilter(array(array('operation' => 'OR', 'childs'    => $arrFilters)));
+            }
+        }
 
-		// TODO: we need to transport all the fields from the root conditions via the url and set filters accordingly here.
-		// FIXME: this is only valid for mode 4 appearantly, fix for other views.
-		if ($this->Input->get('table') && !is_null($this->getDC()->getParentTable()))
-		{
-			$objParentDP   = $this->getDC()->getDataProvider('parent');
-			$objParentItem = $objParentDP->fetch($objParentDP->getEmptyConfig()->setId(CURRENT_ID));
-			$objCollection = $objParentDP->getEmptyCollection();
-			$objCollection->add($objParentItem);
-			// NOTE: we set the parent collection here, which will get used in the parentView() routine.
-			$this->getDC()->setCurrentParentCollection($objCollection);
-			$arrFilter = $this->getDC()->getChildCondition($objParentItem, 'self');
+        // TODO: we need to transport all the fields from the root conditions via the url and set filters accordingly here.
+        // FIXME: this is only valid for mode 4 appearantly, fix for other views.
+        if ($this->Input->get('table') && !is_null($this->getDC()->getParentTable()))
+        {
+            $objParentDP   = $this->getDC()->getDataProvider('parent');
+            $objParentItem = $objParentDP->fetch($objParentDP->getEmptyConfig()->setId(CURRENT_ID));
+            $objCollection = $objParentDP->getEmptyCollection();
+            $objCollection->add($objParentItem);
+            // NOTE: we set the parent collection here, which will get used in the parentView() routine.
+            $this->getDC()->setCurrentParentCollection($objCollection);
+            $arrFilter     = $this->getDC()->getChildCondition($objParentItem, 'self');
 
-			$this->getDC()->setFilter($arrFilter);
-		}
+            $this->getDC()->setFilter($arrFilter);
+        }
 
-		// FIXME implement panel filter from session
-
-
+        // FIXME implement panel filter from session
 
 
-		return $this->getDC()->getFilter();
-	}
+
+
+        return $this->getDC()->getFilter();
+    }
 
     /**
      * Get limit for the data provider
@@ -241,7 +242,7 @@ throw new Exception("Error Processing Request: " . $name, 1);
      */
     protected function getListViewSorting()
     {
-        $arrDCA = $this->getDC()->getDCA();
+        $arrDCA       = $this->getDC()->getDCA();
         $mixedOrderBy = $arrDCA['list']['sorting']['fields'];
 
         if (is_null($this->getDC()->getFirstSorting()))
@@ -382,21 +383,23 @@ throw new Exception("Error Processing Request: " . $name, 1);
     protected function checkLanguage()
     {
         // Load basic informations
-        $intID                 = $this->getDC()->getId();
-        $objDataProvider       = $this->getDC()->getDataProvider();
+        $intID           = $this->getDC()->getId();
+        $objDataProvider = $this->getDC()->getDataProvider();
 
-		if (in_array('InterfaceGeneralDataML', class_implements($objDataProvider)))
-		{
-			$objLanguagesSupported = $this->getDC()->getDataProvider()->getLanguages($intID);
-		} else {
-			$objLanguagesSupported = NULL;
-		}
+        if (in_array('InterfaceGeneralDataML', class_implements($objDataProvider)))
+        {
+            $objLanguagesSupported = $this->getDC()->getDataProvider()->getLanguages($intID);
+        }
+        else
+        {
+            $objLanguagesSupported = NULL;
+        }
 
-		//Check if we have some languages
-		if ($objLanguagesSupported == null)
-		{
-			return self::LANGUAGE_SL;
-		}
+        //Check if we have some languages
+        if ($objLanguagesSupported == null)
+        {
+            return self::LANGUAGE_SL;
+        }
 
         // Load language from Session
         $arrSession = $this->Session->get("dc_general");
@@ -427,7 +430,7 @@ throw new Exception("Error Processing Request: " . $name, 1);
         {
             if (key_exists($this->Input->post("language"), $arrLanguage))
             {
-                $strCurrentLanguage                                         = $this->Input->post("language");
+                $strCurrentLanguage                                           = $this->Input->post("language");
                 $arrSession["ml_support"][$this->getDC()->getTable()][$intID] = $strCurrentLanguage;
             }
             else if (key_exists($strCurrentLanguage, $arrLanguage))
@@ -436,8 +439,8 @@ throw new Exception("Error Processing Request: " . $name, 1);
             }
             else
             {
-                $objlanguageFallback                                        = $objDataProvider->getFallbackLanguage();
-                $strCurrentLanguage                                         = $objlanguageFallback->getID();
+                $objlanguageFallback                                          = $objDataProvider->getFallbackLanguage();
+                $strCurrentLanguage                                           = $objlanguageFallback->getID();
                 $arrSession["ml_support"][$this->getDC()->getTable()][$intID] = $strCurrentLanguage;
             }
         }
@@ -520,8 +523,8 @@ throw new Exception("Error Processing Request: " . $name, 1);
 
                         $objCurrentModel = $this->getDC()->getDataProvider()->fetch($objCurrentConfig);
 
-						// Get the join field
-						$arrJoinCondition = $this->getDC()->getChildCondition($objCurrentModel, 'self');
+                        // Get the join field
+                        $arrJoinCondition = $this->getDC()->getChildCondition($objCurrentModel, 'self');
 
                         $objChildConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
                         $objChildConfig->setFilter($arrJoinCondition);
@@ -631,28 +634,49 @@ throw new Exception("Error Processing Request: " . $name, 1);
         // Check mode
         switch ($arrDCA['list']['sorting']['mode'])
         {
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                switch ($intMode)
+                {
+                    case 1:
+                    case 2:
+                        $this->getNewPosition($objSrcModel, 'cut', $intPid, $intMode);
+                        break;
+
+                    default:
+                        $this->log('Unknown create mode for cut in ' . $this->getDC()->getTable(), 'DC_General - Controller - cut()', TL_ERROR);
+                        $this->redirect('contao/main.php?act=error');
+                        break;
+                }
+                break;
+
             case 5:
                 switch ($intMode)
                 {
-                    // Insert After => Get the parent from he target id
+                    // Insert After => Get the parent from the target id
                     case 1:
-						$objParent = $this->getParent('self', null, $intPid);
-						if ($objParent)
-						{
-							$this->setParent($objSrcModel, $objParent, 'self');
-						} else {
-							$this->setRoot($objSrcModel, 'self');
-						}
+                        $objParent = $this->getParent('self', null, $intPid);
+                        if ($objParent)
+                        {
+                            $this->setParent($objSrcModel, $objParent, 'self');
+                        }
+                        else
+                        {
+                            $this->setRoot($objSrcModel, 'self');
+                        }
 
                         break;
 
                     // Insert Into => use the pid
                     case 2:
-						if (!$intPid)
-						{
-							// no pid => insert at top level.
-							$this->setRoot($objSrcModel, 'self');
-						} else if ($this->isRootEntry('self', $intPid))
+                        if (!$intPid)
+                        {
+                            // no pid => insert at top level.
+                            $this->setRoot($objSrcModel, 'self');
+                        }
+                        else if ($this->isRootEntry('self', $intPid))
                         {
                             $this->setRoot($objSrcModel, 'self');
                         }
@@ -672,13 +696,15 @@ throw new Exception("Error Processing Request: " . $name, 1);
                         $this->redirect('contao/main.php?act=error');
                         break;
                 }
-                $this->objDataProvider->save($objSrcModel);
                 break;
 
             default:
                 return vsprintf($this->notImplMsg, 'cut - Mode ' . $arrDCA['list']['sorting']['mode']);
                 break;
         }
+
+        // Save new sorting 
+        $this->objDataProvider->save($objSrcModel);
 
         // Reset clipboard + redirect
         $this->resetClipboard(true);
@@ -766,26 +792,28 @@ throw new Exception("Error Processing Request: " . $name, 1);
 
         $arrDCA = $this->getDC()->getDCA();
 
-		if ($arrDCA['list']['sorting']['mode'] < 4)
-		{
-			// check if the pid id/word is set
-			if ($this->Input->get('pid'))
-			{
-				$objParentDP = $this->objDC->getDataProvider('parent');
-				$objParent = $objParentDP->fetch($objParentDP->getEmptyConfig()->setId($this->Input->get('pid')));
-				$this->setParent($objDBModel, $objParent, 'self');
-			}
-		} else if ($arrDCA['list']['sorting']['mode'] == 4)
-		{
-			// check if the pid id/word is set
-			if ($this->Input->get('pid') == '')
-			{
-				$this->log('Missing pid for new entry in ' . $this->getDC()->getTable(), 'DC_General - Controller - create()', TL_ERROR);
-				$this->redirect('contao/main.php?act=error');
-			}
+        if ($arrDCA['list']['sorting']['mode'] < 4)
+        {
+            // check if the pid id/word is set
+            if ($this->Input->get('pid'))
+            {
+                $objParentDP = $this->objDC->getDataProvider('parent');
+                $objParent   = $objParentDP->fetch($objParentDP->getEmptyConfig()->setId($this->Input->get('pid')));
+                $this->setParent($objDBModel, $objParent, 'self');
+            }
+        }
+        else if ($arrDCA['list']['sorting']['mode'] == 4)
+        {
+            // check if the pid id/word is set
+            if ($this->Input->get('pid') == '')
+            {
+                $this->log('Missing pid for new entry in ' . $this->getDC()->getTable(), 'DC_General - Controller - create()', TL_ERROR);
+                $this->redirect('contao/main.php?act=error');
+            }
 
-			$objDBModel->setProperty('pid', $this->Input->get('pid'));
-		} else if ($arrDCA['list']['sorting']['mode'] == 5 && $this->Input->get('mode') != '')
+            $objDBModel->setProperty('pid', $this->Input->get('pid'));
+        }
+        else if ($arrDCA['list']['sorting']['mode'] == 5 && $this->Input->get('mode') != '')
         {
             // check if the pid id/word is set
             if ($this->Input->get('pid') == '')
@@ -827,7 +855,7 @@ throw new Exception("Error Processing Request: " . $name, 1);
         }
 
         // Check if we have a auto submit
-		$this->getDC()->updateModelFromPOST();
+        $this->getDC()->updateModelFromPOST();
 
         // Check submit
         if ($this->getDC()->isSubmitted() == true)
@@ -1058,12 +1086,11 @@ throw new Exception("Error Processing Request: " . $name, 1);
 
         $this->getDC()->setButtonId('tl_buttons');
 
-		$this->getFilter();
+        $this->getFilter();
 
         $arrDCA = $this->getDC()->getDCA();
 
         //        $this->panel($this->getDC());
-
         // Switch mode
         switch ($arrDCA['list']['sorting']['mode'])
         {
@@ -1085,7 +1112,7 @@ throw new Exception("Error Processing Request: " . $name, 1);
                 return $this->notImplMsg;
                 break;
         }
-		// keep panel after real view compilation, as in there the limits etc will get compiled.
+        // keep panel after real view compilation, as in there the limits etc will get compiled.
         $this->panel($this->getDC());
     }
 
@@ -1112,25 +1139,25 @@ throw new Exception("Error Processing Request: " . $name, 1);
 
         $this->Session->set($strToggleID, $arrToggle);
 
-		// Init some vars
-		$objTableTreeData      = $this->objDataProvider->getEmptyCollection();
-		$objRootConfig         = $this->objDataProvider->getEmptyConfig();
-		$objRootConfig->setId($intID);
+        // Init some vars
+        $objTableTreeData = $this->objDataProvider->getEmptyCollection();
+        $objRootConfig    = $this->objDataProvider->getEmptyConfig();
+        $objRootConfig->setId($intID);
 
-		$objModel = $this->objDataProvider->fetch($objRootConfig);
+        $objModel = $this->objDataProvider->fetch($objRootConfig);
 
-		$this->treeWalkModel($objModel, $intLevel, $arrToggle, array('self'));
+        $this->treeWalkModel($objModel, $intLevel, $arrToggle, array('self'));
 
-		foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection)
-		{
-			foreach ($objCollection as $objSubModel)
-			{
-				$objTableTreeData->add($objSubModel);
-			}
-		}
+        foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection)
+        {
+            foreach ($objCollection as $objSubModel)
+            {
+                $objTableTreeData->add($objSubModel);
+            }
+        }
 
-		$this->getDC()->setCurrentCollecion($objTableTreeData);
-	}
+        $this->getDC()->setCurrentCollecion($objTableTreeData);
+    }
 
     /**
      * ToDo: Bugy
@@ -1252,6 +1279,8 @@ throw new Exception("Error Processing Request: " . $name, 1);
             $objDBModel->setProperty("tstamp", time());
         }
 
+        $this->getNewPosition($objDBModel, 'create', null, false);
+
         // everything went ok, now save the new record
         $this->getDC()->getDataProvider()->save($objDBModel);
 
@@ -1281,6 +1310,119 @@ throw new Exception("Error Processing Request: " . $name, 1);
 
         // Return the current model
         return $objDBModel;
+    }
+
+    /**
+     * Calculate the new position of an element
+     * 
+     * @param type $objDBModel The model with the current informations
+     * @param type $mode The mode like copy, cut and so on
+     * @param type $pid The parent id
+     * @param type $insertMode <p>List Mode 4<br/> Insert Mode 1 - Insert after elment x <br/> Insert Mode 2 - Insert at the beginning of the list</p>
+     * 
+     * @return type
+     */
+    protected function getNewPosition($objDBModel, $mode, $pid = null, $insertMode = false)
+    {
+        $blnPidExists     = $this->objDataProvider->fieldExists('pid');
+        $blnSortingExists = $this->objDataProvider->fieldExists('sorting');
+        $intHigestSorting = 128;
+        $intLowestSorting = 128;
+        $intNextSorting   = 0;
+
+        // Check if we have a sorting field, if not skip here
+        if (!$blnSortingExists)
+        {
+            echo "no sorting";
+            return;
+        }
+
+        // Funktion for create
+        if ($mode == 'create')
+        {
+            // Default - Add to end off all
+            // Search for the highest sorting
+            $objConfig = $this->objDataProvider->getEmptyConfig();
+            $objConfig->setFields(array('sorting'));
+            $arrCollection = $this->objDataProvider->fetchAll($objConfig);
+
+            foreach ($arrCollection as $value)
+            {
+                if ($value->getProperty('sorting') > $intHigestSorting)
+                {
+                    $intHigestSorting = $value->getProperty('sorting');
+                }
+            }
+
+            $intNextSorting = $intHigestSorting + 128;
+
+            // Set new Sorting
+            $objDBModel->setProperty('sorting', $intNextSorting);
+
+            return;
+        }
+
+        //id=295&act=cut&mode=1&pid=294
+        // Funktion for cut
+        if ($mode == 'cut' && $insertMode != false)
+        {
+            if ($insertMode == 1)
+            {
+                
+            }
+            else if ($insertMode == 2) // Add at the beginning of the list
+            {
+                // Search for the lowest sorting
+                $objConfig = $this->objDataProvider->getEmptyConfig();
+                $objConfig->setFields(array('sorting'));
+                $arrCollection = $this->objDataProvider->fetchAll($objConfig);
+
+                foreach ($arrCollection as $value)
+                {
+                    if ($value->getProperty('sorting') < $intLowestSorting && $value->getProperty('sorting') != 0)
+                    {
+                        $intLowestSorting = $value->getProperty('sorting');
+                    }
+                }
+
+                // If we have no room, reorder all sortings and call the function again
+                if ($intLowestSorting <= 1)
+                {
+                    $this->reorderSorting();
+                    $this->getNewPosition($objDBModel, $mode, $pid, $insertMode);
+                    return;
+                }
+
+                $intNextSorting = round($intLowestSorting - 2);
+
+                // Set new Sorting
+                $objDBModel->setProperty('sorting', $intNextSorting);
+
+                return;
+            }
+        }
+    }
+
+    protected function reorderSorting($objConfig = null)
+    {
+        if($objConfig == null)
+        {
+            $objConfig = $this->objDataProvider->getEmptyConfig();
+        }
+        
+        // Search for the lowest sorting        
+        $objConfig->setFields(array('sorting'));
+        $objConfig->setSorting(array('sorting'));
+        $arrCollection = $this->objDataProvider->fetchAll($objConfig);
+        
+        $i = 1;
+        $intCount = 128;
+
+        foreach ($arrCollection as $value)
+        {
+            $value->setProperty('sorting', $intCount * $i++ );
+            $this->objDataProvider->save($value);
+        }
     }
 
     /* /////////////////////////////////////////////////////////////////////////
@@ -1408,14 +1550,14 @@ throw new Exception("Error Processing Request: " . $name, 1);
 
     protected function treeViewM5()
     {
-        $arrDCA = $this->getDC()->getDCA();
+        $arrDCA          = $this->getDC()->getDCA();
         // Load some infromations from DCA
         $arrNeededFields = $arrDCA['list']['label']['fields'];
         $arrLablesFields = $arrDCA['list']['label']['fields'];
         $arrTitlePattern = $arrDCA['list']['label']['format'];
         $arrRootEntries  = $this->getDC()->getRootConditions('self');
 
-		// TODO: @CS we need this to be srctable_dsttable_tree for interoperability, for mode5 this will be self_self_tree but with strTable.
+        // TODO: @CS we need this to be srctable_dsttable_tree for interoperability, for mode5 this will be self_self_tree but with strTable.
         $strToggleID = $this->getDC()->getTable() . '_tree';
 
         $arrToggle = $this->Session->get($strToggleID);
@@ -1443,29 +1585,28 @@ throw new Exception("Error Processing Request: " . $name, 1);
         }
 
         // Init some vars
-        $objTableTreeData      = $this->getDC()->getDataProvider()->getEmptyCollection();
-        $objRootConfig         = $this->getDC()->getDataProvider()->getEmptyConfig();
-/*
-        $arrChildFilterPattern = array();
+        $objTableTreeData = $this->getDC()->getDataProvider()->getEmptyCollection();
+        $objRootConfig    = $this->getDC()->getDataProvider()->getEmptyConfig();
+        /*
+          $arrChildFilterPattern = array();
 
-        // Build a filter array for the join conditions
-        foreach ($arrChildFilter as $key => $value)
-        {
-            if ($value['dstField'] != '')
-            {
-                $arrNeededFields[]                      = trim($value['srcField']);
-                $arrChildFilterPattern[$key]['field']   = $value['srcField'];
-                $arrChildFilterPattern[$key]['pattern'] = $value['dstField'] . ' ' . $value['operation'] . ' %s';
-            }
-            else
-            {
-                $arrChildFilterPattern[$key]['pattern'] = $value['srcField'] . ' ' . $value['operation'];
-            }
-        }
-*/
+          // Build a filter array for the join conditions
+          foreach ($arrChildFilter as $key => $value)
+          {
+          if ($value['dstField'] != '')
+          {
+          $arrNeededFields[]                      = trim($value['srcField']);
+          $arrChildFilterPattern[$key]['field']   = $value['srcField'];
+          $arrChildFilterPattern[$key]['pattern'] = $value['dstField'] . ' ' . $value['operation'] . ' %s';
+          }
+          else
+          {
+          $arrChildFilterPattern[$key]['pattern'] = $value['srcField'] . ' ' . $value['operation'];
+          }
+          }
+         */
 
-		// TODO: @CS rebuild to new layout of filters here.
-
+        // TODO: @CS rebuild to new layout of filters here.
         // Set fields limit
         $objRootConfig->setFields(array_keys(array_flip($arrNeededFields)));
 
@@ -1475,172 +1616,179 @@ throw new Exception("Error Processing Request: " . $name, 1);
         // Fetch all root elements
         $objRootCollection = $this->getDC()->getDataProvider()->fetchAll($objRootConfig);
 
-		foreach ($objRootCollection as $objRootModel)
-		{
-			$objTableTreeData->add($objRootModel);
-			$this->treeWalkModel($objRootModel, 0, $arrToggle, array('self'));
-		}
+        foreach ($objRootCollection as $objRootModel)
+        {
+            $objTableTreeData->add($objRootModel);
+            $this->treeWalkModel($objRootModel, 0, $arrToggle, array('self'));
+        }
         $this->getDC()->setCurrentCollecion($objTableTreeData);
     }
 
+    protected function calcLabelFields($strTable)
+    {
+        $arrDCA = $this->getDC()->getDCA();
+        if ($strTable == $this->getDC()->getTable())
+        {
+            // easy, take from DCA.
+            return $arrDCA['list']['label']['fields'];
+        }
 
-	protected function calcLabelFields($strTable)
-	{
-		$arrDCA = $this->getDC()->getDCA();
-		if ($strTable == $this->getDC()->getTable())
-		{
-			// easy, take from DCA.
-			return $arrDCA['list']['label']['fields'];
-		}
+        $arrChildDef = $arrDCA['dca_config']['child_list'];
+        if (is_array($arrChildDef) && array_key_exists($strTable, $arrChildDef) && isset($arrChildDef[$strTable]['fields']))
+        {
+            // check if defined in child conditions.
+            return $arrChildDef[$strTable]['fields'];
+        }
+        else if (($strTable == 'self') && is_array($arrChildDef) && array_key_exists('self', $arrChildDef) && $arrChildDef['self']['fields'])
+        {
+            return $arrChildDef['self']['fields'];
+        }
+    }
 
-		$arrChildDef = $arrDCA['dca_config']['child_list'];
-		if (is_array($arrChildDef) && array_key_exists($strTable, $arrChildDef) && isset($arrChildDef[$strTable]['fields'])) {
-			// check if defined in child conditions.
-			return $arrChildDef[$strTable]['fields'];
-		} else if (($strTable == 'self') && is_array($arrChildDef) && array_key_exists('self', $arrChildDef) && $arrChildDef['self']['fields']) {
-			return $arrChildDef['self']['fields'];
-		}
-	}
+    protected function calcLabelPattern($strTable)
+    {
+        $arrDCA = $this->getDC()->getDCA();
+        if ($strTable == $this->getDC()->getTable())
+        {
+            // easy, take from DCA.
+            return $arrDCA['list']['label']['format'];
+        }
 
-	protected function calcLabelPattern($strTable)
-	{
-		$arrDCA = $this->getDC()->getDCA();
-		if ($strTable == $this->getDC()->getTable())
-		{
-			// easy, take from DCA.
-			return $arrDCA['list']['label']['format'];
-		}
+        $arrChildDef = $arrDCA['dca_config']['child_list'];
+        if (is_array($arrChildDef) && array_key_exists($strTable, $arrChildDef) && isset($arrChildDef[$strTable]['format']))
+        {
+            // check if defined in child conditions.
+            return $arrChildDef[$strTable]['format'];
+        }
+        else if (($strTable == 'self') && array_key_exists('self', $arrChildDef) && $arrChildDef['self']['format'])
+        {
+            return $arrChildDef['self']['format'];
+        }
+    }
 
-		$arrChildDef = $arrDCA['dca_config']['child_list'];
-		if (is_array($arrChildDef) && array_key_exists($strTable, $arrChildDef) && isset($arrChildDef[$strTable]['format'])) {
-			// check if defined in child conditions.
-			return $arrChildDef[$strTable]['format'];
-		} else if (($strTable == 'self') && array_key_exists('self', $arrChildDef) && $arrChildDef['self']['format']) {
-			return $arrChildDef['self']['format'];
-		}
-	}
+    protected function calcNeededFields(InterfaceGeneralModel $objModel, $strDstTable)
+    {
+        $arrFields    = $this->calcLabelFields($strDstTable);
+        $arrChildCond = $this->getDC()->getChildCondition($objModel, $strDstTable);
+        foreach ($arrChildCond as $arrCond)
+        {
+            if ($arrCond['property'])
+            {
+                $arrFields[] = $arrCond['property'];
+            }
+        }
+        return $arrFields;
+    }
 
-	protected function calcNeededFields(InterfaceGeneralModel $objModel, $strDstTable)
-	{
-		$arrFields = $this->calcLabelFields($strDstTable);
-		$arrChildCond = $this->getDC()->getChildCondition($objModel, $strDstTable);
-		foreach ($arrChildCond as $arrCond)
-		{
-			if ($arrCond['property'])
-			{
-				$arrFields[] = $arrCond['property'];
-			}
-		}
-		return $arrFields;
-	}
+    protected function buildLabel(InterfaceGeneralModel $objModel)
+    {
+        // Build full lable
+        $arrFields = array();
+        foreach ($this->calcLabelFields($objModel->getProviderName()) as $strField)
+        {
+            $arrFields[] = $objModel->getProperty($strField);
+        }
+        $objModel->setMeta(DCGE::TREE_VIEW_TITLE, vsprintf($this->calcLabelPattern($objModel->getProviderName()), $arrFields));
 
-	protected function buildLabel(InterfaceGeneralModel $objModel)
-	{
-		// Build full lable
-		$arrFields = array();
-		foreach ($this->calcLabelFields($objModel->getProviderName()) as $strField)
-		{
-			$arrFields[] = $objModel->getProperty($strField);
-		}
-		$objModel->setMeta(DCGE::TREE_VIEW_TITLE, vsprintf($this->calcLabelPattern($objModel->getProviderName()), $arrFields));
+        // Callback - let it override the just generated label
+        $strLabel = $this->getDC()->getCallbackClass()->labelCallback($objModel, $objModel->getMeta(DCGE::TREE_VIEW_TITLE), $arrFields);
+        if ($strLabel != '')
+        {
+            $objModel->setMeta(DCGE::TREE_VIEW_TITLE, $strLabel);
+        }
+    }
 
-		// Callback - let it override the just generated label
-		$strLabel = $this->getDC()->getCallbackClass()->labelCallback($objModel, $objModel->getMeta(DCGE::TREE_VIEW_TITLE), $arrFields);
-		if ($strLabel != '')
-		{
-			$objModel->setMeta(DCGE::TREE_VIEW_TITLE, $strLabel);
-		}
-	}
+    /**
+     * This "renders" a model for tree view.
+     *
+     * @param InterfaceGeneralModel $objModel     the model to render.
+     *
+     * @param int                   $intLevel     the current level in the tree hierarchy.
+     *
+     * @param array                 $arrToggle    the array that determines the current toggle states for the table of the given model.
+     *
+     * @param array                 $arrSubTables the tables that shall be rendered "below" this item.
+     *
+     */
+    protected function treeWalkModel(InterfaceGeneralModel $objModel, $intLevel, $arrToggle, $arrSubTables = array())
+    {
+        $objModel->setMeta(DCGE::TREE_VIEW_LEVEL, $intLevel);
 
-	/**
-	 * This "renders" a model for tree view.
-	 *
-	 * @param InterfaceGeneralModel $objModel     the model to render.
-	 *
-	 * @param int                   $intLevel     the current level in the tree hierarchy.
-	 *
-	 * @param array                 $arrToggle    the array that determines the current toggle states for the table of the given model.
-	 *
-	 * @param array                 $arrSubTables the tables that shall be rendered "below" this item.
-	 *
-	 */
-	protected function treeWalkModel(InterfaceGeneralModel $objModel, $intLevel, $arrToggle, $arrSubTables = array())
-	{
-		$objModel->setMeta(DCGE::TREE_VIEW_LEVEL, $intLevel);
+        $this->buildLabel($objModel);
 
-		$this->buildLabel($objModel);
+        if ($arrToggle['all'] == 1 && !(key_exists($objModel->getID(), $arrToggle) && $arrToggle[$objModel->getID()] == 0))
+        {
+            $objModel->setMeta(DCGE::TREE_VIEW_ISOPEN, true);
+        }
+        // Get toogle state
+        else if (key_exists($objModel->getID(), $arrToggle) && $arrToggle[$objModel->getID()] == 1)
+        {
+            $objModel->setMeta(DCGE::TREE_VIEW_IS_OPEN, true);
+        }
+        else
+        {
+            $objModel->setMeta(DCGE::TREE_VIEW_IS_OPEN, false);
+        }
 
-		if ($arrToggle['all'] == 1 && !(key_exists($objModel->getID(), $arrToggle) && $arrToggle[$objModel->getID()] == 0))
-		{
-			$objModel->setMeta(DCGE::TREE_VIEW_ISOPEN, true);
-		}
-		// Get toogle state
-		else if (key_exists($objModel->getID(), $arrToggle) && $arrToggle[$objModel->getID()] == 1)
-		{
-			$objModel->setMeta(DCGE::TREE_VIEW_IS_OPEN, true);
-		}
-		else
-		{
-			$objModel->setMeta(DCGE::TREE_VIEW_IS_OPEN, false);
-		}
+        $arrChildCollections = array();
+        foreach ($arrSubTables as $strSubTable)
+        {
+            // evaluate the child filter for this item.
+            $arrChildFilter = $this->getDC()->getChildCondition($objModel, $strSubTable);
 
-		$arrChildCollections = array();
-		foreach ($arrSubTables as $strSubTable)
-		{
-			// evaluate the child filter for this item.
-			$arrChildFilter  = $this->getDC()->getChildCondition($objModel, $strSubTable);
+            // if we do not know how to render this table within here, continue with the next one.
+            if (!$arrChildFilter)
+            {
+                continue;
+            }
 
-			// if we do not know how to render this table within here, continue with the next one.
-			if (!$arrChildFilter)
-			{
-				continue;
-			}
+            // Create a new Config
+            $objChildConfig = $this->getDC()->getDataProvider($strSubTable)->getEmptyConfig();
+            $objChildConfig->setFilter($arrChildFilter);
 
-			// Create a new Config
-			$objChildConfig = $this->getDC()->getDataProvider($strSubTable)->getEmptyConfig();
-			$objChildConfig->setFilter($arrChildFilter);
+            $objChildConfig->setFields($this->calcNeededFields($objModel, $strSubTable));
 
-			$objChildConfig->setFields($this->calcNeededFields($objModel, $strSubTable));
+            // Fetch all children
+            $objChildCollection = $this->getDC()->getDataProvider($strSubTable)->fetchAll($objChildConfig);
 
-			// Fetch all children
-			$objChildCollection = $this->getDC()->getDataProvider($strSubTable)->fetchAll($objChildConfig);
+            if ($objChildCollection->length() > 0)
+            {
+                // TODO: @CS we need this to be srctable_dsttable_tree for interoperability, for mode5 this will be self_self_tree but with strTable.
+                $strToggleID = $this->getDC()->getTable() . '_tree';
 
-			if ($objChildCollection->length() > 0)
-			{
-				// TODO: @CS we need this to be srctable_dsttable_tree for interoperability, for mode5 this will be self_self_tree but with strTable.
-				$strToggleID = $this->getDC()->getTable() . '_tree';
+                $arrSubToggle = $this->Session->get($strToggleID);
+                if (!is_array($arrSubToggle))
+                {
+                    $arrSubToggle = array();
+                }
 
-				$arrSubToggle = $this->Session->get($strToggleID);
-				if (!is_array($arrSubToggle))
-				{
-					$arrSubToggle = array();
-				}
+                foreach ($objChildCollection as $objChildModel)
+                {
+                    // TODO: determine the real subtables here.
+                    $this->treeWalkModel($objChildModel, $intLevel + 1, $arrSubToggle, $arrSubTables);
+                }
+                $arrChildCollections[] = $objChildCollection;
 
-				foreach ($objChildCollection as $objChildModel)
-				{
-					// TODO: determine the real subtables here.
-					$this->treeWalkModel($objChildModel, $intLevel+1, $arrSubToggle, $arrSubTables);
-				}
-				$arrChildCollections[] = $objChildCollection;
+                // speed up, if not open, one item is enough to break as we have some childs.
+                if (!$objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN))
+                {
+                    break;
+                }
+            }
+        }
 
-				// speed up, if not open, one item is enough to break as we have some childs.
-				if (!$objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN))
-				{
-					break;
-				}
-			}
-		}
-
-		// If open store children
-		if ($objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN) && $arrChildCollections)
-		{
-			$objModel->setMeta(DCGE::TREE_VIEW_CHILD_COLLECTION, $arrChildCollections);
-			$objModel->setMeta(DCGE::TREE_VIEW_HAS_CHILDS, true);
-		} else {
-			$objModel->setMeta(DCGE::TREE_VIEW_HAS_CHILDS, false);
-		}
-		$objModel->setMeta(DCGE::TREE_VIEW_HAS_CHILDS, count($arrChildCollections));
-	}
+        // If open store children
+        if ($objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN) && $arrChildCollections)
+        {
+            $objModel->setMeta(DCGE::TREE_VIEW_CHILD_COLLECTION, $arrChildCollections);
+            $objModel->setMeta(DCGE::TREE_VIEW_HAS_CHILDS, true);
+        }
+        else
+        {
+            $objModel->setMeta(DCGE::TREE_VIEW_HAS_CHILDS, false);
+        }
+        $objModel->setMeta(DCGE::TREE_VIEW_HAS_CHILDS, count($arrChildCollections));
+    }
 
     protected function listView()
     {
@@ -1658,7 +1806,7 @@ throw new Exception("Error Processing Request: " . $name, 1);
                 ->setFilter($this->getFilter())
                 ->setSorting($this->getListViewSorting());
 
-		$objCollection = $objDataProvider->fetchAll($objConfig);
+        $objCollection = $objDataProvider->fetchAll($objConfig);
 
         // Rename each pid to its label and resort the result (sort by parent table)
         if ($arrCurrentDCA['list']['sorting']['mode'] == 3)
@@ -1724,17 +1872,17 @@ throw new Exception("Error Processing Request: " . $name, 1);
      */
     protected function parentView()
     {
-		if (!CURRENT_ID)
-		{
-			throw new Exception("mode 4 need a proper parent id defined, somehow none is defined?", 1);
-		}
+        if (!CURRENT_ID)
+        {
+            throw new Exception("mode 4 need a proper parent id defined, somehow none is defined?", 1);
+        }
 
-		if (!($objParentDP = $this->getDC()->getDataProvider('parent')))
-		{
-			throw new Exception("mode 4 need a proper parent dataprovide defined, somehow none is defined?", 1);
-		}
+        if (!($objParentDP = $this->getDC()->getDataProvider('parent')))
+        {
+            throw new Exception("mode 4 need a proper parent dataprovide defined, somehow none is defined?", 1);
+        }
 
-		$objParentItem = $this->objDC->getCurrentParentCollection()->get(0);
+        $objParentItem = $this->objDC->getCurrentParentCollection()->get(0);
 
         // Get limits
         $arrLimit = $this->getLimit();
@@ -1772,7 +1920,7 @@ throw new Exception("Error Processing Request: " . $name, 1);
         $limit  = $this->limitMenu();
         $sort   = $this->sortMenu();
 
-		$arrDCA = $this->getDC()->getDCA();
+        $arrDCA = $this->getDC()->getDCA();
         if (!strlen($arrDCA['list']['sorting']['panelLayout']) || !is_array($filter) && !is_array($search) && !is_array($limit) && !is_array($sort))
         {
             return;
@@ -1816,7 +1964,7 @@ throw new Exception("Error Processing Request: " . $name, 1);
      */
     protected function filterMenu()
     {
-		$arrDCA = $this->getDC()->getDCA();
+        $arrDCA           = $this->getDC()->getDCA();
         $this->getDC()->setButtonId('tl_buttons_a');
         $arrSortingFields = array();
         $arrSession = $this->Session->getData();
@@ -1959,7 +2107,7 @@ throw new Exception("Error Processing Request: " . $name, 1);
 
         $session = $this->objSession->getData();
 
-		$arrDCA = $this->getDC()->getDCA();
+        $arrDCA = $this->getDC()->getDCA();
         $filter = ($arrDCA['list']['sorting']['mode'] == 4) ? $this->getDC()->getTable() . '_' . CURRENT_ID : $this->getDC()->getTable();
 
         // Set limit from user input
@@ -2204,25 +2352,28 @@ throw new Exception("Error Processing Request: " . $name, 1);
 
     protected function setParent(InterfaceGeneralModel $objChildEntry, InterfaceGeneralModel $objParentEntry, $strTable)
     {
-		$arrChildCondition = $this->getDC()->getParentChildCondition($objParentEntry, $objChildEntry->getProviderName());
-		if (!($arrChildCondition && $arrChildCondition['setOn']))
-		{
-			throw new Exception("Can not calculate parent.", 1);
-		}
+        $arrChildCondition = $this->getDC()->getParentChildCondition($objParentEntry, $objChildEntry->getProviderName());
+        if (!($arrChildCondition && $arrChildCondition['setOn']))
+        {
+            throw new Exception("Can not calculate parent.", 1);
+        }
 
-		foreach ($arrChildCondition['setOn'] as $arrCondition)
-		{
-			if ($arrCondition['from_field'])
-			{
-				$objChildEntry->setProperty($arrCondition['to_field'], $objParentEntry->getProperty($arrCondition['from_field']));
-			} else if ($arrCondition['value'])
-			{
-				$objChildEntry->setProperty($arrCondition['to_field'], $arrCondition['value']);
-			} else {
-				throw new Exception("Error Processing child condition, neither from_field nor value specified: " . var_export($arrCondition, true), 1);
-			}
-		}
-	}
+        foreach ($arrChildCondition['setOn'] as $arrCondition)
+        {
+            if ($arrCondition['from_field'])
+            {
+                $objChildEntry->setProperty($arrCondition['to_field'], $objParentEntry->getProperty($arrCondition['from_field']));
+            }
+            else if ($arrCondition['value'])
+            {
+                $objChildEntry->setProperty($arrCondition['to_field'], $arrCondition['value']);
+            }
+            else
+            {
+                throw new Exception("Error Processing child condition, neither from_field nor value specified: " . var_export($arrCondition, true), 1);
+            }
+        }
+    }
 
     protected function getParent($strTable, $objCurrentModel = null, $intCurrentID = null)
     {
@@ -2276,21 +2427,23 @@ throw new Exception("Error Processing Request: " . $name, 1);
 
     protected function setRoot(InterfaceGeneralModel $objCurrentEntry, $strTable)
     {
-		$arrRootSetter = $this->getDC()->getRootSetter($strTable);
-		if (!($arrRootSetter && $arrRootSetter))
-		{
-			throw new Exception("Can not calculate parent.", 1);
-		}
+        $arrRootSetter = $this->getDC()->getRootSetter($strTable);
+        if (!($arrRootSetter && $arrRootSetter))
+        {
+            throw new Exception("Can not calculate parent.", 1);
+        }
 
-		foreach ($arrRootSetter as $arrCondition)
-		{
-			if (!($arrCondition['property'] && $arrCondition['value']))
-			{
-				$objCurrentEntry->setProperty($arrCondition['property'], $arrCondition['value']);
-			} else {
-				throw new Exception("Error Processing root condition, you need to specify property and value: " . var_export($arrCondition, true), 1);
-			}
-		}
+        foreach ($arrRootSetter as $arrCondition)
+        {
+            if (!($arrCondition['property'] && $arrCondition['value']))
+            {
+                $objCurrentEntry->setProperty($arrCondition['property'], $arrCondition['value']);
+            }
+            else
+            {
+                throw new Exception("Error Processing root condition, you need to specify property and value: " . var_export($arrCondition, true), 1);
+            }
+        }
     }
 
     /* /////////////////////////////////////////////////////////////////////////

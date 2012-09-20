@@ -34,6 +34,8 @@
 
                 </div>
 
+
+
                 <table class="tl_header_table">
 
                     <?php foreach ($this->header as $key => $value): ?>
@@ -45,17 +47,14 @@
 
                 </table>
 
-            </div>
-
-            <?php if ($this->view['sorting']): ?>
-                <ul id="ul_<?php echo CURRENT_ID; ?>" class="sortable">
-                <?php endif; ?>
+            </div>       
+            <ul id="ul_<?php echo CURRENT_ID; ?>" class="sortable">
 
                 <?php foreach ($this->collection as $objModel): ?>
 
-                    <?php if ($this->view['sorting']): ?>
-                        <li id="li_<?php echo $objModel->getID(); ?>">
-                        <?php endif; ?>
+
+                    <li id="li_<?php echo $objModel->getID(); ?>">
+
 
                         <?php if (strlen($objModel->getMeta(DCGE::MODEL_GROUP_HEADER)) > 0): ?>
                             <div class="tl_content_header"><?php echo $objModel->getMeta(DCGE::MODEL_GROUP_HEADER); ?></div>
@@ -74,18 +73,15 @@
 
                             <?php echo $objModel->getMeta(DCGE::MODEL_LABEL_VALUE); ?>
 
-                        </div>
 
-                        <?php if ($this->view['sorting']): ?>
-                        </li>
-                    <?php endif; ?>
 
-                <?php endforeach; ?>
+                            <?php if ($this->view['sorting']): ?>
 
-                <?php if ($this->view['sorting']): ?>
-                </ul>
-            <?php endif; ?>
+                            <?php endif; ?>
 
+                        <?php endforeach; ?>
+
+            </ul>
             <?php if ($this->collection->length() == 0): ?>
 
                 <p class="tl_empty_parent_view"><?php echo $GLOBALS['TL_LANG']['MSC']['noResult']; ?></p>
