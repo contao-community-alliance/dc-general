@@ -689,8 +689,7 @@ class DC_General extends DataContainer implements editable, listable
         }
         else
         {
-            $arrConfig = array('source' => $strSource);
-            $this->arrDataProvider[$strSource] = new GeneralDataDefault();
+           return null;
         }
 
         $this->arrDataProvider[$strSource]->setBaseConfig($arrConfig);
