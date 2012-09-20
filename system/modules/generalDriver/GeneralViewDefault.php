@@ -1518,7 +1518,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
             if (!is_null($strButtonCallback))
             {
-                $return .= $strButtonCallback;
+                $return .= ' ' . trim($strButtonCallback);
                 continue;
             }
 
@@ -1534,7 +1534,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                         {
                             $strPDP = $strPDP->getEmptyModel()->getProviderName();
 
-                            $return .= '<a href="'
+                            $return .= ' <a href="'
                                     . $this->addToUrl($v['href'] . '&amp;id=' . $objModelRow->getID() . '&amp;pdp=' . $strPDP . '&amp;cdp=' . $strCDP)
                                     . '" title="' . specialchars($title)
                                     . '"'
@@ -1545,7 +1545,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                         }
                         else
                         {
-                            $return .= '<a href="'
+                            $return .= ' <a href="'
                                     . $this->addToUrl($v['href'] . '&amp;id=' . $objModelRow->getID())
                                     . '" title="' . specialchars($title)
                                     . '"'
@@ -1557,7 +1557,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                         break;
 
                     default:
-                        $return .= '<a href="'
+                        $return .= ' <a href="'
                                 . $this->addToUrl($v['href'] . '&amp;id=' . $objModelRow->getID())
                                 . '" title="' . specialchars($title)
                                 . '"'
@@ -1582,11 +1582,11 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
                 if ($dir == 'up')
                 {
-                    $return .= ((is_numeric($strPrevious) && (!in_array($objModelRow->getID(), $arrRootIds) || !count($GLOBALS['TL_DCA'][$strTable]['list']['sorting']['root']))) ? '<a href="' . $this->addToUrl($href . '&amp;id=' . $objModelRow->getID()) . '&amp;sid=' . intval($strPrevious) . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> ' : $this->generateImage('up_.gif')) . ' ';
+                    $return .= ((is_numeric($strPrevious) && (!in_array($objModelRow->getID(), $arrRootIds) || !count($GLOBALS['TL_DCA'][$strTable]['list']['sorting']['root']))) ? ' <a href="' . $this->addToUrl($href . '&amp;id=' . $objModelRow->getID()) . '&amp;sid=' . intval($strPrevious) . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> ' : $this->generateImage('up_.gif')) . ' ';
                     continue;
                 }
 
-                $return .= ((is_numeric($strNext) && (!in_array($objModelRow->getID(), $arrRootIds) || !count($GLOBALS['TL_DCA'][$strTable]['list']['sorting']['root']))) ? '<a href="' . $this->addToUrl($href . '&amp;id=' . $objModelRow->getID()) . '&amp;sid=' . intval($strNext) . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> ' : $this->generateImage('down_.gif')) . ' ';
+                $return .= ((is_numeric($strNext) && (!in_array($objModelRow->getID(), $arrRootIds) || !count($GLOBALS['TL_DCA'][$strTable]['list']['sorting']['root']))) ? ' <a href="' . $this->addToUrl($href . '&amp;id=' . $objModelRow->getID()) . '&amp;sid=' . intval($strNext) . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> ' : $this->generateImage('down_.gif')) . ' ';
             }
         }
 
@@ -1598,16 +1598,16 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             // Check if the id is in the ignore list
             if ($arrClipboard['mode'] == 'cut' && in_array($objModelRow->getID(), $arrClipboard['ignoredIDs']))
             {
+                $return .= ' ';
                 $return .= $imagePasteAfter = $this->generateImage('pasteafter_.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0], 'class="blink"');
                 $return .= ' ';
                 $return .= $imagePasteInto  = $this->generateImage('pasteinto_.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0], 'class="blink"');
-                $return .= ' ';
             }
             else
             {
                 // Add ext. information
-                $strAdd2UrlAfter = 'act=' . $arrClipboard['mode'] . '&amp;mode=1&amp;pid=' . $objModelRow->getID() . '&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs'];
-                $strAdd2UrlInto  = 'act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=' . $objModelRow->getID() . '&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs'];
+                $strAdd2UrlAfter = 'act=' . $arrClipboard['mode'] . '&amp;mode=1&amp;pid=' . $objModelRow->getID() . '&amp;after=' . $objModelRow->getID() . '&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs'];
+                $strAdd2UrlInto  = 'act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=' . $objModelRow->getID() . '&amp;after=' . $objModelRow->getID() . '&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs'];
 
                 if ($arrClipboard['pdp'] != '')
                 {
@@ -1622,14 +1622,14 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                 }
 
                 $imagePasteAfter = $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0], 'class="blink"');
-                $return .= '<a href="'
+                $return .= ' <a href="'
                         . $this->addToUrl($strAdd2UrlAfter)
                         . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0]) . '" onclick="Backend.getScrollOffset()">'
                         . $imagePasteAfter
                         . '</a> ';
 
                 $imagePasteInto = $this->generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0], 'class="blink"');
-                $return .= '<a href="'
+                $return .= ' <a href="'
                         . $this->addToUrl($strAdd2UrlInto)
                         . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">'
                         . $imagePasteInto
