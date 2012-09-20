@@ -758,6 +758,29 @@ class DC_General extends DataContainer implements editable, listable
 					return $arrCondition;
 				}
 			}
+		} else {
+			// fallback to pid <=> id mapping (legacy dca).
+			return array
+			(
+				'from' => 'self',
+				'to' => $strDstTable,
+				'setOn' => array
+				(
+					array(
+						'to_field'    => 'pid',
+						'from_field'  => 'id',
+					),
+				),
+				'filter' => array
+				(
+					array
+					(
+						'local'       => 'pid',
+						'remote'      => 'id',
+						'operation'   => '=',
+					)
+				)
+			);
 		}
 	}
 
@@ -767,12 +790,12 @@ class DC_General extends DataContainer implements editable, listable
      *
 	 * @param InterfaceGeneralModel $objParentModel the model that holds data from the src (aka parent).
 	 *
-     * @param string                $strDstTable    Name of table for "child"
+	 * @param string                $strDstTable    Name of table for "child"
 	 *
-     * @return array
-     */
-    public function getChildCondition(InterfaceGeneralModel $objParentModel, $strDstTable)
-    {
+	 * @return array
+	 */
+	public function getChildCondition(InterfaceGeneralModel $objParentModel, $strDstTable)
+	{
 		$arrReturn = array();
 
 		if ($strDstTable == 'self')
@@ -819,7 +842,7 @@ class DC_General extends DataContainer implements editable, listable
 		}
 
 		return $arrReturn;
-    }
+	}
 
     /**
      * Get the definition of a root entry filter
@@ -870,6 +893,60 @@ class DC_General extends DataContainer implements editable, listable
 		return $arrReturn;
     }
 
+	protected function checkCondition(InterfaceGeneralModel $objParentModel, $arrFilter)
+	{
+		switch ($arrFilter['operation'])
+		{
+			case 'AND':
+			case 'OR':
+				if ($arrFilter['operation'] == 'AND')
+				{
+					foreach ($arrFilter['childs'] as $arrChild)
+					{
+						// AND => first false means false
+						if(!$this->checkCondition($objParentModel, $arrChild))
+						{
+							return false;
+						}
+					}
+					return true;
+				} else {
+					foreach ($arrFilter['childs'] as $arrChild)
+					{
+						// OR => first true means true
+						if ($this->checkCondition($objParentModel, $arrChild))
+						{
+							return true;
+						}
+					}
+					return false;
+				}
+				break;
+
+			case '=':
+				return ($objParentModel->getProperty($arrFilter['property']) == $arrFilter['value']);
+				break;
+			case '>':
+				return ($objParentModel->getProperty($arrFilter['property']) > $arrFilter['value']);
+				break;
+			case '<':
+				return ($objParentModel->getProperty($arrFilter['property']) < $arrFilter['value']);
+				break;
+
+			case 'IN':
+				return in_array($objParentModel->getProperty($arrFilter['property']), $arrFilter['value']);
+				break;
+
+			default:
+				throw new Exception('Error processing filter array - unknown operation ' . var_export($arrFilter, true), 1);
+		}
+	}
+
+	public function isRootItem(InterfaceGeneralModel $objParentModel, $strTable)
+	{
+		$arrRootConditions = $this->getRootConditions($strTable);
+		return $this->checkCondition($objParentModel, array('operation' => 'AND', 'childs' => $arrRootConditions));
+	}
 
     // Msc. ---------------------------------
 
@@ -1059,17 +1136,13 @@ class DC_General extends DataContainer implements editable, listable
 	 */
 	public function updateModelFromPOST()
 	{
-		// Check if we have a auto submit
-		if ($this->isAutoSubmitted())
+		// process input and update changed properties.
+		foreach (array_keys($this->getFieldList()) as $strKey)
 		{
-			// process input and update changed properties.
-			foreach (array_keys($this->getFieldList()) as $strKey)
+			$varNewValue = $this->processInput($strKey);
+			if (($varNewValue !== NULL) && ($this->objCurrentModel->getProperty($strKey) != $varNewValue))
 			{
-				$varNewValue = $this->processInput($strKey);
-				if (($varNewValue !== NULL) && ($this->objCurrentModel->getProperty($strKey) != $varNewValue))
-				{
-					$this->objCurrentModel->setProperty($strKey, $varNewValue);
-				}
+				$this->objCurrentModel->setProperty($strKey, $varNewValue);
 			}
 		}
 
