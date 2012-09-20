@@ -49,8 +49,7 @@
 
             </div>       
             <ul id="ul_<?php echo CURRENT_ID; ?>" class="sortable">
-
-                <?php foreach ($this->collection as $objModel): ?>
+                    <?php foreach ($this->collection as $objModel): ?>
 
 
                     <li id="li_<?php echo $objModel->getID(); ?>">
@@ -73,12 +72,7 @@
 
                             <?php echo $objModel->getMeta(DCGE::MODEL_LABEL_VALUE); ?>
 
-
-
-                            <?php if ($this->view['sorting']): ?>
-
-                            <?php endif; ?>
-
+                        </li>
                         <?php endforeach; ?>
 
             </ul>

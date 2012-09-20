@@ -1,4 +1,7 @@
-<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
+<?php
+
+if (!defined('TL_ROOT'))
+    die('You can not access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -509,6 +512,8 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         $objParentDC     = new DC_General($this->objDC->getParentTable());
         $this->parentDca = $objParentDC->getDCA();
 
+
+
         // Add template
         $objTemplate             = new BackendTemplate('dcbe_general_parentView');
         $objTemplate->collection = $this->objDC->getCurrentCollecion();
@@ -614,13 +619,13 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                 $objChildTemplate                 = new BackendTemplate('dcbe_general_treeview_child');
                 $objChildTemplate->objParentModel = $objModel;
                 $objChildTemplate->strToggleID    = $strToggleID;
-				$strSubHTML = '';
-				foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection)
-				{
-					$strSubHTML .= $this->generateTreeView($objCollection, $intMode, $treeClass);
-				}
-                $objChildTemplate->strHTML        = $strSubHTML;
-                $objChildTemplate->strTable       = $this->objDC->getTable();
+                $strSubHTML                       = '';
+                foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection)
+                {
+                    $strSubHTML .= $this->generateTreeView($objCollection, $intMode, $treeClass);
+                }
+                $objChildTemplate->strHTML  = $strSubHTML;
+                $objChildTemplate->strTable = $this->objDC->getTable();
 
                 $strHTML .= $objChildTemplate->parse();
                 $strHTML .= "\n";
@@ -1073,9 +1078,10 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             // TODO set current
 //                $this->current[] = $objModel->getID();
             // Decrypt encrypted value
+            // TODO What ist $table => never init 
             foreach ($objModel as $k => $v)
             {
-                if ($GLOBALS['TL_DCA'][$table]['fields'][$k]['eval']['encrypt'])
+                if ($this->arrDCA['fields'][$k]['eval']['encrypt'])
                 {
                     $v = deserialize($v);
 
@@ -1085,6 +1091,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             }
 
             // Add the group header
+            // ToDo: What the Fuck what is $orderBy
             if (!$this->arrDCA['list']['sorting']['disableGrouping'] && $this->objDC->getFirstSorting() != 'sorting')
             {
                 $sortingMode = (count($orderBy) == 1 && $this->objDC->getFirstSorting() == $orderBy[0] && $this->arrDCA['list']['sorting']['flag'] != '' && $this->arrDCA['fields'][$this->objDC->getFirstSorting()]['flag'] == '') ? $this->arrDCA['list']['sorting']['flag'] : $this->arrDCA['fields'][$this->objDC->getFirstSorting()]['flag'];
@@ -1501,13 +1508,21 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
         foreach ($GLOBALS['TL_DCA'][$strTable]['list']['operations'] as $k => $v)
         {
-            $v = is_array($v) ? $v : array($v);
+            // Check if we have a array
+            if (!is_array($v))
+            {
+                $v = array($v);
+            }
+
+            // Set basic informations
             $label      = strlen($v['label'][0]) ? $v['label'][0] : $k;
             $title      = sprintf((strlen($v['label'][1]) ? $v['label'][1] : $k), $objModelRow->getID());
             $attributes = strlen($v['attributes']) ? ' ' . ltrim(sprintf($v['attributes'], $objModelRow->getID(), $objModelRow->getID())) : '';
 
             // Call a custom function instead of using the default button
-            $strButtonCallback = $this->objDC->getCallbackClass()->buttonCallback($objModelRow, $v, $label, $title, $attributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext);
+            $strButtonCallback = $this->objDC->getCallbackClass()
+                    ->buttonCallback($objModelRow, $v, $label, $title, $attributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext);
+
             if (!is_null($strButtonCallback))
             {
                 $return .= $strButtonCallback;
@@ -1517,14 +1532,34 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             // Generate all buttons except "move up" and "move down" buttons
             if ($k != 'move' && $v != 'move')
             {
-                $return .= '<a href="' . $this->addToUrl($v['href'] . '&amp;id=' . $objModelRow->getID()) . '" title="' . specialchars($title) . '"' . $attributes . '>' . $this->generateImage($v['icon'], $label) . '</a> ';
+
+                //pdp=tl_dca&pid=2&dpd=tl_dcasetting&id=3&after=
+
+                $strPDP = $this->objDC->getDataProvider('parent');
+                
+                if($strPDP != null)
+                {
+                    $strPDP = $strPDP->getEmptyModel()->getProviderName();
+                }
+                
+                
+                $strCDP = $this->objDC->getDataProvider('self')->getEmptyModel()->getProviderName();
+
+                $return .= '<a href="'
+                        . $this->addToUrl($v['href'] . '&amp;id=' . $objModelRow->getID() . '&amp;pdp=' .$strPDP . '&amp;cdp=' .$strCDP )
+                        . '" title="' . specialchars($title)
+                        . '"'
+                        . $attributes
+                        . '>'
+                        . $this->generateImage($v['icon'], $label)
+                        . '</a>';
+
                 continue;
             }
 
-            $arrDirections = array('up', 'down');
             $arrRootIds = is_array($arrRootIds) ? $arrRootIds : array($arrRootIds);
 
-            foreach ($arrDirections as $dir)
+            foreach (array('up', 'down') as $dir)
             {
                 $label = strlen($GLOBALS['TL_LANG'][$strTable][$dir][0]) ? $GLOBALS['TL_LANG'][$strTable][$dir][0] : $dir;
                 $title = strlen($GLOBALS['TL_LANG'][$strTable][$dir][1]) ? $GLOBALS['TL_LANG'][$strTable][$dir][1] : $dir;
