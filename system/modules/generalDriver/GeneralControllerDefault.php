@@ -165,8 +165,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     protected function getFilter()
     {
         $arrFilter = $this->getDC()->getFilter();
+
         if ($arrFilter)
+        {
             return $arrFilter;
+        }
 
         $arrDCA = $this->getDC()->getDCA();
 
@@ -213,10 +216,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         // FIXME implement panel filter from session
-
-
-
-
+        
         return $this->getDC()->getFilter();
     }
 
@@ -487,9 +487,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      * Check clipboard state. Clear or save state of it.
      */
     protected function checkClipboard()
-    {        
+    {
         $arrClipboard = $this->loadClipboard();
-        
+
         // Reset Clipboard
         if ($this->Input->get('clipboard') == '1')
         {
@@ -502,45 +502,51 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
             $arrClipboard[$this->getDC()->getTable()] = array(
                 'id'     => $this->Input->get('id'),
+                'source' => $this->Input->get('source'),
                 'childs' => $this->Input->get('childs'),
                 'mode'   => $this->Input->get('mode'),
                 'pdp'    => $this->Input->get('pdp'),
                 'cdp'    => $this->Input->get('cdp'),
             );
-            
+
             switch ($this->Input->get('mode'))
             {
                 case 'cut':
                     // Id Array
                     $arrIDs = array();
-                    $arrIDs[] = $this->Input->get('id');
+                    $arrIDs[] = $this->Input->get('source');
 
-                    // Run each id
-                    for ($i = 0; $i < count($arrIDs); $i++)
-                    {                        
-                        // Get current model
-                        $objCurrentConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
-                        $objCurrentConfig->setId($arrIDs[$i]);
+                    switch ($this->arrDCA['list']['sorting']['mode'])
+                    {
+                        case 5:
+                            // Run each id
+                            for ($i = 0; $i < count($arrIDs); $i++)
+                            {
+                                // Get current model
+                                $objCurrentConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
+                                $objCurrentConfig->setId($arrIDs[$i]);
 //                        $objCurrentConfig->setFields(array($arrJoinCondition[0]['srcField']));
 
-                        $objCurrentModel = $this->getDC()->getDataProvider()->fetch($objCurrentConfig);
+                                $objCurrentModel = $this->getDC()->getDataProvider()->fetch($objCurrentConfig);
 
-                        // Get the join field
-                        $arrJoinCondition = $this->getDC()->getChildCondition($objCurrentModel, 'self');
+                                // Get the join field
+                                $arrJoinCondition = $this->getDC()->getChildCondition($objCurrentModel, 'self');
 
-                        $objChildConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
-                        $objChildConfig->setFilter($arrJoinCondition);
-                        $objChildConfig->setIdOnly(true);
+                                $objChildConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
+                                $objChildConfig->setFilter($arrJoinCondition);
+                                $objChildConfig->setIdOnly(true);
 
-                        $objChildCollection = $this->getDC()->getDataProvider()->fetchAll($objChildConfig);
+                                $objChildCollection = $this->getDC()->getDataProvider()->fetchAll($objChildConfig);
 
-                        foreach ($objChildCollection as $key => $value)
-                        {
-                            if(!in_array($value, $arrIDs))
-                            {
-                                $arrIDs[] = $value;
+                                foreach ($objChildCollection as $key => $value)
+                                {
+                                    if (!in_array($value, $arrIDs))
+                                    {
+                                        $arrIDs[] = $value;
+                                    }
+                                }
                             }
-                        }
+                            break;
                     }
 
                     $arrClipboard[$this->getDC()->getTable()]['ignoredIDs'] = $arrIDs;
@@ -613,48 +619,90 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /**
      * Cut and paste
+     * 
+     * <p>
+     * -= GET Parameter =-<br/>
+     * act      - Mode like cut | copy | and co <br/>
+     * after    - ID of target element <br/>
+     * source   - ID of the element which should moved <br/>
+     * mode     - 1 Insert after | 2 Insert into <br/>
+     * pid      - Id of the parent used in list mode 4,5 <br/>
+     * child    - WTF at the moment unknown <br/>
+     * pdp      - Parent Data Provider real name <br/>
+     * cdp      - Current Data Provider real name <br/>
+     * id       - Parent child id used for redirect <br/>
+     * </p>
      */
     public function cut()
     {
-        // Load some vars
-        $this->loadCurrentDataProvider();
-
-        $intMode = $this->Input->get('mode');
-        $intPid  = $this->Input->get('pid');
-        $intId   = $this->Input->get('id');
-
         // Checks
         $this->checkIsWritable();
 
-        if (strlen($intMode) == 0 || strlen($intPid) == 0 || strlen($intId) == 0)
+        // Load some vars
+        $this->loadCurrentDataProvider();
+
+        //main.php?do=metamodels&table=tl_metamodel_dcasetting&id=1&act=cut&mode=1&pid=1&after=3&source=8&childs=&pdp=tl_metamodel_dca&cdp=tl_metamodel_dcasetting
+
+        $mixAfter  = $this->Input->get('after');
+        $mixSource = $this->Input->get('source');
+        $intMode   = $this->Input->get('mode');
+        $mixPid    = $this->Input->get('pid');
+        $mixChild  = $this->Input->get('child');
+        $strPDP    = $this->Input->get('pdp');
+        $strCDP    = $this->Input->get('cdp');
+        $intId     = $this->Input->get('id');
+
+        // Check basic vars
+        if (empty($mixSource) || empty($mixAfter) || empty($intMode) || empty($strCDP))
         {
-            $this->log('Missing parameter for copy in ' . $this->getDC()->getTable(), 'DC_General - Controller - copy()', TL_ERROR);
-            $this->redirect('contao/main.php?act=error');
+            var_dump($mixSource);
+            var_dump($mixAfter);
+            var_dump($intMode);
+            var_dump($strCDP);
+
+            throw new Exception('Could not load current data provider in ' . __CLASS__ . ' - ' . __FUNCTION__);
+
+
+//            $this->log('Missing parameter for copy in ' . $this->getDC()->getTable(), __CLASS__ . ' - ' . __FUNCTION__, TL_ERROR);
+//            $this->redirect('contao/main.php?act=error');
         }
 
-        // Load the source model
-        $objSrcModel = $this->objDataProvider->fetch($this->objDataProvider->getEmptyConfig()->setId($intId));
+        // Load current data provider
+        $objCurrentDataProvider = $this->objDC->getDataProvider($strCDP);
+        if ($objCurrentDataProvider == null)
+        {
+            throw new Exception('Could not load current data provider in ' . __CLASS__ . ' - ' . __FUNCTION__);
+        }
 
+        $objParentDataProvider = null;
+        if (!empty($strPDP))
+        {
+            $objParentDataProvider = $this->objDC->getDataProvider($strPDP);
+            if ($objCurrentDataProvider == null)
+            {
+                throw new Exception('Could not load parent data provider ' . $strPDP . ' in ' . __CLASS__ . ' - ' . __FUNCTION__);
+            }
+        }
+
+
+
+        // Load the source model
+        $objSrcModel = $objCurrentDataProvider->fetch($this->objDataProvider->getEmptyConfig()->setId($mixSource));
+
+        // Load current dca
         $arrDCA = $this->getDC()->getDCA();
+
         // Check mode
         switch ($arrDCA['list']['sorting']['mode'])
         {
             case 1:
             case 2:
             case 3:
-            case 4:
-                switch ($intMode)
-                {
-                    case 1:
-                    case 2:
-                        $this->getNewPosition($objSrcModel, 'cut', $intPid, $intMode);
-                        break;
+                return vsprintf($this->notImplMsg, 'cut - Mode ' . $arrDCA['list']['sorting']['mode']);
+                break;
 
-                    default:
-                        $this->log('Unknown create mode for cut in ' . $this->getDC()->getTable(), 'DC_General - Controller - cut()', TL_ERROR);
-                        $this->redirect('contao/main.php?act=error');
-                        break;
-                }
+            case 4:
+                $this->getNewPosition($objCurrentDataProvider, $objParentDataProvider, $objSrcModel, $mixAfter, 'cut', $intMode);
                 break;
 
             case 5:
@@ -1164,46 +1212,46 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $this->getDC()->setCurrentCollecion($objTableTreeData);
     }
 
-	/**
-	 * Loads the current model from the data provider and overrides the selector
-	 *
-	 * @param type $strSelector the name of the checkbox toggling the palette.
-	 */
-	public function generateAjaxPalette($strSelector)
-	{
-		// Load some vars
-		$this->loadCurrentDataProvider();
+    /**
+     * Loads the current model from the data provider and overrides the selector
+     *
+     * @param type $strSelector the name of the checkbox toggling the palette.
+     */
+    public function generateAjaxPalette($strSelector)
+    {
+        // Load some vars
+        $this->loadCurrentDataProvider();
 
-		// Check
-		$this->checkIsWritable();
-		$this->checkLanguage($this->getDC());
+        // Check
+        $this->checkIsWritable();
+        $this->checkLanguage($this->getDC());
 
-		// Load fields and co
-		$this->getDC()->loadEditableFields();
-		$this->getDC()->setWidgetID($this->getDC()->getId());
+        // Load fields and co
+        $this->getDC()->loadEditableFields();
+        $this->getDC()->setWidgetID($this->getDC()->getId());
 
-		// Check if we have fields
-		if (!$this->getDC()->hasEditableFields())
-		{
-			$this->redirect($this->getReferer());
-		}
+        // Check if we have fields
+        if (!$this->getDC()->hasEditableFields())
+        {
+            $this->redirect($this->getReferer());
+        }
 
-		// Load something
-		$this->getDC()->preloadTinyMce();
+        // Load something
+        $this->getDC()->preloadTinyMce();
 
-		$objDataProvider = $this->getDC()->getDataProvider();
+        $objDataProvider = $this->getDC()->getDataProvider();
 
-		// Load record from data provider
-		$objDBModel = $objDataProvider->fetch($objDataProvider->getEmptyConfig()->setId($this->getDC()->getId()));
-		if ($objDBModel == null)
-		{
-			$objDBModel = $objDataProvider->getEmptyModel();
-		}
+        // Load record from data provider
+        $objDBModel = $objDataProvider->fetch($objDataProvider->getEmptyConfig()->setId($this->getDC()->getId()));
+        if ($objDBModel == null)
+        {
+            $objDBModel = $objDataProvider->getEmptyModel();
+        }
 
-		$this->getDC()->setCurrentModel($objDBModel);
+        $this->getDC()->setCurrentModel($objDBModel);
 
-		// override the setting from POST now.
-		$objDBModel->setProperty($strSelector, intval($this->Input->post('state')));
+        // override the setting from POST now.
+        $objDBModel->setProperty($strSelector, intval($this->Input->post('state')));
     }
 
     /* /////////////////////////////////////////////////////////////////////////
@@ -1325,17 +1373,24 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     /**
      * Calculate the new position of an element
      * 
-     * @param type $objDBModel The model with the current informations
-     * @param type $mode The mode like copy, cut and so on
-     * @param type $pid The parent id
-     * @param type $insertMode <p>List Mode 4<br/> Insert Mode 1 - Insert after elment x <br/> Insert Mode 2 - Insert at the beginning of the list</p>
+     * Warning this function needs the cdp (current data provider).
+     * Warning this function needs the pdp (parent data provider).
      * 
-     * @return type
+     * Warning nekos could live here.   
+     * 
+     * @param InterfaceGeneralData $objCDP - Current data provider
+     * @param InterfaceGeneralData $objPDP - Parent data provider
+     * @param InterfaceGeneralModel $objDBModel - Model of element which should moved
+     * @param mixed $mixAfter - Target element
+     * @param string $strMode - Mode like cut | create and so on
+     * @param integer $intInsertMode - Insert Mode => 1 After | 2 Into
+     * @param mixed $mixParentID - Parent ID of table or element
+     * 
+     * @return void
      */
-    protected function getNewPosition($objDBModel, $mode, $pid = null, $insertMode = false)
+    protected function getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $strMode, $intInsertMode, $mixParentID = null)
     {
-        $blnPidExists     = $this->objDataProvider->fieldExists('pid');
-        $blnSortingExists = $this->objDataProvider->fieldExists('sorting');
+        $blnSortingExists = $objCDP->fieldExists('sorting');
         $intHigestSorting = 128;
         $intLowestSorting = 128;
         $intNextSorting   = 0;
@@ -1343,18 +1398,17 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         // Check if we have a sorting field, if not skip here
         if (!$blnSortingExists)
         {
-            echo "no sorting";
             return;
         }
 
         // Funktion for create
-        if ($mode == 'create')
+        if ($strMode == 'create')
         {
             // Default - Add to end off all
             // Search for the highest sorting
-            $objConfig = $this->objDataProvider->getEmptyConfig();
+            $objConfig = $objCDP->getEmptyConfig();
             $objConfig->setFields(array('sorting'));
-            $arrCollection = $this->objDataProvider->fetchAll($objConfig);
+            $arrCollection = $objCDP->fetchAll($objConfig);
 
             foreach ($arrCollection as $value)
             {
@@ -1371,44 +1425,78 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
             return;
         }
-
-        //id=295&act=cut&mode=1&pid=294
         // Funktion for cut
-        if ($mode == 'cut' && $insertMode != false)
+        else if ($strMode == 'cut' && $intInsertMode != false)
         {
-            if ($insertMode == 1)
+            switch ($intInsertMode)
             {
-                
-            }
-            else if ($insertMode == 2) // Add at the beginning of the list
-            {
-                // Search for the lowest sorting
-                $objConfig = $this->objDataProvider->getEmptyConfig();
-                $objConfig->setFields(array('sorting'));
-                $arrCollection = $this->objDataProvider->fetchAll($objConfig);
+                case 1:
+                    // Get all elements
+                    $objConfig = $this->objDataProvider->getEmptyConfig();
+                    $objConfig->setFields(array('sorting'));
+                    $objConfig->setSorting(array('sorting'));
+                    $objConfig->setFilter($this->getFilter());
+                    $arrCollection = $this->objDataProvider->fetchAll($objConfig);
 
-                foreach ($arrCollection as $value)
-                {
-                    if ($value->getProperty('sorting') < $intLowestSorting && $value->getProperty('sorting') != 0)
+                    $intSortingAfter = 0;
+                    $intSortingNext  = 0;
+
+                    foreach ($arrCollection as $value)
                     {
-                        $intLowestSorting = $value->getProperty('sorting');
+                        // After we have it, get the next sorting and break out
+                        if ($intSortingAfter != 0)
+                        {
+                            $intSortingNext = $value->getProperty('sorting');
+                            break;
+                        }
+
+                        // Search for my targeting element
+                        if ($value->getID() == $mixAfter)
+                        {
+                            $intSortingAfter = $value->getProperty('sorting');
+                        }
                     }
-                }
 
-                // If we have no room, reorder all sortings and call the function again
-                if ($intLowestSorting <= 1)
-                {
-                    $this->reorderSorting();
-                    $this->getNewPosition($objDBModel, $mode, $pid, $insertMode);
+                    $intNewSorting = $intSortingAfter + round(($intSortingNext - $intSortingAfter) / 2);
+
+                    if ($intNewSorting <= $intSortingAfter || $intNewSorting >= $intSortingNext)
+                    {
+                        $this->reorderSorting();
+                        $this->getNewPosition($objDBModel, $mixAfter, $strMode, $intInsertMode, $mixParentID);
+                        return;
+                    }
+
+                    $objDBModel->setProperty('sorting', ($intSortingNext - 2));
                     return;
-                }
 
-                $intNextSorting = round($intLowestSorting - 2);
+                case 2:
+                    // Search for the lowest sorting
+                    $objConfig = $this->objDataProvider->getEmptyConfig();
+                    $objConfig->setFields(array('sorting'));
+                    $arrCollection = $this->objDataProvider->fetchAll($objConfig);
 
-                // Set new Sorting
-                $objDBModel->setProperty('sorting', $intNextSorting);
+                    foreach ($arrCollection as $value)
+                    {
+                        if ($value->getProperty('sorting') < $intLowestSorting && $value->getProperty('sorting') != 0)
+                        {
+                            $intLowestSorting = $value->getProperty('sorting');
+                        }
+                    }
 
-                return;
+                    // If we have no room, reorder all sortings and call the function again
+                    if ($intLowestSorting <= 1)
+                    {
+                        $this->reorderSorting();
+                        $this->getNewPosition($objDBModel, $mixAfter, $strMode, $intInsertMode, $mixParentID);
+                        return;
+                    }
+
+                    $intNextSorting = round($intLowestSorting - 2);
+
+                    // Set new Sorting
+                    $objDBModel->setProperty('sorting', $intNextSorting);
+
+                    return;
             }
         }
     }
@@ -2887,53 +2975,55 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
     }
 
-	/**
-	 * Ajax actions that do require a data container object
-	 * @param DataContainer
-	 */
-	public function executePostActions()
-	{
-		header('Content-Type: text/html; charset=' . $GLOBALS['TL_CONFIG']['characterSet']);
+    /**
+     * Ajax actions that do require a data container object
+     * @param DataContainer
+     */
+    public function executePostActions()
+    {
+        header('Content-Type: text/html; charset=' . $GLOBALS['TL_CONFIG']['characterSet']);
 
-		switch ($this->Input->post('action'))
-		{
-			// Toggle subpalettes
-			case 'toggleSubpalette':
-				$this->import('BackendUser', 'User');
+        switch ($this->Input->post('action'))
+        {
+            // Toggle subpalettes
+            case 'toggleSubpalette':
+                $this->import('BackendUser', 'User');
 
-				$arrDCA = $this->getDC()->getDCA();
+                $arrDCA = $this->getDC()->getDCA();
 
-				// Check whether the field is a selector field and allowed for regular users (thanks to Fabian Mihailowitsch) (see #4427)
-				if (!is_array($arrDCA['palettes']['__selector__'])
-				|| !in_array($this->Input->post('field'), $arrDCA['palettes']['__selector__'])
-				|| ($arrDCA['fields'][$this->Input->post('field')]['exclude']
-					&& !$this->User->hasAccess($this->getDC()->getTable() . '::' . $this->Input->post('field'), 'alexf')))
-				{
-					$this->log('Field "' . $this->Input->post('field') . '" is not an allowed selector field (possible SQL injection attempt)', 'DC_General executePostActions()', TL_ERROR);
-					header('HTTP/1.1 400 Bad Request');
-					die('Bad Request');
-				}
+                // Check whether the field is a selector field and allowed for regular users (thanks to Fabian Mihailowitsch) (see #4427)
+                if (!is_array($arrDCA['palettes']['__selector__'])
+                        || !in_array($this->Input->post('field'), $arrDCA['palettes']['__selector__'])
+                        || ($arrDCA['fields'][$this->Input->post('field')]['exclude']
+                        && !$this->User->hasAccess($this->getDC()->getTable() . '::' . $this->Input->post('field'), 'alexf')))
+                {
+                    $this->log('Field "' . $this->Input->post('field') . '" is not an allowed selector field (possible SQL injection attempt)', 'DC_General executePostActions()', TL_ERROR);
+                    header('HTTP/1.1 400 Bad Request');
+                    die('Bad Request');
+                }
 
-				if ($this->Input->get('act') == 'editAll')
-				{
-					throw new Exception("Ajax editAll unimplemented, I do not know what to do.", 1);
-					if ($this->Input->post('load'))
-					{
-						echo $this->getDC()->editAll();
-					}
-				}
-				else
-				{
-					if ($this->Input->post('load'))
-					{
-						echo $this->getDC()->generateAjaxPalette($this->Input->post('field'));
-					}
-				}
-				exit; break;
-			default:
-				// do nothing, the normal workflow from Backend will kick in now.
-		}
-	}
+                if ($this->Input->get('act') == 'editAll')
+                {
+                    throw new Exception("Ajax editAll unimplemented, I do not know what to do.", 1);
+                    if ($this->Input->post('load'))
+                    {
+                        echo $this->getDC()->editAll();
+                    }
+                }
+                else
+                {
+                    if ($this->Input->post('load'))
+                    {
+                        echo $this->getDC()->generateAjaxPalette($this->Input->post('field'));
+                    }
+                }
+                exit;
+                break;
+            default:
+            // do nothing, the normal workflow from Backend will kick in now.
+        }
+    }
+
 }
 
 ?>

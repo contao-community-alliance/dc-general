@@ -833,26 +833,26 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         return $arrRootPalette;
     }
 
-	/**
-	 * Generates a subpalette for the given selector (field name)
-	 *
-	 * @param string $strSelector the name of the selector field.
-	 *
-	 * @return string the generated HTML code.
-	 */
-	public function generateAjaxPalette($strSelector)
-	{
-		// Load basic informations
-		$this->checkLanguage();
-		$this->loadCurrentModel();
+    /**
+     * Generates a subpalette for the given selector (field name)
+     *
+     * @param string $strSelector the name of the selector field.
+     *
+     * @return string the generated HTML code.
+     */
+    public function generateAjaxPalette($strSelector)
+    {
+        // Load basic informations
+        $this->checkLanguage();
+        $this->loadCurrentModel();
 
-		// Get all selectors
-		$this->arrStack[] = $this->objDC->getSubpalettesDefinition();
-		$this->calculateSelectors($this->arrStack[0]);
-		$this->parseRootPalette();
+        // Get all selectors
+        $this->arrStack[] = $this->objDC->getSubpalettesDefinition();
+        $this->calculateSelectors($this->arrStack[0]);
+        $this->parseRootPalette();
 
-		return is_array($this->arrAjaxPalettes[$strSelector]) ? $this->generatePalette($this->arrAjaxPalettes[$strSelector], 'dcbe_general_field') : '';
-	}
+        return is_array($this->arrAjaxPalettes[$strSelector]) ? $this->generatePalette($this->arrAjaxPalettes[$strSelector], 'dcbe_general_field') : '';
+    }
 
     protected function generatePalette(array $arrPalette, $strFieldTemplate)
     {
@@ -1527,33 +1527,42 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             {
                 switch ($k)
                 {
+                    // Cute needs some special informations
                     case 'cut':
+                        // Get dataprovider from current and parent
                         $strCDP = $this->objDC->getDataProvider('self')->getEmptyModel()->getProviderName();
                         $strPDP = $this->objDC->getDataProvider('parent');
+
+                        $strAdd2Url = "";
+
+                        // Add url + id + currentDataProvider
+                        $strAdd2Url .= $v['href'] . '&amp;cdp=' . $strCDP;
+
+                        // Add parent provider if exsists
                         if ($strPDP != null)
                         {
                             $strPDP = $strPDP->getEmptyModel()->getProviderName();
+                            $strAdd2Url .= '&amp;pdp=' . $strPDP;
+                        }
 
-                            $return .= ' <a href="'
-                                    . $this->addToUrl($v['href'] . '&amp;id=' . $objModelRow->getID() . '&amp;pdp=' . $strPDP . '&amp;cdp=' . $strCDP)
-                                    . '" title="' . specialchars($title)
-                                    . '"'
-                                    . $attributes
-                                    . '>'
-                                    . $this->generateImage($v['icon'], $label)
-                                    . '</a>';
-                        }
-                        else
+                        // If we have a id add it, used for mode 4 and all parent -> current views
+                        if (strlen($this->Input->get('id')) != 0)
                         {
-                            $return .= ' <a href="'
-                                    . $this->addToUrl($v['href'] . '&amp;id=' . $objModelRow->getID())
-                                    . '" title="' . specialchars($title)
-                                    . '"'
-                                    . $attributes
-                                    . '>'
-                                    . $this->generateImage($v['icon'], $label)
-                                    . '</a>';
+                            $strAdd2Url .= '&amp;id=' . $this->Input->get('id');
                         }
+
+                        // Source is the id of the element which should move
+                        $strAdd2Url .= '&amp;source=' . $objModelRow->getID();
+
+                        // Build whole button mark up
+                        $return .= ' <a href="'
+                                . $this->addToUrl($strAdd2Url)
+                                . '" title="' . specialchars($title)
+                                . '"'
+                                . $attributes
+                                . '>'
+                                . $this->generateImage($v['icon'], $label)
+                                . '</a>';
                         break;
 
                     default:
@@ -1598,16 +1607,33 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             // Check if the id is in the ignore list
             if ($arrClipboard['mode'] == 'cut' && in_array($objModelRow->getID(), $arrClipboard['ignoredIDs']))
             {
-                $return .= ' ';
-                $return .= $imagePasteAfter = $this->generateImage('pasteafter_.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0], 'class="blink"');
-                $return .= ' ';
-                $return .= $imagePasteInto  = $this->generateImage('pasteinto_.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0], 'class="blink"');
+                switch ($this->arrDCA['list']['sorting']['mode'])
+                {
+                    default:
+                    case 4:
+                        $return .= ' ';
+                        $return .= $imagePasteAfter = $this->generateImage('pasteafter_.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0], 'class="blink"');
+                        break;
+
+                    case 5:
+                        $return .= ' ';
+                        $return .= $imagePasteAfter = $this->generateImage('pasteafter_.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0], 'class="blink"');
+                        $return .= ' ';
+                        $return .= $imagePasteInto  = $this->generateImage('pasteinto_.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0], 'class="blink"');
+                        break;
+                }
             }
             else
             {
+
+//                $strAdd2Url = "";
+//                $strAdd2Url .= 'act=' . $arrClipboard['mode'];
+//                $strAdd2Url .= 'act=' . $arrClipboard['mode'];
+//
+                // Switch mode
                 // Add ext. information
-                $strAdd2UrlAfter = 'act=' . $arrClipboard['mode'] . '&amp;mode=1&amp;pid=' . $objModelRow->getID() . '&amp;after=' . $objModelRow->getID() . '&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs'];
-                $strAdd2UrlInto  = 'act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=' . $objModelRow->getID() . '&amp;after=' . $objModelRow->getID() . '&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs'];
+                $strAdd2UrlAfter = 'act=' . $arrClipboard['mode'] . '&amp;mode=1&amp;pid=' . $arrClipboard['id'] . '&amp;after=' . $objModelRow->getID() . '&amp;source=' . $arrClipboard['source'] . '&amp;childs=' . $arrClipboard['childs'];
+                $strAdd2UrlInto  = 'act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=' . $arrClipboard['id'] . '&amp;after=' . $objModelRow->getID() . '&amp;source=' . $arrClipboard['source'] . '&amp;childs=' . $arrClipboard['childs'];
 
                 if ($arrClipboard['pdp'] != '')
                 {
@@ -1621,19 +1647,34 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                     $strAdd2UrlInto .= '&amp;cdp=' . $arrClipboard['cdp'];
                 }
 
-                $imagePasteAfter = $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0], 'class="blink"');
-                $return .= ' <a href="'
-                        . $this->addToUrl($strAdd2UrlAfter)
-                        . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0]) . '" onclick="Backend.getScrollOffset()">'
-                        . $imagePasteAfter
-                        . '</a> ';
+                switch ($this->arrDCA['list']['sorting']['mode'])
+                {
+                    default:
+                    case 4:
+                        $imagePasteAfter = $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0], 'class="blink"');
+                        $return .= ' <a href="'
+                                . $this->addToUrl($strAdd2UrlAfter)
+                                . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0]) . '" onclick="Backend.getScrollOffset()">'
+                                . $imagePasteAfter
+                                . '</a> ';
+                        break;
 
-                $imagePasteInto = $this->generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0], 'class="blink"');
-                $return .= ' <a href="'
-                        . $this->addToUrl($strAdd2UrlInto)
-                        . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">'
-                        . $imagePasteInto
-                        . '</a> ';
+                    case 5:
+                        $imagePasteAfter = $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0], 'class="blink"');
+                        $return .= ' <a href="'
+                                . $this->addToUrl($strAdd2UrlAfter)
+                                . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteafter'][0]) . '" onclick="Backend.getScrollOffset()">'
+                                . $imagePasteAfter
+                                . '</a> ';
+
+                        $imagePasteInto = $this->generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0], 'class="blink"');
+                        $return .= ' <a href="'
+                                . $this->addToUrl($strAdd2UrlInto)
+                                . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">'
+                                . $imagePasteInto
+                                . '</a> ';
+                        break;
+                }
             }
         }
         return trim($return);
