@@ -216,7 +216,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         // FIXME implement panel filter from session
-        
+
         return $this->getDC()->getFilter();
     }
 
@@ -1134,7 +1134,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $arrDCA = $this->getDC()->getDCA();
 
         $this->filterMenu('set');
-        
+
         // Switch mode
         switch ($arrDCA['list']['sorting']['mode'])
         {
@@ -1329,7 +1329,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
 //        $this->getNewPosition($objDBModel, 'create', null, false);
-
         // everything went ok, now save the new record
         $this->getDC()->getDataProvider()->save($objDBModel);
 
@@ -1452,8 +1451,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
                     if ($intNewSorting <= $intSortingAfter || $intNewSorting >= $intSortingNext)
                     {
-                        $this->reorderSorting();
-                        $this->getNewPosition($objDBModel, $mixAfter, $strMode, $intInsertMode, $mixParentID);
+                        $objConfig = $this->objDataProvider->getEmptyConfig();
+                        $objConfig->setFilter($this->getFilter());
+                        $this->reorderSorting($objConfig);
+                        $this->getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $strMode, $intInsertMode, $mixParentID);
                         return;
                     }
 
@@ -1477,8 +1478,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     // If we have no room, reorder all sortings and call the function again
                     if ($intLowestSorting <= 1)
                     {
-                        $this->reorderSorting();
-                        $this->getNewPosition($objDBModel, $mixAfter, $strMode, $intInsertMode, $mixParentID);
+                        $objConfig = $this->objDataProvider->getEmptyConfig();
+                        $objConfig->setFilter($this->getFilter());
+                        $this->reorderSorting($objConfig);
+                        $this->getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $strMode, $intInsertMode, $mixParentID);
                         return;
                     }
 
@@ -1492,7 +1495,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
     }
 
-    protected function reorderSorting($objConfig = null)
+    protected function reorderSorting($objConfig)
     {
         if ($objConfig == null)
         {
@@ -1501,9 +1504,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
         // Search for the lowest sorting        
         $objConfig->setFields(array('sorting'));
-        $objConfig->setSorting(array('sorting'));
+        $objConfig->setSorting(array('sorting', 'id'));
         $arrCollection = $this->objDataProvider->fetchAll($objConfig);
-
+                
         $i        = 1;
         $intCount = 128;
 
@@ -1511,7 +1514,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             $value->setProperty('sorting', $intCount * $i++);
             $this->objDataProvider->save($value);
-        }
+        } 
     }
 
     /* /////////////////////////////////////////////////////////////////////////
@@ -2053,14 +2056,14 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      */
     protected function filterMenu($type = 'add')
     {
-        $arrDCA = $this->getDC()->getDCA();
+        $arrDCA           = $this->getDC()->getDCA();
         $this->getDC()->setButtonId('tl_buttons_a');
         $arrSortingFields = array();
         $arrSession = $this->Session->getData();
         $strFilter  = ($arrDCA['list']['sorting']['mode'] == 4) ? $this->getDC()->getTable() . '_' . CURRENT_ID : $this->getDC()->getTable();
 
         $this->arrDCA = $arrDCA;
-        
+
         // Get sorting fields
         foreach ($arrDCA['fields'] as $k => $v)
         {
@@ -2077,13 +2080,15 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         // Set filter
-        if($type == 'set') {
+        if ($type == 'set')
+        {
             $this->filterMenuSetFilter($arrSortingFields, $arrSession, $strFilter);
             return;
         }
 
         // Add options
-        if($type == 'add') {
+        if ($type == 'add')
+        {
             $arrPanelView = $this->filterMenuAddOptions($arrSortingFields, $arrSession, $strFilter);
             return $arrPanelView;
         }
@@ -2581,21 +2586,21 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             foreach ($arrSortingFields as $field)
             {
                 if (isset($arrSession['filter'][$strFilter][$field]))
-                {					
+                {
                     // Sort by day
                     if (in_array($this->arrDCA['fields'][$field]['flag'], array(5, 6)))
                     {
                         if ($arrSession['filter'][$strFilter][$field] == '')
                         {
-                            $this->getDC()->setFilter(array(array('operation' => '=', 'property' => $field, 'value' => '')));
+                            $this->getDC()->setFilter(array(array('operation' => '=', 'property'  => $field, 'value'     => '')));
                         }
                         else
                         {
                             $objDate = new Date($arrSession['filter'][$strFilter][$field]);
-							$this->getDC()->setFilter(array(
-								array('operation' => '>', 'property' => $field, 'value' => $objDate->dayBegin),
-								array('operation' => '<', 'property' => $field, 'value' => $objDate->dayEnd)
-							));
+                            $this->getDC()->setFilter(array(
+                                array('operation' => '>', 'property'  => $field, 'value'     => $objDate->dayBegin),
+                                array('operation' => '<', 'property'  => $field, 'value'     => $objDate->dayEnd)
+                            ));
                         }
                     }
 
@@ -2604,15 +2609,15 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     {
                         if ($arrSession['filter'][$strFilter][$field] == '')
                         {
-                            $this->getDC()->setFilter(array(array('operation' => '=', 'property' => $field, 'value' => '')));
+                            $this->getDC()->setFilter(array(array('operation' => '=', 'property'  => $field, 'value'     => '')));
                         }
                         else
                         {
                             $objDate = new Date($arrSession['filter'][$strFilter][$field]);
-							$this->getDC()->setFilter(array(
-								array('operation' => '>', 'property' => $field, 'value' => $objDate->monthBegin),
-								array('operation' => '<', 'property' => $field, 'value' => $objDate->monthEnd)
-							));							
+                            $this->getDC()->setFilter(array(
+                                array('operation' => '>', 'property'  => $field, 'value'     => $objDate->monthBegin),
+                                array('operation' => '<', 'property'  => $field, 'value'     => $objDate->monthEnd)
+                            ));
                         }
                     }
 
@@ -2621,15 +2626,15 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     {
                         if ($arrSession['filter'][$strFilter][$field] == '')
                         {
-                            $this->getDC()->setFilter(array(array('operation' => '=', 'property' => $field, 'value' => '')));
+                            $this->getDC()->setFilter(array(array('operation' => '=', 'property'  => $field, 'value'     => '')));
                         }
                         else
                         {
                             $objDate = new Date($arrSession['filter'][$strFilter][$field]);
-							$this->getDC()->setFilter(array(
-								array('operation' => '>', 'property' => $field, 'value' => $objDate->yearBegin),
-								array('operation' => '<', 'property' => $field, 'value' => $objDate->yearEnd)
-							));							
+                            $this->getDC()->setFilter(array(
+                                array('operation' => '>', 'property'  => $field, 'value'     => $objDate->yearBegin),
+                                array('operation' => '<', 'property'  => $field, 'value'     => $objDate->yearEnd)
+                            ));
                         }
                     }
 
@@ -2653,11 +2658,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     // Other sort algorithm
                     else
                     {
-						$this->getDC()->setFilter(
-							array(
-								array('operation' => '=', 'property' => $field, 'value' => $arrSession['filter'][$strFilter][$field])
-							)
-						);
+                        $this->getDC()->setFilter(
+                                array(
+                                    array('operation' => '=', 'property'  => $field, 'value'     => $arrSession['filter'][$strFilter][$field])
+                                )
+                        );
                     }
                 }
             }
@@ -2682,33 +2687,33 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         foreach ($arrSortingFields as $cnt => $field)
         {
             $arrProcedure = array();
-			
+
             if ($this->arrDCA['list']['sorting']['mode'] == 4)
             {
-                $arrProcedure[] = array('operation' => '=', 'property' => 'pid', 'value' => CURRENT_ID);
+                $arrProcedure[] = array('operation' => '=', 'property'  => 'pid', 'value'     => CURRENT_ID);
             }
 
             if (!is_null($this->getDC()->getRootIds()) && is_array($this->getDC()->getRootIds()))
             {
-                $arrProcedure[] = array('operation' => 'IN', 'property' => 'id', 'values' => array_map('intval', $this->getDC()->getRootIds()));
+                $arrProcedure[] = array('operation' => 'IN', 'property'  => 'id', 'values'    => array_map('intval', $this->getDC()->getRootIds()));
             }
-			
+
             $objtmpCollection = $this->getDC()->getDataProvider()->fetchAll($this->getDC()->getDataProvider()->getEmptyConfig()->setFields(array($field))->setFilter($arrProcedure));
-			
-			$arrFields = array();
-			$objCollection = $this->getDC()->getDataProvider()->getEmptyCollection();
-			foreach($objtmpCollection as $key => $objModel)
-			{
-				$value = $objModel->getProperty($field);
-				if(!in_array($value, $arrFields))
-				{
-					$arrFields[] = $value;
-					$objNewModel = $this->getDC()->getDataProvider()->getEmptyModel();
-					$objNewModel->setProperty($field, $value);
-					$objCollection->add($objNewModel);
-				}
-			}
-			
+
+            $arrFields = array();
+            $objCollection = $this->getDC()->getDataProvider()->getEmptyCollection();
+            foreach ($objtmpCollection as $key => $objModel)
+            {
+                $value = $objModel->getProperty($field);
+                if (!in_array($value, $arrFields))
+                {
+                    $arrFields[] = $value;
+                    $objNewModel = $this->getDC()->getDataProvider()->getEmptyModel();
+                    $objNewModel->setProperty($field, $value);
+                    $objCollection->add($objNewModel);
+                }
+            }
+
             // Begin select menu
             $arrPanelView[$field] = array(
                 'select' => array(
@@ -2848,7 +2853,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
                 // Load options callback
                 if (is_array($this->arrDCA['fields'][$field]['options_callback']) && !$this->arrDCA['fields'][$field]['reference'])
-                {					
+                {
                     $arrOptionsCallback = $this->getDC()->getCallbackClass()->optionsCallback($field);
 
                     // Sort options according to the keys of the callback array
@@ -2861,11 +2866,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 $arrOptions = array();
                 $arrSortOptions = array();
                 $blnDate = in_array($this->arrDCA['fields'][$field]['flag'], array(5, 6, 7, 8, 9, 10));
-				
+
                 // Options
                 foreach ($options as $kk => $vv)
                 {
-				
+
                     $value = $blnDate ? $kk : $vv;
 
                     // Replace the ID with the foreign key
@@ -2927,7 +2932,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                     }
 
                     $strOptionsLabel = '';
-					
+
                     // Use reference array
                     if (isset($this->arrDCA['fields'][$field]['reference']))
                     {

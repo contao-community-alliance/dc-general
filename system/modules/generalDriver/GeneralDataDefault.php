@@ -1,4 +1,7 @@
-<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
+<?php
+
+if (!defined('TL_ROOT'))
+    die('You can not access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -150,65 +153,65 @@ class GeneralDataDefault implements InterfaceGeneralData
         return $strFields;
     }
 
-	/**
-	 * Combine a filter in standard filter array notation.
-	 * Supported operations are:
-	 * operation      needed arguments     argument type.
-	 * AND
-	 *                'childs'             array
-	 * OR
-	 *                'childs'             array
-	 * =
-	 *                'property'           string (the name of a property)
-	 *                'value'              literal
-	 * >
-	 *                'property'           string (the name of a property)
-	 *                'value'              literal
-	 * <
-	 *                'property'           string (the name of a property)
-	 *                'value'              literal
-	 * IN
-	 *                'property'           string (the name of a property)
-	 *                'values'             array of literal
-	 *
-	 * @param array $arrFilters the filter to be combined to a valid SQL filter query.
-	 *
-	 * @return string the combined WHERE clause.
-	 */
-	protected function calculateSubfilter($arrFilter)
-	{
-		if (!is_array($arrFilter))
-		{
-			throw new Exception('Error Processing subfilter: ' . var_export($arrFilter, true), 1);
-		}
+    /**
+     * Combine a filter in standard filter array notation.
+     * Supported operations are:
+     * operation      needed arguments     argument type.
+     * AND
+     *                'childs'             array
+     * OR
+     *                'childs'             array
+     * =
+     *                'property'           string (the name of a property)
+     *                'value'              literal
+     * >
+     *                'property'           string (the name of a property)
+     *                'value'              literal
+     * <
+     *                'property'           string (the name of a property)
+     *                'value'              literal
+     * IN
+     *                'property'           string (the name of a property)
+     *                'values'             array of literal
+     *
+     * @param array $arrFilters the filter to be combined to a valid SQL filter query.
+     *
+     * @return string the combined WHERE clause.
+     */
+    protected function calculateSubfilter($arrFilter)
+    {
+        if (!is_array($arrFilter))
+        {
+            throw new Exception('Error Processing subfilter: ' . var_export($arrFilter, true), 1);
+        }
 
-		switch ($arrFilter['operation'])
-		{
-			case 'AND':
-			case 'OR':
-				if (!$arrFilter['childs'])
-				{
-					return '';
-				}
-				$arrCombine = array();
-				foreach ($arrFilter['childs'] as $arrChild)
-				{
-					$arrCombine[] = $this->calculateSubfilter($arrChild);
-				}
-				return implode(sprintf(' %s ', $arrFilter['operation']), $arrCombine);
+        switch ($arrFilter['operation'])
+        {
+            case 'AND':
+            case 'OR':
+                if (!$arrFilter['childs'])
+                {
+                    return '';
+                }
+                $arrCombine = array();
+                foreach ($arrFilter['childs'] as $arrChild)
+                {
+                    $arrCombine[] = $this->calculateSubfilter($arrChild);
+                }
+                return implode(sprintf(' %s ', $arrFilter['operation']), $arrCombine);
 
-			case '=':
-			case '>':
-			case '<':
-				return sprintf('(%s %s \'%s\')', $arrFilter['property'], $arrFilter['operation'], mysql_real_escape_string($arrFilter['value']));
+            case '=':
+            case '>':
+            case '<':
+                return sprintf('(%s %s \'%s\')', $arrFilter['property'], $arrFilter['operation'], mysql_real_escape_string($arrFilter['value']));
 
-			case 'IN':
-				return sprintf('(%s IN (%s))', $arrFilter['property'], '\'' . implode('\',\'', array_map('mysql_real_escape_string', $arrFilter['values'])) . '\'');
+            case 'IN':
+                return sprintf('(%s IN (%s))', $arrFilter['property'], '\'' . implode('\',\'', array_map('mysql_real_escape_string', $arrFilter['values'])) . '\'');
 
-			default:
-				throw new Exception('Error processing filter array ' . var_export($arrFilter, true), 1);
-		}
-	}
+            default:
+                throw new Exception('Error processing filter array ' . var_export($arrFilter, true), 1);
+        }
+    }
 
     /**
      * Build the Where
@@ -219,16 +222,15 @@ class GeneralDataDefault implements InterfaceGeneralData
      */
     protected function buildFilterQuery($objConfig)
     {
-		$strReturn = $this->calculateSubfilter(
-			array
-			(
-				'operation' => 'AND',
-				'childs' => $objConfig->getFilter()
-			)
-		);
-		// combine filter syntax.
-		return $strReturn ? ' WHERE ' . $strReturn : '';
-
+        $strReturn = $this->calculateSubfilter(
+                array
+                    (
+                    'operation' => 'AND',
+                    'childs'    => $objConfig->getFilter()
+                )
+        );
+        // combine filter syntax.
+        return $strReturn ? ' WHERE ' . $strReturn : '';
     }
 
     /**
@@ -378,11 +380,14 @@ class GeneralDataDefault implements InterfaceGeneralData
         $query .= $this->buildSortingQuery($objConfig);
 
         // Execute db query
-        $arrResult = $this->objDatabase
-                ->prepare($query)
-                ->limit($objConfig->getAmount(), $objConfig->getStart())
-                ->execute()
-                ->fetchAllAssoc();
+        $$objDatabseQuery = $this->objDatabase->prepare($query);
+
+        if ($objConfig->getAmount() != 0)
+        {
+            $objDatabseQuery->limit($objConfig->getAmount(), $objConfig->getStart());
+        }
+
+        $arrResult = $$objDatabseQuery->execute()->fetchAllAssoc();
 
         if ($objConfig->getIdOnly())
         {
@@ -519,7 +524,7 @@ class GeneralDataDefault implements InterfaceGeneralData
         $boolSetWhere = true;
 
         $query = "SELECT COUNT(*) AS count FROM " . $this->strSource;
-		$query .= $this->buildFilterQuery($objConfig);
+        $query .= $this->buildFilterQuery($objConfig);
 
         $objCount = $this->objDatabase
                 ->prepare($query)

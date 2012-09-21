@@ -1,20 +1,21 @@
+<?php
+
+// Add tree view stylesheet
+$GLOBALS['TL_CSS'][] = 'system/modules/generalDriver/html/css/generalDriver.css';
+
+?>
 
 <?php echo $this->strGlobalsButton; ?>
 
 <div class="tl_listing_container tree_view" id="tl_listing">
-    <ul class="tl_listing <?php echo $this->treeClass; ?>" >
-
+    <ul class="tl_listing <?php echo $this->treeClass; ?>">
         <li class="tl_folder_top">
             <div class="tl_left"> 
-                <?php echo $this->strLabelIcon ?> 
-                <label><?php echo $this->strLabelText; ?></label> 
+                <?php echo $this->strLabelIcon ?> <label><?php echo $this->strLabelText; ?></label> 
             </div>
             <div class="tl_right"><?php echo (strlen($this->strRootPasteinto)) ? $this->strRootPasteinto : '';  ?></div> 
             <div style="clear:both;"></div>
         </li>
-
         <?php echo $this->strHTML; ?>
-
     </ul>
-
-</div>  
+</div>
