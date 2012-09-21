@@ -604,7 +604,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         // Check if table is editable
-        if ($this->getDC()->isClosed())
+        if ((!$this->getDC()->getId()) && $this->getDC()->isClosed())
         {
             $this->log('Table ' . $this->getDC()->getTable() . ' is closed', 'DC_General - Controller - copy()', TL_ERROR);
             $this->redirect('contao/main.php?act=error');
@@ -619,7 +619,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /**
      * Cut and paste
-     * 
+     *
      * <p>
      * -= GET Parameter =-<br/>
      * act      - Mode like cut | copy | and co <br/>
@@ -746,7 +746,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 break;
         }
 
-        // Save new sorting 
+        // Save new sorting
         $this->objDataProvider->save($objSrcModel);
 
         // Reset clipboard + redirect
@@ -1362,12 +1362,12 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
     /**
      * Calculate the new position of an element
-     * 
+     *
      * Warning this function needs the cdp (current data provider).
      * Warning this function needs the pdp (parent data provider).
-     * 
-     * Warning nekos could live here.   
-     * 
+     *
+     * Warning nekos could live here.
+     *
      * @param InterfaceGeneralData $objCDP - Current data provider
      * @param InterfaceGeneralData $objPDP - Parent data provider
      * @param InterfaceGeneralModel $objDBModel - Model of element which should moved
@@ -1375,7 +1375,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      * @param string $strMode - Mode like cut | create and so on
      * @param integer $intInsertMode - Insert Mode => 1 After | 2 Into
      * @param mixed $mixParentID - Parent ID of table or element
-     * 
+     *
      * @return void
      */
     protected function getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $strMode, $intInsertMode, $mixParentID = null)
@@ -1502,11 +1502,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $objConfig = $this->objDataProvider->getEmptyConfig();
         }
 
-        // Search for the lowest sorting        
+        // Search for the lowest sorting
         $objConfig->setFields(array('sorting'));
         $objConfig->setSorting(array('sorting', 'id'));
         $arrCollection = $this->objDataProvider->fetchAll($objConfig);
-                
+
         $i        = 1;
         $intCount = 128;
 
@@ -1514,7 +1514,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         {
             $value->setProperty('sorting', $intCount * $i++);
             $this->objDataProvider->save($value);
-        } 
+        }
     }
 
     /* /////////////////////////////////////////////////////////////////////////
