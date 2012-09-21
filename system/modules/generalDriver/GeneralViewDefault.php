@@ -492,8 +492,6 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         $objParentDC     = new DC_General($this->objDC->getParentTable());
         $this->parentDca = $objParentDC->getDCA();
 
-
-
         // Add template
         $objTemplate             = new BackendTemplate('dcbe_general_parentView');
         $objTemplate->collection = $this->objDC->getCurrentCollecion();
@@ -504,6 +502,23 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         $objTemplate->tableHead  = $this->parentView['headerGroup'];
         $objTemplate->header     = $this->getParentViewFormattedHeaderFields();
 
+        // Get dataprovider from current and parent
+        $strCDP = $this->objDC->getDataProvider('self')->getEmptyModel()->getProviderName();
+        $strPDP = $this->objDC->getDataProvider('parent');
+
+        // Add parent provider if exsists
+        if ($strPDP != null)
+        {
+            $strPDP = $strPDP->getEmptyModel()->getProviderName();
+        }
+        else
+        {
+            $strPDP = '';
+        }
+
+        $objTemplate->pdp = $strPDP;
+        $objTemplate->cdp = $strCDP;
+        
         $this->setRecords();
 
         $objTemplate->editHeader = array(

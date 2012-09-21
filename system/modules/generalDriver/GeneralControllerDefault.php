@@ -676,8 +676,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             }
         }
 
-
-
         // Load the source model
         $objSrcModel = $objCurrentDataProvider->fetch($this->objDataProvider->getEmptyConfig()->setId($mixSource));
 
@@ -1135,7 +1133,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
         $arrDCA = $this->getDC()->getDCA();
 
-        $this->panel($this->getDC());
+        $this->filterMenu('set');
+        
         // Switch mode
         switch ($arrDCA['list']['sorting']['mode'])
         {
@@ -1158,7 +1157,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 break;
         }
         // keep panel after real view compilation, as in there the limits etc will get compiled.
-        //$this->panel($this->getDC());
+        $this->panel($this->getDC());
     }
 
     /* /////////////////////////////////////////////////////////////////////////
@@ -1329,7 +1328,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $objDBModel->setProperty("tstamp", time());
         }
 
-        $this->getNewPosition($objDBModel, 'create', null, false);
+//        $this->getNewPosition($objDBModel, 'create', null, false);
 
         // everything went ok, now save the new record
         $this->getDC()->getDataProvider()->save($objDBModel);
@@ -1396,26 +1395,26 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         // Funktion for create
         if ($strMode == 'create')
         {
-            // Default - Add to end off all
-            // Search for the highest sorting
-            $objConfig = $objCDP->getEmptyConfig();
-            $objConfig->setFields(array('sorting'));
-            $arrCollection = $objCDP->fetchAll($objConfig);
-
-            foreach ($arrCollection as $value)
-            {
-                if ($value->getProperty('sorting') > $intHigestSorting)
-                {
-                    $intHigestSorting = $value->getProperty('sorting');
-                }
-            }
-
-            $intNextSorting = $intHigestSorting + 128;
-
-            // Set new Sorting
-            $objDBModel->setProperty('sorting', $intNextSorting);
-
-            return;
+//            // Default - Add to end off all
+//            // Search for the highest sorting
+//            $objConfig = $objCDP->getEmptyConfig();
+//            $objConfig->setFields(array('sorting'));
+//            $arrCollection = $objCDP->fetchAll($objConfig);
+//
+//            foreach ($arrCollection as $value)
+//            {
+//                if ($value->getProperty('sorting') > $intHigestSorting)
+//                {
+//                    $intHigestSorting = $value->getProperty('sorting');
+//                }
+//            }
+//
+//            $intNextSorting = $intHigestSorting + 128;
+//
+//            // Set new Sorting
+//            $objDBModel->setProperty('sorting', $intNextSorting);
+//
+//            return;
         }
         // Funktion for cut
         else if ($strMode == 'cut' && $intInsertMode != false)
@@ -1962,8 +1961,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      */
     protected function parentView()
     {
-        FB::log('here');
-        
         if (!CURRENT_ID)
         {
             throw new Exception("mode 4 need a proper parent id defined, somehow none is defined?", 1);
@@ -2054,9 +2051,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
      * Generate the filter panel and return it as HTML string
      * @return string
      */
-    protected function filterMenu()
+    protected function filterMenu($type = 'add')
     {
-        $arrDCA           = $this->getDC()->getDCA();
+        $arrDCA = $this->getDC()->getDCA();
         $this->getDC()->setButtonId('tl_buttons_a');
         $arrSortingFields = array();
         $arrSession = $this->Session->getData();
@@ -2080,12 +2077,16 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         // Set filter
-        $arrSession = $this->filterMenuSetFilter($arrSortingFields, $arrSession, $strFilter);
+        if($type == 'set') {
+            $this->filterMenuSetFilter($arrSortingFields, $arrSession, $strFilter);
+            return;
+        }
 
         // Add options
-        $arrPanelView = $this->filterMenuAddOptions($arrSortingFields, $arrSession, $strFilter);
-
-        return $arrPanelView;
+        if($type == 'add') {
+            $arrPanelView = $this->filterMenuAddOptions($arrSortingFields, $arrSession, $strFilter);
+            return $arrPanelView;
+        }
     }
 
     /**

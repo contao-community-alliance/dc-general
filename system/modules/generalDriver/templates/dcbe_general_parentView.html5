@@ -83,7 +83,7 @@
             <?php else: ?>
 
                 <script>
-                    Backend.makeParentViewSortable("ul_<?php echo CURRENT_ID; ?>");
+                    BackendGeneral.makeParentViewSortable("ul_<?php echo CURRENT_ID; ?>", "<?php echo $this->cdp; ?>", "<?php echo $this->pdp; ?>");
                 </script>
 
             <?php endif; ?>
