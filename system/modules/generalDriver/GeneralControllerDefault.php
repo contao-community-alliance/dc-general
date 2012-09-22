@@ -1295,7 +1295,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $arrDCA     = $this->getDC()->getDCA();
 
         // Check if table is closed
-        if ($arrDCA['config']['closed'] == true)
+        if ($arrDCA['config']['closed'] && !($objDBModel->getID()))
         {
             // TODO show alarm message
             $this->redirect($this->getReferer());
