@@ -97,7 +97,7 @@ class DC_General extends DataContainer implements editable, listable
     // Config ----------------------
 
     /**
-     * Flag to show if the site can be reloaded
+     * Flag to show if the site must not be reloaded. True => do not reload, false do as you want.
      * @var boolean
      */
     protected $blnNoReload = false;
@@ -1438,6 +1438,24 @@ class DC_General extends DataContainer implements editable, listable
         return $this->arrWidgets[$strField] = $objWidget;
     }
 
+	/**
+	 * Lookup buffer for processInput()
+	 *
+	 * holds the values of all already processed input fields.
+	 *
+	 * @var array
+	 */
+	protected $arrProcessed = array();
+
+	/**
+	 * Lookup buffer for processInput()
+	 *
+	 * Holds the names of all already processed input fields.
+	 *
+	 * @var array
+	 */
+	protected $arrProcessedNames = array();
+
     /**
      * Parse|Check|Validate each field and save it.
      *
@@ -1448,30 +1466,26 @@ class DC_General extends DataContainer implements editable, listable
     {
 		// TODO: do we need to unset this again?
 		$this->strField = $strField;
-        // Check if we have allready processed this field
-        if (isset($this->arrProcessed[$strField]) && $this->arrProcessed[$strField] === true)
-        {
-            return null;
-        }
-        else if (isset($this->arrProcessed[$strField]) && $this->arrProcessed[$strField] !== true)
-        {
-            return $this->arrProcessed[$strField];
-        }
 
-        $this->arrProcessed[$strField] = true;
+		if (in_array($strField, $this->arrProcessedNames))
+		{
+			return $this->arrProcessed[$strField];
+		}
+
+		$this->arrProcessedNames[] = $strField;
         $strInputName                  = $strField . '_' . $this->mixWidgetID;
 
         // Return if no submit, field is not editable or not in input
         if (!($this->blnSubmitted && isset($this->arrInputs[$strInputName]) && $this->isEditableField($strField)))
         {
-            return null;
+            return $this->arrProcessed[$strField] = null;
         }
 
         // Build widget
         $objWidget = $this->getWidget($strField);
         if (!($objWidget instanceof Widget))
         {
-            return null;
+            return $this->arrProcessed[$strField] = null;
         }
 
         // Validate
@@ -1481,7 +1495,7 @@ class DC_General extends DataContainer implements editable, listable
         if ($objWidget->hasErrors())
         {
             $this->blnNoReload = true;
-            return null;
+            return $this->arrProcessed[$strField] = null;
         }
 
         if (!$objWidget->submitInput())
@@ -1514,6 +1528,7 @@ class DC_General extends DataContainer implements editable, listable
                 $arrNew = array();
             }
 
+			// FIXME: this will NOT work, as it still uses activeRecord - otoh, what is this intended for? wizards?
             switch ($this->Input->post($objWidget->name . '_update'))
             {
                 case 'add':
@@ -1544,7 +1559,7 @@ class DC_General extends DataContainer implements editable, listable
         {
             $this->noReload = true;
             $objWidget->addError($e->getMessage());
-            return null;
+            return $this->arrProcessed[$strField] = null;
         }
 
         // Check on value empty
@@ -1552,7 +1567,7 @@ class DC_General extends DataContainer implements editable, listable
         {
             $this->noReload = true;
             $objWidget->addError($GLOBALS['TL_LANG']['ERR']['mdtryNoLabel']);
-            return null;
+            return $this->arrProcessed[$strField] = null;
         }
 
         if ($varNew != '')
@@ -1565,7 +1580,7 @@ class DC_General extends DataContainer implements editable, listable
             {
                 $this->noReload = true;
                 $objWidget->addError(sprintf($GLOBALS['TL_LANG']['ERR']['unique'], $objWidget->label));
-                return null;
+                return $this->arrProcessed[$strField] = null;
             }
             else if ($arrConfig['eval']['fallback'])
             {

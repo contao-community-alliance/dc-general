@@ -1301,16 +1301,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $this->redirect($this->getReferer());
         }
 
-        // process input and update changed properties.
-        foreach (array_keys($this->getDC()->getFieldList()) as $key)
-        {
-            $varNewValue = $this->getDC()->processInput($key);
-
-            if (!is_null($varNewValue) && ($objDBModel->getProperty($key) != $varNewValue))
-            {
-                $objDBModel->setProperty($key, $varNewValue);
-            }
-        }
+		$this->getDC()->updateModelFromPOST();
 
         // if we may not store the value, we keep the changes
         // in the current model and return (DO NOT SAVE!).
