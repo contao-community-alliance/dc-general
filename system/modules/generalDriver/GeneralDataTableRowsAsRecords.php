@@ -125,14 +125,13 @@ class GeneralDataTableRowsAsRecords extends GeneralDataDefault
 			->prepare($strQuery)
 			->execute($objConfig->getId());
 
-		if (!$objResult->numRows)
+		$objModel = $this->getEmptyModel();
+		if ($objResult->numRows)
 		{
-			return null;
+			$objModel->setProperty('rows', $objResult->fetchAllAssoc());
 		}
 
-		$objModel = $this->getEmptyModel();
 		$objModel->setID($objConfig->getId());
-		$objModel->setProperty('rows', $objResult->fetchAllAssoc());
 
 		return $objModel;
 	}
