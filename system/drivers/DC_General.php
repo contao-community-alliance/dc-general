@@ -1380,6 +1380,9 @@ class DC_General extends DataContainer implements editable, listable
         }
 
         $strInputName = $strField . '_' . $this->mixWidgetID;
+		// FIXME: do we need to unset this again? do we need to set this elsewhere? load/save/wizard, all want to know this - centralize it
+		$this->strField = $strField;
+		$this->strInputName = $strInputName;
 
         /* $arrConfig['eval']['encrypt'] ? $this->Encryption->decrypt($this->objActiveRecord->$strField) : */
         $varValue = deserialize($this->objCurrentModel->getProperty($strField));
@@ -1464,9 +1467,6 @@ class DC_General extends DataContainer implements editable, listable
      */
     public function processInput($strField)
     {
-		// TODO: do we need to unset this again?
-		$this->strField = $strField;
-
 		if (in_array($strField, $this->arrProcessedNames))
 		{
 			return $this->arrProcessed[$strField];
