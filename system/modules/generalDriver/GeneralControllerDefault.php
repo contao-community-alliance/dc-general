@@ -641,8 +641,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         // Load some vars
         $this->loadCurrentDataProvider();
 
-        //main.php?do=metamodels&table=tl_metamodel_dcasetting&id=1&act=cut&mode=1&pid=1&after=3&source=8&childs=&pdp=tl_metamodel_dca&cdp=tl_metamodel_dcasetting
-
+        // Get vars
         $mixAfter  = $this->Input->get('after');
         $mixSource = $this->Input->get('source');
         $intMode   = $this->Input->get('mode');
@@ -688,8 +687,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             case 1:
             case 2:
             case 3:
-                return vsprintf($this->notImplMsg, 'cut - Mode ' . $arrDCA['list']['sorting']['mode']);
-                break;
+//                return vsprintf($this->notImplMsg, 'cut - Mode ' . $arrDCA['list']['sorting']['mode']);
+//                break;
 
             case 4:
                 $this->getNewPosition($objCurrentDataProvider, $objParentDataProvider, $objSrcModel, $mixAfter, 'cut', $intMode);
@@ -1301,7 +1300,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $this->redirect($this->getReferer());
         }
 
-		$this->getDC()->updateModelFromPOST();
+        $this->getDC()->updateModelFromPOST();
 
         // if we may not store the value, we keep the changes
         // in the current model and return (DO NOT SAVE!).
@@ -1436,6 +1435,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                         {
                             $intSortingAfter = $value->getProperty('sorting');
                         }
+                    }
+
+                    if ($intSortingNext == 0)
+                    {
+                        $intSortingNext = $intSortingAfter + 128;
                     }
 
                     $intNewSorting = $intSortingAfter + round(($intSortingNext - $intSortingAfter) / 2);
