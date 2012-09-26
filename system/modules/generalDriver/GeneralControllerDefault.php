@@ -937,6 +937,33 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
     }
 
+
+	/**
+	 * Recurse through all childs in mode 5 and return their Ids.
+	 */
+	protected function fetchMode5ChildsOf($objParentModel, $blnRecurse = true)
+	{
+		$arrJoinCondition = $this->getDC()->getChildCondition($objParentModel, 'self');
+
+		// Build filter
+		$objChildConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
+		$objChildConfig->setFilter($arrJoinCondition);
+
+		// Get child collection
+		$objChildCollection = $this->getDC()->getDataProvider()->fetchAll($objChildConfig);
+
+		$arrIDs = array();
+		foreach ($objChildCollection as $objChildModel)
+		{
+			$arrIDs[] = $objChildModel->getID();
+			if ($blnRecurse)
+			{
+				$arrIDs = array_merge($arrIDs, $this->fetchMode5ChildsOf($objChildModel, $blnRecurse));
+			}
+		}
+		return $arrIDs;
+	}
+
     public function delete()
     {
         // Load current values
@@ -977,42 +1004,20 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 break;
 
             case 5:
-                $arrJoinCondition = $this->getDC()->getJoinConditions('self');
-
-                $arrDelIDs = array();
-                $arrDelIDs[] = $intRecordID;
-
-                // Get all child entries
-                for ($i = 0; $i < count($arrDelIDs); $i++)
-                {
-                    // Get the current model
-                    $objTempModel = $this->getDC()->getDataProvider()->fetch($this->getDC()->getDataProvider()->getEmptyConfig()->setId($arrDelIDs[$i]));
-
-                    // Build filter
-                    $strFilter      = $arrJoinCondition[0]['dstField'] . $arrJoinCondition[0]['operation'] . $objTempModel->getProperty($arrJoinCondition[0]['srcField']);
-                    $objChildConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
-                    $objChildConfig->setFilter(array($strFilter));
-
-                    // Get child collection
-                    $objChildCollection = $this->getDC()->getDataProvider()->fetchAll($objChildConfig);
-
-                    foreach ($objChildCollection as $value)
-                    {
-                        $arrDelIDs[] = $value->getID();
-                    }
-                }
+				$arrDelIDs = $this->fetchMode5ChildsOf($this->getDC()->getCurrentModel(), $blnRecurse = true);
+				$arrDelIDs[] = $intRecordID;
                 break;
         }
 
         // Delete all entries
-        foreach ($arrDelIDs as $value)
+        foreach ($arrDelIDs as $intId)
         {
-            $this->getDC()->getDataProvider()->delete($value);
+            $this->getDC()->getDataProvider()->delete($intId);
 
             // Add a log entry unless we are deleting from tl_log itself
             if ($this->getDC()->getTable() != 'tl_log')
             {
-                $this->log('DELETE FROM ' . $this->getDC()->getTable() . ' WHERE id=' . $value, 'DC_General - Controller - delete()', TL_GENERAL);
+                $this->log('DELETE FROM ' . $this->getDC()->getTable() . ' WHERE id=' . $intId, 'DC_General - Controller - delete()', TL_GENERAL);
             }
         }
 
