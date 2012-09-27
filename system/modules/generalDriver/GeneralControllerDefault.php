@@ -2537,7 +2537,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
         foreach ($arrRootSetter as $arrCondition)
         {
-            if (!($arrCondition['property'] && $arrCondition['value']))
+            if (($arrCondition['property'] && isset($arrCondition['value'])))
             {
                 $objCurrentEntry->setProperty($arrCondition['property'], $arrCondition['value']);
             }
