@@ -256,6 +256,8 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         $this->calculateSelectors($this->arrStack[0]);
         $this->parseRootPalette();
 
+        // ToDo: What is this $languages[$this->strCurrentLanguage];
+
         $objTemplate = new BackendTemplate('dcbe_general_edit');
         $objTemplate->setData(array(
             'fieldsets' => $this->generateFieldsets('dcbe_general_field', array()),
@@ -518,7 +520,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
         $objTemplate->pdp = $strPDP;
         $objTemplate->cdp = $strCDP;
-        
+
         $this->setRecords();
 
         $objTemplate->editHeader = array(
@@ -815,7 +817,17 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
     public function generateFieldsets($strFieldTemplate)
     {
+        // Load the states of legends
+        $arrFieldsetStates = $this->Session->get('fieldset_states');
+        $arrFieldsetStates = $arrFieldsetStates[$this->objDC->getTable()];
+        if (!is_array($arrFieldsetStates))
+        {
+            $arrFieldsetStates = array();
+        }
+
         $arrRootPalette = $this->arrRootPalette;
+        
+        
 
         foreach ($arrRootPalette as &$arrFieldset)
         {
@@ -826,9 +838,9 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                 $arrClasses = explode(':', substr($strLegend, 1, -1));
                 $strLegend  = array_shift($arrClasses);
                 $arrClasses = array_flip($arrClasses);
-                if (isset($arrStates[$strLegend]))
+                if (isset($arrFieldsetStates[$strLegend]))
                 {
-                    if ($arrStates[$strLegend])
+                    if ($arrFieldsetStates[$strLegend])
                     {
                         unset($arrClasses['hide']);
                     }
