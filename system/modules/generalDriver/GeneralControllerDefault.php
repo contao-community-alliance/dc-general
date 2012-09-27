@@ -207,12 +207,14 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $objParentDP   = $this->getDC()->getDataProvider('parent');
             $objParentItem = $objParentDP->fetch($objParentDP->getEmptyConfig()->setId(CURRENT_ID));
             $objCollection = $objParentDP->getEmptyCollection();
-            $objCollection->add($objParentItem);
-            // NOTE: we set the parent collection here, which will get used in the parentView() routine.
-            $this->getDC()->setCurrentParentCollection($objCollection);
-            $arrFilter     = $this->getDC()->getChildCondition($objParentItem, 'self');
-
-            $this->getDC()->setFilter($arrFilter);
+			if ($objParentItem)
+			{
+				$objCollection->add($objParentItem);
+				// NOTE: we set the parent collection here, which will get used in the parentView() routine.
+				$this->getDC()->setCurrentParentCollection($objCollection);
+				$arrFilter     = $this->getDC()->getChildCondition($objParentItem, 'self');
+				$this->getDC()->setFilter($arrFilter);
+			}
         }
 
         // FIXME implement panel filter from session
