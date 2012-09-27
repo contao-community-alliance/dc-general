@@ -1229,6 +1229,9 @@ class DC_General extends DataContainer implements editable, listable
      */
     public function updateModelFromPOST()
     {
+        // callback to tell visitors that we have just updated the model.
+        $this->getCallbackClass()->onModelBeforeUpdateCallback($this->getCurrentModel());
+
         // process input and update changed properties.
         foreach (array_keys($this->getFieldList()) as $strKey)
         {
