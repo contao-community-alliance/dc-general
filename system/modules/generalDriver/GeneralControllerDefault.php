@@ -156,7 +156,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     protected function getFilter()
     {
         $arrFilter = $this->getDC()->getFilter();
-
         if ($arrFilter)
         {
             return $arrFilter;
@@ -198,14 +197,18 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             $objParentDP   = $this->getDC()->getDataProvider('parent');
             $objParentItem = $objParentDP->fetch($objParentDP->getEmptyConfig()->setId(CURRENT_ID));
             $objCollection = $objParentDP->getEmptyCollection();
-			if ($objParentItem)
+			// no parent item found, might have been deleted - we transparently create it for our filter to be able to filter to nothing.
+			// TODO: shall we rather bail with "parent not found" than pushing all of this to the database?
+			if (!$objParentItem)
 			{
-				$objCollection->add($objParentItem);
-				// NOTE: we set the parent collection here, which will get used in the parentView() routine.
-				$this->getDC()->setCurrentParentCollection($objCollection);
-				$arrFilter     = $this->getDC()->getChildCondition($objParentItem, 'self');
-				$this->getDC()->setFilter($arrFilter);
+				$objParentItem = $objParentDP->getEmptyModel();
+				$objParentItem->setID(CURRENT_ID);
 			}
+			$objCollection->add($objParentItem);
+			// NOTE: we set the parent collection here, which will get used in the parentView() routine.
+			$this->getDC()->setCurrentParentCollection($objCollection);
+			$arrFilter     = $this->getDC()->getChildCondition($objParentItem, 'self');
+			$this->getDC()->setFilter($arrFilter);
         }
 
         // FIXME implement panel filter from session
