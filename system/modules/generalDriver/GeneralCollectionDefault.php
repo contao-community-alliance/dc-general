@@ -32,8 +32,8 @@ class GeneralCollectionDefault implements InterfaceGeneralCollection
 
     /**
      * A list with a models.
-     * 
-     * @var array 
+     *
+     * @var array
      */
     protected $arrCollection = array();
 
@@ -88,7 +88,7 @@ class GeneralCollectionDefault implements InterfaceGeneralCollection
     /**
      * Remove the given index or model from the collection and renew the index.
      * ATTENTION: Don't use key to unset in foreach because of the new index.
-     * 
+     *
      * @param mixed $mixedValue
      */
     public function remove($mixedValue)
@@ -141,13 +141,18 @@ class GeneralCollectionDefault implements InterfaceGeneralCollection
     /**
      * Add a record to the end of this collection.
      * (do not fill with empty records!)
-     * 
+     *
      * @param InterfaceGeneralModel $objModel
      *
      * @return void
      */
     public function push(InterfaceGeneralModel $objModel)
     {
+		if (!$objModel)
+		{
+			throw new Exception("push() - no model passed", 1);
+		}
+
         if ($objModel->hasProperties())
         {
             array_push($this->arrCollection, $objModel);
@@ -198,7 +203,7 @@ class GeneralCollectionDefault implements InterfaceGeneralCollection
     /**
      * Add a record at the beginning of this collection.
      * (do not fill with empty records!)
-     * 
+     *
      * @param InterfaceGeneralModel $objModel
      *
      * @return void
@@ -213,8 +218,8 @@ class GeneralCollectionDefault implements InterfaceGeneralCollection
 
     /**
      * Get a iterator for this collection
-     * 
-     * @return ArrayIterator 
+     *
+     * @return ArrayIterator
      */
     public function getIterator()
     {
