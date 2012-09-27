@@ -51,6 +51,18 @@ class DC_General extends DataContainer implements editable, listable
     protected $strTable = null;
 
     /**
+     * Name of current parent table
+     * @var String
+     */
+    protected $strParentTable = null;
+
+    /**
+     * Name of the child table
+     * @var String
+     */
+    protected $strChildTable = null;
+
+    /**
      * DCA configuration
      * @var array
      */
@@ -121,14 +133,6 @@ class DC_General extends DataContainer implements editable, listable
      * @var array
      */
     protected $arrPanelView = null;
-
-    // Parent & Child --------------
-
-    /**
-     * Name of the child table
-     * @var String
-     */
-    protected $strChildTable = null;
 
     // Current Values ---------------
 
@@ -284,9 +288,9 @@ class DC_General extends DataContainer implements editable, listable
      * @var array
      */
     private static $arrDates = array(
-        'date'  => true,
-        'time'  => true,
-        'datim' => true
+        'date'   => true,
+        'time'   => true,
+        'datim'  => true
     );
 
     /* /////////////////////////////////////////////////////////////////////////
@@ -308,12 +312,14 @@ class DC_General extends DataContainer implements editable, listable
 
         // Basic vars Init
         $this->strTable = $strTable;
-		if ($arrDCA != null)
-		{
-			$this->arrDCA   = $arrDCA;
-		} else {
-			$this->arrDCA   = &$GLOBALS['TL_DCA'][$this->strTable];
-		}
+        if ($arrDCA != null)
+        {
+            $this->arrDCA = $arrDCA;
+        }
+        else
+        {
+            $this->arrDCA = &$GLOBALS['TL_DCA'][$this->strTable];
+        }
 
         // Check whether the table is defined
         if (!strlen($this->strTable) || !count($this->arrDCA))
@@ -348,12 +354,12 @@ class DC_General extends DataContainer implements editable, listable
             $this->objCallbackClass->onloadCallback($strTable);
         }
 
-		// execute AJAX request, called from Backend::getBackendModule
-		// we have to do this here, as otherwise the script will exit as it only checks for DC_Table and DC_File decendant classes. :/
-		if ($_POST && $this->Environment->isAjaxRequest)
-		{
-			$this->getControllerHandler()->executePostActions();
-		}
+        // execute AJAX request, called from Backend::getBackendModule
+        // we have to do this here, as otherwise the script will exit as it only checks for DC_Table and DC_File decendant classes. :/
+        if ($_POST && $this->Environment->isAjaxRequest)
+        {
+            $this->getControllerHandler()->executePostActions();
+        }
     }
 
     /**
@@ -465,18 +471,18 @@ class DC_General extends DataContainer implements editable, listable
         else
         {
             $arrConfig = array(
-                'class'  => 'GeneralDataDefault',
-                'source' => $this->strTable
+                'class'                                 => 'GeneralDataDefault',
+                'source'                                => $this->strTable
             );
             $this->arrDataProvider[$this->strTable] = $arrConfig;
 
-			if ($this->arrDCA['config']['ptable'])
-			{
-				$arrSourceConfigs['parent'] = array(
-					'class'  => 'GeneralDataDefault',
-					'source' => $this->arrDCA['config']['ptable']
-				);
-			}
+            if ($this->arrDCA['config']['ptable'])
+            {
+                $arrSourceConfigs['parent'] = array(
+                    'class'  => 'GeneralDataDefault',
+                    'source' => $this->arrDCA['config']['ptable']
+                );
+            }
         }
 
         // Set all additional data provider
@@ -499,11 +505,11 @@ class DC_General extends DataContainer implements editable, listable
                             break;
                     }
 
-                    $this->arrDataProvider[$strSource] = $arrConfig;
+                    $this->arrDataProvider[$strSource]           = $arrConfig;
                 }
             }
         }
-		$this->arrDCA['dca_config']['data_provider'] = $arrSourceConfigs;
+        $this->arrDCA['dca_config']['data_provider'] = $arrSourceConfigs;
     }
 
     /**
@@ -584,6 +590,40 @@ class DC_General extends DataContainer implements editable, listable
      *  Getter and Setter
      * -------------------------------------------------------------------------
      * ////////////////////////////////////////////////////////////////////// */
+
+    // Magical Functions --------------------
+
+    public function __get($name)
+    {
+        switch ($name)
+        {
+            // DataContainer overwrite
+            case 'id':
+                return $this->intId;
+                break;
+
+            // DataContainer overwrite
+            case 'table':
+                return $this->strTable;
+                break;
+
+            // DataContainer overwrite
+            case 'field':
+                return $this->strField;
+                break;
+
+            // DataContainer overwrite
+            case 'inputName':
+                return $this->strInputName;
+                break;
+
+            // DataContainer overwrite
+            case 'palette':
+            case 'activeRecord':
+                throw new Exception("Unsupported getter function for '$name' in DC_General.");
+                break;
+        };
+    }
 
     // Submitting / State -------------------
 
@@ -669,11 +709,11 @@ class DC_General extends DataContainer implements editable, listable
             {
                 $arrConfig = $this->arrDataProvider[$strSource];
 
-				if ($arrConfig['source'])
-				{
-					$this->loadLanguageFile($arrConfig['source']);
-					$this->loadDataContainer($arrConfig['source']);
-				}
+                if ($arrConfig['source'])
+                {
+                    $this->loadLanguageFile($arrConfig['source']);
+                    $this->loadDataContainer($arrConfig['source']);
+                }
 
                 if (array_key_exists('class', $arrConfig))
                 {
@@ -689,7 +729,7 @@ class DC_General extends DataContainer implements editable, listable
         }
         else
         {
-           return null;
+            return null;
         }
 
         $this->arrDataProvider[$strSource]->setBaseConfig($arrConfig);
@@ -740,115 +780,120 @@ class DC_General extends DataContainer implements editable, listable
 
     // Join Conditions & Co. ----------------
 
+    public function getParentChildCondition(InterfaceGeneralModel $objParentModel, $strDstTable)
+    {
+        $arrChildDefinitions = $this->arrDCA['dca_config']['childCondition'];
+        if (is_array($arrChildDefinitions) && !empty($arrChildDefinitions))
+        {
+            $strSrcTable = $objParentModel->getProviderName();
 
-	public function getParentChildCondition(InterfaceGeneralModel $objParentModel, $strDstTable)
-	{
-		$arrChildDefinitions = $this->arrDCA['dca_config']['childCondition'];
-		if (is_array($arrChildDefinitions) && !empty($arrChildDefinitions))
-		{
-			$strSrcTable = $objParentModel->getProviderName();
+            if ($strSrcTable == 'self')
+            {
+                $strSrcTable = $this->getTable();
+            }
 
-			if ($strSrcTable == 'self')
-			{
-				$strSrcTable = $this->getTable();
-			}
-
-			foreach ($arrChildDefinitions as $arrCondition)
-			{
-				$strFrom = $arrCondition['from'];
-				$strTo   = $arrCondition['to'];
-				// check table naming match
-				if ((($strFrom == $strSrcTable) || (($strFrom == 'self') && ($strSrcTable == $this->getTable())))
-				&& ((($strTo   == $strDstTable) || (($strTo   == 'self') && ($strDstTable == $this->getTable())))))
-				{
-					return $arrCondition;
-				}
-			}
-		} else {
-			// fallback to pid <=> id mapping (legacy dca).
-			return array
-			(
-				'from' => 'self',
-				'to' => $strDstTable,
-				'setOn' => array
-				(
-					array(
-						'to_field'    => 'pid',
-						'from_field'  => 'id',
-					),
-				),
-				'filter' => array
-				(
-					array
-					(
-						'local'       => 'pid',
-						'remote'      => 'id',
-						'operation'   => '=',
-					)
-				)
-			);
-		}
-	}
+            foreach ($arrChildDefinitions as $arrCondition)
+            {
+                $strFrom = $arrCondition['from'];
+                $strTo   = $arrCondition['to'];
+                // check table naming match
+                if ((($strFrom == $strSrcTable) || (($strFrom == 'self') && ($strSrcTable == $this->getTable())))
+                        && ((($strTo == $strDstTable) || (($strTo == 'self') && ($strDstTable == $this->getTable())))))
+                {
+                    return $arrCondition;
+                }
+            }
+        }
+        else
+        {
+            // fallback to pid <=> id mapping (legacy dca).
+            return array
+                (
+                'from'  => 'self',
+                'to'    => $strDstTable,
+                'setOn' => array
+                    (
+                    array(
+                        'to_field'   => 'pid',
+                        'from_field' => 'id',
+                    ),
+                ),
+                'filter'     => array
+                    (
+                    array
+                        (
+                        'local'     => 'pid',
+                        'remote'    => 'id',
+                        'operation' => '=',
+                    )
+                )
+            );
+        }
+    }
 
     /**
      * Return a array with the join conditions for a special table.
      * If no value is found in the dca, the default id=pid conditions will be used.
      *
-	 * @param InterfaceGeneralModel $objParentModel the model that holds data from the src (aka parent).
-	 *
-	 * @param string                $strDstTable    Name of table for "child"
-	 *
-	 * @return array
-	 */
-	public function getChildCondition(InterfaceGeneralModel $objParentModel, $strDstTable)
-	{
-		$arrReturn = array();
+     * @param InterfaceGeneralModel $objParentModel the model that holds data from the src (aka parent).
+     *
+     * @param string                $strDstTable    Name of table for "child"
+     *
+     * @return array
+     */
+    public function getChildCondition(InterfaceGeneralModel $objParentModel, $strDstTable)
+    {
+        $arrReturn = array();
 
-		if ($strDstTable == 'self')
-		{
-			$strDstTable = $this->getTable();
-		}
+        if ($strDstTable == 'self')
+        {
+            $strDstTable = $this->getTable();
+        }
 
-		$arrCondition = $this->getParentChildCondition($objParentModel, $strDstTable);
+        $arrCondition = $this->getParentChildCondition($objParentModel, $strDstTable);
 
-		if (is_array($arrCondition) && !empty($arrCondition))
-		{
-			// now we have a valid condition found for the desired direction.
-			// We will now replace the local and remote parts in the subconditions with the desired values
-			// from the provided model.
-			foreach ($arrCondition['filter'] as $subCondition)
-			{
-				$arrNew = array
-				(
-					'operation' => $subCondition['operation'],
-					'property'  => $subCondition['local']
-				);
-				if ($subCondition['remote'])
-				{
-					$arrNew['value'] = $objParentModel->getProperty($subCondition['remote']);
-				} else if (isset($subCondition['remote_value'])) {
-					// NOTE: keep isset() above to also allow values of '0' and 'false'.
-					$arrNew['value'] = $subCondition['remote_value'];
-				} else {
-					throw new Exception('Error: neither remote field nor remote value specified in: ' . var_export($subCondition, true), 1);
-				}
-				$arrReturn[] = $arrNew;
-			}
-		}
+        if (is_array($arrCondition) && !empty($arrCondition))
+        {
+            // now we have a valid condition found for the desired direction.
+            // We will now replace the local and remote parts in the subconditions with the desired values
+            // from the provided model.
+            foreach ($arrCondition['filter'] as $subCondition)
+            {
+                $arrNew = array
+                    (
+                    'operation' => $subCondition['operation'],
+                    'property'  => $subCondition['local']
+                );
+                if ($subCondition['remote'])
+                {
+                    $arrNew['value'] = $objParentModel->getProperty($subCondition['remote']);
+                }
+                else if (isset($subCondition['remote_value']))
+                {
+                    // NOTE: keep isset() above to also allow values of '0' and 'false'.
+                    $arrNew['value'] = $subCondition['remote_value'];
+                }
+                else
+                {
+                    throw new Exception('Error: neither remote field nor remote value specified in: ' . var_export($subCondition, true), 1);
+                }
+                $arrReturn[] = $arrNew;
+            }
+        }
 
-		// fallback to pid <=> id mapping (legacy dca).
-		if (empty($arrReturn))
-		{
-			$arrReturn[] = array
-			(
-				'operation' => '=',
-				'property'  => 'pid',
-				'value'     => $objParentModel->getProperty('id')
-			);
-		}
+        // fallback to pid <=> id mapping (legacy dca).
+        if (empty($arrReturn))
+        {
+            $arrReturn[] = array
+                (
+                'operation' => '=',
+                'property'  => 'pid',
+                'value'     => $objParentModel->getProperty('id')
+            );
+        }
 
-		return $arrReturn;
-	}
+        return $arrReturn;
+    }
 
     /**
      * Get the definition of a root entry filter
@@ -860,20 +905,22 @@ class DC_General extends DataContainer implements editable, listable
     public function getRootConditions($strTable)
     {
         $arrReturn = array();
-		// parse the condition into valid filter rules.
-		$arrFilters = $this->arrDCA['dca_config']['rootEntries'][$strTable]['filter'];
-		if ($arrFilters)
-		{
-			$arrReturn = $arrFilters;
-		} else {
-			$arrReturn[] = array
-			(
-				'property'  => 'pid',
-				'operation' => '=',
-				'value'     => 0
-			);
-		}
-		return $arrReturn;
+        // parse the condition into valid filter rules.
+        $arrFilters = $this->arrDCA['dca_config']['rootEntries'][$strTable]['filter'];
+        if ($arrFilters)
+        {
+            $arrReturn = $arrFilters;
+        }
+        else
+        {
+            $arrReturn[] = array
+                (
+                'property'  => 'pid',
+                'operation' => '=',
+                'value'     => 0
+            );
+        }
+        return $arrReturn;
     }
 
     /**
@@ -884,75 +931,79 @@ class DC_General extends DataContainer implements editable, listable
     public function getRootSetter($strTable)
     {
         $arrReturn = array();
-		// parse the condition into valid filter rules.
-		$arrFilters = $this->arrDCA['dca_config']['rootEntries'][$strTable]['setOn'];
-		if ($arrFilters)
-		{
-			$arrReturn = $arrFilters;
-		} else {
-			$arrReturn[] = array
-			(
-				'property'  => 'pid',
-				'value'     => 0
-			);
-		}
-		return $arrReturn;
+        // parse the condition into valid filter rules.
+        $arrFilters = $this->arrDCA['dca_config']['rootEntries'][$strTable]['setOn'];
+        if ($arrFilters)
+        {
+            $arrReturn = $arrFilters;
+        }
+        else
+        {
+            $arrReturn[] = array
+                (
+                'property' => 'pid',
+                'value'    => 0
+            );
+        }
+        return $arrReturn;
     }
 
-	protected function checkCondition(InterfaceGeneralModel $objParentModel, $arrFilter)
-	{
-		switch ($arrFilter['operation'])
-		{
-			case 'AND':
-			case 'OR':
-				if ($arrFilter['operation'] == 'AND')
-				{
-					foreach ($arrFilter['childs'] as $arrChild)
-					{
-						// AND => first false means false
-						if(!$this->checkCondition($objParentModel, $arrChild))
-						{
-							return false;
-						}
-					}
-					return true;
-				} else {
-					foreach ($arrFilter['childs'] as $arrChild)
-					{
-						// OR => first true means true
-						if ($this->checkCondition($objParentModel, $arrChild))
-						{
-							return true;
-						}
-					}
-					return false;
-				}
-				break;
+    protected function checkCondition(InterfaceGeneralModel $objParentModel, $arrFilter)
+    {
+        switch ($arrFilter['operation'])
+        {
+            case 'AND':
+            case 'OR':
+                if ($arrFilter['operation'] == 'AND')
+                {
+                    foreach ($arrFilter['childs'] as $arrChild)
+                    {
+                        // AND => first false means false
+                        if (!$this->checkCondition($objParentModel, $arrChild))
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                else
+                {
+                    foreach ($arrFilter['childs'] as $arrChild)
+                    {
+                        // OR => first true means true
+                        if ($this->checkCondition($objParentModel, $arrChild))
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+                break;
 
-			case '=':
-				return ($objParentModel->getProperty($arrFilter['property']) == $arrFilter['value']);
-				break;
-			case '>':
-				return ($objParentModel->getProperty($arrFilter['property']) > $arrFilter['value']);
-				break;
-			case '<':
-				return ($objParentModel->getProperty($arrFilter['property']) < $arrFilter['value']);
-				break;
+            case '=':
+                return ($objParentModel->getProperty($arrFilter['property']) == $arrFilter['value']);
+                break;
+            case '>':
+                return ($objParentModel->getProperty($arrFilter['property']) > $arrFilter['value']);
+                break;
+            case '<':
+                return ($objParentModel->getProperty($arrFilter['property']) < $arrFilter['value']);
+                break;
 
-			case 'IN':
-				return in_array($objParentModel->getProperty($arrFilter['property']), $arrFilter['value']);
-				break;
+            case 'IN':
+                return in_array($objParentModel->getProperty($arrFilter['property']), $arrFilter['value']);
+                break;
 
-			default:
-				throw new Exception('Error processing filter array - unknown operation ' . var_export($arrFilter, true), 1);
-		}
-	}
+            default:
+                throw new Exception('Error processing filter array - unknown operation ' . var_export($arrFilter, true), 1);
+        }
+    }
 
-	public function isRootItem(InterfaceGeneralModel $objParentModel, $strTable)
-	{
-		$arrRootConditions = $this->getRootConditions($strTable);
-		return $this->checkCondition($objParentModel, array('operation' => 'AND', 'childs' => $arrRootConditions));
-	}
+    public function isRootItem(InterfaceGeneralModel $objParentModel, $strTable)
+    {
+        $arrRootConditions = $this->getRootConditions($strTable);
+        return $this->checkCondition($objParentModel, array('operation' => 'AND', 'childs'    => $arrRootConditions));
+    }
 
     // Msc. ---------------------------------
 
@@ -971,15 +1022,15 @@ class DC_General extends DataContainer implements editable, listable
         return $this->strTable;
     }
 
-	public function getParentTable()
-	{
-		$arrSourceConfigs = $this->arrDCA['dca_config']['data_provider'];
-		if ($arrSourceConfigs && array_key_exists('parent', $arrSourceConfigs) && $arrSourceConfigs['parent']['source'])
-		{
-			return $arrSourceConfigs['parent']['source'];
-		}
-		return null;
-	}
+    public function getParentTable()
+    {
+        $arrSourceConfigs = $this->arrDCA['dca_config']['data_provider'];
+        if ($arrSourceConfigs && array_key_exists('parent', $arrSourceConfigs) && $arrSourceConfigs['parent']['source'])
+        {
+            return $arrSourceConfigs['parent']['source'];
+        }
+        return null;
+    }
 
     public function getChildTable()
     {
@@ -1137,27 +1188,27 @@ class DC_General extends DataContainer implements editable, listable
         $this->objCurrentModel = $objCurrentModel;
     }
 
-	/**
-	 * Update the current model from a post request. Additionally, trigger meta palettes, if installed.
-	 */
-	public function updateModelFromPOST()
-	{
-		// process input and update changed properties.
-		foreach (array_keys($this->getFieldList()) as $strKey)
-		{
-			$varNewValue = $this->processInput($strKey);
-			if (($varNewValue !== NULL) && ($this->objCurrentModel->getProperty($strKey) != $varNewValue))
-			{
-				$this->objCurrentModel->setProperty($strKey, $varNewValue);
-			}
-		}
+    /**
+     * Update the current model from a post request. Additionally, trigger meta palettes, if installed.
+     */
+    public function updateModelFromPOST()
+    {
+        // process input and update changed properties.
+        foreach (array_keys($this->getFieldList()) as $strKey)
+        {
+            $varNewValue = $this->processInput($strKey);
+            if (($varNewValue !== NULL) && ($this->objCurrentModel->getProperty($strKey) != $varNewValue))
+            {
+                $this->objCurrentModel->setProperty($strKey, $varNewValue);
+            }
+        }
 
-		// TODO: is this really a wise idea here?
-		if(in_array('metapalettes', $this->Config->getActiveModules()))
-		{
-			MetaPalettes::getInstance()->generateSubSelectPalettes($this);
-		}
-	}
+        // TODO: is this really a wise idea here?
+        if (in_array('metapalettes', $this->Config->getActiveModules()))
+        {
+            MetaPalettes::getInstance()->generateSubSelectPalettes($this);
+        }
+    }
 
     /**
      * Return the Child DC
@@ -1379,10 +1430,10 @@ class DC_General extends DataContainer implements editable, listable
             return NULL;
         }
 
-        $strInputName = $strField . '_' . $this->mixWidgetID;
-		// FIXME: do we need to unset this again? do we need to set this elsewhere? load/save/wizard, all want to know this - centralize it
-		$this->strField = $strField;
-		$this->strInputName = $strInputName;
+        $strInputName       = $strField . '_' . $this->mixWidgetID;
+        // FIXME: do we need to unset this again? do we need to set this elsewhere? load/save/wizard, all want to know this - centralize it
+        $this->strField     = $strField;
+        $this->strInputName = $strInputName;
 
         /* $arrConfig['eval']['encrypt'] ? $this->Encryption->decrypt($this->objActiveRecord->$strField) : */
         $varValue = deserialize($this->objCurrentModel->getProperty($strField));
@@ -1441,23 +1492,23 @@ class DC_General extends DataContainer implements editable, listable
         return $this->arrWidgets[$strField] = $objWidget;
     }
 
-	/**
-	 * Lookup buffer for processInput()
-	 *
-	 * holds the values of all already processed input fields.
-	 *
-	 * @var array
-	 */
-	protected $arrProcessed = array();
+    /**
+     * Lookup buffer for processInput()
+     *
+     * holds the values of all already processed input fields.
+     *
+     * @var array
+     */
+    protected $arrProcessed = array();
 
-	/**
-	 * Lookup buffer for processInput()
-	 *
-	 * Holds the names of all already processed input fields.
-	 *
-	 * @var array
-	 */
-	protected $arrProcessedNames = array();
+    /**
+     * Lookup buffer for processInput()
+     *
+     * Holds the names of all already processed input fields.
+     *
+     * @var array
+     */
+    protected $arrProcessedNames = array();
 
     /**
      * Parse|Check|Validate each field and save it.
@@ -1467,13 +1518,13 @@ class DC_General extends DataContainer implements editable, listable
      */
     public function processInput($strField)
     {
-		if (in_array($strField, $this->arrProcessedNames))
-		{
-			return $this->arrProcessed[$strField];
-		}
+        if (in_array($strField, $this->arrProcessedNames))
+        {
+            return $this->arrProcessed[$strField];
+        }
 
-		$this->arrProcessedNames[] = $strField;
-        $strInputName                  = $strField . '_' . $this->mixWidgetID;
+        $this->arrProcessedNames[] = $strField;
+        $strInputName              = $strField . '_' . $this->mixWidgetID;
 
         // Return if no submit, field is not editable or not in input
         if (!($this->blnSubmitted && isset($this->arrInputs[$strInputName]) && $this->isEditableField($strField)))
@@ -1494,7 +1545,7 @@ class DC_General extends DataContainer implements editable, listable
         // Check
         if ($objWidget->hasErrors())
         {
-            $this->blnNoReload = true;
+            $this->blnNoReload             = true;
             return $this->arrProcessed[$strField] = null;
         }
 
@@ -1528,7 +1579,7 @@ class DC_General extends DataContainer implements editable, listable
                 $arrNew = array();
             }
 
-			// FIXME: this will NOT work, as it still uses activeRecord - otoh, what is this intended for? wizards?
+            // FIXME: this will NOT work, as it still uses activeRecord - otoh, what is this intended for? wizards?
             switch ($this->Input->post($objWidget->name . '_update'))
             {
                 case 'add':
@@ -1557,7 +1608,7 @@ class DC_General extends DataContainer implements editable, listable
         }
         catch (Exception $e)
         {
-            $this->noReload = true;
+            $this->noReload                = true;
             $objWidget->addError($e->getMessage());
             return $this->arrProcessed[$strField] = null;
         }
@@ -1565,7 +1616,7 @@ class DC_General extends DataContainer implements editable, listable
         // Check on value empty
         if ($varNew == '' && $arrConfig['eval']['doNotSaveEmpty'])
         {
-            $this->noReload = true;
+            $this->noReload                = true;
             $objWidget->addError($GLOBALS['TL_LANG']['ERR']['mdtryNoLabel']);
             return $this->arrProcessed[$strField] = null;
         }
@@ -1578,7 +1629,7 @@ class DC_General extends DataContainer implements editable, listable
             }
             else if ($arrConfig['eval']['unique'] && !$this->getDataProvider($this->objCurrentModel->getProviderName())->isUniqueValue($strField, $varNew, $this->objCurrentModel->getID()))
             {
-                $this->noReload = true;
+                $this->noReload                = true;
                 $objWidget->addError(sprintf($GLOBALS['TL_LANG']['ERR']['unique'], $objWidget->label));
                 return $this->arrProcessed[$strField] = null;
             }
