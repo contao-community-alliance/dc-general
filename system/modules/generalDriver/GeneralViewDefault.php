@@ -826,8 +826,8 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         }
 
         $arrRootPalette = $this->arrRootPalette;
-        
-        
+
+
 
         foreach ($arrRootPalette as &$arrFieldset)
         {
@@ -1098,7 +1098,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
             // TODO set current
 //                $this->current[] = $objModel->getID();
             // Decrypt encrypted value
-            // TODO What ist $table => never init 
+            // TODO What ist $table => never init
             foreach ($objModel as $k => $v)
             {
                 if ($this->arrDCA['fields'][$k]['eval']['encrypt'])
@@ -1593,8 +1593,10 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                         break;
 
                     default:
+						$idParam = $v['idparam'] ? 'id=&amp;' . $v['idparam'] : 'id';
+						$strUrl = $this->addToUrl($v['href'] . '&amp;' . $idParam . '=' . $objModelRow->getID());
                         $return .= ' <a href="'
-                                . $this->addToUrl($v['href'] . '&amp;id=' . $objModelRow->getID())
+                                . $strUrl
                                 . '" title="' . specialchars($title)
                                 . '"'
                                 . $attributes
