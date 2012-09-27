@@ -40,12 +40,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     // Obejcts -----------------------
 
     /**
-     * Contao Session Object
-     * @var Session
-     */
-    protected $objSession = null;
-
-    /**
      * Current DC General
      * @var DC_General
      */
@@ -107,9 +101,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     public function __construct()
     {
         parent::__construct();
-
-        // Init Helper
-        $this->objSession = Session::getInstance();
 
         // Check some vars
         $this->blnShowAllEntries = ($this->Input->get('ptg') == 'all') ? 1 : 0;
@@ -1140,7 +1131,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $arrDCA = $this->getDC()->getDCA();
 
         $this->filterMenu('set');
-        
+
         // Set the sorting fields
         if($arrDCA['list']['sorting']['field'] != '')
         {
@@ -2110,7 +2101,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     protected function searchMenu()
     {
         $searchFields = array();
-        $session      = $this->objSession->getData();
+        $session      = Session::getInstance()->getData();
         $arrPanelView = array();
 
         // Get search fields
@@ -2155,7 +2146,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 }
             }
 
-            $this->objSession->setData($session);
+            Session::getInstance()->setData($session);
         }
 
         // Set search value from session
@@ -2213,7 +2204,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
     {
         $arrPanelView = array();
 
-        $session = $this->objSession->getData();
+        $session = Session::getInstance()->getData();
 
         $arrDCA = $this->getDC()->getDCA();
         $filter = ($arrDCA['list']['sorting']['mode'] == 4) ? $this->getDC()->getTable() . '_' . CURRENT_ID : $this->getDC()->getTable();
@@ -2230,7 +2221,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                 unset($session['filter'][$filter]['limit']);
             }
 
-            $this->objSession->setData($session);
+            Session::getInstance()->setData($session);
 
             if ($this->Input->post('FORM_SUBMIT') == 'tl_filters_limit')
             {
@@ -2358,7 +2349,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
 
         $this->getDC()->setButtonId('tl_buttons_a');
-        $session      = $this->objSession->getData();
+        $session      = Session::getInstance()->getData();
         $orderBy      = $this->arrDCA['list']['sorting']['fields'];
         $firstOrderBy = preg_replace('/\s+.*$/i', '', $orderBy[0]);
 
@@ -2372,7 +2363,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         if ($this->Input->post('FORM_SUBMIT') == 'tl_filters')
         {
             $session['sorting'][$this->getDC()->getTable()] = in_array($this->arrDCA['fields'][$this->Input->post('tl_sort')]['flag'], array(2, 4, 6, 8, 10, 12)) ? $this->Input->post('tl_sort') . ' DESC' : $this->Input->post('tl_sort');
-            $this->objSession->setData($session);
+            Session::getInstance()->setData($session);
         }
 
         // Overwrite the "orderBy" value with the session value

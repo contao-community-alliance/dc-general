@@ -622,7 +622,7 @@ class DC_General extends DataContainer implements editable, listable
             case 'activeRecord':
                 throw new Exception("Unsupported getter function for '$name' in DC_General.");
                 break;
-        };
+        }
     }
 
     // Submitting / State -------------------
@@ -1034,17 +1034,17 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Get name of child table
-     * 
+     *
      * @return string
      */
     public function getChildTable()
     {
         return $this->strChildTable;
     }
-    
+
     /**
      * Set the name of the child table
-     * 
+     *
      * @param stirng $strChildTable
      */
     public function setChildTable($strChildTable)
@@ -1056,7 +1056,7 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Set the primary field for sorting
-     * 
+     *
      * @param str $strFirstSorting
      */
     public function setFirstSorting($strFirstSorting)
@@ -1066,8 +1066,8 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Get the primary field for sorting
-     * 
-     * @return string 
+     *
+     * @return string
      */
     public function getFirstSorting()
     {
@@ -1076,7 +1076,7 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Set the sorting for the views 4,5,6 +
-     * 
+     *
      * @param array $arrSorting
      */
     public function setSorting($arrSorting)
@@ -1086,7 +1086,7 @@ class DC_General extends DataContainer implements editable, listable
 
     /**
      * Get the sorting for the views 4,5,6 +
-     * 
+     *
      * @return array
      */
     public function getSorting()
@@ -1146,7 +1146,7 @@ class DC_General extends DataContainer implements editable, listable
         return $this->arrPanelView;
     }
 
-    
+
 
     public function setFilter($arrFilter)
     {
@@ -1244,6 +1244,9 @@ class DC_General extends DataContainer implements editable, listable
         {
             MetaPalettes::getInstance()->generateSubSelectPalettes($this);
         }
+
+        // callback to tell visitors that we have just updated the model.
+        $this->getCallbackClass()->onModelUpdateCallback($this->getCurrentModel());
     }
 
     /**

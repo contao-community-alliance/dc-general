@@ -501,6 +501,31 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
         return $arrPalette;
     }
 
+    /**
+     * Call the onmodel_update.
+	 * NOTE: the fact that this method has been called does not mean the values of the model have been changed
+	 * it merely just tells "we have loaded a model (from memory or database) and updated it's properties with
+	 * those from the POST data".
+     *
+     * @param InterfaceGeneralModel $objModel The model that has been updated.
+     *
+     * @return void
+     */
+    public function onModelUpdateCallback($objModel)
+    {
+        // Load DCA
+        $arrDCA = $this->objDC->getDCA();
+
+        // Call the oncreate_callback
+        if (is_array($arrDCA['config']['onmodel_update']))
+        {
+            foreach ($arrDCA['config']['onmodel_update'] as $callback)
+            {
+                $this->import($callback[0]);
+                $this->$callback[0]->$callback[1]($objModel, $this->objDC);
+            }
+        }
+    }
 }
 
 ?>
