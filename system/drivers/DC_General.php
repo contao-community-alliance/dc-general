@@ -288,9 +288,9 @@ class DC_General extends DataContainer implements editable, listable
      * @var array
      */
     private static $arrDates = array(
-        'date'   => true,
-        'time'   => true,
-        'datim'  => true
+        'date'  => true,
+        'time'  => true,
+        'datim' => true
     );
 
     /* /////////////////////////////////////////////////////////////////////////
@@ -1005,7 +1005,7 @@ class DC_General extends DataContainer implements editable, listable
         return $this->checkCondition($objParentModel, array('operation' => 'AND', 'childs'    => $arrRootConditions));
     }
 
-    // Msc. ---------------------------------
+    // Basic vars ---------------------------
 
     public function getId()
     {
@@ -1032,20 +1032,69 @@ class DC_General extends DataContainer implements editable, listable
         return null;
     }
 
+    /**
+     * Get name of child table
+     * 
+     * @return string
+     */
     public function getChildTable()
     {
         return $this->strChildTable;
     }
+    
+    /**
+     * Set the name of the child table
+     * 
+     * @param stirng $strChildTable
+     */
+    public function setChildTable($strChildTable)
+    {
+        $this->strChildTable = $strChildTable;
+    }
 
+    // Sorting ------------------------------
+
+    /**
+     * Set the primary field for sorting
+     * 
+     * @param str $strFirstSorting
+     */
+    public function setFirstSorting($strFirstSorting)
+    {
+        $this->strFirstSorting = $strFirstSorting;
+    }
+
+    /**
+     * Get the primary field for sorting
+     * 
+     * @return string 
+     */
+    public function getFirstSorting()
+    {
+        return $this->strFirstSorting;
+    }
+
+    /**
+     * Set the sorting for the views 4,5,6 +
+     * 
+     * @param array $arrSorting
+     */
+    public function setSorting($arrSorting)
+    {
+        $this->arrSorting = $arrSorting;
+    }
+
+    /**
+     * Get the sorting for the views 4,5,6 +
+     * 
+     * @return array
+     */
     public function getSorting()
     {
         return $this->arrSorting;
     }
 
-    public function getFirstSorting()
-    {
-        return $this->strFirstSorting;
-    }
+    // Msc. ---------------------------------
 
     public function getFilter()
     {
@@ -1097,20 +1146,7 @@ class DC_General extends DataContainer implements editable, listable
         return $this->arrPanelView;
     }
 
-    public function setChildTable($strChildTable)
-    {
-        $this->strChildTable = $strChildTable;
-    }
-
-    public function setSorting($arrSorting)
-    {
-        $this->arrSorting = $arrSorting;
-    }
-
-    public function setFirstSorting($strFirstSorting)
-    {
-        $this->strFirstSorting = $strFirstSorting;
-    }
+    
 
     public function setFilter($arrFilter)
     {

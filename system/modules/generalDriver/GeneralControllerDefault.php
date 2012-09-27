@@ -1140,6 +1140,12 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         $arrDCA = $this->getDC()->getDCA();
 
         $this->filterMenu('set');
+        
+        // Set the sorting fields
+        if($arrDCA['list']['sorting']['field'] != '')
+        {
+            $this->objDC->setSorting(trimsplit(",", $arrDCA['list']['sorting']['field']));
+        }
 
         // Switch mode
         switch ($arrDCA['list']['sorting']['mode'])
