@@ -780,12 +780,29 @@ class DC_General extends DataContainer implements editable, listable
 
     // Join Conditions & Co. ----------------
 
-    public function getParentChildCondition(InterfaceGeneralModel $objParentModel, $strDstTable)
+    /**
+	 * Get the parent -> child condition from the parenting to the child table.
+	 *
+	 * @param mixed   $mixParent   either the model that shall be taken as parent or the name of the parent table.
+	 *
+	 * @param string  $strDstTable the name of the desired child table.
+	 */
+    public function getParentChildCondition($mixParent, $strDstTable)
     {
         $arrChildDefinitions = $this->arrDCA['dca_config']['childCondition'];
         if (is_array($arrChildDefinitions) && !empty($arrChildDefinitions))
         {
-            $strSrcTable = $objParentModel->getProviderName();
+			if (is_object($mixParent))
+			{
+				// must be model!
+				if (!is_a($mixParent, 'InterfaceGeneralModel'))
+				{
+					throw new Exception('incompatible object passed');
+				}
+				$strSrcTable = $mixParent->getProviderName();
+			} else {
+				$strSrcTable = $mixParent;
+			}
 
             if ($strSrcTable == 'self')
             {
@@ -904,6 +921,10 @@ class DC_General extends DataContainer implements editable, listable
      */
     public function getRootConditions($strTable)
     {
+        if ($strTable == $this->getTable())
+        {
+            $strTable = 'self';
+        }
         $arrReturn = array();
         // parse the condition into valid filter rules.
         $arrFilters = $this->arrDCA['dca_config']['rootEntries'][$strTable]['filter'];
@@ -930,6 +951,10 @@ class DC_General extends DataContainer implements editable, listable
      */
     public function getRootSetter($strTable)
     {
+        if ($strTable == $this->getTable())
+        {
+            $strTable = 'self';
+        }
         $arrReturn = array();
         // parse the condition into valid filter rules.
         $arrFilters = $this->arrDCA['dca_config']['rootEntries'][$strTable]['setOn'];
@@ -1004,6 +1029,39 @@ class DC_General extends DataContainer implements editable, listable
         $arrRootConditions = $this->getRootConditions($strTable);
         return $this->checkCondition($objParentModel, array('operation' => 'AND', 'childs'    => $arrRootConditions));
     }
+
+	/**
+	 * Sets all parent condition fields in the destination to the values from the source model.
+	 * Useful when moving an element after another in a different parent.
+	 *
+	 * @param InterfaceGeneralModel $objDestination the model that shall get updated.
+	 * @param InterfaceGeneralModel $objCopyFrom    the model that the values shall get retrieved from.
+	 * @param string                $strParentTable the parent table for the objects.
+	 */
+	public function setSameParent(InterfaceGeneralModel $objDestination, InterfaceGeneralModel $objCopyFrom, $strParentTable)
+	{
+		if ($this->isRootItem($objCopyFrom, $strParentTable))
+		{
+			// copy root setter values.
+			$arrChildCondition = $this->getRootSetter($strParentTable);
+		} else {
+			$arrChildCondition = $this->getParentChildCondition($strParentTable, $objCopyFrom->getProviderName());
+			$arrChildCondition = $arrChildCondition['setOn'];
+		}
+		if ($arrChildCondition)
+		{
+			foreach ($arrChildCondition as $arrOperation)
+			{
+				$strProperty = array_key_exists('to_field', $arrOperation) ? $arrOperation['to_field'] : $arrOperation['property'];
+				if (!$strProperty)
+				{
+					throw new Exception('neither to_field nor property found in condition');
+				}
+				$objDestination->setProperty($strProperty, $objCopyFrom->getProperty($strProperty));
+			}
+		}
+	}
+
 
     // Basic vars ---------------------------
 

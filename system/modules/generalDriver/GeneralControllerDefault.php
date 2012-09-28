@@ -521,19 +521,13 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
                                 // Get current model
                                 $objCurrentConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
                                 $objCurrentConfig->setId($arrIDs[$i]);
-//                        $objCurrentConfig->setFields(array($arrJoinCondition[0]['srcField']));
-
                                 $objCurrentModel = $this->getDC()->getDataProvider()->fetch($objCurrentConfig);
-
                                 // Get the join field
                                 $arrJoinCondition = $this->getDC()->getChildCondition($objCurrentModel, 'self');
-
                                 $objChildConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
                                 $objChildConfig->setFilter($arrJoinCondition);
                                 $objChildConfig->setIdOnly(true);
-
                                 $objChildCollection = $this->getDC()->getDataProvider()->fetchAll($objChildConfig);
-
                                 foreach ($objChildCollection as $key => $value)
                                 {
                                     if (!in_array($value, $arrIDs))
@@ -853,42 +847,102 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
         }
         else if ($arrDCA['list']['sorting']['mode'] == 5 && $this->Input->get('mode') != '')
         {
-            // check if the pid id/word is set
-            if ($this->Input->get('pid') == '')
-            {
-                $this->log('Missing pid for new entry in ' . $this->getDC()->getTable(), 'DC_General - Controller - create()', TL_ERROR);
-                $this->redirect('contao/main.php?act=error');
-            }
+			/**
+			 * Create in mode 5
+			 *
+			 * <p>
+			 * -= GET Parameter =-<br/>
+			 * act      - create <br/>
+			 * after    - ID of target element <br/>
+			 * mode     - 1 Insert after | 2 Insert into <br/>
+			 * pid      - Id of the parent used in list mode 4,5 <br/>
+			 * pdp      - Parent Data Provider real name <br/>
+			 * cdp      - Current Data Provider real name <br/>
+			 * id       - Parent child id used for redirect <br/>
+			 * </p>
+			 */
 
-            switch ($this->Input->get('mode'))
-            {
-                case 1:
-                    $this->setParent($objDBModel, $this->getParent('self', $objCurrentModel, $this->Input->get('pid')), 'self');
-                    break;
+			// Get vars
+			$mixAfter  = $this->Input->get('after');
+			$intMode   = $this->Input->get('mode');
+			$mixPid    = $this->Input->get('pid');
+			$strPDP    = $this->Input->get('pdp');
+			$strCDP    = $this->Input->get('cdp');
+			$intId     = $this->Input->get('id');
 
-                case 2:
-                    if (($this->Input->get('pid') == 0) || $this->isRootEntry('self', $this->Input->get('pid')))
-                    {
-                        $this->setRoot($objDBModel, 'self');
-                    }
-                    else
-                    {
-                        $objParentConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
-                        $objParentConfig->setId($this->Input->get('pid'));
+			// Check basic vars
+			if (is_null($mixAfter) || empty($intMode) || empty($strCDP))
+			{
+				$this->log('Missing parameter for create in ' . $this->getDC()->getTable(), __CLASS__ . ' - ' . __FUNCTION__, TL_ERROR);
+				$this->redirect('contao/main.php?act=error');
+			}
 
-                        $objParentModel = $this->getDC()->getDataProvider()->fetch($objParentConfig);
+			// Load current data provider
+			$objCurrentDataProvider = $this->objDC->getDataProvider($strCDP);
+			if ($objCurrentDataProvider == null)
+			{
+				throw new Exception('Could not load current data provider in ' . __CLASS__ . ' - ' . __FUNCTION__);
+			}
 
-                        $this->setParent($objDBModel, $objParentModel, 'self');
-                    }
-                    break;
+			$objParentDataProvider = null;
+			if (!empty($strPDP))
+			{
+				$objParentDataProvider = $this->objDC->getDataProvider($strPDP);
+				if ($objParentDataProvider == null)
+				{
+					throw new Exception('Could not load parent data provider ' . $strPDP . ' in ' . __CLASS__ . ' - ' . __FUNCTION__);
+				}
+			}
 
-                default:
-                    $this->log('Unknown create mode for new entry in ' . $this->getDC()->getTable(), 'DC_General - Controller - create()', TL_ERROR);
-                    $this->redirect('contao/main.php?act=error');
-                    break;
-            }
+			// first enforce the parent table conditions, if we have an parent.
+			if ($strPDP && $mixPid)
+			{
+				// parenting entry is root? we want to become so too.
+				if ($this->isRootEntry($strPDP, $mixPid))
+				{
+					$this->setRoot($objDBModel, $strPDP);
+				} else {
+					// we have some parent model and can use that one.
+					$objParentModel = $objParentDataProvider-fetch($objParentDataProvider->getEmptyConfig()->setId($mixPid));
+					$this->setParent($objDBModel, $objParentModel, $strPDP);
+				}
+				// TODO: update sorting here.
+			}
 
-            // Reste clipboard
+			switch ($this->Input->get('mode'))
+			{
+				case 1: // insert after
+					// we want a new item in $strCDP having an optional parent in $strPDP (with pid item $mixPid) just after $mixAfter (in child tree conditions).
+
+					// sadly, with our complex rules an getParent() is IMPOSSIBLE (or in other words way too costly as we would be forced to iterate through all items and check if this item would end up in their child collection).
+					// therefore we get the child we want to be next of and set all fields to the same values as in the sibling to end up in the same parent.
+					$objOtherChild = $objCurrentDataProvider->fetch($objCurrentDataProvider->getEmptyConfig()->setId($mixAfter));
+					$this->getDC()->setSameParent($objDBModel, $objOtherChild, $strCDP);
+					// TODO: update sorting here.
+					break;
+
+				case 2: // insert into
+
+					// we want a new item in $strCDP having an optional parent in $strPDP (with pid item $mixPid) just as child of $mixAfter (in child tree conditions).
+					// now check if we want to be inserted as root in our own condition - this means either no "after".
+					if (($mixAfter == 0))
+					{
+						$this->setRoot($objDBModel, 'self');
+					} else {
+						// enforce the child condition from our parent.
+						$objMyParent = $objCurrentDataProvider->fetch($objCurrentDataProvider->getEmptyConfig()->setId($mixAfter));
+						$this->setParent($objDBModel, $objMyParent, 'self');
+					}
+					// TODO: update sorting here.
+					break;
+
+				default:
+					$this->log('Unknown create mode for new entry in ' . $this->getDC()->getTable(), 'DC_General - Controller - create()', TL_ERROR);
+					$this->redirect('contao/main.php?act=error');
+					break;
+			}
+
+            // Reset clipboard
             $this->resetClipboard();
         }
 
@@ -1858,6 +1912,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
                 foreach ($objChildCollection as $objChildModel)
                 {
+                    // let the child know about it's parent.
+                    $objModel->setMeta(DCGE::MODEL_PID, $objModel->getID());
+                    $objModel->setMeta(DCGE::MODEL_PTABLE, $objModel->getProviderName());
+
                     // TODO: determine the real subtables here.
                     $this->treeWalkModel($objChildModel, $intLevel + 1, $arrSubToggle, $arrSubTables);
                 }
@@ -2466,7 +2524,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
             {
                 $objChildEntry->setProperty($arrCondition['to_field'], $objParentEntry->getProperty($arrCondition['from_field']));
             }
-            else if ($arrCondition['value'])
+            else if (!is_null('value', $arrCondition))
             {
                 $objChildEntry->setProperty($arrCondition['to_field'], $arrCondition['value']);
             }

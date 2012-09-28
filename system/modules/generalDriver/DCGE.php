@@ -64,4 +64,9 @@ class DCGE
 	//todo: merge with MODEL_CLASS?
 	const MODEL_EVEN_ODD_CLASS = '%rowClass%';
 
+	// parents id value.
+	const MODEL_PID = 'pid';
+
+	// parents provider name.
+	const MODEL_PTABLE = 'ptable';
 }

@@ -571,9 +571,9 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
         if ($this->objDC->isClipboard())
         {
             $arrClipboard = $this->objDC->getClipboard();
-
+            // TODO: @CS we definately need into and after handling here instead of different modes.
             $imagePasteInto   = $this->generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0], 'class="blink"');
-            $strRootPasteinto = '<a href="' . $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=0&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs']) . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">' . $imagePasteInto . '</a> ';
+            $strRootPasteinto = '<a href="' . $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;after=0&amp;pid=0&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs']) . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">' . $imagePasteInto . '</a> ';
         }
 
         // Create treeview
@@ -1437,14 +1437,52 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                 case 3:
                 case 4:
                     // Add new button
-                    $arrReturn[] = ' ' . (!$this->arrDCA['config']['closed'] ? '<a href="' . (strlen($this->objDC->getParentTable()) ? $this->addToUrl('id=&amp;act=create' . (($this->arrDCA['list']['sorting']['mode'] < 4) ? '&amp;mode=2' : '') . '&amp;pid=' . $this->objDC->getId()) : $this->addToUrl('act=create')) . '" class="header_new" title="' . specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['new'][1]) . '" accesskey="n" onclick="Backend.getScrollOffset();">' . $GLOBALS['TL_LANG'][$this->objDC->getTable()]['new'][0] . '</a>' : '');
+                    $strHref = '';
+                    if (strlen($this->objDC->getParentTable()))
+                    {
+                        if ($this->arrDCA['list']['sorting']['mode'] < 4)
+                        {
+                            $strHref = '&amp;mode=2';
+                        }
+                        $strHref = $this->addToUrl($strHref . 'id=&amp;act=create&amp;pid=' . $this->objDC->getId());
+                    } else {
+                        $strHref = $this->addToUrl('act=create');
+                    }
+
+                    $arrReturn[] = (!$this->arrDCA['config']['closed'] ?
+                    sprintf(
+                        ' <a href="%s" class="header_new" title="%s" accesskey="n" onclick="Backend.getScrollOffset()">%s</a>',
+                        $strHref,
+                        specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['new'][1]),
+                        $GLOBALS['TL_LANG'][$this->objDC->getTable()]['new'][0]
+                    ) : '');
                     break;
 
                 case 5:
                 case 6:
                     // Add new button
-                    $arrReturn[] = (!$GLOBALS['TL_DCA'][$this->strTable]['config']['closed']) ? '<a href="' . $this->addToUrl('act=paste&amp;mode=create') . '" class="header_new" title="' . specialchars($GLOBALS['TL_LANG'][$this->strTable]['new'][1]) . '" accesskey="n" onclick="Backend.getScrollOffset()">' . $GLOBALS['TL_LANG'][$this->objDC->getTable()]['new'][0] . '</a>' : '';
-                    break;
+                    $strCDP = $this->objDC->getDataProvider('self')->getEmptyModel()->getProviderName();
+                    $strPDP = $this->objDC->getDataProvider('parent')->getEmptyModel()->getProviderName();
+
+
+                    $arrReturn[] = (!($this->arrDCA['config']['closed'] || $this->objDC->isClipboard())) ?
+                    sprintf(
+                        ' <a href="%s" class="header_new" title="%s" accesskey="n" onclick="Backend.getScrollOffset()">%s</a>',
+                        $this->addToUrl(sprintf('act=paste&amp;mode=create&amp;cdp=%s&amp;pdp=%s', $strCDP, $strPDP)),
+                        specialchars($GLOBALS['TL_LANG'][$this->objDC->getTable()]['new'][1]),
+                        $GLOBALS['TL_LANG'][$this->objDC->getTable()]['new'][0]
+                    ) : '';
+					// add clear clipboard button if needed.
+					if ($this->objDC->isClipboard())
+					{
+						$arrReturn[] = sprintf(
+							' <a href="%s" class="header_clipboard" title="%s" accesskey="x">%s</a>',
+							$this->addToUrl('clipboard=1'),
+							specialchars($GLOBALS['TL_LANG']['MSC']['clearClipboard']),
+							$GLOBALS['TL_LANG']['MSC']['clearClipboard']
+							);
+					}
+					break;
             }
 
             // Add global buttons
@@ -1557,8 +1595,8 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                     // Cute needs some special informations
                     case 'cut':
                         // Get dataprovider from current and parent
-                        $strCDP = $this->objDC->getDataProvider('self')->getEmptyModel()->getProviderName();
-                        $strPDP = $this->objDC->getDataProvider('parent');
+                        $strCDP = $objModelRow->getProviderName();
+                        $strPDP = $objModelRow->getMeta(DCGE::MODEL_PTABLE);
 
                         $strAdd2Url = "";
 
@@ -1568,7 +1606,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
                         // Add parent provider if exsists
                         if ($strPDP != null)
                         {
-                            $strPDP = $strPDP->getEmptyModel()->getProviderName();
+                            $strPDP = $strPDP;
                             $strAdd2Url .= '&amp;pdp=' . $strPDP;
                         }
 
