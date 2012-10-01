@@ -1,4 +1,7 @@
-<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
+<?php
+
+if (!defined('TL_ROOT'))
+	die('You can not access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -29,6 +32,25 @@
  */
 class DCGE
 {
+	
+	// Language ------------------------------------------------------------
+	
+	/**
+	 * Single language
+	 */
+	const LANGUAGE_SL = 1;
+	
+	/**
+	 * Multilanguage
+	 */
+	const LANGUAGE_ML = 2;	
+	
+	// Modes ---------------------------------------------------------------
+
+	
+
+	// Meta Tags -----------------------------------------------------------
+
 	/**
 	 * Title of an item in a tree view.
 	 */
@@ -43,30 +65,34 @@ class DCGE
 	 * Is the tree item open.
 	 */
 	const TREE_VIEW_IS_OPEN = 'dc_gen_tv_open';
-
-
+	
+	/**
+	 * Child Collection
+	 */
 	const TREE_VIEW_CHILD_COLLECTION = 'dc_gen_children_collection';
-
+	
+	/**
+	 * State if we have childs
+	 */
 	const TREE_VIEW_HAS_CHILDS = 'dc_gen_tv_children';
-
 	const MODEL_BUTTONS = '%buttons%';
-
 	const MODEL_LABEL_ARGS = '%args%';
-
 	const MODEL_LABEL_VALUE = '%content%';
-
 	const MODEL_GROUP_HEADER = '%header%';
-
 	const MODEL_GROUP_VALUE = '%group%';
-
 	const MODEL_CLASS = '%class%';
 
 	//todo: merge with MODEL_CLASS?
 	const MODEL_EVEN_ODD_CLASS = '%rowClass%';
 
-	// parents id value.
+	/**
+	 * parents id value.
+	 */
 	const MODEL_PID = 'pid';
 
-	// parents provider name.
+	/**
+	 * parents provider name.
+	 */
 	const MODEL_PTABLE = 'ptable';
+
 }
