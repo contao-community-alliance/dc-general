@@ -207,6 +207,11 @@ class DC_General extends DataContainer implements editable, listable
      */
     protected $intTimerStart;
 
+    /**
+	 * Amount of queries issued while in DC scope.
+	 */
+    protected $intQueryCount;
+
     // Misc. -----------------------
 
     /**
@@ -303,6 +308,7 @@ class DC_General extends DataContainer implements editable, listable
     {
         // Set start timer
         $this->intTimerStart = microtime(true);
+        $this->intQueryCount = count($GLOBALS['TL_DEBUG']);
 
         // Call parent
         parent::__construct();
@@ -2169,7 +2175,8 @@ class DC_General extends DataContainer implements editable, listable
             return $strReturn;
         }
 
-        return $this->setupTimer() . $this->objViewHandler->create();
+        $strReturn = $GLOBALS['TL_CONFIG']['debugMode'] ? $this->setupTimer() : '';
+        return $strReturn . $this->objViewHandler->create();
     }
 
     public function cut()
@@ -2202,7 +2209,8 @@ class DC_General extends DataContainer implements editable, listable
             return $strReturn;
         }
 
-        return $this->setupTimer() . $this->objViewHandler->edit();
+        $strReturn = $GLOBALS['TL_CONFIG']['debugMode'] ? $this->setupTimer() : '';
+        return $strReturn . $this->objViewHandler->edit();
     }
 
     public function move()
@@ -2224,8 +2232,8 @@ class DC_General extends DataContainer implements editable, listable
             return $strReturn;
         }
 
-        return $this->setupTimer() . $this->objViewHandler->show();
-        ;
+        $strReturn = $GLOBALS['TL_CONFIG']['debugMode'] ? $this->setupTimer() : '';
+        return $strReturn . $this->objViewHandler->show();
     }
 
     public function showAll()
@@ -2236,8 +2244,8 @@ class DC_General extends DataContainer implements editable, listable
             return $strReturn;
         }
 
-
-        return $this->setupTimer() . $this->objViewHandler->showAll();
+        $strReturn = $GLOBALS['TL_CONFIG']['debugMode'] ? $this->setupTimer() : '';
+        return $strReturn . $this->objViewHandler->showAll();
     }
 
     public function undo()
@@ -2253,7 +2261,12 @@ class DC_General extends DataContainer implements editable, listable
 
     protected function setupTimer()
     {
-        return '<div style="padding:5px; border:1px solid gray; margin:7px; position:absolute;"> Runtime: ' . number_format((microtime(true) - $this->intTimerStart), 4) . ' Sec. - ' . $this->getReadableSize(memory_get_peak_usage(true)) . '</div>';
+        return sprintf('<div style="padding:5px; border:1px solid gray; margin:7px; position:absolute;"> Runtime: %s Sec. - Queries: %s - Mem: %s</div>',
+            number_format((microtime(true) - $this->intTimerStart), 4),
+            count($GLOBALS['TL_DEBUG']) - $this->intQueryCount,
+            $this->getReadableSize(memory_get_peak_usage(true))
+        );
+        ;
     }
 
 }
