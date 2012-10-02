@@ -41,7 +41,7 @@ class DCGE
 	const LANGUAGE_SL = 1;
 	
 	/**
-	 * Multilanguage
+	 * Multi language
 	 */
 	const LANGUAGE_ML = 2;	
 	
