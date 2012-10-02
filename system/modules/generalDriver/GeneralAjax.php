@@ -9,12 +9,6 @@ class GeneralAjax extends Backend
     private static $objInstance = null;
     
     /**
-     * DC Driver
-     * @var DC_General 
-     */
-    protected $objDC = null;
-    
-    /**
      * Content for response
      * @var String 
      */

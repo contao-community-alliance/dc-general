@@ -44,7 +44,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 * 
 	 * @var DC_General
 	 */
-	protected $objDC = null;	
+	protected $objDC = null;
 
 	// Current -----------------------
 
@@ -212,7 +212,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 * @return mixed
 	 */
 	protected function getListViewSorting()
-	{		
+	{
 		$mixedOrderBy = $this->getDC()->arrDCA['list']['sorting']['fields'];
 
 		if (is_null($this->getDC()->getFirstSorting()))
@@ -348,7 +348,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 * Check if the curren model support multi language.
 	 * Load the language from SESSION, POST or use a fallback.
 	 *
-	 * @return int return the mode multilanguage, singellanguage or unsupportet language
+	 * @return int return the mode multilanguage, singellanguage
 	 */
 	protected function checkLanguage()
 	{
@@ -356,13 +356,14 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$intID = $this->getDC()->getId();
 		$objDataProvider = $this->getDC()->getDataProvider();
 
+		// Check if current dataprovider supports multilanguage
 		if (in_array('InterfaceGeneralDataML', class_implements($objDataProvider)))
 		{
 			$objLanguagesSupported = $this->getDC()->getDataProvider()->getLanguages($intID);
 		}
 		else
 		{
-			$objLanguagesSupported = NULL;
+			$objLanguagesSupported = null;
 		}
 
 		//Check if we have some languages
@@ -601,9 +602,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	{
 		// Checks
 		$this->checkIsWritable();
-		
+
 		$objLocalDataProvider = $this->getDC()->getDataProvider();
-		
+
 		// Get vars
 		$mixAfter = $this->Input->get('after');
 		$mixSource = $this->Input->get('source');
@@ -721,7 +722,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	{
 		// Check
 		$this->checkIsWritable();
-		
+
 		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
 		{
 			case 5:
@@ -787,7 +788,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		// Load record from data provider
 		$objDBModel = $objCurrentDataProvider->getEmptyModel();
 		$this->getDC()->setCurrentModel($objDBModel);
-	
+
 		if ($this->getDC()->arrDCA['list']['sorting']['mode'] < 4)
 		{
 			// check if the pid id/word is set
@@ -991,7 +992,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		{
 			$this->reload();
 		}
-		
+
 		// Check if is it allowed to delete a record
 		if ($this->getDC()->arrDCA['config']['notDeletable'])
 		{
@@ -1276,8 +1277,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	protected function loadVersion($intID, $mixVersion)
 	{
 		$objCurrentDataProvider = $this->getDC()->getDataProvider();
-		
-		
+
+
 		// Load record from version
 		$objVersionModel = $objCurrentDataProvider->getVersion($intID, $mixVersion);
 
@@ -1393,7 +1394,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	protected function getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $strMode, $intInsertMode, $mixParentID = null)
 	{
 		$objCurrentDataProvider = $this->getDC()->getDataProvider();
-		
+
 		$blnSortingExists = $objCDP->fieldExists('sorting');
 		$intHigestSorting = 128;
 		$intLowestSorting = 128;
@@ -1517,7 +1518,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	protected function reorderSorting($objConfig)
 	{
 		$objCurrentDataProvider = $this->getDC()->getDataProvider();
-		
+
 		if ($objConfig == null)
 		{
 			$objConfig = $objCurrentDataProvider->getEmptyConfig();
@@ -1568,7 +1569,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		// Load all params
 		$arrProperties = $objSrcModel->getPropertiesAsArray();
-		
+
 		// Clear some fields, see dca
 		foreach ($arrProperties as $key => $value)
 		{
@@ -2031,7 +2032,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$search = $this->searchMenu();
 		$limit = $this->limitMenu();
 		$sort = $this->sortMenu();
-		
+
 		if (!strlen($this->getDC()->arrDCA['list']['sorting']['panelLayout']) || !is_array($filter) && !is_array($search) && !is_array($limit) && !is_array($sort))
 		{
 			return;
@@ -2221,7 +2222,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$arrPanelView = array();
 
 		$session = Session::getInstance()->getData();
-		
+
 		$filter = ($this->getDC()->arrDCA['list']['sorting']['mode'] == 4) ? $this->getDC()->getTable() . '_' . CURRENT_ID : $this->getDC()->getTable();
 
 		// Set limit from user input

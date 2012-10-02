@@ -345,48 +345,57 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		return $objTemplate->parse();
 	}
 
+	/**
+	 * Show all entries from one table
+	 * 
+	 * @return string HTML
+	 */
 	public function showAll()
 	{
 		// Load basic information
 		$this->loadCurrentModel();
-		
-		$strReturn = '';
 
-		// Switch mode
+		// Create return value
+		$arrReturn = array();
+		
+		// Panels
 		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
 		{
 			case 1:
 			case 2:
 			case 3:
-				$strReturn = $this->listView();
+			case 4:
+				$arrReturn['panel'] = $this->panel();
+		}
+		
+		// Header buttons
+		$arrReturn['buttons'] = $this->generateHeaderButtons($this->getDC()->getButtonId()) . $strReturn;
+
+		// Main body
+		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
+		{
+			case 1:
+			case 2:
+			case 3:
+				$arrReturn['body'] = $this->listView();
 				break;
 
 			case 4:
-				$strReturn = $this->parentView();
+				$arrReturn['body'] = $this->parentView();
 				break;
 
 			case 5:
 			case 6:
-				$strReturn = $this->treeView($this->getDC()->arrDCA['list']['sorting']['mode']);
+				$arrReturn['body'] = $this->treeView($this->getDC()->arrDCA['list']['sorting']['mode']);
 				break;
 
 			default:
 				return $this->notImplMsg;
 				break;
 		}
-
-		// Add panels
-		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
-		{
-			case 1:
-			case 2:
-			case 3:
-			case 4:
-				$strReturn = $this->panel() . $strReturn;
-		}
-
+		
 		// Return all
-		return $strReturn;
+		return implode("\n", $arrReturn) ;
 	}
 
 	/* /////////////////////////////////////////////////////////////////////
@@ -429,14 +438,6 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 	 */
 	protected function listView()
 	{
-		$arrReturn = array();
-
-		// Add display buttons
-		if (!$this->getDC()->arrDCA['config']['closed'] || !empty($this->getDC()->arrDCA['list']['global_operations']))
-		{
-			$arrReturn[] = $this->displayButtons($this->getDC()->getButtonId());
-		}
-
 		// Set label
 		$this->setListViewLabel();
 
@@ -455,20 +456,15 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		$objTemplate->tableHead = $this->getTableHead();
 		$objTemplate->notDeletable = $this->getDC()->arrDCA['config']['notDeletable'];
 		$objTemplate->notEditable = $this->getDC()->arrDCA['config']['notEditable'];
-		$arrReturn[] = $objTemplate->parse();
-
-		return implode('', $arrReturn);
+		
+		return $objTemplate->parse();
 	}
 
 	protected function parentView()
 	{
-		$arrReturn = array();
-
 		$this->parentView = array(
 		    'sorting' => $this->getDC()->arrDCA['list']['sorting']['fields'][0] == 'sorting'
 		);
-
-		$arrReturn[] = $this->displayButtons('tl_buttons');
 
 		if (is_null($this->getDC()->getParentTable()) || $this->getDC()->getCurrentParentCollection()->length() == 0)
 		{
@@ -532,9 +528,8 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		$objTemplate->notDeletable = $this->getDC()->arrDCA['config']['notDeletable'];
 		$objTemplate->notEditable = $this->getDC()->arrDCA['config']['notEditable'];
 		$objTemplate->notEditableParent = $this->parentDca['config']['notEditable'];
-		$arrReturn[] = $objTemplate->parse();
-
-		return implode('', $arrReturn);
+		
+		return  $objTemplate->parse();
 	}
 
 	protected function treeView($intMode = 5)
@@ -574,7 +569,6 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		$objTemplate->strLabelText = $strLabelText;
 		$objTemplate->strHTML = $strHTML;
 		$objTemplate->intMode = $intMode;
-		$objTemplate->strGlobalsButton = $this->displayButtons($this->getDC()->getButtonId());
 		$objTemplate->strRootPasteinto = $strRootPasteinto;
 
 		// Return :P
@@ -1396,6 +1390,103 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 	 * Button functions
 	 * ---------------------------------------------------------------------
 	 * ////////////////////////////////////////////////////////////////// */
+
+	/**
+	 * Generate all button for the header of a view.
+	 * 
+	 * This is a function, which is a combination of 
+	 * displayButtons and generateGlobalButtons.
+	 */
+	protected function generateHeaderButtons($strButtonId)
+	{
+		// Return array with all button		
+		$arrReturn = array();
+
+		// Add back button
+		if ($this->getDC()->isSelectSubmit() || $this->getDC()->getParentTable())
+		{
+			$arrReturn['back_button'] = sprintf('<a href="%s" class="header_back" title="%s" accesskey="b" onclick="Backend.getScrollOffset();">%s</a>', $this->getReferer(true, $this->getDC()->getParentTable()), specialchars($GLOBALS['TL_LANG']['MSC']['backBT']), $GLOBALS['TL_LANG']['MSC']['backBT']);
+		}
+
+		// Check if we have the select mode
+		if (!$this->getDC()->isSelectSubmit())
+		{
+			// Add Buttons for mode x
+			switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
+			{
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+					// Add new button
+					$strHref = '';
+					if (strlen($this->getDC()->getParentTable()))
+					{
+						if ($this->getDC()->arrDCA['list']['sorting']['mode'] < 4)
+						{
+							$strHref = '&amp;mode=2';
+						}
+						$strHref = $this->addToUrl($strHref . 'id=&amp;act=create&amp;pid=' . $this->getDC()->getId());
+					}
+					else
+					{
+						$strHref = $this->addToUrl('act=create');
+					}
+
+					$arrReturn['button_new'] = (!$this->getDC()->arrDCA['config']['closed'] ? sprintf(' <a href="%s" class="header_new" title="%s" accesskey="n" onclick="Backend.getScrollOffset()">%s</a>', $strHref, specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][1]), $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][0]) : '');
+					break;
+
+				case 5:
+				case 6:
+					// Add new button
+					$strCDP = $this->getDC()->getDataProvider('self')->getEmptyModel()->getProviderName();
+					$strPDP = $this->getDC()->getDataProvider('parent')->getEmptyModel()->getProviderName();
+
+					if (!($this->getDC()->arrDCA['config']['closed'] || $this->getDC()->isClipboard()))
+					{
+						$arrReturn['button_new'] = sprintf('<a href="%s" class="header_new" title="%s" accesskey="n" onclick="Backend.getScrollOffset()">%s</a>', $this->addToUrl(sprintf('act=paste&amp;mode=create&amp;cdp=%s&amp;pdp=%s', $strCDP, $strPDP)), specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][1]), $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][0]);
+					}
+
+					break;
+			}
+		}
+
+		// add clear clipboard button if needed.
+		if ($this->getDC()->isClipboard())
+		{
+			$arrReturn['button_clipboard'] = sprintf('<a href="%s" class="header_clipboard" title="%s" accesskey="x">%s</a>', $this->addToUrl('clipboard=1'), specialchars($GLOBALS['TL_LANG']['MSC']['clearClipboard']), $GLOBALS['TL_LANG']['MSC']['clearClipboard']);
+		}
+
+		// Add global buttons
+		if (is_array($this->getDC()->arrDCA['list']['global_operations']))
+		{
+			foreach ($this->getDC()->arrDCA['list']['global_operations'] as $k => $v)
+			{
+				$v = is_array($v) ? $v : array($v);
+				$label = is_array($v['label']) ? $v['label'][0] : $v['label'];
+				$title = is_array($v['label']) ? $v['label'][1] : $v['label'];
+				$attributes = strlen($v['attributes']) ? ' ' . ltrim($v['attributes']) : '';
+
+				if (!strlen($label))
+				{
+					$label = $k;
+				}
+
+				// Call a custom function instead of using the default button
+				$strButtonCallback = $this->getDC()->getCallbackClass()->globalButtonCallback($v, $label, $title, $attributes, $this->getDC()->getTable(), $this->getDC()->getRootIds());
+				if (!is_null($strButtonCallback))
+				{
+					$arrReturn[$k] = $strButtonCallback;
+					continue;
+				}
+
+				$arrReturn[$k] = '<a href="' . $this->addToUrl($v['href']) . '" class="' . $v['class'] . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> ';
+			}
+		}
+
+
+		return '<div id="' . $strButtonId . '">' . implode(' &nbsp; :: &nbsp; ', $arrReturn) . '</div>';
+	}
 
 	/**
 	 * Generate header display buttons

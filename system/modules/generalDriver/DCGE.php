@@ -30,24 +30,33 @@ if (!defined('TL_ROOT'))
  * @license    GNU/LGPL
  * @filesource
  */
+
+/**
+ * This class is a holder for all const vars. 
+ */
 class DCGE
 {
-	
 	// Language ------------------------------------------------------------
-	
+
 	/**
 	 * Single language
 	 */
 	const LANGUAGE_SL = 1;
-	
+
 	/**
 	 * Multi language
 	 */
-	const LANGUAGE_ML = 2;	
-	
-	// Modes ---------------------------------------------------------------
+	const LANGUAGE_ML = 2;
 
+	// Modes ---------------------------------------------------------------
 	
+	const MODE_NON_SORTING = 0;
+	const MODE_FIXED_FIELD = 1;
+	const MODE_VARIABLE_FIELD = 2;
+	const MODE_PARENT_VIEW = 3;
+	// SH: CS: mode 4 missing, no idear for a good name :(
+	const MODE_SIMPLE_TREEVIEW = 5;
+	const MODE_PARENT_TREEVIEW = 6;
 
 	// Meta Tags -----------------------------------------------------------
 
@@ -65,12 +74,12 @@ class DCGE
 	 * Is the tree item open.
 	 */
 	const TREE_VIEW_IS_OPEN = 'dc_gen_tv_open';
-	
+
 	/**
 	 * Child Collection
 	 */
 	const TREE_VIEW_CHILD_COLLECTION = 'dc_gen_children_collection';
-	
+
 	/**
 	 * State if we have childs
 	 */
