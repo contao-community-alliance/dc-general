@@ -1149,7 +1149,7 @@ class DC_General extends DataContainer implements editable, listable
 	}
 
 	/**
-	 * Set the sorting for the views 4,5,6 +
+	 * Set the sorting fields
 	 *
 	 * @param array $arrSorting
 	 */
@@ -1159,7 +1159,7 @@ class DC_General extends DataContainer implements editable, listable
 	}
 
 	/**
-	 * Get the sorting for the views 4,5,6 +
+	 * Get the sorting fields
 	 *
 	 * @return array
 	 */

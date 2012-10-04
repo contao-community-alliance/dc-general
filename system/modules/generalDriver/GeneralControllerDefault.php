@@ -45,6 +45,12 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 * @var DC_General
 	 */
 	protected $objDC = null;
+	
+	/**
+	 * Contao Encrypt class
+	 * @var Encryption
+	 */
+	protected $objEncrypt = null;
 
 	// Current -----------------------
 
@@ -87,6 +93,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	public function __construct()
 	{
 		parent::__construct();
+		
+		// Import
+		$this->import('Encryption');
 
 		// Check some vars
 		$this->blnShowAllEntries = ($this->Input->get('ptg') == 'all') ? 1 : 0;
@@ -243,6 +252,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 						$keys = $this->getDC()->arrDCA['fields'][$strField]['options'];
 					}
 
+					// ToDo: SH|CS: What is this => never seen in docu
 					if ($this->getDC()->arrDCA['fields'][$strField]['eval']['isAssociative'] || array_is_assoc($keys))
 					{
 						$keys = array_keys($keys);
@@ -440,20 +450,22 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		 * 4 - Sorting on parent id
 		 * 6 - Show parent + child row => atm no idear how to sort
 		 */
-		if (in_array($this->getDC()->arrDCA['list']['sorting']['mode'], array(1, 3, 4, 6)))
+		if (in_array($this->getDC()->arrDCA['list']['sorting']['mode'], array(0, 3, 4, 6)))
 		{
 			$this->getDC()->setSorting(array());
 		}
 
 		// Get sorting from DCA
-		if ($this->getDC()->arrDCA['list']['sorting']['field'] != '')
+		if (is_array($this->getDC()->arrDCA['list']['sorting']['field']) && count($this->getDC()->arrDCA['list']['sorting']['field']))
 		{
-			$this->getDC()->setSorting(trimsplit(",", $this->getDC()->arrDCA['list']['sorting']['field']));
+			$this->getDC()->setSorting($this->getDC()->arrDCA['list']['sorting']['field']);
+			$this->getDC()->setFirstSorting($this->getDC()->arrDCA['list']['sorting']['field'][0]);
 		}
 		// Check if we have a sorting field in DataProvider
 		else if ($this->getDC()->getDataProvider()->fieldExists('sorting'))
 		{
 			$this->getDC()->setSorting(array('sorting'));
+			$this->getDC()->setFirstSorting('sorting');
 		}
 	}
 
@@ -787,11 +799,12 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 */
 	public function create()
 	{
+		// Checks
+		$this->checkIsWritable();
+		$this->checkLanguage();
+		
 		// Load current values
 		$objCurrentDataProvider = $this->getDC()->getDataProvider();
-
-		// Check
-		$this->checkIsWritable();
 
 		// Load fields and co
 		$this->getDC()->loadEditableFields();
@@ -805,9 +818,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		// Load something
 		$this->getDC()->preloadTinyMce();
-
-		// Check load multi language check
-		$this->checkLanguage($this->getDC());
 
 		// Set buttons
 		$this->getDC()->addButton("save");
@@ -1178,7 +1188,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$this->getDC()->setButtonId('tl_buttons');
 		$this->getFilter();
 		$this->filterMenu('set');
-
+		
 		// Switch mode
 		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
 		{
@@ -1686,32 +1696,47 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 	/**
 	 * Conrtorller funktion for Mode 0,1,2,3
+	 * 
+	 * @todo set global current in DC_General
+	 * @todo $strTable is unknown
 	 */
 	protected function listView()
 	{
 		// Setup		
-		$objDataProvider = $this->getDC()->getDataProvider();
+		$objCurrentDataProvider = $this->getDC()->getDataProvider();
+		$objParrentDataProvider = $this->getDC()->getDataProvider('parent');
+		
+		$showFields = $this->getDC()->arrDCA['list']['label']['fields'];
 		$arrLimit = $this->getLimit();
 
-		// Load record from data provider
-		$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()
-//                ->setIdOnly(true)
+		// Load record from current data provider
+		$objConfig = $objCurrentDataProvider->getEmptyConfig()
 			->setStart($arrLimit[0])
 			->setAmount($arrLimit[1])
 			->setFilter($this->getFilter())
 			->setSorting($this->getListViewSorting());
 
-		$objCollection = $objDataProvider->fetchAll($objConfig);
+		$objCollection = $objCurrentDataProvider->fetchAll($objConfig);
+
+		// TODO: set global current in DC_General
+		/* $this->current[] = $objModelRow->getProperty('id'); */
+//		foreach ($objCollection as $objModel)
+//		{
+//			
+//		}
 
 		// Rename each pid to its label and resort the result (sort by parent table)
 		if ($this->getDC()->arrDCA['list']['sorting']['mode'] == 3)
 		{
-			$this->getDC()->setFirstSorting('pid');
-			$showFields = $this->getDC()->arrDCA['list']['label']['fields'];
+			$this->getDC()->setFirstSorting('pid');			
 
 			foreach ($objCollection as $objModel)
 			{
-				$objFieldModel = $this->getDC()->getDataProvider('parent')->fetch($this->getDC()->getDataProvider()->getEmptyConfig()->setId($objModel->getID()));
+				$objFieldConfig = $objParrentDataProvider->getEmptyConfig()
+					->setId($objModel->getID());
+				
+				$objFieldModel = $$objParrentDataProvider->fetch($objFieldConfig);
+
 				$objModel->setProperty('pid', $objFieldModel->getProperty($showFields[0]));
 			}
 
@@ -1723,38 +1748,40 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			$objCollection->sort(array($this, 'sortCollection'));
 		}
 
-		// TODO set global current in DC_General
-		/* $this->current[] = $objModelRow->getProperty('id'); */
-		$showFields = $this->getDC()->arrDCA['list']['label']['fields'];
-
 		if (is_array($showFields))
 		{
 			// Label
 			foreach ($showFields as $v)
 			{
-				// Decrypt the value
+				// Decrypt each value
 				if ($this->getDC()->arrDCA['fields'][$v]['eval']['encrypt'])
 				{
-					$objModelRow->setProperty($v, deserialize($objModelRow->getProperty($v)));
-
-					$this->import('Encryption');
-					$objModelRow->setProperty($v, $this->Encryption->decrypt($objModelRow->getProperty($v)));
+					foreach ($objCollection as $objModel)
+					{
+						$mixValue = $objModel->getProperty($v);
+						
+						$mixValue = deserialize($mixValue);
+						$mixValue = $this->objEncrypt->decrypt($mixValue);
+						
+						$objModel->setProperty($v, $mixValue);
+					}
 				}
 
-				if (strpos($v, ':') !== false)
-				{
-					list($strKey, $strTable) = explode(':', $v);
-					list($strTable, $strField) = explode('.', $strTable);
-
-
-					$objModel = $this->getDC()->getDataProvider($strTable)->fetch(
-						$this->getDC()->getDataProvider()->getEmptyConfig()
-							->setId($row[$strKey])
-							->setFields(array($strField))
-					);
-
-					$objModelRow->setMeta(DCGE::MODEL_LABEL_ARGS, (($objModel->hasProperties()) ? $objModel->getProperty($strField) : ''));
-				}
+				// ToDo: $strTable is unknown
+//				if (strpos($v, ':') !== false)
+//				{
+//					list($strKey, $strTable) = explode(':', $v);
+//					list($strTable, $strField) = explode('.', $strTable);
+//
+//
+//					$objModel = $this->getDC()->getDataProvider($strTable)->fetch(
+//						$this->getDC()->getDataProvider()->getEmptyConfig()
+//							->setId($row[$strKey])
+//							->setFields(array($strField))
+//					);
+//
+//					$objModelRow->setMeta(DCGE::MODEL_LABEL_ARGS, (($objModel->hasProperties()) ? $objModel->getProperty($strField) : ''));
+//				}
 			}
 		}
 

@@ -361,6 +361,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		// Panels
 		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
 		{
+			case 0:
 			case 1:
 			case 2:
 			case 3:
@@ -374,6 +375,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		// Main body
 		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
 		{
+			case 0:
 			case 1:
 			case 2:
 			case 3:
@@ -449,6 +451,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
 		// Add template
 		$objTemplate = new BackendTemplate('dcbe_general_listView');
+		
 		$objTemplate->collection = $this->getDC()->getCurrentCollecion();
 		$objTemplate->select = $this->getDC()->isSelectSubmit();
 		$objTemplate->action = ampersand($this->Environment->request, true);
