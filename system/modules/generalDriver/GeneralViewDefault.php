@@ -130,7 +130,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		$objDataProvider = $this->getDC()->getDataProvider();
 
 		// Check if DP is multilanguage
-		if (is_a($this->getDC()->getDataProvider(), "InterfaceGeneralDataML"))
+		if ($this->getDC()->getDataProvider() instanceof InterfaceGeneralDataML)
 		{
 			$this->blnMLSupport = true;
 			$this->objLanguagesSupported = $objDataProvider->getLanguages($this->getDC()->getId());

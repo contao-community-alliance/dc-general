@@ -1,5 +1,5 @@
 <?php
-
+ 
 if (!defined('TL_ROOT'))
     die('You can not access this file directly!');
 
@@ -294,7 +294,7 @@ class GeneralDataDefault implements InterfaceGeneralData
                     ->prepare("DELETE FROM $this->strSource WHERE id=?")
                     ->execute($item);
         }
-        else if (is_object($item) && is_a($item, "InterfaceGeneralModel"))
+        else if (is_object($item) && $item instanceof InterfaceGeneralModel)
         {
             if (strlen($item->getID()) != 0)
             {
