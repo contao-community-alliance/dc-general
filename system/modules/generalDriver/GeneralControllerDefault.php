@@ -243,7 +243,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 						$keys = $this->getDC()->arrDCA['fields'][$strField]['options'];
 					}
 
-					if ($this->getDC()->arrDCA['fields'][$v]['eval']['isAssociative'] || array_is_assoc($keys))
+					if ($this->getDC()->arrDCA['fields'][$strField]['eval']['isAssociative'] || array_is_assoc($keys))
 					{
 						$keys = array_keys($keys);
 					}
@@ -327,7 +327,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 	/* /////////////////////////////////////////////////////////////////////
 	 * ---------------------------------------------------------------------
-	 *  Core Support functions
+	 *  Core Support functions // Check Function
 	 * ---------------------------------------------------------------------
 	 * ////////////////////////////////////////////////////////////////// */
 
@@ -348,7 +348,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 * Check if the curren model support multi language.
 	 * Load the language from SESSION, POST or use a fallback.
 	 *
-	 * @return int return the mode multilanguage, singellanguage
+	 * @return int return the mode multilanguage, singellanguage, see DCGE.php
 	 */
 	protected function checkLanguage()
 	{
@@ -421,6 +421,60 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$objDataProvider->setCurrentLanguage($strCurrentLanguage);
 
 		return DCGE::LANGUAGE_ML;
+	}
+
+	/**
+	 * Get the fields for sorting from 
+	 * the dca or set the default to sorting.
+	 * 
+	 * Save all information back into DC_General.
+	 * 
+	 * @return void 
+	 */
+	protected function checkSorting()
+	{
+		/*
+		 * Check if we have a mode without sorting
+		 * 0 - No sorting
+		 * 3 - Sorting with parent table field
+		 * 4 - Sorting on parent id
+		 * 6 - Show parent + child row => atm no idear how to sort
+		 */
+		if (in_array($this->getDC()->arrDCA['list']['sorting']['mode'], array(1, 3, 4, 6)))
+		{
+			$this->getDC()->setSorting(array());
+		}
+
+		// Get sorting from DCA
+		if ($this->getDC()->arrDCA['list']['sorting']['field'] != '')
+		{
+			$this->getDC()->setSorting(trimsplit(",", $this->getDC()->arrDCA['list']['sorting']['field']));
+		}
+		// Check if we have a sorting field in DataProvider
+		else if ($this->getDC()->getDataProvider()->fieldExists('sorting'))
+		{
+			$this->getDC()->setSorting(array('sorting'));
+		}
+	}
+
+	/**
+	 * Check if is editable AND not clodes
+	 */
+	protected function checkIsWritable()
+	{
+		// Check if table is editable
+		if (!$this->getDC()->isEditable())
+		{
+			$this->log('Table ' . $this->getDC()->getTable() . ' is not editable', 'DC_General - Controller - copy()', TL_ERROR);
+			$this->redirect('contao/main.php?act=error');
+		}
+
+		// Check if table is editable
+		if ((!$this->getDC()->getId()) && $this->getDC()->isClosed())
+		{
+			$this->log('Table ' . $this->getDC()->getTable() . ' is closed', 'DC_General - Controller - copy()', TL_ERROR);
+			$this->redirect('contao/main.php?act=error');
+		}
 	}
 
 	/* /////////////////////////////////////////////////////////////////////
@@ -547,32 +601,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		if (is_array($arrClipboard))
 		{
 			$this->Session->set('CLIPBOARD', $arrClipboard);
-		}
-	}
-
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 * Check Function
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
-
-	/**
-	 * Check if is editable AND not clodes
-	 */
-	protected function checkIsWritable()
-	{
-		// Check if table is editable
-		if (!$this->getDC()->isEditable())
-		{
-			$this->log('Table ' . $this->getDC()->getTable() . ' is not editable', 'DC_General - Controller - copy()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
-		}
-
-		// Check if table is editable
-		if ((!$this->getDC()->getId()) && $this->getDC()->isClosed())
-		{
-			$this->log('Table ' . $this->getDC()->getTable() . ' is closed', 'DC_General - Controller - copy()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
 		}
 	}
 
@@ -1142,24 +1170,19 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 */
 	public function showAll()
 	{
-		// Check clipboard
+		// Checks
 		$this->checkClipboard();
+		$this->checkSorting();
 
+		// Setup
 		$this->getDC()->setButtonId('tl_buttons');
-
 		$this->getFilter();
-
 		$this->filterMenu('set');
-
-		// Set the sorting fields
-		if ($this->getDC()->arrDCA['list']['sorting']['field'] != '')
-		{
-			$this->objDC->setSorting(trimsplit(",", $this->getDC()->arrDCA['list']['sorting']['field']));
-		}
 
 		// Switch mode
 		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
 		{
+			case 0:
 			case 1:
 			case 2:
 			case 3:
@@ -1661,6 +1684,83 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 * ---------------------------------------------------------------------
 	 * ////////////////////////////////////////////////////////////////// */
 
+	/**
+	 * Conrtorller funktion for Mode 0,1,2,3
+	 */
+	protected function listView()
+	{
+		// Setup		
+		$objDataProvider = $this->getDC()->getDataProvider();
+		$arrLimit = $this->getLimit();
+
+		// Load record from data provider
+		$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()
+//                ->setIdOnly(true)
+			->setStart($arrLimit[0])
+			->setAmount($arrLimit[1])
+			->setFilter($this->getFilter())
+			->setSorting($this->getListViewSorting());
+
+		$objCollection = $objDataProvider->fetchAll($objConfig);
+
+		// Rename each pid to its label and resort the result (sort by parent table)
+		if ($this->getDC()->arrDCA['list']['sorting']['mode'] == 3)
+		{
+			$this->getDC()->setFirstSorting('pid');
+			$showFields = $this->getDC()->arrDCA['list']['label']['fields'];
+
+			foreach ($objCollection as $objModel)
+			{
+				$objFieldModel = $this->getDC()->getDataProvider('parent')->fetch($this->getDC()->getDataProvider()->getEmptyConfig()->setId($objModel->getID()));
+				$objModel->setProperty('pid', $objFieldModel->getProperty($showFields[0]));
+			}
+
+			$this->arrColSort = array(
+			    'field' => 'pid',
+			    'reverse' => false
+			);
+
+			$objCollection->sort(array($this, 'sortCollection'));
+		}
+
+		// TODO set global current in DC_General
+		/* $this->current[] = $objModelRow->getProperty('id'); */
+		$showFields = $this->getDC()->arrDCA['list']['label']['fields'];
+
+		if (is_array($showFields))
+		{
+			// Label
+			foreach ($showFields as $v)
+			{
+				// Decrypt the value
+				if ($this->getDC()->arrDCA['fields'][$v]['eval']['encrypt'])
+				{
+					$objModelRow->setProperty($v, deserialize($objModelRow->getProperty($v)));
+
+					$this->import('Encryption');
+					$objModelRow->setProperty($v, $this->Encryption->decrypt($objModelRow->getProperty($v)));
+				}
+
+				if (strpos($v, ':') !== false)
+				{
+					list($strKey, $strTable) = explode(':', $v);
+					list($strTable, $strField) = explode('.', $strTable);
+
+
+					$objModel = $this->getDC()->getDataProvider($strTable)->fetch(
+						$this->getDC()->getDataProvider()->getEmptyConfig()
+							->setId($row[$strKey])
+							->setFields(array($strField))
+					);
+
+					$objModelRow->setMeta(DCGE::MODEL_LABEL_ARGS, (($objModel->hasProperties()) ? $objModel->getProperty($strField) : ''));
+				}
+			}
+		}
+
+		$this->getDC()->setCurrentCollecion($objCollection);
+	}
+
 	protected function treeViewM5()
 	{
 		// Load some infromations from DCA
@@ -1904,81 +2004,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$objModel->setMeta(DCGE::TREE_VIEW_HAS_CHILDS, count($arrChildCollections));
 	}
 
-	protected function listView()
-	{
-		$objDataProvider = $this->getDC()->getDataProvider();
-
-		// Get limits
-		$arrLimit = $this->getLimit();
-
-		// Load record from data provider
-		$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()
-//                ->setIdOnly(true)
-			->setStart($arrLimit[0])
-			->setAmount($arrLimit[1])
-			->setFilter($this->getFilter())
-			->setSorting($this->getListViewSorting());
-
-		$objCollection = $objDataProvider->fetchAll($objConfig);
-
-		// Rename each pid to its label and resort the result (sort by parent table)
-		if ($this->getDC()->arrDCA['list']['sorting']['mode'] == 3)
-		{
-			$this->getDC()->setFirstSorting('pid');
-			$showFields = $this->getDC()->arrDCA['list']['label']['fields'];
-
-			foreach ($objCollection as $objModel)
-			{
-				$objFieldModel = $this->getDC()->getDataProvider('parent')->fetch($this->getDC()->getDataProvider()->getEmptyConfig()->setId($objModel->getID()));
-				$objModel->setProperty('pid', $objFieldModel->getProperty($showFields[0]));
-			}
-
-			$this->arrColSort = array(
-			    'field' => 'pid',
-			    'reverse' => false
-			);
-
-			$objCollection->sort(array($this, 'sortCollection'));
-		}
-
-		// TODO set global current in DC_General
-		/* $this->current[] = $objModelRow->getProperty('id'); */
-		$showFields = $this->getDC()->arrDCA['list']['label']['fields'];
-
-		if (is_array($showFields))
-		{
-			// Label
-			foreach ($showFields as $v)
-			{
-				// Decrypt the value
-				if ($this->getDC()->arrDCA['fields'][$v]['eval']['encrypt'])
-				{
-					$objModelRow->setProperty($v, deserialize($objModelRow->getProperty($v)));
-
-					$this->import('Encryption');
-					$objModelRow->setProperty($v, $this->Encryption->decrypt($objModelRow->getProperty($v)));
-				}
-
-				if (strpos($v, ':') !== false)
-				{
-					list($strKey, $strTable) = explode(':', $v);
-					list($strTable, $strField) = explode('.', $strTable);
-
-
-					$objModel = $this->getDC()->getDataProvider($strTable)->fetch(
-						$this->getDC()->getDataProvider()->getEmptyConfig()
-							->setId($row[$strKey])
-							->setFields(array($strField))
-					);
-
-					$objModelRow->setMeta(DCGE::MODEL_LABEL_ARGS, (($objModel->hasProperties()) ? $objModel->getProperty($strField) : ''));
-				}
-			}
-		}
-
-		$this->getDC()->setCurrentCollecion($objCollection);
-	}
-
 	/**
 	 * Show header of the parent table and list all records of the current table
 	 * @return string
@@ -2033,6 +2058,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$limit = $this->limitMenu();
 		$sort = $this->sortMenu();
 
+		// ToDo - This can not be rigth ?
 		if (!strlen($this->getDC()->arrDCA['list']['sorting']['panelLayout']) || !is_array($filter) && !is_array($search) && !is_array($limit) && !is_array($sort))
 		{
 			return;
