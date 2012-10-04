@@ -808,7 +808,7 @@ class DC_General extends DataContainer implements editable, listable
 			if (is_object($mixParent))
 			{
 				// must be model!
-				if (!is_a($mixParent, 'InterfaceGeneralModel'))
+				if (! $mixParent instanceof InterfaceGeneralModel)
 				{
 					throw new Exception('incompatible object passed');
 				}
