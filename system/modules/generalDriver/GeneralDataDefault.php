@@ -178,7 +178,7 @@ class GeneralDataDefault implements InterfaceGeneralData
      *
      * @return string the combined WHERE clause.
      */
-    protected function calculateSubfilter($arrFilter)
+    protected function calculateSubfilter($arrFilter, array &$arrParams)
     {
         if (!is_array($arrFilter))
         {
@@ -196,17 +196,20 @@ class GeneralDataDefault implements InterfaceGeneralData
                 $arrCombine = array();
                 foreach ($arrFilter['childs'] as $arrChild)
                 {
-                    $arrCombine[] = $this->calculateSubfilter($arrChild);
+                    $arrCombine[] = $this->calculateSubfilter($arrChild, $arrParams);
                 }
                 return implode(sprintf(' %s ', $arrFilter['operation']), $arrCombine);
 
             case '=':
             case '>':
             case '<':
-                return sprintf('(%s %s \'%s\')', $arrFilter['property'], $arrFilter['operation'], mysql_real_escape_string($arrFilter['value']));
+            	$arrParams[] = $arrFilter['value'];
+                return sprintf('(%s %s ?)', $arrFilter['property'], $arrFilter['operation']);
 
             case 'IN':
-                return sprintf('(%s IN (%s))', $arrFilter['property'], '\'' . implode('\',\'', array_map('mysql_real_escape_string', $arrFilter['values'])) . '\'');
+            	$arrParams = array_merge($arrParams, array_values($arrFilter['values']));
+            	$strWildcards = rtrim(str_repeat('?,', count($arrFilter['values'])), ',');
+                return sprintf('(%s IN (%s))', $arrFilter['property'], $strWildcards);
 
             default:
                 throw new Exception('Error processing filter array ' . var_export($arrFilter, true), 1);
@@ -220,14 +223,17 @@ class GeneralDataDefault implements InterfaceGeneralData
      *
      * @return string
      */
-    protected function buildFilterQuery($objConfig)
+    protected function buildFilterQuery($objConfig, array &$arrParams = null)
     {
+    	$arrParams || $arrParams = array();
+    	
         $strReturn = $this->calculateSubfilter(
                 array
                     (
                     'operation' => 'AND',
                     'childs'    => $objConfig->getFilter()
-                )
+                ),
+                $arrParams
         );
         // combine filter syntax.
         return $strReturn ? ' WHERE ' . $strReturn : '';
@@ -334,14 +340,14 @@ class GeneralDataDefault implements InterfaceGeneralData
         {
             // Build SQL
             $query = "SELECT " . $this->buildFieldQuery($objConfig) . " FROM " . $this->strSource;
-            $query .= $this->buildFilterQuery($objConfig);
+            $query .= $this->buildFilterQuery($objConfig, $arrParams);
             $query .= $this->buildSortingQuery($objConfig);
 
             // Execute db query
             $arrResult = $this->objDatabase
                     ->prepare($query)
                     ->limit(1, 0)
-                    ->execute()
+                    ->execute($arrParams)
                     ->fetchAllAssoc();
         }
 
@@ -376,18 +382,18 @@ class GeneralDataDefault implements InterfaceGeneralData
     {
         // Build SQL
         $query = "SELECT " . $this->buildFieldQuery($objConfig) . " FROM " . $this->strSource;
-        $query .= $this->buildFilterQuery($objConfig);
+        $query .= $this->buildFilterQuery($objConfig, $arrParams);
         $query .= $this->buildSortingQuery($objConfig);
 
         // Execute db query
-        $$objDatabseQuery = $this->objDatabase->prepare($query);
+        $objDatabaseQuery = $this->objDatabase->prepare($query);
 
         if ($objConfig->getAmount() != 0)
         {
-            $objDatabseQuery->limit($objConfig->getAmount(), $objConfig->getStart());
+            $objDatabaseQuery->limit($objConfig->getAmount(), $objConfig->getStart());
         }
 
-        $arrResult = $$objDatabseQuery->execute()->fetchAllAssoc();
+        $arrResult = $objDatabaseQuery->execute($arrParams)->fetchAllAssoc();
 
         if ($objConfig->getIdOnly())
         {
@@ -524,11 +530,11 @@ class GeneralDataDefault implements InterfaceGeneralData
         $boolSetWhere = true;
 
         $query = "SELECT COUNT(*) AS count FROM " . $this->strSource;
-        $query .= $this->buildFilterQuery($objConfig);
+        $query .= $this->buildFilterQuery($objConfig, $arrParams);
 
         $objCount = $this->objDatabase
                 ->prepare($query)
-                ->execute();
+                ->execute($arrParams);
 
         return $objCount->count;
     }
