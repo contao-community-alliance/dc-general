@@ -2084,9 +2084,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$search = $this->searchMenu();
 		$limit = $this->limitMenu();
 		$sort = $this->sortMenu();
-
-		// ToDo - This can not be rigth ?
-		if (!strlen($this->getDC()->arrDCA['list']['sorting']['panelLayout']) || !is_array($filter) && !is_array($search) && !is_array($limit) && !is_array($sort))
+		
+		if (!strlen($this->getDC()->arrDCA['list']['sorting']['panelLayout']) || (!is_array($filter) && !is_array($search) && !is_array($limit) && !is_array($sort)))
 		{
 			return;
 		}
@@ -2102,7 +2101,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		for ($i = 0; $i < count($arrPanels); $i++)
 		{
 			$arrSubPanels = trimsplit(',', $arrPanels[$i]);
-
+			
 			foreach ($arrSubPanels as $strSubPanel)
 			{
 				if (is_array($$strSubPanel) && count($$strSubPanel) > 0)
@@ -2185,11 +2184,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		}
 
 		// Return if there are no search fields
-		if (empty($searchFields))
+		if (count($searchFields) == 0)
 		{
 			return array();
 		}
-
 		// Store search value in the current session
 		if ($this->Input->post('FORM_SUBMIT') == 'tl_filters')
 		{
@@ -2201,8 +2199,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			{
 				try
 				{
-					$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()
-						->setAmount(1)
+					$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()						
 						->setFilter(array($this->Input->post('tl_field', true) . " REGEXP '" . $this->Input->postRaw('tl_value') . "'"))
 						->setSorting($this->getListViewSorting());
 
@@ -2235,8 +2232,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$arrOptions = array();
 
 		foreach ($searchFields as $field)
-		{
-			$mixedOptionsLabel = strlen($this->arrDCA['fields'][$field]['label'][0]) ? $this->arrDCA['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
+		{	
+			$mixedOptionsLabel = strlen($this->getDC()->arrDCA['fields'][$field]['label'][0]) ? $this->getDC()->arrDCA['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
 
 			$arrOptions[utf8_romanize($mixedOptionsLabel) . '_' . $field] = array(
 			    'value' => specialchars($field),
@@ -2244,7 +2241,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			    'content' => $mixedOptionsLabel
 			);
 		}
-
+		
 		// Sort by option values
 		uksort($arrOptions, 'strcasecmp');
 		$arrPanelView['option'] = $arrOptions;
@@ -2395,7 +2392,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	{
 		$arrPanelView = array();
 
-		if ($this->getDC()->arrDCA['list']['sorting']['mode'] != 2 && $this->getDC()->arrDCA['list']['sorting']['mode'] != 4)
+		// Return an empty array, if don't have mode 2 or 4
+		if (!in_array($this->getDC()->arrDCA['list']['sorting']['mode'], array(2,4)))
 		{
 			return array();
 		}
@@ -2409,7 +2407,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			{
 				$sortingFields[] = $k;
 			}
-		}
+		}	
 
 		// Return if there are no sorting fields
 		if (empty($sortingFields))
