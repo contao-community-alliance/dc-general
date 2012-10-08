@@ -229,7 +229,7 @@ class GeneralDataDefault implements InterfaceGeneralData
 		$arrQuery['filter'] = $this->buildFilterQuery($objConfig, $arrParams);
 		$arrQuery['search'] = $this->buildSearchQuery($objConfig, $arrParams);
 
-		$arrQuery = array_filter($arrQuery, 'stlen');
+		$arrQuery = array_filter($arrQuery, 'strlen');
 
 		return count($arrQuery) ? ' WHERE ' . implode(' AND ', $arrQuery) : '';
 	}
