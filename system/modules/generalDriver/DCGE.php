@@ -48,6 +48,24 @@ class DCGE
 	 */
 	const LANGUAGE_ML = 2;
 
+	// DataProvider Modis --------------------------------------------------
+	
+	/**
+	 * Use the default search mode
+	 */
+	const DP_MODE_DEFAULT = 0;
+	
+	/**
+	 * Use a search like the mysql "like"
+	 */
+	const DP_MODE_LIKE = 1;
+	
+	/**
+	 * Use a regex/pattern search
+	 */
+	const DP_MODE_REGEX = 2;
+
+
 	// Modes ---------------------------------------------------------------
 	
 	const MODE_NON_SORTING = 0;
@@ -84,6 +102,7 @@ class DCGE
 	 * State if we have childs
 	 */
 	const TREE_VIEW_HAS_CHILDS = 'dc_gen_tv_children';
+	
 	const MODEL_BUTTONS = '%buttons%';
 	const MODEL_LABEL_ARGS = '%args%';
 	const MODEL_LABEL_VALUE = '%content%';
