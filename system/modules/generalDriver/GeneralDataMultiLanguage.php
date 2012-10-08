@@ -1,4 +1,7 @@
-<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
+<?php
+
+if (!defined('TL_ROOT'))
+	die('You can not access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -30,80 +33,82 @@
 class GeneralDataMultiLanguage extends GeneralDataDefault implements InterfaceGeneralDataML
 {
 
-    protected $strCurrentLanguage;
-    
-    public function __construct()
-    {
-        $this->strCurrentLanguage = "en";
-        
-        parent::__construct();
-    }
+	protected $strCurrentLanguage;
 
+	public function __construct()
+	{
+		$this->strCurrentLanguage = "en";
 
-    public function getLanguages($mixID)
-    {
-        $objCollection = $this->getEmptyCollection();
+		parent::__construct();
+	}
 
-        $objModel = $this->getEmptyModel();
-        $objModel->setID("de");
-        $objModel->setProperty("name", "Deutsch");
-        if($this->strCurrentLanguage == "de") $objModel->setProperty("active", true);
+	public function getLanguages($mixID)
+	{
+		$objCollection = $this->getEmptyCollection();
 
-        $objCollection->add($objModel);
+		$objModel = $this->getEmptyModel();
+		$objModel->setID("de");
+		$objModel->setProperty("name", "Deutsch");
+		if ($this->strCurrentLanguage == "de")
+			$objModel->setProperty("active", true);
 
-        $objModel = $this->getEmptyModel();
-        $objModel->setID("en");
-        $objModel->setProperty("name", "English");
-        if($this->strCurrentLanguage == "en") $objModel->setProperty("active", true);        
-        
-        $objCollection->add($objModel);
+		$objCollection->add($objModel);
 
-        return $objCollection;
-    }
+		$objModel = $this->getEmptyModel();
+		$objModel->setID("en");
+		$objModel->setProperty("name", "English");
+		if ($this->strCurrentLanguage == "en")
+			$objModel->setProperty("active", true);
 
-    public function getFallbackLanguage($mixID)
-    {
-        $objModel = $this->getEmptyModel();
-        $objModel->setID("en");
-        $objModel->setProperty("name", "English");
-        
-        return $objModel;
-    }
+		$objCollection->add($objModel);
 
-    public function getCurrentLanguage()
-    {
-        return $this->strCurrentLanguage;
-    }
+		return $objCollection;
+	}
 
-    public function setCurrentLanguage($strLanguage)
-    {
-        $this->strCurrentLanguage = $strLanguage;
-    }
+	public function getFallbackLanguage($mixID)
+	{
+		$objModel = $this->getEmptyModel();
+		$objModel->setID("en");
+		$objModel->setProperty("name", "English");
 
-    public function fetch(GeneralDataConfigDefault $objConfig)
-    {
-        return parent::fetch($objConfig);
-    }
+		return $objModel;
+	}
 
-    public function fetchAll(GeneralDataConfigDefault $objConfig)
-    {
-        return parent::fetchAll($objConfig);
-    }
+	public function getCurrentLanguage()
+	{
+		return $this->strCurrentLanguage;
+	}
 
-    public function fetchEach(GeneralDataConfigDefault $objConfig)
-    {
-        return parent::fetchEach($objConfig);
-    }
+	public function setCurrentLanguage($strLanguage)
+	{
+		$this->strCurrentLanguage = $strLanguage;
+	}
 
-    public function save(InterfaceGeneralModel $objItem, $recursive = false)
-    {
-        return parent::save($objItem, $recursive);
-    }
+	public function fetch(GeneralDataConfigDefault $objConfig)
+	{
+		return parent::fetch($objConfig);
+	}
 
-    public function saveEach(InterfaceGeneralCollection $objItems, $recursive = false)
-    {
-        parent::saveEach($objItems, $recursive);
-    }
+	public function fetchAll(GeneralDataConfigDefault $objConfig)
+	{
+		return parent::fetchAll($objConfig);
+	}
+
+	public function fetchEach(GeneralDataConfigDefault $objConfig)
+	{
+		return parent::fetchEach($objConfig);
+	}
+
+	public function save(InterfaceGeneralModel $objItem, $recursive = false)
+	{
+		return parent::save($objItem, $recursive);
+	}
+
+	public function saveEach(InterfaceGeneralCollection $objItems, $recursive = false)
+	{
+		parent::saveEach($objItems, $recursive);
+	}
+
 }
 
 ?>

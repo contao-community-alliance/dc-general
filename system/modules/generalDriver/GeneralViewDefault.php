@@ -357,7 +357,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
 		// Create return value
 		$arrReturn = array();
-		
+
 		// Panels
 		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
 		{
@@ -368,7 +368,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 			case 4:
 				$arrReturn['panel'] = $this->panel();
 		}
-		
+
 		// Header buttons
 		$arrReturn['buttons'] = $this->generateHeaderButtons($this->getDC()->getButtonId()) . $strReturn;
 
@@ -395,9 +395,9 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 				return $this->notImplMsg;
 				break;
 		}
-		
+
 		// Return all
-		return implode("\n", $arrReturn) ;
+		return implode("\n", $arrReturn);
 	}
 
 	/* /////////////////////////////////////////////////////////////////////
@@ -451,7 +451,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
 		// Add template
 		$objTemplate = new BackendTemplate('dcbe_general_listView');
-		
+
 		$objTemplate->collection = $this->getDC()->getCurrentCollecion();
 		$objTemplate->select = $this->getDC()->isSelectSubmit();
 		$objTemplate->action = ampersand($this->Environment->request, true);
@@ -459,7 +459,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		$objTemplate->tableHead = $this->getTableHead();
 		$objTemplate->notDeletable = $this->getDC()->arrDCA['config']['notDeletable'];
 		$objTemplate->notEditable = $this->getDC()->arrDCA['config']['notEditable'];
-		
+
 		return $objTemplate->parse();
 	}
 
@@ -531,8 +531,8 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		$objTemplate->notDeletable = $this->getDC()->arrDCA['config']['notDeletable'];
 		$objTemplate->notEditable = $this->getDC()->arrDCA['config']['notEditable'];
 		$objTemplate->notEditableParent = $this->parentDca['config']['notEditable'];
-		
-		return  $objTemplate->parse();
+
+		return $objTemplate->parse();
 	}
 
 	protected function treeView($intMode = 5)
@@ -1830,18 +1830,17 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
 	protected function panel()
 	{
-		$arrReturn = array();
-
 		if (is_array($this->getDC()->getPanelView()) && count($this->getDC()->getPanelView()) > 0)
 		{
 			$objTemplate = new BackendTemplate('dcbe_general_panel');
 			$objTemplate->action = ampersand($this->Environment->request, true);
 			$objTemplate->theme = $this->getTheme();
 			$objTemplate->panel = $this->getDC()->getPanelView();
-			$arrReturn[] = $objTemplate->parse();
+
+			return $objTemplate->parse();
 		}
 
-		return implode('', $arrReturn);
+		return '';
 	}
 
 }
