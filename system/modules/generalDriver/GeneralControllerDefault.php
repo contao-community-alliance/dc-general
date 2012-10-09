@@ -45,7 +45,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 * @var DC_General
 	 */
 	protected $objDC = null;
-	
+
 	/**
 	 * Contao Encrypt class
 	 * @var Encryption
@@ -93,7 +93,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	public function __construct()
 	{
 		parent::__construct();
-		
+
 		// Import
 		$this->import('Encryption');
 
@@ -142,6 +142,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	protected function getFilter()
 	{
 		$arrFilter = $this->getDC()->getFilter();
+
 		if ($arrFilter)
 		{
 			return $arrFilter;
@@ -431,42 +432,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$objDataProvider->setCurrentLanguage($strCurrentLanguage);
 
 		return DCGE::LANGUAGE_ML;
-	}
-
-	/**
-	 * Get the fields for sorting from 
-	 * the dca or set the default to sorting.
-	 * 
-	 * Save all information back into DC_General.
-	 * 
-	 * @return void 
-	 */
-	protected function checkSorting()
-	{
-		/*
-		 * Check if we have a mode without sorting
-		 * 0 - No sorting
-		 * 3 - Sorting with parent table field
-		 * 4 - Sorting on parent id
-		 * 6 - Show parent + child row => atm no idear how to sort
-		 */
-		if (in_array($this->getDC()->arrDCA['list']['sorting']['mode'], array(0, 3, 4, 6)))
-		{
-			$this->getDC()->setSorting(array());
-		}
-
-		// Get sorting from DCA
-		if (is_array($this->getDC()->arrDCA['list']['sorting']['field']) && count($this->getDC()->arrDCA['list']['sorting']['field']))
-		{
-			$this->getDC()->setSorting($this->getDC()->arrDCA['list']['sorting']['field']);
-			$this->getDC()->setFirstSorting($this->getDC()->arrDCA['list']['sorting']['field'][0]);
-		}
-		// Check if we have a sorting field in DataProvider
-		else if ($this->getDC()->getDataProvider()->fieldExists('sorting'))
-		{
-			$this->getDC()->setSorting(array('sorting'));
-			$this->getDC()->setFirstSorting('sorting');
-		}
 	}
 
 	/**
@@ -802,7 +767,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		// Checks
 		$this->checkIsWritable();
 		$this->checkLanguage();
-		
+
 		// Load current values
 		$objCurrentDataProvider = $this->getDC()->getDataProvider();
 
@@ -1182,13 +1147,13 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	{
 		// Checks
 		$this->checkClipboard();
-		$this->checkSorting();
+		$this->checkPanelSubmit();
 
 		// Setup
 		$this->getDC()->setButtonId('tl_buttons');
 		$this->getFilter();
-		$this->filterMenu('set');
-		
+		$this->generatePanelFilter('set');
+
 		// Switch mode
 		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
 		{
@@ -1705,7 +1670,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		// Setup		
 		$objCurrentDataProvider = $this->getDC()->getDataProvider();
 		$objParrentDataProvider = $this->getDC()->getDataProvider('parent');
-		
+
 		$showFields = $this->getDC()->arrDCA['list']['label']['fields'];
 		$arrLimit = $this->getLimit();
 
@@ -1724,17 +1689,16 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 //		{
 //			
 //		}
-
 		// Rename each pid to its label and resort the result (sort by parent table)
 		if ($this->getDC()->arrDCA['list']['sorting']['mode'] == 3)
 		{
-			$this->getDC()->setFirstSorting('pid');			
+			$this->getDC()->setFirstSorting('pid');
 
 			foreach ($objCollection as $objModel)
 			{
 				$objFieldConfig = $objParrentDataProvider->getEmptyConfig()
 					->setId($objModel->getID());
-				
+
 				$objFieldModel = $$objParrentDataProvider->fetch($objFieldConfig);
 
 				$objModel->setProperty('pid', $objFieldModel->getProperty($showFields[0]));
@@ -1759,10 +1723,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 					foreach ($objCollection as $objModel)
 					{
 						$mixValue = $objModel->getProperty($v);
-						
+
 						$mixValue = deserialize($mixValue);
 						$mixValue = $this->objEncrypt->decrypt($mixValue);
-						
+
 						$objModel->setProperty($v, $mixValue);
 					}
 				}
@@ -2074,45 +2038,134 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 * ////////////////////////////////////////////////////////////////// */
 
 	/**
-	 * Build the sort panel and write it to DC_General
+	 * Check all submits from the panels. Save all vlaues into the Session.
+	 * Relod the Website. 
+	 * 
+	 * @return void 
 	 */
-	protected function panel()
+	protected function checkPanelSubmit()
 	{
-		$arrPanelView = array();
+//		var_dump($_POST);
+//		var_dump($_GET);
+//		exit();
 
-		$filter = $this->filterMenu();
-		$search = $this->searchMenu();
-		$limit = $this->limitMenu();
-		$sort = $this->sortMenu();
-		
-		if (!strlen($this->getDC()->arrDCA['list']['sorting']['panelLayout']) || (!is_array($filter) && !is_array($search) && !is_array($limit) && !is_array($sort)))
+		if (!in_array($this->Input->post('FORM_SUBMIT'), array('tl_filters', 'tl_filters_limit')))
 		{
 			return;
 		}
 
+		// Session
+		$arrSession = Session::getInstance()->getData();
+
+		// Set limit from user input
+		if (strlen($this->Input->post('tl_limit')) != 0)
+		{
+			$strFilter = ($this->getDC()->arrDCA['list']['sorting']['mode'] == 4) ? $this->getDC()->getTable() . '_' . CURRENT_ID : $this->getDC()->getTable();
+
+			if ($this->Input->post('tl_limit') != 'tl_limit')
+			{
+				$arrSession['filter'][$strFilter]['limit'] = $this->Input->post('tl_limit');
+			}
+			else
+			{
+				unset($arrSession['filter'][$strFilter]['limit']);
+			}
+		}
+
+		// Set sorting from user input
+		if (strlen($this->Input->post('tl_sort')) != 0)
+		{
+			$arrSession['sorting'][$this->getDC()->getTable()] = in_array($this->getDC()->arrDCA['fields'][$this->Input->post('tl_sort')]['flag'], array(2, 4, 6, 8, 10, 12)) ? $this->Input->post('tl_sort') . ' DESC' : $this->Input->post('tl_sort');
+		}
+		
+		// Set filter from user input
 		if ($this->Input->post('FORM_SUBMIT') == 'tl_filters')
 		{
-			$this->reload();
+			foreach ($arrSortingFields as $field)
+			{
+				if ($this->Input->post($field, true) != 'tl_' . $field)
+				{
+					$arrSession['filter'][$strFilter][$field] = $this->Input->post($field, true);
+				}
+				else
+				{
+					unset($arrSession['filter'][$strFilter][$field]);
+				}
+			}
+
+			$this->Session->setData($arrSession);
+		}
+
+		Session::getInstance()->setData($arrSession);
+
+		// Reload
+		$this->reload();
+	}
+
+	/**
+	 * Get all Informations for the panels.
+	 * 
+	 * @WTF: Why we have 3 funtions for checking the panles submits?
+	 * @todo CRY 
+	 * @todo Remove all checks for post and so on only build data.
+	 * @todo Save all information about panels in Session. Not in DC General
+	 * @todo Remove all functions, vars for Panels from DC General
+	 */
+	protected function panel()
+	{
+		// Check if we have a panel
+		if (empty($this->getDC()->arrDCA['list']['sorting']['panelLayout']))
+		{
+			return;
+		}
+
+		$arrPanelView = array();
+
+		// Build the panel informations
+		$arrSortPanels = $this->generatePanelSort();
+		$arrFilterPanels = $this->generatePanelFilter();
+//		$arrSearchPanels = $this->generatePanelSearch();
+		$arrLimitPanels = $this->generatePanelLimit();
+
+		if (!is_array($arrSortPanels) && !is_array($arrFilterPanels) && !is_array($arrLimitPanels) && !is_array($arrSearchPanels))
+		{
+			return;
 		}
 
 		$panelLayout = $this->getDC()->arrDCA['list']['sorting']['panelLayout'];
 		$arrPanels = trimsplit(';', $panelLayout);
 
-		for ($i = 0; $i < count($arrPanels); $i++)
+		foreach ($arrPanels as $keyPanel => $strPanel)
 		{
-			$arrSubPanels = trimsplit(',', $arrPanels[$i]);
-			
-			foreach ($arrSubPanels as $strSubPanel)
+			foreach (trimsplit(',', $strPanel) as $strField)
 			{
-				if (is_array($$strSubPanel) && count($$strSubPanel) > 0)
+				switch ($strField)
 				{
-					$arrPanelView[$i][$strSubPanel] = $$strSubPanel;
+					case 'limit':
+						$arrPanelView[$keyPanel]['limit'] = $arrLimitPanels;
+						break;
+
+					case 'search':
+//						$arrPanelView[$keyPanel]['search'] = $arrLimitPanels;
+						break;
+
+					case 'filter':
+//						$arrPanelView[$keyPanel]['filter'] = $arrLimitPanels;
+						break;
+
+					case 'sort':
+						$arrPanelView[$keyPanel]['sort'] = $arrSortPanels;
+						break;
+
+					// ToDo: Callback for new panels ?
+					default:
+						break;
 				}
 			}
 
-			if (is_array($arrPanelView[$i]))
+			if (is_array($arrPanelView[$keyPanel]))
 			{
-				$arrPanelView[$i] = array_reverse($arrPanelView[$i]);
+				$arrPanelView[$keyPanel] = array_reverse($arrPanelView[$keyPanel]);
 			}
 		}
 
@@ -2123,14 +2176,19 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	}
 
 	/**
-	 * Generate the filter panel and return it as HTML string
-	 * @return string
+	 * Generate all information for the filter panel.
+	 * 
+	 * @param type $type
+	 * @return type
 	 */
-	protected function filterMenu($type = 'add')
+	protected function generatePanelFilter($type = 'add')
 	{
-		$this->getDC()->setButtonId('tl_buttons_a');
+		// Init
 		$arrSortingFields = array();
-		$arrSession = $this->Session->getData();
+		$arrSession = Session::getInstance()->getData();
+
+		// Setup
+		$this->getDC()->setButtonId('tl_buttons_a');
 		$strFilter = ($this->getDC()->arrDCA['list']['sorting']['mode'] == 4) ? $this->getDC()->getTable() . '_' . CURRENT_ID : $this->getDC()->getTable();
 
 		// Get sorting fields
@@ -2163,16 +2221,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		}
 	}
 
-	/**
-	 * Return a search form that allows to search results using regular expressions
-	 *
-	 * @return string
-	 */
-	protected function searchMenu()
+	protected function generatePanelSearch()
 	{
 		$searchFields = array();
-		$session = Session::getInstance()->getData();
 		$arrPanelView = array();
+		$arrSession = Session::getInstance()->getData();
 
 		// Get search fields
 		foreach ($this->getDC()->arrDCA['fields'] as $k => $v)
@@ -2188,24 +2241,31 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		{
 			return array();
 		}
+
 		// Store search value in the current session
 		if ($this->Input->post('FORM_SUBMIT') == 'tl_filters')
 		{
-			$session['search'][$this->getDC()->getTable()]['value'] = '';
-			$session['search'][$this->getDC()->getTable()]['field'] = $this->Input->post('tl_field', true);
+			$arrSession['search'][$this->getDC()->getTable()]['value'] = '';
+			$arrSession['search'][$this->getDC()->getTable()]['field'] = $this->Input->post('tl_field', true);
 
 			// Make sure the regular expression is valid
 			if ($this->Input->postRaw('tl_value') != '')
 			{
 				try
 				{
-					$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()						
-						->setFilter(array($this->Input->post('tl_field', true) . " REGEXP '" . $this->Input->postRaw('tl_value') . "'"))
-						->setSorting($this->getListViewSorting());
+					$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()
+						->setSorting($this->getListViewSorting())
+						->setSearch(
+						array(
+						    array(
+							'mode' => DCGE::DP_MODE_REGEX,
+							'field' => $this->Input->post('tl_field', true),
+							'value' => $this->Input->postRaw('tl_value')
+						)));
 
 					$this->getDC()->getDataProvider()->fetchAll($objConfig);
 
-					$session['search'][$this->getDC()->getTable()]['value'] = $this->Input->postRaw('tl_value');
+					$arrSession['search'][$this->getDC()->getTable()]['value'] = $this->Input->postRaw('tl_value');
 				}
 				catch (Exception $e)
 				{
@@ -2213,40 +2273,40 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				}
 			}
 
-			Session::getInstance()->setData($session);
+			Session::getInstance()->setData($arrSession);
 		}
 
 		// Set search value from session
-		else if ($session['search'][$this->getDC()->getTable()]['value'] != '')
+		else if ($arrSession['search'][$this->getDC()->getTable()]['value'] != '')
 		{
 			if (substr($GLOBALS['TL_CONFIG']['dbCollation'], -3) == '_ci')
 			{
-				$this->getDC()->setFilter(array("LOWER(CAST(" . $session['search'][$this->getDC()->getTable()]['field'] . " AS CHAR)) REGEXP LOWER('" . $session['search'][$this->getDC()->getTable()]['value'] . "')"));
+				$this->getDC()->setFilter(array("LOWER(CAST(" . $arrSession['search'][$this->getDC()->getTable()]['field'] . " AS CHAR)) REGEXP LOWER('" . $arrSession['search'][$this->getDC()->getTable()]['value'] . "')"));
 			}
 			else
 			{
-				$this->getDC()->setFilter(array("CAST(" . $session['search'][$this->getDC()->getTable()]['field'] . " AS CHAR) REGEXP '" . $session['search'][$this->getDC()->getTable()]['value'] . "'"));
+				$this->getDC()->setFilter(array("CAST(" . $arrSession['search'][$this->getDC()->getTable()]['field'] . " AS CHAR) REGEXP '" . $arrSession['search'][$this->getDC()->getTable()]['value'] . "'"));
 			}
 		}
 
 		$arrOptions = array();
 
 		foreach ($searchFields as $field)
-		{	
+		{
 			$mixedOptionsLabel = strlen($this->getDC()->arrDCA['fields'][$field]['label'][0]) ? $this->getDC()->arrDCA['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
 
 			$arrOptions[utf8_romanize($mixedOptionsLabel) . '_' . $field] = array(
 			    'value' => specialchars($field),
-			    'select' => (($field == $session['search'][$this->getDC()->getTable()]['field']) ? ' selected="selected"' : ''),
+			    'select' => (($field == $arrSession['search'][$this->getDC()->getTable()]['field']) ? ' selected="selected"' : ''),
 			    'content' => $mixedOptionsLabel
 			);
 		}
-		
+
 		// Sort by option values
 		uksort($arrOptions, 'strcasecmp');
 		$arrPanelView['option'] = $arrOptions;
 
-		$active = strlen($session['search'][$this->getDC()->getTable()]['value']) ? true : false;
+		$active = strlen($arrSession['search'][$this->getDC()->getTable()]['value']) ? true : false;
 
 		$arrPanelView['select'] = array(
 		    'class' => 'tl_select' . ($active ? ' active' : '')
@@ -2254,131 +2314,115 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		$arrPanelView['input'] = array(
 		    'class' => 'tl_text' . (($active) ? ' active' : ''),
-		    'value' => specialchars($session['search'][$this->getDC()->getTable()]['value'])
+		    'value' => specialchars($arrSession['search'][$this->getDC()->getTable()]['value'])
 		);
 
 		return $arrPanelView;
 	}
 
 	/**
-	 * Return a select menu to limit results
+	 * Page Limit Picker.
+	 * Check the limits, set session config, create information for the view.
 	 *
 	 * @param boolean
 	 *
 	 * @return string
 	 */
-	protected function limitMenu($blnOptional = false)
+	protected function generatePanelLimit($blnOptional = false)
 	{
+		// Init vars
 		$arrPanelView = array();
+		$blnIsMaxResultsPerPage = false;
 
-		$session = Session::getInstance()->getData();
+		// Setup Vars
+		$strFilter = ($this->getDC()->arrDCA['list']['sorting']['mode'] == 4) ? $this->getDC()->getTable() . '_' . CURRENT_ID : $this->getDC()->getTable();
+		$arrSession = Session::getInstance()->getData();
 
-		$filter = ($this->getDC()->arrDCA['list']['sorting']['mode'] == 4) ? $this->getDC()->getTable() . '_' . CURRENT_ID : $this->getDC()->getTable();
-
-		// Set limit from user input
-		if ($this->Input->post('FORM_SUBMIT') == 'tl_filters' || $this->Input->post('FORM_SUBMIT') == 'tl_filters_limit')
+		// Set session values or default
+		if (strlen($arrSession['filter'][$strFilter]['limit']))
 		{
-			if ($this->Input->post('tl_limit') != 'tl_limit')
-			{
-				$session['filter'][$filter]['limit'] = $this->Input->post('tl_limit');
-			}
-			else
-			{
-				unset($session['filter'][$filter]['limit']);
-			}
+			$this->getDC()->setLimit((($arrSession['filter'][$strFilter]['limit'] == 'all') ? null : $arrSession['filter'][$strFilter]['limit']));
 
-			Session::getInstance()->setData($session);
-
-			if ($this->Input->post('FORM_SUBMIT') == 'tl_filters_limit')
+			if (is_null($this->getDC()->getLimit()))
 			{
-				$this->reload();
+				$this->getDC()->setLimit('0,' . $GLOBALS['TL_CONFIG']['maxResultsPerPage']);
 			}
 		}
-
-		// Set limit from table configuration
 		else
 		{
-			if (strlen($session['filter'][$filter]['limit']))
-			{
-				$this->getDC()->setLimit((($session['filter'][$filter]['limit'] == 'all') ? null : $session['filter'][$filter]['limit']));
-			}
-			else
+			$this->getDC()->setLimit('0,' . $GLOBALS['TL_CONFIG']['resultsPerPage']);
+		}
+
+		// Get the amount for the current filter settings
+		$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()->setFilter($this->getFilter());
+		$intCount = $this->getDC()->getDataProvider()->getCount($objConfig);
+
+		// Overall limit
+		if ($intCount > $GLOBALS['TL_CONFIG']['maxResultsPerPage'] || preg_replace('/^.*,/i', '', $this->getDC()->getLimit()) == $GLOBALS['TL_CONFIG']['maxResultsPerPage'])
+		{
+			$blnIsMaxResultsPerPage = true;
+			$GLOBALS['TL_CONFIG']['resultsPerPage'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
+			$arrSession['filter'][$strFilter]['limit'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
+		}
+
+		// Build options
+		if ($intCount > 0)
+		{
+			$arrPanelView['option'][0] = array();
+
+			$options_total = ceil($intCount / $GLOBALS['TL_CONFIG']['resultsPerPage']);
+
+			// Reset limit if other parameters have decreased the number of results
+			if ($this->getDC()->getLimit() == '' || preg_replace('/,.*$/i', '', $this->getDC()->getLimit()) > $intCount)
 			{
 				$this->getDC()->setLimit('0,' . $GLOBALS['TL_CONFIG']['resultsPerPage']);
 			}
 
-			$intCount = $this->getDC()->getDataProvider()->getCount($this->getDC()->getDataProvider()->getEmptyConfig()->setFilter($this->getFilter()));
-			$blnIsMaxResultsPerPage = false;
-
-			// Overall limit
-			if ($intCount > $GLOBALS['TL_CONFIG']['maxResultsPerPage'] && (is_null($this->getDC()->getLimit()) || preg_replace('/^.*,/i', '', $this->getDC()->getLimit()) == $GLOBALS['TL_CONFIG']['maxResultsPerPage']))
-			{
-				if (is_null($this->getDC()->getLimit()))
-				{
-					$this->getDC()->setLimit('0,' . $GLOBALS['TL_CONFIG']['maxResultsPerPage']);
-				}
-
-				$blnIsMaxResultsPerPage = true;
-				$GLOBALS['TL_CONFIG']['resultsPerPage'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
-				$session['filter'][$filter]['limit'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
-			}
-
 			// Build options
-			if ($intCount > 0)
+			for ($i = 0; $i < $options_total; $i++)
 			{
-				$arrPanelView['option'][0] = array();
-				$options_total = ceil($intCount / $GLOBALS['TL_CONFIG']['resultsPerPage']);
+				$this_limit = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']) . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
+				$upper_limit = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + $GLOBALS['TL_CONFIG']['resultsPerPage']);
 
-				// Reset limit if other parameters have decreased the number of results
-				if (!is_null($this->getDC()->getLimit()) && ($this->getDC()->getLimit() == '' || preg_replace('/,.*$/i', '', $this->getDC()->getLimit()) > $intCount))
+				if ($upper_limit > $intCount)
 				{
-					$this->getDC()->setLimit('0,' . $GLOBALS['TL_CONFIG']['resultsPerPage']);
+					$upper_limit = $intCount;
 				}
 
-				// Build options
-				for ($i = 0; $i < $options_total; $i++)
-				{
-					$this_limit = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']) . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
-					$upper_limit = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + $GLOBALS['TL_CONFIG']['resultsPerPage']);
-
-					if ($upper_limit > $intCount)
-					{
-						$upper_limit = $intCount;
-					}
-
-					$arrPanelView['option'][] = array(
-					    'value' => $this_limit,
-					    'select' => $this->optionSelected($this->getDC()->getLimit(), $this_limit),
-					    'content' => ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + 1) . ' - ' . $upper_limit
-					);
-				}
-
-				if (!$blnIsMaxResultsPerPage)
-				{
-					$arrPanelView['option'][] = array(
-					    'value' => 'all',
-					    'select' => $this->optionSelected($this->getDC()->getLimit(), null),
-					    'content' => $GLOBALS['TL_LANG']['MSC']['filterAll']
-					);
-				}
+				$arrPanelView['option'][] = array(
+				    'value' => $this_limit,
+				    'select' => $this->optionSelected($this->getDC()->getLimit(), $this_limit),
+				    'content' => ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + 1) . ' - ' . $upper_limit
+				);
 			}
 
-			// Return if there is only one page
-			if ($blnOptional && ($intCount < 1 || $options_total < 2))
+			if (!$blnIsMaxResultsPerPage)
 			{
-				return array();
+				$arrPanelView['option'][] = array(
+				    'value' => 'all',
+				    'select' => $this->optionSelected($this->getDC()->getLimit(), null),
+				    'content' => $GLOBALS['TL_LANG']['MSC']['filterAll']
+				);
 			}
-
-			$arrPanelView['select'] = array(
-			    'class' => (($session['filter'][$filter]['limit'] != 'all' && $intCount > $GLOBALS['TL_CONFIG']['resultsPerPage']) ? ' active' : '')
-			);
-
-			$arrPanelView['option'][0] = array(
-			    'value' => 'tl_limit',
-			    'select' => '',
-			    'content' => $GLOBALS['TL_LANG']['MSC']['filterRecords']
-			);
 		}
+
+		// Return if there is only one page
+		if ($blnOptional && ($intCount < 1 || $options_total < 2))
+		{
+			return array();
+		}
+
+		$arrPanelView['select'] = array(
+		    'class' => (($arrSession['filter'][$strFilter]['limit'] != 'all' && $intCount > $GLOBALS['TL_CONFIG']['resultsPerPage']) ? ' active' : '')
+		);
+
+		$arrPanelView['option'][0] = array(
+		    'value' => 'tl_limit',
+		    'select' => '',
+		    'content' => $GLOBALS['TL_LANG']['MSC']['filterRecords']
+		);
+
+		Session::getInstance()->setData($arrSession);
 
 		return $arrPanelView;
 	}
@@ -2388,66 +2432,62 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 *
 	 * @return string
 	 */
-	protected function sortMenu()
+	protected function generatePanelSort()
 	{
+		// Init
 		$arrPanelView = array();
+		$arrSortingFields = array();
+
+		$arrSession = Session::getInstance()->getData();
+		$strOrderBy = $this->getDC()->arrDCA['list']['sorting']['fields'];
+		$strFirstOrderBy = preg_replace('/\s+.*$/i', '', $strOrderBy[0]);
+
+		// Setup
+		$this->getDC()->setButtonId('tl_buttons_a');
 
 		// Return an empty array, if don't have mode 2 or 4
-		if (!in_array($this->getDC()->arrDCA['list']['sorting']['mode'], array(2,4)))
+		if (!in_array($this->getDC()->arrDCA['list']['sorting']['mode'], array(2, 4)))
 		{
 			return array();
 		}
-
-		$sortingFields = array();
 
 		// Get sorting fields
 		foreach ($this->getDC()->arrDCA['fields'] as $k => $v)
 		{
 			if ($v['sorting'])
 			{
-				$sortingFields[] = $k;
+				$arrSortingFields[] = $k;
 			}
-		}	
+		}
 
 		// Return if there are no sorting fields
-		if (empty($sortingFields))
+		if (empty($arrSortingFields))
 		{
 			return array();
 		}
 
-		$this->getDC()->setButtonId('tl_buttons_a');
-		$session = Session::getInstance()->getData();
-		$orderBy = $this->getDC()->arrDCA['list']['sorting']['fields'];
-		$firstOrderBy = preg_replace('/\s+.*$/i', '', $orderBy[0]);
-
 		// Add PID to order fields
 		if ($this->getDC()->arrDCA['list']['sorting']['mode'] == 3 && $this->getDC()->getDataProvider()->fieldExists('pid'))
 		{
-			array_unshift($orderBy, 'pid');
+			array_unshift($strOrderBy, 'pid');
 		}
 
-		// Set sorting from user input
-		if ($this->Input->post('FORM_SUBMIT') == 'tl_filters')
-		{
-			$session['sorting'][$this->getDC()->getTable()] = in_array($this->getDC()->arrDCA['fields'][$this->Input->post('tl_sort')]['flag'], array(2, 4, 6, 8, 10, 12)) ? $this->Input->post('tl_sort') . ' DESC' : $this->Input->post('tl_sort');
-			Session::getInstance()->setData($session);
-		}
 
 		// Overwrite the "orderBy" value with the session value
-		elseif (strlen($session['sorting'][$this->getDC()->getTable()]))
+		if (strlen($arrSession['sorting'][$this->getDC()->getTable()]))
 		{
-			$overwrite = preg_quote(preg_replace('/\s+.*$/i', '', $session['sorting'][$this->getDC()->getTable()]), '/');
-			$orderBy = array_diff($orderBy, preg_grep('/^' . $overwrite . '/i', $orderBy));
+			$overwrite = preg_quote(preg_replace('/\s+.*$/i', '', $arrSession['sorting'][$this->getDC()->getTable()]), '/');
+			$strOrderBy = array_diff($strOrderBy, preg_grep('/^' . $overwrite . '/i', $strOrderBy));
 
-			array_unshift($orderBy, $session['sorting'][$this->getDC()->getTable()]);
+			array_unshift($strOrderBy, $arrSession['sorting'][$this->getDC()->getTable()]);
 
 			$this->getDC()->setFirstSorting($overwrite);
-			$this->getDC()->setSorting($orderBy);
+			$this->getDC()->setSorting($strOrderBy);
 		}
 
 		$arrOptions = array();
 
-		foreach ($sortingFields as $field)
+		foreach ($arrSortingFields as $field)
 		{
 			$mixedOptionsLabel = strlen($this->getDC()->arrDCA['fields'][$field]['label'][0]) ? $this->getDC()->arrDCA['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
 
@@ -2458,7 +2498,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 			$arrOptions[$mixedOptionsLabel] = array(
 			    'value' => specialchars($field),
-			    'select' => ((!strlen($session['sorting'][$this->getDC()->getTable()]) && $field == $firstOrderBy || $field == str_replace(' DESC', '', $session['sorting'][$this->getDC()->getTable()])) ? ' selected="selected"' : ''),
+			    'select' => ((!strlen($arrSession['sorting'][$this->getDC()->getTable()]) && $field == $strFirstOrderBy || $field == str_replace(' DESC', '', $arrSession['sorting'][$this->getDC()->getTable()])) ? ' selected="selected"' : ''),
 			    'content' => $mixedOptionsLabel
 			);
 		}
@@ -2469,154 +2509,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		return $arrPanelView;
 	}
-
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 * Helper DataProvider
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
-
-	/**
-	 * Check if a entry has some childs
-	 *
-	 * @param array $arrFilterPattern
-	 * @param InterfaceGeneralModel $objParentModel
-	 *
-	 * @return boolean True => has children | False => no children
-	 */
-	protected function hasChildren($objParentModel, $strTable)
-	{
-		$arrFilter = array();
-
-		// Build filter Settings
-		foreach ($this->getDC()->getJoinConditions($objParentModel, $strTable) as $valueFilter)
-		{
-			if (isset($valueFilter['srcField']) && $valueFilter['srcField'] != '')
-			{
-				$arrFilter[] = $valueFilter['dstField'] . $valueFilter['operation'] . $objParentModel->getProperty($valueFilter['srcField']);
-			}
-			else
-			{
-				$arrFilter[] = $valueFilter['dstField'] . $valueFilter['operation'];
-			}
-		}
-
-		// Create a new Config
-		$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
-		$objConfig->setFilter($arrFilter);
-
-		// Fetch all children
-		if ($this->getDC()->getDataProvider()->getCount($objConfig) != 0)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	protected function setParent(InterfaceGeneralModel $objChildEntry, InterfaceGeneralModel $objParentEntry, $strTable)
-	{
-		$arrChildCondition = $this->getDC()->getParentChildCondition($objParentEntry, $objChildEntry->getProviderName());
-		if (!($arrChildCondition && $arrChildCondition['setOn']))
-		{
-			throw new Exception("Can not calculate parent.", 1);
-		}
-
-		foreach ($arrChildCondition['setOn'] as $arrCondition)
-		{
-			if ($arrCondition['from_field'])
-			{
-				$objChildEntry->setProperty($arrCondition['to_field'], $objParentEntry->getProperty($arrCondition['from_field']));
-			}
-			else if (!is_null('value', $arrCondition))
-			{
-				$objChildEntry->setProperty($arrCondition['to_field'], $arrCondition['value']);
-			}
-			else
-			{
-				throw new Exception("Error Processing child condition, neither from_field nor value specified: " . var_export($arrCondition, true), 1);
-			}
-		}
-	}
-
-	protected function getParent($strTable, $objCurrentModel = null, $intCurrentID = null)
-	{
-		// Check if something is set
-		if ($objCurrentModel == null && $intCurrentID == null)
-		{
-			return null;
-		}
-
-		// If we have only the id load current model
-		if ($objCurrentModel == null)
-		{
-			$objCurrentConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
-			$objCurrentConfig->setId($intCurrentID);
-
-			$objCurrentModel = $this->getDC()->getDataProvider()->fetch($objCurrentConfig);
-		}
-
-		// Build child to parent
-		$strFilter = $arrJoinCondition[0]['srcField'] . $arrJoinCondition[0]['operation'] . $objCurrentModel->getProperty($arrJoinCondition[0]['dstField']);
-
-		// Load model
-		$objParentConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
-		$objParentConfig->setFilter(array($strFilter));
-
-		return $this->getDC()->getDataProvider()->fetch($objParentConfig);
-	}
-
-	protected function isRootEntry($strTable, $mixID)
-	{
-		// Get the join field
-		$arrRootCondition = $this->getDC()->getRootConditions($strTable);
-
-		switch ($arrRootCondition[0]['operation'])
-		{
-			case '=':
-				return ($mixID == $arrRootCondition[0]['value']);
-
-			case '<':
-				return ($arrRootCondition[0]['value'] < $mixID);
-
-			case '>':
-				return ($arrRootCondition[0]['value'] > $mixID);
-
-			case '!=':
-				return ($arrRootCondition[0]['value'] != $mixID);
-		}
-
-		return false;
-	}
-
-	protected function setRoot(InterfaceGeneralModel $objCurrentEntry, $strTable)
-	{
-		$arrRootSetter = $this->getDC()->getRootSetter($strTable);
-		if (!($arrRootSetter && $arrRootSetter))
-		{
-			throw new Exception("Can not calculate parent.", 1);
-		}
-
-		foreach ($arrRootSetter as $arrCondition)
-		{
-			if (($arrCondition['property'] && isset($arrCondition['value'])))
-			{
-				$objCurrentEntry->setProperty($arrCondition['property'], $arrCondition['value']);
-			}
-			else
-			{
-				throw new Exception("Error Processing root condition, you need to specify property and value: " . var_export($arrCondition, true), 1);
-			}
-		}
-	}
-
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 * Helper
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
 
 	/**
 	 * Set filter from user input and table configuration for filter menu
@@ -2628,108 +2520,87 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 */
 	protected function filterMenuSetFilter($arrSortingFields, $arrSession, $strFilter)
 	{
-		// Set filter from user input
-		if ($this->Input->post('FORM_SUBMIT') == 'tl_filters')
-		{
-			foreach ($arrSortingFields as $field)
-			{
-				if ($this->Input->post($field, true) != 'tl_' . $field)
-				{
-					$arrSession['filter'][$strFilter][$field] = $this->Input->post($field, true);
-				}
-				else
-				{
-					unset($arrSession['filter'][$strFilter][$field]);
-				}
-			}
-
-			$this->Session->setData($arrSession);
-		}
-
 		// Set filter from table configuration
-		else
+		foreach ($arrSortingFields as $field)
 		{
-			foreach ($arrSortingFields as $field)
+			if (isset($arrSession['filter'][$strFilter][$field]))
 			{
-				if (isset($arrSession['filter'][$strFilter][$field]))
+				// Sort by day
+				if (in_array($this->arrDCA['fields'][$field]['flag'], array(5, 6)))
 				{
-					// Sort by day
-					if (in_array($this->arrDCA['fields'][$field]['flag'], array(5, 6)))
+					if ($arrSession['filter'][$strFilter][$field] == '')
 					{
-						if ($arrSession['filter'][$strFilter][$field] == '')
-						{
-							$this->getDC()->setFilter(array(array('operation' => '=', 'property' => $field, 'value' => '')));
-						}
-						else
-						{
-							$objDate = new Date($arrSession['filter'][$strFilter][$field]);
-							$this->getDC()->setFilter(array(
-							    array('operation' => '>', 'property' => $field, 'value' => $objDate->dayBegin),
-							    array('operation' => '<', 'property' => $field, 'value' => $objDate->dayEnd)
-							));
-						}
+						$this->getDC()->setFilter(array(array('operation' => '=', 'property' => $field, 'value' => '')));
 					}
-
-					// Sort by month
-					elseif (in_array($this->arrDCA['fields'][$field]['flag'], array(7, 8)))
-					{
-						if ($arrSession['filter'][$strFilter][$field] == '')
-						{
-							$this->getDC()->setFilter(array(array('operation' => '=', 'property' => $field, 'value' => '')));
-						}
-						else
-						{
-							$objDate = new Date($arrSession['filter'][$strFilter][$field]);
-							$this->getDC()->setFilter(array(
-							    array('operation' => '>', 'property' => $field, 'value' => $objDate->monthBegin),
-							    array('operation' => '<', 'property' => $field, 'value' => $objDate->monthEnd)
-							));
-						}
-					}
-
-					// Sort by year
-					elseif (in_array($this->arrDCA['fields'][$field]['flag'], array(9, 10)))
-					{
-						if ($arrSession['filter'][$strFilter][$field] == '')
-						{
-							$this->getDC()->setFilter(array(array('operation' => '=', 'property' => $field, 'value' => '')));
-						}
-						else
-						{
-							$objDate = new Date($arrSession['filter'][$strFilter][$field]);
-							$this->getDC()->setFilter(array(
-							    array('operation' => '>', 'property' => $field, 'value' => $objDate->yearBegin),
-							    array('operation' => '<', 'property' => $field, 'value' => $objDate->yearEnd)
-							));
-						}
-					}
-
-					// Manual filter
-					elseif ($this->arrDCA['fields'][$field]['eval']['multiple'])
-					{
-						// TODO find in set
-						// CSV lists (see #2890)
-						/* if (isset($this->dca['fields'][$field]['eval']['csv']))
-						  {
-						  $this->procedure[] = $this->Database->findInSet('?', $field, true);
-						  $this->values[] = $session['filter'][$filter][$field];
-						  }
-						  else
-						  {
-						  $this->procedure[] = $field . ' LIKE ?';
-						  $this->values[] = '%"' . $session['filter'][$filter][$field] . '"%';
-						  } */
-					}
-
-					// Other sort algorithm
 					else
 					{
-						$this->getDC()->setFilter(
-							array(
-							    array('operation' => '=', 'property' => $field, 'value' => $arrSession['filter'][$strFilter][$field])
-							)
-						);
+						$objDate = new Date($arrSession['filter'][$strFilter][$field]);
+						$this->getDC()->setFilter(array(
+						    array('operation' => '>', 'property' => $field, 'value' => $objDate->dayBegin),
+						    array('operation' => '<', 'property' => $field, 'value' => $objDate->dayEnd)
+						));
 					}
+				}
+
+				// Sort by month
+				elseif (in_array($this->arrDCA['fields'][$field]['flag'], array(7, 8)))
+				{
+					if ($arrSession['filter'][$strFilter][$field] == '')
+					{
+						$this->getDC()->setFilter(array(array('operation' => '=', 'property' => $field, 'value' => '')));
+					}
+					else
+					{
+						$objDate = new Date($arrSession['filter'][$strFilter][$field]);
+						$this->getDC()->setFilter(array(
+						    array('operation' => '>', 'property' => $field, 'value' => $objDate->monthBegin),
+						    array('operation' => '<', 'property' => $field, 'value' => $objDate->monthEnd)
+						));
+					}
+				}
+
+				// Sort by year
+				elseif (in_array($this->arrDCA['fields'][$field]['flag'], array(9, 10)))
+				{
+					if ($arrSession['filter'][$strFilter][$field] == '')
+					{
+						$this->getDC()->setFilter(array(array('operation' => '=', 'property' => $field, 'value' => '')));
+					}
+					else
+					{
+						$objDate = new Date($arrSession['filter'][$strFilter][$field]);
+						$this->getDC()->setFilter(array(
+						    array('operation' => '>', 'property' => $field, 'value' => $objDate->yearBegin),
+						    array('operation' => '<', 'property' => $field, 'value' => $objDate->yearEnd)
+						));
+					}
+				}
+
+				// Manual filter
+				elseif ($this->arrDCA['fields'][$field]['eval']['multiple'])
+				{
+					// TODO find in set
+					// CSV lists (see #2890)
+					/* if (isset($this->dca['fields'][$field]['eval']['csv']))
+					  {
+					  $this->procedure[] = $this->Database->findInSet('?', $field, true);
+					  $this->values[] = $session['filter'][$filter][$field];
+					  }
+					  else
+					  {
+					  $this->procedure[] = $field . ' LIKE ?';
+					  $this->values[] = '%"' . $session['filter'][$filter][$field] . '"%';
+					  } */
+				}
+
+				// Other sort algorithm
+				else
+				{
+					$this->getDC()->setFilter(
+						array(
+						    array('operation' => '=', 'property' => $field, 'value' => $arrSession['filter'][$strFilter][$field])
+						)
+					);
 				}
 			}
 		}
@@ -3042,6 +2913,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 					$arrPanelView[$field]['option'][] = $arrOptions[$value];
 				}
 			}
+			
 			// Force a line-break after six elements
 			if ((($cnt + 1) % 6) == 0)
 			{
@@ -3051,6 +2923,154 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		return $arrPanelView;
 	}
+
+	/* /////////////////////////////////////////////////////////////////////
+	 * ---------------------------------------------------------------------
+	 * Helper DataProvider
+	 * ---------------------------------------------------------------------
+	 * ////////////////////////////////////////////////////////////////// */
+
+	/**
+	 * Check if a entry has some childs
+	 *
+	 * @param array $arrFilterPattern
+	 * @param InterfaceGeneralModel $objParentModel
+	 *
+	 * @return boolean True => has children | False => no children
+	 */
+	protected function hasChildren($objParentModel, $strTable)
+	{
+		$arrFilter = array();
+
+		// Build filter Settings
+		foreach ($this->getDC()->getJoinConditions($objParentModel, $strTable) as $valueFilter)
+		{
+			if (isset($valueFilter['srcField']) && $valueFilter['srcField'] != '')
+			{
+				$arrFilter[] = $valueFilter['dstField'] . $valueFilter['operation'] . $objParentModel->getProperty($valueFilter['srcField']);
+			}
+			else
+			{
+				$arrFilter[] = $valueFilter['dstField'] . $valueFilter['operation'];
+			}
+		}
+
+		// Create a new Config
+		$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
+		$objConfig->setFilter($arrFilter);
+
+		// Fetch all children
+		if ($this->getDC()->getDataProvider()->getCount($objConfig) != 0)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	protected function setParent(InterfaceGeneralModel $objChildEntry, InterfaceGeneralModel $objParentEntry, $strTable)
+	{
+		$arrChildCondition = $this->getDC()->getParentChildCondition($objParentEntry, $objChildEntry->getProviderName());
+		if (!($arrChildCondition && $arrChildCondition['setOn']))
+		{
+			throw new Exception("Can not calculate parent.", 1);
+		}
+
+		foreach ($arrChildCondition['setOn'] as $arrCondition)
+		{
+			if ($arrCondition['from_field'])
+			{
+				$objChildEntry->setProperty($arrCondition['to_field'], $objParentEntry->getProperty($arrCondition['from_field']));
+			}
+			else if (!is_null('value', $arrCondition))
+			{
+				$objChildEntry->setProperty($arrCondition['to_field'], $arrCondition['value']);
+			}
+			else
+			{
+				throw new Exception("Error Processing child condition, neither from_field nor value specified: " . var_export($arrCondition, true), 1);
+			}
+		}
+	}
+
+	protected function getParent($strTable, $objCurrentModel = null, $intCurrentID = null)
+	{
+		// Check if something is set
+		if ($objCurrentModel == null && $intCurrentID == null)
+		{
+			return null;
+		}
+
+		// If we have only the id load current model
+		if ($objCurrentModel == null)
+		{
+			$objCurrentConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
+			$objCurrentConfig->setId($intCurrentID);
+
+			$objCurrentModel = $this->getDC()->getDataProvider()->fetch($objCurrentConfig);
+		}
+
+		// Build child to parent
+		$strFilter = $arrJoinCondition[0]['srcField'] . $arrJoinCondition[0]['operation'] . $objCurrentModel->getProperty($arrJoinCondition[0]['dstField']);
+
+		// Load model
+		$objParentConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
+		$objParentConfig->setFilter(array($strFilter));
+
+		return $this->getDC()->getDataProvider()->fetch($objParentConfig);
+	}
+
+	protected function isRootEntry($strTable, $mixID)
+	{
+		// Get the join field
+		$arrRootCondition = $this->getDC()->getRootConditions($strTable);
+
+		switch ($arrRootCondition[0]['operation'])
+		{
+			case '=':
+				return ($mixID == $arrRootCondition[0]['value']);
+
+			case '<':
+				return ($arrRootCondition[0]['value'] < $mixID);
+
+			case '>':
+				return ($arrRootCondition[0]['value'] > $mixID);
+
+			case '!=':
+				return ($arrRootCondition[0]['value'] != $mixID);
+		}
+
+		return false;
+	}
+
+	protected function setRoot(InterfaceGeneralModel $objCurrentEntry, $strTable)
+	{
+		$arrRootSetter = $this->getDC()->getRootSetter($strTable);
+		if (!($arrRootSetter && $arrRootSetter))
+		{
+			throw new Exception("Can not calculate parent.", 1);
+		}
+
+		foreach ($arrRootSetter as $arrCondition)
+		{
+			if (($arrCondition['property'] && isset($arrCondition['value'])))
+			{
+				$objCurrentEntry->setProperty($arrCondition['property'], $arrCondition['value']);
+			}
+			else
+			{
+				throw new Exception("Error Processing root condition, you need to specify property and value: " . var_export($arrCondition, true), 1);
+			}
+		}
+	}
+
+	/* /////////////////////////////////////////////////////////////////////
+	 * ---------------------------------------------------------------------
+	 * Helper
+	 * ---------------------------------------------------------------------
+	 * ////////////////////////////////////////////////////////////////// */
 
 	public function sortCollection(InterfaceGeneralModel $a, InterfaceGeneralModel $b)
 	{

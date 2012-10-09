@@ -223,7 +223,9 @@ class GeneralDataDefault implements InterfaceGeneralData
 	 * @param array $arrParams
 	 */
 	protected function buildWhereQuery($objConfig, array &$arrParams = null)
-	{
+	{		
+		$arrParams || $arrParams = array();
+		
 		$arrQuery = array();
 
 		$arrQuery['filter'] = $this->buildFilterQuery($objConfig, $arrParams);
@@ -285,15 +287,18 @@ class GeneralDataDefault implements InterfaceGeneralData
 			{
 				default:
 				case DCGE::DP_MODE_DEFAULT:
-					$arrReturn[$strField] = ' = "'.$arrSearch['value'].'"';
+					$arrParams[] = $arrSearch['value'];
+					$arrReturn[$strField] = ' = ?';
 					break;
 
 				case DCGE::DP_MODE_LIKE:
-					$arrReturn[$strField] = ' LIKE "%'.$arrSearch['value'].'%"';
+					$arrParams[] = '%' . $arrSearch['value'] . '%';
+					$arrReturn[$strField] = ' LIKE ?';
 					break;
 
 				case DCGE::DP_MODE_REGEX:
-					$arrReturn[$strField] = ' REGEX "'.$arrSearch['value'].'"';
+					$arrParams[] = $arrSearch['value'];
+					$arrReturn[$strField] = ' REGEX ?';
 					break;
 			}
 		}
