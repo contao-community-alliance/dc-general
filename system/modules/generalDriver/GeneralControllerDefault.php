@@ -1689,6 +1689,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 //		{
 //			
 //		}
+//		
 		// Rename each pid to its label and resort the result (sort by parent table)
 		if ($this->getDC()->arrDCA['list']['sorting']['mode'] == 3)
 		{
@@ -2094,6 +2095,40 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			}
 
 			$this->Session->setData($arrSession);
+		}		
+		
+		// Store search value in the current session
+		if ($this->Input->post('FORM_SUBMIT') == 'tl_filters123')
+		{
+			$arrSession['search'][$this->getDC()->getTable()]['value'] = '';
+			$arrSession['search'][$this->getDC()->getTable()]['field'] = $this->Input->post('tl_field', true);
+
+			// Make sure the regular expression is valid
+			if ($this->Input->postRaw('tl_value') != '')
+			{
+				try
+				{
+					$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()
+						->setSorting($this->getListViewSorting())
+						->setSearch(
+						array(
+						    array(
+							'mode' => DCGE::DP_MODE_REGEX,
+							'field' => $this->Input->post('tl_field', true),
+							'value' => $this->Input->postRaw('tl_value')
+						)));
+
+					$this->getDC()->getDataProvider()->fetchAll($objConfig);
+
+					$arrSession['search'][$this->getDC()->getTable()]['value'] = $this->Input->postRaw('tl_value');
+				}
+				catch (Exception $e)
+				{
+					// Do nothing
+				}
+			}
+
+			Session::getInstance()->setData($arrSession);
 		}
 
 		Session::getInstance()->setData($arrSession);
@@ -2124,7 +2159,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		// Build the panel informations
 		$arrSortPanels = $this->generatePanelSort();
 		$arrFilterPanels = $this->generatePanelFilter();
-//		$arrSearchPanels = $this->generatePanelSearch();
+		$arrSearchPanels = $this->generatePanelSearch();
 		$arrLimitPanels = $this->generatePanelLimit();
 
 		if (!is_array($arrSortPanels) && !is_array($arrFilterPanels) && !is_array($arrLimitPanels) && !is_array($arrSearchPanels))
@@ -2146,11 +2181,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 						break;
 
 					case 'search':
-//						$arrPanelView[$keyPanel]['search'] = $arrLimitPanels;
+						$arrPanelView[$keyPanel]['search'] = $arrSearchPanels;
 						break;
 
 					case 'filter':
-//						$arrPanelView[$keyPanel]['filter'] = $arrLimitPanels;
+						$arrPanelView[$keyPanel]['filter'] = $arrFilterPanels;
 						break;
 
 					case 'sort':
@@ -2242,52 +2277,18 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			return array();
 		}
 
-		// Store search value in the current session
-		if ($this->Input->post('FORM_SUBMIT') == 'tl_filters')
-		{
-			$arrSession['search'][$this->getDC()->getTable()]['value'] = '';
-			$arrSession['search'][$this->getDC()->getTable()]['field'] = $this->Input->post('tl_field', true);
-
-			// Make sure the regular expression is valid
-			if ($this->Input->postRaw('tl_value') != '')
-			{
-				try
-				{
-					$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()
-						->setSorting($this->getListViewSorting())
-						->setSearch(
-						array(
-						    array(
-							'mode' => DCGE::DP_MODE_REGEX,
-							'field' => $this->Input->post('tl_field', true),
-							'value' => $this->Input->postRaw('tl_value')
-						)));
-
-					$this->getDC()->getDataProvider()->fetchAll($objConfig);
-
-					$arrSession['search'][$this->getDC()->getTable()]['value'] = $this->Input->postRaw('tl_value');
-				}
-				catch (Exception $e)
-				{
-					// Do nothing
-				}
-			}
-
-			Session::getInstance()->setData($arrSession);
-		}
-
-		// Set search value from session
-		else if ($arrSession['search'][$this->getDC()->getTable()]['value'] != '')
-		{
-			if (substr($GLOBALS['TL_CONFIG']['dbCollation'], -3) == '_ci')
-			{
-				$this->getDC()->setFilter(array("LOWER(CAST(" . $arrSession['search'][$this->getDC()->getTable()]['field'] . " AS CHAR)) REGEXP LOWER('" . $arrSession['search'][$this->getDC()->getTable()]['value'] . "')"));
-			}
-			else
-			{
-				$this->getDC()->setFilter(array("CAST(" . $arrSession['search'][$this->getDC()->getTable()]['field'] . " AS CHAR) REGEXP '" . $arrSession['search'][$this->getDC()->getTable()]['value'] . "'"));
-			}
-		}
+//		// Set search value from session
+//		if ($arrSession['search'][$this->getDC()->getTable()]['value'] != '')
+//		{
+//			if (substr($GLOBALS['TL_CONFIG']['dbCollation'], -3) == '_ci')
+//			{
+//				$this->getDC()->setFilter(array("LOWER(CAST(" . $arrSession['search'][$this->getDC()->getTable()]['field'] . " AS CHAR)) REGEXP LOWER('" . $arrSession['search'][$this->getDC()->getTable()]['value'] . "')"));
+//			}
+//			else
+//			{
+//				$this->getDC()->setFilter(array("CAST(" . $arrSession['search'][$this->getDC()->getTable()]['field'] . " AS CHAR) REGEXP '" . $arrSession['search'][$this->getDC()->getTable()]['value'] . "'"));
+//			}
+//		}
 
 		$arrOptions = array();
 
