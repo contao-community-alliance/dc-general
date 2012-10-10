@@ -137,6 +137,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 	/**
 	 * Get filter for the data provider
+	 * 
 	 * @return array();
 	 */
 	protected function getFilter()
@@ -203,17 +204,42 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 	/**
 	 * Get limit for the data provider
+	 * 
 	 * @return array
 	 */
-	protected function getLimit()
-	{
-		$arrLimit = array(0, 0);
+	protected function calculateLimit()
+	{	
+		// Get the limit form the DCA
 		if (!is_null($this->getDC()->getLimit()))
 		{
-			$arrLimit = explode(',', $this->getDC()->getLimit());
+			return trimsplit(',', $this->getDC()->getLimit());
+		}
+		
+		$arrSession = Session::getInstance()->getData();
+		$strFilter = ($this->getDC()->arrDCA['list']['sorting']['mode'] == 4) ? $this->getDC()->getTable() . '_' . CURRENT_ID : $this->getDC()->getTable();
+	
+		// Load from Session - Set all
+		if ($arrSession['filter'][$strFilter]['limit'] == 'all')
+		{
+			// Get max amount
+			$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()->setFilter($this->getFilter());
+			$intMax = $this->getDC()->getDataProvider()->getCount($objConfig);
+			
+			$this->getDC()->setLimit("0,$intMax");
+		}
+		// Load from Session
+		else if (strlen($arrSession['filter'][$strFilter]['limit']) != 0)
+		{
+			$this->getDC()->setLimit($arrSession['filter'][$strFilter]['limit']);
 		}
 
-		return $arrLimit;
+		// Fallback
+		if (is_null($this->getDC()->getLimit()))
+		{
+			$this->getDC()->setLimit('0,' . $GLOBALS['TL_CONFIG']['maxResultsPerPage']);
+		}
+
+		return trimsplit(',', $this->getDC()->getLimit());
 	}
 
 	/**
@@ -1672,7 +1698,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$objParrentDataProvider = $this->getDC()->getDataProvider('parent');
 
 		$showFields = $this->getDC()->arrDCA['list']['label']['fields'];
-		$arrLimit = $this->getLimit();
+		$arrLimit = $this->calculateLimit();
 
 		// Load record from current data provider
 		$objConfig = $objCurrentDataProvider->getEmptyConfig()
@@ -2015,7 +2041,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$objParentItem = $this->objDC->getCurrentParentCollection()->get(0);
 
 		// Get limits
-		$arrLimit = $this->getLimit();
+		$arrLimit = $this->calculateLimit();
 
 		// Load record from data provider
 		$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()
@@ -2353,21 +2379,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$strFilter = ($this->getDC()->arrDCA['list']['sorting']['mode'] == 4) ? $this->getDC()->getTable() . '_' . CURRENT_ID : $this->getDC()->getTable();
 		$arrSession = Session::getInstance()->getData();
 
-		// Set session values or default
-		if (strlen($arrSession['filter'][$strFilter]['limit']))
-		{
-			$this->getDC()->setLimit((($arrSession['filter'][$strFilter]['limit'] == 'all') ? null : $arrSession['filter'][$strFilter]['limit']));
-
-			if (is_null($this->getDC()->getLimit()))
-			{
-				$this->getDC()->setLimit('0,' . $GLOBALS['TL_CONFIG']['maxResultsPerPage']);
-			}
-		}
-		else
-		{
-			$this->getDC()->setLimit('0,' . $GLOBALS['TL_CONFIG']['resultsPerPage']);
-		}
-
 		// Get the amount for the current filter settings
 		$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()->setFilter($this->getFilter());
 		$intCount = $this->getDC()->getDataProvider()->getCount($objConfig);
@@ -2413,9 +2424,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 			if (!$blnIsMaxResultsPerPage)
 			{
+				$arrLimit = trimsplit(',', $this->getDC()->getLimit());
+												
 				$arrPanelView['option'][] = array(
 				    'value' => 'all',
-				    'select' => $this->optionSelected($this->getDC()->getLimit(), null),
+				    'select' => ($arrLimit[0] == 0 && $arrLimit[1] == $intCount) ? ' selected="selected"' : '',
 				    'content' => $GLOBALS['TL_LANG']['MSC']['filterAll']
 				);
 			}
