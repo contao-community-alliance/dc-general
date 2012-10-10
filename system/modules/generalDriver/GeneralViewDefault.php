@@ -1083,7 +1083,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 			// TODO set current
 //                $this->current[] = $objModel->getID();
 			// Decrypt encrypted value
-			// TODO What ist $table => never init
+			// TODO What is $table => never init
 			foreach ($objModel as $k => $v)
 			{
 				if ($this->getDC()->arrDCA['fields'][$k]['eval']['encrypt'])
@@ -1095,11 +1095,25 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 				}
 			}
 
+
 			// Add the group header
 			// ToDo: What the Fuck what is $orderBy
 			if (!$this->getDC()->arrDCA['list']['sorting']['disableGrouping'] && $this->getDC()->getFirstSorting() != 'sorting')
 			{
-				$sortingMode = (count($orderBy) == 1 && $this->getDC()->getFirstSorting() == $orderBy[0] && $this->getDC()->arrDCA['list']['sorting']['flag'] != '' && $this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'] == '') ? $this->getDC()->arrDCA['list']['sorting']['flag'] : $this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'];
+
+				// If the first sorting field has flag use it, else use the dca sorting flag
+				if ($this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'] != '')
+				{
+					$sortingMode = $this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'];
+				}
+				else
+				{
+					$sortingMode = $this->getDC()->arrDCA['list']['sorting']['flag'];
+				}
+
+//				$orderBy = $this->getDC()->arrDCA['list']['sorting']['fields'];				
+//				$sortingMode = (count($orderBy) == 1 && $this->getDC()->getFirstSorting() == $orderBy[0] && $this->getDC()->arrDCA['list']['sorting']['flag'] != '' && $this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'] == '') ? $this->getDC()->arrDCA['list']['sorting']['flag'] : $this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'];
+
 				$remoteNew = $this->getDC()->formatCurrentValue($this->getDC()->getFirstSorting(), $objModel->getProperty($this->getDC()->getFirstSorting()), $sortingMode);
 				$group = $this->getDC()->formatGroupHeader($this->getDC()->getFirstSorting(), $remoteNew, $sortingMode, $objModel);
 
@@ -1237,9 +1251,21 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 			if ($this->getDC()->arrDCA['list']['sorting']['mode'] > 0)
 			{
 
+				// Get the current value of first sorting
 				$current = $objModelRow->getProperty($this->getDC()->getFirstSorting());
-				$orderBy = $this->getDC()->arrDCA['list']['sorting']['fields'];
-				$sortingMode = (count($orderBy) == 1 && $this->getDC()->getFirstSorting() == $orderBy[0] && $this->getDC()->arrDCA['list']['sorting']['flag'] != '' && $this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'] == '') ? $this->getDC()->arrDCA['list']['sorting']['flag'] : $this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'];
+
+				// If the first sorting field has flag use it, else use the dca sorting flag
+				if ($this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'] != '')
+				{
+					$sortingMode = $this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'];
+				}
+				else
+				{
+					$sortingMode = $this->getDC()->arrDCA['list']['sorting']['flag'];
+				}
+
+				// ToDo: Why such a big if ?
+//				$sortingMode = (count($orderBy) == 1 && $this->getDC()->getFirstSorting() == $orderBy[0] && $this->getDC()->arrDCA['list']['sorting']['flag'] != '' && $this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'] == '') ? $this->getDC()->arrDCA['list']['sorting']['flag'] : $this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'];
 
 				$remoteNew = $this->getDC()->formatCurrentValue($this->getDC()->getFirstSorting(), $current, $sortingMode);
 
