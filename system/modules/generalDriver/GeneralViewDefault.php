@@ -1039,6 +1039,11 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 					$_v = $this->parentDca['fields'][$v]['options'][$_v];
 				}
 			}
+			
+			if ($v == 'tstamp')
+			{
+				$_v = date($GLOBALS['TL_CONFIG']['datimFormat'], $_v);
+			}
 
 			// Add the sorting field
 			if ($_v != '')
@@ -1056,9 +1061,8 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 			$add = $arrHeaderCallback;
 		}
 
-		$arrHeader = array();
 		// Set header data
-
+		$arrHeader = array();
 		foreach ($add as $k => $v)
 		{
 			if (is_array($v))
@@ -1439,7 +1443,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
 		// Check if we have the select mode
 		if (!$this->getDC()->isSelectSubmit())
-		{
+		{			
 			// Add Buttons for mode x
 			switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
 			{
