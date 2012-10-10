@@ -2049,8 +2049,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 //		var_dump($_POST);
 //		var_dump($_GET);
 //		exit();
-
-		if (!in_array($this->Input->post('FORM_SUBMIT'), array('tl_filters', 'tl_filters_limit')))
+		// Check if we have a submit
+		if (!in_array($this->Input->post('FORM_SUBMIT'), array('tl_filters')))
 		{
 			return;
 		}
@@ -2078,11 +2078,21 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		{
 			$arrSession['sorting'][$this->getDC()->getTable()] = in_array($this->getDC()->arrDCA['fields'][$this->Input->post('tl_sort')]['flag'], array(2, 4, 6, 8, 10, 12)) ? $this->Input->post('tl_sort') . ' DESC' : $this->Input->post('tl_sort');
 		}
-		
+
 		// Set filter from user input
 		if ($this->Input->post('FORM_SUBMIT') == 'tl_filters')
 		{
-			foreach ($arrSortingFields as $field)
+			// Get sorting fields
+			$arrFilterFields = array();
+			foreach ($this->getDC()->arrDCA['fields'] as $k => $v)
+			{
+				if ($v['filter'])
+				{
+					$arrFilterFields[] = $k;
+				}
+			}
+
+			foreach ($arrFilterFields as $field)
 			{
 				if ($this->Input->post($field, true) != 'tl_' . $field)
 				{
@@ -2095,8 +2105,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			}
 
 			$this->Session->setData($arrSession);
-		}		
-		
+		}
+
 		// Store search value in the current session
 		if ($this->Input->post('FORM_SUBMIT') == 'tl_filters123')
 		{
@@ -2177,19 +2187,23 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				switch ($strField)
 				{
 					case 'limit':
-						$arrPanelView[$keyPanel]['limit'] = $arrLimitPanels;
+						if (!empty($arrLimitPanels))
+							$arrPanelView[$keyPanel]['limit'] = $arrLimitPanels;
 						break;
 
 					case 'search':
-						$arrPanelView[$keyPanel]['search'] = $arrSearchPanels;
+						if (!empty($arrSearchPanels))
+							$arrPanelView[$keyPanel]['search'] = $arrSearchPanels;
 						break;
 
 					case 'filter':
-						$arrPanelView[$keyPanel]['filter'] = $arrFilterPanels;
+						if (!empty($arrFilterPanels))
+							$arrPanelView[$keyPanel]['filter'] = $arrFilterPanels;
 						break;
 
 					case 'sort':
-						$arrPanelView[$keyPanel]['sort'] = $arrSortPanels;
+						if (!empty($arrSortPanels))
+							$arrPanelView[$keyPanel]['sort'] = $arrSortPanels;
 						break;
 
 					// ToDo: Callback for new panels ?
@@ -2914,7 +2928,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 					$arrPanelView[$field]['option'][] = $arrOptions[$value];
 				}
 			}
-			
+
 			// Force a line-break after six elements
 			if ((($cnt + 1) % 6) == 0)
 			{
