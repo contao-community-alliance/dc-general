@@ -891,7 +891,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
 				$strClass = $arrConfig['eval']['tl_class'];
 
-				// this should be correctly specified in DCAs
+				// TODO: this should be correctly specified in DCAs
 //				if($arrConfig['inputType'] == 'checkbox'
 //				&& !$arrConfig['eval']['multiple']
 //				&& strpos($strClass, 'w50') !== false
@@ -914,6 +914,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 					}
 				}
 
+				// TODO: Maybe TemplateFoo is not such a good name :?
 				$objTemplateFoo = new BackendTemplate($strFieldTemplate);
 				$objTemplateFoo->strName = $strName;
 				$objTemplateFoo->strClass = $strClass;
@@ -1105,16 +1106,30 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 			if (!$this->getDC()->arrDCA['list']['sorting']['disableGrouping'] && $this->getDC()->getFirstSorting() != 'sorting')
 			{
 
-				// If the first sorting field has flag use it, else use the dca sorting flag
-				if ($this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'] != '')
+				$orderBy = $this->getDC()->arrDCA['list']['sorting']['fields'];	
+								
+				// Default ASC
+				if(count($orderBy) == 0)
+				{
+					$sortingMode = 9;
+				}
+				// If the current First sorting is the default one use the global flag
+				else if( $this->getDC()->getFirstSorting() == $orderBy[0] )
+				{
+					$sortingMode = $this->getDC()->arrDCA['list']['sorting']['flag'];
+				}
+				// Use the fild flag, if given
+				else if ($this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'] != '')
 				{
 					$sortingMode = $this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'];
 				}
+				// Use the global as fallback
 				else
 				{
 					$sortingMode = $this->getDC()->arrDCA['list']['sorting']['flag'];
 				}
 
+				// TODO: Why such a big if ?
 //				$orderBy = $this->getDC()->arrDCA['list']['sorting']['fields'];				
 //				$sortingMode = (count($orderBy) == 1 && $this->getDC()->getFirstSorting() == $orderBy[0] && $this->getDC()->arrDCA['list']['sorting']['flag'] != '' && $this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'] == '') ? $this->getDC()->arrDCA['list']['sorting']['flag'] : $this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'];
 
@@ -1257,12 +1272,24 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
 				// Get the current value of first sorting
 				$current = $objModelRow->getProperty($this->getDC()->getFirstSorting());
-
-				// If the first sorting field has flag use it, else use the dca sorting flag
-				if ($this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'] != '')
+				$orderBy = $this->getDC()->arrDCA['list']['sorting']['fields'];	
+								
+				// Default ASC
+				if(count($orderBy) == 0)
+				{
+					$sortingMode = 9;
+				}
+				// If the current First sorting is the default one use the global flag
+				else if( $this->getDC()->getFirstSorting() == $orderBy[0] )
+				{
+					$sortingMode = $this->getDC()->arrDCA['list']['sorting']['flag'];
+				}
+				// Use the fild flag, if given
+				else if ($this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'] != '')
 				{
 					$sortingMode = $this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'];
 				}
+				// Use the global as fallback
 				else
 				{
 					$sortingMode = $this->getDC()->arrDCA['list']['sorting']['flag'];
