@@ -64,7 +64,23 @@ class DCGE
 	 * Use a regex/pattern search
 	 */
 	const DP_MODE_REGEX = 2;
-
+	
+	// Sorting Modis -------------------------------------------------------
+	
+	/**
+	 * Move/Insert after Start
+	 */
+	const INSERT_AFTER_START = 'start';
+	
+	/**
+	 * Move/Insert after End
+	 */
+	const INSERT_AFTER_END = 'end';
+	
+	/**
+	 * Move/Insert into root
+	 */
+	const INSERT_INTO_ROOT = 'root';
 
 	// Modes ---------------------------------------------------------------
 	

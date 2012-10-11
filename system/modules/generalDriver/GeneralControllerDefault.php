@@ -138,6 +138,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	/**
 	 * Get filter for the data provider
 	 * 
+	 * @todo Somtimes we don't need all filtersettings
+	 * @todo add new var like level = all, root, parent etc.
+	 * @todo check where we use this.
+	 * @todo it`s a nice function, maybe a core function ?
+	 * 
 	 * @return array();
 	 */
 	protected function getFilter()
@@ -198,6 +203,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		}
 
 		// FIXME implement panel filter from session
+		// FIXME all panels write into $this->getDC()->setFilter() or setLimit.
 
 		return $this->getDC()->getFilter();
 	}
@@ -208,23 +214,23 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 * @return array
 	 */
 	protected function calculateLimit()
-	{	
+	{
 		// Get the limit form the DCA
 		if (!is_null($this->getDC()->getLimit()))
 		{
 			return trimsplit(',', $this->getDC()->getLimit());
 		}
-		
+
 		$arrSession = Session::getInstance()->getData();
 		$strFilter = ($this->getDC()->arrDCA['list']['sorting']['mode'] == 4) ? $this->getDC()->getTable() . '_' . CURRENT_ID : $this->getDC()->getTable();
-	
+
 		// Load from Session - Set all
 		if ($arrSession['filter'][$strFilter]['limit'] == 'all')
 		{
 			// Get max amount
 			$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()->setFilter($this->getFilter());
 			$intMax = $this->getDC()->getDataProvider()->getCount($objConfig);
-			
+
 			$this->getDC()->setLimit("0,$intMax");
 		}
 		// Load from Session
@@ -618,15 +624,20 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 *
 	 * <p>
 	 * -= GET Parameter =-<br/>
-	 * act      - Mode like cut | copy | and co <br/>
-	 * after    - ID of target element <br/>
-	 * source   - ID of the element which should moved <br/>
-	 * mode     - 1 Insert after | 2 Insert into <br/>
-	 * pid      - Id of the parent used in list mode 4,5 <br/>
-	 * child    - WTF at the moment unknown <br/>
-	 * pdp      - Parent Data Provider real name <br/>
-	 * cdp      - Current Data Provider real name <br/>
-	 * id       - Parent child id used for redirect <br/>
+	 * act		- Mode like cut | copy | and co <br/>
+	 * <br/>
+	 * after	- ID of target element to insert after <br/>
+	 * into		- ID of parent element to insert into <br/>
+	 * <br/>
+	 * id		- Parent child ID used for redirect <br/>
+	 * pid		- ID of the parent used in list mode 4,5 <br/>
+	 * source	- ID of the element which should moved <br/>
+	 * <br/>	
+	 * pdp		- Parent Data Provider real name <br/>
+	 * cdp		- Current Data Provider real name <br/>
+	 * <br/>
+	 * -= Deprecated =-<br/>
+	 * mode		- 1 Insert after | 2 Insert into (NEVER USED AGAIN - Deprecated) <br/>
 	 * </p>
 	 */
 	public function cut()
@@ -634,36 +645,47 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		// Checks
 		$this->checkIsWritable();
 
-		$objLocalDataProvider = $this->getDC()->getDataProvider();
-
 		// Get vars
 		$mixAfter = $this->Input->get('after');
-		$mixSource = $this->Input->get('source');
-		$intMode = $this->Input->get('mode');
+		$mixInto = $this->Input->get('into');
+		$intId = $this->Input->get('id');
 		$mixPid = $this->Input->get('pid');
-		$mixChild = $this->Input->get('child');
+		$mixSource = $this->Input->get('source');
 		$strPDP = $this->Input->get('pdp');
 		$strCDP = $this->Input->get('cdp');
-		$intId = $this->Input->get('id');
 
+		// Deprecated
+		$intMode = $this->Input->get('mode');
+		$mixChild = $this->Input->get('child');
+		
 		// Check basic vars
-		if (empty($mixSource) || empty($mixAfter) || empty($intMode) || empty($strCDP))
+		if (empty($mixSource) || ( empty($mixAfter) && empty($mixInto) ) || empty($strCDP))
 		{
-			$this->log('Missing parameter for copy in ' . $this->getDC()->getTable(), __CLASS__ . ' - ' . __FUNCTION__, TL_ERROR);
+			$this->log('Missing parameter for cut in ' . $this->getDC()->getTable(), __CLASS__ . ' - ' . __FUNCTION__, TL_ERROR);
 			$this->redirect('contao/main.php?act=error');
 		}
 
-		// Load current data provider
-		$objCurrentDataProvider = $this->objDC->getDataProvider($strCDP);
+		// Get current DataProvider
+		if (!empty($strCDP))
+		{
+			$objCurrentDataProvider = $this->getDC()->getDataProvider($strCDP);
+		}
+		else
+		{
+			$objCurrentDataProvider = $this->getDC()->getDataProvider();
+		}
+
 		if ($objCurrentDataProvider == null)
 		{
 			throw new Exception('Could not load current data provider in ' . __CLASS__ . ' - ' . __FUNCTION__);
 		}
 
+		// Get parent DataProvider, if set
 		$objParentDataProvider = null;
 		if (!empty($strPDP))
 		{
 			$objParentDataProvider = $this->objDC->getDataProvider($strPDP);
+
 			if ($objCurrentDataProvider == null)
 			{
 				throw new Exception('Could not load parent data provider ' . $strPDP . ' in ' . __CLASS__ . ' - ' . __FUNCTION__);
@@ -672,18 +694,18 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		// Load the source model
 		$objSrcModel = $objCurrentDataProvider->fetch($objCurrentDataProvider->getEmptyConfig()->setId($mixSource));
-
+		
 		// Check mode
 		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
 		{
+			case 0:
+				$this->getNewPosition($objCurrentDataProvider, $objParentDataProvider, $objSrcModel, DCGE::INSERT_AFTER_END, null, 'cut');
+				break;
 			case 1:
 			case 2:
 			case 3:
-//                return vsprintf($this->notImplMsg, 'cut - Mode ' . $this->getDC()->arrDCA['list']['sorting']['mode']);
-//                break;
-
 			case 4:
-				$this->getNewPosition($objCurrentDataProvider, $objParentDataProvider, $objSrcModel, $mixAfter, 'cut', $intMode);
+				$this->getNewPosition($objCurrentDataProvider, $objParentDataProvider, $objSrcModel, $mixAfter, $mixInto, 'cut');
 				break;
 
 			case 5:
@@ -738,7 +760,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		}
 
 		// Save new sorting
-		$objLocalDataProvider->save($objSrcModel);
+		$objCurrentDataProvider->save($objSrcModel);
 
 		// Reset clipboard + redirect
 		$this->resetClipboard(true);
@@ -1415,128 +1437,176 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 *
 	 * @return void
 	 */
-	protected function getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $strMode, $intInsertMode, $mixParentID = null)
+	protected function getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $mixInto, $strMode, $mixParentID = null, $intInsertMode = null)
 	{
-		$objCurrentDataProvider = $this->getDC()->getDataProvider();
-
-		$blnSortingExists = $objCDP->fieldExists('sorting');
-		$intHigestSorting = 128;
-		$intLowestSorting = 128;
-		$intNextSorting = 0;
+		// Load default DataProvider
+		if (is_null($objCDP))
+		{
+			$objCDP = $this->getDC()->getDataProvider();
+		}
 
 		// Check if we have a sorting field, if not skip here
-		if (!$blnSortingExists)
+		if (!$objCDP->fieldExists('sorting'))
 		{
 			return;
 		}
 
-		// Funktion for create
-		if ($strMode == 'create')
+		$intHighestSorting = 128;
+		$intLowestSorting = 128;
+		$intNextSorting = 0;
+
+		if ($strMode == 'cut')
 		{
-//            // Default - Add to end off all
-//            // Search for the highest sorting
-//            $objConfig = $objCDP->getEmptyConfig();
-//            $objConfig->setFields(array('sorting'));
-//            $arrCollection = $objCDP->fetchAll($objConfig);
-//
-//            foreach ($arrCollection as $value)
-//            {
-//                if ($value->getProperty('sorting') > $intHigestSorting)
-//                {
-//                    $intHigestSorting = $value->getProperty('sorting');
-//                }
-//            }
-//
-//            $intNextSorting = $intHigestSorting + 128;
-//
-//            // Set new Sorting
-//            $objDBModel->setProperty('sorting', $intNextSorting);
-//
-//            return;
-		}
-		// Funktion for cut
-		else if ($strMode == 'cut' && $intInsertMode != false)
-		{
-			switch ($intInsertMode)
-			{
-				case 1:
-					// Get all elements
-					$objConfig = $objCurrentDataProvider->getEmptyConfig();
-					$objConfig->setFields(array('sorting'));
-					$objConfig->setSorting(array('sorting'));
+			// Get all elements
+			$objConfig = $objCDP->getEmptyConfig();
+
+			$objConfig->setFields(array('sorting'));
+			$objConfig->setSorting(array('sorting'));
+
+			$objConfig->setFilter($this->getFilter());
+
+			$objCollection = $objCDP->fetchAll($objConfig);
+
+			// Init some vars
+			$intSortingAfter = 0;
+			$intSortingNext = 0;
+
+			// Add to the start of elements
+			if ($mixAfter == DCGE::INSERT_AFTER_START)
+			{				
+				$objFirstElement = $objCollection->get(0);
+
+				if (is_null($objFirstElement))
+				{
+					return;
+				}
+
+				$intSorting = $objFirstElement->getProperty('sorting');
+
+				if ($intSorting <= 2)
+				{
+					$this->reorderSorting($objConfig);
+					$this->getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $mixInto, $strMode, $mixParentID, $intInsertMode);
+					return;
+				}
+
+				$intNewSorting = round($intSorting / 2);
+
+				$objDBModel->setProperty('sorting', $intNewSorting);
+				return;
+			}
+			// Add to the end of element
+			else if ($mixAfter == DCGE::INSERT_AFTER_END)
+			{					
+				$objCollection->reverse();
+				$objLastElement = $objCollection->get(0);
+
+				$intSorting = $objLastElement->getProperty('sorting');
+				$intNewSorting = $intSorting + 128;
+
+				$objDBModel->setProperty('sorting', $intNewSorting);
+				return;
+			}
+			// Add after a element
+			else if (!empty($mixAfter))
+			{					
+				foreach ($objCollection as $value)
+				{
+					// After we have it, get the next sorting and break out
+					if ($intSortingAfter != 0)
+					{
+						$intSortingNext = $value->getProperty('sorting');
+						break;
+					}
+
+					// Search for my targeting element
+					if ($value->getID() == $mixAfter)
+					{
+						$intSortingAfter = $value->getProperty('sorting');
+					}
+				}
+				
+				if ($intSortingNext == 0)
+				{
+					$intSortingNext = $intSortingAfter + 128;
+				}
+				
+				$intNewSorting = $intSortingAfter + round(($intSortingNext - $intSortingAfter) / 2);
+								
+				if ($intNewSorting <= $intSortingAfter || $intNewSorting >= $intSortingNext)
+				{
+					$objConfig = $objCDP->getEmptyConfig();
 					$objConfig->setFilter($this->getFilter());
-					$arrCollection = $objCurrentDataProvider->fetchAll($objConfig);
 
-					$intSortingAfter = 0;
-					$intSortingNext = 0;
-
-					foreach ($arrCollection as $value)
-					{
-						// After we have it, get the next sorting and break out
-						if ($intSortingAfter != 0)
-						{
-							$intSortingNext = $value->getProperty('sorting');
-							break;
-						}
-
-						// Search for my targeting element
-						if ($value->getID() == $mixAfter)
-						{
-							$intSortingAfter = $value->getProperty('sorting');
-						}
-					}
-
-					if ($intSortingNext == 0)
-					{
-						$intSortingNext = $intSortingAfter + 128;
-					}
-
-					$intNewSorting = $intSortingAfter + round(($intSortingNext - $intSortingAfter) / 2);
-
-					if ($intNewSorting <= $intSortingAfter || $intNewSorting >= $intSortingNext)
-					{
-						$objConfig = $objCurrentDataProvider->getEmptyConfig();
-						$objConfig->setFilter($this->getFilter());
-						$this->reorderSorting($objConfig);
-						$this->getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $strMode, $intInsertMode, $mixParentID);
-						return;
-					}
-
-					$objDBModel->setProperty('sorting', ($intSortingNext - 2));
+					$this->reorderSorting($objConfig);
+					$this->getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $mixInto, $strMode, $mixParentID, $intInsertMode);
 					return;
+				}
 
-				case 2:
-					// Search for the lowest sorting
-					$objConfig = $objCurrentDataProvider->getEmptyConfig();
-					$objConfig->setFields(array('sorting'));
-					$arrCollection = $objCurrentDataProvider->fetchAll($objConfig);
+				$objDBModel->setProperty('sorting', $intNewSorting);
+				return;
+			}
+			else if (!empty($mixInto))
+			{
+				// Search for the lowest sorting
+				$objConfig = $objCDP->getEmptyConfig();
+				$objConfig->setFields(array('sorting'));
+				$arrCollection = $objCDP->fetchAll($objConfig);
 
-					foreach ($arrCollection as $value)
+				foreach ($arrCollection as $value)
+				{
+					if ($value->getProperty('sorting') < $intLowestSorting && $value->getProperty('sorting') != 0)
 					{
-						if ($value->getProperty('sorting') < $intLowestSorting && $value->getProperty('sorting') != 0)
-						{
-							$intLowestSorting = $value->getProperty('sorting');
-						}
+						$intLowestSorting = $value->getProperty('sorting');
 					}
+				}
 
-					// If we have no room, reorder all sortings and call the function again
-					if ($intLowestSorting <= 1)
-					{
-						$objConfig = $objCurrentDataProvider->getEmptyConfig();
-						$objConfig->setFilter($this->getFilter());
-						$this->reorderSorting($objConfig);
-						$this->getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $strMode, $intInsertMode, $mixParentID);
-						return;
-					}
-
-					$intNextSorting = round($intLowestSorting - 2);
-
-					// Set new Sorting
-					$objDBModel->setProperty('sorting', $intNextSorting);
-
+				// If we have no room, reorder all sortings and call the function again
+				if ($intLowestSorting <= 1)
+				{
+					$objConfig = $objCDP->getEmptyConfig();
+					$objConfig->setFilter($this->getFilter());
+					
+					$this->reorderSorting($objConfig);
+					$this->getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $mixInto, $strMode, $mixParentID, $intInsertMode);
 					return;
+				}
+
+				$intNextSorting = round($intLowestSorting - 2);
+
+				// Set new Sorting
+				$objDBModel->setProperty('sorting', $intNextSorting);
+
+				return;
 			}
 		}
+		else if ($strMode == 'create')
+		{			
+//			// Default - Add to end off all
+//			// Search for the highest sorting
+//			$objConfig = $objCDP->getEmptyConfig();
+//			$objConfig->setFields(array('sorting'));
+//			$arrCollection = $objCDP->fetchAll($objConfig);
+//
+//			foreach ($arrCollection as $value)
+//			{
+//				if ($value->getProperty('sorting') > $intHigestSorting)
+//				{
+//					$intHigestSorting = $value->getProperty('sorting');
+//				}
+//			}
+//
+//			$intNextSorting = $intHigestSorting + 128;
+//
+//			// Set new Sorting
+//			$objDBModel->setProperty('sorting', $intNextSorting);
+//
+//			return;
+		}
+
+		return;
+
+		
 	}
 
 	protected function reorderSorting($objConfig)
@@ -2425,7 +2495,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			if (!$blnIsMaxResultsPerPage)
 			{
 				$arrLimit = trimsplit(',', $this->getDC()->getLimit());
-												
+
 				$arrPanelView['option'][] = array(
 				    'value' => 'all',
 				    'select' => ($arrLimit[0] == 0 && $arrLimit[1] == $intCount) ? ' selected="selected"' : '',

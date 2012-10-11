@@ -245,6 +245,8 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		$this->arrStack[] = $this->getDC()->getSubpalettesDefinition();
 		$this->calculateSelectors($this->arrStack[0]);
 		$this->parseRootPalette();
+		
+		include(TL_ROOT . '/system/config/languages.php');
 
 		// ToDo: What is this $languages[$this->strCurrentLanguage];
 
@@ -255,7 +257,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		    'versions' => $this->getDC()->getDataProvider()->getVersions($this->getDC()->getId()),
 		    'language' => $this->objLanguagesSupported,
 		    'subHeadline' => sprintf($GLOBALS['TL_LANG']['MSC']['editRecord'], $this->getDC()->getId() ? 'ID ' . $this->getDC()->getId() : ''),
-		    'languageHeadline' => strlen($this->strCurrentLanguage) != 0 ? $GLOBALS['TL_LANG']['MSC']['language'] . " " . $languages[$this->strCurrentLanguage] : '',
+		    'languageHeadline' => strlen($this->strCurrentLanguage) != 0 ? $langsNative[$this->strCurrentLanguage] : '',
 		    'table' => $this->getDC()->getTable(),
 		    'enctype' => $this->getDC()->isUploadable() ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
 		    //'onsubmit' => implode(' ', $this->onsubmit),

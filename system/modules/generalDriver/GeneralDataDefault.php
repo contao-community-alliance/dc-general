@@ -460,7 +460,7 @@ class GeneralDataDefault implements InterfaceGeneralData
 			$objDatabaseQuery->limit($objConfig->getAmount(), $objConfig->getStart());
 		}
 
-		$arrResult = $objDatabaseQuery->execute($arrParams)->fetchAllAssoc();
+		$arrResult = $objDatabaseQuery->executeUncached($arrParams)->fetchAllAssoc();
 
 		if ($objConfig->getIdOnly())
 		{
