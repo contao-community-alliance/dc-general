@@ -245,7 +245,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		$this->arrStack[] = $this->getDC()->getSubpalettesDefinition();
 		$this->calculateSelectors($this->arrStack[0]);
 		$this->parseRootPalette();
-		
+
 		include(TL_ROOT . '/system/config/languages.php');
 
 		// ToDo: What is this $languages[$this->strCurrentLanguage];
@@ -385,7 +385,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 				break;
 
 			case 4:
-				$arrReturn['body'] = $this->parentView();
+				$arrReturn['body'] = $this->viewParent();
 				break;
 
 			case 5:
@@ -435,6 +435,317 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 	 * ---------------------------------------------------------------------
 	 * ////////////////////////////////////////////////////////////////// */
 
+	/* /////////////////////////////////////////////////////////////////////
+	 * ---------------------------------------------------------------------
+	 * Parent View + Helper functions
+	 * Mode 4
+	 * ---------------------------------------------------------------------
+	 * ////////////////////////////////////////////////////////////////// */
+
+	/**
+	 * Show parent view mode 4. 
+	 * 
+	 * @return string HTML output
+	 */
+	protected function viewParent()
+	{
+		// Skip if we have no parent or parent collection.
+		if (is_null($this->getDC()->getDataProvider('parent')) || $this->getDC()->getCurrentParentCollection()->length() == 0)
+		{
+			$this->log('The view for ' . $this->getDC()->getTable() . 'has either a empty parent dataprovider or collection.', __CLASS__ . ' | ' . __FUNCTION__, TL_ERROR);
+			$this->redirect('contao/main.php?act=error');
+		}
+
+		// Load language file and data container array of the parent table
+		$this->loadLanguageFile($this->getDC()->getParentTable());
+		$this->loadDataContainer($this->getDC()->getParentTable());
+
+		// Get parent DC Driver
+		$objParentDC = new DC_General($this->getDC()->getParentTable());
+		$this->parentDca = $objParentDC->getDCA();
+
+		// Add template
+		$objTemplate = new BackendTemplate('dcbe_general_parentView');
+
+		$objTemplate->collection = $this->getDC()->getCurrentCollecion();
+		$objTemplate->select = $this->getDC()->isSelectSubmit();
+		$objTemplate->action = ampersand($this->Environment->request, true);
+		$objTemplate->mode = $this->getDC()->arrDCA['list']['sorting']['mode'];
+		$objTemplate->table = $this->getDC()->getTable();
+		$objTemplate->tableHead = $this->parentView['headerGroup'];
+		$objTemplate->header = $this->renderViewParentFormattedHeaderFields();
+		$objTemplate->hasSorting = ($this->getDC()->getFirstSorting() == 'sorting');
+
+		// Get dataprovider from current and parent
+		$strCDP = $this->getDC()->getDataProvider('self')->getEmptyModel()->getProviderName();
+		$strPDP = $this->getDC()->getDataProvider('parent');
+
+		// Add parent provider if exsists
+		if ($strPDP != null)
+		{
+			$strPDP = $strPDP->getEmptyModel()->getProviderName();
+		}
+		else
+		{
+			$strPDP = '';
+		}
+
+		$objTemplate->pdp = $strPDP;
+		$objTemplate->cdp = $strCDP;
+
+		$this->renderViewParentEntries();
+
+		$objTemplate->editHeader = array(
+		    'content' => $this->generateImage('edit.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['editheader'][0]),
+		    'href' => preg_replace('/&(amp;)?table=[^& ]*/i', (strlen($this->getDC()->getParentTable()) ? '&amp;table=' . $this->getDC()->getParentTable() : ''), $this->addToUrl('act=edit')),
+		    'title' => specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['editheader'][1])
+		);
+
+		$objTemplate->pasteNew = array(
+		    'content' => $this->generateImage('new.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0]),
+		    'href' => $this->addToUrl('act=create&amp;mode=2&amp;pid=' . $this->getDC()->getCurrentParentCollection()->get(0)->getID() . '&amp;id=' . $this->intId),
+		    'title' => specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pastenew'][0])
+		);
+
+		$objTemplate->pasteAfter = array(
+		    'content' => $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0], 'class="blink"'),
+		    'href' => $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=' . $this->getDC()->getCurrentParentCollection()->get(0)->getID() . (!$blnMultiboard ? '&amp;id=' . $arrClipboard['id'] : '')),
+		    'title' => specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0])
+		);
+
+		$objTemplate->notDeletable = $this->getDC()->arrDCA['config']['notDeletable'];
+		$objTemplate->notEditable = $this->getDC()->arrDCA['config']['notEditable'];
+		$objTemplate->notEditableParent = $this->parentDca['config']['notEditable'];
+
+		return $objTemplate->parse();
+	}
+
+	/* ---------------------------------------------------------------------
+	 * parentView helper functions
+	 * ------------------------------------------------------------------ */
+
+	/**
+	 * Render the entries for parent view. 
+	 */
+	protected function renderViewParentEntries()
+	{
+		$strGroup = '';
+
+		// Run each model
+		for ($i = 0; $i < $this->getDC()->getCurrentCollecion()->length(); $i++)
+		{
+			// Get model
+			$objModel = $this->getDC()->getCurrentCollecion()->get($i);
+
+			// Set in DC as current for callback and co.
+			$this->getDC()->setCurrentModel($objModel);
+
+			// TODO set global current
+//                $this->current[] = $objModel->getID();
+			// Decrypt encrypted value
+			foreach ($objModel as $k => $v)
+			{
+				if ($this->getDC()->arrDCA['fields'][$k]['eval']['encrypt'])
+				{
+					$v = deserialize($v);
+
+					$this->import('Encryption');
+					$objModel->setProperty($k, $this->Encryption->decrypt($v));
+				}
+			}
+
+			// Add the group header
+			if (!$this->getDC()->arrDCA['list']['sorting']['disableGrouping'] && $this->getDC()->getFirstSorting() != 'sorting')
+			{
+				// get a list with all fields for sorting
+				$orderBy = $this->getDC()->arrDCA['list']['sorting']['fields'];
+
+				// Default ASC
+				if (count($orderBy) == 0)
+				{
+					$sortingMode = 9;
+				}
+				// If the current First sorting is the default one use the global flag
+				else if ($this->getDC()->getFirstSorting() == $orderBy[0])
+				{
+					$sortingMode = $this->getDC()->arrDCA['list']['sorting']['flag'];
+				}
+				// Use the field flag, if given
+				else if ($this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'] != '')
+				{
+					$sortingMode = $this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'];
+				}
+				// Use the global as fallback
+				else
+				{
+					$sortingMode = $this->getDC()->arrDCA['list']['sorting']['flag'];
+				}
+
+				$remoteNew = $this->getDC()->formatCurrentValue($this->getDC()->getFirstSorting(), $objModel->getProperty($this->getDC()->getFirstSorting()), $sortingMode);
+				$group = $this->getDC()->formatGroupHeader($this->getDC()->getFirstSorting(), $remoteNew, $sortingMode, $objModel);
+
+				if ($group != $strGroup)
+				{
+					$strGroup = $group;
+					$objModel->setMeta(DCGE::MODEL_GROUP_HEADER, $group);
+				}
+			}
+
+			$objModel->setMeta(DCGE::MODEL_CLASS, ($this->getDC()->arrDCA['list']['sorting']['child_record_class'] != '') ? ' ' . $this->getDC()->arrDCA['list']['sorting']['child_record_class'] : '');
+
+			// Regular buttons
+			if (!$this->getDC()->isSelectSubmit())
+			{
+				$strPrevious = ((!is_null($this->getDC()->getCurrentCollecion()->get($i - 1))) ? $this->getDC()->getCurrentCollecion()->get($i - 1)->getID() : null);
+				$strNext = ((!is_null($this->getDC()->getCurrentCollecion()->get($i + 1))) ? $this->getDC()->getCurrentCollecion()->get($i + 1)->getID() : null);
+
+				$buttons = $this->generateButtons($objModel, $this->getDC()->getTable(), $this->getDC()->getRootIds(), false, null, $strPrevious, $strNext);
+
+				// Sortable table
+				if ($this->parentView['sorting'])
+				{
+					$buttons .= $this->renderViewParentButtons($objModel);
+				}
+
+				$objModel->setMeta(DCGE::MODEL_BUTTONS, $buttons);
+			}
+
+			$objModel->setMeta(DCGE::MODEL_LABEL_VALUE, $this->getDC()->getCallbackClass()->childRecordCallback($objModel));
+		}
+	}
+
+	/**
+	 * Render the herader of the parent view with information
+	 * from the parent table
+	 * 
+	 * @return array
+	 */
+	protected function renderViewParentFormattedHeaderFields()
+	{
+		$add = array();
+		$headerFields = $this->getDC()->arrDCA['list']['sorting']['headerFields'];
+
+		foreach ($headerFields as $v)
+		{
+			$_v = deserialize($this->getDC()->getCurrentParentCollection()->get(0)->getProperty($v));
+
+			if ($v != 'tstamp' || !isset($this->parentDca['fields'][$v]['foreignKey']))
+			{
+				if (is_array($_v))
+				{
+					$_v = implode(', ', $_v);
+				}
+				elseif ($this->parentDca['fields'][$v]['inputType'] == 'checkbox' && !$this->parentDca['fields'][$v]['eval']['multiple'])
+				{
+					$_v = strlen($_v) ? $GLOBALS['TL_LANG']['MSC']['yes'] : $GLOBALS['TL_LANG']['MSC']['no'];
+				}
+				elseif ($_v && $this->parentDca['fields'][$v]['eval']['rgxp'] == 'date')
+				{
+					$_v = $this->parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $_v);
+				}
+				elseif ($_v && $this->parentDca['fields'][$v]['eval']['rgxp'] == 'time')
+				{
+					$_v = $this->parseDate($GLOBALS['TL_CONFIG']['timeFormat'], $_v);
+				}
+				elseif ($_v && $this->parentDca['fields'][$v]['eval']['rgxp'] == 'datim')
+				{
+					$_v = $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $_v);
+				}
+				elseif (is_array($this->parentDca['fields'][$v]['reference'][$_v]))
+				{
+					$_v = $this->parentDca['fields'][$v]['reference'][$_v][0];
+				}
+				elseif (isset($this->parentDca['fields'][$v]['reference'][$_v]))
+				{
+					$_v = $this->parentDca['fields'][$v]['reference'][$_v];
+				}
+				elseif ($this->parentDca['fields'][$v]['eval']['isAssociative'] || array_is_assoc($this->parentDca['fields'][$v]['options']))
+				{
+					$_v = $this->parentDca['fields'][$v]['options'][$_v];
+				}
+			}
+
+			if ($v == 'tstamp')
+			{
+				$_v = date($GLOBALS['TL_CONFIG']['datimFormat'], $_v);
+			}
+
+			// Add the sorting field
+			if ($_v != '')
+			{
+				$key = isset($GLOBALS['TL_LANG'][$this->getDC()->getParentTable()][$v][0]) ? $GLOBALS['TL_LANG'][$this->getDC()->getParentTable()][$v][0] : $v;
+				$add[$key] = $_v;
+			}
+		}
+
+		// Trigger the header_callback
+		$arrHeaderCallback = $this->getDC()->getCallbackClass()->headerCallback($add);
+
+		if (!is_null($arrHeaderCallback))
+		{
+			$add = $arrHeaderCallback;
+		}
+
+		// Set header data
+		$arrHeader = array();
+		foreach ($add as $k => $v)
+		{
+			if (is_array($v))
+			{
+				$v = $v[0];
+			}
+
+			$arrHeader[$k] = $v;
+		}
+
+		return $arrHeader;
+	}
+
+	/**
+	 * @todo Update for clipboard
+	 * @param InterfaceGeneralModel $objModel
+	 * @return string
+	 */
+	protected function renderViewParentButtons($objModel)
+	{
+		$arrReturn = array();
+		$blnClipboard = $blnMultiboard = false;
+
+		$imagePasteAfter = $this->generateImage('pasteafter.gif', sprintf($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][1], $objModel->getID()), 'class="blink"');
+		$imagePasteNew = $this->generateImage('new.gif', sprintf($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pastenew'][1], $objModel->getID()));
+
+		// Create new button
+		if (!$this->getDC()->arrDCA['config']['closed'])
+		{
+			$arrReturn[] = ' <a href="' . $this->addToUrl('act=create&amp;mode=1&amp;pid=' . $objModel->getID() . '&amp;id=' . $this->getDC()->getCurrentParentCollection()->get(0)->getID()) . '" title="' . specialchars(sprintf($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pastenew'][1], $row[$i]['id'])) . '">' . $imagePasteNew . '</a>';
+		}
+
+		// TODO clipboard
+		// Prevent circular references
+		if ($blnClipboard && $arrClipboard['mode'] == 'cut' && $objModel->getID() == $arrClipboard['id'] || $blnMultiboard && $arrClipboard['mode'] == 'cutAll' && in_array($row[$i]['id'], $arrClipboard['id']))
+		{
+			$arrReturn[] = ' ' . $this->generateImage('pasteafter_.gif', '', 'class="blink"');
+		}
+
+		// TODO clipboard
+		// Copy/move multiple
+		elseif ($blnMultiboard)
+		{
+			$arrReturn[] = ' <a href="' . $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=1&amp;pid=' . $row[$i]['id']) . '" title="' . specialchars(sprintf($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][1], $row[$i]['id'])) . '" onclick="Backend.getScrollOffset()">' . $imagePasteAfter . '</a>';
+		}
+
+		// TODO clipboard
+		// Paste buttons
+		elseif ($blnClipboard)
+		{
+			$arrReturn[] = ' <a href="' . $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=1&amp;pid=' . $row[$i]['id'] . '&amp;id=' . $arrClipboard['id']) . '" title="' . specialchars(sprintf($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][1], $row[$i]['id'])) . '" onclick="Backend.getScrollOffset()">' . $imagePasteAfter . '</a>';
+		}
+
+		return implode('', $arrReturn);
+	}
+
+	//----------------------------------------------------------------------
+
 	/**
 	 * Generate list view from current collection
 	 *
@@ -461,78 +772,6 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		$objTemplate->tableHead = $this->getTableHead();
 		$objTemplate->notDeletable = $this->getDC()->arrDCA['config']['notDeletable'];
 		$objTemplate->notEditable = $this->getDC()->arrDCA['config']['notEditable'];
-
-		return $objTemplate->parse();
-	}
-
-	protected function parentView()
-	{
-		$this->parentView = array(
-		    'sorting' => $this->getDC()->arrDCA['list']['sorting']['fields'][0] == 'sorting'
-		);
-
-		if (is_null($this->getDC()->getParentTable()) || $this->getDC()->getCurrentParentCollection()->length() == 0)
-		{
-			return implode('', $arrReturn);
-		}
-
-		// Load language file and data container array of the parent table
-		$this->loadLanguageFile($this->getDC()->getParentTable());
-		$this->loadDataContainer($this->getDC()->getParentTable());
-
-		$objParentDC = new DC_General($this->getDC()->getParentTable());
-		$this->parentDca = $objParentDC->getDCA();
-
-		// Add template
-		$objTemplate = new BackendTemplate('dcbe_general_parentView');
-		$objTemplate->collection = $this->getDC()->getCurrentCollecion();
-		$objTemplate->select = $this->getDC()->isSelectSubmit();
-		$objTemplate->action = ampersand($this->Environment->request, true);
-		$objTemplate->mode = $this->getDC()->arrDCA['list']['sorting']['mode'];
-		$objTemplate->table = $this->getDC()->getTable();
-		$objTemplate->tableHead = $this->parentView['headerGroup'];
-		$objTemplate->header = $this->getParentViewFormattedHeaderFields();
-
-		// Get dataprovider from current and parent
-		$strCDP = $this->getDC()->getDataProvider('self')->getEmptyModel()->getProviderName();
-		$strPDP = $this->getDC()->getDataProvider('parent');
-
-		// Add parent provider if exsists
-		if ($strPDP != null)
-		{
-			$strPDP = $strPDP->getEmptyModel()->getProviderName();
-		}
-		else
-		{
-			$strPDP = '';
-		}
-
-		$objTemplate->pdp = $strPDP;
-		$objTemplate->cdp = $strCDP;
-
-		$this->setRecords();
-
-		$objTemplate->editHeader = array(
-		    'content' => $this->generateImage('edit.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['editheader'][0]),
-		    'href' => preg_replace('/&(amp;)?table=[^& ]*/i', (strlen($this->getDC()->getParentTable()) ? '&amp;table=' . $this->getDC()->getParentTable() : ''), $this->addToUrl('act=edit')),
-		    'title' => specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['editheader'][1])
-		);
-
-		$objTemplate->pasteNew = array(
-		    'content' => $this->generateImage('new.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0]),
-		    'href' => $this->addToUrl('act=create&amp;mode=2&amp;pid=' . $this->getDC()->getCurrentParentCollection()->get(0)->getID() . '&amp;id=' . $this->intId),
-		    'title' => specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pastenew'][0])
-		);
-
-		$objTemplate->pasteAfter = array(
-		    'content' => $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0], 'class="blink"'),
-		    'href' => $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=' . $this->getDC()->getCurrentParentCollection()->get(0)->getID() . (!$blnMultiboard ? '&amp;id=' . $arrClipboard['id'] : '')),
-		    'title' => specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0])
-		);
-
-		$objTemplate->notDeletable = $this->getDC()->arrDCA['config']['notDeletable'];
-		$objTemplate->notEditable = $this->getDC()->arrDCA['config']['notEditable'];
-		$objTemplate->notEditableParent = $this->parentDca['config']['notEditable'];
 
 		return $objTemplate->parse();
 	}
@@ -994,220 +1233,6 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
 	/* /////////////////////////////////////////////////////////////////////
 	 * ---------------------------------------------------------------------
-	 * parentView helper functions
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
-
-	protected function getParentViewFormattedHeaderFields()
-	{
-		$add = array();
-		$headerFields = $this->getDC()->arrDCA['list']['sorting']['headerFields'];
-
-		foreach ($headerFields as $v)
-		{
-			$_v = deserialize($this->getDC()->getCurrentParentCollection()->get(0)->getProperty($v));
-
-			if ($v != 'tstamp' || !isset($this->parentDca['fields'][$v]['foreignKey']))
-			{
-				if (is_array($_v))
-				{
-					$_v = implode(', ', $_v);
-				}
-				elseif ($this->parentDca['fields'][$v]['inputType'] == 'checkbox' && !$this->parentDca['fields'][$v]['eval']['multiple'])
-				{
-					$_v = strlen($_v) ? $GLOBALS['TL_LANG']['MSC']['yes'] : $GLOBALS['TL_LANG']['MSC']['no'];
-				}
-				elseif ($_v && $this->parentDca['fields'][$v]['eval']['rgxp'] == 'date')
-				{
-					$_v = $this->parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $_v);
-				}
-				elseif ($_v && $this->parentDca['fields'][$v]['eval']['rgxp'] == 'time')
-				{
-					$_v = $this->parseDate($GLOBALS['TL_CONFIG']['timeFormat'], $_v);
-				}
-				elseif ($_v && $this->parentDca['fields'][$v]['eval']['rgxp'] == 'datim')
-				{
-					$_v = $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $_v);
-				}
-				elseif (is_array($this->parentDca['fields'][$v]['reference'][$_v]))
-				{
-					$_v = $this->parentDca['fields'][$v]['reference'][$_v][0];
-				}
-				elseif (isset($this->parentDca['fields'][$v]['reference'][$_v]))
-				{
-					$_v = $this->parentDca['fields'][$v]['reference'][$_v];
-				}
-				elseif ($this->parentDca['fields'][$v]['eval']['isAssociative'] || array_is_assoc($this->parentDca['fields'][$v]['options']))
-				{
-					$_v = $this->parentDca['fields'][$v]['options'][$_v];
-				}
-			}
-			
-			if ($v == 'tstamp')
-			{
-				$_v = date($GLOBALS['TL_CONFIG']['datimFormat'], $_v);
-			}
-
-			// Add the sorting field
-			if ($_v != '')
-			{
-				$key = isset($GLOBALS['TL_LANG'][$this->getDC()->getParentTable()][$v][0]) ? $GLOBALS['TL_LANG'][$this->getDC()->getParentTable()][$v][0] : $v;
-				$add[$key] = $_v;
-			}
-		}
-
-		// Trigger the header_callback
-		$arrHeaderCallback = $this->getDC()->getCallbackClass()->headerCallback($add);
-
-		if (!is_null($arrHeaderCallback))
-		{
-			$add = $arrHeaderCallback;
-		}
-
-		// Set header data
-		$arrHeader = array();
-		foreach ($add as $k => $v)
-		{
-			if (is_array($v))
-			{
-				$v = $v[0];
-			}
-
-			$arrHeader[$k] = $v;
-		}
-
-		return $arrHeader;
-	}
-
-	protected function setRecords()
-	{
-		$strGroup = '';
-
-		for ($i = 0; $i < $this->getDC()->getCurrentCollecion()->length(); $i++)
-		{
-			$objModel = $this->getDC()->getCurrentCollecion()->get($i);
-
-			// TODO set current
-//                $this->current[] = $objModel->getID();
-			// Decrypt encrypted value
-			// TODO What is $table => never init
-			foreach ($objModel as $k => $v)
-			{
-				if ($this->getDC()->arrDCA['fields'][$k]['eval']['encrypt'])
-				{
-					$v = deserialize($v);
-
-					$this->import('Encryption');
-					$objModel->setProperty($k, $this->Encryption->decrypt($v));
-				}
-			}
-
-
-			// Add the group header
-			// ToDo: What the Fuck what is $orderBy
-			if (!$this->getDC()->arrDCA['list']['sorting']['disableGrouping'] && $this->getDC()->getFirstSorting() != 'sorting')
-			{
-
-				$orderBy = $this->getDC()->arrDCA['list']['sorting']['fields'];	
-								
-				// Default ASC
-				if(count($orderBy) == 0)
-				{
-					$sortingMode = 9;
-				}
-				// If the current First sorting is the default one use the global flag
-				else if( $this->getDC()->getFirstSorting() == $orderBy[0] )
-				{
-					$sortingMode = $this->getDC()->arrDCA['list']['sorting']['flag'];
-				}
-				// Use the fild flag, if given
-				else if ($this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'] != '')
-				{
-					$sortingMode = $this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'];
-				}
-				// Use the global as fallback
-				else
-				{
-					$sortingMode = $this->getDC()->arrDCA['list']['sorting']['flag'];
-				}
-
-				// TODO: Why such a big if ?
-//				$orderBy = $this->getDC()->arrDCA['list']['sorting']['fields'];				
-//				$sortingMode = (count($orderBy) == 1 && $this->getDC()->getFirstSorting() == $orderBy[0] && $this->getDC()->arrDCA['list']['sorting']['flag'] != '' && $this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'] == '') ? $this->getDC()->arrDCA['list']['sorting']['flag'] : $this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'];
-
-				$remoteNew = $this->getDC()->formatCurrentValue($this->getDC()->getFirstSorting(), $objModel->getProperty($this->getDC()->getFirstSorting()), $sortingMode);
-				$group = $this->getDC()->formatGroupHeader($this->getDC()->getFirstSorting(), $remoteNew, $sortingMode, $objModel);
-
-				if ($group != $strGroup)
-				{
-					$strGroup = $group;
-					$objModel->setMeta(DCGE::MODEL_GROUP_HEADER, $group);
-				}
-			}
-
-			$objModel->setMeta(DCGE::MODEL_CLASS, ($this->getDC()->arrDCA['list']['sorting']['child_record_class'] != '') ? ' ' . $this->getDC()->arrDCA['list']['sorting']['child_record_class'] : '');
-
-			// Regular buttons
-			if (!$this->getDC()->isSelectSubmit())
-			{
-				$strPrevious = ((!is_null($this->getDC()->getCurrentCollecion()->get($i - 1))) ? $this->getDC()->getCurrentCollecion()->get($i - 1)->getID() : null);
-				$strNext = ((!is_null($this->getDC()->getCurrentCollecion()->get($i + 1))) ? $this->getDC()->getCurrentCollecion()->get($i + 1)->getID() : null);
-
-				$buttons = $this->generateButtons($objModel, $this->getDC()->getTable(), $this->getDC()->getRootIds(), false, null, $strPrevious, $strNext);
-
-				// Sortable table
-				if ($this->parentView['sorting'])
-				{
-					$buttons .= $this->generateParentViewButtons($objModel);
-				}
-
-				$objModel->setMeta(DCGE::MODEL_BUTTONS, $buttons);
-			}
-
-			$objModel->setMeta(DCGE::MODEL_LABEL_VALUE, $this->getDC()->getCallbackClass()->childRecordCallback($objModel));
-		}
-	}
-
-	protected function generateParentViewButtons($objModel)
-	{
-		$arrReturn = array();
-		$blnClipboard = $blnMultiboard = false;
-
-		$imagePasteAfter = $this->generateImage('pasteafter.gif', sprintf($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][1], $objModel->getID()), 'class="blink"');
-		$imagePasteNew = $this->generateImage('new.gif', sprintf($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pastenew'][1], $objModel->getID()));
-
-		// Create new button
-		if (!$this->getDC()->arrDCA['config']['closed'])
-		{
-			$arrReturn[] = ' <a href="' . $this->addToUrl('act=create&amp;mode=1&amp;pid=' . $objModel->getID() . '&amp;id=' . $this->getDC()->getCurrentParentCollection()->get(0)->getID()) . '" title="' . specialchars(sprintf($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pastenew'][1], $row[$i]['id'])) . '">' . $imagePasteNew . '</a>';
-		}
-
-		// TODO clipboard
-		// Prevent circular references
-		if ($blnClipboard && $arrClipboard['mode'] == 'cut' && $objModel->getID() == $arrClipboard['id'] || $blnMultiboard && $arrClipboard['mode'] == 'cutAll' && in_array($row[$i]['id'], $arrClipboard['id']))
-		{
-			$arrReturn[] = ' ' . $this->generateImage('pasteafter_.gif', '', 'class="blink"');
-		}
-
-		// TODO clipboard
-		// Copy/move multiple
-		elseif ($blnMultiboard)
-		{
-			$arrReturn[] = ' <a href="' . $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=1&amp;pid=' . $row[$i]['id']) . '" title="' . specialchars(sprintf($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][1], $row[$i]['id'])) . '" onclick="Backend.getScrollOffset()">' . $imagePasteAfter . '</a>';
-		}
-
-		// TODO clipboard
-		// Paste buttons
-		elseif ($blnClipboard)
-		{
-			$arrReturn[] = ' <a href="' . $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=1&amp;pid=' . $row[$i]['id'] . '&amp;id=' . $arrClipboard['id']) . '" title="' . specialchars(sprintf($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][1], $row[$i]['id'])) . '" onclick="Backend.getScrollOffset()">' . $imagePasteAfter . '</a>';
-		}
-
-		return implode('', $arrReturn);
-	}
-
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
 	 * listView helper functions
 	 * ---------------------------------------------------------------------
 	 * ////////////////////////////////////////////////////////////////// */
@@ -1274,15 +1299,15 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
 				// Get the current value of first sorting
 				$current = $objModelRow->getProperty($this->getDC()->getFirstSorting());
-				$orderBy = $this->getDC()->arrDCA['list']['sorting']['fields'];	
-								
+				$orderBy = $this->getDC()->arrDCA['list']['sorting']['fields'];
+
 				// Default ASC
-				if(count($orderBy) == 0)
+				if (count($orderBy) == 0)
 				{
 					$sortingMode = 9;
 				}
 				// If the current First sorting is the default one use the global flag
-				else if( $this->getDC()->getFirstSorting() == $orderBy[0] )
+				else if ($this->getDC()->getFirstSorting() == $orderBy[0])
 				{
 					$sortingMode = $this->getDC()->arrDCA['list']['sorting']['flag'];
 				}
@@ -1472,10 +1497,11 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
 		// Check if we have the select mode
 		if (!$this->getDC()->isSelectSubmit())
-		{			
+		{
 			// Add Buttons for mode x
 			switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
 			{
+				case 0:
 				case 1:
 				case 2:
 				case 3:
@@ -1573,6 +1599,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		{
 			switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
 			{
+				case 0:
 				case 1:
 				case 2:
 				case 3:

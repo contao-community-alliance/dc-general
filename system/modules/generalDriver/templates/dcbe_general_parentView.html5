@@ -1,110 +1,114 @@
 <?php if ($this->select): ?>
 
-    <form action="<?php echo $this->action; ?>" id="tl_select" class="tl_form" method="post">
-        <div class="tl_formbody">
-            <input type="hidden" name="FORM_SUBMIT" value="tl_select">
-            <input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>">
+	<form action="<?php echo $this->action; ?>" id="tl_select" class="tl_form" method="post">
+		<div class="tl_formbody">
+			<input type="hidden" name="FORM_SUBMIT" value="tl_select">
+			<input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>">
 
-        <?php endif; ?>
+		<?php endif; ?>
 
-        <div class="tl_listing_container parent_view">
+		<div class="tl_listing_container parent_view">
 
-            <div class="tl_header" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
+			<div class="tl_header" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
 
-                <div class="tl_content_right">
+				<div class="tl_content_right">
 
-                    <?php if ($this->select): ?>
-                        <label for="tl_select_trigger" class="tl_select_label"><?php echo $GLOBALS['TL_LANG']['MSC']['selectAll']; ?></label>
-                        <input type="checkbox" id="tl_select_trigger" onclick="Backend.toggleCheckboxes(this)" class="tl_tree_checkbox">
-                    <?php else: ?>
+					<?php if ($this->select): ?>
 
-                        <?php if (!$this->notEditableParent): ?>
-                            <a href="<?php echo $this->pasteNew['href']; ?>" title="<?php echo $this->pasteNew['title']; ?>"><?php echo $this->pasteNew['content']; ?></a>
-                        <?php endif; ?>
+						<label for="tl_select_trigger" class="tl_select_label"><?php echo $GLOBALS['TL_LANG']['MSC']['selectAll']; ?></label>
+						<input type="checkbox" id="tl_select_trigger" onclick="Backend.toggleCheckboxes(this)" class="tl_tree_checkbox">
 
-                        <?php if ($blnHasSorting && !$GLOBALS['TL_DCA'][$this->strTable]['config']['closed']): ?>
-                            <a href="<?php echo $this->pasteAfter['href']; ?>" title="<?php echo $this->pasteAfter['href']; ?>"><?php echo $this->pasteAfter['href']; ?></a>
-                        <?php endif; ?>
+					<?php else: ?>
 
-                        <?php if ($blnClipboard): ?>
-                            <a href="<?php echo $this->editHeader['href']; ?>" title="<?php echo $this->editHeader['href']; ?>" onclick="Backend.getScrollOffset()"><?php echo $this->editHeader['href']; ?></a>
-                        <?php endif; ?>
+						<?php if (!$this->notEditableParent): ?>
+							<a href="<?php echo $this->editHeader['href']; ?>" title="<?php echo $this->editHeader['title']; ?>" onclick="Backend.getScrollOffset()"><?php echo $this->editHeader['content']; ?></a>
+						<?php endif; ?>
+							
+						<?php if (!$this->notEditable): ?>
+							<a href="<?php echo $this->pasteNew['href']; ?>" title="<?php echo $this->pasteNew['title']; ?>"><?php echo $this->pasteNew['content']; ?></a>
+						<?php endif; ?>
 
-                    <?php endif; ?>
+						<?php if ($this->clipboard): ?>
+							<a href="<?php echo $this->pasteAfter['href']; ?>" title="<?php echo $this->pasteAfter['title']; ?>"><?php echo $this->pasteAfter['content']; ?></a>
+						<?php endif; ?>
 
-                </div>
+					<?php endif; ?>
 
+				</div>
 
+				<table class="tl_header_table">
 
-                <table class="tl_header_table">
+					<?php foreach ($this->header as $key => $value): ?>
+						<tr>
+							<td><span class="tl_label"><?php echo $key; ?></span> </td>
+							<td><?php echo $value; ?></td>
+						</tr>
+					<?php endforeach; ?>
 
-                    <?php foreach ($this->header as $key => $value): ?>
-                        <tr>
-                            <td><span class="tl_label"><?php echo $key; ?></span> </td>
-                            <td><?php echo $value; ?></td>
-                        </tr>
-                    <?php endforeach; ?>
+				</table>
 
-                </table>
+			</div>     
 
-            </div>       
-            <ul id="ul_<?php echo CURRENT_ID; ?>" class="sortable">
-                    <?php foreach ($this->collection as $objModel): ?>
+			<?php if ($this->hasSorting): ?><ul id="ul_<?php echo CURRENT_ID; ?>" class="sortable"><?php endif; ?>	
 
+				<?php foreach ($this->collection as $objModel): ?>
 
-                    <li id="li_<?php echo $objModel->getID(); ?>">
+					<?php if ($this->hasSorting): ?><li id="li_<?php echo $objModel->getID(); ?>"><?php endif; ?>	
 
+						<?php if (strlen($objModel->getMeta(DCGE::MODEL_GROUP_HEADER)) > 0): ?>
+							<div class="tl_content_header"><?php echo $objModel->getMeta(DCGE::MODEL_GROUP_HEADER); ?></div>
+						<?php endif; ?>
 
-                        <?php if (strlen($objModel->getMeta(DCGE::MODEL_GROUP_HEADER)) > 0): ?>
-                            <div class="tl_content_header"><?php echo $objModel->getMeta(DCGE::MODEL_GROUP_HEADER); ?></div>
-                        <?php endif; ?>
+						<div class="tl_content<?php echo $objModel->getMeta(DCGE::MODEL_CLASS); ?>" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
+							<div class="tl_content_right">
 
-                        <div class="tl_content<?php echo $objModel->getMeta(DCGE::MODEL_CLASS); ?>" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
-                            <div class="tl_content_right">
+								<?php if ($this->select): ?>
+									<input type="checkbox" name="IDS[]" id="ids_<?php echo $objModel->getID(); ?>" class="tl_tree_checkbox" value="<?php echo $objModel->getID(); ?>">
+								<?php endif; ?>
 
-                                <?php if ($this->select): ?>
-                                    <input type="checkbox" name="IDS[]" id="ids_<?php echo $objModel->getID(); ?>" class="tl_tree_checkbox" value="<?php echo $objModel->getID(); ?>">
-                                <?php endif; ?>
+								<?php echo $objModel->getMeta(DCGE::MODEL_BUTTONS); ?>
 
-                                <?php echo $objModel->getMeta(DCGE::MODEL_BUTTONS); ?>
+							</div>
 
-                            </div>
+							<?php echo $objModel->getMeta(DCGE::MODEL_LABEL_VALUE); ?>
+						</div>
+						<?php if ($this->hasSorting): ?></li><?php endif; ?>	
+				<?php endforeach; ?>
 
-                            <?php echo $objModel->getMeta(DCGE::MODEL_LABEL_VALUE); ?>
+				<?php if ($this->hasSorting): ?></ul><?php endif; ?>	
 
-                        </li>
-                        <?php endforeach; ?>
+			<?php if ($this->collection->length() == 0): ?>
 
-            </ul>
-            <?php if ($this->collection->length() == 0): ?>
+				<p class="tl_empty_parent_view"><?php echo $GLOBALS['TL_LANG']['MSC']['noResult']; ?></p>
 
-                <p class="tl_empty_parent_view"><?php echo $GLOBALS['TL_LANG']['MSC']['noResult']; ?></p>
+			<?php elseif($this->hasSorting): ?>
 
-            <?php else: ?>
+				<script>
+					BackendGeneral.makeParentViewSortable("ul_<?php echo CURRENT_ID; ?>", "<?php echo $this->cdp; ?>", "<?php echo $this->pdp; ?>");
+				</script>
 
-                <script>
-                    BackendGeneral.makeParentViewSortable("ul_<?php echo CURRENT_ID; ?>", "<?php echo $this->cdp; ?>", "<?php echo $this->pdp; ?>");
-                </script>
+			<?php endif; ?>
+		</div>
 
-            <?php endif; ?>
-        </div>
+		<?php if ($this->select): ?>
 
-        <?php if ($this->select): ?>
-            <div class="tl_formbody_submit" style="text-align:right">
-                <div class="tl_submit_container">
-                    <?php if ($this->notDeletable): ?>
-                        <input type="submit" name="delete" id="delete" class="tl_submit" accesskey="d" onclick="return confirm('<?php echo $GLOBALS['TL_LANG']['MSC']['delAllConfirm']; ?>')" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['deleteSelected']); ?>">
-                    <?php endif; ?>
-                    <input type="submit" name="cut" id="cut" class="tl_submit" accesskey="x" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['moveSelected']); ?>">
-                    <input type="submit" name="copy" id="copy" class="tl_submit" accesskey="c" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['copySelected']); ?>">
-                    <?php if ($this->notEditable): ?>
-                        <input type="submit" name="override" id="override" class="tl_submit" accesskey="v" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['overrideSelected']); ?>">
-                        <input type="submit" name="edit" id="edit" class="tl_submit" accesskey="s" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['editSelected']); ?>">
-                    <?php endif; ?>
-                </div>
+			<div class="tl_formbody_submit" style="text-align:right">
+				<div class="tl_submit_container">
+					<?php if ($this->notDeletable): ?>
+						<input type="submit" name="delete" id="delete" class="tl_submit" accesskey="d" onclick="return confirm('<?php echo $GLOBALS['TL_LANG']['MSC']['delAllConfirm']; ?>')" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['deleteSelected']); ?>">
+					<?php endif; ?>
+					<input type="submit" name="cut" id="cut" class="tl_submit" accesskey="x" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['moveSelected']); ?>">
+					<input type="submit" name="copy" id="copy" class="tl_submit" accesskey="c" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['copySelected']); ?>">
+					<?php if ($this->notEditable): ?>
+						<input type="submit" name="override" id="override" class="tl_submit" accesskey="v" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['overrideSelected']); ?>">
+						<input type="submit" name="edit" id="edit" class="tl_submit" accesskey="s" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['editSelected']); ?>">
 
-            </div>
-        </div>
-    </form>
+					<?php endif; ?>
+
+				</div>
+
+			</div>
+		</div>
+	</form>
 
 <?php endif; ?>

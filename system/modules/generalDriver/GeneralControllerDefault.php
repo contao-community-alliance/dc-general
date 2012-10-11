@@ -1213,7 +1213,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				break;
 
 			case 4:
-				$this->parentView();
+				$this->viewParent();
 				break;
 
 			case 5:
@@ -2096,7 +2096,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 * Show header of the parent table and list all records of the current table
 	 * @return string
 	 */
-	protected function parentView()
+	protected function viewParent()
 	{
 		if (!CURRENT_ID)
 		{
