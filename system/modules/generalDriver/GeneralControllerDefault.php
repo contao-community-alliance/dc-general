@@ -2458,7 +2458,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		{
 			$blnIsMaxResultsPerPage = true;
 			$GLOBALS['TL_CONFIG']['resultsPerPage'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
-			$arrSession['filter'][$strFilter]['limit'] = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
+			$arrSession['filter'][$strFilter]['limit'] = '0,' . $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
 		}
 
 		// Build options
