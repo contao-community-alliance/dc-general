@@ -2492,7 +2492,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				);
 			}
 
-			if (!$blnIsMaxResultsPerPage)
+			if ($blnIsMaxResultsPerPage)
 			{
 				$arrLimit = trimsplit(',', $this->getDC()->getLimit());
 
