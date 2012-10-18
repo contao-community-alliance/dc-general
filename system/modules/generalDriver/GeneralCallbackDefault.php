@@ -473,6 +473,30 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 	}
 
 	/**
+	 * Call the onsave_callback
+	 *
+	 * @param InterfaceGeneralModel $objModel The model that has been updated.
+	 *
+	 * @return void
+	 */
+	public function onsaveCallback($objModel)
+	{
+		// Load DCA
+		$arrDCA = $this->getDC()->getDCA();
+
+		// Call the oncreate_callback
+		if (is_array($arrDCA['config']['onsave_callback']))
+		{
+			foreach ($arrDCA['config']['onsave_callback'] as $callback)
+			{
+				$this->import($callback[0]);
+				$this->$callback[0]->$callback[1]($objModel, $this->getDC());
+			}
+		}
+	}
+
+
+	/**
 	 * Get the current pallette
 	 *
 	 * @param DC_General $objDC

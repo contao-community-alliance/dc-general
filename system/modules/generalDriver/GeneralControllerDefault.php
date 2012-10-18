@@ -41,7 +41,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 	/**
 	 * Current DC General
-	 * 
+	 *
 	 * @var DC_General
 	 */
 	protected $objDC = null;
@@ -137,12 +137,12 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 	/**
 	 * Get filter for the data provider
-	 * 
+	 *
 	 * @todo Somtimes we don't need all filtersettings
 	 * @todo add new var like level = all, root, parent etc.
 	 * @todo check where we use this.
 	 * @todo it`s a nice function, maybe a core function ?
-	 * 
+	 *
 	 * @return array();
 	 */
 	protected function getFilter()
@@ -210,7 +210,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 	/**
 	 * Get limit for the data provider
-	 * 
+	 *
 	 * @return array
 	 */
 	protected function calculateLimit()
@@ -632,7 +632,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 * id		- Parent child ID used for redirect <br/>
 	 * pid		- ID of the parent used in list mode 4,5 <br/>
 	 * source	- ID of the element which should moved <br/>
-	 * <br/>	
+	 * <br/>
 	 * pdp		- Parent Data Provider real name <br/>
 	 * cdp		- Current Data Provider real name <br/>
 	 * <br/>
@@ -657,7 +657,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		// Deprecated
 		$intMode = $this->Input->get('mode');
 		$mixChild = $this->Input->get('child');
-		
+
 		// Check basic vars
 		if (empty($mixSource) || ( empty($mixAfter) && empty($mixInto) ) || empty($strCDP))
 		{
@@ -694,7 +694,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		// Load the source model
 		$objSrcModel = $objCurrentDataProvider->fetch($objCurrentDataProvider->getEmptyConfig()->setId($mixSource));
-		
+
 		// Check mode
 		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
 		{
@@ -1369,8 +1369,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			$this->redirect($this->getReferer());
 		}
 
-		$this->getDC()->updateModelFromPOST();
-
 		// if we may not store the value, we keep the changes
 		// in the current model and return (DO NOT SAVE!).
 		if ($this->getDC()->isNoReload() == true)
@@ -1390,6 +1388,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 //        $this->getNewPosition($objDBModel, 'create', null, false);
 		// everything went ok, now save the new record
 		$this->getDC()->getDataProvider()->save($objDBModel);
+		// Callback
+		$this->getDC()->getCallbackClass()->onsaveCallback($objDBModel);
 
 		// Check if versioning is enabled
 		if (isset($this->getDC()->arrDCA['config']['enableVersioning']) && $this->getDC()->arrDCA['config']['enableVersioning'] == true)
@@ -1473,7 +1473,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 			// Add to the start of elements
 			if ($mixAfter == DCGE::INSERT_AFTER_START)
-			{				
+			{
 				$objFirstElement = $objCollection->get(0);
 
 				if (is_null($objFirstElement))
@@ -1497,7 +1497,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			}
 			// Add to the end of element
 			else if ($mixAfter == DCGE::INSERT_AFTER_END)
-			{					
+			{
 				$objCollection->reverse();
 				$objLastElement = $objCollection->get(0);
 
@@ -1509,7 +1509,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			}
 			// Add after a element
 			else if (!empty($mixAfter))
-			{					
+			{
 				foreach ($objCollection as $value)
 				{
 					// After we have it, get the next sorting and break out
@@ -1525,14 +1525,14 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 						$intSortingAfter = $value->getProperty('sorting');
 					}
 				}
-				
+
 				if ($intSortingNext == 0)
 				{
 					$intSortingNext = $intSortingAfter + 128;
 				}
-				
+
 				$intNewSorting = $intSortingAfter + round(($intSortingNext - $intSortingAfter) / 2);
-								
+
 				if ($intNewSorting <= $intSortingAfter || $intNewSorting >= $intSortingNext)
 				{
 					$objConfig = $objCDP->getEmptyConfig();
@@ -1566,7 +1566,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				{
 					$objConfig = $objCDP->getEmptyConfig();
 					$objConfig->setFilter($this->getFilter());
-					
+
 					$this->reorderSorting($objConfig);
 					$this->getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $mixInto, $strMode, $mixParentID, $intInsertMode);
 					return;
@@ -1581,7 +1581,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			}
 		}
 		else if ($strMode == 'create')
-		{			
+		{
 //			// Default - Add to end off all
 //			// Search for the highest sorting
 //			$objConfig = $objCDP->getEmptyConfig();
@@ -1606,7 +1606,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		return;
 
-		
+
 	}
 
 	protected function reorderSorting($objConfig)
@@ -1757,13 +1757,13 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 	/**
 	 * Conrtorller funktion for Mode 0,1,2,3
-	 * 
+	 *
 	 * @todo set global current in DC_General
 	 * @todo $strTable is unknown
 	 */
 	protected function listView()
 	{
-		// Setup		
+		// Setup
 		$objCurrentDataProvider = $this->getDC()->getDataProvider();
 		$objParrentDataProvider = $this->getDC()->getDataProvider('parent');
 
@@ -1783,9 +1783,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		/* $this->current[] = $objModelRow->getProperty('id'); */
 //		foreach ($objCollection as $objModel)
 //		{
-//			
+//
 //		}
-//		
+//
 		// Rename each pid to its label and resort the result (sort by parent table)
 		if ($this->getDC()->arrDCA['list']['sorting']['mode'] == 3)
 		{
@@ -2136,9 +2136,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 	/**
 	 * Check all submits from the panels. Save all vlaues into the Session.
-	 * Relod the Website. 
-	 * 
-	 * @return void 
+	 * Reload the Website.
+	 *
+	 * @return void
 	 */
 	protected function checkPanelSubmit()
 	{
@@ -2245,9 +2245,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 	/**
 	 * Get all Informations for the panels.
-	 * 
+	 *
 	 * @WTF: Why we have 3 funtions for checking the panles submits?
-	 * @todo CRY 
+	 * @todo CRY
 	 * @todo Remove all checks for post and so on only build data.
 	 * @todo Save all information about panels in Session. Not in DC General
 	 * @todo Remove all functions, vars for Panels from DC General
@@ -2322,7 +2322,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 	/**
 	 * Generate all information for the filter panel.
-	 * 
+	 *
 	 * @param type $type
 	 * @return type
 	 */
