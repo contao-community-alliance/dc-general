@@ -209,7 +209,7 @@ class GeneralDataConfigDefault implements InterfaceGeneralDataConfig
 	/**
 	 * Set the list with all sortings
 	 * 
-	 * @return array
+	 * @return string[string] all columns with direction colname => ASC|DESC
 	 * @return GeneralDataConfigDefault
 	 */
 	public function setSorting($arrSorting)

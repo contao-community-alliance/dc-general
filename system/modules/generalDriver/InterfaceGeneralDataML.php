@@ -26,6 +26,7 @@
  * @license    GNU/LGPL
  * @filesource
  */
+// ToDo: Change to InterfaceGeneralDataMultiLanguage
 interface InterfaceGeneralDataML extends InterfaceGeneralData
 {
 

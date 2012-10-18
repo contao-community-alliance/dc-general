@@ -508,6 +508,7 @@ class GeneralDataDefault implements InterfaceGeneralData
 	 */
 	public function fetchEach(GeneralDataConfigDefault $objConfig)
 	{
+		// TODO: @SH: merge into fetchAll and get rid of this monster.
 		$arrSorting = $objConfig->getSorting();
 		$strFields = '*';
 
