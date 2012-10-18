@@ -125,8 +125,15 @@ class DCGE
 	const MODEL_GROUP_HEADER = '%header%';
 	const MODEL_GROUP_VALUE = '%group%';
 	const MODEL_CLASS = '%class%';
+	
+	/**
+	 * State if the model is changed
+	 */
+	const MODEL_IS_CHANGED = 'isChanged';
 
-	//todo: merge with MODEL_CLASS?
+
+
+			//todo: merge with MODEL_CLASS?
 	const MODEL_EVEN_ODD_CLASS = '%rowClass%';
 
 	/**

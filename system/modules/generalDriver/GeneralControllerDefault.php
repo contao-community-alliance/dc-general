@@ -1356,7 +1356,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 * Therefore the current submitted data will be stored within the model but only on
 	 * success also be saved into the DB.
 	 *
-	 * @return bool|InterfaceGeneralModel Model if the save operation was successful, false otherwise.
+	 * @return bool|InterfaceGeneralModel Model if the save operation was successful or unnecessary, false otherwise.
 	 */
 	protected function doSave()
 	{
@@ -1387,6 +1387,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 //        $this->getNewPosition($objDBModel, 'create', null, false);
 		// everything went ok, now save the new record
+		if (!$objDBModel->getMeta(DCGE::MODEL_IS_CHANGED))
+		{
+			return $objDBModel;
+		}
 		$this->getDC()->getDataProvider()->save($objDBModel);
 		// Callback
 		$this->getDC()->getCallbackClass()->onsaveCallback($objDBModel);
