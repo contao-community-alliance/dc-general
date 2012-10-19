@@ -173,6 +173,10 @@ class GeneralDataDefault implements InterfaceGeneralData
 	 * IN
 	 *                'property'           string (the name of a property)
 	 *                'values'             array of literal
+	 * 
+	 * LIKE			  
+	 *				  'property'		   string (the name of a property)
+	 *			      'value'              literal - Wildcards * (Many) ? (One)
 	 *
 	 * @param array $arrFilters the filter to be combined to a valid SQL filter query.
 	 *
@@ -210,6 +214,11 @@ class GeneralDataDefault implements InterfaceGeneralData
 				$arrParams = array_merge($arrParams, array_values($arrFilter['values']));
 				$strWildcards = rtrim(str_repeat('?,', count($arrFilter['values'])), ',');
 				return sprintf('(%s IN (%s))', $arrFilter['property'], $strWildcards);
+				
+			case 'LIKE':
+				$strWildcards = str_replace(array('*', '?'), array('%', '_'), $arrFilter['value']);				
+				$arrParams[] = $strWildcards;
+				return sprintf('(%s LIKE "?")', $arrFilter['property'], $strWildcards);				
 
 			default:
 				throw new Exception('Error processing filter array ' . var_export($arrFilter, true), 1);
@@ -229,7 +238,6 @@ class GeneralDataDefault implements InterfaceGeneralData
 		$arrQuery = array();
 
 		$arrQuery['filter'] = $this->buildFilterQuery($objConfig, $arrParams);
-		$arrQuery['search'] = $this->buildSearchQuery($objConfig, $arrParams);
 
 		$arrQuery = array_filter($arrQuery, 'strlen');
 
@@ -256,54 +264,6 @@ class GeneralDataDefault implements InterfaceGeneralData
 
 		// combine filter syntax.
 		return $strReturn ? $strReturn : '';
-	}
-
-	/**
-	 * 
-	 * @param InterfaceGeneralDataConfig $objConfig
-	 * @return string Query String
-	 */
-	protected function buildSearchQuery($objConfig, array &$arrParams = null)
-	{
-		if (!is_array($objConfig->getSearch()))
-		{
-			return '';
-		}
-
-		$arrReturn = array();
-
-		foreach ($objConfig->getSearch() as $arrSearch)
-		{
-			$strField = $arrSearch['field'];
-			
-			if(!$this->fieldExists($strField))
-			{
-				continue;
-			}
-			
-			$arrReturn[$strField] = ' ' . $strField;
-			
-			switch ($arrSearch['mode'])
-			{
-				default:
-				case DCGE::DP_MODE_DEFAULT:
-					$arrParams[] = $arrSearch['value'];
-					$arrReturn[$strField] = ' = ?';
-					break;
-
-				case DCGE::DP_MODE_LIKE:
-					$arrParams[] = '%' . $arrSearch['value'] . '%';
-					$arrReturn[$strField] = ' LIKE ?';
-					break;
-
-				case DCGE::DP_MODE_REGEX:
-					$arrParams[] = $arrSearch['value'];
-					$arrReturn[$strField] = ' REGEX ?';
-					break;
-			}
-		}
-
-		return count($arrReturn) ? implode(' AND ', $arrReturn) : '';
 	}
 
 	/**
