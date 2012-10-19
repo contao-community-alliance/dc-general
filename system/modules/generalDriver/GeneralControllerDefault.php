@@ -400,7 +400,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$objDataProvider = $this->getDC()->getDataProvider();
 
 		// Check if current dataprovider supports multilanguage
-		if (in_array('InterfaceGeneralDataML', class_implements($objDataProvider)))
+		if (in_array('InterfaceGeneralDataMultiLanguage', class_implements($objDataProvider)))
 		{
 			$objLanguagesSupported = $this->getDC()->getDataProvider()->getLanguages($intID);
 		}

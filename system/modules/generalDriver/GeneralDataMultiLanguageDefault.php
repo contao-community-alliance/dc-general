@@ -30,8 +30,7 @@ if (!defined('TL_ROOT'))
  * @license    GNU/LGPL
  * @filesource
  */
-// ToDo: Change to GeneralDataMultiLanguageDefault implements InterfaceGeneralDataMultiLanguage
-class GeneralDataMultiLanguage extends GeneralDataDefault implements InterfaceGeneralDataML
+class GeneralDataMultiLanguageDefault extends GeneralDataDefault implements InterfaceGeneralDataMultiLanguage
 {
 
 	protected $strCurrentLanguage;
