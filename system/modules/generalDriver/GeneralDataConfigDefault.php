@@ -199,7 +199,7 @@ class GeneralDataConfigDefault implements InterfaceGeneralDataConfig
 	/**
 	 * Get the list with all sortings
 	 * 
-	 * @return array 
+	 * @return string[string] all columns with direction colname => ASC|DESC
 	 */
 	public function getSorting()
 	{
@@ -209,7 +209,6 @@ class GeneralDataConfigDefault implements InterfaceGeneralDataConfig
 	/**
 	 * Set the list with all sortings
 	 * 
-	 * @return string[string] all columns with direction colname => ASC|DESC
 	 * @return GeneralDataConfigDefault
 	 */
 	public function setSorting($arrSorting)
@@ -273,41 +272,4 @@ class GeneralDataConfigDefault implements InterfaceGeneralDataConfig
 
 		return $this;
 	}
-
-	/**
-	 * Get the current configurationset with search parameter
-	 * 
-	 * @return array $arrSeach
-	 */
-	public function getSearch()
-	{
-		return $this->arrSearch;
-	}
-
-	/**
-	 * <p>Set a configurationset with search parameter</p>
-	 * <p>Array Description:<br/>
-	 * Mode - When the mode is unknown or unsupportet the system will use the Default mode.<br/>
-	 * See in the DCGE.php. There are some const vars vor mode, calles DP_MODE_*
-	 * </p>
-	 * <pre>
-	 * array(
-	 * 	[key] => array(
-	 * 		'field'	=> [Name of field in DataProvider]
-	 * 		'mode'  => [Mode for the search. Params are: 'like', 'REGEX', '']
-	 * 		'value'	=> [The value for the search]
-	 * 	)
-	 * );
-	 * </pre>
-	 * 
-	 * @param array $arrSeach
-	 * @return GeneralDataConfigDefault
-	 */
-	public function setSearch($arrSeach)
-	{
-		$this->arrSearch = (array) $arrSeach;
-
-		return $this;
-	}
-
 }
