@@ -500,7 +500,10 @@ class GeneralDataDefault implements InterfaceGeneralData
 	}
 
 	/**
-	 * Fetch multiple records by ids.
+	 * Fetch multiple records.
+	 * Use the fetchAll instead of fetchEach
+	 * 
+	 * @deprecated since version now
 	 *
 	 * @param GeneralDataConfigDefault $objConfig
 	 *
@@ -508,82 +511,7 @@ class GeneralDataDefault implements InterfaceGeneralData
 	 */
 	public function fetchEach(GeneralDataConfigDefault $objConfig)
 	{
-		// TODO: @SH: merge into fetchAll and get rid of this monster.
-		$arrSorting = $objConfig->getSorting();
-		$strFields = '*';
-
-		if (!is_null($objConfig->getFields()))
-		{
-			$strFields = implode('', $objConfig->getFields());
-
-			if (!stristr($strFields, 'DISTINCT'))
-			{
-				$strFields = 'id, ' . $strFields;
-			}
-		}
-
-		if (!is_array($objConfig->getIds()) || count($objConfig->getIds()) == 0)
-		{
-			$query = "SELECT " . $strFields . " FROM $this->strSource";
-		}
-		else
-		{
-			$query = "SELECT " . $strFields . " FROM $this->strSource WHERE id IN(" . implode(', ', $objConfig->getIds()) . ")";
-		}
-
-		if (!is_null($arrSorting) && is_array($arrSorting) && count($arrSorting) > 0)
-		{
-			$strSortOrder = '';
-
-			foreach ($arrSorting AS $key => $mixedField)
-			{
-				if (is_array($mixedField))
-				{
-					if ($mixedField['action'] == 'findInSet')
-					{
-						$arrSorting[$key] = $this->objDatabase->findInSet($mixedField['field'], $mixedField['keys']);
-					}
-				}
-
-				if ($key === 'sortOrder')
-				{
-					$strSortOrder = $mixedField;
-					unset($arrSorting[$key]);
-				}
-			}
-
-			$query .= " ORDER BY " . implode(', ', $arrSorting) . $strSortOrder;
-		}
-
-		$arrResult = $this->objDatabase
-			->prepare($query)
-			->execute()
-			->fetchAllAssoc();
-
-		$objCollection = $this->getEmptyCollection();
-
-		if (count($arrResult) == 0)
-		{
-			return $objCollection;
-		}
-
-		foreach ($arrResult as $key => $arrValue)
-		{
-			$objModel = $this->getEmptyModel();
-			foreach ($arrValue as $key => $value)
-			{
-				if ($key == "id")
-				{
-					$objModel->setID($value);
-				}
-
-				$objModel->setProperty($key, $value);
-			}
-
-			$objCollection->add($objModel);
-		}
-
-		return $objCollection;
+		return $this->fetchAll($objConfig);		
 	}
 
 	/**
