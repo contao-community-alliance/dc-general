@@ -256,61 +256,79 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	protected function getListViewSorting()
 	{
 		$mixedOrderBy = $this->getDC()->arrDCA['list']['sorting']['fields'];
+		$arrReturn = array();
 
+		// Check if current sorting is set
 		if (is_null($this->getDC()->getFirstSorting()))
 		{
 			$this->getDC()->setFirstSorting(preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]));
 		}
 
-		// Check if current sorting is set
 		if (!is_null($this->getDC()->getSorting()))
 		{
 			$mixedOrderBy = $this->getDC()->getSorting();
 		}
 
+		// ToDo: SH: DCA['fields'][$strField]['eval']['findInSet'] impl.
+
 		if (is_array($mixedOrderBy) && $mixedOrderBy[0] != '')
 		{
 			foreach ($mixedOrderBy as $key => $strField)
 			{
-				if ($this->getDC()->arrDCA['fields'][$strField]['eval']['findInSet'])
+//				if ($this->getDC()->arrDCA['fields'][$strField]['eval']['findInSet'])
+//				{
+//					$arrOptionsCallback = $this->getDC()->getCallbackClass()->optionsCallback($strField);
+//
+//					if (!is_null($arrOptionsCallback))
+//					{
+//						$keys = $arrOptionsCallback;
+//					}
+//					else
+//					{
+//						$keys = $this->getDC()->arrDCA['fields'][$strField]['options'];
+//					}
+//
+//					// ToDo: SH|CS: What is this => never seen in docu
+//					if ($this->getDC()->arrDCA['fields'][$strField]['eval']['isAssociative'] || array_is_assoc($keys))
+//					{
+//						$keys = array_keys($keys);
+//					}
+//
+//					$mixedOrderBy[$key] = array(
+//					    'field' => $strField,
+//					    'keys' => $keys,
+//					    'action' => 'findInSet'
+//					);
+//				}
+				// Global
+				if ($this->getDC()->arrDCA['list']['sorting']['flag'] % 1 == 0)
 				{
-					$arrOptionsCallback = $this->getDC()->getCallbackClass()->optionsCallback($strField);
-
-					if (!is_null($arrOptionsCallback))
-					{
-						$keys = $arrOptionsCallback;
-					}
-					else
-					{
-						$keys = $this->getDC()->arrDCA['fields'][$strField]['options'];
-					}
-
-					// ToDo: SH|CS: What is this => never seen in docu
-					if ($this->getDC()->arrDCA['fields'][$strField]['eval']['isAssociative'] || array_is_assoc($keys))
-					{
-						$keys = array_keys($keys);
-					}
-
-					$mixedOrderBy[$key] = array(
-					    'field' => $strField,
-					    'keys' => $keys,
-					    'action' => 'findInSet'
-					);
+					$arrReturn[$strField] = DCGE::MODEL_SORTING_ASC;
 				}
 				else
 				{
-					$mixedOrderBy[$key] = $strField;
+					$arrReturn[$strField] = DCGE::MODEL_SORTING_DESC;
+				}
+
+				// Local
+				if ($this->getDC()->arrDCA['fields'][$strField]['flag'] % 1 == 0)
+				{
+					$arrReturn[$strField] = DCGE::MODEL_SORTING_ASC;
+				}
+				else
+				{
+					$arrReturn[$strField] = DCGE::MODEL_SORTING_DESC;
 				}
 			}
 		}
 
-		// Set sort order
-		if ($this->getDC()->arrDCA['list']['sorting']['mode'] == 1 && ($this->getDC()->arrDCA['list']['sorting']['flag'] % 2) == 0)
-		{
-			$mixedOrderBy['sortOrder'] = " DESC";
-		}
+//		// Set sort order
+//		if ($this->getDC()->arrDCA['list']['sorting']['mode'] == 1 && ($this->getDC()->arrDCA['list']['sorting']['flag'] % 2) == 0)
+//		{
+//			$mixedOrderBy['sortOrder'] = " DESC";
+//		}
 
-		return $mixedOrderBy;
+		return $arrReturn;
 	}
 
 	/**
@@ -321,51 +339,75 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	protected function getParentViewSorting()
 	{
 		$mixedOrderBy = array();
+		$arrReturn = array();
 		$firstOrderBy = '';
 
 		// Check if current sorting is set
+		if (is_null($this->getDC()->getFirstSorting()))
+		{
+			$this->getDC()->setFirstSorting(preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]));
+		}
+
 		if (!is_null($this->getDC()->getSorting()))
 		{
 			$mixedOrderBy = $this->getDC()->getSorting();
 		}
 
-		if (is_array($mixedOrderBy) && $mixedOrderBy[0] != '')
-		{
-			$firstOrderBy = preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]);
-
-			// Order by the foreign key
-			if (isset($this->getDC()->arrDCA['fields'][$firstOrderBy]['foreignKey']))
-			{
-				$key = explode('.', $this->getDC()->arrDCA['fields'][$firstOrderBy]['foreignKey'], 2);
-
-				$this->foreignKey = true;
-
-				// TODO remove sql
-				$this->arrFields = array(
-				    '*',
-				    "(SELECT " . $key[1] . " FROM " . $key[0] . " WHERE " . $this->getDC()->getTable() . "." . $firstOrderBy . "=" . $key[0] . ".id) AS foreignKey"
-				);
-
-				$mixedOrderBy[0] = 'foreignKey';
-			}
-		}
-		else if (is_array($GLOBALS['TL_DCA'][$this->getDC()->getTable()]['list']['sorting']['fields']))
-		{
-			$mixedOrderBy = $GLOBALS['TL_DCA'][$this->getDC()->getTable()]['list']['sorting']['fields'];
-			$firstOrderBy = preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]);
-		}
+//		if (is_array($mixedOrderBy) && $mixedOrderBy[0] != '')
+//		{
+//			$firstOrderBy = preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]);
+		// ToDo: SH: arrDCA['fields'][$firstOrderBy]['foreignKey'] impl.
+//			// Order by the foreign key
+//			if (isset($this->getDC()->arrDCA['fields'][$firstOrderBy]['foreignKey']))
+//			{
+//				$key = explode('.', $this->getDC()->arrDCA['fields'][$firstOrderBy]['foreignKey'], 2);
+//
+//				$this->foreignKey = true;
+//
+//				// TODO remove sql
+//				$this->arrFields = array(
+//					'*',
+//					"(SELECT " . $key[1] . " FROM " . $key[0] . " WHERE " . $this->getDC()->getTable() . "." . $firstOrderBy . "=" . $key[0] . ".id) AS foreignKey"
+//				);
+//
+//				$mixedOrderBy[0] = 'foreignKey';
+//			}
+//		}
+//		else if (is_array($GLOBALS['TL_DCA'][$this->getDC()->getTable()]['list']['sorting']['fields']))
+//		{
+//			$mixedOrderBy	 = $GLOBALS['TL_DCA'][$this->getDC()->getTable()]['list']['sorting']['fields'];
+//			$firstOrderBy	 = preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]);
+//		}
 
 		if (is_array($mixedOrderBy) && $mixedOrderBy[0] != '')
 		{
 			foreach ($mixedOrderBy as $key => $strField)
 			{
-				$mixedOrderBy[$key] = $strField;
+				// Global
+				if ($this->getDC()->arrDCA['list']['sorting']['flag'] % 1 == 0)
+				{
+					$arrReturn[$strField] = DCGE::MODEL_SORTING_ASC;
+				}
+				else
+				{
+					$arrReturn[$strField] = DCGE::MODEL_SORTING_DESC;
+				}
+
+				// Local
+				if ($this->getDC()->arrDCA['fields'][$strField]['flag'] % 1 == 0)
+				{
+					$arrReturn[$strField] = DCGE::MODEL_SORTING_ASC;
+				}
+				else
+				{
+					$arrReturn[$strField] = DCGE::MODEL_SORTING_DESC;
+				}
 			}
 		}
 
 		$this->getDC()->setFirstSorting($firstOrderBy);
 
-		return $mixedOrderBy;
+		return $arrReturn;
 	}
 
 	/* /////////////////////////////////////////////////////////////////////
@@ -535,12 +577,12 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			$this->getDC()->setClipboardState(true);
 
 			$arrClipboard[$this->getDC()->getTable()] = array(
-			    'id' => $this->Input->get('id'),
-			    'source' => $this->Input->get('source'),
-			    'childs' => $this->Input->get('childs'),
-			    'mode' => $this->Input->get('mode'),
-			    'pdp' => $this->Input->get('pdp'),
-			    'cdp' => $this->Input->get('cdp'),
+				'id' => $this->Input->get('id'),
+				'source' => $this->Input->get('source'),
+				'childs' => $this->Input->get('childs'),
+				'mode' => $this->Input->get('mode'),
+				'pdp' => $this->Input->get('pdp'),
+				'cdp' => $this->Input->get('cdp'),
 			);
 
 			switch ($this->Input->get('mode'))
@@ -1465,7 +1507,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			$objConfig = $objCDP->getEmptyConfig();
 
 			$objConfig->setFields(array('sorting'));
-			$objConfig->setSorting(array('sorting'));
+			$objConfig->setSorting(array('sorting' => DCGE::MODEL_SORTING_ASC));
 
 			$objConfig->setFilter($this->getFilter());
 
@@ -1609,8 +1651,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		}
 
 		return;
-
-
 	}
 
 	protected function reorderSorting($objConfig)
@@ -1624,7 +1664,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		// Search for the lowest sorting
 		$objConfig->setFields(array('sorting'));
-		$objConfig->setSorting(array('sorting', 'id'));
+		$objConfig->setSorting(array('sorting' => DCGE::MODEL_SORTING_ASC, 'id' => DCGE::MODEL_SORTING_ASC));
 		$arrCollection = $objCurrentDataProvider->fetchAll($objConfig);
 
 		$i = 1;
@@ -1776,10 +1816,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		// Load record from current data provider
 		$objConfig = $objCurrentDataProvider->getEmptyConfig()
-			->setStart($arrLimit[0])
-			->setAmount($arrLimit[1])
-			->setFilter($this->getFilter())
-			->setSorting($this->getListViewSorting());
+				->setStart($arrLimit[0])
+				->setAmount($arrLimit[1])
+				->setFilter($this->getFilter())
+				->setSorting($this->getListViewSorting());
 
 		$objCollection = $objCurrentDataProvider->fetchAll($objConfig);
 
@@ -1798,7 +1838,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			foreach ($objCollection as $objModel)
 			{
 				$objFieldConfig = $objParrentDataProvider->getEmptyConfig()
-					->setId($objModel->getID());
+						->setId($objModel->getID());
 
 				$objFieldModel = $$objParrentDataProvider->fetch($objFieldConfig);
 
@@ -1806,8 +1846,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			}
 
 			$this->arrColSort = array(
-			    'field' => 'pid',
-			    'reverse' => false
+				'field' => 'pid',
+				'reverse' => false
 			);
 
 			$objCollection->sort(array($this, 'sortCollection'));
@@ -2119,10 +2159,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		// Load record from data provider
 		$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()
-			->setStart($arrLimit[0])
-			->setAmount($arrLimit[1])
-			->setFilter($this->getFilter())
-			->setSorting($this->getParentViewSorting());
+				->setStart($arrLimit[0])
+				->setAmount($arrLimit[1])
+				->setFilter($this->getFilter())
+				->setSorting($this->getParentViewSorting());
 
 		if ($this->foreignKey)
 		{
@@ -2149,6 +2189,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 //		var_dump($_POST);
 //		var_dump($_GET);
 //		exit();
+//		
 		// Check if we have a submit
 		if (!in_array($this->Input->post('FORM_SUBMIT'), array('tl_filters')))
 		{
@@ -2219,14 +2260,14 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				try
 				{
 					$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()
-						->setSorting($this->getListViewSorting())
-						->setSearch(
-						array(
-						    array(
-							'mode' => DCGE::DP_MODE_REGEX,
-							'field' => $this->Input->post('tl_field', true),
-							'value' => $this->Input->postRaw('tl_value')
-						)));
+							->setSorting($this->getListViewSorting())
+							->setSearch(
+							array(
+								array(
+									'mode' => DCGE::DP_MODE_REGEX,
+									'field' => $this->Input->post('tl_field', true),
+									'value' => $this->Input->postRaw('tl_value')
+							)));
 
 					$this->getDC()->getDataProvider()->fetchAll($objConfig);
 
@@ -2411,9 +2452,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			$mixedOptionsLabel = strlen($this->getDC()->arrDCA['fields'][$field]['label'][0]) ? $this->getDC()->arrDCA['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
 
 			$arrOptions[utf8_romanize($mixedOptionsLabel) . '_' . $field] = array(
-			    'value' => specialchars($field),
-			    'select' => (($field == $arrSession['search'][$this->getDC()->getTable()]['field']) ? ' selected="selected"' : ''),
-			    'content' => $mixedOptionsLabel
+				'value' => specialchars($field),
+				'select' => (($field == $arrSession['search'][$this->getDC()->getTable()]['field']) ? ' selected="selected"' : ''),
+				'content' => $mixedOptionsLabel
 			);
 		}
 
@@ -2424,12 +2465,12 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$active = strlen($arrSession['search'][$this->getDC()->getTable()]['value']) ? true : false;
 
 		$arrPanelView['select'] = array(
-		    'class' => 'tl_select' . ($active ? ' active' : '')
+			'class' => 'tl_select' . ($active ? ' active' : '')
 		);
 
 		$arrPanelView['input'] = array(
-		    'class' => 'tl_text' . (($active) ? ' active' : ''),
-		    'value' => specialchars($arrSession['search'][$this->getDC()->getTable()]['value'])
+			'class' => 'tl_text' . (($active) ? ' active' : ''),
+			'value' => specialchars($arrSession['search'][$this->getDC()->getTable()]['value'])
 		);
 
 		return $arrPanelView;
@@ -2490,9 +2531,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				}
 
 				$arrPanelView['option'][] = array(
-				    'value' => $this_limit,
-				    'select' => $this->optionSelected($this->getDC()->getLimit(), $this_limit),
-				    'content' => ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + 1) . ' - ' . $upper_limit
+					'value' => $this_limit,
+					'select' => $this->optionSelected($this->getDC()->getLimit(), $this_limit),
+					'content' => ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + 1) . ' - ' . $upper_limit
 				);
 			}
 
@@ -2501,9 +2542,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				$arrLimit = trimsplit(',', $this->getDC()->getLimit());
 
 				$arrPanelView['option'][] = array(
-				    'value' => 'all',
-				    'select' => ($arrLimit[0] == 0 && $arrLimit[1] == $intCount) ? ' selected="selected"' : '',
-				    'content' => $GLOBALS['TL_LANG']['MSC']['filterAll']
+					'value' => 'all',
+					'select' => ($arrLimit[0] == 0 && $arrLimit[1] == $intCount) ? ' selected="selected"' : '',
+					'content' => $GLOBALS['TL_LANG']['MSC']['filterAll']
 				);
 			}
 		}
@@ -2515,13 +2556,13 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		}
 
 		$arrPanelView['select'] = array(
-		    'class' => (($arrSession['filter'][$strFilter]['limit'] != 'all' && $intCount > $GLOBALS['TL_CONFIG']['resultsPerPage']) ? ' active' : '')
+			'class' => (($arrSession['filter'][$strFilter]['limit'] != 'all' && $intCount > $GLOBALS['TL_CONFIG']['resultsPerPage']) ? ' active' : '')
 		);
 
 		$arrPanelView['option'][0] = array(
-		    'value' => 'tl_limit',
-		    'select' => '',
-		    'content' => $GLOBALS['TL_LANG']['MSC']['filterRecords']
+			'value' => 'tl_limit',
+			'select' => '',
+			'content' => $GLOBALS['TL_LANG']['MSC']['filterRecords']
 		);
 
 		Session::getInstance()->setData($arrSession);
@@ -2574,7 +2615,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			array_unshift($strOrderBy, 'pid');
 		}
 
-
 		// Overwrite the "orderBy" value with the session value
 		if (strlen($arrSession['sorting'][$this->getDC()->getTable()]))
 		{
@@ -2599,9 +2639,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			}
 
 			$arrOptions[$mixedOptionsLabel] = array(
-			    'value' => specialchars($field),
-			    'select' => ((!strlen($arrSession['sorting'][$this->getDC()->getTable()]) && $field == $strFirstOrderBy || $field == str_replace(' DESC', '', $arrSession['sorting'][$this->getDC()->getTable()])) ? ' selected="selected"' : ''),
-			    'content' => $mixedOptionsLabel
+				'value' => specialchars($field),
+				'select' => ((!strlen($arrSession['sorting'][$this->getDC()->getTable()]) && $field == $strFirstOrderBy || $field == str_replace(' DESC', '', $arrSession['sorting'][$this->getDC()->getTable()])) ? ' selected="selected"' : ''),
+				'content' => $mixedOptionsLabel
 			);
 		}
 
@@ -2638,8 +2678,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 					{
 						$objDate = new Date($arrSession['filter'][$strFilter][$field]);
 						$this->getDC()->setFilter(array(
-						    array('operation' => '>', 'property' => $field, 'value' => $objDate->dayBegin),
-						    array('operation' => '<', 'property' => $field, 'value' => $objDate->dayEnd)
+							array('operation' => '>', 'property' => $field, 'value' => $objDate->dayBegin),
+							array('operation' => '<', 'property' => $field, 'value' => $objDate->dayEnd)
 						));
 					}
 				}
@@ -2655,8 +2695,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 					{
 						$objDate = new Date($arrSession['filter'][$strFilter][$field]);
 						$this->getDC()->setFilter(array(
-						    array('operation' => '>', 'property' => $field, 'value' => $objDate->monthBegin),
-						    array('operation' => '<', 'property' => $field, 'value' => $objDate->monthEnd)
+							array('operation' => '>', 'property' => $field, 'value' => $objDate->monthBegin),
+							array('operation' => '<', 'property' => $field, 'value' => $objDate->monthEnd)
 						));
 					}
 				}
@@ -2672,8 +2712,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 					{
 						$objDate = new Date($arrSession['filter'][$strFilter][$field]);
 						$this->getDC()->setFilter(array(
-						    array('operation' => '>', 'property' => $field, 'value' => $objDate->yearBegin),
-						    array('operation' => '<', 'property' => $field, 'value' => $objDate->yearEnd)
+							array('operation' => '>', 'property' => $field, 'value' => $objDate->yearBegin),
+							array('operation' => '<', 'property' => $field, 'value' => $objDate->yearEnd)
 						));
 					}
 				}
@@ -2699,9 +2739,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				else
 				{
 					$this->getDC()->setFilter(
-						array(
-						    array('operation' => '=', 'property' => $field, 'value' => $arrSession['filter'][$strFilter][$field])
-						)
+							array(
+								array('operation' => '=', 'property' => $field, 'value' => $arrSession['filter'][$strFilter][$field])
+							)
 					);
 				}
 			}
@@ -2755,21 +2795,21 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 			// Begin select menu
 			$arrPanelView[$field] = array(
-			    'select' => array(
-				'name' => $field,
-				'id' => $field,
-				'class' => 'tl_select' . (isset($arrSession['filter'][$strFilter][$field]) ? ' active' : '')
-			    ),
-			    'option' => array(
-				array(
-				    'value' => 'tl_' . $field,
-				    'content' => (is_array($this->getDC()->arrDCA['fields'][$field]['label']) ? $this->getDC()->arrDCA['fields'][$field]['label'][0] : $this->getDC()->arrDCA['fields'][$field]['label'])
+				'select' => array(
+					'name' => $field,
+					'id' => $field,
+					'class' => 'tl_select' . (isset($arrSession['filter'][$strFilter][$field]) ? ' active' : '')
 				),
-				array(
-				    'value' => 'tl_' . $field,
-				    'content' => '---'
+				'option' => array(
+					array(
+						'value' => 'tl_' . $field,
+						'content' => (is_array($this->getDC()->arrDCA['fields'][$field]['label']) ? $this->getDC()->arrDCA['fields'][$field]['label'][0] : $this->getDC()->arrDCA['fields'][$field]['label'])
+					),
+					array(
+						'value' => 'tl_' . $field,
+						'content' => '---'
+					)
 				)
-			    )
 			);
 
 			if ($objCollection->length() > 0)
@@ -2785,8 +2825,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				if (in_array($GLOBALS['TL_DCA'][$this->strTable]['fields'][$field]['flag'], array(5, 6)))
 				{
 					$this->arrColSort = array(
-					    'field' => $field,
-					    'reverse' => ($this->getDC()->arrDCA['fields'][$field]['flag'] == 6) ? true : false
+						'field' => $field,
+						'reverse' => ($this->getDC()->arrDCA['fields'][$field]['flag'] == 6) ? true : false
 					);
 
 					$objCollection->sort(array($this, 'sortCollection'));
@@ -2810,8 +2850,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				elseif (in_array($this->getDC()->arrDCA['fields'][$field]['flag'], array(7, 8)))
 				{
 					$this->arrColSort = array(
-					    'field' => $field,
-					    'reverse' => ($this->getDC()->arrDCA['fields'][$field]['flag'] == 8) ? true : false
+						'field' => $field,
+						'reverse' => ($this->getDC()->arrDCA['fields'][$field]['flag'] == 8) ? true : false
 					);
 
 					$objCollection->sort(array($this, 'sortCollection'));
@@ -2841,8 +2881,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				elseif (in_array($this->getDC()->arrDCA['fields'][$field]['flag'], array(9, 10)))
 				{
 					$this->arrColSort = array(
-					    'field' => $field,
-					    'reverse' => ($this->getDC()->arrDCA['fields'][$field]['flag'] == 10) ? true : false
+						'field' => $field,
+						'reverse' => ($this->getDC()->arrDCA['fields'][$field]['flag'] == 10) ? true : false
 					);
 
 					$objCollection->sort(array($this, 'sortCollection'));
@@ -2918,9 +2958,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 						$key = explode('.', $this->getDC()->arrDCA['fields'][$field]['foreignKey'], 2);
 
 						$objModel = $this->getDC()->getDataProvider($key[0])->fetch(
-							$this->getDC()->getDataProvider($key[0])->getEmptyConfig()
-								->setId($vv)
-								->setFields(array($key[1] . ' AS value'))
+								$this->getDC()->getDataProvider($key[0])->getEmptyConfig()
+										->setId($vv)
+										->setFields(array($key[1] . ' AS value'))
 						);
 
 						if ($objModel->hasProperties())
@@ -2959,9 +2999,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 						}
 
 						$objModel = $this->getDC()->getDataProvider('parent')->fetch(
-							$this->getDC()->getDataProvider('parent')->getEmptyConfig()
-								->setId($vv)
-								->setFields(array($showFields[0]))
+								$this->getDC()->getDataProvider('parent')->getEmptyConfig()
+										->setId($vv)
+										->setFields(array($showFields[0]))
 						);
 
 						if ($objModel->hasProperties())
@@ -2991,9 +3031,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 					}
 
 					$arrOptions[utf8_romanize($strOptionsLabel)] = array(
-					    'value' => specialchars($value),
-					    'select' => ((isset($arrSession['filter'][$strFilter][$field]) && $value == $arrSession['filter'][$strFilter][$field]) ? ' selected="selected"' : ''),
-					    'content' => $strOptionsLabel
+						'value' => specialchars($value),
+						'select' => ((isset($arrSession['filter'][$strFilter][$field]) && $value == $arrSession['filter'][$strFilter][$field]) ? ' selected="selected"' : ''),
+						'content' => $strOptionsLabel
 					);
 
 					$arrSortOptions[] = utf8_romanize($strOptionsLabel);
@@ -3207,9 +3247,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 				// Check whether the field is a selector field and allowed for regular users (thanks to Fabian Mihailowitsch) (see #4427)
 				if (!is_array($this->getDC()->arrDCA['palettes']['__selector__'])
-					|| !in_array($this->Input->post('field'), $this->getDC()->arrDCA['palettes']['__selector__'])
-					|| ($this->getDC()->arrDCA['fields'][$this->Input->post('field')]['exclude']
-					&& !$this->User->hasAccess($this->getDC()->getTable() . '::' . $this->Input->post('field'), 'alexf')))
+						|| !in_array($this->Input->post('field'), $this->getDC()->arrDCA['palettes']['__selector__'])
+						|| ($this->getDC()->arrDCA['fields'][$this->Input->post('field')]['exclude']
+						&& !$this->User->hasAccess($this->getDC()->getTable() . '::' . $this->Input->post('field'), 'alexf')))
 				{
 					$this->log('Field "' . $this->Input->post('field') . '" is not an allowed selector field (possible SQL injection attempt)', 'DC_General executePostActions()', TL_ERROR);
 					header('HTTP/1.1 400 Bad Request');

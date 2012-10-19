@@ -59,8 +59,8 @@ class GeneralDataDefault implements InterfaceGeneralData
 	public function __construct()
 	{
 		// Init Helper
-		$this->objDatabase	 = Database::getInstance();
-		$this->objUser		 = BackendUser::getInstance();
+		$this->objDatabase = Database::getInstance();
+		$this->objUser = BackendUser::getInstance();
 	}
 
 	/* /////////////////////////////////////////////////////////////////////
@@ -211,8 +211,8 @@ class GeneralDataDefault implements InterfaceGeneralData
 				return sprintf('(%s %s ?)', $arrFilter['property'], $arrFilter['operation']);
 
 			case 'IN':
-				$arrParams		 = array_merge($arrParams, array_values($arrFilter['values']));
-				$strWildcards	 = rtrim(str_repeat('?,', count($arrFilter['values'])), ',');
+				$arrParams = array_merge($arrParams, array_values($arrFilter['values']));
+				$strWildcards = rtrim(str_repeat('?,', count($arrFilter['values'])), ',');
 				return sprintf('(%s IN (%s))', $arrFilter['property'], $strWildcards);
 
 			case 'LIKE':
@@ -257,8 +257,8 @@ class GeneralDataDefault implements InterfaceGeneralData
 
 		$strReturn = $this->calculateSubfilter(
 				array(
-			'operation'	 => 'AND',
-			'childs'	 => $objConfig->getFilter()
+			'operation' => 'AND',
+			'childs' => $objConfig->getFilter()
 				), $arrParams
 		);
 
@@ -275,31 +275,37 @@ class GeneralDataDefault implements InterfaceGeneralData
 	 */
 	protected function buildSortingQuery($objConfig)
 	{
-		$arrSorting	 = $objConfig->getSorting();
-		$strReturn	 = '';
+		$arrSorting = $objConfig->getSorting();
+		$strReturn = '';
+		$arrFields = array();
 
 		if (!is_null($arrSorting) && is_array($arrSorting) && count($arrSorting) > 0)
 		{
-			$strSortOrder = '';
-
-			foreach ($arrSorting AS $key => $mixedField)
+			foreach ($arrSorting AS $strField => $strOrder)
 			{
-				if (is_array($mixedField))
+//				if (is_array($mixedField))
+//				{
+//					if ($mixedField['action'] == 'findInSet')
+//					{
+//						$arrSorting[$key] = $this->objDatabase->findInSet($mixedField['field'], $mixedField['keys']);
+//					}
+//				}
+//				
+//				if ($key === 'sortOrder')
+//				{
+//					$strSortOrder = $mixedField;
+//					unset($arrSorting[$key]);
+//				}
+
+				if (!in_array($strOrder, array(DCGE::MODEL_SORTING_ASC, DCGE::MODEL_SORTING_DESC)))
 				{
-					if ($mixedField['action'] == 'findInSet')
-					{
-						$arrSorting[$key] = $this->objDatabase->findInSet($mixedField['field'], $mixedField['keys']);
-					}
+					$strOrder = DCGE::MODEL_SORTING_ASC;
 				}
 
-				if ($key === 'sortOrder')
-				{
-					$strSortOrder = $mixedField;
-					unset($arrSorting[$key]);
-				}
+				$arrFields[] = $strField . ' ' . $strOrder;
 			}
 
-			$strReturn .= ' ORDER BY ' . implode(', ', $arrSorting) . $strSortOrder;
+			$strReturn .= ' ORDER BY ' . implode(', ', $arrFields);
 		}
 
 		return $strReturn;
@@ -679,17 +685,17 @@ class GeneralDataDefault implements InterfaceGeneralData
 
 		$mixNewVersion = intval($objCount->mycount) + 1;
 
-		$mixData		 = $objModel->getPropertiesAsArray();
-		$mixData["id"]	 = $objModel->getID();
-		$mixData		 = serialize($mixData);
+		$mixData = $objModel->getPropertiesAsArray();
+		$mixData["id"] = $objModel->getID();
+		$mixData = serialize($mixData);
 
 		$arrInsert = array();
-		$arrInsert['pid']		 = $objModel->getID();
-		$arrInsert['tstamp']	 = time();
-		$arrInsert['version']	 = $mixNewVersion;
-		$arrInsert['fromTable']	 = $this->strSource;
-		$arrInsert['username']	 = $strUsername;
-		$arrInsert['data']		 = $mixData;
+		$arrInsert['pid'] = $objModel->getID();
+		$arrInsert['tstamp'] = time();
+		$arrInsert['version'] = $mixNewVersion;
+		$arrInsert['fromTable'] = $this->strSource;
+		$arrInsert['username'] = $strUsername;
+		$arrInsert['data'] = $mixData;
 
 		$this->objDatabase->prepare('INSERT INTO tl_version %s')
 				->set($arrInsert)
