@@ -59,8 +59,8 @@ class GeneralDataDefault implements InterfaceGeneralData
 	public function __construct()
 	{
 		// Init Helper
-		$this->objDatabase = Database::getInstance();
-		$this->objUser = BackendUser::getInstance();
+		$this->objDatabase	 = Database::getInstance();
+		$this->objUser		 = BackendUser::getInstance();
 	}
 
 	/* /////////////////////////////////////////////////////////////////////
@@ -175,8 +175,8 @@ class GeneralDataDefault implements InterfaceGeneralData
 	 *                'values'             array of literal
 	 * 
 	 * LIKE			  
-	 *				  'property'		   string (the name of a property)
-	 *			      'value'              literal - Wildcards * (Many) ? (One)
+	 * 				  'property'		   string (the name of a property)
+	 * 			      'value'              literal - Wildcards * (Many) ? (One)
 	 *
 	 * @param array $arrFilters the filter to be combined to a valid SQL filter query.
 	 *
@@ -211,14 +211,14 @@ class GeneralDataDefault implements InterfaceGeneralData
 				return sprintf('(%s %s ?)', $arrFilter['property'], $arrFilter['operation']);
 
 			case 'IN':
-				$arrParams = array_merge($arrParams, array_values($arrFilter['values']));
-				$strWildcards = rtrim(str_repeat('?,', count($arrFilter['values'])), ',');
+				$arrParams		 = array_merge($arrParams, array_values($arrFilter['values']));
+				$strWildcards	 = rtrim(str_repeat('?,', count($arrFilter['values'])), ',');
 				return sprintf('(%s IN (%s))', $arrFilter['property'], $strWildcards);
-				
+
 			case 'LIKE':
-				$strWildcards = str_replace(array('*', '?'), array('%', '_'), $arrFilter['value']);				
+				$strWildcards = str_replace(array('*', '?'), array('%', '_'), $arrFilter['value']);
 				$arrParams[] = $strWildcards;
-				return sprintf('(%s LIKE "?")', $arrFilter['property'], $strWildcards);				
+				return sprintf('(%s LIKE "?")', $arrFilter['property'], $strWildcards);
 
 			default:
 				throw new Exception('Error processing filter array ' . var_export($arrFilter, true), 1);
@@ -232,9 +232,9 @@ class GeneralDataDefault implements InterfaceGeneralData
 	 * @param array $arrParams
 	 */
 	protected function buildWhereQuery($objConfig, array &$arrParams = null)
-	{		
+	{
 		$arrParams || $arrParams = array();
-		
+
 		$arrQuery = array();
 
 		$arrQuery['filter'] = $this->buildFilterQuery($objConfig, $arrParams);
@@ -256,10 +256,10 @@ class GeneralDataDefault implements InterfaceGeneralData
 		$arrParams || $arrParams = array();
 
 		$strReturn = $this->calculateSubfilter(
-			array(
-		    'operation' => 'AND',
-		    'childs' => $objConfig->getFilter()
-			), $arrParams
+				array(
+			'operation'	 => 'AND',
+			'childs'	 => $objConfig->getFilter()
+				), $arrParams
 		);
 
 		// combine filter syntax.
@@ -275,8 +275,8 @@ class GeneralDataDefault implements InterfaceGeneralData
 	 */
 	protected function buildSortingQuery($objConfig)
 	{
-		$arrSorting = $objConfig->getSorting();
-		$strReturn = '';
+		$arrSorting	 = $objConfig->getSorting();
+		$strReturn	 = '';
 
 		if (!is_null($arrSorting) && is_array($arrSorting) && count($arrSorting) > 0)
 		{
@@ -324,8 +324,8 @@ class GeneralDataDefault implements InterfaceGeneralData
 			$this->insertUndo('DELETE FROM ' . $this->strSource . ' WHERE id = ' . $item, 'SELECT * FROM ' . $this->strSource . '  WHERE id = ' . $item, $this->strSource);
 
 			$this->objDatabase
-				->prepare("DELETE FROM $this->strSource WHERE id=?")
-				->execute($item);
+					->prepare("DELETE FROM $this->strSource WHERE id=?")
+					->execute($item);
 		}
 		else if (is_object($item) && $item instanceof InterfaceGeneralModel)
 		{
@@ -335,8 +335,8 @@ class GeneralDataDefault implements InterfaceGeneralData
 				$this->insertUndo('DELETE FROM ' . $this->strSource . ' WHERE id = ' . $item->getID(), 'SELECT * FROM ' . $this->strSource . '  WHERE id = ' . $item->getID(), $this->strSource);
 
 				$this->objDatabase
-					->prepare("DELETE FROM $this->strSource WHERE id=?")
-					->execute($item->getID());
+						->prepare("DELETE FROM $this->strSource WHERE id=?")
+						->execute($item->getID());
 			}
 		}
 		else
@@ -359,9 +359,9 @@ class GeneralDataDefault implements InterfaceGeneralData
 			$strQuery = "SELECT " . $this->buildFieldQuery($objConfig) . " FROM $this->strSource WHERE id = ?";
 
 			$arrResult = $this->objDatabase
-				->prepare($strQuery)
-				->execute($objConfig->getId())
-				->fetchAllAssoc();
+					->prepare($strQuery)
+					->execute($objConfig->getId())
+					->fetchAllAssoc();
 		}
 		else
 		{
@@ -372,10 +372,10 @@ class GeneralDataDefault implements InterfaceGeneralData
 
 			// Execute db query
 			$arrResult = $this->objDatabase
-				->prepare($query)
-				->limit(1, 0)
-				->execute($arrParams)
-				->fetchAllAssoc();
+					->prepare($query)
+					->limit(1, 0)
+					->execute($arrParams)
+					->fetchAllAssoc();
 		}
 
 		if (count($arrResult) == 0)
@@ -471,7 +471,7 @@ class GeneralDataDefault implements InterfaceGeneralData
 	 */
 	public function fetchEach(GeneralDataConfigDefault $objConfig)
 	{
-		return $this->fetchAll($objConfig);		
+		return $this->fetchAll($objConfig);
 	}
 
 	/**
@@ -487,8 +487,8 @@ class GeneralDataDefault implements InterfaceGeneralData
 		$query .= $this->buildWhereQuery($objConfig, $arrParams);
 
 		$objCount = $this->objDatabase
-			->prepare($query)
-			->execute($arrParams);
+				->prepare($query)
+				->execute($arrParams);
 
 		return $objCount->count;
 	}
@@ -496,8 +496,8 @@ class GeneralDataDefault implements InterfaceGeneralData
 	public function isUniqueValue($strField, $varNew, $intId = null)
 	{
 		$objUnique = $this->objDatabase
-			->prepare('SELECT * FROM ' . $this->strSource . ' WHERE ' . $strField . ' = ? ')
-			->execute($varNew);
+				->prepare('SELECT * FROM ' . $this->strSource . ' WHERE ' . $strField . ' = ? ')
+				->execute($varNew);
 
 		if ($objUnique->numRows == 0)
 		{
@@ -542,9 +542,9 @@ class GeneralDataDefault implements InterfaceGeneralData
 		if ($objItem->getID() == null || $objItem->getID() == "")
 		{
 			$objInsert = $this->objDatabase
-				->prepare("INSERT INTO $this->strSource %s")
-				->set($arrSet)
-				->execute();
+					->prepare("INSERT INTO $this->strSource %s")
+					->set($arrSet)
+					->execute();
 
 			if (strlen($objInsert->insertId) != 0)
 			{
@@ -554,9 +554,9 @@ class GeneralDataDefault implements InterfaceGeneralData
 		else
 		{
 			$this->objDatabase
-				->prepare("UPDATE $this->strSource %s WHERE id=?")
-				->set($arrSet)
-				->execute($objItem->getID());
+					->prepare("UPDATE $this->strSource %s WHERE id=?")
+					->set($arrSet)
+					->execute($objItem->getID());
 		}
 
 		return $objItem;
@@ -589,8 +589,8 @@ class GeneralDataDefault implements InterfaceGeneralData
 	public function getVersion($mixID, $mixVersion)
 	{
 		$objVersion = $this->objDatabase
-			->prepare("SELECT * FROM tl_version WHERE pid=? AND version=? AND fromTable=?")
-			->execute($mixID, $mixVersion, $this->strSource);
+				->prepare("SELECT * FROM tl_version WHERE pid=? AND version=? AND fromTable=?")
+				->execute($mixID, $mixVersion, $this->strSource);
 
 		if ($objVersion->numRows == 0)
 		{
@@ -631,16 +631,16 @@ class GeneralDataDefault implements InterfaceGeneralData
 		if ($blnOnlyActve)
 		{
 			$arrVersion = $this->objDatabase
-				->prepare('SELECT tstamp, version, username, active FROM tl_version WHERE fromTable = ? AND pid = ? AND active = 1')
-				->execute($this->strSource, $mixID)
-				->fetchAllAssoc();
+					->prepare('SELECT tstamp, version, username, active FROM tl_version WHERE fromTable = ? AND pid = ? AND active = 1')
+					->execute($this->strSource, $mixID)
+					->fetchAllAssoc();
 		}
 		else
 		{
 			$arrVersion = $this->objDatabase
-				->prepare('SELECT tstamp, version, username, active FROM tl_version WHERE fromTable = ? AND pid = ? ORDER BY version DESC')
-				->execute($this->strSource, $mixID)
-				->fetchAllAssoc();
+					->prepare('SELECT tstamp, version, username, active FROM tl_version WHERE fromTable = ? AND pid = ? ORDER BY version DESC')
+					->execute($this->strSource, $mixID)
+					->fetchAllAssoc();
 		}
 
 		if (count($arrVersion) == 0)
@@ -674,26 +674,26 @@ class GeneralDataDefault implements InterfaceGeneralData
 	public function saveVersion(InterfaceGeneralModel $objModel, $strUsername)
 	{
 		$objCount = $this->objDatabase
-			->prepare("SELECT count(*) as mycount FROM tl_version WHERE pid=? AND fromTable = ?")
-			->execute($objModel->getID(), $this->strSource);
+				->prepare("SELECT count(*) as mycount FROM tl_version WHERE pid=? AND fromTable = ?")
+				->execute($objModel->getID(), $this->strSource);
 
 		$mixNewVersion = intval($objCount->mycount) + 1;
 
-		$mixData = $objModel->getPropertiesAsArray();
-		$mixData["id"] = $objModel->getID();
-		$mixData = serialize($mixData);
+		$mixData		 = $objModel->getPropertiesAsArray();
+		$mixData["id"]	 = $objModel->getID();
+		$mixData		 = serialize($mixData);
 
 		$arrInsert = array();
-		$arrInsert['pid'] = $objModel->getID();
-		$arrInsert['tstamp'] = time();
-		$arrInsert['version'] = $mixNewVersion;
-		$arrInsert['fromTable'] = $this->strSource;
-		$arrInsert['username'] = $strUsername;
-		$arrInsert['data'] = $mixData;
+		$arrInsert['pid']		 = $objModel->getID();
+		$arrInsert['tstamp']	 = time();
+		$arrInsert['version']	 = $mixNewVersion;
+		$arrInsert['fromTable']	 = $this->strSource;
+		$arrInsert['username']	 = $strUsername;
+		$arrInsert['data']		 = $mixData;
 
 		$this->objDatabase->prepare('INSERT INTO tl_version %s')
-			->set($arrInsert)
-			->execute();
+				->set($arrInsert)
+				->execute();
 
 		$this->setVersionActive($objModel->getID(), $mixNewVersion);
 	}
@@ -707,12 +707,12 @@ class GeneralDataDefault implements InterfaceGeneralData
 	public function setVersionActive($mixID, $mixVersion)
 	{
 		$this->objDatabase
-			->prepare('UPDATE tl_version SET active=\'\' WHERE pid = ? AND fromTable = ?')
-			->execute($mixID, $this->strSource);
+				->prepare('UPDATE tl_version SET active=\'\' WHERE pid = ? AND fromTable = ?')
+				->execute($mixID, $this->strSource);
 
 		$this->objDatabase
-			->prepare('UPDATE tl_version SET active = 1 WHERE pid = ? AND version = ? AND fromTable = ?')
-			->execute($mixID, $mixVersion, $this->strSource);
+				->prepare('UPDATE tl_version SET active = 1 WHERE pid = ? AND version = ? AND fromTable = ?')
+				->execute($mixID, $mixVersion, $this->strSource);
 	}
 
 	/**
@@ -725,8 +725,8 @@ class GeneralDataDefault implements InterfaceGeneralData
 	public function getActiveVersion($mixID)
 	{
 		$objVersionID = $this->objDatabase
-			->prepare("SELECT version FROM tl_version WHERE pid = ? AND fromTable = ? AND active = 1")
-			->execute($mixID, $this->strSource);
+				->prepare("SELECT version FROM tl_version WHERE pid = ? AND fromTable = ? AND active = 1")
+				->execute($mixID, $this->strSource);
 
 		if ($objVersionID->numRows == 0)
 		{
@@ -784,9 +784,9 @@ class GeneralDataDefault implements InterfaceGeneralData
 	{
 		// Load row
 		$arrResult = $this->objDatabase
-			->prepare($strSaveSQL)
-			->executeUncached()
-			->fetchAllAssoc();
+				->prepare($strSaveSQL)
+				->executeUncached()
+				->fetchAllAssoc();
 
 		// Check if we have a result
 		if (count($arrResult) == 0)
@@ -805,8 +805,8 @@ class GeneralDataDefault implements InterfaceGeneralData
 
 		// Write into undo
 		$this->objDatabase
-			->prepare("INSERT INTO tl_undo (pid, tstamp, fromTable, query, affectedRows, data) VALUES (?, ?, ?, ?, ?, ?)")
-			->execute($this->objUser->id, time(), $strTable, $strPrefix . $strSourceSQL, count($arrSave[$strTable]), serialize($arrSave));
+				->prepare("INSERT INTO tl_undo (pid, tstamp, fromTable, query, affectedRows, data) VALUES (?, ?, ?, ?, ?, ?)")
+				->execute($this->objUser->id, time(), $strTable, $strPrefix . $strSourceSQL, count($arrSave[$strTable]), serialize($arrSave));
 	}
 
 }
