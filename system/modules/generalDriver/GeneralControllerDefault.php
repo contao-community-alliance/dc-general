@@ -283,15 +283,15 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		}
 		
 		// Fallback if we have no fields. Order - sorting, tsampt, pid, id
-		if(empty($arrSortingFields))
+		if(empty($arrSorting))
 		{
 			if($this->getDC()->getDataProvider()->fieldExists('sorting'))
 			{
 				$strFirstSorting = 'sorting';
 			}
-			else if($this->getDC()->getDataProvider()->fieldExists('tsampt'))
+			else if($this->getDC()->getDataProvider()->fieldExists('tstamp'))
 			{
-				$strFirstSorting = 'tsampt';
+				$strFirstSorting = 'tstamp';
 			}
 			else if($this->getDC()->getDataProvider()->fieldExists('pid'))
 			{
