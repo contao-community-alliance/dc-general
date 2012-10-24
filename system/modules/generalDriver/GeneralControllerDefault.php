@@ -249,165 +249,89 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	}
 
 	/**
-	 * Get sorting for the list view data provider
-	 *
-	 * @return mixed
+	 * Set the sorting and first sotrting. 
+	 * Use the default ones from DCA or the session values.
+	 * 
+	 * @todo SH:CS: Add findInSet if we have the functions for foreignKey
+	 * @return void
 	 */
-	protected function getListViewSorting()
+	protected function establishSorting()
 	{
-		$mixedOrderBy = $this->getDC()->arrDCA['list']['sorting']['fields'];
-		$arrReturn = array();
+		// Init Vars
+		$arrSortingFields = array();
+		$arrSession = Session::getInstance()->getData();
+		$strSessionSorting = $arrSession['sorting'][$this->getDC()->getTable()];
 
-		// Check if current sorting is set
-		if (is_null($this->getDC()->getFirstSorting()))
+		// Set default values from DCA
+		$arrSorting = (array) $this->getDC()->arrDCA['list']['sorting']['fields'];
+		$strFirstSorting = preg_replace('/\s+.*$/i', '', $arrSorting[0]);
+		$strFirstSortingOrder = DCGE::MODEL_SORTING_ASC;
+		
+		// Get sorting fields
+		foreach ($this->getDC()->arrDCA['fields'] as $k => $v)
 		{
-			$this->getDC()->setFirstSorting(preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]));
-		}
-
-		if (!is_null($this->getDC()->getSorting()))
-		{
-			$mixedOrderBy = $this->getDC()->getSorting();
-		}
-
-		// ToDo: SH: DCA['fields'][$strField]['eval']['findInSet'] impl.
-
-		if (is_array($mixedOrderBy) && $mixedOrderBy[0] != '')
-		{
-			foreach ($mixedOrderBy as $key => $strField)
+			if ($v['sorting'])
 			{
-//				if ($this->getDC()->arrDCA['fields'][$strField]['eval']['findInSet'])
-//				{
-//					$arrOptionsCallback = $this->getDC()->getCallbackClass()->optionsCallback($strField);
-//
-//					if (!is_null($arrOptionsCallback))
-//					{
-//						$keys = $arrOptionsCallback;
-//					}
-//					else
-//					{
-//						$keys = $this->getDC()->arrDCA['fields'][$strField]['options'];
-//					}
-//
-//					// ToDo: SH|CS: What is this => never seen in docu
-//					if ($this->getDC()->arrDCA['fields'][$strField]['eval']['isAssociative'] || array_is_assoc($keys))
-//					{
-//						$keys = array_keys($keys);
-//					}
-//
-//					$mixedOrderBy[$key] = array(
-//					    'field' => $strField,
-//					    'keys' => $keys,
-//					    'action' => 'findInSet'
-//					);
-//				}
-				// Global
-				if ($this->getDC()->arrDCA['list']['sorting']['flag'] % 1 == 0)
-				{
-					$arrReturn[$strField] = DCGE::MODEL_SORTING_ASC;
-				}
-				else
-				{
-					$arrReturn[$strField] = DCGE::MODEL_SORTING_DESC;
-				}
-
-				// Local
-				if ($this->getDC()->arrDCA['fields'][$strField]['flag'] % 1 == 0)
-				{
-					$arrReturn[$strField] = DCGE::MODEL_SORTING_ASC;
-				}
-				else
-				{
-					$arrReturn[$strField] = DCGE::MODEL_SORTING_DESC;
-				}
+				$arrSortingFields[] = $k;
+			}
+		}
+		
+		// Check if we have an other sorting from session/panels
+		if (!is_null($strSessionSorting) && in_array($strSessionSorting, $arrSortingFields))
+		{
+			$strFirstSorting = $strSessionSorting;
+		}
+		
+		// Fallback if we have no fields. Order - sorting, tsampt, pid, id
+		if(empty($arrSortingFields))
+		{
+			if($this->getDC()->getDataProvider()->fieldExists('sorting'))
+			{
+				$strFirstSorting = 'sorting';
+			}
+			else if($this->getDC()->getDataProvider()->fieldExists('tsampt'))
+			{
+				$strFirstSorting = 'tsampt';
+			}
+			else if($this->getDC()->getDataProvider()->fieldExists('pid'))
+			{
+				$strFirstSorting = 'pid';
+			}
+			else if($this->getDC()->getDataProvider()->fieldExists('id'))
+			{
+				$strFirstSorting = 'id';
 			}
 		}
 
-//		// Set sort order
-//		if ($this->getDC()->arrDCA['list']['sorting']['mode'] == 1 && ($this->getDC()->arrDCA['list']['sorting']['flag'] % 2) == 0)
-//		{
-//			$mixedOrderBy['sortOrder'] = " DESC";
-//		}
-
-		return $arrReturn;
-	}
-
-	/**
-	 * Get sorting for the parent view data provider
-	 *
-	 * @return mixed
-	 */
-	protected function getParentViewSorting()
-	{
-		$mixedOrderBy = array();
-		$arrReturn = array();
-		$firstOrderBy = '';
-
-		// Check if current sorting is set
-		if (is_null($this->getDC()->getFirstSorting()))
+		// Get the sorting order for the first sorting field
+		// Global order
+		if ($this->getDC()->arrDCA['list']['sorting']['flag'] % 1 == 0)
 		{
-			$this->getDC()->setFirstSorting(preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]));
+			$strFirstSortingOrder = DCGE::MODEL_SORTING_ASC;
+		}
+		else
+		{
+			$strFirstSortingOrder = DCGE::MODEL_SORTING_DESC;
 		}
 
-		if (!is_null($this->getDC()->getSorting()))
+		// Local (field) order
+		if (!$this->getDC()->arrDCA['fields'][$strFirstSorting]['flag'])
 		{
-			$mixedOrderBy = $this->getDC()->getSorting();
-		}
-
-//		if (is_array($mixedOrderBy) && $mixedOrderBy[0] != '')
-//		{
-//			$firstOrderBy = preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]);
-		// ToDo: SH: arrDCA['fields'][$firstOrderBy]['foreignKey'] impl.
-//			// Order by the foreign key
-//			if (isset($this->getDC()->arrDCA['fields'][$firstOrderBy]['foreignKey']))
-//			{
-//				$key = explode('.', $this->getDC()->arrDCA['fields'][$firstOrderBy]['foreignKey'], 2);
-//
-//				$this->foreignKey = true;
-//
-//				// TODO remove sql
-//				$this->arrFields = array(
-//					'*',
-//					"(SELECT " . $key[1] . " FROM " . $key[0] . " WHERE " . $this->getDC()->getTable() . "." . $firstOrderBy . "=" . $key[0] . ".id) AS foreignKey"
-//				);
-//
-//				$mixedOrderBy[0] = 'foreignKey';
-//			}
-//		}
-//		else if (is_array($GLOBALS['TL_DCA'][$this->getDC()->getTable()]['list']['sorting']['fields']))
-//		{
-//			$mixedOrderBy	 = $GLOBALS['TL_DCA'][$this->getDC()->getTable()]['list']['sorting']['fields'];
-//			$firstOrderBy	 = preg_replace('/\s+.*$/i', '', $mixedOrderBy[0]);
-//		}
-
-		if (is_array($mixedOrderBy) && $mixedOrderBy[0] != '')
-		{
-			foreach ($mixedOrderBy as $key => $strField)
+			// Local
+			if ($this->getDC()->arrDCA['fields'][$strFirstSorting]['flag'] % 1 == 0)
 			{
-				// Global
-				if ($this->getDC()->arrDCA['list']['sorting']['flag'] % 1 == 0)
-				{
-					$arrReturn[$strField] = DCGE::MODEL_SORTING_ASC;
-				}
-				else
-				{
-					$arrReturn[$strField] = DCGE::MODEL_SORTING_DESC;
-				}
-
-				// Local
-				if ($this->getDC()->arrDCA['fields'][$strField]['flag'] % 1 == 0)
-				{
-					$arrReturn[$strField] = DCGE::MODEL_SORTING_ASC;
-				}
-				else
-				{
-					$arrReturn[$strField] = DCGE::MODEL_SORTING_DESC;
-				}
+				$strFirstSortingOrder = DCGE::MODEL_SORTING_ASC;
+			}
+			else
+			{
+				$strFirstSortingOrder = DCGE::MODEL_SORTING_DESC;
 			}
 		}
 
-		$this->getDC()->setFirstSorting($firstOrderBy);
+		$this->getDC()->setFirstSorting($strFirstSorting, $strFirstSortingOrder);
+		$this->getDC()->setSorting($arrSortingFields);
 
-		return $arrReturn;
+		return;
 	}
 
 	/* /////////////////////////////////////////////////////////////////////
@@ -1241,6 +1165,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		// Setup
 		$this->getDC()->setButtonId('tl_buttons');
+		$this->establishSorting();
 		$this->getFilter();
 		$this->generatePanelFilter('set');
 
@@ -1497,8 +1422,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			return;
 		}
 
-		$intHighestSorting = 128;
-		$intLowestSorting = 128;
+		$intHighestSorting = 256;
+		$intLowestSorting = 256;
 		$intNextSorting = 0;
 
 		if ($strMode == 'cut')
@@ -1548,7 +1473,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				$objLastElement = $objCollection->get(0);
 
 				$intSorting = $objLastElement->getProperty('sorting');
-				$intNewSorting = $intSorting + 128;
+				$intNewSorting = $intSorting + 256;
 
 				$objDBModel->setProperty('sorting', $intNewSorting);
 				return;
@@ -1574,7 +1499,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 				if ($intSortingNext == 0)
 				{
-					$intSortingNext = $intSortingAfter + 128;
+					$intSortingNext = $intSortingAfter + 256;
 				}
 
 				$intNewSorting = $intSortingAfter + round(($intSortingNext - $intSortingAfter) / 2);
@@ -1668,7 +1593,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$arrCollection = $objCurrentDataProvider->fetchAll($objConfig);
 
 		$i = 1;
-		$intCount = 128;
+		$intCount = 256;
 
 		foreach ($arrCollection as $value)
 		{
@@ -1819,7 +1744,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				->setStart($arrLimit[0])
 				->setAmount($arrLimit[1])
 				->setFilter($this->getFilter())
-				->setSorting($this->getListViewSorting());
+				->setSorting(array($this->getDC()->getFirstSorting() => $this->getDC()->getFirstSortingOrder()));
 
 		$objCollection = $objCurrentDataProvider->fetchAll($objConfig);
 
@@ -2162,7 +2087,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				->setStart($arrLimit[0])
 				->setAmount($arrLimit[1])
 				->setFilter($this->getFilter())
-				->setSorting($this->getParentViewSorting());
+				->setSorting(array($this->getDC()->getFirstSorting() => $this->getDC()->getFirstSortingOrder()));
 
 		if ($this->foreignKey)
 		{

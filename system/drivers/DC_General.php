@@ -231,6 +231,12 @@ class DC_General extends DataContainer implements editable, listable
 	 * @var string
 	 */
 	protected $strFirstSorting = null;
+	
+	/**
+	 * Order of the first sorting
+	 * @var string
+	 */
+	protected $strFirstSortingOrder = null;
 
 	/**
 	 * Parameter to filter the collection
@@ -1133,9 +1139,10 @@ class DC_General extends DataContainer implements editable, listable
 	 *
 	 * @param str $strFirstSorting
 	 */
-	public function setFirstSorting($strFirstSorting)
+	public function setFirstSorting($strFirstSorting, $strSortingOrder = DCGE::MODEL_SORTING_ASC)
 	{
 		$this->strFirstSorting = $strFirstSorting;
+		$this->strFirstSortingOrder = $strSortingOrder;	
 	}
 
 	/**
@@ -1146,6 +1153,16 @@ class DC_General extends DataContainer implements editable, listable
 	public function getFirstSorting()
 	{
 		return $this->strFirstSorting;
+	}
+	
+	/**
+	 * Get the order for the primary field of sorting
+	 *
+	 * @return string
+	 */
+	public function getFirstSortingOrder()
+	{
+		return $this->strFirstSortingOrder;
 	}
 
 	/**

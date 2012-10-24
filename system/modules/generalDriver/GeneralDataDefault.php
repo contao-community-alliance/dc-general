@@ -274,7 +274,7 @@ class GeneralDataDefault implements InterfaceGeneralData
 	 * @return string
 	 */
 	protected function buildSortingQuery($objConfig)
-	{
+	{		
 		$arrSorting = $objConfig->getSorting();
 		$strReturn = '';
 		$arrFields = array();
@@ -283,20 +283,6 @@ class GeneralDataDefault implements InterfaceGeneralData
 		{
 			foreach ($arrSorting AS $strField => $strOrder)
 			{
-//				if (is_array($mixedField))
-//				{
-//					if ($mixedField['action'] == 'findInSet')
-//					{
-//						$arrSorting[$key] = $this->objDatabase->findInSet($mixedField['field'], $mixedField['keys']);
-//					}
-//				}
-//				
-//				if ($key === 'sortOrder')
-//				{
-//					$strSortOrder = $mixedField;
-//					unset($arrSorting[$key]);
-//				}
-
 				if (!in_array($strOrder, array(DCGE::MODEL_SORTING_ASC, DCGE::MODEL_SORTING_DESC)))
 				{
 					$strOrder = DCGE::MODEL_SORTING_ASC;
