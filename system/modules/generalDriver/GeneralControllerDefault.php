@@ -660,7 +660,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		// Load the source model
 		$objSrcModel = $objCurrentDataProvider->fetch($objCurrentDataProvider->getEmptyConfig()->setId($mixSource));
-
+		
 		// Check mode
 		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
 		{
@@ -670,7 +670,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			case 1:
 			case 2:
 			case 3:
-			case 4:
+			case 4:				
 				$this->getNewPosition($objCurrentDataProvider, $objParentDataProvider, $objSrcModel, $mixAfter, $mixInto, 'cut');
 				break;
 
@@ -727,7 +727,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		// Save new sorting
 		$objCurrentDataProvider->save($objSrcModel);
-
+		
 		// Reset clipboard + redirect
 		$this->resetClipboard(true);
 	}
@@ -1176,7 +1176,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			case 1:
 			case 2:
 			case 3:
-				$this->listView();
+				$this->viewList();
 				break;
 
 			case 4:
@@ -1415,7 +1415,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		{
 			$objCDP = $this->getDC()->getDataProvider();
 		}
-
+		
 		// Check if we have a sorting field, if not skip here
 		if (!$objCDP->fieldExists('sorting'))
 		{
@@ -1730,7 +1730,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 * @todo set global current in DC_General
 	 * @todo $strTable is unknown
 	 */
-	protected function listView()
+	protected function viewList()
 	{
 		// Setup
 		$objCurrentDataProvider = $this->getDC()->getDataProvider();

@@ -252,18 +252,18 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
 		$objTemplate = new BackendTemplate('dcbe_general_edit');
 		$objTemplate->setData(array(
-		    'fieldsets' => $this->generateFieldsets('dcbe_general_field', array()),
-		    'oldBE' => $GLOBALS['TL_CONFIG']['oldBeTheme'],
-		    'versions' => $this->getDC()->getDataProvider()->getVersions($this->getDC()->getId()),
-		    'language' => $this->objLanguagesSupported,
-		    'subHeadline' => sprintf($GLOBALS['TL_LANG']['MSC']['editRecord'], $this->getDC()->getId() ? 'ID ' . $this->getDC()->getId() : ''),
-		    'languageHeadline' => strlen($this->strCurrentLanguage) != 0 ? $langsNative[$this->strCurrentLanguage] : '',
-		    'table' => $this->getDC()->getTable(),
-		    'enctype' => $this->getDC()->isUploadable() ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
-		    //'onsubmit' => implode(' ', $this->onsubmit),
-		    'error' => $this->noReload,
-		    'buttons' => $this->getDC()->getButtonLabels(),
-		    'noReload' => $this->getDC()->isNoReload()
+			'fieldsets' => $this->generateFieldsets('dcbe_general_field', array()),
+			'oldBE' => $GLOBALS['TL_CONFIG']['oldBeTheme'],
+			'versions' => $this->getDC()->getDataProvider()->getVersions($this->getDC()->getId()),
+			'language' => $this->objLanguagesSupported,
+			'subHeadline' => sprintf($GLOBALS['TL_LANG']['MSC']['editRecord'], $this->getDC()->getId() ? 'ID ' . $this->getDC()->getId() : ''),
+			'languageHeadline' => strlen($this->strCurrentLanguage) != 0 ? $langsNative[$this->strCurrentLanguage] : '',
+			'table' => $this->getDC()->getTable(),
+			'enctype' => $this->getDC()->isUploadable() ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
+			//'onsubmit' => implode(' ', $this->onsubmit),
+			'error' => $this->noReload,
+			'buttons' => $this->getDC()->getButtonLabels(),
+			'noReload' => $this->getDC()->isNoReload()
 		));
 
 		return $objTemplate->parse();
@@ -305,9 +305,9 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 			$arrFieldConfig = $this->getDC()->arrDCA['fields'][$strFieldName];
 
 			if (!in_array($strFieldName, $allowedFields)
-				|| $arrFieldConfig['inputType'] == 'password'
-				|| $arrFieldConfig['eval']['doNotShow']
-				|| $arrFieldConfig['eval']['hideInput'])
+					|| $arrFieldConfig['inputType'] == 'password'
+					|| $arrFieldConfig['eval']['doNotShow']
+					|| $arrFieldConfig['eval']['hideInput'])
 			{
 				continue;
 			}
@@ -381,7 +381,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 			case 1:
 			case 2:
 			case 3:
-				$arrReturn['body'] = $this->listView();
+				$arrReturn['body'] = $this->viewList();
 				break;
 
 			case 4:
@@ -390,7 +390,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
 			case 5:
 			case 6:
-				$arrReturn['body'] = $this->treeView($this->getDC()->arrDCA['list']['sorting']['mode']);
+				$arrReturn['body'] = $this->viewTree($this->getDC()->arrDCA['list']['sorting']['mode']);
 				break;
 
 			default:
@@ -496,21 +496,21 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		$this->renderViewParentEntries();
 
 		$objTemplate->editHeader = array(
-		    'content' => $this->generateImage('edit.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['editheader'][0]),
-		    'href' => preg_replace('/&(amp;)?table=[^& ]*/i', (strlen($this->getDC()->getParentTable()) ? '&amp;table=' . $this->getDC()->getParentTable() : ''), $this->addToUrl('act=edit')),
-		    'title' => specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['editheader'][1])
+			'content' => $this->generateImage('edit.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['editheader'][0]),
+			'href' => preg_replace('/&(amp;)?table=[^& ]*/i', (strlen($this->getDC()->getParentTable()) ? '&amp;table=' . $this->getDC()->getParentTable() : ''), $this->addToUrl('act=edit')),
+			'title' => specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['editheader'][1])
 		);
 
 		$objTemplate->pasteNew = array(
-		    'content' => $this->generateImage('new.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0]),
-		    'href' => $this->addToUrl('act=create&amp;mode=2&amp;pid=' . $this->getDC()->getCurrentParentCollection()->get(0)->getID() . '&amp;id=' . $this->intId),
-		    'title' => specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pastenew'][0])
+			'content' => $this->generateImage('new.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0]),
+			'href' => $this->addToUrl('act=create&amp;mode=2&amp;pid=' . $this->getDC()->getCurrentParentCollection()->get(0)->getID() . '&amp;id=' . $this->intId),
+			'title' => specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pastenew'][0])
 		);
 
 		$objTemplate->pasteAfter = array(
-		    'content' => $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0], 'class="blink"'),
-		    'href' => $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=' . $this->getDC()->getCurrentParentCollection()->get(0)->getID() . (!$blnMultiboard ? '&amp;id=' . $arrClipboard['id'] : '')),
-		    'title' => specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0])
+			'content' => $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0], 'class="blink"'),
+			'href' => $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=' . $this->getDC()->getCurrentParentCollection()->get(0)->getID() . (!$blnMultiboard ? '&amp;id=' . $arrClipboard['id'] : '')),
+			'title' => specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0])
 		);
 
 		$objTemplate->notDeletable = $this->getDC()->arrDCA['config']['notDeletable'];
@@ -751,7 +751,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 	 *
 	 * @return string
 	 */
-	protected function listView()
+	protected function viewList()
 	{
 		// Set label
 		$this->setListViewLabel();
@@ -763,8 +763,15 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		}
 
 		// Add template
-		$objTemplate = new BackendTemplate('dcbe_general_listView');
-
+		if ($this->getDC()->getFirstSorting() == 'sorting')
+		{
+			$objTemplate = new BackendTemplate('dcbe_general_listView_sorting');
+		}
+		else
+		{
+			$objTemplate = new BackendTemplate('dcbe_general_listView');
+		}
+		
 		$objTemplate->collection = $this->getDC()->getCurrentCollecion();
 		$objTemplate->select = $this->getDC()->isSelectSubmit();
 		$objTemplate->action = ampersand($this->Environment->request, true);
@@ -773,10 +780,14 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		$objTemplate->notDeletable = $this->getDC()->arrDCA['config']['notDeletable'];
 		$objTemplate->notEditable = $this->getDC()->arrDCA['config']['notEditable'];
 
+		// Set dataprovider from current and parent
+		$objTemplate->pdp = '';
+		$objTemplate->cdp = $this->getDC()->getDataProvider('self')->getEmptyModel()->getProviderName();
+		
 		return $objTemplate->parse();
 	}
 
-	protected function treeView($intMode = 5)
+	protected function viewTree($intMode = 5)
 	{
 		// Init some Vars
 		switch ($intMode)
@@ -911,8 +922,8 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 			if ($arrPalette)
 			{
 				$this->arrRootPalette[] = array(
-				    'legend' => $strLegend,
-				    'palette' => $arrPalette
+					'legend' => $strLegend,
+					'palette' => $arrPalette
 				);
 			}
 		}
@@ -1181,20 +1192,20 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		$strFormat = $GLOBALS['TL_CONFIG'][$objWidget->rgxp . 'Format'];
 
 		$arrConfig = array(
-		    'allowEmpty' => true,
-		    'toggleElements' => '#toggle_' . $objWidget->id,
-		    'pickerClass' => 'datepicker_dashboard',
-		    'format' => $strFormat,
-		    'inputOutputFormat' => $strFormat,
-		    'positionOffset' => array(
-			'x' => 130,
-			'y' => -185
-		    ),
-		    'startDay' => $GLOBALS['TL_LANG']['MSC']['weekOffset'],
-		    'days' => array_values($GLOBALS['TL_LANG']['DAYS']),
-		    'dayShort' => $GLOBALS['TL_LANG']['MSC']['dayShortLength'],
-		    'months' => array_values($GLOBALS['TL_LANG']['MONTHS']),
-		    'monthShort' => $GLOBALS['TL_LANG']['MSC']['monthShortLength']
+			'allowEmpty' => true,
+			'toggleElements' => '#toggle_' . $objWidget->id,
+			'pickerClass' => 'datepicker_dashboard',
+			'format' => $strFormat,
+			'inputOutputFormat' => $strFormat,
+			'positionOffset' => array(
+				'x' => 130,
+				'y' => -185
+			),
+			'startDay' => $GLOBALS['TL_LANG']['MSC']['weekOffset'],
+			'days' => array_values($GLOBALS['TL_LANG']['DAYS']),
+			'dayShort' => $GLOBALS['TL_LANG']['MSC']['dayShortLength'],
+			'months' => array_values($GLOBALS['TL_LANG']['MONTHS']),
+			'monthShort' => $GLOBALS['TL_LANG']['MSC']['monthShortLength']
 		);
 
 		switch ($objWidget->rgxp)
@@ -1247,14 +1258,14 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 			foreach ($this->getDC()->arrDCA['list']['label']['fields'] as $f)
 			{
 				$arrTableHead[] = array(
-				    'class' => 'tl_folder_tlist col_' . $f . (($f == $this->getDC()->getFirstSorting()) ? ' ordered_by' : ''),
-				    'content' => $this->getDC()->arrDCA['fields'][$f]['label'][0]
+					'class' => 'tl_folder_tlist col_' . $f . (($f == $this->getDC()->getFirstSorting()) ? ' ordered_by' : ''),
+					'content' => $this->getDC()->arrDCA['fields'][$f]['label'][0]
 				);
 			}
 
 			$arrTableHead[] = array(
-			    'class' => 'tl_folder_tlist tl_right_nowrap',
-			    'content' => '&nbsp;'
+				'class' => 'tl_folder_tlist tl_right_nowrap',
+				'content' => '&nbsp;'
 			);
 		}
 
@@ -1333,8 +1344,8 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 					$eoCount = -1;
 
 					$objModelRow->setMeta(DCGE::MODEL_GROUP_VALUE, array(
-					    'class' => $groupclass,
-					    'value' => $this->getDC()->formatGroupHeader($this->getDC()->getFirstSorting(), $remoteNew, $sortingMode, $objModelRow)
+						'class' => $groupclass,
+						'value' => $this->getDC()->formatGroupHeader($this->getDC()->getFirstSorting(), $remoteNew, $sortingMode, $objModelRow)
 					));
 
 					$groupclass = 'tl_folder_list';
@@ -1371,18 +1382,18 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 				foreach ($args as $j => $arg)
 				{
 					$arrLabel[] = array(
-					    'colspan' => $colspan,
-					    'class' => 'tl_file_list col_' . $this->getDC()->arrDCA['list']['label']['fields'][$j] . (($this->getDC()->arrDCA['list']['label']['fields'][$j] == $this->getDC()->getFirstSorting()) ? ' ordered_by' : ''),
-					    'content' => (($arg != '') ? $arg : '-')
+						'colspan' => $colspan,
+						'class' => 'tl_file_list col_' . $this->getDC()->arrDCA['list']['label']['fields'][$j] . (($this->getDC()->arrDCA['list']['label']['fields'][$j] == $this->getDC()->getFirstSorting()) ? ' ordered_by' : ''),
+						'content' => (($arg != '') ? $arg : '-')
 					);
 				}
 			}
 			else
 			{
 				$arrLabel[] = array(
-				    'colspan' => NULL,
-				    'class' => 'tl_file_list',
-				    'content' => $label
+					'colspan' => NULL,
+					'class' => 'tl_file_list',
+					'content' => $label
 				);
 			}
 
@@ -1620,9 +1631,9 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 					}
 
 					$arrReturn[] = (!$this->getDC()->arrDCA['config']['closed'] ?
-							sprintf(
-								' <a href="%s" class="header_new" title="%s" accesskey="n" onclick="Backend.getScrollOffset()">%s</a>', $strHref, specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][1]), $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][0]
-							) : '');
+									sprintf(
+											' <a href="%s" class="header_new" title="%s" accesskey="n" onclick="Backend.getScrollOffset()">%s</a>', $strHref, specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][1]), $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][0]
+									) : '');
 					break;
 
 				case 5:
@@ -1633,14 +1644,14 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
 
 					$arrReturn[] = (!($this->getDC()->arrDCA['config']['closed'] || $this->getDC()->isClipboard())) ?
-						sprintf(
-							' <a href="%s" class="header_new" title="%s" accesskey="n" onclick="Backend.getScrollOffset()">%s</a>', $this->addToUrl(sprintf('act=paste&amp;mode=create&amp;cdp=%s&amp;pdp=%s', $strCDP, $strPDP)), specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][1]), $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][0]
-						) : '';
+							sprintf(
+									' <a href="%s" class="header_new" title="%s" accesskey="n" onclick="Backend.getScrollOffset()">%s</a>', $this->addToUrl(sprintf('act=paste&amp;mode=create&amp;cdp=%s&amp;pdp=%s', $strCDP, $strPDP)), specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][1]), $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][0]
+							) : '';
 					// add clear clipboard button if needed.
 					if ($this->getDC()->isClipboard())
 					{
 						$arrReturn[] = sprintf(
-							' <a href="%s" class="header_clipboard" title="%s" accesskey="x">%s</a>', $this->addToUrl('clipboard=1'), specialchars($GLOBALS['TL_LANG']['MSC']['clearClipboard']), $GLOBALS['TL_LANG']['MSC']['clearClipboard']
+								' <a href="%s" class="header_clipboard" title="%s" accesskey="x">%s</a>', $this->addToUrl('clipboard=1'), specialchars($GLOBALS['TL_LANG']['MSC']['clearClipboard']), $GLOBALS['TL_LANG']['MSC']['clearClipboard']
 						);
 					}
 					break;
@@ -1740,7 +1751,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
 			// Call a custom function instead of using the default button
 			$strButtonCallback = $this->getDC()->getCallbackClass()
-				->buttonCallback($objModelRow, $v, $label, $title, $attributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext);
+					->buttonCallback($objModelRow, $v, $label, $title, $attributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext);
 
 			if (!is_null($strButtonCallback))
 			{
@@ -1782,26 +1793,26 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
 						// Build whole button mark up
 						$return .= ' <a href="'
-							. $this->addToUrl($strAdd2Url)
-							. '" title="' . specialchars($title)
-							. '"'
-							. $attributes
-							. '>'
-							. $this->generateImage($v['icon'], $label)
-							. '</a>';
+								. $this->addToUrl($strAdd2Url)
+								. '" title="' . specialchars($title)
+								. '"'
+								. $attributes
+								. '>'
+								. $this->generateImage($v['icon'], $label)
+								. '</a>';
 						break;
 
 					default:
 						$idParam = $v['idparam'] ? 'id=&amp;' . $v['idparam'] : 'id';
 						$strUrl = $this->addToUrl($v['href'] . '&amp;' . $idParam . '=' . $objModelRow->getID());
 						$return .= ' <a href="'
-							. $strUrl
-							. '" title="' . specialchars($title)
-							. '"'
-							. $attributes
-							. '>'
-							. $this->generateImage($v['icon'], $label)
-							. '</a>';
+								. $strUrl
+								. '" title="' . specialchars($title)
+								. '"'
+								. $attributes
+								. '>'
+								. $this->generateImage($v['icon'], $label)
+								. '</a>';
 						break;
 				}
 				continue;
@@ -1881,26 +1892,26 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 					case 4:
 						$imagePasteAfter = $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0], 'class="blink"');
 						$return .= ' <a href="'
-							. $this->addToUrl($strAdd2UrlAfter)
-							. '" title="' . specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0]) . '" onclick="Backend.getScrollOffset()">'
-							. $imagePasteAfter
-							. '</a> ';
+								. $this->addToUrl($strAdd2UrlAfter)
+								. '" title="' . specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0]) . '" onclick="Backend.getScrollOffset()">'
+								. $imagePasteAfter
+								. '</a> ';
 						break;
 
 					case 5:
 						$imagePasteAfter = $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0], 'class="blink"');
 						$return .= ' <a href="'
-							. $this->addToUrl($strAdd2UrlAfter)
-							. '" title="' . specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0]) . '" onclick="Backend.getScrollOffset()">'
-							. $imagePasteAfter
-							. '</a> ';
+								. $this->addToUrl($strAdd2UrlAfter)
+								. '" title="' . specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0]) . '" onclick="Backend.getScrollOffset()">'
+								. $imagePasteAfter
+								. '</a> ';
 
 						$imagePasteInto = $this->generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteinto'][0], 'class="blink"');
 						$return .= ' <a href="'
-							. $this->addToUrl($strAdd2UrlInto)
-							. '" title="' . specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">'
-							. $imagePasteInto
-							. '</a> ';
+								. $this->addToUrl($strAdd2UrlInto)
+								. '" title="' . specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">'
+								. $imagePasteInto
+								. '</a> ';
 						break;
 				}
 			}
