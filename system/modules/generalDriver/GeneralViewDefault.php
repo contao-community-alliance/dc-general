@@ -1539,8 +1539,16 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 				case 6:
 					// Add new button
 					$strCDP = $this->getDC()->getDataProvider('self')->getEmptyModel()->getProviderName();
-					$strPDP = $this->getDC()->getDataProvider('parent')->getEmptyModel()->getProviderName();
-
+					
+					if ($this->getDC()->getDataProvider('parent') != null)
+					{
+						$strPDP = $this->getDC()->getDataProvider('parent')->getEmptyModel()->getProviderName();
+					}
+					else
+					{
+						$strPDP = null;
+					}
+					
 					if (!($this->getDC()->arrDCA['config']['closed'] || $this->getDC()->isClipboard()))
 					{
 						$arrReturn['button_new'] = sprintf('<a href="%s" class="header_new" title="%s" accesskey="n" onclick="Backend.getScrollOffset()">%s</a>', $this->addToUrl(sprintf('act=paste&amp;mode=create&amp;cdp=%s&amp;pdp=%s', $strCDP, $strPDP)), specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][1]), $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][0]);
