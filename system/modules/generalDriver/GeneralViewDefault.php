@@ -1525,7 +1525,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 						{
 							$strHref = '&amp;mode=2';
 						}
-						$strHref = $this->addToUrl($strHref . 'id=&amp;act=create&amp;pid=' . $this->getDC()->getId());
+						$strHref = $this->addToUrl($strHref . '&amp;id=&amp;act=create&amp;pid=' . $this->getDC()->getId());
 					}
 					else
 					{
@@ -1623,7 +1623,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 						{
 							$strHref = '&amp;mode=2';
 						}
-						$strHref = $this->addToUrl($strHref . 'id=&amp;act=create&amp;pid=' . $this->getDC()->getId());
+						$strHref = $this->addToUrl($strHref . '&amp;id=&amp;act=create&amp;pid=' . $this->getDC()->getId());
 					}
 					else
 					{
