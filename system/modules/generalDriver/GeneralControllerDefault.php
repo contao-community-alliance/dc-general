@@ -1026,6 +1026,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		// Delete record
 		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
 		{
+			case 0:
 			case 1:
 			case 2:
 			case 3:
