@@ -36,6 +36,9 @@ $GLOBALS['TL_HOOKS']['executePostActions'][] = array('GeneralAjax', 'hookExecute
 /**
  * JS
  */
-$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/generalDriver/html/js/generalDriver.js';
+if(TL_MODE == 'BE')
+{
+	$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/generalDriver/html/js/generalDriver.js';
+}
 
 ?>
