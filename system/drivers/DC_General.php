@@ -1739,8 +1739,8 @@ class DC_General extends DataContainer implements editable, listable
 			$varNew = $this->objCallbackClass->saveCallback($arrConfig, $varNew);
 		}
 		catch (Exception $e)
-		{
-			$this->noReload = true;
+		{				
+			$this->blnNoReload = true;
 			$objWidget->addError($e->getMessage());
 			return $this->arrProcessed[$strField] = null;
 		}
@@ -1748,7 +1748,7 @@ class DC_General extends DataContainer implements editable, listable
 		// Check on value empty
 		if ($varNew == '' && $arrConfig['eval']['doNotSaveEmpty'])
 		{
-			$this->noReload = true;
+			$this->blnNoReload = true;
 			$objWidget->addError($GLOBALS['TL_LANG']['ERR']['mdtryNoLabel']);
 			return $this->arrProcessed[$strField] = null;
 		}
@@ -1761,7 +1761,7 @@ class DC_General extends DataContainer implements editable, listable
 			}
 			else if ($arrConfig['eval']['unique'] && !$this->getDataProvider($this->objCurrentModel->getProviderName())->isUniqueValue($strField, $varNew, $this->objCurrentModel->getID()))
 			{
-				$this->noReload = true;
+				$this->blnNoReload = true;
 				$objWidget->addError(sprintf($GLOBALS['TL_LANG']['ERR']['unique'], $objWidget->label));
 				return $this->arrProcessed[$strField] = null;
 			}
@@ -1770,7 +1770,7 @@ class DC_General extends DataContainer implements editable, listable
 				$this->getDataProvider($this->objCurrentModel->getProviderName())->resetFallback($strField);
 			}
 		}
-
+		
 		$this->arrProcessed[$strField] = $varNew;
 
 		return $varNew;
