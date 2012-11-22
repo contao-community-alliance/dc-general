@@ -805,7 +805,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		// Load record from data provider
 		$objDBModel = $objCurrentDataProvider->getEmptyModel();
 		$this->getDC()->setCurrentModel($objDBModel);
-		
+
 		if ($this->getDC()->arrDCA['list']['sorting']['mode'] < 4)
 		{
 			// check if the pid id/word is set
@@ -891,7 +891,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				}
 				// TODO: update sorting here.
 			}
-			
+
 			switch ($this->Input->get('mode'))
 			{
 				case 1: // insert after
@@ -935,38 +935,44 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		// Check submit
 		if ($this->getDC()->isSubmitted() == true && !$this->getDC()->isNoReload())
 		{
-
-			if (isset($_POST["save"]))
+			try
 			{
-				// process input and update changed properties.
-				if (($objModell = $this->doSave($this->getDC())) !== false)
+				if (isset($_POST["save"]))
 				{
-					// Callback
-					$this->getDC()->getCallbackClass()->oncreateCallback($objDBModel->getID(), $objDBModel->getPropertiesAsArray());
-					// Log
-					$this->log('A new entry in table "' . $this->getDC()->getTable() . '" has been created (ID: ' . $objModell->getID() . ')', 'DC_General - Controller - create()', TL_GENERAL);
-					// Redirect
-					$this->redirect($this->addToUrl("id=" . $objDBModel->getID() . "&amp;act=edit"));
+					// process input and update changed properties.
+					if (($objModell = $this->doSave($this->getDC())) !== false)
+					{
+						// Callback
+						$this->getDC()->getCallbackClass()->oncreateCallback($objDBModel->getID(), $objDBModel->getPropertiesAsArray());
+						// Log
+						$this->log('A new entry in table "' . $this->getDC()->getTable() . '" has been created (ID: ' . $objModell->getID() . ')', 'DC_General - Controller - create()', TL_GENERAL);
+						// Redirect
+						$this->redirect($this->addToUrl("id=" . $objDBModel->getID() . "&amp;act=edit"));
+					}
+				}
+				else if (isset($_POST["saveNclose"]))
+				{
+					// process input and update changed properties.
+					if (($objModell = $this->doSave($this->getDC())) !== false)
+					{
+						setcookie('BE_PAGE_OFFSET', 0, 0, '/');
+
+						$_SESSION['TL_INFO']	 = '';
+						$_SESSION['TL_ERROR']	 = '';
+						$_SESSION['TL_CONFIRM']	 = '';
+
+						// Callback
+						$this->getDC()->getCallbackClass()->oncreateCallback($objDBModel->getID(), $objDBModel->getPropertiesAsArray());
+						// Log
+						$this->log('A new entry in table "' . $this->getDC()->getTable() . '" has been created (ID: ' . $objModell->getID() . ')', 'DC_General - Controller - create()', TL_GENERAL);
+						// Redirect
+						$this->redirect($this->getReferer());
+					}
 				}
 			}
-			else if (isset($_POST["saveNclose"]))
+			catch (Exception $exc)
 			{
-				// process input and update changed properties.
-				if (($objModell = $this->doSave($this->getDC())) !== false)
-				{
-					setcookie('BE_PAGE_OFFSET', 0, 0, '/');
-
-					$_SESSION['TL_INFO']	 = '';
-					$_SESSION['TL_ERROR']	 = '';
-					$_SESSION['TL_CONFIRM']	 = '';
-
-					// Callback
-					$this->getDC()->getCallbackClass()->oncreateCallback($objDBModel->getID(), $objDBModel->getPropertiesAsArray());
-					// Log
-					$this->log('A new entry in table "' . $this->getDC()->getTable() . '" has been created (ID: ' . $objModell->getID() . ')', 'DC_General - Controller - create()', TL_GENERAL);
-					// Redirect
-					$this->redirect($this->getReferer());
-				}
+				$_SESSION['TL_ERROR'][] = $exc->getMessage();
 			}
 		}
 	}
@@ -1353,7 +1359,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		{
 			$objDBModel->setProperty("tstamp", time());
 		}
-		
+
 		// Callback
 		$this->getDC()->getCallbackClass()->onsaveCallback($objDBModel);
 
