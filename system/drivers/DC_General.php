@@ -231,7 +231,7 @@ class DC_General extends DataContainer implements editable, listable
 	 * @var string
 	 */
 	protected $strFirstSorting = null;
-	
+
 	/**
 	 * Order of the first sorting
 	 * @var string
@@ -324,7 +324,9 @@ class DC_General extends DataContainer implements editable, listable
 
 		// Basic vars Init
 		$this->strTable = $strTable;
-		if ($arrDCA != null)
+		// in contao 3 the second constructor parameter is the backend module array.
+		// Therefore we have to check if the passed argument is indeed a valid DCA.
+		if ($arrDCA != null && $arrDCA['config'])
 		{
 			$this->arrDCA = $arrDCA;
 		}
@@ -558,7 +560,7 @@ class DC_General extends DataContainer implements editable, listable
 	 */
 	public function checkPostGet()
 	{
-		$this->intId = $this->Input->get('id');
+		$this->intId = Input::getInstance()->get('id');
 
 		$this->blnSubmitted = false;
 		$this->blnVersionSubmit = false;
@@ -582,7 +584,7 @@ class DC_General extends DataContainer implements editable, listable
 		}
 
 		// Act check
-		switch ($this->Input->get('act'))
+		switch (Input::getInstance()->get('act'))
 		{
 			case 'select':
 				$this->blnSelectSubmit = true;
@@ -591,9 +593,9 @@ class DC_General extends DataContainer implements editable, listable
 
 		$this->blnAutoSubmitted = $_POST['SUBMIT_TYPE'] == 'auto';
 
-		$this->arrInputs = $_POST['FORM_INPUTS'] ? array_flip($this->Input->post('FORM_INPUTS')) : array();
+		$this->arrInputs = $_POST['FORM_INPUTS'] ? array_flip(Input::getInstance()->post('FORM_INPUTS')) : array();
 
-		$this->arrStates = $this->Session->get('fieldset_states');
+		$this->arrStates = Session::getInstance()->get('fieldset_states');
 		$this->arrStates = (array) $this->arrStates[$this->strTable];
 	}
 
@@ -636,6 +638,11 @@ class DC_General extends DataContainer implements editable, listable
 			case 'palette':
 			case 'activeRecord':
 				throw new Exception("Unsupported getter function for '$name' in DC_General.");
+		}
+		// allow importing of objects in Contao 3.
+		if (version_compare(VERSION, '3.0', '>='))
+		{
+			return $this->arrObjects[$name];
 		}
 	}
 
@@ -1142,7 +1149,7 @@ class DC_General extends DataContainer implements editable, listable
 	public function setFirstSorting($strFirstSorting, $strSortingOrder = DCGE::MODEL_SORTING_ASC)
 	{
 		$this->strFirstSorting = $strFirstSorting;
-		$this->strFirstSortingOrder = $strSortingOrder;	
+		$this->strFirstSortingOrder = $strSortingOrder;
 	}
 
 	/**
@@ -1154,7 +1161,7 @@ class DC_General extends DataContainer implements editable, listable
 	{
 		return $this->strFirstSorting;
 	}
-	
+
 	/**
 	 * Get the order for the primary field of sorting
 	 *
@@ -1333,7 +1340,7 @@ class DC_General extends DataContainer implements editable, listable
 		}
 
 		// TODO: is this really a wise idea here?
-		if (in_array('metapalettes', $this->Config->getActiveModules()))
+		if (in_array('metapalettes', Config::getInstance()->getActiveModules()))
 		{
 			MetaPalettes::getInstance()->generateSubSelectPalettes($this);
 		}
@@ -1739,7 +1746,7 @@ class DC_General extends DataContainer implements editable, listable
 			$varNew = $this->objCallbackClass->saveCallback($arrConfig, $varNew);
 		}
 		catch (Exception $e)
-		{				
+		{
 			$this->blnNoReload = true;
 			$objWidget->addError($e->getMessage());
 			return $this->arrProcessed[$strField] = null;
@@ -1770,7 +1777,7 @@ class DC_General extends DataContainer implements editable, listable
 				$this->getDataProvider($this->objCurrentModel->getProviderName())->resetFallback($strField);
 			}
 		}
-		
+
 		$this->arrProcessed[$strField] = $varNew;
 
 		return $varNew;

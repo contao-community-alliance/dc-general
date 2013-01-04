@@ -68,6 +68,13 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 	 */
 	protected $objLanguagesSupported = null;
 
+	/**
+	 * Used by palette rendering.
+	 *
+	 * @var array
+	 */
+	protected $arrStack = array();
+
 	/* /////////////////////////////////////////////////////////////////////
 	 * ---------------------------------------------------------------------
 	 * Magic function
