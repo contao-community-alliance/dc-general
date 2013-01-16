@@ -173,8 +173,8 @@ class GeneralDataDefault implements InterfaceGeneralData
 	 * IN
 	 *                'property'           string (the name of a property)
 	 *                'values'             array of literal
-	 * 
-	 * LIKE			  
+	 *
+	 * LIKE
 	 * 				  'property'		   string (the name of a property)
 	 * 			      'value'              literal - Wildcards * (Many) ? (One)
 	 *
@@ -227,7 +227,7 @@ class GeneralDataDefault implements InterfaceGeneralData
 
 	/**
 	 * Build the Where
-	 * 
+	 *
 	 * @param GeneralDataConfigDefault $objConfig
 	 * @param array $arrParams
 	 */
@@ -274,7 +274,7 @@ class GeneralDataDefault implements InterfaceGeneralData
 	 * @return string
 	 */
 	protected function buildSortingQuery($objConfig)
-	{		
+	{
 		$arrSorting = $objConfig->getSorting();
 		$strReturn = '';
 		$arrFields = array();
@@ -449,21 +449,6 @@ class GeneralDataDefault implements InterfaceGeneralData
 		}
 
 		return $objCollection;
-	}
-
-	/**
-	 * Fetch multiple records.
-	 * Use the fetchAll instead of fetchEach
-	 * 
-	 * @deprecated since version now
-	 *
-	 * @param GeneralDataConfigDefault $objConfig
-	 *
-	 * @return InterfaceGeneralCollection
-	 */
-	public function fetchEach(GeneralDataConfigDefault $objConfig)
-	{
-		return $this->fetchAll($objConfig);
 	}
 
 	/**

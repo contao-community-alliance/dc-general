@@ -68,15 +68,6 @@ interface InterfaceGeneralData
     public function fetch(GeneralDataConfigDefault $objConfig);
 
     /**
-     * Fetch multiple records by ids.
-     *
-     * @param GeneralDataConfigDefault $objConfig
-     *
-     * @return InterfaceGeneralCollection
-     */
-    public function fetchEach(GeneralDataConfigDefault $objConfig);
-
-    /**
      * Fetch all records (optional limited).
      *
      * @param GeneralDataConfigDefault $objConfig
