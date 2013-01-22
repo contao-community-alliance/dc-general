@@ -73,14 +73,14 @@ class GeneralDataDefault implements InterfaceGeneralData
 	 * Set base config with source and other neccesary prameter
 	 *
 	 * @param array $arrConfig
-	 * @throws Excpetion
+	 * @throws Exception
 	 */
 	public function setBaseConfig(array $arrConfig)
 	{
 		// Check Vars
 		if (!isset($arrConfig["source"]))
 		{
-			throw new Excpetion("Missing table name.");
+			throw new Exception("Missing table name.");
 		}
 
 		// Init Vars
