@@ -1709,6 +1709,8 @@ class DC_General extends DataContainer implements editable, listable
 			$varNew = $objDate->tstamp;
 		}
 
+		$this->import('Input');
+
 		//Handle multi-select fields in "override all" mode
 		// OH: this should be a widget feature
 		if (($arrConfig['inputType'] == 'checkbox' || $arrConfig['inputType'] == 'checkboxWizard') && $arrConfig['eval']['multiple'] && $this->Input->get('act') == 'overrideAll')
