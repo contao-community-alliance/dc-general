@@ -36,6 +36,7 @@ ClassLoader::addClasses(array
 	'InterfaceGeneralDataMultiLanguage' => 'system/modules/generalDriver/InterfaceGeneralDataMultiLanguage.php',
 	'InterfaceGeneralModel'             => 'system/modules/generalDriver/InterfaceGeneralModel.php',
 	'InterfaceGeneralView'              => 'system/modules/generalDriver/InterfaceGeneralView.php',
+	'WidgetAccessor'                    => 'system/modules/generalDriver/WidgetAccessor.php',
 ));
 
 

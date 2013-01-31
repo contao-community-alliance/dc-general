@@ -1614,6 +1614,13 @@ class DC_General extends DataContainer implements editable, listable
 		// widgets should parse the configuration by themselfs, depending on what they need
 		$arrPrepared = $this->prepareForWidget($arrConfig, $strInputName, $varValue, $strField, $this->strTable);
 
+		// Bugfix CS: ajax subpalettes are really broken.
+		// Therefore we reset to the default checkbox behaviour here and submit the entire form.
+		// This way, the javascript needed by the widget (wizards) will be correctly evaluated.
+		if ($arrConfig['inputType'] == 'checkbox' && is_array($GLOBALS['TL_DCA'][$this->strTable]['subpalettes']) && in_array($strField, array_keys($GLOBALS['TL_DCA'][$this->strTable]['subpalettes'])) && $arrConfig['eval']['submitOnChange'])
+		{
+			$arrPrepared['onclick'] = $arrConfig['eval']['submitOnChange'] ? "Backend.autoSubmit('".$this->strTable."')" : '';
+		}
 		//$arrConfig['options'] = $arrPrepared['options'];
 
 		$objWidget = new $strClass($arrPrepared);
@@ -1680,6 +1687,11 @@ class DC_General extends DataContainer implements editable, listable
 
 		// Validate
 		$objWidget->validate();
+		if (Input::getInstance()->post('SUBMIT_TYPE') == 'auto')
+		{
+			// HACK: we would need a Widget::clearErrors() here but something like this does not exist, hence we have a class that does this for us.
+			WidgetAccessor::resetErrors($objWidget);
+		}
 
 		// Check
 		if ($objWidget->hasErrors())
@@ -2302,3 +2314,4 @@ class DC_General extends DataContainer implements editable, listable
 	}
 
 }
+
