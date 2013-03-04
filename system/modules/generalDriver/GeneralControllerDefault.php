@@ -1814,6 +1814,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$arrLablesFields = $this->getDC()->arrDCA['list']['label']['fields'];
 		$arrTitlePattern = $this->getDC()->arrDCA['list']['label']['format'];
 		$arrRootEntries	 = $this->getDC()->getRootConditions('self');
+		$arrLimit		 = $this->calculateLimit();
 
 		// TODO: @CS we need this to be srctable_dsttable_tree for interoperability, for mode5 this will be self_self_tree but with strTable.
 		$strToggleID = $this->getDC()->getTable() . '_tree';
@@ -1871,6 +1872,12 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		// Set Filter for root elements
 		$objRootConfig->setFilter($arrRootEntries);
 
+		if (preg_match('/limit/', $this->getDC()->arrDCA['list']['sorting']['panelLayout']))
+		{
+			// Set Limit  
+			$objRootConfig->setStart($arrLimit[0])->setAmount($arrLimit[1]);
+		}
+
 		// Fetch all root elements
 		$objRootCollection = $this->getDC()->getDataProvider()->fetchAll($objRootConfig);
 
@@ -1879,6 +1886,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			$objTableTreeData->add($objRootModel);
 			$this->treeWalkModel($objRootModel, 0, $arrToggle, array('self'));
 		}
+
 		$this->getDC()->setCurrentCollecion($objTableTreeData);
 	}
 
@@ -1968,14 +1976,17 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 */
 	protected function treeWalkModel(InterfaceGeneralModel $objModel, $intLevel, $arrToggle, $arrSubTables = array())
 	{
+		$blnHasChild = false;
+
 		$objModel->setMeta(DCGE::TREE_VIEW_LEVEL, $intLevel);
 
 		$this->buildLabel($objModel);
 
 		if ($arrToggle['all'] == 1 && !(key_exists($objModel->getID(), $arrToggle) && $arrToggle[$objModel->getID()] == 0))
 		{
-			$objModel->setMeta(DCGE::TREE_VIEW_ISOPEN, true);
+			$objModel->setMeta(DCGE::TREE_VIEW_IS_OPEN, true);
 		}
+
 		// Get toogle state
 		else if (key_exists($objModel->getID(), $arrToggle) && $arrToggle[$objModel->getID()] == 1)
 		{
@@ -2007,8 +2018,16 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			// Fetch all children
 			$objChildCollection = $this->getDC()->getDataProvider($strSubTable)->fetchAll($objChildConfig);
 
-			if ($objChildCollection->length() > 0)
+			// Speed up
+			if ($objChildCollection->length() > 0 && !$objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN))
 			{
+				$blnHasChild = true;
+				break;
+			}
+			else if ($objChildCollection->length() > 0)
+			{
+				$blnHasChild = true;
+
 				// TODO: @CS we need this to be srctable_dsttable_tree for interoperability, for mode5 this will be self_self_tree but with strTable.
 				$strToggleID = $this->getDC()->getTable() . '_tree';
 
@@ -2038,16 +2057,12 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		}
 
 		// If open store children
-		if ($objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN) && $arrChildCollections)
+		if ($objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN) && count($arrChildCollections) != 0)
 		{
 			$objModel->setMeta(DCGE::TREE_VIEW_CHILD_COLLECTION, $arrChildCollections);
-			$objModel->setMeta(DCGE::TREE_VIEW_HAS_CHILDS, true);
 		}
-		else
-		{
-			$objModel->setMeta(DCGE::TREE_VIEW_HAS_CHILDS, false);
-		}
-		$objModel->setMeta(DCGE::TREE_VIEW_HAS_CHILDS, count($arrChildCollections));
+
+		$objModel->setMeta(DCGE::TREE_VIEW_HAS_CHILDS, $blnHasChild);
 	}
 
 	/**
@@ -2409,8 +2424,19 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$arrSession	 = Session::getInstance()->getData();
 
 		// Get the amount for the current filter settings
-		$objConfig	 = $this->getDC()->getDataProvider()->getEmptyConfig()->setFilter($this->getFilter());
-		$intCount	 = $this->getDC()->getDataProvider()->getCount($objConfig);
+		if ($this->getDC()->arrDCA['list']['sorting']['mode'] == 5)
+		{
+			$objRootConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
+			$objRootConfig->setIdOnly(true);
+			$objRootConfig->setFilter($this->getDC()->getRootConditions('self'));
+
+			$intCount = $this->getDC()->getDataProvider()->getCount($objRootConfig);
+		}
+		else
+		{
+			$objConfig	 = $this->getDC()->getDataProvider()->getEmptyConfig()->setFilter($this->getFilter());
+			$intCount	 = $this->getDC()->getDataProvider()->getCount($objConfig);
+		}
 
 		// Overall limit
 		if ($intCount > $GLOBALS['TL_CONFIG']['maxResultsPerPage'] || preg_replace('/^.*,/i', '', $this->getDC()->getLimit()) == $GLOBALS['TL_CONFIG']['maxResultsPerPage'])

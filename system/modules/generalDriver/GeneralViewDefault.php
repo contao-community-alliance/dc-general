@@ -375,6 +375,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 			case 2:
 			case 3:
 			case 4:
+			case 5:
 				$arrReturn['panel'] = $this->panel();
 		}
 
