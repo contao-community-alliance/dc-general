@@ -239,7 +239,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			$this->getDC()->setLimit($arrSession['filter'][$strFilter]['limit']);
 		}
 
-        // Check if the current limit is higher than the limit resultsPerPage
+		// Check if the current limit is higher than the limit resultsPerPage
 		$arrLimit		 = trimsplit(",", $this->getDC()->getLimit());
 		$intMaxPerPage	 = $arrLimit[1] - $arrLimit[0];
 
