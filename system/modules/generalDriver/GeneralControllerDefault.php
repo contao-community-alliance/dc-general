@@ -266,80 +266,50 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 */
 	protected function establishSorting()
 	{
-		// Init Vars
-		$arrSortingFields = array();
-		$arrSession			 = Session::getInstance()->getData();
-		$strSessionSorting	 = $arrSession['sorting'][$this->getDC()->getTable()];
-
-		// Set default values from DCA
-		$arrSorting				 = (array) $this->getDC()->arrDCA['list']['sorting']['fields'];
-		$strFirstSorting		 = preg_replace('/\s+.*$/i', '', $arrSorting[0]);
-		$strFirstSortingOrder	 = DCGE::MODEL_SORTING_ASC;
-
 		// Get sorting fields
+		$arrSortingFields		= array();
 		foreach ($this->getDC()->arrDCA['fields'] as $k => $v)
 		{
 			if ($v['sorting'])
 			{
-				$arrSortingFields[] = $k;
+				$arrSortingFields[$k] = $v['flag'] % 2
+					? DCGE::MODEL_SORTING_ASC
+					: DCGE::MODEL_SORTING_DESC;
 			}
 		}
+		$this->getDC()->setSorting(array_keys($arrSortingFields));
+		
+		
+		// Check if we have another sorting from session/panels
+		$arrSession			= Session::getInstance()->getData();
+		$strSessionSorting	= preg_replace('/\s+.*$/i', '', strval($arrSession['sorting'][$this->getDC()->getTable()]));
+		if (isset($arrSortingFields[$strSessionSorting]))
+		{
+			$this->getDC()->setFirstSorting($strSessionSorting, $arrSortingFields[$strSessionSorting]);
+			return;
+		}
+		
+		
+		// Set default values from DCA
+		$arrSorting				 = (array) $this->getDC()->arrDCA['list']['sorting']['fields'];
+		$strFirstSorting		 = preg_replace('/\s+.*$/i', '', strval($arrSorting[0]));
+		$strFirstSortingOrder	 = $this->getDC()->arrDCA['list']['sorting']['flag'] % 2
+			? DCGE::MODEL_SORTING_ASC
+			: DCGE::MODEL_SORTING_DESC;
 
-		// Check if we have an other sorting from session/panels
-		if (!is_null($strSessionSorting) && in_array($strSessionSorting, $arrSortingFields))
+		if (!strlen($strFirstSorting))
 		{
-			$strFirstSorting = $strSessionSorting;
-		}
-
-		// Fallback if we have no fields. Order - sorting, tsampt, pid, id
-		if (empty($arrSorting))
-		{
-			if ($this->getDC()->getDataProvider()->fieldExists('sorting'))
+			foreach(array('sorting', 'tstamp', 'pid', 'id') as $strField)
 			{
-				$strFirstSorting = 'sorting';
-			}
-			else if ($this->getDC()->getDataProvider()->fieldExists('tstamp'))
-			{
-				$strFirstSorting = 'tstamp';
-			}
-			else if ($this->getDC()->getDataProvider()->fieldExists('pid'))
-			{
-				$strFirstSorting = 'pid';
-			}
-			else if ($this->getDC()->getDataProvider()->fieldExists('id'))
-			{
-				$strFirstSorting = 'id';
-			}
-		}
-
-		// Get the sorting order for the first sorting field
-		// Global order
-		if ($this->getDC()->arrDCA['list']['sorting']['flag'] % 1 == 0)
-		{
-			$strFirstSortingOrder = DCGE::MODEL_SORTING_ASC;
-		}
-		else
-		{
-			$strFirstSortingOrder = DCGE::MODEL_SORTING_DESC;
-		}
-
-		// Local (field) order
-		if (!$this->getDC()->arrDCA['fields'][$strFirstSorting]['flag'])
-		{
-			// Local
-			if ($this->getDC()->arrDCA['fields'][$strFirstSorting]['flag'] % 1 == 0)
-			{
-				$strFirstSortingOrder = DCGE::MODEL_SORTING_ASC;
-			}
-			else
-			{
-				$strFirstSortingOrder = DCGE::MODEL_SORTING_DESC;
+				if($this->getDC()->getDataProvider()->fieldExists($strField))
+				{
+					$strFirstSorting = $strField;
+					break;
+				}
 			}
 		}
 
 		$this->getDC()->setFirstSorting($strFirstSorting, $strFirstSortingOrder);
-		$this->getDC()->setSorting($arrSortingFields);
-
 		return;
 	}
 

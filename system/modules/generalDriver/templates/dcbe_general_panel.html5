@@ -46,7 +46,7 @@
                             <strong><?php echo $GLOBALS['TL_LANG']['MSC']['sortBy']; ?>:</strong>
                             <select name="tl_sort" id="tl_sort" class="tl_select">
                                 <?php foreach ($arrPanel['option'] as $arrOption): ?>
-                                    <option value="<?php echo $arrOption['value']; ?>"<?php echo $arrOption['select']; ?>><?php echo $arrOption['content']; ?></option>';
+                                    <option value="<?php echo $arrOption['value']; ?>"<?php echo $arrOption['select']; ?>><?php echo $arrOption['content']; ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -57,7 +57,7 @@
                             <strong><?php echo $GLOBALS['TL_LANG']['MSC']['search']; ?>:</strong>
                             <select name="tl_field" class="<?php echo $arrPanel['select']['class']; ?>">
                                 <?php foreach ($arrPanel['option'] as $arrOption): ?>
-                                    <option value="<?php echo $arrOption['value']; ?>"<?php echo $arrOption['select']; ?>><?php echo $arrOption['content']; ?></option>';
+                                    <option value="<?php echo $arrOption['value']; ?>"<?php echo $arrOption['select']; ?>><?php echo $arrOption['content']; ?></option>
                                 <?php endforeach; ?>
                             </select>
                             <span> = </span>
@@ -70,7 +70,7 @@
                             <strong><?php echo $GLOBALS['TL_LANG']['MSC']['showOnly']; ?>:</strong>
                             <select name="tl_limit" class="tl_select<?php echo $arrPanel['select']['class']; ?>" onchange="this.form.submit()">
                                 <?php foreach ($arrPanel['option'] as $arrOption): ?>
-                                    <option value="<?php echo $arrOption['value']; ?>"<?php echo $arrOption['select']; ?>><?php echo $arrOption['content']; ?></option>';
+                                    <option value="<?php echo $arrOption['value']; ?>"<?php echo $arrOption['select']; ?>><?php echo $arrOption['content']; ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
