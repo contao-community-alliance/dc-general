@@ -240,14 +240,14 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		}
 
         // Check if the current limit is higher than the limit resultsPerPage
-        $arrLimit = trimsplit(",", $this->getDC()->getLimit());
-        $intMaxPerPage = $arrLimit[1] - $arrLimit[0];
-        
-        if($intMaxPerPage > $GLOBALS['TL_CONFIG']['resultsPerPage'])
-        {
-            $this->getDC()->setLimit( $arrLimit[0] . ', ' . ($arrLimit[0] + $GLOBALS['TL_CONFIG']['resultsPerPage']));
-        }
-        
+		$arrLimit		 = trimsplit(",", $this->getDC()->getLimit());
+		$intMaxPerPage	 = $arrLimit[1] - $arrLimit[0];
+
+		if ($intMaxPerPage > $GLOBALS['TL_CONFIG']['resultsPerPage'])
+		{
+			$this->getDC()->setLimit($arrLimit[0] . ', ' . ($arrLimit[0] + $GLOBALS['TL_CONFIG']['resultsPerPage']));
+		}
+
 		// Fallback and limit check
 		if (is_null($this->getDC()->getLimit()))
 		{
