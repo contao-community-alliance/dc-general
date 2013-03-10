@@ -243,7 +243,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$arrLimit		 = trimsplit(",", $this->getDC()->getLimit());
 		$intMaxPerPage	 = $arrLimit[1] - $arrLimit[0];
 
-		if ($intMaxPerPage > $GLOBALS['TL_CONFIG']['resultsPerPage'])
+		if ($intMaxPerPage > $GLOBALS['TL_CONFIG']['resultsPerPage'] && $arrSession['filter'][$strFilter]['limit'] != 'all')
 		{
 			$this->getDC()->setLimit($arrLimit[0] . ', ' . ($arrLimit[0] + $GLOBALS['TL_CONFIG']['resultsPerPage']));
 		}
@@ -2439,11 +2439,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		}
 
 		// Overall limit
-		if ($intCount > $GLOBALS['TL_CONFIG']['maxResultsPerPage'] || preg_replace('/^.*,/i', '', $this->getDC()->getLimit()) == $GLOBALS['TL_CONFIG']['maxResultsPerPage'])
+		if ($intCount > $GLOBALS['TL_CONFIG']['resultsPerPage'])
 		{
 			$blnIsMaxResultsPerPage						 = true;
-			$GLOBALS['TL_CONFIG']['resultsPerPage']		 = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
-			$arrSession['filter'][$strFilter]['limit']	 = '0,' . $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
+//			$GLOBALS['TL_CONFIG']['resultsPerPage']		 = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
+//			$arrSession['filter'][$strFilter]['limit']	 = '0,' . $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
 		}
 
 		// Build options
