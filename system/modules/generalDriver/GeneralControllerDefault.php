@@ -272,14 +272,18 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		{
 			if ($v['sorting'])
 			{
-				$arrSortingFields[$k] = $v['flag'] % 2
-					? DCGE::MODEL_SORTING_ASC
-					: DCGE::MODEL_SORTING_DESC;
+				if (is_null($v['flag']))
+				{
+					$arrSortingFields[$k] = DCGE::MODEL_SORTING_ASC;
+				}
+				else
+				{
+					$arrSortingFields[$k] = $v['flag'] % 2 ? DCGE::MODEL_SORTING_ASC : DCGE::MODEL_SORTING_DESC;
+				}
 			}
 		}
 		$this->getDC()->setSorting(array_keys($arrSortingFields));
-		
-		
+
 		// Check if we have another sorting from session/panels
 		$arrSession			= Session::getInstance()->getData();
 		$strSessionSorting	= preg_replace('/\s+.*$/i', '', strval($arrSession['sorting'][$this->getDC()->getTable()]));
@@ -288,20 +292,25 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			$this->getDC()->setFirstSorting($strSessionSorting, $arrSortingFields[$strSessionSorting]);
 			return;
 		}
-		
-		
+
 		// Set default values from DCA
-		$arrSorting				 = (array) $this->getDC()->arrDCA['list']['sorting']['fields'];
-		$strFirstSorting		 = preg_replace('/\s+.*$/i', '', strval($arrSorting[0]));
-		$strFirstSortingOrder	 = $this->getDC()->arrDCA['list']['sorting']['flag'] % 2
-			? DCGE::MODEL_SORTING_ASC
-			: DCGE::MODEL_SORTING_DESC;
+		$arrSorting		 = (array) $this->getDC()->arrDCA['list']['sorting']['fields'];
+		$strFirstSorting = preg_replace('/\s+.*$/i', '', strval($arrSorting[0]));
+
+		if (is_null($v['flag']))
+		{
+			$strFirstSortingOrder = DCGE::MODEL_SORTING_ASC;
+		}
+		else
+		{
+			$strFirstSortingOrder = $this->getDC()->arrDCA['list']['sorting']['flag'] % 2 ? DCGE::MODEL_SORTING_ASC : DCGE::MODEL_SORTING_DESC;
+		}
 
 		if (!strlen($strFirstSorting))
 		{
-			foreach(array('sorting', 'tstamp', 'pid', 'id') as $strField)
+			foreach (array('sorting', 'tstamp', 'pid', 'id') as $strField)
 			{
-				if($this->getDC()->getDataProvider()->fieldExists($strField))
+				if ($this->getDC()->getDataProvider()->fieldExists($strField))
 				{
 					$strFirstSorting = $strField;
 					break;
@@ -658,7 +667,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				{
 					// Insert After => Get the parent from the target id
 					case 1:
-						$objParent = $this->getParent('self', null, $intPid);
+						$objParent = $this->getParent('self', null, $mixPid);
 						if ($objParent)
 						{
 							$this->setParent($objSrcModel, $objParent, 'self');
@@ -672,19 +681,19 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 					// Insert Into => use the pid
 					case 2:
-						if (!$intPid)
+						if (!$mixPid)
 						{
 							// no pid => insert at top level.
 							$this->setRoot($objSrcModel, 'self');
 						}
-						else if ($this->isRootEntry('self', $intPid))
+						else if ($this->isRootEntry('self', $mixPid))
 						{
 							$this->setRoot($objSrcModel, 'self');
 						}
 						else
 						{
 							$objParentConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
-							$objParentConfig->setId($intPid);
+							$objParentConfig->setId($mixPid);
 
 							$objParentModel = $this->getDC()->getDataProvider()->fetch($objParentConfig);
 
@@ -2093,6 +2102,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				->setFilter($this->getFilter())
 				->setSorting(array($this->getDC()->getFirstSorting() => $this->getDC()->getFirstSortingOrder()));
 
+        
 		if ($this->foreignKey)
 		{
 			$objConfig->setFields($this->arrFields);
