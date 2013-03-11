@@ -3193,7 +3193,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				$this->import('BackendUser', 'User');
 
 				// Check whether the field is a selector field and allowed for regular users (thanks to Fabian Mihailowitsch) (see #4427)
-				if (!is_array($this->getDC()->arrDCA['palettes']['__selector__']) || !in_array($this->Input->post('field'), $this->getDC()->arrDCA['palettes']['__selector__']) || ($this->getDC()->arrDCA['fields'][$this->Input->post('field')]['exclude'] && !$this->User->hasAccess($this->getDC()->getTable() . '::' . $this->Input->post('field'), 'alexf')))
+				if (!is_array($this->getDC()->arrDCA['palettes']['__selector__']) 
+						|| !in_array($this->Input->post('field'), $this->getDC()->arrDCA['palettes']['__selector__']) 
+						|| ($this->getDC()->arrDCA['fields'][$this->Input->post('field')]['exclude'] 
+						&& !$this->User->hasAccess($this->getDC()->getTable() . '::' . $this->Input->post('field'), 'alexf')))
 				{
 					$this->log('Field "' . $this->Input->post('field') . '" is not an allowed selector field (possible SQL injection attempt)', 'DC_General executePostActions()', TL_ERROR);
 					header('HTTP/1.1 400 Bad Request');
