@@ -255,9 +255,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	}
 
 	/**
-	 * Set the sorting and first sotrting. 
+	 * Set the sorting and first sotrting.
 	 * Use the default ones from DCA or the session values.
-	 * 
+	 *
 	 * @todo SH:CS: Add findInSet if we have the functions for foreignKey
 	 * @return void
 	 */
@@ -1760,7 +1760,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				$objFieldConfig = $objParrentDataProvider->getEmptyConfig()
 						->setId($objModel->getID());
 
-				$objFieldModel = $$objParrentDataProvider->fetch($objFieldConfig);
+				$objFieldModel = $objParrentDataProvider->fetch($objFieldConfig);
 
 				$objModel->setProperty('pid', $objFieldModel->getProperty($showFields[0]));
 			}
@@ -1880,7 +1880,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		if (preg_match('/limit/', $this->getDC()->arrDCA['list']['sorting']['panelLayout']))
 		{
-			// Set Limit  
+			// Set Limit
 			$objRootConfig->setStart($arrLimit[0])->setAmount($arrLimit[1]);
 		}
 
@@ -2125,7 +2125,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 //		var_dump($_POST);
 //		var_dump($_GET);
 //		exit();
-//		
+//
 		// Check if we have a submit
 		if (!in_array($this->Input->post('FORM_SUBMIT'), array('tl_filters')))
 		{
@@ -3193,9 +3193,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				$this->import('BackendUser', 'User');
 
 				// Check whether the field is a selector field and allowed for regular users (thanks to Fabian Mihailowitsch) (see #4427)
-				if (!is_array($this->getDC()->arrDCA['palettes']['__selector__']) 
-						|| !in_array($this->Input->post('field'), $this->getDC()->arrDCA['palettes']['__selector__']) 
-						|| ($this->getDC()->arrDCA['fields'][$this->Input->post('field')]['exclude'] 
+				if (!is_array($this->getDC()->arrDCA['palettes']['__selector__'])
+						|| !in_array($this->Input->post('field'), $this->getDC()->arrDCA['palettes']['__selector__'])
+						|| ($this->getDC()->arrDCA['fields'][$this->Input->post('field')]['exclude']
 						&& !$this->User->hasAccess($this->getDC()->getTable() . '::' . $this->Input->post('field'), 'alexf')))
 				{
 					$this->log('Field "' . $this->Input->post('field') . '" is not an allowed selector field (possible SQL injection attempt)', 'DC_General executePostActions()', TL_ERROR);
