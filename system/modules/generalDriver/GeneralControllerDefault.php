@@ -1760,7 +1760,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				$objFieldConfig = $objParrentDataProvider->getEmptyConfig()
 						->setId($objModel->getID());
 
-				$objFieldModel = $$objParrentDataProvider->fetch($objFieldConfig);
+				$objFieldModel = $objParrentDataProvider->fetch($objFieldConfig);
 
 				$objModel->setProperty('pid', $objFieldModel->getProperty($showFields[0]));
 			}
