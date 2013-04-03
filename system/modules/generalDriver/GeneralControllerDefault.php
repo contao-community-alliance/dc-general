@@ -255,7 +255,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	}
 
 	/**
-	 * Set the sorting and first sotrting.
+	 * Set the sorting and first sorting.
 	 * Use the default ones from DCA or the session values.
 	 *
 	 * @todo SH:CS: Add findInSet if we have the functions for foreignKey
@@ -1729,7 +1729,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	{
 		// Setup
 		$objCurrentDataProvider = $this->getDC()->getDataProvider();
-		$objParrentDataProvider = $this->getDC()->getDataProvider('parent');
+		$objParentDataProvider = $this->getDC()->getDataProvider('parent');
 
 		$showFields = $this->getDC()->arrDCA['list']['label']['fields'];
 		$arrLimit = $this->calculateLimit();
@@ -1757,10 +1757,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 			foreach ($objCollection as $objModel)
 			{
-				$objFieldConfig = $objParrentDataProvider->getEmptyConfig()
+				$objFieldConfig = $objParentDataProvider->getEmptyConfig()
 						->setId($objModel->getID());
 
-				$objFieldModel = $objParrentDataProvider->fetch($objFieldConfig);
+				$objFieldModel = $objParentDataProvider->fetch($objFieldConfig);
 
 				$objModel->setProperty('pid', $objFieldModel->getProperty($showFields[0]));
 			}
@@ -1880,7 +1880,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		if (preg_match('/limit/', $this->getDC()->arrDCA['list']['sorting']['panelLayout']))
 		{
-			// Set Limit
+			// Set limit
 			$objRootConfig->setStart($arrLimit[0])->setAmount($arrLimit[1]);
 		}
 
