@@ -16,7 +16,7 @@
  */
 ClassLoader::addClasses(array
 (
-	'DC_General'                        => 'system/drivers/DC_General.php',
+	'DC_General'                        => 'system/modules/generalDriver/DC_General.php',
 	'DCGE'                              => 'system/modules/generalDriver/DCGE.php',
 	'GeneralAjax'                       => 'system/modules/generalDriver/GeneralAjax.php',
 	'GeneralCallbackDefault'            => 'system/modules/generalDriver/GeneralCallbackDefault.php',
