@@ -1117,8 +1117,37 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 					$this->redirect($this->getReferer());
 				}
 			}
+			// Maybe Callbacks ? Yes, this is the first version of an simple
+			// button callback system like dc_memory.
+			else
+			{
+				$arrButtons = $this->getDC()->arrDCA['buttons'];
 
-			// Maybe Callbacks ?
+				if (is_array($arrButtons))
+				{
+					foreach ($arrButtons as $arrButton)
+					{
+						if (empty($arrButton) || !is_array($arrButton))
+						{
+							continue;
+						}
+
+						if (key_exists($arrButton['formkey'], $_POST))
+						{
+							$strClass	 = $arrButton['button_callback'][0];
+							$strMethod	 = $arrButton['button_callback'][1];
+
+							$this->import($strClass);
+
+							$this->$strClass->$strMethod($this->getDC());
+
+							break;
+						}
+					}
+				}
+
+				$this->reload();
+			}
 		}
 	}
 

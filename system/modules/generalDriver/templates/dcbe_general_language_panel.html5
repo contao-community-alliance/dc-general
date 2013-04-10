@@ -9,7 +9,7 @@
             </div>
             <div class="tl_sorting tl_subpanel">
                 <strong><?php echo $GLOBALS['TL_LANG']['MSC']['sortBy']; ?>:</strong>
-                <select name="tl_sort" id="tl_sort" class="tl_select">                    
+                <select name="tl_sort" id="tl_sort" class="tl_select">
                     <?php foreach ($this->objLanguages as $value): ?>
                         <option value="<?php echo $value->getID(); ?>"<?php echo $arrOption['select']; ?>><?php echo $value->getProperty("name"); ?></option>';
                     <?php endforeach; ?>

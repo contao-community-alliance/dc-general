@@ -1490,10 +1490,20 @@ class DC_General extends DataContainer implements editable, listable
 	 * Add a Button to the dca
 	 *
 	 * @param String $strButton
+	 * @param array $$arrConfig <p> An array with informations:
+	 * $arrConfig = array(
+	 *       'id'              => [ID eg. name],
+	 *       'formkey'         => [ID eg. name],
+	 *       'class'           => [css class],
+	 *       'accesskey'       => 'g',
+	 *       'value'           => [value for displaying],
+	 *       'button_callback' => array([class], [function])
+	 *  );
+	 * </p>
 	 */
-	public function addButton($strButton)
+	public function addButton($strButton, $arrConfig = array())
 	{
-		$this->arrDCA['buttons'][$strButton] = $strButton;
+		$this->arrDCA['buttons'][$strButton] = $arrConfig;
 	}
 
 	/**
