@@ -1,0 +1,36 @@
+{
+	"name":"metamodels/DC_General",
+	"description":"Universal data container for Contao",
+	"keywords":["framework", "data", "container", "driver", "php", "contao"],
+	"type":"contao-module",
+	"license":"LGPL-3.0+",
+	"authors":[
+		{
+			"name":"Christian Schiffler",
+			"email":"info@cyberspectrum.de",
+			"homepage":"http://www.cyberspectrum.de",
+			"role":"Project leader"
+		},
+		{
+			"name":"Stefan Heimes",
+			"email":"heimes@men-at-work.de",
+			"homepage":"http://www.men-at-work.de",
+			"role":"Developer"
+		}
+	],
+	"require":{
+		"php":">=5.3",
+		"contao":">=2.11,<3.0"
+	},
+	"autoload":{
+		"classmap":["system/"]
+	},
+	"extra":{
+		"contao": {
+			"symlinks":{
+				"system/drivers/DC_General.php": "system/drivers/DC_General.php",
+				"system/modules/generalDriver": "system/modules/generalDriver"
+			}
+		}
+	}
+}
