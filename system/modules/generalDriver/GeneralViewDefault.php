@@ -269,7 +269,8 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 			'enctype' => $this->getDC()->isUploadable() ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
 			//'onsubmit' => implode(' ', $this->onsubmit),
 			'error' => $this->noReload,
-			'buttons' => $this->getDC()->getButtonLabels(),
+			'buttons' => $this->getDC()->getButtonsDefinition(),
+			'buttonLables' => $this->getDC()->getButtonLabels(),
 			'noReload' => $this->getDC()->isNoReload()
 		));
 

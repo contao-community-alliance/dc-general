@@ -783,10 +783,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		// Load something
 		$this->getDC()->preloadTinyMce();
 
-		// Set buttons
-		$this->getDC()->addButton("save");
-		$this->getDC()->addButton("saveNclose");
-
 		// Load record from data provider
 		$objDBModel = $objCurrentDataProvider->getEmptyModel();
 		$this->getDC()->setCurrentModel($objDBModel);
@@ -954,6 +950,33 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 						$this->redirect($this->getReferer());
 					}
 				}
+				else
+				{
+					$arrButtons = $this->getDC()->arrDCA['buttons'];
+					
+					if (is_array($arrButtons))
+					{
+						foreach ($arrButtons as $arrButton)
+						{
+							if (empty($arrButton) || !is_array($arrButton))
+							{
+								continue;
+							}
+
+							if (key_exists($arrButton['formkey'], $_POST))
+							{
+								$strClass	 = $arrButton['button_callback'][0];
+								$strMethod	 = $arrButton['button_callback'][1];
+
+								$this->import($strClass);
+
+								$this->$strClass->$strMethod($this->getDC());
+
+								break;
+							}
+						}
+					}
+				}
 			}
 			catch (Exception $exc)
 			{
@@ -1075,10 +1098,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		// Load something
 		$this->getDC()->preloadTinyMce();
-
-		// Set buttons
-		$this->getDC()->addButton("save");
-		$this->getDC()->addButton("saveNclose");
 
 		// Load record from data provider
 		$objDBModel = $objCurrentDataProvider->fetch($objCurrentDataProvider->getEmptyConfig()->setId($this->getDC()->getId()));

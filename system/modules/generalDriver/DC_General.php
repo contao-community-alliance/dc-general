@@ -361,6 +361,10 @@ class DC_General extends DataContainer implements editable, listable
 		// Load
 		$this->checkPostGet();
 		$this->loadProviderAndHandler();
+		
+		// SH: We need the buttons here, because the onloadCallback is (the only) one 
+		// to remove buttons.
+		$this->loadDefaultButtons();
 
 		// Callback
 		if ($blnOnloadCallback == true)
@@ -414,6 +418,31 @@ class DC_General extends DataContainer implements editable, listable
 		$this->loadView();
 		$this->loadDataProvider();
 		$this->loadCallbackClass();
+	}
+	
+	/**
+	 * Load the default button. 'Save' and 'Save and close'.
+	 */
+	protected function loadDefaultButtons()
+	{
+		// Set buttons
+		$this->addButton("save", array(
+			'id'				 => 'save',
+			'formkey'			 => 'save',
+			'class'				 => '',
+			'accesskey'			 => 's',
+			'value'				 => null, // Lookup from DC_General
+			'button_callback'	 => null  // Core feature from DC_General
+		));
+
+		$this->addButton("saveNclose", array(
+			'id'				 => 'saveNclose',
+			'formkey'			 => 'saveNclose',
+			'class'				 => '',
+			'accesskey'			 => 's',
+			'value'				 => null, // Lookup from DC_General
+			'button_callback'	 => null  // Core feature from DC_General
+		));
 	}
 
 	/**
@@ -1455,7 +1484,15 @@ class DC_General extends DataContainer implements editable, listable
 	 */
 	public function getButtonLabel($strButton)
 	{
-		if (isset($GLOBALS['TL_LANG'][$this->strTable][$strButton]))
+		$arrButtons = $this->getButtonsDefinition();
+		
+		// Check if the button have the lable value itself
+		if(key_exists($strButton, $arrButtons) && !empty($arrButtons[$strButton]['value']))
+		{
+			return $arrButtons[$strButton]['value'];
+		}
+		// else try to finde a language array
+		else if (isset($GLOBALS['TL_LANG'][$this->strTable][$strButton]))
 		{
 			return $GLOBALS['TL_LANG'][$this->strTable][$strButton];
 		}
@@ -1463,6 +1500,7 @@ class DC_General extends DataContainer implements editable, listable
 		{
 			return $GLOBALS['TL_LANG']['MSC'][$strButton];
 		}
+		// Fallback, just return the key as is it.
 		else
 		{
 			return $strButton;
@@ -1503,6 +1541,20 @@ class DC_General extends DataContainer implements editable, listable
 	 */
 	public function addButton($strButton, $arrConfig = array())
 	{
+		// Make an array, for older calles.
+		if (empty($arrConfig))
+		{
+			$arrConfig = array
+			(
+				'id'				 => $strButton,
+				'formkey'			 => $strButton,
+				'class'				 => '',
+				'accesskey'			 => 's',
+				'value'				 => null,
+				'button_callback'	 => null
+			);
+		}
+		
 		$this->arrDCA['buttons'][$strButton] = $arrConfig;
 	}
 
