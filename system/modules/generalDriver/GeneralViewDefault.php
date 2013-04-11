@@ -1339,15 +1339,16 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 				{
 					$sortingMode = 9;
 				}
-				// If the current First sorting is the default one use the global flag
-				else if ($this->getDC()->getFirstSorting() == $orderBy[0])
-				{
-					$sortingMode = $this->getDC()->arrDCA['list']['sorting']['flag'];
-				}
 				// Use the fild flag, if given
 				else if ($this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'] != '')
 				{
 					$sortingMode = $this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'];
+				}
+				// ToDo: Should we remove this, because we allready have the fallback ?
+				// If the current First sorting is the default one use the global flag
+				else if ($this->getDC()->getFirstSorting() == $orderBy[0])
+				{
+					$sortingMode = $this->getDC()->arrDCA['list']['sorting']['flag'];
 				}
 				// Use the global as fallback
 				else
