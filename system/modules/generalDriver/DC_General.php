@@ -1332,7 +1332,7 @@ class DC_General extends DataContainer implements editable, listable
 		foreach (array_keys($this->getFieldList()) as $strKey)
 		{
 			$varNewValue = $this->processInput($strKey);
-			if (($varNewValue !== NULL) && ($this->objCurrentModel->getProperty($strKey) != $varNewValue))
+			if (($varNewValue !== NULL) && ($this->objCurrentModel->getProperty($strKey) !== $varNewValue))
 			{
 				$this->objCurrentModel->setProperty($strKey, $varNewValue);
 				$this->objCurrentModel->setMeta(DCGE::MODEL_IS_CHANGED, true);
