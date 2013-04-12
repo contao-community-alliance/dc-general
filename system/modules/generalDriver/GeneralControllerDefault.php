@@ -953,7 +953,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				else
 				{
 					$arrButtons = $this->getDC()->arrDCA['buttons'];
-					
+
 					if (is_array($arrButtons))
 					{
 						foreach ($arrButtons as $arrButton)
@@ -1165,7 +1165,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 					}
 				}
 
-				$this->reload();
+				if (Input::getInstance()->post('SUBMIT_TYPE') !== 'auto')
+				{
+					$this->reload();
+				}
 			}
 		}
 	}
