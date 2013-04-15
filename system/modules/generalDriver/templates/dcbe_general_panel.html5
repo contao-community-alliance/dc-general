@@ -22,7 +22,7 @@
 
                             <?php foreach ($arrPanel as $strField => $mixedValue): ?>
 
-                                <?php if ($arrField): ?>
+                                <?php if ($mixedValue == 'new'): ?> 
 
                                     <br />
 
