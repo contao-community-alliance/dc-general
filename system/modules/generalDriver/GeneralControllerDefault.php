@@ -294,7 +294,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$arrSorting = (array) $this->getDC()->arrDCA['list']['sorting']['fields'];
 		$strFirstSorting = preg_replace('/\s+.*$/i', '', strval($arrSorting[0]));
 
-		if (is_null($v['flag']))
+		if (!isset($this->getDC()->arrDCA['list']['sorting']['flag']))
 		{
 			$strFirstSortingOrder = DCGE::MODEL_SORTING_ASC;
 		}
