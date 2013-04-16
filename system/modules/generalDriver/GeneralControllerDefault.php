@@ -3025,6 +3025,13 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 					// No empty options allowed
 					if (!strlen($strOptionsLabel))
 					{
+						// FIXME: this is a rather evil hack but I ended up here with an array containing files.
+						// This usually reensembles an invalid setup but we should not raise warnings then but cope
+						// correctly with it. For the moment, we simply ignore such data we can not handle.
+						if (!is_string($vv))
+						{
+							continue;
+						}
 						$strOptionsLabel = strlen($vv) ? $vv : '-';
 					}
 
