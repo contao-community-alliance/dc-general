@@ -1232,7 +1232,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				break;
 
 			default:
-				return $this->notImplMsg;
+				return vsprintf($this->notImplMsg, 'showAll - Mode ' . $this->getDC()->arrDCA['list']['sorting']['mode']);
 				break;
 		}
 

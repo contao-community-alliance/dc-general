@@ -46,7 +46,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 	protected $strCurrentLanguage;
 	protected $blnMLSupport = false;
 	// Overall Vars ---------------------------------
-	protected $notImplMsg = "<div style='text-align:center; font-weight:bold; padding:40px;'>This function/view is not implemented.</div>";
+	protected $notImplMsg = "<div style='text-align:center; font-weight:bold; padding:40px;'>The function/view &quot;%s&quot; is not implemented.</div>";
 
 	// Objects --------------------------------------
 
@@ -171,7 +171,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 	 */
 	public function copy()
 	{
-		return $this->notImplMsg;
+		return vsprintf($this->notImplMsg, 'copy - Mode');
 	}
 
 	/**
@@ -180,7 +180,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 	 */
 	public function copyAll()
 	{
-		return $this->notImplMsg;
+		return vsprintf($this->notImplMsg, 'copyAll - Mode');
 	}
 
 	/**
@@ -189,7 +189,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 	 */
 	public function create()
 	{
-		return $this->edit();
+		return vsprintf($this->notImplMsg, 'create - Mode');
 	}
 
 	/**
@@ -198,7 +198,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 	 */
 	public function cut()
 	{
-		return $this->notImplMsg;
+		return vsprintf($this->notImplMsg, 'cut - Mode');
 	}
 
 	/**
@@ -207,7 +207,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 	 */
 	public function cutAll()
 	{
-		return $this->notImplMsg;
+		return vsprintf($this->notImplMsg, 'cutAll - Mode');
 	}
 
 	/**
@@ -216,7 +216,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 	 */
 	public function delete()
 	{
-		return $this->notImplMsg;
+		return vsprintf($this->notImplMsg, 'delete - Mode');
 	}
 
 	/**
@@ -225,7 +225,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 	 */
 	public function move()
 	{
-		return $this->notImplMsg;
+		return vsprintf($this->notImplMsg, 'move - Mode');
 	}
 
 	/**
@@ -234,7 +234,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 	 */
 	public function undo()
 	{
-		return $this->notImplMsg;
+		return vsprintf($this->notImplMsg, 'undo - Mode');
 	}
 
 	/**
@@ -403,7 +403,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 				break;
 
 			default:
-				return $this->notImplMsg;
+				return vsprintf($this->notImplMsg, 'showAll - Mode ' . $this->getDC()->arrDCA['list']['sorting']['mode']);
 				break;
 		}
 
