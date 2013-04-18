@@ -189,7 +189,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 	 */
 	public function create()
 	{
-		return vsprintf($this->notImplMsg, 'create - Mode');
+		return $this->edit();
 	}
 
 	/**
