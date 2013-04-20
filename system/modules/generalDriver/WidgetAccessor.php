@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * PHP version 5
+ * @package	   generalDriver
+ * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @copyright  The MetaModels team.
+ * @license    LGPL.
+ * @filesource
+ */
+
 class WidgetAccessor extends Widget
 {
 	/**
@@ -7,7 +16,6 @@ class WidgetAccessor extends Widget
 	 * Useful for clearing widget errors when SUBMIT_TYPE == 'auto'
 	 *
 	 * @param $objWidget the widget to clear the error information from.
-	 *
 	 * @return void
 	 */
 	public static function resetErrors($objWidget)

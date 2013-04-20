@@ -1,32 +1,15 @@
 <?php
 
 /**
- * Contao Open Source CMS
- * Copyright (C) 2005-2010 Leo Feyer
- *
- * Formerly known as TYPOlight Open Source CMS.
- *
- * This program is free software: you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation, either
- * version 3 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this program. If not, please visit the Free
- * Software Foundation website at <http://www.gnu.org/licenses/>.
- *
  * PHP version 5
- * @copyright  MEN AT WORK 2012
- * @copyright  Oliver Hoff 2012
- * @package    drivers
- * @license    GNU/LGPL
+ * @package    generalDriver
+ * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Stefan Heimes <cms@men-at-work.de>
+ * @copyright  The MetaModels team.
+ * @license    LGPL.
  * @filesource
  */
+
 class DC_General extends DataContainer implements editable, listable
 {
 	/* /////////////////////////////////////////////////////////////////////////
@@ -299,9 +282,9 @@ class DC_General extends DataContainer implements editable, listable
 	 * @var array
 	 */
 	private static $arrDates = array(
-	    'date' => true,
-	    'time' => true,
-	    'datim' => true
+		'date' => true,
+		'time' => true,
+		'datim' => true
 	);
 
 	/* /////////////////////////////////////////////////////////////////////////
@@ -514,16 +497,16 @@ class DC_General extends DataContainer implements editable, listable
 		else
 		{
 			$arrConfig = array(
-			    'class' => 'GeneralDataDefault',
-			    'source' => $this->strTable
+				'class' => 'GeneralDataDefault',
+				'source' => $this->strTable
 			);
 			$this->arrDataProvider[$this->strTable] = $arrConfig;
 
 			if ($this->arrDCA['config']['ptable'])
 			{
 				$arrSourceConfigs['parent'] = array(
-				    'class' => 'GeneralDataDefault',
-				    'source' => $this->arrDCA['config']['ptable']
+					'class' => 'GeneralDataDefault',
+					'source' => $this->arrDCA['config']['ptable']
 				);
 			}
 		}
@@ -882,25 +865,25 @@ class DC_General extends DataContainer implements editable, listable
 		{
 			// fallback to pid <=> id mapping (legacy dca).
 			return array
-			    (
-			    'from' => 'self',
-			    'to' => $strDstTable,
-			    'setOn' => array
+				(
+				'from' => 'self',
+				'to' => $strDstTable,
+				'setOn' => array
 				(
 				array(
-				    'to_field' => 'pid',
-				    'from_field' => 'id',
+					'to_field' => 'pid',
+					'from_field' => 'id',
 				),
-			    ),
-			    'filter' => array
+				),
+				'filter' => array
 				(
 				array
-				    (
-				    'local' => 'pid',
-				    'remote' => 'id',
-				    'operation' => '=',
+					(
+					'local' => 'pid',
+					'remote' => 'id',
+					'operation' => '=',
 				)
-			    )
+				)
 			);
 		}
 	}
@@ -934,9 +917,9 @@ class DC_General extends DataContainer implements editable, listable
 			foreach ($arrCondition['filter'] as $subCondition)
 			{
 				$arrNew = array
-				    (
-				    'operation' => $subCondition['operation'],
-				    'property' => $subCondition['local']
+					(
+					'operation' => $subCondition['operation'],
+					'property' => $subCondition['local']
 				);
 				if ($subCondition['remote'])
 				{
@@ -959,10 +942,10 @@ class DC_General extends DataContainer implements editable, listable
 		if (empty($arrReturn))
 		{
 			$arrReturn[] = array
-			    (
-			    'operation' => '=',
-			    'property' => 'pid',
-			    'value' => $objParentModel->getProperty('id')
+				(
+				'operation' => '=',
+				'property' => 'pid',
+				'value' => $objParentModel->getProperty('id')
 			);
 		}
 
@@ -992,10 +975,10 @@ class DC_General extends DataContainer implements editable, listable
 		else
 		{
 			$arrReturn[] = array
-			    (
-			    'property' => 'pid',
-			    'operation' => '=',
-			    'value' => 0
+				(
+				'property' => 'pid',
+				'operation' => '=',
+				'value' => 0
 			);
 		}
 		return $arrReturn;
@@ -1022,9 +1005,9 @@ class DC_General extends DataContainer implements editable, listable
 		else
 		{
 			$arrReturn[] = array
-			    (
-			    'property' => 'pid',
-			    'value' => 0
+				(
+				'property' => 'pid',
+				'value' => 0
 			);
 		}
 		return $arrReturn;
@@ -2117,9 +2100,9 @@ class DC_General extends DataContainer implements editable, listable
 			$strID = 'ctrl_' . $strField . '_' . $this->mixWidgetID;
 
 			$GLOBALS['TL_RTE'][$strFile][$strID] = array(
-			    'id' => $strID,
-			    'file' => $strFile,
-			    'type' => $strType
+				'id' => $strID,
+				'file' => $strFile,
+				'type' => $strType
 			);
 		}
 	}
@@ -2376,4 +2359,3 @@ class DC_General extends DataContainer implements editable, listable
 	}
 
 }
-

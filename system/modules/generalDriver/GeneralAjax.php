@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * PHP version 5
+ * @package    generalDriver
+ * @author     Stefan Heimes <cms@men-at-work.de>
+ * @copyright  The MetaModels team.
+ * @license    LGPL.
+ * @filesource
+ */
+
 class GeneralAjax extends Backend
 {
     /**
@@ -96,5 +105,3 @@ class GeneralAjax extends Backend
     }
 
 }
-
-?>
