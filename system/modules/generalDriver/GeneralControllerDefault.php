@@ -55,7 +55,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 *
 	 * @var string
 	 */
-	protected $notImplMsg = "<div style='text-align:center; font-weight:bold; padding:40px;'>The function/view &quot;%s&quot; is not implemented.</div>";
+	protected $notImplMsg = "<div style='text-align:center; font-weight:bold; padding:40px;'>The function/view &quot;%s&quot; is not implemented.<br />Please <a target='_blank' style='text-decoration:underline' href='http://now.metamodel.me/en/sponsors/become-one#payment'>support us</a> to add this important feature!</div>";
 
 	/**
 	 * Field for the function sortCollection
