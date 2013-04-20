@@ -1,5 +1,5 @@
 {
-	"name":"metamodels/DC_General",
+	"name":"metamodels/dc_general",
 	"description":"Universal data container for Contao",
 	"keywords":["framework", "data", "container", "driver", "php", "contao"],
 	"type":"contao-module",
@@ -20,7 +20,7 @@
 	],
 	"require":{
 		"php":">=5.3",
-		"contao":">=2.11,<3.0"
+		"contao/core":">=2.11,<3.0"
 	},
 	"autoload":{
 		"classmap":["system/"]
