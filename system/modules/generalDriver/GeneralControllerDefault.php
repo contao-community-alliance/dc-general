@@ -17,7 +17,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 * ---------------------------------------------------------------------
 	 * ////////////////////////////////////////////////////////////////// */
 
-	// Objécts -----------------------
+	// Objects -----------------------
 
 	/**
 	 * Current DC General
