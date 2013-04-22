@@ -709,9 +709,113 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	{
 		// Check
 		$this->checkIsWritable();
-
 		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
 		{
+			case 0:
+			case 1:
+			case 2:
+			case 3:				
+				$intId = $this->Input->get('id');
+				$intPid = (strlen($this->Input->get('pid')) != 0)? $this->Input->get('pid') : 0;
+				
+				if (strlen($intId) == 0)
+				{
+					$this->log('Missing parameter for copy in ' . $this->getDC()->getTable(), 'DC_General - Controller - copy()', TL_ERROR);
+					$this->redirect('contao/main.php?act=error');
+				}
+				
+				// Check
+				$this->checkIsWritable();
+				$this->checkLanguage($this->getDC());
+
+				// Load fields and co
+				$this->getDC()->loadEditableFields();
+				$this->getDC()->setWidgetID($this->getDC()->getId());
+
+				// Check if we have fields
+				if (!$this->getDC()->hasEditableFields())
+				{
+					$this->redirect($this->getReferer());
+				}
+
+				// Load something
+				$this->getDC()->preloadTinyMce();
+
+				// Load record from data provider - Load the source model
+				$objDataProvider = $this->getDC()->getDataProvider();
+				$objSrcModel = $objDataProvider->fetch($objDataProvider->getEmptyConfig()->setId($intId));
+
+				$objDBModel = clone $objSrcModel;
+				$objDBModel->setMeta(DCGE::MODEL_IS_CHANGED, true);
+				
+				$this->getDC()->setCurrentModel($objDBModel);
+
+				// Check if we have a auto submit
+				$this->getDC()->updateModelFromPOST();
+
+				// Check submit
+				if ($this->getDC()->isSubmitted() == true)
+				{
+					if (isset($_POST["save"]))
+					{
+						// process input and update changed properties.
+						if ($this->doSave($this->getDC()) !== false)
+						{
+							$this->reload();
+						}
+					}
+					else if (isset($_POST["saveNclose"]))
+					{
+						// process input and update changed properties.
+						if ($this->doSave($this->getDC()) !== false)
+						{
+							setcookie('BE_PAGE_OFFSET', 0, 0, '/');
+
+							$_SESSION['TL_INFO'] = '';
+							$_SESSION['TL_ERROR'] = '';
+							$_SESSION['TL_CONFIRM'] = '';
+
+							$this->redirect($this->getReferer());
+						}
+					}
+					// Maybe Callbacks ? Yes, this is the first version of an simple
+					// button callback system like dc_memory.
+					else
+					{
+						$arrButtons = $this->getDC()->arrDCA['buttons'];
+
+						if (is_array($arrButtons))
+						{
+							foreach ($arrButtons as $arrButton)
+							{
+								if (empty($arrButton) || !is_array($arrButton))
+								{
+									continue;
+								}
+
+								if (key_exists($arrButton['formkey'], $_POST))
+								{
+									$strClass = $arrButton['button_callback'][0];
+									$strMethod = $arrButton['button_callback'][1];
+
+									$this->import($strClass);
+
+									$this->$strClass->$strMethod($this->getDC());
+
+									break;
+								}
+							}
+						}
+
+						if (Input::getInstance()->post('SUBMIT_TYPE') !== 'auto')
+						{
+							$this->reload();
+						}
+					}
+				}
+				
+				return;
+
 			case 5:
 				// Init Vars
 				$intMode = $this->Input->get('mode');
@@ -1657,72 +1761,76 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$objSrcModel = $objDataProvider->fetch($objDataProvider->getEmptyConfig()->setId($intIdSource));
 
 		// Create a empty model for the copy
-		$objCopyModel = $objDataProvider->getEmptyModel();
+		$objCopyModel = clone $objSrcModel;
 
-		// Load all params
-		$arrProperties = $objSrcModel->getPropertiesAsArray();
+//		// Load all params
+//		$arrProperties = $objSrcModel->getPropertiesAsArray();
+//		
+//		// Clear some fields, see dca
+//		foreach ($arrProperties as $key => $value)
+//		{
+//			// If the field is not known, remove it
+//			if (!key_exists($key, $this->getDC()->arrDCA['fields']))
+//			{
+//				continue;
+//			}
+//
+//			// Check doNotCopy
+//			if ($this->getDC()->arrDCA['fields'][$key]['eval']['doNotCopy'] == true)
+//			{
+//				unset($arrProperties[$key]);
+//				continue;
+//			}
+//
+//			// Check fallback
+//			if ($this->getDC()->arrDCA['fields'][$key]['eval']['fallback'] == true)
+//			{
+//				$objDataProvider->resetFallback($key);
+//			}
+//
+//			// Check unique
+//			if ($this->getDC()->arrDCA['fields'][$key]['eval']['unique'] == true && $objDataProvider->isUniqueValue($key, $value))
+//			{
+//				throw new Exception(vsprintf($GLOBALS['TL_LANG']['ERR']['unique'], $key));
+//			}
+//		}
+//
+//		// Add the properties to the empty model
+//		$objCopyModel->setPropertiesAsArray($arrProperties);
 
-		// Clear some fields, see dca
-		foreach ($arrProperties as $key => $value)
+		$intListMode = $this->getDC()->arrDCA['list']['sorting']['mode'];
+		
+		//Insert After => Get the parent from he target id
+		if (in_array($intListMode, array(0, 1, 2, 3)))
 		{
-			// If the field is not known, remove it
-			if (!key_exists($key, $this->getDC()->arrDCA['fields']))
+			// ToDo: reset sorting for new entry
+		}
+		//Insert After => Get the parent from he target id
+		else if (in_array($intListMode, array(5)) && $intMode == 1)
+		{
+			$this->setParent($objCopyModel, $this->getParent('self', null, $intIdTarget), 'self');
+		}
+		// Insert Into => use the pid
+		else if (in_array($intListMode, array(5)) && $intMode == 2)
+		{
+			if ($this->isRootEntry('self', $intIdTarget))
 			{
-				continue;
+				$this->setRoot($objCopyModel, 'self');
 			}
-
-			// Check doNotCopy
-			if ($this->getDC()->arrDCA['fields'][$key]['eval']['doNotCopy'] == true)
+			else
 			{
-				unset($arrProperties[$key]);
-				continue;
-			}
+				$objParentConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
+				$objParentConfig->setId($intIdTarget);
 
-			// Check fallback
-			if ($this->getDC()->arrDCA['fields'][$key]['eval']['fallback'] == true)
-			{
-				$objDataProvider->resetFallback($key);
-			}
+				$objParentModel = $this->getDC()->getDataProvider()->fetch($objParentConfig);
 
-			// Check unique
-			if ($this->getDC()->arrDCA['fields'][$key]['eval']['unique'] == true && $objDataProvider->isUniqueValue($key, $value))
-			{
-				throw new Exception(vsprintf($GLOBALS['TL_LANG']['ERR']['unique'], $key));
+				$this->setParent($objCopyModel, $objParentModel, 'self');
 			}
 		}
-
-		// Add the properties to the empty model
-		$objCopyModel->setPropertiesAsArray($arrProperties);
-
-		// Check mode insert into/after
-		switch ($intMode)
+		else
 		{
-			//Insert After => Get the parent from he target id
-			case 1:
-				$this->setParent($objCopyModel, $this->getParent('self', null, $intIdTarget), 'self');
-				break;
-
-			// Insert Into => use the pid
-			case 2:
-				if ($this->isRootEntry('self', $intIdTarget))
-				{
-					$this->setRoot($objCopyModel, 'self');
-				}
-				else
-				{
-					$objParentConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
-					$objParentConfig->setId($intIdTarget);
-
-					$objParentModel = $this->getDC()->getDataProvider()->fetch($objParentConfig);
-
-					$this->setParent($objCopyModel, $objParentModel, 'self');
-				}
-				break;
-
-			default:
-				$this->log('Unknown create mode for copy in ' . $this->getDC()->getTable(), 'DC_General - Controller - copy()', TL_ERROR);
-				$this->redirect('contao/main.php?act=error');
-				break;
+			$this->log('Unknown create mode for copy in ' . $this->getDC()->getTable(), 'DC_General - Controller - copy()', TL_ERROR);
+			$this->redirect('contao/main.php?act=error');
 		}
 
 		$objDataProvider->save($objCopyModel);

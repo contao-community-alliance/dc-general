@@ -150,6 +150,11 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 	 */
 	public function copy()
 	{
+		if (in_array($this->getDC()->arrDCA['list']['sorting']['mode'], array(0, 1, 2, 3)))
+		{
+			return $this->edit();
+		}
+			
 		return vsprintf($this->notImplMsg, 'copy - Mode');
 	}
 
@@ -1828,7 +1833,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 				}
 				continue;
 			}
-
+			
 			$arrRootIds = is_array($arrRootIds) ? $arrRootIds : array($arrRootIds);
 
 			foreach (array('up', 'down') as $dir)
