@@ -81,19 +81,19 @@ interface InterfaceGeneralCallback
 
 	/**
 	 * Call the button callback for the paste operations
-	 * 
-	 * @param DataContainer $dc DataContainer or DC_General
-	 * @param array $row Array with current data
-	 * @param string $table Tablename
-	 * @param unknown $cr K.A.
-	 * @param array $childs Clipboard informations
-	 * @param unknown $previous K.A.
-	 * @param unknown $next K.A.
-	 * 
+	 *
+	 * @param DataContainer $dc       DataContainer or DC_General.
+	 * @param array         $row      Array with current data.
+	 * @param string        $table    Tablename.
+	 * @param bool          $cr       Circular reference.
+	 * @param array         $childs   Clipboard informations.
+	 * @param int           $previous Id of the previous item.
+	 * @param int           $next     Id of the next item.
+	 *
 	 * @return string
 	 */
-	public function pasteButtonCallback(&$dc, $row, $table, $cr, $childs, $previous, $next);
-	
+	public function pasteButtonCallback($dc, $row, $table, $cr, $childs, $previous, $next);
+
     /**
      * Call the button callback for the global operations
      *

@@ -194,10 +194,10 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 
 		return null;
 	}
-	
+
 	/**
 	 * Call the button callback for the paste operations
-	 * 
+	 *
 	 * @param DataContainer $dc DataContainer or DC_General
 	 * @param array $row Array with current data
 	 * @param string $table Tablename
@@ -205,14 +205,14 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 	 * @param array $childs Clipboard informations
 	 * @param unknown $previous K.A.
 	 * @param unknown $next K.A.
-	 * 
+	 *
 	 * @return string
 	 */
-	public function pasteButtonCallback(&$dc, $row, $table, $cr, $childs, $previous, $next)
+	public function pasteButtonCallback($dc, $row, $table, $cr, $childs, $previous, $next)
 	{
 		// Load DCA
 		$arrDCA = $this->objDC->getDCA();
-		
+
 		// Check Callback
 		if (is_array($arrDCA['list']['sorting']['paste_button_callback']))
 		{
@@ -222,7 +222,7 @@ class GeneralCallbackDefault extends System implements InterfaceGeneralCallback
 			$this->import($strClass);
 			return $this->$strClass->$strMethod($dc, $row, $table, $cr, $childs, $previous, $next);
 		}
-		
+
 		return false;
 	}
 
