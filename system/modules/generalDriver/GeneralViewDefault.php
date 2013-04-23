@@ -821,6 +821,22 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 			// TODO: @CS we definately need into and after handling here instead of different modes.
 			$imagePasteInto = $this->generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteinto'][0], 'class="blink"');
 			$strRootPasteinto = '<a href="' . $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;after=0&amp;pid=0&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs']) . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">' . $imagePasteInto . '</a> ';
+
+			// Callback for paste btn.
+			$strButtonCallback = $this->getDC()->getCallbackClass()->pasteButtonCallback(
+				$this->getDC(),
+				$this->getDC()->getDataProvider($this->getDC()->getTable())->getEmptyModel()->getPropertiesAsArray(),
+				$this->getDC()->getTable(),
+				false,
+				$arrClipboard,
+				null,
+				null
+			);
+
+			if ($strButtonCallback !== false)
+			{
+				$strRootPasteinto = $strButtonCallback;
+			}
 		}
 
 		// Create treeview
