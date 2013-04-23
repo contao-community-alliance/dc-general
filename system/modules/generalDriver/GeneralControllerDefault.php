@@ -932,7 +932,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			}
 
 			// first enforce the parent table conditions, if we have an parent.
-			if ($strPDP && $mixPid)
+			if (($strPDP != $strCDP) && $mixPid)
 			{
 				// parenting entry is root? we want to become so too.
 				if ($this->isRootEntry($strPDP, $mixPid))
@@ -942,7 +942,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				else
 				{
 					// we have some parent model and can use that one.
-					$objParentModel = $objParentDataProvider - fetch($objParentDataProvider->getEmptyConfig()->setId($mixPid));
+					$objParentModel = $objParentDataProvider->fetch($objParentDataProvider->getEmptyConfig()->setId($mixPid));
 					$this->setParent($objDBModel, $objParentModel, $strPDP);
 				}
 				// TODO: update sorting here.
