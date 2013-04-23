@@ -645,42 +645,30 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			case 5:
 				switch ($intMode)
 				{
-					// Insert After => Get the parent from the target id
-					case 1:
-						$objParent = $this->getParent('self', null, $mixPid);
-						if ($objParent)
-						{
-							$this->setParent($objSrcModel, $objParent, 'self');
-						}
-						else
-						{
-							$this->setRoot($objSrcModel, 'self');
-						}
-
+					case 1: // insert after
+						// we want a new item in $strCDP having an optional parent in $strPDP (with pid item $mixPid) just after $mixAfter (in child tree conditions).
+						// sadly, with our complex rules an getParent() is IMPOSSIBLE (or in other words way too costly as we would be forced to iterate through all items and check if this item would end up in their child collection).
+						// therefore we get the child we want to be next of and set all fields to the same values as in the sibling to end up in the same parent.
+						$objOtherChild = $objCurrentDataProvider->fetch($objCurrentDataProvider->getEmptyConfig()->setId($mixAfter));
+						$this->getDC()->setSameParent($objSrcModel, $objOtherChild, $strCDP);
+						// TODO: update sorting here.
 						break;
 
-					// Insert Into => use the pid
-					case 2:
-						if (!$mixPid)
-						{
-							// no pid => insert at top level.
-							$this->setRoot($objSrcModel, 'self');
-						}
-						else if ($this->isRootEntry('self', $mixPid))
+					case 2: // insert into
+						// we want a new item in $strCDP having an optional parent in $strPDP (with pid item $mixPid) just as child of $mixAfter (in child tree conditions).
+						// now check if we want to be inserted as root in our own condition - this means either no "after".
+						if (($mixAfter == 0))
 						{
 							$this->setRoot($objSrcModel, 'self');
 						}
 						else
 						{
-							$objParentConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
-							$objParentConfig->setId($mixPid);
-
-							$objParentModel = $this->getDC()->getDataProvider()->fetch($objParentConfig);
-
-							$this->setParent($objSrcModel, $objParentModel, 'self');
+							// enforce the child condition from our parent.
+							$objMyParent = $objCurrentDataProvider->fetch($objCurrentDataProvider->getEmptyConfig()->setId($mixAfter));
+							$this->setParent($objSrcModel, $objMyParent, 'self');
 						}
+						// TODO: update sorting here.
 						break;
-
 					default:
 						$this->log('Unknown create mode for copy in ' . $this->getDC()->getTable(), 'DC_General - Controller - copy()', TL_ERROR);
 						$this->redirect('contao/main.php?act=error');

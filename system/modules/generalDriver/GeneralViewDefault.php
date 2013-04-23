@@ -1782,14 +1782,15 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 	 */
 	protected function generateButtons(InterfaceGeneralModel $objModelRow, $strTable, $arrRootIds = array(), $blnCircularReference = false, $arrChildRecordIds = null, $strPrevious = null, $strNext = null)
 	{
-		if (!count($GLOBALS['TL_DCA'][$strTable]['list']['operations']))
+		$arrDCA = $this->getDC()->getDCA();
+		if (!count($arrDCA['list']['operations']))
 		{
 			return '';
 		}
 
 		$return = '';
 
-		foreach ($GLOBALS['TL_DCA'][$strTable]['list']['operations'] as $k => $v)
+		foreach ($arrDCA['list']['operations'] as $k => $v)
 		{
 			// Check if we have a array
 			if (!is_array($v))
