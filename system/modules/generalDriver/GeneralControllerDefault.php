@@ -1995,6 +1995,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			$objRootConfig->setStart($arrLimit[0])->setAmount($arrLimit[1]);
 		}
 
+		$objRootConfig->setSorting(array('sorting' => 'ASC'));
+
 		// Fetch all root elements
 		$objRootCollection = $this->getDC()->getDataProvider()->fetchAll($objRootConfig);
 
@@ -2131,6 +2133,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			$objChildConfig->setFilter($arrChildFilter);
 
 			$objChildConfig->setFields($this->calcNeededFields($objModel, $strSubTable));
+
+			$objChildConfig->setSorting(array('sorting' => 'ASC'));
 
 			// Fetch all children
 			$objChildCollection = $this->getDC()->getDataProvider($strSubTable)->fetchAll($objChildConfig);
