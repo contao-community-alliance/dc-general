@@ -1959,27 +1959,15 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 						break;
 
 					case 5:
-						// Btt paste after
+						// Btn paste after.
 						$imagePasteAfter = $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0], 'class="blink"');
-						$strPasteBtt .= ' <a href="'
+						$strPasteBtt = ' <a href="'
 								. $this->addToUrl($strAdd2UrlAfter)
 								. '" title="' . specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0]) . '" onclick="Backend.getScrollOffset()">'
 								. $imagePasteAfter
 								. '</a> ';
 
-						// Callback for paste btt
-						$strButtonCallback = $this->getDC()->getCallbackClass()->pasteButtonCallback($this->objDC, $objModelRow->getPropertiesAsArray(), $strTable, false, $arrClipboard, null, null);
-
-						if ($strButtonCallback === false)
-						{
-							$return .= $strPasteBtt;
-						}
-						else
-						{
-							$return .= $strButtonCallback;
-						}
-
-						// Btt paste into
+						// Btn paste into.
 						$imagePasteInto = $this->generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteinto'][0], 'class="blink"');
 						$strPasteBtt .= ' <a href="'
 								. $this->addToUrl($strAdd2UrlInto)
@@ -1987,7 +1975,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 								. $imagePasteInto
 								. '</a> ';
 
-						// Callback for paste btt
+						// Callback for paste btn.
 						$strButtonCallback = $this->getDC()->getCallbackClass()->pasteButtonCallback($this->objDC, $objModelRow->getPropertiesAsArray(), $strTable, false, $arrClipboard, null, null);
 
 						if ($strButtonCallback === false)
@@ -1999,8 +1987,6 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 							$return .= $strButtonCallback;
 						}
 
-						$return .= $strPasteBtt;
-						
 						break;
 				}
 			}
