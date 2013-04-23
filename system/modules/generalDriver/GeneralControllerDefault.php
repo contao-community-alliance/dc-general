@@ -1958,10 +1958,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	protected function treeViewM5()
 	{
 		// Load some infromations from DCA
-		$arrNeededFields = $this->getDC()->arrDCA['list']['label']['fields'];
-		$arrLablesFields = $this->getDC()->arrDCA['list']['label']['fields'];
-		$arrTitlePattern = $this->getDC()->arrDCA['list']['label']['format'];
-		$arrRootEntries = $this->getDC()->getRootConditions('self');
+		$arrNeededFields = $this->calcNeededFields($this->getDC()->getDataProvider()->getEmptyModel(), $this->getDC()->getTable());
+		$arrTitlePattern = $this->calcLabelPattern($this->getDC()->getTable());
+		$arrRootEntries = $this->getDC()->getRootConditions($this->getDC()->getTable());
 		$arrLimit = $this->calculateLimit();
 
 		// TODO: @CS we need this to be srctable_dsttable_tree for interoperability, for mode5 this will be self_self_tree but with strTable.
@@ -1994,24 +1993,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		// Init some vars
 		$objTableTreeData = $this->getDC()->getDataProvider()->getEmptyCollection();
 		$objRootConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
-		/*
-		  $arrChildFilterPattern = array();
-
-		  // Build a filter array for the join conditions
-		  foreach ($arrChildFilter as $key => $value)
-		  {
-		  if ($value['dstField'] != '')
-		  {
-		  $arrNeededFields[]                      = trim($value['srcField']);
-		  $arrChildFilterPattern[$key]['field']   = $value['srcField'];
-		  $arrChildFilterPattern[$key]['pattern'] = $value['dstField'] . ' ' . $value['operation'] . ' %s';
-		  }
-		  else
-		  {
-		  $arrChildFilterPattern[$key]['pattern'] = $value['srcField'] . ' ' . $value['operation'];
-		  }
-		  }
-		 */
 
 		// TODO: @CS rebuild to new layout of filters here.
 		// Set fields limit
