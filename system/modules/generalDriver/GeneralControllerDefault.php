@@ -702,16 +702,16 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			case 0:
 			case 1:
 			case 2:
-			case 3:				
+			case 3:
 				$intId = $this->Input->get('id');
 				$intPid = (strlen($this->Input->get('pid')) != 0)? $this->Input->get('pid') : 0;
-				
+
 				if (strlen($intId) == 0)
 				{
 					$this->log('Missing parameter for copy in ' . $this->getDC()->getTable(), 'DC_General - Controller - copy()', TL_ERROR);
 					$this->redirect('contao/main.php?act=error');
 				}
-				
+
 				// Check
 				$this->checkIsWritable();
 				$this->checkLanguage($this->getDC());
@@ -735,7 +735,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 				$objDBModel = clone $objSrcModel;
 				$objDBModel->setMeta(DCGE::MODEL_IS_CHANGED, true);
-				
+
 				$this->getDC()->setCurrentModel($objDBModel);
 
 				// Check if we have a auto submit
@@ -801,7 +801,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 						}
 					}
 				}
-				
+
 				return;
 
 			case 5:
@@ -1753,7 +1753,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 //		// Load all params
 //		$arrProperties = $objSrcModel->getPropertiesAsArray();
-//		
+//
 //		// Clear some fields, see dca
 //		foreach ($arrProperties as $key => $value)
 //		{
@@ -1787,7 +1787,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 //		$objCopyModel->setPropertiesAsArray($arrProperties);
 
 		$intListMode = $this->getDC()->arrDCA['list']['sorting']['mode'];
-		
+
 		//Insert After => Get the parent from he target id
 		if (in_array($intListMode, array(0, 1, 2, 3)))
 		{

@@ -154,7 +154,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		{
 			return $this->edit();
 		}
-			
+
 		return vsprintf($this->notImplMsg, 'copy - Mode');
 	}
 
@@ -341,7 +341,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
 	/**
 	 * Show all entries from one table
-	 * 
+	 *
 	 * @return string HTML
 	 */
 	public function showAll()
@@ -436,8 +436,8 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 	 * ////////////////////////////////////////////////////////////////// */
 
 	/**
-	 * Show parent view mode 4. 
-	 * 
+	 * Show parent view mode 4.
+	 *
 	 * @return string HTML output
 	 */
 	protected function viewParent()
@@ -509,7 +509,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		$objTemplate->notDeletable = $this->getDC()->arrDCA['config']['notDeletable'];
 		$objTemplate->notEditable = $this->getDC()->arrDCA['config']['notEditable'];
 		$objTemplate->notEditableParent = $this->parentDca['config']['notEditable'];
-		
+
 		// Add breadcrumb, if we have one
 		$strBreadcrumb = $this->breadcrumb();
 		if($strBreadcrumb != null)
@@ -525,7 +525,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 	 * ------------------------------------------------------------------ */
 
 	/**
-	 * Render the entries for parent view. 
+	 * Render the entries for parent view.
 	 */
 	protected function renderViewParentEntries()
 	{
@@ -617,7 +617,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 	/**
 	 * Render the herader of the parent view with information
 	 * from the parent table
-	 * 
+	 *
 	 * @return array
 	 */
 	protected function renderViewParentFormattedHeaderFields()
@@ -771,7 +771,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		{
 			$objTemplate = new BackendTemplate('dcbe_general_listView');
 		}
-		
+
 		$objTemplate->collection = $this->getDC()->getCurrentCollecion();
 		$objTemplate->select = $this->getDC()->isSelectSubmit();
 		$objTemplate->action = ampersand($this->Environment->request, true);
@@ -783,14 +783,14 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		// Set dataprovider from current and parent
 		$objTemplate->pdp = '';
 		$objTemplate->cdp = $this->getDC()->getDataProvider('self')->getEmptyModel()->getProviderName();
-		
+
 		// Add breadcrumb, if we have one
 		$strBreadcrumb = $this->breadcrumb();
 		if($strBreadcrumb != null)
 		{
 			$objTemplate->breadcrumb = $strBreadcrumb;
 		}
-		
+
 		return $objTemplate->parse();
 	}
 
@@ -848,7 +848,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		$objTemplate->strHTML = $strHTML;
 		$objTemplate->intMode = $intMode;
 		$objTemplate->strRootPasteinto = $strRootPasteinto;
-		
+
 		// Add breadcrumb, if we have one
 		$strBreadcrumb = $this->breadcrumb();
 		if($strBreadcrumb != null)
@@ -1536,13 +1536,13 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
 	/**
 	 * Generate all button for the header of a view.
-	 * 
-	 * This is a function, which is a combination of 
+	 *
+	 * This is a function, which is a combination of
 	 * displayButtons and generateGlobalButtons.
 	 */
 	protected function generateHeaderButtons($strButtonId)
 	{
-		// Return array with all button		
+		// Return array with all button
 		$arrReturn = array();
 
 		// Add back button
@@ -1584,7 +1584,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 				case 6:
 					// Add new button
 					$strCDP = $this->getDC()->getDataProvider('self')->getEmptyModel()->getProviderName();
-					
+
 					if ($this->getDC()->getDataProvider('parent') != null)
 					{
 						$strPDP = $this->getDC()->getDataProvider('parent')->getEmptyModel()->getProviderName();
@@ -1593,7 +1593,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 					{
 						$strPDP = null;
 					}
-					
+
 					if (!($this->getDC()->arrDCA['config']['closed'] || $this->getDC()->isClipboard()))
 					{
 						$arrReturn['button_new'] = sprintf('<a href="%s" class="header_new" title="%s" accesskey="n" onclick="Backend.getScrollOffset()">%s</a>', $this->addToUrl(sprintf('act=paste&amp;mode=create&amp;cdp=%s&amp;pdp=%s', $strCDP, $strPDP)), specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][1]), $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][0]);
@@ -1871,7 +1871,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 				}
 				continue;
 			}
-			
+
 			$arrRootIds = is_array($arrRootIds) ? $arrRootIds : array($arrRootIds);
 
 			foreach (array('up', 'down') as $dir)
@@ -1950,10 +1950,10 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 								. '" title="' . specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0]) . '" onclick="Backend.getScrollOffset()">'
 								. $imagePasteAfter
 								. '</a> ';
-						
+
 						// Callback for paste btt
 						$strButtonCallback = $this->getDC()->getCallbackClass()->pasteButtonCallback($this->objDC, $objModelRow->getPropertiesAsArray(), $strTable, false, $arrClipboard, null, null);
-						
+
 						if($strButtonCallback === false)
 						{
 							$return .= $strPasteBtt;
@@ -1997,7 +1997,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 				}
 			}
 		}
-		
+
 		return trim($return);
 	}
 
@@ -2021,7 +2021,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
 		return '';
 	}
-	
+
 	/* /////////////////////////////////////////////////////////////////////
 	 * ---------------------------------------------------------------------
 	 * Breadcrumb
@@ -2030,7 +2030,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
 	/**
 	 * Get the breadcrumb navigation by callback
-	 * 
+	 *
 	 * @return string
 	 */
 	protected function breadcrumb()
@@ -2038,12 +2038,12 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		// Load DCA
 		$arrDCA = $this->objDC->getDCA();
 		$arrCallback = $arrDCA['list']['presentation']['breadcrumb_callback'];
-		
+
 		if (!is_array($arrCallback) || count($arrCallback) == 0)
 		{
 			return null;
 		}
-		
+
 		// Get data from callback
 		$strClass = $arrCallback[0];
 		$strMethod = $arrCallback[1];
