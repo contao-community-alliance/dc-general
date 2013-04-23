@@ -320,7 +320,7 @@ class DC_General extends DataContainer implements editable, listable
 		parent::__construct();
 
 		// Callback
-		$strTable = $this->oncreateCallback($strTable);
+		$strTable = $this->getTablenameCallback($strTable);
 
 		// Basic vars Init
 		$this->strTable = $strTable;
@@ -381,18 +381,19 @@ class DC_General extends DataContainer implements editable, listable
 	}
 
 	/**
-	 * Call the oncreate callback
+	 * Call the tablename callback
 	 *
 	 * @param string $strTable
+	 *
 	 * @return string name of current table
 	 */
-	protected function oncreateCallback($strTable)
+	protected function getTablenameCallback($strTable)
 	{
 		$strCurrentTable = $strTable;
 
-		if (array_key_exists('oncreate_callback', $GLOBALS['TL_DCA'][$strTable]['config']) && is_array($GLOBALS['TL_DCA'][$strTable]['config']['oncreate_callback']))
+		if (array_key_exists('tablename_callback', $GLOBALS['TL_DCA'][$strTable]['config']) && is_array($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback']))
 		{
-			foreach ($GLOBALS['TL_DCA'][$strTable]['config']['oncreate_callback'] as $callback)
+			foreach ($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback'] as $callback)
 			{
 				$this->import($callback[0]);
 				$strCurrentTable = $this->$callback[0]->$callback[1]($strTable, $this);
