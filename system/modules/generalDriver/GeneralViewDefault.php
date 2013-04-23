@@ -819,6 +819,22 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 			// TODO: @CS we definately need into and after handling here instead of different modes.
 			$imagePasteInto = $this->generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteinto'][0], 'class="blink"');
 			$strRootPasteinto = '<a href="' . $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;after=0&amp;pid=0&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs']) . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">' . $imagePasteInto . '</a> ';
+
+			// Callback for paste btn.
+			$strButtonCallback = $this->getDC()->getCallbackClass()->pasteButtonCallback(
+				$this->getDC(),
+				$this->getDC()->getDataProvider($this->getDC()->getTable())->getEmptyModel()->getPropertiesAsArray(),
+				$this->getDC()->getTable(),
+				false,
+				$arrClipboard,
+				null,
+				null
+			);
+
+			if ($strButtonCallback !== false)
+			{
+				$strRootPasteinto = $strButtonCallback;
+			}
 		}
 
 		// Create treeview
@@ -1928,31 +1944,59 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 					default:
 					case 4:
 						$imagePasteAfter = $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0], 'class="blink"');
-						$return .= ' <a href="'
+						$strPasteBtt = ' <a href="'
 								. $this->addToUrl($strAdd2UrlAfter)
 								. '" title="' . specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0]) . '" onclick="Backend.getScrollOffset()">'
 								. $imagePasteAfter
 								. '</a> ';
+						
+						// Callback for paste btt
+						$strButtonCallback = $this->getDC()->getCallbackClass()->pasteButtonCallback($this->objDC, $objModelRow->getPropertiesAsArray(), $strTable, false, $arrClipboard, null, null);
+						
+						if($strButtonCallback === false)
+						{
+							$return .= $strPasteBtt;
+						}
+						else
+						{
+							$return .= $strButtonCallback;
+						}
 						break;
 
 					case 5:
+						// Btn paste after.
 						$imagePasteAfter = $this->generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0], 'class="blink"');
-						$return .= ' <a href="'
+						$strPasteBtt = ' <a href="'
 								. $this->addToUrl($strAdd2UrlAfter)
 								. '" title="' . specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0]) . '" onclick="Backend.getScrollOffset()">'
 								. $imagePasteAfter
 								. '</a> ';
 
+						// Btn paste into.
 						$imagePasteInto = $this->generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteinto'][0], 'class="blink"');
-						$return .= ' <a href="'
+						$strPasteBtt .= ' <a href="'
 								. $this->addToUrl($strAdd2UrlInto)
 								. '" title="' . specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">'
 								. $imagePasteInto
 								. '</a> ';
+
+						// Callback for paste btn.
+						$strButtonCallback = $this->getDC()->getCallbackClass()->pasteButtonCallback($this->objDC, $objModelRow->getPropertiesAsArray(), $strTable, false, $arrClipboard, null, null);
+
+						if ($strButtonCallback === false)
+						{
+							$return .= $strPasteBtt;
+						}
+						else
+						{
+							$return .= $strButtonCallback;
+						}
+
 						break;
 				}
 			}
 		}
+		
 		return trim($return);
 	}
 
