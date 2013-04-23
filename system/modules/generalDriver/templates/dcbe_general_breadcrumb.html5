@@ -1,0 +1,10 @@
+<?php if (count($this->elements) != 0): ?>
+  <ul id="tl_breadcrumb">
+    <?php $intCount = 0; foreach ($this->elements as $arrElement): ?>
+      <li>
+		<?php if(!empty($arrElement['icon'])): ?><img src="<?php echo $arrElement['icon'] ?>" /><?php endif; ?>
+        <a href="<?php echo $arrElement['url'] ?>" title="<?php echo $arrElement['text'] ?>"><?php echo $arrElement['text'] ?></a> <?php if(++$intCount != count($this->elements) ): ?> > <?php endif; ?> 
+      </li>
+    <?php endforeach; ?>
+  </ul>
+<?php endif; ?>

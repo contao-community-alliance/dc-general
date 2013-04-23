@@ -1,0 +1,11 @@
+/**
+ * General styles
+ *
+ * @copyright  The MetaModels team.
+ * @author     Andreas Isaak <info@andreas-isaak.de>
+ * @package    Backend
+ */
+
+  #tl_breadcrumb {
+    padding-top:4px;
+  }

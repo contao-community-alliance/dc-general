@@ -509,6 +509,13 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		$objTemplate->notDeletable = $this->getDC()->arrDCA['config']['notDeletable'];
 		$objTemplate->notEditable = $this->getDC()->arrDCA['config']['notEditable'];
 		$objTemplate->notEditableParent = $this->parentDca['config']['notEditable'];
+		
+		// Add breadcrumb, if we have one
+		$strBreadcrumb = $this->breadcrumb();
+		if($strBreadcrumb != null)
+		{
+			$objTemplate->breadcrumb = $strBreadcrumb;
+		}
 
 		return $objTemplate->parse();
 	}
@@ -777,6 +784,13 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		$objTemplate->pdp = '';
 		$objTemplate->cdp = $this->getDC()->getDataProvider('self')->getEmptyModel()->getProviderName();
 		
+		// Add breadcrumb, if we have one
+		$strBreadcrumb = $this->breadcrumb();
+		if($strBreadcrumb != null)
+		{
+			$objTemplate->breadcrumb = $strBreadcrumb;
+		}
+		
 		return $objTemplate->parse();
 	}
 
@@ -818,6 +832,13 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		$objTemplate->strHTML = $strHTML;
 		$objTemplate->intMode = $intMode;
 		$objTemplate->strRootPasteinto = $strRootPasteinto;
+		
+		// Add breadcrumb, if we have one
+		$strBreadcrumb = $this->breadcrumb();
+		if($strBreadcrumb != null)
+		{
+			$objTemplate->breadcrumb = $strBreadcrumb;
+		}
 
 		// Return :P
 		return $objTemplate->parse();
@@ -1954,6 +1975,51 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		}
 
 		return '';
+	}
+	
+	/* /////////////////////////////////////////////////////////////////////
+	 * ---------------------------------------------------------------------
+	 * Breadcrumb
+	 * ---------------------------------------------------------------------
+	 * ////////////////////////////////////////////////////////////////// */
+
+	/**
+	 * Get the breadcrumb navigation by callback
+	 * 
+	 * @return string
+	 */
+	protected function breadcrumb()
+	{
+		// Load DCA
+		$arrDCA = $this->objDC->getDCA();
+		$arrCallback = $arrDCA['list']['presentation']['breadcrumb_callback'];
+		
+		if (!is_array($arrCallback) || count($arrCallback) == 0)
+		{
+			return null;
+		}
+		
+		// Get data from callback
+		$strClass = $arrCallback[0];
+		$strMethod = $arrCallback[1];
+
+		$this->import($strClass);
+		$arrReturn = $this->$strClass->$strMethod($this->objDC);
+
+		// Check if we have a result with elements
+		if (!is_array($arrReturn) || count($arrReturn) == 0)
+		{
+			return null;
+		}
+
+		// Include the breadcrumb css
+		$GLOBALS['TL_CSS'][] = 'system/modules/generalDriver/html/css/generalBreadcrumb.css';
+
+		// Build template
+		$objTemplate = new BackendTemplate('dcbe_general_breadcrumb');
+		$objTemplate->elements = $arrReturn;
+
+		return $objTemplate->parse();
 	}
 
 }

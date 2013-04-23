@@ -8,6 +8,8 @@
 		<?php endif; ?>
 
 		<div class="tl_listing_container parent_view">
+			
+			<?php if(strlen($this->breadcrumb)) echo $this->breadcrumb; ?>
 
 			<div class="tl_header" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
 

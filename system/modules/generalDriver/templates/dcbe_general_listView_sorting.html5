@@ -12,6 +12,8 @@
     <?php endif; ?>
 
             <div class="tl_listing_container list_view">
+				
+				<?php if(strlen($this->breadcrumb)) echo $this->breadcrumb; ?>
 
                 <?php if ($this->select): ?>
                     <div class="tl_select_trigger">
