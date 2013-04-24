@@ -6,6 +6,4 @@
  * @package    Backend
  */
 
-  #tl_breadcrumb {
-    padding-top:4px;
-  }
+@media screen,projection{#tl_breadcrumb{padding-top:4px;}
