@@ -2048,11 +2048,19 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			return $arrChildDef['self']['format'];
 		}
 	}
-
+	
+	/**
+	 * Get a list with all needed fields for the models. 
+	 * 
+	 * @param InterfaceGeneralModel $objModel
+	 * @param string $strDstTable
+	 * 
+	 * @return array A list with all needed values.
+	 */
 	protected function calcNeededFields(InterfaceGeneralModel $objModel, $strDstTable)
 	{
 		$arrFields = $this->calcLabelFields($strDstTable);
-		$arrChildCond = $this->getDC()->getChildCondition($objModel, $strDstTable);
+		$arrChildCond = $this->getDC()->getChildCondition($objModel, $strDstTable);	
 		foreach ($arrChildCond as $arrCond)
 		{
 			if ($arrCond['property'])
@@ -2060,6 +2068,13 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				$arrFields[] = $arrCond['property'];
 			}
 		}
+		
+		// Add some default values, if we have this values in DB.
+		if($this->objDC->getDataProvider($strDstTable)->fieldExists('enabled'))
+		{
+			$arrFields [] = 'enabled';
+		}
+		
 		return $arrFields;
 	}
 
