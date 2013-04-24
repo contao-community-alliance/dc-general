@@ -593,7 +593,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		$mixChild = $this->Input->get('child');
 
 		// Check basic vars
-		if (empty($mixSource) || ( empty($mixAfter) && empty($mixInto) ) || empty($strCDP))
+		if (empty($mixSource) || ( is_null($mixAfter) && is_null($mixInto) ) || empty($strCDP))
 		{
 			$this->log('Missing parameter for cut in ' . $this->getDC()->getTable(), __CLASS__ . ' - ' . __FUNCTION__, TL_ERROR);
 			$this->redirect('contao/main.php?act=error');
@@ -650,8 +650,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 						// sadly, with our complex rules an getParent() is IMPOSSIBLE (or in other words way too costly as we would be forced to iterate through all items and check if this item would end up in their child collection).
 						// therefore we get the child we want to be next of and set all fields to the same values as in the sibling to end up in the same parent.
 						$objOtherChild = $objCurrentDataProvider->fetch($objCurrentDataProvider->getEmptyConfig()->setId($mixAfter));
-						$this->getDC()->setSameParent($objSrcModel, $objOtherChild, $strCDP);
-						// TODO: update sorting here.
+						$this->getDC()->setSameParent($objSrcModel, $objOtherChild, $strCDP);						
+						
+						// Update sorting.
+						$this->getNewPosition($objCurrentDataProvider, $objParentDataProvider, $objSrcModel, $mixAfter, $mixInto, 'cut');
 						break;
 
 					case 2: // insert into
@@ -667,7 +669,9 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 							$objMyParent = $objCurrentDataProvider->fetch($objCurrentDataProvider->getEmptyConfig()->setId($mixAfter));
 							$this->setParent($objSrcModel, $objMyParent, 'self');
 						}
-						// TODO: update sorting here.
+						
+						// Update sorting.
+						$this->getNewPosition($objCurrentDataProvider, $objParentDataProvider, $objSrcModel, $mixAfter, $mixInto, 'cut');
 						break;
 					default:
 						$this->log('Unknown create mode for copy in ' . $this->getDC()->getTable(), 'DC_General - Controller - copy()', TL_ERROR);
@@ -987,12 +991,21 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		// Check if we have a auto submit
 		$this->getDC()->updateModelFromPOST();
-
+		
+		
 		// Check submit
 		if ($this->getDC()->isSubmitted() == true && !$this->getDC()->isNoReload())
 		{
 			try
 			{
+				// Get new Position
+				$strPDP   = $this->Input->get('pdp');
+				$strCDP   = $this->Input->get('cdp');
+				$mixAfter = $this->Input->get('after');
+				$mixInto  = $this->Input->get('into');
+
+				$this->getNewPosition($this->objDC->getDataProvider($strPDP), $this->objDC->getDataProvider($strCDP), $this->objDC->getCurrentModel(), $mixAfter, $mixInto, 'create');
+
 				if (isset($_POST["save"]))
 				{
 					// process input and update changed properties.
@@ -1516,8 +1529,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 *
 	 * Warning this function needs the cdp (current data provider).
 	 * Warning this function needs the pdp (parent data provider).
-	 *
-	 * Warning nekos could live here.
+	 * 
+	 * Based on backbone87 PR - "creating items in parent modes generates sorting value of 0"
 	 *
 	 * @param InterfaceGeneralData $objCDP - Current data provider
 	 * @param InterfaceGeneralData $objPDP - Parent data provider
@@ -1529,176 +1542,157 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 *
 	 * @return void
 	 */
-	protected function getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $mixInto, $strMode, $mixParentID = null, $intInsertMode = null)
+	protected function getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $mixInto, $strMode, $mixParentID = null, $intInsertMode = null, $blnWithoutReorder = false)
 	{
-		// Load default DataProvider
-		if (is_null($objCDP))
-		{
-			$objCDP = $this->getDC()->getDataProvider();
-		}
-
-		// Check if we have a sorting field, if not skip here
+		// Check if we have a sorting field, if not skip here.
 		if (!$objCDP->fieldExists('sorting'))
 		{
 			return;
 		}
 
-		$intHighestSorting = 256;
-		$intLowestSorting = 256;
-		$intNextSorting = 0;
-
-		if ($strMode == 'cut')
+		// Load default DataProvider.
+		if (is_null($objCDP))
 		{
-			// Get all elements
-			$objConfig = $objCDP->getEmptyConfig();
+			$objCDP = $this->getDC()->getDataProvider();
+		}
 
+		// Search for the highest sorting. Default - Add to end off all.	
+		// ToDo: We have to check the child <=> parent condition . To get all sortings for one level.
+		// If we get a after 0, add to top.
+		if ($mixAfter == 0)
+		{
+			$objConfig = $objCDP->getEmptyConfig();
 			$objConfig->setFields(array('sorting'));
 			$objConfig->setSorting(array('sorting' => DCGE::MODEL_SORTING_ASC));
-
-			$objConfig->setFilter($this->getFilter());
+			$objConfig->setAmount(1);
 
 			$objCollection = $objCDP->fetchAll($objConfig);
 
-			// Init some vars
-			$intSortingAfter = 0;
-			$intSortingNext = 0;
-
-			// Add to the start of elements
-			if ($mixAfter == DCGE::INSERT_AFTER_START)
+			if ($objCollection->length())
 			{
-				$objFirstElement = $objCollection->get(0);
-
-				if (is_null($objFirstElement))
-				{
-					return;
-				}
-
-				$intSorting = $objFirstElement->getProperty('sorting');
-
-				if ($intSorting <= 2)
-				{
-					$this->reorderSorting($objConfig);
-					$this->getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $mixInto, $strMode, $mixParentID, $intInsertMode);
-					return;
-				}
-
-				$intNewSorting = round($intSorting / 2);
-
-				$objDBModel->setProperty('sorting', $intNewSorting);
-				return;
+				$intLowestSorting = $objCollection->get(0)->getProperty('sorting');
+				$intNextSorting = round($intLowestSorting / 2);
 			}
-			// Add to the end of element
-			else if ($mixAfter == DCGE::INSERT_AFTER_END)
+			else
 			{
-				$objCollection->reverse();
-				$objLastElement = $objCollection->get(0);
-
-				$intSorting = $objLastElement->getProperty('sorting');
-				$intNewSorting = $intSorting + 256;
-
-				$objDBModel->setProperty('sorting', $intNewSorting);
-				return;
+				$intNextSorting = 256;
 			}
-			// Add after a element
-			else if (!empty($mixAfter))
+
+			// Check if we have a valide sorting.
+			if ($intNextSorting <= 2 && !$blnWithoutReorder)
 			{
-				foreach ($objCollection as $value)
-				{
-					// After we have it, get the next sorting and break out
-					if ($intSortingAfter != 0)
-					{
-						$intSortingNext = $value->getProperty('sorting');
-						break;
-					}
-
-					// Search for my targeting element
-					if ($value->getID() == $mixAfter)
-					{
-						$intSortingAfter = $value->getProperty('sorting');
-					}
-				}
-
-				if ($intSortingNext == 0)
-				{
-					$intSortingNext = $intSortingAfter + 256;
-				}
-
-				$intNewSorting = $intSortingAfter + round(($intSortingNext - $intSortingAfter) / 2);
-
-				if ($intNewSorting <= $intSortingAfter || $intNewSorting >= $intSortingNext)
-				{
-					$objConfig = $objCDP->getEmptyConfig();
-					$objConfig->setFilter($this->getFilter());
-
-					$this->reorderSorting($objConfig);
-					$this->getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $mixInto, $strMode, $mixParentID, $intInsertMode);
-					return;
-				}
-
-				$objDBModel->setProperty('sorting', $intNewSorting);
-				return;
-			}
-			else if (!empty($mixInto))
-			{
-				// Search for the lowest sorting
+				// ToDo: Add child <=> parent config.
 				$objConfig = $objCDP->getEmptyConfig();
-				$objConfig->setFields(array('sorting'));
-				$arrCollection = $objCDP->fetchAll($objConfig);
-
-				foreach ($arrCollection as $value)
-				{
-					if ($value->getProperty('sorting') < $intLowestSorting && $value->getProperty('sorting') != 0)
-					{
-						$intLowestSorting = $value->getProperty('sorting');
-					}
-				}
-
-				// If we have no room, reorder all sortings and call the function again
-				if ($intLowestSorting <= 1)
-				{
-					$objConfig = $objCDP->getEmptyConfig();
-					$objConfig->setFilter($this->getFilter());
-
-					$this->reorderSorting($objConfig);
-					$this->getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $mixInto, $strMode, $mixParentID, $intInsertMode);
-					return;
-				}
-
-				$intNextSorting = round($intLowestSorting - 2);
-
-				// Set new Sorting
-				$objDBModel->setProperty('sorting', $intNextSorting);
-
+				$this->reorderSorting($objConfig);
+				$this->getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $mixInto, $strMode, $mixParentID, $intInsertMode, true);
 				return;
 			}
-		}
-		else if ($strMode == 'create')
-		{
-//			// Default - Add to end off all
-//			// Search for the highest sorting
-//			$objConfig = $objCDP->getEmptyConfig();
-//			$objConfig->setFields(array('sorting'));
-//			$arrCollection = $objCDP->fetchAll($objConfig);
-//
-//			foreach ($arrCollection as $value)
-//			{
-//				if ($value->getProperty('sorting') > $intHigestSorting)
-//				{
-//					$intHigestSorting = $value->getProperty('sorting');
-//				}
-//			}
-//
-//			$intNextSorting = $intHigestSorting + 128;
-//
-//			// Set new Sorting
-//			$objDBModel->setProperty('sorting', $intNextSorting);
-//
-//			return;
-		}
+			// Fallback to valid sorting.
+			else if ($intNextSorting <= 2)
+			{
+				$intNextSorting = 256;
+			}
 
-		return;
+			$objDBModel->setProperty('sorting', $intNextSorting);
+		}
+		// If we get a after, search for the right value.
+		else if (!empty($mixAfter))
+		{
+			// Init some vars.
+			$intAfterSorting = 0;
+			$intNextSorting = 0;
+
+			// Get "after" sorting value value.
+			$objAfterConfig = $objCDP->getEmptyConfig();
+			$objAfterConfig->setAmount(1);
+
+			$arrFilter = array(array(
+					'value' => $mixAfter,
+					'property' => 'id',
+					'operation' => '='
+			));
+
+			$objAfterConfig->setFilter($arrFilter);
+
+			$objAfterCollection = $objCDP->fetchAll($objAfterConfig);
+
+			if ($objAfterCollection->length())
+			{
+				$intAfterSorting = $objAfterCollection->get(0)->getProperty('sorting');
+			}
+
+			// Get "next" sorting value value.
+			$objNextConfig = $objCDP->getEmptyConfig();
+			$objNextConfig->setFields(array('sorting'));
+			$objNextConfig->setAmount(1);
+			$objNextConfig->setSorting(array('sorting' => DCGE::MODEL_SORTING_ASC));
+
+			$arrFilterSettings = array(array(
+					'value' => $intAfterSorting,
+					'property' => 'sorting',
+					'operation' => '>'
+			));
+
+			$objNextConfig->setFilter($arrFilterSettings);
+
+			$objNextCollection = $objCDP->fetchAll($objNextConfig);
+			
+			if ($objNextCollection->length())
+			{
+				$intNextSorting = $objNextCollection->get(0)->getProperty('sorting');
+			}
+			else
+			{
+				$intNextSorting = $intAfterSorting + (2 * 256);
+			}
+
+			// Check if we have a valide sorting.
+			if (round(($intNextSorting - $intAfterSorting) / 2) <= 2 && !$blnWithoutReorder)
+			{
+				// ToDo: Add child <=> parent config.
+				$objConfig = $objCDP->getEmptyConfig();
+				$this->reorderSorting($objConfig);
+				$this->getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $mixInto, $strMode, $mixParentID, $intInsertMode, true);
+				return;
+			}
+			// Fallback to valid sorting.
+			else if ($intNextSorting <= 2)
+			{
+				$intNextSorting = 256;
+			}
+			
+			// Get sorting between these two values.
+			$intNewSorting = $intAfterSorting + round(($intNextSorting - $intAfterSorting) / 2);
+			
+			// Save in model.
+			$objDBModel->setProperty('sorting', $intNewSorting);
+		}
+		// Else use the highest value. Fallback.
+		else
+		{
+			$objConfig = $objCDP->getEmptyConfig();
+			$objConfig->setFields(array('sorting'));
+			$objConfig->setSorting(array('sorting' => DCGE::MODEL_SORTING_DESC));
+			$objConfig->setAmount(1);
+
+			$objCollection = $objCDP->fetchAll($objConfig);
+
+			if ($objCollection->length())
+			{
+				$intHighestSorting = $objCollection->get(0)->getProperty('sorting') + 256;
+			}
+
+			$objDBModel->setProperty('sorting', $intHighestSorting);
+		}
 	}
 
+	/**
+	 * Reorder all sortings for one table. 
+	 * 
+	 * @param InterfaceGeneralDataConfig $objConfig
+	 * 
+	 * @return void
+	 */
 	protected function reorderSorting($objConfig)
 	{
 		$objCurrentDataProvider = $this->getDC()->getDataProvider();
