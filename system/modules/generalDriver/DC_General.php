@@ -1352,6 +1352,25 @@ class DC_General extends DataContainer implements editable, listable
 			}
 		}
 
+		if (in_array($this->arrDCA['list']['sorting']['mode'], array(4, 5, 6)))
+		{
+			// pull correct condition from DCA and update according to setOn values.
+			$objParentModel = $this->getDataProvider('parent')->fetch($this->getDataProvider('parent')->getEmptyConfig()->setId(Input::getInstance()->get('pid')));
+			$arrCond = $this->getParentChildCondition($objParentModel, $this->getDataProvider()->getEmptyModel()->getProviderName());
+
+			foreach ($arrCond['setOn'] as $arrSetOn)
+			{
+				if ($arrSetOn['from_field'])
+				{
+					$this->objCurrentModel->setProperty($arrSetOn['to_field'], $objParentModel->getProperty($arrSetOn['from_field']));
+				}
+				else
+				{
+					$this->objCurrentModel->setProperty($arrSetOn['to_field'], $arrSetOn['value']);
+				}
+			}
+		}
+
 		// TODO: is this really a wise idea here?
 		if (in_array('metapalettes', Config::getInstance()->getActiveModules()))
 		{
