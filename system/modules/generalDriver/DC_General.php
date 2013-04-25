@@ -1358,15 +1358,18 @@ class DC_General extends DataContainer implements editable, listable
 			$objParentModel = $this->getDataProvider('parent')->fetch($this->getDataProvider('parent')->getEmptyConfig()->setId(Input::getInstance()->get('pid')));
 			$arrCond = $this->getParentChildCondition($objParentModel, $this->getDataProvider()->getEmptyModel()->getProviderName());
 
-			foreach ($arrCond['setOn'] as $arrSetOn)
+			if (is_array($arrCond) && key_exists('setOn', $arrCond))
 			{
-				if ($arrSetOn['from_field'])
+				foreach ($arrCond['setOn'] as $arrSetOn)
 				{
-					$this->objCurrentModel->setProperty($arrSetOn['to_field'], $objParentModel->getProperty($arrSetOn['from_field']));
-				}
-				else
-				{
-					$this->objCurrentModel->setProperty($arrSetOn['to_field'], $arrSetOn['value']);
+					if ($arrSetOn['from_field'])
+					{
+						$this->objCurrentModel->setProperty($arrSetOn['to_field'], $objParentModel->getProperty($arrSetOn['from_field']));
+					}
+					else
+					{
+						$this->objCurrentModel->setProperty($arrSetOn['to_field'], $arrSetOn['value']);
+					}
 				}
 			}
 		}
