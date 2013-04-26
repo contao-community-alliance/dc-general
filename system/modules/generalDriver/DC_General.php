@@ -1352,7 +1352,7 @@ class DC_General extends DataContainer implements editable, listable
 			}
 		}
 
-		if (in_array($this->arrDCA['list']['sorting']['mode'], array(4, 5, 6)))
+		if (in_array($this->arrDCA['list']['sorting']['mode'], array(4, 5, 6)) && strlen(Input::getInstance()->get('pid')) == !0)
 		{
 			// pull correct condition from DCA and update according to setOn values.
 			$objParentModel = $this->getDataProvider('parent')->fetch($this->getDataProvider('parent')->getEmptyConfig()->setId(Input::getInstance()->get('pid')));
