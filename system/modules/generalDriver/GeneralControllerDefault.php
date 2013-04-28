@@ -1558,7 +1558,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		// Search for the highest sorting. Default - Add to end off all.	
 		// ToDo: We have to check the child <=> parent condition . To get all sortings for one level.
 		// If we get a after 0, add to top.
-		if ($mixAfter == 0)
+		if ($mixAfter === 0)
 		{
 			// Build filter for conditions
 			$arrFilter = array();
