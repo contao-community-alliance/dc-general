@@ -992,7 +992,6 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		// Check if we have a auto submit
 		$this->getDC()->updateModelFromPOST();
 		
-		
 		// Check submit
 		if ($this->getDC()->isSubmitted() == true && !$this->getDC()->isNoReload())
 		{
@@ -1561,17 +1560,39 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		// If we get a after 0, add to top.
 		if ($mixAfter == 0)
 		{
+			// Build filter for conditions
+			$arrFilter = array();
+
+			if (in_array($this->getDC()->arrDCA['list']['sorting']['mode'], array(4, 5, 6)))
+			{
+				$arrConditions = $this->objDC->getRootConditions($objPDP->getEmptyModel()->getProviderName());
+
+				if ($arrConditions)
+				{
+					foreach ($arrConditions as $arrCondition)
+					{
+						$arrFilter[] = array(
+							'value'      => $arrCondition['value'],
+							'property'   => $arrCondition['property'],
+							'operation'  => $arrCondition['operation']
+						);
+					}
+				}
+			}
+
+			// Build config
 			$objConfig = $objCDP->getEmptyConfig();
 			$objConfig->setFields(array('sorting'));
 			$objConfig->setSorting(array('sorting' => DCGE::MODEL_SORTING_ASC));
 			$objConfig->setAmount(1);
+			$objConfig->setFilter($arrFilter);
 
 			$objCollection = $objCDP->fetchAll($objConfig);
 
 			if ($objCollection->length())
 			{
-				$intLowestSorting = $objCollection->get(0)->getProperty('sorting');
-				$intNextSorting = round($intLowestSorting / 2);
+				$intLowestSorting    = $objCollection->get(0)->getProperty('sorting');
+				$intNextSorting      = round($intLowestSorting / 2);
 			}
 			else
 			{
@@ -1583,6 +1604,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			{
 				// ToDo: Add child <=> parent config.
 				$objConfig = $objCDP->getEmptyConfig();
+				$objConfig->setFilter($arrFilter);
+				
 				$this->reorderSorting($objConfig);
 				$this->getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $mixInto, $strMode, $mixParentID, $intInsertMode, true);
 				return;
@@ -1605,14 +1628,11 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			// Get "after" sorting value value.
 			$objAfterConfig = $objCDP->getEmptyConfig();
 			$objAfterConfig->setAmount(1);
-
-			$arrFilter = array(array(
-					'value' => $mixAfter,
-					'property' => 'id',
-					'operation' => '='
-			));
-
-			$objAfterConfig->setFilter($arrFilter);
+			$objAfterConfig->setFilter(array(array(
+					'value'      => $mixAfter,
+					'property'   => 'id',
+					'operation'  => '='
+			)));
 
 			$objAfterCollection = $objCDP->fetchAll($objAfterConfig);
 
@@ -1628,12 +1648,45 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			$objNextConfig->setSorting(array('sorting' => DCGE::MODEL_SORTING_ASC));
 
 			$arrFilterSettings = array(array(
-					'value' => $intAfterSorting,
-					'property' => 'sorting',
-					'operation' => '>'
+					'value'      => $intAfterSorting,
+					'property'	 => 'sorting',
+					'operation'	 => '>'
 			));
+			
+			
+			$arrFilterChildCondition = array();
 
-			$objNextConfig->setFilter($arrFilterSettings);
+			// If we have mode 4, 5, 6 build the child <=> parent condition.
+			if (in_array($this->getDC()->arrDCA['list']['sorting']['mode'], array(4, 5, 6)))
+			{
+				$arrChildCondition	 = $this->objDC->getParentChildCondition($objAfterCollection->get(0), $objCDP->getEmptyModel()->getProviderName());
+				$arrChildCondition	 = $arrChildCondition['setOn'];
+
+				if ($arrChildCondition)
+				{
+					foreach ($arrChildCondition as $arrOperation)
+					{
+						if (array_key_exists('to_field', $arrOperation))
+						{
+							$arrFilterChildCondition[] = array(
+								'value'		 => $objAfterCollection->get(0)->getProperty($arrOperation['to_field']),
+								'property'	 => $arrOperation['to_field'],
+								'operation'	 => '='
+							);
+						}
+						else
+						{
+							$arrFilterChildCondition[] = array(
+								'value'		 => $arrOperation['property'],
+								'property'	 => $arrOperation['to_field'],
+								'operation'	 => '='
+							);
+						}
+					}
+				}
+			}
+			
+			$objNextConfig->setFilter(array_merge($arrFilterSettings, $arrFilterChildCondition));
 
 			$objNextCollection = $objCDP->fetchAll($objNextConfig);
 			
@@ -1651,6 +1704,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			{
 				// ToDo: Add child <=> parent config.
 				$objConfig = $objCDP->getEmptyConfig();
+				$objConfig->setFilter($arrFilterChildCondition);
+				
 				$this->reorderSorting($objConfig);
 				$this->getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $mixInto, $strMode, $mixParentID, $intInsertMode, true);
 				return;
@@ -1663,9 +1718,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			
 			// Get sorting between these two values.
 			$intNewSorting = $intAfterSorting + round(($intNextSorting - $intAfterSorting) / 2);
-			
+						
 			// Save in model.
 			$objDBModel->setProperty('sorting', $intNewSorting);
+			
 		}
 		// Else use the highest value. Fallback.
 		else
