@@ -460,6 +460,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		// Add template
 		$objTemplate = new BackendTemplate('dcbe_general_parentView');
 
+		$objTemplate->tableName = strlen($this->objDC->getTable())? $this->objDC->getTable() : 'none';
 		$objTemplate->collection = $this->getDC()->getCurrentCollecion();
 		$objTemplate->select = $this->getDC()->isSelectSubmit();
 		$objTemplate->action = ampersand($this->Environment->request, true);
@@ -772,6 +773,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 			$objTemplate = new BackendTemplate('dcbe_general_listView');
 		}
 
+		$objTemplate->tableName = strlen($this->objDC->getTable())? $this->objDC->getTable() : 'none';
 		$objTemplate->collection = $this->getDC()->getCurrentCollecion();
 		$objTemplate->select = $this->getDC()->isSelectSubmit();
 		$objTemplate->action = ampersand($this->Environment->request, true);
@@ -843,6 +845,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 		// Build template
 		$objTemplate = new BackendTemplate('dcbe_general_treeview');
 		$objTemplate->treeClass = 'tl_' . $treeClass;
+		$objTemplate->tableName = strlen($this->objDC->getTable())? $this->objDC->getTable() : 'none';
 		$objTemplate->strLabelIcon = $this->generateImage($strLabelIcon);
 		$objTemplate->strLabelText = $strLabelText;
 		$objTemplate->strHTML = $strHTML;

@@ -11,7 +11,7 @@
                 <input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>">
     <?php endif; ?>
 
-            <div class="tl_listing_container list_view">
+            <div class="tl_listing_container list_view table_<?php echo $this->tableName; ?>">
 				
 				<?php if(strlen($this->breadcrumb)) echo $this->breadcrumb; ?>
 
