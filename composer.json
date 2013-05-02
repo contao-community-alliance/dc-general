@@ -4,26 +4,34 @@
 	"keywords":["framework", "data", "container", "driver", "php", "contao"],
 	"type":"contao-module",
 	"license":"LGPL-3.0+",
-	"authors":[
-		{
-			"name":"Christian Schiffler",
-			"email":"info@cyberspectrum.de",
-			"homepage":"http://www.cyberspectrum.de",
-			"role":"Project leader"
-		},
-		{
-			"name":"Stefan Heimes",
-			"email":"heimes@men-at-work.de",
-			"homepage":"http://www.men-at-work.de",
-			"role":"Developer"
-		}
-	],
+    "authors":[
+        {
+            "name":"Christian Schiffler",
+            "email":"c.schiffler@cyberspectrum.de",
+            "homepage":"http://www.cyberspectrum.de",
+            "role":"Developer"
+        },
+        {
+            "name":"Andreas Isaak",
+            "email":"info@andreas-isaak.de",
+            "homepage":"http://www.andreas-isaak.de",
+            "role":"Developer"
+        },
+        {
+            "name":"Stefan Heimes",
+            "email":"stefan_heimes@hotmail.com",
+            "role":"Developer"
+        },
+        {
+            "name":"Christian de la Haye",
+            "email":"service@delahaye.de",
+            "homepage":"http://www.delahaye.de/",
+            "role":"Developer"
+        }
+    ],
 	"require":{
 		"php":">=5.3",
 		"contao/core":">=2.11,<3.0"
-	},
-	"autoload":{
-		"classmap":["system/"]
 	},
 	"extra":{
 		"contao": {
