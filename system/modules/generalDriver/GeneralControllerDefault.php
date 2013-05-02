@@ -1486,6 +1486,16 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		// Callback
 		$this->getDC()->getCallbackClass()->onsaveCallback($objDBModel);
+				
+		// Check if we have a field with eval->alwaysSave
+		foreach ($this->objDC->getFieldList() as $arrFieldSettings)
+		{
+			if($arrFieldSettings['eval']['alwaysSave'] == 1)
+			{
+				$objDBModel->setMeta(DCGE::MODEL_IS_CHANGED, true);
+				break;
+			}
+		}
 
 //        $this->getNewPosition($objDBModel, 'create', null, false);
 		// everything went ok, now save the new record
