@@ -1490,7 +1490,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		// Check if we have a field with eval->alwaysSave
 		foreach ($this->objDC->getFieldList() as $arrFieldSettings)
 		{
-			if($arrFieldSettings['eval']['alwaysSave'] == 1)
+			if($arrFieldSettings['eval']['alwaysSave'] == true)
 			{
 				$objDBModel->setMeta(DCGE::MODEL_IS_CHANGED, true);
 				break;
