@@ -1589,7 +1589,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			}
 
 			// Check if we have a valide sorting.
-			if ($intNextSorting <= 2 && !$blnWithoutReorder)
+			if (($intLowestSorting < 2 || $intNextSorting <= 2) && !$blnWithoutReorder)
 			{
 				// ToDo: Add child <=> parent config.
 				$objConfig = $objCDP->getEmptyConfig();
@@ -1657,7 +1657,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			}
 
 			// Check if we have a valide sorting.
-			if (round(($intNextSorting - $intAfterSorting) / 2) <= 2 && !$blnWithoutReorder)
+			if (($intAfterSorting < 2 || $intNextSorting < 2 || round(($intNextSorting - $intAfterSorting) / 2) <= 2) && !$blnWithoutReorder)
 			{
 				// ToDo: Add child <=> parent config.
 				$objConfig = $objCDP->getEmptyConfig();
