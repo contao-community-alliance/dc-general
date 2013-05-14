@@ -4,31 +4,37 @@
 	"keywords":["framework", "data", "container", "driver", "php", "contao"],
 	"type":"contao-module",
 	"license":"LGPL-3.0+",
-    "authors":[
-        {
-            "name":"Christian Schiffler",
-            "email":"c.schiffler@cyberspectrum.de",
-            "homepage":"http://www.cyberspectrum.de",
-            "role":"Developer"
-        },
-        {
-            "name":"Andreas Isaak",
-            "email":"info@andreas-isaak.de",
-            "homepage":"http://www.andreas-isaak.de",
-            "role":"Developer"
-        },
-        {
-            "name":"Stefan Heimes",
-            "email":"stefan_heimes@hotmail.com",
-            "role":"Developer"
-        },
-        {
-            "name":"Christian de la Haye",
-            "email":"service@delahaye.de",
-            "homepage":"http://www.delahaye.de/",
-            "role":"Developer"
-        }
-    ],
+	"authors": [
+		{
+			"name":"Christian Schiffler",
+			"email":"c.schiffler@cyberspectrum.de",
+			"homepage":"http://www.cyberspectrum.de",
+			"role":"Developer"
+		},
+		{
+			"name":"Andreas Isaak",
+			"email":"info@andreas-isaak.de",
+			"homepage":"http://www.andreas-isaak.de",
+			"role":"Developer"
+		},
+		{
+			"name":"Stefan Heimes",
+			"email":"stefan_heimes@hotmail.com",
+			"role":"Developer"
+		},
+		{
+			"name":"Christian de la Haye",
+			"email":"service@delahaye.de",
+			"homepage":"http://www.delahaye.de/",
+			"role":"Developer"
+		},
+		{
+			"name":"Oliver Hoff",
+			"email":"oliver@hofff.com",
+			"homepage":"http://www.hofff.com/",
+			"role":"Developer"
+		}
+	],
 	"require":{
 		"php":">=5.3",
 		"contao/core":">=2.11,<3.0"
@@ -39,6 +45,9 @@
 				"system/drivers/DC_General.php": "system/drivers/DC_General.php",
 				"system/modules/generalDriver": "system/modules/generalDriver"
 			}
+		},
+		"branch-alias": {
+			"dev-master": "0.9.x-dev"
 		}
 	}
 }
