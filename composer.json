@@ -35,13 +35,19 @@
 			"role":"Developer"
 		}
 	],
-	"require":{
+	"require": {
 		"php":">=5.3",
-		"contao/core":">=2.11,<3.0"
+		"contao/core":">=2.11,<4.0"
 	},
-	"extra":{
+	"require-dev": {
+		"contao/core":"dev-master"
+	},
+	"conflict": {
+		"contao/core": "3.0.*"
+	},
+	"extra": {
 		"contao": {
-			"symlinks":{
+			"symlinks": {
 				"system/drivers/DC_General.php": "system/drivers/DC_General.php",
 				"system/modules/generalDriver": "system/modules/generalDriver"
 			}
