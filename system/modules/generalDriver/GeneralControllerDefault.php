@@ -1067,7 +1067,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			}
 			catch (Exception $exc)
 			{
-				$_SESSION['TL_ERROR'][] = $exc->getMessage();
+				$_SESSION['TL_ERROR'][] = sprintf('Exception: %s in file %s on line %s', $exc->getMessage(), $exc->getFile(), $exc->getLine());
 			}
 		}
 	}
