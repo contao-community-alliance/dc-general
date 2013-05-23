@@ -1687,6 +1687,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 			$objCollection = $objCDP->fetchAll($objConfig);
 
+			$intHighestSorting = 0;
+
 			if ($objCollection->length())
 			{
 				$intHighestSorting = $objCollection->get(0)->getProperty('sorting') + 256;
