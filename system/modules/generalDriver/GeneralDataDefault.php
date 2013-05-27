@@ -91,7 +91,7 @@ class GeneralDataDefault implements InterfaceGeneralData
 	/**
 	 * Fetch an empty single collection (new item).
 	 *
-	 * @return InterfaceGeneralModel
+	 * @return GeneralCollectionDefault
 	 */
 	public function getEmptyCollection()
 	{
@@ -378,6 +378,7 @@ class GeneralDataDefault implements InterfaceGeneralData
 	 */
 	public function fetchAll(GeneralDataConfigDefault $objConfig)
 	{
+		$arrParams = array();
 		// Build SQL
 		$query = "SELECT " . $this->buildFieldQuery($objConfig) . " FROM " . $this->strSource;
 		$query .= $this->buildWhereQuery($objConfig, $arrParams);
@@ -485,6 +486,8 @@ class GeneralDataDefault implements InterfaceGeneralData
 	 */
 	public function getCount(GeneralDataConfigDefault $objConfig)
 	{
+		$arrParams = array();
+
 		$query = "SELECT COUNT(*) AS count FROM " . $this->strSource;
 		$query .= $this->buildWhereQuery($objConfig, $arrParams);
 
