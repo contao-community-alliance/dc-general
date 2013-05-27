@@ -2860,18 +2860,17 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				$arrProcedure[] = array('operation' => 'IN', 'property' => 'id', 'values' => array_map('intval', $this->getDC()->getRootIds()));
 			}
 
-			$objtmpCollection = $this->getDC()->getDataProvider()->fetchAll($this->getDC()->getDataProvider()->getEmptyConfig()->setFields(array($field))->setFilter($arrProcedure));
+			$arrValues = $this->getDC()->getDataProvider()->getFilterOptions($field);
 
 			$arrFields = array();
 			$objCollection = $this->getDC()->getDataProvider()->getEmptyCollection();
-			foreach ($objtmpCollection as $key => $objModel)
+			foreach ($arrValues as $strValue)
 			{
-				$value = $objModel->getProperty($field);
-				if (!in_array($value, $arrFields))
+				if (!in_array($strValue, $arrFields))
 				{
-					$arrFields[] = $value;
+					$arrFields[] = $strValue;
 					$objNewModel = $this->getDC()->getDataProvider()->getEmptyModel();
-					$objNewModel->setProperty($field, $value);
+					$objNewModel->setProperty($field, $strValue);
 					$objCollection->add($objNewModel);
 				}
 			}
