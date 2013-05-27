@@ -431,6 +431,24 @@ class GeneralDataDefault implements InterfaceGeneralData
 	}
 
 	/**
+	 * Retrieve all unique values for the given property.
+	 *
+	 * The result set will be an array containing all unique values contained in the Dataprovider.
+	 * Note: this only re-ensembles really used values for at least one data set.
+	 *
+	 * @param string $strProperty The name of the desired property for which the values shall be retrieved.
+	 *
+	 * @return array
+	 */
+	public function getFilterOptions($strProperty)
+	{
+		$objValues = $this->objDatabase
+			->execute(sprintf('SELECT DISTINCT(%s) FROM %s', $strProperty, $this->strSource));
+
+		return $objValues->fetchEach($strProperty);
+	}
+
+	/**
 	 * Return the amount of total items.
 	 *
 	 * @param GeneralDataConfigDefault $objConfig
