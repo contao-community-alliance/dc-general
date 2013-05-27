@@ -2860,6 +2860,13 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				$arrProcedure[] = array('operation' => 'IN', 'property' => 'id', 'values' => array_map('intval', $this->getDC()->getRootIds()));
 			}
 
+			foreach ($this->getFilter() as $arrSubFilter)
+			{
+				if ($arrSubFilter['property'] != $field)
+				{
+					$arrProcedure[] = $arrSubFilter;
+				}
+			}
 
 			$objCollection = $this->getDC()->getDataProvider()->getFilterOptions(
 				$this->getDC()
