@@ -650,8 +650,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 						// sadly, with our complex rules an getParent() is IMPOSSIBLE (or in other words way too costly as we would be forced to iterate through all items and check if this item would end up in their child collection).
 						// therefore we get the child we want to be next of and set all fields to the same values as in the sibling to end up in the same parent.
 						$objOtherChild = $objCurrentDataProvider->fetch($objCurrentDataProvider->getEmptyConfig()->setId($mixAfter));
-						$this->getDC()->setSameParent($objSrcModel, $objOtherChild, $strCDP);						
-						
+						$this->getDC()->setSameParent($objSrcModel, $objOtherChild, $strCDP);
+
 						// Update sorting.
 						$this->getNewPosition($objCurrentDataProvider, $objParentDataProvider, $objSrcModel, $mixAfter, $mixInto, 'cut');
 						break;
@@ -669,7 +669,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 							$objMyParent = $objCurrentDataProvider->fetch($objCurrentDataProvider->getEmptyConfig()->setId($mixAfter));
 							$this->setParent($objSrcModel, $objMyParent, 'self');
 						}
-						
+
 						// Update sorting.
 						$this->getNewPosition($objCurrentDataProvider, $objParentDataProvider, $objSrcModel, $mixAfter, $mixInto, 'cut');
 						break;
@@ -991,8 +991,8 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		// Check if we have a auto submit
 		$this->getDC()->updateModelFromPOST();
-		
-		
+
+
 		// Check submit
 		if ($this->getDC()->isSubmitted() == true && !$this->getDC()->isNoReload())
 		{
@@ -1486,7 +1486,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		// Callback
 		$this->getDC()->getCallbackClass()->onsaveCallback($objDBModel);
-				
+
 		// Check if we have a field with eval->alwaysSave
 		foreach ($this->objDC->getFieldList() as $arrFieldSettings)
 		{
@@ -1539,7 +1539,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	 *
 	 * Warning this function needs the cdp (current data provider).
 	 * Warning this function needs the pdp (parent data provider).
-	 * 
+	 *
 	 * Based on backbone87 PR - "creating items in parent modes generates sorting value of 0"
 	 *
 	 * @param InterfaceGeneralData $objCDP - Current data provider
@@ -1566,7 +1566,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			$objCDP = $this->getDC()->getDataProvider();
 		}
 
-		// Search for the highest sorting. Default - Add to end off all.	
+		// Search for the highest sorting. Default - Add to end off all.
 		// ToDo: We have to check the child <=> parent condition . To get all sortings for one level.
 		// If we get a after 0, add to top.
 		if ($mixAfter == 0)
@@ -1646,7 +1646,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			$objNextConfig->setFilter($arrFilterSettings);
 
 			$objNextCollection = $objCDP->fetchAll($objNextConfig);
-			
+
 			if ($objNextCollection->length())
 			{
 				$intNextSorting = $objNextCollection->get(0)->getProperty('sorting');
@@ -1670,10 +1670,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			{
 				$intNextSorting = 256;
 			}
-			
+
 			// Get sorting between these two values.
 			$intNewSorting = $intAfterSorting + round(($intNextSorting - $intAfterSorting) / 2);
-			
+
 			// Save in model.
 			$objDBModel->setProperty('sorting', $intNewSorting);
 		}
@@ -1699,10 +1699,10 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 	}
 
 	/**
-	 * Reorder all sortings for one table. 
-	 * 
+	 * Reorder all sortings for one table.
+	 *
 	 * @param InterfaceGeneralDataConfig $objConfig
-	 * 
+	 *
 	 * @return void
 	 */
 	protected function reorderSorting($objConfig)
@@ -2054,19 +2054,19 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			return $arrChildDef['self']['format'];
 		}
 	}
-	
+
 	/**
-	 * Get a list with all needed fields for the models. 
-	 * 
+	 * Get a list with all needed fields for the models.
+	 *
 	 * @param InterfaceGeneralModel $objModel
 	 * @param string $strDstTable
-	 * 
+	 *
 	 * @return array A list with all needed values.
 	 */
 	protected function calcNeededFields(InterfaceGeneralModel $objModel, $strDstTable)
 	{
 		$arrFields = $this->calcLabelFields($strDstTable);
-		$arrChildCond = $this->getDC()->getChildCondition($objModel, $strDstTable);	
+		$arrChildCond = $this->getDC()->getChildCondition($objModel, $strDstTable);
 		foreach ($arrChildCond as $arrCond)
 		{
 			if ($arrCond['property'])
@@ -2074,13 +2074,13 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				$arrFields[] = $arrCond['property'];
 			}
 		}
-		
+
 		// Add some default values, if we have this values in DB.
 		if($this->objDC->getDataProvider($strDstTable)->fieldExists('enabled'))
 		{
 			$arrFields [] = 'enabled';
 		}
-		
+
 		return $arrFields;
 	}
 
