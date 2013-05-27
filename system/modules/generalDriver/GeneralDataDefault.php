@@ -91,7 +91,7 @@ class GeneralDataDefault implements InterfaceGeneralData
 	/**
 	 * Fetch an empty single collection (new item).
 	 *
-	 * @return InterfaceGeneralModel
+	 * @return GeneralCollectionDefault
 	 */
 	public function getEmptyCollection()
 	{
@@ -378,6 +378,7 @@ class GeneralDataDefault implements InterfaceGeneralData
 	 */
 	public function fetchAll(GeneralDataConfigDefault $objConfig)
 	{
+		$arrParams = array();
 		// Build SQL
 		$query = "SELECT " . $this->buildFieldQuery($objConfig) . " FROM " . $this->strSource;
 		$query .= $this->buildWhereQuery($objConfig, $arrParams);
@@ -431,6 +432,52 @@ class GeneralDataDefault implements InterfaceGeneralData
 	}
 
 	/**
+	 * Retrieve all unique values for the given property.
+	 *
+	 * The result set will be an array containing all unique values contained in the Dataprovider.
+	 * Note: this only re-ensembles really used values for at least one data set.
+	 *
+	 * The only information being interpreted from the passed config object is the first property to fetch and the
+	 * filter definition.
+	 *
+	 * @param InterfaceGeneralDataConfig $objConfig   The filter config options.
+	 *
+	 * @return GeneralCollectionDefault
+	 *
+	 * @throws Exception if improper values have been passed (i.e. not exactly one field requested).
+	 */
+	public function getFilterOptions(InterfaceGeneralDataConfig $objConfig)
+	{
+		$arrProperties = $objConfig->getFields();
+		$strProperty = $arrProperties[0];
+
+		if (count($arrProperties) <> 1)
+		{
+			throw new Exception('objConfig must contain exactly one property to be retrieved.');
+		}
+
+		$arrParams = array();
+
+		$objValues = $this->objDatabase
+			->prepare(sprintf('SELECT DISTINCT(%s) FROM %s %s',
+				$strProperty,
+				$this->strSource,
+				$this->buildWhereQuery($objConfig, $arrParams)
+			))
+			->execute($arrParams);
+
+		$objCollection = $this->getEmptyCollection();
+		while ($objValues->next())
+		{
+			$objNewModel = $this->getEmptyModel();
+			$objNewModel->setProperty($strProperty, $objValues->$strProperty);
+			$objCollection->add($objNewModel);
+		}
+
+		return $objCollection;
+	}
+
+	/**
 	 * Return the amount of total items.
 	 *
 	 * @param GeneralDataConfigDefault $objConfig
@@ -439,6 +486,8 @@ class GeneralDataDefault implements InterfaceGeneralData
 	 */
 	public function getCount(GeneralDataConfigDefault $objConfig)
 	{
+		$arrParams = array();
+
 		$query = "SELECT COUNT(*) AS count FROM " . $this->strSource;
 		$query .= $this->buildWhereQuery($objConfig, $arrParams);
 
