@@ -436,16 +436,44 @@ class GeneralDataDefault implements InterfaceGeneralData
 	 * The result set will be an array containing all unique values contained in the Dataprovider.
 	 * Note: this only re-ensembles really used values for at least one data set.
 	 *
-	 * @param string $strProperty The name of the desired property for which the values shall be retrieved.
+	 * The only information being interpreted from the passed config object is the first property to fetch and the
+	 * filter definition.
 	 *
-	 * @return array
+	 * @param InterfaceGeneralDataConfig $objConfig   The filter config options.
+	 *
+	 * @return GeneralCollectionDefault
+	 *
+	 * @throws Exception if improper values have been passed (i.e. not exactly one field requested).
 	 */
-	public function getFilterOptions($strProperty)
+	public function getFilterOptions(InterfaceGeneralDataConfig $objConfig)
 	{
-		$objValues = $this->objDatabase
-			->execute(sprintf('SELECT DISTINCT(%s) FROM %s', $strProperty, $this->strSource));
+		$arrProperties = $objConfig->getFields();
+		$strProperty = $arrProperties[0];
 
-		return $objValues->fetchEach($strProperty);
+		if (count($arrProperties) <> 1)
+		{
+			throw new Exception('objConfig must contain exactly one property to be retrieved.');
+		}
+
+		$arrParams = array();
+
+		$objValues = $this->objDatabase
+			->prepare(sprintf('SELECT DISTINCT(%s) FROM %s %s',
+				$strProperty,
+				$this->strSource,
+				$this->buildWhereQuery($objConfig, $arrParams)
+			))
+			->execute($arrParams);
+
+		$objCollection = $this->getEmptyCollection();
+		while ($objValues->next())
+		{
+			$objNewModel = $this->getEmptyModel();
+			$objNewModel->setProperty($strProperty, $objValues->$strProperty);
+			$objCollection->add($objNewModel);
+		}
+
+		return $objCollection;
 	}
 
 	/**

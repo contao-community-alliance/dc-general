@@ -2860,20 +2860,14 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				$arrProcedure[] = array('operation' => 'IN', 'property' => 'id', 'values' => array_map('intval', $this->getDC()->getRootIds()));
 			}
 
-			$arrValues = $this->getDC()->getDataProvider()->getFilterOptions($field);
 
-			$arrFields = array();
-			$objCollection = $this->getDC()->getDataProvider()->getEmptyCollection();
-			foreach ($arrValues as $strValue)
-			{
-				if (!in_array($strValue, $arrFields))
-				{
-					$arrFields[] = $strValue;
-					$objNewModel = $this->getDC()->getDataProvider()->getEmptyModel();
-					$objNewModel->setProperty($field, $strValue);
-					$objCollection->add($objNewModel);
-				}
-			}
+			$objCollection = $this->getDC()->getDataProvider()->getFilterOptions(
+				$this->getDC()
+					->getDataProvider()
+					->getEmptyConfig()
+					->setFields(array($field))
+					->setFilter($arrProcedure)
+			);
 
 			// Begin select menu
 			$arrPanelView[$field] = array(

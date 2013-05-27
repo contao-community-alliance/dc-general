@@ -65,11 +65,14 @@ interface InterfaceGeneralData
 	 * The result set will be an array containing all unique values contained in the Dataprovider.
 	 * Note: this only re-ensembles really used values for at least one data set.
 	 *
-	 * @param string $strProperty The name of the desired property for which the values shall be retrieved.
+	 * The only information being interpreted from the passed config object is the first property to fetch and the
+	 * filter definition.
 	 *
-	 * @return array
+	 * @param InterfaceGeneralDataConfig $objConfig   The filter config options.
+	 *
+	 * @return InterfaceGeneralCollection
 	 */
-	public function getFilterOptions($strProperty);
+	public function getFilterOptions(InterfaceGeneralDataConfig $objConfig);
 
 	/**
 	 * Return the amount of total items.
