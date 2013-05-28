@@ -11,16 +11,30 @@
 
 class GeneralDataMultiLanguageDefault extends GeneralDataDefault implements InterfaceGeneralDataMultiLanguage
 {
-
+	/**
+	 * Buffer to keep the current active working language.
+	 *
+	 * @var string
+	 */
 	protected $strCurrentLanguage;
 
+	/**
+	 * Constructor - initializes the object with English as working language.
+	 */
 	public function __construct()
 	{
-		$this->strCurrentLanguage = "en";
+		$this->setCurrentLanguage('en');
 
 		parent::__construct();
 	}
 
+	/**
+	 * Get all available languages of a certain record.
+	 *
+	 * @param mixed $mixID The ID of the record to retrieve.
+	 *
+	 * @return InterfaceGeneralCollection
+	 */
 	public function getLanguages($mixID)
 	{
 		$objCollection = $this->getEmptyCollection();
@@ -44,6 +58,13 @@ class GeneralDataMultiLanguageDefault extends GeneralDataDefault implements Inte
 		return $objCollection;
 	}
 
+	/**
+	 * Get the fallback language. In the default implementation, this is hardcoded to English.
+	 *
+	 * @param mixed $mixID Unused in the base implementation.
+	 *
+	 * @return InterfaceGeneralModel
+	 */
 	public function getFallbackLanguage($mixID)
 	{
 		$objModel = $this->getEmptyModel();
@@ -53,39 +74,25 @@ class GeneralDataMultiLanguageDefault extends GeneralDataDefault implements Inte
 		return $objModel;
 	}
 
+	/**
+	 * Get the current working language.
+	 *
+	 * @return string Short tag for the current working language like de or fr etc.
+	 */
 	public function getCurrentLanguage()
 	{
 		return $this->strCurrentLanguage;
 	}
 
+	/**
+	 * Set the current working language for the whole data provider.
+	 *
+	 * @param string $strLanguage The new language, use short tag "2 chars like de, fr etc."
+	 *
+	 * @return void
+	 */
 	public function setCurrentLanguage($strLanguage)
 	{
 		$this->strCurrentLanguage = $strLanguage;
 	}
-
-	public function fetch(GeneralDataConfigDefault $objConfig)
-	{
-		return parent::fetch($objConfig);
-	}
-
-	public function fetchAll(GeneralDataConfigDefault $objConfig)
-	{
-		return parent::fetchAll($objConfig);
-	}
-
-	public function fetchEach(GeneralDataConfigDefault $objConfig)
-	{
-		return parent::fetchEach($objConfig);
-	}
-
-	public function save(InterfaceGeneralModel $objItem, $recursive = false)
-	{
-		return parent::save($objItem, $recursive);
-	}
-
-	public function saveEach(InterfaceGeneralCollection $objItems, $recursive = false)
-	{
-		parent::saveEach($objItems, $recursive);
-	}
-
 }

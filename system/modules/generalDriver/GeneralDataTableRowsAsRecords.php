@@ -12,7 +12,7 @@
 /**
  * This is the MetaModel filter interface.
  *
- * @package	   generalDriver
+ * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  */
 class GeneralDataTableRowsAsRecords extends GeneralDataDefault
@@ -34,10 +34,13 @@ class GeneralDataTableRowsAsRecords extends GeneralDataDefault
 	protected $strSortCol = '';
 
 	/**
-	 * Set base config with source and other neccesary prameter
+	 * Set base config with source and other necessary parameter.
 	 *
-	 * @param array $arrConfig
-	 * @throws Excpetion
+	 * @param array $arrConfig The configuration to use.
+	 *
+	 * @return void
+	 *
+	 * @throws Exception when no source has been defined.
 	 */
 	public function setBaseConfig(array $arrConfig)
 	{
@@ -56,22 +59,28 @@ class GeneralDataTableRowsAsRecords extends GeneralDataDefault
 		}
 	}
 
+	/**
+	 * Exception throwing convenience method.
+	 *
+	 * Convenience method in this data provider that simply throws an Exception stating that the passed method name
+	 * should not be called on this data provider, as it is only intended to display an edit mask.
+	 *
+	 * @param string $strMethod The name of the method being called.
+	 *
+	 * @throws Exception
+	 */
 	protected function youShouldNotCallMe($strMethod)
 	{
 		throw new Exception(sprintf('Error, %s not available, as the data provider is intended for edit mode only.', $strMethod), 1);
 	}
 
 
-	/* /////////////////////////////////////////////////////////////////////////
-	 * -------------------------------------------------------------------------
-	 * Functions
-	 * -------------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////////// */
-
 	/**
-	 * Delete an item.
+	 * Unsupported in this data provider, throws an Exception.
 	 *
-	 * @param int|string|InterfaceGeneralModel Id or the object itself, to delete
+	 * @param mixed $item Unused.
+	 *
+	 * @throws Exception Always throws exception.
 	 */
 	public function delete($item)
 	{
@@ -79,13 +88,17 @@ class GeneralDataTableRowsAsRecords extends GeneralDataDefault
 	}
 
 	/**
-	 * Fetch a single/first record by id/filter.
+	 * Fetch a single record by id.
 	 *
-	 * @param GeneralDataConfigDefault $objConfig
+	 * This data provider only supports retrieving by id so use $objConfig->setId() to populate the config with an Id.
+	 *
+	 * @param InterfaceGeneralDataConfig $objConfig
 	 *
 	 * @return InterfaceGeneralModel
+	 *
+	 * @throws Exception if config object does not contain an Id.
 	 */
-	public function fetch(GeneralDataConfigDefault $objConfig)
+	public function fetch(InterfaceGeneralDataConfig $objConfig)
 	{
 		if (!$objConfig->getId())
 		{
@@ -115,47 +128,58 @@ class GeneralDataTableRowsAsRecords extends GeneralDataDefault
 	}
 
 	/**
-	 * Fetch all records (optional limited).
+	 * Unsupported in this data provider, throws an Exception.
 	 *
-	 * @param GeneralDataConfigDefault $objConfig
+	 * @param InterfaceGeneralDataConfig $objConfig Unused.
 	 *
-	 * @return InterfaceGeneralCollection
+	 * @return void
+	 *
+	 * @throws Exception Always throws exception.
 	 */
-	public function fetchAll(GeneralDataConfigDefault $objConfig)
+	public function fetchAll(InterfaceGeneralDataConfig $objConfig)
 	{
 		$this->youShouldNotCallMe(__METHOD__);
 	}
 
 	/**
-	 * Fetch multiple records by ids.
+	 * Unsupported in this data provider, throws an Exception.
 	 *
-	 * @param GeneralDataConfigDefault $objConfig
+	 * @param InterfaceGeneralDataConfig $objConfig Unused.
 	 *
-	 * @return InterfaceGeneralCollection
+	 * @return void
+	 *
+	 * @throws Exception Always throws exception.
 	 */
-	public function fetchEach(GeneralDataConfigDefault $objConfig)
+	public function getCount(InterfaceGeneralDataConfig $objConfig)
 	{
 		$this->youShouldNotCallMe(__METHOD__);
 	}
 
 	/**
-	 * Return the amount of total items.
+	 * Unsupported in this data provider, throws an Exception.
 	 *
-	 * @param GeneralDataConfigDefault $objConfig
+	 * @param string $strField Unused.
 	 *
-	 * @return int
+	 * @param mixed  $varNew   Unused.
+	 *
+	 * @param int    $intId    Unused.
+	 *
+	 * @return void
+	 *
+	 * @throws Exception Always throws exception.
 	 */
-	public function getCount(GeneralDataConfigDefault $objConfig)
-	{
-		$this->youShouldNotCallMe(__METHOD__);
-	}
-
-
 	public function isUniqueValue($strField, $varNew, $intId = null)
 	{
 		$this->youShouldNotCallMe(__METHOD__);
 	}
 
+	/**
+	 * Unsupported in this data provider, throws an Exception.
+	 *
+	 * @param string $strField Unused.
+	 *
+	 * @throws Exception Always throws exception.
+	 */
 	public function resetFallback($strField)
 	{
 		$this->youShouldNotCallMe(__METHOD__);
@@ -163,13 +187,21 @@ class GeneralDataTableRowsAsRecords extends GeneralDataDefault
 
 	/**
 	 * Save a model to the database.
-	 * In general, this method fetches the solely properts "rows" from the model and updates the local table against these contents.
+	 *
+	 * In general, this method fetches the solely property "rows" from the model and updates the local table against
+	 * these contents.
+	 *
 	 * The parent id (id of the model) will get checked and reflected also for new items.
+	 *
 	 * When rows with duplicate ids are encountered (like from MCW for example), the dupes are inserted as new rows.
 	 *
-	 * @param InterfaceGeneralModel $objItem   the model to save.
+	 * @param InterfaceGeneralModel $objItem   The model to save.
 	 *
-	 * @param bool                  $recursive ignored as not relevant.
+	 * @param bool                  $recursive Ignored as not relevant in this data provider.
+	 *
+	 * @return InterfaceGeneralModel The passed Model.
+	 *
+	 * @throws Exception When the passed model does not contain a property named "rows", an Exception is thrown.
 	 */
 	public function save(InterfaceGeneralModel $objItem, $recursive = false)
 	{
@@ -199,31 +231,44 @@ class GeneralDataTableRowsAsRecords extends GeneralDataDefault
 			if ($intId>0)
 			{
 				$this->objDatabase->prepare(sprintf('UPDATE tl_metamodel_dca_combine %%s WHERE id=? AND %s=?', $this->strGroupCol))
-							   ->set($arrSQL)
-							   ->execute($intId, $objItem->getId());
+					->set($arrSQL)
+					->execute($intId, $objItem->getId());
 				$arrKeep[] = $intId;
 			} else {
 				// force group col value:
 				$arrSQL[$this->strGroupCol] = $objItem->getId();
 				$arrKeep[] = $this->objDatabase->prepare('INSERT INTO tl_metamodel_dca_combine %s')
-							   ->set($arrSQL)
-							   ->execute()
-							   ->insertId;
+					->set($arrSQL)
+					->execute()
+					->insertId;
 			}
 		}
 		// house keeping, kill the rest.
 		$this->objDatabase->prepare(sprintf('DELETE FROM  tl_metamodel_dca_combine WHERE %s=? AND id NOT IN (%s)', $this->strGroupCol, implode(',', $arrKeep)))
-							   ->execute($objItem->getId());
+			->execute($objItem->getId());
 		return $objItem;
 	}
 
-	public function saveEach(InterfaceGeneralCollection $objItems, $recursive = false)
+	/**
+	 * Unsupported in this data provider, throws an Exception.
+	 *
+	 * @param InterfaceGeneralCollection $objItems Unused.
+	 *
+	 * @return void
+	 *
+	 * @throws Exception Always throws exception.
+	 */
+	public function saveEach(InterfaceGeneralCollection $objItems)
 	{
 		$this->youShouldNotCallMe(__METHOD__);
 	}
 
 	/**
-	 * Check if the value exists in the table
+	 * Check if the property exists in the table.
+	 *
+	 * This data provider only returns true for the tstamp property.
+	 *
+	 * @param string $strField The name of the property to check.
 	 *
 	 * @return boolean
 	 */
@@ -232,40 +277,63 @@ class GeneralDataTableRowsAsRecords extends GeneralDataDefault
 		return in_array($strField, array('tstamp'));
 	}
 
-	/* /////////////////////////////////////////////////////////////////////////
-	 * -------------------------------------------------------------------------
-	 * Version Functions
-	 * -------------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////////// */
-
+	/**
+	 * Unsupported in this data provider, throws an Exception.
+	 *
+	 * @param mixed $mixID      Unused.
+	 *
+	 * @param mixed $mixVersion Unused.
+	 *
+	 * @return void
+	 *
+	 * @throws Exception Always throws exception.
+	 */
 	public function getVersion($mixID, $mixVersion)
 	{
 		$this->youShouldNotCallMe(__METHOD__);
 	}
 
 	/**
-	 * Return a list with all versions for this row
+	 * Return null as versioning is not supported in this data provider.
 	 *
-	 * @param mixed $mixID The ID of record
+	 * @param mixed   $mixID         Unused.
 	 *
-	 * @return InterfaceGeneralCollection
+	 * @param boolean $blnOnlyActive Unused.
+	 *
+	 * @return null
 	 */
-	public function getVersions($mixID, $blnOnlyActve = false)
+	public function getVersions($mixID, $blnOnlyActive = false)
 	{
 		// sorry, versioning not supported. :/
 		return null;
 	}
 
+	/**
+	 * Unsupported in this data provider, throws an Exception.
+	 *
+	 * @param InterfaceGeneralModel $objModel    Unused.
+	 *
+	 * @param string                $strUsername Unused.
+	 *
+	 * @return void
+	 *
+	 * @throws Exception Always throws exception.
+	 */
 	public function saveVersion(InterfaceGeneralModel $objModel, $strUsername)
 	{
 		$this->youShouldNotCallMe(__METHOD__);
 	}
 
 	/**
-	 * Set a Version as active.
+	 * Unsupported in this data provider, throws an Exception.
 	 *
-	 * @param mix $mixID The ID of record
-	 * @param mix $mixVersion The ID of the Version
+	 * @param mixed $mixID      Unused.
+	 *
+	 * @param mixed $mixVersion Unused.
+	 *
+	 * @return void
+	 *
+	 * @throws Exception Always throws exception.
 	 */
 	public function setVersionActive($mixID, $mixVersion)
 	{
@@ -273,11 +341,13 @@ class GeneralDataTableRowsAsRecords extends GeneralDataDefault
 	}
 
 	/**
-	 * Return the active version from a record
+	 * Unsupported in this data provider, throws an Exception.
 	 *
-	 * @param mix $mixID The ID of record
+	 * @param mixed $mixID Unused.
 	 *
-	 * @return mix Version ID
+	 * @return void
+	 *
+	 * @throws Exception Always throws exception.
 	 */
 	public function getActiveVersion($mixID)
 	{
@@ -285,24 +355,34 @@ class GeneralDataTableRowsAsRecords extends GeneralDataDefault
 	}
 
 	/**
-	 * Check if two models have the same properties
+	 * Unsupported in this data provider, throws an Exception.
 	 *
-	 * @param InterfaceGeneralModel $objModel1
-	 * @param InterfaceGeneralModel $objModel2
+	 * @param InterfaceGeneralModel $objModel1 Unused.
 	 *
-	 * return boolean True - If both models are same, false if not
+	 * @param InterfaceGeneralModel $objModel2 Unused.
+	 *
+	 * @return void
+	 *
+	 * @throws Exception Always throws exception.
 	 */
 	public function sameModels($objModel1, $objModel2)
 	{
 		$this->youShouldNotCallMe(__METHOD__);
 	}
 
-	/* /////////////////////////////////////////////////////////////////////////
-	 * -------------------------------------------------------------------------
-	 * Undo
-	 * -------------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////////// */
-
+	/**
+	 * Unsupported in this data provider, throws an Exception.
+	 *
+	 * @param string $strSourceSQL Unused.
+	 *
+	 * @param string $strSaveSQL   Unused.
+	 *
+	 * @param string $strTable     Unused.
+	 *
+	 * @return void
+	 *
+	 * @throws Exception Always throws exception.
+	 */
 	protected function insertUndo($strSourceSQL, $strSaveSQL, $strTable)
 	{
 		$this->youShouldNotCallMe(__METHOD__);

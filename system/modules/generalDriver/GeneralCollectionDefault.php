@@ -11,34 +11,33 @@
 
 class GeneralCollectionDefault implements InterfaceGeneralCollection
 {
-
 	/**
-	 * A list with a models.
+	 * The list of contained models.
 	 *
-	 * @var array
+	 * @var InterfaceGeneralModel[]
 	 */
 	protected $arrCollection = array();
 
 	/**
-	 * Alias for push.
+	 * Get length of this collection.
 	 *
-	 * @see push
+	 * @return int
 	 */
-	public function add(InterfaceGeneralModel $objModel)
+	public function length()
 	{
-		$this->push($objModel);
+		return count($this->arrCollection);
 	}
 
 	/**
-	 * Get item at a specific index.
+	 * Get the model at a specific index.
 	 *
-	 * @param int $intIndex
+	 * @param integer $intIndex The index of the model to retrieve.
 	 *
 	 * @return InterfaceGeneralModel
 	 */
 	public function get($intIndex)
 	{
-		if (key_exists($intIndex, $this->arrCollection))
+		if (array_key_exists($intIndex, $this->arrCollection))
 		{
 			return $this->arrCollection[$intIndex];
 		}
@@ -49,13 +48,105 @@ class GeneralCollectionDefault implements InterfaceGeneralCollection
 	}
 
 	/**
-	 * Insert a record at the specific position.
-	 * Move all records at position >= $intIndex one index up.
-	 * If $intIndex is out of bounds, just add at the end
-	 * (do not fill with empty records!).
+	 * Alias for push - Append a model to the end of this collection.
 	 *
-	 * @param int $intIndex
-	 * @param InterfaceGeneralModel $objModel
+	 * @param InterfaceGeneralModel $objModel The model to append to the collection.
+	 *
+	 * @return void
+	 *
+	 * @throws Exception when no model has been passed.
+	 *
+	 * @see push
+	 */
+	public function add(InterfaceGeneralModel $objModel)
+	{
+		$this->push($objModel);
+	}
+
+	/**
+	 * Append a model to the end of this collection.
+	 *
+	 * @param InterfaceGeneralModel $objModel The model to append to the collection.
+	 *
+	 * @return void
+	 *
+	 * @throws Exception when no model has been passed.
+	 */
+	public function push(InterfaceGeneralModel $objModel)
+	{
+		if (!$objModel)
+		{
+			throw new Exception("push() - no model passed", 1);
+		}
+
+		if ($objModel->hasProperties())
+		{
+			array_push($this->arrCollection, $objModel);
+		}
+	}
+
+	/**
+	 * Remove the model at the end of the collection and return it.
+	 *
+	 * If the collection is empty, null will be returned.
+	 *
+	 * @return InterfaceGeneralModel
+	 */
+	public function pop()
+	{
+		if (count($this->arrCollection) != 0)
+		{
+			return array_pop($this->arrCollection);
+		}
+		else
+		{
+			return null;
+		}
+	}
+
+	/**
+	 * Insert a model at the beginning of the collection.
+	 *
+	 * @param InterfaceGeneralModel $objModel The model to insert into the collection.
+	 *
+	 * @return void
+	 */
+	public function unshift(InterfaceGeneralModel $objModel)
+	{
+		if ($objModel->hasProperties())
+		{
+			array_unshift($this->arrCollection, $objModel);
+		}
+	}
+
+	/**
+	 * Remove the model from the beginning of the collection and return it.
+	 *
+	 * If the collection is empty, null will be returned.
+	 *
+	 * @return InterfaceGeneralModel
+	 */
+	public function shift()
+	{
+		if (count($this->arrCollection) != 0)
+		{
+			return array_shift($this->arrCollection);
+		}
+		else
+		{
+			return null;
+		}
+	}
+
+	/**
+	 * Insert a record at the specific position.
+	 *
+	 * Move all records at position >= $index one index up.
+	 * If $index is out of bounds, just add at the end (does not fill with empty records!).
+	 *
+	 * @param integer               $intIndex  The index where the model shall be placed.
+	 *
+	 * @param InterfaceGeneralModel $objModel The model to insert.
 	 *
 	 * @return void
 	 */
@@ -69,9 +160,12 @@ class GeneralCollectionDefault implements InterfaceGeneralCollection
 
 	/**
 	 * Remove the given index or model from the collection and renew the index.
+	 *
 	 * ATTENTION: Don't use key to unset in foreach because of the new index.
 	 *
-	 * @param mixed $mixedValue
+	 * @param mixed $mixedValue The index (integer) or InterfaceGeneralModel instance to remove.
+	 *
+	 * @return void
 	 */
 	public function remove($mixedValue)
 	{
@@ -94,57 +188,9 @@ class GeneralCollectionDefault implements InterfaceGeneralCollection
 	}
 
 	/**
-	 * Get length of this collection.
+	 * Make a reverse sorted collection of this collection.
 	 *
-	 * @return int
-	 */
-	public function length()
-	{
-		return count($this->arrCollection);
-	}
-
-	/**
-	 * Remove a record from the end of this collection and return it.
-	 *
-	 * @return InterfaceGeneralModel|null
-	 */
-	public function pop()
-	{
-		if (count($this->arrCollection) != 0)
-		{
-			return array_pop($this->arrCollection);
-		}
-		else
-		{
-			return null;
-		}
-	}
-
-	/**
-	 * Add a record to the end of this collection.
-	 * (do not fill with empty records!)
-	 *
-	 * @param InterfaceGeneralModel $objModel
-	 *
-	 * @return void
-	 */
-	public function push(InterfaceGeneralModel $objModel)
-	{
-		if (!$objModel)
-		{
-			throw new Exception("push() - no model passed", 1);
-		}
-
-		if ($objModel->hasProperties())
-		{
-			array_push($this->arrCollection, $objModel);
-		}
-	}
-
-	/**
-	 * Make a reverse sorted collection.
-	 *
-	 * @return Collection
+	 * @return InterfaceGeneralCollection
 	 */
 	public function reverse()
 	{
@@ -152,50 +198,17 @@ class GeneralCollectionDefault implements InterfaceGeneralCollection
 	}
 
 	/**
-	 * Remove a record from the beginning of this collection and return it.
+	 * Sort the records with the given callback and return the new sorted collection.
 	 *
-	 * @return InterfaceGeneralModel|null
-	 */
-	public function shift()
-	{
-		if (count($this->arrCollection) != 0)
-		{
-			return array_shift($this->arrCollection);
-		}
-		else
-		{
-			return null;
-		}
-	}
-
-	/**
-	 * Sort the records and return the new sorted collection.
+	 * @param callback $callback
 	 *
-	 * @param mixed $callback
-	 *
-	 * @return Collection
+	 * @return InterfaceGeneralCollection
 	 */
 	public function sort($callback)
 	{
 		uasort($this->arrCollection, $callback);
 
 		$this->arrCollection = array_values($this->arrCollection);
-	}
-
-	/**
-	 * Add a record at the beginning of this collection.
-	 * (do not fill with empty records!)
-	 *
-	 * @param InterfaceGeneralModel $objModel
-	 *
-	 * @return void
-	 */
-	public function unshift(InterfaceGeneralModel $objModel)
-	{
-		if ($objModel->hasProperties())
-		{
-			array_unshift($this->arrCollection, $objModel);
-		}
 	}
 
 	/**
@@ -207,5 +220,4 @@ class GeneralCollectionDefault implements InterfaceGeneralCollection
 	{
 		return new ArrayIterator($this->arrCollection);
 	}
-
 }

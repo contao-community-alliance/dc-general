@@ -9,9 +9,13 @@
  * @filesource
  */
 
+/**
+ * Interface InterfaceGeneralCollection
+ *
+ * This represents an iterable collection of InterfaceGeneralModel elements.
+ */
 interface InterfaceGeneralCollection extends IteratorAggregate
 {
-
 	/**
 	 * Get length of this collection.
 	 *
@@ -20,88 +24,99 @@ interface InterfaceGeneralCollection extends IteratorAggregate
 	public function length();
 
 	/**
-	 * Get item at a specific index.
+	 * Get the model at a specific index.
 	 *
-	 * @param int $index
+	 * @param integer $intIndex The index of the model to retrieve.
 	 *
-	 * @return Model
+	 * @return InterfaceGeneralModel
 	 */
-	public function get($index);
+	public function get($intIndex);
 
 	/**
-	 * Alias for push.
+	 * Alias for push - Append a model to the end of this collection.
+	 *
+	 * @param InterfaceGeneralModel $objModel The model to append to the collection.
+	 *
+	 * @return void
 	 *
 	 * @see push
 	 */
-	public function add(InterfaceGeneralModel $model);
+	public function add(InterfaceGeneralModel $objModel);
 
 	/**
-	 * Add a record to the end of this collection.
+	 * Append a model to the end of this collection.
 	 *
-	 * @param Model $model
+	 * @param InterfaceGeneralModel $objModel The model to append to the collection.
 	 *
 	 * @return void
 	 */
-	public function push(InterfaceGeneralModel $model);
+	public function push(InterfaceGeneralModel $objModel);
 
 	/**
-	 * Remove a record from the end of this collection and return it.
+	 * Remove the model at the end of the collection and return it.
 	 *
-	 * @return Model|null
+	 * If the collection is empty, null will be returned.
+	 *
+	 * @return InterfaceGeneralModel
 	 */
 	public function pop();
 
 	/**
-	 * Add a record at the beginning of this collection.
+	 * Insert a model at the beginning of the collection.
 	 *
-	 * @param Model $Model
+	 * @param InterfaceGeneralModel $objModel The model to insert into the collection.
 	 *
 	 * @return void
 	 */
-	public function unshift(InterfaceGeneralModel $model);
+	public function unshift(InterfaceGeneralModel $objModel);
 
 	/**
-	 * Remove a record from the beginning of this collection and return it.
+	 * Remove the model from the beginning of the collection and return it.
 	 *
-	 * @return Model|null
+	 * If the collection is empty, null will be returned.
+	 *
+	 * @return InterfaceGeneralModel
 	 */
 	public function shift();
 
 	/**
 	 * Insert a record at the specific position.
-	 * Move all records at position >= $index one index up.
-	 * If $index is out of bounds, just add at the end
-	 * (do not fill with empty records!).
 	 *
-	 * @param int $index
-	 * @param InterfaceGeneralModel $model
+	 * Move all records at position >= $index one index up.
+	 * If $index is out of bounds, just add at the end (does not fill with empty records!).
+	 *
+	 * @param integer               $intIndex  The index where the model shall be placed.
+	 *
+	 * @param InterfaceGeneralModel $objModel The model to insert.
 	 *
 	 * @return void
 	 */
-	public function insert($index, InterfaceGeneralModel $model);
+	public function insert($intIndex, InterfaceGeneralModel $objModel);
 
 	/**
 	 * Remove the given index or model from the collection and renew the index.
+	 *
 	 * ATTENTION: Don't use key to unset in foreach because of the new index.
-	 * 
-	 * @param mixed $mixedValue
+	 *
+	 * @param mixed $mixedValue The index (integer) or InterfaceGeneralModel instance to remove.
+	 *
+	 * @return void
 	 */
 	public function remove($mixedValue);
 
 	/**
-	 * Make a reverse sorted collection.
+	 * Make a reverse sorted collection of this collection.
 	 *
-	 * @return Collection
+	 * @return InterfaceGeneralCollection
 	 */
 	public function reverse();
 
 	/**
-	 * Sort the records and return the new sorted collection.
+	 * Sort the records with the given callback and return the new sorted collection.
 	 *
 	 * @param callback $callback
 	 *
-	 * @return Collection
+	 * @return InterfaceGeneralCollection
 	 */
 	public function sort($callback);
-
 }
