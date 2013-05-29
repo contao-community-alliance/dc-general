@@ -1176,12 +1176,11 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 
 				$strClass = $arrConfig['eval']['tl_class'];
 
-				// TODO: this should be correctly specified in DCAs
-//				if($arrConfig['inputType'] == 'checkbox'
-//				&& !$arrConfig['eval']['multiple']
-//				&& strpos($strClass, 'w50') !== false
-//				&& strpos($strClass, 'cbx') === false)
-//					$strClass .= ' cbx';
+				// TODO: this should be correctly specified in DCAs, notyetbepatient
+				if($arrConfig['inputType'] == 'checkbox' && !$arrConfig['eval']['multiple'] && strpos($strClass, 'w50') !== false && strpos($strClass, 'cbx') === false) 
+				{
+					$strClass .= ' cbx';
+				}
 
 				$strName = specialchars($objWidget->name);
 				$blnUpdate = $arrConfig['update'];
