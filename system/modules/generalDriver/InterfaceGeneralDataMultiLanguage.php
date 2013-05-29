@@ -11,36 +11,37 @@
 
 interface InterfaceGeneralDataMultiLanguage extends InterfaceGeneralData
 {
-
 	/**
-	 * Get all avaidable languages for a special record. 
-	 * 
-	 * @param mixed $mixID The ID of record
-	 * @return InterfaceGeneralCollection 
+	 * Get all available languages of a certain record.
+	 *
+	 * @param mixed $mixID The ID of the record to retrieve.
+	 *
+	 * @return InterfaceGeneralCollection
 	 */
 	public function getLanguages($mixID);
-	
+
 	/**
-	 * Get the fallback language
-	 * 
-	 * @param mixed $mixID The ID of record
+	 * Get the fallback language of a certain record.
+	 *
+	 * @param mixed $mixID The ID of the record to retrieve.
+	 *
 	 * @return InterfaceGeneralModel
 	 */
 	public function getFallbackLanguage($mixID);
 
 	/**
-	 * Set the working language for the whole dataprovider.
-	 *  
-	 * @param $strLanguage The new language, use hort tag "2 chars like de, fr etc." 
+	 * Set the current working language for the whole data provider.
+	 *
+	 * @param string $strLanguage The new language, use short tag "2 chars like de, fr etc."
+	 *
 	 * @return void
 	 */
 	public function setCurrentLanguage($strLanguage);
 
 	/**
-	 * Get the working language
-	 * 
-	 * return String Short tag for the current working language like de or fr etc. 
+	 * Get the current working language.
+	 *
+	 * @return string Short tag for the current working language like de or fr etc.
 	 */
 	public function getCurrentLanguage();
-
 }

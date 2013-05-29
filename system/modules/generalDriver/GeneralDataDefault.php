@@ -11,65 +11,52 @@
 
 class GeneralDataDefault implements InterfaceGeneralData
 {
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 * Vars
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
-
 	/**
-	 * Name of current source
+	 * Name of current source.
+	 *
 	 * @var string
 	 */
 	protected $strSource = null;
 
 	/**
-	 * Database
+	 * The Database instance.
+	 *
 	 * @var Database
 	 */
 	protected $objDatabase = null;
 
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 * Constructor and co
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
 
 	public function __construct()
 	{
 		// Init Helper
 		$this->objDatabase = Database::getInstance();
-		$this->objUser = BackendUser::getInstance();
+		$this->objUser     = BackendUser::getInstance();
 	}
 
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 * Getter | Setter
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
-
 	/**
-	 * Set base config with source and other neccesary prameter
+	 * Set base config with source and other necessary parameter.
 	 *
-	 * @param array $arrConfig
-	 * @throws Exception
+	 * @param array $arrConfig The configuration to use.
+	 *
+	 * @return void
+	 *
+	 * @throws Exception when no source has been defined.
 	 */
 	public function setBaseConfig(array $arrConfig)
 	{
-		// Check Vars
+		// Check configuration.
 		if (!isset($arrConfig["source"]))
 		{
 			throw new Exception("Missing table name.");
 		}
 
-		// Init Vars
 		$this->strSource = $arrConfig["source"];
 	}
 
 	/**
-	 * Return empty config object
+	 * Return an empty configuration object.
 	 *
-	 * @return InterfaceGeneralDataConfig
+	 * @return GeneralDataConfigDefault
 	 */
 	public function getEmptyConfig()
 	{
@@ -77,9 +64,9 @@ class GeneralDataDefault implements InterfaceGeneralData
 	}
 
 	/**
-	 * Fetch an empty single record (new item).
+	 * Fetch an empty single record (new model).
 	 *
-	 * @return InterfaceGeneralModel
+	 * @return GeneralModelDefault
 	 */
 	public function getEmptyModel()
 	{
@@ -89,7 +76,7 @@ class GeneralDataDefault implements InterfaceGeneralData
 	}
 
 	/**
-	 * Fetch an empty single collection (new item).
+	 * Fetch an empty single collection (new model list).
 	 *
 	 * @return GeneralCollectionDefault
 	 */
@@ -98,16 +85,12 @@ class GeneralDataDefault implements InterfaceGeneralData
 		return new GeneralCollectionDefault();
 	}
 
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 * Helper Functions
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
-
 	/**
-	 * Build the field list
+	 * Build the field list.
 	 *
-	 * @param GeneralDataConfigDefault $objConfig
+	 * Returns all values from $objConfig->getFields() as comma separated list.
+	 *
+	 * @param GeneralDataConfigDefault $objConfig The configuration to use.
 	 *
 	 * @return string
 	 */
@@ -154,18 +137,22 @@ class GeneralDataDefault implements InterfaceGeneralData
 	 *                'values'             array of literal
 	 *
 	 * LIKE
-	 * 				  'property'		   string (the name of a property)
-	 * 			      'value'              literal - Wildcards * (Many) ? (One)
+	 *                'property'           string (the name of a property)
+	 *                'value'              literal - Wildcards * (Many) ? (One)
 	 *
-	 * @param array $arrFilters the filter to be combined to a valid SQL filter query.
+	 * @param array $arrFilter  The filter to be combined to a valid SQL filter query.
 	 *
-	 * @return string the combined WHERE clause.
+	 * @param array &$arrParams The query parameters will get stored into this array.
+	 *
+	 * @return string The combined WHERE conditions.
+	 *
+	 * @throws Exception if an invalid filter entry is encountered.
 	 */
 	protected function calculateSubfilter($arrFilter, array &$arrParams)
 	{
 		if (!is_array($arrFilter))
 		{
-			throw new Exception('Error Processing subfilter: ' . var_export($arrFilter, true), 1);
+			throw new Exception('Error Processing sub filter: ' . var_export($arrFilter, true), 1);
 		}
 
 		switch ($arrFilter['operation'])
@@ -205,10 +192,13 @@ class GeneralDataDefault implements InterfaceGeneralData
 	}
 
 	/**
-	 * Build the Where
+	 * Build the WHERE clause for a configuration.
 	 *
-	 * @param GeneralDataConfigDefault $objConfig
-	 * @param array $arrParams
+	 * @param GeneralDataConfigDefault $objConfig  The configuration to use.
+	 *
+	 * @param array                    &$arrParams The query parameters will get stored into this array.
+	 *
+	 * @return string  The combined WHERE clause (including the word "WHERE").
 	 */
 	protected function buildWhereQuery($objConfig, array &$arrParams = null)
 	{
@@ -224,11 +214,13 @@ class GeneralDataDefault implements InterfaceGeneralData
 	}
 
 	/**
-	 * Build the Where
+	 * Build the WHERE conditions via calculateSubfilter()
 	 *
-	 * @param GeneralDataConfigDefault $objConfig,
+	 * @param GeneralDataConfigDefault $objConfig  The configuration to use.
 	 *
-	 * @return string
+	 * @param array                    &$arrParams The query parameters will get stored into this array.
+	 *
+	 * @return string The combined WHERE conditions.
 	 */
 	protected function buildFilterQuery($objConfig, array &$arrParams = null)
 	{
@@ -246,7 +238,7 @@ class GeneralDataDefault implements InterfaceGeneralData
 	}
 
 	/**
-	 * Build the order by
+	 * Build the order by part of a query.
 	 *
 	 * @param GeneralDataConfigDefault $objConfig
 	 *
@@ -276,16 +268,14 @@ class GeneralDataDefault implements InterfaceGeneralData
 		return $strReturn;
 	}
 
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 * Functions
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
-
 	/**
 	 * Delete an item.
 	 *
-	 * @param int|string|InterfaceGeneralModel Id or the object itself, to delete
+	 * The given value may be either integer, string or an instance of InterfaceGeneralModel
+	 *
+	 * @param mixed $item Id or the model itself, to delete.
+	 *
+	 * @throws Exception when an unusable object has been passed.
 	 */
 	public function delete($item)
 	{
@@ -312,18 +302,22 @@ class GeneralDataDefault implements InterfaceGeneralData
 		}
 		else
 		{
-			throw new Exception("ID missing or given object not from type 'InterfaceGeneralModel'.");
+			throw new Exception("ID missing or given object not of type 'InterfaceGeneralModel'.");
 		}
 	}
 
 	/**
-	 * Fetch a single/first record by id/filter.
+	 * Fetch a single or first record by id or filter.
 	 *
-	 * @param GeneralDataConfigDefault $objConfig
+	 * If the model shall be retrieved by id, use $objConfig->setId() to populate the config with an Id.
+	 *
+	 * If the model shall be retrieved by filter, use $objConfig->setFilter() to populate the config with a filter.
+	 *
+	 * @param InterfaceGeneralDataConfig $objConfig
 	 *
 	 * @return InterfaceGeneralModel
 	 */
-	public function fetch(GeneralDataConfigDefault $objConfig)
+	public function fetch(InterfaceGeneralDataConfig $objConfig)
 	{
 		if ($objConfig->getId() != null)
 		{
@@ -336,12 +330,13 @@ class GeneralDataDefault implements InterfaceGeneralData
 		}
 		else
 		{
-			// Build SQL
+			$arrParams = array();
+			// Build SQL.
 			$query = "SELECT " . $this->buildFieldQuery($objConfig) . " FROM " . $this->strSource;
 			$query .= $this->buildWhereQuery($objConfig, $arrParams);
 			$query .= $this->buildSortingQuery($objConfig);
 
-			// Execute db query
+			// Execute db query.
 			$arrResult = $this->objDatabase
 					->prepare($query)
 					->limit(1, 0)
@@ -370,13 +365,13 @@ class GeneralDataDefault implements InterfaceGeneralData
 	}
 
 	/**
-	 * Fetch all records (optional limited).
+	 * Fetch all records (optional filtered, sorted and limited).
 	 *
-	 * @param GeneralDataConfigDefault $objConfig
+	 * @param InterfaceGeneralDataConfig $objConfig
 	 *
 	 * @return InterfaceGeneralCollection
 	 */
-	public function fetchAll(GeneralDataConfigDefault $objConfig)
+	public function fetchAll(InterfaceGeneralDataConfig $objConfig)
 	{
 		$arrParams = array();
 		// Build SQL
@@ -412,7 +407,7 @@ class GeneralDataDefault implements InterfaceGeneralData
 			return $objCollection;
 		}
 
-		foreach ($arrResult as $key => $arrValue)
+		foreach ($arrResult as $arrValue)
 		{
 			$objModel = $this->getEmptyModel();
 			foreach ($arrValue as $key => $value)
@@ -434,7 +429,7 @@ class GeneralDataDefault implements InterfaceGeneralData
 	/**
 	 * Retrieve all unique values for the given property.
 	 *
-	 * The result set will be an array containing all unique values contained in the Dataprovider.
+	 * The result set will be an array containing all unique values contained in the data provider.
 	 * Note: this only re-ensembles really used values for at least one data set.
 	 *
 	 * The only information being interpreted from the passed config object is the first property to fetch and the
@@ -478,13 +473,13 @@ class GeneralDataDefault implements InterfaceGeneralData
 	}
 
 	/**
-	 * Return the amount of total items.
+	 * Return the amount of total items (filtering may be used in the config).
 	 *
-	 * @param GeneralDataConfigDefault $objConfig
+	 * @param InterfaceGeneralDataConfig $objConfig
 	 *
 	 * @return int
 	 */
-	public function getCount(GeneralDataConfigDefault $objConfig)
+	public function getCount(InterfaceGeneralDataConfig $objConfig)
 	{
 		$arrParams = array();
 
@@ -498,6 +493,20 @@ class GeneralDataDefault implements InterfaceGeneralData
 		return $objCount->count;
 	}
 
+	/**
+	 * Check if the value is unique in table
+	 *
+	 * @param string $strField The field in which to test.
+	 *
+	 * @param mixed  $varNew   The value about to be saved.
+	 *
+	 * @param int    $intId    The (optional) id of the item currently in scope - pass null for new items.
+	 *
+	 * Documentation:
+	 *      Evaluation - unique => If true the field value cannot be saved if it exists already.
+	 *
+	 * @return boolean
+	 */
 	public function isUniqueValue($strField, $varNew, $intId = null)
 	{
 		$objUnique = $this->objDatabase
@@ -517,12 +526,34 @@ class GeneralDataDefault implements InterfaceGeneralData
 		return false;
 	}
 
+	/**
+	 * Reset the fallback field.
+	 *
+	 * This clears the given property in all items in the table to an empty value.
+	 *
+	 * Documentation:
+	 *      Evaluation - fallback => If true the field can only be assigned once per table.
+	 *
+	 * @param string $strField The field to reset.
+	 *
+	 * @return void
+	 */
 	public function resetFallback($strField)
 	{
 		$this->objDatabase->query('UPDATE ' . $this->strSource . ' SET ' . $strField . ' = \'\'');
 	}
 
-	public function save(InterfaceGeneralModel $objItem, $recursive = false)
+	/**
+	 * Save an item to the database.
+	 *
+	 * If the item does not have an Id yet, the save operation will add it as a new row to the database and
+	 * populate the Id of the model accordingly.
+	 *
+	 * @param InterfaceGeneralModel $objItem   The model to save back.
+	 *
+	 * @return InterfaceGeneralModel The passed model.
+	 */
+	public function save(InterfaceGeneralModel $objItem)
 	{
 		$arrSet = array();
 
@@ -567,16 +598,25 @@ class GeneralDataDefault implements InterfaceGeneralData
 		return $objItem;
 	}
 
-	public function saveEach(InterfaceGeneralCollection $objItems, $recursive = false)
+	/**
+	 * Save a collection of items to the database.
+	 *
+	 * @param InterfaceGeneralCollection $objItems The collection containing all items to be saved.
+	 *
+	 * @return void
+	 */
+	public function saveEach(InterfaceGeneralCollection $objItems)
 	{
-		foreach ($objItems as $key => $value)
+		foreach ($objItems as $value)
 		{
 			$this->save($value);
 		}
 	}
 
 	/**
-	 * Check if the value exists in the table
+	 * Check if a property with the given name exists in the table.
+	 *
+	 * @param string $strField The name of the property to search.
 	 *
 	 * @return boolean
 	 */
@@ -585,12 +625,15 @@ class GeneralDataDefault implements InterfaceGeneralData
 		return $this->objDatabase->fieldExists($strField, $this->strSource);
 	}
 
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 * Version Functions
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
-
+	/**
+	 * Return a model based of the version information.
+	 *
+	 * @param mixed $mixID      The ID of the item.
+	 *
+	 * @param mixed $mixVersion The ID of the version.
+	 *
+	 * @return InterfaceGeneralModel
+	 */
 	public function getVersion($mixID, $mixVersion)
 	{
 		$objVersion = $this->objDatabase
@@ -625,15 +668,18 @@ class GeneralDataDefault implements InterfaceGeneralData
 	}
 
 	/**
-	 * Return a list with all versions for this row
+	 * Return a list with all versions for the row with the given Id.
 	 *
-	 * @param mixed $mixID The ID of record
+	 * @param mixed   $mixID         The ID of the row.
+	 *
+	 * @param boolean $blnOnlyActive If true, only active versions will get returned, if false all version will get
+	 *                               returned.
 	 *
 	 * @return InterfaceGeneralCollection
 	 */
-	public function getVersions($mixID, $blnOnlyActve = false)
+	public function getVersions($mixID, $blnOnlyActive = false)
 	{
-		if ($blnOnlyActve)
+		if ($blnOnlyActive)
 		{
 			$arrVersion = $this->objDatabase
 					->prepare('SELECT tstamp, version, username, active FROM tl_version WHERE fromTable = ? AND pid = ? AND active = 1')
@@ -676,6 +722,15 @@ class GeneralDataDefault implements InterfaceGeneralData
 		return $objCollection;
 	}
 
+	/**
+	 * Save a new version of a row.
+	 *
+	 * @param InterfaceGeneralModel $objModel    The model for which a new version shall be created.
+	 *
+	 * @param string                $strUsername The username to attach to the version as creator.
+	 *
+	 * @return void
+	 */
 	public function saveVersion(InterfaceGeneralModel $objModel, $strUsername)
 	{
 		$objCount = $this->objDatabase
@@ -704,10 +759,13 @@ class GeneralDataDefault implements InterfaceGeneralData
 	}
 
 	/**
-	 * Set a Version as active.
+	 * Set a version as active.
 	 *
-	 * @param mix $mixID The ID of record
-	 * @param mix $mixVersion The ID of the Version
+	 * @param mixed $mixID      The ID of the row.
+	 *
+	 * @param mixed $mixVersion The version number to set active.
+	 *
+	 * @return void
 	 */
 	public function setVersionActive($mixID, $mixVersion)
 	{
@@ -721,11 +779,11 @@ class GeneralDataDefault implements InterfaceGeneralData
 	}
 
 	/**
-	 * Return the active version from a record
+	 * Retrieve the current active version for a row.
 	 *
-	 * @param mix $mixID The ID of record
+	 * @param mixed $mixID The ID of the row.
 	 *
-	 * @return mix Version ID
+	 * @return mixed The current version number of the requested row.
 	 */
 	public function getActiveVersion($mixID)
 	{
@@ -742,12 +800,13 @@ class GeneralDataDefault implements InterfaceGeneralData
 	}
 
 	/**
-	 * Check if two models have the same properties
+	 * Check if two models have the same values in all properties.
 	 *
-	 * @param InterfaceGeneralModel $objModel1
-	 * @param InterfaceGeneralModel $objModel2
+	 * @param InterfaceGeneralModel $objModel1 The first model to compare.
 	 *
-	 * return boolean True - If both models are same, false if not
+	 * @param InterfaceGeneralModel $objModel2 The second model to compare.
+	 *
+	 * @return boolean True - If both models are same, false if not.
 	 */
 	public function sameModels($objModel1, $objModel2)
 	{
@@ -779,12 +838,15 @@ class GeneralDataDefault implements InterfaceGeneralData
 		return true;
 	}
 
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 * Undo
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
-
+	/**
+	 * TODO: this is not in the interface yet and has to be documented.
+	 *
+	 * @param string $strSourceSQL
+	 *
+	 * @param string $strSaveSQL
+	 *
+	 * @param string $strTable
+	 */
 	protected function insertUndo($strSourceSQL, $strSaveSQL, $strTable)
 	{
 		// Load row

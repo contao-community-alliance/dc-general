@@ -13,22 +13,29 @@ class GeneralModelDefault implements InterfaceGeneralModel
 {
 
 	/**
-	 * A list with all Properties.
+	 * A list with all properties.
 	 *
-	 * @param array $strPropertyName
+	 * @var array
 	 */
 	protected $arrProperties = array();
+
+	/**
+	 * The Id of this model.
+	 *
+	 * @var mixed
+	 */
 	protected $mixID = null;
 
 	/**
-	 * A list with all Properties.
+	 * A list with all meta information.
 	 *
-	 * @param array $strPropertyName
+	 * @var array
 	 */
 	protected $arrMetaInformation = array();
 
 	/**
 	 * The name of the corresponding data provider.
+	 *
 	 * @var string
 	 */
 	protected $strProviderName = null;
@@ -44,9 +51,9 @@ class GeneralModelDefault implements InterfaceGeneralModel
 	}
 
 	/**
-	 * Get the id for this modell.
+	 * Get the id for this model.
 	 *
-	 * @return string The ID for this modell.
+	 * @return string The ID for this model.
 	 */
 	public function getID()
 	{
@@ -54,19 +61,22 @@ class GeneralModelDefault implements InterfaceGeneralModel
 	}
 
 	/**
-	 * @see InterfaceGeneralModel::getProperty()
+	 * Fetch the property with the given name from the model.
 	 *
-	 * @param String $strPropertyName
-	 * @return null
+	 * This method returns null if an unknown property is retrieved.
+	 *
+	 * @param string $strPropertyName The property name to be retrieved.
+	 *
+	 * @return mixed The value of the given property.
 	 */
 	public function getProperty($strPropertyName)
 	{
-		if($strPropertyName == 'id')
+		if ($strPropertyName == 'id')
 		{
 			return $this->getID();
 		}
 
-		if (key_exists($strPropertyName, $this->arrProperties))
+		if (array_key_exists($strPropertyName, $this->arrProperties))
 		{
 			return $this->arrProperties[$strPropertyName];
 		}
@@ -77,7 +87,9 @@ class GeneralModelDefault implements InterfaceGeneralModel
 	}
 
 	/**
-	 * @see InterfaceGeneralModel::getPropertiesAsArray()
+	 * Fetch all properties from the model as an name => value array.
+	 *
+	 * @return array
 	 */
 	public function getPropertiesAsArray()
 	{
@@ -92,11 +104,11 @@ class GeneralModelDefault implements InterfaceGeneralModel
 	 *
 	 * @param string $strMetaName the meta information to retrieve.
 	 *
-	 * @return mixed|null the set meta information or null if undefined.
+	 * @return mixed the set meta information or null if undefined.
 	 */
 	public function getMeta($strMetaName)
 	{
-		if (key_exists($strMetaName, $this->arrMetaInformation))
+		if (array_key_exists($strMetaName, $this->arrMetaInformation))
 		{
 			return $this->arrMetaInformation[$strMetaName];
 		}
@@ -107,10 +119,15 @@ class GeneralModelDefault implements InterfaceGeneralModel
 	}
 
 	/**
-	 * Set the id for this modell.
-	 * This works only once.
+	 * Set the id for this object.
 	 *
-	 * @param mixed $mixID Could be a integer, string or anything else
+	 * NOTE: when the Id has been set once to a non null value, it can NOT be changed anymore.
+	 *
+	 * Normally this should only be called from inside of the implementing provider.
+	 *
+	 * @param mixed $mixID Could be a integer, string or anything else - depends on the provider implementation.
+	 *
+	 * @return void
 	 */
 	public function setID($mixID)
 	{
@@ -121,10 +138,13 @@ class GeneralModelDefault implements InterfaceGeneralModel
 	}
 
 	/**
-	 * @see InterfaceGeneralModel::setProperty()
+	 * Update the property value in the model.
 	 *
-	 * @param String $strPropertyName
-	 * @param mixed $varValue
+	 * @param string $strPropertyName
+	 *
+	 * @param mixed  $varValue
+	 *
+	 * @return void
 	 */
 	public function setProperty($strPropertyName, $varValue)
 	{
@@ -132,7 +152,11 @@ class GeneralModelDefault implements InterfaceGeneralModel
 	}
 
 	/**
-	 * @see InterfaceGeneralModel::setPropertiesAsArray()
+	 * Update all properties in the model.
+	 *
+	 * @param array $arrProperties The property values as name => value pairs.
+	 *
+	 * @return void
 	 */
 	public function setPropertiesAsArray($arrProperties)
 	{
@@ -148,11 +172,11 @@ class GeneralModelDefault implements InterfaceGeneralModel
 	}
 
 	/**
-	 * @see InterfaceGeneralModel::setMeta()
+	 * Update meta information in the model.
 	 *
-	 * @param string $strMetaName the meta information name.
+	 * @param string $strMetaName The meta information name.
 	 *
-	 * @param mixed $varValue the meta information to store.
+	 * @param mixed  $varValue    The meta information value to store.
 	 *
 	 * @return void
 	 */
@@ -162,9 +186,9 @@ class GeneralModelDefault implements InterfaceGeneralModel
 	}
 
 	/**
-	 * @see InterfaceGeneralModel::hasProperties()
+	 * Check if this model have any properties.
 	 *
-	 * @return boolean
+	 * @return boolean true if any property has been stored, false otherwise.
 	 */
 	public function hasProperties()
 	{
@@ -177,7 +201,7 @@ class GeneralModelDefault implements InterfaceGeneralModel
 	}
 
 	/**
-	 * Get a iterator for this collection
+	 * Get an iterator for this model's property values.
 	 *
 	 * @return ArrayIterator
 	 */
@@ -188,12 +212,13 @@ class GeneralModelDefault implements InterfaceGeneralModel
 
 	/**
 	 * Sets the provider name in the model.
+	 *
 	 * NOTE: this is intended to be used by the data provider only and not by any user.
 	 * Changing this by hand may cause unexpected behaviour. So DO NOT USE IT.
 	 * For this reason, this method is not interfaced, as only the data provider knows how
 	 * to set itself to the model.
 	 *
-	 * @param string the name of the corresponding data provider.
+	 * @param string $strProviderName The name of the corresponding data provider.
 	 *
 	 * @return void
 	 */
