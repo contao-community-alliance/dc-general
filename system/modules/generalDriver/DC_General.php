@@ -1741,7 +1741,14 @@ class DC_General extends DataContainer implements editable, listable
 		$strInputName = $strField . '_' . $this->mixWidgetID;
 
 		// Return if no submit, field is not editable or not in input
-		if (!($this->blnSubmitted && isset($this->arrInputs[$strInputName]) && $this->isEditableField($strField)))
+		if (!(
+			$this->blnSubmitted &&
+			isset($this->arrInputs[$strInputName]) &&
+			$this->isEditableField($strField) && !(
+				isset($this->arrDCA['fields'][$strField]['eval']['readonly']) &&
+				$this->arrDCA['fields'][$strField]['eval']['readonly']
+			)
+		))
 		{
 			return $this->arrProcessed[$strField] = null;
 		}
