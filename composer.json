@@ -39,6 +39,9 @@
 		"php":">=5.3",
 		"contao/core":">=2.11,<3.0"
 	},
+	"autoload": {
+		"classmap": ["system"]
+	},
 	"extra":{
 		"contao": {
 			"symlinks":{
