@@ -509,6 +509,11 @@ class DC_General extends DataContainer implements editable, listable
 					'class' => 'GeneralDataDefault',
 					'source' => $this->arrDCA['config']['ptable']
 				);
+
+				$arrSourceConfigs[$this->arrDCA['config']['ptable']] = array(
+					'class' => 'GeneralDataDefault',
+					'source' => $this->arrDCA['config']['ptable']
+				);
 			}
 		}
 
