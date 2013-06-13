@@ -1498,7 +1498,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 //        $this->getNewPosition($objDBModel, 'create', null, false);
 		// everything went ok, now save the new record
-		if (!$objDBModel->getMeta(DCGE::MODEL_IS_CHANGED))
+		if (!$objDBModel->getMeta(DCGE::MODEL_IS_CHANGED) && ($objDBModel->getID()))
 		{
 			return $objDBModel;
 		}
