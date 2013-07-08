@@ -45,7 +45,10 @@
 	"conflict": {
 		"contao/core": "3.0.*"
 	},
-	"extra": {
+	"autoload": {
+		"classmap": ["system"]
+	},
+	"extra":{
 		"contao": {
 			"symlinks": {
 				"system/drivers/DC_General.php": "system/drivers/DC_General.php",

@@ -23,7 +23,7 @@
 <div class="tl_formbody">
 <input type="hidden" name="FORM_SUBMIT" value="language_switch" />
 <input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>" />
-<select name="language" class="tl_select">
+<select name="language" class="tl_select" onchange="Backend.autoSubmit('language_switch')">
 <?php foreach($this->language as $objLanguage): ?>
 	<option value="<?php echo $objLanguage->getID(); ?>"<?php if($objLanguage->getProperty('active')): ?> selected="selected"<?php endif; ?>>
             <?php echo $objLanguage->getProperty('name'); ?>

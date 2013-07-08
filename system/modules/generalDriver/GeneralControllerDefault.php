@@ -1498,7 +1498,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 //        $this->getNewPosition($objDBModel, 'create', null, false);
 		// everything went ok, now save the new record
-		if (!$objDBModel->getMeta(DCGE::MODEL_IS_CHANGED))
+		if (!$objDBModel->getMeta(DCGE::MODEL_IS_CHANGED) && ($objDBModel->getID()))
 		{
 			return $objDBModel;
 		}
@@ -1565,27 +1565,51 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			$objCDP = $this->getDC()->getDataProvider();
 		}
 
+		if ($mixAfter === DCGE::INSERT_AFTER_START) 
+		{
+			$mixAfter = 0;
+		}
+
 		// Search for the highest sorting. Default - Add to end off all.
 		// ToDo: We have to check the child <=> parent condition . To get all sortings for one level.
 		// If we get a after 0, add to top.
-		if ($mixAfter === 0)
-		{
-			// Build filter for conditions
+		if ($mixAfter === 0) {
+
+	 // Build filter for conditions
 			$arrFilter = array();
 
 			if (in_array($this->getDC()->arrDCA['list']['sorting']['mode'], array(4, 5, 6)))
 			{
-				$arrConditions = $this->objDC->getRootConditions($objPDP->getEmptyModel()->getProviderName());
+				$arrConditions = $this->objDC->getRootConditions($objCDP->getEmptyModel()->getProviderName());
 
 				if ($arrConditions)
 				{
 					foreach ($arrConditions as $arrCondition)
 					{
-						$arrFilter[] = array(
-							'value'      => $arrCondition['value'],
-							'property'   => $arrCondition['property'],
-							'operation'  => $arrCondition['operation']
-						);
+						if (key_exists('remote', $arrCondition))
+						{
+							$arrFilter[] = array(
+								'value'		 => Input::getInstance()->get($arrCondition['remote']),
+								'property'	 => $arrCondition['property'],
+								'operation'	 => $arrCondition['operation']
+							);
+						}
+						else if (key_exists('remote_value', $arrCondition))
+						{
+							$arrFilter[] = array(
+								'value'		 => Input::getInstance()->get($arrCondition['remote_value']),
+								'property'	 => $arrCondition['property'],
+								'operation'	 => $arrCondition['operation']
+							);
+						}
+						else
+						{
+							$arrFilter[] = array(
+								'value'		 => $arrCondition['value'],
+								'property'	 => $arrCondition['property'],
+								'operation'	 => $arrCondition['operation']
+							);
+						}
 					}
 				}
 			}
