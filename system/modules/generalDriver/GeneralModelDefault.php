@@ -9,7 +9,7 @@
  * @filesource
  */
 
-class GeneralModelDefault implements InterfaceGeneralModel
+class GeneralModelDefault extends AbstractGeneralModel
 {
 
 	/**
@@ -25,13 +25,6 @@ class GeneralModelDefault implements InterfaceGeneralModel
 	 * @var mixed
 	 */
 	protected $mixID = null;
-
-	/**
-	 * A list with all meta information.
-	 *
-	 * @var array
-	 */
-	protected $arrMetaInformation = array();
 
 	/**
 	 * The name of the corresponding data provider.
@@ -100,25 +93,6 @@ class GeneralModelDefault implements InterfaceGeneralModel
 	}
 
 	/**
-	 * @see InterfaceGeneralModel::getMeta()
-	 *
-	 * @param string $strMetaName the meta information to retrieve.
-	 *
-	 * @return mixed the set meta information or null if undefined.
-	 */
-	public function getMeta($strMetaName)
-	{
-		if (array_key_exists($strMetaName, $this->arrMetaInformation))
-		{
-			return $this->arrMetaInformation[$strMetaName];
-		}
-		else
-		{
-			return null;
-		}
-	}
-
-	/**
 	 * Set the id for this object.
 	 *
 	 * NOTE: when the Id has been set once to a non null value, it can NOT be changed anymore.
@@ -169,20 +143,6 @@ class GeneralModelDefault implements InterfaceGeneralModel
 
 			$this->arrProperties = $arrProperties;
 		}
-	}
-
-	/**
-	 * Update meta information in the model.
-	 *
-	 * @param string $strMetaName The meta information name.
-	 *
-	 * @param mixed  $varValue    The meta information value to store.
-	 *
-	 * @return void
-	 */
-	public function setMeta($strMetaName, $varValue)
-	{
-		$this->arrMetaInformation[$strMetaName] = $varValue;
 	}
 
 	/**
