@@ -6,9 +6,9 @@
 <input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>" />
 <select name="language" class="tl_select">
 <?php foreach($this->language as $objLanguage): ?>
-	<option value="<?php echo $objLanguage->getID(); ?>"<?php if($objLanguage->getProperty('active')): ?> selected="selected"<?php endif; ?>>
+    <option value="<?php echo $objLanguage->getID(); ?>"<?php if($objLanguage->getProperty('active')): ?> selected="selected"<?php endif; ?>>
             <?php echo $objLanguage->getProperty('name'); ?> 
-	</option>
+    </option>
 <?php endforeach; ?>
 </select> <input type="submit" name="switchLanguage" id="switchLanguage" class="tl_submit" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['editSelected']); ?>" />
 </div>
@@ -32,7 +32,18 @@
             <span class="tl_label"> <?php echo $this->arrLabels[$key]; ?> : </span>
         </td>
         <td<?php echo (($count % 2) == 0) ? ' class="tl_bg"' : ''; ?>>
-            <?php echo $value; ?>
+            <?php
+            if (!is_object($value) || method_exists($value, '__toString')) {
+                echo $value;
+            }
+            else if ($value instanceof DateTime) {
+                echo $value->format($GLOBALS['TL_CONFIG']['datimFormat']);
+            }
+            else {
+                // TODO add hook for custom output
+                echo 'Object ' . get_class($value);
+            }
+            ?>
         </td>
     </tr>
 <?php $count++; ?>
