@@ -2034,7 +2034,7 @@ class DC_General extends DataContainer implements editable, listable
 			}
 		}
 
-		$group = $this->objCallbackClass->groupCallback($group, $mode, $field, $objModelRow->getPropertiesAsArray());
+		$group = $this->objCallbackClass->groupCallback($group, $mode, $field, $objModelRow);
 
 		return $group;
 	}
