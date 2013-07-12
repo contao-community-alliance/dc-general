@@ -885,7 +885,12 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				$this->redirect('contao/main.php?act=error');
 			}
 
-			$objDBModel->setProperty('pid', $this->Input->get('pid'));
+			$objParentDP = $this->objDC->getDataProvider('parent');
+			$objParent = $objParentDP->fetch($objParentDP->getEmptyConfig()->setId($this->Input->get('pid')));
+			$this->setParent($objDBModel, $objParent, 'self');
+			$objCDP = $this->getDC()->getDataProvider();
+			$arrChildCondition	 = $this->objDC->getParentChildCondition($objParent, $objCDP->getEmptyModel()->getProviderName());
+			$objDBModel->setProperty($arrChildCondition['setOn'][0]['to_field'], $this->Input->get('pid'));
 		}
 		else if ($this->getDC()->arrDCA['list']['sorting']['mode'] == 5 && $this->Input->get('mode') != '')
 		{
