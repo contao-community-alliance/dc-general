@@ -994,86 +994,93 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			$this->resetClipboard();
 		}
 
-		// Check if we have a auto submit
-		$this->getDC()->updateModelFromPOST();
-
-		// Check submit
-		if ($this->getDC()->isSubmitted() == true && !$this->getDC()->isNoReload())
+		try
 		{
-			try
+			// Check if we have a auto submit
+			$this->getDC()->updateModelFromPOST();
+
+			// Check submit
+			if ($this->getDC()->isSubmitted() == true && !$this->getDC()->isNoReload())
 			{
-				// Get new Position
-				$strPDP   = $this->Input->get('pdp');
-				$strCDP   = $this->Input->get('cdp');
-				$mixAfter = $this->Input->get('after');
-				$mixInto  = $this->Input->get('into');
-
-				$this->getNewPosition($this->objDC->getDataProvider($strPDP), $this->objDC->getDataProvider($strCDP), $this->objDC->getCurrentModel(), $mixAfter, $mixInto, 'create');
-
-				if (isset($_POST["save"]))
+				try
 				{
-					// process input and update changed properties.
-					if (($objModell = $this->doSave($this->getDC())) !== false)
-					{
-						// Callback
-						$this->getDC()->getCallbackClass()->oncreateCallback($objDBModel->getID(), $objDBModel->getPropertiesAsArray());
-						// Log
-						$this->log('A new entry in table "' . $this->getDC()->getTable() . '" has been created (ID: ' . $objModell->getID() . ')', 'DC_General - Controller - create()', TL_GENERAL);
-						// Redirect
-						$this->redirect($this->addToUrl("id=" . $objDBModel->getID() . "&amp;act=edit"));
-					}
-				}
-				else if (isset($_POST["saveNclose"]))
-				{
-					// process input and update changed properties.
-					if (($objModell = $this->doSave($this->getDC())) !== false)
-					{
-						setcookie('BE_PAGE_OFFSET', 0, 0, '/');
+					// Get new Position
+					$strPDP   = $this->Input->get('pdp');
+					$strCDP   = $this->Input->get('cdp');
+					$mixAfter = $this->Input->get('after');
+					$mixInto  = $this->Input->get('into');
 
-						$_SESSION['TL_INFO'] = '';
-						$_SESSION['TL_ERROR'] = '';
-						$_SESSION['TL_CONFIRM'] = '';
+					$this->getNewPosition($this->objDC->getDataProvider($strPDP), $this->objDC->getDataProvider($strCDP), $this->objDC->getCurrentModel(), $mixAfter, $mixInto, 'create');
 
-						// Callback
-						$this->getDC()->getCallbackClass()->oncreateCallback($objDBModel->getID(), $objDBModel->getPropertiesAsArray());
-						// Log
-						$this->log('A new entry in table "' . $this->getDC()->getTable() . '" has been created (ID: ' . $objModell->getID() . ')', 'DC_General - Controller - create()', TL_GENERAL);
-						// Redirect
-						$this->redirect($this->getReferer());
-					}
-				}
-				else
-				{
-					$arrButtons = $this->getDC()->arrDCA['buttons'];
-
-					if (is_array($arrButtons))
+					if (isset($_POST["save"]))
 					{
-						foreach ($arrButtons as $arrButton)
+						// process input and update changed properties.
+						if (($objModell = $this->doSave($this->getDC())) !== false)
 						{
-							if (empty($arrButton) || !is_array($arrButton))
+							// Callback
+							$this->getDC()->getCallbackClass()->oncreateCallback($objDBModel->getID(), $objDBModel->getPropertiesAsArray());
+							// Log
+							$this->log('A new entry in table "' . $this->getDC()->getTable() . '" has been created (ID: ' . $objModell->getID() . ')', 'DC_General - Controller - create()', TL_GENERAL);
+							// Redirect
+							$this->redirect($this->addToUrl("id=" . $objDBModel->getID() . "&amp;act=edit"));
+						}
+					}
+					else if (isset($_POST["saveNclose"]))
+					{
+						// process input and update changed properties.
+						if (($objModell = $this->doSave($this->getDC())) !== false)
+						{
+							setcookie('BE_PAGE_OFFSET', 0, 0, '/');
+
+							$_SESSION['TL_INFO'] = '';
+							$_SESSION['TL_ERROR'] = '';
+							$_SESSION['TL_CONFIRM'] = '';
+
+							// Callback
+							$this->getDC()->getCallbackClass()->oncreateCallback($objDBModel->getID(), $objDBModel->getPropertiesAsArray());
+							// Log
+							$this->log('A new entry in table "' . $this->getDC()->getTable() . '" has been created (ID: ' . $objModell->getID() . ')', 'DC_General - Controller - create()', TL_GENERAL);
+							// Redirect
+							$this->redirect($this->getReferer());
+						}
+					}
+					else
+					{
+						$arrButtons = $this->getDC()->arrDCA['buttons'];
+
+						if (is_array($arrButtons))
+						{
+							foreach ($arrButtons as $arrButton)
 							{
-								continue;
-							}
+								if (empty($arrButton) || !is_array($arrButton))
+								{
+									continue;
+								}
 
-							if (key_exists($arrButton['formkey'], $_POST))
-							{
-								$strClass	 = $arrButton['button_callback'][0];
-								$strMethod	 = $arrButton['button_callback'][1];
+								if (key_exists($arrButton['formkey'], $_POST))
+								{
+									$strClass	 = $arrButton['button_callback'][0];
+									$strMethod	 = $arrButton['button_callback'][1];
 
-								$this->import($strClass);
+									$this->import($strClass);
 
-								$this->$strClass->$strMethod($this->getDC());
+									$this->$strClass->$strMethod($this->getDC());
 
-								break;
+									break;
+								}
 							}
 						}
 					}
 				}
+				catch (Exception $exc)
+				{
+					$_SESSION['TL_ERROR'][] = sprintf('Exception: %s in file %s on line %s', $exc->getMessage(), $exc->getFile(), $exc->getLine());
+				}
 			}
-			catch (Exception $exc)
-			{
-				$_SESSION['TL_ERROR'][] = sprintf('Exception: %s in file %s on line %s', $exc->getMessage(), $exc->getFile(), $exc->getLine());
-			}
+		}
+		catch (Exception $exc)
+		{
+			$_SESSION['TL_ERROR'][] = $exc->getMessage();
 		}
 	}
 
