@@ -74,6 +74,41 @@ class BaseSortElement extends AbstractElement implements SortElement
 			: $this->getDefaultFlag();
 	}
 
+	protected function flagToDirection($intFlag)
+	{
+		return ($intFlag % 2) ? 'DESC' : 'ASC';
+	}
+
+	protected function getAdditionalSorting()
+	{
+		$tmp            = $this->getDataContainer()->getDataDefinition()->getAdditionalSorting();
+		if (!$tmp)
+		{
+			return array();
+		}
+
+		$arrReturn = array();
+		foreach ($tmp as $strOrder)
+		{
+			$arrOrder = explode(' ', $strOrder);
+			$strProperty  = $arrOrder[0];
+			if ($this->getSelected() == $strProperty)
+			{
+				continue;
+			}
+
+			if (count($arrOrder) == 1)
+			{
+				// TODO: implicit ascending - should we rather lookup the real value from the flag?
+				$arrReturn[$strProperty] = 'ASC';
+			}
+			else{
+				$arrReturn[$strProperty] = $arrOrder[1];
+			}
+		}
+		return $arrReturn;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -111,9 +146,36 @@ class BaseSortElement extends AbstractElement implements SortElement
 			$current = array();
 		}
 
-		$direction = in_array($this->getFlag(), array(2, 4, 6, 8, 10, 12)) ? 'DESC' : 'ASC';
+		if (!$this->getSelected())
+		{
 
-		$objConfig->setSorting(array_merge($current, array($this->getSelected() => $direction)));
+		}
+
+		$arrSecondOrder = $this->getAdditionalSorting();
+
+		if (!$this->getSelected())
+		{
+			if ($arrSecondOrder)
+			{
+				$filtered = array_intersect(array_keys($arrSecondOrder), $this->getPropertyNames());
+
+				$this->setSelected($filtered[0]);
+			}
+
+			// Still nothing selected? - use the first.
+			if (!$this->getSelected())
+			{
+				$all = $this->getPropertyNames();
+				$this->setSelected($all[0]);
+			}
+		}
+
+		if (!$this->getSelected())
+		{
+			$current[$this->getSelected()] = $this->flagToDirection($this->getFlag());
+		}
+
+		$objConfig->setSorting($current);
 	}
 
 	/**
@@ -121,7 +183,23 @@ class BaseSortElement extends AbstractElement implements SortElement
 	 */
 	public function render($objTemplate)
 	{
+		foreach ($this->getPropertyNames() as $field)
+		{
+			$arrLabel = $this->getDataContainer()->getDataDefinition()->getProperty($field)->getLabel();
 
+			$arrOptions[] = array(
+				'value'      => specialchars($field),
+				'attributes' => ($this->getSelected() == $field) ? ' selected="selected"' : '',
+				'content'    => is_array($arrLabel) ? $arrLabel[0] : $arrLabel
+			);
+		}
+
+		// Sort by option values
+		uksort($arrOptions, 'strcasecmp');
+
+		$objTemplate->options = $arrOptions;
+
+		return $this;
 	}
 
 	/**
@@ -155,7 +233,7 @@ class BaseSortElement extends AbstractElement implements SortElement
 	 */
 	public function getPropertyNames()
 	{
-		return $this->arrSorting;
+		return array_keys($this->arrSorting);
 	}
 
 	/**

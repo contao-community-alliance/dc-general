@@ -1328,8 +1328,6 @@ class Controller implements ControllerInterface
 
 	protected function buildPanel()
 	{
-		var_dump($_POST);
-
 		$objContainer = new \DcGeneral\Panel\BaseContainer();
 		$objContainer->setDataContainer($this->getDC());
 
@@ -1337,8 +1335,6 @@ class Controller implements ControllerInterface
 
 		$objGlobalConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
 		$objContainer->initialize($objGlobalConfig);
-
-		var_dump($_POST, $objGlobalConfig);
 
 		$this->getDC()->setPanelInformation($objContainer);
 		return $objContainer;
@@ -2697,104 +2693,6 @@ class Controller implements ControllerInterface
 	 */
 	protected function generatePanelLimit($blnOptional = false)
 	{
-		// FIXME: deactivated for the moment.
-		return;
-
-		// Init vars
-		$arrPanelView = array();
-		$blnIsMaxResultsPerPage = false;
-
-		// Setup Vars
-		$strFilter = ($this->getDC()->arrDCA['list']['sorting']['mode'] == 4) ? $this->getDC()->getTable() . '_' . CURRENT_ID : $this->getDC()->getTable();
-		// TODO: dependency injection.
-		$arrSession = \Session::getInstance()->getData();
-
-		// Get the amount for the current filter settings
-		if ($this->getDC()->arrDCA['list']['sorting']['mode'] == 5)
-		{
-			$objRootConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
-			$objRootConfig->setIdOnly(true);
-			$objRootConfig->setFilter($this->getDC()->getRootConditions('self'));
-
-			$intCount = $this->getDC()->getDataProvider()->getCount($objRootConfig);
-		}
-		else
-		{
-			$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()->setFilter($this->getFilter());
-			$intCount = $this->getDC()->getDataProvider()->getCount($objConfig);
-		}
-
-		// Overall limit
-		if ($intCount > $GLOBALS['TL_CONFIG']['resultsPerPage'])
-		{
-			$blnIsMaxResultsPerPage = true;
-//			$GLOBALS['TL_CONFIG']['resultsPerPage']		 = $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
-//			$arrSession['filter'][$strFilter]['limit']	 = '0,' . $GLOBALS['TL_CONFIG']['maxResultsPerPage'];
-		}
-
-		// Build options
-		if ($intCount > 0)
-		{
-			$arrPanelView['option'][0] = array();
-
-			$options_total = ceil($intCount / $GLOBALS['TL_CONFIG']['resultsPerPage']);
-
-			// Reset limit if other parameters have decreased the number of results
-			if ($this->getDC()->getLimit() == '' || preg_replace('/,.*$/i', '', $this->getDC()->getLimit()) > $intCount)
-			{
-				$this->getDC()->setLimit('0,' . $GLOBALS['TL_CONFIG']['resultsPerPage']);
-			}
-
-			// Build options
-			for ($i = 0; $i < $options_total; $i++)
-			{
-				$this_limit = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']) . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
-				$upper_limit = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + $GLOBALS['TL_CONFIG']['resultsPerPage']);
-
-				if ($upper_limit > $intCount)
-				{
-					$upper_limit = $intCount;
-				}
-
-				$arrPanelView['option'][] = array(
-					'value' => $this_limit,
-					'select' => $this->optionSelected($this->getDC()->getLimit(), $this_limit),
-					'content' => ($i * $GLOBALS['TL_CONFIG']['resultsPerPage'] + 1) . ' - ' . $upper_limit
-				);
-			}
-
-			if ($blnIsMaxResultsPerPage)
-			{
-				$arrLimit = trimsplit(',', $this->getDC()->getLimit());
-
-				$arrPanelView['option'][] = array(
-					'value' => 'all',
-					'select' => ($arrLimit[0] == 0 && $arrLimit[1] == $intCount) ? ' selected="selected"' : '',
-					'content' => $GLOBALS['TL_LANG']['MSC']['filterAll']
-				);
-			}
-		}
-
-		// Return if there is only one page
-		if ($blnOptional && ($intCount < 1 || $options_total < 2))
-		{
-			return array();
-		}
-
-		$arrPanelView['select'] = array(
-			'class' => (($arrSession['filter'][$strFilter]['limit'] != 'all' && $intCount > $GLOBALS['TL_CONFIG']['resultsPerPage']) ? ' active' : '')
-		);
-
-		$arrPanelView['option'][0] = array(
-			'value' => 'tl_limit',
-			'select' => '',
-			'content' => $GLOBALS['TL_LANG']['MSC']['filterRecords']
-		);
-
-		// TODO: dependency injection.
-		\Session::getInstance()->setData($arrSession);
-
-		return $arrPanelView;
 	}
 
 	/**
@@ -2804,80 +2702,6 @@ class Controller implements ControllerInterface
 	 */
 	protected function generatePanelSort()
 	{
-		// Init
-		$arrPanelView = array();
-		$arrSortingFields = array();
-
-		// TODO: dependency injection.
-		$arrSession = \Session::getInstance()->getData();
-		$strOrderBy = $this->getDC()->arrDCA['list']['sorting']['fields'];
-		$strFirstOrderBy = preg_replace('/\s+.*$/i', '', $strOrderBy[0]);
-
-		// Setup
-		$this->getDC()->setButtonId('tl_buttons_a');
-
-		// Return an empty array, if don't have mode 2 or 4
-		if (!in_array($this->getDC()->arrDCA['list']['sorting']['mode'], array(2, 4)))
-		{
-			return array();
-		}
-
-		// Get sorting fields
-		foreach ($this->getDC()->arrDCA['fields'] as $k => $v)
-		{
-			if ($v['sorting'])
-			{
-				$arrSortingFields[] = $k;
-			}
-		}
-
-		// Return if there are no sorting fields
-		if (empty($arrSortingFields))
-		{
-			return array();
-		}
-
-		// Add PID to order fields
-		if ($this->getDC()->arrDCA['list']['sorting']['mode'] == 3 && $this->getDC()->getDataProvider()->fieldExists('pid'))
-		{
-			array_unshift($strOrderBy, 'pid');
-		}
-
-		// Overwrite the "orderBy" value with the session value
-		if (strlen($arrSession['sorting'][$this->getDC()->getTable()]))
-		{
-			$overwrite = preg_quote(preg_replace('/\s+.*$/i', '', $arrSession['sorting'][$this->getDC()->getTable()]), '/');
-			$strOrderBy = array_diff($strOrderBy, preg_grep('/^' . $overwrite . '/i', $strOrderBy));
-
-			array_unshift($strOrderBy, $arrSession['sorting'][$this->getDC()->getTable()]);
-
-			$this->getDC()->setFirstSorting($overwrite);
-			$this->getDC()->setSorting($strOrderBy);
-		}
-
-		$arrOptions = array();
-
-		foreach ($arrSortingFields as $field)
-		{
-			$mixedOptionsLabel = strlen($this->getDC()->arrDCA['fields'][$field]['label'][0]) ? $this->getDC()->arrDCA['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
-
-			if (is_array($mixedOptionsLabel))
-			{
-				$mixedOptionsLabel = $mixedOptionsLabel[0];
-			}
-
-			$arrOptions[$mixedOptionsLabel] = array(
-				'value' => specialchars($field),
-				'select' => ((!strlen($arrSession['sorting'][$this->getDC()->getTable()]) && $field == $strFirstOrderBy || $field == str_replace(' DESC', '', $arrSession['sorting'][$this->getDC()->getTable()])) ? ' selected="selected"' : ''),
-				'content' => $mixedOptionsLabel
-			);
-		}
-
-		// Sort by option values
-		uksort($arrOptions, 'strcasecmp');
-		$arrPanelView['option'] = $arrOptions;
-
-		return $arrPanelView;
 	}
 
 	/**

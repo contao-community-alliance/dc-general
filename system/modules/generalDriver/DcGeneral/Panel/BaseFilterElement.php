@@ -165,27 +165,34 @@ class BaseFilterElement extends AbstractElement implements FilterElement
 	{
 		$arrLabel = $this->getDataContainer()->getDataDefinition()->getProperty($this->getPropertyName())->getName();
 
-		// Begin select menu
-		$arrFilter = array(
-			'select' => array(
-				'name' => $this->getPropertyName(),
-				'id' => $this->getPropertyName(),
-				'class' => 'tl_select' . (is_null($this->getValue()) ? ' active' : '')
+		$arrOptions = array(
+			array(
+				'value' => 'tl_' . $this->getPropertyName(),
+				'content' => (is_array($arrLabel) ? $arrLabel[0] : $arrLabel)
 			),
-			'option' => array(
-				array(
-					'value' => 'tl_' . $this->getPropertyName(),
-					'content' => (is_array($arrLabel) ? $arrLabel[0] : $arrLabel)
-				),
-				array(
-					'value' => 'tl_' . $this->getPropertyName(),
-					'content' => '---'
-				)
+			array(
+				'value' => 'tl_' . $this->getPropertyName(),
+				'content' => '---'
 			)
 		);
 
+		foreach ($this->arrfilterOptions as $key => $value)
+		{
+			$arrOptions[] = array
+			(
+				'value'      => $key,
+				'content'    => $value,
+				'attributes' => ($key == $this->getValue()) ? ' selected="selected"' : ''
+			);
+		}
 
-		var_dump($this->arrfilterOptions);
+		$objTemplate->name    = $this->getPropertyName();
+		$objTemplate->id      = $this->getPropertyName();
+		$objTemplate->class   = 'tl_select' . (is_null($this->getValue()) ? ' active' : '');
+		$objTemplate->options = $arrOptions;
+		$objTemplate->active  = $this->getValue();
+
+		return $this;
 	}
 
 	/**

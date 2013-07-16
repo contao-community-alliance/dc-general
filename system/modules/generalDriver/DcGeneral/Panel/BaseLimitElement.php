@@ -90,8 +90,9 @@ class BaseLimitElement extends AbstractElement implements LimitElement
 			$input = $this->getInputProvider();
 			if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue('tl_limit'))
 			{
-				$offset = $input->getValue('tl_field');
-				$amount = $input->getValue('tl_value');
+				$limit  = explode(',', $input->getValue('tl_limit'));
+				$offset = $limit[0];
+				$amount = $limit[1];
 
 				$this->setPersistent($offset, $amount);
 			}
@@ -99,8 +100,8 @@ class BaseLimitElement extends AbstractElement implements LimitElement
 			$persistent = $this->getPersistent();
 			if ($persistent)
 			{
-				$offset = $persistent['field'];
-				$amount = $persistent['value'];
+				$offset = $persistent['offset'];
+				$amount = $persistent['amount'];
 
 				// Hotfix the offset - we also might want to store it persistent.
 				// Another way would be to always stick on the "last" page when we hit the upper limit.
@@ -126,7 +127,50 @@ class BaseLimitElement extends AbstractElement implements LimitElement
 	 */
 	public function render($objTemplate)
 	{
+		$arrOptions = array
+		(
+			array
+			(
+				'value'      => 'tl_limit',
+				'attributes' => '',
+				'content'    => $GLOBALS['TL_LANG']['MSC']['filterRecords']
+			)
+		);
 
+		$options_total = ceil($this->intTotal / $GLOBALS['TL_CONFIG']['resultsPerPage']);
+
+		for ($i = 0; $i < $options_total; $i++)
+		{
+			$first       = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']);
+			$this_limit  = $first . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
+			$upper_limit = ($first + $GLOBALS['TL_CONFIG']['resultsPerPage']);
+
+			if ($upper_limit > $this->intTotal)
+			{
+				$upper_limit = $this->intTotal;
+			}
+
+			$arrOptions[] = array
+			(
+				'value'      => $this_limit,
+				'attributes' => ($this->getOffset() == $first) ? ' selected="selected"' : '',
+				'content'    => ($first + 1) . ' - ' . $upper_limit
+			);
+		}
+
+		if ($this->intTotal > $GLOBALS['TL_CONFIG']['resultsPerPage'])
+		{
+			$arrOptions[] = array
+			(
+				'value'      => 'all',
+				'attributes' => (($this->getOffset() == 0) && ($this->getAmount() == $this->intTotal)) ? ' selected="selected"' : '',
+				'content'    => $GLOBALS['TL_LANG']['MSC']['filterAll']
+			);
+		}
+
+		$objTemplate->options = $arrOptions;
+
+		return $this;
 	}
 
 	/**

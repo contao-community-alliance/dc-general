@@ -101,4 +101,11 @@ class Container implements ContainerInterface
 		return $arrPanels;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getAdditionalSorting()
+	{
+		return $this->getFromDca('list/sorting/fields');
+	}
 }

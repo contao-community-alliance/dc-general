@@ -45,4 +45,11 @@ interface Container
 	 * @return array
 	 */
 	public function getPanelLayout();
+
+	/**
+	 * Retrieve the names of properties to use for secondary sorting.
+	 *
+	 * @return string[]
+	 */
+	public function getAdditionalSorting();
 }
