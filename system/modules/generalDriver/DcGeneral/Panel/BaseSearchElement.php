@@ -94,7 +94,7 @@ class BaseSearchElement extends AbstractElement implements SearchElement
 
 			$this->setPersistent($field, $value);
 		}
-		elseif ($input->hasPersistentValue('tl_sort'))
+		elseif ($input->hasPersistentValue('search'))
 		{
 			$persistent = $this->getPersistent();
 			if ($persistent)
@@ -132,7 +132,7 @@ class BaseSearchElement extends AbstractElement implements SearchElement
 */
 						'operation' => 'LIKE',
 						'property' => $this->getSelectedProperty(),
-						'value' => '*' . $this->getValue() . '*'
+						'value' => sprintf('*%s*', $this->getValue())
 /*
 					))
 */
@@ -146,7 +146,22 @@ class BaseSearchElement extends AbstractElement implements SearchElement
 	 */
 	public function render($objTemplate)
 	{
-		// TODO: unimplemented.
+		$arrOptions = array();
+
+		foreach ($this->getPropertyNames() as $field)
+		{
+			$arrLabel     = $this->getPanel()->getContainer()->getDataContainer()->getDataDefinition()->getProperty($field)->getLabel();
+			$arrOptions[] = array
+			(
+				'value'      => $field,
+				'content'    => is_array($arrLabel) ? $arrLabel[0] : $arrLabel,
+				'attributes' => ($field == $this->getValue()) ? ' selected="selected"' : ''
+			);
+		}
+
+		$objTemplate->class   = 'tl_select' . (is_null($this->getValue()) ? ' active' : '');
+		$objTemplate->options = $arrOptions;
+		$objTemplate->value  = $this->getValue();
 
 		return $this;
 	}
@@ -154,10 +169,10 @@ class BaseSearchElement extends AbstractElement implements SearchElement
 	/**
 	 * {@inheritDoc}
 	 */
-	public function addProperty($strProperty, $intFlag = 0)
+	public function addProperty($strProperty)
 	{
 
-		$this->arrProperties[$strProperty] = $intFlag;
+		$this->arrProperties[] = $strProperty;
 
 		return $this;
 	}

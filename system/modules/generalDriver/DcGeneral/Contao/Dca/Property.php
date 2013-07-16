@@ -88,7 +88,7 @@ class Property implements PropertyInterface
 	 */
 	public function isSortable()
 	{
-		return $this->get('sort');
+		return $this->get('sorting');
 	}
 
 	/**

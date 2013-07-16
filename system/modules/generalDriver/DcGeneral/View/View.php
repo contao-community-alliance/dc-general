@@ -104,6 +104,63 @@ class View implements ViewInterface
 		$this->objDC = $objDC;
 	}
 
+	/**
+	 * Add a request string to the current URL
+	 *
+	 * @param string $strRequest The string to be added
+	 *
+	 * @return string The new URL
+	 */
+	public static function addToUrl($strRequest)
+	{
+		// FIXME: this copied from Contao 3.1 Controller.php and therefore is still contao dependant code, refactor it and it's usage!
+		$strRequest = preg_replace('/^&(amp;)?/i', '', $strRequest);
+
+		if ($strRequest != '')
+		{
+			$strRequest .= '&amp;ref=' . TL_REFERER_ID;
+		}
+
+		$queries = preg_split('/&(amp;)?/i', \Environment::getInstance()->get('queryString'));
+
+		// Overwrite existing parameters
+		foreach ($queries as $k=>$v)
+		{
+			if ($v == 'nb=1')
+			{
+				unset($queries[$k]);
+			}
+
+			$explode = explode('=', $v);
+
+			if (preg_match('/(^|&(amp;)?)' . preg_quote($explode[0], '/') . '=/i', $strRequest))
+			{
+				unset($queries[$k]);
+			}
+		}
+
+		$href = '?';
+
+		if (!empty($queries))
+		{
+			$href .= implode('&amp;', $queries) . '&amp;';
+		}
+
+		return \Environment::get('script') . $href . str_replace(' ', '%20', $strRequest);
+	}
+
+	public static function getImage($src, $alt='', $attributes='')
+	{
+		if (version_compare(VERSION, '3.1', '>='))
+		{
+			\Image::getHtml($src, $alt, $attributes);
+		}
+		else{
+			// FIXME: we need a way to generate this in contao 2.11
+			throw new \RuntimeException('Not implemented for Contao 2.11 yet, we need to fix this.');
+		}
+	}
+
 	public function isSelector($strSelector)
 	{
 		return isset($this->arrSelectors[$strSelector]);
@@ -1876,7 +1933,8 @@ class View implements ViewInterface
 						}
 
 						// If we have a id add it, used for mode 4 and all parent -> current views
-						if (strlen($this->Input->get('id')) != 0)
+						// FIXME: Dependency injection.
+						if (strlen(\Input::getInstance()->get('id')) != 0)
 						{
 							$strAdd2Url .= '&amp;id=' . $this->Input->get('id');
 						}
@@ -1885,14 +1943,12 @@ class View implements ViewInterface
 						$strAdd2Url .= '&amp;source=' . $objModelRow->getID();
 
 						// Build whole button mark up
-						$return .= ' <a href="'
-							. $this->addToUrl($strAdd2Url)
-							. '" title="' . specialchars($title)
-							. '"'
-							. $attributes
-							. '>'
-							. $this->generateImage($v['icon'], $label)
-							. '</a>';
+						$return .= sprintf(' <a href="%s" title="%s">%s</a>',
+							$this->addToUrl($strAdd2Url),
+							specialchars($title),
+							$attributes,
+							$this->getImage($v['icon'], $label)
+						);
 						break;
 
 					default:
@@ -1904,7 +1960,7 @@ class View implements ViewInterface
 							. '"'
 							. $attributes
 							. '>'
-							. $this->generateImage($v['icon'], $label)
+							. $this->getImage($v['icon'], $label)
 							. '</a>';
 						break;
 				}
