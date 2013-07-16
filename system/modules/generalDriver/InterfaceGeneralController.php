@@ -1,29 +1,13 @@
 <?php
-
 /**
  * PHP version 5
  * @package    generalDriver
- * @author     Stefan Heimes <cms@men-at-work.de>
+ * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
  */
 
-interface InterfaceGeneralController
-{
-
-	/**
-	 * Set the DC
-	 * 
-	 * @param DC_General $objDC
-	 */
-	public function setDC($objDC);
-
-	/**
-	 * Get the DC
-	 * 
-	 * @return DC_General 
-	 */
-	public function getDC();
-
-}
+trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
+class_alias('DcGeneral\Controller\Interfaces\Controller', 'InterfaceGeneralController');

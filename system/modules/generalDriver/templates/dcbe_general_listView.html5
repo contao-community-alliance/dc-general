@@ -10,10 +10,9 @@
                 <input type="hidden" name="FORM_SUBMIT" value="tl_select">
                 <input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>">
     <?php endif; ?>
-
             <div class="tl_listing_container list_view table_<?php echo $this->tableName; ?>">
-				
-				<?php if(strlen($this->breadcrumb)) echo $this->breadcrumb; ?>
+
+                <?php if(strlen($this->breadcrumb)) echo $this->breadcrumb; ?>
 
                 <?php if ($this->select): ?>
                     <div class="tl_select_trigger">
@@ -34,12 +33,12 @@
 
                     <?php foreach ($this->collection as $objModelRow): ?>
                         <?php if ($this->mode > 0): ?>
-                            <?php $arrGroup  = $objModelRow->getMeta(DCGE::MODEL_GROUP_VALUE); ?>
+                            <?php $arrGroup  = $objModelRow->getMeta(\DcGeneral\Data\DCGE::MODEL_GROUP_VALUE); ?>
                             <tr><td colspan="2" class="<?php echo $arrGroup['class']; ?>"><?php echo $arrGroup['value']; ?></td></tr>
                         <?php endif; ?>
 
-                        <tr class="<?php echo $objModelRow->getMeta(DCGE::MODEL_EVEN_ODD_CLASS); ?>" onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);">
-                            <?php $arrLabels = $objModelRow->getMeta(DCGE::MODEL_LABEL_VALUE); ?>
+                        <tr class="<?php echo $objModelRow->getMeta(\DcGeneral\Data\DCGE::MODEL_EVEN_ODD_CLASS); ?>" onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);">
+                            <?php $arrLabels = $objModelRow->getMeta(\DcGeneral\Data\DCGE::MODEL_LABEL_VALUE); ?>
 
                             <?php foreach ($arrLabels as $arrLabel): ?>
                                 <td <?php echo ((!is_null($arrLabel['colspan'])) ? 'colspan="' . $arrLabel['colspan'] . '"' : ''); ?> class="<?php echo $arrLabel['class']; ?>">
@@ -53,7 +52,7 @@
                                 </td>
                             <?php else: ?>
                                 <td class="tl_file_list tl_right_nowrap">
-                                    <?php echo $objModelRow->getMeta(DCGE::MODEL_BUTTONS); ?>
+                                    <?php echo $objModelRow->getMeta(\DcGeneral\Data\DCGE::MODEL_BUTTONS); ?>
                                 </td>
                             <?php endif; ?>
                         </tr>

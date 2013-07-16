@@ -57,22 +57,22 @@
 
 					<?php if ($this->hasSorting): ?><li id="li_<?php echo $objModel->getID(); ?>"><?php endif; ?>	
 
-						<?php if (strlen($objModel->getMeta(DCGE::MODEL_GROUP_HEADER)) > 0): ?>
-							<div class="tl_content_header"><?php echo $objModel->getMeta(DCGE::MODEL_GROUP_HEADER); ?></div>
+						<?php if (strlen($objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_GROUP_HEADER)) > 0): ?>
+							<div class="tl_content_header"><?php echo $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_GROUP_HEADER); ?></div>
 						<?php endif; ?>
 
-						<div class="tl_content<?php echo $objModel->getMeta(DCGE::MODEL_CLASS); ?>" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
+						<div class="tl_content<?php echo $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_CLASS); ?>" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
 							<div class="tl_content_right">
 
 								<?php if ($this->select): ?>
 									<input type="checkbox" name="IDS[]" id="ids_<?php echo $objModel->getID(); ?>" class="tl_tree_checkbox" value="<?php echo $objModel->getID(); ?>">
 								<?php endif; ?>
 
-								<?php echo $objModel->getMeta(DCGE::MODEL_BUTTONS); ?>
+								<?php echo $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_BUTTONS); ?>
 
 							</div>
 
-							<?php echo $objModel->getMeta(DCGE::MODEL_LABEL_VALUE); ?>
+							<?php echo $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_LABEL_VALUE); ?>
 						</div>
 						<?php if ($this->hasSorting): ?></li><?php endif; ?>	
 				<?php endforeach; ?>
