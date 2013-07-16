@@ -1,42 +1,90 @@
 <?php
-
 /**
- * Contao Open Source CMS
- *
- * Copyright (C) 2005-2012 Leo Feyer
- *
- * @package GeneralDriver
- * @link    http://contao.org
- * @license http://www.gnu.org/licenses/lgpl-3.0.html LGPL
+ * PHP version 5
+ * @package    generalDriver
+ * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Stefan Heimes <stefan_heimes@hotmail.com>
+ * @copyright  The MetaModels team.
+ * @license    LGPL.
+ * @filesource
  */
-
 
 /**
  * Register the classes
  */
 ClassLoader::addClasses(array
 (
-	'DC_General'                        => 'system/modules/generalDriver/DC_General.php',
-	'DCGE'                              => 'system/modules/generalDriver/DCGE.php',
-	'GeneralAjax'                       => 'system/modules/generalDriver/GeneralAjax.php',
-	'GeneralCallbackDefault'            => 'system/modules/generalDriver/GeneralCallbackDefault.php',
-	'GeneralCollectionDefault'          => 'system/modules/generalDriver/GeneralCollectionDefault.php',
-	'GeneralControllerDefault'          => 'system/modules/generalDriver/GeneralControllerDefault.php',
-	'GeneralDataConfigDefault'          => 'system/modules/generalDriver/GeneralDataConfigDefault.php',
-	'GeneralDataDefault'                => 'system/modules/generalDriver/GeneralDataDefault.php',
-	'GeneralDataMultiLanguageDefault'   => 'system/modules/generalDriver/GeneralDataMultiLanguageDefault.php',
-	'GeneralDataTableRowsAsRecords'     => 'system/modules/generalDriver/GeneralDataTableRowsAsRecords.php',
-	'GeneralModelDefault'               => 'system/modules/generalDriver/GeneralModelDefault.php',
-	'GeneralViewDefault'                => 'system/modules/generalDriver/GeneralViewDefault.php',
-	'InterfaceGeneralCallback'          => 'system/modules/generalDriver/InterfaceGeneralCallback.php',
-	'InterfaceGeneralCollection'        => 'system/modules/generalDriver/InterfaceGeneralCollection.php',
-	'InterfaceGeneralController'        => 'system/modules/generalDriver/InterfaceGeneralController.php',
-	'InterfaceGeneralData'              => 'system/modules/generalDriver/InterfaceGeneralData.php',
-	'InterfaceGeneralDataConfig'        => 'system/modules/generalDriver/InterfaceGeneralDataConfig.php',
-	'InterfaceGeneralDataMultiLanguage' => 'system/modules/generalDriver/InterfaceGeneralDataMultiLanguage.php',
-	'InterfaceGeneralModel'             => 'system/modules/generalDriver/InterfaceGeneralModel.php',
-	'InterfaceGeneralView'              => 'system/modules/generalDriver/InterfaceGeneralView.php',
-	'WidgetAccessor'                    => 'system/modules/generalDriver/WidgetAccessor.php',
+	// Real implementation of DC_General for Contao 2.11 and Contao 3.1 - will get replaced with composer based auto loading in the future.
+	'DcGeneral\Callbacks\Interfaces\Callbacks'      => 'system/modules/generalDriver/DcGeneral/Callbacks/Interfaces/Callbacks.php',
+	'DcGeneral\Callbacks\Callbacks'                 => 'system/modules/generalDriver/DcGeneral/Callbacks/Callbacks.php',
+	'DcGeneral\Controller\Interfaces\Controller'    => 'system/modules/generalDriver/DcGeneral/Controller/Interfaces/Controller.php',
+	'DcGeneral\Controller\Ajax'                     => 'system/modules/generalDriver/DcGeneral/Controller/Ajax.php',
+	'DcGeneral\Controller\Ajax2X'                   => 'system/modules/generalDriver/DcGeneral/Controller/Ajax2X.php',
+	'DcGeneral\Controller\Ajax3X'                   => 'system/modules/generalDriver/DcGeneral/Controller/Ajax3X.php',
+	'DcGeneral\Controller\Controller'               => 'system/modules/generalDriver/DcGeneral/Controller/Controller.php',
+	'DcGeneral\Contao\Dca\Container'                => 'system/modules/generalDriver/DcGeneral/Contao/Dca/Container.php',
+	'DcGeneral\Contao\Dca\Property'                 => 'system/modules/generalDriver/DcGeneral/Contao/Dca/Property.php',
+	'DcGeneral\Contao\InputProvider'                => 'system/modules/generalDriver/DcGeneral/Contao/InputProvider.php',
+	'DcGeneral\DataDefinition\Interfaces\Container' => 'system/modules/generalDriver/DcGeneral/DataDefinition/Interfaces/Container.php',
+	'DcGeneral\DataDefinition\Interfaces\Property'  => 'system/modules/generalDriver/DcGeneral/DataDefinition/Interfaces/Property.php',
+	'DcGeneral\Data\AbstractModel'                  => 'system/modules/generalDriver/DcGeneral/Data/AbstractModel.php',
+	'DcGeneral\Data\Collection'                     => 'system/modules/generalDriver/DcGeneral/Data/Collection.php',
+	'DcGeneral\Data\Config'                         => 'system/modules/generalDriver/DcGeneral/Data/Config.php',
+	'DcGeneral\Data\DCGE'                           => 'system/modules/generalDriver/DcGeneral/Data/DCGE.php',
+	'DcGeneral\Data\Driver'                         => 'system/modules/generalDriver/DcGeneral/Data/Driver.php',
+	'DcGeneral\Data\Model'                          => 'system/modules/generalDriver/DcGeneral/Data/Model.php',
+	'DcGeneral\Data\MultiLanguageDriver'            => 'system/modules/generalDriver/DcGeneral/Data/MultiLanguageDriver.php',
+	'DcGeneral\Data\Interfaces\Collection'          => 'system/modules/generalDriver/DcGeneral/Data/Interfaces/Collection.php',
+	'DcGeneral\Data\Interfaces\Config'              => 'system/modules/generalDriver/DcGeneral/Data/Interfaces/Config.php',
+	'DcGeneral\Data\Interfaces\Driver'              => 'system/modules/generalDriver/DcGeneral/Data/Interfaces/Driver.php',
+	'DcGeneral\Data\Interfaces\Model'               => 'system/modules/generalDriver/DcGeneral/Data/Interfaces/Model.php',
+	'DcGeneral\Data\Interfaces\MultiLanguageDriver' => 'system/modules/generalDriver/DcGeneral/Data/Interfaces/MultiLanguageDriver.php',
+	'DcGeneral\DC_General'                          => 'system/modules/generalDriver/DcGeneral/DC_General.php',
+	'DcGeneral\Helper\WidgetAccessor'               => 'system/modules/generalDriver/DcGeneral/Helper/WidgetAccessor.php',
+	'DcGeneral\Interfaces\DataContainer'            => 'system/modules/generalDriver/DcGeneral/Interfaces/DataContainer.php',
+	'DcGeneral\Interfaces\InputProvider'            => 'system/modules/generalDriver/DcGeneral/Interfaces/InputProvider.php',
+	'DcGeneral\Panel\AbstractElement'               => 'system/modules/generalDriver/DcGeneral/Panel/AbstractElement.php',
+	'DcGeneral\Panel\BaseContainer'                 => 'system/modules/generalDriver/DcGeneral/Panel/BaseContainer.php',
+	'DcGeneral\Panel\BaseFilterElement'             => 'system/modules/generalDriver/DcGeneral/Panel/BaseFilterElement.php',
+	'DcGeneral\Panel\BaseSortElement'               => 'system/modules/generalDriver/DcGeneral/Panel/BaseSortElement.php',
+	'DcGeneral\Panel\BaseSearchElement'             => 'system/modules/generalDriver/DcGeneral/Panel/BaseSearchElement.php',
+	'DcGeneral\Panel\BaseLimitElement'              => 'system/modules/generalDriver/DcGeneral/Panel/BaseLimitElement.php',
+	'DcGeneral\Panel\BasePanel'                     => 'system/modules/generalDriver/DcGeneral/Panel/BasePanel.php',
+	'DcGeneral\Panel\Interfaces\Container'          => 'system/modules/generalDriver/DcGeneral/Panel/Interfaces/Container.php',
+	'DcGeneral\Panel\Interfaces\Element'            => 'system/modules/generalDriver/DcGeneral/Panel/Interfaces/Element.php',
+	'DcGeneral\Panel\Interfaces\FilterElement'      => 'system/modules/generalDriver/DcGeneral/Panel/Interfaces/FilterElement.php',
+	'DcGeneral\Panel\Interfaces\SortElement'        => 'system/modules/generalDriver/DcGeneral/Panel/Interfaces/SortElement.php',
+	'DcGeneral\Panel\Interfaces\SearchElement'      => 'system/modules/generalDriver/DcGeneral/Panel/Interfaces/SearchElement.php',
+	'DcGeneral\Panel\Interfaces\LimitElement'       => 'system/modules/generalDriver/DcGeneral/Panel/Interfaces/LimitElement.php',
+	'DcGeneral\Panel\Interfaces\Panel'              => 'system/modules/generalDriver/DcGeneral/Panel/Interfaces/Panel.php',
+	'DcGeneral\View\Interfaces\View'                => 'system/modules/generalDriver/DcGeneral/View/Interfaces/View.php',
+	'DcGeneral\View\View'                           => 'system/modules/generalDriver/DcGeneral/View/View.php',
+
+	// Backwards compatibility layer from here on.
+	'DC_General'                                    => 'system/modules/generalDriver/DC_General.php',
+	'DCGE'                                          => 'system/modules/generalDriver/DCGE.php',
+	'GeneralAjax'                                   => 'system/modules/generalDriver/GeneralAjax.php',
+	'GeneralAjax2X'                                 => 'system/modules/generalDriver/GeneralAjax2X.php',
+	'GeneralAjax3X'                                 => 'system/modules/generalDriver/GeneralAjax3X.php',
+	'GeneralCallbackDefault'                        => 'system/modules/generalDriver/GeneralCallbackDefault.php',
+	'GeneralCollectionDefault'                      => 'system/modules/generalDriver/GeneralCollectionDefault.php',
+	'GeneralControllerDefault'                      => 'system/modules/generalDriver/GeneralControllerDefault.php',
+	'GeneralDataConfigDefault'                      => 'system/modules/generalDriver/GeneralDataConfigDefault.php',
+	'GeneralDataDefault'                            => 'system/modules/generalDriver/GeneralDataDefault.php',
+	'GeneralDataMultiLanguageDefault'               => 'system/modules/generalDriver/GeneralDataMultiLanguageDefault.php',
+	'GeneralDataTableRowsAsRecords'                 => 'system/modules/generalDriver/GeneralDataTableRowsAsRecords.php',
+	'GeneralModelDefault'                           => 'system/modules/generalDriver/GeneralModelDefault.php',
+	'GeneralViewDefault'                            => 'system/modules/generalDriver/GeneralViewDefault.php',
+	'InterfaceGeneralCallback'                      => 'system/modules/generalDriver/InterfaceGeneralCallback.php',
+	'InterfaceGeneralCollection'                    => 'system/modules/generalDriver/InterfaceGeneralCollection.php',
+	'InterfaceGeneralController'                    => 'system/modules/generalDriver/InterfaceGeneralController.php',
+	'InterfaceGeneralData'                          => 'system/modules/generalDriver/InterfaceGeneralData.php',
+	'InterfaceGeneralDataConfig'                    => 'system/modules/generalDriver/InterfaceGeneralDataConfig.php',
+	'InterfaceGeneralDataMultiLanguage'             => 'system/modules/generalDriver/InterfaceGeneralDataMultiLanguage.php',
+	'InterfaceGeneralModel'                         => 'system/modules/generalDriver/InterfaceGeneralModel.php',
+	'InterfaceGeneralView'                          => 'system/modules/generalDriver/InterfaceGeneralView.php',
+	'WidgetAccessor'                                => 'system/modules/generalDriver/WidgetAccessor.php',
+
 ));
 
 
@@ -51,6 +99,10 @@ TemplateLoader::addFiles(array
 	'dcbe_general_listView'         => 'system/modules/generalDriver/templates',
 	'dcbe_general_listView_sorting' => 'system/modules/generalDriver/templates',
 	'dcbe_general_panel'            => 'system/modules/generalDriver/templates',
+	'dcbe_general_panel_filter'     => 'system/modules/generalDriver/templates',
+	'dcbe_general_panel_limit'      => 'system/modules/generalDriver/templates',
+	'dcbe_general_panel_search'     => 'system/modules/generalDriver/templates',
+	'dcbe_general_panel_sort'       => 'system/modules/generalDriver/templates',
 	'dcbe_general_parentView'       => 'system/modules/generalDriver/templates',
 	'dcbe_general_show'             => 'system/modules/generalDriver/templates',
 	'dcbe_general_treeview'         => 'system/modules/generalDriver/templates',

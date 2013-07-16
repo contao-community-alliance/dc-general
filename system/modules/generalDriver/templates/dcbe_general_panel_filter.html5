@@ -1,0 +1,13 @@
+<div class="tl_filter tl_subpanel">
+	<strong><?php echo $GLOBALS['TL_LANG']['MSC']['filter']; ?>:</strong>
+	<?php $i=0; foreach ($arrPanel as $strField => $mixedValue): ?>
+		<?php if ($i++%6 == 0): ?>
+			<br />
+		<?php endif; ?>
+			<select name="<?php echo $mixedValue['select']['name']; ?>" id="<?php echo $mixedValue['select']['id']; ?>" class="<?php echo $mixedValue['select']['class']; ?>">
+				<?php foreach ($mixedValue['option'] as $arrOption): ?>
+					<option value="<?php echo $arrOption['value']; ?>"<?php echo $arrOption['select']; ?>><?php echo $arrOption['content']; ?></option>
+				<?php endforeach; ?>
+			</select>
+	<?php endforeach; ?>
+</div>

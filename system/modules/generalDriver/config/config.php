@@ -10,11 +10,6 @@
  */
 
 /**
- * Hooks 
- */
-$GLOBALS['TL_HOOKS']['executePostActions'][] = array('GeneralAjax', 'hookExecutePostActions');
-
-/**
  * JS
  */
 if(TL_MODE == 'BE')

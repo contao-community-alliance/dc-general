@@ -1,5 +1,5 @@
 <li class="parent" id="<?php echo $this->strToggleID; ?>">
-    <ul class="level_<?php echo $this->objParentModel->getMeta(DCGE::TREE_VIEW_LEVEL); ?>">
+    <ul class="level_<?php echo $this->objParentModel->getMeta(\DcGeneral\Data\DCGE::TREE_VIEW_LEVEL); ?>">
         <?php echo $this->strHTML; ?>
     </ul>
 </li>

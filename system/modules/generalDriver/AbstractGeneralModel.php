@@ -1,43 +1,13 @@
 <?php
-
 /**
  * PHP version 5
  * @package    generalDriver
- * @author     Stefan Heimes <cms@men-at-work.de>
+ * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
  */
 
-abstract class AbstractGeneralModel implements InterfaceGeneralModel
-{
-	/**
-	 * A list with all meta information.
-	 *
-	 * @var array
-	 */
-	protected $arrMetaInformation = array();
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getMeta($strMetaName)
-	{
-		if (isset($this->arrMetaInformation[$strMetaName]))
-		{
-			return $this->arrMetaInformation[$strMetaName];
-		}
-		else
-		{
-			return null;
-		}
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setMeta($strMetaName, $varValue)
-	{
-		$this->arrMetaInformation[$strMetaName] = $varValue;
-	}
-}
+trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
+class_alias('DcGeneral\Data\AbstractModel', 'AbstractGeneralModel');
