@@ -67,7 +67,7 @@ class BaseFilterElement extends AbstractElement implements FilterElement
 			$arrValue[$this->getDataContainer()->getName()] = array();
 		}
 
-		if ($strValue)
+		if ((!is_null($arrValue)) && ($strValue != 'tl_' . $this->getPropertyName()))
 		{
 			$arrValue[$this->getDataContainer()->getName()][$this->getPropertyName()] = $strValue;
 		}
@@ -76,7 +76,7 @@ class BaseFilterElement extends AbstractElement implements FilterElement
 			unset($arrValue[$this->getDataContainer()->getName()][$this->getPropertyName()]);
 		}
 
-		$this->getInputProvider()->setPersistentValue('search', $arrValue);
+		$this->getInputProvider()->setPersistentValue('filter', $arrValue);
 	}
 
 	/**
@@ -93,13 +93,11 @@ class BaseFilterElement extends AbstractElement implements FilterElement
 
 			$this->setPersistent($value);
 		}
-		elseif ($input->hasPersistentValue('tl_sort'))
+
+		if ($input->hasPersistentValue('filter'))
 		{
 			$persistent = $this->getPersistent();
-			if ($persistent)
-			{
-				$value = $persistent;
-			}
+			$value = $persistent;
 		}
 
 		if (!is_null($value))
@@ -119,15 +117,13 @@ class BaseFilterElement extends AbstractElement implements FilterElement
 				$arrCurrent,
 				array(
 					array(
-/*						'operation' => 'AND',
+						'operation' => 'AND',
+						// FIXME: change childs to children
 						'childs' => array(array(
-*/
 							'operation' => '=',
 							'property' => $this->getPropertyName(),
 							'value' => $this->getValue()
-/*
 						))
-*/
 					)
 				)
 			));
@@ -152,7 +148,9 @@ class BaseFilterElement extends AbstractElement implements FilterElement
 			 */
 			foreach ($objFilterOptions as $objOption)
 			{
-				$arrOptions[] = $objOption->getProperty($this->getPropertyName());
+				$optionValue = $objOption->getProperty($this->getPropertyName());
+
+				$arrOptions[$optionValue] = $optionValue;
 			}
 			$this->arrfilterOptions = $arrOptions;
 		}
@@ -167,11 +165,11 @@ class BaseFilterElement extends AbstractElement implements FilterElement
 
 		$arrOptions = array(
 			array(
-				'value' => 'tl_' . $this->getPropertyName(),
+				'value'   => 'tl_' . $this->getPropertyName(),
 				'content' => (is_array($arrLabel) ? $arrLabel[0] : $arrLabel)
 			),
 			array(
-				'value' => 'tl_' . $this->getPropertyName(),
+				'value'   => 'tl_' . $this->getPropertyName(),
 				'content' => '---'
 			)
 		);
@@ -188,7 +186,7 @@ class BaseFilterElement extends AbstractElement implements FilterElement
 
 		$objTemplate->name    = $this->getPropertyName();
 		$objTemplate->id      = $this->getPropertyName();
-		$objTemplate->class   = 'tl_select' . (is_null($this->getValue()) ? ' active' : '');
+		$objTemplate->class   = 'tl_select' . (!is_null($this->getValue()) ? ' active' : '');
 		$objTemplate->options = $arrOptions;
 		$objTemplate->active  = $this->getValue();
 

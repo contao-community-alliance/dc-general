@@ -67,8 +67,15 @@ class BaseSearchElement extends AbstractElement implements SearchElement
 				$arrValue[$this->getDataContainer()->getName()] = array();
 			}
 
-			$arrValue[$this->getDataContainer()->getName()]['field'] = $strProperty;
-			$arrValue[$this->getDataContainer()->getName()]['value'] = $strValue;
+			if ($strValue)
+			{
+				$arrValue[$this->getDataContainer()->getName()]['field'] = $strProperty;
+				$arrValue[$this->getDataContainer()->getName()]['value'] = $strValue;
+			}
+			else
+			{
+				unset($arrValue[$this->getDataContainer()->getName()]);
+			}
 		}
 		else
 		{
@@ -104,11 +111,8 @@ class BaseSearchElement extends AbstractElement implements SearchElement
 			}
 		}
 
-		if (!is_null($value))
-		{
-			$this->setSelectedProperty($field);
-			$this->setValue($value);
-		}
+		$this->setSelectedProperty($field);
+		$this->setValue($value);
 
 		if (!($this->getSelectedProperty() && $this->getValue()))
 		{
@@ -125,17 +129,13 @@ class BaseSearchElement extends AbstractElement implements SearchElement
 			$arrCurrent,
 			array(
 				array(
-/*
 					'operation' => 'AND',
 					// FIXME: change childs to children
 					'childs' => array(array(
-*/
 						'operation' => 'LIKE',
 						'property' => $this->getSelectedProperty(),
 						'value' => sprintf('*%s*', $this->getValue())
-/*
 					))
-*/
 				)
 			)
 		));
@@ -155,11 +155,11 @@ class BaseSearchElement extends AbstractElement implements SearchElement
 			(
 				'value'      => $field,
 				'content'    => is_array($arrLabel) ? $arrLabel[0] : $arrLabel,
-				'attributes' => ($field == $this->getValue()) ? ' selected="selected"' : ''
+				'attributes' => ($field == $this->getSelectedProperty()) ? ' selected="selected"' : ''
 			);
 		}
 
-		$objTemplate->class   = 'tl_select' . (is_null($this->getValue()) ? ' active' : '');
+		$objTemplate->class   = 'tl_select' . (!is_null($this->getValue()) ? ' active' : '');
 		$objTemplate->options = $arrOptions;
 		$objTemplate->value  = $this->getValue();
 

@@ -95,10 +95,10 @@ class Container implements ContainerInterface
 		$arrPanels = explode(';', $this->getFromDca('list/sorting/panelLayout'));
 		foreach ($arrPanels as $key => $strValue)
 		{
-			$arrPanels[$key] = explode(',', $strValue);
+			$arrPanels[$key] = array_filter(explode(',', $strValue));
 		}
 
-		return $arrPanels;
+		return array_filter($arrPanels);
 	}
 
 	/**
