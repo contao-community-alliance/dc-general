@@ -751,7 +751,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 					if (isset($_POST["save"]))
 					{
 						// process input and update changed properties.
-						if ($this->doSave($this->getDC()) !== false)
+						if ($this->doSave() !== false)
 						{
 							$this->reload();
 						}
@@ -759,7 +759,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 					else if (isset($_POST["saveNclose"]))
 					{
 						// process input and update changed properties.
-						if ($this->doSave($this->getDC()) !== false)
+						if ($this->doSave() !== false)
 						{
 							setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
@@ -1015,7 +1015,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 					if (isset($_POST["save"]))
 					{
 						// process input and update changed properties.
-						if (($objModell = $this->doSave($this->getDC())) !== false)
+						if (($objModell = $this->doSave()) !== false)
 						{
 							// Callback
 							$this->getDC()->getCallbackClass()->oncreateCallback($objDBModel->getID(), $objDBModel->getPropertiesAsArray());
@@ -1028,7 +1028,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 					else if (isset($_POST["saveNclose"]))
 					{
 						// process input and update changed properties.
-						if (($objModell = $this->doSave($this->getDC())) !== false)
+						if (($objModell = $this->doSave()) !== false)
 						{
 							setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
@@ -1216,7 +1216,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			if (isset($_POST["save"]))
 			{
 				// process input and update changed properties.
-				if ($this->doSave($this->getDC()) !== false)
+				if ($this->doSave() !== false)
 				{
 					$this->reload();
 				}
@@ -1224,7 +1224,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			else if (isset($_POST["saveNclose"]))
 			{
 				// process input and update changed properties.
-				if ($this->doSave($this->getDC()) !== false)
+				if ($this->doSave() !== false)
 				{
 					setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
