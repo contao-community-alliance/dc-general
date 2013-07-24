@@ -51,6 +51,12 @@ class DC_General extends DataContainer implements editable, listable
 	 */
 	protected $arrDCA = null;
 
+	/**
+	 * Force the edit mode.
+	 * @var boolean 
+	 */
+	protected $blnForceEdit = false;
+
 	// Core Objects ----------------
 
 	/**
@@ -344,7 +350,14 @@ class DC_General extends DataContainer implements editable, listable
 		// Load
 		$this->checkPostGet();
 		$this->loadProviderAndHandler();
-		
+
+		// Check for forcemode
+		if ($this->arrDCA['config']['forceEdit'])
+		{
+			$this->blnForceEdit = true;
+			$this->intId        = 1;
+		}
+
 		// SH: We need the buttons here, because the onloadCallback is (the only) one 
 		// to remove buttons.
 		$this->loadDefaultButtons();
@@ -2296,6 +2309,12 @@ class DC_General extends DataContainer implements editable, listable
 
 	public function create()
 	{
+		// If forcemode true, use edit mode only.
+		if($this->blnForceEdit)
+		{
+			return $this->edit();
+		}
+
 		$strReturn = $this->objController->create();
 		if ($strReturn != null && $strReturn != "")
 		{
@@ -2353,6 +2372,12 @@ class DC_General extends DataContainer implements editable, listable
 
 	public function show()
 	{
+		// If forcemode true, use edit mode only.
+		if($this->blnForceEdit)
+		{
+			return $this->edit();
+		}
+
 		$strReturn = $this->objController->show();
 		if ($strReturn != null && $strReturn != "")
 		{
@@ -2365,6 +2390,12 @@ class DC_General extends DataContainer implements editable, listable
 
 	public function showAll()
 	{
+		// If forcemode true, use edit mode only.
+		if($this->blnForceEdit)
+		{
+			return $this->edit();
+		}
+
 		$strReturn = $this->objController->showAll();
 		if ($strReturn != null && $strReturn != "")
 		{
