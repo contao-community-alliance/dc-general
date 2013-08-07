@@ -11,10 +11,10 @@
 
 namespace DcGeneral;
 
-use DcGeneral\Contao\InputProvider;
-use DcGeneral\DataDefinition\Interfaces\Container;
 use DcGeneral\Callbacks\Callbacks as DefaultCallback;
 use DcGeneral\Callbacks\Interfaces\Callbacks;
+use DcGeneral\Clipboard\BaseClipboard;
+use DcGeneral\Contao\InputProvider;
 use DcGeneral\Controller\Controller as DefaultController;
 use DcGeneral\Controller\Interfaces\Controller;
 use DcGeneral\Data\DCGE;
@@ -23,7 +23,8 @@ use DcGeneral\Data\Interfaces\Collection;
 use DcGeneral\Data\Interfaces\Driver;
 use DcGeneral\Data\Interfaces\Model;
 use DcGeneral\Helper\WidgetAccessor;
-use DcGeneral\Panel\Interfaces\Container as PanelContainer;
+use DcGeneral\Interfaces\Environment;
+use DcGeneral\BaseEnvironment;
 use DcGeneral\View\View as DefaultView;
 use DcGeneral\View\Interfaces\View;
 
@@ -37,6 +38,11 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 
 
 	// Basic Vars ------------------
+
+	/**
+	 * @var Environment
+	 */
+	protected $objEnvironment;
 
 	/**
 	 * Id of the item currently in edit view
@@ -68,13 +74,6 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 	 */
 	protected $arrDCA = null;
 
-	/**
-	 * The data container definition.
-	 *
-	 * @var Container
-	 */
-	protected $objContainer;
-
 	// Core Objects ----------------
 
 	/**
@@ -100,12 +99,6 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 	 * @var Controller
 	 */
 	protected $objController = null;
-
-	/**
-	 * The class with all Callbacks
-	 * @var Callbacks
-	 */
-	protected $objCallbackClass = null;
 
 	/**
 	 * The child DC
@@ -141,32 +134,6 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 	 */
 	protected $arrPanelView = null;
 
-	/**
-	 * Container for panel information
-	 * @var PanelContainer
-	 */
-	protected $objPanelInformation;
-
-	// Current Values ---------------
-
-	/**
-	 * Current model
-	 * @var Model
-	 */
-	protected $objCurrentModel = null;
-
-	/**
-	 * Current collection
-	 * @var Collection
-	 */
-	protected $objCurrentCollection = null;
-
-	/**
-	 * Clipboard informations
-	 * @var array
-	 */
-	protected $arrClipboard = array();
-
 	// Submitting ------------------
 
 	/**
@@ -198,14 +165,6 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 	 * @var boolean
 	 */
 	protected $blnSelectSubmit = false;
-
-	// States ----------------------
-
-	/**
-	 * State of clipboard
-	 * @var boolean
-	 */
-	protected $blnClipboard = false;
 
 	// Debug -----------------------
 
@@ -342,17 +301,12 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 			$this->arrDCA = &$GLOBALS['TL_DCA'][$this->strTable];
 		}
 
-		$this->objContainer = new Contao\Dca\Container($this->strTable, $this->arrDCA);
-
-		// Check whether the table is defined
-		if (!strlen($this->strTable) || !count($this->arrDCA))
-		{
-			$this->log('Could not load data container configuration for "' . $strTable . '"', 'DC_Table __construct()', TL_ERROR);
-			trigger_error('Could not load data container configuration', E_USER_ERROR);
-		}
-
-		// TODO: make inputprovider configurable.
-		$this->objInputProvider = new InputProvider();
+		$this->objEnvironment = new BaseEnvironment();
+		$this->getEnvironment()
+			->setDataDefinition(new Contao\Dca\Container($this->strTable, $this->arrDCA))
+			// TODO: make inputprovider configurable somehow - unsure how though.
+			->setInputProvider(new InputProvider())
+			->setClipboard(new BaseClipboard());
 
 		// Import
 		// FIXME: WTF? WHY?
@@ -382,8 +336,12 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 		// Callback
 		if ($blnOnloadCallback == true)
 		{
-			$this->objCallbackClass->onloadCallback($strTable);
+			$this->getEnvironment()->getCallbackHandler()->onloadCallback($strTable);
 		}
+
+		// Load the clipboard.
+		$this->getEnvironment()->getClipboard()
+			->loadFrom($this->getEnvironment());
 
 		// execute AJAX request, called from Backend::getBackendModule
 		// we have to do this here, as otherwise the script will exit as it only checks for DC_Table and DC_File decendant classes. :/
@@ -580,17 +538,11 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 	 */
 	protected function loadCallbackClass()
 	{
-		// Load callback class
-		if (isset($this->arrDCA['dca_config']['callback']))
-		{
-			$this->objCallbackClass = new $this->arrDCA['dca_config']['callback']();
-		}
-		else
-		{
-			$this->objCallbackClass = new DefaultCallback();
-		}
-
-		$this->objCallbackClass->setDC($this);
+		$strCallbackHandler = $this->getEnvironment()->getDataDefinition()->getCallbackProviderClass();
+		$this->getEnvironment()
+			->setCallbackHandler(new $strCallbackHandler())
+			->getCallbackHandler()
+				->setDC($this);
 	}
 
 	/**
@@ -660,6 +612,15 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 
 	// Magical Functions --------------------
 
+	/**
+	 * @param string $name
+	 *
+	 * @return array|int|mixed|null|String
+	 *
+	 * @throws \RuntimeException
+	 *
+	 * @deprecated magic access is deprecated.
+	 */
 	public function __get($name)
 	{
 		// TODO: we should get rid of all of this when finally dropping the final BC parts.
@@ -732,36 +693,6 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 		return $this->blnSelectSubmit;
 	}
 
-	public function isClipboard()
-	{
-		return $this->blnClipboard;
-	}
-
-	/**
-	 * Check if this DCA is editable
-	 *
-	 * @return boolean
-	 */
-	public function isEditable()
-	{
-		return !$this->arrDCA['config']['notEditable'];
-	}
-
-	/**
-	 * Check if this DCA is closed
-	 *
-	 * @return boolean
-	 */
-	public function isClosed()
-	{
-		return $this->arrDCA['config']['closed'];
-	}
-
-	public function setClipboardState($blnState)
-	{
-		$this->blnClipboard = ($blnState == 1 || $blnState == true) ? true : false;
-	}
-
 	// MVC ----------------------------------
 
 	public function getName()
@@ -818,12 +749,17 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 		return $this->arrDataProvider[$strSource];
 	}
 
+	public function getEnvironment()
+	{
+		return $this->objEnvironment;
+	}
+
 	/**
 	 * {@inheritdoc}
 	 */
 	public function getInputProvider()
 	{
-		return $this->objInputProvider;
+		return $this->getEnvironment()->getInputProvider();
 	}
 
 	/**
@@ -831,7 +767,7 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 	 */
 	public function getDataDefinition()
 	{
-		return $this->objContainer;
+		return $this->getEnvironment()->getDataDefinition();
 	}
 
 	/**
@@ -839,34 +775,27 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 	 */
 	public function getPanelInformation()
 	{
-		return $this->objPanelInformation;
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setPanelInformation($objPanelInformation)
-	{
-		$this->objPanelInformation = $objPanelInformation;
+		return $this->getEnvironment()->getPanelContainer();
 	}
 
 	public function getViewHandler()
 	{
-		return $this->objViewHandler;
+		return $this->getEnvironment()->getView();
 	}
 
 	public function setViewHandler($objViewHandler)
 	{
-		$this->objViewHandler = $objViewHandler;
+		$this->getEnvironment()->setView($objViewHandler);
 	}
 
 	/**
 	 * Get the callback class for this dc
-	 * @return Callbacks
+	 *
+	 * @deprecated
 	 */
 	public function getCallbackClass()
 	{
-		return $this->objCallbackClass;
+		return $this->getEnvironment()->getCallbackHandler();
 	}
 
 	public function getControllerHandler()
@@ -877,18 +806,6 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 	public function setControllerHandler($objController)
 	{
 		$this->objController = $objController;
-	}
-
-	// Current Values -----------------------
-
-	public function getClipboard()
-	{
-		return $this->arrClipboard;
-	}
-
-	public function setClipboard($arrClipboard)
-	{
-		$this->arrClipboard = $arrClipboard;
 	}
 
 	// Join Conditions & Co. ----------------
@@ -1024,38 +941,6 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 			);
 		}
 
-		return $arrReturn;
-	}
-
-	/**
-	 * Get the definition of a root entry filter
-	 *
-	 * @todo @SH: Add a callback here
-	 *
-	 * @return array
-	 */
-	public function getRootConditions($strTable)
-	{
-		if ($strTable == $this->getTable())
-		{
-			$strTable = 'self';
-		}
-		$arrReturn = array();
-		// parse the condition into valid filter rules.
-		$arrFilters = $this->arrDCA['dca_config']['rootEntries'][$strTable]['filter'];
-		if ($arrFilters)
-		{
-			$arrReturn = $arrFilters;
-		}
-		else
-		{
-			$arrReturn[] = array
-				(
-				'property' => 'pid',
-				'operation' => '=',
-				'value' => 0
-			);
-		}
 		return $arrReturn;
 	}
 
@@ -1321,16 +1206,6 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 		$this->arrRootIds = $arrRootIds;
 	}
 
-	public function setPanelView($arrPanelView)
-	{
-		$this->arrPanelView = $arrPanelView;
-	}
-
-	public function getPanelView()
-	{
-		return $this->arrPanelView;
-	}
-
 	public function setFilter($arrFilter)
 	{
 		if (is_array($this->arrFilter))
@@ -1343,14 +1218,33 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 		}
 	}
 
-	public function setLimit($strLimit)
-	{
-		$this->strLimit = $strLimit;
-	}
-
 	public function setButtonId($strButtonId)
 	{
 		$this->strButtonId = $strButtonId;
+	}
+
+	/**
+	 * Check if this DCA is editable
+	 *
+	 * @return boolean
+	 *
+	 * @deprecated Use getDataDefinition()->isEditable()
+	 */
+	public function isEditable()
+	{
+		return $this->getDataDefinition()->isEditable();
+	}
+
+	/**
+	 * Check if this DCA is closed
+	 *
+	 * @return boolean
+	 *
+	 * @deprecated Use getDataDefinition()->isClosed()
+	 */
+	public function isClosed()
+	{
+		return $this->getDataDefinition()->isClosed();
 	}
 
 	/**
@@ -1368,10 +1262,13 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 	/**
 	 *
 	 * @return Collection
+	 *
+	 * @deprecated
 	 */
 	public function getCurrentCollection()
 	{
-		return $this->objCurrentCollection;
+		trigger_error('deprecated ' . __METHOD__, E_USER_DEPRECATED);
+		return $this->getEnvironment()->getCurrentCollection();
 	}
 
 	/**
@@ -1386,10 +1283,13 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 	/**
 	 *
 	 * @return Model
+	 *
+	 * @deprecated
 	 */
 	public function getCurrentModel()
 	{
-		return $this->objCurrentModel;
+		trigger_error('deprecated ' . __METHOD__, E_USER_DEPRECATED);
+		return $this->getEnvironment()->getCurrentModel();
 	}
 
 	/**
@@ -1417,19 +1317,25 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 	 * @param Collection $objCurrentCollection
 	 *
 	 * @return void
+	 *
+	 * @deprecated
 	 */
 	public function setCurrentCollection(Collection $objCurrentCollection)
 	{
-		$this->objCurrentCollection = $objCurrentCollection;
+		trigger_error('deprecated ' . __METHOD__, E_USER_DEPRECATED);
+		$this->getEnvironment()->setCurrentCollection($objCurrentCollection);
 	}
 
 	/**
 	 *
 	 * @param Model $objCurrentModel
+	 *
+	 * @deprecated
 	 */
 	public function setCurrentModel(Model $objCurrentModel)
 	{
-		$this->objCurrentModel = $objCurrentModel;
+		trigger_error('deprecated ' . __METHOD__, E_USER_DEPRECATED);
+		return $this->getEnvironment()->setCurrentModel($objCurrentModel);
 	}
 
 	/**
@@ -1444,10 +1350,10 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 		foreach (array_keys($this->getFieldList()) as $strKey)
 		{
 			$varNewValue = $this->processInput($strKey);
-			if (($varNewValue !== NULL) && ($this->objCurrentModel->getProperty($strKey) !== $varNewValue))
+			if (($varNewValue !== NULL) && ($this->getEnvironment()->getCurrentModel()->getProperty($strKey) !== $varNewValue))
 			{
-				$this->objCurrentModel->setProperty($strKey, $varNewValue);
-				$this->objCurrentModel->setMeta(DCGE::MODEL_IS_CHANGED, true);
+				$this->getEnvironment()->getCurrentModel()->setProperty($strKey, $varNewValue);
+				$this->getEnvironment()->getCurrentModel()->setMeta(DCGE::MODEL_IS_CHANGED, true);
 			}
 		}
 
@@ -1464,11 +1370,11 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 				{
 					if ($arrSetOn['from_field'])
 					{
-						$this->objCurrentModel->setProperty($arrSetOn['to_field'], $objParentModel->getProperty($arrSetOn['from_field']));
+						$this->getEnvironment()->getCurrentModel()->setProperty($arrSetOn['to_field'], $objParentModel->getProperty($arrSetOn['from_field']));
 					}
 					else
 					{
-						$this->objCurrentModel->setProperty($arrSetOn['to_field'], $arrSetOn['value']);
+						$this->getEnvironment()->getCurrentModel()->setProperty($arrSetOn['to_field'], $arrSetOn['value']);
 					}
 				}
 			}
@@ -1744,10 +1650,10 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 		$this->strInputName = $strInputName;
 
 		/* $arrConfig['eval']['encrypt'] ? $this->Encryption->decrypt($this->objActiveRecord->$strField) : */
-		$varValue = deserialize($this->objCurrentModel->getProperty($strField));
+		$varValue = deserialize($this->getEnvironment()->getCurrentModel()->getProperty($strField));
 
 		// Load Callback
-		$mixedValue = $this->objCallbackClass->loadCallback($strField, $varValue);
+		$mixedValue = $this->getEnvironment()->getCallbackHandler()->loadCallback($strField, $varValue);
 
 		if (!is_null($mixedValue))
 		{
@@ -1810,7 +1716,7 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 		}
 
 		// OH: xlabel, wizard: two ways to rome? wizards are the better way I think
-		$objWidget->wizard = implode('', $this->objCallbackClass->executeCallbacks($arrConfig['wizard'], $this));
+		$objWidget->wizard = implode('', $this->getEnvironment()->getCallbackHandler()->executeCallbacks($arrConfig['wizard'], $this));
 
 		return $this->arrWidgets[$strField] = $objWidget;
 	}
@@ -1888,7 +1794,7 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 
 		if (!$objWidget->submitInput())
 		{
-			return $this->arrProcessed[$strField] = $this->objCurrentModel->getProperty($strField);
+			return $this->arrProcessed[$strField] = $this->getEnvironment()->getCurrentModel()->getProperty($strField);
 		}
 
 		// Get value and config
@@ -1943,7 +1849,7 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 		// Call the save callbacks
 		try
 		{
-			$varNew = $this->objCallbackClass->saveCallback($arrConfig, $varNew);
+			$varNew = $this->getEnvironment()->getCallbackHandler()->saveCallback($arrConfig, $varNew);
 		}
 		catch (\Exception $e)
 		{
@@ -1966,7 +1872,7 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 			{
 				$varNew = $this->Encryption->encrypt(is_array($varNew) ? serialize($varNew) : $varNew);
 			}
-			else if ($arrConfig['eval']['unique'] && !$this->getDataProvider($this->objCurrentModel->getProviderName())->isUniqueValue($strField, $varNew, $this->objCurrentModel->getID()))
+			else if ($arrConfig['eval']['unique'] && !$this->getDataProvider($this->getEnvironment()->getCurrentModel()->getProviderName())->isUniqueValue($strField, $varNew, $this->getEnvironment()->getCurrentModel()->getID()))
 			{
 				$this->blnNoReload = true;
 				$objWidget->addError(sprintf($GLOBALS['TL_LANG']['ERR']['unique'], $objWidget->label));
@@ -1974,7 +1880,7 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 			}
 			else if ($arrConfig['eval']['fallback'])
 			{
-				$this->getDataProvider($this->objCurrentModel->getProviderName())->resetFallback($strField);
+				$this->getDataProvider($this->getEnvironment()->getCurrentModel()->getProviderName())->resetFallback($strField);
 			}
 		}
 
@@ -2115,7 +2021,7 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 		{
 			if (!isset($lookup[$field]))
 			{
-				$lookup[$field] = $this->objCallbackClass->optionsCallback($field);
+				$lookup[$field] = $this->getEnvironment()->getCallbackHandler()->optionsCallback($field);
 			}
 
 			$group = $lookup[$field][$value];
@@ -2140,7 +2046,7 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 			}
 		}
 
-		$group = $this->objCallbackClass->groupCallback($group, $mode, $field, $objModelRow->getPropertiesAsArray());
+		$group = $this->getEnvironment()->getCallbackHandler()->groupCallback($group, $mode, $field, $objModelRow->getPropertiesAsArray());
 
 		return $group;
 	}
@@ -2270,7 +2176,7 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 
 		// Load the config for current field
 		$arrFieldConfig = $this->arrDCA['fields'][$strFieldName];
-		$mixModelField = $this->objCurrentModel->getProperty($strFieldName);
+		$mixModelField = $this->getEnvironment()->getCurrentModel()->getProperty($strFieldName);
 
 		/*
 		 * @todo Maybe the controlle should handle this ?
@@ -2365,6 +2271,11 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 		}
 
 		return call_user_func_array(array($this->objViewHandler, $name), array_merge(array($this), $arguments));
+	}
+
+	public function paste()
+	{
+		return call_user_func_array(array($this->objViewHandler, 'paste'), func_get_args());
 	}
 
 	public function generateAjaxPalette($strSelector)

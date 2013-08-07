@@ -60,7 +60,7 @@ class BaseSearchElement extends AbstractElement implements SearchElement
 			$arrValue = $this->getInputProvider()->getPersistentValue('search');
 		}
 
-		if ($strValue)
+		if (!empty($strValue))
 		{
 			if (!is_array($arrValue[$this->getDataContainer()->getName()]))
 			{

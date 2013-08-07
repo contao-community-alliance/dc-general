@@ -113,14 +113,7 @@ class Callbacks extends \System implements CallbackInterface
 
 			$this->import($strClass);
 
-			if (version_compare(VERSION, '2.10', '>'))
-			{
-				return $this->$strClass->$strMethod($objModelRow->getPropertiesAsArray(), $mixedLabel, $this->objDC, $args);
-			}
-			else
-			{
-				return $this->$strClass->$strMethod($objModelRow->getPropertiesAsArray(), $mixedLabel, $this->objDC);
-			}
+			return $this->$strClass->$strMethod($objModelRow->getPropertiesAsArray(), $mixedLabel, $this->objDC, $args);
 		}
 
 		return null;
@@ -157,16 +150,41 @@ class Callbacks extends \System implements CallbackInterface
 	 */
 	public function buttonCallback($objModelRow, $arrOperation, $strLabel, $strTitle, $arrAttributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext)
 	{
-		// Check Callback
-		if (is_array($arrOperation['button_callback']))
+		if (is_a($arrOperation, '\DcGeneral\DataDefinition\Interfaces\Operation'))
 		{
-			$strClass = $arrOperation['button_callback'][0];
-			$strMethod = $arrOperation['button_callback'][1];
+			/** @var \DcGeneral\DataDefinition\Interfaces\Operation $arrOperation */
+			$strHref     = $arrOperation->getHref();
+			$strIcon     = $arrOperation->getIcon();
+			$arrCallback = $arrOperation->getCallback();
+		}
+		else
+		{
+			$strHref     = $arrOperation['href'];
+			$strIcon     = $arrOperation['icon'];
+			$arrCallback = $arrOperation['button_callback'];
+		}
+
+		// Check Callback.
+		if (is_array($arrCallback))
+		{
+			$strClass = $arrCallback[0];
+			$strMethod = $arrCallback[1];
 
 			$this->import($strClass);
 
 			return $this->$strClass->$strMethod(
-				$objModelRow->getPropertiesAsArray(), $arrOperation['href'], $strLabel, $strTitle, $arrOperation['icon'], $arrAttributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext
+				$objModelRow->getPropertiesAsArray(),
+				$strHref,
+				$strLabel,
+				$strTitle,
+				$strIcon,
+				$arrAttributes,
+				$strTable,
+				$arrRootIds,
+				$arrChildRecordIds,
+				$blnCircularReference,
+				$strPrevious,
+				$strNext
 			);
 		}
 
@@ -208,9 +226,6 @@ class Callbacks extends \System implements CallbackInterface
 
 	/**
 	 * Call the button callback for the paste operations
-	 * TODO: this should be included in the interface when the signature has been finished.
-	 *
-	 * @param DataContainer $dc       DataContainer or DC_General FIXME: why is $dc here? we already have $this->objDC
 	 *
 	 * @param array         $row      Array with current data
 	 *
@@ -226,7 +241,7 @@ class Callbacks extends \System implements CallbackInterface
 	 *
 	 * @return string
 	 */
-	public function pasteButtonCallback($dc, $row, $table, $cr, $childs, $previous, $next)
+	public function pasteButtonCallback($row, $table, $cr, $childs, $previous, $next)
 	{
 		// Load DCA
 		$arrDCA = $this->objDC->getDCA();
@@ -238,7 +253,7 @@ class Callbacks extends \System implements CallbackInterface
 			$strMethod = $arrDCA['list']['sorting']['paste_button_callback'][1];
 
 			$this->import($strClass);
-			return $this->$strClass->$strMethod($dc, $row, $table, $cr, $childs, $previous, $next);
+			return $this->$strClass->$strMethod($this->objDC, $row, $table, $cr, $childs, $previous, $next);
 		}
 
 		return false;
