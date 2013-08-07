@@ -135,6 +135,14 @@ class Controller implements ControllerInterface
 	}
 
 	/**
+	 * @return \DcGeneral\Interfaces\Environment
+	 */
+	protected function getEnvironment()
+	{
+		return $this->getDC()->getEnvironment();
+	}
+
+	/**
 	 * Get filter for the data provider
 	 *
 	 * @todo Somtimes we don't need all filtersettings
@@ -206,122 +214,6 @@ class Controller implements ControllerInterface
 		// FIXME all panels write into $this->getDC()->setFilter() or setLimit.
 
 		return $this->getDC()->getFilter();
-	}
-
-	/**
-	 * Get limit for the data provider
-	 *
-	 * @return array
-	 */
-	protected function calculateLimit()
-	{
-		// Get the limit form the DCA
-		if (!is_null($this->getDC()->getLimit()))
-		{
-			return trimsplit(',', $this->getDC()->getLimit());
-		}
-
-		// TODO: dependency injection.
-		$arrSession = \Session::getInstance()->getData();
-		$strFilter = ($this->getDC()->arrDCA['list']['sorting']['mode'] == 4) ? $this->getDC()->getTable() . '_' . CURRENT_ID : $this->getDC()->getTable();
-
-		// Load from Session - Set all
-		if ($arrSession['filter'][$strFilter]['limit'] == 'all')
-		{
-			// Get max amount
-			$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()->setFilter($this->getFilter());
-			$intMax = $this->getDC()->getDataProvider()->getCount($objConfig);
-
-			$this->getDC()->setLimit("0,$intMax");
-		}
-		// Load from Session
-		else if (strlen($arrSession['filter'][$strFilter]['limit']) != 0)
-		{
-			$this->getDC()->setLimit($arrSession['filter'][$strFilter]['limit']);
-		}
-
-		// Check if the current limit is higher than the limit resultsPerPage
-		$arrLimit = trimsplit(",", $this->getDC()->getLimit());
-		$intMaxPerPage = $arrLimit[1] - $arrLimit[0];
-
-		if ($intMaxPerPage > $GLOBALS['TL_CONFIG']['resultsPerPage'] && $arrSession['filter'][$strFilter]['limit'] != 'all')
-		{
-			$this->getDC()->setLimit($arrLimit[0] . ', ' . ($arrLimit[0] + $GLOBALS['TL_CONFIG']['resultsPerPage']));
-		}
-
-		// Fallback and limit check
-		if (is_null($this->getDC()->getLimit()))
-		{
-			$this->getDC()->setLimit('0,' . $GLOBALS['TL_CONFIG']['resultsPerPage']);
-		}
-
-		return trimsplit(',', $this->getDC()->getLimit());
-	}
-
-	/**
-	 * Set the sorting and first sorting.
-	 * Use the default ones from DCA or the session values.
-	 *
-	 * @todo SH:CS: Add findInSet if we have the functions for foreignKey
-	 * @return void
-	 */
-	protected function establishSorting()
-	{
-		// Get sorting fields
-		$arrSortingFields = array();
-		foreach ($this->getDC()->arrDCA['fields'] as $k => $v)
-		{
-			if ($v['sorting'])
-			{
-				if (is_null($v['flag']))
-				{
-					$arrSortingFields[$k] = DCGE::MODEL_SORTING_ASC;
-				}
-				else
-				{
-					$arrSortingFields[$k] = $v['flag'] % 2 ? DCGE::MODEL_SORTING_ASC : DCGE::MODEL_SORTING_DESC;
-				}
-			}
-		}
-		$this->getDC()->setSorting(array_keys($arrSortingFields));
-
-		// Check if we have another sorting from session/panels
-		// TODO: dependency injection.
-		$arrSession = \Session::getInstance()->getData();
-		$strSessionSorting = preg_replace('/\s+.*$/i', '', strval($arrSession['sorting'][$this->getDC()->getTable()]));
-		if (isset($arrSortingFields[$strSessionSorting]))
-		{
-			$this->getDC()->setFirstSorting($strSessionSorting, $arrSortingFields[$strSessionSorting]);
-			return;
-		}
-
-		// Set default values from DCA
-		$arrSorting = (array) $this->getDC()->arrDCA['list']['sorting']['fields'];
-		$strFirstSorting = preg_replace('/\s+.*$/i', '', strval($arrSorting[0]));
-
-		if (!isset($this->getDC()->arrDCA['list']['sorting']['flag']))
-		{
-			$strFirstSortingOrder = DCGE::MODEL_SORTING_ASC;
-		}
-		else
-		{
-			$strFirstSortingOrder = $this->getDC()->arrDCA['list']['sorting']['flag'] % 2 ? DCGE::MODEL_SORTING_ASC : DCGE::MODEL_SORTING_DESC;
-		}
-
-		if (!strlen($strFirstSorting))
-		{
-			foreach (array('sorting', 'tstamp', 'pid', 'id') as $strField)
-			{
-				if ($this->getDC()->getDataProvider()->fieldExists($strField))
-				{
-					$strFirstSorting = $strField;
-					break;
-				}
-			}
-		}
-
-		$this->getDC()->setFirstSorting($strFirstSorting, $strFirstSortingOrder);
-		return;
 	}
 
 	/* /////////////////////////////////////////////////////////////////////
@@ -450,28 +342,51 @@ class Controller implements ControllerInterface
 	 * ////////////////////////////////////////////////////////////////// */
 
 	/**
-	 * Clear clipboard
-	 * @param boolean $blnRedirect True - redirect to home site
+	 * Scan for children.
+	 *
+	 * This method is ready for mixed hierarchy and will return all children and grandchildren for the given table
+	 * (or originating table of the model, if no provider name has been given) for all levels and parent child conditions.
+	 *
+	 * @param Model  $objModel        The model to assemble children from.
+	 *
+	 * @param string $strDataProvider The name of the data provider to fetch children from.
+	 *
+	 * @return array
 	 */
-	protected function resetClipboard($blnRedirect = false)
+	protected function assembleAllChildrenFromSame($objModel, $strDataProvider = '')
 	{
-		// Get clipboard
-		$arrClipboard = $this->loadClipboard();
-
-		$this->getDC()->setClipboardState(false);
-		unset($arrClipboard[$this->getDC()->getTable()]);
-
-		// Save
-		$this->saveClipboard($arrClipboard);
-
-		// Redirect
-		if ($blnRedirect == true)
+		if ($strDataProvider == '')
 		{
-			$this->redirectHome();
+			$strDataProvider = $objModel->getProviderName();
 		}
 
-		// Set DC state
-		$this->getDC()->setClipboardState(false);
+		$arrIds = array();
+
+		if ($strDataProvider == $objModel->getProviderName())
+		{
+			$arrIds = array($objModel->getId());
+		}
+
+		// Check all data providers for children of the given element.
+		foreach ($this->getEnvironment()->getDataDefinition()->getChildConditions($objModel->getProviderName()) as $objChildCondition)
+		{
+			$objDataProv = $this->getDC()->getDataProvider($objChildCondition->getDestinationName());
+			$objConfig   = $objDataProv->getEmptyConfig();
+			$objConfig->setFilter($objChildCondition->getFilter($objModel));
+
+			foreach ($objDataProv->fetchAll($objConfig) as $objChild)
+			{
+				/** @var Model $objChild */
+				if ($strDataProvider == $objChild->getProviderName())
+				{
+					$arrIds[] = $objChild->getId();
+				}
+
+				$arrIds = array_merge($arrIds, $this->assembleAllChildrenFromSame($objChild, $strDataProvider));
+			}
+		}
+
+		return $arrIds;
 	}
 
 	/**
@@ -479,101 +394,46 @@ class Controller implements ControllerInterface
 	 */
 	protected function checkClipboard()
 	{
-		$arrClipboard = $this->loadClipboard();
+		$objInput     = $this->getEnvironment()->getInputProvider();
+		$objClipboard = $this->getEnvironment()->getClipboard();
 
 		// Reset Clipboard
-		// FIXME: dependency injection.
-		if (\Input::getInstance()->get('clipboard') == '1')
+		if ($objInput->getParameter('clipboard') == '1')
 		{
-			$this->resetClipboard(true);
+			$objClipboard->clear();
 		}
-		// Add new entry
-		// FIXME: dependency injection.
-		else if (\Input::getInstance()->get('act') == 'paste')
+		// Push some entry into clipboard.
+		elseif ($objInput->getParameter('act') == 'paste')
 		{
-			$this->getDC()->setClipboardState(true);
+			$objDataProv  = $this->getDC()->getDataProvider();
+			$id           = $objInput->getParameter('id');
 
-			$arrClipboard[$this->getDC()->getTable()] = array(
-				'id' => $this->Input->get('id'),
-				'source' => $this->Input->get('source'),
-				'childs' => $this->Input->get('childs'),
-				'mode' => $this->Input->get('mode'),
-				'pdp' => $this->Input->get('pdp'),
-				'cdp' => $this->Input->get('cdp'),
-			);
-
-			// FIXME: dependency injection.
-			switch (\Input::getInstance()->get('mode'))
+			if ($objInput->getParameter('mode') == 'cut')
 			{
-				case 'cut':
-					// Id Array
-					$arrIDs = array();
-					// FIXME: dependency injection.
-					$arrIDs[] = \Input::getInstance()->get('source');
+				$arrIgnored = array($id);
 
-					switch ($this->arrDCA['list']['sorting']['mode'])
-					{
-						case 5:
-							// Run each id
-							for ($i = 0; $i < count($arrIDs); $i++)
-							{
-								// Get current model
-								$objCurrentConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
-								$objCurrentConfig->setId($arrIDs[$i]);
-								$objCurrentModel = $this->getDC()->getDataProvider()->fetch($objCurrentConfig);
-								// Get the join field
-								$arrJoinCondition = $this->getDC()->getChildCondition($objCurrentModel, 'self');
-								$objChildConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
-								$objChildConfig->setFilter($arrJoinCondition);
-								$objChildConfig->setIdOnly(true);
-								$objChildCollection = $this->getDC()->getDataProvider()->fetchAll($objChildConfig);
-								foreach ($objChildCollection as $key => $value)
-								{
-									if (!in_array($value, $arrIDs))
-									{
-										$arrIDs[] = $value;
-									}
-								}
-							}
-							break;
-					}
+				$objModel = $this->getDC()->getDataProvider()->fetch($objDataProv->getEmptyConfig()->setId($id));
 
-					$arrClipboard[$this->getDC()->getTable()]['ignoredIDs'] = $arrIDs;
+				// We have to ignore all children of this element in mode 5 (to prevent circular references).
+				if ($this->getEnvironment()->getDataDefinition()->getSortingMode() == 5)
+				{
+					$arrIgnored = $this->assembleAllChildrenFromSame($objModel);
+				}
 
-					break;
+				$objClipboard
+					->clear()
+					->cut($id)
+					->setCircularIds($arrIgnored);
 			}
-
-			$this->getDC()->setClipboard($arrClipboard[$this->getDC()->getTable()]);
 		}
-		// Check clipboard from session
-		else if (array_key_exists($this->getDC()->getTable(), $arrClipboard))
+		// Check clipboard from session.
+		else
 		{
-			$this->getDC()->setClipboardState(true);
-			$this->getDC()->setClipboard($arrClipboard[$this->getDC()->getTable()]);
+			$objClipboard->loadFrom($this->getEnvironment());
 		}
 
-		$this->saveClipboard($arrClipboard);
-	}
-
-	protected function loadClipboard()
-	{
-		// FIXME: dependency injection.
-		$arrClipboard = \Session::getInstance()->get('CLIPBOARD');
-		if (!is_array($arrClipboard))
-		{
-			$arrClipboard = array();
-		}
-
-		return $arrClipboard;
-	}
-
-	protected function saveClipboard($arrClipboard)
-	{
-		if (is_array($arrClipboard))
-		{
-			// FIXME: dependency injection.
-			\Session::getInstance()->set('CLIPBOARD', $arrClipboard);
-		}
+		// Let the clipboard save it's values persistent.
+		$objClipboard->saveTo($this->getEnvironment());
 	}
 
 	/* /////////////////////////////////////////////////////////////////////
@@ -609,17 +469,17 @@ class Controller implements ControllerInterface
 		$this->checkIsWritable();
 
 		// Get vars
-		$mixAfter = $this->Input->get('after');
-		$mixInto = $this->Input->get('into');
-		$intId = $this->Input->get('id');
-		$mixPid = $this->Input->get('pid');
-		$mixSource = $this->Input->get('source');
-		$strPDP = $this->Input->get('pdp');
-		$strCDP = $this->Input->get('cdp');
+		$mixAfter  = \Input::getInstance()->get('after');
+		$mixInto   = \Input::getInstance()->get('into');
+		$intId     = \Input::getInstance()->get('id');
+		$mixPid    = \Input::getInstance()->get('pid');
+		$mixSource = \Input::getInstance()->get('source');
+		$strPDP    = \Input::getInstance()->get('pdp');
+		$strCDP    = \Input::getInstance()->get('cdp');
 
 		// Deprecated
-		$intMode = $this->Input->get('mode');
-		$mixChild = $this->Input->get('child');
+		$intMode  = \Input::getInstance()->get('mode');
+		$mixChild = \Input::getInstance()->get('child');
 
 		// Check basic vars
 		if (empty($mixSource) || ( is_null($mixAfter) && is_null($mixInto) ) || empty($strCDP))
@@ -913,7 +773,7 @@ class Controller implements ControllerInterface
 		else if ($this->getDC()->arrDCA['list']['sorting']['mode'] == 4)
 		{
 			// check if the pid id/word is set
-			if ($this->Input->get('pid') == '')
+			if ($this->getEnvironment()->getInputProvider()->getParameter('pid') == '')
 			{
 				$this->log('Missing pid for new entry in ' . $this->getDC()->getTable(), 'DC_General - Controller - create()', TL_ERROR);
 				$this->redirect('contao/main.php?act=error');
@@ -946,12 +806,12 @@ class Controller implements ControllerInterface
 			 * </p>
 			 */
 			// Get vars
-			$mixAfter = $this->Input->get('after');
-			$intMode = $this->Input->get('mode');
-			$mixPid = $this->Input->get('pid');
-			$strPDP = $this->Input->get('pdp');
-			$strCDP = $this->Input->get('cdp');
-			$intId = $this->Input->get('id');
+			$mixAfter = \Input::getInstance()->get('after');
+			$intMode = \Input::getInstance()->get('mode');
+			$mixPid = \Input::getInstance()->get('pid');
+			$strPDP = \Input::getInstance()->get('pdp');
+			$strCDP = \Input::getInstance()->get('cdp');
+			$intId = \Input::getInstance()->get('id');
 
 			// Check basic vars
 			if (is_null($mixAfter) || empty($intMode) || empty($strCDP))
@@ -994,7 +854,7 @@ class Controller implements ControllerInterface
 				// TODO: update sorting here.
 			}
 			// FIXME: dependency injection.
-			switch ($this->Input->get('mode'))
+			switch (\Input::getInstance()->get('mode'))
 			{
 				case 1: // insert after
 					// we want a new item in $strCDP having an optional parent in $strPDP (with pid item $mixPid) just after $mixAfter (in child tree conditions).
@@ -1040,10 +900,10 @@ class Controller implements ControllerInterface
 			try
 			{
 				// Get new Position
-				$strPDP   = $this->Input->get('pdp');
-				$strCDP   = $this->Input->get('cdp');
-				$mixAfter = $this->Input->get('after');
-				$mixInto  = $this->Input->get('into');
+				$strPDP   = \Input::getInstance()->get('pdp');
+				$strCDP   = \Input::getInstance()->get('cdp');
+				$mixAfter = \Input::getInstance()->get('after');
+				$mixInto  = \Input::getInstance()->get('into');
 
 				$this->getNewPosition($this->objDC->getDataProvider($strPDP), $this->objDC->getDataProvider($strCDP), $this->objDC->getCurrentModel(), $mixAfter, $mixInto, 'create');
 
@@ -1210,9 +1070,11 @@ class Controller implements ControllerInterface
 		$this->checkLanguage($this->getDC());
 
 		// Load an older Version
-		if (strlen($this->Input->post("version")) != 0 && $this->getDC()->isVersionSubmit())
+		// TODO: dependency injection.
+		if (strlen(\Input::getInstance()->post("version")) != 0 && $this->getDC()->isVersionSubmit())
 		{
-			$this->loadVersion($this->getDC()->getId(), $this->Input->post("version"));
+			// TODO: dependency injection.
+			$this->loadVersion($this->getDC()->getId(), \Input::getInstance()->post("version"));
 		}
 
 		// Load fields and co
@@ -1235,7 +1097,7 @@ class Controller implements ControllerInterface
 			$objDBModel = $objCurrentDataProvider->getEmptyModel();
 		}
 
-		$this->getDC()->setCurrentModel($objDBModel);
+		$this->getEnvironment()->setCurrentModel($objDBModel);
 
 		// Check if we have a auto submit
 		$this->getDC()->updateModelFromPOST();
@@ -1295,7 +1157,7 @@ class Controller implements ControllerInterface
 				}
 
 				// FIXME: dependency injection.
-				if (Input::getInstance()->post('SUBMIT_TYPE') !== 'auto')
+				if (\Input::getInstance()->post('SUBMIT_TYPE') !== 'auto')
 				{
 					$this->reload();
 				}
@@ -1336,7 +1198,8 @@ class Controller implements ControllerInterface
 		$objGlobalConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
 		$objContainer->initialize($objGlobalConfig);
 
-		$this->getDC()->setPanelInformation($objContainer);
+		$this->getDC()->getEnvironment()->setPanelContainer($objContainer);
+
 		return $objContainer;
 	}
 
@@ -1356,7 +1219,6 @@ class Controller implements ControllerInterface
 
 		// Setup
 		$this->getDC()->setButtonId('tl_buttons');
-		$this->establishSorting();
 		$this->getFilter();
 		$this->generatePanelFilter('set');
 
@@ -1382,9 +1244,6 @@ class Controller implements ControllerInterface
 				return vsprintf($this->notImplMsg, 'showAll - Mode ' . $this->getDC()->arrDCA['list']['sorting']['mode']);
 				break;
 		}
-
-		// keep panel after real view compilation, as in there the limits etc will get compiled.
-		$this->panel($this->getDC());
 	}
 
 	/* /////////////////////////////////////////////////////////////////////
@@ -1613,6 +1472,11 @@ class Controller implements ControllerInterface
 	 */
 	protected function getNewPosition($objCDP, $objPDP, $objDBModel, $mixAfter, $mixInto, $strMode, $mixParentID = null, $intInsertMode = null, $blnWithoutReorder = false)
 	{
+		if (!$objDBModel)
+		{
+			throw new \RuntimeException('No model provided!');
+		}
+
 		// Check if we have a sorting field, if not skip here.
 		if (!$objCDP->fieldExists('sorting'))
 		{
@@ -1980,7 +1844,7 @@ class Controller implements ControllerInterface
 
 			foreach ($objChildCollection as $key => $value)
 			{
-				if (key_exists($value->getID(), $this->arrInsertIDs))
+				if (array_key_exists($value->getID(), $this->arrInsertIDs))
 				{
 					continue;
 				}
@@ -2020,6 +1884,16 @@ class Controller implements ControllerInterface
 		// Setup
 		$objCurrentDataProvider = $this->getDC()->getDataProvider();
 		$objParentDataProvider = $this->getDC()->getDataProvider('parent');
+
+		$objConfig = $objCurrentDataProvider->getEmptyConfig();
+		$this->getDC()->getEnvironment()->getPanelContainer()->initialize($objConfig);
+
+		$objCollection = $objCurrentDataProvider->fetchAll($objConfig);
+
+		$this->getDC()->getEnvironment()->setCurrentCollection($objCollection);
+
+		return;
+
 
 		$showFields = $this->getDC()->arrDCA['list']['label']['fields'];
 		$arrLimit = $this->calculateLimit();
@@ -2374,8 +2248,14 @@ class Controller implements ControllerInterface
 
 		if (!($objParentDP = $this->getDC()->getDataProvider('parent')))
 		{
-			throw new \RuntimeException("mode 4 need a proper parent dataprovide defined, somehow none is defined?", 1);
+			throw new \RuntimeException("mode 4 need a proper parent dataprovider defined, somehow none is defined?", 1);
 		}
+
+		$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
+		$this->getEnvironment()->getPanelContainer()->initialize($objConfig);
+		$this->getEnvironment()->setCurrentCollection($this->getDC()->getDataProvider()->fetchAll($objConfig));
+
+		return;
 
 		$objParentItem = $this->objDC->getCurrentParentCollection()->get(0);
 
@@ -2496,83 +2376,6 @@ class Controller implements ControllerInterface
 	}
 
 	/**
-	 * Get all Informations for the panels.
-	 *
-	 * @WTF: Why we have 3 funtions for checking the panles submits?
-	 * @todo CRY
-	 * @todo Remove all checks for post and so on only build data.
-	 * @todo Save all information about panels in Session. Not in DC General
-	 * @todo Remove all functions, vars for Panels from DC General
-	 */
-	protected function panel()
-	{
-		// Check if we have a panel
-		if (empty($this->getDC()->arrDCA['list']['sorting']['panelLayout']))
-		{
-			return;
-		}
-
-		$arrPanelView = array();
-
-		// Build the panel informations
-		$arrSortPanels = $this->generatePanelSort();
-		$arrFilterPanels = $this->generatePanelFilter();
-		$arrSearchPanels = $this->generatePanelSearch();
-		$arrLimitPanels = $this->generatePanelLimit();
-
-		if (!is_array($arrSortPanels) && !is_array($arrFilterPanels) && !is_array($arrLimitPanels) && !is_array($arrSearchPanels))
-		{
-			return;
-		}
-
-		$panelLayout = $this->getDC()->arrDCA['list']['sorting']['panelLayout'];
-		$arrPanels = trimsplit(';', $panelLayout);
-
-		foreach ($arrPanels as $keyPanel => $strPanel)
-		{
-			foreach (trimsplit(',', $strPanel) as $strField)
-			{
-				switch ($strField)
-				{
-					case 'limit':
-						if (!empty($arrLimitPanels))
-							$arrPanelView[$keyPanel]['limit'] = $arrLimitPanels;
-						break;
-
-					case 'search':
-						if (!empty($arrSearchPanels))
-							$arrPanelView[$keyPanel]['search'] = $arrSearchPanels;
-						break;
-
-					case 'filter':
-						if (!empty($arrFilterPanels))
-							$arrPanelView[$keyPanel]['filter'] = $arrFilterPanels;
-						break;
-
-					case 'sort':
-						if (!empty($arrSortPanels))
-							$arrPanelView[$keyPanel]['sort'] = $arrSortPanels;
-						break;
-
-					// ToDo: Callback for new panels ?
-					default:
-						break;
-				}
-			}
-
-			if (is_array($arrPanelView[$keyPanel]))
-			{
-				$arrPanelView[$keyPanel] = array_reverse($arrPanelView[$keyPanel]);
-			}
-		}
-
-		if (count($arrPanelView) > 0)
-		{
-			$this->getDC()->setPanelView(array_values($arrPanelView));
-		}
-	}
-
-	/**
 	 * Generate all information for the filter panel.
 	 *
 	 * @param type $type
@@ -2617,91 +2420,6 @@ class Controller implements ControllerInterface
 			$arrPanelView = $this->filterMenuAddOptions($arrSortingFields, $arrSession, $strFilter);
 			return $arrPanelView;
 		}
-	}
-
-	protected function generatePanelSearch()
-	{
-		$searchFields = array();
-		$arrPanelView = array();
-		// TODO: dependency injection.
-		$arrSession = \Session::getInstance()->getData();
-
-		// Get search fields
-		foreach ($this->getDC()->arrDCA['fields'] as $k => $v)
-		{
-			if ($v['search'])
-			{
-				$searchFields[] = $k;
-			}
-		}
-
-		// Return if there are no search fields
-		if (count($searchFields) == 0)
-		{
-			return array();
-		}
-
-		// Set search value from session
-		if ($arrSession['search'][$this->getDC()->getTable()]['value'] != '')
-		{
-			$this->getDC()->setFilter(array(array
-			(
-				'operation' => 'LIKE',
-				'property'  => $arrSession['search'][$this->getDC()->getTable()]['field'],
-				'value'     => sprintf('*%s*', $arrSession['search'][$this->getDC()->getTable()]['value'])
-			)));
-		}
-
-		$arrOptions = array();
-
-		foreach ($searchFields as $field)
-		{
-			$mixedOptionsLabel = strlen($this->getDC()->arrDCA['fields'][$field]['label'][0]) ? $this->getDC()->arrDCA['fields'][$field]['label'][0] : $GLOBALS['TL_LANG']['MSC'][$field];
-
-			$arrOptions[utf8_romanize($mixedOptionsLabel) . '_' . $field] = array(
-				'value' => specialchars($field),
-				'select' => (($field == $arrSession['search'][$this->getDC()->getTable()]['field']) ? ' selected="selected"' : ''),
-				'content' => $mixedOptionsLabel
-			);
-		}
-
-		// Sort by option values
-		uksort($arrOptions, 'strcasecmp');
-		$arrPanelView['option'] = $arrOptions;
-
-		$active = strlen($arrSession['search'][$this->getDC()->getTable()]['value']) ? true : false;
-
-		$arrPanelView['select'] = array(
-			'class' => 'tl_select' . ($active ? ' active' : '')
-		);
-
-		$arrPanelView['input'] = array(
-			'class' => 'tl_text' . (($active) ? ' active' : ''),
-			'value' => specialchars($arrSession['search'][$this->getDC()->getTable()]['value'])
-		);
-
-		return $arrPanelView;
-	}
-
-	/**
-	 * Page Limit Picker.
-	 * Check the limits, set session config, create information for the view.
-	 *
-	 * @param boolean
-	 *
-	 * @return string
-	 */
-	protected function generatePanelLimit($blnOptional = false)
-	{
-	}
-
-	/**
-	 * Return a select menu that allows to sort results by a particular field
-	 *
-	 * @return string
-	 */
-	protected function generatePanelSort()
-	{
 	}
 
 	/**

@@ -2,6 +2,7 @@
 
 namespace DcGeneral\Panel;
 
+use DcGeneral\Data\DCGE;
 use DcGeneral\Data\Interfaces\Config;
 use DcGeneral\Panel\AbstractElement;
 use DcGeneral\Panel\Interfaces\SortElement;
@@ -100,7 +101,7 @@ class BaseSortElement extends AbstractElement implements SortElement
 			if (count($arrOrder) == 1)
 			{
 				// TODO: implicit ascending - should we rather lookup the real value from the flag?
-				$arrReturn[$strProperty] = 'ASC';
+				$arrReturn[$strProperty] = DCGE::MODEL_SORTING_ASC;
 			}
 			else{
 				$arrReturn[$strProperty] = $arrOrder[1];
@@ -124,7 +125,7 @@ class BaseSortElement extends AbstractElement implements SortElement
 				$value = $input->getValue('tl_sort');
 				$flag  = $this->lookupFlag($value);
 
-				$this->setPersistent($value, (($flag%2) ? 'ASC' : 'DESC'));
+				$this->setPersistent($value, (($flag%2) ? DCGE::MODEL_SORTING_ASC : DCGE::MODEL_SORTING_DESC));
 
 				$this->setSelected($this->getPersistent());
 			}

@@ -19,14 +19,14 @@ interface Callbacks
 	/**
 	 * Set the DC.
 	 *
-	 * @param DC_General $objDC
+	 * @param \DcGeneral\DC_General $objDC
 	 */
 	public function setDC($objDC);
 
 	/**
 	 * Get the DC.
 	 *
-	 * @return DC_General
+	 * @return \DcGeneral\DC_General
 	 */
 	public function getDC();
 
@@ -103,6 +103,25 @@ interface Callbacks
 	 */
 	public function globalButtonCallback($strLabel, $strTitle, $arrAttributes, $strTable, $arrRootIds);
 
+	/**
+	 * Call the button callback for the paste operations
+	 * TODO: this should be included in the interface when the signature has been finished.
+	 *
+	 * @param array         $row      Array with current data
+	 *
+	 * @param string        $table    Tablename
+	 *
+	 * @param unknown       $cr        TODO: document parameter $cr
+	 *
+	 * @param array         $childs   Clipboard informations
+	 *
+	 * @param unknown       $previous  TODO: document parameter $previous
+	 *
+	 * @param unknown       $next      TODO: document parameter $next
+	 *
+	 * @return string
+	 */
+	public function pasteButtonCallback($row, $table, $cr, $childs, $previous, $next);
 
 	/**
 	 * Call the header callback.

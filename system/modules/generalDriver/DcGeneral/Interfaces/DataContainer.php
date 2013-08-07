@@ -27,6 +27,13 @@ interface DataContainer extends \editable, \listable
 	public function getName();
 
 	/**
+	 * Return the Environment for the DC.
+	 *
+	 * @return Environment
+	 */
+	public function getEnvironment();
+
+	/**
 	 * Return default data provider if no source is given. Else search for config
 	 * for given param or return default data provider for given source.
 	 *
@@ -49,18 +56,6 @@ interface DataContainer extends \editable, \listable
 	 * @return Container
 	 */
 	public function getDataDefinition();
-
-	/**
-	 * @return PanelContainer
-	 */
-	public function getPanelInformation();
-
-	/**
-	 * @param PanelContainer $objPanelInformation
-	 *
-	 * @return void
-	 */
-	public function setPanelInformation($objPanelInformation);
 
 	/**
 	 *

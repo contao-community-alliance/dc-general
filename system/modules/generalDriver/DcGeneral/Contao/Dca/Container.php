@@ -12,6 +12,7 @@
 namespace DcGeneral\Contao\Dca;
 
 use DcGeneral\DataDefinition\Interfaces\Container as ContainerInterface;
+use DcGeneral\Contao\Dca\Conditions\RootCondition;
 
 class Container implements ContainerInterface
 {
@@ -39,6 +40,11 @@ class Container implements ContainerInterface
 	 */
 	public function __construct($strTable, $arrDca)
 	{
+		if (!(strlen($strTable) && is_array($arrDca) && count($arrDca)))
+		{
+			trigger_error('Could not load data container configuration', E_USER_ERROR);
+		}
+
 		$this->strTable = $strTable;
 		$this->arrDca   = $arrDca;
 	}
@@ -72,6 +78,25 @@ class Container implements ContainerInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function getCallbackProviderClass()
+	{
+		$strCallbackClass = $this->getFromDca('dca_config/callback');
+		if (!$strCallbackClass)
+		{
+			$strCallbackClass = '\DcGeneral\Callbacks\Callbacks';
+		}
+
+		if (!class_exists($strCallbackClass))
+		{
+			throw new \RuntimeException(sprintf('Invalid callback provider defined %s', var_export($strCallbackClass, true)));
+		}
+
+		return $strCallbackClass;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function getProperty($strProperty)
 	{
 		if (!array_key_exists($strProperty, $this->arrDca['fields']))
@@ -82,9 +107,18 @@ class Container implements ContainerInterface
 		return new Property($this, $strProperty);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function getPropertyNames()
 	{
-		return array_keys($this->getFromDca('fields'));
+		$arrProperties = $this->getFromDca('fields');
+		if (!$arrProperties)
+		{
+			return array();
+		}
+
+		return array_keys($arrProperties);
 	}
 
 	/**
@@ -108,4 +142,122 @@ class Container implements ContainerInterface
 	{
 		return $this->getFromDca('list/sorting/fields');
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getSortingMode()
+	{
+		return $this->getFromDca('list/sorting/mode');
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getOperation($strOperation)
+	{
+		if (!array_key_exists($strOperation, $this->arrDca['list']['operations']))
+		{
+			return null;
+		}
+
+		return new Operation($this, $strOperation);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getOperationNames()
+	{
+		$arrOperations = $this->getFromDca('list/operations');
+		if (!$arrOperations)
+		{
+			return array();
+		}
+
+		return array_keys($arrOperations);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function isClosed()
+	{
+		return $this->getFromDca('config/closed');
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function isEditable()
+	{
+		return !$this->getFromDca('config/notEditable');
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getRootCondition()
+	{
+		if ($strTable == $this->getName())
+		{
+			$strTable = 'self';
+		}
+
+		$arrReturn = array();
+
+		// parse the condition into valid filter rules.
+		$arrFilters = $this->getFromDca('dca_config/rootEntries/%s');
+
+		$this->arrDCA['dca_config']['rootEntries'][$strTable];
+		if ($arrFilters)
+		{
+			$arrReturn = $arrFilters;
+		}
+		// FIXME: BC shall we really keep this DC_Table bc default value?
+		else
+		{
+			$arrReturn[] = array
+			(
+				'property' => 'pid',
+				'operation' => '=',
+				'value' => 0
+			);
+		}
+
+		return new RootCondition($arrReturn);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getChildCondition($strSrcTable, $strDstTable)
+	{
+
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getChildConditions($strSrcTable = '')
+	{
+		$arrConditions = $this->getFromDca('dca_config/childCondition');
+
+		if (!is_array($arrConditions))
+		{
+			return array();
+		}
+
+		$arrReturn = array();
+		foreach ($arrConditions as $arrCondition)
+		{
+			if (!(empty($strSrcTable) || ($arrCondition['from'] == $strSrcTable)))
+			{
+				continue;
+			}
+
+			$arrReturn[] = new ChildCondition($arrCondition);
+		}
+	}
+
 }

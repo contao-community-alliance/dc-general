@@ -30,6 +30,8 @@ interface View
 	 */
 	public function getDC();
 
+	public function paste();
+
 	public function copy();
 
 	public function copyAll();
