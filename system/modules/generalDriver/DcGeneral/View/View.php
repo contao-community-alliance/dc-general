@@ -221,6 +221,11 @@ class View implements ViewInterface
 		return vsprintf($this->notImplMsg, 'cut - Mode');
 	}
 
+	public function paste()
+	{
+
+	}
+
 	/**
 	 * @todo All
 	 * @return type

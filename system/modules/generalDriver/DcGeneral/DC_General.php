@@ -343,6 +343,8 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 		$this->getEnvironment()->getClipboard()
 			->loadFrom($this->getEnvironment());
 
+
+
 		// execute AJAX request, called from Backend::getBackendModule
 		// we have to do this here, as otherwise the script will exit as it only checks for DC_Table and DC_File decendant classes. :/
 		// FIXME: dependency injection
@@ -1344,7 +1346,7 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 	public function updateModelFromPOST()
 	{
 		// callback to tell visitors that we have just updated the model.
-		$this->getCallbackClass()->onModelBeforeUpdateCallback($this->getCurrentModel());
+		$this->getCallbackClass()->onModelBeforeUpdateCallback($this->getEnvironment()->getCurrentModel());
 
 		// process input and update changed properties.
 		foreach (array_keys($this->getFieldList()) as $strKey)
@@ -1388,7 +1390,7 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 		}
 
 		// callback to tell visitors that we have just updated the model.
-		$this->getCallbackClass()->onModelUpdateCallback($this->getCurrentModel());
+		$this->getCallbackClass()->onModelUpdateCallback($this->getEnvironment()->getCurrentModel());
 	}
 
 	/**
