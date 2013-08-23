@@ -1185,7 +1185,7 @@ class Controller implements ControllerInterface
 			$this->redirect('contao/main.php?act=error');
 		}
 
-		$this->getDC()->setCurrentModel($objDBModel);
+		$this->getDC()->getEnvironment()->setCurrentModel($objDBModel);
 	}
 
 	protected function buildPanel()

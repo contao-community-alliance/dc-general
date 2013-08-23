@@ -68,8 +68,10 @@ ClassLoader::addClasses(array
 	'DcGeneral\View\Interfaces\View'                            => 'system/modules/generalDriver/DcGeneral/View/Interfaces/View.php',
 	'DcGeneral\View\View'                                       => 'system/modules/generalDriver/DcGeneral/View/View.php',
 
+	// FIXME: we can not deprecate this class as the only way for Contao is to load the class from root namespace.
+	'DC_General'                                                => 'system/modules/generalDriver/DC_General.php',
+
 	// Backwards compatibility layer from here on. DEPRECATED only, DO NOT USE.
-	'DC_General'                                    => 'system/modules/generalDriver/DC_General.php',
 	'DCGE'                                          => 'system/modules/generalDriver/DCGE.php',
 	'GeneralAjax'                                   => 'system/modules/generalDriver/GeneralAjax.php',
 	'GeneralAjax2X'                                 => 'system/modules/generalDriver/GeneralAjax2X.php',
