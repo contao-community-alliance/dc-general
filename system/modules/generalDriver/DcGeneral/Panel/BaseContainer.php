@@ -19,7 +19,7 @@ class BaseContainer implements Container
 	/**
 	 * @var Panel[]
 	 */
-	protected $arrPanels;
+	protected $arrPanels = array();
 
 	/**
 	 * {@inheritdoc}
