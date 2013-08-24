@@ -43,6 +43,11 @@ if (version_compare(VERSION, '3.0', '<'))
 			parent::loadLanguageFile($strName, $strLanguage, $blnNoCache);
 		}
 
+		public function generateImage($src, $alt = '', $attributes = '')
+		{
+			return parent::generateImage($src, $alt, $attributes);
+		}
+
 		public function getImage($image, $width, $height, $mode = '', $target = NULL, $force = false)
 		{
 			return parent::getImage($image, $width, $height, $mode, $target, $force);
