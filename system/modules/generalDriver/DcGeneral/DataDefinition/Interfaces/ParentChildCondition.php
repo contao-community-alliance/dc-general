@@ -12,8 +12,9 @@
 namespace DcGeneral\DataDefinition\Interfaces;
 
 use DcGeneral\Data\ModelInterface;
+use DcGeneral\DataDefinition\ConditionInterface;
 
-interface ParentChildCondition extends Condition
+interface ParentChildCondition extends ConditionInterface
 {
 	/**
 	 * Get the condition as filter.

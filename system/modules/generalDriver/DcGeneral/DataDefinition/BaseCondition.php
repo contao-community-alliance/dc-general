@@ -9,12 +9,12 @@
  * @filesource
  */
 
-namespace DcGeneral\DataDefinition\Interfaces;
+namespace DcGeneral\DataDefinition;
 
-use DcGeneral\DataDefinition\Interfaces\Condition;
+use DcGeneral\DataDefinition\ConditionInterface;
 use DcGeneral\Data\ModelInterface;
 
-abstract class BaseCondition implements Condition
+abstract class BaseCondition implements ConditionInterface
 {
 	public static function checkCondition(ModelInterface $objParentModel, $arrFilter)
 	{

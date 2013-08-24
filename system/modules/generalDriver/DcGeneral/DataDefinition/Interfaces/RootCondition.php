@@ -11,7 +11,9 @@
 
 namespace DcGeneral\DataDefinition\Interfaces;
 
-interface RootCondition extends Condition
+use DcGeneral\DataDefinition\ConditionInterface;
+
+interface RootCondition extends ConditionInterface
 {
 	/**
 	 * Get the condition as filter.
