@@ -173,7 +173,7 @@ class DefaultPanelContainer implements PanelContainerInterface
 		foreach ($objDefinition->getPanelLayout() as $strPanelKey => $arrPanel)
 		{
 			// We need a new panel.
-			$objPanel = new BasePanel();
+			$objPanel = new DefaultPanel();
 			$this->addPanel($strPanelKey, $objPanel);
 
 			foreach ($arrPanel as $strElement)
