@@ -114,7 +114,7 @@ interface ContainerInterface
 	/**
 	 * Retrieve the root condition for the current table.
 	 *
-	 * @return \DcGeneral\DataDefinition\Interfaces\RootCondition
+	 * @return \DcGeneral\DataDefinition\RootConditionInterface
 	 */
 	public function getRootCondition();
 
