@@ -88,7 +88,7 @@ interface ContainerInterface
 	/**
 	 *
 	 *
-	 * @return \DcGeneral\DataDefinition\Interfaces\Operation
+	 * @return \DcGeneral\DataDefinition\OperationInterface
 	 */
 	public function getOperationNames();
 

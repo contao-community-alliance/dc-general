@@ -11,7 +11,7 @@
 
 namespace DcGeneral\Contao\Dca;
 
-use DcGeneral\DataDefinition\Interfaces\Operation as OperationInterface;
+use DcGeneral\DataDefinition\OperationInterface;
 
 class Operation implements OperationInterface
 {

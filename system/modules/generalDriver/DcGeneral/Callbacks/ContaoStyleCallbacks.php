@@ -149,9 +149,9 @@ class ContaoStyleCallbacks extends \System implements CallbacksInterface
 	 */
 	public function buttonCallback($objModelRow, $arrOperation, $strLabel, $strTitle, $arrAttributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext)
 	{
-		if (is_a($arrOperation, '\DcGeneral\DataDefinition\Interfaces\Operation'))
+		if (is_a($arrOperation, '\DcGeneral\DataDefinition\OperationInterface'))
 		{
-			/** @var \DcGeneral\DataDefinition\Interfaces\Operation $arrOperation */
+			/** @var \DcGeneral\DataDefinition\OperationInterface $arrOperation */
 			$strHref     = $arrOperation->getHref();
 			$strIcon     = $arrOperation->getIcon();
 			$arrCallback = $arrOperation->getCallback();
