@@ -16,6 +16,7 @@ use DcGeneral\Data\ModelInterface;
 use DcGeneral\Panel\AbstractElement;
 use DcGeneral\Panel\PanelElementInterface;
 use DcGeneral\Panel\FilterElementInterface;
+use DcGeneral\View\ViewTemplateInterface;
 
 class DefaultFilterElement extends AbstractElement implements FilterElementInterface
 {
@@ -159,7 +160,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
 	/**
 	 * {@inheritDoc}
 	 */
-	public function render($objTemplate)
+	public function render(ViewTemplateInterface $objTemplate)
 	{
 		$arrLabel = $this->getDataContainer()->getDataDefinition()->getProperty($this->getPropertyName())->getName();
 

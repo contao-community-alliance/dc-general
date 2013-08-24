@@ -3,24 +3,25 @@
 namespace DcGeneral\Panel;
 
 use DcGeneral\Data\ConfigInterface;
+use DcGeneral\View\ViewTemplateInterface;
 
 interface PanelElementInterface
 {
 	/**
 	 * Return the parenting panel.
 	 *
-	 * @return Panel
+	 * @return PanelInterface
 	 */
 	public function getPanel();
 
 	/**
 	 * Return the parenting panel.
 	 *
-	 * @param Panel $objPanel The panel to use as parent.
+	 * @param PanelInterface $objPanel The panel to use as parent.
 	 *
 	 * @return PanelElementInterface
 	 */
-	public function setPanel(Panel $objPanel);
+	public function setPanel(PanelInterface $objPanel);
 
 	/**
 	 *
@@ -36,9 +37,9 @@ interface PanelElementInterface
 	/**
 	 * Render the element using the given Template
 	 *
-	 * @param PanelTemplateInterface $objTemplate The Template to use.
+	 * @param ViewTemplateInterface $objTemplate The Template to use.
 	 *
 	 * @return PanelElementInterface
 	 */
-	public function render(PanelTemplateInterface $objTemplate);
+	public function render(ViewTemplateInterface $objTemplate);
 }
