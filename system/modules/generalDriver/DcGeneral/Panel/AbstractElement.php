@@ -6,7 +6,7 @@ use DcGeneral\Data\ConfigInterface;
 use DcGeneral\DataContainerInterface;
 use DcGeneral\Panel\Interfaces\Element;
 use DcGeneral\Panel\Interfaces\Panel;
-use DcGeneral\Interfaces\InputProvider;
+use DcGeneral\InputProviderInterface;
 
 abstract class AbstractElement implements Element
 {
@@ -28,9 +28,9 @@ abstract class AbstractElement implements Element
 	}
 
 	/**
-	 * Convenience method to retrieve InputProvider for this Element.
+	 * Convenience method to retrieve input provider for this Element.
 	 *
-	 * @return InputProvider
+	 * @return InputProviderInterface
 	 */
 	public function getInputProvider()
 	{

@@ -60,14 +60,14 @@ interface EnvironmentInterface
 	public function getDataDefinition();
 
 	/**
-	 * @param \DcGeneral\Interfaces\InputProvider $objInputProvider
+	 * @param \DcGeneral\InputProviderInterface $objInputProvider
 	 *
 	 * @return EnvironmentInterface
 	 */
 	public function setInputProvider($objInputProvider);
 
 	/**
-	 * @return \DcGeneral\Interfaces\InputProvider
+	 * @return \DcGeneral\InputProviderInterface
 	 */
 	public function getInputProvider();
 

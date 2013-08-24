@@ -11,7 +11,7 @@
 
 namespace DcGeneral\Contao;
 
-use DcGeneral\Interfaces\InputProvider as InputProviderInterface;
+use DcGeneral\InputProviderInterface;
 
 class InputProvider implements InputProviderInterface
 {
