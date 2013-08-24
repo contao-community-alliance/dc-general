@@ -38,7 +38,7 @@ if (version_compare(VERSION, '3.0', '<'))
 			return parent::addToUrl($strRequest);
 		}
 
-		public function loadLanguageFile($strName, $strLanguage, $blnNoCache)
+		public function loadLanguageFile($strName, $strLanguage = false, $blnNoCache = false)
 		{
 			parent::loadLanguageFile($strName, $strLanguage, $blnNoCache);
 		}
