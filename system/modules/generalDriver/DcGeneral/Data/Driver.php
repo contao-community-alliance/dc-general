@@ -11,12 +11,11 @@
 
 namespace DcGeneral\Data;
 
-use DcGeneral\Data\Interfaces\Driver as DriverInterface;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\ModelInterface;
-use DcGeneral\Data\DefaultCollection as DataCollection;
-use DcGeneral\Data\DefaultConfig as DataConfig;
+use DcGeneral\Data\DefaultCollection;
+use DcGeneral\Data\DefaultConfig;
 use DcGeneral\Data\Model as DataModel;
 
 
@@ -72,7 +71,7 @@ class Driver implements DriverInterface
 	 */
 	public function getEmptyConfig()
 	{
-		return DataConfig::init();
+		return DefaultConfig::init();
 	}
 
 	/**
@@ -94,7 +93,7 @@ class Driver implements DriverInterface
 	 */
 	public function getEmptyCollection()
 	{
-		return new DataCollection();
+		return new DefaultCollection();
 	}
 
 	/**
@@ -620,7 +619,7 @@ class Driver implements DriverInterface
 	 *
 	 * @return void
 	 */
-	public function saveEach(Collection $objItems)
+	public function saveEach(CollectionInterface $objItems)
 	{
 		foreach ($objItems as $value)
 		{
