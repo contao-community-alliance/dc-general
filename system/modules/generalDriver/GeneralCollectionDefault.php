@@ -10,6 +10,6 @@
  */
 
 trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
-class GeneralCollectionDefault extends DcGeneral\Data\Collection
+class GeneralCollectionDefault extends DcGeneral\Data\DefaultCollection
 {
 }

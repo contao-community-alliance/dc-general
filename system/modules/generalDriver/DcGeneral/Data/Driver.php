@@ -15,7 +15,7 @@ use DcGeneral\Data\Interfaces\Driver as DriverInterface;
 use DcGeneral\Data\Interfaces\Config;
 use DcGeneral\Data\Interfaces\Collection;
 use DcGeneral\Data\Interfaces\Model;
-use DcGeneral\Data\Collection as DataCollection;
+use DcGeneral\Data\DefaultCollection as DataCollection;
 use DcGeneral\Data\Config as DataConfig;
 use DcGeneral\Data\Model as DataModel;
 
