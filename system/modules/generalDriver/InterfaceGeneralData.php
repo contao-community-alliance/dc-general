@@ -10,4 +10,6 @@
  */
 
 trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
-class_alias('DcGeneral\Data\Interfaces\Driver', 'InterfaceGeneralData');
+interface InterfaceGeneralData extends DcGeneral\Data\Interfaces\Driver
+{
+}

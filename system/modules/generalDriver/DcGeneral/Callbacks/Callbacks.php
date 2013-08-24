@@ -9,5 +9,9 @@
  * @filesource
  */
 
+namespace DcGeneral\Callbacks;
+
 trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
-class_alias('DcGeneral\Callbacks\ContaoStyleCallbacks', 'DcGeneral\Callbacks\Callbacks');
+class Callbacks extends ContaoStyleCallbacks
+{
+}

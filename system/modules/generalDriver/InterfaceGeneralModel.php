@@ -10,4 +10,6 @@
  */
 
 trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
-class_alias('DcGeneral\Data\Interfaces\Model', 'InterfaceGeneralModel');
+interface InterfaceGeneralModel extends DcGeneral\Data\Interfaces\Model
+{
+}
