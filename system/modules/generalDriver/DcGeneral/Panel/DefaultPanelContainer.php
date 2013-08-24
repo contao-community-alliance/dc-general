@@ -128,7 +128,7 @@ class DefaultPanelContainer implements PanelContainerInterface
 	 */
 	protected function buildSort(PanelInterface $objPanel, $objDefinition)
 	{
-		$objElement = new BaseSortElement();
+		$objElement = new DefaultSortElement();
 
 		foreach ($objDefinition->getPropertyNames() as $strProperty)
 		{
