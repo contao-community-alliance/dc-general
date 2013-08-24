@@ -11,63 +11,12 @@
 
 namespace DcGeneral\DataDefinition\Interfaces;
 
-interface Property
+use DcGeneral\DataDefinition\PropertyInterface;
+
+trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
+/**
+ * @deprecated
+ */
+interface Property extends PropertyInterface
 {
-	/**
-	 * Return the name of the property.
-	 *
-	 * @return string
-	 */
-	public function getName();
-
-	/**
-	 * Return the label of the property.
-	 *
-	 * @return array
-	 */
-	public function getLabel();
-
-	/**
-	 * Retrieve information about a property.
-	 *
-	 * @return Property
-	 */
-	public function getWidgetType();
-
-	/**
-	 * Fetch the evaluation information from the field.
-	 *
-	 * @return array
-	 */
-	public function getEvaluation();
-
-	/**
-	 * Determinator if search is enabled on this property.
-	 *
-	 * @return bool
-	 */
-	public function isSearchable();
-
-	/**
-	 * Determinator if filtering may be performed on this property.
-	 *
-	 * @return bool
-	 */
-	public function isFilterable();
-
-	/**
-	 * Determinator if sorting may be performed on this property.
-	 *
-	 * @return bool
-	 */
-	public function isSortable();
-
-	/**
-	 * Fetch some arbitrary information.
-	 *
-	 * @param $strKey
-	 *
-	 * @return mixed
-	 */
-	public function get($strKey);
 }

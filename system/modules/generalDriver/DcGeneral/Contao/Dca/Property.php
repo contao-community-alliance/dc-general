@@ -11,7 +11,7 @@
 
 namespace DcGeneral\Contao\Dca;
 
-use DcGeneral\DataDefinition\Interfaces\Property as PropertyInterface;
+use DcGeneral\DataDefinition\PropertyInterface;
 
 class Property implements PropertyInterface
 {
