@@ -101,7 +101,7 @@ class DefaultPanelContainer implements PanelContainerInterface
 	 */
 	protected function buildSearch(PanelInterface $objPanel, $objDefinition)
 	{
-		$objElement = new BaseSearchElement();
+		$objElement = new DefaultSearchElement();
 
 		foreach ($objDefinition->getPropertyNames() as $strProperty)
 		{
