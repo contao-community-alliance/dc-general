@@ -16,7 +16,7 @@ use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ModelInterface;
 
 use DcGeneral\DataContainerInterface;
-use DcGeneral\Panel\BasePanel;
+use DcGeneral\Panel\DefaultPanel;
 
 class DefaultController implements ControllerInterface
 {
