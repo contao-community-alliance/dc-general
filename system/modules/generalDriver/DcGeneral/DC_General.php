@@ -25,7 +25,7 @@ use DcGeneral\Data\Interfaces\Model;
 use DcGeneral\Helper\WidgetAccessor;
 use DcGeneral\Interfaces\Environment;
 use DcGeneral\BaseEnvironment;
-use DcGeneral\View\View as DefaultView;
+use DcGeneral\View\DefaultView as DefaultView;
 use DcGeneral\View\Interfaces\View;
 
 class DC_General extends \DataContainer implements Interfaces\DataContainer
