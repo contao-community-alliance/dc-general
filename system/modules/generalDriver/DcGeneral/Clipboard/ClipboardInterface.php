@@ -16,7 +16,7 @@ interface ClipboardInterface
 	/**
 	 * Load the content of the clipboard to the given input provider.
 	 *
-	 * @param \DcGeneral\Interfaces\Environment $objEnvironment
+	 * @param \DcGeneral\EnvironmentInterface $objEnvironment
 	 *
 	 * @return mixed
 	 */
@@ -25,7 +25,7 @@ interface ClipboardInterface
 	/**
 	 * Save the content of the clipboard to the given input provider.
 	 *
-	 * @param \DcGeneral\Interfaces\Environment $objEnvironment
+	 * @param \DcGeneral\EnvironmentInterface $objEnvironment
 	 *
 	 * @return mixed
 	 */

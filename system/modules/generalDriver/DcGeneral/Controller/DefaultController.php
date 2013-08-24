@@ -135,7 +135,7 @@ class DefaultController implements ControllerInterface
 	}
 
 	/**
-	 * @return \DcGeneral\Interfaces\Environment
+	 * @return \DcGeneral\EnvironmentInterface
 	 */
 	protected function getEnvironment()
 	{

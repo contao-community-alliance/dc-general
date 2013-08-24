@@ -91,7 +91,7 @@ class DefaultView implements ViewInterface
 
 	/**
 	 *
-	 * @return \DcGeneral\Interfaces\Environment
+	 * @return \DcGeneral\EnvironmentInterface
 	 */
 	protected function getEnvironment()
 	{
