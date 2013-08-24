@@ -43,9 +43,9 @@ if (version_compare(VERSION, '3.0', '<'))
 			parent::loadLanguageFile($strName, $strLanguage, $blnNoCache);
 		}
 
-		public function getImage($src, $alt='', $attributes='')
+		public function getImage($image, $width, $height, $mode = '', $target = NULL, $force = false)
 		{
-			return parent::getImage($src, $alt, $attributes);
+			return parent::getImage($image, $width, $height, $mode, $target, $force);
 		}
 
 		public function getReferer($blnEncodeAmpersands=false, $strTable=null)
