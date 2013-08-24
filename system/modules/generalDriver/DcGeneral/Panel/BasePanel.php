@@ -3,14 +3,14 @@
 namespace DcGeneral\Panel;
 
 use DcGeneral\Data\ConfigInterface;
-use DcGeneral\Panel\Interfaces\Container;
+use DcGeneral\Panel\PanelContainerInterface;
 use DcGeneral\Panel\Interfaces\Element;
 use DcGeneral\Panel\Interfaces\Panel;
 
 class BasePanel implements Panel
 {
 	/**
-	 * @var Container
+	 * @var PanelContainerInterface
 	 */
 	protected $objContainer;
 
@@ -36,7 +36,7 @@ class BasePanel implements Panel
 	/**
 	 * {@inheritdoc}
 	 */
-	public function setContainer(Container $objContainer)
+	public function setContainer(PanelContainerInterface $objContainer)
 	{
 		$this->objContainer = $objContainer;
 
