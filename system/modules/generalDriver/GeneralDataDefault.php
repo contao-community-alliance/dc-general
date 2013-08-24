@@ -13,6 +13,6 @@ trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
 /**
  * @deprecated
  */
-class GeneralDataDefault extends DcGeneral\Data\Driver
+class GeneralDataDefault extends DcGeneral\Data\DefaultDriver
 {
 }

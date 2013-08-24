@@ -11,7 +11,7 @@
 
 namespace DcGeneral\Data;
 
-class MultiLanguageDriver extends Driver implements MultiLanguageDriverInterface
+class MultiLanguageDriver extends DefaultDriver implements MultiLanguageDriverInterface
 {
 	/**
 	 * Buffer to keep the current active working language.
@@ -83,7 +83,7 @@ class MultiLanguageDriver extends Driver implements MultiLanguageDriverInterface
 	 *
 	 * @param string $strLanguage The new language, use short tag "2 chars like de, fr etc."
 	 *
-	 * @return Driver
+	 * @return DriverInterface
 	 */
 	public function setCurrentLanguage($strLanguage)
 	{
