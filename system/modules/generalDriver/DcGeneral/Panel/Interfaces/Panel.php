@@ -3,6 +3,7 @@
 namespace DcGeneral\Panel\Interfaces;
 
 use DcGeneral\Data\ConfigInterface;
+use DcGeneral\DataDefinition\ContainerInterface;
 
 interface Panel extends \IteratorAggregate
 {
@@ -16,7 +17,7 @@ interface Panel extends \IteratorAggregate
 	/**
 	 * Set the parenting container.
 	 *
-	 * @param Container $objContainer The Container to be used as parent.
+	 * @param ContainerInterface $objContainer The Container to be used as parent.
 	 *
 	 * @return Panel
 	 */

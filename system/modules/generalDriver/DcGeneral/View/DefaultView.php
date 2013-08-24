@@ -99,7 +99,7 @@ class DefaultView implements ViewInterface
 	}
 
 	/**
-	 * @return \DcGeneral\DataDefinition\Interfaces\Container
+	 * @return \DcGeneral\DataDefinition\ContainerInterface
 	 */
 	protected function getDataDefinition()
 	{

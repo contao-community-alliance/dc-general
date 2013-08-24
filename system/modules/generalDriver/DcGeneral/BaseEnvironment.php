@@ -32,7 +32,7 @@ class BaseEnvironment implements Environment
 	/**
 	 * The data container definition.
 	 *
-	 * @var \DcGeneral\DataDefinition\Interfaces\Container
+	 * @var \DcGeneral\DataDefinition\ContainerInterface
 	 */
 	protected $objDataDefinition;
 

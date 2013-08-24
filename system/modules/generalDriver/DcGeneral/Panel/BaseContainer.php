@@ -2,7 +2,7 @@
 
 namespace DcGeneral\Panel;
 
-use DcGeneral\DataDefinition\Interfaces\Container as Definition;
+use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Interfaces\DataContainer;
 use DcGeneral\Panel\Interfaces\Container;
@@ -74,7 +74,7 @@ class BaseContainer implements Container
 	/**
 	 * @param Panel      $objPanel
 	 *
-	 * @param Definition $objDefinition
+	 * @param ContainerInterface $objDefinition
 	 */
 	protected function buildFilter(Panel $objPanel, $objDefinition)
 	{
@@ -97,7 +97,7 @@ class BaseContainer implements Container
 	/**
 	 * @param Panel      $objPanel
 	 *
-	 * @param Definition $objDefinition
+	 * @param ContainerInterface $objDefinition
 	 */
 	protected function buildSearch(Panel $objPanel, $objDefinition)
 	{
@@ -124,7 +124,7 @@ class BaseContainer implements Container
 	/**
 	 * @param Panel      $objPanel
 	 *
-	 * @param Definition $objDefinition
+	 * @param ContainerInterface $objDefinition
 	 */
 	protected function buildSort(Panel $objPanel, $objDefinition)
 	{
@@ -163,7 +163,7 @@ class BaseContainer implements Container
 	}
 
 	/**
-	 * @param Definition $objDefinition
+	 * @param ContainerInterface $objDefinition
 	 *
 	 * @return Container|void
 	 * @throws \RuntimeException

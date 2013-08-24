@@ -48,14 +48,14 @@ interface Environment
 	/**
 	 * Retrieve the data definition
 	 *
-	 * @param \DcGeneral\DataDefinition\Interfaces\Container $objContainer
+	 * @param \DcGeneral\DataDefinition\ContainerInterface $objContainer
 	 *
 	 * @return Environment
 	 */
 	public function setDataDefinition($objContainer);
 
 	/**
-	 * @return \DcGeneral\DataDefinition\Interfaces\Container
+	 * @return \DcGeneral\DataDefinition\ContainerInterface
 	 */
 	public function getDataDefinition();
 

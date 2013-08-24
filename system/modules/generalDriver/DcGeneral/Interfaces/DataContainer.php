@@ -11,7 +11,7 @@
 
 namespace DcGeneral\Interfaces;
 
-use DcGeneral\DataDefinition\Interfaces\Container;
+use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\DriverInterface;
 use DcGeneral\Data\ModelInterface;
@@ -53,7 +53,7 @@ interface DataContainer extends \editable, \listable
 	/**
 	 * Retrieve the data container definition.
 	 *
-	 * @return Container
+	 * @return ContainerInterface
 	 */
 	public function getDataDefinition();
 

@@ -12,7 +12,7 @@
 namespace DcGeneral\Contao\Dca\Conditions;
 
 use DcGeneral\DataDefinition\Interfaces\ParentChildCondition as ParentChildConditionInterface;
-use DcGeneral\DataDefinition\Interfaces\Container;
+use DcGeneral\DataDefinition\ContainerInterface;
 
 /**
  * Class ParentChildCondition
@@ -49,7 +49,7 @@ array
 class ParentChildCondition implements ParentChildConditionInterface
 {
 	/**
-	 * The Container instance to which this condition belongs to.
+	 * The ContainerInterface instance to which this condition belongs to.
 	 *
 	 * @var \DcGeneral\Contao\Dca\Container
 	 */

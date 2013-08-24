@@ -11,7 +11,7 @@
 
 namespace DcGeneral\Contao\Dca;
 
-use DcGeneral\DataDefinition\Interfaces\Container as ContainerInterface;
+use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Contao\Dca\Conditions\RootCondition;
 
 class Container implements ContainerInterface
