@@ -11,7 +11,7 @@
 
 namespace DcGeneral\Callbacks;
 
-use DcGeneral\Data\Interfaces\Model;
+use DcGeneral\Data\ModelInterface;
 
 interface CallbacksInterface
 {
@@ -45,7 +45,7 @@ interface CallbacksInterface
 	/**
 	 * Call the customer label callback.
 	 *
-	 * @param Model  $objModelRow The current model for which the label shall get generated for.
+	 * @param ModelInterface  $objModelRow The current model for which the label shall get generated for.
 	 *
 	 * @param string $mixedLabel  The label string (as defined in DCA).
 	 *
@@ -53,12 +53,12 @@ interface CallbacksInterface
 	 *
 	 * @return string
 	 */
-	public function labelCallback(Model $objModelRow, $mixedLabel, $args);
+	public function labelCallback(ModelInterface $objModelRow, $mixedLabel, $args);
 
 	/**
 	 * Call the button callback for the regular operations.
 	 *
-	 * @param Model   $objModelRow          The current model instance for which the button shall be
+	 * @param ModelInterface   $objModelRow          The current model instance for which the button shall be
 	 *                                      generated.
 	 *
 	 * @param array   $arrOperation         The operation for which a button shall be generated
@@ -135,11 +135,11 @@ interface CallbacksInterface
 	/**
 	 * Call the child record callback.
 	 *
-	 * @param Model $objModel TODO: document parameter $objModel
+	 * @param ModelInterface $objModel TODO: document parameter $objModel
 	 *
 	 * @return string|null
 	 */
-	public function childRecordCallback(Model $objModel);
+	public function childRecordCallback(ModelInterface $objModel);
 
 	/**
 	 * Call the options callback for given the field.
@@ -192,7 +192,7 @@ interface CallbacksInterface
 	 *
 	 * @param type  $field TODO: document parameter $field
 	 *
-	 * @param Model $objModelRow
+	 * @param ModelInterface $objModelRow
 	 *
 	 * @return type  TODO: document result
 	 */
@@ -253,7 +253,7 @@ interface CallbacksInterface
 	 *
 	 * After the model has been updated, the onModelUpdateCallback will get triggered.
 	 *
-	 * @param Model $objModel The model that will get updated.
+	 * @param ModelInterface $objModel The model that will get updated.
 	 *
 	 * @return void
 	 */
@@ -265,7 +265,7 @@ interface CallbacksInterface
 	 * it merely just tells "we have loaded a model (from memory or database) and updated it's properties with
 	 * those from the POST data".
 	 *
-	 * @param Model $objModel The model that has been updated.
+	 * @param ModelInterface $objModel The model that has been updated.
 	 *
 	 * @return void
 	 */

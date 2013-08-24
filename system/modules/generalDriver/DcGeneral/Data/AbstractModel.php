@@ -11,9 +11,9 @@
 
 namespace DcGeneral\Data;
 
-use DcGeneral\Data\Interfaces\Model;
+use DcGeneral\Data\ModelInterface;
 
-abstract class AbstractModel implements Model
+abstract class AbstractModel implements ModelInterface
 {
 	/**
 	 * A list with all meta information.

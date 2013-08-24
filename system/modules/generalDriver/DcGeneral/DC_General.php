@@ -21,7 +21,7 @@ use DcGeneral\Data\DCGE;
 use DcGeneral\Data\Driver as DefaultDriver;
 use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\DriverInterface;
-use DcGeneral\Data\Interfaces\Model;
+use DcGeneral\Data\ModelInterface;
 use DcGeneral\Helper\WidgetAccessor;
 use DcGeneral\Interfaces\Environment;
 use DcGeneral\BaseEnvironment;
@@ -827,7 +827,7 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 			if (is_object($mixParent))
 			{
 				// must be model!
-				if (! $mixParent instanceof Model)
+				if (! $mixParent instanceof ModelInterface)
 				{
 					throw new \RuntimeException('incompatible object passed');
 				}
@@ -886,13 +886,13 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 	 * Return a array with the join conditions for a special table.
 	 * If no value is found in the dca, the default id=pid conditions will be used.
 	 *
-	 * @param Model $objParentModel the model that holds data from the src (aka parent).
+	 * @param ModelInterface $objParentModel the model that holds data from the src (aka parent).
 	 *
 	 * @param string                $strDstTable    Name of table for "child"
 	 *
 	 * @return array
 	 */
-	public function getChildCondition(Model $objParentModel, $strDstTable)
+	public function getChildCondition(ModelInterface $objParentModel, $strDstTable)
 	{
 		$arrReturn = array();
 
@@ -975,7 +975,7 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 		return $arrReturn;
 	}
 
-	protected function checkCondition(Model $objParentModel, $arrFilter)
+	protected function checkCondition(ModelInterface $objParentModel, $arrFilter)
 	{
 		switch ($arrFilter['operation'])
 		{
@@ -1026,7 +1026,7 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 		}
 	}
 
-	public function isRootItem(Model $objParentModel, $strTable)
+	public function isRootItem(ModelInterface $objParentModel, $strTable)
 	{
 		$arrRootConditions = $this->getRootConditions($strTable);
 		return $this->checkCondition($objParentModel, array('operation' => 'AND', 'childs' => $arrRootConditions));
@@ -1036,11 +1036,11 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 	 * Sets all parent condition fields in the destination to the values from the source model.
 	 * Useful when moving an element after another in a different parent.
 	 *
-	 * @param Model $objDestination the model that shall get updated.
-	 * @param Model $objCopyFrom    the model that the values shall get retrieved from.
+	 * @param ModelInterface $objDestination the model that shall get updated.
+	 * @param ModelInterface $objCopyFrom    the model that the values shall get retrieved from.
 	 * @param string                $strParentTable the parent table for the objects.
 	 */
-	public function setSameParent(Model $objDestination, Model $objCopyFrom, $strParentTable)
+	public function setSameParent(ModelInterface $objDestination, ModelInterface $objCopyFrom, $strParentTable)
 	{
 		if ($this->isRootItem($objCopyFrom, $strParentTable))
 		{
@@ -1284,7 +1284,7 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 
 	/**
 	 *
-	 * @return Model
+	 * @return ModelInterface
 	 *
 	 * @deprecated
 	 */
@@ -1330,11 +1330,11 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 
 	/**
 	 *
-	 * @param Model $objCurrentModel
+	 * @param ModelInterface $objCurrentModel
 	 *
 	 * @deprecated
 	 */
-	public function setCurrentModel(Model $objCurrentModel)
+	public function setCurrentModel(ModelInterface $objCurrentModel)
 	{
 		trigger_error('deprecated ' . __METHOD__, E_USER_DEPRECATED);
 		return $this->getEnvironment()->setCurrentModel($objCurrentModel);
@@ -2007,10 +2007,10 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 	 * @param string
 	 * @param mixed
 	 * @param integer
-	 * @param InterfaceGeneralModel
+	 * @param ModelInterface
 	 * @return string
 	 */
-	public function formatGroupHeader($field, $value, $mode, Model $objModelRow)
+	public function formatGroupHeader($field, $value, $mode, ModelInterface $objModelRow)
 	{
 		$group = '';
 		static $lookup = array();

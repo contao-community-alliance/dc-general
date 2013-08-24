@@ -23,7 +23,7 @@ interface RootCondition extends Condition
 	/**
 	 * Apply a condition to a model.
 	 *
-	 * @param \DcGeneral\Data\Interfaces\Model $objModel
+	 * @param ModelInterface $objModel
 	 *
 	 * @return void
 	 */
@@ -32,7 +32,7 @@ interface RootCondition extends Condition
 	/**
 	 * Test if the given model is indeed a root object for this condition.
 	 *
-	 * @param \DcGeneral\Data\Interfaces\Model $objModel
+	 * @param ModelInterface $objModel
 	 *
 	 * @return bool
 	 */

@@ -58,7 +58,7 @@ class BaseEnvironment implements Environment
 	protected $objCollection;
 
 	/**
-	 * @var \DcGeneral\Data\Interfaces\Model
+	 * @var ModelInterface
 	 */
 	protected $objModel;
 

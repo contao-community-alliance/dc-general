@@ -13,7 +13,7 @@ namespace DcGeneral\Controller;
 
 use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\Data\DCGE;
-use DcGeneral\Data\Interfaces\Model;
+use DcGeneral\Data\ModelInterface;
 
 use DcGeneral\Interfaces\DataContainer;
 use DcGeneral\Panel\BasePanel;
@@ -347,7 +347,7 @@ class DefaultController implements ControllerInterface
 	 * This method is ready for mixed hierarchy and will return all children and grandchildren for the given table
 	 * (or originating table of the model, if no provider name has been given) for all levels and parent child conditions.
 	 *
-	 * @param Model  $objModel        The model to assemble children from.
+	 * @param ModelInterface  $objModel        The model to assemble children from.
 	 *
 	 * @param string $strDataProvider The name of the data provider to fetch children from.
 	 *
@@ -376,7 +376,7 @@ class DefaultController implements ControllerInterface
 
 			foreach ($objDataProv->fetchAll($objConfig) as $objChild)
 			{
-				/** @var Model $objChild */
+				/** @var ModelInterface $objChild */
 				if ($strDataProvider == $objChild->getProviderName())
 				{
 					$arrIds[] = $objChild->getId();
@@ -1373,7 +1373,7 @@ class DefaultController implements ControllerInterface
 	 * Therefore the current submitted data will be stored within the model but only on
 	 * success also be saved into the DB.
 	 *
-	 * @return bool|Model Model if the save operation was successful or unnecessary, false otherwise.
+	 * @return bool|ModelInterface Model if the save operation was successful or unnecessary, false otherwise.
 	 */
 	protected function doSave()
 	{
@@ -1462,7 +1462,7 @@ class DefaultController implements ControllerInterface
 	 *
 	 * @param Driver $objCDP - Current data provider
 	 * @param Driver $objPDP - Parent data provider
-	 * @param Model $objDBModel - Model of element which should moved
+	 * @param ModelInterface $objDBModel - Model of element which should moved
 	 * @param mixed $mixAfter - Target element
 	 * @param string $strMode - Mode like cut | create and so on
 	 * @param integer $intInsertMode - Insert Mode => 1 After | 2 Into
@@ -2086,12 +2086,12 @@ class DefaultController implements ControllerInterface
 	/**
 	 * Get a list with all needed fields for the models.
 	 *
-	 * @param Model $objModel
+	 * @param ModelInterface $objModel
 	 * @param string $strDstTable
 	 *
 	 * @return array A list with all needed values.
 	 */
-	protected function calcNeededFields(Model $objModel, $strDstTable)
+	protected function calcNeededFields(ModelInterface $objModel, $strDstTable)
 	{
 		$arrFields = $this->calcLabelFields($strDstTable);
 		$arrChildCond = $this->getDC()->getChildCondition($objModel, $strDstTable);
@@ -2112,7 +2112,7 @@ class DefaultController implements ControllerInterface
 		return $arrFields;
 	}
 
-	protected function buildLabel(Model $objModel)
+	protected function buildLabel(ModelInterface $objModel)
 	{
 		// Build full lable
 		$arrFields = array();
@@ -2133,7 +2133,7 @@ class DefaultController implements ControllerInterface
 	/**
 	 * This "renders" a model for tree view.
 	 *
-	 * @param Model $objModel     the model to render.
+	 * @param ModelInterface $objModel     the model to render.
 	 *
 	 * @param int   $intLevel     the current level in the tree hierarchy.
 	 *
@@ -2142,7 +2142,7 @@ class DefaultController implements ControllerInterface
 	 * @param array $arrSubTables the tables that shall be rendered "below" this item.
 	 *
 	 */
-	protected function treeWalkModel(Model $objModel, $intLevel, $arrToggle, $arrSubTables = array())
+	protected function treeWalkModel(ModelInterface $objModel, $intLevel, $arrToggle, $arrSubTables = array())
 	{
 		$blnHasChild = false;
 
@@ -2873,7 +2873,7 @@ class DefaultController implements ControllerInterface
 	 * Check if a entry has some childs
 	 *
 	 * @param array $arrFilterPattern
-	 * @param Model $objParentModel
+	 * @param ModelInterface $objParentModel
 	 *
 	 * @return boolean True => has children | False => no children
 	 */
@@ -2909,7 +2909,7 @@ class DefaultController implements ControllerInterface
 		}
 	}
 
-	protected function setParent(Model  $objChildEntry, Model  $objParentEntry, $strTable)
+	protected function setParent(ModelInterface  $objChildEntry, ModelInterface  $objParentEntry, $strTable)
 	{
 		$arrChildCondition = $this->getDC()->getParentChildCondition($objParentEntry, $objChildEntry->getProviderName());
 		if (!($arrChildCondition && $arrChildCondition['setOn']))
@@ -2985,7 +2985,7 @@ class DefaultController implements ControllerInterface
 		return false;
 	}
 
-	protected function setRoot(Model $objCurrentEntry, $strTable)
+	protected function setRoot(ModelInterface $objCurrentEntry, $strTable)
 	{
 		$arrRootSetter = $this->getDC()->getRootSetter($strTable);
 		if (!($arrRootSetter && $arrRootSetter))
@@ -3012,7 +3012,7 @@ class DefaultController implements ControllerInterface
 	 * ---------------------------------------------------------------------
 	 * ////////////////////////////////////////////////////////////////// */
 
-	public function sortCollection(Model $a, Model $b)
+	public function sortCollection(ModelInterface $a, ModelInterface $b)
 	{
 		if ($a->getProperty($this->arrColSort['field']) == $b->getProperty($this->arrColSort['field']))
 		{

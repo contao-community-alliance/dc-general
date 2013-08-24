@@ -11,7 +11,7 @@
 
 namespace DcGeneral\Callbacks;
 
-use DcGeneral\Data\Interfaces\Model;
+use DcGeneral\Data\ModelInterface;
 
 // FIXME: remove System inheritance.
 class ContaoStyleCallbacks extends \System implements CallbacksInterface
@@ -90,7 +90,7 @@ class ContaoStyleCallbacks extends \System implements CallbacksInterface
 	/**
 	 * Call the customer label callback.
 	 *
-	 * @param Model  $objModelRow The current model for which the label shall get generated for.
+	 * @param ModelInterface  $objModelRow The current model for which the label shall get generated for.
 	 *
 	 * @param string $mixedLabel  The label string (as defined in DCA).
 	 *
@@ -98,7 +98,7 @@ class ContaoStyleCallbacks extends \System implements CallbacksInterface
 	 *
 	 * @return string
 	 */
-	public function labelCallback(Model $objModelRow, $mixedLabel, $args)
+	public function labelCallback(ModelInterface $objModelRow, $mixedLabel, $args)
 	{
 		// Load DCA
 		$arrDCA = $this->objDC->getDCA();
@@ -121,7 +121,7 @@ class ContaoStyleCallbacks extends \System implements CallbacksInterface
 	/**
 	 * Call the button callback for the regular operations.
 	 *
-	 * @param Model   $objModelRow          The current model instance for which the button shall be
+	 * @param ModelInterface   $objModelRow          The current model instance for which the button shall be
 	 *                                      generated.
 	 *
 	 * @param array   $arrOperation         The operation for which a button shall be generated
@@ -286,11 +286,11 @@ class ContaoStyleCallbacks extends \System implements CallbacksInterface
 	/**
 	 * Call the child record callback.
 	 *
-	 * @param Model $objModel TODO: document parameter $objModel
+	 * @param ModelInterface $objModel TODO: document parameter $objModel
 	 *
 	 * @return string|null
 	 */
-	public function childRecordCallback(Model $objModel)
+	public function childRecordCallback(ModelInterface $objModel)
 	{
 		// Load DCA
 		$arrDCA = $this->objDC->getDCA();
@@ -435,7 +435,7 @@ class ContaoStyleCallbacks extends \System implements CallbacksInterface
 	 *
 	 * @param type  $field TODO: document parameter $field
 	 *
-	 * @param Model $objModelRow
+	 * @param ModelInterface $objModelRow
 	 *
 	 * @return type  TODO: document result
 	 */
@@ -559,7 +559,7 @@ class ContaoStyleCallbacks extends \System implements CallbacksInterface
 	/**
 	 * Call the onsave_callback
 	 *
-	 * @param InterfaceGeneralModel $objModel The model that has been updated.
+	 * @param InterfaceGeneralModelInterface $objModel The model that has been updated.
 	 *
 	 * @return void
 	 */
@@ -619,7 +619,7 @@ class ContaoStyleCallbacks extends \System implements CallbacksInterface
 	 *
 	 * After the model has been updated, the onModelUpdateCallback will get triggered.
 	 *
-	 * @param InterfaceGeneralModel $objModel The model that will get updated.
+	 * @param ModelInterface $objModel The model that will get updated.
 	 *
 	 * @return void
 	 */
@@ -645,7 +645,7 @@ class ContaoStyleCallbacks extends \System implements CallbacksInterface
 	 * it merely just tells "we have loaded a model (from memory or database) and updated it's properties with
 	 * those from the POST data".
 	 *
-	 * @param InterfaceGeneralModel $objModel The model that has been updated.
+	 * @param ModelInterface $objModel The model that has been updated.
 	 *
 	 * @return void
 	 */

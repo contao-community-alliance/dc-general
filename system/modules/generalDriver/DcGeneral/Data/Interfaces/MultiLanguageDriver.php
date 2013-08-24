@@ -31,7 +31,7 @@ interface MultiLanguageDriver extends DriverInterface
 	 * @param mixed $mixID The ID of the record to retrieve.
 	 *
 	 * @todo: using Model here is perversion. We need to change this!
-	 * @return Model
+	 * @return ModelInterface
 	 */
 	public function getFallbackLanguage($mixID);
 

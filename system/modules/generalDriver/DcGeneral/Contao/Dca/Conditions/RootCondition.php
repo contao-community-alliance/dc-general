@@ -49,7 +49,7 @@ class RootCondition
 	/**
 	 * Apply a condition to a model.
 	 *
-	 * @param \DcGeneral\Data\Interfaces\Model $objModel
+	 * @param ModelInterface $objModel
 	 *
 	 * @return void
 	 */
@@ -65,7 +65,7 @@ class RootCondition
 	/**
 	 * Test if the given model is indeed a root object for this condition.
 	 *
-	 * @param \DcGeneral\Data\Interfaces\Model $objModel
+	 * @param ModelInterface $objModel
 	 *
 	 * @return bool
 	 */

@@ -14,7 +14,7 @@ namespace DcGeneral\Interfaces;
 use DcGeneral\DataDefinition\Interfaces\Container;
 use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\DriverInterface;
-use DcGeneral\Data\Interfaces\Model;
+use DcGeneral\Data\ModelInterface;
 use DcGeneral\Panel\Interfaces\Container as PanelContainer;
 
 interface DataContainer extends \editable, \listable
@@ -73,13 +73,13 @@ interface DataContainer extends \editable, \listable
 
 	/**
 	 *
-	 * @param Model $objCurrentModel
+	 * @param ModelInterface $objCurrentModel
 	 */
-	public function setCurrentModel(Model $objCurrentModel);
+	public function setCurrentModel(ModelInterface $objCurrentModel);
 
 	/**
 	 *
-	 * @return Model
+	 * @return ModelInterface
 	 */
 	public function getCurrentModel();
 }

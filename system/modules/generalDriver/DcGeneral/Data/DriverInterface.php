@@ -104,7 +104,7 @@ interface DriverInterface
 	 *
 	 * @return Model The passed model.
 	 */
-	 public function save(Model $objItem);
+	 public function save(ModelInterface $objItem);
 
 	/**
 	 * Save a collection of items to the data provider.
@@ -135,7 +135,7 @@ interface DriverInterface
 	 *
 	 * @return void
 	 */
-	public function saveVersion(Model $objModel, $strUsername);
+	public function saveVersion(ModelInterface $objModel, $strUsername);
 
 	/**
 	 * Return a model based of the version information.

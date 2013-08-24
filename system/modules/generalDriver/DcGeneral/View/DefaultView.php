@@ -11,7 +11,7 @@
 
 namespace DcGeneral\View;
 
-use DcGeneral\Data\Interfaces\Model;
+use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\Interfaces\MultiLanguageDriver;
 use DcGeneral\Data\DCGE;
@@ -115,7 +115,7 @@ class DefaultView implements ViewInterface
 	}
 
 	/**
-	 * @return \DcGeneral\Data\Interfaces\Model
+	 * @return ModelInterface
 	 */
 	protected function getCurrentModel()
 	{
@@ -744,7 +744,7 @@ class DefaultView implements ViewInterface
 
 	/**
 	 * @todo Update for clipboard
-	 * @param Model $objModel
+	 * @param ModelInterface $objModel
 	 * @return string
 	 */
 	protected function renderViewParentButtons($objModel)
@@ -1838,7 +1838,7 @@ class DefaultView implements ViewInterface
 	/**
 	 * Compile buttons from the table configuration array and return them as HTML
 	 *
-	 * @param Model $objModelRow
+	 * @param ModelInterface $objModelRow
 	 * @param string $strTable
 	 * @param array $arrRootIds
 	 * @param boolean $blnCircularReference
@@ -1847,7 +1847,7 @@ class DefaultView implements ViewInterface
 	 * @param int $strNext
 	 * @return string
 	 */
-	protected function generateButtons(Model $objModelRow, $strTable, $arrRootIds = array(), $blnCircularReference = false, $arrChildRecordIds = null, $strPrevious = null, $strNext = null)
+	protected function generateButtons(ModelInterface $objModelRow, $strTable, $arrRootIds = array(), $blnCircularReference = false, $arrChildRecordIds = null, $strPrevious = null, $strNext = null)
 	{
 		$arrOperations = $this->getDataDefinition()->getOperationNames();
 		if (!$arrOperations)
