@@ -16,7 +16,7 @@ use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\DefaultCollection;
 use DcGeneral\Data\DefaultConfig;
-use DcGeneral\Data\Model as DataModel;
+use DcGeneral\Data\DefaultModel;
 
 
 class DefaultDriver implements DriverInterface
@@ -81,7 +81,7 @@ class DefaultDriver implements DriverInterface
 	 */
 	public function getEmptyModel()
 	{
-		$objModel = new DataModel();
+		$objModel = new DefaultModel();
 		$objModel->setProviderName($this->strSource);
 		return $objModel;
 	}

@@ -34,7 +34,7 @@ interface DriverInterface
 	/**
 	 * Fetch an empty single record (new model).
 	 *
-	 * @return Model
+	 * @return ModelInterface
 	 */
 	public function getEmptyModel();
 
@@ -54,7 +54,7 @@ interface DriverInterface
 	 *
 	 * @param ConfigInterface $objConfig
 	 *
-	 * @return Model
+	 * @return ModelInterface
 	 */
 	public function fetch(ConfigInterface $objConfig);
 
@@ -100,9 +100,9 @@ interface DriverInterface
 	 * If the item does not have an Id yet, the save operation will add it as a new row to the database and
 	 * populate the Id of the model accordingly.
 	 *
-	 * @param Model $objItem   The model to save back.
+	 * @param ModelInterface $objItem   The model to save back.
 	 *
-	 * @return Model The passed model.
+	 * @return ModelInterface The passed model.
 	 */
 	 public function save(ModelInterface $objItem);
 
@@ -129,7 +129,7 @@ interface DriverInterface
 	/**
 	 * Save a new version of a model.
 	 *
-	 * @param Model $objModel    The model for which a new version shall be created.
+	 * @param ModelInterface $objModel    The model for which a new version shall be created.
 	 *
 	 * @param string                $strUsername The username to attach to the version as creator.
 	 *
@@ -144,7 +144,7 @@ interface DriverInterface
 	 *
 	 * @param mixed $mixVersion The ID of the version.
 	 *
-	 * @return Model
+	 * @return ModelInterface
 	 */
 	public function getVersion($mixID, $mixVersion);
 
@@ -220,9 +220,9 @@ interface DriverInterface
 	/**
 	 * Check if two models have the same values in all properties.
 	 *
-	 * @param Model $objModel1 The first model to compare.
+	 * @param ModelInterface $objModel1 The first model to compare.
 	 *
-	 * @param Model $objModel2 The second model to compare.
+	 * @param ModelInterface $objModel2 The second model to compare.
 	 *
 	 * @return boolean True - If both models are same, false if not.
 	 */
