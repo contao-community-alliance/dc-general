@@ -5,11 +5,11 @@ namespace DcGeneral\Panel;
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\DataContainerInterface;
-use DcGeneral\Panel\Interfaces\Container;
+use DcGeneral\Panel\PanelContainerInterface;
 use DcGeneral\Panel\Interfaces\Element;
 use DcGeneral\Panel\Interfaces\Panel;
 
-class BaseContainer implements Container
+class BaseContainer implements PanelContainerInterface
 {
 	/**
 	 * @var DataContainerInterface
@@ -165,7 +165,7 @@ class BaseContainer implements Container
 	/**
 	 * @param ContainerInterface $objDefinition
 	 *
-	 * @return Container|void
+	 * @return PanelContainerInterface|void
 	 * @throws \RuntimeException
 	 */
 	public function buildFrom($objDefinition)

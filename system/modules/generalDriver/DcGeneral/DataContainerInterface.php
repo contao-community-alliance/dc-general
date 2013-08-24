@@ -15,7 +15,6 @@ use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\DriverInterface;
 use DcGeneral\Data\ModelInterface;
-use DcGeneral\Panel\Interfaces\Container as PanelContainer;
 
 interface DataContainerInterface extends \editable, \listable
 {

@@ -86,14 +86,14 @@ interface EnvironmentInterface
 	public function getCallbackHandler();
 
 	/**
-	 * @param \DcGeneral\Panel\Interfaces\Container $objPanelContainer
+	 * @param \DcGeneral\Panel\PanelContainerInterface $objPanelContainer
 	 *
 	 * @return EnvironmentInterface
 	 */
 	public function setPanelContainer($objPanelContainer);
 
 	/**
-	 * @return \DcGeneral\Panel\Interfaces\Container
+	 * @return \DcGeneral\Panel\PanelContainerInterface
 	 */
 	public function getPanelContainer();
 

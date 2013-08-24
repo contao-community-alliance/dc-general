@@ -10,7 +10,7 @@ interface Panel extends \IteratorAggregate
 	/**
 	 * Get the parenting container.
 	 *
-	 * @return Container
+	 * @return PanelContainerInterface
 	 */
 	public function getContainer();
 
@@ -21,7 +21,7 @@ interface Panel extends \IteratorAggregate
 	 *
 	 * @return Panel
 	 */
-	public function setContainer(Container $objContainer);
+	public function setContainer(PanelContainerInterface $objContainer);
 
 	/**
 	 * @param string  $strKey     Name of the panel.

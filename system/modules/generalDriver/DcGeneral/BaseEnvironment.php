@@ -14,7 +14,7 @@ namespace DcGeneral;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\InputProviderInterface;
-use DcGeneral\Panel\Interfaces\Container;
+use DcGeneral\Panel\PanelContainerInterface;
 
 
 class BaseEnvironment implements EnvironmentInterface
@@ -48,7 +48,7 @@ class BaseEnvironment implements EnvironmentInterface
 	protected $objCallbackHandler;
 
 	/**
-	 * @var \DcGeneral\Panel\Interfaces\Container
+	 * @var PanelContainerInterface
 	 */
 	protected $objPanelContainer;
 
