@@ -5,9 +5,9 @@ namespace DcGeneral\Panel;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Panel\AbstractElement;
 use DcGeneral\Panel\PanelElementInterface;
-use DcGeneral\Panel\Interfaces\SearchElement;
+use DcGeneral\Panel\SearchElementInterface;
 
-class BaseSearchElement extends AbstractElement implements SearchElement
+class BaseSearchElement extends AbstractElement implements SearchElementInterface
 {
 	/**
 	 * The properties to be allowed to be searched on.

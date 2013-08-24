@@ -9,7 +9,7 @@ interface SortElement extends PanelElementInterface
 	 *
 	 * @param int $intFlag The flag to use.
 	 *
-	 * @return SearchElement
+	 * @return SearchElementInterface
 	 */
 	public function setDefaultFlag($intFlag);
 

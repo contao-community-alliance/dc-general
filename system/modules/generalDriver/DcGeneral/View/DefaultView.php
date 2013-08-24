@@ -17,7 +17,7 @@ use DcGeneral\Data\MultiLanguageDriverInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Panel\FilterElementInterface;
 use DcGeneral\Panel\LimitElementInterface;
-use DcGeneral\Panel\Interfaces\SearchElement;
+use DcGeneral\Panel\SearchElementInterface;
 use DcGeneral\Panel\Interfaces\SortElement;
 use DcGeneral\View\Interfaces\View as ViewInterface;
 
@@ -2085,7 +2085,7 @@ class DefaultView implements ViewInterface
 				{
 					$objElementTemplate = $this->getTemplate('dcbe_general_panel_limit');
 				}
-				elseif ($objElement instanceof SearchElement)
+				elseif ($objElement instanceof SearchElementInterface)
 				{
 					$objElementTemplate = $this->getTemplate('dcbe_general_panel_search');
 				}
