@@ -11,7 +11,7 @@
 
 namespace DcGeneral\Contao\Dca\Conditions;
 
-use DcGeneral\DataDefinition\Interfaces\ParentChildCondition as ParentChildConditionInterface;
+use DcGeneral\DataDefinition\ParentChildConditionInterface;
 use DcGeneral\DataDefinition\ContainerInterface;
 
 /**

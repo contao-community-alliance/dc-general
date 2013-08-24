@@ -125,7 +125,7 @@ interface ContainerInterface
 	 *
 	 * @param string $strDstTable The child table.
 	 *
-	 * @return \DcGeneral\DataDefinition\Interfaces\ParentChildCondition
+	 * @return \DcGeneral\DataDefinition\ParentChildConditionInterface
 	 */
 	public function getChildCondition($strSrcTable, $strDstTable);
 
@@ -134,7 +134,7 @@ interface ContainerInterface
 	 *
 	 * @param string $strSrcTable The parenting table for which child conditions shall be assembled for (optional).
 	 *
-	 * @return \DcGeneral\DataDefinition\Interfaces\ParentChildCondition[]
+	 * @return \DcGeneral\DataDefinition\ParentChildConditionInterface[]
 	 */
 	public function getChildConditions($strSrcTable = '');
 }
