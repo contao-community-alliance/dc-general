@@ -11,7 +11,7 @@
 
 namespace DcGeneral\Contao\Dca\Conditions;
 
-use DcGeneral\DataDefinition\Interfaces\RootCondition as RootConditionInterface;
+use DcGeneral\DataDefinition\RootConditionInterface;
 use DcGeneral\DataDefinition\Interfaces\BaseCondition;
 
 class RootCondition

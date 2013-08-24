@@ -11,32 +11,12 @@
 
 namespace DcGeneral\DataDefinition\Interfaces;
 
-use DcGeneral\DataDefinition\ConditionInterface;
+use DcGeneral\DataDefinition\RootConditionInterface;
 
-interface RootCondition extends ConditionInterface
+trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
+/**
+ * @deprecated
+ */
+interface RootCondition extends RootConditionInterface
 {
-	/**
-	 * Get the condition as filter.
-	 *
-	 * @return array
-	 */
-	public function getFilter();
-
-	/**
-	 * Apply a condition to a model.
-	 *
-	 * @param ModelInterface $objModel
-	 *
-	 * @return void
-	 */
-	public function applyTo($objModel);
-
-	/**
-	 * Test if the given model is indeed a root object for this condition.
-	 *
-	 * @param ModelInterface $objModel
-	 *
-	 * @return bool
-	 */
-	public function matches($objModel);
 }
