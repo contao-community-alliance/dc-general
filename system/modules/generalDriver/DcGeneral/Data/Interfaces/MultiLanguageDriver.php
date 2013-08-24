@@ -11,7 +11,9 @@
 
 namespace DcGeneral\Data\Interfaces;
 
-interface MultiLanguageDriver extends Driver
+use DcGeneral\Data\DriverInterface;
+
+interface MultiLanguageDriver extends DriverInterface
 {
 	/**
 	 * Get all available languages of a certain record.
@@ -38,7 +40,7 @@ interface MultiLanguageDriver extends Driver
 	 *
 	 * @param string $strLanguage The new language, use short tag "2 chars like de, fr etc."
 	 *
-	 * @return Driver
+	 * @return DriverInterface
 	 */
 	public function setCurrentLanguage($strLanguage);
 

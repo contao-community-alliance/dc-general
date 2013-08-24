@@ -20,7 +20,7 @@ use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\Driver as DefaultDriver;
 use DcGeneral\Data\CollectionInterface;
-use DcGeneral\Data\Interfaces\Driver;
+use DcGeneral\Data\DriverInterface;
 use DcGeneral\Data\Interfaces\Model;
 use DcGeneral\Helper\WidgetAccessor;
 use DcGeneral\Interfaces\Environment;
@@ -78,13 +78,13 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 
 	/**
 	 * The provider that shall be used for data retrival.
-	 * @var Driver
+	 * @var DriverInterface
 	 */
 	protected $objDataProvider = null;
 
 	/**
 	 * Includes all data provider
-	 * @var Driver[]
+	 * @var DriverInterface[]
 	 */
 	protected $arrDataProvider = array();
 

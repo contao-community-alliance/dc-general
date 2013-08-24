@@ -13,7 +13,7 @@ namespace DcGeneral\Interfaces;
 
 use DcGeneral\DataDefinition\Interfaces\Container;
 use DcGeneral\Data\CollectionInterface;
-use DcGeneral\Data\Interfaces\Driver;
+use DcGeneral\Data\DriverInterface;
 use DcGeneral\Data\Interfaces\Model;
 use DcGeneral\Panel\Interfaces\Container as PanelContainer;
 
@@ -39,7 +39,7 @@ interface DataContainer extends \editable, \listable
 	 *
 	 * @param string $strSource
 	 *
-	 * @return Driver
+	 * @return DriverInterface
 	 */
 	public function getDataProvider($strSource = null);
 
