@@ -11,7 +11,7 @@
 
 namespace DcGeneral\View\Interfaces;
 
-use DcGeneral\Interfaces\DataContainer;
+use DcGeneral\DataContainerInterface;
 
 // TODO: we need to flesh this out some more out and add real interface methods. Currently this interface is rather useless.
 interface View
@@ -19,14 +19,14 @@ interface View
 	/**
 	 * Set the DC
 	 *
-	 * @param DataContainer $objDC
+	 * @param DataContainerInterface $objDC
 	 */
 	public function setDC($objDC);
 
 	/**
 	 * Get the DC
 	 *
-	 * @return DataContainer
+	 * @return DataContainerInterface
 	 */
 	public function getDC();
 

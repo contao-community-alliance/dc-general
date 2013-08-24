@@ -15,7 +15,7 @@ use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ModelInterface;
 
-use DcGeneral\Interfaces\DataContainer;
+use DcGeneral\DataContainerInterface;
 use DcGeneral\Panel\BasePanel;
 
 class DefaultController implements ControllerInterface
@@ -31,7 +31,7 @@ class DefaultController implements ControllerInterface
 	/**
 	 * Current DC General
 	 *
-	 * @var DataContainer
+	 * @var DataContainerInterface
 	 */
 	protected $objDC = null;
 
@@ -117,7 +117,7 @@ class DefaultController implements ControllerInterface
 
 	/**
 	 * Get DC General
-	 * @return DataContainer;
+	 * @return DataContainerInterface;
 
 	 */
 	public function getDC()
@@ -127,7 +127,7 @@ class DefaultController implements ControllerInterface
 
 	/**
 	 * Set DC General
-	 * @param DataContainer $objDC
+	 * @param DataContainerInterface $objDC
 	 */
 	public function setDC($objDC)
 	{

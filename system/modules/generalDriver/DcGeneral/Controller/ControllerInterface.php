@@ -11,23 +11,23 @@
 
 namespace DcGeneral\Controller;
 
-use DcGeneral\Interfaces\DataContainer;
+use DcGeneral\DataContainerInterface;
 
 // TODO: we need to flesh this out some more out and add real interface methods. Currently this interface is rather useless.
 interface ControllerInterface
 {
 
 	/**
-	 * Set the DataContainer.
+	 * Set the DataContainerInterface.
 	 *
-	 * @param DataContainer $objDC
+	 * @param DataContainerInterface $objDC
 	 */
 	public function setDC($objDC);
 
 	/**
-	 * Get the DataContainer.
+	 * Get the DataContainerInterface.
 	 *
-	 * @return DataContainer
+	 * @return DataContainerInterface
 	 */
 	public function getDC();
 

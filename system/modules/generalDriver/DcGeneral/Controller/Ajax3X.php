@@ -11,7 +11,7 @@
 
 namespace DcGeneral\Controller;
 
-use DcGeneral\Interfaces\DataContainer;
+use DcGeneral\DataContainerInterface;
 
 /**
  * Class GeneralAjax - General purpose Ajax handler for "executePostActions" in Contao 3.X as we can not use the default
@@ -28,7 +28,7 @@ class Ajax3X extends Ajax
 		parent::__construct();
 	}
 
-	protected function loadPagetree(DataContainer $objDc)
+	protected function loadPagetree(DataContainerInterface $objDc)
 	{
 		$arrData['strTable'] = $objDc->getTable();
 		$arrData['id'] = self::getAjaxName() ?: $objDc->getId();
@@ -42,7 +42,7 @@ class Ajax3X extends Ajax
 		exit;
 	}
 
-	protected function loadFiletree(DataContainer $objDc)
+	protected function loadFiletree(DataContainerInterface $objDc)
 	{
 		$arrData['strTable'] = $objDc->getTable();
 		$arrData['id'] = self::getAjaxName() ?: $objDc->getId();
@@ -88,7 +88,7 @@ class Ajax3X extends Ajax
 		return $varValue;
 	}
 
-	protected function reloadTree($strType, DataContainer $objDc)
+	protected function reloadTree($strType, DataContainerInterface $objDc)
 	{
 		$intId        = self::getGet('id');
 		$strFieldName = self::getPost('name');
@@ -134,12 +134,12 @@ class Ajax3X extends Ajax
 		exit;
 	}
 
-	protected function reloadPagetree(DataContainer $objDc)
+	protected function reloadPagetree(DataContainerInterface $objDc)
 	{
 		$this->reloadTree('page', $objDc);
 	}
 
-	protected function reloadFiletree(DataContainer $objDc)
+	protected function reloadFiletree(DataContainerInterface $objDc)
 	{
 		$this->reloadTree('file', $objDc);
 	}

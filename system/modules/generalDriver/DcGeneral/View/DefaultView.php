@@ -24,7 +24,7 @@ use DcGeneral\View\Interfaces\View as ViewInterface;
 // TODO: this is not as elegant as it could be.
 use DcGeneral\Contao\BackendBindings;
 
-use DcGeneral\Interfaces\DataContainer;
+use DcGeneral\DataContainerInterface;
 
 class DefaultView implements ViewInterface
 {
@@ -48,7 +48,7 @@ class DefaultView implements ViewInterface
 
 	/**
 	 * Driver class
-	 * @var DataContainer
+	 * @var DataContainerInterface
 	 */
 	protected $objDC = null;
 
@@ -74,7 +74,7 @@ class DefaultView implements ViewInterface
 	}
 
 	/**
-	 * @return DataContainer
+	 * @return DataContainerInterface
 	 */
 	public function getDC()
 	{
@@ -82,7 +82,7 @@ class DefaultView implements ViewInterface
 	}
 
 	/**
-	 * @param DataContainer $objDC
+	 * @param DataContainerInterface $objDC
 	 */
 	public function setDC($objDC)
 	{

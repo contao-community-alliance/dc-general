@@ -3,7 +3,7 @@
 namespace DcGeneral\Panel;
 
 use DcGeneral\Data\ConfigInterface;
-use DcGeneral\Interfaces\DataContainer;
+use DcGeneral\DataContainerInterface;
 use DcGeneral\Panel\Interfaces\Element;
 use DcGeneral\Panel\Interfaces\Panel;
 use DcGeneral\Interfaces\InputProvider;
@@ -20,7 +20,7 @@ abstract class AbstractElement implements Element
 	/**
 	 * Convenience method to retrieve DataContainer for this Element.
 	 *
-	 * @return DataContainer
+	 * @return DataContainerInterface
 	 */
 	public function getDataContainer()
 	{
