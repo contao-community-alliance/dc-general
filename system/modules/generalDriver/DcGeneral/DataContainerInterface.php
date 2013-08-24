@@ -29,7 +29,7 @@ interface DataContainerInterface extends \editable, \listable
 	/**
 	 * Return the Environment for the DC.
 	 *
-	 * @return Environment
+	 * @return EnvironmentInterface
 	 */
 	public function getEnvironment();
 

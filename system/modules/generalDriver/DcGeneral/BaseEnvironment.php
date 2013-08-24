@@ -11,13 +11,13 @@
 
 namespace DcGeneral;
 
-use DcGeneral\Interfaces\Environment;
+use DcGeneral\EnvironmentInterface;
 use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\Interfaces\InputProvider;
 use DcGeneral\Panel\Interfaces\Container;
 
 
-class BaseEnvironment implements Environment
+class BaseEnvironment implements EnvironmentInterface
 {
 	/**
 	 * @var ControllerInterface
