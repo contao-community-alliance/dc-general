@@ -19,7 +19,7 @@ use DcGeneral\Panel\FilterElementInterface;
 use DcGeneral\Panel\LimitElementInterface;
 use DcGeneral\Panel\SearchElementInterface;
 use DcGeneral\Panel\SortElementInterface;
-use DcGeneral\View\Interfaces\View as ViewInterface;
+use DcGeneral\View\ViewInterface;
 
 // TODO: this is not as elegant as it could be.
 use DcGeneral\Contao\BackendBindings;

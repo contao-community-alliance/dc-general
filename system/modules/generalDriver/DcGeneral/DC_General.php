@@ -26,7 +26,7 @@ use DcGeneral\Helper\WidgetAccessor;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\BaseEnvironment;
 use DcGeneral\View\DefaultView as DefaultView;
-use DcGeneral\View\Interfaces\View;
+use DcGeneral\View\ViewInterface;
 
 class DC_General extends \DataContainer implements DataContainerInterface
 {
@@ -90,7 +90,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 
 	/**
 	 * The provider that shall be used for view retrival.
-	 * @var View
+	 * @var ViewInterface
 	 */
 	protected $objViewHandler = null;
 
