@@ -13,6 +13,6 @@ trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
 /**
  * @deprecated
  */
-interface InterfaceGeneralView extends DcGeneral\View\Interfaces\View
+interface InterfaceGeneralView extends DcGeneral\View\ViewInterface
 {
 }

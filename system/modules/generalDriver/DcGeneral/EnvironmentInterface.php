@@ -32,7 +32,7 @@ interface EnvironmentInterface
 	/**
 	 * Set the View for the current setup.
 	 *
-	 * @param \DcGeneral\View\Interfaces\View $objView The view to use.
+	 * @param \DcGeneral\ViewInterface $objView The view to use.
 	 *
 	 * @return EnvironmentInterface
 	 */
@@ -41,7 +41,7 @@ interface EnvironmentInterface
 	/**
 	 * Retrieve the Controller from the current setup.
 	 *
-	 * @return \DcGeneral\View\Interfaces\View
+	 * @return \DcGeneral\ViewInterface
 	 */
 	public function getView();
 

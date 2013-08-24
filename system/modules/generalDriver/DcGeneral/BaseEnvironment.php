@@ -25,7 +25,7 @@ class BaseEnvironment implements EnvironmentInterface
 	protected $objController;
 
 	/**
-	 * @var \DcGeneral\View\Interfaces\View
+	 * @var \DcGeneral\View\ViewInterface
 	 */
 	protected $objView;
 
