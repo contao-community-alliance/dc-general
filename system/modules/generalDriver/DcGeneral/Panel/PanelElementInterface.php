@@ -36,9 +36,9 @@ interface PanelElementInterface
 	/**
 	 * Render the element using the given Template
 	 *
-	 * @param Template $objTemplate The Template to use.
+	 * @param PanelTemplateInterface $objTemplate The Template to use.
 	 *
 	 * @return PanelElementInterface
 	 */
-	public function render($objTemplate);
+	public function render(PanelTemplateInterface $objTemplate);
 }
