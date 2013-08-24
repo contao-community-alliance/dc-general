@@ -1,8 +1,8 @@
 <?php
 
-namespace DcGeneral\Panel;
+namespace DcGeneral\Panel\Interfaces;
 
-use DcGeneral\View\Interfaces\Template as BaseTemplate;
+use DcGeneral\Panel\PanelTemplateInterface;
 
 trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
 /**
