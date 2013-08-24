@@ -38,7 +38,7 @@ class MultiLanguageDriver extends Driver implements MultiLanguageDriverInterface
 	 * @param mixed $mixID The ID of the record to retrieve.
 	 *
 	 * @todo: using Collection here is perversion. We need to change this!
-	 * @return Collection
+	 * @return CollectionInterface
 	 */
 	public function getLanguages($mixID)
 	{
