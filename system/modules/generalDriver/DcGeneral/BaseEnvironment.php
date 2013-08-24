@@ -13,7 +13,7 @@ namespace DcGeneral;
 
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Controller\ControllerInterface;
-use DcGeneral\Interfaces\InputProvider;
+use DcGeneral\InputProviderInterface;
 use DcGeneral\Panel\Interfaces\Container;
 
 
@@ -37,7 +37,7 @@ class BaseEnvironment implements EnvironmentInterface
 	protected $objDataDefinition;
 
 	/**
-	 * @var InputProvider
+	 * @var InputProviderInterface
 	 */
 	protected $objInputProvider;
 
