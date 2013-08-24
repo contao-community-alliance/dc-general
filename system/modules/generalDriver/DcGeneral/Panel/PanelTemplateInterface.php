@@ -2,9 +2,9 @@
 
 namespace DcGeneral\Panel;
 
-use DcGeneral\View\Interfaces\Template as BaseTemplate;
+use DcGeneral\View\ViewTemplateInterface;
 
-interface PanelTemplateInterface extends BaseTemplate
+interface PanelTemplateInterface extends ViewTemplateInterface
 {
 
 }
