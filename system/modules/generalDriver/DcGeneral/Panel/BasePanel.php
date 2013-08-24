@@ -5,9 +5,9 @@ namespace DcGeneral\Panel;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Panel\PanelContainerInterface;
 use DcGeneral\Panel\PanelElementInterface;
-use DcGeneral\Panel\Interfaces\Panel;
+use DcGeneral\Panel\PanelInterface;
 
-class BasePanel implements Panel
+class BasePanel implements PanelInterface
 {
 	/**
 	 * @var PanelContainerInterface

@@ -2,51 +2,12 @@
 
 namespace DcGeneral\Panel\Interfaces;
 
-use DcGeneral\Data\ConfigInterface;
-use DcGeneral\DataDefinition\ContainerInterface;
+use DcGeneral\Panel\PanelInterface;
 
-interface Panel extends \IteratorAggregate
+trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
+/**
+ * @deprecated
+ */
+interface Panel extends PanelInterface
 {
-	/**
-	 * Get the parenting container.
-	 *
-	 * @return PanelContainerInterface
-	 */
-	public function getContainer();
-
-	/**
-	 * Set the parenting container.
-	 *
-	 * @param ContainerInterface $objContainer The Container to be used as parent.
-	 *
-	 * @return Panel
-	 */
-	public function setContainer(PanelContainerInterface $objContainer);
-
-	/**
-	 * @param string  $strKey     Name of the panel.
-	 *
-	 * @param PanelElementInterface $objElement The element instance to add.
-	 *
-	 * @return mixed
-	 */
-	public function addElement($strKey, $objElement);
-
-	/**
-	 * @param $strKey
-	 *
-	 * @return PanelElementInterface
-	 */
-	public function getElement($strKey);
-
-	/**
-	 *
-	 *
-	 * @param ConfigInterface  $objConfig        The config to which the initialization shall be applied to.
-	 *
-	 * @param PanelElementInterface $objElement The element to be initialized (if any).
-	 *
-	 * @return void
-	 */
-	public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null);
 }
