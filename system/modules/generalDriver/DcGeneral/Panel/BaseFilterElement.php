@@ -15,9 +15,9 @@ use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Panel\AbstractElement;
 use DcGeneral\Panel\PanelElementInterface;
-use DcGeneral\Panel\Interfaces\FilterElement;
+use DcGeneral\Panel\FilterElementInterface;
 
-class BaseFilterElement extends AbstractElement implements FilterElement
+class BaseFilterElement extends AbstractElement implements FilterElementInterface
 {
 	/**
 	 * @var string

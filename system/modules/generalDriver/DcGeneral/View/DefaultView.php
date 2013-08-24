@@ -15,7 +15,7 @@ use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\MultiLanguageDriverInterface;
 use DcGeneral\Data\DCGE;
-use DcGeneral\Panel\Interfaces\FilterElement;
+use DcGeneral\Panel\FilterElementInterface;
 use DcGeneral\Panel\Interfaces\LimitElement;
 use DcGeneral\Panel\Interfaces\SearchElement;
 use DcGeneral\Panel\Interfaces\SortElement;
@@ -2077,7 +2077,7 @@ class DefaultView implements ViewInterface
 			foreach ($objPanel as $objElement)
 			{
 				$objElementTemplate = null;
-				if ($objElement instanceof FilterElement)
+				if ($objElement instanceof FilterElementInterface)
 				{
 					$objElementTemplate = $this->getTemplate('dcbe_general_panel_filter');
 				}
