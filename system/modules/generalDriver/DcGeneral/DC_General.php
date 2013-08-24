@@ -18,7 +18,7 @@ use DcGeneral\Contao\InputProvider;
 use DcGeneral\Controller\DefaultController as DefaultController;
 use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\Data\DCGE;
-use DcGeneral\Data\Driver as DefaultDriver;
+use DcGeneral\Data\DefaultDriver;
 use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\DriverInterface;
 use DcGeneral\Data\ModelInterface;
