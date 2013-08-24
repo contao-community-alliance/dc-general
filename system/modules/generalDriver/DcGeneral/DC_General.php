@@ -16,7 +16,7 @@ use DcGeneral\Callbacks\CallbacksInterface;
 use DcGeneral\Clipboard\DefaultClipboard;
 use DcGeneral\Contao\InputProvider;
 use DcGeneral\Controller\DefaultController as DefaultController;
-use DcGeneral\Controller\Interfaces\Controller;
+use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\Driver as DefaultDriver;
 use DcGeneral\Data\CollectionInterface;
@@ -96,7 +96,7 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 
 	/**
 	 * The controller that shall be used .
-	 * @var Controller
+	 * @var ControllerInterface
 	 */
 	protected $objController = null;
 

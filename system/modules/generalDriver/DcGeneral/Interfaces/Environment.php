@@ -16,7 +16,7 @@ interface Environment
 	/**
 	 * Set the Controller for the current setup.
 	 *
-	 * @param \DcGeneral\Controller\Interfaces\Controller $objController The controller to use.
+	 * @param \DcGeneral\Controller\ControllerInterface $objController The controller to use.
 	 *
 	 * @return Environment
 	 */
@@ -25,7 +25,7 @@ interface Environment
 	/**
 	 * Retrieve the Controller from the current setup.
 	 *
-	 * @return \DcGeneral\Controller\Interfaces\Controller
+	 * @return \DcGeneral\Controller\ControllerInterface
 	 */
 	public function getController();
 

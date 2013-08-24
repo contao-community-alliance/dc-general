@@ -13,6 +13,6 @@ trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
 /**
  * @deprecated
  */
-interface InterfaceGeneralController extends DcGeneral\Controller\Interfaces\Controller
+interface InterfaceGeneralController extends DcGeneral\Controller\ControllerInterface
 {
 }
