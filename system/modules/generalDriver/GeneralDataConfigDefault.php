@@ -10,6 +10,6 @@
  */
 
 trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
-class GeneralDataConfigDefault extends DcGeneral\Data\Config
+class GeneralDataConfigDefault extends DcGeneral\Data\DefaultConfig
 {
 }
