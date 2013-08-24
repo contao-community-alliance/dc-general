@@ -1190,7 +1190,7 @@ class DefaultController implements ControllerInterface
 
 	protected function buildPanel()
 	{
-		$objContainer = new \DcGeneral\Panel\BaseContainer();
+		$objContainer = new \DcGeneral\Panel\DefaultPanelContainer();
 		$objContainer->setDataContainer($this->getDC());
 
 		$objContainer->buildFrom($this->getDC()->getDataDefinition());

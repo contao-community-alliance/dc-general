@@ -9,7 +9,7 @@ use DcGeneral\Panel\PanelContainerInterface;
 use DcGeneral\Panel\PanelElementInterface;
 use DcGeneral\Panel\PanelInterface;
 
-class BaseContainer implements PanelContainerInterface
+class DefaultPanelContainer implements PanelContainerInterface
 {
 	/**
 	 * @var DataContainerInterface
@@ -87,7 +87,7 @@ class BaseContainer implements PanelContainerInterface
 				continue;
 			}
 
-			$objElement = new BaseFilterElement();
+			$objElement = new DefaultFilterElement();
 			$objElement->setPropertyName($strProperty);
 
 			$objPanel->addElement($strProperty, $objElement);
