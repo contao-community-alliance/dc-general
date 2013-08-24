@@ -5,9 +5,9 @@ namespace DcGeneral\Panel;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Panel\AbstractElement;
 use DcGeneral\Panel\PanelElementInterface;
-use DcGeneral\Panel\Interfaces\LimitElement;
+use DcGeneral\Panel\LimitElementInterface;
 
-class BaseLimitElement extends AbstractElement implements LimitElement
+class BaseLimitElement extends AbstractElement implements LimitElementInterface
 {
 	/**
 	 * @var int
