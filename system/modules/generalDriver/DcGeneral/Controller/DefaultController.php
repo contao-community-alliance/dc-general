@@ -11,7 +11,7 @@
 
 namespace DcGeneral\Controller;
 
-use DcGeneral\Controller\Interfaces\Controller as ControllerInterface;
+use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\Interfaces\Model;
 
