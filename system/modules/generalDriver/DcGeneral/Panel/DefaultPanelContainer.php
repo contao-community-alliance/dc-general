@@ -158,7 +158,7 @@ class DefaultPanelContainer implements PanelContainerInterface
 
 	protected function buildLimit(PanelInterface $objPanel)
 	{
-		$objElement = new BaseLimitElement();
+		$objElement = new DefaultLimitElement();
 		$objPanel->addElement('limit', $objElement);
 	}
 
