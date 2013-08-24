@@ -4,7 +4,7 @@ namespace DcGeneral\Panel\Interfaces;
 
 use DcGeneral\DataDefinition\Interfaces\Container as Definition;
 use DcGeneral\Interfaces\DataContainer;
-use DcGeneral\Data\Interfaces\Config;
+use DcGeneral\Data\ConfigInterface;
 
 interface Container extends \IteratorAggregate
 {
@@ -39,13 +39,13 @@ interface Container extends \IteratorAggregate
 	/**
 	 * Initialize all panels and apply all restrictions to the given Config.
 	 *
-	 * @param Config  $objConfig The data config to be populated with the element values.
+	 * @param ConfigInterface  $objConfig The data config to be populated with the element values.
 	 *
 	 * @param Element $objElement The element currently being initialized.
 	 *
 	 * @return Container
 	 */
-	public function initialize(Config $objConfig, Element $objElement = null);
+	public function initialize(ConfigInterface $objConfig, Element $objElement = null);
 
 	/**
 	 * Build the container from the given data container array.

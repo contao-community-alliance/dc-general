@@ -2,7 +2,7 @@
 
 namespace DcGeneral\Panel\Interfaces;
 
-use DcGeneral\Data\Interfaces\Config;
+use DcGeneral\Data\ConfigInterface;
 
 interface Panel extends \IteratorAggregate
 {
@@ -41,11 +41,11 @@ interface Panel extends \IteratorAggregate
 	/**
 	 *
 	 *
-	 * @param Config  $objConfig        The config to which the initialization shall be applied to.
+	 * @param ConfigInterface  $objConfig        The config to which the initialization shall be applied to.
 	 *
 	 * @param Element $objElement The element to be initialized (if any).
 	 *
 	 * @return void
 	 */
-	public function initialize(Config $objConfig, Element $objElement = null);
+	public function initialize(ConfigInterface $objConfig, Element $objElement = null);
 }
