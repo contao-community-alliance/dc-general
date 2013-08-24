@@ -63,7 +63,7 @@ class BaseEnvironment implements Environment
 	protected $objModel;
 
 	/**
-	 * @var \DcGeneral\Clipboard\Interfaces\Clipboard
+	 * @var \DcGeneral\Clipboard\ClipboardInterface
 	 */
 	protected $objClipboard;
 

@@ -11,9 +11,7 @@
 
 namespace DcGeneral\Clipboard;
 
-use DcGeneral\Clipboard\Interfaces\Clipboard;
-
-class BaseClipboard implements Clipboard
+class BaseClipboard implements ClipboardInterface
 {
 	/**
 	 * The ids contained.
