@@ -5,10 +5,10 @@ namespace DcGeneral\Panel;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Panel\AbstractElement;
-use DcGeneral\Panel\Interfaces\SortElement;
+use DcGeneral\Panel\SortElementInterface;
 use DcGeneral\Panel\PanelElementInterface;
 
-class BaseSortElement extends AbstractElement implements SortElement
+class BaseSortElement extends AbstractElement implements SortElementInterface
 {
 	/**
 	 * The default flag to use.

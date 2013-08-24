@@ -18,7 +18,7 @@ use DcGeneral\Data\DCGE;
 use DcGeneral\Panel\FilterElementInterface;
 use DcGeneral\Panel\LimitElementInterface;
 use DcGeneral\Panel\SearchElementInterface;
-use DcGeneral\Panel\Interfaces\SortElement;
+use DcGeneral\Panel\SortElementInterface;
 use DcGeneral\View\Interfaces\View as ViewInterface;
 
 // TODO: this is not as elegant as it could be.
@@ -2089,7 +2089,7 @@ class DefaultView implements ViewInterface
 				{
 					$objElementTemplate = $this->getTemplate('dcbe_general_panel_search');
 				}
-				elseif ($objElement instanceof SortElement)
+				elseif ($objElement instanceof SortElementInterface)
 				{
 					$objElementTemplate = $this->getTemplate('dcbe_general_panel_sort');
 				}
