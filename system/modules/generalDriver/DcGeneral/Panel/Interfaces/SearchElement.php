@@ -2,7 +2,7 @@
 
 namespace DcGeneral\Panel\Interfaces;
 
-interface SearchElement extends Element
+interface SearchElement extends PanelElementInterface
 {
 	/**
 	 * @param string $strProperty The property to allow to search on.

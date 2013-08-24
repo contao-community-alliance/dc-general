@@ -2,14 +2,14 @@
 
 namespace DcGeneral\Panel\Interfaces;
 
-interface LimitElement extends Element
+interface LimitElement extends PanelElementInterface
 {
 	/**
 	 * Set the offset to use in this element.
 	 *
 	 * @param int $intOffset
 	 *
-	 * @return Element
+	 * @return LimitElement
 	 */
 	public function setOffset($intOffset);
 
@@ -25,7 +25,7 @@ interface LimitElement extends Element
 	 *
 	 * @param int $intAmount
 	 *
-	 * @return Element
+	 * @return LimitElement
 	 */
 	public function setAmount($intAmount);
 

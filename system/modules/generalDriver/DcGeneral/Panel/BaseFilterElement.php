@@ -14,7 +14,7 @@ namespace DcGeneral\Panel;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Panel\AbstractElement;
-use DcGeneral\Panel\Interfaces\Element;
+use DcGeneral\Panel\PanelElementInterface;
 use DcGeneral\Panel\Interfaces\FilterElement;
 
 class BaseFilterElement extends AbstractElement implements FilterElement
@@ -82,7 +82,7 @@ class BaseFilterElement extends AbstractElement implements FilterElement
 	/**
 	 * {@inheritDoc}
 	 */
-	public function initialize(ConfigInterface $objConfig, Element $objElement = null)
+	public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
 	{
 		$input = $this->getInputProvider();
 		$value = null;

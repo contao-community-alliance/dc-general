@@ -4,7 +4,7 @@ namespace DcGeneral\Panel;
 
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Panel\AbstractElement;
-use DcGeneral\Panel\Interfaces\Element;
+use DcGeneral\Panel\PanelElementInterface;
 use DcGeneral\Panel\Interfaces\LimitElement;
 
 class BaseLimitElement extends AbstractElement implements LimitElement
@@ -70,7 +70,7 @@ class BaseLimitElement extends AbstractElement implements LimitElement
 	/**
 	 * {@inheritDoc}
 	 */
-	public function initialize(ConfigInterface $objConfig, Element $objElement = null)
+	public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
 	{
 		if (is_null($objElement))
 		{
@@ -178,7 +178,7 @@ class BaseLimitElement extends AbstractElement implements LimitElement
 	 *
 	 * @param int $intOffset
 	 *
-	 * @return Element
+	 * @return PanelElementInterface
 	 */
 	public function setOffset($intOffset)
 	{
@@ -202,7 +202,7 @@ class BaseLimitElement extends AbstractElement implements LimitElement
 	 *
 	 * @param int $intAmount
 	 *
-	 * @return Element
+	 * @return PanelElementInterface
 	 */
 	public function setAmount($intAmount)
 	{

@@ -2,14 +2,14 @@
 
 namespace DcGeneral\Panel\Interfaces;
 
-use DcGeneral\Panel\Interfaces\Element;
+use DcGeneral\Panel\PanelElementInterface;
 
-interface FilterElement extends Element
+interface FilterElement extends PanelElementInterface
 {
 	/**
 	 * @param string $strProperty The property to filter on.
 	 *
-	 * @return Element
+	 * @return FilterElement
 	 */
 	public function setPropertyName($strProperty);
 
@@ -21,7 +21,7 @@ interface FilterElement extends Element
 	/**
 	 * @param mixed $mixValue The value to filter for.
 	 *
-	 * @return Element
+	 * @return FilterElement
 	 */
 	public function setValue($mixValue);
 

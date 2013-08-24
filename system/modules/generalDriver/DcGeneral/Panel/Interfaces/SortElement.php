@@ -2,7 +2,7 @@
 
 namespace DcGeneral\Panel\Interfaces;
 
-interface SortElement extends Element
+interface SortElement extends PanelElementInterface
 {
 	/**
 	 * Set the default flag to use when no flag has been defined for a certain property.

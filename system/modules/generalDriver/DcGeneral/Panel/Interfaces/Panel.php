@@ -26,7 +26,7 @@ interface Panel extends \IteratorAggregate
 	/**
 	 * @param string  $strKey     Name of the panel.
 	 *
-	 * @param Element $objElement The element instance to add.
+	 * @param PanelElementInterface $objElement The element instance to add.
 	 *
 	 * @return mixed
 	 */
@@ -35,7 +35,7 @@ interface Panel extends \IteratorAggregate
 	/**
 	 * @param $strKey
 	 *
-	 * @return Element
+	 * @return PanelElementInterface
 	 */
 	public function getElement($strKey);
 
@@ -44,9 +44,9 @@ interface Panel extends \IteratorAggregate
 	 *
 	 * @param ConfigInterface  $objConfig        The config to which the initialization shall be applied to.
 	 *
-	 * @param Element $objElement The element to be initialized (if any).
+	 * @param PanelElementInterface $objElement The element to be initialized (if any).
 	 *
 	 * @return void
 	 */
-	public function initialize(ConfigInterface $objConfig, Element $objElement = null);
+	public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null);
 }
