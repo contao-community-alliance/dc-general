@@ -11,7 +11,7 @@
 
 namespace DcGeneral\Controller;
 
-use DcGeneral\Interfaces\DataContainer;
+use DcGeneral\DataContainerInterface;
 
 /**
  * Class Ajax - General purpose Ajax handler for "executePostActions" as we can not use the default Contao
@@ -100,27 +100,27 @@ abstract class Ajax extends \Backend
 		return self::getPost('name');
 	}
 
-	protected function loadStructure(DataContainer $objDc)
+	protected function loadStructure(DataContainerInterface $objDc)
 	{
 		echo $objDc->ajaxTreeView($this->getAjaxId(), intval(self::getPost('level')));
 		exit;
 	}
 
-	protected function loadFileManager(DataContainer $objDc)
+	protected function loadFileManager(DataContainerInterface $objDc)
 	{
 		echo $objDc->ajaxTreeView(self::getPost('folder', true), intval(self::getPost('level')));
 		exit;
 	}
 
-	abstract protected function loadPagetree(DataContainer $objDc);
+	abstract protected function loadPagetree(DataContainerInterface $objDc);
 
-	abstract protected function loadFiletree(DataContainer $objDc);
+	abstract protected function loadFiletree(DataContainerInterface $objDc);
 
-	abstract protected function reloadPagetree(DataContainer $objDc);
+	abstract protected function reloadPagetree(DataContainerInterface $objDc);
 
-	abstract protected function reloadFiletree(DataContainer $objDc);
+	abstract protected function reloadFiletree(DataContainerInterface $objDc);
 
-	protected function toggleFeatured(DataContainer $objDc)
+	protected function toggleFeatured(DataContainerInterface $objDc)
 	{
 		// TODO: this solution is really a mess, we DEFINATELY want to implement a proper functionality in the callback class to handle this.
 		$strClass = $objDc->getTable();
@@ -136,7 +136,7 @@ abstract class Ajax extends \Backend
 		exit;
 	}
 
-	protected function toggleSubpalette(DataContainer $objDc)
+	protected function toggleSubpalette(DataContainerInterface $objDc)
 	{
 		/**
 		 * @var \Contao\BackendUser $objUser
@@ -174,7 +174,7 @@ abstract class Ajax extends \Backend
 		exit;
 	}
 
-	protected function callHooks($strAction, DataContainer $objDc)
+	protected function callHooks($strAction, DataContainerInterface $objDc)
 	{
 		if (isset($GLOBALS['TL_HOOKS']['executePostActions']) && is_array($GLOBALS['TL_HOOKS']['executePostActions']))
 		{
@@ -198,13 +198,13 @@ abstract class Ajax extends \Backend
 	/**
 	 *
 	 * @param String $strAction
-	 * @param DataContainer $objDc
+	 * @param DataContainerInterface $objDc
 	 * @return void
 	 */
-	public function executePostActions(DataContainer $objDc)
+	public function executePostActions(DataContainerInterface $objDc)
 	{
 		// Check DC for a right driver
-		if (!$objDc instanceof DataContainer)
+		if (!$objDc instanceof DataContainerInterface)
 		{
 			return;
 		}

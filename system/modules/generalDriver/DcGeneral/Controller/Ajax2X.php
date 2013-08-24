@@ -11,7 +11,7 @@
 
 namespace DcGeneral\Controller;
 
-use DcGeneral\Interfaces\DataContainer;
+use DcGeneral\DataContainerInterface;
 
 /**
  * Class GeneralAjax - General purpose Ajax handler for "executePostActions" in Contao 2.X as we can not use the default
@@ -28,7 +28,7 @@ class Ajax2X extends Ajax
 		parent::__construct();
 	}
 
-	protected function loadPagetree(DataContainer $objDc)
+	protected function loadPagetree(DataContainerInterface $objDc)
 	{
 		$arrData['strTable'] = $objDc->getTable();
 		$arrData['id'] = self::getAjaxName() ?: $objDc->getId();
@@ -42,7 +42,7 @@ class Ajax2X extends Ajax
 		exit;
 	}
 
-	protected function loadFiletree(DataContainer $objDc)
+	protected function loadFiletree(DataContainerInterface $objDc)
 	{
 		$arrData['strTable'] = $objDc->getTable();
 		$arrData['id'] = self::getAjaxName() ?: $objDc->getId();
@@ -101,12 +101,12 @@ class Ajax2X extends Ajax
 		exit;
 	}
 
-	protected function reloadPagetree(DataContainer $objDc)
+	protected function reloadPagetree(DataContainerInterface $objDc)
 	{
 		throw new \RuntimeException('Contao 3.X only.');
 	}
 
-	protected function reloadFiletree(DataContainer $objDc)
+	protected function reloadFiletree(DataContainerInterface $objDc)
 	{
 		throw new \RuntimeException('Contao 3.X only.');
 	}

@@ -3,22 +3,22 @@
 namespace DcGeneral\Panel\Interfaces;
 
 use DcGeneral\DataDefinition\ContainerInterface;
-use DcGeneral\Interfaces\DataContainer;
+use DcGeneral\DataContainerInterface;
 use DcGeneral\Data\ConfigInterface;
 
 interface Container extends \IteratorAggregate
 {
 	/**
-	 * @return DataContainer
+	 * @return DataContainerInterface
 	 */
 	public function getDataContainer();
 
 	/**
-	 * @param DataContainer $objDataContainer The DataContainer to use.
+	 * @param DataContainerInterface $objDataContainer The DataContainer to use.
 	 *
 	 * @return Container
 	 */
-	public function setDataContainer(DataContainer $objDataContainer);
+	public function setDataContainer(DataContainerInterface $objDataContainer);
 
 	/**
 	 * @param string $strKey  Name of the panel.

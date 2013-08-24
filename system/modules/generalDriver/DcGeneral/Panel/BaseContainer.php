@@ -4,7 +4,7 @@ namespace DcGeneral\Panel;
 
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Data\ConfigInterface;
-use DcGeneral\Interfaces\DataContainer;
+use DcGeneral\DataContainerInterface;
 use DcGeneral\Panel\Interfaces\Container;
 use DcGeneral\Panel\Interfaces\Element;
 use DcGeneral\Panel\Interfaces\Panel;
@@ -12,7 +12,7 @@ use DcGeneral\Panel\Interfaces\Panel;
 class BaseContainer implements Container
 {
 	/**
-	 * @var DataContainer
+	 * @var DataContainerInterface
 	 */
 	protected $objDataContainer;
 
@@ -31,7 +31,7 @@ class BaseContainer implements Container
 	/**
 	 * {@inheritdoc}
 	 */
-	public function setDataContainer(DataContainer $objDataContainer)
+	public function setDataContainer(DataContainerInterface $objDataContainer)
 	{
 		$this->objDataContainer = $objDataContainer;
 		return $this;

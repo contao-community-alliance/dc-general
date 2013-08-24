@@ -28,7 +28,7 @@ use DcGeneral\BaseEnvironment;
 use DcGeneral\View\DefaultView as DefaultView;
 use DcGeneral\View\Interfaces\View;
 
-class DC_General extends \DataContainer implements Interfaces\DataContainer
+class DC_General extends \DataContainer implements DataContainerInterface
 {
 	/* /////////////////////////////////////////////////////////////////////////
 	 * -------------------------------------------------------------------------
