@@ -16,7 +16,7 @@ use DcGeneral\Data\Interfaces\Config;
 use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\Interfaces\Model;
 use DcGeneral\Data\DefaultCollection as DataCollection;
-use DcGeneral\Data\Config as DataConfig;
+use DcGeneral\Data\DefaultConfig as DataConfig;
 use DcGeneral\Data\Model as DataModel;
 
 
