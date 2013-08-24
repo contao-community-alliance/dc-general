@@ -2,7 +2,7 @@
 
 namespace DcGeneral\Panel\Interfaces;
 
-use DcGeneral\DataDefinition\Interfaces\Container as Definition;
+use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Interfaces\DataContainer;
 use DcGeneral\Data\ConfigInterface;
 
