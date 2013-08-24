@@ -13,7 +13,7 @@ namespace DcGeneral;
 
 use DcGeneral\Callbacks\ContaoStyleCallbacks as DefaultCallback;
 use DcGeneral\Callbacks\CallbacksInterface;
-use DcGeneral\Clipboard\BaseClipboard;
+use DcGeneral\Clipboard\DefaultClipboard;
 use DcGeneral\Contao\InputProvider;
 use DcGeneral\Controller\DefaultController as DefaultController;
 use DcGeneral\Controller\Interfaces\Controller;
@@ -306,7 +306,7 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 			->setDataDefinition(new Contao\Dca\Container($this->strTable, $this->arrDCA))
 			// TODO: make inputprovider configurable somehow - unsure how though.
 			->setInputProvider(new InputProvider())
-			->setClipboard(new BaseClipboard());
+			->setClipboard(new DefaultClipboard());
 
 		// Import
 		// FIXME: WTF? WHY?
