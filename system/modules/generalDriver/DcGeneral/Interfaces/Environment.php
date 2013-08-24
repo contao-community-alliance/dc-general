@@ -99,7 +99,7 @@ interface Environment
 
 	/**
 	 *
-	 * @param \DcGeneral\Data\Interfaces\Collection $objCurrentCollection
+	 * @param \DcGeneral\Data\CollectionInterface $objCurrentCollection
 	 *
 	 * @return Environment
 	 */
@@ -107,7 +107,7 @@ interface Environment
 
 	/**
 	 *
-	 * @return \DcGeneral\Data\Interfaces\Collection
+	 * @return \DcGeneral\Data\CollectionInterface
 	 */
 	public function getCurrentCollection();
 

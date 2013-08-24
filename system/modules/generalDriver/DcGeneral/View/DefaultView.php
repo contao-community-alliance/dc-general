@@ -12,7 +12,7 @@
 namespace DcGeneral\View;
 
 use DcGeneral\Data\Interfaces\Model;
-use DcGeneral\Data\Interfaces\Collection;
+use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\Interfaces\MultiLanguageDriver;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Panel\Interfaces\FilterElement;
@@ -54,7 +54,7 @@ class DefaultView implements ViewInterface
 
 	/**
 	 * A list with all supported languages
-	 * @var Collection
+	 * @var CollectionInterface
 	 */
 	protected $objLanguagesSupported = null;
 
@@ -107,7 +107,7 @@ class DefaultView implements ViewInterface
 	}
 
 	/**
-	 * @return \DcGeneral\Data\Interfaces\Collection
+	 * @return \DcGeneral\Data\CollectionInterface
 	 */
 	protected function getCurrentCollection()
 	{

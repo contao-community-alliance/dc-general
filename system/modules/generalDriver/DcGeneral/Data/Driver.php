@@ -13,7 +13,7 @@ namespace DcGeneral\Data;
 
 use DcGeneral\Data\Interfaces\Driver as DriverInterface;
 use DcGeneral\Data\Interfaces\Config;
-use DcGeneral\Data\Interfaces\Collection;
+use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\Interfaces\Model;
 use DcGeneral\Data\DefaultCollection as DataCollection;
 use DcGeneral\Data\Config as DataConfig;
@@ -90,7 +90,7 @@ class Driver implements DriverInterface
 	/**
 	 * Fetch an empty single collection (new model list).
 	 *
-	 * @return Collection
+	 * @return CollectionInterface
 	 */
 	public function getEmptyCollection()
 	{
@@ -384,7 +384,7 @@ class Driver implements DriverInterface
 	 *
 	 * @param Config $objConfig
 	 *
-	 * @return Collection
+	 * @return CollectionInterface
 	 */
 	public function fetchAll(Config $objConfig)
 	{
@@ -452,7 +452,7 @@ class Driver implements DriverInterface
 	 *
 	 * @param Config $objConfig   The filter config options.
 	 *
-	 * @return Collection
+	 * @return CollectionInterface
 	 *
 	 * @throws \RuntimeException if improper values have been passed (i.e. not exactly one field requested).
 	 */
@@ -616,7 +616,7 @@ class Driver implements DriverInterface
 	/**
 	 * Save a collection of items to the database.
 	 *
-	 * @param Collection $objItems The collection containing all items to be saved.
+	 * @param CollectionInterface $objItems The collection containing all items to be saved.
 	 *
 	 * @return void
 	 */
@@ -690,7 +690,7 @@ class Driver implements DriverInterface
 	 * @param boolean $blnOnlyActive If true, only active versions will get returned, if false all version will get
 	 *                               returned.
 	 *
-	 * @return Collection
+	 * @return CollectionInterface
 	 */
 	public function getVersions($mixID, $blnOnlyActive = false)
 	{

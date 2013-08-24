@@ -11,6 +11,8 @@
 
 namespace DcGeneral\Data\Interfaces;
 
+use DcGeneral\Data\CollectionInterface;
+
 interface Driver
 {
 	/**
@@ -41,7 +43,7 @@ interface Driver
 	/**
 	 * Fetch an empty single collection (new model list).
 	 *
-	 * @return Collection
+	 * @return CollectionInterface
 	 */
 	public function getEmptyCollection();
 
@@ -66,7 +68,7 @@ interface Driver
 	 *
 	 * @param Config $objConfig
 	 *
-	 * @return Collection|array
+	 * @return CollectionInterface|array
 	 */
 	public function fetchAll(Config $objConfig);
 
@@ -81,7 +83,7 @@ interface Driver
 	 *
 	 * @param Config $objConfig   The filter config options.
 	 *
-	 * @return Collection
+	 * @return CollectionInterface
 	 */
 	public function getFilterOptions(Config $objConfig);
 
@@ -109,11 +111,11 @@ interface Driver
 	/**
 	 * Save a collection of items to the data provider.
 	 *
-	 * @param Collection $objItems The collection containing all items to be saved.
+	 * @param CollectionInterface $objItems The collection containing all items to be saved.
 	 *
 	 * @return void
 	 */
-	public function saveEach(Collection $objItems);
+	public function saveEach(CollectionInterface $objItems);
 
 	/**
 	 * Delete an item.
@@ -156,7 +158,7 @@ interface Driver
 	 * @param boolean $blnOnlyActive If true, only active versions will get returned, if false all version will get
 	 *                               returned.
 	 *
-	 * @return Collection
+	 * @return CollectionInterface
 	 */
 	public function getVersions($mixID, $blnOnlyActive = false);
 

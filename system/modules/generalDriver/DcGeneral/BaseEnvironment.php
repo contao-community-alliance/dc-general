@@ -53,7 +53,7 @@ class BaseEnvironment implements Environment
 	protected $objPanelContainer;
 
 	/**
-	 * @var \DcGeneral\Data\Interfaces\Collection
+	 * @var \DcGeneral\Data\CollectionInterface
 	 */
 	protected $objCollection;
 
