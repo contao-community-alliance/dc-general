@@ -19,7 +19,7 @@ use DcGeneral\Controller\DefaultController as DefaultController;
 use DcGeneral\Controller\Interfaces\Controller;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\Driver as DefaultDriver;
-use DcGeneral\Data\Interfaces\Collection;
+use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\Interfaces\Driver;
 use DcGeneral\Data\Interfaces\Model;
 use DcGeneral\Helper\WidgetAccessor;
@@ -254,7 +254,7 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 
 	/**
 	 * Current parent collection
-	 * @var Collection
+	 * @var CollectionInterface
 	 */
 	protected $objCurrentParentCollection = null;
 
@@ -1251,7 +1251,7 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 
 	/**
 	 *
-	 * @return Collection
+	 * @return CollectionInterface
 	 *
 	 * @deprecated
 	 */
@@ -1263,7 +1263,7 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 
 	/**
 	 *
-	 * @return Collection
+	 * @return CollectionInterface
 	 *
 	 * @deprecated
 	 */
@@ -1275,7 +1275,7 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 
 	/**
 	 *
-	 * @return Collection
+	 * @return CollectionInterface
 	 */
 	public function getCurrentParentCollection()
 	{
@@ -1296,19 +1296,19 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 
 	/**
 	 *
-	 * @param Collection $objCurrentParentCollection
+	 * @param CollectionInterface $objCurrentParentCollection
 	 */
-	public function setCurrentParentCollection(Collection $objCurrentParentCollection)
+	public function setCurrentParentCollection(CollectionInterface $objCurrentParentCollection)
 	{
 		$this->objCurrentParentCollection = $objCurrentParentCollection;
 	}
 
 	/**
-	 * @param Collection $objCurrentCollection
+	 * @param CollectionInterface $objCurrentCollection
 	 *
 	 * @deprecated
 	 */
-	public function setCurrentCollecion(Collection $objCurrentCollection)
+	public function setCurrentCollecion(CollectionInterface $objCurrentCollection)
 	{
 		trigger_error('do not use this method, it was a typo! - use setCurrentCollection() instead.', E_USER_DEPRECATED);
 		$this->setCurrentCollection($objCurrentCollection);
@@ -1316,13 +1316,13 @@ class DC_General extends \DataContainer implements Interfaces\DataContainer
 
 	/**
 	 *
-	 * @param Collection $objCurrentCollection
+	 * @param CollectionInterface $objCurrentCollection
 	 *
 	 * @return void
 	 *
 	 * @deprecated
 	 */
-	public function setCurrentCollection(Collection $objCurrentCollection)
+	public function setCurrentCollection(CollectionInterface $objCurrentCollection)
 	{
 		trigger_error('deprecated ' . __METHOD__, E_USER_DEPRECATED);
 		$this->getEnvironment()->setCurrentCollection($objCurrentCollection);

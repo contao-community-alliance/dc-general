@@ -12,7 +12,7 @@
 namespace DcGeneral\Interfaces;
 
 use DcGeneral\DataDefinition\Interfaces\Container;
-use DcGeneral\Data\Interfaces\Collection;
+use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\Interfaces\Driver;
 use DcGeneral\Data\Interfaces\Model;
 use DcGeneral\Panel\Interfaces\Container as PanelContainer;
@@ -59,15 +59,15 @@ interface DataContainer extends \editable, \listable
 
 	/**
 	 *
-	 * @param Collection $objCurrentCollection
+	 * @param CollectionInterface $objCurrentCollection
 	 *
 	 * @return void
 	 */
-	public function setCurrentCollection(Collection $objCurrentCollection);
+	public function setCurrentCollection(CollectionInterface $objCurrentCollection);
 
 	/**
 	 *
-	 * @return Collection
+	 * @return CollectionInterface
 	 */
 	public function getCurrentCollection();
 
