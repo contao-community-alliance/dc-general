@@ -5,13 +5,13 @@ namespace DcGeneral\Panel;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\DataContainerInterface;
 use DcGeneral\Panel\PanelElementInterface;
-use DcGeneral\Panel\Interfaces\Panel;
+use DcGeneral\Panel\PanelInterface;
 use DcGeneral\InputProviderInterface;
 
 abstract class AbstractElement implements PanelElementInterface
 {
 	/**
-	 * @var Panel
+	 * @var PanelInterface
 	 */
 	protected $objPanel;
 
@@ -40,7 +40,7 @@ abstract class AbstractElement implements PanelElementInterface
 	/**
 	 * Return the parenting panel.
 	 *
-	 * @return Panel
+	 * @return PanelInterface
 	 */
 	public function getPanel()
 	{
@@ -50,11 +50,11 @@ abstract class AbstractElement implements PanelElementInterface
 	/**
 	 * Return the parenting panel.
 	 *
-	 * @param Panel $objPanel The panel to use as parent.
+	 * @param PanelInterface $objPanel The panel to use as parent.
 	 *
 	 * @return PanelElementInterface
 	 */
-	public function setPanel(Panel $objPanel)
+	public function setPanel(PanelInterface $objPanel)
 	{
 		$this->objPanel = $objPanel;
 	}

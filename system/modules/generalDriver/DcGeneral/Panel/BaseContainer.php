@@ -7,7 +7,7 @@ use DcGeneral\Data\ConfigInterface;
 use DcGeneral\DataContainerInterface;
 use DcGeneral\Panel\PanelContainerInterface;
 use DcGeneral\Panel\PanelElementInterface;
-use DcGeneral\Panel\Interfaces\Panel;
+use DcGeneral\Panel\PanelInterface;
 
 class BaseContainer implements PanelContainerInterface
 {
@@ -17,7 +17,7 @@ class BaseContainer implements PanelContainerInterface
 	protected $objDataContainer;
 
 	/**
-	 * @var Panel[]
+	 * @var PanelInterface[]
 	 */
 	protected $arrPanels = array();
 
@@ -40,7 +40,7 @@ class BaseContainer implements PanelContainerInterface
 	/**
 	 * @param string $strKey  Name of the panel.
 	 *
-	 * @param Panel $objPanel
+	 * @param PanelInterface $objPanel
 	 *
 	 * @return mixed
 	 */
@@ -55,7 +55,7 @@ class BaseContainer implements PanelContainerInterface
 	/**
 	 * @param $strKey
 	 *
-	 * @return Panel
+	 * @return PanelInterface
 	 */
 	public function getPanel($strKey)
 	{
@@ -64,7 +64,7 @@ class BaseContainer implements PanelContainerInterface
 
 	public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
 	{
-		/** @var Panel $objPanel */
+		/** @var PanelInterface $objPanel */
 		foreach ($this as $objPanel)
 		{
 			$objPanel->initialize($objConfig, $objElement);
@@ -72,11 +72,11 @@ class BaseContainer implements PanelContainerInterface
 	}
 
 	/**
-	 * @param Panel      $objPanel
+	 * @param PanelInterface      $objPanel
 	 *
 	 * @param ContainerInterface $objDefinition
 	 */
-	protected function buildFilter(Panel $objPanel, $objDefinition)
+	protected function buildFilter(PanelInterface $objPanel, $objDefinition)
 	{
 		foreach ($objDefinition->getPropertyNames() as $strProperty)
 		{
@@ -95,11 +95,11 @@ class BaseContainer implements PanelContainerInterface
 	}
 
 	/**
-	 * @param Panel      $objPanel
+	 * @param PanelInterface      $objPanel
 	 *
 	 * @param ContainerInterface $objDefinition
 	 */
-	protected function buildSearch(Panel $objPanel, $objDefinition)
+	protected function buildSearch(PanelInterface $objPanel, $objDefinition)
 	{
 		$objElement = new BaseSearchElement();
 
@@ -122,11 +122,11 @@ class BaseContainer implements PanelContainerInterface
 	}
 
 	/**
-	 * @param Panel      $objPanel
+	 * @param PanelInterface      $objPanel
 	 *
 	 * @param ContainerInterface $objDefinition
 	 */
-	protected function buildSort(Panel $objPanel, $objDefinition)
+	protected function buildSort(PanelInterface $objPanel, $objDefinition)
 	{
 		$objElement = new BaseSortElement();
 
@@ -156,7 +156,7 @@ class BaseContainer implements PanelContainerInterface
 		}
 	}
 
-	protected function buildLimit(Panel $objPanel)
+	protected function buildLimit(PanelInterface $objPanel)
 	{
 		$objElement = new BaseLimitElement();
 		$objPanel->addElement('limit', $objElement);
