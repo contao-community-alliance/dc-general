@@ -12,7 +12,7 @@
 namespace DcGeneral;
 
 use DcGeneral\Callbacks\ContaoStyleCallbacks as DefaultCallback;
-use DcGeneral\Callbacks\Interfaces\Callbacks;
+use DcGeneral\Callbacks\CallbacksInterface;
 use DcGeneral\Clipboard\BaseClipboard;
 use DcGeneral\Contao\InputProvider;
 use DcGeneral\Controller\DefaultController as DefaultController;

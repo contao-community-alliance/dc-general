@@ -11,11 +11,10 @@
 
 namespace DcGeneral\Callbacks;
 
-use DcGeneral\Callbacks\Interfaces\Callbacks as CallbackInterface;
 use DcGeneral\Data\Interfaces\Model;
 
 // FIXME: remove System inheritance.
-class ContaoStyleCallbacks extends \System implements CallbackInterface
+class ContaoStyleCallbacks extends \System implements CallbacksInterface
 {
 
 	/**

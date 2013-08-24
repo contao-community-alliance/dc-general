@@ -73,7 +73,7 @@ interface Environment
 
 	/**
 	 *
-	 * @param \DcGeneral\Callbacks\Interfaces\Callbacks $objCallbackHandler
+	 * @param \DcGeneral\Callbacks\CallbacksInterface $objCallbackHandler
 	 *
 	 * @return Environment
 	 */
@@ -81,7 +81,7 @@ interface Environment
 
 	/**
 	 *
-	 * @return \DcGeneral\Callbacks\Interfaces\Callbacks
+	 * @return \DcGeneral\Callbacks\CallbacksInterface
 	 */
 	public function getCallbackHandler();
 
