@@ -18,7 +18,7 @@ use DcGeneral\Data\ModelInterface;
 use DcGeneral\DataContainerInterface;
 use DcGeneral\Panel\DefaultPanel;
 
-class DefaultController implements ControllerInterface
+class DefaultController extends \Controller implements ControllerInterface
 {
 	/* /////////////////////////////////////////////////////////////////////
 	 * ---------------------------------------------------------------------
@@ -82,7 +82,7 @@ class DefaultController implements ControllerInterface
 
 	public function __construct()
 	{
-		//parent::__construct();
+		parent::__construct();
 
 		// Import
 		// $this->import('Encryption');
@@ -758,7 +758,7 @@ class DefaultController implements ControllerInterface
 
 		// Load record from data provider
 		$objDBModel = $objCurrentDataProvider->getEmptyModel();
-		$this->getDC()->setCurrentModel($objDBModel);
+		$this->getDC()->getEnvironment()->setCurrentModel($objDBModel);
 
 		if ($this->getDC()->arrDCA['list']['sorting']['mode'] < 4)
 		{
@@ -905,7 +905,14 @@ class DefaultController implements ControllerInterface
 				$mixAfter = \Input::getInstance()->get('after');
 				$mixInto  = \Input::getInstance()->get('into');
 
-				$this->getNewPosition($this->objDC->getDataProvider($strPDP), $this->objDC->getDataProvider($strCDP), $this->objDC->getCurrentModel(), $mixAfter, $mixInto, 'create');
+				$this->getNewPosition(
+					$this->objDC->getDataProvider($strPDP),
+					$this->objDC->getDataProvider($strCDP),
+					$this->objDC->getEnvironment()->getCurrentModel(),
+					$mixAfter,
+					$mixInto,
+					'create'
+				);
 
 				if (isset($_POST["save"]))
 				{
@@ -1377,7 +1384,7 @@ class DefaultController implements ControllerInterface
 	 */
 	protected function doSave()
 	{
-		$objDBModel = $this->getDC()->getCurrentModel();
+		$objDBModel = $this->getDC()->getEnvironment()->getCurrentModel();
 
 		// Check if table is closed
 		if ($this->getDC()->arrDCA['config']['closed'] && !($objDBModel->getID()))
@@ -1436,15 +1443,15 @@ class DefaultController implements ControllerInterface
 				if ($this->getDC()->getDataProvider()->sameModels($objDBModel, $mixCurrentVersion) == false)
 				{
 					// TODO: FE|BE switch
-					$this->import('BackendUser', 'User');
-					$this->getDC()->getDataProvider()->saveVersion($objDBModel, $this->User->username);
+					$user = \BackendUser::getInstance();
+					$this->getDC()->getDataProvider()->saveVersion($objDBModel, $user->username);
 				}
 			}
 			else
 			{
 				// TODO: FE|BE switch
-				$this->import('BackendUser', 'User');
-				$this->getDC()->getDataProvider()->saveVersion($objDBModel, $this->User->username);
+				$user = \BackendUser::getInstance();
+				$this->getDC()->getDataProvider()->saveVersion($objDBModel, $user->username);
 			}
 		}
 

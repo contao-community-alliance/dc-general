@@ -7,6 +7,7 @@ use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Panel\AbstractElement;
 use DcGeneral\Panel\SortElementInterface;
 use DcGeneral\Panel\PanelElementInterface;
+use DcGeneral\View\ViewTemplateInterface;
 
 class DefaultSortElement extends AbstractElement implements SortElementInterface
 {
@@ -182,7 +183,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function render($objTemplate)
+	public function render(ViewTemplateInterface $objTemplate)
 	{
 		foreach ($this->getPropertyNames() as $field)
 		{

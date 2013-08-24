@@ -453,7 +453,13 @@ class ContaoStyleCallbacks extends \System implements CallbacksInterface
 			$strMethod = $arrDCA['list']['label']['group_callback'][1];
 
 			$this->import($strClass);
-			$currentGroup = $this->$strClass->$strMethod($currentGroup, $mode, $field, $objModelRow->getPropertiesAsArray(), $this);
+			$currentGroup = $this->$strClass->$strMethod(
+				$currentGroup,
+				$mode,
+				$field,
+				is_object($objModelRow) ? $objModelRow->getPropertiesAsArray() : $objModelRow,
+				$this
+			);
 
 			if ($currentGroup == null)
 			{

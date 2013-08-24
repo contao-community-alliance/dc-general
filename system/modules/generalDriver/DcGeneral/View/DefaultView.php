@@ -171,7 +171,7 @@ class DefaultView implements ViewInterface
 
 	protected function getTemplate($strTemplate)
 	{
-		return new \BackendTemplate($strTemplate);
+		return new ContaoBackendViewTemplate($strTemplate);
 	}
 
 	/* /////////////////////////////////////////////////////////////////////
@@ -1215,8 +1215,10 @@ class DefaultView implements ViewInterface
 				// TODO: is this check needed? What widget might be of "non-widget" type?
 				if (!$objWidget instanceof \Contao\Widget)
 				{
+					/* TODO wtf is this shit? A widget **cannot** be converted to a string!
 					echo $objWidget;
 					continue;
+					*/
 				}
 
 				$arrConfig = $this->getDC()->getFieldDefinition($varField);

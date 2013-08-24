@@ -6,6 +6,7 @@ use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Panel\AbstractElement;
 use DcGeneral\Panel\PanelElementInterface;
 use DcGeneral\Panel\SearchElementInterface;
+use DcGeneral\View\ViewTemplateInterface;
 
 class DefaultSearchElement extends AbstractElement implements SearchElementInterface
 {
@@ -144,7 +145,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 	/**
 	 * {@inheritDoc}
 	 */
-	public function render($objTemplate)
+	public function render(ViewTemplateInterface $objTemplate)
 	{
 		$arrOptions = array();
 

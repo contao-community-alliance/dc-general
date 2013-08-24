@@ -6,6 +6,7 @@ use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Panel\AbstractElement;
 use DcGeneral\Panel\PanelElementInterface;
 use DcGeneral\Panel\LimitElementInterface;
+use DcGeneral\View\ViewTemplateInterface;
 
 class DefaultLimitElement extends AbstractElement implements LimitElementInterface
 {
@@ -125,7 +126,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 	/**
 	 * {@inheritDoc}
 	 */
-	public function render($objTemplate)
+	public function render(ViewTemplateInterface $objTemplate)
 	{
 		$arrOptions = array
 		(
