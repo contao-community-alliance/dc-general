@@ -11,58 +11,23 @@
 
 namespace DcGeneral\Data;
 
-use DcGeneral\Data\ConfigInterface;
-
-class DefaultConfig implements ConfigInterface
+interface ConfigInterface
 {
-	/**
-	 * The id of the element to be retrieved.
-	 *
-	 * @var mixed
-	 */
-	protected $mixId = null;
-
-	protected $arrIds = array();
-	protected $blnIdOnly = false;
-	protected $intStart = 0;
-	protected $intAmount = 0;
-	protected $arrFilter = null;
-	protected $arrSearch = null;
-	protected $arrSorting = null;
-	protected $arrFields = null;
-	protected $arrData = array();
-
-	/**
-	 * Create object.
-	 *
-	 * Private as only the driver shall know how to instantiate.
-	 */
-	private function __construct()
-	{
-		return $this;
-	}
-
 	/**
 	 * Static constructor.
 	 *
 	 * @todo: do we want to keep this behaviour? Third party will not know the correct class anyway.
 	 *
-	 * @return ConfigInterface
+	 * @return mixed
 	 */
-	public static function init()
-	{
-		return new static();
-	}
+	public static function init();
 
 	/**
 	 * Get specific id.
 	 *
 	 * @return mixed
 	 */
-	public function getId()
-	{
-		return $this->mixId;
-	}
+	public function getId();
 
 	/**
 	 * Set specific id.
@@ -71,22 +36,14 @@ class DefaultConfig implements ConfigInterface
 	 *
 	 * @return ConfigInterface
 	 */
-	public function setId($mixId)
-	{
-		$this->mixId = $mixId;
-
-		return $this;
-	}
+	public function setId($mixId);
 
 	/**
 	 * Get list of specific ids to be retrieved.
 	 *
 	 * @return array
 	 */
-	public function getIds()
-	{
-		return $this->arrIds;
-	}
+	public function getIds();
 
 	/**
 	 * Set list of specific ids to be retrieved.
@@ -95,36 +52,23 @@ class DefaultConfig implements ConfigInterface
 	 *
 	 * @return ConfigInterface
 	 */
-	public function setIds($arrIds)
-	{
-		$this->arrIds = $arrIds;
-
-		return $this;
-	}
+	public function setIds($arrIds);
 
 	/**
 	 * Return flag if only ids should be returned.
 	 *
 	 * @return boolean
 	 */
-	public function getIdOnly()
-	{
-		return $this->blnIdOnly;
-	}
+	public function getIdOnly();
 
 	/**
 	 * Set flag for return id only.
 	 *
 	 * @param boolean $blnIdOnly Boolean flag to determine that only Ids shall be returned when calling fetchAll().
 	 *
-	 * @return bool
+	 * @return ConfigInterface
 	 */
-	public function setIdOnly($blnIdOnly)
-	{
-		$this->blnIdOnly = $blnIdOnly;
-
-		return $this;
-	}
+	public function setIdOnly($blnIdOnly);
 
 	/**
 	 * Get the offset to start with.
@@ -133,10 +77,7 @@ class DefaultConfig implements ConfigInterface
 	 *
 	 * @return integer
 	 */
-	public function getStart()
-	{
-		return $this->intStart;
-	}
+	public function getStart();
 
 	/**
 	 * Set the offset to start with.
@@ -147,12 +88,7 @@ class DefaultConfig implements ConfigInterface
 	 *
 	 * @return ConfigInterface
 	 */
-	public function setStart($intStart)
-	{
-		$this->intStart = $intStart;
-
-		return $this;
-	}
+	public function setStart($intStart);
 
 	/**
 	 * Get the limit for results.
@@ -161,10 +97,7 @@ class DefaultConfig implements ConfigInterface
 	 *
 	 * @return integer
 	 */
-	public function getAmount()
-	{
-		return $this->intAmount;
-	}
+	public function getAmount();
 
 	/**
 	 * Set the limit for results.
@@ -175,22 +108,14 @@ class DefaultConfig implements ConfigInterface
 	 *
 	 * @return ConfigInterface
 	 */
-	public function setAmount($intAmount)
-	{
-		$this->intAmount = $intAmount;
-
-		return $this;
-	}
+	public function setAmount($intAmount);
 
 	/**
 	 * Get the list with filter options.
 	 *
 	 * @return array
 	 */
-	public function getFilter()
-	{
-		return $this->arrFilter;
-	}
+	public function getFilter();
 
 	/**
 	 * Set the list with filter options.
@@ -199,12 +124,7 @@ class DefaultConfig implements ConfigInterface
 	 *
 	 * @return ConfigInterface
 	 */
-	public function setFilter($arrFilter)
-	{
-		$this->arrFilter = $arrFilter;
-
-		return $this;
-	}
+	public function setFilter($arrFilter);
 
 	/**
 	 * Get the list of all defined sortings.
@@ -213,10 +133,7 @@ class DefaultConfig implements ConfigInterface
 	 *
 	 * @return array
 	 */
-	public function getSorting()
-	{
-		return $this->arrSorting;
-	}
+	public function getSorting();
 
 	/**
 	 * Set the list of all defined sortings.
@@ -227,22 +144,14 @@ class DefaultConfig implements ConfigInterface
 	 *
 	 * @return array
 	 */
-	public function setSorting($arrSorting)
-	{
-		$this->arrSorting = $arrSorting;
-
-		return $this;
-	}
+	public function setSorting($arrSorting);
 
 	/**
 	 * Get the list of fields to be retrieved.
 	 *
 	 * @return array
 	 */
-	public function getFields()
-	{
-		return $this->arrFields;
-	}
+	public function getFields();
 
 	/**
 	 * Set the list of fields to be retrieved.
@@ -251,12 +160,7 @@ class DefaultConfig implements ConfigInterface
 	 *
 	 * @return ConfigInterface
 	 */
-	public function setFields($arrFields)
-	{
-		$this->arrFields = $arrFields;
-
-		return $this;
-	}
+	public function setFields($arrFields);
 
 	// TODO: make a property bag out of this.
 	/**
@@ -266,17 +170,7 @@ class DefaultConfig implements ConfigInterface
 	 *
 	 * @return mixed || null
 	 */
-	public function get($strKey)
-	{
-		if (isset($this->arrData[$strKey]))
-		{
-			return $this->arrData[$strKey];
-		}
-		else
-		{
-			return null;
-		}
-	}
+	public function get($strKey);
 
 	/**
 	 * Set the additional information.
@@ -287,10 +181,5 @@ class DefaultConfig implements ConfigInterface
 	 *
 	 * @return ConfigInterface
 	 */
-	public function set($strKey, $varValue)
-	{
-		$this->arrData[$strKey] = $varValue;
-
-		return $this;
-	}
+	public function set($strKey, $varValue);
 }

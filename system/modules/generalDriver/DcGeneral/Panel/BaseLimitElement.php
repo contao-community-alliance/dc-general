@@ -2,7 +2,7 @@
 
 namespace DcGeneral\Panel;
 
-use DcGeneral\Data\Interfaces\Config;
+use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Panel\AbstractElement;
 use DcGeneral\Panel\Interfaces\Element;
 use DcGeneral\Panel\Interfaces\LimitElement;
@@ -70,7 +70,7 @@ class BaseLimitElement extends AbstractElement implements LimitElement
 	/**
 	 * {@inheritDoc}
 	 */
-	public function initialize(Config $objConfig, Element $objElement = null)
+	public function initialize(ConfigInterface $objConfig, Element $objElement = null)
 	{
 		if (is_null($objElement))
 		{

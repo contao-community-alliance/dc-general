@@ -2,7 +2,7 @@
 
 namespace DcGeneral\Panel;
 
-use DcGeneral\Data\Interfaces\Config;
+use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Panel\AbstractElement;
 use DcGeneral\Panel\Interfaces\Element;
 use DcGeneral\Panel\Interfaces\SearchElement;
@@ -88,7 +88,7 @@ class BaseSearchElement extends AbstractElement implements SearchElement
 	/**
 	 * {@inheritDoc}
 	 */
-	public function initialize(Config $objConfig, Element $objElement = null)
+	public function initialize(ConfigInterface $objConfig, Element $objElement = null)
 	{
 		$input = $this->getInputProvider();
 		$value = null;

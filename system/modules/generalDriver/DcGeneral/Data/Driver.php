@@ -12,7 +12,7 @@
 namespace DcGeneral\Data;
 
 use DcGeneral\Data\Interfaces\Driver as DriverInterface;
-use DcGeneral\Data\Interfaces\Config;
+use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\Interfaces\Model;
 use DcGeneral\Data\DefaultCollection as DataCollection;
@@ -68,7 +68,7 @@ class Driver implements DriverInterface
 	/**
 	 * Return an empty configuration object.
 	 *
-	 * @return Config
+	 * @return ConfigInterface
 	 */
 	public function getEmptyConfig()
 	{
@@ -102,7 +102,7 @@ class Driver implements DriverInterface
 	 *
 	 * Returns all values from $objConfig->getFields() as comma separated list.
 	 *
-	 * @param Config $objConfig The configuration to use.
+	 * @param ConfigInterface $objConfig The configuration to use.
 	 *
 	 * @return string
 	 */
@@ -206,7 +206,7 @@ class Driver implements DriverInterface
 	/**
 	 * Build the WHERE clause for a configuration.
 	 *
-	 * @param Config $objConfig  The configuration to use.
+	 * @param ConfigInterface $objConfig  The configuration to use.
 	 *
 	 * @param array  &$arrParams The query parameters will get stored into this array.
 	 *
@@ -228,7 +228,7 @@ class Driver implements DriverInterface
 	/**
 	 * Build the WHERE conditions via calculateSubfilter()
 	 *
-	 * @param Config $objConfig  The configuration to use.
+	 * @param ConfigInterface $objConfig  The configuration to use.
 	 *
 	 * @param array  &$arrParams The query parameters will get stored into this array.
 	 *
@@ -252,7 +252,7 @@ class Driver implements DriverInterface
 	/**
 	 * Build the order by part of a query.
 	 *
-	 * @param Config $objConfig
+	 * @param ConfigInterface $objConfig
 	 *
 	 * @return string
 	 */
@@ -328,11 +328,11 @@ class Driver implements DriverInterface
 	 *
 	 * If the model shall be retrieved by filter, use $objConfig->setFilter() to populate the config with a filter.
 	 *
-	 * @param Config $objConfig
+	 * @param ConfigInterface $objConfig
 	 *
 	 * @return Model
 	 */
-	public function fetch(Config $objConfig)
+	public function fetch(ConfigInterface $objConfig)
 	{
 		if ($objConfig->getId() != null)
 		{
@@ -382,11 +382,11 @@ class Driver implements DriverInterface
 	/**
 	 * Fetch all records (optional filtered, sorted and limited).
 	 *
-	 * @param Config $objConfig
+	 * @param ConfigInterface $objConfig
 	 *
 	 * @return CollectionInterface
 	 */
-	public function fetchAll(Config $objConfig)
+	public function fetchAll(ConfigInterface $objConfig)
 	{
 		$arrParams = array();
 		// Build SQL
@@ -450,13 +450,13 @@ class Driver implements DriverInterface
 	 * The only information being interpreted from the passed config object is the first property to fetch and the
 	 * filter definition.
 	 *
-	 * @param Config $objConfig   The filter config options.
+	 * @param ConfigInterface $objConfig   The filter config options.
 	 *
 	 * @return CollectionInterface
 	 *
 	 * @throws \RuntimeException if improper values have been passed (i.e. not exactly one field requested).
 	 */
-	public function getFilterOptions(Config $objConfig)
+	public function getFilterOptions(ConfigInterface $objConfig)
 	{
 		$arrProperties = $objConfig->getFields();
 		$strProperty = $arrProperties[0];
@@ -490,11 +490,11 @@ class Driver implements DriverInterface
 	/**
 	 * Return the amount of total items (filtering may be used in the config).
 	 *
-	 * @param Config $objConfig
+	 * @param ConfigInterface $objConfig
 	 *
 	 * @return int
 	 */
-	public function getCount(Config $objConfig)
+	public function getCount(ConfigInterface $objConfig)
 	{
 		$arrParams = array();
 

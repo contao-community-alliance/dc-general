@@ -2,7 +2,7 @@
 
 namespace DcGeneral\Panel;
 
-use DcGeneral\Data\Interfaces\Config;
+use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Panel\Interfaces\Container;
 use DcGeneral\Panel\Interfaces\Element;
 use DcGeneral\Panel\Interfaces\Panel;
@@ -63,7 +63,7 @@ class BasePanel implements Panel
 	/**
 	 * {@inheritdoc}
 	 */
-	public function initialize(Config $objConfig, Element $objElement = null)
+	public function initialize(ConfigInterface $objConfig, Element $objElement = null)
 	{
 		/** @var Element $objThisElement */
 		foreach ($this as $objThisElement)

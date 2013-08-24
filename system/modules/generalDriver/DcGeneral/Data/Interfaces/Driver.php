@@ -29,7 +29,7 @@ interface Driver
 	/**
 	 * Return an empty configuration object.
 	 *
-	 * @return Config
+	 * @return ConfigInterface
 	 */
 	public function getEmptyConfig();
 
@@ -54,11 +54,11 @@ interface Driver
 	 *
 	 * If the model shall be retrieved by filter, use $objConfig->setFilter() to populate the config with a filter.
 	 *
-	 * @param Config $objConfig
+	 * @param ConfigInterface $objConfig
 	 *
 	 * @return Model
 	 */
-	public function fetch(Config $objConfig);
+	public function fetch(ConfigInterface $objConfig);
 
 	/**
 	 * Fetch all records (optional filtered, sorted and limited).
@@ -66,11 +66,11 @@ interface Driver
 	 * This returns a collection of all models matching the config object. If idOnly is true, an array containing all
 	 * matching ids is returned.
 	 *
-	 * @param Config $objConfig
+	 * @param ConfigInterface $objConfig
 	 *
 	 * @return CollectionInterface|array
 	 */
-	public function fetchAll(Config $objConfig);
+	public function fetchAll(ConfigInterface $objConfig);
 
 	/**
 	 * Retrieve all unique values for the given property.
@@ -81,20 +81,20 @@ interface Driver
 	 * The only information being interpreted from the passed config object is the first property to fetch and the
 	 * filter definition.
 	 *
-	 * @param Config $objConfig   The filter config options.
+	 * @param ConfigInterface $objConfig   The filter config options.
 	 *
 	 * @return CollectionInterface
 	 */
-	public function getFilterOptions(Config $objConfig);
+	public function getFilterOptions(ConfigInterface $objConfig);
 
 	/**
 	 * Return the amount of total items (filtering may be used in the config).
 	 *
-	 * @param Config $objConfig
+	 * @param ConfigInterface $objConfig
 	 *
 	 * @return int
 	 */
-	public function getCount(Config $objConfig);
+	public function getCount(ConfigInterface $objConfig);
 
 	/**
 	 * Save an item to the data provider.

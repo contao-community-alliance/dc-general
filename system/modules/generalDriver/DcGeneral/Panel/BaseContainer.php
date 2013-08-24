@@ -3,7 +3,7 @@
 namespace DcGeneral\Panel;
 
 use DcGeneral\DataDefinition\Interfaces\Container as Definition;
-use DcGeneral\Data\Interfaces\Config;
+use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Interfaces\DataContainer;
 use DcGeneral\Panel\Interfaces\Container;
 use DcGeneral\Panel\Interfaces\Element;
@@ -62,7 +62,7 @@ class BaseContainer implements Container
 		return $this->arrPanels[$strKey];
 	}
 
-	public function initialize(Config $objConfig, Element $objElement = null)
+	public function initialize(ConfigInterface $objConfig, Element $objElement = null)
 	{
 		/** @var Panel $objPanel */
 		foreach ($this as $objPanel)

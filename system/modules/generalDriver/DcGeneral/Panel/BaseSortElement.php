@@ -3,7 +3,7 @@
 namespace DcGeneral\Panel;
 
 use DcGeneral\Data\DCGE;
-use DcGeneral\Data\Interfaces\Config;
+use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Panel\AbstractElement;
 use DcGeneral\Panel\Interfaces\SortElement;
 use DcGeneral\Panel\Interfaces\Element;
@@ -113,7 +113,7 @@ class BaseSortElement extends AbstractElement implements SortElement
 	/**
 	 * {@inheritDoc}
 	 */
-	public function initialize(Config $objConfig, Element $objElement = null)
+	public function initialize(ConfigInterface $objConfig, Element $objElement = null)
 	{
 		if (is_null($objElement))
 		{

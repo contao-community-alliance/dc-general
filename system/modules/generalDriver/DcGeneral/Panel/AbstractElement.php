@@ -2,7 +2,7 @@
 
 namespace DcGeneral\Panel;
 
-use DcGeneral\Data\Interfaces\Config;
+use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Interfaces\DataContainer;
 use DcGeneral\Panel\Interfaces\Element;
 use DcGeneral\Panel\Interfaces\Panel;
@@ -62,7 +62,7 @@ abstract class AbstractElement implements Element
 	/**
 	 * Let all other elements initialize and apply themselves to this config.
 	 *
-	 * @return Config
+	 * @return ConfigInterface
 	 */
 	protected function getOtherConfig()
 	{
