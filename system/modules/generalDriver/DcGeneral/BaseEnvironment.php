@@ -43,7 +43,7 @@ class BaseEnvironment implements Environment
 
 	/**
 	 *
-	 * @var \DcGeneral\Callbacks\Interfaces\Callbacks
+	 * @var \DcGeneral\Callbacks\CallbacksInterface
 	 */
 	protected $objCallbackHandler;
 
