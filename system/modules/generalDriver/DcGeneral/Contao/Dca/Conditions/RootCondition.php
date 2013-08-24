@@ -12,10 +12,10 @@
 namespace DcGeneral\Contao\Dca\Conditions;
 
 use DcGeneral\DataDefinition\RootConditionInterface;
-use DcGeneral\DataDefinition\Interfaces\BaseCondition;
+use DcGeneral\DataDefinition\AbstractCondition;
 
 class RootCondition
-	extends BaseCondition
+	extends AbstractCondition
 	implements RootConditionInterface
 {
 	/**
