@@ -10,4 +10,6 @@
  */
 
 trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
-class_alias('DcGeneral\View\Interfaces\View', 'InterfaceGeneralView');
+interface InterfaceGeneralView extends DcGeneral\View\Interfaces\View
+{
+}

@@ -10,4 +10,6 @@
  */
 
 trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
-class_alias('DcGeneral\Callbacks\ContaoStyleCallbacks', 'GeneralCallbackDefault');
+class GeneralCallbackDefault extends DcGeneral\Callbacks\ContaoStyleCallbacks
+{
+}

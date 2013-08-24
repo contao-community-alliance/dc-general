@@ -10,4 +10,6 @@
  */
 
 trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
-class_alias('DcGeneral\Controller\Interfaces\Controller', 'InterfaceGeneralController');
+interface InterfaceGeneralController extends DcGeneral\Controller\Interfaces\Controller
+{
+}

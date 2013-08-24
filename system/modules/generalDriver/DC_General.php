@@ -11,4 +11,6 @@
 
 // FIXME: we can not do the deprecated notice here as the only way for Contao is to load the class from root namespace.
 //trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
-class_alias('DcGeneral\DC_General', 'DC_General');
+class DC_General extends DcGeneral\DC_General
+{
+}

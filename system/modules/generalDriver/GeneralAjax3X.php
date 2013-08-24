@@ -10,4 +10,6 @@
  */
 
 trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
-class_alias('DcGeneral\Controller\Ajax3X', 'GeneralAjax3X');
+class GeneralAjax3X extends DcGeneral\Controller\Ajax3X
+{
+}

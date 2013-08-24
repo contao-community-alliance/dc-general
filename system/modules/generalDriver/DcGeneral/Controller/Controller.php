@@ -9,5 +9,9 @@
  * @filesource
  */
 
+namespace DcGeneral\Controller;
+
 trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
-class_alias('DcGeneral\Controller\DefaultController', 'DcGeneral\Controller\Controller');
+class Controller extends DefaultController
+{
+}
