@@ -11,10 +11,12 @@
 
 namespace DcGeneral\Data\Interfaces;
 
+use DcGeneral\Data\CollectionInterface;
+
 trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
 /**
  * @deprecated
  */
-interface Collection extends \DcGeneral\Data\CollectionInterface
+interface Collection extends CollectionInterface
 {
 }
