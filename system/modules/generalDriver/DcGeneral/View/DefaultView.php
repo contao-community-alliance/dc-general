@@ -13,7 +13,7 @@ namespace DcGeneral\View;
 
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\CollectionInterface;
-use DcGeneral\Data\Interfaces\MultiLanguageDriver;
+use DcGeneral\Data\MultiLanguageDriverInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Panel\Interfaces\FilterElement;
 use DcGeneral\Panel\Interfaces\LimitElement;
@@ -154,9 +154,9 @@ class DefaultView implements ViewInterface
 		$objDataProvider = $this->getDC()->getDataProvider();
 
 		// Check if DP is multilanguage
-		if ($objDataProvider instanceof MultiLanguageDriver)
+		if ($objDataProvider instanceof MultiLanguageDriverInterface)
 		{
-			/** @var MultiLanguageDriver $objDataProvider */
+			/** @var MultiLanguageDriverInterface $objDataProvider */
 			$this->blnMLSupport = true;
 			$this->objLanguagesSupported = $objDataProvider->getLanguages($this->getDC()->getId());
 			$this->strCurrentLanguage = $objDataProvider->getCurrentLanguage();

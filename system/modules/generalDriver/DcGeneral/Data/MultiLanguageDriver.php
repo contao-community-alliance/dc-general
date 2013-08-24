@@ -11,8 +11,6 @@
 
 namespace DcGeneral\Data;
 
-use DcGeneral\Data\Interfaces\MultiLanguageDriver as MultiLanguageDriverInterface;
-
 class MultiLanguageDriver extends Driver implements MultiLanguageDriverInterface
 {
 	/**
