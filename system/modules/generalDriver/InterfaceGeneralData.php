@@ -13,6 +13,6 @@ trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
 /**
  * @deprecated
  */
-interface InterfaceGeneralData extends DcGeneral\Data\Interfaces\Driver
+interface InterfaceGeneralData extends DcGeneral\Data\DriverInterface
 {
 }
