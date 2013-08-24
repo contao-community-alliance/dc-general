@@ -12,11 +12,11 @@
 namespace DcGeneral\DataDefinition\Interfaces;
 
 use DcGeneral\DataDefinition\Interfaces\Condition;
-use DcGeneral\Data\Interfaces\Model;
+use DcGeneral\Data\ModelInterface;
 
 abstract class BaseCondition implements Condition
 {
-	public static function checkCondition(Model $objParentModel, $arrFilter)
+	public static function checkCondition(ModelInterface $objParentModel, $arrFilter)
 	{
 		switch ($arrFilter['operation'])
 		{

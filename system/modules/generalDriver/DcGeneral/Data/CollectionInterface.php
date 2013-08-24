@@ -11,7 +11,7 @@
 
 namespace DcGeneral\Data;
 
-use DcGeneral\Data\Interfaces\Model;
+use DcGeneral\Data\ModelInterface;
 
 /**
  * Interface InterfaceGeneralCollection
@@ -32,54 +32,54 @@ interface CollectionInterface extends \IteratorAggregate
 	 *
 	 * @param integer $intIndex The index of the model to retrieve.
 	 *
-	 * @return Model
+	 * @return ModelInterface
 	 */
 	public function get($intIndex);
 
 	/**
 	 * Alias for push - Append a model to the end of this collection.
 	 *
-	 * @param Model $objModel The model to append to the collection.
+	 * @param ModelInterface $objModel The model to append to the collection.
 	 *
 	 * @return void
 	 *
 	 * @see push
 	 */
-	public function add(Model $objModel);
+	public function add(ModelInterface $objModel);
 
 	/**
 	 * Append a model to the end of this collection.
 	 *
-	 * @param Model $objModel The model to append to the collection.
+	 * @param ModelInterface $objModel The model to append to the collection.
 	 *
 	 * @return void
 	 */
-	public function push(Model $objModel);
+	public function push(ModelInterface $objModel);
 
 	/**
 	 * Remove the model at the end of the collection and return it.
 	 *
 	 * If the collection is empty, null will be returned.
 	 *
-	 * @return Model
+	 * @return ModelInterface
 	 */
 	public function pop();
 
 	/**
 	 * Insert a model at the beginning of the collection.
 	 *
-	 * @param Model $objModel The model to insert into the collection.
+	 * @param ModelInterface $objModel The model to insert into the collection.
 	 *
 	 * @return void
 	 */
-	public function unshift(Model $objModel);
+	public function unshift(ModelInterface $objModel);
 
 	/**
 	 * Remove the model from the beginning of the collection and return it.
 	 *
 	 * If the collection is empty, null will be returned.
 	 *
-	 * @return Model
+	 * @return ModelInterface
 	 */
 	public function shift();
 
@@ -91,11 +91,11 @@ interface CollectionInterface extends \IteratorAggregate
 	 *
 	 * @param integer $intIndex  The index where the model shall be placed.
 	 *
-	 * @param Model   $objModel The model to insert.
+	 * @param ModelInterface   $objModel The model to insert.
 	 *
 	 * @return void
 	 */
-	public function insert($intIndex, Model $objModel);
+	public function insert($intIndex, ModelInterface $objModel);
 
 	/**
 	 * Remove the given index or model from the collection and renew the index.
@@ -111,7 +111,7 @@ interface CollectionInterface extends \IteratorAggregate
 	/**
 	 * Make a reverse sorted collection of this collection.
 	 *
-	 * @return Model
+	 * @return ModelInterface
 	 */
 	public function reverse();
 
@@ -120,7 +120,7 @@ interface CollectionInterface extends \IteratorAggregate
 	 *
 	 * @param callback $callback
 	 *
-	 * @return Model
+	 * @return ModelInterface
 	 */
 	public function sort($callback);
 }

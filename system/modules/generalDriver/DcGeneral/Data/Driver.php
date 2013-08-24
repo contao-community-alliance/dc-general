@@ -14,7 +14,7 @@ namespace DcGeneral\Data;
 use DcGeneral\Data\Interfaces\Driver as DriverInterface;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Data\CollectionInterface;
-use DcGeneral\Data\Interfaces\Model;
+use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\DefaultCollection as DataCollection;
 use DcGeneral\Data\DefaultConfig as DataConfig;
 use DcGeneral\Data\Model as DataModel;
@@ -78,7 +78,7 @@ class Driver implements DriverInterface
 	/**
 	 * Fetch an empty single record (new model).
 	 *
-	 * @return Model
+	 * @return ModelInterface
 	 */
 	public function getEmptyModel()
 	{
@@ -303,7 +303,7 @@ class Driver implements DriverInterface
 				->prepare("DELETE FROM $this->strSource WHERE id=?")
 				->execute($item);
 		}
-		else if (is_object($item) && $item instanceof InterfaceGeneralModel)
+		else if (is_object($item) && $item instanceof ModelInterface)
 		{
 			if (strlen($item->getID()) != 0)
 			{
@@ -317,7 +317,7 @@ class Driver implements DriverInterface
 		}
 		else
 		{
-			throw new \RuntimeException("ID missing or given object not of type 'InterfaceGeneralModel'.");
+			throw new \RuntimeException("ID missing or given object not of type 'ModelInterface'.");
 		}
 	}
 
@@ -330,7 +330,7 @@ class Driver implements DriverInterface
 	 *
 	 * @param ConfigInterface $objConfig
 	 *
-	 * @return Model
+	 * @return ModelInterface
 	 */
 	public function fetch(ConfigInterface $objConfig)
 	{
@@ -564,11 +564,11 @@ class Driver implements DriverInterface
 	 * If the item does not have an Id yet, the save operation will add it as a new row to the database and
 	 * populate the Id of the model accordingly.
 	 *
-	 * @param Model $objItem   The model to save back.
+	 * @param ModelInterface $objItem   The model to save back.
 	 *
-	 * @return Model The passed model.
+	 * @return ModelInterface The passed model.
 	 */
-	public function save(Model $objItem)
+	public function save(ModelInterface $objItem)
 	{
 		$arrSet = array();
 
@@ -647,7 +647,7 @@ class Driver implements DriverInterface
 	 *
 	 * @param mixed $mixVersion The ID of the version.
 	 *
-	 * @return Model
+	 * @return ModelInterface
 	 */
 	public function getVersion($mixID, $mixVersion)
 	{
@@ -740,13 +740,13 @@ class Driver implements DriverInterface
 	/**
 	 * Save a new version of a row.
 	 *
-	 * @param Model $objModel    The model for which a new version shall be created.
+	 * @param ModelInterface $objModel    The model for which a new version shall be created.
 	 *
 	 * @param string                $strUsername The username to attach to the version as creator.
 	 *
 	 * @return void
 	 */
-	public function saveVersion(Model $objModel, $strUsername)
+	public function saveVersion(ModelInterface $objModel, $strUsername)
 	{
 		$objCount = $this->objDatabase
 			->prepare("SELECT count(*) as mycount FROM tl_version WHERE pid=? AND fromTable = ?")
@@ -817,9 +817,9 @@ class Driver implements DriverInterface
 	/**
 	 * Check if two models have the same values in all properties.
 	 *
-	 * @param Model $objModel1 The first model to compare.
+	 * @param ModelInterface $objModel1 The first model to compare.
 	 *
-	 * @param Model $objModel2 The second model to compare.
+	 * @param ModelInterface $objModel2 The second model to compare.
 	 *
 	 * @return boolean True - If both models are same, false if not.
 	 */

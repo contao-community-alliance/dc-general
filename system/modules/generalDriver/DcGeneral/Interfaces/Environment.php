@@ -113,7 +113,7 @@ interface Environment
 
 	/**
 	 *
-	 * @param \DcGeneral\Data\Interfaces\Model $objCurrentModel
+	 * @param ModelInterface $objCurrentModel
 	 *
 	 * @return Environment
 	 */
@@ -121,7 +121,7 @@ interface Environment
 
 	/**
 	 *
-	 * @return \DcGeneral\Data\Interfaces\Model
+	 * @return ModelInterface
 	 */
 	public function getCurrentModel();
 

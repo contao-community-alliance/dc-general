@@ -11,14 +11,14 @@
 
 namespace DcGeneral\Data;
 
-use DcGeneral\Data\Interfaces\Model as ModelInterface;
+use DcGeneral\Data\ModelInterface;
 
 class DefaultCollection implements CollectionInterface
 {
 	/**
 	 * The list of contained models.
 	 *
-	 * @var Model[]
+	 * @var ModelInterface[]
 	 */
 	protected $arrCollection = array();
 
@@ -128,7 +128,7 @@ class DefaultCollection implements CollectionInterface
 	 *
 	 * If the collection is empty, null will be returned.
 	 *
-	 * @return Model
+	 * @return ModelInterface
 	 */
 	public function shift()
 	{

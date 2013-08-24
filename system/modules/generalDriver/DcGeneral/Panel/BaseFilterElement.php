@@ -12,7 +12,7 @@
 namespace DcGeneral\Panel;
 
 use DcGeneral\Data\ConfigInterface;
-use DcGeneral\Data\Interfaces\Model;
+use DcGeneral\Data\ModelInterface;
 use DcGeneral\Panel\AbstractElement;
 use DcGeneral\Panel\Interfaces\Element;
 use DcGeneral\Panel\Interfaces\FilterElement;
@@ -144,7 +144,7 @@ class BaseFilterElement extends AbstractElement implements FilterElement
 
 			$arrOptions = array();
 			/**
-			 * @var Model $objOption
+			 * @var ModelInterface $objOption
 			 */
 			foreach ($objFilterOptions as $objOption)
 			{

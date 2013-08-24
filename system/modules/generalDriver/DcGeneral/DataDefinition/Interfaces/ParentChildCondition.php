@@ -11,14 +11,14 @@
 
 namespace DcGeneral\DataDefinition\Interfaces;
 
-use DcGeneral\Data\Interfaces\Model;
+use DcGeneral\Data\ModelInterface;
 
 interface ParentChildCondition extends Condition
 {
 	/**
 	 * Get the condition as filter.
 	 *
-	 * @param Model $objParent The model that shall get used as parent.
+	 * @param ModelInterface $objParent The model that shall get used as parent.
 	 *
 	 * @return array
 	 */
@@ -27,9 +27,9 @@ interface ParentChildCondition extends Condition
 	/**
 	 * Apply a condition to a child.
 	 *
-	 * @param \DcGeneral\Data\Interfaces\Model $objParent The parent object.
+	 * @param ModelInterface $objParent The parent object.
 	 *
-	 * @param \DcGeneral\Data\Interfaces\Model $objChild The object on which the condition shall be enforced on.
+	 * @param ModelInterface $objChild The object on which the condition shall be enforced on.
 	 *
 	 * @return void
 	 */
@@ -38,9 +38,9 @@ interface ParentChildCondition extends Condition
 	/**
 	 * Test if the given parent is indeed a parent of the given child object for this condition.
 	 *
-	 * @param \DcGeneral\Data\Interfaces\Model $objParent
+	 * @param ModelInterface $objParent
 	 *
-	 * @param \DcGeneral\Data\Interfaces\Model $objChild
+	 * @param ModelInterface $objChild
 	 *
 	 * @return bool
 	 */
