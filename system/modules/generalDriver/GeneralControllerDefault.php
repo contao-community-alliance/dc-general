@@ -10,4 +10,4 @@
  */
 
 trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
-class_alias('DcGeneral\Controller\Controller', 'GeneralControllerDefault');
+class_alias('DcGeneral\Controller\DefaultController', 'GeneralControllerDefault');

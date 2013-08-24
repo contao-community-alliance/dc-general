@@ -15,7 +15,7 @@ use DcGeneral\Callbacks\ContaoStyleCallbacks as DefaultCallback;
 use DcGeneral\Callbacks\Interfaces\Callbacks;
 use DcGeneral\Clipboard\BaseClipboard;
 use DcGeneral\Contao\InputProvider;
-use DcGeneral\Controller\Controller as DefaultController;
+use DcGeneral\Controller\DefaultController as DefaultController;
 use DcGeneral\Controller\Interfaces\Controller;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\Driver as DefaultDriver;
