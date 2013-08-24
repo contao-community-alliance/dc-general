@@ -24,7 +24,7 @@ use DcGeneral\Data\DriverInterface;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Helper\WidgetAccessor;
 use DcGeneral\EnvironmentInterface;
-use DcGeneral\BaseEnvironment;
+use DcGeneral\DefaultEnvironment;
 use DcGeneral\View\DefaultView as DefaultView;
 use DcGeneral\View\ViewInterface;
 
@@ -301,7 +301,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			$this->arrDCA = &$GLOBALS['TL_DCA'][$this->strTable];
 		}
 
-		$this->objEnvironment = new BaseEnvironment();
+		$this->objEnvironment = new DefaultEnvironment();
 		$this->getEnvironment()
 			->setDataDefinition(new Contao\Dca\Container($this->strTable, $this->arrDCA))
 			// TODO: make inputprovider configurable somehow - unsure how though.
