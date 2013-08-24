@@ -128,14 +128,14 @@ interface Environment
 	/**
 	 * Return the clipboard.
 	 *
-	 * @return \DcGeneral\Clipboard\Interfaces\Clipboard
+	 * @return \DcGeneral\Clipboard\ClipboardInterface
 	 */
 	public function getClipboard();
 
 	/**
 	 * Set the the clipboard.
 	 *
-	 * @param \DcGeneral\Clipboard\Interfaces\Clipboard $objClipboard Clipboard instance.
+	 * @param \DcGeneral\Clipboard\ClipboardInterface $objClipboard Clipboard instance.
 	 *
 	 * @return Environment
 	 */
