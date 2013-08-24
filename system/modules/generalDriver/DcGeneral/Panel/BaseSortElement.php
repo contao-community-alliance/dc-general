@@ -6,7 +6,7 @@ use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Panel\AbstractElement;
 use DcGeneral\Panel\Interfaces\SortElement;
-use DcGeneral\Panel\Interfaces\Element;
+use DcGeneral\Panel\PanelElementInterface;
 
 class BaseSortElement extends AbstractElement implements SortElement
 {
@@ -113,7 +113,7 @@ class BaseSortElement extends AbstractElement implements SortElement
 	/**
 	 * {@inheritDoc}
 	 */
-	public function initialize(ConfigInterface $objConfig, Element $objElement = null)
+	public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
 	{
 		if (is_null($objElement))
 		{

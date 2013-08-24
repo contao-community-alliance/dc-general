@@ -2,43 +2,12 @@
 
 namespace DcGeneral\Panel\Interfaces;
 
-use DcGeneral\Data\ConfigInterface;
+use DcGeneral\Panel\PanelElementInterface;
 
-interface Element
+trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
+/**
+ * @deprecated
+ */
+interface Element extends PanelElementInterface
 {
-	/**
-	 * Return the parenting panel.
-	 *
-	 * @return Panel
-	 */
-	public function getPanel();
-
-	/**
-	 * Return the parenting panel.
-	 *
-	 * @param Panel $objPanel The panel to use as parent.
-	 *
-	 * @return Element
-	 */
-	public function setPanel(Panel $objPanel);
-
-	/**
-	 *
-	 *
-	 * @param ConfigInterface  $objConfig The config to which the initialization shall be applied to.
-	 *
-	 * @param Element $objElement The element to be initialized (if any).
-	 *
-	 * @return void
-	 */
-	public function initialize(ConfigInterface $objConfig, Element $objElement = null);
-
-	/**
-	 * Render the element using the given Template
-	 *
-	 * @param Template $objTemplate The Template to use.
-	 *
-	 * @return Element
-	 */
-	public function render($objTemplate);
 }

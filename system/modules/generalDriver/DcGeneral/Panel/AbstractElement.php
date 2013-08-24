@@ -4,11 +4,11 @@ namespace DcGeneral\Panel;
 
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\DataContainerInterface;
-use DcGeneral\Panel\Interfaces\Element;
+use DcGeneral\Panel\PanelElementInterface;
 use DcGeneral\Panel\Interfaces\Panel;
 use DcGeneral\InputProviderInterface;
 
-abstract class AbstractElement implements Element
+abstract class AbstractElement implements PanelElementInterface
 {
 	/**
 	 * @var Panel
@@ -52,7 +52,7 @@ abstract class AbstractElement implements Element
 	 *
 	 * @param Panel $objPanel The panel to use as parent.
 	 *
-	 * @return Element
+	 * @return PanelElementInterface
 	 */
 	public function setPanel(Panel $objPanel)
 	{
