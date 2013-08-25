@@ -115,6 +115,7 @@ TemplateLoader::addFiles(array
 	'dcbe_general_panel_sort'       => 'system/modules/generalDriver/templates',
 	'dcbe_general_parentView'       => 'system/modules/generalDriver/templates',
 	'dcbe_general_show'             => 'system/modules/generalDriver/templates',
+	'dcbe_general_submit'           => 'system/modules/generalDriver/templates',
 	'dcbe_general_treeview'         => 'system/modules/generalDriver/templates',
 	'dcbe_general_treeview_child'   => 'system/modules/generalDriver/templates',
 	'dcbe_general_treeview_entry'   => 'system/modules/generalDriver/templates',
