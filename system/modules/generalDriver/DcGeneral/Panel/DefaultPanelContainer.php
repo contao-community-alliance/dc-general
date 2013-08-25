@@ -170,11 +170,19 @@ class DefaultPanelContainer implements PanelContainerInterface
 	 */
 	public function buildFrom($objDefinition)
 	{
-		foreach ($objDefinition->getPanelLayout() as $strPanelKey => $arrPanel)
+		$panelLayout = $objDefinition->getPanelLayout();
+		$panelNames = array_keys($panelLayout);
+		$lastPanelKey = array_pop($panelNames);
+
+		foreach ($panelLayout as $strPanelKey => $arrPanel)
 		{
 			// We need a new panel.
 			$objPanel = new DefaultPanel();
 			$this->addPanel($strPanelKey, $objPanel);
+
+			if ($strPanelKey == $lastPanelKey) {
+				$objPanel->addElement('submit', new DefaultSubmitElement());
+			}
 
 			foreach ($arrPanel as $strElement)
 			{
