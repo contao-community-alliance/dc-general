@@ -1866,10 +1866,10 @@ class DefaultView implements ViewInterface
 
 			// Set basic informations
 			$opLabel = $objOperation->getLabel();
-			if (strlen($opLabel['label'][0]) )
+			if (strlen($opLabel[0]) )
 			{
-				$label = $opLabel['label'][0];
-				$title = sprintf($opLabel['label'][1], $objModelRow->getID());
+				$label = $opLabel[0];
+				$title = sprintf($opLabel[1], $objModelRow->getID());
 			}
 			else
 			{
