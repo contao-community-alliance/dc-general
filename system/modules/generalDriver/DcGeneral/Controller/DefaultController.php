@@ -2636,7 +2636,17 @@ class DefaultController extends \Controller implements ControllerInterface
 						}
 						else
 						{
-							$options[$objModel->getProperty($field)] = $this->parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $objModel->getProperty($field));
+							$date = $objModel->getProperty($field);
+							if ($date instanceof \DateTime)
+							{
+								$key      = $date->getTimestamp();
+							}
+							else
+							{
+								$key      = $date;
+							}
+
+							$options[$key] = $this->parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $key);
 						}
 
 						unset($options[$intIndex]);
