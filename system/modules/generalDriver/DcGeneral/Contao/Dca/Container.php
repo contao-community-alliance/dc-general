@@ -84,7 +84,7 @@ class Container implements ContainerInterface
 		$strCallbackClass = $this->getFromDca('dca_config/callback');
 		if (!$strCallbackClass)
 		{
-			$strCallbackClass = '\DcGeneral\Callbacks\Callbacks';
+			$strCallbackClass = '\DcGeneral\Callbacks\ContaoStyleCallbacks';
 		}
 
 		if (!class_exists($strCallbackClass))
@@ -210,7 +210,7 @@ class Container implements ContainerInterface
 		// parse the condition into valid filter rules.
 		$arrFilters = $this->getFromDca('dca_config/rootEntries/%s');
 
-		$this->arrDCA['dca_config']['rootEntries'][$strTable];
+		$this->arrDca['dca_config']['rootEntries'][$strTable];
 		if ($arrFilters)
 		{
 			$arrReturn = $arrFilters;
@@ -226,7 +226,7 @@ class Container implements ContainerInterface
 			);
 		}
 
-		return new RootCondition($arrReturn);
+		return new RootCondition($arrReturn, $strTable);
 	}
 
 	/**
