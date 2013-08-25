@@ -84,6 +84,7 @@ ClassLoader::addClasses(array
 	'DcGeneral\Data\Config'                                    => 'system/modules/generalDriver/DcGeneral/Data/Config.php',
 	'DcGeneral\Data\DefaultModel'                              => 'system/modules/generalDriver/DcGeneral/Data/DefaultModel.php',
 	'DcGeneral\Data\Model'                                     => 'system/modules/generalDriver/DcGeneral/Data/Model.php',
+	'DcGeneral\Data\TableRowsAsRecordsDriver'                  => 'system/modules/generalDriver/DcGeneral/Data/TableRowsAsRecordsDriver.php',
 	'DcGeneral\Contao\InputProvider'                           => 'system/modules/generalDriver/DcGeneral/Contao/InputProvider.php',
 	'DcGeneral\Contao\Dca\Container'                           => 'system/modules/generalDriver/DcGeneral/Contao/Dca/Container.php',
 	'DcGeneral\Contao\Dca\Property'                            => 'system/modules/generalDriver/DcGeneral/Contao/Dca/Property.php',
