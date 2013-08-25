@@ -3049,7 +3049,7 @@ class DefaultController extends \Controller implements ControllerInterface
 
 	public function executePostActions()
 	{
-		if (version_compare(VERSION, '3.0', '<>>='))
+		if (version_compare(VERSION, '3.0', '>='))
 		{
 			$objHandler = new Ajax3X();
 		}
