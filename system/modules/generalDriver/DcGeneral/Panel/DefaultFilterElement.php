@@ -149,9 +149,14 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
 			 */
 			foreach ($objFilterOptions as $objOption)
 			{
-				$optionValue = $objOption->getProperty($this->getPropertyName());
+				$optionKey = $optionValue = $objOption->getProperty($this->getPropertyName());
 
-				$arrOptions[$optionValue] = $optionValue;
+				if ($optionValue instanceof \DateTime) {
+					$optionKey = $optionValue->getTimestamp();
+					$optionValue = $optionValue->format($GLOBALS['TL_CONFIG']['dateFormat']);
+				}
+
+				$arrOptions[$optionKey] = $optionValue;
 			}
 			$this->arrfilterOptions = $arrOptions;
 		}
