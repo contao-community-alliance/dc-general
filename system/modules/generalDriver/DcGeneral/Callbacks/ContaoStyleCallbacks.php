@@ -12,6 +12,7 @@
 namespace DcGeneral\Callbacks;
 
 use DcGeneral\Data\ModelInterface;
+use DcGeneral\DataDefinition\OperationInterface;
 
 // FIXME: remove System inheritance.
 class ContaoStyleCallbacks extends \System implements CallbacksInterface
@@ -149,7 +150,7 @@ class ContaoStyleCallbacks extends \System implements CallbacksInterface
 	 */
 	public function buttonCallback($objModelRow, $arrOperation, $strLabel, $strTitle, $arrAttributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext)
 	{
-		if (is_a($arrOperation, '\DcGeneral\DataDefinition\OperationInterface'))
+		if ($arrOperation instanceof OperationInterface)
 		{
 			/** @var \DcGeneral\DataDefinition\OperationInterface $arrOperation */
 			$strHref     = $arrOperation->getHref();
