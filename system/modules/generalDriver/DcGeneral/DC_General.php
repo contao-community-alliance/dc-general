@@ -1356,8 +1356,8 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			{
 				try
 				{
-					$this->getEnvironment()->objCurrentModel->setProperty($strKey, $varNewValue);
-					$this->getEnvironment()->objCurrentModel->setMeta(DCGE::MODEL_IS_CHANGED, true);
+					$this->getEnvironment()->getCurrentModel()->setProperty($strKey, $varNewValue);
+					$this->getEnvironment()->getCurrentModel()->setMeta(DCGE::MODEL_IS_CHANGED, true);
 				}
 				catch (\Exception $exception)
 				{
