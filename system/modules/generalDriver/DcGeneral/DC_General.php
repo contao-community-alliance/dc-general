@@ -489,7 +489,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		else
 		{
 			$arrConfig = array(
-				'class' => '\DcGeneral\Data\Driver',
+				'class' => '\DcGeneral\Data\DefaultDriver',
 				'source' => $this->strTable
 			);
 			$this->arrDataProvider[$this->strTable] = $arrConfig;
@@ -497,12 +497,12 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			if ($this->arrDCA['config']['ptable'])
 			{
 				$arrSourceConfigs['parent'] = array(
-					'class' => '\DcGeneral\Data\Driver',
+					'class' => '\DcGeneral\Data\DefaultDriver',
 					'source' => $this->arrDCA['config']['ptable']
 				);
 
 				$arrSourceConfigs[$this->arrDCA['config']['ptable']] = array(
-					'class' => '\DcGeneral\Data\Driver',
+					'class' => '\DcGeneral\Data\DefaultDriver',
 					'source' => $this->arrDCA['config']['ptable']
 				);
 			}
