@@ -308,10 +308,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			->setInputProvider(new InputProvider())
 			->setClipboard(new DefaultClipboard());
 
-		// Import
-		// FIXME: WTF? WHY?
-		$this->import('Encryption');
-
 		// Switch user for FE / BE support
 		switch (TL_MODE)
 		{
