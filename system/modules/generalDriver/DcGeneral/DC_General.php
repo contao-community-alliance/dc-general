@@ -1354,8 +1354,16 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			$varNewValue = $this->processInput($strKey);
 			if (($varNewValue !== NULL) && ($this->getEnvironment()->getCurrentModel()->getProperty($strKey) !== $varNewValue))
 			{
-				$this->getEnvironment()->getCurrentModel()->setProperty($strKey, $varNewValue);
-				$this->getEnvironment()->getCurrentModel()->setMeta(DCGE::MODEL_IS_CHANGED, true);
+				try
+				{
+					$this->getEnvironment()->objCurrentModel->setProperty($strKey, $varNewValue);
+					$this->getEnvironment()->objCurrentModel->setMeta(DCGE::MODEL_IS_CHANGED, true);
+				}
+				catch (\Exception $exception)
+				{
+					$this->blnNoReload = true;
+					$this->arrWidgets[$strKey]->addError($exception->getMessage());
+				}
 			}
 		}
 
