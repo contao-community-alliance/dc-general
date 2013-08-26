@@ -76,7 +76,33 @@ class ParentChildCondition
 	 */
 	public function getFilter($objParent)
 	{
-		return $this->get('filter');
+		$arrFilter = $this->get('filter');
+		$arrResult = array();
+		foreach ($arrFilter as $arrRule)
+		{
+			$arrApplied = array(
+				'operation'   => $arrRule['operation'],
+			);
+
+			if (isset($arrRule['local']))
+			{
+				$arrApplied['property'] = $arrRule['local'];
+			}
+
+			if (isset($arrRule['remote']))
+			{
+				$arrApplied['value'] = $objParent->getProperty($arrRule['remote']);
+			}
+
+			if (isset($arrRule['value']))
+			{
+				$arrApplied['value'] = $arrRule['value'];
+			}
+
+			$arrResult[] = $arrApplied;
+		}
+
+		return $arrResult;
 	}
 
 	/**
@@ -84,7 +110,41 @@ class ParentChildCondition
 	 */
 	public function applyTo($objParent, $objChild)
 	{
+		// FIXME: unimplemented.
+	}
 
+	/**
+	 * {@inheritedDoc}
+	 */
+	public function getInverseFilter($objChild)
+	{
+		$arrFilter = $this->get('inverse');
+		$arrResult = array();
+		foreach ($arrFilter as $arrRule)
+		{
+			$arrApplied = array(
+				'operation'   => $arrRule['operation'],
+			);
+
+			if (isset($arrRule['remote']))
+			{
+				$arrApplied['property'] = $arrRule['remote'];
+			}
+
+			if (isset($arrRule['local']))
+			{
+				$arrApplied['value'] = $objChild->getProperty($arrRule['local']);
+			}
+
+			if (isset($arrRule['value']))
+			{
+				$arrApplied['value'] = $arrRule['value'];
+			}
+
+			$arrResult[] = $arrApplied;
+		}
+
+		return $arrResult;
 	}
 
 	/**
@@ -92,7 +152,7 @@ class ParentChildCondition
 	 */
 	public function matches($objParent, $objChild)
 	{
-
+		// FIXME: unimplemented.
 	}
 
 	/**
