@@ -12,6 +12,8 @@
 
 namespace DcGeneral\DataDefinition;
 
+use DcGeneral\Data\ModelInterface;
+
 interface RootConditionInterface extends ConditionInterface
 {
 	/**

@@ -34,7 +34,7 @@ interface ContainerInterface
 	 *
 	 * @param string $strProperty The name of the property.
 	 *
-	 * @return Property
+	 * @return PropertyInterface
 	 */
 	public function getProperty($strProperty);
 
