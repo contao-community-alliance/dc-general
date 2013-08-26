@@ -132,9 +132,9 @@ class DefaultDriver implements DriverInterface
 	 * Supported operations are:
 	 * operation      needed arguments     argument type.
 	 * AND
-	 *                'childs'             array
+	 *                'children'           array
 	 * OR
-	 *                'childs'             array
+	 *                'children'           array
 	 * =
 	 *                'property'           string (the name of a property)
 	 *                'value'              literal
@@ -171,12 +171,19 @@ class DefaultDriver implements DriverInterface
 		{
 			case 'AND':
 			case 'OR':
-				if (!$arrFilter['childs'])
+				// FIXME: backwards compat - remove when done
+				if (!is_array($arrFilter['children']))
+				{
+					trigger_error('Filter array uses deprecated entry "childs", please use "children" instead.', E_USER_DEPRECATED);
+					$arrFilter['children'] = $arrFilter['childs'];
+				}
+
+				if (!$arrFilter['children'])
 				{
 					return '';
 				}
 				$arrCombine = array();
-				foreach ($arrFilter['childs'] as $arrChild)
+				foreach ($arrFilter['children'] as $arrChild)
 				{
 					$arrCombine[] = $this->calculateSubfilter($arrChild, $arrParams);
 				}
@@ -241,7 +248,7 @@ class DefaultDriver implements DriverInterface
 		$strReturn = $this->calculateSubfilter(
 			array(
 				'operation' => 'AND',
-				'childs' => $objConfig->getFilter()
+				'children' => $objConfig->getFilter()
 			), $arrParams
 		);
 

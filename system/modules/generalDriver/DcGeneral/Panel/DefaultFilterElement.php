@@ -120,8 +120,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
 				array(
 					array(
 						'operation' => 'AND',
-						// FIXME: change childs to children
-						'childs' => array(array(
+						'children' => array(array(
 							'operation' => '=',
 							'property' => $this->getPropertyName(),
 							'value' => $this->getValue()
