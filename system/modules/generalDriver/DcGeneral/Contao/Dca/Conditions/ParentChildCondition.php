@@ -13,7 +13,7 @@
 namespace DcGeneral\Contao\Dca\Conditions;
 
 use DcGeneral\DataDefinition\ParentChildConditionInterface;
-use DcGeneral\DataDefinition\ContainerInterface;
+use DcGeneral\DataDefinition\AbstractCondition;
 
 /**
  * Class ParentChildCondition
@@ -47,7 +47,9 @@ array
  *
  * @package DcGeneral\Contao\Dca\Conditions
  */
-class ParentChildCondition implements ParentChildConditionInterface
+class ParentChildCondition
+	extends AbstractCondition
+	implements ParentChildConditionInterface
 {
 	/**
 	 * The ContainerInterface instance to which this condition belongs to.
