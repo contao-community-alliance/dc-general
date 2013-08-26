@@ -172,7 +172,7 @@ class DefaultController extends \Controller implements ControllerInterface
 			}
 			if (count($arrFilters))
 			{
-				$this->getDC()->setFilter(array(array('operation' => 'AND', 'childs' => $arrFilters)));
+				$this->getDC()->setFilter(array(array('operation' => 'AND', 'children' => $arrFilters)));
 			}
 		}
 
@@ -185,7 +185,7 @@ class DefaultController extends \Controller implements ControllerInterface
 			}
 			if (count($arrFilters))
 			{
-				$this->getDC()->setFilter(array(array('operation' => 'OR', 'childs' => $arrFilters)));
+				$this->getDC()->setFilter(array(array('operation' => 'OR', 'children' => $arrFilters)));
 			}
 		}
 

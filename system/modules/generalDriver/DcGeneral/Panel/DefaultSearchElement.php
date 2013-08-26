@@ -131,8 +131,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 			array(
 				array(
 					'operation' => 'AND',
-					// FIXME: change childs to children
-					'childs' => array(array(
+					'children' => array(array(
 						'operation' => 'LIKE',
 						'property' => $this->getSelectedProperty(),
 						'value' => sprintf('*%s*', $this->getValue())

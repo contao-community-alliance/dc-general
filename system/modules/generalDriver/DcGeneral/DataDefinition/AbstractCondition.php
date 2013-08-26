@@ -23,9 +23,10 @@ abstract class AbstractCondition implements ConditionInterface
 		{
 			case 'AND':
 			case 'OR':
-				// FIXME: backwardscompat - remove when done
+				// FIXME: backwards compat - remove when done
 				if (!is_array($arrFilter['children']))
 				{
+					trigger_error('Filter array uses deprecated entry "childs", please use "children" instead.', E_USER_DEPRECATED);
 					$arrFilter['children'] = $arrFilter['childs'];
 				}
 				// End of b.c. code.
