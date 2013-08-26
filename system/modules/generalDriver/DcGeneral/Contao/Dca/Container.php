@@ -14,6 +14,7 @@ namespace DcGeneral\Contao\Dca;
 
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Contao\Dca\Conditions\RootCondition;
+use DcGeneral\Contao\Dca\Conditions\ParentChildCondition;
 
 class Container implements ContainerInterface
 {
@@ -55,7 +56,7 @@ class Container implements ContainerInterface
 		$chunks = explode('/', $strKey);
 		$arrDca = $this->arrDca;
 
-		while ($chunk = array_shift($chunks))
+		while (($chunk = array_shift($chunks)) !== null)
 		{
 			if (!array_key_exists($chunk, $arrDca))
 			{
@@ -234,7 +235,15 @@ class Container implements ContainerInterface
 	 */
 	public function getChildCondition($strSrcTable, $strDstTable)
 	{
+		foreach ($this->getChildConditions($strSrcTable) as $objCondition)
+		{
+			if ($objCondition->getDestinationName() == $strDstTable)
+			{
+				return $objCondition;
+			}
+		}
 
+		return null;
 	}
 
 	/**
@@ -250,15 +259,17 @@ class Container implements ContainerInterface
 		}
 
 		$arrReturn = array();
-		foreach ($arrConditions as $arrCondition)
+		foreach ($arrConditions as $intKey => $arrCondition)
 		{
 			if (!(empty($strSrcTable) || ($arrCondition['from'] == $strSrcTable)))
 			{
 				continue;
 			}
 
-			$arrReturn[] = new ChildCondition($arrCondition);
+			$arrReturn[] = new ParentChildCondition($this, $intKey);
 		}
+
+		return $arrReturn;
 	}
 
 }

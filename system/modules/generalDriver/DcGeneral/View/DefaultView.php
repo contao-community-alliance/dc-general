@@ -859,7 +859,7 @@ class DefaultView implements ViewInterface
 		$strLabelIcon = strlen($this->getDC()->arrDCA['list']['sorting']['icon']) ? $this->getDC()->arrDCA['list']['sorting']['icon'] : 'pagemounts.gif';
 
 		// Rootpage pasteinto
-		if ($this->getDC()->isClipboard())
+		if ($this->getEnvironment()->getClipboard()->isNotEmpty())
 		{
 			$arrClipboard = $this->getDC()->getClipboard();
 			// TODO: @CS we definately need into and after handling here instead of different modes.
@@ -891,7 +891,7 @@ class DefaultView implements ViewInterface
 		$objTemplate = new \BackendTemplate('dcbe_general_treeview');
 		$objTemplate->treeClass = 'tl_' . $treeClass;
 		$objTemplate->tableName = strlen($this->objDC->getTable())? $this->objDC->getTable() : 'none';
-		$objTemplate->strLabelIcon = $this->generateImage($strLabelIcon);
+		$objTemplate->strLabelIcon = BackendBindings::generateImage($strLabelIcon);
 		$objTemplate->strLabelText = $strLabelText;
 		$objTemplate->strHTML = $strHTML;
 		$objTemplate->intMode = $intMode;
@@ -1652,7 +1652,7 @@ class DefaultView implements ViewInterface
 						$strPDP = null;
 					}
 
-					if (!($this->getDC()->arrDCA['config']['closed'] || $this->getDC()->isClipboard()))
+					if (!($this->getDC()->arrDCA['config']['closed'] || $this->getEnvironment()->getClipboard()->isNotEmpty()))
 					{
 						$arrReturn['button_new'] = sprintf(
 							'<a href="%s" class="header_new" title="%s" accesskey="n" onclick="Backend.getScrollOffset()">%s</a>',
