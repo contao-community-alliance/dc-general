@@ -38,6 +38,16 @@ interface ParentChildConditionInterface extends ConditionInterface
 	public function applyTo($objParent, $objChild);
 
 	/**
+	 * Get the inverted condition as filter.
+	 * This allows to look up the parent of a child model.
+	 *
+	 * @param ModelInterface $objChild The model that shall get used as child and for which the parent filter shall get retrieved.
+	 *
+	 * @return array|null
+	 */
+	public function getInverseFilter($objChild);
+
+	/**
 	 * Test if the given parent is indeed a parent of the given child object for this condition.
 	 *
 	 * @param ModelInterface $objParent
