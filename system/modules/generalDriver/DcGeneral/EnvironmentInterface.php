@@ -12,6 +12,9 @@
 
 namespace DcGeneral;
 
+use DcGeneral\View\ViewInterface;
+use DcGeneral\Data\ModelInterface;
+
 interface EnvironmentInterface
 {
 	/**
@@ -33,7 +36,7 @@ interface EnvironmentInterface
 	/**
 	 * Set the View for the current setup.
 	 *
-	 * @param \DcGeneral\ViewInterface $objView The view to use.
+	 * @param \DcGeneral\View\ViewInterface $objView The view to use.
 	 *
 	 * @return EnvironmentInterface
 	 */
@@ -42,7 +45,7 @@ interface EnvironmentInterface
 	/**
 	 * Retrieve the Controller from the current setup.
 	 *
-	 * @return \DcGeneral\ViewInterface
+	 * @return \DcGeneral\View\ViewInterface
 	 */
 	public function getView();
 
@@ -114,7 +117,7 @@ interface EnvironmentInterface
 
 	/**
 	 *
-	 * @param ModelInterface $objCurrentModel
+	 * @param \DcGeneral\Data\ModelInterface $objCurrentModel
 	 *
 	 * @return EnvironmentInterface
 	 */
@@ -122,7 +125,7 @@ interface EnvironmentInterface
 
 	/**
 	 *
-	 * @return ModelInterface
+	 * @return \DcGeneral\Data\ModelInterface
 	 */
 	public function getCurrentModel();
 
