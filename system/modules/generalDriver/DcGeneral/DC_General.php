@@ -74,6 +74,12 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	 */
 	protected $arrDCA = null;
 
+	/**
+	 * Force the edit mode.
+	 * @var boolean 
+	 */
+	protected $blnForceEdit = false;
+
 	// Core Objects ----------------
 
 	/**
@@ -324,6 +330,13 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		// Load
 		$this->checkPostGet();
 		$this->loadProviderAndHandler();
+
+		// Check for forcemode
+		if ($this->arrDCA['config']['forceEdit'])
+		{
+			$this->blnForceEdit = true;
+			$this->intId        = 1;
+		}
 		
 		// SH: We need the buttons here, because the onloadCallback is (the only) one 
 		// to remove buttons.
@@ -2319,6 +2332,12 @@ class DC_General extends \DataContainer implements DataContainerInterface
 
 	public function create()
 	{
+		// If forcemode true, use edit mode only.
+		if($this->blnForceEdit)
+		{
+			return $this->edit();
+		}
+
 		$strReturn = $this->objController->create();
 		if ($strReturn != null && $strReturn != "")
 		{
@@ -2376,6 +2395,12 @@ class DC_General extends \DataContainer implements DataContainerInterface
 
 	public function show()
 	{
+		// If forcemode true, use edit mode only.
+		if($this->blnForceEdit)
+		{
+			return $this->edit();
+		}
+
 		$strReturn = $this->objController->show();
 		if ($strReturn != null && $strReturn != "")
 		{
@@ -2388,6 +2413,12 @@ class DC_General extends \DataContainer implements DataContainerInterface
 
 	public function showAll()
 	{
+		// If forcemode true, use edit mode only.
+		if($this->blnForceEdit)
+		{
+			return $this->edit();
+		}
+
 		$strReturn = $this->objController->showAll();
 		if ($strReturn != null && $strReturn != "")
 		{
