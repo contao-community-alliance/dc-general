@@ -984,61 +984,9 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		return $arrReturn;
 	}
 
-	protected function checkCondition(ModelInterface $objParentModel, $arrFilter)
-	{
-		switch ($arrFilter['operation'])
-		{
-			case 'AND':
-			case 'OR':
-				if ($arrFilter['operation'] == 'AND')
-				{
-					foreach ($arrFilter['childs'] as $arrChild)
-					{
-						// AND => first false means false
-						if (!$this->checkCondition($objParentModel, $arrChild))
-						{
-							return false;
-						}
-					}
-					return true;
-				}
-				else
-				{
-					foreach ($arrFilter['childs'] as $arrChild)
-					{
-						// OR => first true means true
-						if ($this->checkCondition($objParentModel, $arrChild))
-						{
-							return true;
-						}
-					}
-					return false;
-				}
-				break;
-
-			case '=':
-				return ($objParentModel->getProperty($arrFilter['property']) == $arrFilter['value']);
-				break;
-			case '>':
-				return ($objParentModel->getProperty($arrFilter['property']) > $arrFilter['value']);
-				break;
-			case '<':
-				return ($objParentModel->getProperty($arrFilter['property']) < $arrFilter['value']);
-				break;
-
-			case 'IN':
-				return in_array($objParentModel->getProperty($arrFilter['property']), $arrFilter['value']);
-				break;
-
-			default:
-				throw new \RuntimeException('Error processing filter array - unknown operation ' . var_export($arrFilter, true), 1);
-		}
-	}
-
 	public function isRootItem(ModelInterface $objParentModel, $strTable)
 	{
-		$arrRootConditions = $this->getRootConditions($strTable);
-		return $this->checkCondition($objParentModel, array('operation' => 'AND', 'childs' => $arrRootConditions));
+		return $this->getEnvironment()->getDataDefinition($strTable)->getRootCondition()->matches($objParentModel);
 	}
 
 	/**
