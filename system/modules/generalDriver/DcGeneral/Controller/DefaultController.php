@@ -759,7 +759,7 @@ class DefaultController extends \Controller implements ControllerInterface
 
 		// Load record from data provider
 		$objDBModel = $objCurrentDataProvider->getEmptyModel();
-		$this->getDC()->getEnvironment()->setCurrentModel($objDBModel);
+		$this->getEnvironment()->setCurrentModel($objDBModel);
 
 		if ($this->getDC()->arrDCA['list']['sorting']['mode'] < 4)
 		{
@@ -909,7 +909,7 @@ class DefaultController extends \Controller implements ControllerInterface
 				$this->getNewPosition(
 					$this->objDC->getDataProvider($strPDP),
 					$this->objDC->getDataProvider($strCDP),
-					$this->objDC->getEnvironment()->getCurrentModel(),
+					$this->getEnvironment()->getCurrentModel(),
 					$mixAfter,
 					$mixInto,
 					'create'
