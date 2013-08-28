@@ -13,6 +13,7 @@
 namespace DcGeneral\Controller;
 
 use DcGeneral\Controller\ControllerInterface;
+use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ModelInterface;
 
@@ -1891,37 +1892,37 @@ class DefaultController extends \Controller implements ControllerInterface
 	{
 		// Setup
 		$objCurrentDataProvider = $this->getDC()->getDataProvider();
-		$objParentDataProvider = $this->getDC()->getDataProvider('parent');
+		$objParentDataProvider  = $this->getDC()->getDataProvider('parent');
 
 		$objConfig = $objCurrentDataProvider->getEmptyConfig();
 		$this->getDC()->getEnvironment()->getPanelContainer()->initialize($objConfig);
 
-		$objCollection = $objCurrentDataProvider->fetchAll($objConfig);
+		$objCollection = $objCurrentDataProvider->fetchAll($this->addParentFilter(
+			$this->getEnvironment()->getInputProvider()->getParameter('id'),
+			$objConfig
+		));
 
 		$this->getDC()->getEnvironment()->setCurrentCollection($objCollection);
 
+		// If we want to group the elements, do so now.
+		if (isset($objCondition) && ($this->getEnvironment()->getDataDefinition()->getSortingMode() == 3))
+		{
+			foreach ($objCollection as $objModel)
+			{
+				/** @var ModelInterface $objModel */
+				$arrFilter = $objCondition->getInverseFilter($objModel);
+				$objConfig = $objParentDataProvider->getEmptyConfig()->setFilter($arrFilter);
+				$objParent = $objParentDataProvider->fetch($objConfig);
+
+				// TODO: wouldn't it be wiser to link the model instance instead of the id of the parenting model?
+				$objModel->setMeta(DCGE::MODEL_PID, $objParent->getId());
+			}
+		}
+
 		return;
 
-
 		$showFields = $this->getDC()->arrDCA['list']['label']['fields'];
-		$arrLimit = $this->calculateLimit();
 
-		// Load record from current data provider
-		$objConfig = $objCurrentDataProvider->getEmptyConfig()
-			->setStart($arrLimit[0])
-			->setAmount($arrLimit[1])
-			->setFilter($this->getFilter())
-			->setSorting(array($this->getDC()->getFirstSorting() => $this->getDC()->getFirstSortingOrder()));
-
-		$objCollection = $objCurrentDataProvider->fetchAll($objConfig);
-
-		// TODO: set global current in DC_General
-		/* $this->current[] = $objModelRow->getProperty('id'); */
-//		foreach ($objCollection as $objModel)
-//		{
-//
-//		}
-//
 		// Rename each pid to its label and resort the result (sort by parent table)
 		if ($this->getDC()->arrDCA['list']['sorting']['mode'] == 3)
 		{
@@ -1990,8 +1991,7 @@ class DefaultController extends \Controller implements ControllerInterface
 		// Load some infromations from DCA
 		$arrNeededFields = $this->calcNeededFields($this->getDC()->getDataProvider()->getEmptyModel(), $this->getDC()->getTable());
 		$arrTitlePattern = $this->calcLabelPattern($this->getDC()->getTable());
-		$arrRootEntries = $this->getDC()->getRootConditions($this->getDC()->getTable());
-		$arrLimit = $this->calculateLimit();
+		$arrRootEntries = $this->getDC()->getEnvironment()->getDataDefinition()->getRootCondition();
 
 		// TODO: @CS we need this to be srctable_dsttable_tree for interoperability, for mode5 this will be self_self_tree but with strTable.
 		$strToggleID = $this->getDC()->getTable() . '_tree';
@@ -2031,13 +2031,7 @@ class DefaultController extends \Controller implements ControllerInterface
 		// Set Filter for root elements
 		$objRootConfig->setFilter($arrRootEntries);
 
-		if (preg_match('/limit/', $this->getDC()->arrDCA['list']['sorting']['panelLayout']))
-		{
-			// Set limit
-			$objRootConfig->setStart($arrLimit[0])->setAmount($arrLimit[1]);
-		}
-
-		$objRootConfig->setSorting(array('sorting' => 'ASC'));
+		$this->getEnvironment()->getPanelContainer()->initialize($objRootConfig);
 
 		// Fetch all root elements
 		$objRootCollection = $this->getDC()->getDataProvider()->fetchAll($objRootConfig);
@@ -2244,12 +2238,59 @@ class DefaultController extends \Controller implements ControllerInterface
 	}
 
 	/**
+	 * @param mixed $idParent
+	 *
+	 * @param ConfigInterface $objConfig
+	 *
+	 * @return \DcGeneral\Data\ConfigInterface
+	 */
+	protected function addParentFilter($idParent, $objConfig)
+	{
+		// Setup
+		$objCurrentDataProvider = $this->getDC()->getDataProvider();
+		$objParentDataProvider  = $this->getDC()->getDataProvider('parent');
+
+		if ($objParentDataProvider)
+		{
+			$objParent = $objParentDataProvider->fetch($objParentDataProvider->getEmptyConfig()->setId($idParent));
+
+			$objCondition = $this->getDC()->getEnvironment()->getDataDefinition()->getChildCondition(
+				$objParentDataProvider->getEmptyModel()->getProviderName(),
+				$objCurrentDataProvider->getEmptyModel()->getProviderName()
+			);
+
+			if ($objCondition)
+			{
+				$arrBaseFilter = $objConfig->getFilter();
+				$arrFilter     = $objCondition->getFilter($objParent);
+
+				if ($arrBaseFilter)
+				{
+					$arrFilter = array_merge($arrBaseFilter, $arrFilter);
+				}
+
+				$objConfig->setFilter(array(array(
+					'operation' => 'AND',
+					'children'    => $arrFilter,
+				)));
+			}
+		}
+
+		return $objConfig;
+	}
+
+	/**
 	 * Show header of the parent table and list all records of the current table
+	 *
 	 * @return string
+	 *
+	 * @throws \RuntimeException
 	 */
 	protected function viewParent()
 	{
-		if (!CURRENT_ID)
+		// FIXME: changed to use the input provider based id and not the constant, check if this is really correct.
+//		if (!CURRENT_ID)
+		if (!$this->getEnvironment()->getInputProvider()->getParameter('id'))
 		{
 			throw new \RuntimeException("mode 4 need a proper parent id defined, somehow none is defined?", 1);
 		}
@@ -2259,31 +2300,18 @@ class DefaultController extends \Controller implements ControllerInterface
 			throw new \RuntimeException("mode 4 need a proper parent dataprovider defined, somehow none is defined?", 1);
 		}
 
-		$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig();
-		$this->getEnvironment()->getPanelContainer()->initialize($objConfig);
-		$this->getEnvironment()->setCurrentCollection($this->getDC()->getDataProvider()->fetchAll($objConfig));
+		// Setup
+		$objCurrentDataProvider = $this->getDC()->getDataProvider();
 
-		return;
+		$objConfig = $objCurrentDataProvider->getEmptyConfig();
+		$this->getDC()->getEnvironment()->getPanelContainer()->initialize($objConfig);
 
-		$objParentItem = $this->objDC->getCurrentParentCollection()->get(0);
+		$objCollection = $objCurrentDataProvider->fetchAll($this->addParentFilter(
+			$this->getEnvironment()->getInputProvider()->getParameter('id'),
+			$objConfig
+		));
 
-		// Get limits
-		$arrLimit = $this->calculateLimit();
-
-		// Load record from data provider
-		$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()
-			->setStart($arrLimit[0])
-			->setAmount($arrLimit[1])
-			->setFilter($this->getFilter())
-			->setSorting(array($this->getDC()->getFirstSorting() => $this->getDC()->getFirstSortingOrder()));
-
-
-		if ($this->foreignKey)
-		{
-			$objConfig->setFields($this->arrFields);
-		}
-
-		$this->getDC()->setCurrentCollection($this->getDC()->getDataProvider()->fetchAll($objConfig));
+		$this->getDC()->getEnvironment()->setCurrentCollection($objCollection);
 	}
 
 	/* /////////////////////////////////////////////////////////////////////
