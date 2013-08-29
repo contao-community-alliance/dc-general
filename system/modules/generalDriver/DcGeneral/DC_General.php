@@ -423,7 +423,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			'id'				 => 'saveNclose',
 			'formkey'			 => 'saveNclose',
 			'class'				 => '',
-			'accesskey'			 => 's',
+			'accesskey'			 => 'c',
 			'value'				 => null, // Lookup from DC_General
 			'button_callback'	 => null  // Core feature from DC_General
 		));
@@ -2013,7 +2013,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			}
 		}
 
-		$group = $this->getEnvironment()->getCallbackHandler()->groupCallback($group, $mode, $field, $objModelRow->getPropertiesAsArray());
+		$group = $this->getEnvironment()->getCallbackHandler()->groupCallback($group, $mode, $field, $objModelRow);
 
 		return $group;
 	}
