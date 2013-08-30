@@ -2051,11 +2051,15 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		// Add the popup file manager
 		if ($arrConfig['inputType'] == 'fileTree' && $this->strTable . '.' . $this->strField != 'tl_theme.templates')
 		{
-			$strXLabel .= sprintf(
-				' <a href="contao/files.php" title="%s" onclick="Backend.getScrollOffset(); Backend.openWindow(this, 750, 500); return false;">%s</a>', specialchars($GLOBALS['TL_LANG']['MSC']['fileManager']), $this->generateImage(
-					'filemanager.gif', $GLOBALS['TL_LANG']['MSC']['fileManager'], 'style="vertical-align:text-bottom;"'
-				)
-			);
+			// In Contao 3 it is always a file picker - no need for the button.
+			if (version_compare(VERSION, '3.0', '<'))
+			{
+				$strXLabel .= sprintf(
+					' <a href="contao/files.php" title="%s" onclick="Backend.getScrollOffset(); Backend.openWindow(this, 750, 500); return false;">%s</a>', specialchars($GLOBALS['TL_LANG']['MSC']['fileManager']), $this->generateImage(
+						'filemanager.gif', $GLOBALS['TL_LANG']['MSC']['fileManager'], 'style="vertical-align:text-bottom;"'
+					)
+				);
+			}
 		}
 		// Add table import wizard
 		else if ($arrConfig['inputType'] == 'tableWizard')
