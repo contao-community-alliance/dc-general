@@ -78,6 +78,7 @@ interface DataContainerInterface extends \editable, \listable
 	public function setCurrentModel(ModelInterface $objCurrentModel);
 
 	/**
+	 * @deprecated Use getEnvironment()->getCurrentModel() instead.
 	 *
 	 * @return ModelInterface
 	 */
