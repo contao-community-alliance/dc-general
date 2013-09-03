@@ -1997,7 +1997,6 @@ class DefaultController extends \Controller implements ControllerInterface
 		// Load some infromations from DCA
 		$arrNeededFields = $this->calcNeededFields($this->getDC()->getDataProvider()->getEmptyModel(), $this->getDC()->getTable());
 		$arrTitlePattern = $this->calcLabelPattern($this->getDC()->getTable());
-		$arrRootEntries = $this->getDC()->getEnvironment()->getDataDefinition()->getRootCondition();
 
 		// TODO: @CS we need this to be srctable_dsttable_tree for interoperability, for mode5 this will be self_self_tree but with strTable.
 		$strToggleID = $this->getDC()->getTable() . '_tree';
@@ -2034,10 +2033,24 @@ class DefaultController extends \Controller implements ControllerInterface
 		// Set fields limit
 		$objRootConfig->setFields(array_keys(array_flip($arrNeededFields)));
 
-		// Set Filter for root elements
-		$objRootConfig->setFilter($arrRootEntries);
-
 		$this->getEnvironment()->getPanelContainer()->initialize($objRootConfig);
+		$objRootCondition = $this->getDC()->getEnvironment()->getDataDefinition()->getRootCondition();
+
+		if ($objRootCondition)
+		{
+			$arrBaseFilter = $objRootConfig->getFilter();
+			$arrFilter     = $objRootCondition->getFilter();
+
+			if ($arrBaseFilter)
+			{
+				$arrFilter = array_merge($arrBaseFilter, $arrFilter);
+			}
+
+			$objRootConfig->setFilter(array(array(
+				'operation' => 'AND',
+				'children'    => $arrFilter,
+			)));
+		}
 
 		// Fetch all root elements
 		$objRootCollection = $this->getDC()->getDataProvider()->fetchAll($objRootConfig);
@@ -2048,7 +2061,7 @@ class DefaultController extends \Controller implements ControllerInterface
 			$this->treeWalkModel($objRootModel, 0, $arrToggle, array('self'));
 		}
 
-		$this->getDC()->setCurrentCollection($objTableTreeData);
+		$this->getEnvironment()->setCurrentCollection($objTableTreeData);
 	}
 
 	protected function calcLabelFields($strTable)
