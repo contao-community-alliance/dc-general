@@ -14,6 +14,7 @@ namespace DcGeneral\Contao\Dca\Conditions;
 
 use DcGeneral\DataDefinition\RootConditionInterface;
 use DcGeneral\DataDefinition\AbstractCondition;
+use DcGeneral\Data\ModelInterface;
 
 class RootCondition
 	extends AbstractCondition

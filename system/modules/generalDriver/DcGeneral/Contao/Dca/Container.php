@@ -37,10 +37,10 @@ class Container implements ContainerInterface
 	 *
 	 * @param string $strTable The table name.
 	 *
-	 * @param array  $arrDca   The array to use.
+	 * @param array  &$arrDca   The array to use.
 	 *
 	 */
-	public function __construct($strTable, $arrDca)
+	public function __construct($strTable, &$arrDca)
 	{
 		if (!(strlen($strTable) && is_array($arrDca) && count($arrDca)))
 		{
@@ -201,33 +201,7 @@ class Container implements ContainerInterface
 	 */
 	public function getRootCondition()
 	{
-		if ($strTable == $this->getName())
-		{
-			$strTable = 'self';
-		}
-
-		$arrReturn = array();
-
-		// parse the condition into valid filter rules.
-		$arrFilters = $this->getFromDca('dca_config/rootEntries/%s');
-
-		$this->arrDca['dca_config']['rootEntries'][$strTable];
-		if ($arrFilters)
-		{
-			$arrReturn = $arrFilters;
-		}
-		// FIXME: BC shall we really keep this DC_Table bc default value?
-		else
-		{
-			$arrReturn[] = array
-			(
-				'property' => 'pid',
-				'operation' => '=',
-				'value' => 0
-			);
-		}
-
-		return new RootCondition($arrReturn, $strTable);
+		return new RootCondition($this, $this->getName());
 	}
 
 	/**
