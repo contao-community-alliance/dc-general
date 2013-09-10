@@ -85,12 +85,14 @@ class DefaultClipboard implements ClipboardInterface
 				$arrClipboard[$strName]['ids'] = $this->getContainedIds();
 			}
 
-			$arrClipboard[$strName]['ids']['mode'] = $this->mode;
+			$arrClipboard[$strName]['mode'] = $this->mode;
 		}
 	}
 
 	public function clear()
 	{
+		unset($this->arrIds);
+		unset($this->mode);
 
 		return $this;
 	}
@@ -125,6 +127,11 @@ class DefaultClipboard implements ClipboardInterface
 	public function isCopy()
 	{
 		return $this->mode == 'copy';
+	}
+
+	public function isCreate()
+	{
+		return $this->mode == 'create';
 	}
 
 	/**
@@ -168,6 +175,18 @@ class DefaultClipboard implements ClipboardInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function create($parentId)
+	{
+		$this->mode = 'create';
+
+		$this->setContainedIds($parentId);
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function setContainedIds($arrIds)
 	{
 		$this->arrIds = $arrIds;
@@ -199,5 +218,13 @@ class DefaultClipboard implements ClipboardInterface
 	public function getCircularIds()
 	{
 		return $this->arrCircularIds;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getMode()
+	{
+		return $this->mode;
 	}
 }

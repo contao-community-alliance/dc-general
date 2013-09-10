@@ -68,6 +68,13 @@ interface ClipboardInterface
 	public function isCopy();
 
 	/**
+	 * Determine if the content in the clipboard is a new item to be created.
+	 *
+	 * @return bool
+	 */
+	public function isCreate();
+
+	/**
 	 * Set the clipboard to copy mode and copy the given ids.
 	 *
 	 * @param array|mixed $ids The id or ids to be copied.
@@ -84,6 +91,15 @@ interface ClipboardInterface
 	 * @return ClipboardInterface
 	 */
 	public function cut($ids);
+
+	/**
+	 * Set the clipboard to create mode for a child of the given parent dataset.
+	 *
+	 * @param mixed $parentId The id of the parent dataset.
+	 *
+	 * @return ClipboardInterface
+	 */
+	public function create($parentId);
 
 	/**
 	 * Set the ids contained in the clipboard.
@@ -116,4 +132,9 @@ interface ClipboardInterface
 	 * @return array
 	 */
 	public function getCircularIds();
+
+	/**
+	 * @return string Either cut|paste|mode
+	 */
+	public function getMode();
 }
