@@ -1037,8 +1037,8 @@ class DefaultController extends \Controller implements ControllerInterface
 		}
 
 		// Callback
-		$this->getDC()->setCurrentModel($objCurrentDataProvider->fetch($objCurrentDataProvider->getEmptyConfig()->setId($intRecordID)));
-		$this->getDC()->getCallbackClass()->ondeleteCallback();
+		$this->getEnvironment()->setCurrentModel($objCurrentDataProvider->fetch($objCurrentDataProvider->getEmptyConfig()->setId($intRecordID)));
+		$this->getEnvironment()->getCallbackHandler()->ondeleteCallback();
 
 		$arrDelIDs = array();
 
