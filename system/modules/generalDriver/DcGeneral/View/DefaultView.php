@@ -642,7 +642,7 @@ class DefaultView implements ViewInterface
 				$strPrevious = ((!is_null($this->getCurrentCollection()->get($i - 1))) ? $this->getCurrentCollection()->get($i - 1)->getID() : null);
 				$strNext = ((!is_null($this->getCurrentCollection()->get($i + 1))) ? $this->getCurrentCollection()->get($i + 1)->getID() : null);
 
-				$buttons = $this->generateButtons($objModel, $this->getDC()->getTable(), $this->getDC()->getRootIds(), false, null, $strPrevious, $strNext);
+				$buttons = $this->generateButtons($objModel, $this->getDC()->getTable(), $this->getDC()->getEnvironment()->getRootIds(), false, null, $strPrevious, $strNext);
 
 				// Sortable table
 				if ($this->parentView['sorting'])
@@ -802,7 +802,7 @@ class DefaultView implements ViewInterface
 		// Generate buttons
 		foreach ($this->getCurrentCollection() as $objModelRow)
 		{
-			$objModelRow->setMeta(DCGE::MODEL_BUTTONS, $this->generateButtons($objModelRow, $this->getDC()->getTable(), $this->getDC()->getRootIds()));
+			$objModelRow->setMeta(DCGE::MODEL_BUTTONS, $this->generateButtons($objModelRow, $this->getDC()->getTable(), $this->getDC()->getEnvironment()->getRootIds()));
 		}
 
 		// Add template
@@ -1693,7 +1693,7 @@ class DefaultView implements ViewInterface
 				}
 
 				// Call a custom function instead of using the default button
-				$strButtonCallback = $this->getDC()->getCallbackClass()->globalButtonCallback($v, $label, $title, $attributes, $this->getDC()->getTable(), $this->getDC()->getRootIds());
+				$strButtonCallback = $this->getDC()->getCallbackClass()->globalButtonCallback($v, $label, $title, $attributes, $this->getDC()->getTable(), $this->getDC()->getEnvironment()->getRootIds());
 				if (!is_null($strButtonCallback))
 				{
 					$arrReturn[$k] = $strButtonCallback;
@@ -1821,7 +1821,7 @@ class DefaultView implements ViewInterface
 			}
 
 			// Call a custom function instead of using the default button
-			$strButtonCallback = $this->getDC()->getCallbackClass()->globalButtonCallback($v, $label, $title, $attributes, $this->getDC()->getTable(), $this->getDC()->getRootIds());
+			$strButtonCallback = $this->getDC()->getCallbackClass()->globalButtonCallback($v, $label, $title, $attributes, $this->getDC()->getTable(), $this->getDC()->getEnvironment()->getRootIds());
 			if (!is_null($strButtonCallback))
 			{
 				$return .= $strButtonCallback;
