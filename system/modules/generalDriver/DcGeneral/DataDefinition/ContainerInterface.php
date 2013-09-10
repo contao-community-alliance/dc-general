@@ -82,14 +82,14 @@ interface ContainerInterface
 	 *
 	 * @param string $strOperation The name of the operation.
 	 *
-	 * @return Operation
+	 * @return \DcGeneral\DataDefinition\OperationInterface
 	 */
 	public function getOperation($strOperation);
 
 	/**
 	 *
 	 *
-	 * @return \DcGeneral\DataDefinition\OperationInterface
+	 * @return string[]
 	 */
 	public function getOperationNames();
 

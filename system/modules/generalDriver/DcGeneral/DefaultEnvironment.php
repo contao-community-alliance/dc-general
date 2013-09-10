@@ -59,9 +59,14 @@ class DefaultEnvironment implements EnvironmentInterface
 	protected $objCollection;
 
 	/**
-	 * @var ModelInterface
+	 * @var \DcGeneral\Data\ModelInterface
 	 */
 	protected $objModel;
+
+	/**
+	 * @var array
+	 */
+	protected $arrRootIds;
 
 	/**
 	 * @var \DcGeneral\Clipboard\ClipboardInterface
@@ -210,6 +215,24 @@ class DefaultEnvironment implements EnvironmentInterface
 	public function getCurrentModel()
 	{
 		return $this->objModel;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setRootIds($arrRootIds)
+	{
+		$this->arrRootIds = $arrRootIds;
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getRootIds()
+	{
+		return $this->arrRootIds;
 	}
 
 	/**

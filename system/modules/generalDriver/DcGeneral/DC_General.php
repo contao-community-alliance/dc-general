@@ -187,12 +187,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	// Misc. -----------------------
 
 	/**
-	 * List with all ids for the views
-	 * @var array
-	 */
-	protected $arrRootIds = null;
-
-	/**
 	 * Parameter to sort the collection
 	 * @var array
 	 */
@@ -1030,9 +1024,16 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		return $this->intId;
 	}
 
+	/**
+	 * @return array|null
+	 *
+	 * @deprecated Use getEnvironment()->getRootIds() instead.
+	 */
 	public function getRootIds()
 	{
-		return $this->arrRootIds;
+		trigger_error('deprecated use of getRootIds() - use getEnvironment()->getRootIds() instead.', E_USER_DEPRECATED);
+
+		return $this->getEnvironment()->getRootIds();
 	}
 
 	public function getTable()
@@ -1160,9 +1161,16 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		return $this->strButtonId;
 	}
 
+	/**
+	 * @param $arrRootIds
+	 *
+	 * @deprecated use getEnvironment()->setRootIds() instead.
+	 */
 	public function setRootIds($arrRootIds)
 	{
-		$this->arrRootIds = $arrRootIds;
+		trigger_error('deprecated use of setRootIds() - use getEnvironment()->setRootIds() instead.', E_USER_DEPRECATED);
+
+		$this->getEnvironment()->setRootIds($arrRootIds);
 	}
 
 	public function setFilter($arrFilter)
@@ -1226,7 +1234,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	 */
 	public function getCurrentCollection()
 	{
-		trigger_error('deprecated ' . __METHOD__, E_USER_DEPRECATED);
+		trigger_error('deprecated - use getEnvironment()->getCurrentCollection() instead.', E_USER_DEPRECATED);
 		return $this->getEnvironment()->getCurrentCollection();
 	}
 
@@ -1247,7 +1255,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	 */
 	public function getCurrentModel()
 	{
-		trigger_error('deprecated ' . __METHOD__, E_USER_DEPRECATED);
+		trigger_error('deprecated - use getEnvironment()->getCurrentModel() instead.', E_USER_DEPRECATED);
 		return $this->getEnvironment()->getCurrentModel();
 	}
 
@@ -1281,7 +1289,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	 */
 	public function setCurrentCollection(CollectionInterface $objCurrentCollection)
 	{
-		trigger_error('deprecated ' . __METHOD__, E_USER_DEPRECATED);
+		trigger_error('deprecated - use getEnvironment()->setCurrentCollection() instead.', E_USER_DEPRECATED);
 		$this->getEnvironment()->setCurrentCollection($objCurrentCollection);
 	}
 
@@ -1293,7 +1301,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	 */
 	public function setCurrentModel(ModelInterface $objCurrentModel)
 	{
-		trigger_error('deprecated ' . __METHOD__, E_USER_DEPRECATED);
+		trigger_error('deprecated - use getEnvironment()->setCurrentModel() instead.', E_USER_DEPRECATED);
 		return $this->getEnvironment()->setCurrentModel($objCurrentModel);
 	}
 

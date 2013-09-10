@@ -130,6 +130,22 @@ interface EnvironmentInterface
 	public function getCurrentModel();
 
 	/**
+	 * Set the current root ids.
+	 *
+	 * @param array $arrRootIds The root ids for this data container.
+	 *
+	 * @return EnvironmentInterface
+	 */
+	public function setRootIds($arrRootIds);
+
+	/**
+	 * Retrieve the current root ids.
+	 *
+	 * @return array
+	 */
+	public function getRootIds();
+
+	/**
 	 * Return the clipboard.
 	 *
 	 * @return \DcGeneral\Clipboard\ClipboardInterface
