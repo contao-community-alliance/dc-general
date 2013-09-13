@@ -103,22 +103,32 @@ class Ajax3X extends Ajax
 			$strField = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $strField);
 		}
 
-		$objDataProvider = $objDc->getDataProvider();
-		$objModel        = $objDataProvider->fetch($objDataProvider->getEmptyConfig()->setId($intId));
-
-		if (is_null($objModel))
+		if(!is_null($intId))
 		{
-			$this->log('A record with the ID "' . $intId . '" does not exist in "' . $objDc->getTable() . '"', 'Ajax executePostActions()', TL_ERROR);
-			header('HTTP/1.1 400 Bad Request');
-			die('Bad Request');
+			$objDataProvider = $objDc->getDataProvider();
+			$objModel        = $objDataProvider->fetch($objDataProvider->getEmptyConfig()->setId($intId));
+
+			if (is_null($objModel))
+			{
+				$this->log('A record with the ID "' . $intId . '" does not exist in "' . $objDc->getTable() . '"', 'Ajax executePostActions()', TL_ERROR);
+				header('HTTP/1.1 400 Bad Request');
+				die('Bad Request');
+			}
 		}
 
 		$varValue = $this->getTreeValue($strType);
 		$strKey = $strType . 'Tree';
 
 		// Set the new value
-		$objModel->setProperty($strField, $varValue);
-		$arrAttribs['activeRecord'] = $objModel;
+		if (!is_null($objModel))
+		{
+			$objModel->setProperty($strField, $varValue);
+			$arrAttribs['activeRecord'] = $objModel;
+		}
+		else
+		{
+			$arrAttribs['activeRecord'] = null;
+		}
 
 		$arrAttribs['id'] = $strFieldName;
 		$arrAttribs['name'] = $strFieldName;
