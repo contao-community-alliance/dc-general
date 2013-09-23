@@ -54,6 +54,9 @@
 	"autoload": {
 		"classmap": ["system"]
 	},
+	"replace": {
+		"contao-legacy/dc_general": "*"
+	},
 	"extra":{
 		"contao": {
 			"symlinks": {
