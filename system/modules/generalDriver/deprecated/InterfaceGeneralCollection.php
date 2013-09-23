@@ -14,6 +14,6 @@ trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
 /**
  * @deprecated
  */
-interface InterfaceGeneralCollection extends DcGeneral\Data\Interfaces\Collection
+interface InterfaceGeneralCollection extends DcGeneral\Data\CollectionInterface
 {
 }
