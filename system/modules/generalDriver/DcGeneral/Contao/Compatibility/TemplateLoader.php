@@ -10,7 +10,7 @@
  * @filesource
  */
 
-namespace MetaModels\Compatibility;
+namespace DcGeneral\Contao\Compatibility;
 
 /**
  * Class TemplateLoader - just a dummy class to make autoload.php files happy.
