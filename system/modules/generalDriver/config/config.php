@@ -23,9 +23,15 @@ if (version_compare(VERSION, '3.0', '<'))
 	$baseDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'DcGeneral' . DIRECTORY_SEPARATOR . 'Contao' . DIRECTORY_SEPARATOR . 'Compatibility' . DIRECTORY_SEPARATOR;
 	// Fake the Contao 3 class loading.
 	require_once  $baseDir . 'ClassLoader.php';
-	class_alias('DcGeneral\Contao\Compatibility\ClassLoader', 'ClassLoader');
+	if (!class_exists('ClassLoader', false))
+	{
+		class_alias('DcGeneral\Contao\Compatibility\ClassLoader', 'ClassLoader');
+	}
 	require_once $baseDir . 'TemplateLoader.php';
-	class_alias('DcGeneral\Contao\Compatibility\TemplateLoader', 'TemplateLoader');
+	if (!class_exists('TemplateLoader', false))
+	{
+		class_alias('DcGeneral\Contao\Compatibility\TemplateLoader', 'TemplateLoader');
+	}
 	DcGeneral\Contao\Compatibility\ClassLoader::scanAndRegister();
 }
 
