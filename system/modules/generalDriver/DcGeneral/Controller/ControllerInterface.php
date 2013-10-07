@@ -17,6 +17,16 @@ use DcGeneral\DataContainerInterface;
 // TODO: we need to flesh this out some more out and add real interface methods. Currently this interface is rather useless.
 interface ControllerInterface
 {
+	/**
+	 * Retrieve the base config for retrieving data.
+	 *
+	 * This includes all auxiliary filters from DCA etc. but excludes the filters from panels.
+	 *
+	 * @return \DcGeneral\Data\ConfigInterface
+	 */
+	public function getBaseConfig();
+
+
 
 	/**
 	 * Set the DataContainerInterface.

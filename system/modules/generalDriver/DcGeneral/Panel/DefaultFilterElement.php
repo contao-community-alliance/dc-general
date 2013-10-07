@@ -140,7 +140,8 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
 				->getPanel()
 				->getContainer()
 				->getDataContainer()
-				->getDataProvider()
+				->getEnvironment()
+				->getDataDriver()
 				->getFilterOptions($objTempConfig);
 
 			$arrOptions = array();

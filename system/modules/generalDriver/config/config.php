@@ -35,3 +35,5 @@ if (version_compare(VERSION, '3.0', '<'))
 	DcGeneral\Contao\Compatibility\ClassLoader::scanAndRegister();
 }
 
+// Attach ourselves to the DIC.
+$GLOBALS['TL_EVENT_SUBSCRIBERS'][] = 'DcGeneral\Events\Subscriber';

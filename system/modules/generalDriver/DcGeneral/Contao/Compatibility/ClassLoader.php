@@ -18,7 +18,7 @@ namespace DcGeneral\Contao\Compatibility;
  * This class simply exists to provide the Contao 3 namespace based auto loading in Contao 2.11.
  * It is heavily based upon code by Leo Feyer and only temporary.
  *
- * @package MetaModels\Compatibility
+ * @package DcGeneral\Contao\Compatibility
  */
 class ClassLoader
 {

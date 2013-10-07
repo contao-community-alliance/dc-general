@@ -21,6 +21,9 @@ use DcGeneral\Panel\LimitElementInterface;
 use DcGeneral\Panel\SearchElementInterface;
 use DcGeneral\Panel\SortElementInterface;
 use DcGeneral\Panel\SubmitElementInterface;
+use DcGeneral\View\DefaultView\Events\GetGlobalButtonEvent;
+use DcGeneral\View\DefaultView\Events\GetGlobalButtonsEvent;
+use DcGeneral\View\DefaultView\Events\GetOperationButtonEvent;
 use DcGeneral\View\ViewInterface;
 
 // TODO: this is not as elegant as it could be.
@@ -83,12 +86,35 @@ class DefaultView implements ViewInterface
 		return $this->objDC;
 	}
 
+	protected $objViewHandler;
+
 	/**
 	 * @param DataContainerInterface $objDC
 	 */
 	public function setDC($objDC)
 	{
 		$this->objDC = $objDC;
+
+		// Setup our fallback handling.
+		switch ($this->getEnvironment()->getDataDefinition()->getSortingMode())
+		{
+			case 0: // Records are not sorted
+			case 1: // Records are sorted by a fixed field
+			case 2: // Records are sorted by a switchable field
+			case 3: // Records are sorted by the parent table
+				$this->objViewHandler = new DefaultView\ListView();
+				break;
+			case 4: // Displays the child records of a parent record (see style sheets module)
+				$this->objViewHandler = new DefaultView\ParentView();
+				break;
+			case 5: // Records are displayed as tree (see site structure)
+			case 6: // Displays the child records within a tree structure (see articles module)
+				$this->objViewHandler = new DefaultView\TreeView();
+				break;
+			default:
+				throw new \RuntimeException('Unknown sorting mode passed in data definition: ' . $this->getEnvironment()->getDataDefinition()->getSortingMode());
+		}
+		$this->objViewHandler->setDC($objDC);
 	}
 
 	/**
@@ -188,12 +214,7 @@ class DefaultView implements ViewInterface
 	 */
 	public function copy()
 	{
-		if (in_array($this->getDC()->arrDCA['list']['sorting']['mode'], array(0, 1, 2, 3)))
-		{
-			return $this->edit();
-		}
-
-		return vsprintf($this->notImplMsg, 'copy - Mode');
+		return $this->objViewHandler->copy();
 	}
 
 	/**
@@ -202,7 +223,7 @@ class DefaultView implements ViewInterface
 	 */
 	public function copyAll()
 	{
-		return vsprintf($this->notImplMsg, 'copyAll - Mode');
+		return $this->objViewHandler->copyAll();
 	}
 
 	/**
@@ -211,7 +232,7 @@ class DefaultView implements ViewInterface
 	 */
 	public function create()
 	{
-		return $this->edit();
+		return $this->objViewHandler->create();
 	}
 
 	/**
@@ -220,12 +241,12 @@ class DefaultView implements ViewInterface
 	 */
 	public function cut()
 	{
-		return vsprintf($this->notImplMsg, 'cut - Mode');
+		return $this->objViewHandler->cut();
 	}
 
 	public function paste()
 	{
-
+		return $this->objViewHandler->paste();
 	}
 
 	/**
@@ -234,7 +255,7 @@ class DefaultView implements ViewInterface
 	 */
 	public function cutAll()
 	{
-		return vsprintf($this->notImplMsg, 'cutAll - Mode');
+		return $this->objViewHandler->cutAll();
 	}
 
 	/**
@@ -243,7 +264,7 @@ class DefaultView implements ViewInterface
 	 */
 	public function delete()
 	{
-		return vsprintf($this->notImplMsg, 'delete - Mode');
+		return $this->objViewHandler->delete();
 	}
 
 	/**
@@ -252,7 +273,7 @@ class DefaultView implements ViewInterface
 	 */
 	public function move()
 	{
-		return vsprintf($this->notImplMsg, 'move - Mode');
+		return $this->objViewHandler->move();
 	}
 
 	/**
@@ -261,7 +282,7 @@ class DefaultView implements ViewInterface
 	 */
 	public function undo()
 	{
-		return vsprintf($this->notImplMsg, 'undo - Mode');
+		return $this->objViewHandler->undo();
 	}
 
 	/**
@@ -271,37 +292,7 @@ class DefaultView implements ViewInterface
 	 */
 	public function edit()
 	{
-		// Load basic informations
-		$this->checkLanguage();
-
-		// Get all selectors
-		$this->arrStack[] = $this->getDC()->getSubpalettesDefinition();
-		$this->calculateSelectors($this->arrStack[0]);
-		$this->parseRootPalette();
-
-		include(TL_ROOT . '/system/config/languages.php');
-
-		// ToDo: What is this $languages[$this->strCurrentLanguage];
-
-		// FIXME: dependency injection or rather template factory?
-		$objTemplate = new \BackendTemplate('dcbe_general_edit');
-		$objTemplate->setData(array(
-			'fieldsets' => $this->generateFieldsets('dcbe_general_field', array()),
-			'oldBE' => $GLOBALS['TL_CONFIG']['oldBeTheme'],
-			'versions' => $this->getDC()->getDataProvider()->getVersions($this->getDC()->getId()),
-			'language' => $this->objLanguagesSupported,
-			'subHeadline' => sprintf($GLOBALS['TL_LANG']['MSC']['editRecord'], $this->getDC()->getId() ? 'ID ' . $this->getDC()->getId() : ''),
-			'languageHeadline' => strlen($this->strCurrentLanguage) != 0 ? $langsNative[$this->strCurrentLanguage] : '',
-			'table' => $this->getDC()->getTable(),
-			'enctype' => $this->getDC()->isUploadable() ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
-			//'onsubmit' => implode(' ', $this->onsubmit),
-			'error' => $this->noReload,
-			'buttons' => $this->getDC()->getButtonsDefinition(),
-			'buttonLables' => $this->getDC()->getButtonLabels(),
-			'noReload' => $this->getDC()->isNoReload()
-		));
-
-		return $objTemplate->parse();
+		return $this->objViewHandler->edit();
 	}
 
 	/**
@@ -311,75 +302,7 @@ class DefaultView implements ViewInterface
 	 */
 	public function show()
 	{
-		// Load basic informations
-		$this->checkLanguage();
-
-		// Init
-		$fields = array();
-		$arrFieldValues = array();
-		$arrFieldLabels = array();
-		$allowedFields = array('pid', 'sorting', 'tstamp');
-
-		foreach ($this->getCurrentModel() as $key => $value)
-		{
-			$fields[] = $key;
-		}
-
-		// Get allowed fieds from dca
-		if (is_array($this->getDC()->arrDCA['fields']))
-		{
-			$allowedFields = array_unique(array_merge($allowedFields, array_keys($this->getDC()->arrDCA['fields'])));
-		}
-
-		$fields = array_intersect($allowedFields, $fields);
-
-		// Show all allowed fields
-		foreach ($fields as $strFieldName)
-		{
-			$arrFieldConfig = $this->getDC()->arrDCA['fields'][$strFieldName];
-
-			if (!in_array($strFieldName, $allowedFields)
-				|| $arrFieldConfig['inputType'] == 'password'
-				|| $arrFieldConfig['eval']['doNotShow']
-				|| $arrFieldConfig['eval']['hideInput'])
-			{
-				continue;
-			}
-
-			// Special treatment for table tl_undo
-			if ($this->getDC()->getTable() == 'tl_undo' && $strFieldName == 'data')
-			{
-				continue;
-			}
-
-			// Make it human readable
-			$arrFieldValues[$strFieldName] = $this->getDC()->getReadableFieldValue($strFieldName, deserialize($this->getCurrentModel()->getProperty($strFieldName)));
-
-			// Label
-			if (count($arrFieldConfig['label']))
-			{
-				$arrFieldLabels[$strFieldName] = is_array($arrFieldConfig['label']) ? $arrFieldConfig['label'][0] : $arrFieldConfig['label'];
-			}
-			else
-			{
-				$arrFieldLabels[$strFieldName] = is_array($GLOBALS['TL_LANG']['MSC'][$strFieldName]) ? $GLOBALS['TL_LANG']['MSC'][$strFieldName][0] : $GLOBALS['TL_LANG']['MSC'][$strFieldName];
-			}
-
-			if (!strlen($arrFieldLabels[$strFieldName]))
-			{
-				$arrFieldLabels[$strFieldName] = $strFieldName;
-			}
-		}
-
-		// Create new template
-		// FIXME: dependency injection or rather template factory?
-		$objTemplate            = new \BackendTemplate("dcbe_general_show");
-		$objTemplate->headline  = sprintf($GLOBALS['TL_LANG']['MSC']['showRecord'], ($this->getDC()->getId() ? 'ID ' . $this->getDC()->getId() : ''));
-		$objTemplate->arrFields = $arrFieldValues;
-		$objTemplate->arrLabels = $arrFieldLabels;
-		$objTemplate->language  = $this->objLanguagesSupported;
-
-		return $objTemplate->parse();
+		return $this->objViewHandler->show();
 	}
 
 	/**
@@ -389,50 +312,7 @@ class DefaultView implements ViewInterface
 	 */
 	public function showAll()
 	{
-		// Create return value
-		$arrReturn = array();
-
-		// Panels
-		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
-		{
-			case 0:
-			case 1:
-			case 2:
-			case 3:
-			case 4:
-			case 5:
-				$arrReturn['panel'] = $this->panel();
-		}
-
-		// Header buttons
-		$arrReturn['buttons'] = $this->generateHeaderButtons($this->getDC()->getButtonId());
-
-		// Main body
-		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
-		{
-			case 0:
-			case 1:
-			case 2:
-			case 3:
-				$arrReturn['body'] = $this->viewList();
-				break;
-
-			case 4:
-				$arrReturn['body'] = $this->viewParent();
-				break;
-
-			case 5:
-			case 6:
-				$arrReturn['body'] = $this->viewTree($this->getDC()->arrDCA['list']['sorting']['mode']);
-				break;
-
-			default:
-				return vsprintf($this->notImplMsg, 'showAll - Mode ' . $this->getDC()->arrDCA['list']['sorting']['mode']);
-				break;
-		}
-
-		// Return all
-		return implode("\n", $arrReturn);
+		return $this->objViewHandler->showAll();
 	}
 
 	/* /////////////////////////////////////////////////////////////////////
@@ -443,37 +323,8 @@ class DefaultView implements ViewInterface
 
 	public function ajaxTreeView($intID, $intLevel)
 	{
-		// Init some Vars
-		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
-		{
-			case 5:
-				$treeClass = 'tree';
-				break;
-
-			case 6:
-				$treeClass = 'tree_xtnd';
-				break;
-		}
-
-		$strHTML = $this->generateTreeView($this->getCurrentCollection(), $this->getDC()->arrDCA['list']['sorting']['mode'], $treeClass);
-
-		// Return :P
-		return $strHTML;
+		return $this->objViewHandler->ajaxTreeView($intID, $intLevel);
 	}
-
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 * Sub Views
-	 * Helper functions for the main views
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
-
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 * Parent View + Helper functions
-	 * Mode 4
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
 
 	/**
 	 * Show parent view mode 4.
@@ -796,6 +647,8 @@ class DefaultView implements ViewInterface
 	 */
 	protected function viewList()
 	{
+		throw new \Exception('Do not use the default view anymore.');
+
 		// Set label
 		$this->setListViewLabel();
 
@@ -861,14 +714,13 @@ class DefaultView implements ViewInterface
 		// Rootpage pasteinto
 		if ($this->getEnvironment()->getClipboard()->isNotEmpty())
 		{
-			$arrClipboard = $this->getDC()->getClipboard();
+			$objClipboard = $this->getEnvironment()->getClipboard();
 			// TODO: @CS we definately need into and after handling here instead of different modes.
-			$imagePasteInto = $this->generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteinto'][0], 'class="blink"');
-			$strRootPasteinto = '<a href="' . BackendBindings::addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;after=0&amp;pid=0&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs']) . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">' . $imagePasteInto . '</a> ';
+			$imagePasteInto = BackendBindings::generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteinto'][0], 'class="blink"');
+			$strRootPasteinto = '<a href="' . BackendBindings::addToUrl('act=' . $objClipboard->getMode() . '&amp;mode=2&amp;after=0&amp;pid=0&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs']) . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">' . $imagePasteInto . '</a> ';
 
 			// Callback for paste btn.
-			$strButtonCallback = $this->getDC()->getCallbackClass()->pasteButtonCallback(
-				$this->getDC(),
+			$strButtonCallback = $this->getEnvironment()->getCallbackHandler()->pasteButtonCallback(
 				$this->getDC()->getDataProvider($this->getDC()->getTable())->getEmptyModel()->getPropertiesAsArray(),
 				$this->getDC()->getTable(),
 				false,
@@ -1591,27 +1443,30 @@ class DefaultView implements ViewInterface
 	/**
 	 * Generate all button for the header of a view.
 	 *
-	 * This is a function, which is a combination of
-	 * displayButtons and generateGlobalButtons.
+	 * @return string
 	 */
 	protected function generateHeaderButtons($strButtonId)
 	{
-		// Return array with all button
-		$arrReturn = array();
+		$globalOperations = $this->getDC()->arrDCA['list']['global_operations'];
+		$arrReturn        = array();
 
-		// Add back button
-		if ($this->getDC()->isSelectSubmit() || $this->getDC()->getParentTable())
+		if (!is_array($globalOperations))
 		{
-			$arrReturn['back_button'] = sprintf('<a href="%s" class="header_back" title="%s" accesskey="b" onclick="Backend.getScrollOffset();">%s</a>',
-				BackendBindings::getReferer(true, $this->getDC()->getParentTable()),
-				specialchars($GLOBALS['TL_LANG']['MSC']['backBT']),
-				$GLOBALS['TL_LANG']['MSC']['backBT']
-			);
+			$globalOperations = array();
+		}
+
+		// Make Urls absolute.
+		foreach ($globalOperations as $k => $v)
+		{
+			$globalOperations[$k]['href'] = BackendBindings::addToUrl($v['href']);
 		}
 
 		// Check if we have the select mode
 		if (!$this->getDC()->isSelectSubmit())
 		{
+			$addButton = false;
+			$strHref   = '';
+
 			// Add Buttons for mode x
 			switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
 			{
@@ -1635,7 +1490,7 @@ class DefaultView implements ViewInterface
 						$strHref = BackendBindings::addToUrl('act=create');
 					}
 
-					$arrReturn['button_new'] = (!$this->getDC()->arrDCA['config']['closed'] ? sprintf(' <a href="%s" class="header_new" title="%s" accesskey="n" onclick="Backend.getScrollOffset()">%s</a>', $strHref, specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][1]), $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][0]) : '');
+					$addButton = !$this->getDataDefinition()->isClosed();
 					break;
 
 				case 5:
@@ -1652,191 +1507,126 @@ class DefaultView implements ViewInterface
 						$strPDP = null;
 					}
 
-					if (!($this->getDC()->arrDCA['config']['closed'] || $this->getEnvironment()->getClipboard()->isNotEmpty()))
-					{
-						$arrReturn['button_new'] = sprintf(
-							'<a href="%s" class="header_new" title="%s" accesskey="n" onclick="Backend.getScrollOffset()">%s</a>',
-							BackendBindings::addToUrl(sprintf('act=paste&amp;mode=create&amp;cdp=%s&amp;pdp=%s', $strCDP, $strPDP)),
-							specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][1]),
-							$GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][0]
-						);
-					}
+					$strHref   = BackendBindings::addToUrl(sprintf('act=paste&amp;mode=create&amp;cdp=%s&amp;pdp=%s', $strCDP, $strPDP));
+					$addButton = !($this->getDataDefinition()->isClosed() || $this->getEnvironment()->getClipboard()->isNotEmpty());
 
 					break;
 			}
+
+			if ($addButton)
+			{
+				$globalOperations = array_merge(
+					array(
+						'button_new'     => array
+						(
+							'class'      => 'header_new',
+							'accesskey'  => 'n',
+							'href'       => $strHref,
+							'attributes' => 'onclick="Backend.getScrollOffset();"',
+							'title'      => $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][1],
+							'label'      => $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][0]
+						)
+					),
+					$globalOperations
+				);
+			}
+
 		}
 
 		// add clear clipboard button if needed.
 		if ($this->getEnvironment()->getClipboard()->isNotEmpty())
 		{
-			$arrReturn['button_clipboard'] = sprintf(
-				'<a href="%s" class="header_clipboard" title="%s" accesskey="x">%s</a>',
-				BackendBindings::addToUrl('clipboard=1'),
-				specialchars($GLOBALS['TL_LANG']['MSC']['clearClipboard']),
-				$GLOBALS['TL_LANG']['MSC']['clearClipboard']
+			$globalOperations = array_merge(
+				array(
+					'button_clipboard'     => array
+					(
+						'class'      => 'header_clipboard',
+						'accesskey'  => 'x',
+						'href'       => BackendBindings::addToUrl('clipboard=1'),
+						'title'      => $GLOBALS['TL_LANG']['MSC']['clearClipboard'],
+						'label'      => $GLOBALS['TL_LANG']['MSC']['clearClipboard']
+					)
+				)
+				, $globalOperations
+			);
+		}
+
+		// Add back button
+		if ($this->getDC()->isSelectSubmit() || $this->getDC()->getParentTable())
+		{
+			$globalOperations = array_merge(
+				array(
+					'back_button'    => array
+					(
+						'class'      => 'header_back',
+						'accesskey'  => 'b',
+						'href'       => BackendBindings::getReferer(true, $this->getDC()->getParentTable()),
+						'attributes' => 'onclick="Backend.getScrollOffset();"',
+						'title'      => $GLOBALS['TL_LANG']['MSC']['backBT'],
+						'label'      => $GLOBALS['TL_LANG']['MSC']['backBT']
+					)
+				),
+				$globalOperations
 			);
 		}
 
 		// Add global buttons
-		if (is_array($this->getDC()->arrDCA['list']['global_operations']))
+		foreach ($globalOperations as $k => $v)
 		{
-			foreach ($this->getDC()->arrDCA['list']['global_operations'] as $k => $v)
-			{
-				$v = is_array($v) ? $v : array($v);
-				$label = is_array($v['label']) ? $v['label'][0] : $v['label'];
-				$title = is_array($v['label']) ? $v['label'][1] : $v['label'];
-				$attributes = strlen($v['attributes']) ? ' ' . ltrim($v['attributes']) : '';
-
-				if (!strlen($label))
-				{
-					$label = $k;
-				}
-
-				// Call a custom function instead of using the default button
-				$strButtonCallback = $this->getDC()->getCallbackClass()->globalButtonCallback($v, $label, $title, $attributes, $this->getDC()->getTable(), $this->getDC()->getEnvironment()->getRootIds());
-				if (!is_null($strButtonCallback))
-				{
-					$arrReturn[$k] = $strButtonCallback;
-					continue;
-				}
-
-				$arrReturn[$k] = '<a href="' . BackendBindings::addToUrl($v['href']) . '" class="' . $v['class'] . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> ';
-			}
-		}
-
-
-		return '<div id="' . $strButtonId . '">' . implode(' &nbsp; :: &nbsp; ', $arrReturn) . '</div>';
-	}
-
-	/**
-	 * Generate header display buttons
-	 *
-	 * @param string $strButtonId
-	 * @return string
-	 */
-	protected function displayButtons($strButtonId)
-	{
-		$arrReturn = array();
-
-		// Add open wrapper
-		$arrReturn[] = '<div id="' . $strButtonId . '">';
-
-		// Add back button
-		$arrReturn[] = (($this->getDC()->isSelectSubmit() || $this->getDC()->getParentTable()) ? '<a href="' . $this->getReferer(true, $this->getDC()->getParentTable()) . '" class="header_back" title="' . specialchars($GLOBALS['TL_LANG']['MSC']['backBT']) . '" accesskey="b" onclick="Backend.getScrollOffset();">' . $GLOBALS['TL_LANG']['MSC']['backBT'] . '</a>' : '');
-
-		// Add divider
-		$arrReturn[] = (($this->getDC()->getParentTable() && !$this->getDC()->isSelectSubmit()) ? ' &nbsp; :: &nbsp;' : '');
-
-		if (!$this->getDC()->isSelectSubmit())
-		{
-			switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
-			{
-				case 0:
-				case 1:
-				case 2:
-				case 3:
-				case 4:
-					// Add new button
-					$strHref = '';
-					if (strlen($this->getDC()->getParentTable()))
-					{
-						if ($this->getDC()->arrDCA['list']['sorting']['mode'] < 4)
-						{
-							$strHref = '&amp;mode=2';
-						}
-						$strHref = BackendBindings::addToUrl($strHref . '&amp;id=&amp;act=create&amp;pid=' . $this->getDC()->getId());
-					}
-					else
-					{
-						$strHref = BackendBindings::addToUrl('act=create');
-					}
-
-					$arrReturn[] = (!$this->getDC()->arrDCA['config']['closed'] ?
-						sprintf(
-							' <a href="%s" class="header_new" title="%s" accesskey="n" onclick="Backend.getScrollOffset()">%s</a>', $strHref, specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][1]), $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][0]
-						) : '');
-					break;
-
-				case 5:
-				case 6:
-					// Add new button
-					$strCDP = $this->getDC()->getDataProvider('self')->getEmptyModel()->getProviderName();
-					$strPDP = $this->getDC()->getDataProvider('parent')->getEmptyModel()->getProviderName();
-
-
-					$arrReturn[] = (!($this->getDC()->arrDCA['config']['closed'] || $this->getDC()->isClipboard())) ?
-						sprintf(
-							' <a href="%s" class="header_new" title="%s" accesskey="n" onclick="Backend.getScrollOffset()">%s</a>', BackendBindings::addToUrl(sprintf('act=paste&amp;mode=create&amp;cdp=%s&amp;pdp=%s', $strCDP, $strPDP)), specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][1]), $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][0]
-						) : '';
-					// add clear clipboard button if needed.
-					if ($this->getDC()->isClipboard())
-					{
-						$arrReturn[] = sprintf(
-							' <a href="%s" class="header_clipboard" title="%s" accesskey="x">%s</a>',
-							BackendBindings::addToUrl('clipboard=1'),
-							specialchars($GLOBALS['TL_LANG']['MSC']['clearClipboard']),
-							$GLOBALS['TL_LANG']['MSC']['clearClipboard']
-						);
-					}
-					break;
-			}
-
-			// Add global buttons
-			$arrReturn[] = $this->generateGlobalButtons();
-		}
-
-		// Add close wrapper
-		$arrReturn[] = '</div>';
-
-		$arrReturn[] = $this->getMessages(true);
-
-		return implode('', $arrReturn);
-	}
-
-	/**
-	 * Compile global buttons from the table configuration array and return them as HTML
-	 *
-	 * @param boolean $blnForceSeparator
-	 * @return string
-	 */
-	protected function generateGlobalButtons($blnForceSeparator = false)
-	{
-		if (!is_array($this->getDC()->arrDCA['list']['global_operations']))
-		{
-			return '';
-		}
-
-		$return = '';
-
-		foreach ($this->getDC()->arrDCA['list']['global_operations'] as $k => $v)
-		{
-			$v = is_array($v) ? $v : array($v);
-			$label = is_array($v['label']) ? $v['label'][0] : $v['label'];
-			$title = is_array($v['label']) ? $v['label'][1] : $v['label'];
+			$v          = is_array($v) ? $v : array($v);
+			$label      = is_array($v['label']) ? $v['label'][0] : $v['label'];
+			$title      = is_array($v['label']) ? $v['label'][1] : $v['label'];
 			$attributes = strlen($v['attributes']) ? ' ' . ltrim($v['attributes']) : '';
+			$accessKey  = strlen($v['accesskey']) ? trim($v['accesskey']) : '';
+			$href       = $v['href'];
 
 			if (!strlen($label))
 			{
 				$label = $k;
 			}
 
-			// Call a custom function instead of using the default button
-			$strButtonCallback = $this->getDC()->getCallbackClass()->globalButtonCallback($v, $label, $title, $attributes, $this->getDC()->getTable(), $this->getDC()->getEnvironment()->getRootIds());
-			if (!is_null($strButtonCallback))
+			$buttonEvent = new GetGlobalButtonEvent();
+			$buttonEvent
+				->setAccessKey($accessKey)
+				->setAttributes($attributes)
+				->setClass($v['class'])
+				->setEnvironment($this->getEnvironment())
+				->setKey($k)
+				->setHref($href)
+				->setLabel($label)
+				->setTitle($title);
+
+			$this->dispatchEvent(GetGlobalButtonEvent::NAME, $buttonEvent);
+
+			// Allow to override the button entirely.
+			$html =$buttonEvent->getHtml();
+			if (!is_null($html))
 			{
-				$return .= $strButtonCallback;
+				if (!empty($html))
+				{
+					$arrReturn[$buttonEvent->getKey()] = $html;
+				}
 				continue;
 			}
 
-			$return .= ' &#160; :: &#160; <a href="' . BackendBindings::addToUrl($v['href']) . '" class="' . $v['class'] . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> ';
+			// Use the view native button building.
+			$arrReturn[$k] = sprintf(
+				'<a href="%s" class="%s" title="%s"%s>%s</a> ',
+				$buttonEvent->getHref(),
+				$buttonEvent->getClass(),
+				specialchars($buttonEvent->getTitle()),
+				$buttonEvent->getAttributes(),
+				$buttonEvent->getLabel()
+			);
 		}
 
-		if ($this->getDC()->isClipboard())
-		{
-			$return .= ' &#160; :: &#160; <a href="' . BackendBindings::addToUrl('clipboard=1') . '" class="header_clipboard" title="' . specialchars($GLOBALS['TL_LANG']['MSC']['clearClipboard']) . '" accesskey="x">' . $GLOBALS['TL_LANG']['MSC']['clearClipboard'] . '</a>';
-		}
+		$buttonsEvent = new GetGlobalButtonsEvent();
+		$buttonsEvent
+			->setEnvironment($this->getEnvironment())
+			->setButtons($arrReturn);
+		$this->dispatchEvent(GetGlobalButtonsEvent::NAME, $buttonsEvent);
 
-		return ($this->getDC()->arrDCA['config']['closed'] && !$blnForceSeparator) ? preg_replace('/^ &#160; :: &#160; /', '', $return) : $return;
+		return '<div id="' . $strButtonId . '">' . implode(' &nbsp; :: &nbsp; ', $buttonsEvent->getButtons()) . '</div>';
 	}
 
 	/**
@@ -1864,7 +1654,7 @@ class DefaultView implements ViewInterface
 		{
 			$objOperation = $this->getDataDefinition()->getOperation($operation);
 
-			// Set basic informations
+			// Set basic information.
 			$opLabel = $objOperation->getLabel();
 			if (strlen($opLabel[0]) )
 			{
@@ -1884,78 +1674,86 @@ class DefaultView implements ViewInterface
 				$attributes = ltrim(sprintf($strAttributes, $objModelRow->getID()));
 			}
 
-			// Call a custom function instead of using the default button
-			$strButtonCallback = $this->getDC()->getEnvironment()->getCallbackHandler()
-				->buttonCallback($objModelRow, $objOperation, $label, $title, $attributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext);
-
-			if (!is_null($strButtonCallback))
+			// Cut needs some special information.
+			if ($operation == 'cut')
 			{
-				$arrButtons[] = trim($strButtonCallback);
+				// Generate all buttons except "move up" and "move down" buttons
+				if ($operation == 'move')
+				{
+					continue;
+				}
+
+				// Get data provider from current and parent
+				$strCDP = $objModelRow->getProviderName();
+				$strPDP = $objModelRow->getMeta(DCGE::MODEL_PTABLE);
+
+				$strAdd2Url = "";
+
+				// Add url + id + currentDataProvider
+				$strAdd2Url .= $objOperation->getHref() . '&amp;cdp=' . $strCDP;
+
+				// Add parent provider if exists.
+				if ($strPDP != null)
+				{
+					$strAdd2Url .= '&amp;pdp=' . $strPDP;
+				}
+
+				// If we have a id add it, used for mode 4 and all parent -> current views
+				if ($this->getEnvironment()->getInputProvider()->hasParameter('id'))
+				{
+					$strAdd2Url .= '&amp;id=' . $this->getEnvironment()->getInputProvider()->getParameter('id');
+				}
+
+				// Source is the id of the element which should move
+				$strAdd2Url .= '&amp;source=' . $objModelRow->getID();
+
+				$strHref = BackendBindings::addToUrl($strAdd2Url);
+			}
+			else
+			{
+				// TODO: Shall we interface this option?
+				$idParam = $objOperation->get('idparam');
+				if ($idParam)
+				{
+					$idParam = sprintf('id=&amp;%s=%s', $idParam, $objModelRow->getID());
+				}
+				else
+				{
+					$idParam = sprintf('id=%s', $objModelRow->getID());
+				}
+
+				$strHref = BackendBindings::addToUrl($objOperation->getHref() . '&amp;' . $idParam);
+			}
+
+			$buttonEvent = new GetOperationButtonEvent();
+			$buttonEvent
+				->setObjOperation($objOperation)
+				->setObjModel($objModelRow)
+				->setAttributes($attributes)
+				->setEnvironment($this->getEnvironment())
+				->setLabel($label)
+				->setTitle($title)
+				->setHref($strHref)
+				->setChildRecordIds($arrChildRecordIds)
+				->setCircularReference($blnCircularReference)
+				->setPrevious($strPrevious)
+				->setNext($strNext);
+
+			$this->dispatchEvent(GetOperationButtonEvent::NAME, $buttonEvent);
+
+			// If the event created a button, use it.
+			if (!is_null($buttonEvent->getHtml()))
+			{
+				$arrButtons[] = trim($buttonEvent->getHtml());
 				continue;
 			}
 
-			// Generate all buttons except "move up" and "move down" buttons
-			if ($operation == 'move')
-			{
-				continue;
-			}
-
-			switch ($operation)
-			{
-				// Cute needs some special informations
-				case 'cut':
-					// Get data provider from current and parent
-					$strCDP = $objModelRow->getProviderName();
-					$strPDP = $objModelRow->getMeta(DCGE::MODEL_PTABLE);
-
-					$strAdd2Url = "";
-
-					// Add url + id + currentDataProvider
-					$strAdd2Url .= $objOperation->getHref() . '&amp;cdp=' . $strCDP;
-
-					// Add parent provider if exsists
-					if ($strPDP != null)
-					{
-						$strAdd2Url .= '&amp;pdp=' . $strPDP;
-					}
-
-					// If we have a id add it, used for mode 4 and all parent -> current views
-					if ($this->getEnvironment()->getInputProvider()->hasParameter('id'))
-					{
-						$strAdd2Url .= '&amp;id=' . $this->getEnvironment()->getInputProvider()->getParameter('id');
-					}
-
-					// Source is the id of the element which should move
-					$strAdd2Url .= '&amp;source=' . $objModelRow->getID();
-
-					// Build whole button mark up
-					$arrButtons[] = sprintf(' <a href="%s" title="%s" %s>%s</a>',
-						BackendBindings::addToUrl($strAdd2Url),
-						specialchars($title),
-						$attributes,
-						BackendBindings::generateImage($objOperation->getIcon(), $label)
-					);
-					break;
-
-				default:
-					// TODO: Shall we interface this option?
-					$idParam = $objOperation->get('idparam');
-					if ($idParam)
-					{
-						$idParam = sprintf('id=&amp;%s=%s', $idParam, $objModelRow->getID());
-					}
-					else
-					{
-						$idParam = sprintf('id=%s', $objModelRow->getID());
-					}
-
-					$arrButtons[] = sprintf(' <a href="%s" title="%s" %s>%s</a>',
-						BackendBindings::addToUrl($objOperation->getHref() . '&amp;' . $idParam),
-						specialchars($title),
-						$attributes,
-						BackendBindings::generateImage($objOperation->getIcon(), $label)
-					);
-			}
+			$arrButtons[] = sprintf(' <a href="%s" title="%s" %s>%s</a>',
+				$buttonEvent->getHref(),
+				specialchars($buttonEvent->getTitle()),
+				$buttonEvent->getAttributes(),
+				BackendBindings::generateImage($objOperation->getIcon(), $buttonEvent->getLabel())
+			);
 		}
 
 		// Add paste into/after icons
@@ -1981,13 +1779,7 @@ class DefaultView implements ViewInterface
 			}
 			else
 			{
-				if ($objClipboard->isCut())
-				{
-					$strMode = 'cut';
-				}
-				else{
-					$strMode = 'copy';
-				}
+				$strMode = $objClipboard->getMode();
 
 				// Switch mode
 				// Add ext. information
@@ -2001,61 +1793,40 @@ class DefaultView implements ViewInterface
 					$objModelRow->getID()
 				);
 
-				switch ($this->getDataDefinition()->getSortingMode())
+				$buttonEvent = new GetPasteButtonCallbackEvent();
+				$buttonEvent
+					->setEnvironment($this->getEnvironment())
+					->setCircularReference(false)
+					->setPrevious(null)
+					->setNext(null);
+
+				$this->dispatchEvent(GetPasteButtonCallbackEvent::NAME, $buttonEvent);
+
+				if (!is_null($buttonEvent->getHtmlPasteInto()))
 				{
-					case 4:
-						// Callback for paste btt
-						$strButtonCallback = $this->getEnvironment()
-							->getCallbackHandler()
-							->pasteButtonCallback($this->objDC, $objModelRow->getPropertiesAsArray(), $strTable, false, $arrClipboard, null, null);
+					$arrButtons[] = $buttonEvent->getHtmlPasteAfter();
+					$arrButtons[] = $buttonEvent->getHtmlPasteInto();
+				}
+				else
+				{
+					$arrButtons[] = sprintf(' <a href="%s" title="%s" %s>%s</a>',
+						BackendBindings::addToUrl($strAdd2UrlAfter),
+						specialchars($GLOBALS['TL_LANG'][$objModelRow->getProviderName()]['pasteafter'][0]),
+						'onclick="Backend.getScrollOffset()"',
+						BackendBindings::generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$objModelRow->getProviderName()]['pasteafter'][0], 'class="blink"')
+					);
 
-						if($strButtonCallback === false)
-						{
-							$arrButtons[] = sprintf(' <a href="%s" title="%s" %s>%s</a>',
-								BackendBindings::addToUrl($strAdd2UrlAfter),
-								specialchars($GLOBALS['TL_LANG'][$objModelRow->getProviderName()]['pasteafter'][0]),
-								'onclick="Backend.getScrollOffset()"',
-								BackendBindings::generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$objModelRow->getProviderName()]['pasteafter'][0], 'class="blink"')
-							);
-						}
-						else
-						{
-							$arrButtons[] = $strButtonCallback;
-						}
-						break;
-
-					case 5:
-						// Callback for paste btn.
-						$strButtonCallback = $this->getEnvironment()
-							->getCallbackHandler()
-							->pasteButtonCallback($this->objDC, $objModelRow->getPropertiesAsArray(), $strTable, false, $arrClipboard, null, null);
-
-						if ($strButtonCallback === false)
-						{
-							$arrButtons[] = sprintf(' <a href="%s" title="%s" %s>%s</a>',
-								BackendBindings::addToUrl($strAdd2UrlAfter),
-								specialchars($GLOBALS['TL_LANG'][$objModelRow->getProviderName()]['pasteafter'][0]),
-								'onclick="Backend.getScrollOffset()"',
-								BackendBindings::generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteafter'][0], 'class="blink"')
-							);
-
-							$arrButtons[] = sprintf(' <a href="%s" title="%s" %s>%s</a>',
-								BackendBindings::addToUrl($strAdd2UrlInto),
-								specialchars($GLOBALS['TL_LANG'][$objModelRow->getProviderName()]['pasteinto'][0]),
-								'onclick="Backend.getScrollOffset()"',
-								BackendBindings::generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteinto'][0], 'class="blink"')
-							);
-						}
-						else
-						{
-							$arrButtons[] = $strButtonCallback;
-						}
-						break;
-
-					default:
+					if ($this->getDataDefinition()->getSortingMode() == 5)
+					{
+						$arrButtons[] = sprintf(' <a href="%s" title="%s" %s>%s</a>',
+							BackendBindings::addToUrl($strAdd2UrlInto),
+							specialchars($GLOBALS['TL_LANG'][$objModelRow->getProviderName()]['pasteinto'][0]),
+							'onclick="Backend.getScrollOffset()"',
+							BackendBindings::generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$objModelRow->getProviderName()]['pasteinto'][0], 'class="blink"')
+						);
+					}
 				}
 			}
-
 		}
 
 		return implode(' ', $arrButtons);

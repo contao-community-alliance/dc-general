@@ -38,12 +38,23 @@ class DefaultEnvironment implements EnvironmentInterface
 	protected $objDataDefinition;
 
 	/**
+	 * The data container definition of the parent table.
+	 *
+	 * @var \DcGeneral\DataDefinition\ContainerInterface
+	 */
+	protected $objParentDataDefinition;
+
+	/**
 	 * @var InputProviderInterface
 	 */
 	protected $objInputProvider;
 
 	/**
-	 *
+	 * @var \DcGeneral\Data\DriverInterface[]
+	 */
+	protected $arrDataDriver;
+
+	/**
 	 * @var \DcGeneral\Callbacks\CallbacksInterface
 	 */
 	protected $objCallbackHandler;
@@ -57,6 +68,11 @@ class DefaultEnvironment implements EnvironmentInterface
 	 * @var \DcGeneral\Data\CollectionInterface
 	 */
 	protected $objCollection;
+
+	/**
+	 * @var \DcGeneral\Data\CollectionInterface
+	 */
+	protected $objParentCollection;
 
 	/**
 	 * @var \DcGeneral\Data\ModelInterface
@@ -130,6 +146,24 @@ class DefaultEnvironment implements EnvironmentInterface
 	/**
 	 * {@inheritdoc}
 	 */
+	public function setParentDataDefinition($objParentDataDefinition)
+	{
+		$this->objParentDataDefinition = $objParentDataDefinition;
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getParentDataDefinition()
+	{
+		return $this->objParentDataDefinition;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
 	public function setInputProvider($objInputProvider)
 	{
 		$this->objInputProvider = $objInputProvider;
@@ -161,6 +195,74 @@ class DefaultEnvironment implements EnvironmentInterface
 	public function getCallbackHandler()
 	{
 		return $this->objCallbackHandler;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getDataDriver($strSource = null)
+	{
+		if ($strSource === null)
+		{
+			$strSource = $this->getDataDefinition()->getName();
+		}
+
+		// FIXME: this is deprecated stuff from 0.9 times, we can drop it safely I guess.
+		switch ($strSource)
+		{
+			case 'self':
+				$strSource = $this->getDataDefinition()->getName();
+				trigger_error('WARNING!!!! Legacy descriptor "self" used for data provider retrieval, expect this to fail in near future.', E_USER_WARNING);
+				break;
+			case 'parent':
+				if ($GLOBALS['TL_DCA'][$this->getDataDefinition()->getName()]['config']['ptable'])
+				{
+					$strSource = $GLOBALS['TL_DCA'][$this->getDataDefinition()->getName()]['config']['ptable'];
+				}
+				elseif ($GLOBALS['TL_DCA'][$this->getDataDefinition()->getName()]['dca_config']['data_provider']['parent']['source'])
+				{
+					$strSource = $GLOBALS['TL_DCA'][$this->getDataDefinition()->getName()]['dca_config']['data_provider']['parent']['source'];
+				}
+				else
+					throw new  \RuntimeException('Could not determine parent table.');
+
+				trigger_error('WARNING!!!! Legacy descriptor "parent" used for data provider retrieval, expect this to fail in near future.', E_USER_WARNING);
+				break;
+		}
+
+
+		if (isset($this->arrDataDriver[$strSource]))
+		{
+			return $this->arrDataDriver[$strSource];
+		}
+
+		throw new \RuntimeException(sprintf('Data driver %s not defined', $strSource));
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function addDataDriver($strSource, $objDriver)
+	{
+		// Force removal of an potentially registered driver to ease sub-classing.
+		$this->removeDataDriver($strSource);
+
+		$this->arrDataDriver[$strSource] = $objDriver;
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function removeDataDriver($strSource)
+	{
+		if (isset($this->arrDataDriver[$strSource]))
+		{
+			unset($this->arrDataDriver[$strSource]);
+		}
+
+		return $this;
 	}
 
 	/**
@@ -215,6 +317,28 @@ class DefaultEnvironment implements EnvironmentInterface
 	public function getCurrentModel()
 	{
 		return $this->objModel;
+	}
+
+	/**
+	 *
+	 * @param \DcGeneral\Data\CollectionInterface $objCurrentParentCollection
+	 *
+	 * @return EnvironmentInterface
+	 */
+	public function setCurrentParentCollection($objCurrentParentCollection)
+	{
+		$this->objParentCollection = $objCurrentParentCollection;
+
+		return $this;
+	}
+
+	/**
+	 *
+	 * @return \DcGeneral\Data\CollectionInterface
+	 */
+	public function getCurrentParentCollection()
+	{
+		return $this->objParentCollection;
 	}
 
 	/**

@@ -13,9 +13,12 @@
 namespace DcGeneral\Contao\Compatibility;
 
 /**
- * Class TemplateLoader - just a dummy class to make autoload.php files happy.
+ * Class TemplateLoader
  *
- * @package MetaModels\Compatibility
+ * This class simply exists to provide the Contao 3 namespace based auto loading in Contao 2.11.
+ * It is heavily based upon code by Leo Feyer and only temporary.
+ *
+ * It does not perform any actions but merely exist to provide the class needed by autoload.php files.
  */
 class TemplateLoader
 {
@@ -48,7 +51,7 @@ class TemplateLoader
 	 */
 	public static function getFiles()
 	{
-		throw new \Exception('TemplateLoader is a non op compatibility class by MetaModels.');
+		throw new \Exception('TemplateLoader is a non op compatibility class by DcGeneral.');
 	}
 
 	/**
@@ -60,7 +63,7 @@ class TemplateLoader
 	 */
 	public static function getPrefixedFiles($prefix)
 	{
-		throw new \Exception('TemplateLoader is a non op compatibility class by MetaModels.');
+		throw new \Exception('TemplateLoader is a non op compatibility class by DcGeneral.');
 	}
 
 	/**
@@ -74,6 +77,6 @@ class TemplateLoader
 	 */
 	public static function getPath($template, $format, $custom='templates')
 	{
-		throw new \Exception('TemplateLoader is a non op compatibility class by MetaModels.');
+		throw new \Exception('TemplateLoader is a non op compatibility class by DcGeneral.');
 	}
 }

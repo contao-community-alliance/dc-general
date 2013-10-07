@@ -80,7 +80,8 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 				->getPanel()
 				->getContainer()
 				->getDataContainer()
-				->getDataProvider()
+				->getEnvironment()
+				->getDataDriver()
 				->fetchAll($objTempConfig->setIdOnly(true));
 
 			$this->intTotal = $arrTotal ? count($arrTotal) : 0;

@@ -63,6 +63,11 @@ if (version_compare(VERSION, '3.0', '<'))
 		{
 			return parent::getReferer($strName, $blnNoCache);
 		}
+
+		public function parseDate($strFormat, $intTimestamp=null)
+		{
+			return parent::parseDate($strFormat, $intTimestamp);
+		}
 	}
 }
 else
@@ -156,5 +161,28 @@ class BackendBindings
 	public static function loadDataContainer($strTable, $blnNoCache=false)
 	{
 		return BackendBindingInternal::getInstance()->loadDataContainer($strTable, $blnNoCache);
+	}
+
+	public static function parseDate($strFormat, $intTimestamp=null)
+	{
+		if (version_compare(VERSION, '3.1', '>='))
+		{
+			return \Date::parse($strFormat, $intTimestamp);
+		}
+		else{
+			return BackendBindingInternal::getInstance()->parseDate($strFormat, $intTimestamp);
+		}
+	}
+
+	public static function substrHtml($strString, $intNumberOfChars)
+	{
+		if (version_compare(VERSION, '3.1', '>='))
+		{
+			return \String::substrHtml($strString, $intNumberOfChars);
+		}
+		else
+		{
+			return \String::getInstance()->substrHtml($strString, $intNumberOfChars);
+		}
 	}
 }
