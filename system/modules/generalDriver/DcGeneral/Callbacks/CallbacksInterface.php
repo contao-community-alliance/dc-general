@@ -110,19 +110,19 @@ interface CallbacksInterface
 	 *
 	 * @param array         $row      Array with current data
 	 *
-	 * @param string        $table    Tablename
+	 * @param string        $table    Table name
 	 *
-	 * @param unknown       $cr        TODO: document parameter $cr
+	 * @param bool          $cr        TODO: document parameter $cr
 	 *
-	 * @param array         $childs   Clipboard informations
+	 * @param array         $objClipboard   Clipboard information
 	 *
-	 * @param unknown       $previous  TODO: document parameter $previous
+	 * @param string        $previous  TODO: document parameter $previous
 	 *
-	 * @param unknown       $next      TODO: document parameter $next
+	 * @param string        $next      TODO: document parameter $next
 	 *
 	 * @return string
 	 */
-	public function pasteButtonCallback($row, $table, $cr, $childs, $previous, $next);
+	public function pasteButtonCallback($row, $table, $cr, $objClipboard, $previous, $next);
 
 	/**
 	 * Call the header callback.

@@ -11,8 +11,6 @@
 
 namespace DcGeneral;
 
-use DcGeneral\Callbacks\ContaoStyleCallbacks as DefaultCallback;
-use DcGeneral\Callbacks\CallbacksInterface;
 use DcGeneral\Clipboard\DefaultClipboard;
 use DcGeneral\Contao\InputProvider;
 use DcGeneral\Controller\DefaultController as DefaultController;
@@ -26,6 +24,9 @@ use DcGeneral\Helper\WidgetAccessor;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\DefaultEnvironment;
 use DcGeneral\View\DefaultView as DefaultView;
+use DcGeneral\View\DefaultView\ListView;
+use DcGeneral\View\DefaultView\ParentView;
+use DcGeneral\View\DefaultView\TreeView;
 use DcGeneral\View\ViewInterface;
 
 class DC_General extends \DataContainer implements DataContainerInterface
@@ -81,12 +82,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	protected $blnForceEdit = false;
 
 	// Core Objects ----------------
-
-	/**
-	 * The provider that shall be used for data retrival.
-	 * @var DriverInterface
-	 */
-	protected $objDataProvider = null;
 
 	/**
 	 * Includes all data provider
@@ -252,12 +247,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	 */
 	protected $mixWidgetID = null;
 
-	/**
-	 * Current parent collection
-	 * @var CollectionInterface
-	 */
-	protected $objCurrentParentCollection = null;
-
 	// Const. ----------------------
 
 	/**
@@ -307,6 +296,16 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			// TODO: make inputprovider configurable somehow - unsure how though.
 			->setInputProvider(new InputProvider())
 			->setClipboard(new DefaultClipboard());
+
+		$parentTable = $this->getEnvironment()->getDataDefinition()->getParentDriverName();
+		if ($parentTable)
+		{
+			$this->loadDataContainer($parentTable);
+			$this->getEnvironment()->setParentDataDefinition(new Contao\Dca\Container(
+				$parentTable,
+				$GLOBALS['TL_DCA'][$parentTable]
+			));
+		}
 
 		// Switch user for FE / BE support
 		switch (TL_MODE)
@@ -446,6 +445,8 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			$this->objController = new DefaultController();
 		}
 
+		$this->getEnvironment()->setController($this->objController);
+
 		$this->objController->setDC($this);
 	}
 
@@ -469,10 +470,51 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		else
 		{
 			$arrConfig = array();
-			$this->objViewHandler = new DefaultView();
+			switch ($this->getEnvironment()->getDataDefinition()->getSortingMode())
+			{
+				case 0: // Records are not sorted
+				case 1: // Records are sorted by a fixed field
+				case 2: // Records are sorted by a switchable field
+				case 3: // Records are sorted by the parent table
+					$this->objViewHandler = new ListView();
+					break;
+				case 4: // Displays the child records of a parent record (see style sheets module)
+					$this->objViewHandler = new ParentView();
+					break;
+				case 5: // Records are displayed as tree (see site structure)
+				case 6: // Displays the child records within a tree structure (see articles module)
+					$this->objViewHandler = new TreeView();
+					break;
+				default:
+					// TODO: raise an exception here in future for unknown modes.
+					$this->objViewHandler = new DefaultView();
+			}
 		}
 
 		$this->objViewHandler->setDC($this);
+	}
+
+	protected function bootDataDriver($strSource, $arrConfig)
+	{
+		if ($arrConfig['source'])
+		{
+			$this->loadLanguageFile($arrConfig['source']);
+			$this->loadDataContainer($arrConfig['source']);
+		}
+
+		if (array_key_exists('class', $arrConfig))
+		{
+			$strClass = $arrConfig['class'];
+			$provider = new $strClass();
+		}
+		else
+		{
+			$provider = new DefaultDriver();
+		}
+
+		$provider->setBaseConfig($arrConfig);
+
+		$this->getEnvironment()->addDataDriver($strSource, $provider);
 	}
 
 	/**
@@ -486,56 +528,29 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		// Set default data provider
 		if (isset($arrSourceConfigs['default']))
 		{
-			$this->arrDataProvider[$this->strTable] = $this->arrDCA['dca_config']['data_provider']['default'];
-			unset($arrSourceConfigs['default']);
+			$this->bootDataDriver($this->strTable, $arrSourceConfigs['default']);
 		}
 		else
 		{
-			$arrConfig = array(
+			$this->bootDataDriver($this->strTable, array(
 				'class' => '\DcGeneral\Data\DefaultDriver',
 				'source' => $this->strTable
-			);
-			$this->arrDataProvider[$this->strTable] = $arrConfig;
+			));
 
+			// DC_Table compatibility fallback, shall we remove this?
 			if ($this->arrDCA['config']['ptable'])
 			{
-				$arrSourceConfigs['parent'] = array(
+				$this->bootDataDriver($this->arrDCA['config']['ptable'], array(
 					'class' => '\DcGeneral\Data\DefaultDriver',
 					'source' => $this->arrDCA['config']['ptable']
-				);
-
-				$arrSourceConfigs[$this->arrDCA['config']['ptable']] = array(
-					'class' => '\DcGeneral\Data\DefaultDriver',
-					'source' => $this->arrDCA['config']['ptable']
-				);
+				));
 			}
 		}
 
-		// Set all additional data provider
-		if (is_array($arrSourceConfigs))
+		if (isset($arrSourceConfigs['parent']))
 		{
-			foreach ($arrSourceConfigs as $strSource => $arrConfig)
-			{
-				if (is_array($arrConfig) && array_key_exists('source', $arrConfig))
-				{
-					switch ($strSource)
-					{
-						case 'parent':
-							$this->strParentTable = $arrConfig['source'];
-							$strSource = 'parent';
-							break;
-
-						case 'child':
-							$this->strChildTable = $arrConfig['source'];
-							$strSource = 'child';
-							break;
-					}
-
-					$this->arrDataProvider[$strSource] = $arrConfig;
-				}
-			}
+			$this->bootDataDriver($arrSourceConfigs['parent']['source'], $arrSourceConfigs['parent']);
 		}
-		$this->arrDCA['dca_config']['data_provider'] = $arrSourceConfigs;
 	}
 
 	/**
@@ -707,51 +722,13 @@ class DC_General extends \DataContainer implements DataContainerInterface
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @deprecated
 	 */
 	public function getDataProvider($strSource = null)
 	{
-		if (($strSource == null) || ($strSource == 'self'))
-		{
-			$strSource = $this->strTable;
-		}
-
-		$arrConfig = array();
-		if (array_key_exists($strSource, $this->arrDataProvider))
-		{
-			if (is_object($this->arrDataProvider[$strSource]))
-			{
-				return $this->arrDataProvider[$strSource];
-			}
-			else
-			{
-				$arrConfig = $this->arrDataProvider[$strSource];
-
-				if ($arrConfig['source'])
-				{
-					$this->loadLanguageFile($arrConfig['source']);
-					$this->loadDataContainer($arrConfig['source']);
-				}
-
-				if (array_key_exists('class', $arrConfig))
-				{
-					$strClass = $arrConfig['class'];
-					unset($arrConfig['class']);
-					$this->arrDataProvider[$strSource] = new $strClass();
-				}
-				else
-				{
-					$this->arrDataProvider[$strSource] = new DefaultDriver();
-				}
-			}
-		}
-		else
-		{
-			return null;
-		}
-
-		$this->arrDataProvider[$strSource]->setBaseConfig($arrConfig);
-
-		return $this->arrDataProvider[$strSource];
+		trigger_error('deprecated use of getDataProvider() - use getEnvironment()->getDataDriver() instead.');
+		return $this->getEnvironment()->getDataDriver($strSource);
 	}
 
 	public function getEnvironment()
@@ -1041,14 +1018,15 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		return $this->strTable;
 	}
 
+	/**
+	 * @return string
+	 *
+	 * @deprecated
+	 */
 	public function getParentTable()
 	{
-		$arrSourceConfigs = $this->arrDCA['dca_config']['data_provider'];
-		if ($arrSourceConfigs && array_key_exists('parent', $arrSourceConfigs) && $arrSourceConfigs['parent']['source'])
-		{
-			return $arrSourceConfigs['parent']['source'];
-		}
-		return null;
+		trigger_error('Use of deprecated getParentTable() - use getEnvironment()->getDataDefinition()->getParentDriverName() instead');
+		return $this->getDataDefinition()->getParentDriverName();
 	}
 
 	/**
@@ -1241,10 +1219,13 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	/**
 	 *
 	 * @return CollectionInterface
+	 *
+	 * @deprecated
 	 */
 	public function getCurrentParentCollection()
 	{
-		return $this->objCurrentParentCollection;
+		trigger_error('deprecated us of getCurrentParentCollection - use getEnvironment()->getCurrentParentCollection() instead.', E_USER_DEPRECATED);
+		return $this->getEnvironment()->getCurrentParentCollection();
 	}
 
 	/**
@@ -1262,10 +1243,13 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	/**
 	 *
 	 * @param CollectionInterface $objCurrentParentCollection
+	 *
+	 * @deprecated
 	 */
 	public function setCurrentParentCollection(CollectionInterface $objCurrentParentCollection)
 	{
-		$this->objCurrentParentCollection = $objCurrentParentCollection;
+		trigger_error('deprecated us of setCurrentParentCollection - use getEnvironment()->setCurrentParentCollection() instead.', E_USER_DEPRECATED);
+		$this->getEnvironment()->setCurrentParentCollection($objCurrentParentCollection);
 	}
 
 	/**
@@ -1335,9 +1319,10 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		// FIXME: dependency injection.
 		if (in_array($this->arrDCA['list']['sorting']['mode'], array(4, 5, 6)) && (strlen(\Input::getInstance()->get('pid')) > 0))
 		{
+			$objParentDriver = $this->getEnvironment()->getDataDriver($this->getEnvironment()->getDataDefinition()->getParentDriverName());
 			// pull correct condition from DCA and update according to setOn values.
-			$objParentModel = $this->getDataProvider('parent')->fetch($this->getDataProvider('parent')->getEmptyConfig()->setId(\Input::getInstance()->get('pid')));
-			$arrCond = $this->getParentChildCondition($objParentModel, $this->getDataProvider()->getEmptyModel()->getProviderName());
+			$objParentModel = $objParentDriver->fetch($objParentDriver->getEmptyConfig()->setId(\Input::getInstance()->get('pid')));
+			$arrCond = $this->getParentChildCondition($objParentModel, $this->getEnvironment()->getDataDefinition()->getName());
 
 			if (is_array($arrCond) && array_key_exists('setOn', $arrCond))
 			{
@@ -1419,20 +1404,28 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	 * Get subpalettes definition
 	 *
 	 * @return array
+	 *
+	 * @deprecated use getEnvironment()->getDataDefinition()->getSubPalettes() instead.
 	 */
 	public function getSubpalettesDefinition()
 	{
-		return is_array($this->arrDCA['subpalettes']) ? $this->arrDCA['subpalettes'] : array();
+		trigger_error('deprecated use of getSubpalettesDefinition() - use getEnvironment()->getDataDefinition()->getSubPalettes() instead.');
+		// return is_array($this->arrDCA['subpalettes']) ? $this->arrDCA['subpalettes'] : array();
+		return $this->getEnvironment()->getDataDefinition()->getSubPalettes();
 	}
 
 	/**
 	 * Get palettes definition
 	 *
 	 * @return array
+	 *
+	 * @deprecated use getEnvironment()->getDataDefinition()->getPalettes() instead.
 	 */
 	public function getPalettesDefinition()
 	{
-		return is_array($this->arrDCA['palettes']) ? $this->arrDCA['palettes'] : array();
+		trigger_error('deprecated use of getPalettesDefinition() - use getEnvironment()->getDataDefinition()->getPalettes() instead.');
+		// return is_array($this->arrDCA['palettes']) ? $this->arrDCA['palettes'] : array();
+		return $this->getEnvironment()->getDataDefinition()->getPalettes();
 	}
 
 	/**
@@ -1894,9 +1887,13 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	 * @param mixed $value
 	 * @param integer $mode
 	 * @return string
+	 *
+	 * @deprecated
 	 */
 	public function formatCurrentValue($field, $value, $mode)
 	{
+		trigger_error('Deprecated formatCurrentValue used. Please rewrite the views to inherit from BaseView and use the formatCurrentValue() contained in there.');
+
 		if ($this->arrDCA['fields'][$field]['inputType'] == 'checkbox' && !$this->arrDCA['fields'][$field]['eval']['multiple'])
 		{
 			$remoteNew = ($value != '') ? ucfirst($GLOBALS['TL_LANG']['MSC']['yes']) : ucfirst($GLOBALS['TL_LANG']['MSC']['no']);
@@ -1982,9 +1979,13 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	 * @param integer
 	 * @param ModelInterface
 	 * @return string
+	 *
+	 * @deprecated
 	 */
 	public function formatGroupHeader($field, $value, $mode, ModelInterface $objModelRow)
 	{
+		trigger_error('Deprecated formatGroupHeader used. Please rewrite the views to inherit from BaseView and use the formatGroupHeader() contained in there.');
+
 		$group = '';
 		static $lookup = array();
 
@@ -2102,7 +2103,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	 */
 	public function preloadTinyMce()
 	{
-		if (count($this->getSubpalettesDefinition()) == 0)
+		if (count($this->getEnvironment()->getDataDefinition()->getSubPalettes()) == 0)
 		{
 			return;
 		}

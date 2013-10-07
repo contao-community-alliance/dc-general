@@ -23,9 +23,32 @@ interface ContainerInterface
 	public function getName();
 
 	/**
+	 * Return the name of the parenting definition.
+	 *
+	 * @return string
+	 */
+	public function getParentDriverName();
+
+	/**
+	 * Return the label of the definition.
+	 *
+	 * @return string
+	 */
+	public function getLabel();
+
+	/**
+	 * Return the icon of the definition.
+	 *
+	 * @return string
+	 */
+	public function getIcon();
+
+	/**
 	 * Return the name of the callback provider class to use.
 	 *
 	 * @return string
+	 *
+	 * @deprecated It is suggested to use events instead of callbacks now.
 	 */
 	public function getCallbackProviderClass();
 
@@ -113,6 +136,24 @@ interface ContainerInterface
 	public function isEditable();
 
 	/**
+	 * Boolean flag determining if this data container is deletable.
+	 *
+	 * True means, the data records may be deleted.
+	 *
+	 * @return bool
+	 */
+	public function isDeletable();
+
+	/**
+	 * Allows you to disable the group headers in list view and parent view.
+	 *
+	 * True means, the data records will not be grouped with headers.
+	 *
+	 * @return bool
+	 */
+	public function isGroupingDisabled();
+
+	/**
 	 * Retrieve the root condition for the current table.
 	 *
 	 * @return \DcGeneral\DataDefinition\RootConditionInterface
@@ -138,4 +179,24 @@ interface ContainerInterface
 	 * @return \DcGeneral\DataDefinition\ParentChildConditionInterface[]
 	 */
 	public function getChildConditions($strSrcTable = '');
+
+	/**
+	 * Retrieve the label information for listing of datasets.
+	 *
+	 * @return \DcGeneral\DataDefinition\ListLabelInterface
+	 */
+	public function getListLabel();
+
+	/**
+	 * Return the additional filters to be applied for retrieving data.
+	 *
+	 * This is some custom filter defined by the admin or something like that.
+	 *
+	 * @return array
+	 */
+	public function getAdditionalFilter();
+
+	public function getPalettes();
+
+	public function getSubPalettes();
 }

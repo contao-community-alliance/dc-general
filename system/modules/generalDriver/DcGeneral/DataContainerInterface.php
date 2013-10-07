@@ -40,13 +40,15 @@ interface DataContainerInterface extends \editable, \listable
 	 * @param string $strSource
 	 *
 	 * @return DriverInterface
+	 *
+	 * @deprecated
 	 */
 	public function getDataProvider($strSource = null);
 
 	/**
 	 * Retrieve the Input provider.
 	 *
-	 * @return InputProvider
+	 * @return \DcGeneral\InputProviderInterface
 	 */
 	public function getInputProvider();
 

@@ -168,13 +168,15 @@ class ContaoStyleCallbacks extends \System implements CallbacksInterface
 		// Check Callback.
 		if (is_array($arrCallback))
 		{
+			trigger_error('Deprecated callback system in use - please change to the event based system.', E_USER_DEPRECATED);
+
 			$strClass = $arrCallback[0];
 			$strMethod = $arrCallback[1];
 
 			$this->import($strClass);
 
 			return $this->$strClass->$strMethod(
-				$objModelRow->getPropertiesAsArray(),
+				$objModelRow ? $objModelRow->getPropertiesAsArray() : null,
 				$strHref,
 				$strLabel,
 				$strTitle,
@@ -215,6 +217,8 @@ class ContaoStyleCallbacks extends \System implements CallbacksInterface
 		// Check Callback
 		if (is_array($arrDCA['button_callback']))
 		{
+			trigger_error('Deprecated callback system in use - please change to the event based system.', E_USER_DEPRECATED);
+
 			$strClass = $arrDCA['button_callback'][0];
 			$strMethod = $arrDCA['button_callback'][1];
 
@@ -228,21 +232,21 @@ class ContaoStyleCallbacks extends \System implements CallbacksInterface
 	/**
 	 * Call the button callback for the paste operations
 	 *
-	 * @param array         $row      Array with current data
+	 * @param array         $row           Array with current data
 	 *
-	 * @param string        $table    Tablename
+	 * @param string        $table         Tablename
 	 *
-	 * @param unknown       $cr        TODO: document parameter $cr
+	 * @param bool          $cr            TODO: document parameter $cr
 	 *
-	 * @param array         $childs   Clipboard informations
+	 * @param array         $objClipboard Clipboard informations
 	 *
-	 * @param unknown       $previous  TODO: document parameter $previous
+	 * @param string        $previous     TODO: document parameter $previous
 	 *
-	 * @param unknown       $next      TODO: document parameter $next
+	 * @param string        $next         TODO: document parameter $next
 	 *
 	 * @return string
 	 */
-	public function pasteButtonCallback($row, $table, $cr, $childs, $previous, $next)
+	public function pasteButtonCallback($row, $table, $cr, $objClipboard, $previous, $next)
 	{
 		// Load DCA
 		$arrDCA = $this->objDC->getDCA();
@@ -254,7 +258,7 @@ class ContaoStyleCallbacks extends \System implements CallbacksInterface
 			$strMethod = $arrDCA['list']['sorting']['paste_button_callback'][1];
 
 			$this->import($strClass);
-			return $this->$strClass->$strMethod($this->objDC, $row, $table, $cr, $childs, $previous, $next);
+			return $this->$strClass->$strMethod($this->objDC, $row, $table, $cr, $objClipboard, $previous, $next);
 		}
 
 		return false;

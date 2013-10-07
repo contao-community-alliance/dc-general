@@ -12,6 +12,7 @@
 
 namespace DcGeneral\Contao\Dca;
 
+use DcGeneral\Contao\Dca\ListLabel;
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Contao\Dca\Conditions\RootCondition;
 use DcGeneral\Contao\Dca\Conditions\ParentChildCondition;
@@ -75,6 +76,39 @@ class Container implements ContainerInterface
 	public function getName()
 	{
 		return $this->strTable;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getParentDriverName()
+	{
+		if ($this->getFromDca('config/ptable'))
+		{
+			return $this->getFromDca('config/ptable');
+		}
+		elseif ($this->getFromDca('dca_config/data_provider/parent/source'))
+		{
+			return $this->getFromDca('dca_config/data_provider/parent/source');
+		}
+
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getLabel()
+	{
+		return $this->getFromDca('config/label');
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getIcon()
+	{
+		return $this->getFromDca('list/sorting/icon');
 	}
 
 	/**
@@ -199,6 +233,22 @@ class Container implements ContainerInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function isDeletable()
+	{
+	return !$this->getFromDca('config/notDeletable');
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function isGroupingDisabled()
+	{
+		return !$this->getFromDca('list/sorting/disableGrouping');
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function getRootCondition()
 	{
 		return new RootCondition($this, $this->getName());
@@ -246,4 +296,63 @@ class Container implements ContainerInterface
 		return $arrReturn;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getListLabel()
+	{
+		return new ListLabel($this);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getAdditionalFilter()
+	{
+		// Custom filter
+		$filters = $this->getFromDca('list/sorting/filter');
+		$result  = array();
+
+		if (is_array($filters) && !empty($filters))
+		{
+			foreach ($filters as $filter)
+			{
+				// FIXME: this only takes array('name', 'value') into account. Add support for: array('name=?', 'value')
+				$result[] = array('operation' => '=', 'property' => $filter[0], 'value' => $filter[1]);
+			}
+		}
+		return $result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getPalettes()
+	{
+		$palettes = $this->getFromDca('palettes');
+		if (is_array($palettes))
+		{
+			return $palettes;
+		}
+		else
+		{
+			return array();
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getSubPalettes()
+	{
+		$subPalettes = $this->getFromDca('subpalettes');
+		if (is_array($subPalettes))
+		{
+			return $subPalettes;
+		}
+		else
+		{
+			return array();
+		}
+	}
 }

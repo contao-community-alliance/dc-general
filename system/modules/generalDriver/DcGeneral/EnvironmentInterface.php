@@ -64,6 +64,20 @@ interface EnvironmentInterface
 	public function getDataDefinition();
 
 	/**
+	 * Retrieve the data definition of the parent table.
+	 *
+	 * @param \DcGeneral\DataDefinition\ContainerInterface $objContainer
+	 *
+	 * @return EnvironmentInterface
+	 */
+	public function setParentDataDefinition($objContainer);
+
+	/**
+	 * @return \DcGeneral\DataDefinition\ContainerInterface
+	 */
+	public function getParentDataDefinition();
+
+	/**
 	 * @param \DcGeneral\InputProviderInterface $objInputProvider
 	 *
 	 * @return EnvironmentInterface
@@ -80,14 +94,50 @@ interface EnvironmentInterface
 	 * @param \DcGeneral\Callbacks\CallbacksInterface $objCallbackHandler
 	 *
 	 * @return EnvironmentInterface
+	 *
+	 * @deprecated Callback handlers are deprecated, use the Events instead.
 	 */
 	public function setCallbackHandler($objCallbackHandler);
 
 	/**
 	 *
 	 * @return \DcGeneral\Callbacks\CallbacksInterface
+	 *
+	 * @deprecated Callback handlers are deprecated, use the Events instead.
 	 */
 	public function getCallbackHandler();
+
+	/**
+	 * Retrieve the data driver for the named source.
+	 *
+	 * If a source name is given, the named driver will get returned, if not given, the default driver will get
+	 * returned, The default is to be determined via: getEnvironment()->getDataDefinition()->getName()
+	 *
+	 * @param string|null $strSource The name of the source.
+	 *
+	 * @return \DcGeneral\Data\DriverInterface
+	 */
+	public function getDataDriver($strSource = null);
+
+	/**
+	 * Register a data driver to the environment.
+	 *
+	 * @param string                          $strSource The name of the source.
+	 *
+	 * @param \DcGeneral\Data\DriverInterface $objDriver The driver instance to register under the given name.
+	 *
+	 * @return EnvironmentInterface
+	 */
+	public function addDataDriver($strSource, $objDriver);
+
+	/**
+	 * Remove a data driver from the environment.
+	 *
+	 * @param string $strSource The name of the source.
+	 *
+	 * @return mixed
+	 */
+	public function removeDataDriver($strSource);
 
 	/**
 	 * @param \DcGeneral\Panel\PanelContainerInterface $objPanelContainer
@@ -128,6 +178,20 @@ interface EnvironmentInterface
 	 * @return \DcGeneral\Data\ModelInterface
 	 */
 	public function getCurrentModel();
+
+	/**
+	 *
+	 * @param \DcGeneral\Data\CollectionInterface $objCurrentParentCollection
+	 *
+	 * @return EnvironmentInterface
+	 */
+	public function setCurrentParentCollection($objCurrentParentCollection);
+
+	/**
+	 *
+	 * @return \DcGeneral\Data\CollectionInterface
+	 */
+	public function getCurrentParentCollection();
 
 	/**
 	 * Set the current root ids.

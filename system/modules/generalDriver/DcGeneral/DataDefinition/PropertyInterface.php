@@ -64,6 +64,13 @@ interface PropertyInterface
 	public function isSortable();
 
 	/**
+	 * Determinator if the value shall be encrypted.
+	 *
+	 * @return bool
+	 */
+	public function isEncrypted();
+
+	/**
 	 * Fetch some arbitrary information.
 	 *
 	 * @param $strKey

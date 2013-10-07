@@ -95,6 +95,14 @@ class Property implements PropertyInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function isEncrypted()
+	{
+		return $this->get('encrypt');
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function get($strKey)
 	{
 		return $this->objParent->getFromDca(sprintf('fields/%s/%s', $this->strProperty, $strKey));

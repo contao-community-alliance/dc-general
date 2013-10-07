@@ -68,10 +68,18 @@ abstract class AbstractElement implements PanelElementInterface
 	{
 		if (!isset($this->objOtherConfig))
 		{
+			if (!$this
+				->getDataContainer()
+				->getEnvironment()
+				->getController())
+			{
+				throw new \RuntimeException('HELP!');
+			}
 			$this->objOtherConfig = $this
 				->getDataContainer()
-				->getDataProvider()
-				->getEmptyConfig();
+				->getEnvironment()
+				->getController()
+				->getBaseConfig();
 
 			$this
 				->getPanel()
