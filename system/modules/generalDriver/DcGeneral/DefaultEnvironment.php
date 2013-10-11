@@ -90,6 +90,11 @@ class DefaultEnvironment implements EnvironmentInterface
 	protected $objClipboard;
 
 	/**
+	 * @var \DcGeneral\EnvironmentInterface
+	 */
+	protected $objTranslationManager;
+
+	/**
 	 * {@inheritdoc}
 	 */
 	public function setController($objController)
@@ -380,5 +385,25 @@ class DefaultEnvironment implements EnvironmentInterface
 		{
 			$this->objClipboard = $objClipboard;
 		}
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setTranslationManager($manager)
+	{
+		$this->objTranslationManager = $manager;
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getTranslationManager()
+	{
+		return $this->objTranslationManager;
 	}
 }

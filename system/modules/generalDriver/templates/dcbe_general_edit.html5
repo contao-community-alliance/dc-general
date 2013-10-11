@@ -81,11 +81,7 @@
 <div class="tl_formbody_submit">
 
 <div class="tl_submit_container">
-<?php foreach($this->buttons as $strButton => $arrButton): ?>
-<input type="submit" name="<?php echo $arrButton['formkey']; ?>"
-	   id="<?php echo $arrButton['id']; ?>" class="tl_submit<?php echo (!empty($arrButton['class'])? ' ' . $arrButton['class'] : ''); ?>" accesskey="<?php echo $arrButton['accesskey'] ?>"
-	value="<?php echo $this->buttonLables[$strButton]; ?>" />
-<?php endforeach; ?>
+	<?php echo implode(' ', $this->editButtons); ?>
 </div>
 
 </div>

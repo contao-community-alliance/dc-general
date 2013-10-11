@@ -14,28 +14,7 @@
 			<div class="tl_header" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
 
 				<div class="tl_content_right">
-
-					<?php if ($this->select): ?>
-
-						<label for="tl_select_trigger" class="tl_select_label"><?php echo $GLOBALS['TL_LANG']['MSC']['selectAll']; ?></label>
-						<input type="checkbox" id="tl_select_trigger" onclick="Backend.toggleCheckboxes(this)" class="tl_tree_checkbox">
-
-					<?php else: ?>
-
-						<?php if (!$this->notEditableParent): ?>
-							<a href="<?php echo $this->editHeader['href']; ?>" title="<?php echo $this->editHeader['title']; ?>" onclick="Backend.getScrollOffset()"><?php echo $this->editHeader['content']; ?></a>
-						<?php endif; ?>
-							
-						<?php if (!$this->notEditable): ?>
-							<a href="<?php echo $this->pasteNew['href']; ?>" title="<?php echo $this->pasteNew['title']; ?>"><?php echo $this->pasteNew['content']; ?></a>
-						<?php endif; ?>
-
-						<?php if ($this->clipboard): ?>
-							<a href="<?php echo $this->pasteAfter['href']; ?>" title="<?php echo $this->pasteAfter['title']; ?>"><?php echo $this->pasteAfter['content']; ?></a>
-						<?php endif; ?>
-
-					<?php endif; ?>
-
+					<?php echo $this->headerButtons; ?>
 				</div>
 
 				<table class="tl_header_table">
@@ -49,13 +28,13 @@
 
 				</table>
 
-			</div>     
+			</div>
 
-			<?php if ($this->hasSorting): ?><ul id="ul_<?php echo CURRENT_ID; ?>" class="sortable"><?php endif; ?>	
+			<?php if ($this->hasSorting): ?><ul id="ul_<?php echo CURRENT_ID; ?>" class="sortable"><?php endif; ?>
 
 				<?php foreach ($this->collection as $objModel): ?>
 
-					<?php if ($this->hasSorting): ?><li id="li_<?php echo $objModel->getID(); ?>"><?php endif; ?>	
+					<?php if ($this->hasSorting): ?><li id="li_<?php echo $objModel->getID(); ?>"><?php endif; ?>
 
 						<?php if (strlen($objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_GROUP_HEADER)) > 0): ?>
 							<div class="tl_content_header"><?php echo $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_GROUP_HEADER); ?></div>
@@ -74,10 +53,10 @@
 
 							<?php echo $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_LABEL_VALUE); ?>
 						</div>
-						<?php if ($this->hasSorting): ?></li><?php endif; ?>	
+						<?php if ($this->hasSorting): ?></li><?php endif; ?>
 				<?php endforeach; ?>
 
-				<?php if ($this->hasSorting): ?></ul><?php endif; ?>	
+				<?php if ($this->hasSorting): ?></ul><?php endif; ?>
 
 			<?php if ($this->collection->length() == 0): ?>
 
@@ -96,19 +75,8 @@
 
 			<div class="tl_formbody_submit" style="text-align:right">
 				<div class="tl_submit_container">
-					<?php if ($this->notDeletable): ?>
-						<input type="submit" name="delete" id="delete" class="tl_submit" accesskey="d" onclick="return confirm('<?php echo $GLOBALS['TL_LANG']['MSC']['delAllConfirm']; ?>')" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['deleteSelected']); ?>">
-					<?php endif; ?>
-					<input type="submit" name="cut" id="cut" class="tl_submit" accesskey="x" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['moveSelected']); ?>">
-					<input type="submit" name="copy" id="copy" class="tl_submit" accesskey="c" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['copySelected']); ?>">
-					<?php if ($this->notEditable): ?>
-						<input type="submit" name="override" id="override" class="tl_submit" accesskey="v" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['overrideSelected']); ?>">
-						<input type="submit" name="edit" id="edit" class="tl_submit" accesskey="s" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['editSelected']); ?>">
-
-					<?php endif; ?>
-
+					<?php echo implode(' ', $this->selectButtons); ?>
 				</div>
-
 			</div>
 		</div>
 	</form>
