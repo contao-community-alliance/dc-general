@@ -2,15 +2,17 @@
 
 namespace DcGeneral\Events;
 
+use DcGeneral\View\DefaultView\Events\GetBreadcrumbEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use DcGeneral\View\DefaultView\Events\GetGlobalButtonEvent;
+use DcGeneral\View\DefaultView\Events\GetGlobalButtonsEvent;
 use DcGeneral\View\DefaultView\Events\GetGroupHeaderEvent;
+use DcGeneral\View\DefaultView\Events\GetOperationButtonEvent;
 use DcGeneral\View\DefaultView\Events\GetParentHeaderEvent;
 use DcGeneral\View\DefaultView\Events\GetPasteRootButtonEvent;
-use DcGeneral\View\DefaultView\Events\ModelToLabelEvent;
-use DcGeneral\View\DefaultView\Events\GetOperationButtonEvent;
 use DcGeneral\View\DefaultView\Events\GetPasteButtonEvent;
-use DcGeneral\View\DefaultView\Events\GetGlobalButtonsEvent;
-use DcGeneral\View\DefaultView\Events\GetGlobalButtonEvent;
+use DcGeneral\View\DefaultView\Events\ModelToLabelEvent;
+use DcGeneral\View\DefaultView\Events\ParentViewChildRecordEvent;
 
 /**
  * Class Subscriber - gateway to the legacy Contao HOOK style callbacks.
@@ -24,15 +26,18 @@ class Subscriber
 	{
 		return array
 		(
-			GetGlobalButtonsEvent::NAME   => 'GetGlobalButtons',
-			GetGlobalButtonEvent::NAME    => 'GetGlobalButton',
-			GetOperationButtonEvent::NAME => 'GetOperationButton',
-			GetPasteButtonEvent::NAME     => 'GetPasteButton',
-			GetPasteRootButtonEvent::NAME => 'GetPasteRootButton',
+			GetGlobalButtonEvent::NAME       => 'GetGlobalButton',
+			GetGlobalButtonsEvent::NAME      => 'GetGlobalButtons',
+			GetOperationButtonEvent::NAME    => 'GetOperationButton',
+			GetPasteButtonEvent::NAME        => 'GetPasteButton',
+			GetPasteRootButtonEvent::NAME    => 'GetPasteRootButton',
 
-			ModelToLabelEvent::NAME       => 'ModelToLabel',
-			GetGroupHeaderEvent::NAME     => 'GetGroupHeader',
-			GetParentHeaderEvent::NAME    => 'GetParentHeader',
+			ModelToLabelEvent::NAME          => 'ModelToLabel',
+			GetGroupHeaderEvent::NAME        => 'GetGroupHeader',
+			GetParentHeaderEvent::NAME       => 'GetParentHeader',
+			ParentViewChildRecordEvent::NAME => 'ParentViewChildRecord',
+
+			GetBreadcrumbEvent::NAME         => 'GetBreadcrumb',
 		);
 	}
 
@@ -202,5 +207,29 @@ class Subscriber
 		{
 			$event->setAdditional($additional);
 		}
+	}
+
+	/**
+	 * Handles $GLOBALS['TL_DCA']['tl_*']['list']['sorting']['child_record_class'] callbacks.
+	 *
+	 * @param ParentViewChildRecordEvent $event
+	 */
+	public function ParentViewChildRecord(ParentViewChildRecordEvent $event)
+	{
+		$html = $event->getEnvironment()
+			->getCallbackHandler()->childRecordCallback($event->getModel());
+
+		if ($html !== null)
+		{
+			$event->setHtml($html);
+		}
+	}
+
+	public function GetBreadcrumb(GetBreadcrumbEvent $event)
+	{
+		$arrReturn = $event->getEnvironment()
+			->getCallbackHandler()->generateBreadcrumb();
+
+		$event->setElements($arrReturn);
 	}
 }
