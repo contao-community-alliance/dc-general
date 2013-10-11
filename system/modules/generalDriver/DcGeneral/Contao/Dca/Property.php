@@ -71,6 +71,14 @@ class Property implements PropertyInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function getSortingFlag()
+	{
+		return $this->get('flag');
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function isSearchable()
 	{
 		return $this->get('search');
