@@ -677,6 +677,34 @@ class ContaoStyleCallbacks extends \System implements CallbacksInterface
 		}
 	}
 
+	public function generateBreadcrumb()
+	{
+		// Load DCA
+		$arrDCA = $this->objDC->getDCA();
+		$arrCallback = $arrDCA['list']['presentation']['breadcrumb_callback'];
+
+		if (!is_array($arrCallback) || count($arrCallback) == 0)
+		{
+			return null;
+		}
+
+		// Get data from callback
+		$strClass = $arrCallback[0];
+		$strMethod = $arrCallback[1];
+
+		// FIXME: implement this some better way.
+		$objCallback = (in_array('getInstance', get_class_methods($strClass))) ? call_user_func(array($strClass, 'getInstance')) : new $strClass();
+		$arrReturn = $objCallback->$strMethod($this->objDC);
+
+		// Check if we have a result with elements
+		if (!is_array($arrReturn) || count($arrReturn) == 0)
+		{
+			return null;
+		}
+
+		return $arrReturn;
+	}
+
 	/**
 	 * Call the custom filter callback for a field.
 	 *
