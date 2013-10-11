@@ -12,8 +12,8 @@
 
 namespace DcGeneral\View\DefaultView\Events;
 
-class GetGlobalButtonsEvent
+class GetSelectModeButtonsEvent
 	extends BaseGetButtonsEvent
 {
-	const NAME = 'DcGeneral\View\DefaultView\Events\GetGlobalButtons';
+	const NAME = 'DcGeneral\View\DefaultView\Events\GetSelectModeButtons';
 }
