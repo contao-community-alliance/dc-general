@@ -43,6 +43,26 @@ interface PropertyInterface
 	public function getEvaluation();
 
 	/**
+	 * Retrieve the sorting flag, this overrides the flag from the data container when sorting is switched to this property.
+	 *
+	 *  1 Sort by initial letter ascending
+	 *  2 Sort by initial letter descending
+	 *  3 Sort by initial X letters ascending (see length)
+	 *  4 Sort by initial X letters descending (see length)
+	 *  5 Sort by day ascending
+	 *  6 Sort by day descending
+	 *  7 Sort by month ascending
+	 *  8 Sort by month descending
+	 *  9 Sort by year ascending
+	 * 10 Sort by year descending
+	 * 11 Sort ascending
+	 * 12 Sort descending
+	 *
+	 * @return int
+	 */
+	public function getSortingFlag();
+
+	/**
 	 * Determinator if search is enabled on this property.
 	 *
 	 * @return bool
