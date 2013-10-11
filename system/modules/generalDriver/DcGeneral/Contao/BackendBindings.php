@@ -34,6 +34,16 @@ if (version_compare(VERSION, '3.0', '<'))
 			return self::$objInstance;
 		}
 
+		public function log($strText, $strFunction, $strCategory)
+		{
+			parent::log($strText, $strFunction, $strCategory);
+		}
+
+		public function redirect($strLocation, $intStatus)
+		{
+			parent::redirect($strLocation, $intStatus);
+		}
+
 		public function addToUrl($strRequest)
 		{
 			return parent::addToUrl($strRequest);
@@ -101,6 +111,30 @@ else
 
 class BackendBindings
 {
+	public static function log($strText, $strFunction, $strCategory)
+	{
+		if (version_compare(VERSION, '3.1', '>='))
+		{
+			\Backend::log($strText, $strFunction, $strCategory);
+		}
+		else
+		{
+			BackendBindingInternal::getInstance()->log($strText, $strFunction, $strCategory);
+		}
+	}
+
+	public static function redirect($strLocation, $intStatus = 303)
+	{
+		if (version_compare(VERSION, '3.1', '>='))
+		{
+			\Backend::redirect($strLocation, $intStatus);
+		}
+		else
+		{
+			BackendBindingInternal::getInstance()->redirect($strLocation, $intStatus);
+		}
+	}
+
 	public static function addToUrl($strRequest)
 	{
 		if (version_compare(VERSION, '3.1', '>='))
