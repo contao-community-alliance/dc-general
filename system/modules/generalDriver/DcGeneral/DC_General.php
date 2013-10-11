@@ -13,6 +13,7 @@ namespace DcGeneral;
 
 use DcGeneral\Clipboard\DefaultClipboard;
 use DcGeneral\Contao\InputProvider;
+use DcGeneral\Contao\TranslationManager;
 use DcGeneral\Controller\DefaultController as DefaultController;
 use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\Data\DCGE;
@@ -295,7 +296,8 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			->setDataDefinition(new Contao\Dca\Container($this->strTable, $this->arrDCA))
 			// TODO: make inputprovider configurable somehow - unsure how though.
 			->setInputProvider(new InputProvider())
-			->setClipboard(new DefaultClipboard());
+			->setClipboard(new DefaultClipboard())
+			->setTranslationManager(new TranslationManager());
 
 		$parentTable = $this->getEnvironment()->getDataDefinition()->getParentDriverName();
 		if ($parentTable)
@@ -365,8 +367,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	 */
 	protected function getTablenameCallback($strTable)
 	{
-		$strCurrentTable = $strTable;
-
 		if (array_key_exists('tablename_callback', $GLOBALS['TL_DCA'][$strTable]['config']) && is_array($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback']))
 		{
 			foreach ($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback'] as $callback)
@@ -492,6 +492,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		}
 
 		$this->objViewHandler->setDC($this);
+		$this->getEnvironment()->setView($this->objViewHandler);
 	}
 
 	protected function bootDataDriver($strSource, $arrConfig)
@@ -1489,6 +1490,44 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	}
 
 	/**
+	 * Add a Button to the dca
+	 *
+	 * $arrConfig = array(
+	 *       'id'              => [ID eg. name],
+	 *       'formkey'         => [ID eg. name],
+	 *       'class'           => [css class],
+	 *       'accesskey'       => 'g',
+	 *       'value'           => [value for displaying],
+	 *       'button_callback' => array([class], [function])
+	 *  );
+	 *
+	 * @param string $strButton Id of the button.
+	 *
+	 * @param array $arrConfig An array with information.
+	 *
+	 * @deprecated Use the GetEditModeButtonsEvent for manipulating buttons in the views.
+	 */
+	public function addButton($strButton, $arrConfig = array())
+	{
+		trigger_error('Deprecated use of DC_General::addButton() - Use the GetEditModeButtonsEvent for manipulating buttons in the views.', E_USER_DEPRECATED);
+		// Make an array, for older calles.
+		if (empty($arrConfig))
+		{
+			$arrConfig = array
+			(
+				'id'				 => $strButton,
+				'formkey'			 => $strButton,
+				'class'				 => '',
+				'accesskey'			 => 's',
+				'value'				 => null,
+				'button_callback'	 => null
+			);
+		}
+
+		$this->arrDCA['buttons'][$strButton] = $arrConfig;
+	}
+
+	/**
 	 * Load for each button the language tag
 	 *
 	 * @return array
@@ -1506,46 +1545,16 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	}
 
 	/**
-	 * Add a Button to the dca
-	 *
-	 * @param String $strButton
-	 * @param array $$arrConfig <p> An array with informations:
-	 * $arrConfig = array(
-	 *       'id'              => [ID eg. name],
-	 *       'formkey'         => [ID eg. name],
-	 *       'class'           => [css class],
-	 *       'accesskey'       => 'g',
-	 *       'value'           => [value for displaying],
-	 *       'button_callback' => array([class], [function])
-	 *  );
-	 * </p>
-	 */
-	public function addButton($strButton, $arrConfig = array())
-	{
-		// Make an array, for older calles.
-		if (empty($arrConfig))
-		{
-			$arrConfig = array
-			(
-				'id'				 => $strButton,
-				'formkey'			 => $strButton,
-				'class'				 => '',
-				'accesskey'			 => 's',
-				'value'				 => null,
-				'button_callback'	 => null
-			);
-		}
-		
-		$this->arrDCA['buttons'][$strButton] = $arrConfig;
-	}
-
-	/**
 	 * Remove a button from dca
 	 *
 	 * @param string $strButton
+	 *
+	 * @deprecated Use the GetEditModeButtonsEvent for manipulating buttons in the views.
 	 */
 	public function removeButton($strButton)
 	{
+		trigger_error('Deprecated use of DC_General::removeButton() - Use the GetEditModeButtonsEvent for manipulating buttons in the views.', E_USER_DEPRECATED);
+
 		if (array_key_exists($strButton, $this->arrDCA['buttons']))
 		{
 			unset($this->arrDCA['buttons'][$strButton]);
@@ -2403,9 +2412,21 @@ class DC_General extends \DataContainer implements DataContainerInterface
 
 	protected function setupTimer()
 	{
-		return sprintf('<div style="padding:5px; border:1px solid gray; margin:7px; position:absolute;"> Runtime: %s Sec. - Queries: %s - Mem: %s</div>', number_format((microtime(true) - $this->intTimerStart), 4), count($GLOBALS['TL_DEBUG']) - $this->intQueryCount, $this->getReadableSize(memory_get_peak_usage(true))
+		if (version_compare(VERSION, '3.1', '>='))
+		{
+			$query_count = count($GLOBALS['TL_DEBUG']['database_queries']);
+		}
+		else
+		{
+			$query_count = $GLOBALS['TL_DEBUG'];
+		}
+
+		return sprintf(
+			'<div style="padding:5px; border:1px solid gray; margin:7px;"> Runtime: %s Sec. - Queries: %s - Mem: %s</div>',
+			number_format((microtime(true) - $this->intTimerStart), 4),
+			$query_count - $this->intQueryCount,
+			$this->getReadableSize(memory_get_peak_usage(true))
 		);
-		;
 	}
 
 }

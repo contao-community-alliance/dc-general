@@ -17,17 +17,21 @@ use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\MultiLanguageDriverInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\DC_General;
+use DcGeneral\Panel\DefaultPanelContainer;
 use DcGeneral\Panel\FilterElementInterface;
 use DcGeneral\Panel\LimitElementInterface;
 use DcGeneral\Panel\SearchElementInterface;
 use DcGeneral\Panel\SortElementInterface;
 use DcGeneral\Panel\SubmitElementInterface;
 use DcGeneral\View\ContaoBackendViewTemplate;
+use DcGeneral\View\DefaultView\Events\GetBreadcrumbEvent;
+use DcGeneral\View\DefaultView\Events\GetEditModeButtonsEvent;
 use DcGeneral\View\DefaultView\Events\GetGlobalButtonEvent;
 use DcGeneral\View\DefaultView\Events\GetGlobalButtonsEvent;
 use DcGeneral\View\DefaultView\Events\GetGroupHeaderEvent;
 use DcGeneral\View\DefaultView\Events\GetOperationButtonEvent;
 use DcGeneral\View\DefaultView\Events\GetPasteButtonEvent;
+use DcGeneral\View\DefaultView\Events\GetSelectModeButtonsEvent;
 use DcGeneral\View\ViewInterface;
 
 // TODO: this is not as elegant as it could be.
@@ -75,14 +79,6 @@ class BaseView implements ViewInterface
 	protected $arrStack = array();
 
 	/**
-	 * Initialize the object
-	 */
-	public function __construct()
-	{
-
-	}
-
-	/**
 	 * @return DataContainerInterface
 	 */
 	public function getDC()
@@ -91,6 +87,26 @@ class BaseView implements ViewInterface
 	}
 
 	/**
+	 * @param DataContainerInterface $objDC
+	 */
+	public function setDC($objDC)
+	{
+		$this->objDC = $objDC;
+	}
+
+	/**
+	 * Dispatch an event to the dispatcher.
+	 *
+	 * The event will first get triggered with the name of the active data provider within square brackets appended
+	 * and plain afterwards.
+	 *
+	 * Example:
+	 *   Event name: "some-event"
+	 *   DP name:    "tl_table"
+	 *
+	 *   1. dispatch: "some-event[tl_table]"
+	 *   2. dispatch: "some-event"
+	 *
 	 * @param string                                   $eventName
 	 *
 	 * @param \Symfony\Component\EventDispatcher\Event $event
@@ -111,30 +127,21 @@ class BaseView implements ViewInterface
 			$event
 		);
 
-		var_dump(sprintf(
-			'%s[%s]',
+		echo sprintf(
+			'%s[%s]<br/>',
 			$eventName,
 			$this->getEnvironment()->getDataDefinition()->getName()
-		));
+		);
 
 		// Second, try to dispatch to all globally registered subscribers.
 		if (!$event->isPropagationStopped())
 		{
 			$dispatcher->dispatch($eventName, $event);
-			var_dump($eventName);
+			echo $eventName . '<br/>';
 		}
 	}
 
 	/**
-	 * @param DataContainerInterface $objDC
-	 */
-	public function setDC($objDC)
-	{
-		$this->objDC = $objDC;
-	}
-
-	/**
-	 *
 	 * @return \DcGeneral\EnvironmentInterface
 	 */
 	protected function getEnvironment()
@@ -166,6 +173,57 @@ class BaseView implements ViewInterface
 		return $this->getEnvironment()->getCurrentModel();
 	}
 
+	protected function translate($path, $section = null)
+	{
+		if ($section !== null)
+		{
+			$this->getEnvironment()->getTranslationManager()->loadSection($section);
+		}
+
+		return $this->getEnvironment()->getTranslationManager()->getString($path);
+	}
+
+	protected function addToTemplate($name, $value, $template)
+	{
+		$template->$name = $value;
+
+		return $this;
+	}
+
+	/**
+	 * Build the panel and initialize it.
+	 *
+	 * @return DefaultPanelContainer
+	 */
+	protected function buildPanel()
+	{
+		$objContainer = new DefaultPanelContainer();
+		$objContainer->setDataContainer($this->getDC());
+
+		$objContainer->buildFrom($this->getDC()->getDataDefinition());
+
+		$objGlobalConfig = $this->getEnvironment()->getController()->getBaseConfig();
+		$objContainer->initialize($objGlobalConfig);
+
+		$this->getEnvironment()->setPanelContainer($objContainer);
+
+		return $objContainer;
+	}
+
+	/**
+	 * Determines if this view is opened in a popup frame.
+	 *
+	 * @return bool
+	 */
+	protected function isPopup()
+	{
+		return \Input::getInstance()->get('popup');
+	}
+
+	protected function isSelectModeActive()
+	{
+		return \Input::getInstance()->get('act') == 'select';
+	}
 
 	/**
 	 * Return the formatted value for use in group headers as string
@@ -193,7 +251,7 @@ class BaseView implements ViewInterface
 
 		if ($property->get('inputType') == 'checkbox' && !$evaluation['multiple'])
 		{
-			$remoteNew = ($value != '') ? ucfirst($GLOBALS['TL_LANG']['MSC']['yes']) : ucfirst($GLOBALS['TL_LANG']['MSC']['no']);
+			$remoteNew = ($value != '') ? ucfirst($this->translate('MSC/yes')) : ucfirst($this->translate('MSC/no'));
 		}
 		elseif ($property->get('foreignKey'))
 		{
@@ -231,9 +289,9 @@ class BaseView implements ViewInterface
 			$remoteNew = ($value != '') ? date('Y-m', $value) : '-';
 			$intMonth = ($value != '') ? (date('m', $value) - 1) : '-';
 
-			if (isset($GLOBALS['TL_LANG']['MONTHS'][$intMonth]))
+			if ($month = $this->translate('MONTHS/' . $intMonth))
 			{
-				$remoteNew = ($value != '') ? $GLOBALS['TL_LANG']['MONTHS'][$intMonth] . ' ' . date('Y', $value) : '-';
+				$remoteNew = ($value != '') ? $month . ' ' . date('Y', $value) : '-';
 			}
 		}
 		elseif (in_array($mode, array(9, 10)))
@@ -343,10 +401,182 @@ class BaseView implements ViewInterface
 	}
 
 
+	protected function getButtonLabel($strButton)
+	{
+		$definition = $this->getEnvironment()->getDataDefinition();
+		if ($label = $this->translate($definition->getName() . '/' . $strButton))
+		{
+			return $label;
+		}
+		else if ($label = $this->translate('MSC/' . $strButton))
+		{
+			return $label;
+		}
+		// Fallback, just return the key as is it.
+		else
+		{
+			return $strButton;
+		}
+	}
 
+	/**
+	 * FIXME: this code is only for legacy purposes for providing the functionality invented by s.heimes.
+	 */
+	protected function getLegacyEditButtons()
+	{
+		$buttons    = array();
 
+		foreach ($this->getDC()->getButtonsDefinition() as $strButton => $arrButton)
+		{
+			// Check if the button has the label value itself
+			if(!empty($arrButton['value']))
+			{
+				$strLabel = $arrButton['value'];
+			}
+			// else try to find a language array
+			else
+			{
+				$strLabel = $this->getButtonLabel($strButton);
+			}
 
+			$buttons[$strButton] = sprintf(
+				'<input type="submit" name="%s" id="%s" class="tl_submit%s" accesskey="%s" value="%s" />',
+				$arrButton['formkey'],
+				$arrButton['id'],
+				(!empty($arrButton['class'])? ' ' . $arrButton['class'] : ''),
+				$arrButton['accesskey'],
+				$strLabel
+			);
+		}
 
+		return $buttons;
+	}
+
+	/**
+	 * Retrieve a list of html buttons to use in the bottom panel (submit area).
+	 *
+	 * @return array()
+	 */
+	protected function getEditButtons()
+	{
+		// TODO: remove call to getLegacyEditButtons() after grace period and solely use the values from events.
+		// $buttons    = array();
+		$buttons    = $this->getLegacyEditButtons();
+		$definition = $this->getEnvironment()->getDataDefinition();
+		$definition->isClosed();
+
+		// TODO: we have hardcoded html in here, is this really the best idea?
+
+		$buttons['save'] = sprintf(
+			'<input type="submit" name="save" id="save" class="tl_submit" accesskey="s" value="%s" />',
+			$this->getButtonLabel('save')
+		);
+
+		$buttons['saveNclose'] = sprintf(
+			'<input type="submit" name="saveNclose" id="saveNclose" class="tl_submit" accesskey="c" value="%s" />',
+			$this->getButtonLabel('saveNclose')
+		);
+
+		if (!($this->isPopup() || $definition->isClosed()) && $definition->isCreatable())
+		{
+			$buttons['saveNcreate'] = sprintf(
+				'<input type="submit" name="saveNcreate" id="saveNcreate" class="tl_submit" accesskey="n" value="%s" />',
+				$this->getButtonLabel('saveNcreate')
+			);
+		}
+
+		// TODO: unknown input param s2e - I guess it means "switch to edit" but from which view used?
+		if (\Input::get('s2e'))
+		{
+			$buttons['saveNedit'] = sprintf(
+				'<input type="submit" name="saveNedit" id="saveNedit" class="tl_submit" accesskey="e" value="%s" />',
+				$this->getButtonLabel('saveNedit')
+			);
+		}
+		elseif (
+			!$this->isPopup()
+			&& (($definition->getSortingMode() == 4)
+				|| strlen($definition->getParentDriverName())
+				|| $definition->isSwitchToEdit()
+			)
+		)
+		{
+			$buttons['saveNback'] = sprintf(
+				'<input type="submit" name="saveNback" id="saveNback" class="tl_submit" accesskey="g" value="%s" />',
+				$this->getButtonLabel('saveNback')
+			);
+		}
+
+		$event = new GetEditModeButtonsEvent();
+		$event
+			->setEnvironment($this->getEnvironment())
+			->setButtons($buttons);
+
+		$this->dispatchEvent(GetEditModeButtonsEvent::NAME, $event);
+
+		return $event->getButtons();
+	}
+
+	/**
+	 * Retrieve a list of html buttons to use in the bottom panel (submit area).
+	 *
+	 * @return array()
+	 */
+	protected function getSelectButtons()
+	{
+		$definition = $this->getEnvironment()->getDataDefinition();
+		$buttons    = array();
+
+		// TODO: we have hardcoded html in here, is this really the best idea?
+
+		if ($definition->isDeletable())
+		{
+			$buttons['delete'] = sprintf(
+				'<input type="submit" name="delete" id="delete" class="tl_submit" accesskey="d" onclick="return confirm(\'%s\')" value="%s">',
+				$GLOBALS['TL_LANG']['MSC']['delAllConfirm'],
+				specialchars($this->translate('MSC/deleteSelected'))
+			);
+		}
+
+		// TODO: strictly spoken, cut is editing - should we wrap this within if ($definition->isEditable()) here?
+		$buttons['cut'] = sprintf(
+			'<input type="submit" name="cut" id="cut" class="tl_submit" accesskey="x" value="%s">',
+			specialchars($this->translate('MSC/moveSelected'))
+		);
+
+		$buttons['copy'] = sprintf(
+			'<input type="submit" name="copy" id="copy" class="tl_submit" accesskey="c" value="%s">',
+			specialchars($this->translate('MSC/copySelected'))
+		);
+
+		if ($definition->isEditable())
+		{
+			$buttons['override'] = sprintf(
+				'<input type="submit" name="override" id="override" class="tl_submit" accesskey="v" value="%s">',
+				specialchars($this->translate('MSC/overrideSelected'))
+			);
+
+			$buttons['edit'] = sprintf(
+				'<input type="submit" name="edit" id="edit" class="tl_submit" accesskey="s" value="%s">',
+				specialchars($this->translate('MSC/editSelected'))
+			);
+		}
+		/**
+		$buttons[''] = sprintf(
+		'',
+		specialchars($GLOBALS['TL_LANG']['MSC'][''])
+		);
+		 */
+
+		$event = new GetSelectModeButtonsEvent();
+		$event
+			->setEnvironment($this->getEnvironment())
+			->setButtons($buttons);
+
+		$this->dispatchEvent(GetSelectModeButtonsEvent::NAME, $event);
+
+		return $event->getButtons();
+	}
 
 	public function isSelector($strSelector)
 	{
@@ -371,7 +601,7 @@ class BaseView implements ViewInterface
 	 * ////////////////////////////////////////////////////////////////// */
 
 	/**
-	 * Check if the dataprovider is multilanguage.
+	 * Check if the data provider is multi language.
 	 * Save the current language and language array.
 	 *
 	 * @return void
@@ -409,7 +639,7 @@ class BaseView implements ViewInterface
 
 	/**
 	 * @todo All
-	 * @return Stirng
+	 * @return string
 	 */
 	public function copy()
 	{
@@ -418,7 +648,7 @@ class BaseView implements ViewInterface
 
 	/**
 	 * @todo All
-	 * @return type
+	 * @return string
 	 */
 	public function copyAll()
 	{
@@ -436,7 +666,7 @@ class BaseView implements ViewInterface
 
 	/**
 	 * @todo All
-	 * @return type
+	 * @return string
 	 */
 	public function cut()
 	{
@@ -450,7 +680,7 @@ class BaseView implements ViewInterface
 
 	/**
 	 * @todo All
-	 * @return type
+	 * @return string
 	 */
 	public function cutAll()
 	{
@@ -459,7 +689,7 @@ class BaseView implements ViewInterface
 
 	/**
 	 * @todo All
-	 * @return type
+	 * @return string
 	 */
 	public function delete()
 	{
@@ -468,7 +698,7 @@ class BaseView implements ViewInterface
 
 	/**
 	 * @todo All
-	 * @return type
+	 * @return string
 	 */
 	public function move()
 	{
@@ -477,7 +707,7 @@ class BaseView implements ViewInterface
 
 	/**
 	 * @todo All
-	 * @return type
+	 * @return string
 	 */
 	public function undo()
 	{
@@ -501,18 +731,17 @@ class BaseView implements ViewInterface
 		$this->calculateSelectors($this->arrStack[0]);
 		$this->parseRootPalette();
 
+		$langsNative = array();
 		include(TL_ROOT . '/system/config/languages.php');
-
-		// ToDo: What is this $languages[$this->strCurrentLanguage];
 
 		if ($model->getId())
 		{
-			$strHeadline = sprintf($GLOBALS['TL_LANG']['MSC']['editRecord'], 'ID ' . $model->getId());
+			$strHeadline = sprintf($this->translate('MSC/editRecord'), 'ID ' . $model->getId());
 		}
 		else
 		{
 			// TODO: new language string for "new" model?
-			$strHeadline = sprintf($GLOBALS['TL_LANG']['MSC']['editRecord'], '');
+			$strHeadline = sprintf($this->translate('MSC/editRecord'), '');
 		}
 
 		// FIXME: dependency injection or rather template factory?
@@ -528,8 +757,7 @@ class BaseView implements ViewInterface
 			'enctype' => $this->getDC()->isUploadable() ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
 			//'onsubmit' => implode(' ', $this->onsubmit),
 			'error' => $this->noReload,
-			'buttons' => $this->getDC()->getButtonsDefinition(),
-			'buttonLables' => $this->getDC()->getButtonLabels(),
+			'editButtons' => $this->getEditButtons(),
 			'noReload' => $this->getDC()->isNoReload()
 		));
 
@@ -607,7 +835,7 @@ class BaseView implements ViewInterface
 		// Create new template
 		// FIXME: dependency injection or rather template factory?
 		$objTemplate            = new \BackendTemplate("dcbe_general_show");
-		$objTemplate->headline  = sprintf($GLOBALS['TL_LANG']['MSC']['showRecord'], ($this->getDC()->getId() ? 'ID ' . $this->getDC()->getId() : ''));
+		$objTemplate->headline  = sprintf($this->translate('MSC/showRecord'), ($this->getDC()->getId() ? 'ID ' . $this->getDC()->getId() : ''));
 		$objTemplate->arrFields = $arrFieldValues;
 		$objTemplate->arrLabels = $arrFieldLabels;
 		$objTemplate->language  = $this->objLanguagesSupported;
@@ -912,6 +1140,7 @@ class BaseView implements ViewInterface
 	{
 		ob_start();
 
+		$strName = null;
 		foreach ($arrPalette as $varField)
 		{
 			if (is_array($varField))
@@ -948,29 +1177,25 @@ class BaseView implements ViewInterface
 
 				if ($arrConfig['eval']['datepicker'])
 				{
-					if (version_compare(VERSION, '2.10', '>='))
-					{
-						$strDatepicker = $this->buildDatePicker($objWidget);
-					}
-					else
-					{
-						$strDatepicker = sprintf($arrConfig['eval']['datepicker'], json_encode('ctrl_' . $objWidget->id));
-					}
+					$strDatepicker = $this->buildDatePicker($objWidget);
 				}
 
 				// TODO: Maybe TemplateFoo is not such a good name :?
 				// FIXME: dependency injection or rather template factory?
-				$objTemplateFoo = new \BackendTemplate($strFieldTemplate);
-				$objTemplateFoo->strName = $strName;
-				$objTemplateFoo->strClass = $strClass;
-				$objTemplateFoo->objWidget = $objWidget;
-				$objTemplateFoo->strDatepicker = $strDatepicker;
-				$objTemplateFoo->blnUpdate = $blnUpdate;
-				$objTemplateFoo->strHelp = $this->getDC()->generateHelpText($varField);
+
+				$objTemplateFoo = $this->getTemplate($strFieldTemplate);
+
+				$this
+					->addToTemplate('strName', $strName, $objTemplateFoo)
+					->addToTemplate('strClass', $strClass, $objTemplateFoo)
+					->addToTemplate('objWidget', $objWidget, $objTemplateFoo)
+					->addToTemplate('strDatepicker', $strDatepicker, $objTemplateFoo)
+					->addToTemplate('blnUpdate', $blnUpdate, $objTemplateFoo)
+					->addToTemplate('strHelp', $this->getDC()->generateHelpText($varField), $objTemplateFoo);
 
 				echo $objTemplateFoo->parse();
 
-				if (strncmp($arrConfig['eval']['rte'], 'tiny', 4) === 0 && (version_compare(VERSION, '2.10', '>=') || $this->Input->post('isAjax')))
+				if (strncmp($arrConfig['eval']['rte'], 'tiny', 4) === 0)
 				{
 					echo '<script>tinyMCE.execCommand("mceAddControl", false, "ctrl_' . $strName . '");</script>';
 				}
@@ -994,11 +1219,11 @@ class BaseView implements ViewInterface
 				'x' => 130,
 				'y' => -185
 			),
-			'startDay' => $GLOBALS['TL_LANG']['MSC']['weekOffset'],
-			'days' => array_values($GLOBALS['TL_LANG']['DAYS']),
-			'dayShort' => $GLOBALS['TL_LANG']['MSC']['dayShortLength'],
-			'months' => array_values($GLOBALS['TL_LANG']['MONTHS']),
-			'monthShort' => $GLOBALS['TL_LANG']['MSC']['monthShortLength']
+			'startDay' => $this->translate('MSC/weekOffset'),
+			'days' => array_values($this->translate('MSC/DAYS')),
+			'dayShort' => $this->translate('MSC/dayShortLength'),
+			'months' => array_values($this->translate('MSC/MONTHS')),
+			'monthShort' => $this->translate('MSC/monthShortLength')
 		);
 
 		switch ($objWidget->rgxp)
@@ -1023,8 +1248,8 @@ class BaseView implements ViewInterface
 			positionOffset:{x:-197,y:-182}' . $time . ',
 			pickerClass:"datepicker_dashboard",
 			useFadeInOut:!Browser.ie,
-			startDay:' . $GLOBALS['TL_LANG']['MSC']['weekOffset'] . ',
-			titleFormat:"' . $GLOBALS['TL_LANG']['MSC']['titleFormat'] . '"
+			startDay:' . $this->translate('MSC/weekOffset') . ',
+			titleFormat:"' . $this->translate('MSC/titleFormat') . '"
 		});';
 		return 'new DatePicker(' . json_encode('#ctrl_' . $objWidget->id) . ', ' . json_encode($arrConfig) . ');';
 	}
@@ -1062,8 +1287,10 @@ class BaseView implements ViewInterface
 	 */
 	protected function generateHeaderButtons($strButtonId)
 	{
-		$globalOperations = $this->getDC()->arrDCA['list']['global_operations'];
+		$providerName     = $this->getEnvironment()->getDataDefinition()->getName();
 		$arrReturn        = array();
+		$globalOperations = $this->getDC()->arrDCA['list']['global_operations'];
+
 
 		if (!is_array($globalOperations))
 		{
@@ -1077,7 +1304,7 @@ class BaseView implements ViewInterface
 		}
 
 		// Check if we have the select mode
-		if (!$this->getDC()->isSelectSubmit())
+		if (!$this->isSelectModeActive())
 		{
 			$addButton = false;
 			$strHref   = '';
@@ -1138,8 +1365,8 @@ class BaseView implements ViewInterface
 							'accesskey'  => 'n',
 							'href'       => $strHref,
 							'attributes' => 'onclick="Backend.getScrollOffset();"',
-							'title'      => $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][1],
-							'label'      => $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['new'][0]
+							'title'      => $this->translate($providerName . '/new/1'),
+							'label'      => $this->translate($providerName . '/new/0')
 						)
 					),
 					$globalOperations
@@ -1158,8 +1385,8 @@ class BaseView implements ViewInterface
 						'class'      => 'header_clipboard',
 						'accesskey'  => 'x',
 						'href'       => BackendBindings::addToUrl('clipboard=1'),
-						'title'      => $GLOBALS['TL_LANG']['MSC']['clearClipboard'],
-						'label'      => $GLOBALS['TL_LANG']['MSC']['clearClipboard']
+						'title'      => $this->translate('MSC/clearClipboard'),
+						'label'      => $this->translate('MSC/clearClipboard')
 					)
 				)
 				, $globalOperations
@@ -1167,7 +1394,7 @@ class BaseView implements ViewInterface
 		}
 
 		// Add back button
-		if ($this->getDC()->isSelectSubmit() || $this->getEnvironment()->getDataDefinition()->getParentDriverName())
+		if ($this->isSelectModeActive() || $this->getEnvironment()->getDataDefinition()->getParentDriverName())
 		{
 			$globalOperations = array_merge(
 				array(
@@ -1177,8 +1404,8 @@ class BaseView implements ViewInterface
 						'accesskey'  => 'b',
 						'href'       => BackendBindings::getReferer(true, $this->getEnvironment()->getDataDefinition()->getParentDriverName()),
 						'attributes' => 'onclick="Backend.getScrollOffset();"',
-						'title'      => $GLOBALS['TL_LANG']['MSC']['backBT'],
-						'label'      => $GLOBALS['TL_LANG']['MSC']['backBT']
+						'title'      => $this->translate('MSC/backBT'),
+						'label'      => $this->translate('MSC/backBT')
 					)
 				),
 				$globalOperations
@@ -1356,14 +1583,14 @@ class BaseView implements ViewInterface
 		);
 	}
 
-	public static function renderPasteIntoButton(GetPasteButtonEvent $event)
+	public function renderPasteIntoButton(GetPasteButtonEvent $event)
 	{
 		if (!is_null($event->getHtmlPasteInto()))
 		{
 			return $event->getHtmlPasteInto();
 		}
 
-		$strLabel = $GLOBALS['TL_LANG'][$event->getModel()->getProviderName()]['pasteinto'][0];
+		$strLabel = $this->translate($event->getModel()->getProviderName() . '/pasteinto/0');
 		if ($event->isPasteIntoDisabled())
 		{
 			return BackendBindings::generateImage('pasteinto_.gif', $strLabel, 'class="blink"');
@@ -1377,14 +1604,14 @@ class BaseView implements ViewInterface
 			);
 	}
 
-	public static function renderPasteAfterButton(GetPasteButtonEvent $event)
+	public function renderPasteAfterButton(GetPasteButtonEvent $event)
 	{
 		if (!is_null($event->getHtmlPasteAfter()))
 		{
 			return $event->getHtmlPasteAfter();
 		}
 
-		$strLabel = $GLOBALS['TL_LANG'][$event->getModel()->getProviderName()]['pasteafter'][0];
+		$strLabel = $this->translate($event->getModel()->getProviderName() . '/pasteafter/0');
 		if ($event->isPasteIntoDisabled())
 		{
 			return BackendBindings::generateImage('pasteafter_.gif', $strLabel, 'class="blink"');
@@ -1478,13 +1705,13 @@ class BaseView implements ViewInterface
 
 	protected function panel()
 	{
-		if ($this->getDC()->getPanelInformation() === null)
+		if ($this->getEnvironment()->getPanelContainer() === null)
 		{
 			throw new \RuntimeException('No panel information stored in data container.');
 		}
 
 		$arrPanels = array();
-		foreach ($this->getDC()->getPanelInformation() as $objPanel)
+		foreach ($this->getEnvironment()->getPanelContainer() as $objPanel)
 		{
 			$arrPanel = array();
 			foreach ($objPanel as $objElement)
@@ -1520,10 +1747,10 @@ class BaseView implements ViewInterface
 		if (count($arrPanels))
 		{
 			$objTemplate = $this->getTemplate('dcbe_general_panel');
-			$objTemplate->action = ampersand($this->getDC()->getInputProvider()->getRequestUrl(), true);
-			// FIXME: dependency injection
-//			$objTemplate->theme = $this->getTheme();
-			$objTemplate->panel = $arrPanels;
+			$this
+				->addToTemplate('action', ampersand($this->getDC()->getInputProvider()->getRequestUrl(), true), $objTemplate)
+				// ->addToTemplate('theme', $this->getTheme(), $objTemplate) // FIXME: dependency injection
+				->addToTemplate('panel', $arrPanels, $objTemplate);
 
 			return $objTemplate->parse();
 		}
@@ -1544,22 +1771,13 @@ class BaseView implements ViewInterface
 	 */
 	protected function breadcrumb()
 	{
-		// Load DCA
-		$arrDCA = $this->objDC->getDCA();
-		$arrCallback = $arrDCA['list']['presentation']['breadcrumb_callback'];
+		$event = new GetBreadcrumbEvent();
+		$event
+			->setEnvironment($this->getEnvironment());
 
-		if (!is_array($arrCallback) || count($arrCallback) == 0)
-		{
-			return null;
-		}
+		$this->dispatchEvent(GetBreadcrumbEvent::NAME, $event);
 
-		// Get data from callback
-		$strClass = $arrCallback[0];
-		$strMethod = $arrCallback[1];
-
-		// FIXME: implement this some better way.
-		$objCallback = (in_array('getInstance', get_class_methods($strClass))) ? call_user_func(array($strClass, 'getInstance')) : new $strClass();
-		$arrReturn = $objCallback->$strMethod($this->objDC);
+		$arrReturn = $event->getElements();
 
 		// Check if we have a result with elements
 		if (!is_array($arrReturn) || count($arrReturn) == 0)
@@ -1571,9 +1789,8 @@ class BaseView implements ViewInterface
 		$GLOBALS['TL_CSS'][] = 'system/modules/generalDriver/html/css/generalBreadcrumb.css';
 
 		// Build template
-		// FIXME: dependency injection or rather template factory?
-		$objTemplate = new \BackendTemplate('dcbe_general_breadcrumb');
-		$objTemplate->elements = $arrReturn;
+		$objTemplate = $this->getTemplate('dcbe_general_breadcrumb');
+		$this->addToTemplate('elements', $arrReturn, $objTemplate);
 
 		return $objTemplate->parse();
 	}

@@ -224,4 +224,16 @@ interface EnvironmentInterface
 	 * @return EnvironmentInterface
 	 */
 	public function setClipboard($objClipboard);
+
+	/**
+	 * @param \DcGeneral\TranslationManagerInterface $manager
+	 *
+	 * @return \DcGeneral\EnvironmentInterface
+	 */
+	public function setTranslationManager($manager);
+
+	/**
+	 * @return \DcGeneral\TranslationManagerInterface
+	 */
+	public function getTranslationManager();
 }

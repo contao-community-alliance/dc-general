@@ -14,9 +14,8 @@ namespace DcGeneral\View\DefaultView;
 
 use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Data\DCGE;
-use DcGeneral\View\DefaultView\Events\GetGroupHeaderEvent;
 use DcGeneral\View\DefaultView\Events\GetParentHeaderEvent;
-use DcGeneral\View\DefaultView\Events\ModelToLabelEvent;
+use DcGeneral\View\DefaultView\Events\ParentViewChildRecordEvent;
 
 class ParentView extends BaseView
 {
@@ -26,6 +25,7 @@ class ParentView extends BaseView
 	protected function renderEntries()
 	{
 		$definition   = $this->getEnvironment()->getDataDefinition();
+		// FIXME: getFirstSorting() is not standardized.
 		$firstSorting = $this->getDC()->getFirstSorting();
 
 		$strGroup = '';
@@ -54,10 +54,10 @@ class ParentView extends BaseView
 			}
 */
 			// Add the group header
-			if (!$this->getDataDefinition()->isGroupingDisabled() && $firstSorting != 'sorting')
+			if (!$definition->isGroupingDisabled() && $firstSorting != 'sorting')
 			{
 				// get a list with all fields for sorting
-				$orderBy = $this->getDataDefinition()->getAdditionalSorting();
+				$orderBy = $definition->getAdditionalSorting();
 
 				// Default ASC
 				if (count($orderBy) == 0)
@@ -67,17 +67,17 @@ class ParentView extends BaseView
 				// If the current First sorting is the default one use the global flag
 				else if ($firstSorting == $orderBy[0])
 				{
-					$sortingMode = $this->getDC()->arrDCA['list']['sorting']['flag'];
+					$sortingMode = $definition->getSortingFlag();
 				}
 				// Use the field flag, if given
-				else if ($this->getDC()->arrDCA['fields'][$firstSorting]['flag'] != '')
+				else if ($definition->getProperty($firstSorting)->getSortingFlag() != '')
 				{
-					$sortingMode = $this->getDC()->arrDCA['fields'][$firstSorting]['flag'];
+					$sortingMode = $definition->getProperty($firstSorting)->getSortingFlag();
 				}
 				// Use the global as fallback
 				else
 				{
-					$sortingMode = $this->getDC()->arrDCA['list']['sorting']['flag'];
+					$sortingMode = $definition->getSortingFlag();
 				}
 
 				$remoteNew = $this->formatCurrentValue($firstSorting, $objModel->getProperty($firstSorting), $sortingMode);
@@ -93,17 +93,28 @@ class ParentView extends BaseView
 			$objModel->setMeta(DCGE::MODEL_CLASS, ($this->getDC()->arrDCA['list']['sorting']['child_record_class'] != '') ? ' ' . $this->getDC()->arrDCA['list']['sorting']['child_record_class'] : '');
 
 			// Regular buttons
-			if (!$this->getDC()->isSelectSubmit())
+			if (!$this->isSelectModeActive())
 			{
 				$strPrevious = ((!is_null($this->getCurrentCollection()->get($i - 1))) ? $this->getCurrentCollection()->get($i - 1)->getID() : null);
 				$strNext = ((!is_null($this->getCurrentCollection()->get($i + 1))) ? $this->getCurrentCollection()->get($i + 1)->getID() : null);
 
-				$buttons = $this->generateButtons($objModel, $this->getDC()->getTable(), $this->getDC()->getEnvironment()->getRootIds(), false, null, $strPrevious, $strNext);
+				$buttons = $this->generateButtons($objModel, $this->getDataDefinition()->getName(), $this->getDC()->getEnvironment()->getRootIds(), false, null, $strPrevious, $strNext);
 
 				$objModel->setMeta(DCGE::MODEL_BUTTONS, $buttons);
 			}
 
-			$objModel->setMeta(DCGE::MODEL_LABEL_VALUE, $this->getDC()->getCallbackClass()->childRecordCallback($objModel));
+			$event = new ParentViewChildRecordEvent();
+
+			$event
+				->setEnvironment($this->getEnvironment())
+				->setModel($objModel);
+
+			$this->dispatchEvent(ParentViewChildRecordEvent::NAME, $event);
+
+			if ($event->getHtml() !== null)
+			{
+				$objModel->setMeta(DCGE::MODEL_LABEL_VALUE, $event->getHtml());
+			}
 		}
 	}
 
@@ -115,16 +126,16 @@ class ParentView extends BaseView
 	 */
 	protected function renderFormattedHeaderFields()
 	{
-		$add = array();
-		// TODO: need a mapping for this.
-		$headerFields = $this->getDC()->arrDCA['list']['sorting']['headerFields'];
-
-		$parentDefinition = $this->getEnvironment()->getParentDataDefinition();
-		$parentName       = $this->getEnvironment()->getDataDefinition()->getParentDriverName();
+		$environment      = $this->getEnvironment();
+		$definition       = $environment->getDataDefinition();
+		$headerFields     = $definition->getParentViewHeaderProperties();
+		$parentDefinition = $environment->getParentDataDefinition();
+		$parentName       = $definition->getParentDriverName();
+		$add              = array();
 
 		foreach ($headerFields as $v)
 		{
-			$_v = deserialize($this->getEnvironment()->getCurrentParentCollection()->get(0)->getProperty($v));
+			$_v = deserialize($environment->getCurrentParentCollection()->get(0)->getProperty($v));
 
 			if ($v == 'tstamp')
 			{
@@ -145,7 +156,7 @@ class ParentView extends BaseView
 				}
 				elseif ($property->get('inputType') == 'checkbox' && !$evaluation['multiple'])
 				{
-					$_v = strlen($_v) ? $GLOBALS['TL_LANG']['MSC']['yes'] : $GLOBALS['TL_LANG']['MSC']['no'];
+					$_v = strlen($_v) ? $this->translate('MSC/yes') : $this->translate('MSC/no');
 				}
 				elseif ($_v && $evaluation['rgxp'] == 'date')
 				{
@@ -176,14 +187,15 @@ class ParentView extends BaseView
 			// Add the sorting field
 			if ($_v != '')
 			{
-				$key = isset($GLOBALS['TL_LANG'][$parentName][$v][0]) ? $GLOBALS['TL_LANG'][$parentName][$v][0] : $v;
+				$lang = $this->translate(sprintf('%s/%s/0', $parentName,  $v));
+				$key = $lang ? $lang : $v;
 				$add[$key] = $_v;
 			}
 		}
 
 		$event = new GetParentHeaderEvent();
 		$event
-			->setEnvironment($this->getEnvironment())
+			->setEnvironment($environment)
 			->setAdditional($add);
 
 		$this->dispatchEvent(GetParentHeaderEvent::NAME, $event);
@@ -209,6 +221,80 @@ class ParentView extends BaseView
 	}
 
 	/**
+	 * Retrieve a list of html buttons to use in the bottom panel (submit area).
+	 *
+	 * @return array()
+	 */
+	protected function getHeaderButtons()
+	{
+		$definition       = $this->getEnvironment()->getDataDefinition();
+		$clipboard        = $this->getEnvironment()->getClipboard();
+		$parentDefinition = $this->getEnvironment()->getParentDataDefinition();
+		$parentCollection = $this->getEnvironment()->getCurrentParentCollection();
+
+		// Add parent provider if exists
+		if ($definition->getParentDriverName() != null)
+		{
+			$strPDP = $definition->getParentDriverName();
+		}
+		else
+		{
+			$strPDP = '';
+		}
+
+		$headerButtons = array();
+		if ($this->isSelectModeActive())
+		{
+			$headerButtons['selectAll'] = sprintf(
+				'<label for="tl_select_trigger" class="tl_select_label">%s</label> <input type="checkbox" id="tl_select_trigger" onclick="Backend.toggleCheckboxes(this)" class="tl_tree_checkbox">',
+				$this->translate('MSC/selectAll')
+			);
+		}
+		else
+		{
+			$objConfig = $this->getEnvironment()->getController()->getBaseConfig();
+			$this->getDC()->getEnvironment()->getPanelContainer()->initialize($objConfig);
+			$strSorting = $objConfig->getSorting();
+
+			if (($strSorting !== null)
+				&& !$definition->isClosed()
+				&& $definition->isCreatable())
+			{
+				$headerButtons['pasteNew'] = sprintf(
+					'<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
+					// TODO: why the same id in both, id and pid?
+					BackendBindings::addToUrl('act=create&amp;mode=2&amp;pid=' . $parentCollection->get(0)->getID() . '&amp;id=' . $parentCollection->get(0)->getID()),
+					specialchars($this->translate($definition->getName() . '/pastenew/1')),
+					BackendBindings::generateImage('new.gif', $this->translate($definition->getName() . '/pastenew/0'))
+				);
+			}
+
+			if ($parentDefinition->isEditable())
+			{
+				$headerButtons['editHeader'] = sprintf(
+					'<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
+					preg_replace('/&(amp;)?table=[^& ]*/i', ($strPDP ? '&amp;table=' . $strPDP : ''), BackendBindings::addToUrl('act=edit')),
+					specialchars($this->translate($definition->getName() . '/editheader/1')),
+					BackendBindings::generateImage('edit.gif', $this->translate($definition->getName() . '/editheader/0'))
+				);
+			}
+
+			if ($clipboard->isNotEmpty())
+			{
+				$headerButtons['pasteAfter'] = sprintf(
+					'<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
+					BackendBindings::addToUrl('act=' . $clipboard->getMode() . '&amp;mode=2&amp;pid=' . $parentCollection->get(0)->getID()),
+					specialchars($this->translate($definition->getName() . '/pasteafter/1')),
+					BackendBindings::generateImage('pasteafter.gif', $this->translate($definition->getName() . '/pasteafter/0'), 'class="blink"')
+				);
+			}
+		}
+
+		return implode(' ', $headerButtons);
+	}
+
+
+	/**
 	 * Show parent view mode 4.
 	 *
 	 * @return string HTML output
@@ -216,82 +302,65 @@ class ParentView extends BaseView
 	protected function viewParent()
 	{
 		$definition       = $this->getEnvironment()->getDataDefinition();
-		$parentdefinition = $this->getEnvironment()->getParentDataDefinition();
+		$parentCollection = $this->getEnvironment()->getCurrentParentCollection();
+		$parentProvider   = $this->getEnvironment()->getDataDriver($definition->getParentDriverName());
+
+		$objConfig        = $this->getEnvironment()->getController()->getBaseConfig();
+
+		$this->getDC()->getEnvironment()->getPanelContainer()->initialize($objConfig);
+		$strSorting       = $objConfig->getSorting();
 
 		// Skip if we have no parent or parent collection.
-		if (is_null($this->getEnvironment()->getDataDriver($definition->getParentDriverName())) || $this->getEnvironment()->getCurrentParentCollection()->length() == 0)
+		if (is_null($parentProvider) || (!$parentCollection) || ($parentCollection->length() == 0))
 		{
-			$this->log('The view for ' . $definition->getParentDriverName() . 'has either a empty parent dataprovider or collection.', __CLASS__ . ' | ' . __FUNCTION__, TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			BackendBindings::log(
+				sprintf(
+					'The view for %s has either a empty parent data provider or collection.',
+					$definition->getParentDriverName()
+				),
+				__CLASS__ . ' ' . __FUNCTION__ . '()',
+				TL_ERROR
+			);
+			die();
+			BackendBindings::redirect('contao/main.php?act=error');
 		}
 
 		// Load language file and data container array of the parent table
 		BackendBindings::loadLanguageFile($definition->getParentDriverName());
 		BackendBindings::loadDataContainer($definition->getParentDriverName());
 
-		// Get parent DC Driver
-		// TODO: who ever did this, you can't be serious - REFACTOR!
-		$objParentDC = new \DC_General($definition->getParentDriverName());
-		$this->parentDca = $objParentDC->getDCA();
-
 		// Add template
-		// FIXME: dependency injection or rather template factory?
-		$objTemplate = new \BackendTemplate('dcbe_general_parentView');
-
-		$objTemplate->tableName  = strlen($definition->getName())? $definition->getName() : 'none';
-		$objTemplate->collection = $this->getCurrentCollection();
-		$objTemplate->select     = $this->getDC()->isSelectSubmit();
-		$objTemplate->action     = ampersand(\Environment::getInstance()->request, true);
-		$objTemplate->mode       = $definition->getSortingMode();
-		$objTemplate->header     = $this->renderFormattedHeaderFields();
-		$objTemplate->hasSorting = ($this->getDC()->getFirstSorting() == 'sorting');
-
-		// Get dataprovider from current and parent
-		$strCDP = $this->getEnvironment()->getDataDriver()->getEmptyModel()->getProviderName();
-		$strPDP = $this->getEnvironment()->getDataDriver($this->getEnvironment()->getDataDefinition()->getParentDriverName());
+		$objTemplate = $this->getTemplate('dcbe_general_parentView');
 
 		// Add parent provider if exists
-		if ($strPDP != null)
+		if ($definition->getParentDriverName() != null)
 		{
-			$strPDP = $strPDP->getEmptyModel()->getProviderName();
+			$strPDP = $definition->getParentDriverName();
 		}
 		else
 		{
 			$strPDP = '';
 		}
 
-		$objTemplate->pdp = $strPDP;
-		$objTemplate->cdp = $strCDP;
+		$this
+			->addToTemplate('tableName', strlen($definition->getName())? $definition->getName() : 'none', $objTemplate)
+			->addToTemplate('collection', $this->getCurrentCollection(), $objTemplate)
+			->addToTemplate('select', $this->isSelectModeActive(), $objTemplate)
+			->addToTemplate('action', ampersand(\Environment::getInstance()->request, true), $objTemplate)
+			->addToTemplate('header', $this->renderFormattedHeaderFields(), $objTemplate)
+			->addToTemplate('hasSorting', ($strSorting == 'sorting'), $objTemplate)
+			->addToTemplate('pdp', $strPDP, $objTemplate)
+			->addToTemplate('cdp', $definition->getName(), $objTemplate)
+			->addToTemplate('selectButtons', $this->getSelectButtons(), $objTemplate)
+			->addToTemplate('headerButtons', $this->getHeaderButtons(), $objTemplate);
 
 		$this->renderEntries();
-
-		$objTemplate->editHeader = array(
-			'content' => BackendBindings::generateImage('edit.gif', $GLOBALS['TL_LANG'][$definition->getName()]['editheader'][0]),
-			'href' => preg_replace('/&(amp;)?table=[^& ]*/i', (strlen($this->getEnvironment()->getDataDefinition()->getParentDriverName()) ? '&amp;table=' . $this->getEnvironment()->getDataDefinition()->getParentDriverName() : ''), BackendBindings::addToUrl('act=edit')),
-			'title' => specialchars($GLOBALS['TL_LANG'][$definition->getName()]['editheader'][1])
-		);
-
-		$objTemplate->pasteNew = array(
-			'content' => BackendBindings::generateImage('new.gif', $GLOBALS['TL_LANG'][$definition->getName()]['pasteafter'][0]),
-			'href' => BackendBindings::addToUrl('act=create&amp;mode=2&amp;pid=' . $this->getEnvironment()->getCurrentParentCollection()->get(0)->getID() . '&amp;id=' . $this->intId),
-			'title' => specialchars($GLOBALS['TL_LANG'][$definition->getName()]['pastenew'][0])
-		);
-
-		$objTemplate->pasteAfter = array(
-			'content' => BackendBindings::generateImage('pasteafter.gif', $GLOBALS['TL_LANG'][$definition->getName()]['pasteafter'][0], 'class="blink"'),
-			'href' => BackendBindings::addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=' . $this->getEnvironment()->getCurrentParentCollection()->get(0)->getID() . (!$blnMultiboard ? '&amp;id=' . $arrClipboard['id'] : '')),
-			'title' => specialchars($GLOBALS['TL_LANG'][$definition->getName()]['pasteafter'][0])
-		);
-
-		$objTemplate->notDeletable      = !$definition->isDeletable();
-		$objTemplate->notEditable       = !$definition->isEditable();
-		$objTemplate->notEditableParent = !$parentdefinition->isEditable();
 
 		// Add breadcrumb, if we have one
 		$strBreadcrumb = $this->breadcrumb();
 		if($strBreadcrumb != null)
 		{
-			$objTemplate->breadcrumb = $strBreadcrumb;
+			$this->addToTemplate('breadcrumb', $strBreadcrumb, $objTemplate);
 		}
 
 		return $objTemplate->parse();
