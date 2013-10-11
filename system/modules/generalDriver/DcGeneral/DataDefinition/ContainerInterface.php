@@ -101,6 +101,26 @@ interface ContainerInterface
 	public function getSortingMode();
 
 	/**
+	 * Retrieve the sorting flag for the data container.
+	 *
+	 *  1 Sort by initial letter ascending
+	 *  2 Sort by initial letter descending
+	 *  3 Sort by initial two letters ascending
+	 *  4 Sort by initial two letters descending
+	 *  5 Sort by day ascending
+	 *  6 Sort by day descending
+	 *  7 Sort by month ascending
+	 *  8 Sort by month descending
+	 *  9 Sort by year ascending
+	 * 10 Sort by year descending
+	 * 11 Sort ascending
+	 * 12 Sort descending
+	 *
+	 * @return int
+	 */
+	public function getSortingFlag();
+
+	/**
 	 * Retrieve information about a operation.
 	 *
 	 * @param string $strOperation The name of the operation.
@@ -145,6 +165,23 @@ interface ContainerInterface
 	public function isDeletable();
 
 	/**
+	 * Determines if new entries may be created within this data container.
+	 *
+	 * True means new entries may be created, false prohibits creation of new entries.
+	 *
+	 * @return bool
+	 */
+	public function isCreatable();
+
+	/**
+	 * Determines if the view shall switch automatically into edit mode.
+	 * This most likely only affects parenting modes like trees etc.
+	 *
+	 * @return bool
+	 */
+	public function isSwitchToEdit();
+
+	/**
 	 * Allows you to disable the group headers in list view and parent view.
 	 *
 	 * True means, the data records will not be grouped with headers.
@@ -186,6 +223,13 @@ interface ContainerInterface
 	 * @return \DcGeneral\DataDefinition\ListLabelInterface
 	 */
 	public function getListLabel();
+
+	/**
+	 * One or more properties that will be shown in the header element (sorting mode 4 only).
+	 *
+	 * @return array
+	 */
+	public function getParentViewHeaderProperties();
 
 	/**
 	 * Return the additional filters to be applied for retrieving data.
