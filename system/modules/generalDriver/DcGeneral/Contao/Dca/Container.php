@@ -190,6 +190,14 @@ class Container implements ContainerInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function getSortingFlag()
+	{
+		return $this->getFromDca('list/sorting/flag');
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function getOperation($strOperation)
 	{
 		if (!array_key_exists($strOperation, $this->arrDca['list']['operations']))
@@ -236,6 +244,22 @@ class Container implements ContainerInterface
 	public function isDeletable()
 	{
 	return !$this->getFromDca('config/notDeletable');
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function isCreatable()
+	{
+		return !$this->getFromDca('config/notCreatable');
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function isSwitchToEdit()
+	{
+	return !$this->getFromDca('config/switchToEdit');
 	}
 
 	/**
@@ -302,6 +326,14 @@ class Container implements ContainerInterface
 	public function getListLabel()
 	{
 		return new ListLabel($this);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getParentViewHeaderProperties()
+	{
+		return $this->getFromDca('list/sorting/headerFields');
 	}
 
 	/**
