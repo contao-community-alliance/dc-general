@@ -23,7 +23,7 @@ interface PanelContainerInterface extends \IteratorAggregate
 	/**
 	 * @param string $strKey  Name of the panel.
 	 *
-	 * @param Panel $objPanel
+	 * @param PanelInterface $objPanel
 	 *
 	 * @return PanelContainerInterface
 	 */
@@ -32,16 +32,16 @@ interface PanelContainerInterface extends \IteratorAggregate
 	/**
 	 * @param $strKey
 	 *
-	 * @return Panel
+	 * @return PanelInterface
 	 */
 	public function getPanel($strKey);
 
 	/**
 	 * Initialize all panels and apply all restrictions to the given Config.
 	 *
-	 * @param ConfigInterface  $objConfig The data config to be populated with the element values.
+	 * @param ConfigInterface       $objConfig The data config to be populated with the element values.
 	 *
-	 * @param Element $objElement The element currently being initialized.
+	 * @param PanelElementInterface $objElement The element currently being initialized.
 	 *
 	 * @return PanelContainerInterface
 	 */
@@ -50,7 +50,7 @@ interface PanelContainerInterface extends \IteratorAggregate
 	/**
 	 * Build the container from the given data container array.
 	 *
-	 * @param Definition $objDefinition
+	 * @param ContainerInterface $objDefinition
 	 *
 	 * @return PanelContainerInterface
 	 */
