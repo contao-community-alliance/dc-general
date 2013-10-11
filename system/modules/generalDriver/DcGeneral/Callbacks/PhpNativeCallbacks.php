@@ -540,6 +540,24 @@ class PhpNativeCallbacks extends \System implements CallbacksInterface
 		}
 	}
 
+	public function generateBreadcrumb()
+	{
+		// Load DCA
+		$arrDCA = $this->getDC()->getDCA();
+
+		if (is_array($arrDCA['list']['presentation']['breadcrumb_callback']))
+		{
+			if (is_callable($arrDCA['list']['presentation']['breadcrumb_callback'])) {
+				return call_user_func(
+					$arrDCA['list']['presentation']['breadcrumb_callback'],
+					$this->getDC()
+				);
+			}
+		}
+
+		return null;
+	}
+
 	/**
 	 * {@inheritdoc}
 	 */

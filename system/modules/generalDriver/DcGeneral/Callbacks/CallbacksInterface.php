@@ -273,6 +273,13 @@ interface CallbacksInterface
 	public function onModelUpdateCallback($objModel);
 
 	/**
+	 * Generate the backend breadcrumb.
+	 *
+	 * @return array|null
+	 */
+	public function generateBreadcrumb();
+
+	/**
 	 * Call the custom filter callback for a field.
 	 *
 	 * Return true if the processing has been successfully applied, false otherwise.
