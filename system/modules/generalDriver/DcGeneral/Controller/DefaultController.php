@@ -252,7 +252,7 @@ class DefaultController extends \Controller implements ControllerInterface
 		$objDataProvider = $this->getEnvironment()->getDataDriver();
 
 		// Check if current data provider supports multi language
-		if (in_array('DcGeneral\Data\MultiLanguageDriverInterface', class_implements($objDataProvider))) 
+		if (in_array('DcGeneral\Data\MultiLanguageDriverInterface', class_implements($objDataProvider)))
 		{
 			$objLanguagesSupported = $objDataProvider->getLanguages($intID);
 		}
