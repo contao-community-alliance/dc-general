@@ -251,10 +251,15 @@ class DefaultController extends \Controller implements ControllerInterface
 		$objDataProvider = $this->getDC()->getDataProvider();
 
 		// Check if current dataprovider supports multilanguage
-		if (in_array('InterfaceGeneralDataMultiLanguage', class_implements($objDataProvider)))
+		if (in_array('DcGeneral\Data\MultiLanguageDriverInterface', class_implements($objDataProvider))) 
 		{
 			$objLanguagesSupported = $this->getDC()->getDataProvider()->getLanguages($intID);
 		}
+		else if (in_array('InterfaceGeneralDataMultiLanguage', class_implements($objDataProvider)))
+		{
+			trigger_error('deprecated use of InterfaceGeneralDataMultiLanguage - use DcGeneral\Data\MultiLanguageDriverInterface instead.', E_USER_DEPRECATED);
+			$objLanguagesSupported = $this->getDC()->getDataProvider()->getLanguages($intID);
+		} 
 		else
 		{
 			$objLanguagesSupported = null;
