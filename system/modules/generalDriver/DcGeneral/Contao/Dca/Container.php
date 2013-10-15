@@ -235,7 +235,7 @@ class Container implements ContainerInterface
 		$arrReturn = array();
 		foreach ($arrConditions as $intKey => $arrCondition)
 		{
-			if (!(empty($strSrcTable) || ($arrCondition['from'] == $strSrcTable)))
+			if (empty($strSrcTable) || ($arrCondition['from'] != $strSrcTable))
 			{
 				continue;
 			}

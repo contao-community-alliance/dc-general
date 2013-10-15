@@ -94,6 +94,11 @@ class ParentChildCondition
 				$arrApplied['value'] = $objParent->getProperty($arrRule['remote']);
 			}
 
+			if (isset($arrRule['remote_value']))
+			{
+				$arrApplied['value'] = $arrRule['remote_value'];
+			}
+
 			if (isset($arrRule['value']))
 			{
 				$arrApplied['value'] = $arrRule['value'];
