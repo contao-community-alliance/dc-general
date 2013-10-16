@@ -261,7 +261,7 @@ class ListView extends BaseView
 				// Handle strings and arrays (backwards compatibility)
 				if (!$listLabel->isShowColumnsActive())
 				{
-					$label = is_array($newArgs) ? implode(' ', $newArgs) : $newArgs;
+					$label = vsprintf((strlen($listLabel->getFormat()) ? $listLabel->getFormat() : '%s'), (array) $newArgs);
 				}
 				elseif (!is_array($newArgs))
 				{
