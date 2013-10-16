@@ -44,7 +44,7 @@
 	"require": {
 		"php":">=5.3",
 		"contao/core":">=2.11,<4.0",
-		"bit3/contao-event-dispatcher": "2.3.*@dev"
+		"bit3/contao-event-dispatcher": "1.0.*@dev"
 	},
 	"require-dev": {
 		"contao/core":"dev-master"
