@@ -21,13 +21,14 @@ class ListView extends BaseView
 	protected function getTableHead()
 	{
 		$arrTableHead = array();
+		$definition   = $this->getEnvironment()->getDataDefinition();
 
-		// Generate the table header if the "show columns" option is active
-		if ($this->getDC()->arrDCA['list']['label']['showColumns'])
+		// Generate the table header if the "show columns" option is active.
+		if ($definition->getListLabel()->isShowColumnsActive())
 		{
-			foreach ($this->getDataDefinition()->getPropertyNames() as $f)
+			foreach ($definition->getPropertyNames() as $f)
 			{
-				$property = $this->getDataDefinition()->getProperty($f);
+				$property = $definition->getProperty($f);
 				if ($property)
 				{
 					$label = $property->getLabel();
@@ -38,7 +39,7 @@ class ListView extends BaseView
 				}
 
 				$arrTableHead[] = array(
-					'class' => 'tl_folder_tlist col_' . $f . ((in_array($f, $this->getDataDefinition()->getAdditionalSorting())) ? ' ordered_by' : ''),
+					'class' => 'tl_folder_tlist col_' . $f . ((in_array($f, $definition->getAdditionalSorting())) ? ' ordered_by' : ''),
 					'content' => $label[0]
 				);
 			}
@@ -76,6 +77,7 @@ class ListView extends BaseView
 			$value = $objModelRow->getProperty($v);
 			$eval  = $property->getEvaluation();
 
+			// TODO: IMO all of this should be independent or at least be pushed into some kind of data scraper.
 			if (strpos($v, ':') !== false)
 			{
 				$args[$k] = $objModelRow->getMeta(DCGE::MODEL_LABEL_ARGS);
@@ -98,7 +100,7 @@ class ListView extends BaseView
 
 				$args[$k] = BackendBindings::parseDate($format, $value);
 			}
-			elseif ($property->get('inputType') == 'checkbox' && !$eval['multiple'])
+			elseif ($property->getWidgetType() == 'checkbox' && !$eval['multiple'])
 			{
 				if (strlen($value))
 				{
