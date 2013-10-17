@@ -31,9 +31,16 @@ interface PropertyInterface
 	public function getLabel();
 
 	/**
-	 * Retrieve information about a property.
+	 * Check if this property is editable.
 	 *
-	 * @return PropertyInterface
+	 * @return bool
+	 */
+	public function isEditable();
+
+	/**
+	 * Return the widget type name.
+	 *
+	 * @return string
 	 */
 	public function getWidgetType();
 

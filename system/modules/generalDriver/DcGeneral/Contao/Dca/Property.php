@@ -55,6 +55,14 @@ class Property implements PropertyInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function isEditable()
+	{
+		return (bool) $this->getWidgetType();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function getWidgetType()
 	{
 		return $this->get('inputType');
