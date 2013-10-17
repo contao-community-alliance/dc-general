@@ -24,6 +24,7 @@ use DcGeneral\Panel\SearchElementInterface;
 use DcGeneral\Panel\SortElementInterface;
 use DcGeneral\Panel\SubmitElementInterface;
 use DcGeneral\View\ContaoBackendViewTemplate;
+use DcGeneral\View\Widget\ContaoWidgetManager;
 use DcGeneral\View\DefaultView\Events\GetBreadcrumbEvent;
 use DcGeneral\View\DefaultView\Events\GetEditModeButtonsEvent;
 use DcGeneral\View\DefaultView\Events\GetGlobalButtonEvent;
@@ -38,6 +39,7 @@ use DcGeneral\View\ViewInterface;
 use DcGeneral\Contao\BackendBindings;
 
 use DcGeneral\DataContainerInterface;
+use DcGeneral\View\Widget\WidgetManagerInterface;
 
 class BaseView implements ViewInterface
 {
@@ -71,6 +73,13 @@ class BaseView implements ViewInterface
 	protected $arrStack = array();
 
 	/**
+	 * The widget manager.
+	 *
+	 * @var WidgetManagerInterface
+	 */
+	protected $widgetManager;
+
+	/**
 	 * @return DataContainerInterface
 	 */
 	public function getDC()
@@ -84,6 +93,9 @@ class BaseView implements ViewInterface
 	public function setDC($objDC)
 	{
 		$this->objDC = $objDC;
+
+		// TODO is this a good place to create the WidgetManager?
+		$this->widgetManager = new ContaoWidgetManager($objDC->getEnvironment());
 	}
 
 	/**
