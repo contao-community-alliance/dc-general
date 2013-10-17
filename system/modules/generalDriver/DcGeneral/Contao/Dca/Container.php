@@ -16,6 +16,7 @@ use DcGeneral\Contao\Dca\ListLabel;
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Contao\Dca\Conditions\RootCondition;
 use DcGeneral\Contao\Dca\Conditions\ParentChildCondition;
+use DcGeneral\DataDefinition\PropertyInterface;
 
 class Container implements ContainerInterface
 {
@@ -32,6 +33,13 @@ class Container implements ContainerInterface
 	 * @var string
 	 */
 	protected $strTable;
+
+	/**
+	 * All loaded properties.
+	 *
+	 * @var Property[]
+	 */
+	protected $properties;
 
 	/**
 	 * Create a new instance for the DCA of the passed name.
@@ -133,14 +141,43 @@ class Container implements ContainerInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getProperty($strProperty)
+	public function hasProperties()
 	{
-		if (!array_key_exists($strProperty, $this->arrDca['fields']))
+		$properties = $this->getProperties();
+
+		return (bool) $properties;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getProperties()
+	{
+		if ($this->properties === null)
 		{
-			return null;
+			$this->properties = array();
+
+			$dcaProperties = $this->getFromDca('fields');
+			if ($dcaProperties)
+			{
+				foreach ($dcaProperties as $propertyName => $propertyConfig)
+				{
+					$this->properties[$propertyName] = new Property($this, $propertyName);
+				}
+			}
 		}
 
-		return new Property($this, $strProperty);
+		return $this->properties;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getProperty($propertyName)
+	{
+		$properties = $this->getProperties();
+
+		return $properties[$propertyName];
 	}
 
 	/**
@@ -148,14 +185,86 @@ class Container implements ContainerInterface
 	 */
 	public function getPropertyNames()
 	{
-		$arrProperties = $this->getFromDca('fields');
-		if (!$arrProperties)
-		{
-			return array();
+		$properties = $this->getProperties();
+
+		return array_keys($properties);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function hasEditableProperties()
+	{
+		$properties = $this->getProperties();
+
+		foreach ($properties as $property) {
+			if ($property->isEditable()) {
+				return true;
+			}
 		}
 
-		return array_keys($arrProperties);
+		return false;
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getEditableProperties()
+	{
+		$properties = $this->getProperties();
+
+		$properties = array_filter(
+			$properties,
+			function (Property $property) {
+				return $property->isEditable();
+			}
+		);
+
+		return $properties;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getEditablePropertyNames()
+	{
+		$properties = $this->getEditableProperties();
+
+		$properties = array_map(
+			function (Property $property) {
+				return $property->getName();
+			},
+			$properties
+		);
+
+		return $properties;
+	}
+
+	/**
+	 * Load a list with all editable field
+	 *
+	 * @param boolean $blnUserSelection
+	 * @return boolean
+	 */
+	/*
+	public function loadEditableFields()
+	{
+		$this->arrFields = array_flip(array_keys(array_filter($this->arrDCA['fields'], create_function('$arr', 'return !$arr[\'exclude\'];'))));
+	}
+	*/
+
+	/**
+	 * Check if the field is edtiable
+	 *
+	 * @param string $fieldName
+	 * @return boolean
+	 */
+	/*
+	public function isEditableField($fieldName)
+	{
+		return isset($this->arrFields[$fieldName]);
+	}
+	*/
 
 	/**
 	 * {@inheritDoc}

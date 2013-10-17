@@ -53,6 +53,27 @@ interface ContainerInterface
 	public function getCallbackProviderClass();
 
 	/**
+	 * Check if this container has any properties.
+	 *
+	 * @return bool
+	 */
+	public function hasProperties();
+
+	/**
+	 * Retrieve all defined properties.
+	 *
+	 * @return PropertyInterface[]
+	 */
+	public function getProperties();
+
+	/**
+	 * Retrieve the names of all defined properties.
+	 *
+	 * @return string[]
+	 */
+	public function getPropertyNames();
+
+	/**
 	 * Retrieve information about a property.
 	 *
 	 * @param string $strProperty The name of the property.
@@ -62,11 +83,25 @@ interface ContainerInterface
 	public function getProperty($strProperty);
 
 	/**
-	 * Retrieve the names of all defined properties.
+	 * Check if this container has editable properties.
 	 *
 	 * @return string[]
 	 */
-	public function getPropertyNames();
+	public function hasEditableProperties();
+
+	/**
+	 * Retrieve all editable properties.
+	 *
+	 * @return PropertyInterface[]
+	 */
+	public function getEditableProperties();
+
+	/**
+	 * Retrieve the names of all editable properties.
+	 *
+	 * @return string[]
+	 */
+	public function getEditablePropertyNames();
 
 	/**
 	 * Retrieve the panel layout.
