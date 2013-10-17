@@ -12,6 +12,7 @@
 
 namespace DcGeneral\View;
 
+use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\DataContainerInterface;
 
 // TODO: we need to flesh this out some more out and add real interface methods. Currently this interface is rather useless.
@@ -57,4 +58,10 @@ interface ViewInterface
 
 	public function generateAjaxPalette($strSelector);
 
+	/**
+	 * Process input and return all modified properties or null if there is no input.
+	 *
+	 * @return null|PropertyValueBag
+	 */
+	public function processInput();
 }

@@ -1278,61 +1278,59 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	 */
 	public function updateModelFromPOST()
 	{
-		// callback to tell visitors that we have just updated the model.
-		$this->getCallbackClass()->onModelBeforeUpdateCallback($this->getEnvironment()->getCurrentModel());
+		$propertyValues = $this->getEnvironment()->getView()->processInput();
+		if ($propertyValues) {
+			// callback to tell visitors that we have just updated the model.
+			$this->getCallbackClass()->onModelBeforeUpdateCallback($this->getEnvironment()->getCurrentModel());
 
-		// process input and update changed properties.
-		foreach (array_keys($this->getFieldList()) as $strKey)
-		{
-			$varNewValue = $this->processInput($strKey);
-			if (($varNewValue !== NULL) && ($this->getEnvironment()->getCurrentModel()->getProperty($strKey) !== $varNewValue))
+			foreach ($propertyValues as $property => $value)
 			{
 				try
 				{
-					$this->getEnvironment()->getCurrentModel()->setProperty($strKey, $varNewValue);
+					$this->getEnvironment()->getCurrentModel()->setProperty($property, $value);
 					$this->getEnvironment()->getCurrentModel()->setMeta(DCGE::MODEL_IS_CHANGED, true);
 				}
 				catch (\Exception $exception)
 				{
 					$this->blnNoReload = true;
-					$this->arrWidgets[$strKey]->addError($exception->getMessage());
+					$propertyValues->markPropertyValueAsInvalid($property, $exception);
 				}
 			}
-		}
 
-		// FIXME: dependency injection.
-		if (in_array($this->arrDCA['list']['sorting']['mode'], array(4, 5, 6)) && (strlen(\Input::getInstance()->get('pid')) > 0))
-		{
-			$objParentDriver = $this->getEnvironment()->getDataDriver($this->getEnvironment()->getDataDefinition()->getParentDriverName());
-			// pull correct condition from DCA and update according to setOn values.
-			$objParentModel = $objParentDriver->fetch($objParentDriver->getEmptyConfig()->setId(\Input::getInstance()->get('pid')));
-			$arrCond = $this->getParentChildCondition($objParentModel, $this->getEnvironment()->getDataDefinition()->getName());
-
-			if (is_array($arrCond) && array_key_exists('setOn', $arrCond))
+			// FIXME: dependency injection.
+			if (in_array($this->arrDCA['list']['sorting']['mode'], array(4, 5, 6)) && (strlen(\Input::getInstance()->get('pid')) > 0))
 			{
-				foreach ($arrCond['setOn'] as $arrSetOn)
+				$objParentDriver = $this->getEnvironment()->getDataDriver($this->getEnvironment()->getDataDefinition()->getParentDriverName());
+				// pull correct condition from DCA and update according to setOn values.
+				$objParentModel = $objParentDriver->fetch($objParentDriver->getEmptyConfig()->setId(\Input::getInstance()->get('pid')));
+				$arrCond = $this->getParentChildCondition($objParentModel, $this->getEnvironment()->getDataDefinition()->getName());
+
+				if (is_array($arrCond) && array_key_exists('setOn', $arrCond))
 				{
-					if ($arrSetOn['from_field'])
+					foreach ($arrCond['setOn'] as $arrSetOn)
 					{
-						$this->getEnvironment()->getCurrentModel()->setProperty($arrSetOn['to_field'], $objParentModel->getProperty($arrSetOn['from_field']));
-					}
-					else
-					{
-						$this->getEnvironment()->getCurrentModel()->setProperty($arrSetOn['to_field'], $arrSetOn['value']);
+						if ($arrSetOn['from_field'])
+						{
+							$this->getEnvironment()->getCurrentModel()->setProperty($arrSetOn['to_field'], $objParentModel->getProperty($arrSetOn['from_field']));
+						}
+						else
+						{
+							$this->getEnvironment()->getCurrentModel()->setProperty($arrSetOn['to_field'], $arrSetOn['value']);
+						}
 					}
 				}
 			}
-		}
 
-		// TODO: is this really a wise idea here?
-		// FIXME: dependency injection.
-		if (in_array('metapalettes', \Config::getInstance()->getActiveModules()))
-		{
-			\MetaPalettes::getInstance()->generateSubSelectPalettes($this);
-		}
+			// TODO: is this really a wise idea here?
+			// FIXME: dependency injection.
+			if (in_array('metapalettes', \Config::getInstance()->getActiveModules()))
+			{
+				\MetaPalettes::getInstance()->generateSubSelectPalettes($this);
+			}
 
-		// callback to tell visitors that we have just updated the model.
-		$this->getCallbackClass()->onModelUpdateCallback($this->getEnvironment()->getCurrentModel());
+			// callback to tell visitors that we have just updated the model.
+			$this->getCallbackClass()->onModelUpdateCallback($this->getEnvironment()->getCurrentModel());
+		}
 	}
 
 	/**

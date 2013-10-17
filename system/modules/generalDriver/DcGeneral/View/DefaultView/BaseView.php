@@ -16,6 +16,7 @@ use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\MultiLanguageDriverInterface;
 use DcGeneral\Data\DCGE;
+use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\DC_General;
 use DcGeneral\Panel\DefaultPanelContainer;
 use DcGeneral\Panel\FilterElementInterface;
@@ -1949,4 +1950,33 @@ class BaseView implements ViewInterface
 		return $objTemplate->parse();
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
+	public function processInput()
+	{
+		$input = $this->getEnvironment()->getInputProvider();
+
+		if ($_POST && $input->getValue('FORM_SUBMIT') == $this->getEnvironment()->getDataDefinition()->getName())
+		{
+			$propertyValues = new PropertyValueBag();
+			$propertyNames = $this->getEnvironment()->getDataDefinition()->getPropertyNames();
+
+			// process input and update changed properties.
+			foreach ($propertyNames as $propertyName)
+			{
+				if ($input->hasValue($propertyName))
+				{
+					$propertyValue = $input->getValue($propertyName);
+					$propertyValues->setPropertyValue($propertyName, $propertyValue);
+				}
+			}
+
+			$this->widgetManager->processInput($propertyValues);
+
+			return $propertyValues;
+		}
+
+		return null;
+	}
 }
