@@ -3,6 +3,8 @@
 namespace DcGeneral\Events;
 
 use DcGeneral\View\DefaultView\Events\GetBreadcrumbEvent;
+use DcGeneral\View\Widget\Events\ResolveWidgetErrorMessage;
+use DcGeneral\View\Widget\Events\ResolveWidgetErrorMessageEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use DcGeneral\View\DefaultView\Events\GetGlobalButtonEvent;
 use DcGeneral\View\DefaultView\Events\GetGlobalButtonsEvent;
@@ -38,6 +40,8 @@ class Subscriber
 			ParentViewChildRecordEvent::NAME => 'ParentViewChildRecord',
 
 			GetBreadcrumbEvent::NAME         => 'GetBreadcrumb',
+
+			ResolveWidgetErrorMessageEvent::NAME => array('resolveWidgetErrorMessage', -1),
 		);
 	}
 
@@ -231,5 +235,30 @@ class Subscriber
 			->getCallbackHandler()->generateBreadcrumb();
 
 		$event->setElements($arrReturn);
+	}
+
+	public function resolveWidgetErrorMessage(ResolveWidgetErrorMessageEvent $event)
+	{
+		$error = $event->getError();
+
+		if ($error instanceof \Exception)
+		{
+			$event->setError($error->getMessage());
+		}
+		else if (is_object($error))
+		{
+			if (method_exists($error, '__toString'))
+			{
+				$event->setError((string) $error);
+			}
+			else
+			{
+				$event->setError(sprintf('[%s]', get_class($error)));
+			}
+		}
+		else if (!is_string($error))
+		{
+			$event->setError(sprintf('[%s]', gettype($error)));
+		}
 	}
 }
