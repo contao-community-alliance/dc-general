@@ -567,17 +567,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	}
 
 	/**
-	 * Load a list with all editable field
-	 *
-	 * @param boolean $blnUserSelection
-	 * @return boolean
-	 */
-	public function loadEditableFields()
-	{
-		$this->arrFields = array_flip(array_keys(array_filter($this->arrDCA['fields'], create_function('$arr', 'return !$arr[\'exclude\'];'))));
-	}
-
-	/**
 	 * Check all post/get informations
 	 */
 	public function checkPostGet()
@@ -1368,17 +1357,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	public function setChildDC($objChildDC)
 	{
 		$this->objChildDC = $objChildDC;
-	}
-
-	/**
-	 * Check if the field is edtiable
-	 *
-	 * @param string $strField
-	 * @return boolean
-	 */
-	public function isEditableField($strField)
-	{
-		return isset($this->arrFields[$strField]);
 	}
 
 	/**

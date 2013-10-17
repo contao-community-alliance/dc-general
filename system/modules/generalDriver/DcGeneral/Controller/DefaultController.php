@@ -604,12 +604,8 @@ class DefaultController implements ControllerInterface
 				$this->checkIsWritable();
 				$this->checkLanguage($this->getDC());
 
-				// Load fields and co
-				$this->getDC()->loadEditableFields();
-				$this->getDC()->setWidgetID($this->getDC()->getId());
-
 				// Check if we have fields
-				if (!$this->getDC()->hasEditableFields())
+				if (!$this->getEnvironment()->getDataDefinition()->hasEditableProperties())
 				{
 					$this->redirect($this->getReferer());
 				}
@@ -733,12 +729,8 @@ class DefaultController implements ControllerInterface
 		// Load current values
 		$objCurrentDataProvider = $this->getEnvironment()->getDataDriver();
 
-		// Load fields and co
-		$this->getDC()->loadEditableFields();
-		$this->getDC()->setWidgetID($this->getDC()->getId());
-
 		// Check if we have fields
-		if (!$this->getDC()->hasEditableFields())
+		if (!$this->getEnvironment()->getDataDefinition()->hasEditableProperties())
 		{
 			$this->redirect($this->getReferer());
 		}
@@ -1083,12 +1075,8 @@ class DefaultController implements ControllerInterface
 			$this->loadVersion($this->getDC()->getId(), \Input::getInstance()->post("version"));
 		}
 
-		// Load fields and co
-		$this->getDC()->loadEditableFields();
-		$this->getDC()->setWidgetID($this->getDC()->getId());
-
 		// Check if we have fields
-		if (!$this->getDC()->hasEditableFields())
+		if (!$this->getEnvironment()->getDataDefinition()->hasEditableProperties())
 		{
 			$this->redirect($this->getReferer());
 		}
@@ -1347,12 +1335,8 @@ class DefaultController implements ControllerInterface
 		$this->checkIsWritable();
 		$this->checkLanguage($this->getDC());
 
-		// Load fields and co
-		$this->getDC()->loadEditableFields();
-		$this->getDC()->setWidgetID($this->getDC()->getId());
-
 		// Check if we have fields
-		if (!$this->getDC()->hasEditableFields())
+		if (!$this->getEnvironment()->getDataDefinition()->hasEditableProperties())
 		{
 			$this->redirect($this->getReferer());
 		}
