@@ -12,6 +12,8 @@
 
 namespace DcGeneral\DataDefinition;
 
+use DcGeneral\DataDefinition\Palette\PropertyConditionInterface;
+
 interface PropertyInterface
 {
 	/**
@@ -98,4 +100,18 @@ interface PropertyInterface
 	 * @return mixed
 	 */
 	public function get($strKey);
+
+	/**
+	 * Set the condition for this property.
+	 *
+	 * @param PropertyConditionInterface $condition
+	 */
+	public function setCondition(PropertyConditionInterface $condition);
+
+	/**
+	 * Get the condition for this property.
+	 *
+	 * @return PropertyConditionInterface
+	 */
+	public function getCondition();
 }
