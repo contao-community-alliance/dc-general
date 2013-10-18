@@ -1145,11 +1145,19 @@ class DefaultView implements ViewInterface
 
 		$arrRootPalette = $this->arrRootPalette;
 
-
+		$blnFirst = true;
 
 		foreach ($arrRootPalette as &$arrFieldset)
 		{
-			$strClass = 'tl_box';
+			if($blnFirst)
+			{
+				$strClass = 'tl_tbox';
+				$blnFirst = false;
+			}
+			else
+			{
+				$strClass = 'tl_box';
+			}
 
 			if ($strLegend = &$arrFieldset['legend'])
 			{
