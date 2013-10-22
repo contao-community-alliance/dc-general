@@ -12,8 +12,6 @@
 
 namespace DcGeneral\DataDefinition;
 
-use DcGeneral\DataDefinition\Palette\PropertyConditionInterface;
-
 interface PropertyInterface
 {
 	/**
@@ -29,13 +27,6 @@ interface PropertyInterface
 	 * @return array
 	 */
 	public function getLabel();
-
-	/**
-	 * Check if this property is editable.
-	 *
-	 * @return bool
-	 */
-	public function isEditable();
 
 	/**
 	 * Return the widget type name.
@@ -107,18 +98,4 @@ interface PropertyInterface
 	 * @return mixed
 	 */
 	public function get($strKey);
-
-	/**
-	 * Set the condition for this property.
-	 *
-	 * @param PropertyConditionInterface $condition
-	 */
-	public function setCondition(PropertyConditionInterface $condition);
-
-	/**
-	 * Get the condition for this property.
-	 *
-	 * @return PropertyConditionInterface
-	 */
-	public function getCondition();
 }

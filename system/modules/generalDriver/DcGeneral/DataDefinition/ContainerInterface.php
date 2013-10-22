@@ -13,6 +13,8 @@
 namespace DcGeneral\DataDefinition;
 
 
+use DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
+
 interface ContainerInterface
 {
 	/**
@@ -282,7 +284,10 @@ interface ContainerInterface
 	 */
 	public function getAdditionalFilter();
 
+	/**
+	 * Get the palettes of this container.
+	 *
+	 * @return PaletteCollectionInterface
+	 */
 	public function getPalettes();
-
-	public function getSubPalettes();
 }

@@ -10,10 +10,11 @@
  * @filesource
  */
 
-namespace DcGeneral\DataDefinition\Palette;
+namespace DcGeneral\DataDefinition\Palette\Condition\Property;
 
+use DcGeneral\Data\ModelInterface;
+use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\DataDefinition\ConditionInterface;
-use DcGeneral\DataDefinition\PropertyInterface;
 
 /**
  * A condition define when a property is visible or editable and when not.
@@ -21,7 +22,7 @@ use DcGeneral\DataDefinition\PropertyInterface;
 interface PropertyConditionInterface extends ConditionInterface
 {
 	/**
-	 * Check if the property is visible under this condition.
+	 * Check if the condition match.
 	 *
 	 * @param ModelInterface|null $model If given, subpalettes will be evaluated depending on the model.
 	 * If no model is given, all properties will be returned, including subpalette properties.
@@ -30,17 +31,5 @@ interface PropertyConditionInterface extends ConditionInterface
 	 *
 	 * @return bool
 	 */
-	public function isVisible(ModelInterface $model = null, PropertyValueBag $input = null);
-
-	/**
-	 * Check if the property is editable under this condition.
-	 *
-	 * @param ModelInterface|null $model If given, subpalettes will be evaluated depending on the model.
-	 * If no model is given, all properties will be returned, including subpalette properties.
-	 * @param PropertyValueBag $input If given, subpalettes will be evaluated depending on the input data.
-	 * If no model and no input data is given, all properties will be returned, including subpalette properties.
-	 *
-	 * @return bool
-	 */
-	public function isEditable(ModelInterface $model = null, PropertyValueBag $input = null);
+	public function match(ModelInterface $model = null, PropertyValueBag $input = null);
 }

@@ -23,9 +23,27 @@ interface LegendInterface
 	/**
 	 * Return the palette this legend belongs to.
 	 *
-	 * @return PaletteInterface
+	 * @param PaletteInterface|null $palette
+	 *
+	 * @return LegendInterface
+	 */
+	public function setPalette(PaletteInterface $palette = null);
+
+	/**
+	 * Return the palette this legend belongs to.
+	 *
+	 * @return PaletteInterface|null
 	 */
 	public function getPalette();
+
+	/**
+	 * Set the name of this legend (e.g. "title", not "title_legend").
+	 *
+	 * @param string $name
+	 *
+	 * @return LegendInterface
+	 */
+	public function setName($name);
 
 	/**
 	 * Return the name of this legend (e.g. "title", not "title_legend").
@@ -33,6 +51,49 @@ interface LegendInterface
 	 * @return string
 	 */
 	public function getName();
+
+	/**
+	 * Clear all properties from this legend.
+	 *
+	 * @return LegendInterface
+	 */
+	public function clearProperties();
+
+	/**
+	 * Set the properties of this legend.
+	 *
+	 * @param array|PropertyInterface[] $properties
+	 *
+	 * @return LegendInterface
+	 */
+	public function setProperties(array $properties);
+
+	/**
+	 * Add all properties to this legend.
+	 *
+	 * @param array|PropertyInterface[] $properties
+	 *
+	 * @return LegendInterface
+	 */
+	public function addProperties(array $properties);
+
+	/**
+	 * Add a property to this legend.
+	 *
+	 * @param PropertyInterface $property
+	 *
+	 * @return LegendInterface
+	 */
+	public function addProperty(PropertyInterface $property);
+
+	/**
+	 * Remove a property from this legend.
+	 *
+	 * @param PropertyInterface $property
+	 *
+	 * @return LegendInterface
+	 */
+	public function removeProperty(PropertyInterface $property);
 
 	/**
 	 * Get all properties in this legend.
