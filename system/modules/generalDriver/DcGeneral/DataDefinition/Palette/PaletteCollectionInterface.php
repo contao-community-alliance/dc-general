@@ -12,6 +12,8 @@
 
 namespace DcGeneral\DataDefinition\Palette;
 
+use DcGeneral\Exception\DcGeneralInvalidArgumentException;
+
 /**
  * Contains multiple palettes, organised by its name.
  */
@@ -40,7 +42,7 @@ interface PaletteCollectionInterface
 	 *
 	 * @return PaletteInterface
 	 *
-	 * @throws \InvalidArgumentException Is thrown if there is no palette with this name.
+	 * @throws DcGeneralInvalidArgumentException Is thrown if there is no palette with this name.
 	 */
 	public function getPalette($paletteName);
 }

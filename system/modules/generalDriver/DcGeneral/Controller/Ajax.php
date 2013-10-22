@@ -13,6 +13,7 @@
 namespace DcGeneral\Controller;
 
 use DcGeneral\DataContainerInterface;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * Class Ajax - General purpose Ajax handler for "executePostActions" as we can not use the default Contao
@@ -165,7 +166,7 @@ abstract class Ajax extends \Backend
 		{
 			if (self::getGet('act') == 'editAll')
 			{
-				throw new \RuntimeException("Ajax editAll unimplemented, I do not know what to do.", 1);
+				throw new DcGeneralRuntimeException("Ajax editAll unimplemented, I do not know what to do.", 1);
 				echo $objDc->editAll(self::getAjaxId(), self::getPost('id'));
 			}
 			else{

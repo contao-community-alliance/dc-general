@@ -5,6 +5,7 @@ namespace DcGeneral\Panel;
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\DataContainerInterface;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Panel\PanelContainerInterface;
 use DcGeneral\Panel\PanelElementInterface;
 use DcGeneral\Panel\PanelInterface;
@@ -166,7 +167,7 @@ class DefaultPanelContainer implements PanelContainerInterface
 	 * @param ContainerInterface $objDefinition
 	 *
 	 * @return PanelContainerInterface|void
-	 * @throws \RuntimeException
+	 * @throws DcGeneralRuntimeException
 	 */
 	public function buildFrom($objDefinition)
 	{
@@ -194,7 +195,7 @@ class DefaultPanelContainer implements PanelContainerInterface
 					case 'search': $this->buildSearch($objPanel, $objDefinition); break;
 					case 'limit':  $this->buildLimit($objPanel); break;
 					default:
-						throw new \RuntimeException('Invalid panel value provided: ' . $strElement);
+						throw new DcGeneralRuntimeException('Invalid panel value provided: ' . $strElement);
 				}
 			}
 		}

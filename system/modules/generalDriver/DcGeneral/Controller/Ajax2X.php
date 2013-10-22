@@ -13,6 +13,7 @@
 namespace DcGeneral\Controller;
 
 use DcGeneral\DataContainerInterface;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * Class GeneralAjax - General purpose Ajax handler for "executePostActions" in Contao 2.X as we can not use the default
@@ -104,11 +105,11 @@ class Ajax2X extends Ajax
 
 	protected function reloadPagetree(DataContainerInterface $objDc)
 	{
-		throw new \RuntimeException('Contao 3.X only.');
+		throw new DcGeneralRuntimeException('Contao 3.X only.');
 	}
 
 	protected function reloadFiletree(DataContainerInterface $objDc)
 	{
-		throw new \RuntimeException('Contao 3.X only.');
+		throw new DcGeneralRuntimeException('Contao 3.X only.');
 	}
 }

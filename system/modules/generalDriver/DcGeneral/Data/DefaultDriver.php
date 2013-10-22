@@ -18,6 +18,7 @@ use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\DefaultCollection;
 use DcGeneral\Data\DefaultConfig;
 use DcGeneral\Data\DefaultModel;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 
 
 class DefaultDriver implements DriverInterface
@@ -52,14 +53,14 @@ class DefaultDriver implements DriverInterface
 	 *
 	 * @return void
 	 *
-	 * @throws \RuntimeException when no source has been defined.
+	 * @throws DcGeneralRuntimeException when no source has been defined.
 	 */
 	public function setBaseConfig(array $arrConfig)
 	{
 		// Check configuration.
 		if (!isset($arrConfig["source"]))
 		{
-			throw new \RuntimeException("Missing table name.");
+			throw new DcGeneralRuntimeException("Missing table name.");
 		}
 
 		$this->strSource = $arrConfig["source"];
@@ -158,13 +159,13 @@ class DefaultDriver implements DriverInterface
 	 *
 	 * @return string The combined WHERE conditions.
 	 *
-	 * @throws \RuntimeException if an invalid filter entry is encountered.
+	 * @throws DcGeneralRuntimeException if an invalid filter entry is encountered.
 	 */
 	protected function calculateSubfilter($arrFilter, array &$arrParams)
 	{
 		if (!is_array($arrFilter))
 		{
-			throw new \RuntimeException('Error Processing sub filter: ' . var_export($arrFilter, true), 1);
+			throw new DcGeneralRuntimeException('Error Processing sub filter: ' . var_export($arrFilter, true), 1);
 		}
 
 		switch ($arrFilter['operation'])
@@ -206,7 +207,7 @@ class DefaultDriver implements DriverInterface
 				return sprintf('(%s LIKE ?)', $arrFilter['property'], $strWildcards);
 
 			default:
-				throw new \RuntimeException('Error processing filter array ' . var_export($arrFilter, true), 1);
+				throw new DcGeneralRuntimeException('Error processing filter array ' . var_export($arrFilter, true), 1);
 		}
 	}
 
@@ -294,7 +295,7 @@ class DefaultDriver implements DriverInterface
 	 *
 	 * @param mixed $item Id or the model itself, to delete.
 	 *
-	 * @throws \RuntimeException
+	 * @throws DcGeneralRuntimeException
 	 *
 	 * @return void
 	 *
@@ -324,7 +325,7 @@ class DefaultDriver implements DriverInterface
 		}
 		else
 		{
-			throw new \RuntimeException("ID missing or given object not of type 'ModelInterface'.");
+			throw new DcGeneralRuntimeException("ID missing or given object not of type 'ModelInterface'.");
 		}
 	}
 
@@ -461,7 +462,7 @@ class DefaultDriver implements DriverInterface
 	 *
 	 * @return CollectionInterface
 	 *
-	 * @throws \RuntimeException if improper values have been passed (i.e. not exactly one field requested).
+	 * @throws DcGeneralRuntimeException if improper values have been passed (i.e. not exactly one field requested).
 	 */
 	public function getFilterOptions(ConfigInterface $objConfig)
 	{
@@ -470,7 +471,7 @@ class DefaultDriver implements DriverInterface
 
 		if (count($arrProperties) <> 1)
 		{
-			throw new \RuntimeException('objConfig must contain exactly one property to be retrieved.');
+			throw new DcGeneralRuntimeException('objConfig must contain exactly one property to be retrieved.');
 		}
 
 		$arrParams = array();

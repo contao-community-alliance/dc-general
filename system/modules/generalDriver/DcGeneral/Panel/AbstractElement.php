@@ -4,6 +4,7 @@ namespace DcGeneral\Panel;
 
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\DataContainerInterface;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Panel\PanelElementInterface;
 use DcGeneral\Panel\PanelInterface;
 use DcGeneral\InputProviderInterface;
@@ -73,7 +74,8 @@ abstract class AbstractElement implements PanelElementInterface
 				->getEnvironment()
 				->getController())
 			{
-				throw new \RuntimeException('HELP!');
+				// TODO Help does not help!
+				throw new DcGeneralRuntimeException('HELP!');
 			}
 			$this->objOtherConfig = $this
 				->getDataContainer()

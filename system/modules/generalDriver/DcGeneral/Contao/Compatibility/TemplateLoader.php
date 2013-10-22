@@ -12,6 +12,8 @@
 
 namespace DcGeneral\Contao\Compatibility;
 
+use DcGeneral\Exception\DcGeneralException;
+
 /**
  * Class TemplateLoader
  *
@@ -47,11 +49,11 @@ class TemplateLoader
 	/**
 	 * No op
 	 *
-	 * @throws \Exception
+	 * @throws DcGeneralException
 	 */
 	public static function getFiles()
 	{
-		throw new \Exception('TemplateLoader is a non op compatibility class by DcGeneral.');
+		throw new DcGeneralException('TemplateLoader is a non op compatibility class by DcGeneral.');
 	}
 
 	/**
@@ -59,11 +61,11 @@ class TemplateLoader
 	 *
 	 * @param string $prefix The prefix (e.g. "moo_")
 	 *
-	 * @throws \Exception
+	 * @throws DcGeneralException
 	 */
 	public static function getPrefixedFiles($prefix)
 	{
-		throw new \Exception('TemplateLoader is a non op compatibility class by DcGeneral.');
+		throw new DcGeneralException('TemplateLoader is a non op compatibility class by DcGeneral.');
 	}
 
 	/**
@@ -73,10 +75,10 @@ class TemplateLoader
 	 * @param string $format   The output format (e.g. "html5")
 	 * @param string $custom   The custom templates folder (defaults to "templates")
 	 *
-	 * @throws \Exception If $template does not exist
+	 * @throws DcGeneralException If $template does not exist
 	 */
 	public static function getPath($template, $format, $custom='templates')
 	{
-		throw new \Exception('TemplateLoader is a non op compatibility class by DcGeneral.');
+		throw new DcGeneralException('TemplateLoader is a non op compatibility class by DcGeneral.');
 	}
 }

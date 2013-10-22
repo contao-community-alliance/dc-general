@@ -14,6 +14,7 @@ namespace DcGeneral\DataDefinition;
 
 use DcGeneral\DataDefinition\ConditionInterface;
 use DcGeneral\Data\ModelInterface;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 
 abstract class AbstractCondition implements ConditionInterface
 {
@@ -72,7 +73,7 @@ abstract class AbstractCondition implements ConditionInterface
 				break;
 
 			default:
-				throw new \RuntimeException('Error processing filter array - unknown operation ' . var_export($arrFilter, true), 1);
+				throw new DcGeneralRuntimeException('Error processing filter array - unknown operation ' . var_export($arrFilter, true), 1);
 		}
 	}
 }

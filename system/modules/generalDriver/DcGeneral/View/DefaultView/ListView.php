@@ -15,6 +15,7 @@ namespace DcGeneral\View\DefaultView;
 use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ModelInterface;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\View\DefaultView\Events\ModelToLabelEvent;
 
 class ListView extends BaseView
@@ -24,7 +25,7 @@ class ListView extends BaseView
 	 *
 	 * @return ListView
 	 *
-	 * @throws \RuntimeException
+	 * @throws DcGeneralRuntimeException
 	 */
 	public function loadCollection()
 	{

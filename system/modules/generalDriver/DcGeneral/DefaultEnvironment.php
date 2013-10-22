@@ -14,6 +14,7 @@ namespace DcGeneral;
 
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Controller\ControllerInterface;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\InputProviderInterface;
 use DcGeneral\Panel\PanelContainerInterface;
 
@@ -229,7 +230,7 @@ class DefaultEnvironment implements EnvironmentInterface
 					$strSource = $GLOBALS['TL_DCA'][$this->getDataDefinition()->getName()]['dca_config']['data_provider']['parent']['source'];
 				}
 				else
-					throw new  \RuntimeException('Could not determine parent table.');
+					throw new DcGeneralRuntimeException('Could not determine parent table.');
 
 				trigger_error('WARNING!!!! Legacy descriptor "parent" used for data provider retrieval, expect this to fail in near future.', E_USER_WARNING);
 				break;
@@ -241,7 +242,7 @@ class DefaultEnvironment implements EnvironmentInterface
 			return $this->arrDataDriver[$strSource];
 		}
 
-		throw new \RuntimeException(sprintf('Data driver %s not defined', $strSource));
+		throw new DcGeneralRuntimeException(sprintf('Data driver %s not defined', $strSource));
 	}
 
 	/**

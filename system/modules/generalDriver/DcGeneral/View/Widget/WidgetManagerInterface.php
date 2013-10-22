@@ -15,6 +15,7 @@ namespace DcGeneral\View\Widget;
 use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\DataContainerInterface;
 use DcGeneral\EnvironmentInterface;
+use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 interface WidgetManagerInterface
 {
@@ -41,7 +42,7 @@ interface WidgetManagerInterface
 	 *
 	 * @return \Widget
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws DcGeneralInvalidArgumentException
 	 */
 	public function getWidget($fieldName);
 

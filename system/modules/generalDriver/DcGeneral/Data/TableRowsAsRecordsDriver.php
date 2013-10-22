@@ -11,6 +11,8 @@
 
 namespace DcGeneral\Data;
 
+use DcGeneralDcGeneralException\DcGeneralException;
+
 /**
  * This is the MetaModel filter interface.
  *
@@ -42,7 +44,7 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * @return void
 	 *
-	 * @throws \Exception when no source has been defined.
+	 * @throws DcGeneralException when no source has been defined.
 	 */
 	public function setBaseConfig(array $arrConfig)
 	{
@@ -50,7 +52,7 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 
 		if (!$arrConfig['group_column'])
 		{
-			throw new \Exception('DcGeneral\Data\TableRowsAsRecordsDriver needs a grouping column.', 1);
+			throw new DcGeneralException('DcGeneral\Data\TableRowsAsRecordsDriver needs a grouping column.', 1);
 
 		}
 		$this->strGroupCol = $arrConfig['group_column'];
@@ -69,11 +71,11 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * @param string $strMethod The name of the method being called.
 	 *
-	 * @throws \Exception
+	 * @throws DcGeneralException
 	 */
 	protected function youShouldNotCallMe($strMethod)
 	{
-		throw new \Exception(sprintf('Error, %s not available, as the data provider is intended for edit mode only.', $strMethod), 1);
+		throw new DcGeneralException(sprintf('Error, %s not available, as the data provider is intended for edit mode only.', $strMethod), 1);
 	}
 
 
@@ -82,7 +84,7 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * @param mixed $item Unused.
 	 *
-	 * @throws \Exception Always throws exception.
+	 * @throws DcGeneralException Always throws exception.
 	 */
 	public function delete($item)
 	{
@@ -98,13 +100,13 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * @return ModelInterface
 	 *
-	 * @throws \Exception if config object does not contain an Id.
+	 * @throws DcGeneralException if config object does not contain an Id.
 	 */
 	public function fetch(ConfigInterface $objConfig)
 	{
 		if (!$objConfig->getId())
 		{
-			throw new \Exception('Error, no id passed, DcGeneral\Data\TableRowsAsRecordsDriver is only intended for edit mode.', 1);
+			throw new DcGeneralException('Error, no id passed, DcGeneral\Data\TableRowsAsRecordsDriver is only intended for edit mode.', 1);
 		}
 
 		$strQuery = sprintf('SELECT %s FROM %s WHERE %s=?', $this->buildFieldQuery($objConfig), $this->strSource, $this->strGroupCol);
@@ -136,7 +138,7 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * @return void
 	 *
-	 * @throws \Exception Always throws exception.
+	 * @throws DcGeneralException Always throws exception.
 	 */
 	public function fetchAll(ConfigInterface $objConfig)
 	{
@@ -150,7 +152,7 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * @return void
 	 *
-	 * @throws \Exception Always throws exception.
+	 * @throws DcGeneralException Always throws exception.
 	 */
 	public function getCount(ConfigInterface $objConfig)
 	{
@@ -168,7 +170,7 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * @return void
 	 *
-	 * @throws \Exception Always throws exception.
+	 * @throws DcGeneralException Always throws exception.
 	 */
 	public function isUniqueValue($strField, $varNew, $intId = null)
 	{
@@ -180,7 +182,7 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * @param string $strField Unused.
 	 *
-	 * @throws \Exception Always throws exception.
+	 * @throws DcGeneralException Always throws exception.
 	 */
 	public function resetFallback($strField)
 	{
@@ -203,14 +205,14 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * @return ModelInterface The passed Model.
 	 *
-	 * @throws \Exception When the passed model does not contain a property named "rows", an Exception is thrown.
+	 * @throws DcGeneralException When the passed model does not contain a property named "rows", an Exception is thrown.
 	 */
 	public function save(ModelInterface $objItem, $recursive = false)
 	{
 		$arrData = $objItem->getProperty('rows');
 		if (!($objItem->getID() && $arrData))
 		{
-			throw new \Exception('invalid input data in model.', 1);
+			throw new DcGeneralException('invalid input data in model.', 1);
 		}
 
 		$arrKeep = array();
@@ -266,7 +268,7 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * @return void
 	 *
-	 * @throws \Exception Always throws exception.
+	 * @throws DcGeneralException Always throws exception.
 	 */
 	public function saveEach(CollectionInterface $objItems)
 	{
@@ -296,7 +298,7 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * @return void
 	 *
-	 * @throws \Exception Always throws exception.
+	 * @throws DcGeneralException Always throws exception.
 	 */
 	public function getVersion($mixID, $mixVersion)
 	{
@@ -327,7 +329,7 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * @return void
 	 *
-	 * @throws \Exception Always throws exception.
+	 * @throws DcGeneralException Always throws exception.
 	 */
 	public function saveVersion(ModelInterface $objModel, $strUsername)
 	{
@@ -343,7 +345,7 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * @return void
 	 *
-	 * @throws \Exception Always throws exception.
+	 * @throws DcGeneralException Always throws exception.
 	 */
 	public function setVersionActive($mixID, $mixVersion)
 	{
@@ -357,7 +359,7 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * @return void
 	 *
-	 * @throws \Exception Always throws exception.
+	 * @throws DcGeneralException Always throws exception.
 	 */
 	public function getActiveVersion($mixID)
 	{
@@ -373,7 +375,7 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * @return void
 	 *
-	 * @throws \Exception Always throws exception.
+	 * @throws DcGeneralException Always throws exception.
 	 */
 	public function sameModels($objModel1, $objModel2)
 	{
@@ -391,7 +393,7 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * @return void
 	 *
-	 * @throws \Exception Always throws exception.
+	 * @throws DcGeneralException Always throws exception.
 	 */
 	protected function insertUndo($strSourceSQL, $strSaveSQL, $strTable)
 	{

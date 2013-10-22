@@ -21,6 +21,7 @@ use DcGeneral\Data\DefaultDriver;
 use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\DriverInterface;
 use DcGeneral\Data\ModelInterface;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Helper\WidgetAccessor;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\DefaultEnvironment;
@@ -621,7 +622,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	 *
 	 * @return array|int|mixed|null|String
 	 *
-	 * @throws \RuntimeException
+	 * @throws DcGeneralRuntimeException
 	 *
 	 * @deprecated magic access is deprecated.
 	 */
@@ -656,7 +657,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			// DataContainer overwrite
 			case 'palette':
 			case 'activeRecord':
-				throw new \RuntimeException("Unsupported getter function for '$name' in DC_General.");
+				throw new DcGeneralRuntimeException("Unsupported getter function for '$name' in DC_General.");
 		}
 		// allow importing of objects in Contao 3.
 		if (version_compare(VERSION, '3.0', '>='))
@@ -793,7 +794,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 				// must be model!
 				if (! $mixParent instanceof ModelInterface)
 				{
-					throw new \RuntimeException('incompatible object passed');
+					throw new DcGeneralRuntimeException('incompatible object passed');
 				}
 				$strSrcTable = $mixParent->getProviderName();
 			}
@@ -890,7 +891,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 				}
 				else
 				{
-					throw new \RuntimeException('Error: neither remote field nor remote value specified in: ' . var_export($subCondition, true), 1);
+					throw new DcGeneralRuntimeException('Error: neither remote field nor remote value specified in: ' . var_export($subCondition, true), 1);
 				}
 				$arrReturn[] = $arrNew;
 			}
@@ -971,7 +972,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 				$strProperty = array_key_exists('to_field', $arrOperation) ? $arrOperation['to_field'] : $arrOperation['property'];
 				if (!$strProperty)
 				{
-					throw new \RuntimeException('neither to_field nor property found in condition');
+					throw new DcGeneralRuntimeException('neither to_field nor property found in condition');
 				}
 				$objDestination->setProperty($strProperty, $objCopyFrom->getProperty($strProperty));
 			}

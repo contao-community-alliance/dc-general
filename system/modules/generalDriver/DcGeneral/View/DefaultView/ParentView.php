@@ -26,7 +26,7 @@ class ParentView extends BaseView
 	 *
 	 * @return BaseView
 	 *
-	 * @throws \RuntimeException
+	 * @throws DcGeneralRuntimeException
 	 */
 	public function loadCollection()
 	{
@@ -34,12 +34,12 @@ class ParentView extends BaseView
 
 		if (!($parentId = $environment->getInputProvider()->getParameter('id')))
 		{
-			throw new \RuntimeException("mode 4 need a proper parent id defined, somehow none is defined?", 1);
+			throw new DcGeneralRuntimeException("mode 4 need a proper parent id defined, somehow none is defined?", 1);
 		}
 
 		if (!($objParentProvider = $environment->getDataDriver($environment->getDataDefinition()->getParentDriverName())))
 		{
-			throw new \RuntimeException("mode 4 need a proper parent data provider defined, somehow none is defined?", 1);
+			throw new DcGeneralRuntimeException("mode 4 need a proper parent data provider defined, somehow none is defined?", 1);
 		}
 
 		// Setup

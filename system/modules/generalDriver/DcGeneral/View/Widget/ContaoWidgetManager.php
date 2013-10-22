@@ -15,6 +15,7 @@ namespace DcGeneral\View\Widget;
 use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\DataContainerInterface;
 use DcGeneral\EnvironmentInterface;
+use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\View\Widget\Events\ResolveWidgetErrorMessage;
 
 class ContaoWidgetManager implements WidgetManagerInterface
@@ -62,7 +63,7 @@ class ContaoWidgetManager implements WidgetManagerInterface
 	 *
 	 * @return \Widget
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws DcGeneralInvalidArgumentException
 	 */
 	public function getWidget($fieldName)
 	{

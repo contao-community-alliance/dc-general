@@ -12,6 +12,8 @@
 
 namespace DcGeneral\Data;
 
+use DcGeneral\Exception\DcGeneralInvalidArgumentException;
+
 /**
  * A generic bag containing properties and their values.
  */
@@ -41,7 +43,7 @@ class PropertyValueBag implements \IteratorAggregate, \Countable, \ArrayAccess
 		}
 		else if ($properties !== null)
 		{
-			throw new \InvalidArgumentException('The parameter $properties does not contain any properties nor values');
+			throw new DcGeneralInvalidArgumentException('The parameter $properties does not contain any properties nor values');
 		}
 	}
 
@@ -50,14 +52,14 @@ class PropertyValueBag implements \IteratorAggregate, \Countable, \ArrayAccess
 	 *
 	 * @param string $property
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws DcGeneralInvalidArgumentException
 	 * @internal
 	 */
 	protected function requirePropertyValue($property)
 	{
 		if (!$this->hasPropertyValue($property))
 		{
-			throw new \InvalidArgumentException('The property ' . $property . ' does not exists');
+			throw new DcGeneralInvalidArgumentException('The property ' . $property . ' does not exists');
 		}
 	}
 
@@ -80,7 +82,7 @@ class PropertyValueBag implements \IteratorAggregate, \Countable, \ArrayAccess
 	 *
 	 * @return mixed
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws DcGeneralInvalidArgumentException
 	 */
 	public function getPropertyValue($property)
 	{
@@ -104,7 +106,7 @@ class PropertyValueBag implements \IteratorAggregate, \Countable, \ArrayAccess
 	 *
 	 * @param string $property
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws DcGeneralInvalidArgumentException
 	 */
 	public function removePropertyValue($property)
 	{

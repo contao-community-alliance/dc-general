@@ -17,6 +17,7 @@ use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Contao\Dca\Conditions\RootCondition;
 use DcGeneral\Contao\Dca\Conditions\ParentChildCondition;
 use DcGeneral\DataDefinition\PropertyInterface;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 
 class Container implements ContainerInterface
 {
@@ -132,7 +133,7 @@ class Container implements ContainerInterface
 
 		if (!class_exists($strCallbackClass))
 		{
-			throw new \RuntimeException(sprintf('Invalid callback provider defined %s', var_export($strCallbackClass, true)));
+			throw new DcGeneralRuntimeException(sprintf('Invalid callback provider defined %s', var_export($strCallbackClass, true)));
 		}
 
 		return $strCallbackClass;

@@ -16,6 +16,8 @@ use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\MultiLanguageDriverInterface;
 use DcGeneral\Data\DCGE;
+use DcGeneral\Exception\DcGeneralException;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Panel\FilterElementInterface;
 use DcGeneral\Panel\LimitElementInterface;
 use DcGeneral\Panel\SearchElementInterface;
@@ -112,7 +114,7 @@ class DefaultView implements ViewInterface
 				$this->objViewHandler = new DefaultView\TreeView();
 				break;
 			default:
-				throw new \RuntimeException('Unknown sorting mode passed in data definition: ' . $this->getEnvironment()->getDataDefinition()->getSortingMode());
+				throw new DcGeneralRuntimeException('Unknown sorting mode passed in data definition: ' . $this->getEnvironment()->getDataDefinition()->getSortingMode());
 		}
 		$this->objViewHandler->setDC($objDC);
 	}
@@ -655,7 +657,7 @@ class DefaultView implements ViewInterface
 	 */
 	protected function viewList()
 	{
-		throw new \Exception('Do not use the default view anymore.');
+		throw new new DcGeneralException('Do not use the default view anymore.');
 
 		// Set label
 		$this->setListViewLabel();
@@ -969,7 +971,7 @@ class DefaultView implements ViewInterface
 	{
 		if ($this->arrAjaxPalettes[$strField])
 		{
-			throw new \RuntimeException("[DCA Config Error] Recursive subpalette detected. Involved field: [$strField]");
+			throw new DcGeneralRuntimeException("[DCA Config Error] Recursive subpalette detected. Involved field: [$strField]");
 		}
 
 		for ($i = count($this->arrStack) - 1; $i > -1; $i--)
@@ -1858,7 +1860,7 @@ class DefaultView implements ViewInterface
 	{
 		if ($this->getDC()->getPanelInformation() === null)
 		{
-			throw new \RuntimeException('No panel information stored in data container.');
+			throw new DcGeneralRuntimeException('No panel information stored in data container.');
 		}
 
 		$arrPanels = array();

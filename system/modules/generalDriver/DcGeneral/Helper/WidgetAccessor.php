@@ -12,6 +12,8 @@
 
 namespace DcGeneral\Helper;
 
+use DcGeneral\Exception\DcGeneralRuntimeException;
+
 class WidgetAccessor extends \Widget
 {
 	/**
@@ -32,10 +34,10 @@ class WidgetAccessor extends \Widget
 	 * Does nothing aside from throwing an exception when called.
 	 *
 	 * @return void.
-	 * @throws \Exception
+	 * @throws DcGeneralRuntimeException
 	 */
 	public function generate()
 	{
-		throw new \RuntimeException('This is not a real widget but only an accessor to all widgets.');
+		throw new DcGeneralRuntimeException('This is not a real widget but only an accessor to all widgets.');
 	}
 }

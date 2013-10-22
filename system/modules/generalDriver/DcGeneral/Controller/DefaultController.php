@@ -18,6 +18,7 @@ use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ModelInterface;
 
 use DcGeneral\DataContainerInterface;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Panel\DefaultPanel;
 
 class DefaultController implements ControllerInterface
@@ -97,7 +98,7 @@ class DefaultController implements ControllerInterface
 		switch ($name)
 		{
 			default:
-				throw new \RuntimeException("Error Processing Request: " . $name, 1);
+				throw new DcGeneralRuntimeException("Error Processing Request: " . $name, 1);
 				break;
 		}
 	}
@@ -490,7 +491,7 @@ class DefaultController implements ControllerInterface
 
 		if ($objCurrentDataProvider == null)
 		{
-			throw new \RuntimeException('Could not load current data provider in ' . __CLASS__ . ' - ' . __FUNCTION__);
+			throw new DcGeneralRuntimeException('Could not load current data provider in ' . __CLASS__ . ' - ' . __FUNCTION__);
 		}
 
 		// Get parent DataProvider, if set
@@ -501,7 +502,7 @@ class DefaultController implements ControllerInterface
 
 			if ($objCurrentDataProvider == null)
 			{
-				throw new \RuntimeException('Could not load parent data provider ' . $strPDP . ' in ' . __CLASS__ . ' - ' . __FUNCTION__);
+				throw new DcGeneralRuntimeException('Could not load parent data provider ' . $strPDP . ' in ' . __CLASS__ . ' - ' . __FUNCTION__);
 			}
 		}
 
@@ -573,7 +574,7 @@ class DefaultController implements ControllerInterface
 
 	public function move()
 	{
-		throw new \RuntimeException('HELP! move() is not implemented.');
+		throw new DcGeneralRuntimeException('HELP! move() is not implemented.');
 	}
 
 	/**
@@ -806,7 +807,7 @@ class DefaultController implements ControllerInterface
 			$objCurrentDataProvider = $this->getEnvironment()->getDataDriver($strCDP);
 			if ($objCurrentDataProvider == null)
 			{
-				throw new \RuntimeException('Could not load current data provider in ' . __CLASS__ . ' - ' . __FUNCTION__);
+				throw new DcGeneralRuntimeException('Could not load current data provider in ' . __CLASS__ . ' - ' . __FUNCTION__);
 			}
 
 			$objParentDataProvider = null;
@@ -815,7 +816,7 @@ class DefaultController implements ControllerInterface
 				$objParentDataProvider = $this->getEnvironment()->getDataDriver($strPDP);
 				if ($objParentDataProvider == null)
 				{
-					throw new \RuntimeException('Could not load parent data provider ' . $strPDP . ' in ' . __CLASS__ . ' - ' . __FUNCTION__);
+					throw new DcGeneralRuntimeException('Could not load parent data provider ' . $strPDP . ' in ' . __CLASS__ . ' - ' . __FUNCTION__);
 				}
 			}
 
@@ -962,11 +963,11 @@ class DefaultController implements ControllerInterface
 				}
 				catch (\Exception $exc)
 				{
-					$_SESSION['TL_ERROR'][] = sprintf('Exception: %s in file %s on line %s', $exc->getMessage(), $exc->getFile(), $exc->getLine());
+					$_SESSION['TL_ERROR'][] = sprintf('%s: %s in file %s on line %s', get_class($exc), $exc->getMessage(), $exc->getFile(), $exc->getLine());
 				}
 			}
 		}
-		catch (Exception $exc)
+		catch (\Exception $exc)
 		{
 			$_SESSION['TL_ERROR'][] = $exc->getMessage();
 		}
@@ -1264,11 +1265,11 @@ class DefaultController implements ControllerInterface
 			case 1:
 			case 2:
 			case 3:
-				throw new \RuntimeException('List view is now self contained. You should not end up here!');
+				throw new DcGeneralRuntimeException('List view is now self contained. You should not end up here!');
 				break;
 
 			case 4:
-				throw new \RuntimeException('Parentview is now self contained. You should not end up here!');
+				throw new DcGeneralRuntimeException('Parentview is now self contained. You should not end up here!');
 				break;
 
 			case 5:
@@ -1505,7 +1506,7 @@ class DefaultController implements ControllerInterface
 	{
 		if (!$objDBModel)
 		{
-			throw new \RuntimeException('No model provided!');
+			throw new DcGeneralRuntimeException('No model provided!');
 		}
 
 		// Check if we have a sorting field, if not skip here.
@@ -1821,7 +1822,7 @@ class DefaultController implements ControllerInterface
 //			// Check unique
 //			if ($this->getDC()->arrDCA['fields'][$key]['eval']['unique'] == true && $objDataProvider->isUniqueValue($key, $value))
 //			{
-//				throw new \RuntimeException(vsprintf($GLOBALS['TL_LANG']['ERR']['unique'], $key));
+//				throw new DcGeneralRuntimeException(vsprintf($GLOBALS['TL_LANG']['ERR']['unique'], $key));
 //			}
 //		}
 //
@@ -2971,7 +2972,7 @@ class DefaultController implements ControllerInterface
 		$arrChildCondition = $this->getDC()->getParentChildCondition($objParentEntry, $objChildEntry->getProviderName());
 		if (!($arrChildCondition && $arrChildCondition['setOn']))
 		{
-			throw new \RuntimeException("Can not calculate parent.", 1);
+			throw new DcGeneralRuntimeException("Can not calculate parent.", 1);
 		}
 
 		foreach ($arrChildCondition['setOn'] as $arrCondition)
@@ -2986,7 +2987,7 @@ class DefaultController implements ControllerInterface
 			}
 			else
 			{
-				throw new \RuntimeException("Error Processing child condition, neither from_field nor value specified: " . var_export($arrCondition, true), 1);
+				throw new DcGeneralRuntimeException("Error Processing child condition, neither from_field nor value specified: " . var_export($arrCondition, true), 1);
 			}
 		}
 	}
@@ -3047,7 +3048,7 @@ class DefaultController implements ControllerInterface
 		$arrRootSetter = $this->getDC()->getRootSetter($strTable);
 		if (!($arrRootSetter && $arrRootSetter))
 		{
-			throw new \RuntimeException("Can not calculate parent.", 1);
+			throw new DcGeneralRuntimeException("Can not calculate parent.", 1);
 		}
 
 		foreach ($arrRootSetter as $arrCondition)
@@ -3058,7 +3059,7 @@ class DefaultController implements ControllerInterface
 			}
 			else
 			{
-				throw new \RuntimeException("Error Processing root condition, you need to specify property and value: " . var_export($arrCondition, true), 1);
+				throw new DcGeneralRuntimeException("Error Processing root condition, you need to specify property and value: " . var_export($arrCondition, true), 1);
 			}
 		}
 	}

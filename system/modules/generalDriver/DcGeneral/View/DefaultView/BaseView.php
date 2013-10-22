@@ -18,6 +18,7 @@ use DcGeneral\Data\MultiLanguageDriverInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\DC_General;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Panel\DefaultPanelContainer;
 use DcGeneral\Panel\FilterElementInterface;
 use DcGeneral\Panel\LimitElementInterface;
@@ -1194,7 +1195,7 @@ class BaseView implements ViewInterface
 	{
 		if ($this->arrAjaxPalettes[$strField])
 		{
-			throw new \RuntimeException("[DCA Config Error] Recursive subpalette detected. Involved field: [$strField]");
+			throw new DcGeneralRuntimeException("[DCA Config Error] Recursive subpalette detected. Involved field: [$strField]");
 		}
 
 		for ($i = count($this->arrStack) - 1; $i > -1; $i--)
@@ -1862,7 +1863,7 @@ class BaseView implements ViewInterface
 	{
 		if ($this->getEnvironment()->getPanelContainer() === null)
 		{
-			throw new \RuntimeException('No panel information stored in data container.');
+			throw new DcGeneralRuntimeException('No panel information stored in data container.');
 		}
 
 		$arrPanels = array();

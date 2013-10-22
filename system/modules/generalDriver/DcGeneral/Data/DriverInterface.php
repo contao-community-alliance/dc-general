@@ -12,6 +12,8 @@
 
 namespace DcGeneral\Data;
 
+use DcGeneral\Exception\DcGeneralRuntimeException;
+
 interface DriverInterface
 {
 	/**
@@ -21,7 +23,7 @@ interface DriverInterface
 	 *
 	 * @return void
 	 *
-	 * @throws \RuntimeException when no source has been defined.
+	 * @throws DcGeneralRuntimeException when no source has been defined.
 	 */
 	public function setBaseConfig(array $arrConfig);
 
@@ -123,7 +125,7 @@ interface DriverInterface
 	 *
 	 * @param mixed $item Id or the model itself, to delete.
 	 *
-	 * @throws \RuntimeException when an unusable object has been passed.
+	 * @throws DcGeneralRuntimeException when an unusable object has been passed.
 	 */
 	public function delete($item);
 

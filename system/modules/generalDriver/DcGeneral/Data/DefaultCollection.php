@@ -13,6 +13,8 @@
 namespace DcGeneral\Data;
 
 use DcGeneral\Data\ModelInterface;
+use DcGeneral\Exception\DcGeneralException;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 
 class DefaultCollection implements CollectionInterface
 {
@@ -59,7 +61,7 @@ class DefaultCollection implements CollectionInterface
 	 *
 	 * @return void
 	 *
-	 * @throws \Exception when no model has been passed.
+	 * @throws DcGeneralException when no model has been passed.
 	 *
 	 * @see push
 	 */
@@ -75,13 +77,13 @@ class DefaultCollection implements CollectionInterface
 	 *
 	 * @return void
 	 *
-	 * @throws \RuntimeException when no model has been passed.
+	 * @throws DcGeneralRuntimeException when no model has been passed.
 	 */
 	public function push(ModelInterface $objModel)
 	{
 		if (!$objModel)
 		{
-			throw new \RuntimeException("push() - no model passed", 1);
+			throw new DcGeneralRuntimeException("push() - no model passed", 1);
 		}
 
 		if ($objModel->hasProperties())

@@ -13,6 +13,7 @@
 namespace DcGeneral\DataDefinition\Palette;
 
 use DcGeneral\DataDefinition\PropertyInterface;
+use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 /**
  * A condition define when a property is visible or editable and when not.
@@ -134,7 +135,7 @@ class PropertyConditionChain implements PropertyConditionInterface
 	public function setConjunction($conjunction)
 	{
 		if ($conjunction != static::AND_CONJUNCTION && $conjunction != static::OR_CONJUNCTION) {
-			throw new \InvalidArgumentException('Conjunction must be PropertyConditionChain::AND_CONJUNCTION or PropertyConditionChain::OR_CONJUNCTION');
+			throw new DcGeneralInvalidArgumentException('Conjunction must be PropertyConditionChain::AND_CONJUNCTION or PropertyConditionChain::OR_CONJUNCTION');
 		}
 
 		$this->conjunction = (string) $conjunction;
