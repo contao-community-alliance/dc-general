@@ -2383,13 +2383,14 @@ class DC_General extends \DataContainer implements DataContainerInterface
 
 	public function showAll()
 	{
-		// If forcemode true, use edit mode only.
+		// If force edit mode true, use edit mode only.
 		if($this->blnForceEdit)
 		{
 			return $this->edit();
 		}
 
-		if ($this->getEnvironment()->getView() instanceof ParentView)
+		if (($this->getEnvironment()->getView() instanceof ParentView)
+		|| ($this->getEnvironment()->getView() instanceof ListView))
 		{
 			return $this->getEnvironment()->getView()->showAll();
 		}

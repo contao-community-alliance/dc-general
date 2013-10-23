@@ -1352,7 +1352,9 @@ class BaseView implements ViewInterface
 	 */
 	protected function generateHeaderButtons($strButtonId)
 	{
-		$providerName     = $this->getEnvironment()->getDataDefinition()->getName();
+		$environment      = $this->getEnvironment();
+		$definition       = $environment->getDataDefinition();
+		$providerName     = $environment->getDataDefinition()->getName();
 		$arrReturn        = array();
 		$globalOperations = $this->getDC()->arrDCA['list']['global_operations'];
 
@@ -1368,14 +1370,19 @@ class BaseView implements ViewInterface
 			$globalOperations[$k]['href'] = BackendBindings::addToUrl($v['href']);
 		}
 
-		// Check if we have the select mode
-		if (!$this->isSelectModeActive())
+		// Special case - if select mode active, we must not display the "edit all" button.
+		if ($this->isSelectModeActive())
+		{
+			unset($globalOperations['all']);
+		}
+		// We have the select mode
+		else
 		{
 			$addButton = false;
 			$strHref   = '';
 
 			// Add Buttons for mode x
-			switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
+			switch ($definition->getSortingMode())
 			{
 				case 0:
 				case 1:
@@ -1386,7 +1393,7 @@ class BaseView implements ViewInterface
 					$strHref = '';
 					if (strlen($this->getEnvironment()->getDataDefinition()->getParentDriverName()))
 					{
-						if ($this->getDC()->arrDCA['list']['sorting']['mode'] < 4)
+						if ($definition->getSortingMode() < 4)
 						{
 							$strHref = '&amp;mode=2';
 						}

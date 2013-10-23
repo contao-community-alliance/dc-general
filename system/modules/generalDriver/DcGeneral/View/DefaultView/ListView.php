@@ -14,10 +14,48 @@ namespace DcGeneral\View\DefaultView;
 
 use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Data\DCGE;
+use DcGeneral\Data\ModelInterface;
 use DcGeneral\View\DefaultView\Events\ModelToLabelEvent;
 
 class ListView extends BaseView
 {
+	/**
+	 * Load the collection of child items and the parent item for the currently selected parent item.
+	 *
+	 * @return ListView
+	 *
+	 * @throws \RuntimeException
+	 */
+	public function loadCollection()
+	{
+		$environment            = $this->getEnvironment();
+		$definition             = $environment->getDataDefinition();
+		$objCurrentDataProvider = $environment->getDataDriver();
+		$objParentDataProvider  = $environment->getDataDriver($definition->getParentDriverName());
+		$objConfig              = $environment->getController()->getBaseConfig();
+
+		$environment->getPanelContainer()->initialize($objConfig);
+
+		$objCollection = $objCurrentDataProvider->fetchAll($objConfig);
+
+		$environment->setCurrentCollection($objCollection);
+
+		// If we want to group the elements, do so now.
+		if (isset($objCondition) && ($definition->getSortingMode() == 3))
+		{
+			foreach ($objCollection as $objModel)
+			{
+				/** @var ModelInterface $objModel */
+				$arrFilter = $objCondition->getInverseFilter($objModel);
+				$objConfig = $objParentDataProvider->getEmptyConfig()->setFilter($arrFilter);
+				$objParent = $objParentDataProvider->fetch($objConfig);
+
+				// TODO: wouldn't it be wiser to link the model instance instead of the id of the parenting model?
+				$objModel->setMeta(DCGE::MODEL_PID, $objParent->getId());
+			}
+		}
+	}
+
 	protected function getTableHead()
 	{
 		$arrTableHead = array();
@@ -306,36 +344,41 @@ class ListView extends BaseView
 	 */
 	protected function viewList()
 	{
-		$definition = $this->getEnvironment()->getDataDefinition();
-
-		// TODO: populate input provider and call controller to retrieve the collection.
+		$environment = $this->getEnvironment();
+		$definition  = $environment->getDataDefinition();
 
 		// Set label
 		$this->setListViewLabel();
 
 		// Generate buttons
-		foreach ($this->getCurrentCollection() as $objModelRow)
+		$collection = $this->getCurrentCollection();
+		foreach ($collection as $i => $objModel)
 		{
-			/**
-			 * @var \DcGeneral\Data\ModelInterface $objModelRow
-			 */
-			$objModelRow->setMeta(
-				DCGE::MODEL_BUTTONS,
-				$this->generateButtons(
-					$objModelRow,
-					$definition->getName(),
-					$this->getDC()->getEnvironment()->getRootIds()
-				)
-			);
+			// Regular buttons - only if not in select mode!
+			if (!$this->isSelectModeActive())
+			{
+				$strPrevious = ((!is_null($collection->get($i - 1))) ? $collection->get($i - 1)->getID() : null);
+				$strNext     = ((!is_null($collection->get($i + 1))) ? $collection->get($i + 1)->getID() : null);
+				/**
+				 * @var \DcGeneral\Data\ModelInterface $objModel
+				 */
+				$objModel->setMeta(
+					DCGE::MODEL_BUTTONS,
+					$this->generateButtons(
+						$objModel,
+						$definition->getName(),
+						$environment->getRootIds(),
+						false,
+						null,
+						$strPrevious,
+						$strNext
+					)
+				);
+			}
 		}
 
-		$sortings = $definition->getAdditionalSorting();
-		$sorting  = null;
 		// FIXME: hack, we should define a better handling for manual sorting.
-		if (is_array($sortings) && count($sortings))
-		{
-			$sorting = $sortings[0];
-		}
+		$sorting = $definition->getFirstSorting();
 
 		$panel = $this->getEnvironment()->getPanelContainer()->getPanel('sorting');
 		if ($panel)
@@ -356,25 +399,23 @@ class ListView extends BaseView
 			$objTemplate = new \BackendTemplate('dcbe_general_listView');
 		}
 
-		$objTemplate->tableName = strlen($definition->getName())? $definition->getName() : 'none';
-		$objTemplate->collection = $this->getCurrentCollection();
-		$objTemplate->select = \Input::getInstance()->get('act');
-		$objTemplate->action = ampersand(\Environment::getInstance()->request, true);
-		$objTemplate->mode = $definition->getSortingMode();
-		$objTemplate->tableHead = $this->getTableHead();
-
-		$objTemplate->notDeletable = !$definition->isDeletable();
-		$objTemplate->notEditable = !$definition->isEditable();
-
-		// Set dataprovider from current and parent
-		$objTemplate->pdp = '';
-		$objTemplate->cdp = $definition->getName();
+		$this
+			->addToTemplate('tableName', strlen($definition->getName())? $definition->getName() : 'none', $objTemplate)
+			->addToTemplate('collection', $this->getCurrentCollection(), $objTemplate)
+			->addToTemplate('select', $this->getEnvironment()->getInputProvider()->getParameter('act'), $objTemplate)
+			->addToTemplate('action', ampersand(\Environment::getInstance()->request, true), $objTemplate)
+			->addToTemplate('mode', $definition->getSortingMode(), $objTemplate)
+			->addToTemplate('tableHead', $this->getTableHead(), $objTemplate)
+			// Set dataprovider from current and parent
+			->addToTemplate('pdp', '', $objTemplate)
+			->addToTemplate('cdp', $definition->getName(), $objTemplate)
+			->addToTemplate('selectButtons', $this->getSelectButtons(), $objTemplate);
 
 		// Add breadcrumb, if we have one
 		$strBreadcrumb = $this->breadcrumb();
 		if($strBreadcrumb != null)
 		{
-			$objTemplate->breadcrumb = $strBreadcrumb;
+			$this->addToTemplate('breadcrumb', $strBreadcrumb, $objTemplate);
 		}
 
 		return $objTemplate->parse();
@@ -396,7 +437,10 @@ class ListView extends BaseView
 	 */
 	public function showAll()
 	{
-		// Create return value
+		$this->buildPanel();
+		$this->checkClipboard();
+		$this->loadCollection();
+
 		$arrReturn            = array();
 		$arrReturn['panel']   = $this->panel();
 		$arrReturn['buttons'] = $this->generateHeaderButtons('tl_buttons_a');

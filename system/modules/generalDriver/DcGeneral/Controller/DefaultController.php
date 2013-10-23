@@ -1253,7 +1253,7 @@ class DefaultController implements ControllerInterface
 			case 1:
 			case 2:
 			case 3:
-				$this->viewList();
+				throw new \RuntimeException('List view is now self contained. You should not end up here!');
 				break;
 
 			case 4:

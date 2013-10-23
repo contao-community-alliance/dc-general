@@ -270,7 +270,7 @@ class ParentView extends BaseView
 	}
 
 	/**
-	 * Retrieve a list of html buttons to use in the bottom panel (submit area).
+	 * Retrieve a list of html buttons to use in the top panel (submit area).
 	 *
 	 * @return array()
 	 */
