@@ -216,7 +216,15 @@ class ListView extends BaseView
 			$args = $this->getListViewLabelArguments($objModelRow);
 
 			// Shorten the label if it is too long
-			$label = vsprintf((strlen($listLabel->getFormat()) ? $listLabel->getFormat() : '%s'), $args);
+			$labelFormat = (strlen($listLabel->getFormat()) ? $listLabel->getFormat() : '%s');
+			if (count($args) == substr_count($labelFormat, '%') - substr_count($labelFormat, '%%'))
+			{
+				$label = vsprintf($labelFormat, $args);
+			}
+			else
+			{
+				$label = '';
+			}
 
 			if ($listLabel->getMaxCharacters() > 0 && $listLabel->getMaxCharacters() < strlen(strip_tags($label)))
 			{
@@ -297,7 +305,6 @@ class ListView extends BaseView
 			if (!is_null($event->getArgs()))
 			{
 				$newArgs = $event->getArgs();
-
 				// Handle strings and arrays (backwards compatibility)
 				if (!$listLabel->isShowColumnsActive())
 				{

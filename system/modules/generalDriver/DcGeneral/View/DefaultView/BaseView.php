@@ -51,9 +51,7 @@ class BaseView implements ViewInterface
 	protected $arrSelectors = array();
 	protected $arrAjaxPalettes = array();
 	protected $arrRootPalette = array();
-	// Multilanguage vars ---------------------------
-	protected $strCurrentLanguage;
-	protected $blnMLSupport = false;
+
 	// Overall Vars ---------------------------------
 	protected $notImplMsg = "<div style='text-align:center; font-weight:bold; padding:40px;'>The function/view &quot;%s&quot; is not implemented.</div>";
 
@@ -64,12 +62,6 @@ class BaseView implements ViewInterface
 	 * @var DataContainerInterface
 	 */
 	protected $objDC = null;
-
-	/**
-	 * A list with all supported languages
-	 * @var CollectionInterface
-	 */
-	protected $objLanguagesSupported = null;
 
 	/**
 	 * Used by palette rendering.
@@ -659,11 +651,10 @@ class BaseView implements ViewInterface
 		return $this;
 	}
 
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 *  Core Support functions
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
+	protected function isMultiLanguage($mixId)
+	{
+		return count($this->getEnvironment()->getController()->getSupportedLanguages($mixId)) > 0;
+	}
 
 	/**
 	 * Check if the data provider is multi language.
@@ -673,22 +664,54 @@ class BaseView implements ViewInterface
 	 */
 	protected function checkLanguage()
 	{
-		$objDataProvider = $this->getEnvironment()->getDataDriver();
+		$environment     = $this->getEnvironment();
+		$inputProvider   = $environment->getInputProvider();
+		$objDataProvider = $environment->getDataDriver();
+		$strProviderName = $environment->getDataDefinition()->getName();
+		$mixID           = $environment->getInputProvider()->getParameter('id');
+		$arrLanguage     = $environment->getController()->getSupportedLanguages($mixID);
 
-		// Check if DP is multilanguage
-		if ($objDataProvider instanceof MultiLanguageDriverInterface)
+		if (!$arrLanguage)
 		{
-			/** @var MultiLanguageDriverInterface $objDataProvider */
-			$this->blnMLSupport = true;
-			$this->objLanguagesSupported = $objDataProvider->getLanguages($this->getDC()->getId());
-			$this->strCurrentLanguage = $objDataProvider->getCurrentLanguage();
+			return;
+		}
+
+		// Load language from Session
+		$arrSession = $inputProvider->getPersistentValue('dc_general');
+		if (!is_array($arrSession))
+		{
+			$arrSession = array();
+		}
+		/** @var \DcGeneral\Data\MultiLanguageDriverInterface $objDataProvider */
+
+		// try to get the language from session
+		if (isset($arrSession["ml_support"][$strProviderName][$mixID]))
+		{
+			$strCurrentLanguage = $arrSession["ml_support"][$strProviderName][$mixID];
 		}
 		else
 		{
-			$this->blnMLSupport = false;
-			$this->objLanguagesSupported = null;
-			$this->strCurrentLanguage = null;
+			$strCurrentLanguage = $GLOBALS['TL_LANGUAGE'];
 		}
+
+		// Get/Check the new language
+		if (strlen($inputProvider->getValue('language')) != 0 && $inputProvider->getValue('FORM_SUBMIT') == 'language_switch')
+		{
+			if (array_key_exists($inputProvider->getValue('language'), $arrLanguage))
+			{
+				$strCurrentLanguage = $inputProvider->getValue('language');
+			}
+		}
+
+		if (!array_key_exists($strCurrentLanguage, $arrLanguage))
+		{
+			$strCurrentLanguage  = $objDataProvider->getFallbackLanguage($mixID)->getID();
+		}
+
+		$arrSession['ml_support'][$strProviderName][$mixID] = $strCurrentLanguage;
+		$inputProvider->setPersistentValue('dc_general', $arrSession);
+
+		$objDataProvider->setCurrentLanguage($strCurrentLanguage);
 	}
 
 	protected function getTemplate($strTemplate)
@@ -789,10 +812,13 @@ class BaseView implements ViewInterface
 		// Load basic informations
 		$this->checkLanguage();
 
-		$model = $this->getEnvironment()->getCurrentModel();
+		$environment = $this->getEnvironment();
+		$definition  = $environment->getDataDefinition();
+		$driver      = $environment->getDataDriver();
+		$model       = $environment->getCurrentModel();
 
 		// Get all selectors
-		$this->arrStack[] = $this->getEnvironment()->getDataDefinition()->getSubPalettes();
+		$this->arrStack[] = $definition->getSubPalettes();
 		$this->calculateSelectors($this->arrStack[0]);
 		$this->parseRootPalette();
 
@@ -814,17 +840,28 @@ class BaseView implements ViewInterface
 		$objTemplate->setData(array(
 			'fieldsets' => $this->generateFieldsets('dcbe_general_field', array()),
 			'oldBE' => $GLOBALS['TL_CONFIG']['oldBeTheme'],
-			'versions' => $this->getEnvironment()->getDataDriver()->getVersions($model->getId()),
-			'language' => $this->objLanguagesSupported,
+			'versions' => $driver->getVersions($model->getId()),
 			'subHeadline' => $strHeadline,
-			'languageHeadline' => strlen($this->strCurrentLanguage) != 0 ? $langsNative[$this->strCurrentLanguage] : '',
-			'table' => $this->getDataDefinition()->getName(),
+			'table' => $definition->getName(),
 			'enctype' => $this->getDC()->isUploadable() ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
 			//'onsubmit' => implode(' ', $this->onsubmit),
 			'error' => $this->noReload,
 			'editButtons' => $this->getEditButtons(),
 			'noReload' => $this->getDC()->isNoReload()
 		));
+
+		if ($this->isMultiLanguage($model->getId()))
+		{
+			$this
+				->addToTemplate('language', $environment->getController()->getSupportedLanguages($model->getId()), $objTemplate)
+				->addToTemplate('languageHeadline', $langsNative[$driver->getCurrentLanguage()], $objTemplate);
+		}
+		else
+		{
+			$this
+				->addToTemplate('language', null, $objTemplate)
+				->addToTemplate('languageHeadline', '', $objTemplate);
+		}
 
 		return $objTemplate->parse();
 	}
@@ -836,7 +873,27 @@ class BaseView implements ViewInterface
 	 */
 	public function show()
 	{
-		// Load basic informations
+		// Load check multi language
+		$environment     = $this->getEnvironment();
+		$definition      = $environment->getDataDefinition();
+		$objDataProvider = $environment->getDataDriver();
+		$mixId           = $environment->getInputProvider()->getParameter('id');
+
+		// Check
+		$this->checkLanguage();
+
+		// Load record from data provider
+		$objDBModel = $objDataProvider->fetch($objDataProvider->getEmptyConfig()->setId($mixId));
+
+		if ($objDBModel == null)
+		{
+			$this->log('Could not find ID ' . $mixId . ' in Table ' . $definition->getName() . '.', 'DC_General show()', TL_ERROR);
+			$this->redirect('contao/main.php?act=error');
+		}
+
+		$environment->setCurrentModel($objDBModel);
+
+		// Load basic information.
 		$this->checkLanguage();
 
 		// Init
@@ -850,10 +907,10 @@ class BaseView implements ViewInterface
 			$fields[] = $key;
 		}
 
-		// Get allowed fieds from dca
-		if (is_array($this->getDC()->arrDCA['fields']))
+		// Get allowed fields from dca
+		if ($definition->getPropertyNames())
 		{
-			$allowedFields = array_unique(array_merge($allowedFields, array_keys($this->getDC()->arrDCA['fields'])));
+			$allowedFields = array_unique(array_merge($allowedFields, $definition->getPropertyNames()));
 		}
 
 		$fields = array_intersect($allowedFields, $fields);
@@ -861,30 +918,34 @@ class BaseView implements ViewInterface
 		// Show all allowed fields
 		foreach ($fields as $strFieldName)
 		{
-			$arrFieldConfig = $this->getDC()->arrDCA['fields'][$strFieldName];
+			$objProperty = $definition->getProperty($strFieldName);
 			// TODO: we should examine the palette here and hide irrelevant fields.
-
-			if (!in_array($strFieldName, $allowedFields)
-				|| $arrFieldConfig['inputType'] == 'password'
-				|| $arrFieldConfig['eval']['doNotShow']
-				|| $arrFieldConfig['eval']['hideInput'])
+			if ($objProperty)
 			{
-				continue;
+				$eval = $objProperty->getEvaluation();
+
+				if (!in_array($strFieldName, $allowedFields)
+					|| $objProperty->getWidgetType() == 'password'
+					|| ($eval && (
+							array_key_exists('doNotShow', $eval)
+							|| array_key_exists('hideInput', $eval))))
+				{
+					continue;
+				}
+				$label = $objProperty->getLabel();
 			}
-
-			// Special treatment for table tl_undo
-			if ($this->getDC()->getTable() == 'tl_undo' && $strFieldName == 'data')
+			else
 			{
-				continue;
+				$label = '';
 			}
 
 			// Make it human readable
 			$arrFieldValues[$strFieldName] = $this->getDC()->getReadableFieldValue($strFieldName, deserialize($this->getCurrentModel()->getProperty($strFieldName)));
 
 			// Label
-			if (count($arrFieldConfig['label']))
+			if (count($label))
 			{
-				$arrFieldLabels[$strFieldName] = is_array($arrFieldConfig['label']) ? $arrFieldConfig['label'][0] : $arrFieldConfig['label'];
+				$arrFieldLabels[$strFieldName] = is_array($label) ? $label[0] : $label;
 			}
 			else
 			{
@@ -900,10 +961,19 @@ class BaseView implements ViewInterface
 		// Create new template
 		// FIXME: dependency injection or rather template factory?
 		$objTemplate            = new \BackendTemplate("dcbe_general_show");
-		$objTemplate->headline  = sprintf($this->translate('MSC/showRecord'), ($this->getDC()->getId() ? 'ID ' . $this->getDC()->getId() : ''));
-		$objTemplate->arrFields = $arrFieldValues;
-		$objTemplate->arrLabels = $arrFieldLabels;
-		$objTemplate->language  = $this->objLanguagesSupported;
+		$this
+			->addToTemplate('headline', sprintf($this->translate('MSC/showRecord'), ($objDBModel->getId() ? 'ID ' . $objDBModel->getId() : '')), $objTemplate)
+			->addToTemplate('arrFields', $arrFieldValues, $objTemplate)
+			->addToTemplate('arrLabels', $arrFieldLabels, $objTemplate);
+
+		if ($this->isMultiLanguage($objDBModel->getId()))
+		{
+			$this->addToTemplate('language', $environment->getController()->getSupportedLanguages($objDBModel->getId()), $objTemplate);
+		}
+		else
+		{
+			$this->addToTemplate('language', null, $objTemplate);
+		}
 
 		return $objTemplate->parse();
 	}

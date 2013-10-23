@@ -297,10 +297,56 @@ class DefaultController implements ControllerInterface
 	}
 
 	/**
+	 * Return all supported languages from the default data driver.
+	 *
+	 * @param mixed $mixID
+	 *
+	 * @return array
+	 */
+	public function getSupportedLanguages($mixID)
+	{
+		$environment     = $this->getEnvironment();
+		$objDataProvider = $environment->getDataDriver();
+
+		// Check if current data provider supports multi language
+		if (in_array('DcGeneral\Data\MultiLanguageDriverInterface', class_implements($objDataProvider)))
+		{
+			/** @var \DcGeneral\Data\MultiLanguageDriverInterface $objDataProvider */
+			$objLanguagesSupported = $objDataProvider->getLanguages($mixID);
+		}
+		else if (in_array('InterfaceGeneralDataMultiLanguage', class_implements($objDataProvider)))
+		{
+			trigger_error('deprecated use of InterfaceGeneralDataMultiLanguage - use DcGeneral\Data\MultiLanguageDriverInterface instead.', E_USER_DEPRECATED);
+			$objLanguagesSupported = $objDataProvider->getLanguages($mixID);
+		}
+		else
+		{
+			$objLanguagesSupported = null;
+		}
+
+		//Check if we have some languages
+		if ($objLanguagesSupported == null)
+		{
+			return array();
+		}
+
+		// Make a array from the collection
+		$arrLanguage = array();
+		foreach ($objLanguagesSupported as $value)
+		{
+			$arrLanguage[$value->getID()] = $value->getProperty("name");
+		}
+
+		return $arrLanguage;
+	}
+
+	/**
 	 * Check if the current model support multi language.
 	 * Load the language from SESSION, POST or use a fallback.
 	 *
 	 * @return int return the mode multi language, single language, see DCGE.php
+	 *
+	 * @deprecated Will get removed as only used from the views and therefore moved into BaseView.
 	 */
 	protected function checkLanguage()
 	{
@@ -310,24 +356,8 @@ class DefaultController implements ControllerInterface
 		$objDataProvider = $environment->getDataDriver();
 		$strProviderName = $environment->getDataDefinition()->getName();
 
-		// Check if current data provider supports multi language
-		if (in_array('DcGeneral\Data\MultiLanguageDriverInterface', class_implements($objDataProvider)))
-		{
-			/** @var \DcGeneral\Data\MultiLanguageDriverInterface $objDataProvider */
-			$objLanguagesSupported = $objDataProvider->getLanguages($intID);
-		}
-		else if (in_array('InterfaceGeneralDataMultiLanguage', class_implements($objDataProvider)))
-		{
-			trigger_error('deprecated use of InterfaceGeneralDataMultiLanguage - use DcGeneral\Data\MultiLanguageDriverInterface instead.', E_USER_DEPRECATED);
-			$objLanguagesSupported = $objDataProvider->getLanguages($intID);
-		} 
-		else
-		{
-			$objLanguagesSupported = null;
-		}
-
-		//Check if we have some languages
-		if ($objLanguagesSupported == null)
+		$arrLanguage = $this->getSupportedLanguages($intID);
+		if (!$arrLanguage)
 		{
 			return DCGE::LANGUAGE_SL;
 		}
@@ -347,13 +377,6 @@ class DefaultController implements ControllerInterface
 		else
 		{
 			$strCurrentLanguage = $GLOBALS['TL_LANGUAGE'];
-		}
-
-		// Make a array from the collection
-		$arrLanguage = array();
-		foreach ($objLanguagesSupported as $value)
-		{
-			$arrLanguage[$value->getID()] = $value->getProperty("name");
 		}
 
 		// Get/Check the new language

@@ -40,6 +40,15 @@ interface ControllerInterface
 	 */
 	public function assembleAllChildrenFrom($objModel, $strDataProvider = '');
 
+	/**
+	 * Return all supported languages from the default data driver.
+	 *
+	 * @param mixed $mixID
+	 *
+	 * @return array
+	 */
+	public function getSupportedLanguages($mixID);
+
 	// TODO: we need to flesh this out some more out and add real interface methods. Currently this interface is rather useless.
 
 	// FIXME: all methods below are to be removed or refined to be really only common sense methods like setting/getting parent etc.
