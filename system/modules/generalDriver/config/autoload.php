@@ -50,6 +50,7 @@ ClassLoader::addClasses(array
 	'DcGeneral\View\DefaultView\Events\GetOperationButtonEvent'     => 'system/modules/generalDriver/DcGeneral/View/DefaultView/Events/GetOperationButtonEvent.php',
 	'DcGeneral\View\DefaultView\Events\GetPasteButtonEvent'         => 'system/modules/generalDriver/DcGeneral/View/DefaultView/Events/GetPasteButtonEvent.php',
 	'DcGeneral\View\DefaultView\Events\GetPasteRootButtonEvent'     => 'system/modules/generalDriver/DcGeneral/View/DefaultView/Events/GetPasteRootButtonEvent.php',
+	'DcGeneral\View\DefaultView\Events\GetPropertyOptionsEvent'     => 'system/modules/generalDriver/DcGeneral/View/DefaultView/Events/GetPropertyOptionsEvent.php',
 	'DcGeneral\View\DefaultView\Events\GetSelectModeButtonsEvent'   => 'system/modules/generalDriver/DcGeneral/View/DefaultView/Events/GetSelectModeButtonsEvent.php',
 	'DcGeneral\View\DefaultView\Events\ModelToLabelEvent'           => 'system/modules/generalDriver/DcGeneral/View/DefaultView/Events/ModelToLabelEvent.php',
 	'DcGeneral\View\DefaultView\Events\GetGroupHeaderEvent'         => 'system/modules/generalDriver/DcGeneral/View/DefaultView/Events/GetGroupHeaderEvent.php',

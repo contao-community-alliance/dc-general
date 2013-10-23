@@ -24,9 +24,9 @@
 <input type="hidden" name="FORM_SUBMIT" value="language_switch" />
 <input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>" />
 <select name="language" class="tl_select" onchange="Backend.autoSubmit('language_switch')">
-<?php foreach($this->language as $objLanguage): ?>
-	<option value="<?php echo $objLanguage->getID(); ?>"<?php if($objLanguage->getProperty('active')): ?> selected="selected"<?php endif; ?>>
-            <?php echo $objLanguage->getProperty('name'); ?>
+<?php foreach($this->languages as $langCode => $languageName): ?>
+	<option value="<?php echo $langCode; ?>"<?php if($langCode == $this->language): ?> selected="selected"<?php endif; ?>>
+            <?php echo $languageName; ?>
 	</option>
 <?php endforeach; ?>
 </select> <input type="submit" name="switchLanguage" id="switchLanguage" class="tl_submit" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['editSelected']); ?>" />

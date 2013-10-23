@@ -3,8 +3,8 @@
 namespace DcGeneral\Events;
 
 use DcGeneral\View\DefaultView\Events\GetBreadcrumbEvent;
-use DcGeneral\View\Widget\Events\ResolveWidgetErrorMessage;
 use DcGeneral\View\Widget\Events\ResolveWidgetErrorMessageEvent;
+use DcGeneral\View\DefaultView\Events\GetPropertyOptionsEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use DcGeneral\View\DefaultView\Events\GetGlobalButtonEvent;
 use DcGeneral\View\DefaultView\Events\GetGlobalButtonsEvent;
@@ -42,6 +42,7 @@ class Subscriber
 			GetBreadcrumbEvent::NAME         => 'GetBreadcrumb',
 
 			ResolveWidgetErrorMessageEvent::NAME => array('resolveWidgetErrorMessage', -1),
+			GetPropertyOptionsEvent::NAME    => 'GetPropertyOptions',
 		);
 	}
 
@@ -260,5 +261,13 @@ class Subscriber
 		{
 			$event->setError(sprintf('[%s]', gettype($error)));
 		}
+	}
+
+	public function GetPropertyOptions(GetPropertyOptionsEvent $event)
+	{
+		$arrReturn = $event->getEnvironment()
+			->getCallbackHandler()->optionsCallback($event->getFieldName());
+
+		$event->setOptions($arrReturn);
 	}
 }

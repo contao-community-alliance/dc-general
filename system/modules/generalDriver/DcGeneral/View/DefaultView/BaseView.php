@@ -34,6 +34,7 @@ use DcGeneral\View\DefaultView\Events\GetGlobalButtonsEvent;
 use DcGeneral\View\DefaultView\Events\GetGroupHeaderEvent;
 use DcGeneral\View\DefaultView\Events\GetOperationButtonEvent;
 use DcGeneral\View\DefaultView\Events\GetPasteButtonEvent;
+use DcGeneral\View\DefaultView\Events\GetPropertyOptionsEvent;
 use DcGeneral\View\DefaultView\Events\GetSelectModeButtonsEvent;
 use DcGeneral\View\ViewInterface;
 
@@ -347,27 +348,40 @@ class BaseView implements ViewInterface
 	 */
 	public function formatGroupHeader($field, $value, $mode, ModelInterface $objModelRow)
 	{
-		$group = '';
 		static $lookup = array();
 
-		if (array_is_assoc($this->arrDCA['fields'][$field]['options']))
+		$environment = $this->getEnvironment();
+		$definition  = $environment->getDataDefinition();
+		$property    = $definition->getProperty($field);
+		$options     = $property->get('options');
+		$reference   = $property->get('reference');
+
+		if (array_is_assoc($options))
 		{
-			$group = $this->arrDCA['fields'][$field]['options'][$value];
+			$group = $options[$value];
 		}
-		else if (is_array($this->arrDCA['fields'][$field]['options_callback']))
+		elseif (isset($reference[$value]))
+		{
+			$group = is_array($reference[$value]) ? $reference[$value][0] : $reference[$value];
+		}
+		else
 		{
 			if (!isset($lookup[$field]))
 			{
-				$lookup[$field] = $this->getEnvironment()->getCallbackHandler()->optionsCallback($field);
+				$event = new GetPropertyOptionsEvent();
+				$event
+					->setEnvironment($environment)
+					->setFieldName($field);
+
+				$this->dispatchEvent(GetPropertyOptionsEvent::NAME, $event);
+
+				$lookup[$field] = $event->getOptions();
 			}
 
 			$group = $lookup[$field][$value];
 		}
-		else
-		{
-			$group = is_array($this->arrDCA['fields'][$field]['reference'][$value]) ? $this->arrDCA['fields'][$field]['reference'][$value][0] : $this->arrDCA['fields'][$field]['reference'][$value];
-		}
 
+		// FIXME: What is this undocumented feature?
 		if (empty($group))
 		{
 			$group = is_array($this->arrDCA[$value]) ? $this->arrDCA[$value][0] : $this->arrDCA[$value];
@@ -836,9 +850,6 @@ class BaseView implements ViewInterface
 		$this->calculateSelectors($this->arrStack[0]);
 		$this->parseRootPalette();
 
-		$langsNative = array();
-		include(TL_ROOT . '/system/config/languages.php');
-
 		if ($model->getId())
 		{
 			$strHeadline = sprintf($this->translate('MSC/editRecord'), 'ID ' . $model->getId());
@@ -866,14 +877,19 @@ class BaseView implements ViewInterface
 
 		if ($this->isMultiLanguage($model->getId()))
 		{
+			$langsNative = array();
+			include(TL_ROOT . '/system/config/languages.php');
+
+			/** @var MultiLanguageDriverInterface $driver */
 			$this
-				->addToTemplate('language', $environment->getController()->getSupportedLanguages($model->getId()), $objTemplate)
+				->addToTemplate('languages', $environment->getController()->getSupportedLanguages($model->getId()), $objTemplate)
+				->addToTemplate('language', $driver->getCurrentLanguage(), $objTemplate)
 				->addToTemplate('languageHeadline', $langsNative[$driver->getCurrentLanguage()], $objTemplate);
 		}
 		else
 		{
 			$this
-				->addToTemplate('language', null, $objTemplate)
+				->addToTemplate('languages', null, $objTemplate)
 				->addToTemplate('languageHeadline', '', $objTemplate);
 		}
 
@@ -1369,9 +1385,9 @@ class BaseView implements ViewInterface
 				'y' => -185
 			),
 			'startDay' => $this->translate('MSC/weekOffset'),
-			'days' => array_values($this->translate('MSC/DAYS')),
+			'days' => array_values((array)$this->translate('MSC/DAYS')),
 			'dayShort' => $this->translate('MSC/dayShortLength'),
-			'months' => array_values($this->translate('MSC/MONTHS')),
+			'months' => array_values((array)$this->translate('MSC/MONTHS')),
 			'monthShort' => $this->translate('MSC/monthShortLength')
 		);
 
@@ -1393,7 +1409,7 @@ class BaseView implements ViewInterface
 		if (version_compare(DATEPICKER, '2.1','>')) return 'new Picker.Date($$("#ctrl_' . $objWidget->id . '"), {
 			draggable:false,
 			toggle:$$("#toggle_' . $objWidget->id . '"),
-			format:"' . Date::formatToJs($strFormat) . '",
+			format:"' . \Date::formatToJs($strFormat) . '",
 			positionOffset:{x:-197,y:-182}' . $time . ',
 			pickerClass:"datepicker_dashboard",
 			useFadeInOut:!Browser.ie,
