@@ -118,6 +118,14 @@ class DefaultView implements ViewInterface
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public function checkClipboard()
+	{
+		return $this->objViewHandler->checkClipboard();
+	}
+
+	/**
 	 *
 	 * @return \DcGeneral\EnvironmentInterface
 	 */

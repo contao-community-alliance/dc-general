@@ -159,7 +159,7 @@ class ListView extends BaseView
 	{
 		$definition   = $this->getEnvironment()->getDataDefinition();
 		$listLabel    = $definition->getListLabel();
-		$firstSorting = $this->getDC()->getFirstSorting();
+		$firstSorting = $definition->getFirstSorting();
 
 		// FIXME: this is not possible with the new environmental approach.
 		// Automatically add the "order by" field as last column if we do not have group headers
@@ -213,12 +213,12 @@ class ListView extends BaseView
 					// If the current First sorting is the default one use the global flag
 					else if ($firstSorting == $orderBy[0])
 					{
-						$sortingMode = $this->getDC()->arrDCA['list']['sorting']['flag'];
+						$sortingMode = $definition->getSortingFlag();
 					}
 					// Use the global as fallback
 					else
 					{
-						$sortingMode = $this->getDC()->arrDCA['list']['sorting']['flag'];
+						$sortingMode = $definition->getSortingFlag();
 					}
 
 					// ToDo: Why such a big if ?

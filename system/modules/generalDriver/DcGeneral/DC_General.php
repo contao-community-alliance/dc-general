@@ -2389,12 +2389,16 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			return $this->edit();
 		}
 
+		if ($this->getEnvironment()->getView() instanceof ParentView)
+		{
+			return $this->getEnvironment()->getView()->showAll();
+		}
+
 		$strReturn = $this->objController->showAll();
 		if ($strReturn != null && $strReturn != "")
 		{
 			return $strReturn;
 		}
-
 		$strReturn = $GLOBALS['TL_CONFIG']['debugMode'] ? $this->setupTimer() : '';
 		return $strReturn . $this->objViewHandler->showAll();
 	}

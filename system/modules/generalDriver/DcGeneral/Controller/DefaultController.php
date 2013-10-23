@@ -143,6 +143,54 @@ class DefaultController implements ControllerInterface
 	}
 
 	/**
+	 * Scan for children of a given model.
+	 *
+	 * This method is ready for mixed hierarchy and will return all children and grandchildren for the given table
+	 * (or originating table of the model, if no provider name has been given) for all levels and parent child conditions.
+	 *
+	 * @param ModelInterface $objModel        The model to assemble children from.
+	 *
+	 * @param string         $strDataProvider The name of the data provider to fetch children from.
+	 *
+	 * @return array
+	 */
+	public function assembleAllChildrenFrom($objModel, $strDataProvider = '')
+	{
+		if ($strDataProvider == '')
+		{
+			$strDataProvider = $objModel->getProviderName();
+		}
+
+		$arrIds = array();
+
+		if ($strDataProvider == $objModel->getProviderName())
+		{
+			$arrIds = array($objModel->getId());
+		}
+
+		// Check all data providers for children of the given element.
+		foreach ($this->getEnvironment()->getDataDefinition()->getChildConditions($objModel->getProviderName()) as $objChildCondition)
+		{
+			$objDataProv = $this->getEnvironment()->getDataDriver($objChildCondition->getDestinationName());
+			$objConfig   = $objDataProv->getEmptyConfig();
+			$objConfig->setFilter($objChildCondition->getFilter($objModel));
+
+			foreach ($objDataProv->fetchAll($objConfig) as $objChild)
+			{
+				/** @var ModelInterface $objChild */
+				if ($strDataProvider == $objChild->getProviderName())
+				{
+					$arrIds[] = $objChild->getId();
+				}
+
+				$arrIds = array_merge($arrIds, $this->assembleAllChildrenFrom($objChild, $strDataProvider));
+			}
+		}
+
+		return $arrIds;
+	}
+
+	/**
 	 * Get filter for the data provider
 	 *
 	 * @todo Somtimes we don't need all filtersettings
@@ -350,53 +398,6 @@ class DefaultController implements ControllerInterface
 	 * ---------------------------------------------------------------------
 	 * ////////////////////////////////////////////////////////////////// */
 
-	/**
-	 * Scan for children.
-	 *
-	 * This method is ready for mixed hierarchy and will return all children and grandchildren for the given table
-	 * (or originating table of the model, if no provider name has been given) for all levels and parent child conditions.
-	 *
-	 * @param ModelInterface  $objModel        The model to assemble children from.
-	 *
-	 * @param string $strDataProvider The name of the data provider to fetch children from.
-	 *
-	 * @return array
-	 */
-	protected function assembleAllChildrenFromSame($objModel, $strDataProvider = '')
-	{
-		if ($strDataProvider == '')
-		{
-			$strDataProvider = $objModel->getProviderName();
-		}
-
-		$arrIds = array();
-
-		if ($strDataProvider == $objModel->getProviderName())
-		{
-			$arrIds = array($objModel->getId());
-		}
-
-		// Check all data providers for children of the given element.
-		foreach ($this->getEnvironment()->getDataDefinition()->getChildConditions($objModel->getProviderName()) as $objChildCondition)
-		{
-			$objDataProv = $this->getEnvironment()->getDataDriver($objChildCondition->getDestinationName());
-			$objConfig   = $objDataProv->getEmptyConfig();
-			$objConfig->setFilter($objChildCondition->getFilter($objModel));
-
-			foreach ($objDataProv->fetchAll($objConfig) as $objChild)
-			{
-				/** @var ModelInterface $objChild */
-				if ($strDataProvider == $objChild->getProviderName())
-				{
-					$arrIds[] = $objChild->getId();
-				}
-
-				$arrIds = array_merge($arrIds, $this->assembleAllChildrenFromSame($objChild, $strDataProvider));
-			}
-		}
-
-		return $arrIds;
-	}
 
 	/**
 	 * Check clipboard state. Clear or save state of it.

@@ -13,8 +13,8 @@
 namespace DcGeneral\Controller;
 
 use DcGeneral\DataContainerInterface;
+use DcGeneral\Data\ModelInterface;
 
-// TODO: we need to flesh this out some more out and add real interface methods. Currently this interface is rather useless.
 interface ControllerInterface
 {
 	/**
@@ -26,7 +26,23 @@ interface ControllerInterface
 	 */
 	public function getBaseConfig();
 
+	/**
+	 * Scan for children of a given model.
+	 *
+	 * This method is ready for mixed hierarchy and will return all children and grandchildren for the given table
+	 * (or originating table of the model, if no provider name has been given) for all levels and parent child conditions.
+	 *
+	 * @param ModelInterface $objModel        The model to assemble children from.
+	 *
+	 * @param string         $strDataProvider The name of the data provider to fetch children from.
+	 *
+	 * @return array
+	 */
+	public function assembleAllChildrenFrom($objModel, $strDataProvider = '');
 
+	// TODO: we need to flesh this out some more out and add real interface methods. Currently this interface is rather useless.
+
+	// FIXME: all methods below are to be removed or refined to be really only common sense methods like setting/getting parent etc.
 
 	/**
 	 * Set the DataContainerInterface.

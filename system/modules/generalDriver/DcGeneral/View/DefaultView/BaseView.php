@@ -623,7 +623,7 @@ class BaseView implements ViewInterface
 				// We have to ignore all children of this element in mode 5 (to prevent circular references).
 				if ($this->getEnvironment()->getDataDefinition()->getSortingMode() == 5)
 				{
-					$arrIgnored = $this->getEnvironment()->getController()->assembleAllChildrenFromSame($objModel);
+					$arrIgnored = $this->getEnvironment()->getController()->assembleAllChildrenFrom($objModel);
 				}
 
 				$objClipboard
