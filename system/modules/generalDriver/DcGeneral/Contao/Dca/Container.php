@@ -176,12 +176,7 @@ class Container implements ContainerInterface
 	 */
 	public function getFirstSorting()
 	{
-		$sorting = $this->getFromDca('list/sorting/fields/0');
-		if (!$sorting)
-		{
-			throw new \RuntimeException('No sorting defined in ' . $this->getName());
-		}
-		return $sorting;
+		return $this->getFromDca('list/sorting/fields/0');
 	}
 
 	/**
