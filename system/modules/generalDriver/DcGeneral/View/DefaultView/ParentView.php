@@ -20,13 +20,62 @@ use DcGeneral\View\DefaultView\Events\ParentViewChildRecordEvent;
 class ParentView extends BaseView
 {
 	/**
+	 * Load the collection of child items and the parent item for the currently selected parent item.
+	 *
+	 * Consumes input parameter "id".
+	 *
+	 * @return BaseView
+	 *
+	 * @throws \RuntimeException
+	 */
+	public function loadCollection()
+	{
+		$environment = $this->getEnvironment();
+
+		if (!($parentId = $environment->getInputProvider()->getParameter('id')))
+		{
+			throw new \RuntimeException("mode 4 need a proper parent id defined, somehow none is defined?", 1);
+		}
+
+		if (!($objParentProvider = $environment->getDataDriver($environment->getDataDefinition()->getParentDriverName())))
+		{
+			throw new \RuntimeException("mode 4 need a proper parent data provider defined, somehow none is defined?", 1);
+		}
+
+		// Setup
+		$objCurrentDataProvider = $environment->getDataDriver();
+
+		$objChildConfig = $environment->getController()->getBaseConfig();
+		$environment->getPanelContainer()->initialize($objChildConfig);
+
+		$objChildCollection = $objCurrentDataProvider->fetchAll($objChildConfig);
+
+		$environment->setCurrentCollection($objChildCollection);
+
+		$objParentItem = $objParentProvider->fetch($objParentProvider->getEmptyConfig()->setId($parentId));
+
+		if (!$objParentItem)
+		{
+			// No parent item found, might have been deleted - we transparently create it for our filter to be able to filter to nothing.
+			// TODO: shall we rather bail with "parent not found"?
+			$objParentItem = $objParentProvider->getEmptyModel();
+			$objParentItem->setID($parentId);
+		}
+
+		$objParentCollection = $objParentProvider->getEmptyCollection();
+		$objParentCollection->add($objParentItem);
+		$environment->setCurrentParentCollection($objParentCollection);
+
+		return $this;
+	}
+
+	/**
 	 * Render the entries for parent view.
 	 */
 	protected function renderEntries()
 	{
 		$definition   = $this->getEnvironment()->getDataDefinition();
-		// FIXME: getFirstSorting() is not standardized.
-		$firstSorting = $this->getDC()->getFirstSorting();
+		$firstSorting = $definition->getFirstSorting();
 
 		$strGroup = '';
 
@@ -373,13 +422,15 @@ class ParentView extends BaseView
 	 */
 	public function showAll()
 	{
-		// Create return value
+		$this->buildPanel();
+		$this->getEnvironment()->getController()->checkClipboard();
+		$this->loadCollection();
+
 		$arrReturn            = array();
 		$arrReturn['panel']   = $this->panel();
 		$arrReturn['buttons'] = $this->generateHeaderButtons('tl_buttons_a');
 		$arrReturn['body']    = $this->viewParent();
 
-		// Return all
 		return implode("\n", $arrReturn);
 	}
 }

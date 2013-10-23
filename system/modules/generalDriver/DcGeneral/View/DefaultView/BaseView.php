@@ -127,17 +127,10 @@ class BaseView implements ViewInterface
 			$event
 		);
 
-		echo sprintf(
-			'%s[%s]<br/>',
-			$eventName,
-			$this->getEnvironment()->getDataDefinition()->getName()
-		);
-
 		// Second, try to dispatch to all globally registered subscribers.
 		if (!$event->isPropagationStopped())
 		{
 			$dispatcher->dispatch($eventName, $event);
-			echo $eventName . '<br/>';
 		}
 	}
 
@@ -593,6 +586,78 @@ class BaseView implements ViewInterface
 		return !count($this->arrRootPalette);
 	}
 
+	/**
+	 * Update the clipboard in the Environment with data from the InputProvider.
+	 *
+	 * The following parameters have to be provided by the input provider:
+	 *
+	 * Name      Type   Description
+	 * clipboard bool   Flag determining if the clipboard shall get cleared.
+	 * act       string Action to perform, either paste, cut or create.
+	 * id        mixed  The Id of the item to copy. In mode cut this is the id of the item to be moved.
+
+	 * @return BaseView
+	 */
+	public function checkClipboard()
+	{
+		$objInput     = $this->getEnvironment()->getInputProvider();
+		$objClipboard = $this->getEnvironment()->getClipboard();
+
+		// Reset Clipboard
+		if ($objInput->getParameter('clipboard') == '1')
+		{
+			$objClipboard->clear();
+		}
+		// Push some entry into clipboard.
+		elseif ($objInput->getParameter('act') == 'paste')
+		{
+			$objDataProv  = $this->getEnvironment()->getDataDriver();
+			$id           = $objInput->getParameter('id');
+
+			if ($objInput->getParameter('mode') == 'cut')
+			{
+				$arrIgnored = array($id);
+
+				$objModel = $objDataProv->fetch($objDataProv->getEmptyConfig()->setId($id));
+
+				// We have to ignore all children of this element in mode 5 (to prevent circular references).
+				if ($this->getEnvironment()->getDataDefinition()->getSortingMode() == 5)
+				{
+					$arrIgnored = $this->getEnvironment()->getController()->assembleAllChildrenFromSame($objModel);
+				}
+
+				$objClipboard
+					->clear()
+					->cut($id)
+					->setCircularIds($arrIgnored);
+			}
+			elseif ($objInput->getParameter('mode') == 'create')
+			{
+				$arrIgnored     = array($id);
+				$objContainedId = trimsplit(',', $objInput->getParameter('childs'));
+
+				$objClipboard
+					->clear()
+					->create($id)
+					->setCircularIds($arrIgnored);
+
+				if (is_array($objContainedId) && !empty($objContainedId))
+				{
+					$objClipboard->setContainedIds($objContainedId);
+				}
+			}
+		}
+		// Check clipboard from session.
+		else
+		{
+			$objClipboard->loadFrom($this->getEnvironment());
+		}
+
+		// Let the clipboard save it's values persistent.
+		$objClipboard->saveTo($this->getEnvironment());
+
+		return $this;
+	}
 
 	/* /////////////////////////////////////////////////////////////////////
 	 * ---------------------------------------------------------------------
