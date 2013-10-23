@@ -20,7 +20,7 @@ use DcGeneral\Data\ModelInterface;
 use DcGeneral\DataContainerInterface;
 use DcGeneral\Panel\DefaultPanel;
 
-class DefaultController extends \Controller implements ControllerInterface
+class DefaultController implements ControllerInterface
 {
 	/* /////////////////////////////////////////////////////////////////////
 	 * ---------------------------------------------------------------------
@@ -84,8 +84,6 @@ class DefaultController extends \Controller implements ControllerInterface
 
 	public function __construct()
 	{
-		parent::__construct();
-
 		// Import
 		// $this->import('Encryption');
 
@@ -247,19 +245,22 @@ class DefaultController extends \Controller implements ControllerInterface
 	 */
 	protected function checkLanguage()
 	{
-		// Load basic informations
-		$intID = $this->getDC()->getId();
-		$objDataProvider = $this->getEnvironment()->getDataDriver();
+		$environment     = $this->getEnvironment();
+		$inputProvider   = $environment->getInputProvider();
+		$intID           = $this->getDC()->getId();
+		$objDataProvider = $environment->getDataDriver();
+		$strProviderName = $environment->getDataDefinition()->getName();
 
 		// Check if current data provider supports multi language
 		if (in_array('DcGeneral\Data\MultiLanguageDriverInterface', class_implements($objDataProvider)))
 		{
+			/** @var \DcGeneral\Data\MultiLanguageDriverInterface $objDataProvider */
 			$objLanguagesSupported = $objDataProvider->getLanguages($intID);
 		}
 		else if (in_array('InterfaceGeneralDataMultiLanguage', class_implements($objDataProvider)))
 		{
 			trigger_error('deprecated use of InterfaceGeneralDataMultiLanguage - use DcGeneral\Data\MultiLanguageDriverInterface instead.', E_USER_DEPRECATED);
-			$objLanguagesSupported = $this->getDC()->getDataProvider()->getLanguages($intID);
+			$objLanguagesSupported = $objDataProvider->getLanguages($intID);
 		} 
 		else
 		{
@@ -273,16 +274,16 @@ class DefaultController extends \Controller implements ControllerInterface
 		}
 
 		// Load language from Session
-		$arrSession = \Session::getInstance()->get("dc_general");
+		$arrSession = $inputProvider->getPersistentValue('dc_general');
 		if (!is_array($arrSession))
 		{
 			$arrSession = array();
 		}
 
 		// try to get the language from session
-		if (isset($arrSession["ml_support"][$this->getDC()->getTable()][$intID]))
+		if (isset($arrSession["ml_support"][$strProviderName][$intID]))
 		{
-			$strCurrentLanguage = $arrSession["ml_support"][$this->getDC()->getTable()][$intID];
+			$strCurrentLanguage = $arrSession["ml_support"][$strProviderName][$intID];
 		}
 		else
 		{
@@ -297,26 +298,26 @@ class DefaultController extends \Controller implements ControllerInterface
 		}
 
 		// Get/Check the new language
-		if (strlen($this->Input->post("language")) != 0 && $_POST['FORM_SUBMIT'] == 'language_switch')
+		if (strlen($inputProvider->getValue('language')) != 0 && $inputProvider->getValue('FORM_SUBMIT') == 'language_switch')
 		{
-			if (key_exists($this->Input->post("language"), $arrLanguage))
+			if (array_key_exists($inputProvider->getValue('language'), $arrLanguage))
 			{
-				$strCurrentLanguage = $this->Input->post("language");
-				$arrSession["ml_support"][$this->getDC()->getTable()][$intID] = $strCurrentLanguage;
+				$strCurrentLanguage = $inputProvider->getValue('language');
+				$arrSession['ml_support'][$strProviderName][$intID] = $strCurrentLanguage;
 			}
-			else if (key_exists($strCurrentLanguage, $arrLanguage))
+			else if (array_key_exists($strCurrentLanguage, $arrLanguage))
 			{
-				$arrSession["ml_support"][$this->getDC()->getTable()][$intID] = $strCurrentLanguage;
+				$arrSession['ml_support'][$strProviderName][$intID] = $strCurrentLanguage;
 			}
 			else
 			{
 				$objlanguageFallback = $objDataProvider->getFallbackLanguage();
 				$strCurrentLanguage = $objlanguageFallback->getID();
-				$arrSession["ml_support"][$this->getDC()->getTable()][$intID] = $strCurrentLanguage;
+				$arrSession['ml_support'][$strProviderName][$intID] = $strCurrentLanguage;
 			}
 		}
 
-		$this->Session->set("dc_general", $arrSession);
+		$inputProvider->setPersistentValue('dc_general', $arrSession);
 
 		$objDataProvider->setCurrentLanguage($strCurrentLanguage);
 
@@ -1250,6 +1251,12 @@ class DefaultController extends \Controller implements ControllerInterface
 		return $objConfig;
 	}
 
+	/**
+	 *
+	 * @return \DcGeneral\Panel\DefaultPanelContainer
+	 *
+	 * @deprecated Remove this method when all views have been adapted to include the panel.
+	 */
 	protected function buildPanel()
 	{
 		$objContainer = new \DcGeneral\Panel\DefaultPanelContainer();
@@ -1947,13 +1954,10 @@ class DefaultController extends \Controller implements ControllerInterface
 		$objCurrentDataProvider = $this->getEnvironment()->getDataDriver();
 		$objParentDataProvider  = $this->getEnvironment()->getDataDriver($this->getEnvironment()->getDataDefinition()->getParentDriverName());
 
-		$objConfig = $objCurrentDataProvider->getEmptyConfig();
+		$objConfig = $this->getBaseConfig();
 		$this->getDC()->getEnvironment()->getPanelContainer()->initialize($objConfig);
 
-		$objCollection = $objCurrentDataProvider->fetchAll($this->addParentFilter(
-			$this->getEnvironment()->getInputProvider()->getParameter('id'),
-			$objConfig
-		));
+		$objCollection = $objCurrentDataProvider->fetchAll($objConfig);
 
 		$this->getDC()->getEnvironment()->setCurrentCollection($objCollection);
 
@@ -2041,15 +2045,17 @@ class DefaultController extends \Controller implements ControllerInterface
 
 	protected function treeViewM5()
 	{
-		$dataDriver = $this->getEnvironment()->getDataDriver();
-		// Load some infromations from DCA
-		$arrNeededFields = $this->calcNeededFields($dataDriver->getEmptyModel(), $this->getDC()->getTable());
-		$arrTitlePattern = $this->calcLabelPattern($this->getDC()->getTable());
+		$environment     = $this->getEnvironment();
+		$definition      = $environment->getDataDefinition();
+		$dataDriver      = $environment->getDataDriver();
+		$arrNeededFields = $this->calcNeededFields($dataDriver->getEmptyModel(), $definition->getName());
+		$arrTitlePattern = $this->calcLabelPattern($definition->getName());
+		$inputProvider   = $environment->getInputProvider();
 
 		// TODO: @CS we need this to be srctable_dsttable_tree for interoperability, for mode5 this will be self_self_tree but with strTable.
-		$strToggleID = $this->getDC()->getTable() . '_tree';
+		$strToggleID = $definition->getName() . '_tree';
 
-		$arrToggle = $this->Session->get($strToggleID);
+		$arrToggle = $inputProvider->getPersistentValue($strToggleID);
 		if (!is_array($arrToggle))
 		{
 			$arrToggle = array();
@@ -2069,7 +2075,7 @@ class DefaultController extends \Controller implements ControllerInterface
 			}
 
 			// Save in session and redirect
-			$this->Session->set($strToggleID, $arrToggle);
+			$inputProvider->setPersistentValue($strToggleID, $arrToggle);
 			$this->redirectHome();
 		}
 
@@ -2105,6 +2111,7 @@ class DefaultController extends \Controller implements ControllerInterface
 
 		foreach ($objRootCollection as $objRootModel)
 		{
+			/** @var ModelInterface $objRootModel */
 			$objTableTreeData->add($objRootModel);
 			$this->treeWalkModel($objRootModel, 0, $arrToggle, array($objRootModel->getProviderName()));
 		}
@@ -2364,7 +2371,7 @@ class DefaultController extends \Controller implements ControllerInterface
 
 		if (!($objParentDP = $this->getEnvironment()->getDataDriver($this->getEnvironment()->getDataDefinition()->getParentDriverName())))
 		{
-			throw new \RuntimeException("mode 4 need a proper parent dataprovider defined, somehow none is defined?", 1);
+			throw new \RuntimeException("mode 4 need a proper parent data provider defined, somehow none is defined?", 1);
 		}
 
 		// Setup
@@ -2389,6 +2396,8 @@ class DefaultController extends \Controller implements ControllerInterface
 	 * Reload the Website.
 	 *
 	 * @return void
+	 *
+	 * @deprecated No op, we have a panel class now.
 	 */
 	protected function checkPanelSubmit()
 	{
@@ -2479,7 +2488,10 @@ class DefaultController extends \Controller implements ControllerInterface
 	 * Generate all information for the filter panel.
 	 *
 	 * @param type $type
+	 *
 	 * @return type
+	 *
+	 * @deprecated No op, we have a panel class now.
 	 */
 	protected function generatePanelFilter($type = 'add')
 	{
@@ -2529,6 +2541,8 @@ class DefaultController extends \Controller implements ControllerInterface
 	 * @param array $arrSession
 	 * @param string $strFilter
 	 * @return array
+	 *
+	 * @deprecated No op, we have a panel class now.
 	 */
 	protected function filterMenuSetFilter($arrSortingFields, $arrSession, $strFilter)
 	{
@@ -2649,6 +2663,8 @@ class DefaultController extends \Controller implements ControllerInterface
 	 * @param array $arrSession
 	 * @param string $strFilter
 	 * @return array
+	 *
+	 * @deprecated No op, we have a panel class now.
 	 */
 	protected function filterMenuAddOptions($arrSortingFields, $arrSession, $strFilter)
 	{
