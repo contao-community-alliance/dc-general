@@ -78,6 +78,13 @@ interface ContainerInterface
 	public function getPanelLayout();
 
 	/**
+	 * Retrieve the name of the property to use for the main/default sorting.
+	 *
+	 * @return string
+	 */
+	public function getFirstSorting();
+
+	/**
 	 * Retrieve the names of properties to use for secondary sorting.
 	 *
 	 * @return string[]
