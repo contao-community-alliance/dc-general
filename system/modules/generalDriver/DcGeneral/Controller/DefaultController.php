@@ -1191,6 +1191,18 @@ class DefaultController implements ControllerInterface
 				$objConfig
 			);
 		}
+
+		// Set the default sorting as defined in the data definition (if any).
+		if ($sorting = $objDefinition->getAdditionalSorting())
+		{
+			$newSort = array();
+			foreach ($sorting as $propertyName)
+			{
+				$newSort[$propertyName] = 'ASC';
+			}
+			$objConfig->setSorting($newSort);
+		}
+
 		return $objConfig;
 	}
 
