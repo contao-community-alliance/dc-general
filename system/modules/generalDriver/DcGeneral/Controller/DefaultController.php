@@ -191,6 +191,17 @@ class DefaultController implements ControllerInterface
 	}
 
 	/**
+	 * TODO: Temporary held here until all views have been updated to use the method from BaseView.
+	 *
+	 * @deprecated checkClipboard now lives in the BaseView.
+	 */
+	public function checkClipboard()
+	{
+		$this->getEnvironment()->getView()->checkClipboard();
+		return $this;
+	}
+
+	/**
 	 * Get filter for the data provider
 	 *
 	 * @todo Somtimes we don't need all filtersettings
@@ -390,75 +401,6 @@ class DefaultController implements ControllerInterface
 			$this->log('Table ' . $this->getDC()->getTable() . ' is closed', 'DC_General - DefaultController - copy()', TL_ERROR);
 			$this->redirect('contao/main.php?act=error');
 		}
-	}
-
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 * Clipboard functions
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
-
-
-	/**
-	 * Check clipboard state. Clear or save state of it.
-	 */
-	protected function checkClipboard()
-	{
-		$objInput     = $this->getEnvironment()->getInputProvider();
-		$objClipboard = $this->getEnvironment()->getClipboard();
-
-		// Reset Clipboard
-		if ($objInput->getParameter('clipboard') == '1')
-		{
-			$objClipboard->clear();
-		}
-		// Push some entry into clipboard.
-		elseif ($objInput->getParameter('act') == 'paste')
-		{
-			$objDataProv  = $this->getEnvironment()->getDataDriver();
-			$id           = $objInput->getParameter('id');
-
-			if ($objInput->getParameter('mode') == 'cut')
-			{
-				$arrIgnored = array($id);
-
-				$objModel = $objDataProv->fetch($objDataProv->getEmptyConfig()->setId($id));
-
-				// We have to ignore all children of this element in mode 5 (to prevent circular references).
-				if ($this->getEnvironment()->getDataDefinition()->getSortingMode() == 5)
-				{
-					$arrIgnored = $this->assembleAllChildrenFromSame($objModel);
-				}
-
-				$objClipboard
-					->clear()
-					->cut($id)
-					->setCircularIds($arrIgnored);
-			}
-			elseif ($objInput->getParameter('mode') == 'create')
-			{
-				$arrIgnored     = array($id);
-				$objContainedId = trimsplit(',', $objInput->getParameter('childs'));
-
-				$objClipboard
-					->clear()
-					->create($id)
-					->setCircularIds($arrIgnored);
-
-				if (is_array($objContainedId) && !empty($objContainedId))
-				{
-					$objClipboard->setContainedIds($objContainedId);
-				}
-			}
-		}
-		// Check clipboard from session.
-		else
-		{
-			$objClipboard->loadFrom($this->getEnvironment());
-		}
-
-		// Let the clipboard save it's values persistent.
-		$objClipboard->saveTo($this->getEnvironment());
 	}
 
 	/* /////////////////////////////////////////////////////////////////////
@@ -1303,7 +1245,7 @@ class DefaultController implements ControllerInterface
 				break;
 
 			case 4:
-				$this->viewParent();
+				throw new \RuntimeException('Parentview is now self contained. You should not end up here!');
 				break;
 
 			case 5:
@@ -2352,38 +2294,6 @@ class DefaultController implements ControllerInterface
 		}
 
 		return $objConfig;
-	}
-
-	/**
-	 * Show header of the parent table and list all records of the current table
-	 *
-	 * @return string
-	 *
-	 * @throws \RuntimeException
-	 */
-	protected function viewParent()
-	{
-		// FIXME: changed to use the input provider based id and not the constant, check if this is really correct.
-//		if (!CURRENT_ID)
-		if (!$this->getEnvironment()->getInputProvider()->getParameter('id'))
-		{
-			throw new \RuntimeException("mode 4 need a proper parent id defined, somehow none is defined?", 1);
-		}
-
-		if (!($objParentDP = $this->getEnvironment()->getDataDriver($this->getEnvironment()->getDataDefinition()->getParentDriverName())))
-		{
-			throw new \RuntimeException("mode 4 need a proper parent data provider defined, somehow none is defined?", 1);
-		}
-
-		// Setup
-		$objCurrentDataProvider = $this->getEnvironment()->getDataDriver();
-
-		$objConfig = $this->getBaseConfig();
-		$this->getDC()->getEnvironment()->getPanelContainer()->initialize($objConfig);
-
-		$objCollection = $objCurrentDataProvider->fetchAll($objConfig);
-
-		$this->getDC()->getEnvironment()->setCurrentCollection($objCollection);
 	}
 
 	/* /////////////////////////////////////////////////////////////////////
