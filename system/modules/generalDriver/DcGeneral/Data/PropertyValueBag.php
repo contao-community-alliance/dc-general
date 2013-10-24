@@ -17,7 +17,7 @@ use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 /**
  * A generic bag containing properties and their values.
  */
-class PropertyValueBag implements \IteratorAggregate, \Countable, \ArrayAccess
+class PropertyValueBag implements PropertyValueBagInterface
 {
 	/**
 	 * All properties and its values in this bag.
