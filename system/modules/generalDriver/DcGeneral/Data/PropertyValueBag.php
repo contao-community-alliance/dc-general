@@ -94,11 +94,13 @@ class PropertyValueBag implements PropertyValueBagInterface
 	 * Set the value of a property.
 	 *
 	 * @param string $property
-	 * @param mixed $value
+	 * @param mixed  $value
 	 */
 	public function setPropertyValue($property, $value)
 	{
 		$this->properties[$property] = $value;
+
+		$this->resetPropertyValueErrors($property);
 	}
 
 	/**
