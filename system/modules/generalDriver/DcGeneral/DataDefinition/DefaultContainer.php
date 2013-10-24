@@ -56,4 +56,87 @@ class DefaultContainer implements ContainerInterface
 	{
 		// TODO: Implement hasSection() method.
 	}
+
+	/**
+	 * Clear all sections from this container.
+	 *
+	 * @return static
+	 */
+	public function clearSections()
+	{
+
+	}
+
+	/**
+	 * Set the sections of this container.
+	 *
+	 * @param ContainerSectionInterface[] $sections
+	 *
+	 * @return static
+	 */
+	public function setSections(array $sections)
+	{
+
+	}
+
+	/**
+	 * Add multiple sections to this container.
+	 *
+	 * @param ContainerSectionInterface[] $sections
+	 *
+	 * @return static
+	 */
+	public function addSections(array $sections)
+	{
+
+	}
+
+	/**
+	 * Set a sections of this container.
+	 *
+	 * @param string $sectionName
+	 * @param ContainerSectionInterface $section
+	 *
+	 * @return static
+	 */
+	public function setSection($sectionName, ContainerSectionInterface $section)
+	{
+
+	}
+
+	/**
+	 * Remove a sections from this container.
+	 *
+	 * @param string $sectionName
+	 *
+	 * @return static
+	 */
+	public function removeSection($sectionName)
+	{
+
+	}
+
+	/**
+	 * Get a sections of this container.
+	 *
+	 * @param string $sectionName
+	 *
+	 * @return ContainerSectionInterface
+	 *
+	 * @throws DcGeneralInvalidArgumentException Is thrown when there is no section with this name.
+	 */
+	public function getSection($sectionName)
+	{
+
+	}
+
+	/**
+	 * Get a list of all section names in this container.
+	 *
+	 * @return array
+	 */
+	public function getSectionNames()
+	{
+
+	}
 }
