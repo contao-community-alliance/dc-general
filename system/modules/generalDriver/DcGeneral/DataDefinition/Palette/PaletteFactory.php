@@ -15,6 +15,9 @@ namespace DcGeneral\DataDefinition\Palette;
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
+/**
+ * @deprecated This class is deprecated for the moment, use the PaletteBuilder instead.
+ */
 class PaletteFactory
 {
 	/**
