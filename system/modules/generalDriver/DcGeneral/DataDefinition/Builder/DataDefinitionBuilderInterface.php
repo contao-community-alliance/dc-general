@@ -12,12 +12,14 @@
 
 namespace DcGeneral\DataDefinition\Parser;
 
-interface ContainerParserInterface
+use DcGeneral\EnvironmentInterface;
+
+interface DataDefinitionBuilderInterface
 {
 	/**
-	 * Parse and return the container object.
+	 * Build a data definition and store it into the environments container.
 	 *
-	 * @return ContainerInterface
+	 * @param EnvironmentInterface $environment
 	 */
-	public function parseContainer();
+	public function build(EnvironmentInterface $environment);
 }
