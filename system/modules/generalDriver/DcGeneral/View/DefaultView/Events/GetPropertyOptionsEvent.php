@@ -17,7 +17,7 @@ use DcGeneral\Events\BaseEvent;
 class GetPropertyOptionsEvent
 	extends BaseEvent
 {
-	const NAME = 'DcGeneral\View\DefaultView\Events\GetPropertyOptionsEvent';
+	const NAME = 'DcGeneral\View\DefaultView\Events\GetPropertyOptions';
 
 	/**
 	 * @var string
