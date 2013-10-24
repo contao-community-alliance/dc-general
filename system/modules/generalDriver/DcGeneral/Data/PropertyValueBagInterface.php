@@ -48,6 +48,8 @@ interface PropertyValueBagInterface
 	 *
 	 * @param string $property
 	 * @param mixed $value
+	 *
+	 * @return PropertyValueBag
 	 */
 	public function setPropertyValue($property, $value);
 
@@ -57,6 +59,8 @@ interface PropertyValueBagInterface
 	 * @param string $property
 	 *
 	 * @throws DcGeneralInvalidArgumentException
+	 *
+	 * @return PropertyValueBag
 	 */
 	public function removePropertyValue($property);
 
@@ -98,6 +102,8 @@ interface PropertyValueBagInterface
 	 * @param string $property
 	 * @param string|array|mixed $error
 	 * @param bool $append Append this error and keep previous errors.
+	 *
+	 * @return PropertyValueBag
 	 */
 	public function markPropertyValueAsInvalid($property, $error, $append = true);
 
@@ -105,6 +111,8 @@ interface PropertyValueBagInterface
 	 * Reset the state of a property and remove all errors.
 	 *
 	 * @param string $property
+	 *
+	 * @return PropertyValueBag
 	 */
 	public function resetPropertyValueErrors($property);
 

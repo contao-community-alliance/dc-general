@@ -64,11 +64,7 @@ class PropertyValueBag implements PropertyValueBagInterface
 	}
 
 	/**
-	 * Check if a property exists in this bag.
-	 *
-	 * @param string $property
-	 *
-	 * @return bool
+	 * {@inheritdoc}
 	 */
 	public function hasPropertyValue($property)
 	{
@@ -76,13 +72,7 @@ class PropertyValueBag implements PropertyValueBagInterface
 	}
 
 	/**
-	 * Return the value of a property.
-	 *
-	 * @param string $property
-	 *
-	 * @return mixed
-	 *
-	 * @throws DcGeneralInvalidArgumentException
+	 * {@inheritdoc}
 	 */
 	public function getPropertyValue($property)
 	{
@@ -91,35 +81,30 @@ class PropertyValueBag implements PropertyValueBagInterface
 	}
 
 	/**
-	 * Set the value of a property.
-	 *
-	 * @param string $property
-	 * @param mixed  $value
+	 * {@inheritdoc}
 	 */
 	public function setPropertyValue($property, $value)
 	{
 		$this->properties[$property] = $value;
 
 		$this->resetPropertyValueErrors($property);
+
+		return $this;
 	}
 
 	/**
-	 * Remove the value of a property.
-	 *
-	 * @param string $property
-	 *
-	 * @throws DcGeneralInvalidArgumentException
+	 * {@inheritdoc}
 	 */
 	public function removePropertyValue($property)
 	{
 		$this->requirePropertyValue($property);
 		unset($this->properties[$property]);
+
+		return $this;
 	}
 
 	/**
-	 * Check if this bag contains invalid property values.
-	 *
-	 * @return bool
+	 * {@inheritdoc}
 	 */
 	public function hasInvalidPropertyValues()
 	{
@@ -127,9 +112,7 @@ class PropertyValueBag implements PropertyValueBagInterface
 	}
 
 	/**
-	 * Check if this bag contains no invalid property values.
-	 *
-	 * @return bool
+	 * {@inheritdoc}
 	 */
 	public function hasNoInvalidPropertyValues()
 	{
@@ -137,11 +120,7 @@ class PropertyValueBag implements PropertyValueBagInterface
 	}
 
 	/**
-	 * Check if a property value is invalid.
-	 *
-	 * @param string $property
-	 *
-	 * @return bool
+	 * {@inheritdoc}
 	 */
 	public function isPropertyValueInvalid($property)
 	{
@@ -150,11 +129,7 @@ class PropertyValueBag implements PropertyValueBagInterface
 	}
 
 	/**
-	 * Check if a property value is valid.
-	 *
-	 * @param string $property
-	 *
-	 * @return bool
+	 * {@inheritdoc}
 	 */
 	public function isPropertyValueValid($property)
 	{
@@ -163,11 +138,7 @@ class PropertyValueBag implements PropertyValueBagInterface
 	}
 
 	/**
-	 * Mark a property as invalid and add an error message to the property.
-	 *
-	 * @param string $property
-	 * @param string|array|mixed $error
-	 * @param bool $append Append this error and keep previous errors.
+	 * {@inheritdoc}
 	 */
 	public function markPropertyValueAsInvalid($property, $error, $append = true)
 	{
@@ -182,23 +153,23 @@ class PropertyValueBag implements PropertyValueBagInterface
 		{
 			$this->errors[$property][] = $singleError;
 		}
+
+		return $this;
 	}
 
 	/**
-	 * Reset the state of a property and remove all errors.
-	 *
-	 * @param string $property
+	 * {@inheritdoc}
 	 */
 	public function resetPropertyValueErrors($property)
 	{
 		$this->requirePropertyValue($property);
 		unset($this->errors[$property]);
+
+		return $this;
 	}
 
 	/**
-	 * Get a list of all property names, whose values are invalid.
-	 *
-	 * @return string[]
+	 * {@inheritdoc}
 	 */
 	public function getInvalidPropertyNames()
 	{
@@ -206,11 +177,7 @@ class PropertyValueBag implements PropertyValueBagInterface
 	}
 
 	/**
-	 * Return all errors of an invalid property value.
-	 *
-	 * @param string $property
-	 *
-	 * @return array
+	 * {@inheritdoc}
 	 */
 	public function getPropertyValueErrors($property)
 	{
@@ -219,9 +186,7 @@ class PropertyValueBag implements PropertyValueBagInterface
 	}
 
 	/**
-	 * Get an associative array of properties and their errors, whose values are invalid.
-	 *
-	 * @return array
+	 * {@inheritdoc}
 	 */
 	public function getInvalidPropertyErrors()
 	{
