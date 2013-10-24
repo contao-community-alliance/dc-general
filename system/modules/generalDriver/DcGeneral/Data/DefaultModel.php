@@ -12,6 +12,8 @@
 
 namespace DcGeneral\Data;
 
+use DcGeneral\Exception\DcGeneralInvalidArgumentException;
+
 class DefaultModel extends AbstractModel
 {
 	/**
@@ -197,5 +199,46 @@ class DefaultModel extends AbstractModel
 	public function getProviderName()
 	{
 		return $this->strProviderName;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function readFromPropertyValueBag(PropertyValueBagInterface $valueBag)
+	{
+		foreach ($this as $name => $value)
+		{
+			if (!$valueBag->hasPropertyValue($name))
+			{
+				continue;
+			}
+
+			if ($valueBag->isPropertyValueInvalid($name))
+			{
+				throw new DcGeneralInvalidArgumentException('The value for property ' . $name . ' is invalid.');
+			}
+
+			$this->setProperty($name, $valueBag->getPropertyValue($value));
+		}
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function writeToPropertyValueBag(PropertyValueBagInterface $valueBag)
+	{
+		foreach ($this as $name => $value)
+		{
+			if (!$valueBag->hasPropertyValue($name))
+			{
+				continue;
+			}
+
+			$valueBag->setPropertyValue($name, $this->getProperty($value));
+		}
+
+		return $this;
 	}
 }

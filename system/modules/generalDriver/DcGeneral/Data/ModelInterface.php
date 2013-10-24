@@ -12,6 +12,8 @@
 
 namespace DcGeneral\Data;
 
+use DcGeneral\Exception\DcGeneralInvalidArgumentException;
+
 interface ModelInterface extends \IteratorAggregate
 {
 	/**
@@ -112,4 +114,28 @@ interface ModelInterface extends \IteratorAggregate
 	 * @return string the name of the corresponding data provider.
 	 */
 	public function getProviderName();
+
+	/**
+	 * Read all values from a value bag.
+	 *
+	 * If the value is not present in the value bag, it will get skipped.
+	 *
+	 * If the value for a property in the bag is invalid, an exception will get thrown.
+	 *
+	 * @param PropertyValueBagInterface $valueBag The value bag where to read from.
+	 *
+	 * @return ModelInterface
+	 *
+	 * @throws DcGeneralInvalidArgumentException
+	 */
+	public function readFromPropertyValueBag(PropertyValueBagInterface $valueBag);
+
+	/**
+	 * Read values from a value bag.
+	 *
+	 * @param PropertyValueBagInterface $valueBag The value bag where to write to.
+	 *
+	 * @return ModelInterface
+	 */
+	public function writeToPropertyValueBag(PropertyValueBagInterface $valueBag);
 }
