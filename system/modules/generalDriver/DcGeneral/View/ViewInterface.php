@@ -14,14 +14,33 @@ namespace DcGeneral\View;
 
 use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\DataContainerInterface;
+use DcGeneral\EnvironmentInterface;
 
 // TODO: we need to flesh this out some more out and add real interface methods. Currently this interface is rather useless.
 interface ViewInterface
 {
 	/**
+	 * Set the environment.
+	 *
+	 * @param EnvironmentInterface $environment
+	 *
+	 * @return ViewInterface
+	 */
+	public function setEnvironment(EnvironmentInterface $environment);
+
+	/**
+	 * Retrieve the attached environment.
+	 *
+	 * @return EnvironmentInterface
+	 */
+	public function getEnvironment();
+
+	/**
 	 * Set the DC
 	 *
 	 * @param DataContainerInterface $objDC
+	 *
+	 * @deprecated Please do only use the Environment.
 	 */
 	public function setDC($objDC);
 
@@ -29,6 +48,8 @@ interface ViewInterface
 	 * Get the DC
 	 *
 	 * @return DataContainerInterface
+	 *
+	 * @deprecated Please do only use the Environment.
 	 */
 	public function getDC();
 

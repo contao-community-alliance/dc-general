@@ -13,11 +13,10 @@
 namespace DcGeneral\View\DefaultView;
 
 use DcGeneral\Data\ModelInterface;
-use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\MultiLanguageDriverInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\PropertyValueBag;
-use DcGeneral\DC_General;
+use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Panel\DefaultPanelContainer;
 use DcGeneral\Panel\FilterElementInterface;
@@ -65,6 +64,8 @@ class BaseView implements ViewInterface
 	/**
 	 * Driver class
 	 * @var DataContainerInterface
+	 *
+	 * @deprecated
 	 */
 	protected $objDC = null;
 
@@ -76,6 +77,13 @@ class BaseView implements ViewInterface
 	protected $arrStack = array();
 
 	/**
+	 * The attached environment.
+	 *
+	 * @var EnvironmentInterface
+	 */
+	protected $environment;
+
+	/**
 	 * The widget manager.
 	 *
 	 * @var WidgetManagerInterface
@@ -84,6 +92,8 @@ class BaseView implements ViewInterface
 
 	/**
 	 * @return DataContainerInterface
+	 *
+	 * @deprecated
 	 */
 	public function getDC()
 	{
@@ -92,13 +102,13 @@ class BaseView implements ViewInterface
 
 	/**
 	 * @param DataContainerInterface $objDC
+	 *
+	 * @deprecated
 	 */
 	public function setDC($objDC)
 	{
 		$this->objDC = $objDC;
-
-		// TODO is this a good place to create the WidgetManager?
-		$this->widgetManager = new ContaoWidgetManager($objDC->getEnvironment());
+		$this->setEnvironment($objDC->getEnvironment());
 	}
 
 	/**
@@ -141,12 +151,19 @@ class BaseView implements ViewInterface
 		}
 	}
 
+	public function setEnvironment(EnvironmentInterface $environment)
+	{
+		$this->environment = $environment;
+		// TODO is this a good place to create the WidgetManager?
+		$this->widgetManager = new ContaoWidgetManager($environment);
+	}
+
 	/**
 	 * @return \DcGeneral\EnvironmentInterface
 	 */
-	protected function getEnvironment()
+	public function getEnvironment()
 	{
-		return $this->getDC()->getEnvironment();
+		return $this->environment;
 	}
 
 	/**

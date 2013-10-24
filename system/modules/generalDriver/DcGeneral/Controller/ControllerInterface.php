@@ -14,9 +14,26 @@ namespace DcGeneral\Controller;
 
 use DcGeneral\DataContainerInterface;
 use DcGeneral\Data\ModelInterface;
+use DcGeneral\EnvironmentInterface;
 
 interface ControllerInterface
 {
+	/**
+	 * Set the environment.
+	 *
+	 * @param EnvironmentInterface $environment
+	 *
+	 * @return ControllerInterface
+	 */
+	public function setEnvironment(EnvironmentInterface $environment);
+
+	/**
+	 * Retrieve the attached environment.
+	 *
+	 * @return EnvironmentInterface
+	 */
+	public function getEnvironment();
+
 	/**
 	 * Retrieve the base config for retrieving data.
 	 *

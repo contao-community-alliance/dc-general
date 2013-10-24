@@ -18,6 +18,7 @@ use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ModelInterface;
 
 use DcGeneral\DataContainerInterface;
+use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Panel\DefaultPanel;
 
@@ -35,8 +36,17 @@ class DefaultController implements ControllerInterface
 	 * Current DC General
 	 *
 	 * @var DataContainerInterface
+	 *
+	 * @deprecated
 	 */
 	protected $objDC = null;
+
+	/**
+	 * The attached environment.
+	 *
+	 * @var EnvironmentInterface
+	 */
+	protected $environment;
 
 	/**
 	 * Contao Encrypt class
@@ -119,7 +129,8 @@ class DefaultController implements ControllerInterface
 	/**
 	 * Get DC General
 	 * @return DataContainerInterface;
-
+	 *
+	 * @deprecated
 	 */
 	public function getDC()
 	{
@@ -129,18 +140,26 @@ class DefaultController implements ControllerInterface
 	/**
 	 * Set DC General
 	 * @param DataContainerInterface $objDC
+	 *
+	 * @deprecated
 	 */
 	public function setDC($objDC)
 	{
 		$this->objDC = $objDC;
+		$this->setEnvironment($objDC->getEnvironment());
+	}
+
+	public function setEnvironment(EnvironmentInterface $environment)
+	{
+		$this->environment = $environment;
 	}
 
 	/**
 	 * @return \DcGeneral\EnvironmentInterface
 	 */
-	protected function getEnvironment()
+	public function getEnvironment()
 	{
-		return $this->getDC()->getEnvironment();
+		return $this->environment;
 	}
 
 	/**
