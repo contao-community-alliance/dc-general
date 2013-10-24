@@ -14,7 +14,7 @@ namespace DcGeneral\DataDefinition\Palette\Builder\Event;
 
 use DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionChain;
 use DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionChain;
-use DcGeneral\DataDefinition\Palette\PaletteBuilder;
+use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
 use DcGeneral\EnvironmentInterface;
 
 class CreatePropertyConditionChainEvent extends BuilderEvent

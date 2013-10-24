@@ -12,7 +12,7 @@
 
 namespace DcGeneral\DataDefinition\Palette\Builder\Event;
 
-use DcGeneral\DataDefinition\Palette\PaletteBuilder;
+use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
 use DcGeneral\DataDefinition\Palette\PaletteInterface;
 use DcGeneral\EnvironmentInterface;
 

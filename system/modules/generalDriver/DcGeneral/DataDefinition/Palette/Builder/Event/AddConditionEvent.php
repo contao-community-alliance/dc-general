@@ -16,8 +16,7 @@ use DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionInterface
 use DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition as PalettePropertyValueCondition;
 use DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterface;
 use DcGeneral\DataDefinition\Palette\Condition\Property\PropertyValueCondition;
-use DcGeneral\DataDefinition\Palette\Palette;
-use DcGeneral\DataDefinition\Palette\PaletteBuilder;
+use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
 use DcGeneral\DataDefinition\Palette\PaletteInterface;
 use DcGeneral\DataDefinition\Palette\PropertyInterface;
 use DcGeneral\EnvironmentInterface;

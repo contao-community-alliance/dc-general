@@ -13,7 +13,7 @@
 namespace DcGeneral\DataDefinition\Palette\Builder\Event;
 
 use DcGeneral\DataDefinition\Palette\LegendInterface;
-use DcGeneral\DataDefinition\Palette\PaletteBuilder;
+use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
 use DcGeneral\EnvironmentInterface;
 
 class CreateLegendEvent extends BuilderEvent

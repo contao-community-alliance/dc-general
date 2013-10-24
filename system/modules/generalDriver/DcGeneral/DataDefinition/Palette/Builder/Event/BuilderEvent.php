@@ -17,7 +17,7 @@ use DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionChain;
 use DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionInterface;
 use DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionChain;
 use DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterface;
-use DcGeneral\DataDefinition\Palette\PaletteBuilder;
+use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
 use DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Events\BaseEvent;

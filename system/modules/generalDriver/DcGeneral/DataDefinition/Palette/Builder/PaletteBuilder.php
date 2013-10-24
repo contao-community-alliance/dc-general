@@ -10,7 +10,7 @@
  * @filesource
  */
 
-namespace DcGeneral\DataDefinition\Palette;
+namespace DcGeneral\DataDefinition\Palette\Builder;
 
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\DataDefinition\Palette\Builder\Event\AddConditionEvent;
