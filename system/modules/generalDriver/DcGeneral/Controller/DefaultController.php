@@ -524,10 +524,10 @@ class DefaultController implements ControllerInterface
 		// FIXME: dependency injection.
 		if (\Input::getInstance()->get('table') && \Input::getInstance()->get('id'))
 		{
-			$this->redirect(sprintf('contao/main.php?do=%s&table=%s&id=%s', \Input::getInstance()->get('do'), $this->getDC()->getTable(), \Input::getInstance()->get('id')));
+			BackendBindings::redirect(sprintf('contao/main.php?do=%s&table=%s&id=%s', \Input::getInstance()->get('do'), $this->getDC()->getTable(), \Input::getInstance()->get('id')));
 		}
 
-		$this->redirect('contao/main.php?do=' . \Input::getInstance()->get('do'));
+		BackendBindings::redirect('contao/main.php?do=' . \Input::getInstance()->get('do'));
 	}
 
 	/**
@@ -648,15 +648,15 @@ class DefaultController implements ControllerInterface
 		// Check if table is editable
 		if (!$this->getDC()->isEditable())
 		{
-			$this->log('Table ' . $this->getDC()->getTable() . ' is not editable', 'DC_General - DefaultController - copy()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			BackendBindings::log('Table ' . $this->getDC()->getTable() . ' is not editable', 'DC_General - DefaultController - copy()', TL_ERROR);
+			BackendBindings::redirect('contao/main.php?act=error');
 		}
 
 		// Check if table is editable
 		if ((!$this->getDC()->getId()) && $this->getDC()->isClosed())
 		{
-			$this->log('Table ' . $this->getDC()->getTable() . ' is closed', 'DC_General - DefaultController - copy()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			BackendBindings::log('Table ' . $this->getDC()->getTable() . ' is closed', 'DC_General - DefaultController - copy()', TL_ERROR);
+			BackendBindings::redirect('contao/main.php?act=error');
 		}
 	}
 
@@ -708,8 +708,8 @@ class DefaultController implements ControllerInterface
 		// Check basic vars
 		if (empty($mixSource) || ( is_null($mixAfter) && is_null($mixInto) ) || empty($strCDP))
 		{
-			$this->log('Missing parameter for cut in ' . $this->getDC()->getTable(), __CLASS__ . ' - ' . __FUNCTION__, TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			BackendBindings::log('Missing parameter for cut in ' . $this->getDC()->getTable(), __CLASS__ . ' - ' . __FUNCTION__, TL_ERROR);
+			BackendBindings::redirect('contao/main.php?act=error');
 		}
 
 		// Get current DataProvider
@@ -787,8 +787,8 @@ class DefaultController implements ControllerInterface
 						$this->getNewPosition($objCurrentDataProvider, $objParentDataProvider, $objSrcModel, $mixAfter, $mixInto, 'cut');
 						break;
 					default:
-						$this->log('Unknown create mode for copy in ' . $this->getDC()->getTable(), 'DC_General - DefaultController - copy()', TL_ERROR);
-						$this->redirect('contao/main.php?act=error');
+						BackendBindings::log('Unknown create mode for copy in ' . $this->getDC()->getTable(), 'DC_General - DefaultController - copy()', TL_ERROR);
+						BackendBindings::redirect('contao/main.php?act=error');
 						break;
 				}
 				break;
@@ -802,7 +802,8 @@ class DefaultController implements ControllerInterface
 		$objCurrentDataProvider->save($objSrcModel);
 
 		// Reset clipboard + redirect
-		$this->resetClipboard(true);
+		$this->getEnvironment()->getClipboard()->clear();
+		$this->redirectHome();
 	}
 
 	public function move()
@@ -830,8 +831,8 @@ class DefaultController implements ControllerInterface
 
 				if (strlen($intId) == 0)
 				{
-					$this->log('Missing parameter for copy in ' . $this->getDC()->getTable(), 'DC_General - DefaultController - copy()', TL_ERROR);
-					$this->redirect('contao/main.php?act=error');
+					BackendBindings::log('Missing parameter for copy in ' . $this->getDC()->getTable(), 'DC_General - DefaultController - copy()', TL_ERROR);
+					BackendBindings::redirect('contao/main.php?act=error');
 				}
 
 				// Check
@@ -841,7 +842,7 @@ class DefaultController implements ControllerInterface
 				// Check if we have fields
 				if (!$this->getEnvironment()->getDataDefinition()->hasEditableProperties())
 				{
-					$this->redirect($this->getReferer());
+					BackendBindings::redirect($this->getReferer());
 				}
 
 				// Load something
@@ -881,7 +882,7 @@ class DefaultController implements ControllerInterface
 							$_SESSION['TL_ERROR'] = '';
 							$_SESSION['TL_CONFIRM'] = '';
 
-							$this->redirect($this->getReferer());
+							BackendBindings::redirect($this->getReferer());
 						}
 					}
 					// Maybe Callbacks ? Yes, this is the first version of an simple
@@ -931,8 +932,8 @@ class DefaultController implements ControllerInterface
 
 				if (strlen($intMode) == 0 || strlen($intPid) == 0 || strlen($intId) == 0)
 				{
-					$this->log('Missing parameter for copy in ' . $this->getDC()->getTable(), 'DC_General - DefaultController - copy()', TL_ERROR);
-					$this->redirect('contao/main.php?act=error');
+					BackendBindings::log('Missing parameter for copy in ' . $this->getDC()->getTable(), 'DC_General - DefaultController - copy()', TL_ERROR);
+					BackendBindings::redirect('contao/main.php?act=error');
 				}
 
 				// Get the join field
@@ -991,8 +992,8 @@ class DefaultController implements ControllerInterface
 			// check if the pid id/word is set
 			if ($this->getEnvironment()->getInputProvider()->getParameter('pid') == '')
 			{
-				$this->log('Missing pid for new entry in ' . $this->getDC()->getTable(), 'DC_General - DefaultController - create()', TL_ERROR);
-				$this->redirect('contao/main.php?act=error');
+				BackendBindings::log('Missing pid for new entry in ' . $this->getDC()->getTable(), 'DC_General - DefaultController - create()', TL_ERROR);
+				BackendBindings::redirect('contao/main.php?act=error');
 			}
 
 			// FIXME: dependency injection.
@@ -1032,8 +1033,8 @@ class DefaultController implements ControllerInterface
 			// Check basic vars
 			if (is_null($mixAfter) || empty($intMode) || empty($strCDP))
 			{
-				$this->log('Missing parameter for create in ' . $this->getDC()->getTable(), __CLASS__ . ' - ' . __FUNCTION__, TL_ERROR);
-				$this->redirect('contao/main.php?act=error');
+				BackendBindings::log('Missing parameter for create in ' . $this->getDC()->getTable(), __CLASS__ . ' - ' . __FUNCTION__, TL_ERROR);
+				BackendBindings::redirect('contao/main.php?act=error');
 			}
 
 			// Load current data provider
@@ -1098,8 +1099,8 @@ class DefaultController implements ControllerInterface
 					break;
 
 				default:
-					$this->log('Unknown create mode for new entry in ' . $this->getDC()->getTable(), 'DC_General - DefaultController - create()', TL_ERROR);
-					$this->redirect('contao/main.php?act=error');
+					BackendBindings::log('Unknown create mode for new entry in ' . $this->getDC()->getTable(), 'DC_General - DefaultController - create()', TL_ERROR);
+					BackendBindings::redirect('contao/main.php?act=error');
 					break;
 			}
 
@@ -1142,9 +1143,9 @@ class DefaultController implements ControllerInterface
 							// Callback
 							$this->getDC()->getCallbackClass()->oncreateCallback($objDBModel->getID(), $objDBModel->getPropertiesAsArray());
 							// Log
-							$this->log('A new entry in table "' . $this->getDC()->getTable() . '" has been created (ID: ' . $objModell->getID() . ')', 'DC_General - DefaultController - create()', TL_GENERAL);
+							BackendBindings::log('A new entry in table "' . $this->getDC()->getTable() . '" has been created (ID: ' . $objModell->getID() . ')', 'DC_General - DefaultController - create()', TL_GENERAL);
 							// Redirect
-							$this->redirect($this->addToUrl("id=" . $objDBModel->getID() . "&amp;act=edit"));
+							BackendBindings::redirect($this->addToUrl("id=" . $objDBModel->getID() . "&amp;act=edit"));
 						}
 					}
 					else if (isset($_POST["saveNclose"]))
@@ -1161,9 +1162,9 @@ class DefaultController implements ControllerInterface
 							// Callback
 							$this->getDC()->getCallbackClass()->oncreateCallback($objDBModel->getID(), $objDBModel->getPropertiesAsArray());
 							// Log
-							$this->log('A new entry in table "' . $this->getDC()->getTable() . '" has been created (ID: ' . $objModell->getID() . ')', 'DC_General - DefaultController - create()', TL_GENERAL);
+							BackendBindings::log('A new entry in table "' . $this->getDC()->getTable() . '" has been created (ID: ' . $objModell->getID() . ')', 'DC_General - DefaultController - create()', TL_GENERAL);
 							// Redirect
-							$this->redirect($this->getReferer());
+							BackendBindings::redirect($this->getReferer());
 						}
 					}
 					else
@@ -1258,8 +1259,8 @@ class DefaultController implements ControllerInterface
 		// Check if is it allowed to delete a record
 		if ($this->getDC()->arrDCA['config']['notDeletable'])
 		{
-			$this->log('Table "' . $this->getDC()->getTable() . '" is not deletable', 'DC_General - DefaultController - delete()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			BackendBindings::log('Table "' . $definition->getName() . '" is not deletable', 'DC_General - DefaultController - delete()', TL_ERROR);
+			BackendBindings::redirect('contao/main.php?act=error');
 		}
 
 		// Callback
@@ -1281,7 +1282,7 @@ class DefaultController implements ControllerInterface
 				break;
 
 			case 5:
-				$arrDelIDs = $this->fetchMode5ChildsOf($this->getDC()->getCurrentModel(), $blnRecurse = true);
+				$arrDelIDs = $this->fetchMode5ChildrenOf($environment->getCurrentModel(), $blnRecurse = true);
 				$arrDelIDs[] = $intRecordID;
 				break;
 		}
@@ -1292,13 +1293,13 @@ class DefaultController implements ControllerInterface
 			$this->getEnvironment()->getDataDriver()->delete($intId);
 
 			// Add a log entry unless we are deleting from tl_log itself
-			if ($this->getDC()->getTable() != 'tl_log')
+			if ($environment->getDataDefinition()->getName() != 'tl_log')
 			{
-				$this->log('DELETE FROM ' . $this->getDC()->getTable() . ' WHERE id=' . $intId, 'DC_General - DefaultController - delete()', TL_GENERAL);
+				BackendBindings::log('DELETE FROM ' . $environment->getDataDefinition()->getName() . ' WHERE id=' . $intId, 'DC_General - DefaultController - delete()', TL_GENERAL);
 			}
 		}
 
-		$this->redirect($this->getReferer());
+		BackendBindings::redirect($this->getReferer());
 	}
 
 	public function edit()
@@ -1321,7 +1322,7 @@ class DefaultController implements ControllerInterface
 		// Check if we have fields
 		if (!$this->getEnvironment()->getDataDefinition()->hasEditableProperties())
 		{
-			$this->redirect($this->getReferer());
+			BackendBindings::redirect(BackendBindings::getReferer());
 		}
 
 		// Load something
@@ -1361,7 +1362,7 @@ class DefaultController implements ControllerInterface
 					$_SESSION['TL_ERROR'] = '';
 					$_SESSION['TL_CONFIRM'] = '';
 
-					$this->redirect($this->getReferer());
+					BackendBindings::redirect($this->getReferer());
 				}
 			}
 			// Maybe Callbacks ? Yes, this is the first version of an simple
@@ -1418,8 +1419,8 @@ class DefaultController implements ControllerInterface
 
 		if ($objDBModel == null)
 		{
-			$this->log('Could not find ID ' . $this->getDC()->getId() . ' in Table ' . $this->getDC()->getTable() . '.', 'DC_General show()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			BackendBindings::log('Could not find ID ' . $this->getDC()->getId() . ' in Table ' . $this->getDC()->getTable() . '.', 'DC_General show()', TL_ERROR);
+			BackendBindings::redirect('contao/main.php?act=error');
 		}
 
 		$this->getDC()->getEnvironment()->setCurrentModel($objDBModel);
@@ -1493,12 +1494,10 @@ class DefaultController implements ControllerInterface
 
 		// Checks
 		$this->checkClipboard();
-		$this->checkPanelSubmit();
 
 		// Setup
 		$this->getDC()->setButtonId('tl_buttons');
 		$this->getFilter();
-		$this->generatePanelFilter('set');
 
 		// Switch mode
 		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
@@ -1586,8 +1585,8 @@ class DefaultController implements ControllerInterface
 		// Redirect if there is no record with the given ID
 		if ($objVersionModel == null)
 		{
-			$this->log('Could not load record ID ' . $intID . ' of table "' . $this->getDC()->getTable() . '"', 'DC_General - DefaultController - edit()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			BackendBindings::log('Could not load record ID ' . $intID . ' of table "' . $this->getDC()->getTable() . '"', 'DC_General - DefaultController - edit()', TL_ERROR);
+			BackendBindings::redirect('contao/main.php?act=error');
 		}
 
 		$objCurrentDataProvider->save($objVersionModel);
@@ -1599,7 +1598,7 @@ class DefaultController implements ControllerInterface
 
 		$this->getDC()->getCallbackClass()->onrestoreCallback($intID, $this->getDC()->getTable(), $arrData, $mixVersion);
 
-		$this->log(sprintf('Version %s of record ID %s (table %s) has been restored', $this->Input->post('version'), $this->getDC()->getId(), $this->getDC()->getTable()), 'DC_General - DefaultController - edit()', TL_GENERAL);
+		BackendBindings::log(sprintf('Version %s of record ID %s (table %s) has been restored', $this->Input->post('version'), $this->getDC()->getId(), $this->getDC()->getTable()), 'DC_General - DefaultController - edit()', TL_GENERAL);
 
 		// Reload page with new recored
 		$this->reload();
@@ -1621,7 +1620,7 @@ class DefaultController implements ControllerInterface
 		if ($this->getDC()->arrDCA['config']['closed'] && !($objDBModel->getID()))
 		{
 			// TODO show alarm message
-			$this->redirect($this->getReferer());
+			BackendBindings::redirect($this->getReferer());
 		}
 
 		// if we may not store the value, we keep the changes
@@ -2066,8 +2065,8 @@ class DefaultController implements ControllerInterface
 		}
 		else
 		{
-			$this->log('Unknown create mode for copy in ' . $this->getDC()->getTable(), 'DC_General - DefaultController - copy()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			BackendBindings::log('Unknown create mode for copy in ' . $this->getDC()->getTable(), 'DC_General - DefaultController - copy()', TL_ERROR);
+			BackendBindings::redirect('contao/main.php?act=error');
 		}
 
 		$objDataProvider->save($objCopyModel);
