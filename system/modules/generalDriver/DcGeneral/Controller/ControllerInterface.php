@@ -58,6 +58,19 @@ interface ControllerInterface
 	public function assembleAllChildrenFrom($objModel, $strDataProvider = '');
 
 	/**
+	 * Recursively retrieve a collection of all complete node hierarchy.
+	 *
+	 * @param array $rootId        The ids of the root node.
+	 *
+	 * @param array $arrOpenParents The ids of the opened parent nodes. This may contain "all" to open all nodes.
+	 *
+	 * @param int $intLevel         The level the items are residing on.
+	 *
+	 * @return \DcGeneral\Data\CollectionInterface
+	 */
+	public function getTreeCollectionRecursive($rootId, $arrOpenParents, $intLevel = 0);
+
+	/**
 	 * Return all supported languages from the default data driver.
 	 *
 	 * @param mixed $mixID
@@ -85,8 +98,6 @@ interface ControllerInterface
 	public function getDC();
 
 	public function generateAjaxPalette($strSelector);
-
-	public function ajaxTreeView($mixID, $intLevel);
 
 	public function copy();
 

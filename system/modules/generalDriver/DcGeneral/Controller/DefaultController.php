@@ -12,6 +12,7 @@
 
 namespace DcGeneral\Controller;
 
+use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Data\DCGE;
@@ -208,6 +209,219 @@ class DefaultController implements ControllerInterface
 		}
 
 		return $arrIds;
+	}
+
+	/**
+	 * @param mixed $idParent
+	 *
+	 * @param ConfigInterface $objConfig
+	 *
+	 * @return \DcGeneral\Data\ConfigInterface
+	 */
+	protected function addParentFilter($idParent, $objConfig)
+	{
+		// Setup
+		$objCurrentDataProvider = $this->getEnvironment()->getDataDriver();
+		$objParentDataProvider  = $this->getEnvironment()->getDataDriver($this->getEnvironment()->getDataDefinition()->getParentDriverName());
+
+		if ($objParentDataProvider)
+		{
+			$objParent = $objParentDataProvider->fetch($objParentDataProvider->getEmptyConfig()->setId($idParent));
+
+			$objCondition = $this->getDC()->getEnvironment()->getDataDefinition()->getChildCondition(
+				$objParentDataProvider->getEmptyModel()->getProviderName(),
+				$objCurrentDataProvider->getEmptyModel()->getProviderName()
+			);
+
+			if ($objCondition)
+			{
+				$arrBaseFilter = $objConfig->getFilter();
+				$arrFilter     = $objCondition->getFilter($objParent);
+
+				if ($arrBaseFilter)
+				{
+					$arrFilter = array_merge($arrBaseFilter, $arrFilter);
+				}
+
+				$objConfig->setFilter(array(array(
+					'operation' => 'AND',
+					'children'    => $arrFilter,
+				)));
+			}
+		}
+
+		return $objConfig;
+	}
+
+	/**
+	 * This "renders" a model for tree view.
+	 *
+	 * @param ModelInterface $objModel     the model to render.
+	 *
+	 * @param int   $intLevel     the current level in the tree hierarchy.
+	 *
+	 * @param array $arrToggle    the array that determines the current toggle states for the table of the given model.
+	 *
+	 * @param array $arrSubTables the tables that shall be rendered "below" this item.
+	 *
+	 */
+	protected function treeWalkModel(ModelInterface $objModel, $intLevel, $arrToggle, $arrSubTables = array())
+	{
+		$inputProvider = $this->getEnvironment()->getInputProvider();
+		$blnHasChild = false;
+
+		$objModel->setMeta(DCGE::TREE_VIEW_LEVEL, $intLevel);
+
+		$this->buildLabel($objModel);
+
+		if ($arrToggle['all'] == 1 && !(array_key_exists($objModel->getID(), $arrToggle) && $arrToggle[$objModel->getID()] == 0))
+		{
+			$objModel->setMeta(DCGE::TREE_VIEW_IS_OPEN, true);
+		}
+
+		// Get toogle state
+		else if (array_key_exists($objModel->getID(), $arrToggle) && $arrToggle[$objModel->getID()] == 1)
+		{
+			$objModel->setMeta(DCGE::TREE_VIEW_IS_OPEN, true);
+		}
+		else
+		{
+			$objModel->setMeta(DCGE::TREE_VIEW_IS_OPEN, false);
+		}
+
+		$arrChildCollections = array();
+		foreach ($arrSubTables as $strSubTable)
+		{
+			// evaluate the child filter for this item.
+			$arrChildFilter = $this->getEnvironment()->getDataDefinition()->getChildCondition($objModel->getProviderName(), $strSubTable);
+
+			// if we do not know how to render this table within here, continue with the next one.
+			if (!$arrChildFilter)
+			{
+				continue;
+			}
+
+			// Create a new Config
+			$objChildConfig = $this->getEnvironment()->getDataDriver($strSubTable)->getEmptyConfig();
+			$objChildConfig->setFilter($arrChildFilter->getFilter($objModel));
+
+			$objChildConfig->setFields($this->calcNeededFields($objModel, $strSubTable));
+
+			$objChildConfig->setSorting(array('sorting' => 'ASC'));
+
+			// Fetch all children
+			$objChildCollection = $this->getEnvironment()->getDataDriver($strSubTable)->fetchAll($objChildConfig);
+
+			// Speed up
+			if ($objChildCollection->length() > 0 && !$objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN))
+			{
+				$blnHasChild = true;
+				break;
+			}
+			else if ($objChildCollection->length() > 0)
+			{
+				$blnHasChild = true;
+
+				// TODO: @CS we need this to be srctable_dsttable_tree for interoperability, for mode5 this will be self_self_tree but with strTable.
+				$strToggleID = $this->getDC()->getTable() . '_tree';
+
+				$arrSubToggle = (array)$inputProvider->getPersistentValue($strToggleID);
+
+				foreach ($objChildCollection as $objChildModel)
+				{
+					// let the child know about it's parent.
+					$objModel->setMeta(DCGE::MODEL_PID, $objModel->getID());
+					$objModel->setMeta(DCGE::MODEL_PTABLE, $objModel->getProviderName());
+
+					$mySubTables = array();
+					foreach ($this->getEnvironment()->getDataDefinition()->getChildConditions($objModel->getProviderName()) as $condition)
+					{
+						$mySubTables[] = $condition->getDestinationName();
+					}
+
+					$this->treeWalkModel($objChildModel, $intLevel + 1, $arrSubToggle, $mySubTables);
+				}
+				$arrChildCollections[] = $objChildCollection;
+
+				// speed up, if not open, one item is enough to break as we have some childs.
+				if (!$objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN))
+				{
+					break;
+				}
+			}
+		}
+
+		// If open store children
+		if ($objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN) && count($arrChildCollections) != 0)
+		{
+			$objModel->setMeta(DCGE::TREE_VIEW_CHILD_COLLECTION, $arrChildCollections);
+		}
+
+		$objModel->setMeta(DCGE::TREE_VIEW_HAS_CHILDS, $blnHasChild);
+	}
+
+	/**
+	 * Recursively retrieve a collection of all complete node hierarchy.
+	 *
+	 * @param array $rootId        The ids of the root node.
+	 *
+	 * @param array $arrOpenParents The ids of the opened parent nodes. This may contain "all" to open all nodes.
+	 *
+	 * @param int $intLevel         The level the items are residing on.
+	 *
+	 * @return \DcGeneral\Data\CollectionInterface
+	 */
+	public function getTreeCollectionRecursive($rootId, $arrOpenParents, $intLevel = 0)
+	{
+		$environment      = $this->getEnvironment();
+		$definition       = $environment->getDataDefinition();
+		$dataDriver       = $environment->getDataDriver();
+		$objTableTreeData = $dataDriver->getEmptyCollection();
+		$objRootConfig    = $dataDriver->getEmptyConfig();
+
+		$this->getEnvironment()->getPanelContainer()->initialize($objRootConfig);
+
+		if (!$rootId)
+		{
+			$objRootCondition = $this->getDC()->getEnvironment()->getDataDefinition()->getRootCondition();
+
+			if ($objRootCondition)
+			{
+				$arrBaseFilter = $objRootConfig->getFilter();
+				$arrFilter     = $objRootCondition->getFilter();
+
+				if ($arrBaseFilter)
+				{
+					$arrFilter = array_merge($arrBaseFilter, $arrFilter);
+				}
+
+				$objRootConfig->setFilter(array(array(
+					'operation' => 'AND',
+					'children'    => $arrFilter,
+				)));
+			}
+			// Fetch all root elements
+			$objRootCollection = $dataDriver->fetchAll($objRootConfig);
+
+			foreach ($objRootCollection as $objRootModel)
+			{
+				/** @var ModelInterface $objRootModel */
+				$objTableTreeData->add($objRootModel);
+				$this->treeWalkModel($objRootModel, $intLevel, $arrOpenParents, array($objRootModel->getProviderName()));
+			}
+
+			return $objTableTreeData;
+		}
+		else
+		{
+			$objRootConfig->setId($rootId);
+			// Fetch root element
+			$objRootModel = $dataDriver->fetch($objRootConfig);
+			$this->treeWalkModel($objRootModel, $intLevel, $arrOpenParents, array($objRootModel->getProviderName()));
+			$objRootCollection = $dataDriver->getEmptyCollection();
+			$objRootCollection->add($objRootModel);
+			return $objRootCollection;
+		}
 	}
 
 	/**
@@ -993,26 +1207,35 @@ class DefaultController implements ControllerInterface
 	}
 
 	/**
-	 * Recurse through all childs in mode 5 and return their Ids.
+	 * Recurse through all children in mode 5 and return their Ids.
+	 *
+	 * @param ModelInterface $objParentModel The parent model to fetch children for.
+	 *
+	 * @param bool           $blnRecurse     Boolean flag determining if the collection shall recurse into sub levels.
+	 *
+	 * @return array
 	 */
-	protected function fetchMode5ChildsOf($objParentModel, $blnRecurse = true)
+	protected function fetchMode5ChildrenOf($objParentModel, $blnRecurse = true)
 	{
-		$arrJoinCondition = $this->getDC()->getChildCondition($objParentModel, 'self');
+		$environment      = $this->getEnvironment();
+		$definition       = $environment->getDataDefinition();
+		$objChildCondition = $definition->getChildCondition($objParentModel->getProviderName(), $definition->getName());
 
 		// Build filter
-		$objChildConfig = $this->getEnvironment()->getDataDriver()->getEmptyConfig();
-		$objChildConfig->setFilter($arrJoinCondition);
+		$objChildConfig = $environment->getDataDriver()->getEmptyConfig();
+		$objChildConfig->setFilter($objChildCondition->getFilter($objParentModel));
 
 		// Get child collection
-		$objChildCollection = $this->getEnvironment()->getDataDriver()->fetchAll($objChildConfig);
+		$objChildCollection = $environment->getDataDriver()->fetchAll($objChildConfig);
 
 		$arrIDs = array();
 		foreach ($objChildCollection as $objChildModel)
 		{
-			$arrIDs[] = $objChildModel->getID();
+			/** @var ModelInterface $objChildModel */
+			$arrIDs[] = $objChildModel->getId();
 			if ($blnRecurse)
 			{
-				$arrIDs = array_merge($arrIDs, $this->fetchMode5ChildsOf($objChildModel, $blnRecurse));
+				$arrIDs = array_merge($arrIDs, $this->fetchMode5ChildrenOf($objChildModel, true));
 			}
 		}
 		return $arrIDs;
@@ -1288,10 +1511,11 @@ class DefaultController implements ControllerInterface
 				break;
 
 			case 4:
-				throw new DcGeneralRuntimeException('Parentview is now self contained. You should not end up here!');
+				throw new DcGeneralRuntimeException('Parent view is now self contained. You should not end up here!');
 				break;
 
 			case 5:
+				throw new DcGeneralRuntimeException('Tree view is now self contained. You should not end up here!');
 				$this->treeViewM5();
 				break;
 
@@ -1306,43 +1530,6 @@ class DefaultController implements ControllerInterface
 	 * AJAX
 	 * ---------------------------------------------------------------------
 	 * ////////////////////////////////////////////////////////////////// */
-
-	public function ajaxTreeView($intID, $intLevel)
-	{
-		// Load current informations
-		$objCurrentDataProvider = $this->getEnvironment()->getDataDriver();
-
-		$strToggleID = $this->getDC()->getTable() . '_tree';
-
-		$arrToggle = $this->Session->get($strToggleID);
-		if (!is_array($arrToggle))
-		{
-			$arrToggle = array();
-		}
-
-		$arrToggle[$intID] = 1;
-
-		$this->Session->set($strToggleID, $arrToggle);
-
-		// Init some vars
-		$objTableTreeData = $objCurrentDataProvider->getEmptyCollection();
-		$objRootConfig = $objCurrentDataProvider->getEmptyConfig();
-		$objRootConfig->setId($intID);
-
-		$objModel = $objCurrentDataProvider->fetch($objRootConfig);
-
-		$this->treeWalkModel($objModel, $intLevel, $arrToggle, array('self'));
-
-		foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection)
-		{
-			foreach ($objCollection as $objSubModel)
-			{
-				$objTableTreeData->add($objSubModel);
-			}
-		}
-
-		$this->getDC()->setCurrentCollection($objTableTreeData);
-	}
 
 	/**
 	 * Loads the current model from the data provider and overrides the selector
@@ -2188,301 +2375,11 @@ class DefaultController implements ControllerInterface
 		}
 	}
 
-	/**
-	 * This "renders" a model for tree view.
-	 *
-	 * @param ModelInterface $objModel     the model to render.
-	 *
-	 * @param int   $intLevel     the current level in the tree hierarchy.
-	 *
-	 * @param array $arrToggle    the array that determines the current toggle states for the table of the given model.
-	 *
-	 * @param array $arrSubTables the tables that shall be rendered "below" this item.
-	 *
-	 */
-	protected function treeWalkModel(ModelInterface $objModel, $intLevel, $arrToggle, $arrSubTables = array())
-	{
-		$blnHasChild = false;
-
-		$objModel->setMeta(DCGE::TREE_VIEW_LEVEL, $intLevel);
-
-		$this->buildLabel($objModel);
-
-		if ($arrToggle['all'] == 1 && !(array_key_exists($objModel->getID(), $arrToggle) && $arrToggle[$objModel->getID()] == 0))
-		{
-			$objModel->setMeta(DCGE::TREE_VIEW_IS_OPEN, true);
-		}
-
-		// Get toogle state
-		else if (array_key_exists($objModel->getID(), $arrToggle) && $arrToggle[$objModel->getID()] == 1)
-		{
-			$objModel->setMeta(DCGE::TREE_VIEW_IS_OPEN, true);
-		}
-		else
-		{
-			$objModel->setMeta(DCGE::TREE_VIEW_IS_OPEN, false);
-		}
-
-		$arrChildCollections = array();
-		foreach ($arrSubTables as $strSubTable)
-		{
-			// evaluate the child filter for this item.
-			$arrChildFilter = $this->getDC()->getChildCondition($objModel, $strSubTable);
-
-			// if we do not know how to render this table within here, continue with the next one.
-			if (!$arrChildFilter)
-			{
-				continue;
-			}
-
-			// Create a new Config
-			$objChildConfig = $this->getEnvironment()->getDataDriver($strSubTable)->getEmptyConfig();
-			$objChildConfig->setFilter($arrChildFilter);
-
-			$objChildConfig->setFields($this->calcNeededFields($objModel, $strSubTable));
-
-			$objChildConfig->setSorting(array('sorting' => 'ASC'));
-
-			// Fetch all children
-			$objChildCollection = $this->getEnvironment()->getDataDriver($strSubTable)->fetchAll($objChildConfig);
-
-			// Speed up
-			if ($objChildCollection->length() > 0 && !$objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN))
-			{
-				$blnHasChild = true;
-				break;
-			}
-			else if ($objChildCollection->length() > 0)
-			{
-				$blnHasChild = true;
-
-				// TODO: @CS we need this to be srctable_dsttable_tree for interoperability, for mode5 this will be self_self_tree but with strTable.
-				$strToggleID = $this->getDC()->getTable() . '_tree';
-
-				$arrSubToggle = $this->Session->get($strToggleID);
-				if (!is_array($arrSubToggle))
-				{
-					$arrSubToggle = array();
-				}
-
-				foreach ($objChildCollection as $objChildModel)
-				{
-					// let the child know about it's parent.
-					$objModel->setMeta(DCGE::MODEL_PID, $objModel->getID());
-					$objModel->setMeta(DCGE::MODEL_PTABLE, $objModel->getProviderName());
-
-					// TODO: determine the real subtables here.
-					$this->treeWalkModel($objChildModel, $intLevel + 1, $arrSubToggle, $arrSubTables);
-				}
-				$arrChildCollections[] = $objChildCollection;
-
-				// speed up, if not open, one item is enough to break as we have some childs.
-				if (!$objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN))
-				{
-					break;
-				}
-			}
-		}
-
-		// If open store children
-		if ($objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN) && count($arrChildCollections) != 0)
-		{
-			$objModel->setMeta(DCGE::TREE_VIEW_CHILD_COLLECTION, $arrChildCollections);
-		}
-
-		$objModel->setMeta(DCGE::TREE_VIEW_HAS_CHILDS, $blnHasChild);
-	}
-
-	/**
-	 * @param mixed $idParent
-	 *
-	 * @param ConfigInterface $objConfig
-	 *
-	 * @return \DcGeneral\Data\ConfigInterface
-	 */
-	protected function addParentFilter($idParent, $objConfig)
-	{
-		// Setup
-		$objCurrentDataProvider = $this->getEnvironment()->getDataDriver();
-		$objParentDataProvider  = $this->getEnvironment()->getDataDriver($this->getEnvironment()->getDataDefinition()->getParentDriverName());
-
-		if ($objParentDataProvider)
-		{
-			$objParent = $objParentDataProvider->fetch($objParentDataProvider->getEmptyConfig()->setId($idParent));
-
-			$objCondition = $this->getDC()->getEnvironment()->getDataDefinition()->getChildCondition(
-				$objParentDataProvider->getEmptyModel()->getProviderName(),
-				$objCurrentDataProvider->getEmptyModel()->getProviderName()
-			);
-
-			if ($objCondition)
-			{
-				$arrBaseFilter = $objConfig->getFilter();
-				$arrFilter     = $objCondition->getFilter($objParent);
-
-				if ($arrBaseFilter)
-				{
-					$arrFilter = array_merge($arrBaseFilter, $arrFilter);
-				}
-
-				$objConfig->setFilter(array(array(
-					'operation' => 'AND',
-					'children'    => $arrFilter,
-				)));
-			}
-		}
-
-		return $objConfig;
-	}
-
 	/* /////////////////////////////////////////////////////////////////////
 	 * ---------------------------------------------------------------------
 	 * Panels
 	 * ---------------------------------------------------------------------
 	 * ////////////////////////////////////////////////////////////////// */
-
-	/**
-	 * Check all submits from the panels. Save all vlaues into the Session.
-	 * Reload the Website.
-	 *
-	 * @return void
-	 *
-	 * @deprecated No op, we have a panel class now.
-	 */
-	protected function checkPanelSubmit()
-	{
-		// FIXME: deactivated.
-		return;
-		// Check if we have a submit
-		// FIXME: dependency injection.
-		if (!in_array(\Input::getInstance()->post('FORM_SUBMIT'), array('tl_filters')))
-		{
-			return;
-		}
-
-		// Session
-		// FIXME: dependency injection.
-		$arrSession = \Session::getInstance()->getData();
-
-		// Set limit from user input
-		// FIXME: dependency injection.
-		if (strlen(\Input::getInstance()->post('tl_limit')) != 0)
-		{
-			$strFilter = ($this->getDC()->arrDCA['list']['sorting']['mode'] == 4) ? $this->getDC()->getTable() . '_' . CURRENT_ID : $this->getDC()->getTable();
-
-			// FIXME: dependency injection.
-			if (\Input::getInstance()->post('tl_limit') != 'tl_limit')
-			{
-				$arrSession['filter'][$strFilter]['limit'] = $this->Input->post('tl_limit');
-			}
-			else
-			{
-				unset($arrSession['filter'][$strFilter]['limit']);
-			}
-		}
-
-		// Set sorting from user input
-		// FIXME: dependency injection.
-		if (strlen(\Input::getInstance()->post('tl_sort')) != 0)
-		{
-			$arrSession['sorting'][$this->getDC()->getTable()] = in_array(
-				$this->getDC()->arrDCA['fields'][\Input::getInstance()->post('tl_sort')]['flag'],
-				array(2, 4, 6, 8, 10, 12)
-			)
-			? \Input::getInstance()->post('tl_sort') . ' DESC'
-			: \Input::getInstance()->post('tl_sort');
-		}
-
-		// Get sorting fields
-		$arrFilterFields = array();
-		foreach ($this->getDC()->arrDCA['fields'] as $k => $v)
-		{
-			if ($v['filter'])
-			{
-				$arrFilterFields[] = $k;
-			}
-		}
-
-		foreach ($arrFilterFields as $field)
-		{
-			// FIXME: dependency injection.
-			if (\Input::getInstance()->post($field, true) != 'tl_' . $field)
-			{
-				$arrSession['filter'][$strFilter][$field] = \Input::getInstance()->post($field, true);
-			}
-			else
-			{
-				unset($arrSession['filter'][$strFilter][$field]);
-			}
-		}
-
-		// Store search value in the current session
-		$arrSession['search'][$this->getDC()->getTable()]['value'] = '';
-		$arrSession['search'][$this->getDC()->getTable()]['field'] = \Input::getInstance()->post('tl_field', true);
-
-		// Make sure the regular expression is valid
-		// FIXME: dependency injection.
-		if (\Input::getInstance()->postRaw('tl_value') != '')
-		{
-			$arrSession['search'][$this->getDC()->getTable()]['value'] = \Input::getInstance()->postRaw('tl_value');
-		}
-
-		// FIXME: dependency injection.
-		\Session::getInstance()->setData($arrSession);
-
-		// Reload
-		$this->reload();
-	}
-
-	/**
-	 * Generate all information for the filter panel.
-	 *
-	 * @param type $type
-	 *
-	 * @return type
-	 *
-	 * @deprecated No op, we have a panel class now.
-	 */
-	protected function generatePanelFilter($type = 'add')
-	{
-		// Init
-		$arrSortingFields = array();
-		// TODO: dependency injection.
-		$arrSession = \Session::getInstance()->getData();
-
-		// Setup
-		$this->getDC()->setButtonId('tl_buttons_a');
-		$strFilter = ($this->getDC()->arrDCA['list']['sorting']['mode'] == 4) ? $this->getDC()->getTable() . '_' . CURRENT_ID : $this->getDC()->getTable();
-
-		// Get sorting fields
-		foreach ($this->getDC()->arrDCA['fields'] as $k => $v)
-		{
-			if ($v['filter'])
-			{
-				$arrSortingFields[] = $k;
-			}
-		}
-
-		// Return if there are no sorting fields
-		if (empty($arrSortingFields))
-		{
-			return array();
-		}
-
-		// Set filter
-		if ($type == 'set')
-		{
-			$this->filterMenuSetFilter($arrSortingFields, $arrSession, $strFilter);
-			return null;
-		}
-
-		// Add options
-		if ($type == 'add')
-		{
-			$arrPanelView = $this->filterMenuAddOptions($arrSortingFields, $arrSession, $strFilter);
-			return $arrPanelView;
-		}
-	}
 
 	/**
 	 * Set filter from user input and table configuration for filter menu

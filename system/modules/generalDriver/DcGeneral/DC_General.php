@@ -1952,6 +1952,8 @@ class DC_General extends \DataContainer implements DataContainerInterface
 
 	public function ajaxTreeView($intID, $intLevel)
 	{
+		return $this->objViewHandler->ajaxTreeView($intID, $intLevel);
+
 		$strReturn = $this->objController->ajaxTreeView($intID, $intLevel);
 		if ($strReturn != null && $strReturn != "")
 		{
@@ -2061,19 +2063,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			return $this->edit();
 		}
 
-		if (($this->getEnvironment()->getView() instanceof ParentView)
-		|| ($this->getEnvironment()->getView() instanceof ListView))
-		{
-			return $this->getEnvironment()->getView()->showAll();
-		}
-
-		$strReturn = $this->objController->showAll();
-		if ($strReturn != null && $strReturn != "")
-		{
-			return $strReturn;
-		}
-		$strReturn = $GLOBALS['TL_CONFIG']['debugMode'] ? $this->setupTimer() : '';
-		return $strReturn . $this->objViewHandler->showAll();
+		return $this->getEnvironment()->getView()->showAll();
 	}
 
 	public function undo()

@@ -1041,26 +1041,6 @@ class BaseView implements ViewInterface
 	 * ---------------------------------------------------------------------
 	 * ////////////////////////////////////////////////////////////////// */
 
-	public function ajaxTreeView($intID, $intLevel)
-	{
-		// Init some Vars
-		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
-		{
-			case 5:
-				$treeClass = 'tree';
-				break;
-
-			case 6:
-				$treeClass = 'tree_xtnd';
-				break;
-		}
-
-		$strHTML = $this->generateTreeView($this->getCurrentCollection(), $this->getDC()->arrDCA['list']['sorting']['mode'], $treeClass);
-
-		// Return :P
-		return $strHTML;
-	}
-
 	/* /////////////////////////////////////////////////////////////////////
 	 * ---------------------------------------------------------------------
 	 * Sub Views

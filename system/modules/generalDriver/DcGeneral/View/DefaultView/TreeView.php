@@ -14,14 +14,98 @@ namespace DcGeneral\View\DefaultView;
 
 use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Data\DCGE;
+use DcGeneral\Data\ModelInterface;
 use DcGeneral\View\DefaultView\Events\GetPasteRootButtonEvent;
 
 class TreeView extends BaseView
 {
 	/**
-	 * @param \DcGeneral\Data\CollectionInterface $objCollection
+	 * Load the collection of child items and the parent item for the currently selected parent item.
 	 *
-	 * @param string                              $treeClass
+	 * @return ListView
+	 *
+	 * @throws \RuntimeException
+	 */
+	public function loadCollection($rootId = null, $intLevel = 0)
+	{
+		$environment     = $this->getEnvironment();
+		$definition      = $environment->getDataDefinition();
+		$dataDriver      = $environment->getDataDriver();
+		$inputProvider   = $environment->getInputProvider();
+
+		// TODO: @CS we need this to be srctable_dsttable_tree for interoperability, for mode5 this will be self_self_tree but with strTable.
+		$strToggleID = $definition->getName() . '_tree';
+
+		$arrOpenParents = $inputProvider->getPersistentValue($strToggleID);
+		if (!is_array($arrOpenParents))
+		{
+			$arrOpenParents = array();
+		}
+
+		// Check if the open/close all is active
+		if ($inputProvider->getParameter('ptg') == 'all')
+		{
+			$arrOpenParents = array();
+			if (!array_key_exists('all', $arrOpenParents))
+			{
+				$arrOpenParents = array();
+				$arrOpenParents['all'] = 1;
+			}
+
+			// Save in session and redirect
+			$inputProvider->setPersistentValue($strToggleID, $arrOpenParents);
+			$this->redirectHome();
+		}
+/*
+		$arrNeededFields = $this->calcNeededFields($dataDriver->getEmptyModel(), $definition->getName());
+		$arrTitlePattern = $this->calcLabelPattern($definition->getName());
+*/
+		$objCollection = $environment->getController()->getTreeCollectionRecursive($rootId, $arrOpenParents, $intLevel);
+
+		if ($rootId)
+		{
+			$objTableTreeData = $dataDriver->getEmptyCollection();
+			$objModel = $objCollection->get(0);
+			foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection)
+			{
+				foreach ($objCollection as $objSubModel)
+				{
+					$objTableTreeData->add($objSubModel);
+				}
+			}
+			$environment->setCurrentCollection($objTableTreeData);
+		}
+		else
+		{
+			$environment->setCurrentCollection($objCollection);
+		}
+	}
+
+	/**
+	 * @param ModelInterface $objModel
+	 *
+	 * @param string $strToggleID
+	 *
+	 * @return string
+	 */
+	protected function parseModel($objModel, $strToggleID)
+	{
+		$objModel->setMeta(DCGE::MODEL_BUTTONS, $this->generateButtons($objModel, $objModel->getProviderName()));
+
+		$objTemplate = $this->getTemplate('dcbe_general_treeview_entry');
+
+		$this
+			->addToTemplate('objModel', $objModel, $objTemplate)
+			->addToTemplate('intMode', $this->getDataDefinition()->getSortingMode(), $objTemplate)
+			->addToTemplate('strToggleID', $strToggleID, $objTemplate);
+
+		return $objTemplate->parse();
+	}
+
+	/**
+	 * @param \DcGeneral\Data\CollectionInterface $objCollection The collection to iterate over.
+	 *
+	 * @param string                              $treeClass     The class to use for the tree.
 	 *
 	 * @return string
 	 */
@@ -29,40 +113,31 @@ class TreeView extends BaseView
 	{
 		$arrHTML = array();
 
-		$strDriverName = $this->getEnvironment()->getDataDefinition()->getName();
-
 		foreach ($objCollection as $objModel)
 		{
 			/** @var \DcGeneral\Data\ModelInterface $objModel */
-			$objModel->setMeta(DCGE::MODEL_BUTTONS, $this->generateButtons($objModel, $strDriverName));
 
-			$strToggleID = $strDriverName . '_' . $treeClass . '_' . $objModel->getID();
+			$strToggleID = $objModel->getProviderName() . '_' . $treeClass . '_' . $objModel->getID();
 
-			// FIXME: dependency injection or rather template factory?
-			$objEntryTemplate              = new \BackendTemplate('dcbe_general_treeview_entry');
-			$objEntryTemplate->objModel    = $objModel;
-			$objEntryTemplate->intMode     = $this->getDataDefinition()->getSortingMode();
-			$objEntryTemplate->strToggleID = $strToggleID;
+			$arrHTML[] = $this->parseModel($objModel, $strToggleID);
 
-			$arrHTML[] = $objEntryTemplate->parse();
-
-			if ($objModel->getMeta(DCGE::TREE_VIEW_HAS_CHILDS) == true && $objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN) == true)
+			if ($objModel->getMeta(DCGE::TREE_VIEW_HAS_CHILDS) && $objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN))
 			{
-				// FIXME: dependency injection or rather template factory?
-				$objChildTemplate                 = new \BackendTemplate('dcbe_general_treeview_child');
-				$objChildTemplate->objParentModel = $objModel;
-				$objChildTemplate->strToggleID    = $strToggleID;
-				$strSubHTML                       = '';
+				$objTemplate = $this->getTemplate('dcbe_general_treeview_child');
+				$strSubHTML  = '';
 
 				foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection)
 				{
 					$strSubHTML .= $this->generateTreeView($objCollection, $treeClass);
 				}
 
-				$objChildTemplate->strHTML  = $strSubHTML;
-				$objChildTemplate->strTable = $strDriverName;
+				$this
+					->addToTemplate('objParentModel', $objModel, $objTemplate)
+					->addToTemplate('strToggleID', $strToggleID, $objTemplate)
+					->addToTemplate('strHTML', $strSubHTML, $objTemplate)
+					->addToTemplate('strTable', $objModel->getProviderName(), $objTemplate);
 
-				$arrHTML[] = $objChildTemplate->parse();
+				$arrHTML[] = $objTemplate->parse();
 			}
 		}
 
@@ -192,18 +267,42 @@ class TreeView extends BaseView
 	 */
 	public function showAll()
 	{
-		// Create return value
-		$arrReturn            = array();
+		$this->buildPanel();
+		$this->checkClipboard();
+		$this->loadCollection();
 
+		$arrReturn            = array();
 		if ($this->getDataDefinition()->getSortingMode() == 5)
 		{
 			$arrReturn['panel'] = $this->panel();
 		}
-
 		$arrReturn['buttons'] = $this->generateHeaderButtons('tl_buttons_a');
 		$arrReturn['body']    = $this->viewTree();
 
 		// Return all
 		return implode("\n", $arrReturn);
+	}
+
+	public function ajaxTreeView($intID, $intLevel)
+	{
+		$this->buildPanel();
+		$this->checkClipboard();
+		$this->loadCollection($intID, $intLevel);
+
+		$treeClass = '';
+		switch ($this->getDataDefinition()->getSortingMode())
+		{
+			case 5:
+				$treeClass = 'tree';
+				break;
+
+			case 6:
+				$treeClass = 'tree_xtnd';
+				break;
+		}
+
+		$strHTML = $this->generateTreeView($this->getCurrentCollection(), $this->getDataDefinition()->getSortingMode(), $treeClass);
+
+		return $strHTML;
 	}
 }
