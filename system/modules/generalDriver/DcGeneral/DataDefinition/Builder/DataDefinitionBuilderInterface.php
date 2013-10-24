@@ -10,7 +10,7 @@
  * @filesource
  */
 
-namespace DcGeneral\DataDefinition\Parser;
+namespace DcGeneral\DataDefinition\Builder;
 
 use DcGeneral\EnvironmentInterface;
 
