@@ -87,6 +87,8 @@ class DefaultClipboard implements ClipboardInterface
 
 			$arrClipboard[$strName]['mode'] = $this->mode;
 		}
+
+		$objEnvironment->getInputProvider()->setPersistentValue('CLIPBOARD', $arrClipboard);
 	}
 
 	public function clear()
