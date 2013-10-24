@@ -447,6 +447,8 @@ class DefaultController implements ControllerInterface
 	 */
 	protected function getFilter()
 	{
+		return array();
+
 		$arrFilter = $this->getDC()->getFilter();
 
 		if ($arrFilter)
