@@ -14,36 +14,110 @@ namespace DcGeneral\DataDefinition;
 
 
 use DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
+use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 interface ContainerInterface
 {
 	/**
-	 * Return the name of the definition.
+	 * Return the name of the container.
 	 *
 	 * @return string
 	 */
 	public function getName();
 
 	/**
+	 * Check if this container has a section.
+	 *
+	 * @param string $sectionName
+	 *
+	 * @return bool
+	 */
+	public function hasSection($sectionName);
+
+	/**
+	 * Clear all sections from this container.
+	 *
+	 * @return static
+	 */
+	public function clearSections();
+
+	/**
+	 * Set the sections of this container.
+	 *
+	 * @param ContainerSectionInterface[] $sections
+	 *
+	 * @return static
+	 */
+	public function setSections(array $sections);
+
+	/**
+	 * Add multiple sections to this container.
+	 *
+	 * @param ContainerSectionInterface[] $sections
+	 *
+	 * @return static
+	 */
+	public function addSections(array $sections);
+
+	/**
+	 * Set a sections of this container.
+	 *
+	 * @param string $sectionName
+	 * @param ContainerSectionInterface $section
+	 *
+	 * @return static
+	 */
+	public function setSection($sectionName, ContainerSectionInterface $section);
+
+	/**
+	 * Remove a sections from this container.
+	 *
+	 * @param string $sectionName
+	 *
+	 * @return static
+	 */
+	public function removeSection($sectionName);
+
+	/**
+	 * Get a sections of this container.
+	 *
+	 * @param string $sectionName
+	 *
+	 * @return ContainerSectionInterface
+	 *
+	 * @throws DcGeneralInvalidArgumentException Is thrown when there is no section with this name.
+	 */
+	public function getSection($sectionName);
+
+	/**
+	 * Get a list of all section names in this container.
+	 *
+	 * @return array
+	 */
+	public function getSectionNames();
+
+	// TODO extract
+
+	/**
 	 * Return the name of the parenting definition.
 	 *
 	 * @return string
 	 */
-	public function getParentDriverName();
+	//public function getParentDriverName();
 
 	/**
 	 * Return the label of the definition.
 	 *
 	 * @return string
 	 */
-	public function getLabel();
+	//public function getLabel();
 
 	/**
 	 * Return the icon of the definition.
 	 *
 	 * @return string
 	 */
-	public function getIcon();
+	//public function getIcon();
 
 	/**
 	 * Return the name of the callback provider class to use.
@@ -52,28 +126,28 @@ interface ContainerInterface
 	 *
 	 * @deprecated It is suggested to use events instead of callbacks now.
 	 */
-	public function getCallbackProviderClass();
+	//public function getCallbackProviderClass();
 
 	/**
 	 * Check if this container has any properties.
 	 *
 	 * @return bool
 	 */
-	public function hasProperties();
+	//public function hasProperties();
 
 	/**
 	 * Retrieve all defined properties.
 	 *
 	 * @return PropertyInterface[]
 	 */
-	public function getProperties();
+	//public function getProperties();
 
 	/**
 	 * Retrieve the names of all defined properties.
 	 *
 	 * @return string[]
 	 */
-	public function getPropertyNames();
+	//public function getPropertyNames();
 
 	/**
 	 * Retrieve information about a property.
@@ -82,28 +156,28 @@ interface ContainerInterface
 	 *
 	 * @return PropertyInterface
 	 */
-	public function getProperty($strProperty);
+	//public function getProperty($strProperty);
 
 	/**
 	 * Check if this container has editable properties.
 	 *
 	 * @return string[]
 	 */
-	public function hasEditableProperties();
+	//public function hasEditableProperties();
 
 	/**
 	 * Retrieve all editable properties.
 	 *
 	 * @return PropertyInterface[]
 	 */
-	public function getEditableProperties();
+	//public function getEditableProperties();
 
 	/**
 	 * Retrieve the names of all editable properties.
 	 *
 	 * @return string[]
 	 */
-	public function getEditablePropertyNames();
+	//public function getEditablePropertyNames();
 
 	/**
 	 * Retrieve the panel layout.
@@ -112,21 +186,21 @@ interface ContainerInterface
 	 *
 	 * @return array
 	 */
-	public function getPanelLayout();
+	//public function getPanelLayout();
 
 	/**
 	 * Retrieve the name of the property to use for the main/default sorting.
 	 *
 	 * @return string
 	 */
-	public function getFirstSorting();
+	//public function getFirstSorting();
 
 	/**
 	 * Retrieve the names of properties to use for secondary sorting.
 	 *
 	 * @return string[]
 	 */
-	public function getAdditionalSorting();
+	//public function getAdditionalSorting();
 
 	/**
 	 * Retrieve the sorting mode for the data container.
@@ -142,7 +216,7 @@ interface ContainerInterface
 	 *
 	 * @return int
 	 */
-	public function getSortingMode();
+	//public function getSortingMode();
 
 	/**
 	 * Retrieve the sorting flag for the data container.
@@ -162,7 +236,7 @@ interface ContainerInterface
 	 *
 	 * @return int
 	 */
-	public function getSortingFlag();
+	//public function getSortingFlag();
 
 	/**
 	 * Retrieve information about a operation.
@@ -171,14 +245,14 @@ interface ContainerInterface
 	 *
 	 * @return \DcGeneral\DataDefinition\OperationInterface
 	 */
-	public function getOperation($strOperation);
+	//public function getOperation($strOperation);
 
 	/**
 	 *
 	 *
 	 * @return string[]
 	 */
-	public function getOperationNames();
+	//public function getOperationNames();
 
 	/**
 	 * Boolean flag determining if this data container is closed.
@@ -188,7 +262,7 @@ interface ContainerInterface
 	 *
 	 * @return bool
 	 */
-	public function isClosed();
+	//public function isClosed();
 
 	/**
 	 * Boolean flag determining if this data container is editable.
@@ -197,7 +271,7 @@ interface ContainerInterface
 	 *
 	 * @return bool
 	 */
-	public function isEditable();
+	//public function isEditable();
 
 	/**
 	 * Boolean flag determining if this data container is deletable.
@@ -206,7 +280,7 @@ interface ContainerInterface
 	 *
 	 * @return bool
 	 */
-	public function isDeletable();
+	//public function isDeletable();
 
 	/**
 	 * Determines if new entries may be created within this data container.
@@ -215,7 +289,7 @@ interface ContainerInterface
 	 *
 	 * @return bool
 	 */
-	public function isCreatable();
+	//public function isCreatable();
 
 	/**
 	 * Determines if the view shall switch automatically into edit mode.
@@ -223,7 +297,7 @@ interface ContainerInterface
 	 *
 	 * @return bool
 	 */
-	public function isSwitchToEdit();
+	//public function isSwitchToEdit();
 
 	/**
 	 * Allows you to disable the group headers in list view and parent view.
@@ -232,14 +306,14 @@ interface ContainerInterface
 	 *
 	 * @return bool
 	 */
-	public function isGroupingDisabled();
+	//public function isGroupingDisabled();
 
 	/**
 	 * Retrieve the root condition for the current table.
 	 *
 	 * @return \DcGeneral\DataDefinition\RootConditionInterface
 	 */
-	public function getRootCondition();
+	//public function getRootCondition();
 
 	/**
 	 * Retrieve the parent child condition for the current table.
@@ -250,7 +324,7 @@ interface ContainerInterface
 	 *
 	 * @return \DcGeneral\DataDefinition\ParentChildConditionInterface
 	 */
-	public function getChildCondition($strSrcTable, $strDstTable);
+	//public function getChildCondition($strSrcTable, $strDstTable);
 
 	/**
 	 * Retrieve the parent child conditions for the current table.
@@ -259,21 +333,21 @@ interface ContainerInterface
 	 *
 	 * @return \DcGeneral\DataDefinition\ParentChildConditionInterface[]
 	 */
-	public function getChildConditions($strSrcTable = '');
+	//public function getChildConditions($strSrcTable = '');
 
 	/**
 	 * Retrieve the label information for listing of datasets.
 	 *
 	 * @return \DcGeneral\DataDefinition\ListLabelInterface
 	 */
-	public function getListLabel();
+	//public function getListLabel();
 
 	/**
 	 * One or more properties that will be shown in the header element (sorting mode 4 only).
 	 *
 	 * @return array
 	 */
-	public function getParentViewHeaderProperties();
+	//public function getParentViewHeaderProperties();
 
 	/**
 	 * Return the additional filters to be applied for retrieving data.
@@ -282,12 +356,12 @@ interface ContainerInterface
 	 *
 	 * @return array
 	 */
-	public function getAdditionalFilter();
+	//public function getAdditionalFilter();
 
 	/**
 	 * Get the palettes of this container.
 	 *
 	 * @return PaletteCollectionInterface
 	 */
-	public function getPalettes();
+	//public function getPalettes();
 }
