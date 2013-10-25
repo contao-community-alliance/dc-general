@@ -14,7 +14,7 @@
 
 namespace DcGeneral\DataDefinition\Builder;
 
-use DcGeneral\Events\BaseEvent;
+use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 
 abstract class AbstractEventDrivenDataDefinitionBuilder implements DataDefinitionBuilderInterface
 {
@@ -30,14 +30,14 @@ abstract class AbstractEventDrivenDataDefinitionBuilder implements DataDefinitio
 	 * The attached environment {@link DcGeneral\EnvironmentInterface} will be populated
 	 * with the information from the builder's data source.
 	 *
-	 * @param BaseEvent $event The event to process
+	 * @param BuildDataDefinitionEvent $event The event to process
 	 *
 	 * @return void
 	 */
-	static public function process(BaseEvent $event)
+	static public function process(BuildDataDefinitionEvent $event)
 	{
 		$builder = new static();
 		/** @var DataDefinitionBuilderInterface $builder */
-		$builder->build($event->getEnvironment());
+		$builder->build($event->getContainer());
 	}
 }

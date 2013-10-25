@@ -12,12 +12,10 @@
 
 namespace DcGeneral\Factory\Event;
 
-use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\DcGeneral;
-use DcGeneral\EnvironmentInterface;
-use DcGeneral\Events\BaseEvent;
+use Symfony\Component\EventDispatcher\Event;
 
-class CreateDcGeneralEvent extends BaseEvent
+class CreateDcGeneralEvent extends Event
 {
 	const NAME = 'DcGeneral\Factory\Event\CreateDcGeneral';
 

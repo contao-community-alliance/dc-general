@@ -12,10 +12,9 @@
 namespace DcGeneral\Factory;
 
 use DcGeneral\DataDefinition\ContainerInterface;
-use DcGeneral\DcGeneral;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
-use DcGeneral\Factory\Event\CreateContainerEvent;
+use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use DcGeneral\Factory\Event\CreateDcGeneralEvent;
 use DcGeneral\Factory\Event\CreateEnvironmentEvent;
 
@@ -123,8 +122,11 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 		/** @var \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher */
 		$dispatcher = $container['event-dispatcher'];
 
-		$environment = $this->createEnvironment();
-		$this->createContainer($environment);
+		// 1. pass: fires BuildDataDefinitionEvent
+		$dataContainer = $this->createContainer();
+
+		// 2. pass: fires PopulateEnvironmentEvent
+		$environment = $this->createEnvironment($dataContainer);
 
 		// create reflections classes at one place
 		$dcGeneralClass = new \ReflectionClass($this->dcGeneralClassName);
@@ -138,9 +140,12 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	}
 
 	/**
+	 *
+	 * @param ContainerInterface $dataContainer
+	 *
 	 * @return EnvironmentInterface
 	 */
-	protected function createEnvironment()
+	protected function createEnvironment(ContainerInterface $dataContainer)
 	{
 		global $container;
 
@@ -149,7 +154,9 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 
 		$environmentClass = new \ReflectionClass($this->environmentClassName);
 
+		/** @var EnvironmentInterface $environment */
 		$environment = $environmentClass->newInstance();
+		$environment->setDataDefinition($dataContainer);
 
 		$event = new CreateEnvironmentEvent($environment);
 		$dispatcher->dispatch($event::NAME, $event);
@@ -160,7 +167,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	/**
 	 * @return ContainerInterface
 	 */
-	protected function createContainer(EnvironmentInterface $environment)
+	protected function createContainer()
 	{
 		global $container;
 
@@ -169,11 +176,10 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 
 		$containerClass = new \ReflectionClass($this->containerClassName);
 
-		$container = $containerClass->newInstance($this->containerName);
+		/** @var ContainerInterface $dataContainer */
+		$dataContainer = $containerClass->newInstance($this->containerName);
 
-		$environment->setDataDefinition($container);
-
-		$event = new CreateContainerEvent($environment);
+		$event = new BuildDataDefinitionEvent($dataContainer);
 		$dispatcher->dispatch($event::NAME, $event);
 
 		return $container;

@@ -13,16 +13,20 @@
 namespace DcGeneral\Factory\Event;
 
 use DcGeneral\DataDefinition\ContainerInterface;
-use DcGeneral\EnvironmentInterface;
-use DcGeneral\Events\BaseEvent;
+use Symfony\Component\EventDispatcher\Event;
 
-class CreateContainerEvent extends BaseEvent
+class BuildDataDefinitionEvent extends Event
 {
-	const NAME = 'DcGeneral\Factory\Event\CreateContainer';
+	const NAME = 'DcGeneral\Factory\Event\BuildDataDefinition';
 
-	public function __construct(EnvironmentInterface $environment)
+	/**
+	 * @var ContainerInterface
+	 */
+	protected $container;
+
+	public function __construct(ContainerInterface $container)
 	{
-		$this->setEnvironment($environment);
+		$this->container = $container;
 	}
 
 	/**
@@ -30,6 +34,6 @@ class CreateContainerEvent extends BaseEvent
 	 */
 	public function getContainer()
 	{
-		$this->environment->getDataDefinition();
+		return $this->container;
 	}
 }

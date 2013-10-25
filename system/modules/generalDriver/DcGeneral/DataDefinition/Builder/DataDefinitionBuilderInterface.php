@@ -12,14 +12,16 @@
 
 namespace DcGeneral\DataDefinition\Builder;
 
-use DcGeneral\EnvironmentInterface;
+use DcGeneral\DataDefinition\ContainerInterface;
 
 interface DataDefinitionBuilderInterface
 {
 	/**
 	 * Build a data definition and store it into the environments container.
 	 *
-	 * @param EnvironmentInterface $environment
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
 	 */
-	public function build(EnvironmentInterface $environment);
+	public function build(ContainerInterface $container);
 }

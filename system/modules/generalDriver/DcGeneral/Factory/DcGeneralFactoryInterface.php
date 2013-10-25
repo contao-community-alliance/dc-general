@@ -11,6 +11,8 @@
 
 namespace DcGeneral\Factory;
 
+use DcGeneral\DcGeneral;
+
 interface DcGeneralFactoryInterface
 {
 	/**
@@ -54,7 +56,7 @@ interface DcGeneralFactoryInterface
 	public function getDcGeneralClassName();
 
 	/**
-	 * @return mixed
+	 * @return DcGeneral
 	 */
 	public function createDcGeneral();
 }
