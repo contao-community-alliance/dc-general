@@ -408,6 +408,7 @@ class DefaultController extends \Controller implements ControllerInterface
 		if ($objInput->getParameter('clipboard') == '1')
 		{
 			$objClipboard->clear();
+			$this->redirectHome();
 		}
 		// Push some entry into clipboard.
 		elseif ($objInput->getParameter('act') == 'paste')
@@ -431,6 +432,25 @@ class DefaultController extends \Controller implements ControllerInterface
 					->clear()
 					->cut($id)
 					->setCircularIds($arrIgnored);
+			}
+			else if ($objInput->getParameter('mode') == 'create')
+			{
+				// Get vars.
+				$arrIgnored	 = array($id);
+				$objModel	 = $this->getDC()->getDataProvider()->getEmptyModel();
+				$objContainedId = trimsplit(',', $objInput->getParameter('childs'));
+					
+				// Set clipboard.
+				$objClipboard
+						->clear()
+						->create($id)
+						->setCircularIds($arrIgnored);
+
+				// Set some more vars.
+				if (is_array($objContainedId) && !empty($objContainedId))
+				{
+					$objClipboard->setContainedIds($objContainedId);
+				}
 			}
 		}
 		// Check clipboard from session.
@@ -895,7 +915,10 @@ class DefaultController extends \Controller implements ControllerInterface
 			}
 
 			// Reset clipboard
-			$this->resetClipboard();
+			$this->getEnvironment()
+					->getClipboard()
+					->clear()
+					->saveTo($this->getEnvironment());
 		}
 		try 
 		{
@@ -1031,7 +1054,7 @@ class DefaultController extends \Controller implements ControllerInterface
 		// Check if we have a id
 		if (strlen($intRecordID) == 0)
 		{
-			$this->reload();
+			$this->redirectHome();
 		}
 
 		// Check if is it allowed to delete a record
@@ -1043,6 +1066,12 @@ class DefaultController extends \Controller implements ControllerInterface
 
 		// Callback
 		$this->getEnvironment()->setCurrentModel($objCurrentDataProvider->fetch($objCurrentDataProvider->getEmptyConfig()->setId($intRecordID)));
+		
+		if($this->getEnvironment()->getCurrentModel() == null)
+		{
+			$this->redirectHome();
+		}
+		
 		$this->getEnvironment()->getCallbackHandler()->ondeleteCallback();
 
 		$arrDelIDs = array();
@@ -1060,7 +1089,7 @@ class DefaultController extends \Controller implements ControllerInterface
 				break;
 
 			case 5:
-				$arrDelIDs = $this->fetchMode5ChildsOf($this->getDC()->getCurrentModel(), $blnRecurse = true);
+				$arrDelIDs = $this->fetchMode5ChildsOf($this->getDC()->getEnvironment()->getCurrentModel(), $blnRecurse = true);
 				$arrDelIDs[] = $intRecordID;
 				break;
 		}
@@ -1176,11 +1205,11 @@ class DefaultController extends \Controller implements ControllerInterface
 					}
 				}
 
-				// FIXME: dependency injection.
-				if (\Input::getInstance()->post('SUBMIT_TYPE') !== 'auto')
-				{
-					$this->reload();
-				}
+//				// FIXME: dependency injection.
+//				if (\Input::getInstance()->post('SUBMIT_TYPE') !== 'auto')
+//				{
+//					$this->reload();
+//				}
 			}
 		}
 	}
@@ -1306,7 +1335,7 @@ class DefaultController extends \Controller implements ControllerInterface
 			}
 		}
 
-		$this->getDC()->setCurrentCollection($objTableTreeData);
+		$this->getDC()->getEnvironment()->setCurrentCollection($objTableTreeData);
 	}
 
 	/**

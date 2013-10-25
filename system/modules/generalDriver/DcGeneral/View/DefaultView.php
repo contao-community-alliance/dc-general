@@ -861,18 +861,32 @@ class DefaultView implements ViewInterface
 		// Rootpage pasteinto
 		if ($this->getEnvironment()->getClipboard()->isNotEmpty())
 		{
-			$arrClipboard = $this->getDC()->getClipboard();
+			$objClipboard = $this->getEnvironment()->getClipboard();
+			$arrContainId = $objClipboard->getContainedIds();
+			$arrChilds = (count($arrContainId) > 1) ? array_slice($arrContainId, 1, count($arrContainId) - 1 ) : array();
+			
 			// TODO: @CS we definately need into and after handling here instead of different modes.
-			$imagePasteInto = $this->generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteinto'][0], 'class="blink"');
-			$strRootPasteinto = '<a href="' . BackendBindings::addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;after=0&amp;pid=0&amp;id=' . $arrClipboard['id'] . '&amp;childs=' . $arrClipboard['childs']) . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">' . $imagePasteInto . '</a> ';
-
+			$imagePasteInto = BackendBindings::generateImage('pasteinto.gif', $GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteinto'][0], 'class="blink"');			
+			$strUrl = BackendBindings::addToUrl(sprintf("act=%s&amp;mode=2&amp;after=0&amp;pid=0&amp;id=%s&amp;childs=%s", 
+						$objClipboard->getMode(), 
+						$arrContainId[0],
+						implode(',', $arrChilds)
+					));
+			
+			$strRootPasteinto = sprintf('<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a> ', 
+						$strUrl,
+						specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteinto'][0]),
+						$imagePasteInto
+					);
+			
+			//$strRootPasteinto = '<a href="' . BackendBindings::addToUrl('act=' . $objClipboard->getMode() . '&amp;mode=2&amp;after=0&amp;pid=0&amp;id=' . $arrContainId[0] . '&amp;childs=' . implode(',', $arrChilds)) . '" title="' . specialchars($GLOBALS['TL_LANG'][$this->getDC()->getTable()]['pasteinto'][0]) . '" onclick="Backend.getScrollOffset()">' . $imagePasteInto . '</a> ';
+			//($row, $table, $cr, $childs, $previous, $next);
 			// Callback for paste btn.
-			$strButtonCallback = $this->getDC()->getCallbackClass()->pasteButtonCallback(
-				$this->getDC(),
+			$strButtonCallback = $this->getDC()->getCallbackClass()->pasteButtonCallback(				
 				$this->getDC()->getDataProvider($this->getDC()->getTable())->getEmptyModel()->getPropertiesAsArray(),
 				$this->getDC()->getTable(),
 				false,
-				$arrClipboard,
+				$objClipboard,
 				null,
 				null
 			);
@@ -1893,8 +1907,10 @@ class DefaultView implements ViewInterface
 			}
 
 			// Call a custom function instead of using the default button
-			$strButtonCallback = $this->getDC()->getEnvironment()->getCallbackHandler()
-				->buttonCallback($objModelRow, $objOperation, $label, $title, $attributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext);
+			$strButtonCallback = $this->getDC()
+					->getEnvironment()
+					->getCallbackHandler()
+					->buttonCallback($objModelRow, $objOperation, $label, $title, $attributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext);
 
 			if (!is_null($strButtonCallback))
 			{
@@ -2015,7 +2031,7 @@ class DefaultView implements ViewInterface
 						// Callback for paste btt
 						$strButtonCallback = $this->getEnvironment()
 							->getCallbackHandler()
-							->pasteButtonCallback($this->objDC, $objModelRow->getPropertiesAsArray(), $strTable, false, $arrClipboard, null, null);
+							->pasteButtonCallback($this->objDC, $objModelRow->getPropertiesAsArray(), $strTable, false, $objClipboard, null, null);
 
 						if($strButtonCallback === false)
 						{
@@ -2036,7 +2052,7 @@ class DefaultView implements ViewInterface
 						// Callback for paste btn.
 						$strButtonCallback = $this->getEnvironment()
 							->getCallbackHandler()
-							->pasteButtonCallback($this->objDC, $objModelRow->getPropertiesAsArray(), $strTable, false, $arrClipboard, null, null);
+							->pasteButtonCallback($objModelRow->getPropertiesAsArray(), $strTable, false, $objClipboard, null, null);
 
 						if ($strButtonCallback === false)
 						{
