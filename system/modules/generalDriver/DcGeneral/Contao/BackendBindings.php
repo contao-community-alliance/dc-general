@@ -71,7 +71,7 @@ if (version_compare(VERSION, '3.0', '<'))
 
 		public function loadDataContainer($strName, $blnNoCache=false)
 		{
-			return parent::getReferer($strName, $blnNoCache);
+			return parent::loadDataContainer($strName, $blnNoCache);
 		}
 
 		public function parseDate($strFormat, $intTimestamp=null)
