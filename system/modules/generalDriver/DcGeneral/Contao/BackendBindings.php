@@ -61,7 +61,7 @@ if (version_compare(VERSION, '3.0', '<'))
 
 		public function loadDataContainer($strName, $blnNoCache=false)
 		{
-			return parent::getReferer($strName, $blnNoCache);
+			parent::loadDataContainer($strName, $blnNoCache);
 		}
 	}
 }
@@ -89,7 +89,7 @@ else
 
 		public function loadDataContainer($strName, $blnNoCache=false)
 		{
-			return parent::getReferer($strName, $blnNoCache);
+			parent::loadDataContainer($strName, $blnNoCache);
 		}
 	}
 }
