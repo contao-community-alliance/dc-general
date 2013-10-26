@@ -13,7 +13,10 @@
 namespace DcGeneral\DataDefinition;
 
 
-use DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
+use DcGeneral\DataDefinition\Section\BasicSectionInterface;
+use DcGeneral\DataDefinition\Section\ContainerSectionInterface;
+use DcGeneral\DataDefinition\Section\DataProviderSectionInterface;
+use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 class DefaultContainer implements ContainerInterface
 {
@@ -23,7 +26,7 @@ class DefaultContainer implements ContainerInterface
 	protected $name;
 
 	/**
-	 * @var ContainerSectionInterface
+	 * @var ContainerSectionInterface[]
 	 */
 	protected $sections;
 
@@ -46,97 +49,129 @@ class DefaultContainer implements ContainerInterface
 	}
 
 	/**
-	 * Check if this container has a section.
-	 *
-	 * @param string $sectionName
-	 *
-	 * @return bool
+	 * {@inheritdoc}
 	 */
 	public function hasSection($sectionName)
 	{
-		// TODO: Implement hasSection() method.
+		return isset($this->sections[$sectionName]);
 	}
 
 	/**
-	 * Clear all sections from this container.
-	 *
-	 * @return static
+	 * {@inheritdoc}
 	 */
 	public function clearSections()
 	{
-
+		$this->sections = array();
 	}
 
 	/**
-	 * Set the sections of this container.
-	 *
-	 * @param ContainerSectionInterface[] $sections
-	 *
-	 * @return static
+	 * {@inheritdoc}
 	 */
 	public function setSections(array $sections)
 	{
-
+		$this
+			->clearSections()
+			->addSections($sections);
 	}
 
 	/**
-	 * Add multiple sections to this container.
-	 *
-	 * @param ContainerSectionInterface[] $sections
-	 *
-	 * @return static
+	 * {@inheritdoc}
 	 */
 	public function addSections(array $sections)
 	{
+		foreach ($sections as $name => $section)
+		{
+			if (!($section instanceof ContainerSectionInterface))
+			{
+				throw new DcGeneralInvalidArgumentException('Section ' . $name . ' does not implement ContainerSectionInterface.');
+			}
 
+			$this->setSection($name, $section);
+		}
 	}
 
 	/**
-	 * Set a sections of this container.
-	 *
-	 * @param string $sectionName
-	 * @param ContainerSectionInterface $section
-	 *
-	 * @return static
+	 * {@inheritdoc}
 	 */
 	public function setSection($sectionName, ContainerSectionInterface $section)
 	{
-
+		$this->sections[$sectionName] = $section;
 	}
 
 	/**
-	 * Remove a sections from this container.
-	 *
-	 * @param string $sectionName
-	 *
-	 * @return static
+	 * {@inheritdoc}
 	 */
 	public function removeSection($sectionName)
 	{
-
+		unset($this->sections[$sectionName]);
 	}
 
 	/**
-	 * Get a sections of this container.
-	 *
-	 * @param string $sectionName
-	 *
-	 * @return ContainerSectionInterface
-	 *
-	 * @throws DcGeneralInvalidArgumentException Is thrown when there is no section with this name.
+	 * {@inheritdoc}
 	 */
 	public function getSection($sectionName)
 	{
+		if (!$this->hasSection($sectionName))
+		{
+			throw new DcGeneralInvalidArgumentException('Section ' . $sectionName . ' is not registered in the configuration.');
+		}
 
+		return $this->sections[$sectionName];
 	}
 
 	/**
-	 * Get a list of all section names in this container.
-	 *
-	 * @return array
+	 * {@inheritdoc}
 	 */
 	public function getSectionNames()
 	{
+		return array_keys($this->sections);
+	}
 
+	/**
+	 * {@inheritdoc}
+	 */
+	public function hasBasicSection()
+	{
+		return $this->hasSection(BasicSectionInterface::NAME);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setBasicSection(BasicSectionInterface $section)
+	{
+		return $this->setSection(BasicSectionInterface::NAME, $section);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getBasicSection()
+	{
+		return $this->getSection(BasicSectionInterface::NAME);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function hasDataProviderSection()
+	{
+		return $this->hasSection(DataProviderSectionInterface::NAME);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setDataProviderSection(DataProviderSectionInterface $section)
+	{
+		return $this->setSection(DataProviderSectionInterface::NAME, $section);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getDataProviderSection()
+	{
+		return $this->getSection(DataProviderSectionInterface::NAME);
 	}
 }

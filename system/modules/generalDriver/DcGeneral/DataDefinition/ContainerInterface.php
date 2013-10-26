@@ -14,6 +14,9 @@ namespace DcGeneral\DataDefinition;
 
 
 use DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
+use DcGeneral\DataDefinition\Section\BasicSectionInterface;
+use DcGeneral\DataDefinition\Section\ContainerSectionInterface;
+use DcGeneral\DataDefinition\Section\DataProviderSectionInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 interface ContainerInterface
@@ -37,7 +40,7 @@ interface ContainerInterface
 	/**
 	 * Clear all sections from this container.
 	 *
-	 * @return static
+	 * @return ContainerInterface
 	 */
 	public function clearSections();
 
@@ -46,7 +49,7 @@ interface ContainerInterface
 	 *
 	 * @param ContainerSectionInterface[] $sections
 	 *
-	 * @return static
+	 * @return ContainerInterface
 	 */
 	public function setSections(array $sections);
 
@@ -55,7 +58,7 @@ interface ContainerInterface
 	 *
 	 * @param ContainerSectionInterface[] $sections
 	 *
-	 * @return static
+	 * @return ContainerInterface
 	 */
 	public function addSections(array $sections);
 
@@ -65,7 +68,7 @@ interface ContainerInterface
 	 * @param string $sectionName
 	 * @param ContainerSectionInterface $section
 	 *
-	 * @return static
+	 * @return ContainerInterface
 	 */
 	public function setSection($sectionName, ContainerSectionInterface $section);
 
@@ -74,7 +77,7 @@ interface ContainerInterface
 	 *
 	 * @param string $sectionName
 	 *
-	 * @return static
+	 * @return ContainerInterface
 	 */
 	public function removeSection($sectionName);
 
@@ -95,6 +98,54 @@ interface ContainerInterface
 	 * @return array
 	 */
 	public function getSectionNames();
+
+	/**
+	 * Convenience method to check if a basic section is contained.
+	 *
+	 * @return BasicSectionInterface
+	 */
+	public function hasBasicSection();
+
+	/**
+	 * Convenience method to set the basic section.
+	 *
+	 * @param Section\BasicSectionInterface $section
+	 *
+	 * @return ContainerSectionInterface
+	 */
+	public function setBasicSection(BasicSectionInterface $section);
+
+	/**
+	 * Convenience method to retrieve the basic section.
+	 *
+	 * @return BasicSectionInterface
+	 */
+	public function getBasicSection();
+
+	/**
+	 * Convenience method to check if a data provider section is contained.
+	 *
+	 * @return BasicSectionInterface
+	 */
+	public function hasDataProviderSection();
+
+	/**
+	 * Convenience method to set the data provider section.
+	 *
+	 * @param DataProviderSectionInterface $section
+	 *
+	 * @return DataProviderSectionInterface
+	 */
+	public function setDataProviderSection(DataProviderSectionInterface $section);
+
+	/**
+	 * Convenience method to retrieve the data provider section.
+	 *
+	 * @return DataProviderSectionInterface
+	 */
+	public function getDataProviderSection();
+
+
 
 	// TODO extract
 

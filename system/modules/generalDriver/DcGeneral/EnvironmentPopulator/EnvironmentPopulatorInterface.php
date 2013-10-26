@@ -10,18 +10,11 @@
  * @filesource
  */
 
-namespace DcGeneral\Factory\Event;
+namespace DcGeneral\EnvironmentPopulator;
 
-use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\EnvironmentInterface;
-use DcGeneral\Events\BaseEvent;
 
-class CreateEnvironmentEvent extends BaseEvent
+interface EnvironmentPopulatorInterface
 {
-	const NAME = 'DcGeneral\Factory\Event\CreateEnvironment';
-
-	function __construct(EnvironmentInterface $environment)
-	{
-		$this->setEnvironment($environment);
-	}
+	public function populate(EnvironmentInterface $environment);
 }

@@ -108,19 +108,28 @@ interface EnvironmentInterface
 	public function getCallbackHandler();
 
 	/**
-	 * Retrieve the data driver for the named source.
+	 * Determine if the data provider with the given name exists.
+	 *
+	 * @param null $strSource
+	 *
+	 * @return mixed
+	 */
+	public function hasDataProvider($strSource = null);
+
+	/**
+	 * Retrieve the data provider for the named source.
 	 *
 	 * If a source name is given, the named driver will get returned, if not given, the default driver will get
-	 * returned, The default is to be determined via: getEnvironment()->getDataDefinition()->getName()
+	 * returned, The default is to be determined via: getEnvironment()->getDataDefinition()->getDataProvider()
 	 *
 	 * @param string|null $strSource The name of the source.
 	 *
 	 * @return \DcGeneral\Data\DriverInterface
 	 */
-	public function getDataDriver($strSource = null);
+	public function getDataProvider($strSource = null);
 
 	/**
-	 * Register a data driver to the environment.
+	 * Register a data provider to the environment.
 	 *
 	 * @param string                          $strSource The name of the source.
 	 *
@@ -128,26 +137,30 @@ interface EnvironmentInterface
 	 *
 	 * @return EnvironmentInterface
 	 */
-	public function addDataDriver($strSource, $objDriver);
+	public function addDataProvider($strSource, $objDriver);
 
 	/**
-	 * Remove a data driver from the environment.
+	 * Remove a data provider from the environment.
 	 *
 	 * @param string $strSource The name of the source.
 	 *
 	 * @return mixed
 	 */
-	public function removeDataDriver($strSource);
+	public function removeDataProvider($strSource);
 
 	/**
 	 * @param \DcGeneral\Panel\PanelContainerInterface $objPanelContainer
 	 *
 	 * @return EnvironmentInterface
+	 *
+	 * @deprecated This is only view related and therefore should be moved there.
 	 */
 	public function setPanelContainer($objPanelContainer);
 
 	/**
 	 * @return \DcGeneral\Panel\PanelContainerInterface
+	 *
+	 * @deprecated This is only view related and therefore should be moved there.
 	 */
 	public function getPanelContainer();
 

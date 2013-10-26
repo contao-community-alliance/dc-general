@@ -22,6 +22,7 @@ use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\DriverInterface;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
+use DcGeneral\Factory\DcGeneralFactory;
 use DcGeneral\Helper\WidgetAccessor;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\DefaultEnvironment;
@@ -286,6 +287,18 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			$this->arrDCA = &$GLOBALS['TL_DCA'][$this->strTable];
 		}
 
+		$factory = new DcGeneralFactory();
+
+		$dcGeneral = $factory
+			->setContainerName($strTable)
+			->createDcGeneral();
+
+		$this->objEnvironment = $dcGeneral->getEnvironment();
+
+
+		$environment  = $this->getEnvironment();
+
+/*
 		$this->objEnvironment = new DefaultEnvironment();
 		$this->getEnvironment()
 			->setDataDefinition(new Contao\Dca\Container($this->strTable, $this->arrDCA))
@@ -303,7 +316,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 				$GLOBALS['TL_DCA'][$parentTable]
 			));
 		}
-
+*/
 		// Switch user for FE / BE support
 		switch (TL_MODE)
 		{

@@ -53,7 +53,7 @@ class DefaultEnvironment implements EnvironmentInterface
 	/**
 	 * @var \DcGeneral\Data\DriverInterface[]
 	 */
-	protected $arrDataDriver;
+	protected $arrDataProvider;
 
 	/**
 	 * @var \DcGeneral\Callbacks\CallbacksInterface
@@ -206,43 +206,66 @@ class DefaultEnvironment implements EnvironmentInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function getDataDriver($strSource = null)
+	public function hasDataProvider($strSource = null)
 	{
 		if ($strSource === null)
 		{
 			$strSource = $this->getDataDefinition()->getName();
 		}
 
-		// FIXME: this is deprecated stuff from 0.9 times, we can drop it safely I guess.
-		switch ($strSource)
-		{
-			case 'self':
-				$strSource = $this->getDataDefinition()->getName();
-				trigger_error('WARNING!!!! Legacy descriptor "self" used for data provider retrieval, expect this to fail in near future.', E_USER_WARNING);
-				break;
-			case 'parent':
-				if ($GLOBALS['TL_DCA'][$this->getDataDefinition()->getName()]['config']['ptable'])
-				{
-					$strSource = $GLOBALS['TL_DCA'][$this->getDataDefinition()->getName()]['config']['ptable'];
-				}
-				elseif ($GLOBALS['TL_DCA'][$this->getDataDefinition()->getName()]['dca_config']['data_provider']['parent']['source'])
-				{
-					$strSource = $GLOBALS['TL_DCA'][$this->getDataDefinition()->getName()]['dca_config']['data_provider']['parent']['source'];
-				}
-				else
-					throw new DcGeneralRuntimeException('Could not determine parent table.');
+		return (isset($this->arrDataProvider[$strSource]));
+	}
 
-				trigger_error('WARNING!!!! Legacy descriptor "parent" used for data provider retrieval, expect this to fail in near future.', E_USER_WARNING);
-				break;
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getDataProvider($strSource = null)
+	{
+		if ($strSource === null)
+		{
+			$strSource = $this->getDataDefinition()->getName();
 		}
 
-
-		if (isset($this->arrDataDriver[$strSource]))
+		if (isset($this->arrDataProvider[$strSource]))
 		{
-			return $this->arrDataDriver[$strSource];
+			return $this->arrDataProvider[$strSource];
 		}
 
-		throw new DcGeneralRuntimeException(sprintf('Data driver %s not defined', $strSource));
+		throw new DcGeneralRuntimeException(sprintf('Data provider %s not defined', $strSource));
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function addDataProvider($strSource, $objDriver)
+	{
+		// Force removal of an potentially registered driver to ease sub-classing.
+		$this->removeDataProvider($strSource);
+
+		$this->arrDataProvider[$strSource] = $objDriver;
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function removeDataProvider($strSource)
+	{
+		if (isset($this->arrDataProvider[$strSource]))
+		{
+			unset($this->arrDataProvider[$strSource]);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getDataDriver($strSource = null)
+	{
+		return $this->getDataProvider($strSource);
 	}
 
 	/**
@@ -251,22 +274,17 @@ class DefaultEnvironment implements EnvironmentInterface
 	public function addDataDriver($strSource, $objDriver)
 	{
 		// Force removal of an potentially registered driver to ease sub-classing.
-		$this->removeDataDriver($strSource);
-
-		$this->arrDataDriver[$strSource] = $objDriver;
+		$this->addDataProvider($strSource, $objDriver);
 
 		return $this;
 	}
 
 	/**
-	 * {@inheritdoc}
+	 * @deprecated use
 	 */
 	public function removeDataDriver($strSource)
 	{
-		if (isset($this->arrDataDriver[$strSource]))
-		{
-			unset($this->arrDataDriver[$strSource]);
-		}
+		$this->removeDataProvider($strSource);
 
 		return $this;
 	}

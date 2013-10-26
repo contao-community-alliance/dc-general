@@ -10,7 +10,7 @@
  * @filesource
  */
 
-namespace DcGeneral\DataDefinition;
+namespace DcGeneral\DataDefinition\Section;
 
 interface ContainerSectionInterface
 {

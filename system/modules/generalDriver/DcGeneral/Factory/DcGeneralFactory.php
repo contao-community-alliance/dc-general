@@ -4,6 +4,7 @@
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
+ * @author     Tristan Lins <tristan.lins@bit3.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -16,7 +17,7 @@ use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use DcGeneral\Factory\Event\CreateDcGeneralEvent;
-use DcGeneral\Factory\Event\CreateEnvironmentEvent;
+use DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 
 class DcGeneralFactory implements DcGeneralFactoryInterface
 {
@@ -158,7 +159,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 		$environment = $environmentClass->newInstance();
 		$environment->setDataDefinition($dataContainer);
 
-		$event = new CreateEnvironmentEvent($environment);
+		$event = new PopulateEnvironmentEvent($environment);
 		$dispatcher->dispatch($event::NAME, $event);
 
 		return $environment;
@@ -182,6 +183,6 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 		$event = new BuildDataDefinitionEvent($dataContainer);
 		$dispatcher->dispatch($event::NAME, $event);
 
-		return $container;
+		return $dataContainer;
 	}
 }

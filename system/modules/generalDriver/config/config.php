@@ -9,6 +9,9 @@
  * @filesource
  */
 
+/**
+ * The ABI version of the DcGeneral extension in use.
+ */
 define('DCGENERAL_VERSION', '1.0.0-dev');
 
 /**
@@ -39,3 +42,23 @@ if (version_compare(VERSION, '3.0', '<'))
 
 // Attach ourselves to the DIC.
 $GLOBALS['TL_EVENT_SUBSCRIBERS'][] = 'DcGeneral\Events\Subscriber';
+
+// TODO: defining the event handlers like this is pretty ugly, we should really make this better.
+$GLOBALS['TL_EVENTS'][\DcGeneral\Factory\Event\BuildDataDefinitionEvent::NAME][] = array(
+	'DcGeneral\Contao\Dca\Builder\Legacy\LegacyDcaDataDefinitionBuilder::process',
+	\DcGeneral\Contao\Dca\Builder\Legacy\LegacyDcaDataDefinitionBuilder::PRIORITY
+);
+$GLOBALS['TL_EVENTS'][\DcGeneral\Factory\Event\BuildDataDefinitionEvent::NAME][] = array(
+	'DcGeneral\Contao\Dca\Builder\Legacy\ExtendedLegacyDcaDataDefinitionBuilder::process',
+	\DcGeneral\Contao\Dca\Builder\Legacy\ExtendedLegacyDcaDataDefinitionBuilder::PRIORITY
+);
+
+$GLOBALS['TL_EVENTS'][\DcGeneral\Factory\Event\PopulateEnvironmentEvent::NAME][] = array(
+	'DcGeneral\Contao\Dca\Populator\DataProviderPopulator::process',
+	\DcGeneral\Contao\Dca\Populator\DataProviderPopulator::PRIORITY
+);
+
+$GLOBALS['TL_EVENTS'][\DcGeneral\Factory\Event\PopulateEnvironmentEvent::NAME][] = array(
+	'DcGeneral\Contao\Dca\Populator\HardCodedPopulator::process',
+	\DcGeneral\Contao\Dca\Populator\HardCodedPopulator::PRIORITY
+);

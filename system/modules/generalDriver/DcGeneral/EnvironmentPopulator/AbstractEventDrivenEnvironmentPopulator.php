@@ -1,8 +1,6 @@
 <?php
-
 /**
  * PHP version 5
- *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -12,15 +10,14 @@
  * @filesource
  */
 
-namespace DcGeneral\DataDefinition\Builder;
+use DcGeneral\EnvironmentPopulator\EnvironmentPopulatorInterface;
+use DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 
-use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
-
-abstract class AbstractEventDrivenDataDefinitionBuilder implements DataDefinitionBuilderInterface
+abstract class AbstractEventDrivenEnvironmentPopulator implements EnvironmentPopulatorInterface
 {
 	/**
 	 * Priority of the listener.
-	 * Just here for sanity, must be overwritten by implementation.
+	 * Just here vor sanity, must be overwritten by implementation.
 	 */
 	const PRIORITY = null;
 
@@ -30,14 +27,14 @@ abstract class AbstractEventDrivenDataDefinitionBuilder implements DataDefinitio
 	 * The attached environment {@link DcGeneral\EnvironmentInterface} will be populated
 	 * with the information from the builder's data source.
 	 *
-	 * @param BuildDataDefinitionEvent $event The event to process
+	 * @param PopulateEnvironmentEvent $event The event to process
 	 *
 	 * @return void
 	 */
-	static public function process(BuildDataDefinitionEvent $event)
+	static public function process(PopulateEnvironmentEvent $event)
 	{
 		$builder = new static();
-		/** @var DataDefinitionBuilderInterface $builder */
-		$builder->build($event->getContainer());
+		/** @var $builder EnvironmentPopulatorInterface */
+		$builder->populate($event->getEnvironment());
 	}
 }
