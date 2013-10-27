@@ -15,6 +15,7 @@ namespace DcGeneral\DataDefinition\Palette\Builder;
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\DataDefinition\Palette\Builder\Event\AddConditionEvent;
 use DcGeneral\DataDefinition\Palette\Builder\Event\BuilderEvent;
+use DcGeneral\DataDefinition\Palette\Builder\Event\CreateConditionEvent;
 use DcGeneral\DataDefinition\Palette\Builder\Event\CreateDefaultPaletteConditionEvent;
 use DcGeneral\DataDefinition\Palette\Builder\Event\CreateLegendEvent;
 use DcGeneral\DataDefinition\Palette\Builder\Event\CreatePaletteCollectionEvent;
@@ -722,6 +723,10 @@ class PaletteBuilder
 			$this->dispatchEvent($event);
 			$this->condition = $event->getCondition();
 
+			$event = new CreateConditionEvent($this->condition, $this);
+			$this->dispatchEvent($event);
+			$this->condition = $event->getCondition();
+
 			$this->condition->addCondition($previousCondition);
 		}
 
@@ -740,6 +745,10 @@ class PaletteBuilder
 
 			$condition = $this->paletteConditionChainClass->newInstance();
 			$event = new CreatePropertyConditionChainEvent($condition, $this);
+			$this->dispatchEvent($event);
+			$this->condition = $event->getCondition();
+
+			$event = new CreateConditionEvent($this->condition, $this);
 			$this->dispatchEvent($event);
 			$this->condition = $event->getCondition();
 
@@ -771,6 +780,10 @@ class PaletteBuilder
 		$this->dispatchEvent($event);
 		$this->condition = $event->getCondition();
 
+		$event = new CreateConditionEvent($this->condition, $this);
+		$this->dispatchEvent($event);
+		$this->condition = $event->getCondition();
+
 		return $this;
 	}
 
@@ -791,6 +804,10 @@ class PaletteBuilder
 
 		$condition = $this->defaultPaletteConditionClass->newInstance();
 		$event = new CreateDefaultPaletteConditionEvent($condition, $this);
+		$this->dispatchEvent($event);
+		$condition = $event->getCondition();
+
+		$event = new CreateConditionEvent($condition, $this);
 		$this->dispatchEvent($event);
 		$condition = $event->getCondition();
 
@@ -835,6 +852,10 @@ class PaletteBuilder
 		$this->dispatchEvent($event);
 		$condition = $event->getCondition();
 
+		$event = new CreateConditionEvent($condition, $this);
+		$this->dispatchEvent($event);
+		$condition = $event->getCondition();
+
 		$this->condition = $condition;
 
 		return $this;
@@ -870,6 +891,10 @@ class PaletteBuilder
 		$condition->setStrict($strict);
 
 		$event = new CreatePropertyValueConditionEvent($this->condition, $this);
+		$this->dispatchEvent($event);
+		$condition = $event->getCondition();
+
+		$event = new CreateConditionEvent($condition, $this);
 		$this->dispatchEvent($event);
 		$condition = $event->getCondition();
 
