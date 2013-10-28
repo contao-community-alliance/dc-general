@@ -131,6 +131,43 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 			}
 		}
 
+		// Determine the root data provider (if any configured).
+		if (($rootProvider = $this->getFromDca('dca_config/data_provider/root')) !== null)
+		{
+			// Determine the name.
+			if (($rootProviderSource = $this->getFromDca('dca_config/data_provider/root/source')) !== null)
+			{
+				$providerName = $rootProviderSource;
+			}
+			else
+			{
+				$providerName = $container->getName();
+			}
+
+			// Check config if it already exists, if not, add it.
+			if (!$config->hasInformation($providerName))
+			{
+				$providerInformation = new ContaoDataProviderInformation();
+				$providerInformation->setName($providerName);
+				$config->addInformation($providerInformation);
+			}
+			else
+			{
+				$providerInformation = $config->getInformation($providerName);
+			}
+
+			if ($providerInformation instanceof ContaoDataProviderInformation)
+			{
+				$providerInformation
+					->setTableName($rootProviderSource)
+					->setInitializationData($rootProvider);
+
+				// TODO: add additional information here.
+
+				$container->getBasicSection()->setRootDataProvider($providerInformation->getName());
+			}
+		}
+
 		// Determine the parent data provider (if any configured).
 		if (($parentProvider = $this->getFromDca('dca_config/data_provider/parent')) !== null)
 		{
@@ -164,7 +201,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
 				// TODO: add additional information here.
 
-				$container->getBasicSection()->setRootDataProvider($providerInformation->getName());
+				$container->getBasicSection()->setParentDataProvider($providerInformation->getName());
 			}
 		}
 	}

@@ -34,6 +34,11 @@ class DefaultBasicSection implements BasicSectionInterface
 	/**
 	 * @var string
 	 */
+	protected $parentProviderName;
+
+	/**
+	 * @var string
+	 */
 	protected $providerName;
 
 	/**
@@ -75,6 +80,24 @@ class DefaultBasicSection implements BasicSectionInterface
 	public function getRootDataProvider()
 	{
 		return $this->rootProviderName;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setParentDataProvider($providerName)
+	{
+		$this->parentProviderName = $providerName;
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getParentDataProvider()
+	{
+		return $this->parentProviderName;
 	}
 
 	/**
