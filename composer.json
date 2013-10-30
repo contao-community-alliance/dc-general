@@ -35,6 +35,12 @@
 			"role":"Developer"
 		}
 	],
+        "support":{
+                "issues":"https://github.com/MetaModels/DC_General/issues",
+                "wiki":"http://de.contaowiki.org/DC_General",
+                "irc":"irc://irc.freenode.org/contao.dev",
+                "source":"https://github.com/MetaModels/DC_General"
+        },
 	"require":{
 		"php":">=5.3",
 		"contao/core":">=2.11,<3.0"
