@@ -12,26 +12,111 @@
 
 namespace DcGeneral\DataDefinition\Section\View;
 
+use DcGeneral\View\ModelFormatterInterface;
+
 interface ListingConfigInterface
 {
     /**
-     * Return the item formatter.
-     * 
-     * @return FormatterInterface
+     * Do not group.
      */
-    public function getItemFormatter();
+    const GROUP_NONE = 'none';
     
     /**
-     * Return the item label formatter.
-     * 
-     * @return FormatterInterface
+     * Group by characters, the max char count depend on the mode length
+     * (which is 1 by default for char grouping).
      */
-    public function getItemLabelFormatter();
+    const GROUP_CHAR = 'char';
     
     /**
-     * Return the default sorting.
-     * 
-     * @return array Array of property names as keys and "ASC" and "DESC" as value.
+     * Group by digits, the max digit count depend on the mode length
+     * (which is infinity by default for digit grouping)..
      */
-    public function getDefaultSort();
+    const GROUP_DIGIT = 'digit';
+    
+    /**
+     * Sort by day from datetime property.
+     */
+    const GROUP_DAY = 'day';
+    
+    /**
+     * Sort by week day from datetime property.
+     */
+    const GROUP_WEEKDAY = 'weekday';
+    
+    /**
+     * Sort by week of the year from datetime property.
+     */
+    const GROUP_WEEK = 'week';
+    
+    /**
+     * Sort by month from datetime property.
+     */
+    const GROUP_MONTH = 'month';
+    
+    /**
+     * Sort by year from datetime property.
+     */
+    const GROUP_YEAR = 'year';
+    
+    const SORT_ASC = 'asc';
+    
+    const SORT_DESC = 'desc';
+    
+    const SORT_RANDOM = 'random';
+    
+    /**
+     * Return the grouping mode.
+     * 
+     * @return string
+     */
+    public function getGroupingMode();
+    
+    /**
+     * The grouping length is used for char or digit grouping and define
+     * how many chars or digits should be respected when group.
+     */
+    public function getGroupingLength();
+    
+    /**
+     * Return the list sorting mode.
+     * This sorting is applied after grouping and could also be called "in-group sorting".
+     * 
+     * @return string
+     */
+    public function getSortingMode();
+    
+    /**
+     * Get the default sorting fields which are used if the user does not define a sorting.
+     * 
+     * @return array
+     */
+    public function getDefaultSortingFields();
+    
+    /**
+     * Return a list of parent's model property names, which are shown above the item list.
+     * 
+     * @return array
+     */
+    public function getHeaderPropertyNames();
+    
+    /**
+     * Return the icon path to the root item's icon.
+     * 
+     * @return string
+     */
+    public function getRootIcon();
+    
+    /**
+     * Return css classes that should be added to the items container.
+     * 
+     * @return string
+     */
+    public function getItemCssClass();
+    
+    /**
+     * Return the label formatter.
+     * 
+     * @return ModelFormatterInterface
+     */
+    public function getLabelFormatter();
 }
