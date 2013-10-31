@@ -18,7 +18,7 @@ use DcGeneral\EnvironmentInterface;
 
 class CreatePaletteConditionChainEvent extends BuilderEvent
 {
-	const NAME = 'DcGeneral\DataDefinition\Palette\Builder\Event\CreatePaletteConditionChain';
+    const NAME = 'dc-general.data-definition.palette.builder.create-plaette-condition-chain';
 
 	/**
 	 * @var PaletteConditionChain

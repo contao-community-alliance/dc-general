@@ -15,5 +15,5 @@ namespace DcGeneral\View\DefaultView\Event;
 class GetSelectModeButtonsEvent
 	extends BaseGetButtonsEvent
 {
-	const NAME = 'DcGeneral\View\DefaultView\Event\GetSelectModeButtons';
+    const NAME = 'dc-general.view.widget.get-select-mode-buttons';
 }

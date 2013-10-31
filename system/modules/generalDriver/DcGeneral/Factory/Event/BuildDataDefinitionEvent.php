@@ -17,7 +17,7 @@ use Symfony\Component\EventDispatcher\Event;
 
 class BuildDataDefinitionEvent extends Event
 {
-	const NAME = 'DcGeneral\Factory\Event\BuildDataDefinition';
+    const NAME = 'dc-general.factory.build-data-definition';
 
 	/**
 	 * @var ContainerInterface

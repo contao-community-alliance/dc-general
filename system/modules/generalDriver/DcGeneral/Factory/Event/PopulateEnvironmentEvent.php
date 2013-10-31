@@ -17,7 +17,7 @@ use DcGeneral\Event\EnvironmentAwareEvent;
 
 class PopulateEnvironmentEvent extends EnvironmentAwareEvent
 {
-	const NAME = 'DcGeneral\Factory\Event\PopulateEnvironment';
+    const NAME = 'dc-general.factory.populate-environment';
 
 	function __construct(EnvironmentInterface $environment)
 	{

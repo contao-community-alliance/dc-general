@@ -18,7 +18,7 @@ use DcGeneral\EnvironmentInterface;
 
 class FinishPaletteCollectionEvent extends BuilderEvent
 {
-	const NAME = 'DcGeneral\DataDefinition\Palette\Builder\Event\FinishPaletteCollection';
+    const NAME = 'dc-general.data-definition.palette.builder.finish-palette-collection';
 
 	/**
 	 * @var PaletteCollectionInterface

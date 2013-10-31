@@ -22,7 +22,7 @@ use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 class FinishConditionEvent extends BuilderEvent
 {
-	const NAME = 'DcGeneral\DataDefinition\Palette\Builder\Event\FinishCondition';
+    const NAME = 'dc-general.data-definition.palette.builder.finish-condition';
 
 	/**
 	 * @var PaletteConditionInterface|PropertyConditionInterface

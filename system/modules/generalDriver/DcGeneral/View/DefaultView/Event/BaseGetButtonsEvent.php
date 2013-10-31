@@ -17,6 +17,8 @@ use DcGeneral\Event\EnvironmentAwareEvent;
 class BaseGetButtonsEvent
 	extends EnvironmentAwareEvent
 {
+    const NAME = 'dc-general.view.default.get-buttons';
+
 	/**
 	 * @var string[]
 	 */

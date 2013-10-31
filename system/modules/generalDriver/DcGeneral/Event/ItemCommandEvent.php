@@ -17,6 +17,8 @@ use DcGeneral\Data\ModelInterface;
 
 class ItemCommandEvent extends CommandEvent
 {
+    const NAME = 'dc-general.item.command';
+    
     /**
      * The item.
      * 

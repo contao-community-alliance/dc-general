@@ -17,7 +17,7 @@ use DcGeneral\Event\EnvironmentAwareEvent;
 class GetBreadcrumbEvent
 	extends EnvironmentAwareEvent
 {
-	const NAME = 'DcGeneral\View\DefaultView\Event\GetBreadcrumb';
+    const NAME = 'dc-general.view.widget.get-breadcrumb';
 
 	/**
 	 * @var array

@@ -17,7 +17,7 @@ use DcGeneral\EnvironmentInterface;
 
 class SetPaletteClassNameEvent extends BuilderEvent
 {
-	const NAME = 'DcGeneral\DataDefinition\Palette\Builder\Event\SetPaletteClassName';
+    const NAME = 'dc-general.data-definition.palette.builder.set-palette-class-name';
 
 	/**
 	 * @var string

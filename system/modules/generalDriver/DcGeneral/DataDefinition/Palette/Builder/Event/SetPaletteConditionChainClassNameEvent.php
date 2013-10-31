@@ -17,7 +17,7 @@ use DcGeneral\EnvironmentInterface;
 
 class SetPaletteConditionChainClassNameEvent extends BuilderEvent
 {
-	const NAME = 'DcGeneral\DataDefinition\Palette\Builder\Event\SetPaletteConditionChainClassName';
+    const NAME = 'dc-general.data-definition.palette.builder.set-palette-condition-chain-class-name';
 
 	/**
 	 * @var string

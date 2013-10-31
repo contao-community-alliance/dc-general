@@ -15,7 +15,7 @@ namespace DcGeneral\View\DefaultView\Event;
 class GetGlobalButtonEvent
 	extends BaseButtonEvent
 {
-	const NAME = 'DcGeneral\View\DefaultView\Event\GetGlobalButton';
+    const NAME = 'dc-general.view.widget.get-global-button';
 
 	/**
 	 * @var string

@@ -17,7 +17,7 @@ use DcGeneral\EnvironmentInterface;
 
 class SetDefaultPaletteConditionClassNameEvent extends BuilderEvent
 {
-	const NAME = 'DcGeneral\DataDefinition\Palette\Builder\Event\SetDefaultPaletteConditionClassName';
+    const NAME = 'dc-general.data-definition.palette.builder.set-default-palette-condition-class-name';
 
 	/**
 	 * @var string

@@ -15,5 +15,5 @@ namespace DcGeneral\View\DefaultView\Event;
 class GetEditModeButtonsEvent
 	extends BaseGetButtonsEvent
 {
-	const NAME = 'DcGeneral\View\DefaultView\Event\GetEditModeButtons';
+    const NAME = 'dc-general.view.widget.get-edit-mode-buttons';
 }

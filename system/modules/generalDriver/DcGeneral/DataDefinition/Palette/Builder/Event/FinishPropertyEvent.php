@@ -18,7 +18,7 @@ use DcGeneral\EnvironmentInterface;
 
 class FinishPropertyEvent extends BuilderEvent
 {
-	const NAME = 'DcGeneral\DataDefinition\Palette\Builder\Event\FinishProperty';
+    const NAME = 'dc-general.data-definition.palette.builder.finish-property';
 
 	/**
 	 * @var PropertyInterface

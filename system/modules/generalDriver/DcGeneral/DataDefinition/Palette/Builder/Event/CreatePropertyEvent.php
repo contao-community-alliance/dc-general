@@ -18,7 +18,7 @@ use DcGeneral\EnvironmentInterface;
 
 class CreatePropertyEvent extends BuilderEvent
 {
-	const NAME = 'DcGeneral\DataDefinition\Palette\Builder\Event\CreateProperty';
+    const NAME = 'dc-general.data-definition.palette.builder.create-property';
 
 	/**
 	 * @var PropertyInterface

@@ -15,7 +15,7 @@ namespace DcGeneral\View\DefaultView\Event;
 class GetPasteRootButtonEvent
 	extends BaseButtonEvent
 {
-	const NAME = 'DcGeneral\View\DefaultView\Event\GetPasteRootButton';
+    const NAME = 'dc-general.view.widget.get-paste-root-button';
 
 	/**
 	 * @var bool

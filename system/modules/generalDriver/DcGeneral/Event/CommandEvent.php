@@ -16,6 +16,8 @@ use DcGeneral\EnvironmentInterface;
 
 class CommandEvent extends EnvironmentAwareEvent
 {
+    const NAME = 'dc-general.command';
+    
     /**
      * The command name.
      * 

@@ -18,7 +18,7 @@ use DcGeneral\Event\EnvironmentAwareEvent;
 class ResolveWidgetErrorMessageEvent
 	extends EnvironmentAwareEvent
 {
-	const NAME = 'DcGeneral\View\Widget\Event\ResolveWidgetErrorMessage';
+    const NAME = 'dc-general.view.widget.resolve-error-message';
 
 	/**
 	 * @var mixed

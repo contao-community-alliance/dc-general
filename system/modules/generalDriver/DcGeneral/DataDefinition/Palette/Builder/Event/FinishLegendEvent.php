@@ -18,7 +18,7 @@ use DcGeneral\EnvironmentInterface;
 
 class FinishLegendEvent extends BuilderEvent
 {
-	const NAME = 'DcGeneral\DataDefinition\Palette\Builder\Event\FinishLegend';
+    const NAME = 'dc-general.data-definition.palette.builder.finish-legend';
 
 	/**
 	 * @var LegendInterface

@@ -15,7 +15,7 @@ namespace DcGeneral\View\DefaultView\Event;
 class GetOperationButtonEvent
 	extends BaseButtonEvent
 {
-	const NAME = 'DcGeneral\View\DefaultView\Event\GetOperationButton';
+    const NAME = 'dc-general.view.widget.get-operation-button';
 
 	/**
 	 * @var \DcGeneral\DataDefinition\OperationInterface

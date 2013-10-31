@@ -17,6 +17,8 @@ use DcGeneral\Event\EnvironmentAwareEvent;
 class BaseButtonEvent
 	extends EnvironmentAwareEvent
 {
+    const NAME = 'dc-general.view.default.button';
+
 	/**
 	 * The html attributes to use for the button.
 	 *
