@@ -10,35 +10,37 @@
  * @filesource
  */
 
-namespace DcGeneral\View\DefaultView\Events;
+namespace DcGeneral\View\DefaultView\Event;
 
-use DcGeneral\Events\EnvironmentAwareEvent;
+use DcGeneral\Event\EnvironmentAwareEvent;
 
-class BaseGetButtonsEvent
+class GetBreadcrumbEvent
 	extends EnvironmentAwareEvent
 {
-	/**
-	 * @var string[]
-	 */
-	protected $buttons;
+	const NAME = 'DcGeneral\View\DefaultView\Event\GetBreadcrumb';
 
 	/**
-	 * @param \string[] $buttons
+	 * @var array
+	 */
+	protected $elements;
+
+	/**
+	 * @param array $elements
 	 *
 	 * @return $this
 	 */
-	public function setButtons($buttons)
+	public function setElements($elements)
 	{
-		$this->buttons = $buttons;
+		$this->elements = $elements;
 
 		return $this;
 	}
 
 	/**
-	 * @return \string[]
+	 * @return array
 	 */
-	public function getButtons()
+	public function getElements()
 	{
-		return $this->buttons;
+		return $this->elements;
 	}
 }

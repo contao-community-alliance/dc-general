@@ -23,9 +23,9 @@ use DcGeneral\Panel\LimitElementInterface;
 use DcGeneral\Panel\SearchElementInterface;
 use DcGeneral\Panel\SortElementInterface;
 use DcGeneral\Panel\SubmitElementInterface;
-use DcGeneral\View\DefaultView\Events\GetGlobalButtonEvent;
-use DcGeneral\View\DefaultView\Events\GetGlobalButtonsEvent;
-use DcGeneral\View\DefaultView\Events\GetOperationButtonEvent;
+use DcGeneral\View\DefaultView\Event\GetGlobalButtonEvent;
+use DcGeneral\View\DefaultView\Event\GetGlobalButtonsEvent;
+use DcGeneral\View\DefaultView\Event\GetOperationButtonEvent;
 use DcGeneral\View\ViewInterface;
 
 // TODO: this is not as elegant as it could be.

@@ -10,28 +10,28 @@
  * @filesource
  */
 
-namespace DcGeneral\View\DefaultView\Events;
+namespace DcGeneral\View\DefaultView\Event;
 
-use DcGeneral\Events\EnvironmentAwareEvent;
+use DcGeneral\Event\EnvironmentAwareEvent;
 
-class GetBreadcrumbEvent
+class GetParentHeaderEvent
 	extends EnvironmentAwareEvent
 {
-	const NAME = 'DcGeneral\View\DefaultView\Events\GetBreadcrumb';
+	const NAME = 'DcGeneral\View\DefaultView\Event\GetParentHeader';
 
 	/**
 	 * @var array
 	 */
-	protected $elements;
+	protected $additional;
 
 	/**
-	 * @param array $elements
+	 * @param array $additional
 	 *
 	 * @return $this
 	 */
-	public function setElements($elements)
+	public function setAdditional($additional)
 	{
-		$this->elements = $elements;
+		$this->additional = $additional;
 
 		return $this;
 	}
@@ -39,8 +39,8 @@ class GetBreadcrumbEvent
 	/**
 	 * @return array
 	 */
-	public function getElements()
+	public function getAdditional()
 	{
-		return $this->elements;
+		return $this->additional;
 	}
 }

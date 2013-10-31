@@ -10,9 +10,9 @@
  * @filesource
  */
 
-namespace DcGeneral\View\DefaultView\Events;
+namespace DcGeneral\View\DefaultView\Event;
 
-use DcGeneral\Events\EnvironmentAwareEvent;
+use DcGeneral\Event\EnvironmentAwareEvent;
 
 class BaseButtonEvent
 	extends EnvironmentAwareEvent

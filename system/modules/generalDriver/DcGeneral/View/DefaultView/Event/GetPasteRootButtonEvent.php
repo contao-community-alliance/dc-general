@@ -10,12 +10,12 @@
  * @filesource
  */
 
-namespace DcGeneral\View\DefaultView\Events;
+namespace DcGeneral\View\DefaultView\Event;
 
 class GetPasteRootButtonEvent
 	extends BaseButtonEvent
 {
-	const NAME = 'DcGeneral\View\DefaultView\Events\GetPasteRootButton';
+	const NAME = 'DcGeneral\View\DefaultView\Event\GetPasteRootButton';
 
 	/**
 	 * @var bool

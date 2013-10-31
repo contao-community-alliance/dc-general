@@ -10,15 +10,15 @@
  * @filesource
  */
 
-namespace DcGeneral\View\Widget\Events;
+namespace DcGeneral\View\Widget\Event;
 
 use DcGeneral\Data\ModelInterface;
-use DcGeneral\Events\EnvironmentAwareEvent;
+use DcGeneral\Event\EnvironmentAwareEvent;
 
 class ResolveWidgetErrorMessageEvent
 	extends EnvironmentAwareEvent
 {
-	const NAME = 'DcGeneral\View\Widget\Events\ResolveWidgetErrorMessage';
+	const NAME = 'DcGeneral\View\Widget\Event\ResolveWidgetErrorMessage';
 
 	/**
 	 * @var mixed

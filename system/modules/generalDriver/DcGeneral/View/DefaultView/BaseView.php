@@ -26,15 +26,15 @@ use DcGeneral\Panel\SortElementInterface;
 use DcGeneral\Panel\SubmitElementInterface;
 use DcGeneral\View\ContaoBackendViewTemplate;
 use DcGeneral\View\Widget\ContaoWidgetManager;
-use DcGeneral\View\DefaultView\Events\GetBreadcrumbEvent;
-use DcGeneral\View\DefaultView\Events\GetEditModeButtonsEvent;
-use DcGeneral\View\DefaultView\Events\GetGlobalButtonEvent;
-use DcGeneral\View\DefaultView\Events\GetGlobalButtonsEvent;
-use DcGeneral\View\DefaultView\Events\GetGroupHeaderEvent;
-use DcGeneral\View\DefaultView\Events\GetOperationButtonEvent;
-use DcGeneral\View\DefaultView\Events\GetPasteButtonEvent;
-use DcGeneral\View\DefaultView\Events\GetPropertyOptionsEvent;
-use DcGeneral\View\DefaultView\Events\GetSelectModeButtonsEvent;
+use DcGeneral\View\DefaultView\Event\GetBreadcrumbEvent;
+use DcGeneral\View\DefaultView\Event\GetEditModeButtonsEvent;
+use DcGeneral\View\DefaultView\Event\GetGlobalButtonEvent;
+use DcGeneral\View\DefaultView\Event\GetGlobalButtonsEvent;
+use DcGeneral\View\DefaultView\Event\GetGroupHeaderEvent;
+use DcGeneral\View\DefaultView\Event\GetOperationButtonEvent;
+use DcGeneral\View\DefaultView\Event\GetPasteButtonEvent;
+use DcGeneral\View\DefaultView\Event\GetPropertyOptionsEvent;
+use DcGeneral\View\DefaultView\Event\GetSelectModeButtonsEvent;
 use DcGeneral\View\ViewInterface;
 
 // TODO: this is not as elegant as it could be.

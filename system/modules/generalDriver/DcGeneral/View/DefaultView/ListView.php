@@ -16,7 +16,7 @@ use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
-use DcGeneral\View\DefaultView\Events\ModelToLabelEvent;
+use DcGeneral\View\DefaultView\Event\ModelToLabelEvent;
 
 class ListView extends BaseView
 {

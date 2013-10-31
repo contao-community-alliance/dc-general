@@ -10,14 +10,14 @@
  * @filesource
  */
 
-namespace DcGeneral\View\DefaultView\Events;
+namespace DcGeneral\View\DefaultView\Event;
 
-use DcGeneral\Events\EnvironmentAwareEvent;
+use DcGeneral\Event\EnvironmentAwareEvent;
 
 class GetPropertyOptionsEvent
 	extends EnvironmentAwareEvent
 {
-	const NAME = 'DcGeneral\View\DefaultView\Events\GetPropertyOptions';
+	const NAME = 'DcGeneral\View\DefaultView\Event\GetPropertyOptions';
 
 	/**
 	 * @var string

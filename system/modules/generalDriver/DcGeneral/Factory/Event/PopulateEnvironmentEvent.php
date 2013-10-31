@@ -13,7 +13,7 @@
 namespace DcGeneral\Factory\Event;
 
 use DcGeneral\EnvironmentInterface;
-use DcGeneral\Events\EnvironmentAwareEvent;
+use DcGeneral\Event\EnvironmentAwareEvent;
 
 class PopulateEnvironmentEvent extends EnvironmentAwareEvent
 {

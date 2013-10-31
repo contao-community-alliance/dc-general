@@ -10,7 +10,7 @@
  * @filesource
  */
 
-namespace DcGeneral\Events;
+namespace DcGeneral\Event;
 
 use DcGeneral\EnvironmentInterface;
 

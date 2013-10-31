@@ -10,10 +10,10 @@
  * @filesource
  */
 
-namespace DcGeneral\View\DefaultView\Events;
+namespace DcGeneral\View\DefaultView\Event;
 
-class GetGlobalButtonsEvent
+class GetEditModeButtonsEvent
 	extends BaseGetButtonsEvent
 {
-	const NAME = 'DcGeneral\View\DefaultView\Events\GetGlobalButtons';
+	const NAME = 'DcGeneral\View\DefaultView\Event\GetEditModeButtons';
 }

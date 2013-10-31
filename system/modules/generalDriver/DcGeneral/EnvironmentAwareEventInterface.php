@@ -10,7 +10,7 @@
  * @filesource
  */
 
-namespace DcGeneral\Events;
+namespace DcGeneral\Event;
 
 interface EnvironmentAwareInterface
 {

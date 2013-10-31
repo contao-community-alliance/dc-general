@@ -14,8 +14,8 @@ namespace DcGeneral\View\DefaultView;
 
 use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Data\DCGE;
-use DcGeneral\View\DefaultView\Events\GetParentHeaderEvent;
-use DcGeneral\View\DefaultView\Events\ParentViewChildRecordEvent;
+use DcGeneral\View\DefaultView\Event\GetParentHeaderEvent;
+use DcGeneral\View\DefaultView\Event\ParentViewChildRecordEvent;
 
 class ParentView extends BaseView
 {

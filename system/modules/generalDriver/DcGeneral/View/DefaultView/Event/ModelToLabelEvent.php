@@ -10,14 +10,14 @@
  * @filesource
  */
 
-namespace DcGeneral\View\DefaultView\Events;
+namespace DcGeneral\View\DefaultView\Event;
 
-use DcGeneral\Events\EnvironmentAwareEvent;
+use DcGeneral\Event\EnvironmentAwareEvent;
 
 class ModelToLabelEvent
 	extends EnvironmentAwareEvent
 {
-	const NAME = 'DcGeneral\View\DefaultView\Events\ModelToLabel';
+	const NAME = 'DcGeneral\View\DefaultView\Event\ModelToLabel';
 
 	/**
 	 * @var \DcGeneral\Data\ModelInterface

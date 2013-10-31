@@ -10,37 +10,35 @@
  * @filesource
  */
 
-namespace DcGeneral\View\DefaultView\Events;
+namespace DcGeneral\View\DefaultView\Event;
 
-use DcGeneral\Events\EnvironmentAwareEvent;
+use DcGeneral\Event\EnvironmentAwareEvent;
 
-class GetParentHeaderEvent
+class BaseGetButtonsEvent
 	extends EnvironmentAwareEvent
 {
-	const NAME = 'DcGeneral\View\DefaultView\Events\GetParentHeader';
-
 	/**
-	 * @var array
+	 * @var string[]
 	 */
-	protected $additional;
+	protected $buttons;
 
 	/**
-	 * @param array $additional
+	 * @param \string[] $buttons
 	 *
 	 * @return $this
 	 */
-	public function setAdditional($additional)
+	public function setButtons($buttons)
 	{
-		$this->additional = $additional;
+		$this->buttons = $buttons;
 
 		return $this;
 	}
 
 	/**
-	 * @return array
+	 * @return \string[]
 	 */
-	public function getAdditional()
+	public function getButtons()
 	{
-		return $this->additional;
+		return $this->buttons;
 	}
 }

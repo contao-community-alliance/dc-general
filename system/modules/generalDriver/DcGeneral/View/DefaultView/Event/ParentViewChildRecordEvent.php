@@ -10,15 +10,15 @@
  * @filesource
  */
 
-namespace DcGeneral\View\DefaultView\Events;
+namespace DcGeneral\View\DefaultView\Event;
 
 use DcGeneral\Data\ModelInterface;
-use DcGeneral\Events\EnvironmentAwareEvent;
+use DcGeneral\Event\EnvironmentAwareEvent;
 
 class ParentViewChildRecordEvent
 	extends EnvironmentAwareEvent
 {
-	const NAME = 'DcGeneral\View\DefaultView\Events\ParentViewChildRecord';
+	const NAME = 'DcGeneral\View\DefaultView\Event\ParentViewChildRecord';
 
 	/**
 	 * @var string

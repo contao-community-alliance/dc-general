@@ -15,7 +15,7 @@ namespace DcGeneral\View\DefaultView;
 use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ModelInterface;
-use DcGeneral\View\DefaultView\Events\GetPasteRootButtonEvent;
+use DcGeneral\View\DefaultView\Event\GetPasteRootButtonEvent;
 
 class TreeView extends BaseView
 {
