@@ -20,11 +20,11 @@ use DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterfa
 use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
 use DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
 use DcGeneral\EnvironmentInterface;
-use DcGeneral\Events\BaseEvent;
+use DcGeneral\Events\EnvironmentAwareEvent;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 
-abstract class BuilderEvent extends BaseEvent
+abstract class BuilderEvent extends EnvironmentAwareEvent
 {
 	/**
 	 * @var PaletteBuilder
@@ -46,14 +46,6 @@ abstract class BuilderEvent extends BaseEvent
 	public function getPaletteBuilder()
 	{
 		return $this->paletteBuilder;
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setEnvironment($environment)
-	{
-		throw new DcGeneralRuntimeException('Setting the environment on a build event is prohibited');
 	}
 
 	/**

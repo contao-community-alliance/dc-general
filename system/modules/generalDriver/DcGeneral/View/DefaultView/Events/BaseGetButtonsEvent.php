@@ -12,10 +12,10 @@
 
 namespace DcGeneral\View\DefaultView\Events;
 
-use DcGeneral\Events\BaseEvent;
+use DcGeneral\Events\EnvironmentAwareEvent;
 
 class BaseGetButtonsEvent
-	extends BaseEvent
+	extends EnvironmentAwareEvent
 {
 	/**
 	 * @var string[]

@@ -12,10 +12,10 @@
 
 namespace DcGeneral\View\DefaultView\Events;
 
-use DcGeneral\Events\BaseEvent;
+use DcGeneral\Events\EnvironmentAwareEvent;
 
 class BaseButtonEvent
-	extends BaseEvent
+	extends EnvironmentAwareEvent
 {
 	/**
 	 * The html attributes to use for the button.

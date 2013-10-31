@@ -12,10 +12,10 @@
 
 namespace DcGeneral\View\DefaultView\Events;
 
-use DcGeneral\Events\BaseEvent;
+use DcGeneral\Events\EnvironmentAwareEvent;
 
 class GetPropertyOptionsEvent
-	extends BaseEvent
+	extends EnvironmentAwareEvent
 {
 	const NAME = 'DcGeneral\View\DefaultView\Events\GetPropertyOptions';
 

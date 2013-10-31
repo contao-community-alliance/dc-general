@@ -13,14 +13,14 @@
 namespace DcGeneral\Factory\Event;
 
 use DcGeneral\EnvironmentInterface;
-use DcGeneral\Events\BaseEvent;
+use DcGeneral\Events\EnvironmentAwareEvent;
 
-class PopulateEnvironmentEvent extends BaseEvent
+class PopulateEnvironmentEvent extends EnvironmentAwareEvent
 {
 	const NAME = 'DcGeneral\Factory\Event\PopulateEnvironment';
 
 	function __construct(EnvironmentInterface $environment)
 	{
-		$this->setEnvironment($environment);
+		parent::__construct($environment);
 	}
 }

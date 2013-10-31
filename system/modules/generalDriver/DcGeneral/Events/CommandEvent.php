@@ -14,7 +14,7 @@ namespace DcGeneral\Events;
 
 use DcGeneral\EnvironmentInterface;
 
-class CommandEvent extends BaseEvent
+class CommandEvent extends EnvironmentAwareEvent
 {
     /**
      * The command name.

@@ -12,22 +12,25 @@
 
 namespace DcGeneral\Events;
 
+use DcGeneral\EnvironmentAwareInterface;
+use DcGeneral\EnvironmentInterface;
 use Symfony\Component\EventDispatcher\Event;
 
-class BaseEvent
+class EnvironmentAwareEvent
 	extends Event
+	implements EnvironmentAwareInterface
 {
 	/**
-	 * @var \DcGeneral\EnvironmentInterface
+	 * @var EnvironmentInterface
 	 */
 	protected $environment;
 
 	/**
-	 * @param \DcGeneral\EnvironmentInterface $environment
-	 *
-	 * @return $this
+	 * Create a new environment aware event.
+	 * 
+	 * @param EnvironmentInterface $environment
 	 */
-	public function setEnvironment($environment)
+	public function __construct(EnvironmentInterface $environment)
 	{
 		$this->environment = $environment;
 
@@ -35,7 +38,7 @@ class BaseEvent
 	}
 
 	/**
-	 * @return \DcGeneral\EnvironmentInterface
+	 * {@inheritdoc}
 	 */
 	public function getEnvironment()
 	{
