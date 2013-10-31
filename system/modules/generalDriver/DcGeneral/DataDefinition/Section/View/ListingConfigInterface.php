@@ -14,4 +14,24 @@ namespace DcGeneral\DataDefinition\Section\View;
 
 interface ListingConfigInterface
 {
+    /**
+     * Return the item formatter.
+     * 
+     * @return FormatterInterface
+     */
+    public function getItemFormatter();
+    
+    /**
+     * Return the item label formatter.
+     * 
+     * @return FormatterInterface
+     */
+    public function getItemLabelFormatter();
+    
+    /**
+     * Return the default sorting.
+     * 
+     * @return array Array of property names as keys and "ASC" and "DESC" as value.
+     */
+    public function getDefaultSort();
 }
