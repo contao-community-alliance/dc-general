@@ -10,12 +10,12 @@
  * @filesource
  */
 
-namespace DcGeneral\View\DefaultView;
+namespace DcGeneral\View\BackendView;
 
 use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Data\DCGE;
-use DcGeneral\View\DefaultView\Event\GetParentHeaderEvent;
-use DcGeneral\View\DefaultView\Event\ParentViewChildRecordEvent;
+use DcGeneral\View\BackendView\Event\GetParentHeaderEvent;
+use DcGeneral\View\BackendView\Event\ParentViewChildRecordEvent;
 
 class ParentView extends BaseView
 {

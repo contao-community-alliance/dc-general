@@ -2,19 +2,19 @@
 
 namespace DcGeneral\Event;
 
-use DcGeneral\View\DefaultView\Event\GetBreadcrumbEvent;
+use DcGeneral\View\BackendView\Event\GetBreadcrumbEvent;
 use DcGeneral\View\Widget\Event\ResolveWidgetErrorMessageEvent;
-use DcGeneral\View\DefaultView\Event\GetPropertyOptionsEvent;
+use DcGeneral\View\BackendView\Event\GetPropertyOptionsEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use DcGeneral\View\DefaultView\Event\GetGlobalButtonEvent;
-use DcGeneral\View\DefaultView\Event\GetGlobalButtonsEvent;
-use DcGeneral\View\DefaultView\Event\GetGroupHeaderEvent;
-use DcGeneral\View\DefaultView\Event\GetOperationButtonEvent;
-use DcGeneral\View\DefaultView\Event\GetParentHeaderEvent;
-use DcGeneral\View\DefaultView\Event\GetPasteRootButtonEvent;
-use DcGeneral\View\DefaultView\Event\GetPasteButtonEvent;
-use DcGeneral\View\DefaultView\Event\ModelToLabelEvent;
-use DcGeneral\View\DefaultView\Event\ParentViewChildRecordEvent;
+use DcGeneral\View\BackendView\Event\GetGlobalButtonEvent;
+use DcGeneral\View\BackendView\Event\GetGlobalButtonsEvent;
+use DcGeneral\View\BackendView\Event\GetGroupHeaderEvent;
+use DcGeneral\View\BackendView\Event\GetOperationButtonEvent;
+use DcGeneral\View\BackendView\Event\GetParentHeaderEvent;
+use DcGeneral\View\BackendView\Event\GetPasteRootButtonEvent;
+use DcGeneral\View\BackendView\Event\GetPasteButtonEvent;
+use DcGeneral\View\BackendView\Event\ModelToLabelEvent;
+use DcGeneral\View\BackendView\Event\ParentViewChildRecordEvent;
 
 /**
  * Class Subscriber - gateway to the legacy Contao HOOK style callbacks.

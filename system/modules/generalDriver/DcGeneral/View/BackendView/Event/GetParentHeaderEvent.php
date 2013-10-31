@@ -10,37 +10,37 @@
  * @filesource
  */
 
-namespace DcGeneral\View\DefaultView\Event;
+namespace DcGeneral\View\BackendView\Event;
 
 use DcGeneral\Event\EnvironmentAwareEvent;
 
-class BaseGetButtonsEvent
+class GetParentHeaderEvent
 	extends EnvironmentAwareEvent
 {
-    const NAME = 'dc-general.view.default.get-buttons';
+    const NAME = 'dc-general.view.widget.get-parent-header';
 
 	/**
-	 * @var string[]
+	 * @var array
 	 */
-	protected $buttons;
+	protected $additional;
 
 	/**
-	 * @param \string[] $buttons
+	 * @param array $additional
 	 *
 	 * @return $this
 	 */
-	public function setButtons($buttons)
+	public function setAdditional($additional)
 	{
-		$this->buttons = $buttons;
+		$this->additional = $additional;
 
 		return $this;
 	}
 
 	/**
-	 * @return \string[]
+	 * @return array
 	 */
-	public function getButtons()
+	public function getAdditional()
 	{
-		return $this->buttons;
+		return $this->additional;
 	}
 }

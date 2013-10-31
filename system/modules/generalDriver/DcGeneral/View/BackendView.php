@@ -23,9 +23,9 @@ use DcGeneral\Panel\LimitElementInterface;
 use DcGeneral\Panel\SearchElementInterface;
 use DcGeneral\Panel\SortElementInterface;
 use DcGeneral\Panel\SubmitElementInterface;
-use DcGeneral\View\DefaultView\Event\GetGlobalButtonEvent;
-use DcGeneral\View\DefaultView\Event\GetGlobalButtonsEvent;
-use DcGeneral\View\DefaultView\Event\GetOperationButtonEvent;
+use DcGeneral\View\BackendView\Event\GetGlobalButtonEvent;
+use DcGeneral\View\BackendView\Event\GetGlobalButtonsEvent;
+use DcGeneral\View\BackendView\Event\GetOperationButtonEvent;
 use DcGeneral\View\ViewInterface;
 
 // TODO: this is not as elegant as it could be.
@@ -33,7 +33,7 @@ use DcGeneral\Contao\BackendBindings;
 
 use DcGeneral\DataContainerInterface;
 
-class DefaultView implements ViewInterface
+class BackendView implements ViewInterface
 {
 	/* /////////////////////////////////////////////////////////////////////
 	 * ---------------------------------------------------------------------
@@ -104,14 +104,14 @@ class DefaultView implements ViewInterface
 			case 1: // Records are sorted by a fixed field
 			case 2: // Records are sorted by a switchable field
 			case 3: // Records are sorted by the parent table
-				$this->objViewHandler = new DefaultView\ListView();
+				$this->objViewHandler = new BackendView\ListView();
 				break;
 			case 4: // Displays the child records of a parent record (see style sheets module)
-				$this->objViewHandler = new DefaultView\ParentView();
+				$this->objViewHandler = new BackendView\ParentView();
 				break;
 			case 5: // Records are displayed as tree (see site structure)
 			case 6: // Displays the child records within a tree structure (see articles module)
-				$this->objViewHandler = new DefaultView\TreeView();
+				$this->objViewHandler = new BackendView\TreeView();
 				break;
 			default:
 				throw new DcGeneralRuntimeException('Unknown sorting mode passed in data definition: ' . $this->getEnvironment()->getDataDefinition()->getSortingMode());
@@ -718,7 +718,7 @@ class DefaultView implements ViewInterface
 		}
 
 		// Label + Icon
-		$strLabelText = (strlen($this->getDC()->arrDCA['config']['label']) == 0 ) ? 'DC General Tree DefaultView Ultimate' : $this->getDC()->arrDCA['config']['label'];
+		$strLabelText = (strlen($this->getDC()->arrDCA['config']['label']) == 0 ) ? 'DC General Tree BackendView Ultimate' : $this->getDC()->arrDCA['config']['label'];
 		$strLabelIcon = strlen($this->getDC()->arrDCA['list']['sorting']['icon']) ? $this->getDC()->arrDCA['list']['sorting']['icon'] : 'pagemounts.gif';
 
 		// Rootpage pasteinto

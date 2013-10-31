@@ -10,7 +10,7 @@
  * @filesource
  */
 
-namespace DcGeneral\View\DefaultView;
+namespace DcGeneral\View\BackendView;
 
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\MultiLanguageDriverInterface;
@@ -26,15 +26,15 @@ use DcGeneral\Panel\SortElementInterface;
 use DcGeneral\Panel\SubmitElementInterface;
 use DcGeneral\View\ContaoBackendViewTemplate;
 use DcGeneral\View\Widget\ContaoWidgetManager;
-use DcGeneral\View\DefaultView\Event\GetBreadcrumbEvent;
-use DcGeneral\View\DefaultView\Event\GetEditModeButtonsEvent;
-use DcGeneral\View\DefaultView\Event\GetGlobalButtonEvent;
-use DcGeneral\View\DefaultView\Event\GetGlobalButtonsEvent;
-use DcGeneral\View\DefaultView\Event\GetGroupHeaderEvent;
-use DcGeneral\View\DefaultView\Event\GetOperationButtonEvent;
-use DcGeneral\View\DefaultView\Event\GetPasteButtonEvent;
-use DcGeneral\View\DefaultView\Event\GetPropertyOptionsEvent;
-use DcGeneral\View\DefaultView\Event\GetSelectModeButtonsEvent;
+use DcGeneral\View\BackendView\Event\GetBreadcrumbEvent;
+use DcGeneral\View\BackendView\Event\GetEditModeButtonsEvent;
+use DcGeneral\View\BackendView\Event\GetGlobalButtonEvent;
+use DcGeneral\View\BackendView\Event\GetGlobalButtonsEvent;
+use DcGeneral\View\BackendView\Event\GetGroupHeaderEvent;
+use DcGeneral\View\BackendView\Event\GetOperationButtonEvent;
+use DcGeneral\View\BackendView\Event\GetPasteButtonEvent;
+use DcGeneral\View\BackendView\Event\GetPropertyOptionsEvent;
+use DcGeneral\View\BackendView\Event\GetSelectModeButtonsEvent;
 use DcGeneral\View\ViewInterface;
 
 // TODO: this is not as elegant as it could be.

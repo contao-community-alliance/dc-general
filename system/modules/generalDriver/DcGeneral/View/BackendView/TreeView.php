@@ -10,12 +10,12 @@
  * @filesource
  */
 
-namespace DcGeneral\View\DefaultView;
+namespace DcGeneral\View\BackendView;
 
 use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ModelInterface;
-use DcGeneral\View\DefaultView\Event\GetPasteRootButtonEvent;
+use DcGeneral\View\BackendView\Event\GetPasteRootButtonEvent;
 
 class TreeView extends BaseView
 {
@@ -195,7 +195,7 @@ class TreeView extends BaseView
 		// Label + Icon
 		if (strlen($definition->getLabel()) == 0 )
 		{
-			$strLabelText = 'DC General Tree DefaultView Ultimate';
+			$strLabelText = 'DC General Tree BackendView Ultimate';
 		}
 		else
 		{

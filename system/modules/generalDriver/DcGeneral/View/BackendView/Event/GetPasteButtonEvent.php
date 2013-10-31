@@ -10,7 +10,7 @@
  * @filesource
  */
 
-namespace DcGeneral\View\DefaultView\Event;
+namespace DcGeneral\View\BackendView\Event;
 
 class GetPasteButtonEvent
 	extends BaseButtonEvent

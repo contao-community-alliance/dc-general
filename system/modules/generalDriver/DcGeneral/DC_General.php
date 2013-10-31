@@ -26,10 +26,10 @@ use DcGeneral\Factory\DcGeneralFactory;
 use DcGeneral\Helper\WidgetAccessor;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\DefaultEnvironment;
-use DcGeneral\View\DefaultView as DefaultView;
-use DcGeneral\View\DefaultView\ListView;
-use DcGeneral\View\DefaultView\ParentView;
-use DcGeneral\View\DefaultView\TreeView;
+use DcGeneral\View\BackendView as BackendView;
+use DcGeneral\View\BackendView\ListView;
+use DcGeneral\View\BackendView\ParentView;
+use DcGeneral\View\BackendView\TreeView;
 use DcGeneral\View\ViewInterface;
 
 class DC_General extends \DataContainer implements DataContainerInterface
@@ -495,7 +495,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 					break;
 				default:
 					// TODO: raise an exception here in future for unknown modes.
-					$this->objViewHandler = new DefaultView();
+					$this->objViewHandler = new BackendView();
 			}
 		}
 

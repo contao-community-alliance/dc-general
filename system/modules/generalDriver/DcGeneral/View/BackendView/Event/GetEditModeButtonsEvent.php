@@ -10,10 +10,10 @@
  * @filesource
  */
 
-namespace DcGeneral\View\DefaultView\Event;
+namespace DcGeneral\View\BackendView\Event;
 
-class GetGlobalButtonsEvent
+class GetEditModeButtonsEvent
 	extends BaseGetButtonsEvent
 {
-    const NAME = 'dc-general.view.widget.get-global-buttons';
+    const NAME = 'dc-general.view.widget.get-edit-mode-buttons';
 }

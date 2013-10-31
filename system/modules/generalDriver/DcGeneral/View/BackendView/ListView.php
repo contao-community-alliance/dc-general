@@ -10,13 +10,13 @@
  * @filesource
  */
 
-namespace DcGeneral\View\DefaultView;
+namespace DcGeneral\View\BackendView;
 
 use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
-use DcGeneral\View\DefaultView\Event\ModelToLabelEvent;
+use DcGeneral\View\BackendView\Event\ModelToLabelEvent;
 
 class ListView extends BaseView
 {
