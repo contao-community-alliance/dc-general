@@ -13,14 +13,15 @@
 namespace DcGeneral\Event;
 
 use DcGeneral\EnvironmentInterface;
+use DcGeneral\ModelAwareInterface;
 use DcGeneral\Data\ModelInterface;
 
-class ItemCommandEvent extends CommandEvent
+class ModelCommandEvent extends CommandEvent implements ModelAwareInterface
 {
-    const NAME = 'dc-general.item.command';
+    const NAME = 'dc-general.model.command';
     
     /**
-     * The item.
+     * The model.
      * 
      * @var ModelInterface
      */
@@ -36,12 +37,10 @@ class ItemCommandEvent extends CommandEvent
 	}
 	
 	/**
-	 * Return the item.
-	 * 
-	 * @return ModelInterface
+	 * {@inheritdoc}
 	 */
-	public function getItem()
+	public function getModel()
 	{
-	    return $this->item;
+	    return $this->model;
 	}
 }
