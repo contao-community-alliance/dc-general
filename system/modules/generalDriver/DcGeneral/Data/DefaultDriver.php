@@ -187,7 +187,8 @@ class DefaultDriver implements DriverInterface
 				{
 					$arrCombine[] = $this->calculateSubfilter($arrChild, $arrParams);
 				}
-				return implode(sprintf(' %s ', $arrFilter['operation']), $arrCombine);
+				$strReturn = implode(sprintf(' %s ', $arrFilter['operation']), $arrCombine);
+				return $strReturn ? ('(%s)', $strReturn) : '';
 
 			case '=':
 			case '>':
