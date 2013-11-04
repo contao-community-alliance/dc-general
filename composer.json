@@ -41,16 +41,16 @@
 			"role":"Developer"
 		}
 	],
-        "support":{
-                "issues":"https://github.com/MetaModels/DC_General/issues",
-                "wiki":"http://de.contaowiki.org/DC_General",
-                "irc":"irc://irc.freenode.org/contao.dev",
-                "source":"https://github.com/MetaModels/DC_General"
-        },
+	"support":{
+			"issues":"https://github.com/MetaModels/DC_General/issues",
+			"wiki":"http://de.contaowiki.org/DC_General",
+			"irc":"irc://irc.freenode.org/contao.dev",
+			"source":"https://github.com/MetaModels/DC_General"
+	},
 	"require": {
 		"php":">=5.3",
 		"contao/core":">=2.11,<4.0",
-		"bit3/contao-event-dispatcher": "1.0.*@dev"
+		"contao-community-alliance/event-dispatcher": "1.1.*@dev"
 	},
 	"require-dev": {
 		"contao/core":"dev-master"
