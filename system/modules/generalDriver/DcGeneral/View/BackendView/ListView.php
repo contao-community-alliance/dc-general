@@ -31,11 +31,11 @@ class ListView extends BaseView
 	{
 		$environment            = $this->getEnvironment();
 		$definition             = $environment->getDataDefinition();
-		$objCurrentDataProvider = $environment->getDataDriver();
-		$objParentDataProvider  = $environment->getDataDriver($definition->getParentDriverName());
+		$objCurrentDataProvider = $environment->getDataProvider();
+		$objParentDataProvider  = $environment->getDataProvider($definition->getBasicSection()->getParentDataProvider());
 		$objConfig              = $environment->getController()->getBaseConfig();
 
-		$environment->getPanelContainer()->initialize($objConfig);
+		$this->getPanel()->initialize($objConfig);
 
 		$objCollection = $objCurrentDataProvider->fetchAll($objConfig);
 
