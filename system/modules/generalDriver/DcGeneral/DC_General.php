@@ -419,6 +419,11 @@ class DC_General extends \DataContainer implements DataContainerInterface
 
 	protected function bootDataDriver($strSource, $arrConfig)
 	{
+		if ($this->getEnvironment()->hasDataProvider($strSource))
+		{
+			return;
+		}
+
 		if ($arrConfig['source'])
 		{
 			$this->loadLanguageFile($arrConfig['source']);
@@ -437,7 +442,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 
 		$provider->setBaseConfig($arrConfig);
 
-		$this->getEnvironment()->addDataDriver($strSource, $provider);
+		$this->getEnvironment()->addDataProvider($strSource, $provider);
 	}
 
 	/**
