@@ -387,10 +387,8 @@ class BaseView implements BackendViewInterface
 		{
 			if (!isset($lookup[$field]))
 			{
-				$event = new GetPropertyOptionsEvent();
-				$event
-					->setEnvironment($environment)
-					->setFieldName($field);
+				$event = new GetPropertyOptionsEvent($environment);
+				$event->setFieldName($field);
 
 				$this->dispatchEvent(GetPropertyOptionsEvent::NAME, $event);
 
@@ -416,10 +414,9 @@ class BaseView implements BackendViewInterface
 			}
 		}
 
-		$event = new GetGroupHeaderEvent();
+		$event = new GetGroupHeaderEvent($environment);
 
 		$event
-			->setEnvironment($this->getEnvironment())
 			->setModel($objModelRow)
 			->setGroupField($group)
 			->setSortingMode($mode)
@@ -539,10 +536,8 @@ class BaseView implements BackendViewInterface
 			);
 		}
 
-		$event = new GetEditModeButtonsEvent();
-		$event
-			->setEnvironment($this->getEnvironment())
-			->setButtons($buttons);
+		$event = new GetEditModeButtonsEvent($this->getEnvironment());
+		$event->setButtons($buttons);
 
 		$this->dispatchEvent(GetEditModeButtonsEvent::NAME, $event);
 
@@ -600,10 +595,8 @@ class BaseView implements BackendViewInterface
 		);
 		 */
 
-		$event = new GetSelectModeButtonsEvent();
-		$event
-			->setEnvironment($this->getEnvironment())
-			->setButtons($buttons);
+		$event = new GetSelectModeButtonsEvent($this->getEnvironment());
+		$event->setButtons($buttons);
 
 		$this->dispatchEvent(GetSelectModeButtonsEvent::NAME, $event);
 
@@ -1598,12 +1591,11 @@ class BaseView implements BackendViewInterface
 				$label = $k;
 			}
 
-			$buttonEvent = new GetGlobalButtonEvent();
+			$buttonEvent = new GetGlobalButtonEvent($this->getEnvironment());
 			$buttonEvent
 				->setAccessKey($accessKey)
 				->setAttributes($attributes)
 				->setClass($v['class'])
-				->setEnvironment($this->getEnvironment())
 				->setKey($k)
 				->setHref($href)
 				->setLabel($label)
@@ -1633,9 +1625,8 @@ class BaseView implements BackendViewInterface
 			);
 		}
 
-		$buttonsEvent = new GetGlobalButtonsEvent();
+		$buttonsEvent = new GetGlobalButtonsEvent($this->getEnvironment());
 		$buttonsEvent
-			->setEnvironment($this->getEnvironment())
 			->setButtons($arrReturn);
 		$this->dispatchEvent(GetGlobalButtonsEvent::NAME, $buttonsEvent);
 
@@ -1724,12 +1715,11 @@ class BaseView implements BackendViewInterface
 			$strHref = BackendBindings::addToUrl($objOperation->getHref() . '&amp;' . $idParam);
 		}
 
-		$buttonEvent = new GetOperationButtonEvent();
+		$buttonEvent = new GetOperationButtonEvent($this->getEnvironment());
 		$buttonEvent
 			->setObjOperation($objOperation)
 			->setObjModel($objModel)
 			->setAttributes($attributes)
-			->setEnvironment($this->getEnvironment())
 			->setLabel($label)
 			->setTitle($title)
 			->setHref($strHref)
@@ -1842,9 +1832,8 @@ class BaseView implements BackendViewInterface
 				$objModelRow->getID()
 			);
 
-			$buttonEvent = new GetPasteButtonEvent();
+			$buttonEvent = new GetPasteButtonEvent($this->getEnvironment());
 			$buttonEvent
-				->setEnvironment($this->getEnvironment())
 				->setModel($objModelRow)
 				->setCircularReference(false)
 				->setPrevious(null)
@@ -1942,9 +1931,7 @@ class BaseView implements BackendViewInterface
 	 */
 	protected function breadcrumb()
 	{
-		$event = new GetBreadcrumbEvent();
-		$event
-			->setEnvironment($this->getEnvironment());
+		$event = new GetBreadcrumbEvent($this->getEnvironment());
 
 		$this->dispatchEvent(GetBreadcrumbEvent::NAME, $event);
 
