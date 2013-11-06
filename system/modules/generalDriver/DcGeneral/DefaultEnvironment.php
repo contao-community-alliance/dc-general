@@ -261,6 +261,7 @@ class DefaultEnvironment implements EnvironmentInterface
 	 */
 	public function getDataDriver($strSource = null)
 	{
+		trigger_error(__CLASS__ . '::getDataDriver() is deprecated - please use ' . __CLASS__ . '::getDataProvider().', E_USER_DEPRECATED);
 		return $this->getDataProvider($strSource);
 	}
 
@@ -269,6 +270,7 @@ class DefaultEnvironment implements EnvironmentInterface
 	 */
 	public function addDataDriver($strSource, $objDriver)
 	{
+		trigger_error(__CLASS__ . '::addDataDriver() is deprecated - please use ' . __CLASS__ . '::addDataProvider().', E_USER_DEPRECATED);
 		// Force removal of an potentially registered driver to ease sub-classing.
 		$this->addDataProvider($strSource, $objDriver);
 
@@ -280,6 +282,7 @@ class DefaultEnvironment implements EnvironmentInterface
 	 */
 	public function removeDataDriver($strSource)
 	{
+		trigger_error(__CLASS__ . '::removeDataDriver() is deprecated - please use ' . __CLASS__ . '::removeDataProvider().', E_USER_DEPRECATED);
 		$this->removeDataProvider($strSource);
 
 		return $this;
