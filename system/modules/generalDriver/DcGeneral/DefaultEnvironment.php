@@ -14,10 +14,11 @@ namespace DcGeneral;
 
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Controller\ControllerInterface;
+use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\InputProviderInterface;
 use DcGeneral\Panel\PanelContainerInterface;
-
+use DcGeneral\View\BackendView\BaseView;
 
 class DefaultEnvironment implements EnvironmentInterface
 {
@@ -59,11 +60,6 @@ class DefaultEnvironment implements EnvironmentInterface
 	 * @var \DcGeneral\Callbacks\CallbacksInterface
 	 */
 	protected $objCallbackHandler;
-
-	/**
-	 * @var PanelContainerInterface
-	 */
-	protected $objPanelContainer;
 
 	/**
 	 * @var \DcGeneral\Data\CollectionInterface
@@ -294,8 +290,15 @@ class DefaultEnvironment implements EnvironmentInterface
 	 */
 	public function setPanelContainer($objPanelContainer)
 	{
-		$this->objPanelContainer = $objPanelContainer;
+		trigger_error(__CLASS__ . '::setPanelContainer() is deprecated - please use the proper interface in the view.', E_USER_DEPRECATED);
 
+		if (!(($view = $this->getView()) instanceof BaseView))
+		{
+			throw new DcGeneralInvalidArgumentException(__CLASS__ . '::setPanelContainer() got an invalid view instance passed.');
+		}
+
+		/** @var BaseView $view */
+		$view->setPanel($objPanelContainer);
 		return $this;
 	}
 
@@ -304,7 +307,15 @@ class DefaultEnvironment implements EnvironmentInterface
 	 */
 	public function getPanelContainer()
 	{
-		return $this->objPanelContainer;
+		trigger_error(__CLASS__ . '::setPanelContainer() is deprecated - please use the proper interface in the view.', E_USER_DEPRECATED);
+
+		if (!(($view = $this->getView()) instanceof BaseView))
+		{
+			throw new DcGeneralInvalidArgumentException(__CLASS__ . '::setPanelContainer() got an invalid view instance passed.');
+		}
+
+		/** @var BaseView $view */
+		return $view->getPanel();
 	}
 
 	/**

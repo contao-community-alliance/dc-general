@@ -43,7 +43,7 @@ use DcGeneral\Contao\BackendBindings;
 use DcGeneral\DataContainerInterface;
 use DcGeneral\View\Widget\WidgetManagerInterface;
 
-class BaseView implements ViewInterface
+class BaseView implements BackendViewInterface
 {
 	/* /////////////////////////////////////////////////////////////////////
 	 * ---------------------------------------------------------------------
@@ -89,6 +89,11 @@ class BaseView implements ViewInterface
 	 * @var WidgetManagerInterface
 	 */
 	protected $widgetManager;
+
+	/**
+	 * @var PanelContainerInterface
+	 */
+	protected $panel;
 
 	/**
 	 * @return DataContainerInterface
@@ -222,9 +227,26 @@ class BaseView implements ViewInterface
 		$objGlobalConfig = $this->getEnvironment()->getController()->getBaseConfig();
 		$objContainer->initialize($objGlobalConfig);
 
-		$this->getEnvironment()->setPanelContainer($objContainer);
-
+		$this->setPanel($objContainer);
 		return $objContainer;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function setPanel($panelContainer)
+	{
+		$this->panel = $panelContainer;
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getPanel()
+	{
+		return $this->panel;
 	}
 
 	/**

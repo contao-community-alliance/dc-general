@@ -149,22 +149,6 @@ interface EnvironmentInterface
 	public function removeDataProvider($strSource);
 
 	/**
-	 * @param \DcGeneral\Panel\PanelContainerInterface $objPanelContainer
-	 *
-	 * @return EnvironmentInterface
-	 *
-	 * @deprecated This is only view related and therefore should be moved there.
-	 */
-	public function setPanelContainer($objPanelContainer);
-
-	/**
-	 * @return \DcGeneral\Panel\PanelContainerInterface
-	 *
-	 * @deprecated This is only view related and therefore should be moved there.
-	 */
-	public function getPanelContainer();
-
-	/**
 	 *
 	 * @param \DcGeneral\Data\CollectionInterface $objCurrentCollection
 	 *
