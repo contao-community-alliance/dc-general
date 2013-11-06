@@ -10,6 +10,8 @@
  * @filesource
  */
 
+namespace DcGeneral\Contao\Dca;
+
 use DcGeneral\DataDefinition\DataProviderInformation;
 
 class ContaoDataProviderInformation extends DataProviderInformation

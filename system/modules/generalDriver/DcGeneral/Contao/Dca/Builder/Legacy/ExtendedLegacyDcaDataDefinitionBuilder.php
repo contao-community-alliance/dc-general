@@ -12,7 +12,7 @@
 
 namespace DcGeneral\Contao\Dca\Builder\Legacy;
 
-use ContaoDataProviderInformation;
+use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
 use DcGeneral\Contao\Dca\Section\ExtendedDca;
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\DataDefinition\Section\DefaultDataProviderSection;
