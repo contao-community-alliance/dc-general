@@ -14,9 +14,15 @@ namespace DcGeneral\Contao\Dca\Builder\Legacy;
 
 use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
 use DcGeneral\DataDefinition\ContainerInterface;
+use DcGeneral\DataDefinition\Section\BackendViewSectionInterface;
 use DcGeneral\DataDefinition\Section\BasicSectionInterface;
+use DcGeneral\DataDefinition\Section\DefaultBackendViewSection;
 use DcGeneral\DataDefinition\Section\DefaultBasicSection;
 use DcGeneral\DataDefinition\Section\DefaultDataProviderSection;
+use DcGeneral\DataDefinition\Section\View\Panel\DefaultFilterElementInformation;
+use DcGeneral\DataDefinition\Section\View\Panel\DefaultLimitElementInformation;
+use DcGeneral\DataDefinition\Section\View\Panel\DefaultSearchElementInformation;
+use DcGeneral\DataDefinition\Section\View\Panel\DefaultSortElementInformation;
 
 /**
  * Build the container config from legacy DCA syntax.
@@ -39,6 +45,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		$this->parseBasicSection($container);
 		$this->parseDataProvider($container);
+		$this->parsePanel($container);
 	}
 
 	protected function parseBasicSection(ContainerInterface $container)
@@ -146,6 +153,101 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 				->isVersioningEnabled((bool)$this->getFromDca('config/enableVersioning'));
 
 			$container->getBasicSection()->setDataProvider($container->getName());
+		}
+	}
+
+	protected function parsePanel(ContainerInterface $container)
+	{
+		if ($container->hasSection(BackendViewSectionInterface::NAME))
+		{
+			$config = $container->getSection(BackendViewSectionInterface::NAME);
+		}
+		else
+		{
+			$config = new DefaultBackendViewSection();
+			$container->setSection(BackendViewSectionInterface::NAME, $config);
+		}
+
+		$layout = $config->getPanelLayout();
+		$rows = $layout->getRows();
+
+		foreach (explode(';', (string)$this->getFromDca('list/sorting/panelLayout')) as $rowNo => $elementRow)
+		{
+			if ($rows->getRowCount() < $rowNo+1)
+			{
+				$row = $rows->addRow();
+			}
+			else
+			{
+				$row = $rows->getRow($rowNo);
+			}
+
+			foreach (explode(',', $elementRow) as $element)
+			{
+				switch ($element)
+				{
+					case 'filter':
+						foreach ($this->getFromDca('fields') as $property => $value)
+						{
+							if (isset($value['filter']))
+							{
+								$element = new DefaultFilterElementInformation();
+								$element->setPropertyName($property);
+								if (!$row->hasElement($element->getName()))
+								{
+									$row->addElement($element);
+								}
+							}
+						}
+						continue;
+					case 'sort':
+						if ($row->hasElement('sort'))
+						{
+							$element = $row->getElement('sort');
+						}
+						else
+						{
+							$element = new DefaultSortElementInformation();
+							$row->addElement($element);
+						}
+
+						foreach ($this->getFromDca('fields') as $property => $value)
+						{
+							if (isset($value['sorting']))
+							{
+								$element->addProperty($property, (int)$value['flag']);
+							}
+						}
+						continue;
+					case 'search':
+						if ($row->hasElement('search'))
+						{
+							$element = $row->getElement('search');
+						}
+						else
+						{
+							$element = new DefaultSearchElementInformation();
+						}
+						foreach ($this->getFromDca('fields') as $property => $value)
+						{
+							if (isset($value['search']))
+							{
+								$element->addProperty($property);
+							}
+						}
+						if ($element->getPropertyNames() && !$row->hasElement('search'))
+						{
+							$row->addElement($element);
+						}
+						continue;
+					case 'limit':
+						if (!$row->hasElement('limit'))
+						{
+							$row->addElement(new DefaultLimitElementInformation());
+						}
+						continue;
+				}
+			}
 		}
 	}
 }

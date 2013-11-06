@@ -4,6 +4,9 @@ namespace DcGeneral\Panel;
 
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Data\ConfigInterface;
+use DcGeneral\DataDefinition\Section\BackendViewSectionInterface;
+use DcGeneral\DataDefinition\Section\View\Panel\FilterElementInformationInterface;
+use DcGeneral\DataDefinition\Section\View\Panel\SortElementInformationInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 
@@ -66,135 +69,6 @@ class DefaultPanelContainer implements PanelContainerInterface
 		foreach ($this as $objPanel)
 		{
 			$objPanel->initialize($objConfig, $objElement);
-		}
-	}
-
-	/**
-	 * @param PanelInterface      $objPanel
-	 *
-	 * @param ContainerInterface $objDefinition
-	 */
-	protected function buildFilter(PanelInterface $objPanel, $objDefinition)
-	{
-		foreach ($objDefinition->getPropertyNames() as $strProperty)
-		{
-			$objProperty = $objDefinition->getProperty($strProperty);
-
-			if (!$objProperty->isFilterable())
-			{
-				continue;
-			}
-
-			$objElement = new DefaultFilterElement();
-			$objElement->setPropertyName($strProperty);
-
-			$objPanel->addElement($strProperty, $objElement);
-		}
-	}
-
-	/**
-	 * @param PanelInterface      $objPanel
-	 *
-	 * @param ContainerInterface $objDefinition
-	 */
-	protected function buildSearch(PanelInterface $objPanel, $objDefinition)
-	{
-		$objElement = new DefaultSearchElement();
-
-		foreach ($objDefinition->getPropertyNames() as $strProperty)
-		{
-			$objProperty = $objDefinition->getProperty($strProperty);
-
-			if (!$objProperty->isSearchable())
-			{
-				continue;
-			}
-
-			$objElement->addProperty($strProperty);
-		}
-
-		if (count($objElement->getPropertyNames()))
-		{
-			$objPanel->addElement('search', $objElement);
-		}
-	}
-
-	/**
-	 * @param PanelInterface      $objPanel
-	 *
-	 * @param ContainerInterface $objDefinition
-	 */
-	protected function buildSort(PanelInterface $objPanel, $objDefinition)
-	{
-		$objElement = new DefaultSortElement();
-
-		foreach ($objDefinition->getPropertyNames() as $strProperty)
-		{
-			$objProperty = $objDefinition->getProperty($strProperty);
-
-			if (!$objProperty->isSortable())
-			{
-				continue;
-			}
-
-			$intFlag = $objProperty->get('flag');
-			if (is_null($intFlag))
-			{
-				$intFlag = 0;
-			}
-
-			$objElement->addProperty($strProperty,  $intFlag);
-		}
-
-		if (count($objElement->getPropertyNames()))
-		{
-			$objElement->setDefaultFlag(0);
-
-			$objPanel->addElement('sort', $objElement);
-		}
-	}
-
-	protected function buildLimit(PanelInterface $objPanel)
-	{
-		$objElement = new DefaultLimitElement();
-		$objPanel->addElement('limit', $objElement);
-	}
-
-	/**
-	 * @param ContainerInterface $objDefinition
-	 *
-	 * @return PanelContainerInterface|void
-	 * @throws DcGeneralRuntimeException
-	 */
-	public function buildFrom($objDefinition)
-	{
-		$panelLayout = $objDefinition->getPanelLayout();
-		$panelNames = array_keys($panelLayout);
-		$lastPanelKey = array_pop($panelNames);
-
-		foreach ($panelLayout as $strPanelKey => $arrPanel)
-		{
-			// We need a new panel.
-			$objPanel = new DefaultPanel();
-			$this->addPanel($strPanelKey, $objPanel);
-
-			if ($strPanelKey == $lastPanelKey) {
-				$objPanel->addElement('submit', new DefaultSubmitElement());
-			}
-
-			foreach ($arrPanel as $strElement)
-			{
-				$objElement = null;
-				switch ($strElement)
-				{
-					case 'filter': $this->buildFilter($objPanel, $objDefinition); break;
-					case 'sort':   $this->buildSort($objPanel, $objDefinition); break;
-					case 'search': $this->buildSearch($objPanel, $objDefinition); break;
-					case 'limit':  $this->buildLimit($objPanel); break;
-					default:
-						throw new DcGeneralRuntimeException('Invalid panel value provided: ' . $strElement);
-				}
-			}
 		}
 	}
 

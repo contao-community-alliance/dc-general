@@ -12,12 +12,20 @@
 
 namespace DcGeneral\DataDefinition\Section\View;
 
-interface PanelLayoutInterface
+class DefaultPanelLayout implements PanelLayoutInterface
 {
 	/**
-	 * Return rows of panel elements.
-	 *
-	 * @return PanelRowCollectionInterface
+	 * @var PanelRowCollectionInterface[]
 	 */
-	public function getRows();
+	protected $rows;
+
+	public function __construct()
+	{
+		$this->rows = new DefaultPanelRowCollection();
+	}
+
+	public function getRows()
+	{
+		return $this->rows;
+	}
 }

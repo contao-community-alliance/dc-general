@@ -2,7 +2,6 @@
 
 namespace DcGeneral\Panel;
 
-use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\EnvironmentInterface;
 
@@ -46,15 +45,6 @@ interface PanelContainerInterface extends \IteratorAggregate
 	 * @return PanelContainerInterface
 	 */
 	public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null);
-
-	/**
-	 * Build the container from the given data container array.
-	 *
-	 * @param ContainerInterface $objDefinition
-	 *
-	 * @return PanelContainerInterface
-	 */
-	public function buildFrom($objDefinition);
 
 	/**
 	 * Determinator if the panels should be updated from the InputProvider or not.

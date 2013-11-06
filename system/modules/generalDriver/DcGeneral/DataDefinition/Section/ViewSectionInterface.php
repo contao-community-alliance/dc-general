@@ -14,6 +14,7 @@ namespace DcGeneral\DataDefinition\Section;
 
 use DcGeneral\DataDefinition\Section\View\ListingConfigInterface;
 use DcGeneral\DataDefinition\Section\View\OperationCollectionInterface;
+use DcGeneral\DataDefinition\Section\View\PanelLayoutInterface;
 
 /**
  * Interface BasicSectionInterface
@@ -23,18 +24,21 @@ use DcGeneral\DataDefinition\Section\View\OperationCollectionInterface;
 interface ViewSectionInterface extends ContainerSectionInterface
 {
 	/**
-	 * The name of the section.
-	 */
-	const NAME = null;
-
-	/**
 	 * @return ListingConfigInterface
 	 */
 	public function getListingConfig();
 
 	/**
+	 * @param $location
+	 *
 	 * @return OperationCollectionInterface
 	 */
 	public function getOperations($location);
 
+	/**
+	 * Retrieve the panel layout.
+	 *
+	 * @return PanelLayoutInterface
+	 */
+	public function getPanelLayout();
 }

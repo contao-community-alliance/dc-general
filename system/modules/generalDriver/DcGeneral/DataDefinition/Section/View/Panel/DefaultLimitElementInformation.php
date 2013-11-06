@@ -10,14 +10,17 @@
  * @filesource
  */
 
-namespace DcGeneral\DataDefinition\Section\View;
+namespace DcGeneral\DataDefinition\Section\View\Panel;
 
-interface PanelRowCollectionInterface
+class DefaultLimitElementInformation implements LimitElementInformationInterface
 {
-    /**
-     * Return rows of panel elements.
-     * 
-     * @return PanelRowsInterface
-     */
-    public function getRows();
+	protected $properties;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getName()
+	{
+		return 'limit';
+	}
 }

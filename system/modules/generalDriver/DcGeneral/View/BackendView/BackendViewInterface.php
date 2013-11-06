@@ -12,7 +12,6 @@
 
 namespace DcGeneral\View\BackendView;
 
-use DcGeneral\EnvironmentInterface;
 use DcGeneral\View\ViewInterface;
 
 interface BackendViewInterface extends ViewInterface

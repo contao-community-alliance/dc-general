@@ -445,7 +445,6 @@ class ListView extends BaseView
 	 */
 	public function showAll()
 	{
-		$this->buildPanel();
 		$this->checkClipboard();
 		$this->loadCollection();
 

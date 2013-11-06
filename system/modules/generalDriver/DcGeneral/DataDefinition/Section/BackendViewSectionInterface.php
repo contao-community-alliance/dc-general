@@ -10,14 +10,17 @@
  * @filesource
  */
 
-namespace DcGeneral\DataDefinition\Section\View;
+namespace DcGeneral\DataDefinition\Section;
 
-interface PanelLayoutInterface
+/**
+ * Interface BasicSectionInterface
+ *
+ * @package DcGeneral\DataDefinition\Section
+ */
+interface BackendViewSectionInterface extends ViewSectionInterface
 {
 	/**
-	 * Return rows of panel elements.
-	 *
-	 * @return PanelRowCollectionInterface
+	 * The name of the section.
 	 */
-	public function getRows();
+	const NAME = 'contao.backend.view';
 }

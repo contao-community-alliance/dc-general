@@ -18,9 +18,9 @@ use DcGeneral\Data\DCGE;
 use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
-use DcGeneral\Panel\DefaultPanelContainer;
 use DcGeneral\Panel\FilterElementInterface;
 use DcGeneral\Panel\LimitElementInterface;
+use DcGeneral\Panel\PanelContainerInterface;
 use DcGeneral\Panel\SearchElementInterface;
 use DcGeneral\Panel\SortElementInterface;
 use DcGeneral\Panel\SubmitElementInterface;
@@ -35,7 +35,6 @@ use DcGeneral\View\BackendView\Event\GetOperationButtonEvent;
 use DcGeneral\View\BackendView\Event\GetPasteButtonEvent;
 use DcGeneral\View\BackendView\Event\GetPropertyOptionsEvent;
 use DcGeneral\View\BackendView\Event\GetSelectModeButtonsEvent;
-use DcGeneral\View\ViewInterface;
 
 // TODO: this is not as elegant as it could be.
 use DcGeneral\Contao\BackendBindings;
@@ -210,25 +209,6 @@ class BaseView implements BackendViewInterface
 		$template->$name = $value;
 
 		return $this;
-	}
-
-	/**
-	 * Build the panel and initialize it.
-	 *
-	 * @return DefaultPanelContainer
-	 */
-	protected function buildPanel()
-	{
-		$objContainer = new DefaultPanelContainer();
-		$objContainer->setEnvironment($this->getEnvironment());
-
-		$objContainer->buildFrom($this->getEnvironment()->getDataDefinition());
-
-		$objGlobalConfig = $this->getEnvironment()->getController()->getBaseConfig();
-		$objContainer->initialize($objGlobalConfig);
-
-		$this->setPanel($objContainer);
-		return $objContainer;
 	}
 
 	/**
@@ -1896,13 +1876,13 @@ class BaseView implements BackendViewInterface
 
 	protected function panel()
 	{
-		if ($this->getEnvironment()->getPanelContainer() === null)
+		if ($this->getPanel() === null)
 		{
 			throw new DcGeneralRuntimeException('No panel information stored in data container.');
 		}
 
 		$arrPanels = array();
-		foreach ($this->getEnvironment()->getPanelContainer() as $objPanel)
+		foreach ($this->getPanel() as $objPanel)
 		{
 			$arrPanel = array();
 			foreach ($objPanel as $objElement)

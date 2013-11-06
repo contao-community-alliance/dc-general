@@ -267,7 +267,6 @@ class TreeView extends BaseView
 	 */
 	public function showAll()
 	{
-		$this->buildPanel();
 		$this->checkClipboard();
 		$this->loadCollection();
 
@@ -285,7 +284,6 @@ class TreeView extends BaseView
 
 	public function ajaxTreeView($intID, $intLevel)
 	{
-		$this->buildPanel();
 		$this->checkClipboard();
 		$this->loadCollection($intID, $intLevel);
 

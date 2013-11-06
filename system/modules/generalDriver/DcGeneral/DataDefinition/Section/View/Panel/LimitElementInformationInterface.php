@@ -10,14 +10,8 @@
  * @filesource
  */
 
-namespace DcGeneral\DataDefinition\Section\View;
+namespace DcGeneral\DataDefinition\Section\View\Panel;
 
-interface PanelLayoutInterface
+interface LimitElementInformationInterface extends ElementInformationInterface
 {
-	/**
-	 * Return rows of panel elements.
-	 *
-	 * @return PanelRowCollectionInterface
-	 */
-	public function getRows();
 }
