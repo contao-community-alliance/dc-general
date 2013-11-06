@@ -93,12 +93,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	protected $arrDataProvider = array();
 
 	/**
-	 * The provider that shall be used for view retrival.
-	 * @var ViewInterface
-	 */
-	protected $objViewHandler = null;
-
-	/**
 	 * The controller that shall be used .
 	 * @var ControllerInterface
 	 */
@@ -468,12 +462,12 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		if (isset($this->arrDCA['dca_config']['view']) && isset($this->arrDCA['dca_config']['view_config']))
 		{
 			$arrConfig = $this->arrDCA['dca_config']['view_config'];
-			$this->objViewHandler = new $this->arrDCA['dca_config']['view']();
+			$view = new $this->arrDCA['dca_config']['view']();
 		}
 		else if (isset($this->arrDCA['dca_config']['view']) && !isset($this->arrDCA['dca_config']['view_config']))
 		{
 			$arrConfig = array();
-			$this->objViewHandler = new $this->arrDCA['dca_config']['view']();
+			$view = new $this->arrDCA['dca_config']['view']();
 		}
 		else
 		{
@@ -484,23 +478,23 @@ class DC_General extends \DataContainer implements DataContainerInterface
 				case 1: // Records are sorted by a fixed field
 				case 2: // Records are sorted by a switchable field
 				case 3: // Records are sorted by the parent table
-					$this->objViewHandler = new ListView();
+					$view = new ListView();
 					break;
 				case 4: // Displays the child records of a parent record (see style sheets module)
-					$this->objViewHandler = new ParentView();
+					$view = new ParentView();
 					break;
 				case 5: // Records are displayed as tree (see site structure)
 				case 6: // Displays the child records within a tree structure (see articles module)
-					$this->objViewHandler = new TreeView();
+					$view = new TreeView();
 					break;
 				default:
 					// TODO: raise an exception here in future for unknown modes.
-					$this->objViewHandler = new BackendView();
+					$view = new BackendView();
 			}
 		}
 
-		$this->objViewHandler->setDC($this);
-		$this->getEnvironment()->setView($this->objViewHandler);
+		$view->setEnvironment($this->getEnvironment());
+		$this->getEnvironment()->setView($view);
 	}
 
 	protected function bootDataDriver($strSource, $arrConfig)
@@ -1944,12 +1938,12 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			return $strReturn;
 		}
 
-		return call_user_func_array(array($this->objViewHandler, $name), array_merge(array($this), $arguments));
+		return call_user_func_array(array($this->getViewHandler(), $name), array_merge(array($this), $arguments));
 	}
 
 	public function paste()
 	{
-		return call_user_func_array(array($this->objViewHandler, 'paste'), func_get_args());
+		return call_user_func_array(array($this->getViewHandler(), 'paste'), func_get_args());
 	}
 
 	public function generateAjaxPalette($strSelector)
@@ -1960,12 +1954,12 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			return $strReturn;
 		}
 
-		return $this->objViewHandler->generateAjaxPalette($strSelector);
+		return $this->getViewHandler()->generateAjaxPalette($strSelector);
 	}
 
 	public function ajaxTreeView($intID, $intLevel)
 	{
-		return $this->objViewHandler->ajaxTreeView($intID, $intLevel);
+		return $this->getViewHandler()->ajaxTreeView($intID, $intLevel);
 
 		$strReturn = $this->objController->ajaxTreeView($intID, $intLevel);
 		if ($strReturn != null && $strReturn != "")
@@ -1973,7 +1967,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			return $strReturn;
 		}
 
-		return $this->objViewHandler->ajaxTreeView($intID, $intLevel);
+		return $this->getViewHandler()->ajaxTreeView($intID, $intLevel);
 	}
 
 	public function copy()
@@ -1984,7 +1978,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			return $strReturn;
 		}
 
-		return $this->objViewHandler->copy();
+		return $this->getViewHandler()->copy();
 	}
 
 	public function create()
@@ -2002,7 +1996,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		}
 
 		$strReturn = $GLOBALS['TL_CONFIG']['debugMode'] ? $this->setupTimer() : '';
-		return $strReturn . $this->objViewHandler->create();
+		return $strReturn . $this->getViewHandler()->create();
 	}
 
 	public function cut()
@@ -2013,7 +2007,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			return $strReturn;
 		}
 
-		return $this->objViewHandler->cut();
+		return $this->getViewHandler()->cut();
 	}
 
 	public function delete()
@@ -2024,7 +2018,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			return $strReturn;
 		}
 
-		return $this->objViewHandler->delete();
+		return $this->getViewHandler()->delete();
 	}
 
 	public function edit()
@@ -2036,7 +2030,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		}
 
 		$strReturn = $GLOBALS['TL_CONFIG']['debugMode'] ? $this->setupTimer() : '';
-		return $strReturn . $this->objViewHandler->edit();
+		return $strReturn . $this->getViewHandler()->edit();
 	}
 
 	public function move()
@@ -2047,7 +2041,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			return $strReturn;
 		}
 
-		return $this->objViewHandler->move();
+		return $this->getViewHandler()->move();
 	}
 
 	public function show()
@@ -2065,7 +2059,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		}
 
 		$strReturn = $GLOBALS['TL_CONFIG']['debugMode'] ? $this->setupTimer() : '';
-		return $strReturn . $this->objViewHandler->show();
+		return $strReturn . $this->getViewHandler()->show();
 	}
 
 	public function showAll()
@@ -2087,7 +2081,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			return $strReturn;
 		}
 
-		return $this->objViewHandler->undo();
+		return $this->getViewHandler()->undo();
 	}
 
 	protected function setupTimer()
