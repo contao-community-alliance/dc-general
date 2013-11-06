@@ -59,6 +59,16 @@ $GLOBALS['TL_EVENTS'][\DcGeneral\Factory\Event\PopulateEnvironmentEvent::NAME][]
 );
 
 $GLOBALS['TL_EVENTS'][\DcGeneral\Factory\Event\PopulateEnvironmentEvent::NAME][] = array(
+	'DcGeneral\Contao\Dca\Populator\ExtendedLegacyDcaPopulator::process',
+	\DcGeneral\Contao\Dca\Populator\ExtendedLegacyDcaPopulator::PRIORITY
+);
+
+$GLOBALS['TL_EVENTS'][\DcGeneral\Factory\Event\PopulateEnvironmentEvent::NAME][] = array(
+	'DcGeneral\Contao\Dca\Populator\BackendViewPopulator::process',
+	\DcGeneral\Contao\Dca\Populator\BackendViewPopulator::PRIORITY
+);
+
+$GLOBALS['TL_EVENTS'][\DcGeneral\Factory\Event\PopulateEnvironmentEvent::NAME][] = array(
 	'DcGeneral\Contao\Dca\Populator\HardCodedPopulator::process',
 	\DcGeneral\Contao\Dca\Populator\HardCodedPopulator::PRIORITY
 );

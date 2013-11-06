@@ -4,6 +4,7 @@ namespace DcGeneral\Contao\Dca\Populator;
 
 use AbstractEventDrivenEnvironmentPopulator;
 use DcGeneral\Callbacks\CallbacksInterface;
+use DcGeneral\Callbacks\ContaoStyleCallbacks;
 use DcGeneral\Clipboard\DefaultClipboard;
 use DcGeneral\Contao\Dca\Section\ExtendedDca;
 use DcGeneral\Contao\InputProvider;
@@ -43,88 +44,17 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
 	 */
 	protected function populateCallback(EnvironmentInterface $environment)
 	{
-		$definition = $environment->getDataDefinition();
-
-		$class = 'DcGeneral\Callbacks\ContaoStyleCallbacks';
-
-		// If we encounter an extended section, that one may override.
-		if ($definition->hasSection(ExtendedDca::NAME))
+		// Already populated, get out then.
+		if ($environment->getCallbackHandler())
 		{
-			/** @var ExtendedDca $section */
-			$section = $definition->getSection(ExtendedDca::NAME);
-			$class   = $section->getCallbackClass();
+			return;
 		}
 
-		$callbackClass = new \ReflectionClass($class);
-
-		/** @var CallbacksInterface $callback */
-		$callback = $callbackClass->newInstance();
+		$callback = new ContaoStyleCallbacks();
 
 		$callback->setDC($GLOBALS['objDcGeneral']);
 
 		$environment->setCallbackHandler($callback);
-	}
-
-	/**
-	 * Create a view instance in the environment if none has been defined yet.
-	 *
-	 * @param EnvironmentInterface $environment
-	 *
-	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException
-	 * @internal
-	 */
-	protected function populateView(EnvironmentInterface $environment)
-	{
-		// Already populated, get out then.
-		if ($environment->getView())
-		{
-			return;
-		}
-
-		$definition = $environment->getDataDefinition();
-
-		// If we encounter an extended section, that one may override.
-		if ($definition->hasSection(ExtendedDca::NAME))
-		{
-			/** @var ExtendedDca $section */
-			$section = $definition->getSection(ExtendedDca::NAME);
-
-			$viewClass = new \ReflectionClass($section->getViewClass());
-
-			/** @var ViewInterface $view */
-			$view = $viewClass->newInstance();
-
-			$view->setEnvironment($environment);
-			$environment->setView($view);
-
-			return;
-		}
-
-		// We need to extract the view information from the basic section.
-		if (!$definition->hasBasicSection())
-		{
-			return;
-		}
-
-		$section = $definition->getBasicSection();
-
-		switch ($section->getMode())
-		{
-			case BasicSectionInterface::MODE_FLAT:
-				$view = new ListView();
-				break;
-			case BasicSectionInterface::MODE_PARENTEDLIST:
-				$view = new ParentView();
-				break;
-			case BasicSectionInterface::MODE_HIERARCHICAL:
-				$view = new TreeView();
-				break;
-			default:
-				throw new DcGeneralInvalidArgumentException('Unknown view mode encountered: ' . $section->getMode());
-		}
-
-		$view->setEnvironment($environment);
-		$environment->setView($view);
 	}
 
 	/**
@@ -138,25 +68,6 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
 		// Already populated, get out then.
 		if ($environment->getController())
 		{
-			return;
-		}
-
-		$definition = $environment->getDataDefinition();
-
-		// If we encounter an extended section, that one may override.
-		if ($definition->hasSection(ExtendedDca::NAME))
-		{
-			/** @var ExtendedDca $section */
-			$section = $definition->getSection(ExtendedDca::NAME);
-
-			$controllerClass = new \ReflectionClass($section->getControllerClass());
-
-			/** @var ControllerInterface $controller */
-			$controller = $controllerClass->newInstance();
-
-			$controller->setEnvironment($environment);
-			$environment->setController($controller);
-
 			return;
 		}
 
@@ -187,7 +98,6 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
 		}
 
 		$this->populateCallback($environment);
-		$this->populateView($environment);
 		$this->populateController($environment);
 	}
 }
