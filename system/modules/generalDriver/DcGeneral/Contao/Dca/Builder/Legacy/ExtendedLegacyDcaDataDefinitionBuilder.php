@@ -40,33 +40,6 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 	}
 
 	/**
-	 * Read the specified sub path from the dca.
-	 *
-	 * @param string $path
-	 *
-	 * @return mixed
-	 *
-	 * @internal
-	 */
-	protected function getFromDca($path)
-	{
-		$chunks = explode('/', trim($path, '/'));
-		$dca    = $this->dca;
-
-		while (($chunk = array_shift($chunks)) !== null)
-		{
-			if (!array_key_exists($chunk, $dca))
-			{
-				return null;
-			}
-
-			$dca = $dca[$chunk];
-		}
-
-		return $dca;
-	}
-
-	/**
 	 * This method parses all data provider related information from Contao legacy data container arrays.
 	 *
 	 * @param ContainerInterface $container
