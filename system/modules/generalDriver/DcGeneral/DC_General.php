@@ -430,26 +430,17 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	 */
 	protected function loadController()
 	{
-		// Load controller
-		if (isset($this->arrDCA['dca_config']['controller']) && isset($this->arrDCA['dca_config']['controller_config']))
+		// TODO: move custom class instantiation into extended data definition builder and populator and get rid of this method.
+
+		// already populated, get out.
+		if ($this->getEnvironment()->getController() || !isset($this->arrDCA['dca_config']['controller']))
 		{
-			$arrConfig = $this->arrDCA['dca_config']['controller_config'];
-			$this->objController = new $this->arrDCA['dca_config']['controller']();
-		}
-		else if (isset($this->arrDCA['dca_config']['controller']) && !isset($this->arrDCA['dca_config']['controller_config']))
-		{
-			$arrConfig = array();
-			$this->objController = new $this->arrDCA['dca_config']['controller']();
-		}
-		else
-		{
-			$arrConfig = array();
-			$this->objController = new DefaultController();
+			return;
 		}
 
-		$this->getEnvironment()->setController($this->objController);
-
-		$this->objController->setDC($this);
+		$controller = new $this->arrDCA['dca_config']['controller']();
+		$this->getEnvironment()->setController($controller);
+		$controller->setEnvironment($this->getEnvironment());
 	}
 
 	/**
@@ -458,41 +449,15 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	 */
 	protected function loadView()
 	{
-		// Load view
-		if (isset($this->arrDCA['dca_config']['view']) && isset($this->arrDCA['dca_config']['view_config']))
+		// TODO: move custom class instantiation into extended data definition builder and populator and get rid of this method.
+
+		// already populated, get out.
+		if ($this->getEnvironment()->getView() || !isset($this->arrDCA['dca_config']['view']))
 		{
-			$arrConfig = $this->arrDCA['dca_config']['view_config'];
-			$view = new $this->arrDCA['dca_config']['view']();
-		}
-		else if (isset($this->arrDCA['dca_config']['view']) && !isset($this->arrDCA['dca_config']['view_config']))
-		{
-			$arrConfig = array();
-			$view = new $this->arrDCA['dca_config']['view']();
-		}
-		else
-		{
-			$arrConfig = array();
-			switch ($this->getEnvironment()->getDataDefinition()->getSortingMode())
-			{
-				case 0: // Records are not sorted
-				case 1: // Records are sorted by a fixed field
-				case 2: // Records are sorted by a switchable field
-				case 3: // Records are sorted by the parent table
-					$view = new ListView();
-					break;
-				case 4: // Displays the child records of a parent record (see style sheets module)
-					$view = new ParentView();
-					break;
-				case 5: // Records are displayed as tree (see site structure)
-				case 6: // Displays the child records within a tree structure (see articles module)
-					$view = new TreeView();
-					break;
-				default:
-					// TODO: raise an exception here in future for unknown modes.
-					$view = new BackendView();
-			}
+			return;
 		}
 
+		$view = new $this->arrDCA['dca_config']['view']();
 		$view->setEnvironment($this->getEnvironment());
 		$this->getEnvironment()->setView($view);
 	}
