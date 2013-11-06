@@ -13,8 +13,10 @@
 namespace DcGeneral\Contao\Dca\Builder\Legacy;
 
 use ContaoDataProviderInformation;
+use DcGeneral\Contao\Dca\Section\ExtendedDca;
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\DataDefinition\Section\DefaultDataProviderSection;
+use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 /**
  * Build the container config from legacy DCA syntax.
@@ -37,6 +39,49 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
 		// TODO parse $localDca variable into $container
 		$this->parseDataProvider($container);
+	}
+
+	protected function parseClassNames(ContainerInterface $container)
+	{
+		// parse data provider
+		if ($container->hasSection(ExtendedDca::NAME))
+		{
+			$section = $container->getSection(ExtendedDca::NAME);
+
+			if (!($section instanceof ExtendedDca))
+			{
+				throw new DcGeneralInvalidArgumentException(sprintf(
+					'Section with name %s must be an instance of ExtendedDca but instance of %s encountered.',
+					ExtendedDca::NAME,
+					get_class($section)
+				));
+			}
+		}
+		else
+		{
+			$section = new ExtendedDca();
+			$container->setSection(ExtendedDca::NAME, $section);
+		}
+
+		if ($this->getFromDca('dca_config') === null)
+		{
+			return;
+		}
+
+		if (($class = $this->getFromDca('dca_config/callback')) === null)
+		{
+			$section->setCallbackClass($class);
+		}
+
+		if (($class = $this->getFromDca('dca_config/controller')) === null)
+		{
+			$section->setControllerClass($class);
+		}
+
+		if (($class = $this->getFromDca('dca_config/view')) === null)
+		{
+			$section->setViewClass($class);
+		}
 	}
 
 	/**

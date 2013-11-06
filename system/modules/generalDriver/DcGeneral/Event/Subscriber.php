@@ -2,6 +2,7 @@
 
 namespace DcGeneral\Event;
 
+use DcGeneral\Factory\Event\CreateDcGeneralEvent;
 use DcGeneral\View\BackendView\Event\GetBreadcrumbEvent;
 use DcGeneral\View\Widget\Event\ResolveWidgetErrorMessageEvent;
 use DcGeneral\View\BackendView\Event\GetPropertyOptionsEvent;
@@ -43,6 +44,7 @@ class Subscriber
 
 			ResolveWidgetErrorMessageEvent::NAME => array('resolveWidgetErrorMessage', -1),
 			GetPropertyOptionsEvent::NAME    => 'GetPropertyOptions',
+			CreateDcGeneralEvent::NAME       => 'CreateDcGeneral',
 		);
 	}
 
@@ -269,5 +271,15 @@ class Subscriber
 			->getCallbackHandler()->optionsCallback($event->getFieldName());
 
 		$event->setOptions($arrReturn);
+	}
+
+	public function CreateDcGeneral(CreateDcGeneralEvent $event)
+	{
+		$environment = $event->getDcGeneral()->getEnvironment();
+		$definition  = $environment->getDataDefinition();
+
+		$environment
+			->getCallbackHandler()
+			->onloadCallback($definition->getName());
 	}
 }

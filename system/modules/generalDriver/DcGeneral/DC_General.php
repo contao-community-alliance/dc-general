@@ -283,9 +283,13 @@ class DC_General extends \DataContainer implements DataContainerInterface
 
 		$factory = new DcGeneralFactory();
 
+		// FIXME: transporting the current instance via $GLOBALS is needed to tell the callback handler about this class.
+		// We definitely want to get rid of this again when dropping all the callback handlers.
+		$GLOBALS['objDcGeneral'] = $this;
 		$dcGeneral = $factory
 			->setContainerName($strTable)
 			->createDcGeneral();
+		unset($GLOBALS['objDcGeneral']);
 
 		$this->objEnvironment = $dcGeneral->getEnvironment();
 
@@ -339,17 +343,9 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		// to remove buttons.
 		$this->loadDefaultButtons();
 
-		// Callback
-		if ($blnOnloadCallback == true)
-		{
-			$this->getEnvironment()->getCallbackHandler()->onloadCallback($strTable);
-		}
-
 		// Load the clipboard.
 		$this->getEnvironment()->getClipboard()
 			->loadFrom($this->getEnvironment());
-
-
 
 		// execute AJAX request, called from Backend::getBackendModule
 		// we have to do this here, as otherwise the script will exit as it only checks for DC_Table and DC_File decendant classes. :/
@@ -393,10 +389,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	protected function loadProviderAndHandler()
 	{
 		// Load controller, view and provider.
-		$this->loadController();
-		$this->loadView();
 		$this->loadDataProvider();
-		$this->loadCallbackClass();
 	}
 	
 	/**
@@ -422,44 +415,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			'value'				 => null, // Lookup from DC_General
 			'button_callback'	 => null  // Core feature from DC_General
 		));
-	}
-
-	/**
-	 * Load the datacontroller,
-	 * if not set try to load the default one.
-	 */
-	protected function loadController()
-	{
-		// TODO: move custom class instantiation into extended data definition builder and populator and get rid of this method.
-
-		// already populated, get out.
-		if ($this->getEnvironment()->getController() || !isset($this->arrDCA['dca_config']['controller']))
-		{
-			return;
-		}
-
-		$controller = new $this->arrDCA['dca_config']['controller']();
-		$this->getEnvironment()->setController($controller);
-		$controller->setEnvironment($this->getEnvironment());
-	}
-
-	/**
-	 * Load the dataview handler,
-	 * if not set try to load the default one.
-	 */
-	protected function loadView()
-	{
-		// TODO: move custom class instantiation into extended data definition builder and populator and get rid of this method.
-
-		// already populated, get out.
-		if ($this->getEnvironment()->getView() || !isset($this->arrDCA['dca_config']['view']))
-		{
-			return;
-		}
-
-		$view = new $this->arrDCA['dca_config']['view']();
-		$view->setEnvironment($this->getEnvironment());
-		$this->getEnvironment()->setView($view);
 	}
 
 	protected function bootDataDriver($strSource, $arrConfig)
@@ -519,18 +474,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		{
 			$this->bootDataDriver($arrSourceConfigs['parent']['source'], $arrSourceConfigs['parent']);
 		}
-	}
-
-	/**
-	 * Load the main callback class
-	 */
-	protected function loadCallbackClass()
-	{
-		$strCallbackHandler = $this->getEnvironment()->getDataDefinition()->getCallbackProviderClass();
-		$this->getEnvironment()
-			->setCallbackHandler(new $strCallbackHandler())
-			->getCallbackHandler()
-				->setDC($this);
 	}
 
 	/**

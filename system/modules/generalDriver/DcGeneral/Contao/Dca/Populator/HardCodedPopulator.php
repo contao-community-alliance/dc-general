@@ -3,9 +3,12 @@
 namespace DcGeneral\Contao\Dca\Populator;
 
 use AbstractEventDrivenEnvironmentPopulator;
+use DcGeneral\Callbacks\CallbacksInterface;
 use DcGeneral\Clipboard\DefaultClipboard;
+use DcGeneral\Contao\Dca\Section\ExtendedDca;
 use DcGeneral\Contao\InputProvider;
 use DcGeneral\Contao\TranslationManager;
+use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\Controller\DefaultController;
 use DcGeneral\DataDefinition\Section\BasicSectionInterface;
 use DcGeneral\EnvironmentInterface;
@@ -14,6 +17,7 @@ use DcGeneral\View\BackendView\ListView;
 use DcGeneral\View\BackendView\ParentView;
 use DcGeneral\View\BackendView\TreeView;
 use DcGeneral\View\BackendView;
+use DcGeneral\View\ViewInterface;
 
 /**
  * Class HardCodedPopulator
@@ -26,6 +30,40 @@ use DcGeneral\View\BackendView;
 class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
 {
 	const PRIORITY = 1000;
+
+	/**
+	 * Create a callback instance in the environment if none has been defined yet.
+	 *
+	 * NOTE: callback classes are deprecated due to the events used in DcGeneral.
+	 *
+	 * @param EnvironmentInterface $environment
+	 *
+	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException
+	 * @internal
+	 */
+	protected function populateCallback(EnvironmentInterface $environment)
+	{
+		$definition = $environment->getDataDefinition();
+
+		$class = 'DcGeneral\Callbacks\ContaoStyleCallbacks';
+
+		// If we encounter an extended section, that one may override.
+		if ($definition->hasSection(ExtendedDca::NAME))
+		{
+			/** @var ExtendedDca $section */
+			$section = $definition->getSection(ExtendedDca::NAME);
+			$class   = $section->getCallbackClass();
+		}
+
+		$callbackClass = new \ReflectionClass($class);
+
+		/** @var CallbacksInterface $callback */
+		$callback = $callbackClass->newInstance();
+
+		$callback->setDC($GLOBALS['objDcGeneral']);
+
+		$environment->setCallbackHandler($callback);
+	}
 
 	/**
 	 * Create a view instance in the environment if none has been defined yet.
@@ -44,6 +82,23 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
 		}
 
 		$definition = $environment->getDataDefinition();
+
+		// If we encounter an extended section, that one may override.
+		if ($definition->hasSection(ExtendedDca::NAME))
+		{
+			/** @var ExtendedDca $section */
+			$section = $definition->getSection(ExtendedDca::NAME);
+
+			$viewClass = new \ReflectionClass($section->getViewClass());
+
+			/** @var ViewInterface $view */
+			$view = $viewClass->newInstance();
+
+			$view->setEnvironment($environment);
+			$environment->setView($view);
+
+			return;
+		}
 
 		// We need to extract the view information from the basic section.
 		if (!$definition->hasBasicSection())
@@ -67,6 +122,7 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
 			default:
 				throw new DcGeneralInvalidArgumentException('Unknown view mode encountered: ' . $section->getMode());
 		}
+
 		$view->setEnvironment($environment);
 		$environment->setView($view);
 	}
@@ -82,6 +138,25 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
 		// Already populated, get out then.
 		if ($environment->getController())
 		{
+			return;
+		}
+
+		$definition = $environment->getDataDefinition();
+
+		// If we encounter an extended section, that one may override.
+		if ($definition->hasSection(ExtendedDca::NAME))
+		{
+			/** @var ExtendedDca $section */
+			$section = $definition->getSection(ExtendedDca::NAME);
+
+			$controllerClass = new \ReflectionClass($section->getControllerClass());
+
+			/** @var ControllerInterface $controller */
+			$controller = $controllerClass->newInstance();
+
+			$controller->setEnvironment($environment);
+			$environment->setController($controller);
+
 			return;
 		}
 
@@ -111,6 +186,7 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
 			$environment->setTranslationManager(new TranslationManager());
 		}
 
+		$this->populateCallback($environment);
 		$this->populateView($environment);
 		$this->populateController($environment);
 	}
