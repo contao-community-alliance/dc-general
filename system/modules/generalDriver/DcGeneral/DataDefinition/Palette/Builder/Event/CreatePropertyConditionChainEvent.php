@@ -19,7 +19,7 @@ use DcGeneral\EnvironmentInterface;
 
 class CreatePropertyConditionChainEvent extends BuilderEvent
 {
-	const NAME = 'DcGeneral\DataDefinition\Palette\Builder\Event\CreatePropertyConditionChain';
+    const NAME = 'dc-general.data-definition.palette.builder.create-property-condition-chain';
 
 	/**
 	 * @var PropertyConditionChain

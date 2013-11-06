@@ -20,7 +20,7 @@ use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 class CreatePropertyValueConditionEvent extends BuilderEvent
 {
-	const NAME = 'DcGeneral\DataDefinition\Palette\Builder\Event\CreatePropertyValueCondition';
+    const NAME = 'dc-general.data-definition.palette.builder.create-property-value-condition';
 
 	/**
 	 * @var PalettePropertyValueCondition|PropertyValueCondition

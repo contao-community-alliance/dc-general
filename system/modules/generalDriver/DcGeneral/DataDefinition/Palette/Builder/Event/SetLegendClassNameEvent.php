@@ -17,7 +17,7 @@ use DcGeneral\EnvironmentInterface;
 
 class SetLegendClassNameEvent extends BuilderEvent
 {
-	const NAME = 'DcGeneral\DataDefinition\Palette\Builder\Event\SetLegendClassName';
+    const NAME = 'dc-general.data-definition.palette.builder.set-legend-class-name';
 
 	/**
 	 * @var string

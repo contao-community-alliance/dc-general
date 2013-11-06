@@ -18,7 +18,7 @@ use DcGeneral\EnvironmentInterface;
 
 class CreatePaletteEvent extends BuilderEvent
 {
-	const NAME = 'DcGeneral\DataDefinition\Palette\Builder\Event\CreatePalette';
+    const NAME = 'dc-general.data-definition.palette.builder.create-palette';
 
 	/**
 	 * @var PaletteInterface

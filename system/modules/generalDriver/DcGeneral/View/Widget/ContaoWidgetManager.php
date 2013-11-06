@@ -16,7 +16,7 @@ use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\DataContainerInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
-use DcGeneral\View\Widget\Events\ResolveWidgetErrorMessage;
+use DcGeneral\View\Widget\Event\ResolveWidgetErrorMessage;
 
 class ContaoWidgetManager implements WidgetManagerInterface
 {

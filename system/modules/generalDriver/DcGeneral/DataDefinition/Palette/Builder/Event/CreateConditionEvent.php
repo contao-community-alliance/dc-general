@@ -22,7 +22,7 @@ use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 class CreateConditionEvent extends BuilderEvent
 {
-	const NAME = 'DcGeneral\DataDefinition\Palette\Builder\Event\CreateCondition';
+    const NAME = 'dc-general.data-definition.palette.builder.create-condition';
 
 	/**
 	 * @var PaletteConditionInterface|PropertyConditionInterface

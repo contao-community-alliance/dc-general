@@ -19,7 +19,7 @@ use DcGeneral\EnvironmentInterface;
 
 class CreateDefaultPaletteConditionEvent extends BuilderEvent
 {
-	const NAME = 'DcGeneral\DataDefinition\Palette\Builder\Event\CreateDefaultPaletteCondition';
+    const NAME = 'dc-general.data-definition.palette.builder.create-default-palette-condition';
 
 	/**
 	 * @var DefaultPaletteCondition

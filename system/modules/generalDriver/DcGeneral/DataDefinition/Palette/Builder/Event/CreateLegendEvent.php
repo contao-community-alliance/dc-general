@@ -18,7 +18,7 @@ use DcGeneral\EnvironmentInterface;
 
 class CreateLegendEvent extends BuilderEvent
 {
-	const NAME = 'DcGeneral\DataDefinition\Palette\Builder\Event\CreateLegend';
+    const NAME = 'dc-general.data-definition.palette.builder.create-legend';
 
 	/**
 	 * @var LegendInterface

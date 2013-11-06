@@ -17,7 +17,7 @@ use Symfony\Component\EventDispatcher\Event;
 
 class CreateDcGeneralEvent extends Event
 {
-	const NAME = 'DcGeneral\Factory\Event\CreateDcGeneral';
+    const NAME = 'dc-general.factory.create-dc-general';
 
 	protected $dcGeneral;
 
