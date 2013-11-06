@@ -71,7 +71,7 @@ if (version_compare(VERSION, '3.0', '<'))
 
 		public function loadDataContainer($strName, $blnNoCache=false)
 		{
-			return parent::loadDataContainer($strName, $blnNoCache);
+			parent::loadDataContainer($strName, $blnNoCache);
 		}
 
 		public function parseDate($strFormat, $intTimestamp=null)
@@ -104,7 +104,7 @@ else
 
 		public function loadDataContainer($strName, $blnNoCache=false)
 		{
-			return parent::getReferer($strName, $blnNoCache);
+			parent::loadDataContainer($strName, $blnNoCache);
 		}
 	}
 }
@@ -194,7 +194,7 @@ class BackendBindings
 
 	public static function loadDataContainer($strTable, $blnNoCache=false)
 	{
-		return BackendBindingInternal::getInstance()->loadDataContainer($strTable, $blnNoCache);
+		BackendBindingInternal::getInstance()->loadDataContainer($strTable, $blnNoCache);
 	}
 
 	public static function parseDate($strFormat, $intTimestamp=null)
