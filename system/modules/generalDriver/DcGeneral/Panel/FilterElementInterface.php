@@ -2,8 +2,6 @@
 
 namespace DcGeneral\Panel;
 
-use DcGeneral\Panel\PanelElementInterface;
-
 interface FilterElementInterface extends PanelElementInterface
 {
 	/**

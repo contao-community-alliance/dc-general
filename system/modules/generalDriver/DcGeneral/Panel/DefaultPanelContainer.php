@@ -4,18 +4,15 @@ namespace DcGeneral\Panel;
 
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Data\ConfigInterface;
-use DcGeneral\DataContainerInterface;
+use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
-use DcGeneral\Panel\PanelContainerInterface;
-use DcGeneral\Panel\PanelElementInterface;
-use DcGeneral\Panel\PanelInterface;
 
 class DefaultPanelContainer implements PanelContainerInterface
 {
 	/**
-	 * @var DataContainerInterface
+	 * @var EnvironmentInterface
 	 */
-	protected $objDataContainer;
+	protected $objEnvironment;
 
 	/**
 	 * @var PanelInterface[]
@@ -25,16 +22,16 @@ class DefaultPanelContainer implements PanelContainerInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function getDataContainer()
+	public function getEnvironment()
 	{
-		return $this->objDataContainer;
+		return $this->objEnvironment;
 	}
 	/**
 	 * {@inheritdoc}
 	 */
-	public function setDataContainer(DataContainerInterface $objDataContainer)
+	public function setEnvironment(EnvironmentInterface $objEnvironment)
 	{
-		$this->objDataContainer = $objDataContainer;
+		$this->objEnvironment = $objEnvironment;
 		return $this;
 	}
 
@@ -203,7 +200,7 @@ class DefaultPanelContainer implements PanelContainerInterface
 
 	public function updateValues()
 	{
-		return ($this->getDataContainer()->getInputProvider()->getValue('FORM_SUBMIT') === 'tl_filters');
+		return ($this->getEnvironment()->getInputProvider()->getValue('FORM_SUBMIT') === 'tl_filters');
 	}
 
 	/**

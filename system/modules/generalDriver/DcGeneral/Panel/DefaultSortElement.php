@@ -36,9 +36,9 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 			$arrValue = $this->getInputProvider()->getPersistentValue('sorting');
 		}
 
-		if (array_key_exists($this->getDataContainer()->getName(), $arrValue))
+		if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue))
 		{
-			return $arrValue[$this->getDataContainer()->getName()];
+			return $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
 		}
 
 		return array();
@@ -46,7 +46,8 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 
 	protected function setPersistent($strProperty)
 	{
-		$arrValue = array();
+		$arrValue       = array();
+		$definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
 		if ($this->getInputProvider()->hasPersistentValue('sorting'))
 		{
@@ -55,15 +56,15 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 
 		if ($strProperty)
 		{
-			if (!is_array($arrValue[$this->getDataContainer()->getName()]))
+			if (!is_array($arrValue[$definitionName]))
 			{
-				$arrValue[$this->getDataContainer()->getName()] = array();
+				$arrValue[$definitionName] = array();
 			}
-			$arrValue[$this->getDataContainer()->getName()] = $strProperty;
+			$arrValue[$definitionName] = $strProperty;
 		}
 		else
 		{
-			unset($arrValue[$this->getDataContainer()->getName()]);
+			unset($arrValue[$definitionName]);
 		}
 
 		$this->getInputProvider()->setPersistentValue('sorting', $arrValue);
@@ -83,7 +84,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 
 	protected function getAdditionalSorting()
 	{
-		$tmp            = $this->getDataContainer()->getDataDefinition()->getAdditionalSorting();
+		$tmp = $this->getEnvironment()->getDataDefinition()->getAdditionalSorting();
 		if (!$tmp)
 		{
 			return array();
@@ -187,7 +188,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 	{
 		foreach ($this->getPropertyNames() as $field)
 		{
-			$arrLabel = $this->getDataContainer()->getDataDefinition()->getProperty($field)->getLabel();
+			$arrLabel = $this->getEnvironment()->getDataDefinition()->getProperty($field)->getLabel();
 
 			$arrOptions[] = array(
 				'value'      => specialchars($field),

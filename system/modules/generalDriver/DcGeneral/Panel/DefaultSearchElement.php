@@ -44,9 +44,9 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 			$arrValue = $this->getInputProvider()->getPersistentValue('search');
 		}
 
-		if (array_key_exists($this->getDataContainer()->getName(), $arrValue))
+		if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue))
 		{
-			return $arrValue[$this->getDataContainer()->getName()];
+			return $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
 		}
 
 		return array();
@@ -54,7 +54,8 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 
 	protected function setPersistent($strProperty, $strValue)
 	{
-		$arrValue = array();
+		$arrValue       = array();
+		$definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
 		if ($this->getInputProvider()->hasPersistentValue('search'))
 		{
@@ -63,24 +64,24 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 
 		if (!empty($strValue))
 		{
-			if (!is_array($arrValue[$this->getDataContainer()->getName()]))
+			if (!is_array($arrValue[$definitionName]))
 			{
-				$arrValue[$this->getDataContainer()->getName()] = array();
+				$arrValue[$definitionName] = array();
 			}
 
 			if ($strValue)
 			{
-				$arrValue[$this->getDataContainer()->getName()]['field'] = $strProperty;
-				$arrValue[$this->getDataContainer()->getName()]['value'] = $strValue;
+				$arrValue[$definitionName]['field'] = $strProperty;
+				$arrValue[$definitionName]['value'] = $strValue;
 			}
 			else
 			{
-				unset($arrValue[$this->getDataContainer()->getName()]);
+				unset($arrValue[$definitionName]);
 			}
 		}
 		else
 		{
-			unset($arrValue[$this->getDataContainer()->getName()]);
+			unset($arrValue[$definitionName]);
 		}
 
 		$this->getInputProvider()->setPersistentValue('search', $arrValue);
@@ -150,7 +151,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 
 		foreach ($this->getPropertyNames() as $field)
 		{
-			$arrLabel     = $this->getPanel()->getContainer()->getDataContainer()->getDataDefinition()->getProperty($field)->getLabel();
+			$arrLabel     = $this->getEnvironment()->getDataDefinition()->getProperty($field)->getLabel();
 			$arrOptions[] = array
 			(
 				'value'      => $field,

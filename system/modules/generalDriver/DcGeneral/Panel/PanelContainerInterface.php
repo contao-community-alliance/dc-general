@@ -3,22 +3,22 @@
 namespace DcGeneral\Panel;
 
 use DcGeneral\DataDefinition\ContainerInterface;
-use DcGeneral\DataContainerInterface;
 use DcGeneral\Data\ConfigInterface;
+use DcGeneral\EnvironmentInterface;
 
 interface PanelContainerInterface extends \IteratorAggregate
 {
 	/**
-	 * @return DataContainerInterface
+	 * @return EnvironmentInterface
 	 */
-	public function getDataContainer();
+	public function getEnvironment();
 
 	/**
-	 * @param DataContainerInterface $objDataContainer The DataContainer to use.
+	 * @param EnvironmentInterface $objEnvironment The DataContainer to use.
 	 *
 	 * @return PanelContainerInterface
 	 */
-	public function setDataContainer(DataContainerInterface $objDataContainer);
+	public function setEnvironment(EnvironmentInterface $objEnvironment);
 
 	/**
 	 * @param string $strKey  Name of the panel.

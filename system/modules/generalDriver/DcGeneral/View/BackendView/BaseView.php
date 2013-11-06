@@ -215,9 +215,9 @@ class BaseView implements ViewInterface
 	protected function buildPanel()
 	{
 		$objContainer = new DefaultPanelContainer();
-		$objContainer->setDataContainer($this->getDC());
+		$objContainer->setEnvironment($this->getEnvironment());
 
-		$objContainer->buildFrom($this->getDC()->getDataDefinition());
+		$objContainer->buildFrom($this->getEnvironment()->getDataDefinition());
 
 		$objGlobalConfig = $this->getEnvironment()->getController()->getBaseConfig();
 		$objContainer->initialize($objGlobalConfig);

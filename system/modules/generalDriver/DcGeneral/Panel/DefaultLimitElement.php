@@ -33,9 +33,9 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 			$arrValue = $this->getInputProvider()->getPersistentValue('limit');
 		}
 
-		if (array_key_exists($this->getDataContainer()->getName(), $arrValue))
+		if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue))
 		{
-			return $arrValue[$this->getDataContainer()->getName()];
+			return $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
 		}
 
 		return array();
@@ -44,6 +44,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 	protected function setPersistent($intOffset, $intAmount)
 	{
 		$arrValue = array();
+		$definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
 		if ($this->getInputProvider()->hasPersistentValue('limit'))
 		{
@@ -52,17 +53,17 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 
 		if ($intOffset)
 		{
-			if (!is_array($arrValue[$this->getDataContainer()->getName()]))
+			if (!is_array($arrValue[$definitionName]))
 			{
-				$arrValue[$this->getDataContainer()->getName()] = array();
+				$arrValue[$definitionName] = array();
 			}
 
-			$arrValue[$this->getDataContainer()->getName()]['offset'] = $intOffset;
-			$arrValue[$this->getDataContainer()->getName()]['amount'] = $intAmount;
+			$arrValue[$definitionName]['offset'] = $intOffset;
+			$arrValue[$definitionName]['amount'] = $intAmount;
 		}
 		else
 		{
-			unset($arrValue[$this->getDataContainer()->getName()]);
+			unset($arrValue[$definitionName]);
 		}
 
 		$this->getInputProvider()->setPersistentValue('limit', $arrValue);
@@ -77,11 +78,8 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 		{
 			$objTempConfig = $this->getOtherConfig($objConfig);
 			$arrTotal = $this
-				->getPanel()
-				->getContainer()
-				->getDataContainer()
 				->getEnvironment()
-				->getDataDriver()
+				->getDataProvider()
 				->fetchAll($objTempConfig->setIdOnly(true));
 
 			$this->intTotal = $arrTotal ? count($arrTotal) : 0;

@@ -42,9 +42,9 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
 			$arrValue = $this->getInputProvider()->getPersistentValue('filter');
 		}
 
-		if (array_key_exists($this->getDataContainer()->getName(), $arrValue))
+		if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue))
 		{
-			$arrValue = $arrValue[$this->getDataContainer()->getName()];
+			$arrValue = $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
 
 			if (array_key_exists($this->getPropertyName(), $arrValue))
 			{
@@ -58,24 +58,25 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
 	protected function setPersistent($strValue)
 	{
 		$arrValue = array();
+		$definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
 		if ($this->getInputProvider()->hasPersistentValue('filter'))
 		{
 			$arrValue = $this->getInputProvider()->getPersistentValue('filter');
 		}
 
-		if (!is_array($arrValue[$this->getDataContainer()->getName()]))
+		if (!is_array($arrValue[$definitionName]))
 		{
-			$arrValue[$this->getDataContainer()->getName()] = array();
+			$arrValue[$this->getEnvironment()->getDataDefinition()->getName()] = array();
 		}
 
 		if ((!is_null($arrValue)) && ($strValue != 'tl_' . $this->getPropertyName()))
 		{
-			$arrValue[$this->getDataContainer()->getName()][$this->getPropertyName()] = $strValue;
+			$arrValue[$definitionName][$this->getPropertyName()] = $strValue;
 		}
 		else
 		{
-			unset($arrValue[$this->getDataContainer()->getName()][$this->getPropertyName()]);
+			unset($arrValue[$definitionName][$this->getPropertyName()]);
 		}
 
 		$this->getInputProvider()->setPersistentValue('filter', $arrValue);
@@ -137,11 +138,8 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
 			$objTempConfig->setFields(array($this->getPropertyName()));
 
 			$objFilterOptions = $this
-				->getPanel()
-				->getContainer()
-				->getDataContainer()
 				->getEnvironment()
-				->getDataDriver()
+				->getDataProvider()
 				->getFilterOptions($objTempConfig);
 
 			$arrOptions = array();
@@ -168,7 +166,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
 	 */
 	public function render(ViewTemplateInterface $objTemplate)
 	{
-		$arrLabel = $this->getDataContainer()->getDataDefinition()->getProperty($this->getPropertyName())->getName();
+		$arrLabel = $this->getEnvironment()->getDataDefinition()->getProperty($this->getPropertyName())->getName();
 
 		$arrOptions = array(
 			array(

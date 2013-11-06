@@ -3,10 +3,7 @@
 namespace DcGeneral\Panel;
 
 use DcGeneral\Data\ConfigInterface;
-use DcGeneral\DataContainerInterface;
-use DcGeneral\Exception\DcGeneralRuntimeException;
-use DcGeneral\Panel\PanelElementInterface;
-use DcGeneral\Panel\PanelInterface;
+use DcGeneral\EnvironmentInterface;
 use DcGeneral\InputProviderInterface;
 
 abstract class AbstractElement implements PanelElementInterface
@@ -19,13 +16,13 @@ abstract class AbstractElement implements PanelElementInterface
 	private $objOtherConfig;
 
 	/**
-	 * Convenience method to retrieve DataContainer for this Element.
+	 * Convenience method to retrieve Environment for this Element.
 	 *
-	 * @return DataContainerInterface
+	 * @return EnvironmentInterface
 	 */
-	public function getDataContainer()
+	public function getEnvironment()
 	{
-		return $this->getPanel()->getContainer()->getDataContainer();
+		return $this->getPanel()->getContainer()->getEnvironment();
 	}
 
 	/**
@@ -35,7 +32,7 @@ abstract class AbstractElement implements PanelElementInterface
 	 */
 	public function getInputProvider()
 	{
-		return $this->getDataContainer()->getInputProvider();
+		return $this->getEnvironment()->getInputProvider();
 	}
 
 	/**
@@ -69,16 +66,7 @@ abstract class AbstractElement implements PanelElementInterface
 	{
 		if (!isset($this->objOtherConfig))
 		{
-			if (!$this
-				->getDataContainer()
-				->getEnvironment()
-				->getController())
-			{
-				// TODO Help does not help!
-				throw new DcGeneralRuntimeException('HELP!');
-			}
 			$this->objOtherConfig = $this
-				->getDataContainer()
 				->getEnvironment()
 				->getController()
 				->getBaseConfig();
