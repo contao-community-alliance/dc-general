@@ -14,7 +14,7 @@ namespace DcGeneral\Callbacks;
 
 use DcGeneral\Data\ModelInterface;
 
-class PhpNativeCallbacks extends \System implements CallbacksInterface
+class PhpNativeCallbacks implements CallbacksInterface
 {
 
 	/**

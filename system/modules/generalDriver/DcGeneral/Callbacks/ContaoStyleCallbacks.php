@@ -15,16 +15,57 @@ namespace DcGeneral\Callbacks;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\DataDefinition\OperationInterface;
 
-// FIXME: remove System inheritance.
-class ContaoStyleCallbacks extends \System implements CallbacksInterface
+class ContaoStyleCallbacks implements CallbacksInterface
 {
-
 	/**
 	 * The DC
 	 *
 	 * @var DC_General
 	 */
 	private $objDC;
+
+	/**
+	 * Default libraries
+	 * @var array
+	 */
+	protected $arrObjects = array();
+
+	/**
+	 * Get an object property
+	 *
+	 * Lazy load the Input and Environment libraries (which are now static) and
+	 * only include them as object property if an old module requires it
+	 *
+	 * @param string $strKey The property name
+	 *
+	 * @return mixed|null The property value or null
+	 */
+	public function __get($strKey)
+	{
+		if (!isset($this->arrObjects[$strKey]))
+		{
+			return null;
+		}
+
+		return $this->arrObjects[$strKey];
+	}
+
+	/**
+	 * Import a library and make it accessible by its name or an optional key
+	 *
+	 * @param string  $strClass The class name
+	 * @param string  $strKey   An optional key to store the object under
+	 * @param boolean $blnForce If true, existing objects will be overridden
+	 */
+	protected function import($strClass, $strKey=null, $blnForce=false)
+	{
+		$strKey = $strKey ?: $strClass;
+
+		if ($blnForce || !isset($this->arrObjects[$strKey]))
+		{
+			$this->arrObjects[$strKey] = (in_array('getInstance', get_class_methods($strClass))) ? call_user_func(array($strClass, 'getInstance')) : new $strClass();
+		}
+	}
 
 	/**
 	 * Set the DC
