@@ -65,6 +65,15 @@ interface ListingConfigInterface
 	const SORT_RANDOM = 'random';
 
 	/**
+	 * Set the grouping mode.
+	 *
+	 * @param string $value
+	 *
+	 * @return ListingConfigInterface
+	 */
+	public function setGroupingMode($value);
+
+	/**
 	 * Return the grouping mode.
 	 *
 	 * @return string
@@ -72,10 +81,30 @@ interface ListingConfigInterface
 	public function getGroupingMode();
 
 	/**
+	 * Set the grouping length.
+	 *
+	 * @param int $value
+	 *
+	 * @return ListingConfigInterface
+	 */
+	public function setGroupingLength($value);
+
+	/**
 	 * The grouping length is used for char or digit grouping and define
 	 * how many chars or digits should be respected when group.
+	 *
+	 * @return int
 	 */
 	public function getGroupingLength();
+
+	/**
+	 * Set the list sorting mode.
+	 *
+	 * @param string $value
+	 *
+	 * @return ListingConfigInterface
+	 */
+	public function setSortingMode($value);
 
 	/**
 	 * Return the list sorting mode.
@@ -86,11 +115,29 @@ interface ListingConfigInterface
 	public function getSortingMode();
 
 	/**
+	 * Set the default sorting fields.
+	 *
+	 * @param array $value
+	 *
+	 * @return ListingConfigInterface
+	 */
+	public function setDefaultSortingFields($value);
+
+	/**
 	 * Get the default sorting fields which are used if the user does not define a sorting.
 	 *
 	 * @return array
 	 */
 	public function getDefaultSortingFields();
+
+	/**
+	 * Set the list of parent's model property names.
+	 *
+	 * @param array $value
+	 *
+	 * @return ListingConfigInterface
+	 */
+	public function setHeaderPropertyNames($value);
 
 	/**
 	 * Return a list of parent's model property names, which are shown above the item list.
@@ -100,6 +147,15 @@ interface ListingConfigInterface
 	public function getHeaderPropertyNames();
 
 	/**
+	 * Set the icon path to the root item's icon.
+	 *
+	 * @param  $value
+	 *
+	 * @return ListingConfigInterface
+	 */
+	public function setRootIcon($value);
+
+	/**
 	 * Return the icon path to the root item's icon.
 	 *
 	 * @return string
@@ -107,11 +163,29 @@ interface ListingConfigInterface
 	public function getRootIcon();
 
 	/**
+	 * Set the css classes that should be added to the items container.
+	 *
+	 * @param string $value
+	 *
+	 * @return ListingConfigInterface
+	 */
+	public function setItemCssClass($value);
+
+	/**
 	 * Return css classes that should be added to the items container.
 	 *
 	 * @return string
 	 */
 	public function getItemCssClass();
+
+	/**
+	 * Set the label formatter.
+	 *
+	 * @param ModelFormatterInterface $value
+	 *
+	 * @return ListingConfigInterface
+	 */
+	public function setLabelFormatter($value);
 
 	/**
 	 * Return the label formatter.
