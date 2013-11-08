@@ -19,6 +19,8 @@ use DcGeneral\DataDefinition\Section\BasicSectionInterface;
 use DcGeneral\DataDefinition\Section\DefaultBackendViewSection;
 use DcGeneral\DataDefinition\Section\DefaultBasicSection;
 use DcGeneral\DataDefinition\Section\DefaultDataProviderSection;
+use DcGeneral\DataDefinition\Section\DefaultPalettesSection;
+use DcGeneral\DataDefinition\Section\PalettesSectionInterface;
 use DcGeneral\DataDefinition\Section\View\Panel\DefaultFilterElementInformation;
 use DcGeneral\DataDefinition\Section\View\Panel\DefaultLimitElementInformation;
 use DcGeneral\DataDefinition\Section\View\Panel\DefaultSearchElementInformation;
@@ -248,6 +250,30 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 						continue;
 				}
 			}
+		}
+	}
+
+	protected function parsePalettes(ContainerInterface $container)
+	{
+		$palettesDefinition = $this->getFromDca('palettes');
+
+		// There is no legacy palette definition
+		if (!is_array($palettesDefinition)) {
+			return;
+		}
+
+		if ($container->hasSection(PalettesSectionInterface::NAME))
+		{
+			$palettesSection = $container->getSection(PalettesSectionInterface::NAME);
+		}
+		else
+		{
+			$palettesSection = new DefaultPalettesSection();
+			$container->setSection(PalettesSectionInterface::NAME, $palettesSection);
+		}
+
+		foreach ($palettesDefinition as $paletteSelector => $paletteFields) {
+
 		}
 	}
 }
