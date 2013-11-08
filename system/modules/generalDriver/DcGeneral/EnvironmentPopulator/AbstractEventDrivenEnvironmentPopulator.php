@@ -10,7 +10,8 @@
  * @filesource
  */
 
-use DcGeneral\EnvironmentPopulator\EnvironmentPopulatorInterface;
+namespace DcGeneral\EnvironmentPopulator;
+
 use DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 
 abstract class AbstractEventDrivenEnvironmentPopulator implements EnvironmentPopulatorInterface

@@ -2,11 +2,11 @@
 
 namespace DcGeneral\Contao\Dca\Populator;
 
-use AbstractEventDrivenEnvironmentPopulator;
 use DcGeneral\Callbacks\CallbacksInterface;
 use DcGeneral\Contao\Dca\Section\ExtendedDca;
 use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\EnvironmentInterface;
+use DcGeneral\EnvironmentPopulator\AbstractEventDrivenEnvironmentPopulator;
 use DcGeneral\View\ViewInterface;
 
 /**

@@ -2,7 +2,6 @@
 
 namespace DcGeneral\Contao\Dca\Populator;
 
-use AbstractEventDrivenEnvironmentPopulator;
 use DcGeneral\DataDefinition\Section\BackendViewSectionInterface;
 use DcGeneral\DataDefinition\Section\BasicSectionInterface;
 use DcGeneral\DataDefinition\Section\View\Panel\FilterElementInformationInterface;
@@ -10,6 +9,7 @@ use DcGeneral\DataDefinition\Section\View\Panel\LimitElementInformationInterface
 use DcGeneral\DataDefinition\Section\View\Panel\SearchElementInformationInterface;
 use DcGeneral\DataDefinition\Section\View\Panel\SortElementInformationInterface;
 use DcGeneral\EnvironmentInterface;
+use DcGeneral\EnvironmentPopulator\AbstractEventDrivenEnvironmentPopulator;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Panel\DefaultFilterElement;

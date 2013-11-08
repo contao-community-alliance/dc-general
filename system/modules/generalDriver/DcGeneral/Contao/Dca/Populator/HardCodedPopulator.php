@@ -2,7 +2,6 @@
 
 namespace DcGeneral\Contao\Dca\Populator;
 
-use AbstractEventDrivenEnvironmentPopulator;
 use DcGeneral\Callbacks\CallbacksInterface;
 use DcGeneral\Callbacks\ContaoStyleCallbacks;
 use DcGeneral\Clipboard\DefaultClipboard;
@@ -13,6 +12,7 @@ use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\Controller\DefaultController;
 use DcGeneral\DataDefinition\Section\BasicSectionInterface;
 use DcGeneral\EnvironmentInterface;
+use DcGeneral\EnvironmentPopulator\AbstractEventDrivenEnvironmentPopulator;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\View\BackendView\ListView;
 use DcGeneral\View\BackendView\ParentView;

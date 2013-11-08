@@ -2,10 +2,10 @@
 
 namespace DcGeneral\Contao\Dca\Populator;
 
-use AbstractEventDrivenEnvironmentPopulator;
 use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
 use DcGeneral\Data\DriverInterface;
 use DcGeneral\EnvironmentInterface;
+use DcGeneral\EnvironmentPopulator\AbstractEventDrivenEnvironmentPopulator;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 
 class DataProviderPopulator extends AbstractEventDrivenEnvironmentPopulator
