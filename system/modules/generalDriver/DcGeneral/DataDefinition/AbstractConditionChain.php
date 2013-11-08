@@ -26,7 +26,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
 	 *
 	 * @var string
 	 */
-	protected $conjunction = static::AND_CONJUNCTION;
+	protected $conjunction = self::AND_CONJUNCTION;
 
 	/**
 	 * Create a new condition chain.
@@ -34,7 +34,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
 	 * @param array  $conditions
 	 * @param string $conjunction
 	 */
-	function __construct(array $conditions = array(), $conjunction = static::AND_CONJUNCTION)
+	function __construct(array $conditions = array(), $conjunction = self::AND_CONJUNCTION)
 	{
 		$this->addConditions($conditions);
 		$this->setConjunction($conjunction);
