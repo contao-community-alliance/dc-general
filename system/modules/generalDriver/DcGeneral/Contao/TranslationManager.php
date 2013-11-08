@@ -26,7 +26,7 @@ class TranslationManager
 		{
 			if (!array_key_exists($chunk, $arrDca))
 			{
-				return null;
+				return $strKey;
 			}
 
 			$arrDca = $arrDca[$chunk];
