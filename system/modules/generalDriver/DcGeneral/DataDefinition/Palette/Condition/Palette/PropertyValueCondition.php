@@ -19,7 +19,7 @@ use DcGeneral\DataDefinition\ConditionInterface;
 /**
  * Condition for the default palette.
  */
-class PropertyValueCondition implements PaletteConditionInterface
+class PropertyValueCondition extends AbstractWeightAwarePaletteCondition
 {
 	/**
 	 * The property name.
@@ -42,11 +42,12 @@ class PropertyValueCondition implements PaletteConditionInterface
 	 */
 	protected $strict;
 
-	function __construct($propertyName = '', $propertyValue = null, $strict = false)
+	function __construct($propertyName = '', $propertyValue = null, $strict = false, $weight = 1)
 	{
 		$this->propertyName  = (string) $propertyName;
 		$this->propertyValue = $propertyValue;
 		$this->strict        = (bool) $strict;
+		$this->setWeight($weight);
 	}
 
 	/**
@@ -119,6 +120,6 @@ class PropertyValueCondition implements PaletteConditionInterface
 			return false;
 		}
 
-		return ($this->strict ? ($value === $this->propertyValue) : ($value == $this->propertyValue)) ? 1 : false;
+		return ($this->strict ? ($value === $this->propertyValue) : ($value == $this->propertyValue)) ? $this->getWeight() : false;
 	}
 }
