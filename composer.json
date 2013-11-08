@@ -59,7 +59,8 @@
 		"contao/core": "3.0.*"
 	},
 	"autoload": {
-		"classmap": ["system"]
+		"classmap": ["system/modules/generalDriver/deprecated"],
+		"psr-0": {"DcGeneral": "system/modules/generalDriver"}
 	},
 	"replace": {
 		"contao-legacy/dc_general": "*"
