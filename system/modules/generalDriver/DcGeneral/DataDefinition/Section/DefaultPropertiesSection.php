@@ -102,5 +102,7 @@ class DefaultPropertiesSection implements PropertiesSectionInterface
 		{
 			throw new DcGeneralInvalidArgumentException('Property ' . $name . ' is not registered.');
 		}
+
+		return $this->properties[$name];
 	}
 }
