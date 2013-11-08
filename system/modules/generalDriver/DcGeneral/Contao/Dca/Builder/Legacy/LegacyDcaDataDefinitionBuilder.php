@@ -20,7 +20,9 @@ use DcGeneral\DataDefinition\Section\DefaultBackendViewSection;
 use DcGeneral\DataDefinition\Section\DefaultBasicSection;
 use DcGeneral\DataDefinition\Section\DefaultDataProviderSection;
 use DcGeneral\DataDefinition\Section\DefaultPalettesSection;
+use DcGeneral\DataDefinition\Section\Palette\DefaultProperty;
 use DcGeneral\DataDefinition\Section\PalettesSectionInterface;
+use DcGeneral\DataDefinition\Section\DefaultPropertiesSection;
 use DcGeneral\DataDefinition\Section\View\Panel\DefaultFilterElementInformation;
 use DcGeneral\DataDefinition\Section\View\Panel\DefaultLimitElementInformation;
 use DcGeneral\DataDefinition\Section\View\Panel\DefaultSearchElementInformation;
@@ -46,6 +48,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		}
 
 		$this->parseBasicSection($container);
+		$this->parseProperties($container);
+		$this->parsePalettes($container);
 		$this->parseDataProvider($container);
 		$this->parsePanel($container);
 	}
@@ -84,6 +88,115 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		if (($switchToEdit = $this->getFromDca('config/switchToEdit')) !== null)
 		{
 			$config->setSwitchToEditEnabled((bool) $switchToEdit);
+		}
+	}
+
+	/**
+	 * Parse the defined properties and populate the section.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
+	protected function parseProperties(ContainerInterface $container)
+	{
+		// parse data provider
+		if ($container->hasPropertiesSection())
+		{
+			$section = $container->getPropertiesSection();
+		}
+		else
+		{
+			$section = new DefaultPropertiesSection();
+			$container->setPropertiesSection($section);
+		}
+
+		foreach ($this->getFromDca('fields') as $propName => $propInfo)
+		{
+			if ($section->hasProperty($propName))
+			{
+				$property = $section->getProperty($propName);
+			}
+			else
+			{
+				$property = new DefaultProperty($propName);
+				$section->addProperty($property);
+			}
+
+			if (!$property->getLabel() && isset($propInfo['label']))
+			{
+				$property->setLabel($propInfo['label']);
+			}
+
+			if (!$property->getDescription() && isset($propInfo['description']))
+			{
+				$property->setDescription($propInfo['description']);
+			}
+
+			if (!$property->getDefaultValue() && isset($propInfo['default']))
+			{
+				$property->setDefaultValue($propInfo['default']);
+			}
+
+			if (isset($propInfo['exclude']))
+			{
+				$property->setExcluded($propInfo['exclude']);
+			}
+
+			if (isset($propInfo['search']))
+			{
+				$property->setSearchable($propInfo['search']);
+			}
+
+			if (isset($propInfo['sorting']))
+			{
+				$property->setSortable($propInfo['sorting']);
+			}
+
+			if (isset($propInfo['filter']))
+			{
+				$property->setFilterable($propInfo['filter']);
+			}
+
+			if (isset($propInfo['flag']))
+			{
+				if (!$property->getGroupingMode())
+				{
+					// // TODO: determine grouping mode here
+					$property->setGroupingMode($propInfo['flag']);
+				}
+				if (!$property->getSortingMode())
+				{
+					// // TODO: determine sorting mode here
+					$property->getSortingMode($propInfo['flag']);
+				}
+			}
+
+			if (!$property->getGroupingLength() && isset($propInfo['length']))
+			{
+				$property->setGroupingLength($propInfo['length']);
+			}
+
+			if (!$property->getWidgetType() && isset($propInfo['inputType']))
+			{
+				$property->setWidgetType($propInfo['inputType']);
+			}
+
+			if (!$property->getOptions() && isset($propInfo['options']))
+			{
+				$property->setOptions($propInfo['options']);
+			}
+
+			if (!$property->getExplanation() && isset($propInfo['explanation']))
+			{
+				$property->setExplanation($propInfo['explanation']);
+			}
+
+			if (!$property->getExtra() && isset($propInfo['eval']))
+			{
+				$property->setExtra($propInfo['eval']);
+			}
+
 		}
 	}
 

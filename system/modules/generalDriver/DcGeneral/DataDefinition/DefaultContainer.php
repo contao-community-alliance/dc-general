@@ -16,6 +16,7 @@ namespace DcGeneral\DataDefinition;
 use DcGeneral\DataDefinition\Section\BasicSectionInterface;
 use DcGeneral\DataDefinition\Section\ContainerSectionInterface;
 use DcGeneral\DataDefinition\Section\DataProviderSectionInterface;
+use DcGeneral\DataDefinition\Section\PropertiesSectionInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 class DefaultContainer implements ContainerInterface
@@ -149,6 +150,30 @@ class DefaultContainer implements ContainerInterface
 	public function getBasicSection()
 	{
 		return $this->getSection(BasicSectionInterface::NAME);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function hasPropertiesSection()
+	{
+		return $this->hasSection(PropertiesSectionInterface::NAME);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setPropertiesSection(PropertiesSectionInterface $section)
+	{
+		return $this->setSection(PropertiesSectionInterface::NAME, $section);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getPropertiesSection()
+	{
+		return $this->getSection(PropertiesSectionInterface::NAME);
 	}
 
 	/**

@@ -17,6 +17,7 @@ use DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
 use DcGeneral\DataDefinition\Section\BasicSectionInterface;
 use DcGeneral\DataDefinition\Section\ContainerSectionInterface;
 use DcGeneral\DataDefinition\Section\DataProviderSectionInterface;
+use DcGeneral\DataDefinition\Section\PropertiesSectionInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 interface ContainerInterface
@@ -121,6 +122,23 @@ interface ContainerInterface
 	 * @return BasicSectionInterface
 	 */
 	public function getBasicSection();
+
+	/**
+	 * @return bool
+	 */
+	public function hasPropertiesSection();
+
+	/**
+	 * @param PropertiesSectionInterface $section
+	 *
+	 * @return ContainerSectionInterface
+	 */
+	public function setPropertiesSection(PropertiesSectionInterface $section);
+
+	/**
+	 * @return PropertiesSectionInterface
+	 */
+	public function getPropertiesSection();
 
 	/**
 	 * Convenience method to check if a data provider section is contained.
