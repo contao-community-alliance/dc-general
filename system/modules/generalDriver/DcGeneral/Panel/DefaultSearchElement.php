@@ -151,7 +151,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 
 		foreach ($this->getPropertyNames() as $field)
 		{
-			$arrLabel     = $this->getEnvironment()->getDataDefinition()->getProperty($field)->getLabel();
+			$arrLabel     = $this->getEnvironment()->getDataDefinition()->getPropertiesSection()->getProperty($field)->getLabel();
 			$arrOptions[] = array
 			(
 				'value'      => $field,

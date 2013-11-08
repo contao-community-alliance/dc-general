@@ -166,7 +166,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
 	 */
 	public function render(ViewTemplateInterface $objTemplate)
 	{
-		$arrLabel = $this->getEnvironment()->getDataDefinition()->getProperty($this->getPropertyName())->getName();
+		$arrLabel = $this->getEnvironment()->getDataDefinition()->getPropertiesSection()->getProperty($this->getPropertyName())->getName();
 
 		$arrOptions = array(
 			array(
