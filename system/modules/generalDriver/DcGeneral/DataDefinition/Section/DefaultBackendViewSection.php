@@ -12,6 +12,7 @@
 
 namespace DcGeneral\DataDefinition\Section;
 
+use DcGeneral\DataDefinition\Section\View\DefaultListingConfig;
 use DcGeneral\DataDefinition\Section\View\DefaultPanelLayout;
 use DcGeneral\DataDefinition\Section\View\OperationCollectionInterface;
 use DcGeneral\DataDefinition\Section\View\PanelLayoutInterface;
@@ -41,7 +42,7 @@ class DefaultBackendViewSection implements BackendViewSectionInterface
 
 	public function __construct()
 	{
-		// $this->listingConfig = new DefaultBackendListingConfig();
+		$this->listingConfig = new DefaultListingConfig();
 		// $this->operations    = new DefaultBackendOperationCollection;
 
 		$this->panelLayout   = new DefaultPanelLayout();
