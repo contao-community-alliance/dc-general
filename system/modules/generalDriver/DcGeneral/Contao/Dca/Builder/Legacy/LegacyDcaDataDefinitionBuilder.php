@@ -27,6 +27,7 @@ use DcGeneral\DataDefinition\Section\View\Panel\DefaultFilterElementInformation;
 use DcGeneral\DataDefinition\Section\View\Panel\DefaultLimitElementInformation;
 use DcGeneral\DataDefinition\Section\View\Panel\DefaultSearchElementInformation;
 use DcGeneral\DataDefinition\Section\View\Panel\DefaultSortElementInformation;
+use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 /**
  * Build the container config from legacy DCA syntax.
@@ -52,6 +53,26 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		$this->parsePalettes($container);
 		$this->parseDataProvider($container);
 		$this->parsePanel($container);
+	}
+
+	protected function getBackendViewSection(ContainerInterface $container)
+	{
+		if ($container->hasSection(BackendViewSectionInterface::NAME))
+		{
+			$config = $container->getSection(BackendViewSectionInterface::NAME);
+		}
+		else
+		{
+			$config = new DefaultBackendViewSection();
+			$container->setSection(BackendViewSectionInterface::NAME, $config);
+		}
+
+		if (!$config instanceof BackendViewSectionInterface)
+		{
+			throw new DcGeneralInvalidArgumentException('Configured BackendViewSection does not implement BackendViewSectionInterface.');
+		}
+
+		return $config;
 	}
 
 	protected function parseBasicSection(ContainerInterface $container)
@@ -273,15 +294,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 	protected function parsePanel(ContainerInterface $container)
 	{
-		if ($container->hasSection(BackendViewSectionInterface::NAME))
-		{
-			$config = $container->getSection(BackendViewSectionInterface::NAME);
-		}
-		else
-		{
-			$config = new DefaultBackendViewSection();
-			$container->setSection(BackendViewSectionInterface::NAME, $config);
-		}
+		$config = $this->getBackendViewSection($container);
 
 		$layout = $config->getPanelLayout();
 		$rows = $layout->getRows();
