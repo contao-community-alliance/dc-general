@@ -202,7 +202,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			return array();
 		}
 		
-		$bolLooseSearch = true;
+		$bolStrictSearch = true;
 		
 		// don't need a foreach here, it's always one search at a time
 		$field = $arrSession['search'][$this->getDC()->getTable()]['field'];
@@ -218,7 +218,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				$objDatabase = Database::getInstance();
 				$objAttribute = MetaModelFactory::byTableName($this->getDC()->getTable())->getAttribute($field);
 				
-				$operation = ($bolLooseSearch ? "LIKE '%".$search."%'" : "=?");
+				$operation = ($bolStrictSearch ? "=?" : "LIKE '%".$search."%'");
 				
 				$arrIds = array();
 				
@@ -290,7 +290,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 					(
 						'operation' => 'LIKE',
 						'property' 	=> $field,
-						'value' 	=> ($bolLooseSearch ? '%'.$search.'%' : $search),
+						'value' 	=> ($bolStrictSearch ? $search : '%'.$search.'%'),
 					)
 				);
 				break;
