@@ -14,6 +14,7 @@ namespace DcGeneral\DataDefinition\Palette;
 
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\PropertyValueBag;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * Default implementation of a palette.
@@ -107,6 +108,29 @@ class Palette implements PaletteInterface
 	/**
 	 * {@inheritdoc}
 	 */
+	public function hasLegend($name)
+	{
+		foreach ($this->legends as $legend) {
+			if ($legend->getName() == $name) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function containsLegend(LegendInterface $legend)
+	{
+		$hash = spl_object_hash($legend);
+		return isset($this->legends[$hash]);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
 	public function addLegend(LegendInterface $legend)
 	{
 		$hash = spl_object_hash($legend);
@@ -123,6 +147,20 @@ class Palette implements PaletteInterface
 		$hash = spl_object_hash($legend);
 		unset($this->legends[$hash]);
 		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getLegend($name)
+	{
+		foreach ($this->legends as $legend) {
+			if ($legend->getName() == $name) {
+				return $legend;
+			}
+		}
+
+		throw new DcGeneralRuntimeException('Legend "' . $name . '" does not exists');
 	}
 
 	/**

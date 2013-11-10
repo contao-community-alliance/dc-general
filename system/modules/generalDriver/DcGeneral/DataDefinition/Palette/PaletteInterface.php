@@ -74,6 +74,24 @@ interface PaletteInterface
 	public function addLegends(array $legends);
 
 	/**
+	 * Determine if a legend with the given name exists in this palette.
+	 *
+	 * @param string $name
+	 *
+	 * @return bool
+	 */
+	public function hasLegend($name);
+
+	/**
+	 * Determine if a legend exists in this palette.
+	 *
+	 * @param string $name
+	 *
+	 * @return bool
+	 */
+	public function containsLegend(LegendInterface $legend);
+
+	/**
 	 * Add a legend to this palette.
 	 *
 	 * @param array|LegendInterface[] $legend
@@ -90,6 +108,17 @@ interface PaletteInterface
 	 * @return PaletteInterface
 	 */
 	public function removeLegend(LegendInterface $legend);
+
+	/**
+	 * Return the legend with the given name.
+	 *
+	 * @param string $name
+	 *
+	 * @return LegendInterface
+	 *
+	 * @throws DcGeneralRuntimeException Is thrown if there is no legend found.
+	 */
+	public function getLegend($name);
 
 	/**
 	 * Return the legends from this palette.
