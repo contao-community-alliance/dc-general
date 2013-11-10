@@ -15,7 +15,7 @@ namespace DcGeneral;
 interface EnvironmentAwareInterface
 {
 	/**
-	 * @return \DcGeneral\EnvironmentInterface
+	 * @return EnvironmentInterface
 	 */
 	public function getEnvironment();
 }

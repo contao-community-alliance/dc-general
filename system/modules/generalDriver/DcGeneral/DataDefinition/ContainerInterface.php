@@ -179,8 +179,6 @@ interface ContainerInterface
 	 */
 	public function getDataProviderSection();
 
-
-
 	// TODO extract
 
 	/**
