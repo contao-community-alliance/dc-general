@@ -109,34 +109,42 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 		}
 
 		// First check if we are using the "new" notation used in DcGeneral 0.9.
-		if ($this->getFromDca('dca_config/data_provider') === null)
+		if (!is_array($this->getFromDca('dca_config/data_provider')))
 		{
 			return;
 		}
 
-		// determine the "local" data provider (if any) and if we know the driver for it.
-		if (($defaultProvider = $this->getFromDca('dca_config/data_provider/default')) !== null)
-		{
-			// Determine the name.
-			if (($defaultProviderSource = $this->getFromDca('dca_config/data_provider/default/source')) !== null)
-			{
-				$providerName = $defaultProviderSource;
-			}
-			else
-			{
-				$providerName =$container->getName();
-			}
+		$dataProvidersDca = $this->getFromDca('dca_config/data_provider');
 
-			// Check config if it already exists, if not, add it.
-			if (!$config->hasInformation($providerName))
-			{
-				$providerInformation = new ContaoDataProviderInformation();
-				$providerInformation->setName($providerName);
-				$config->addInformation($providerInformation);
+		foreach ($dataProvidersDca as $dataProviderDcaName => $dataProviderDca)
+		{
+			if (isset($dataProviderDca['factory'])) {
+				$factoryClass = new \ReflectionClass($dataProviderDca['factory']);
+				$factory = $factoryClass->newInstance();
+				$providerInformation = $factory->build($dataProviderDca);
 			}
-			else
-			{
-				$providerInformation = $config->getInformation($providerName);
+			else {
+				// Determine the name.
+				if (isset($dataProviderDca['source']))
+				{
+					$providerName = $dataProviderDca['source'];
+				}
+				else
+				{
+					$providerName = $container->getName();
+				}
+
+				// Check config if it already exists, if not, add it.
+				if (!$config->hasInformation($providerName))
+				{
+					$providerInformation = new ContaoDataProviderInformation();
+					$providerInformation->setName($providerName);
+					$config->addInformation($providerInformation);
+				}
+				else
+				{
+					$providerInformation = $config->getInformation($providerName);
+				}
 			}
 
 			if ($providerInformation instanceof ContaoDataProviderInformation)
@@ -144,86 +152,26 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 				// Set versioning information.
 				$providerInformation
 					->setTableName($providerName)
-					->setInitializationData($defaultProvider)
-					->isVersioningEnabled((bool)$this->getFromDca('config/enableVersioning'));
+					->setInitializationData($dataProviderDca);
 
 				// TODO: add additional information here.
+				switch ($dataProviderDcaName) {
+					case 'default':
+						$providerInformation->isVersioningEnabled(
+							(bool) $this->getFromDca('config/enableVersioning')
+						);
 
-				$container->getBasicDefinition()->setDataProvider($providerInformation->getName());
-			}
-		}
+						$container->getBasicDefinition()->setDataProvider($providerInformation->getName());
+						break;
 
-		// Determine the root data provider (if any configured).
-		if (($rootProvider = $this->getFromDca('dca_config/data_provider/root')) !== null)
-		{
-			// Determine the name.
-			if (($rootProviderSource = $this->getFromDca('dca_config/data_provider/root/source')) !== null)
-			{
-				$providerName = $rootProviderSource;
-			}
-			else
-			{
-				$providerName = $container->getName();
-			}
+					case 'root':
+						$container->getBasicDefinition()->setRootDataProvider($providerInformation->getName());
+						break;
 
-			// Check config if it already exists, if not, add it.
-			if (!$config->hasInformation($providerName))
-			{
-				$providerInformation = new ContaoDataProviderInformation();
-				$providerInformation->setName($providerName);
-				$config->addInformation($providerInformation);
-			}
-			else
-			{
-				$providerInformation = $config->getInformation($providerName);
-			}
-
-			if ($providerInformation instanceof ContaoDataProviderInformation)
-			{
-				$providerInformation
-					->setTableName($rootProviderSource)
-					->setInitializationData($rootProvider);
-
-				// TODO: add additional information here.
-
-				$container->getBasicDefinition()->setRootDataProvider($providerInformation->getName());
-			}
-		}
-
-		// Determine the parent data provider (if any configured).
-		if (($parentProvider = $this->getFromDca('dca_config/data_provider/parent')) !== null)
-		{
-			// Determine the name.
-			if (($parentProviderSource = $this->getFromDca('dca_config/data_provider/parent/source')) !== null)
-			{
-				$providerName = $parentProviderSource;
-			}
-			else
-			{
-				$providerName = $container->getName();
-			}
-
-			// Check config if it already exists, if not, add it.
-			if (!$config->hasInformation($providerName))
-			{
-				$providerInformation = new ContaoDataProviderInformation();
-				$providerInformation->setName($providerName);
-				$config->addInformation($providerInformation);
-			}
-			else
-			{
-				$providerInformation = $config->getInformation($providerName);
-			}
-
-			if ($providerInformation instanceof ContaoDataProviderInformation)
-			{
-				$providerInformation
-					->setTableName($parentProviderSource)
-					->setInitializationData($parentProvider);
-
-				// TODO: add additional information here.
-
-				$container->getBasicDefinition()->setParentDataProvider($providerInformation->getName());
+					case 'parent':
+						$container->getBasicDefinition()->setParentDataProvider($providerInformation->getName());
+						break;
+				}
 			}
 		}
 	}
