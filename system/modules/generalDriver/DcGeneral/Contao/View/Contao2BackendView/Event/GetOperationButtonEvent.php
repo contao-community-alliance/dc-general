@@ -10,7 +10,7 @@
  * @filesource
  */
 
-namespace DcGeneral\View\BackendView\Event;
+namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
 class GetOperationButtonEvent
 	extends BaseButtonEvent

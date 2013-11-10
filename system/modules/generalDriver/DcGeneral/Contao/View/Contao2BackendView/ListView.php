@@ -10,15 +10,15 @@
  * @filesource
  */
 
-namespace DcGeneral\View\BackendView;
+namespace DcGeneral\Contao\View\Contao2BackendView;
 
 use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ModelInterface;
-use DcGeneral\DataDefinition\Definition\BackendViewDefinitionInterface;
+use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
-use DcGeneral\View\BackendView\Event\ModelToLabelEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 
 class ListView extends BaseView
 {
@@ -199,8 +199,8 @@ class ListView extends BaseView
 	protected function setListViewLabel()
 	{
 		$definition   = $this->getEnvironment()->getDataDefinition();
-		$view = $definition->getDefinition(BackendViewDefinitionInterface::NAME);
-		/** @var BackendViewDefinitionInterface $view */
+		$view = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+		/** @var Contao2BackendViewDefinitionInterface $view */
 		$listingConfig = $view->getListingConfig();
 
 		$labelFormatter = $listingConfig->getLabelFormatter();
@@ -353,8 +353,8 @@ class ListView extends BaseView
 	{
 		$environment = $this->getEnvironment();
 		$definition  = $environment->getDataDefinition();
-		$view        = $definition->getDefinition(BackendViewDefinitionInterface::NAME);
-		/** @var BackendViewDefinitionInterface $view */
+		$view        = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+		/** @var Contao2BackendViewDefinitionInterface $view */
 		$listing     = $view->getListingConfig();
 
 		// Set label

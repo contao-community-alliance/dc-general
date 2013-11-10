@@ -3,19 +3,19 @@
 namespace DcGeneral\Event;
 
 use DcGeneral\Factory\Event\CreateDcGeneralEvent;
-use DcGeneral\View\BackendView\Event\GetBreadcrumbEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use DcGeneral\View\Widget\Event\ResolveWidgetErrorMessageEvent;
-use DcGeneral\View\BackendView\Event\GetPropertyOptionsEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use DcGeneral\View\BackendView\Event\GetGlobalButtonEvent;
-use DcGeneral\View\BackendView\Event\GetGlobalButtonsEvent;
-use DcGeneral\View\BackendView\Event\GetGroupHeaderEvent;
-use DcGeneral\View\BackendView\Event\GetOperationButtonEvent;
-use DcGeneral\View\BackendView\Event\GetParentHeaderEvent;
-use DcGeneral\View\BackendView\Event\GetPasteRootButtonEvent;
-use DcGeneral\View\BackendView\Event\GetPasteButtonEvent;
-use DcGeneral\View\BackendView\Event\ModelToLabelEvent;
-use DcGeneral\View\BackendView\Event\ParentViewChildRecordEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonsEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
 
 /**
  * Class Subscriber - gateway to the legacy Contao HOOK style callbacks.

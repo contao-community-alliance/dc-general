@@ -4,7 +4,7 @@ namespace DcGeneral\Panel;
 
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Data\ConfigInterface;
-use DcGeneral\DataDefinition\Definition\BackendViewDefinitionInterface;
+use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\View\Panel\FilterElementInformationInterface;
 use DcGeneral\DataDefinition\Definition\View\Panel\SortElementInformationInterface;
 use DcGeneral\EnvironmentInterface;

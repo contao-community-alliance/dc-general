@@ -23,7 +23,7 @@ use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
  *
  * @package DcGeneral\DataDefinition\Definition
  */
-class DefaultBackendViewDefinition implements BackendViewDefinitionInterface
+class Contao2BackendViewDefinition implements Contao2BackendViewDefinitionInterface
 {
 	/**
 	 * @var ListingConfigInterface

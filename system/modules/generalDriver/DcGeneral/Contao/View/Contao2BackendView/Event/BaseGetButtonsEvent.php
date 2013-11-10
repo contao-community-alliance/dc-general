@@ -10,37 +10,37 @@
  * @filesource
  */
 
-namespace DcGeneral\View\BackendView\Event;
+namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
 use DcGeneral\Event\EnvironmentAwareEvent;
 
-class GetBreadcrumbEvent
+class BaseGetButtonsEvent
 	extends EnvironmentAwareEvent
 {
-    const NAME = 'dc-general.view.widget.get-breadcrumb';
+    const NAME = 'dc-general.view.default.get-buttons';
 
 	/**
-	 * @var array
+	 * @var string[]
 	 */
-	protected $elements;
+	protected $buttons;
 
 	/**
-	 * @param array $elements
+	 * @param \string[] $buttons
 	 *
 	 * @return $this
 	 */
-	public function setElements($elements)
+	public function setButtons($buttons)
 	{
-		$this->elements = $elements;
+		$this->buttons = $buttons;
 
 		return $this;
 	}
 
 	/**
-	 * @return array
+	 * @return \string[]
 	 */
-	public function getElements()
+	public function getButtons()
 	{
-		return $this->elements;
+		return $this->buttons;
 	}
 }

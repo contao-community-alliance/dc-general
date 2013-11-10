@@ -10,10 +10,10 @@
  * @filesource
  */
 
-namespace DcGeneral\View\BackendView\Event;
+namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
-class GetGlobalButtonsEvent
+class GetSelectModeButtonsEvent
 	extends BaseGetButtonsEvent
 {
-    const NAME = 'dc-general.view.widget.get-global-buttons';
+    const NAME = 'dc-general.view.widget.get-select-mode-buttons';
 }

@@ -10,13 +10,13 @@
  * @filesource
  */
 
-namespace DcGeneral\View\BackendView;
+namespace DcGeneral\Contao\View\Contao2BackendView;
 
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\MultiLanguageDriverInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\PropertyValueBag;
-use DcGeneral\DataDefinition\Definition\BackendViewDefinitionInterface;
+use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\EnvironmentInterface;
@@ -29,15 +29,15 @@ use DcGeneral\Panel\SortElementInterface;
 use DcGeneral\Panel\SubmitElementInterface;
 use DcGeneral\View\ContaoBackendViewTemplate;
 use DcGeneral\View\Widget\ContaoWidgetManager;
-use DcGeneral\View\BackendView\Event\GetBreadcrumbEvent;
-use DcGeneral\View\BackendView\Event\GetEditModeButtonsEvent;
-use DcGeneral\View\BackendView\Event\GetGlobalButtonEvent;
-use DcGeneral\View\BackendView\Event\GetGlobalButtonsEvent;
-use DcGeneral\View\BackendView\Event\GetGroupHeaderEvent;
-use DcGeneral\View\BackendView\Event\GetOperationButtonEvent;
-use DcGeneral\View\BackendView\Event\GetPasteButtonEvent;
-use DcGeneral\View\BackendView\Event\GetPropertyOptionsEvent;
-use DcGeneral\View\BackendView\Event\GetSelectModeButtonsEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetEditModeButtonsEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonsEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
 
 // TODO: this is not as elegant as it could be.
 use DcGeneral\Contao\BackendBindings;
@@ -1476,9 +1476,9 @@ class BaseView implements BackendViewInterface
 			$addButton = false;
 			$strHref   = '';
 
-			$viewDefinition = $definition->getDefinition(BackendViewDefinitionInterface::NAME);
+			$viewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
 			$basicDefinition = $definition->getBasicDefinition();
-			/** @var BackendViewDefinitionInterface $viewDefinition */
+			/** @var Contao2BackendViewDefinitionInterface $viewDefinition */
 			$listingConfig = $viewDefinition->getListingConfig();
 			$dataProviderDefinition = $definition->getDataProviderDefinition();
 

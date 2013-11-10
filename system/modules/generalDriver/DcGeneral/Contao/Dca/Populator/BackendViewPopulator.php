@@ -2,7 +2,7 @@
 
 namespace DcGeneral\Contao\Dca\Populator;
 
-use DcGeneral\DataDefinition\Definition\BackendViewDefinitionInterface;
+use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\View\Panel\FilterElementInformationInterface;
 use DcGeneral\DataDefinition\Definition\View\Panel\LimitElementInformationInterface;
@@ -19,11 +19,11 @@ use DcGeneral\Panel\DefaultPanelContainer;
 use DcGeneral\Panel\DefaultSearchElement;
 use DcGeneral\Panel\DefaultSortElement;
 use DcGeneral\Panel\DefaultSubmitElement;
-use DcGeneral\View\BackendView\BackendViewInterface;
-use DcGeneral\View\BackendView\BaseView;
-use DcGeneral\View\BackendView\ListView;
-use DcGeneral\View\BackendView\ParentView;
-use DcGeneral\View\BackendView\TreeView;
+use DcGeneral\Contao\View\Contao2BackendView\BackendViewInterface;
+use DcGeneral\Contao\View\Contao2BackendView\BaseView;
+use DcGeneral\Contao\View\Contao2BackendView\ListView;
+use DcGeneral\Contao\View\Contao2BackendView\ParentView;
+use DcGeneral\Contao\View\Contao2BackendView\TreeView;
 
 /**
  * Class BackendViewPopulator
@@ -98,7 +98,7 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
 
 		$definition = $environment->getDataDefinition();
 
-		if (!$definition->hasDefinition(BackendViewDefinitionInterface::NAME))
+		if (!$definition->hasDefinition(Contao2BackendViewDefinitionInterface::NAME))
 		{
 			return;
 		}
@@ -116,8 +116,8 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
 		$panel->setEnvironment($environment);
 		$view->setPanel($panel);
 
-		/** @var BackendViewDefinitionInterface $definition  */
-		$definition = $definition->getDefinition(BackendViewDefinitionInterface::NAME);
+		/** @var Contao2BackendViewDefinitionInterface $definition  */
+		$definition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
 
 		/** @var \DcGeneral\DataDefinition\Definition\View\PanelLayoutInterface $panelLayout */
 		$panelLayout = $definition->getPanelLayout();

@@ -10,10 +10,17 @@
  * @filesource
  */
 
-namespace DcGeneral\View\BackendView\Event;
+namespace DcGeneral\Contao\DataDefinition\Definition;
 
-class GetEditModeButtonsEvent
-	extends BaseGetButtonsEvent
+/**
+ * Interface BasicDefinitionInterface
+ *
+ * @package DcGeneral\DataDefinition\Definition
+ */
+interface Contao2BackendViewDefinitionInterface extends ViewDefinitionInterface
 {
-    const NAME = 'dc-general.view.widget.get-edit-mode-buttons';
+	/**
+	 * The name of the definition.
+	 */
+	const NAME = 'contao.backend.view';
 }

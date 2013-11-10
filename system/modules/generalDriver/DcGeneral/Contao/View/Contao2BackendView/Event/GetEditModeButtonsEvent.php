@@ -10,10 +10,10 @@
  * @filesource
  */
 
-namespace DcGeneral\View\BackendView\Event;
+namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
-class GetSelectModeButtonsEvent
+class GetEditModeButtonsEvent
 	extends BaseGetButtonsEvent
 {
-    const NAME = 'dc-general.view.widget.get-select-mode-buttons';
+    const NAME = 'dc-general.view.widget.get-edit-mode-buttons';
 }

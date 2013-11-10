@@ -10,12 +10,12 @@
  * @filesource
  */
 
-namespace DcGeneral\View\BackendView;
+namespace DcGeneral\Contao\View\Contao2BackendView;
 
 use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ModelInterface;
-use DcGeneral\View\BackendView\Event\GetPasteRootButtonEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
 
 class TreeView extends BaseView
 {

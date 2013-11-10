@@ -23,9 +23,9 @@ use DcGeneral\Panel\LimitElementInterface;
 use DcGeneral\Panel\SearchElementInterface;
 use DcGeneral\Panel\SortElementInterface;
 use DcGeneral\Panel\SubmitElementInterface;
-use DcGeneral\View\BackendView\Event\GetGlobalButtonEvent;
-use DcGeneral\View\BackendView\Event\GetGlobalButtonsEvent;
-use DcGeneral\View\BackendView\Event\GetOperationButtonEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonsEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use DcGeneral\View\ViewInterface;
 
 // TODO: this is not as elegant as it could be.

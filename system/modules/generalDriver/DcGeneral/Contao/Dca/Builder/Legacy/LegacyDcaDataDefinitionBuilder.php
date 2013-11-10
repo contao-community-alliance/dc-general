@@ -15,9 +15,9 @@ namespace DcGeneral\Contao\Dca\Builder\Legacy;
 use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
 use DcGeneral\Contao\Dca\Palette\LegacyPalettesParser;
 use DcGeneral\DataDefinition\ContainerInterface;
-use DcGeneral\DataDefinition\Definition\BackendViewDefinitionInterface;
+use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
-use DcGeneral\DataDefinition\Definition\DefaultBackendViewDefinition;
+use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinition;
 use DcGeneral\DataDefinition\Definition\DefaultBasicDefinition;
 use DcGeneral\DataDefinition\Definition\DefaultDataProviderDefinition;
 use DcGeneral\DataDefinition\Definition\DefaultPalettesDefinition;
@@ -33,7 +33,7 @@ use DcGeneral\DataDefinition\Definition\View\Panel\DefaultSortElementInformation
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
-use DcGeneral\View\BackendView\LabelFormatter;
+use DcGeneral\Contao\View\Contao2BackendView\LabelFormatter;
 
 /**
  * Build the container config from legacy DCA syntax.
@@ -64,19 +64,19 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 	protected function getBackendViewDefinition(ContainerInterface $container)
 	{
-		if ($container->hasDefinition(BackendViewDefinitionInterface::NAME))
+		if ($container->hasDefinition(Contao2BackendViewDefinitionInterface::NAME))
 		{
-			$config = $container->getDefinition(BackendViewDefinitionInterface::NAME);
+			$config = $container->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
 		}
 		else
 		{
-			$config = new DefaultBackendViewDefinition();
-			$container->setDefinition(BackendViewDefinitionInterface::NAME, $config);
+			$config = new Contao2BackendViewDefinition();
+			$container->setDefinition(Contao2BackendViewDefinitionInterface::NAME, $config);
 		}
 
-		if (!$config instanceof BackendViewDefinitionInterface)
+		if (!$config instanceof Contao2BackendViewDefinitionInterface)
 		{
-			throw new DcGeneralInvalidArgumentException('Configured BackendViewDefinition does not implement BackendViewDefinitionInterface.');
+			throw new DcGeneralInvalidArgumentException('Configured BackendViewDefinition does not implement Contao2BackendViewDefinitionInterface.');
 		}
 
 		return $config;

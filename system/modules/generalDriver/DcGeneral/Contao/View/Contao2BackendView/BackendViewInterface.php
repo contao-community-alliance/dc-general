@@ -10,7 +10,7 @@
  * @filesource
  */
 
-namespace DcGeneral\View\BackendView;
+namespace DcGeneral\Contao\View\Contao2BackendView;
 
 use DcGeneral\View\ViewInterface;
 

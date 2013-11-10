@@ -10,17 +10,10 @@
  * @filesource
  */
 
-namespace DcGeneral\DataDefinition\Definition;
+namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
-/**
- * Interface BasicDefinitionInterface
- *
- * @package DcGeneral\DataDefinition\Definition
- */
-interface BackendViewDefinitionInterface extends ViewDefinitionInterface
+class GetGlobalButtonsEvent
+	extends BaseGetButtonsEvent
 {
-	/**
-	 * The name of the definition.
-	 */
-	const NAME = 'contao.backend.view';
+    const NAME = 'dc-general.view.widget.get-global-buttons';
 }

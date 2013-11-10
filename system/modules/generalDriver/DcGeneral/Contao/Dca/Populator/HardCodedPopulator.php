@@ -9,7 +9,7 @@ use DcGeneral\Contao\TranslationManager;
 use DcGeneral\Controller\DefaultController;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\EnvironmentPopulator\AbstractEventDrivenEnvironmentPopulator;
-use DcGeneral\View\BackendView;
+use DcGeneral\Contao\View\Contao2BackendView;
 
 /**
  * Class HardCodedPopulator
