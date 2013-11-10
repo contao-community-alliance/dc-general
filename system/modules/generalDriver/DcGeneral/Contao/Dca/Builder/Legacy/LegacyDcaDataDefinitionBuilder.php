@@ -13,6 +13,7 @@
 namespace DcGeneral\Contao\Dca\Builder\Legacy;
 
 use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
+use DcGeneral\Contao\Dca\Palette\LegacyPalettesParser;
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\DataDefinition\Section\BackendViewSectionInterface;
 use DcGeneral\DataDefinition\Section\BasicSectionInterface;
@@ -382,10 +383,16 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	protected function parsePalettes(ContainerInterface $container)
 	{
 		$palettesDefinition = $this->getFromDca('palettes');
+		$subPalettesDefinition = $this->getFromDca('subpalettes');
 
-		// There is no legacy palette definition
+		// skip while there is no legacy palette definition
 		if (!is_array($palettesDefinition)) {
 			return;
+		}
+
+		// ignore non-legacy subpalette definition
+		if (!is_array($subPalettesDefinition)) {
+			$subPalettesDefinition = array();
 		}
 
 		if ($container->hasSection(PalettesSectionInterface::NAME))
@@ -398,8 +405,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			$container->setSection(PalettesSectionInterface::NAME, $palettesSection);
 		}
 
-		foreach ($palettesDefinition as $paletteSelector => $paletteFields) {
-
-		}
+		$palettesParser = new LegacyPalettesParser();
+		$palettesParser->parse(
+			$palettesDefinition,
+			$subPalettesDefinition,
+			$palettesSection
+		);
 	}
 }
