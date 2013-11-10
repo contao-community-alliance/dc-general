@@ -38,6 +38,6 @@ abstract class AbstractEventDrivenDataDefinitionBuilder implements DataDefinitio
 	{
 		$builder = new static();
 		/** @var DataDefinitionBuilderInterface $builder */
-		$builder->build($event->getContainer());
+		$builder->build($event->getContainer(), $event);
 	}
 }

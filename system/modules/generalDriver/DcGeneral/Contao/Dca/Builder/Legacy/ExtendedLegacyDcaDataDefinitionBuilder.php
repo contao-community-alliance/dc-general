@@ -17,6 +17,7 @@ use DcGeneral\Contao\Dca\Section\ExtendedDca;
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\DataDefinition\Section\DefaultDataProviderSection;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
+use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 
 /**
  * Build the container config from legacy DCA syntax.
@@ -30,7 +31,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 	/**
 	 * {@inheritdoc}
 	 */
-	public function build(ContainerInterface $container)
+	public function build(ContainerInterface $container, BuildDataDefinitionEvent $event)
 	{
 		if (!$this->loadDca($container->getName()))
 		{

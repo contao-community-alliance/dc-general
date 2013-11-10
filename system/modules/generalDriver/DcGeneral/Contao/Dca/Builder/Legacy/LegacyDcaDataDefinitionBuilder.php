@@ -29,6 +29,7 @@ use DcGeneral\DataDefinition\Section\View\Panel\DefaultLimitElementInformation;
 use DcGeneral\DataDefinition\Section\View\Panel\DefaultSearchElementInformation;
 use DcGeneral\DataDefinition\Section\View\Panel\DefaultSortElementInformation;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
+use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 
 /**
  * Build the container config from legacy DCA syntax.
@@ -42,7 +43,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	/**
 	 * {@inheritDoc}
 	 */
-	public function build(ContainerInterface $container)
+	public function build(ContainerInterface $container, BuildDataDefinitionEvent $event)
 	{
 		if (!$this->loadDca($container->getName()))
 		{
