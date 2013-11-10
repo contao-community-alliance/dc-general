@@ -257,7 +257,7 @@ class DefaultEnvironment implements EnvironmentInterface
 	}
 
 	/**
-	 * {@inheritdoc}
+	 * @deprecated Use getDataProvider() instead!
 	 */
 	public function getDataDriver($strSource = null)
 	{
@@ -266,7 +266,7 @@ class DefaultEnvironment implements EnvironmentInterface
 	}
 
 	/**
-	 * {@inheritdoc}
+	 * @deprecated Use addDataProvider() instead!
 	 */
 	public function addDataDriver($strSource, $objDriver)
 	{
@@ -278,7 +278,7 @@ class DefaultEnvironment implements EnvironmentInterface
 	}
 
 	/**
-	 * @deprecated use
+	 * @deprecated use removeDataProvider() instead!
 	 */
 	public function removeDataDriver($strSource)
 	{
@@ -289,7 +289,7 @@ class DefaultEnvironment implements EnvironmentInterface
 	}
 
 	/**
-	 * {@inheritdoc}
+	 * @deprecated use the proper interface in the view!
 	 */
 	public function setPanelContainer($objPanelContainer)
 	{
@@ -306,7 +306,7 @@ class DefaultEnvironment implements EnvironmentInterface
 	}
 
 	/**
-	 * {@inheritdoc}
+	 * @deprecated use the proper interface in the view!
 	 */
 	public function getPanelContainer()
 	{
