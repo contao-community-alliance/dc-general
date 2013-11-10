@@ -16,6 +16,9 @@ use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\MultiLanguageDriverInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\PropertyValueBag;
+use DcGeneral\DataDefinition\Section\BackendViewSectionInterface;
+use DcGeneral\DataDefinition\Section\BasicSectionInterface;
+use DcGeneral\DataDefinition\Section\View\ListingConfigInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Panel\FilterElementInterface;
@@ -556,7 +559,7 @@ class BaseView implements BackendViewInterface
 
 		// TODO: we have hardcoded html in here, is this really the best idea?
 
-		if ($definition->isDeletable())
+		if (false) // TODO refactore $definition->isDeletable())
 		{
 			$buttons['delete'] = sprintf(
 				'<input type="submit" name="delete" id="delete" class="tl_submit" accesskey="d" onclick="return confirm(\'%s\')" value="%s">',
@@ -576,7 +579,7 @@ class BaseView implements BackendViewInterface
 			specialchars($this->translate('MSC/copySelected'))
 		);
 
-		if ($definition->isEditable())
+		if (true) // TODO refactore $definition->isEditable())
 		{
 			$buttons['override'] = sprintf(
 				'<input type="submit" name="override" id="override" class="tl_submit" accesskey="v" value="%s">',
@@ -1473,17 +1476,19 @@ class BaseView implements BackendViewInterface
 			$addButton = false;
 			$strHref   = '';
 
+			$viewDefinition = $definition->getSection(BackendViewSectionInterface::NAME);
+			$basicDefinition = $definition->getBasicSection();
+			/** @var BackendViewSectionInterface $viewDefinition */
+			$listingConfig = $viewDefinition->getListingConfig();
+			$dataProviderDefinition = $definition->getDataProviderSection();
+
 			// Add Buttons for mode x
-			switch ($definition->getSortingMode())
+			switch ($basicDefinition->getMode())
 			{
-				case 0:
-				case 1:
-				case 2:
-				case 3:
-				case 4:
+				case BasicSectionInterface::MODE_FLAT:
 					// Add new button
 					$strHref = '';
-					if (strlen($this->getEnvironment()->getDataDefinition()->getParentDriverName()))
+					if (strlen($basicDefinition->getParentDataProvider()))
 					{
 						if ($definition->getSortingMode() < 4)
 						{
@@ -1496,11 +1501,11 @@ class BaseView implements BackendViewInterface
 						$strHref = BackendBindings::addToUrl('act=create');
 					}
 
-					$addButton = !$this->getDataDefinition()->isClosed();
+					$addButton = true; // TODO refactore !$basicDefinition->isClosed();
 					break;
 
-				case 5:
-				case 6:
+				case BasicSectionInterface::MODE_HIERARCHICAL:
+				case BasicSectionInterface::MODE_PARENTEDLIST:
 					// Add new button
 					$strCDP = $this->getEnvironment()->getDataDriver()->getEmptyModel()->getProviderName();
 
@@ -1558,7 +1563,7 @@ class BaseView implements BackendViewInterface
 		}
 
 		// Add back button
-		if ($this->isSelectModeActive() || $this->getEnvironment()->getDataDefinition()->getParentDriverName())
+		if ($this->isSelectModeActive() || $basicDefinition->getParentDataProvider())
 		{
 			$globalOperations = array_merge(
 				array(
@@ -1800,6 +1805,8 @@ class BaseView implements BackendViewInterface
 	 */
 	protected function generateButtons(ModelInterface $objModelRow, $strTable, $arrRootIds = array(), $blnCircularReference = false, $arrChildRecordIds = null, $strPrevious = null, $strNext = null)
 	{
+		return; // TODO refactore
+
 		$arrOperations = $this->getDataDefinition()->getOperationNames();
 		if (!$arrOperations)
 		{

@@ -15,6 +15,8 @@ namespace DcGeneral\View\BackendView;
 use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ModelInterface;
+use DcGeneral\DataDefinition\Section\BackendViewSectionInterface;
+use DcGeneral\DataDefinition\Section\View\ListingConfigInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\View\BackendView\Event\ModelToLabelEvent;
 
@@ -63,7 +65,7 @@ class ListView extends BaseView
 		$definition   = $this->getEnvironment()->getDataDefinition();
 
 		// Generate the table header if the "show columns" option is active.
-		if ($definition->getListLabel()->isShowColumnsActive())
+		if (false) // TODO refactore $definition->getListLabel()->isShowColumnsActive())
 		{
 			foreach ($definition->getPropertyNames() as $f)
 			{
@@ -197,15 +199,22 @@ class ListView extends BaseView
 	protected function setListViewLabel()
 	{
 		$definition   = $this->getEnvironment()->getDataDefinition();
-		$listLabel    = $definition->getListLabel();
-		$firstSorting = $definition->getFirstSorting();
+		$view = $definition->getSection(BackendViewSectionInterface::NAME);
+		/** @var BackendViewSectionInterface $view */
+		$listingConfig = $view->getListingConfig();
+
+		$labelFormatter = $listingConfig->getLabelFormatter();
+		$sortingFields  = (array) $listingConfig->getDefaultSortingFields();
+		$firstSorting   = reset($sortingFields);
 
 		// FIXME: this is not possible with the new environmental approach.
 		// Automatically add the "order by" field as last column if we do not have group headers
+		/*
 		if ($listLabel->isShowColumnsActive() && !in_array($firstSorting, $listLabel->getFields()))
 		{
 			$this->getDC()->arrDCA['list']['label']['fields'][] = $firstSorting;
 		}
+		*/
 
 		$remoteCur = false;
 		$groupclass = 'tl_folder_tlist';
@@ -214,30 +223,15 @@ class ListView extends BaseView
 		foreach ($this->getCurrentCollection() as $objModelRow)
 		{
 			/** @var \DcGeneral\Data\ModelInterface $objModelRow */
-			$args = $this->getListViewLabelArguments($objModelRow);
 
-			// Shorten the label if it is too long
-			$labelFormat = (strlen($listLabel->getFormat()) ? $listLabel->getFormat() : '%s');
-			if (count($args) == substr_count($labelFormat, '%') - substr_count($labelFormat, '%%'))
-			{
-				$label = vsprintf($labelFormat, $args);
-			}
-			else
-			{
-				$label = '';
-			}
-
-			if ($listLabel->getMaxCharacters() > 0 && $listLabel->getMaxCharacters() < strlen(strip_tags($label)))
-			{
-				$label = trim(BackendBindings::substrHtml($label, $listLabel->getMaxCharacters())) . ' â€¦';
-			}
+			$label = $labelFormatter->format($objModelRow);
 
 			// Remove empty brackets (), [], {}, <> and empty tags from the label
 			$label = preg_replace('/\( *\) ?|\[ *\] ?|\{ *\} ?|< *> ?/i', '', $label);
 			$label = preg_replace('/<[^>]+>\s*<\/[^>]+>/i', '', $label);
 
 			// Build the sorting groups
-			if ($definition->getSortingMode() > 0)
+			if (false) // TODO refactore
 			{
 				// Get the current value of first sorting
 				if ($firstSorting)
@@ -274,7 +268,7 @@ class ListView extends BaseView
 					$remoteNew = $this->formatCurrentValue($firstSorting, $current, $sortingMode);
 
 					// Add the group header
-					if (!$listLabel->isShowColumnsActive() && !$this->getDataDefinition()->isGroupingDisabled() && ($remoteNew != $remoteCur || $remoteCur === false))
+					if (!$labelFormatter->isShowColumnsActive() && !$this->getDataDefinition()->isGroupingDisabled() && ($remoteNew != $remoteCur || $remoteCur === false))
 					{
 						$eoCount = -1;
 
@@ -293,12 +287,13 @@ class ListView extends BaseView
 
 			$colspan = 1;
 
-			$event = new ModelToLabelEvent();
+			/*
+			 * TODO refactore
+			$event = new ModelToLabelEvent($this->getEnvironment());
 			$event
-				->setEnvironment($this->getEnvironment())
 				->setModel($objModelRow)
 				->setLabel($label)
-				->setListLabel($listLabel)
+				->setListLabel($labelFormatter)
 				->setArgs($args);
 
 			$this->dispatchEvent(ModelToLabelEvent::NAME, $event);
@@ -307,23 +302,26 @@ class ListView extends BaseView
 			{
 				$newArgs = $event->getArgs();
 				// Handle strings and arrays (backwards compatibility)
-				if (!$listLabel->isShowColumnsActive())
+				if (!$labelFormatter->isShowColumnsActive())
 				{
-					$label = vsprintf((strlen($listLabel->getFormat()) ? $listLabel->getFormat() : '%s'), (array) $newArgs);
+					$label = vsprintf((strlen($labelFormatter->getFormat()) ? $labelFormatter->getFormat() : '%s'), (array) $newArgs);
 				}
 				elseif (!is_array($newArgs))
 				{
-					$colspan = count($listLabel->getFields());
+					$colspan = count($labelFormatter->getFields());
 				}
 			}
+			 */
 
 			$arrLabel = array();
 
 			// Add columns
-			if ($listLabel->isShowColumnsActive())
+			/*
+			 * TODO refactore
+			if ($labelFormatter->isShowColumnsActive())
 			{
-				$fields = $listLabel->getFields();
-				foreach ($args as $j => $arg)
+				$fields = $labelFormatter->getFields();
+				foreach ($labelFormatter- as $j => $arg)
 				{
 					$arrLabel[] = array(
 						'colspan' => $colspan,
@@ -334,12 +332,13 @@ class ListView extends BaseView
 			}
 			else
 			{
+			 */
 				$arrLabel[] = array(
 					'colspan' => NULL,
 					'class' => 'tl_file_list',
 					'content' => $label
 				);
-			}
+			// }
 
 			$objModelRow->setMeta(DCGE::MODEL_LABEL_VALUE, $arrLabel);
 		}
@@ -354,6 +353,9 @@ class ListView extends BaseView
 	{
 		$environment = $this->getEnvironment();
 		$definition  = $environment->getDataDefinition();
+		$view        = $definition->getSection(BackendViewSectionInterface::NAME);
+		/** @var BackendViewSectionInterface $view */
+		$listing     = $view->getListingConfig();
 
 		// Set label
 		$this->setListViewLabel();
@@ -386,9 +388,9 @@ class ListView extends BaseView
 		}
 
 		// FIXME: hack, we should define a better handling for manual sorting.
-		$sorting = $definition->getFirstSorting();
+		$sorting = $listing->getDefaultSortingFields();
 
-		$panel = $this->getEnvironment()->getPanelContainer()->getPanel('sorting');
+		$panel = false; // TODO refactore $this->getEnvironment()->getPanelContainer()->getPanel('sorting');
 		if ($panel)
 		{
 			/** @var \DcGeneral\Panel\SortElementInterface $panel */
@@ -412,7 +414,7 @@ class ListView extends BaseView
 			->addToTemplate('collection', $this->getCurrentCollection(), $objTemplate)
 			->addToTemplate('select', $this->getEnvironment()->getInputProvider()->getParameter('act'), $objTemplate)
 			->addToTemplate('action', ampersand(\Environment::getInstance()->request, true), $objTemplate)
-			->addToTemplate('mode', $definition->getSortingMode(), $objTemplate)
+			->addToTemplate('mode', $listing->getSortingMode(), $objTemplate)
 			->addToTemplate('tableHead', $this->getTableHead(), $objTemplate)
 			// Set dataprovider from current and parent
 			->addToTemplate('pdp', '', $objTemplate)
