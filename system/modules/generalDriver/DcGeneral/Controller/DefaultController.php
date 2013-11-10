@@ -13,16 +13,13 @@
 namespace DcGeneral\Controller;
 
 use DcGeneral\Contao\BackendBindings;
-use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Data\DCGE;
-use DcGeneral\Data\DriverInterface;
 use DcGeneral\Data\ModelInterface;
 
 use DcGeneral\DataContainerInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
-use DcGeneral\Panel\DefaultPanel;
 
 class DefaultController implements ControllerInterface
 {
