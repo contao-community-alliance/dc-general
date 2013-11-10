@@ -10,7 +10,7 @@
  * @filesource
  */
 
-namespace DcGeneral\DataDefinition\Definition;
+namespace DcGeneral\Contao\DataDefinition\Definition;
 
 use DcGeneral\DataDefinition\Definition\View\DefaultListingConfig;
 use DcGeneral\DataDefinition\Definition\View\DefaultPanelLayout;

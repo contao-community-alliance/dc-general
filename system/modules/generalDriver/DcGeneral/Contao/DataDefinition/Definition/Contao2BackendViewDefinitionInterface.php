@@ -12,6 +12,8 @@
 
 namespace DcGeneral\Contao\DataDefinition\Definition;
 
+use DcGeneral\DataDefinition\Definition\ViewDefinitionInterface;
+
 /**
  * Interface BasicDefinitionInterface
  *

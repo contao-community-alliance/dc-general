@@ -1,6 +1,6 @@
 <?php
 
-namespace DcGeneral\Event;
+namespace DcGeneral\Contao\Event;
 
 use DcGeneral\Factory\Event\CreateDcGeneralEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
