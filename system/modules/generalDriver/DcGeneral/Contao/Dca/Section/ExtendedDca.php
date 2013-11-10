@@ -21,7 +21,7 @@ class ExtendedDca implements DefinitionInterface
 	/**
 	 * Callback class to use.
 	 *
-	 * NOTE: Callbacks are deprecated and only executed via the compatibility event \DcGeneral\Event\Subscriber.
+	 * NOTE: Callbacks are deprecated and only executed via the compatibility event \DcGeneral\Contao\Event\Subscriber.
 	 *
 	 * @var string
 	 */

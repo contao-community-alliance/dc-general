@@ -39,7 +39,7 @@ ClassLoader::addClasses(array
 	'DcGeneral\DataDefinition\ConditionInterface'                   => 'system/modules/generalDriver/DcGeneral/DataDefinition/ConditionInterface.php',
 	'DcGeneral\DataDefinition\ListLabelInterface'                   => 'system/modules/generalDriver/DcGeneral/DataDefinition/ListLabelInterface.php',
 	'DcGeneral\EnvironmentInterface'                                => 'system/modules/generalDriver/DcGeneral/EnvironmentInterface.php',
-	'DcGeneral\Event\Subscriber'                                   => 'system/modules/generalDriver/DcGeneral/Event/Subscriber.php',
+	'DcGeneral\Contao\Event\Subscriber'                                   => 'system/modules/generalDriver/DcGeneral/Event/Subscriber.php',
 	'DcGeneral\Event\BaseEvent'                                    => 'system/modules/generalDriver/DcGeneral/Event/BaseEvent.php',
 	'DcGeneral\Contao\View\Contao2BackendView\Event\BaseButtonEvent'             => 'system/modules/generalDriver/DcGeneral/View/BackendView/Event/BaseButtonEvent.php',
 	'DcGeneral\Contao\View\Contao2BackendView\Event\BaseGetButtonsEvent'         => 'system/modules/generalDriver/DcGeneral/View/BackendView/Event/BaseGetButtonsEvent.php',
