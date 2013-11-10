@@ -58,10 +58,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		$this->parseDataProvider($container);
 		$this->parseRootEntries($container);
 		$this->parseParentChildConditions($container);
-		$this->parseListing($container);
-		$this->parsePanel($container);
-		$this->parseContainerOperations($container);
-		$this->parseModelOperations($container);
+		$this->parseBackendView($container);
 		$this->parsePalettes($container);
 		$this->parseProperties($container);
 	}
@@ -206,15 +203,45 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	}
 
 	/**
+	 * Parse and build the backend view definition for the old Contao2 backend view.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
+	protected function parseBackendView(ContainerInterface $container)
+	{
+		if ($container->hasDefinition(Contao2BackendViewDefinitionInterface::NAME))
+		{
+			$view = $container->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+		}
+		else
+		{
+			$view = new Contao2BackendViewDefinition();
+			$container->setDefinition(Contao2BackendViewDefinitionInterface::NAME, $view);
+		}
+
+		if (!$view instanceof Contao2BackendViewDefinitionInterface)
+		{
+			throw new DcGeneralInvalidArgumentException('Configured BackendViewDefinition does not implement Contao2BackendViewDefinitionInterface.');
+		}
+
+		$this->parseListing($container, $view);
+		$this->parsePanel($container, $view);
+		$this->parseContainerOperations($container, $view);
+		$this->parseModelOperations($container, $view);
+	}
+
+	/**
 	 * Parse the listing configuration.
 	 *
 	 * @param ContainerInterface $container
 	 *
 	 * @return void
 	 */
-	protected function parseListing(ContainerInterface $container)
+	protected function parseListing(ContainerInterface $container, Contao2BackendViewDefinitionInterface $view)
 	{
-		$view = $this->getBackendViewDefinition($container);
+
 		$listing = $view->getListingConfig();
 
 		$listDca = $this->getFromDca('list');
@@ -316,11 +343,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 *
 	 * @return void
 	 */
-	protected function parsePanel(ContainerInterface $container)
+	protected function parsePanel(ContainerInterface $container, Contao2BackendViewDefinitionInterface $view)
 	{
-		$config = $this->getBackendViewDefinition($container);
-
-		$layout = $config->getPanelLayout();
+		$layout = $view->getPanelLayout();
 		$rows = $layout->getRows();
 
 		foreach (explode(';', (string)$this->getFromDca('list/sorting/panelLayout')) as $rowNo => $elementRow)
@@ -410,7 +435,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 *
 	 * @return void
 	 */
-	protected function parseContainerOperations(ContainerInterface $container)
+	protected function parseContainerOperations(ContainerInterface $container, Contao2BackendViewDefinitionInterface $view)
 	{
 		// TODO to be implemented
 	}
@@ -422,7 +447,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 *
 	 * @return void
 	 */
-	protected function parseModelOperations(ContainerInterface $container)
+	protected function parseModelOperations(ContainerInterface $container, Contao2BackendViewDefinitionInterface $view)
 	{
 		// TODO to be implemented
 	}
@@ -577,35 +602,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			}
 
 		}
-	}
-
-	/**
-	 * Get the Contao2BackendViewDefinition from the container.
-	 *
-	 * @param ContainerInterface $container
-	 *
-	 * @return Contao2BackendViewDefinition|\DcGeneral\DataDefinition\Definition\DefinitionInterface
-	 *
-	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException If a predefined definition is not compatible.
-	 */
-	protected function getBackendViewDefinition(ContainerInterface $container)
-	{
-		if ($container->hasDefinition(Contao2BackendViewDefinitionInterface::NAME))
-		{
-			$config = $container->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-		}
-		else
-		{
-			$config = new Contao2BackendViewDefinition();
-			$container->setDefinition(Contao2BackendViewDefinitionInterface::NAME, $config);
-		}
-
-		if (!$config instanceof Contao2BackendViewDefinitionInterface)
-		{
-			throw new DcGeneralInvalidArgumentException('Configured BackendViewDefinition does not implement Contao2BackendViewDefinitionInterface.');
-		}
-
-		return $config;
 	}
 
 	/**
