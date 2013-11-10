@@ -16,9 +16,9 @@ use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\MultiLanguageDriverInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\PropertyValueBag;
-use DcGeneral\DataDefinition\Section\BackendViewSectionInterface;
-use DcGeneral\DataDefinition\Section\BasicSectionInterface;
-use DcGeneral\DataDefinition\Section\View\ListingConfigInterface;
+use DcGeneral\DataDefinition\Definition\BackendViewDefinitionInterface;
+use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Panel\FilterElementInterface;
@@ -1476,16 +1476,16 @@ class BaseView implements BackendViewInterface
 			$addButton = false;
 			$strHref   = '';
 
-			$viewDefinition = $definition->getSection(BackendViewSectionInterface::NAME);
-			$basicDefinition = $definition->getBasicSection();
-			/** @var BackendViewSectionInterface $viewDefinition */
+			$viewDefinition = $definition->getDefinition(BackendViewDefinitionInterface::NAME);
+			$basicDefinition = $definition->getBasicDefinition();
+			/** @var BackendViewDefinitionInterface $viewDefinition */
 			$listingConfig = $viewDefinition->getListingConfig();
-			$dataProviderDefinition = $definition->getDataProviderSection();
+			$dataProviderDefinition = $definition->getDataProviderDefinition();
 
 			// Add Buttons for mode x
 			switch ($basicDefinition->getMode())
 			{
-				case BasicSectionInterface::MODE_FLAT:
+				case BasicDefinitionInterface::MODE_FLAT:
 					// Add new button
 					$strHref = '';
 					if (strlen($basicDefinition->getParentDataProvider()))
@@ -1504,8 +1504,8 @@ class BaseView implements BackendViewInterface
 					$addButton = true; // TODO refactore !$basicDefinition->isClosed();
 					break;
 
-				case BasicSectionInterface::MODE_HIERARCHICAL:
-				case BasicSectionInterface::MODE_PARENTEDLIST:
+				case BasicDefinitionInterface::MODE_HIERARCHICAL:
+				case BasicDefinitionInterface::MODE_PARENTEDLIST:
 					// Add new button
 					$strCDP = $this->getEnvironment()->getDataDriver()->getEmptyModel()->getProviderName();
 

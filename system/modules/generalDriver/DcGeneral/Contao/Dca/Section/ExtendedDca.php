@@ -10,11 +10,11 @@
  * @filesource
  */
 
-namespace DcGeneral\Contao\Dca\Section;
+namespace DcGeneral\Contao\Dca\Definition;
 
-use DcGeneral\DataDefinition\Section\ContainerSectionInterface;
+use DcGeneral\DataDefinition\Definition\DefinitionInterface;
 
-class ExtendedDca implements ContainerSectionInterface
+class ExtendedDca implements DefinitionInterface
 {
 	const NAME = 'extended-dca';
 

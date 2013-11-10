@@ -2,12 +2,12 @@
 
 namespace DcGeneral\Contao\Dca\Populator;
 
-use DcGeneral\DataDefinition\Section\BackendViewSectionInterface;
-use DcGeneral\DataDefinition\Section\BasicSectionInterface;
-use DcGeneral\DataDefinition\Section\View\Panel\FilterElementInformationInterface;
-use DcGeneral\DataDefinition\Section\View\Panel\LimitElementInformationInterface;
-use DcGeneral\DataDefinition\Section\View\Panel\SearchElementInformationInterface;
-use DcGeneral\DataDefinition\Section\View\Panel\SortElementInformationInterface;
+use DcGeneral\DataDefinition\Definition\BackendViewDefinitionInterface;
+use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use DcGeneral\DataDefinition\Definition\View\Panel\FilterElementInformationInterface;
+use DcGeneral\DataDefinition\Definition\View\Panel\LimitElementInformationInterface;
+use DcGeneral\DataDefinition\Definition\View\Panel\SearchElementInformationInterface;
+use DcGeneral\DataDefinition\Definition\View\Panel\SortElementInformationInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\EnvironmentPopulator\AbstractEventDrivenEnvironmentPopulator;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
@@ -54,26 +54,26 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
 
 		$definition = $environment->getDataDefinition();
 
-		if (!$definition->hasBasicSection())
+		if (!$definition->hasBasicDefinition())
 		{
 			return;
 		}
 
-		$section = $definition->getBasicSection();
+		$definition = $definition->getBasicDefinition();
 
-		switch ($section->getMode())
+		switch ($definition->getMode())
 		{
-			case BasicSectionInterface::MODE_FLAT:
+			case BasicDefinitionInterface::MODE_FLAT:
 				$view = new ListView();
 				break;
-			case BasicSectionInterface::MODE_PARENTEDLIST:
+			case BasicDefinitionInterface::MODE_PARENTEDLIST:
 				$view = new ParentView();
 				break;
-			case BasicSectionInterface::MODE_HIERARCHICAL:
+			case BasicDefinitionInterface::MODE_HIERARCHICAL:
 				$view = new TreeView();
 				break;
 			default:
-				throw new DcGeneralInvalidArgumentException('Unknown view mode encountered: ' . $section->getMode());
+				throw new DcGeneralInvalidArgumentException('Unknown view mode encountered: ' . $definition->getMode());
 		}
 
 		$view->setEnvironment($environment);
@@ -98,7 +98,7 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
 
 		$definition = $environment->getDataDefinition();
 
-		if (!$definition->hasSection(BackendViewSectionInterface::NAME))
+		if (!$definition->hasDefinition(BackendViewDefinitionInterface::NAME))
 		{
 			return;
 		}
@@ -116,11 +116,11 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
 		$panel->setEnvironment($environment);
 		$view->setPanel($panel);
 
-		/** @var BackendViewSectionInterface $section  */
-		$section = $definition->getSection(BackendViewSectionInterface::NAME);
+		/** @var BackendViewDefinitionInterface $definition  */
+		$definition = $definition->getDefinition(BackendViewDefinitionInterface::NAME);
 
-		/** @var \DcGeneral\DataDefinition\Section\View\PanelLayoutInterface $panelLayout */
-		$panelLayout = $section->getPanelLayout();
+		/** @var \DcGeneral\DataDefinition\Definition\View\PanelLayoutInterface $panelLayout */
+		$panelLayout = $definition->getPanelLayout();
 
 		$rows         = $panelLayout->getRows();
 		$objPanel     = null;

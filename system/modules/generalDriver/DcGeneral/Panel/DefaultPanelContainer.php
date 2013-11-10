@@ -4,9 +4,9 @@ namespace DcGeneral\Panel;
 
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Data\ConfigInterface;
-use DcGeneral\DataDefinition\Section\BackendViewSectionInterface;
-use DcGeneral\DataDefinition\Section\View\Panel\FilterElementInformationInterface;
-use DcGeneral\DataDefinition\Section\View\Panel\SortElementInformationInterface;
+use DcGeneral\DataDefinition\Definition\BackendViewDefinitionInterface;
+use DcGeneral\DataDefinition\Definition\View\Panel\FilterElementInformationInterface;
+use DcGeneral\DataDefinition\Definition\View\Panel\SortElementInformationInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 

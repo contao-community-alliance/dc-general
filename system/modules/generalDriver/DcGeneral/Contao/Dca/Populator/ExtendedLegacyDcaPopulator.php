@@ -3,7 +3,7 @@
 namespace DcGeneral\Contao\Dca\Populator;
 
 use DcGeneral\Callbacks\CallbacksInterface;
-use DcGeneral\Contao\Dca\Section\ExtendedDca;
+use DcGeneral\Contao\Dca\Definition\ExtendedDca;
 use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\EnvironmentPopulator\AbstractEventDrivenEnvironmentPopulator;
@@ -35,15 +35,15 @@ class ExtendedLegacyDcaPopulator extends AbstractEventDrivenEnvironmentPopulator
 	{
 		$definition = $environment->getDataDefinition();
 
-		// If we encounter an extended section, that one may override.
-		if (!$definition->hasSection(ExtendedDca::NAME))
+		// If we encounter an extended definition, that one may override.
+		if (!$definition->hasDefinition(ExtendedDca::NAME))
 		{
 			return;
 		}
 
-		/** @var ExtendedDca $section */
-		$section = $definition->getSection(ExtendedDca::NAME);
-		$class   = $section->getCallbackClass();
+		/** @var ExtendedDca $definition */
+		$definition = $definition->getDefinition(ExtendedDca::NAME);
+		$class   = $definition->getCallbackClass();
 
 		if (!$class)
 		{
@@ -76,15 +76,15 @@ class ExtendedLegacyDcaPopulator extends AbstractEventDrivenEnvironmentPopulator
 
 		$definition = $environment->getDataDefinition();
 
-		// If we encounter an extended section, that one may override.
-		if (!$definition->hasSection(ExtendedDca::NAME))
+		// If we encounter an extended definition, that one may override.
+		if (!$definition->hasDefinition(ExtendedDca::NAME))
 		{
 			return;
 		}
 
-		/** @var ExtendedDca $section */
-		$section = $definition->getSection(ExtendedDca::NAME);
-		$class   = $section->getViewClass();
+		/** @var ExtendedDca $definition */
+		$definition = $definition->getDefinition(ExtendedDca::NAME);
+		$class   = $definition->getViewClass();
 
 		if (!$class)
 		{
@@ -116,15 +116,15 @@ class ExtendedLegacyDcaPopulator extends AbstractEventDrivenEnvironmentPopulator
 
 		$definition = $environment->getDataDefinition();
 
-		// If we encounter an extended section, that one may override.
-		if (!$definition->hasSection(ExtendedDca::NAME))
+		// If we encounter an extended definition, that one may override.
+		if (!$definition->hasDefinition(ExtendedDca::NAME))
 		{
 			return;
 		}
 
-		/** @var ExtendedDca $section */
-		$section = $definition->getSection(ExtendedDca::NAME);
-		$class   = $section->getControllerClass();
+		/** @var ExtendedDca $definition */
+		$definition = $definition->getDefinition(ExtendedDca::NAME);
+		$class   = $definition->getControllerClass();
 
 		if (!$class)
 		{

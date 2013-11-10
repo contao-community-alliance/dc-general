@@ -15,21 +15,21 @@ namespace DcGeneral\Contao\Dca\Builder\Legacy;
 use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
 use DcGeneral\Contao\Dca\Palette\LegacyPalettesParser;
 use DcGeneral\DataDefinition\ContainerInterface;
-use DcGeneral\DataDefinition\Section\BackendViewSectionInterface;
-use DcGeneral\DataDefinition\Section\BasicSectionInterface;
-use DcGeneral\DataDefinition\Section\DefaultBackendViewSection;
-use DcGeneral\DataDefinition\Section\DefaultBasicSection;
-use DcGeneral\DataDefinition\Section\DefaultDataProviderSection;
-use DcGeneral\DataDefinition\Section\DefaultPalettesSection;
-use DcGeneral\DataDefinition\Section\Palette\DefaultProperty;
-use DcGeneral\DataDefinition\Section\Palette\PropertyInterface;
-use DcGeneral\DataDefinition\Section\PalettesSectionInterface;
-use DcGeneral\DataDefinition\Section\DefaultPropertiesSection;
-use DcGeneral\DataDefinition\Section\View\ListingConfigInterface;
-use DcGeneral\DataDefinition\Section\View\Panel\DefaultFilterElementInformation;
-use DcGeneral\DataDefinition\Section\View\Panel\DefaultLimitElementInformation;
-use DcGeneral\DataDefinition\Section\View\Panel\DefaultSearchElementInformation;
-use DcGeneral\DataDefinition\Section\View\Panel\DefaultSortElementInformation;
+use DcGeneral\DataDefinition\Definition\BackendViewDefinitionInterface;
+use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use DcGeneral\DataDefinition\Definition\DefaultBackendViewDefinition;
+use DcGeneral\DataDefinition\Definition\DefaultBasicDefinition;
+use DcGeneral\DataDefinition\Definition\DefaultDataProviderDefinition;
+use DcGeneral\DataDefinition\Definition\DefaultPalettesDefinition;
+use DcGeneral\DataDefinition\Definition\Palette\DefaultProperty;
+use DcGeneral\DataDefinition\Definition\Palette\PropertyInterface;
+use DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
+use DcGeneral\DataDefinition\Definition\DefaultPropertiesDefinition;
+use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
+use DcGeneral\DataDefinition\Definition\View\Panel\DefaultFilterElementInformation;
+use DcGeneral\DataDefinition\Definition\View\Panel\DefaultLimitElementInformation;
+use DcGeneral\DataDefinition\Definition\View\Panel\DefaultSearchElementInformation;
+use DcGeneral\DataDefinition\Definition\View\Panel\DefaultSortElementInformation;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
@@ -54,7 +54,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			return;
 		}
 
-		$this->parseBasicSection($container);
+		$this->parseBasicDefinition($container);
 		$this->parseListing($container);
 		$this->parseProperties($container);
 		$this->parsePalettes($container);
@@ -62,37 +62,37 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		$this->parsePanel($container);
 	}
 
-	protected function getBackendViewSection(ContainerInterface $container)
+	protected function getBackendViewDefinition(ContainerInterface $container)
 	{
-		if ($container->hasSection(BackendViewSectionInterface::NAME))
+		if ($container->hasDefinition(BackendViewDefinitionInterface::NAME))
 		{
-			$config = $container->getSection(BackendViewSectionInterface::NAME);
+			$config = $container->getDefinition(BackendViewDefinitionInterface::NAME);
 		}
 		else
 		{
-			$config = new DefaultBackendViewSection();
-			$container->setSection(BackendViewSectionInterface::NAME, $config);
+			$config = new DefaultBackendViewDefinition();
+			$container->setDefinition(BackendViewDefinitionInterface::NAME, $config);
 		}
 
-		if (!$config instanceof BackendViewSectionInterface)
+		if (!$config instanceof BackendViewDefinitionInterface)
 		{
-			throw new DcGeneralInvalidArgumentException('Configured BackendViewSection does not implement BackendViewSectionInterface.');
+			throw new DcGeneralInvalidArgumentException('Configured BackendViewDefinition does not implement BackendViewDefinitionInterface.');
 		}
 
 		return $config;
 	}
 
-	protected function parseBasicSection(ContainerInterface $container)
+	protected function parseBasicDefinition(ContainerInterface $container)
 	{
 		// parse data provider
-		if ($container->hasBasicSection())
+		if ($container->hasBasicDefinition())
 		{
-			$config = $container->getBasicSection();
+			$config = $container->getBasicDefinition();
 		}
 		else
 		{
-			$config = new DefaultBasicSection();
-			$container->setBasicSection($config);
+			$config = new DefaultBasicDefinition();
+			$container->setBasicDefinition($config);
 		}
 
 		switch ($this->getFromDca('list/sorting/mode'))
@@ -101,14 +101,14 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			case 1: // Records are sorted by a fixed field
 			case 2: // Records are sorted by a switchable field
 			case 3: // Records are sorted by the parent table
-				$config->setMode(BasicSectionInterface::MODE_FLAT);
+				$config->setMode(BasicDefinitionInterface::MODE_FLAT);
 				break;
 			case 4: // Displays the child records of a parent record (see style sheets module)
-				$config->setMode(BasicSectionInterface::MODE_PARENTEDLIST);
+				$config->setMode(BasicDefinitionInterface::MODE_PARENTEDLIST);
 				break;
 			case 5: // Records are displayed as tree (see site structure)
 			case 6: // Displays the child records within a tree structure (see articles module)
-				$config->setMode(BasicSectionInterface::MODE_HIERARCHICAL);
+				$config->setMode(BasicDefinitionInterface::MODE_HIERARCHICAL);
 				break;
 			default:
 		}
@@ -128,7 +128,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 */
 	protected function parseListing(ContainerInterface $container)
 	{
-		$view = $this->getBackendViewSection($container);
+		$view = $this->getBackendViewDefinition($container);
 		$listing = $view->getListingConfig();
 
 		$listDca = $this->getFromDca('list');
@@ -224,7 +224,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	}
 
 	/**
-	 * Parse the defined properties and populate the section.
+	 * Parse the defined properties and populate the definition.
 	 *
 	 * @param ContainerInterface $container
 	 *
@@ -233,26 +233,26 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	protected function parseProperties(ContainerInterface $container)
 	{
 		// parse data provider
-		if ($container->hasPropertiesSection())
+		if ($container->hasPropertiesDefinition())
 		{
-			$section = $container->getPropertiesSection();
+			$definition = $container->getPropertiesDefinition();
 		}
 		else
 		{
-			$section = new DefaultPropertiesSection();
-			$container->setPropertiesSection($section);
+			$definition = new DefaultPropertiesDefinition();
+			$container->setPropertiesDefinition($definition);
 		}
 
 		foreach ($this->getFromDca('fields') as $propName => $propInfo)
 		{
-			if ($section->hasProperty($propName))
+			if ($definition->hasProperty($propName))
 			{
-				$property = $section->getProperty($propName);
+				$property = $definition->getProperty($propName);
 			}
 			else
 			{
 				$property = new DefaultProperty($propName);
-				$section->addProperty($property);
+				$definition->addProperty($property);
 			}
 
 			if (!$property->getLabel() && isset($propInfo['label']))
@@ -345,14 +345,14 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	protected function parseDataProvider(ContainerInterface $container)
 	{
 		// parse data provider
-		if ($container->hasDataProviderSection())
+		if ($container->hasDataProviderDefinition())
 		{
-			$config = $container->getDataProviderSection();
+			$config = $container->getDataProviderDefinition();
 		}
 		else
 		{
-			$config = new DefaultDataProviderSection();
-			$container->setDataProviderSection($config);
+			$config = new DefaultDataProviderDefinition();
+			$container->setDataProviderDefinition($config);
 		}
 
 		if (($parentTable = $this->getFromDca('config/ptable')) !== null)
@@ -377,7 +377,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 						'source' => $container->getName()
 					));
 
-				$container->getBasicSection()->setRootDataProvider($parentTable);
+				$container->getBasicDefinition()->setRootDataProvider($parentTable);
 			}
 		}
 
@@ -402,13 +402,13 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 				))
 				->isVersioningEnabled((bool)$this->getFromDca('config/enableVersioning'));
 
-			$container->getBasicSection()->setDataProvider($container->getName());
+			$container->getBasicDefinition()->setDataProvider($container->getName());
 		}
 	}
 
 	protected function parsePanel(ContainerInterface $container)
 	{
-		$config = $this->getBackendViewSection($container);
+		$config = $this->getBackendViewDefinition($container);
 
 		$layout = $config->getPanelLayout();
 		$rows = $layout->getRows();
@@ -508,21 +508,21 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			$subPalettesDefinition = array();
 		}
 
-		if ($container->hasSection(PalettesSectionInterface::NAME))
+		if ($container->hasDefinition(PalettesDefinitionInterface::NAME))
 		{
-			$palettesSection = $container->getSection(PalettesSectionInterface::NAME);
+			$palettesDefinition = $container->getDefinition(PalettesDefinitionInterface::NAME);
 		}
 		else
 		{
-			$palettesSection = new DefaultPalettesSection();
-			$container->setSection(PalettesSectionInterface::NAME, $palettesSection);
+			$palettesDefinition = new DefaultPalettesDefinition();
+			$container->setDefinition(PalettesDefinitionInterface::NAME, $palettesDefinition);
 		}
 
 		$palettesParser = new LegacyPalettesParser();
 		$palettesParser->parse(
 			$palettesDefinition,
 			$subPalettesDefinition,
-			$palettesSection
+			$palettesDefinition
 		);
 	}
 

@@ -13,11 +13,11 @@
 namespace DcGeneral\Contao\Dca\Builder\Legacy;
 
 use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
-use DcGeneral\Contao\Dca\Section\ExtendedDca;
+use DcGeneral\Contao\Dca\Definition\ExtendedDca;
 use DcGeneral\DataDefinition\ContainerInterface;
-use DcGeneral\DataDefinition\Section\DefaultDataProviderSection;
-use DcGeneral\DataDefinition\Section\DefaultPalettesSection;
-use DcGeneral\DataDefinition\Section\PalettesSectionInterface;
+use DcGeneral\DataDefinition\Definition\DefaultDataProviderDefinition;
+use DcGeneral\DataDefinition\Definition\DefaultPalettesDefinition;
+use DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 
@@ -48,23 +48,23 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 	protected function parseClassNames(ContainerInterface $container)
 	{
 		// parse data provider
-		if ($container->hasSection(ExtendedDca::NAME))
+		if ($container->hasDefinition(ExtendedDca::NAME))
 		{
-			$section = $container->getSection(ExtendedDca::NAME);
+			$definition = $container->getDefinition(ExtendedDca::NAME);
 
-			if (!($section instanceof ExtendedDca))
+			if (!($definition instanceof ExtendedDca))
 			{
 				throw new DcGeneralInvalidArgumentException(sprintf(
-					'Section with name %s must be an instance of ExtendedDca but instance of %s encountered.',
+					'Definition with name %s must be an instance of ExtendedDca but instance of %s encountered.',
 					ExtendedDca::NAME,
-					get_class($section)
+					get_class($definition)
 				));
 			}
 		}
 		else
 		{
-			$section = new ExtendedDca();
-			$container->setSection(ExtendedDca::NAME, $section);
+			$definition = new ExtendedDca();
+			$container->setDefinition(ExtendedDca::NAME, $definition);
 		}
 
 		if ($this->getFromDca('dca_config') === null)
@@ -74,17 +74,17 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
 		if (($class = $this->getFromDca('dca_config/callback')) === null)
 		{
-			$section->setCallbackClass($class);
+			$definition->setCallbackClass($class);
 		}
 
 		if (($class = $this->getFromDca('dca_config/controller')) === null)
 		{
-			$section->setControllerClass($class);
+			$definition->setControllerClass($class);
 		}
 
 		if (($class = $this->getFromDca('dca_config/view')) === null)
 		{
-			$section->setViewClass($class);
+			$definition->setViewClass($class);
 		}
 	}
 
@@ -98,14 +98,14 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 	protected function parseDataProvider(ContainerInterface $container)
 	{
 		// parse data provider
-		if ($container->hasDataProviderSection())
+		if ($container->hasDataProviderDefinition())
 		{
-			$config = $container->getDataProviderSection();
+			$config = $container->getDataProviderDefinition();
 		}
 		else
 		{
-			$config = new DefaultDataProviderSection();
-			$container->setDataProviderSection($config);
+			$config = new DefaultDataProviderDefinition();
+			$container->setDataProviderDefinition($config);
 		}
 
 		// First check if we are using the "new" notation used in DcGeneral 0.9.
@@ -149,7 +149,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
 				// TODO: add additional information here.
 
-				$container->getBasicSection()->setDataProvider($providerInformation->getName());
+				$container->getBasicDefinition()->setDataProvider($providerInformation->getName());
 			}
 		}
 
@@ -186,7 +186,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
 				// TODO: add additional information here.
 
-				$container->getBasicSection()->setRootDataProvider($providerInformation->getName());
+				$container->getBasicDefinition()->setRootDataProvider($providerInformation->getName());
 			}
 		}
 
@@ -223,30 +223,30 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
 				// TODO: add additional information here.
 
-				$container->getBasicSection()->setParentDataProvider($providerInformation->getName());
+				$container->getBasicDefinition()->setParentDataProvider($providerInformation->getName());
 			}
 		}
 	}
 
 	protected function parsePalettes(ContainerInterface $container)
 	{
-		$palettesDefinition = $this->getFromDca('palettes');
+		$palettesDca = $this->getFromDca('palettes');
 
 		// skip while there is no extended palette definition
-		if (!is_callable($palettesDefinition)) {
+		if (!is_callable($palettesDca)) {
 			return;
 		}
 
-		if ($container->hasSection(PalettesSectionInterface::NAME))
+		if ($container->hasDefinition(PalettesDefinitionInterface::NAME))
 		{
-			$palettesSection = $container->getSection(PalettesSectionInterface::NAME);
+			$palettesDefinition = $container->getDefinition(PalettesDefinitionInterface::NAME);
 		}
 		else
 		{
-			$palettesSection = new DefaultPalettesSection();
-			$container->setSection(PalettesSectionInterface::NAME, $palettesSection);
+			$palettesDefinition = new DefaultPalettesDefinition();
+			$container->setDefinition(PalettesDefinitionInterface::NAME, $palettesDefinition);
 		}
 
-		call_user_func($palettesDefinition, $palettesSection, $container);
+		call_user_func($palettesDca, $palettesDefinition, $container);
 	}
 }

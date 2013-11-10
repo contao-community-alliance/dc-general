@@ -13,11 +13,11 @@
 namespace DcGeneral\DataDefinition;
 
 
-use DcGeneral\DataDefinition\Section\BasicSectionInterface;
-use DcGeneral\DataDefinition\Section\ContainerSectionInterface;
-use DcGeneral\DataDefinition\Section\DataProviderSectionInterface;
-use DcGeneral\DataDefinition\Section\PalettesSectionInterface;
-use DcGeneral\DataDefinition\Section\PropertiesSectionInterface;
+use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use DcGeneral\DataDefinition\Definition\DefinitionInterface;
+use DcGeneral\DataDefinition\Definition\DataProviderDefinitionInterface;
+use DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
+use DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 class DefaultContainer implements ContainerInterface
@@ -28,9 +28,9 @@ class DefaultContainer implements ContainerInterface
 	protected $name;
 
 	/**
-	 * @var ContainerSectionInterface[]
+	 * @var DefinitionInterface[]
 	 */
-	protected $sections;
+	protected $definitions;
 
 	/**
 	 * Create a new default container.
@@ -53,175 +53,175 @@ class DefaultContainer implements ContainerInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function hasSection($sectionName)
+	public function hasDefinition($definitionName)
 	{
-		return isset($this->sections[$sectionName]);
+		return isset($this->definitions[$definitionName]);
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function clearSections()
+	public function clearDefinitions()
 	{
-		$this->sections = array();
+		$this->definitions = array();
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function setSections(array $sections)
+	public function setDefinitions(array $definitions)
 	{
 		$this
-			->clearSections()
-			->addSections($sections);
+			->clearDefinitions()
+			->addDefinitions($definitions);
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function addSections(array $sections)
+	public function addDefinitions(array $definitions)
 	{
-		foreach ($sections as $name => $section)
+		foreach ($definitions as $name => $definition)
 		{
-			if (!($section instanceof ContainerSectionInterface))
+			if (!($definition instanceof DefinitionInterface))
 			{
-				throw new DcGeneralInvalidArgumentException('Section ' . $name . ' does not implement ContainerSectionInterface.');
+				throw new DcGeneralInvalidArgumentException('Definition ' . $name . ' does not implement DefinitionInterface.');
 			}
 
-			$this->setSection($name, $section);
+			$this->setDefinition($name, $definition);
 		}
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function setSection($sectionName, ContainerSectionInterface $section)
+	public function setDefinition($definitionName, DefinitionInterface $definition)
 	{
-		$this->sections[$sectionName] = $section;
+		$this->definitions[$definitionName] = $definition;
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function removeSection($sectionName)
+	public function removeDefinition($definitionName)
 	{
-		unset($this->sections[$sectionName]);
+		unset($this->definitions[$definitionName]);
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function getSection($sectionName)
+	public function getDefinition($definitionName)
 	{
-		if (!$this->hasSection($sectionName))
+		if (!$this->hasDefinition($definitionName))
 		{
-			throw new DcGeneralInvalidArgumentException('Section ' . $sectionName . ' is not registered in the configuration.');
+			throw new DcGeneralInvalidArgumentException('Definition ' . $definitionName . ' is not registered in the configuration.');
 		}
 
-		return $this->sections[$sectionName];
+		return $this->definitions[$definitionName];
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function getSectionNames()
+	public function getDefinitionNames()
 	{
-		return array_keys($this->sections);
+		return array_keys($this->definitions);
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function hasBasicSection()
+	public function hasBasicDefinition()
 	{
-		return $this->hasSection(BasicSectionInterface::NAME);
+		return $this->hasDefinition(BasicDefinitionInterface::NAME);
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function setBasicSection(BasicSectionInterface $section)
+	public function setBasicDefinition(BasicDefinitionInterface $definition)
 	{
-		return $this->setSection(BasicSectionInterface::NAME, $section);
+		return $this->setDefinition(BasicDefinitionInterface::NAME, $definition);
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function getBasicSection()
+	public function getBasicDefinition()
 	{
-		return $this->getSection(BasicSectionInterface::NAME);
+		return $this->getDefinition(BasicDefinitionInterface::NAME);
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function hasPropertiesSection()
+	public function hasPropertiesDefinition()
 	{
-		return $this->hasSection(PropertiesSectionInterface::NAME);
+		return $this->hasDefinition(PropertiesDefinitionInterface::NAME);
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function setPropertiesSection(PropertiesSectionInterface $section)
+	public function setPropertiesDefinition(PropertiesDefinitionInterface $definition)
 	{
-		return $this->setSection(PropertiesSectionInterface::NAME, $section);
+		return $this->setDefinition(PropertiesDefinitionInterface::NAME, $definition);
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function getPropertiesSection()
+	public function getPropertiesDefinition()
 	{
-		return $this->getSection(PropertiesSectionInterface::NAME);
+		return $this->getDefinition(PropertiesDefinitionInterface::NAME);
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function hasPalettesSection()
+	public function hasPalettesDefinition()
 	{
-		return $this->hasSection(PalettesSectionInterface::NAME);
+		return $this->hasDefinition(PalettesDefinitionInterface::NAME);
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function setPalettesSection(PalettesSectionInterface $section)
+	public function setPalettesDefinition(PalettesDefinitionInterface $definition)
 	{
-		return $this->setSection(PalettesSectionInterface::NAME, $section);
+		return $this->setDefinition(PalettesDefinitionInterface::NAME, $definition);
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function getPalettesSection()
+	public function getPalettesDefinition()
 	{
-		return $this->getSection(PalettesSectionInterface::NAME);
+		return $this->getDefinition(PalettesDefinitionInterface::NAME);
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function hasDataProviderSection()
+	public function hasDataProviderDefinition()
 	{
-		return $this->hasSection(DataProviderSectionInterface::NAME);
+		return $this->hasDefinition(DataProviderDefinitionInterface::NAME);
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function setDataProviderSection(DataProviderSectionInterface $section)
+	public function setDataProviderDefinition(DataProviderDefinitionInterface $definition)
 	{
-		return $this->setSection(DataProviderSectionInterface::NAME, $section);
+		return $this->setDefinition(DataProviderDefinitionInterface::NAME, $definition);
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function getDataProviderSection()
+	public function getDataProviderDefinition()
 	{
-		return $this->getSection(DataProviderSectionInterface::NAME);
+		return $this->getDefinition(DataProviderDefinitionInterface::NAME);
 	}
 }

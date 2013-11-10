@@ -14,11 +14,11 @@ namespace DcGeneral\DataDefinition;
 
 
 use DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
-use DcGeneral\DataDefinition\Section\BasicSectionInterface;
-use DcGeneral\DataDefinition\Section\ContainerSectionInterface;
-use DcGeneral\DataDefinition\Section\DataProviderSectionInterface;
-use DcGeneral\DataDefinition\Section\PalettesSectionInterface;
-use DcGeneral\DataDefinition\Section\PropertiesSectionInterface;
+use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use DcGeneral\DataDefinition\Definition\DefinitionInterface;
+use DcGeneral\DataDefinition\Definition\DataProviderDefinitionInterface;
+use DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
+use DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 interface ContainerInterface
@@ -31,153 +31,153 @@ interface ContainerInterface
 	public function getName();
 
 	/**
-	 * Check if this container has a section.
+	 * Check if this container has a definition.
 	 *
-	 * @param string $sectionName
+	 * @param string $definitionName
 	 *
 	 * @return bool
 	 */
-	public function hasSection($sectionName);
+	public function hasDefinition($definitionName);
 
 	/**
-	 * Clear all sections from this container.
+	 * Clear all definitions from this container.
 	 *
 	 * @return ContainerInterface
 	 */
-	public function clearSections();
+	public function clearDefinitions();
 
 	/**
-	 * Set the sections of this container.
+	 * Set the definitions of this container.
 	 *
-	 * @param ContainerSectionInterface[] $sections
+	 * @param DefinitionInterface[] $definitions
 	 *
 	 * @return ContainerInterface
 	 */
-	public function setSections(array $sections);
+	public function setDefinitions(array $definitions);
 
 	/**
-	 * Add multiple sections to this container.
+	 * Add multiple definitions to this container.
 	 *
-	 * @param ContainerSectionInterface[] $sections
+	 * @param DefinitionInterface[] $definitions
 	 *
 	 * @return ContainerInterface
 	 */
-	public function addSections(array $sections);
+	public function addDefinitions(array $definitions);
 
 	/**
-	 * Set a sections of this container.
+	 * Set a definitions of this container.
 	 *
-	 * @param string $sectionName
-	 * @param ContainerSectionInterface $section
+	 * @param string $definitionName
+	 * @param DefinitionInterface $definition
 	 *
 	 * @return ContainerInterface
 	 */
-	public function setSection($sectionName, ContainerSectionInterface $section);
+	public function setDefinition($definitionName, DefinitionInterface $definition);
 
 	/**
-	 * Remove a sections from this container.
+	 * Remove a definitions from this container.
 	 *
-	 * @param string $sectionName
+	 * @param string $definitionName
 	 *
 	 * @return ContainerInterface
 	 */
-	public function removeSection($sectionName);
+	public function removeDefinition($definitionName);
 
 	/**
-	 * Get a sections of this container.
+	 * Get a definitions of this container.
 	 *
-	 * @param string $sectionName
+	 * @param string $definitionName
 	 *
-	 * @return ContainerSectionInterface
+	 * @return DefinitionInterface
 	 *
-	 * @throws DcGeneralInvalidArgumentException Is thrown when there is no section with this name.
+	 * @throws DcGeneralInvalidArgumentException Is thrown when there is no definition with this name.
 	 */
-	public function getSection($sectionName);
+	public function getDefinition($definitionName);
 
 	/**
-	 * Get a list of all section names in this container.
+	 * Get a list of all definition names in this container.
 	 *
 	 * @return array
 	 */
-	public function getSectionNames();
+	public function getDefinitionNames();
 
 	/**
-	 * Convenience method to check if a basic section is contained.
+	 * Convenience method to check if a basic definition is contained.
 	 *
-	 * @return BasicSectionInterface
+	 * @return BasicDefinitionInterface
 	 */
-	public function hasBasicSection();
+	public function hasBasicDefinition();
 
 	/**
-	 * Convenience method to set the basic section.
+	 * Convenience method to set the basic definition.
 	 *
-	 * @param Section\BasicSectionInterface $section
+	 * @param Definition\BasicDefinitionInterface $basicDefinition
 	 *
-	 * @return ContainerSectionInterface
+	 * @return DefinitionInterface
 	 */
-	public function setBasicSection(BasicSectionInterface $section);
+	public function setBasicDefinition(BasicDefinitionInterface $basicDefinition);
 
 	/**
-	 * Convenience method to retrieve the basic section.
+	 * Convenience method to retrieve the basic definition.
 	 *
-	 * @return BasicSectionInterface
+	 * @return BasicDefinitionInterface
 	 */
-	public function getBasicSection();
+	public function getBasicDefinition();
 
 	/**
 	 * @return bool
 	 */
-	public function hasPropertiesSection();
+	public function hasPropertiesDefinition();
 
 	/**
-	 * @param PropertiesSectionInterface $section
+	 * @param PropertiesDefinitionInterface $propertiesDefinition
 	 *
-	 * @return ContainerSectionInterface
+	 * @return DefinitionInterface
 	 */
-	public function setPropertiesSection(PropertiesSectionInterface $section);
+	public function setPropertiesDefinition(PropertiesDefinitionInterface $propertiesDefinition);
 
 	/**
-	 * @return PropertiesSectionInterface
+	 * @return PropertiesDefinitionInterface
 	 */
-	public function getPropertiesSection();
+	public function getPropertiesDefinition();
 
 	/**
 	 * @return bool
 	 */
-	public function hasPalettesSection();
+	public function hasPalettesDefinition();
 
 	/**
-	 * @param PalettesSectionInterface $section
+	 * @param PalettesDefinitionInterface $palettesDefinition
 	 */
-	public function setPalettesSection(PalettesSectionInterface $section);
+	public function setPalettesDefinition(PalettesDefinitionInterface $palettesDefinition);
 
 	/**
-	 * @return PalettesSectionInterface
+	 * @return PalettesDefinitionInterface
 	 */
-	public function getPalettesSection();
+	public function getPalettesDefinition();
 
 	/**
-	 * Convenience method to check if a data provider section is contained.
+	 * Convenience method to check if a data provider definition is contained.
 	 *
-	 * @return BasicSectionInterface
+	 * @return BasicDefinitionInterface
 	 */
-	public function hasDataProviderSection();
+	public function hasDataProviderDefinition();
 
 	/**
-	 * Convenience method to set the data provider section.
+	 * Convenience method to set the data provider definition.
 	 *
-	 * @param DataProviderSectionInterface $section
+	 * @param DataProviderDefinitionInterface $dataProviderDefinition
 	 *
-	 * @return DataProviderSectionInterface
+	 * @return DataProviderDefinitionInterface
 	 */
-	public function setDataProviderSection(DataProviderSectionInterface $section);
+	public function setDataProviderDefinition(DataProviderDefinitionInterface $dataProviderDefinition);
 
 	/**
-	 * Convenience method to retrieve the data provider section.
+	 * Convenience method to retrieve the data provider definition.
 	 *
-	 * @return DataProviderSectionInterface
+	 * @return DataProviderDefinitionInterface
 	 */
-	public function getDataProviderSection();
+	public function getDataProviderDefinition();
 
 	// TODO extract
 

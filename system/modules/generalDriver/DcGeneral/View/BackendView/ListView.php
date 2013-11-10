@@ -15,8 +15,8 @@ namespace DcGeneral\View\BackendView;
 use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ModelInterface;
-use DcGeneral\DataDefinition\Section\BackendViewSectionInterface;
-use DcGeneral\DataDefinition\Section\View\ListingConfigInterface;
+use DcGeneral\DataDefinition\Definition\BackendViewDefinitionInterface;
+use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\View\BackendView\Event\ModelToLabelEvent;
 
@@ -34,7 +34,7 @@ class ListView extends BaseView
 		$environment            = $this->getEnvironment();
 		$definition             = $environment->getDataDefinition();
 		$objCurrentDataProvider = $environment->getDataProvider();
-		$objParentDataProvider  = $environment->getDataProvider($definition->getBasicSection()->getParentDataProvider());
+		$objParentDataProvider  = $environment->getDataProvider($definition->getBasicDefinition()->getParentDataProvider());
 		$objConfig              = $environment->getController()->getBaseConfig();
 
 		$this->getPanel()->initialize($objConfig);
@@ -199,8 +199,8 @@ class ListView extends BaseView
 	protected function setListViewLabel()
 	{
 		$definition   = $this->getEnvironment()->getDataDefinition();
-		$view = $definition->getSection(BackendViewSectionInterface::NAME);
-		/** @var BackendViewSectionInterface $view */
+		$view = $definition->getDefinition(BackendViewDefinitionInterface::NAME);
+		/** @var BackendViewDefinitionInterface $view */
 		$listingConfig = $view->getListingConfig();
 
 		$labelFormatter = $listingConfig->getLabelFormatter();
@@ -353,8 +353,8 @@ class ListView extends BaseView
 	{
 		$environment = $this->getEnvironment();
 		$definition  = $environment->getDataDefinition();
-		$view        = $definition->getSection(BackendViewSectionInterface::NAME);
-		/** @var BackendViewSectionInterface $view */
+		$view        = $definition->getDefinition(BackendViewDefinitionInterface::NAME);
+		/** @var BackendViewDefinitionInterface $view */
 		$listing     = $view->getListingConfig();
 
 		// Set label
