@@ -29,11 +29,14 @@ interface ViewDefinitionInterface extends DefinitionInterface
 	public function getListingConfig();
 
 	/**
-	 * @param $location
-	 *
 	 * @return CommandCollectionInterface
 	 */
-	public function getOperations($location);
+	public function getGlobalCommands();
+
+	/**
+	 * @return CommandCollectionInterface
+	 */
+	public function getModelCommands();
 
 	/**
 	 * Retrieve the panel layout.

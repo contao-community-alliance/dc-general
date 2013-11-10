@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -12,6 +13,7 @@
 
 namespace DcGeneral\Contao\DataDefinition\Definition;
 
+use DcGeneral\DataDefinition\Definition\View\CommandCollection;
 use DcGeneral\DataDefinition\Definition\View\DefaultListingConfig;
 use DcGeneral\DataDefinition\Definition\View\DefaultPanelLayout;
 use DcGeneral\DataDefinition\Definition\View\CommandCollectionInterface;
@@ -33,7 +35,12 @@ class Contao2BackendViewDefinition implements Contao2BackendViewDefinitionInterf
 	/**
 	 * @var CommandCollectionInterface
 	 */
-	protected $operations;
+	protected $globalCommands;
+
+	/**
+	 * @var CommandCollectionInterface
+	 */
+	protected $modelCommands;
 
 	/**
 	 * @var PanelLayoutInterface
@@ -42,14 +49,14 @@ class Contao2BackendViewDefinition implements Contao2BackendViewDefinitionInterf
 
 	public function __construct()
 	{
-		$this->listingConfig = new DefaultListingConfig();
-		// $this->operations    = new DefaultBackendOperationCollection;
-
-		$this->panelLayout   = new DefaultPanelLayout();
+		$this->listingConfig  = new DefaultListingConfig();
+		$this->globalCommands = new CommandCollection();
+		$this->modelCommands  = new CommandCollection();
+		$this->panelLayout    = new DefaultPanelLayout();
 	}
 
 	/**
-	 * @return ListingConfigInterface
+	 * {@inheritdoc}
 	 */
 	public function getListingConfig()
 	{
@@ -57,19 +64,23 @@ class Contao2BackendViewDefinition implements Contao2BackendViewDefinitionInterf
 	}
 
 	/**
-	 * @param $location
-	 *
-	 * @return CommandCollectionInterface
+	 * {@inheritdoc}
 	 */
-	public function getOperations($location)
+	public function getGlobalCommands()
 	{
-		return $this->operations;
+		return $this->globalCommands;
 	}
 
 	/**
-	 * Retrieve the panel layout.
-	 *
-	 * @return PanelLayoutInterface
+	 * {@inheritdoc}
+	 */
+	public function getModelCommands()
+	{
+		return $this->modelCommands;
+	}
+
+	/**
+	 * {@inheritdoc}
 	 */
 	public function getPanelLayout()
 	{
