@@ -141,7 +141,7 @@ abstract class Ajax extends \Backend
 	protected function toggleSubpalette(DataContainerInterface $objDc)
 	{
 		/**
-		 * @var \Contao\BackendUser $objUser
+		 * @var \BackendUser $objUser
 		 */
 		$objUser = \BackendUser::getInstance();
 		$arrDCA  = $objDc->getDCA();

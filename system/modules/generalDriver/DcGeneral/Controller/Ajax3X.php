@@ -36,7 +36,7 @@ class Ajax3X extends Ajax
 		$arrData['name'] = self::getPost('name');
 
 		/**
-		 * @var \Contao\PageSelector $objWidget
+		 * @var \PageSelector $objWidget
 		 */
 		$objWidget = new $GLOBALS['BE_FFL']['pageSelector']($arrData, $objDc);
 		echo $objWidget->generateAjax(self::getAjaxId(), self::getPost('field'), intval(self::getPost('level')));
@@ -50,7 +50,7 @@ class Ajax3X extends Ajax
 		$arrData['name'] = self::getPost('name');
 
 		/**
-		 * @var \Contao\FileSelector $objWidget
+		 * @var \FileSelector $objWidget
 		 */
 		$objWidget = new $GLOBALS['BE_FFL']['fileSelector']($arrData, $objDc);
 

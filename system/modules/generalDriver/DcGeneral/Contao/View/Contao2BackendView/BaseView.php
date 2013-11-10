@@ -1313,7 +1313,7 @@ class BaseView implements BackendViewInterface
 				$objWidget = $this->getDC()->getWidget($varField);
 
 				// TODO: is this check needed? What widget might be of "non-widget" type?
-				if (!$objWidget instanceof \Contao\Widget)
+				if (!$objWidget instanceof \Widget)
 				{
 					/* TODO wtf is this shit? A widget **cannot** be converted to a string!
 					echo $objWidget;

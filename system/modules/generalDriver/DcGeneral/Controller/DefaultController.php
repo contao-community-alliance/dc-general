@@ -2420,7 +2420,7 @@ class DefaultController implements ControllerInterface
 					else
 					{
 						// FIXME: dependency injection?
-						$objDate = new \Contao\Date($arrSession['filter'][$strFilter][$field]);
+						$objDate = new \Date($arrSession['filter'][$strFilter][$field]);
 						$this->getDC()->setFilter(array(
 							array('operation' => '>', 'property' => $field, 'value' => $objDate->dayBegin),
 							array('operation' => '<', 'property' => $field, 'value' => $objDate->dayEnd)
@@ -2438,7 +2438,7 @@ class DefaultController implements ControllerInterface
 					else
 					{
 						// FIXME: dependency injection?
-						$objDate = new \Contao\Date($arrSession['filter'][$strFilter][$field]);
+						$objDate = new \Date($arrSession['filter'][$strFilter][$field]);
 						$this->getDC()->setFilter(array(
 							array('operation' => '>', 'property' => $field, 'value' => $objDate->monthBegin),
 							array('operation' => '<', 'property' => $field, 'value' => $objDate->monthEnd)

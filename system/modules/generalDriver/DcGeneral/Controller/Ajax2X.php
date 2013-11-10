@@ -37,7 +37,7 @@ class Ajax2X extends Ajax
 		$arrData['name'] = self::getPost('name');
 
 		/**
-		 * @var \Contao\PageSelector $objWidget
+		 * @var \PageSelector $objWidget
 		 */
 		$objWidget = new $GLOBALS['BE_FFL']['pageTree']($arrData, $objDc);
 		echo $objWidget->generateAjax(self::getAjaxId(), self::getPost('field'), intval(self::getPost('level')));
