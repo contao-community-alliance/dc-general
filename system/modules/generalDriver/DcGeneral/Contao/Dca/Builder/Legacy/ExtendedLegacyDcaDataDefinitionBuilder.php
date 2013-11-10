@@ -16,6 +16,8 @@ use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
 use DcGeneral\Contao\Dca\Section\ExtendedDca;
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\DataDefinition\Section\DefaultDataProviderSection;
+use DcGeneral\DataDefinition\Section\DefaultPalettesSection;
+use DcGeneral\DataDefinition\Section\PalettesSectionInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 

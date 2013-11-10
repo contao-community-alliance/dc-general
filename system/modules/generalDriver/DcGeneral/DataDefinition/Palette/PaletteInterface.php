@@ -14,6 +14,8 @@ namespace DcGeneral\DataDefinition\Palette;
 
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\PropertyValueBag;
+use DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionInterface;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * A palette contains a set of properties, grouped by legends.
