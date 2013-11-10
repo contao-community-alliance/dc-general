@@ -33,7 +33,7 @@ class FinishPropertyEvent extends BuilderEvent
 	function __construct(PropertyInterface $property, PaletteBuilder $paletteBuilder)
 	{
 		$this->setProperty($property);
-		$this->setPaletteBuilder($paletteBuilder);
+		parent::__construct($paletteBuilder);
 	}
 
 	/**

@@ -12,6 +12,7 @@
 
 namespace DcGeneral\DataDefinition\Palette\Builder\Event;
 
+use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
 use DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
 use DcGeneral\EnvironmentInterface;
 
@@ -32,7 +33,7 @@ class CreatePaletteCollectionEvent extends BuilderEvent
 	function __construct(PaletteCollectionInterface $paletteCollection, PaletteBuilder $paletteBuilder)
 	{
 		$this->setPaletteCollection($paletteCollection);
-		$this->setPaletteBuilder($paletteBuilder);
+		parent::__construct($paletteBuilder);
 	}
 
 	/**

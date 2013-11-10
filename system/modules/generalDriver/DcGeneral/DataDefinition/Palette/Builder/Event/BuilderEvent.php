@@ -20,24 +20,21 @@ use DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterfa
 use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
 use DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
 use DcGeneral\EnvironmentInterface;
+use DcGeneral\Event\ContainerAwareEvent;
 use DcGeneral\Event\EnvironmentAwareEvent;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 
-abstract class BuilderEvent extends EnvironmentAwareEvent
+abstract class BuilderEvent extends ContainerAwareEvent
 {
 	/**
 	 * @var PaletteBuilder
 	 */
 	protected $paletteBuilder;
 
-	/**
-	 * @param PaletteBuilder $paletteBuilder
-	 */
-	protected function setPaletteBuilder($paletteBuilder)
+	function __construct(PaletteBuilder $paletteBuilder)
 	{
 		$this->paletteBuilder = $paletteBuilder;
-		return $this;
 	}
 
 	/**
@@ -53,6 +50,6 @@ abstract class BuilderEvent extends EnvironmentAwareEvent
 	 */
 	public function getEnvironment()
 	{
-		return $this->paletteBuilder->getEnvironment();
+		return $this->paletteBuilder->getContainer();
 	}
 }

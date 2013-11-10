@@ -33,7 +33,7 @@ class CreatePaletteEvent extends BuilderEvent
 	function __construct(PaletteInterface $palette, PaletteBuilder $paletteBuilder)
 	{
 		$this->setPalette($palette);
-		$this->setPaletteBuilder($paletteBuilder);
+		parent::__construct($paletteBuilder);
 	}
 
 	/**

@@ -32,7 +32,7 @@ class SetPalettePropertyValueConditionClassNameEvent extends BuilderEvent
 	function __construct($palettePropertyValueConditionClassName, PaletteBuilder $paletteBuilder)
 	{
 		$this->setPalettePropertyValueConditionClassName($palettePropertyValueConditionClassName);
-		$this->setPaletteBuilder($paletteBuilder);
+		parent::__construct($paletteBuilder);
 	}
 
 	/**

@@ -34,7 +34,7 @@ class CreateDefaultPaletteConditionEvent extends BuilderEvent
 	function __construct(DefaultPaletteCondition $defaultPaletteCondition, PaletteBuilder $paletteBuilder)
 	{
 		$this->setDefaultPaletteCondition($defaultPaletteCondition);
-		$this->setPaletteBuilder($paletteBuilder);
+		parent::__construct($paletteBuilder);
 	}
 
 	/**

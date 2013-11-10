@@ -32,7 +32,7 @@ class SetDefaultPaletteConditionClassNameEvent extends BuilderEvent
 	function __construct($defaultPaletteConditionClassName, PaletteBuilder $paletteBuilder)
 	{
 		$this->setDefaultPaletteConditionClassName($defaultPaletteConditionClassName);
-		$this->setPaletteBuilder($paletteBuilder);
+		parent::__construct($paletteBuilder);
 	}
 
 	/**

@@ -33,7 +33,7 @@ class FinishPaletteCollectionEvent extends BuilderEvent
 	function __construct(PaletteCollectionInterface $paletteCollection, PaletteBuilder $paletteBuilder)
 	{
 		$this->setPaletteCollection($paletteCollection);
-		$this->setPaletteBuilder($paletteBuilder);
+		parent::__construct($paletteBuilder);
 	}
 
 	/**
