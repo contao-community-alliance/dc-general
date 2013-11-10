@@ -22,14 +22,18 @@ use DcGeneral\DataDefinition\Section\DefaultBasicSection;
 use DcGeneral\DataDefinition\Section\DefaultDataProviderSection;
 use DcGeneral\DataDefinition\Section\DefaultPalettesSection;
 use DcGeneral\DataDefinition\Section\Palette\DefaultProperty;
+use DcGeneral\DataDefinition\Section\Palette\PropertyInterface;
 use DcGeneral\DataDefinition\Section\PalettesSectionInterface;
 use DcGeneral\DataDefinition\Section\DefaultPropertiesSection;
+use DcGeneral\DataDefinition\Section\View\ListingConfigInterface;
 use DcGeneral\DataDefinition\Section\View\Panel\DefaultFilterElementInformation;
 use DcGeneral\DataDefinition\Section\View\Panel\DefaultLimitElementInformation;
 use DcGeneral\DataDefinition\Section\View\Panel\DefaultSearchElementInformation;
 use DcGeneral\DataDefinition\Section\View\Panel\DefaultSortElementInformation;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
+use DcGeneral\View\BackendView\LabelFormatter;
 
 /**
  * Build the container config from legacy DCA syntax.
@@ -51,6 +55,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		}
 
 		$this->parseBasicSection($container);
+		$this->parseListing($container);
 		$this->parseProperties($container);
 		$this->parsePalettes($container);
 		$this->parseDataProvider($container);
@@ -115,6 +120,110 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	}
 
 	/**
+	 * Parse the listing configuration.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
+	protected function parseListing(ContainerInterface $container)
+	{
+		$view = $this->getBackendViewSection($container);
+		$listing = $view->getListingConfig();
+
+		$listDca = $this->getFromDca('list');
+
+		// cancel if no list configuration found
+		if (!$listDca) {
+			return;
+		}
+
+		$this->parseListSorting($listing, $listDca);
+		$this->parseListLabel($listing, $listDca);
+	}
+
+	/**
+	 * Parse the sorting part of listing configuration.
+	 *
+	 * @param ListingConfigInterface $listing
+	 *
+	 * @return void
+	 */
+	protected function parseListSorting(ListingConfigInterface $listing, array $listDca)
+	{
+		$sortingDca = isset($listDca['sorting']) ? $listDca['sorting'] : array();
+
+		if (isset($sortingDca['flag'])) {
+			$this->evalFlag($listing, $sortingDca['flag']);
+		}
+
+		if (isset($sortingDca['fields'])) {
+			$fields = array();
+
+			foreach ($sortingDca['fields'] as $field) {
+				if (preg_match('~^(\w+)(?: (ASC|DESC))?$~', $field, $matches)) {
+					$fields[$matches[1]] = isset($matches[2]) ? $matches[2] : 'ASC';
+				}
+				else {
+					throw new DcGeneralRuntimeException('Custom SQL in sorting fields are currently unsupported');
+				}
+			}
+
+			$listing->setDefaultSortingFields($fields);
+		}
+
+		if (isset($sortingDca['headerFields'])) {
+			$listing->setHeaderPropertyNames((array) $sortingDca['headerFields']);
+		}
+
+		if (isset($sortingDca['icon'])) {
+			$listing->setRootIcon($sortingDca['icon']);
+		}
+
+		if (isset($sortingDca['disableGrouping']) && $sortingDca['disableGrouping']) {
+			$listing->setGroupingMode(ListingConfigInterface::GROUP_NONE);
+		}
+
+		if (isset($sortingDca['child_record_class'])) {
+			$listing->setItemCssClass($sortingDca['child_record_class']);
+		}
+	}
+
+	/**
+	 * Parse the sorting part of listing configuration.
+	 *
+	 * @param ListingConfigInterface $listing
+	 *
+	 * @return void
+	 */
+	protected function parseListLabel(ListingConfigInterface $listing, array $listDca)
+	{
+		$labelDca   = isset($listDca['label']) ? $listDca['label'] : array();
+
+		$formatter  = new LabelFormatter();
+		$configured = false;
+
+		if (isset($labelDca['fields'])) {
+			$formatter->setPropertyNames($labelDca['fields']);
+			$configured = true;
+		}
+
+		if (isset($labelDca['format'])) {
+			$formatter->setFormat($labelDca['format']);
+			$configured = true;
+		}
+
+		if (isset($labelDca['maxCharacters'])) {
+			$formatter->setMaxLenght($labelDca['maxCharacters']);
+			$configured = true;
+		}
+
+		if ($configured) {
+			$listing->setLabelFormatter($formatter);
+		}
+	}
+
+	/**
 	 * Parse the defined properties and populate the section.
 	 *
 	 * @param ContainerInterface $container
@@ -148,7 +257,19 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 			if (!$property->getLabel() && isset($propInfo['label']))
 			{
-				$property->setLabel($propInfo['label']);
+				$lang = $propInfo['label'];
+
+				if (is_array($lang)) {
+					$label       = reset($lang);
+					$description = next($lang);
+
+					$property->setDescription($description);
+				}
+				else {
+					$label = $lang;
+				}
+
+				$property->setLabel($label);
 			}
 
 			if (!$property->getDescription() && isset($propInfo['description']))
@@ -183,16 +304,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 			if (isset($propInfo['flag']))
 			{
-				if (!$property->getGroupingMode())
-				{
-					// // TODO: determine grouping mode here
-					$property->setGroupingMode($propInfo['flag']);
-				}
-				if (!$property->getSortingMode())
-				{
-					// // TODO: determine sorting mode here
-					$property->getSortingMode($propInfo['flag']);
-				}
+				$this->evalFlag($property, $propInfo['flag']);
 			}
 
 			if (!$property->getGroupingLength() && isset($propInfo['length']))
@@ -412,5 +524,125 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			$subPalettesDefinition,
 			$palettesSection
 		);
+	}
+
+	/**
+	 * Evaluate the contao 2 sorting flag into sorting mode, grouping mode and grouping length.
+	 *
+	 * @param ListingConfigInterface|PropertyInterface $config
+	 * @param int $flag
+	 */
+	protected function evalFlag($config, $flag)
+	{
+		switch ($flag) {
+			// Sort by initial letter ascending
+			// Aufsteigende Sortierung nach Anfangsbuchstabe
+			case 1:
+			// Sort by initial two letters ascending
+			// Aufsteigende Sortierung nach den ersten beiden Buchstaben
+			case 3:
+			// Sort by day ascending
+			// Aufsteigende Sortierung nach Tag
+			case 5:
+			// Sort by month ascending
+			// Aufsteigende Sortierung nach Monat
+			case 7:
+			// Sort by year ascending
+			// Aufsteigende Sortierung nach Jahr
+			case 9:
+			// Sort ascending
+			// Aufsteigende Sortierung
+			case 11:
+				$config->setSortingMode(ListingConfigInterface::SORT_ASC);
+				break;
+			// Sort by initial letter descending
+			// Absteigende Sortierung nach Anfangsbuchstabe
+			case 2:
+			// Sort by initial two letters descending
+			// Absteigende Sortierung nach den ersten beiden Buchstaben
+			case 4:
+			// Sort by day descending
+			// Absteigende Sortierung nach Tag
+			case 6:
+			// Sort by month descending
+			// Absteigende Sortierung nach Monat
+			case 8:
+			// Sort by year descending
+			// Absteigende Sortierung nach Jahr
+			case 10:
+			// Sort descending
+			// Absteigende Sortierung
+			case 12:
+				$config->setSortingMode(ListingConfigInterface::SORT_DESC);
+				break;
+		}
+
+		switch ($flag) {
+			// Sort by initial letter ascending
+			// Aufsteigende Sortierung nach Anfangsbuchstabe
+			case 1:
+			// Sort by initial letter descending
+			// Absteigende Sortierung nach Anfangsbuchstabe
+			case 2:
+			// Sort by initial two letters ascending
+			// Aufsteigende Sortierung nach den ersten beiden Buchstaben
+			case 3:
+			// Sort by initial two letters descending
+			// Absteigende Sortierung nach den ersten beiden Buchstaben
+			case 4:
+				$config->setGroupingMode(ListingConfigInterface::GROUP_CHAR);
+				break;
+			// Sort by day ascending
+			// Aufsteigende Sortierung nach Tag
+			case 5:
+			// Sort by day descending
+			// Absteigende Sortierung nach Tag
+			case 6:
+				$config->setGroupingMode(ListingConfigInterface::GROUP_DAY);
+				break;
+			// Sort by month ascending
+			// Aufsteigende Sortierung nach Monat
+			case 7:
+			// Sort by month descending
+			// Absteigende Sortierung nach Monat
+			case 8:
+				$config->setGroupingMode(ListingConfigInterface::GROUP_MONTH);
+				break;
+			// Sort by year ascending
+			// Aufsteigende Sortierung nach Jahr
+			case 9:
+			// Sort by year descending
+			// Absteigende Sortierung nach Jahr
+			case 10:
+				$config->setGroupingMode(ListingConfigInterface::GROUP_YEAR);
+				break;
+			// Sort ascending
+			// Aufsteigende Sortierung
+			case 11:
+			// Sort descending
+			// Absteigende Sortierung
+			case 12:
+				$config->setGroupingMode(ListingConfigInterface::GROUP_NONE);
+				break;
+		}
+
+		switch ($flag) {
+			// Sort by initial letter ascending
+			// Aufsteigende Sortierung nach Anfangsbuchstabe
+			case 1:
+			// Sort by initial letter descending
+			// Absteigende Sortierung nach Anfangsbuchstabe
+			case 2:
+				$config->setGroupingLength(1);
+				break;
+			// Sort by initial two letters ascending
+			// Aufsteigende Sortierung nach den ersten beiden Buchstaben
+			case 3:
+			// Sort by initial two letters descending
+			// Absteigende Sortierung nach den ersten beiden Buchstaben
+			case 4:
+				$config->setGroupingLength(2);
+				break;
+		}
 	}
 }
