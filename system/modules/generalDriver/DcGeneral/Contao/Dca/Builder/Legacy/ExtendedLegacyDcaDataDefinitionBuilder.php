@@ -39,6 +39,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
 		// TODO parse $localDca variable into $container
 		$this->parseDataProvider($container);
+		$this->parsePalettes($container);
 	}
 
 	protected function parseClassNames(ContainerInterface $container)
@@ -222,5 +223,27 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 				$container->getBasicSection()->setParentDataProvider($providerInformation->getName());
 			}
 		}
+	}
+
+	protected function parsePalettes(ContainerInterface $container)
+	{
+		$palettesDefinition = $this->getFromDca('palettes');
+
+		// skip while there is no extended palette definition
+		if (!is_callable($palettesDefinition)) {
+			return;
+		}
+
+		if ($container->hasSection(PalettesSectionInterface::NAME))
+		{
+			$palettesSection = $container->getSection(PalettesSectionInterface::NAME);
+		}
+		else
+		{
+			$palettesSection = new DefaultPalettesSection();
+			$container->setSection(PalettesSectionInterface::NAME, $palettesSection);
+		}
+
+		call_user_func($palettesDefinition, $palettesSection, $container);
 	}
 }
