@@ -1229,7 +1229,7 @@ class BaseView implements BackendViewInterface
 	public function generateFieldsets($strFieldTemplate)
 	{
 		// Load the states of legends
-		$arrFieldsetStates = $this->getDC()->getEnvironment()->getInputProvider()->getPersistentValue('fieldset_states');
+		$arrFieldsetStates = $this->getEnvironment()->getInputProvider()->getPersistentValue('fieldset_states');
 		$arrFieldsetStates = $arrFieldsetStates[$this->getDC()->getEnvironment()->getDataDefinition()->getName()];
 
 		if (!is_array($arrFieldsetStates))
@@ -1908,7 +1908,7 @@ class BaseView implements BackendViewInterface
 		{
 			$objTemplate = $this->getTemplate('dcbe_general_panel');
 			$this
-				->addToTemplate('action', ampersand($this->getDC()->getInputProvider()->getRequestUrl(), true), $objTemplate)
+				->addToTemplate('action', ampersand($this->getEnvironment()->getInputProvider()->getRequestUrl(), true), $objTemplate)
 				// ->addToTemplate('theme', $this->getTheme(), $objTemplate) // FIXME: dependency injection
 				->addToTemplate('panel', $arrPanels, $objTemplate);
 
