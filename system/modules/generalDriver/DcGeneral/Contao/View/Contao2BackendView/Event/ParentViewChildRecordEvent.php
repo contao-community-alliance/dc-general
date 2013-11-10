@@ -18,7 +18,7 @@ use DcGeneral\Event\EnvironmentAwareEvent;
 class ParentViewChildRecordEvent
 	extends EnvironmentAwareEvent
 {
-    const NAME = 'dc-general.view.widget.parent-view-child-record';
+    const NAME = 'dc-general.view.contao2backend.parent-view-child-record';
 
 	/**
 	 * @var string

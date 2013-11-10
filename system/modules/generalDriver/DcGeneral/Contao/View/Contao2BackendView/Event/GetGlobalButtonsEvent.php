@@ -15,5 +15,5 @@ namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 class GetGlobalButtonsEvent
 	extends BaseGetButtonsEvent
 {
-    const NAME = 'dc-general.view.widget.get-global-buttons';
+    const NAME = 'dc-general.view.contao2backend.get-global-buttons';
 }

@@ -17,7 +17,7 @@ use DcGeneral\Event\EnvironmentAwareEvent;
 class GetGroupHeaderEvent
 	extends EnvironmentAwareEvent
 {
-    const NAME = 'dc-general.view.widget.get-group-header';
+    const NAME = 'dc-general.view.contao2backend.get-group-header';
 
 	/**
 	 * @var string

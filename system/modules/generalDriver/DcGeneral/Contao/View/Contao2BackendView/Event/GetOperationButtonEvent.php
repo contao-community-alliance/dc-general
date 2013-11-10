@@ -15,7 +15,7 @@ namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 class GetOperationButtonEvent
 	extends BaseButtonEvent
 {
-    const NAME = 'dc-general.view.widget.get-operation-button';
+    const NAME = 'dc-general.view.contao2backend.get-operation-button';
 
 	/**
 	 * @var \DcGeneral\DataDefinition\OperationInterface

@@ -17,7 +17,7 @@ use DcGeneral\Event\EnvironmentAwareEvent;
 class ModelToLabelEvent
 	extends EnvironmentAwareEvent
 {
-    const NAME = 'dc-general.view.widget.model-to-label';
+    const NAME = 'dc-general.view.contao2backend.model-to-label';
 
 	/**
 	 * @var \DcGeneral\Data\ModelInterface

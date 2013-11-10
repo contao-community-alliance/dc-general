@@ -17,7 +17,7 @@ use DcGeneral\Event\EnvironmentAwareEvent;
 class GetPropertyOptionsEvent
 	extends EnvironmentAwareEvent
 {
-    const NAME = 'dc-general.view.widget.get-property-options';
+    const NAME = 'dc-general.view.contao2backend.get-property-options';
 
 	/**
 	 * @var string

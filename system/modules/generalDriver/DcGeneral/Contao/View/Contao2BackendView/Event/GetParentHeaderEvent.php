@@ -17,7 +17,7 @@ use DcGeneral\Event\EnvironmentAwareEvent;
 class GetParentHeaderEvent
 	extends EnvironmentAwareEvent
 {
-    const NAME = 'dc-general.view.widget.get-parent-header';
+    const NAME = 'dc-general.view.contao2backend.get-parent-header';
 
 	/**
 	 * @var array
