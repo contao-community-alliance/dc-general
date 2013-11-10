@@ -55,33 +55,24 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		}
 
 		$this->parseBasicDefinition($container);
-		$this->parseListing($container);
-		$this->parseProperties($container);
-		$this->parsePalettes($container);
 		$this->parseDataProvider($container);
+		$this->parseRootEntries($container);
+		$this->parseParentChildConditions($container);
+		$this->parseListing($container);
 		$this->parsePanel($container);
+		$this->parseContainerOperations($container);
+		$this->parseModelOperations($container);
+		$this->parsePalettes($container);
+		$this->parseProperties($container);
 	}
 
-	protected function getBackendViewDefinition(ContainerInterface $container)
-	{
-		if ($container->hasDefinition(Contao2BackendViewDefinitionInterface::NAME))
-		{
-			$config = $container->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-		}
-		else
-		{
-			$config = new Contao2BackendViewDefinition();
-			$container->setDefinition(Contao2BackendViewDefinitionInterface::NAME, $config);
-		}
-
-		if (!$config instanceof Contao2BackendViewDefinitionInterface)
-		{
-			throw new DcGeneralInvalidArgumentException('Configured BackendViewDefinition does not implement Contao2BackendViewDefinitionInterface.');
-		}
-
-		return $config;
-	}
-
+	/**
+	 * Parse the basic configuration and populate the definition.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
 	protected function parseBasicDefinition(ContainerInterface $container)
 	{
 		// parse data provider
@@ -117,6 +108,101 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		{
 			$config->setSwitchToEditEnabled((bool) $switchToEdit);
 		}
+	}
+
+	/**
+	 * This method parses all data provider related information from Contao legacy data container arrays.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
+	protected function parseDataProvider(ContainerInterface $container)
+	{
+		// parse data provider
+		if ($container->hasDataProviderDefinition())
+		{
+			$config = $container->getDataProviderDefinition();
+		}
+		else
+		{
+			$config = new DefaultDataProviderDefinition();
+			$container->setDataProviderDefinition($config);
+		}
+
+		if (($parentTable = $this->getFromDca('config/ptable')) !== null)
+		{
+			// Check config if it already exists, if not, add it.
+			if (!$config->hasInformation($parentTable))
+			{
+				$providerInformation = new ContaoDataProviderInformation();
+				$providerInformation->setName($parentTable);
+				$config->addInformation($providerInformation);
+			}
+			else
+			{
+				$providerInformation = $config->getInformation($parentTable);
+			}
+
+			if ($providerInformation instanceof ContaoDataProviderInformation)
+			{
+				$providerInformation
+					->setTableName($parentTable)
+					->setInitializationData(array(
+						'source' => $container->getName()
+					));
+
+				$container->getBasicDefinition()->setRootDataProvider($parentTable);
+			}
+		}
+
+		// Check config if it already exists, if not, add it.
+		if (!$config->hasInformation($container->getName()))
+		{
+			$providerInformation = new ContaoDataProviderInformation();
+			$providerInformation->setName($container->getName());
+			$config->addInformation($providerInformation);
+		}
+		else
+		{
+			$providerInformation = $config->getInformation($container->getName());
+		}
+
+		if ($providerInformation instanceof ContaoDataProviderInformation)
+		{
+			$providerInformation
+				->setTableName($container->getName())
+				->setInitializationData(array(
+					'source' => $container->getName()
+				))
+				->isVersioningEnabled((bool)$this->getFromDca('config/enableVersioning'));
+
+			$container->getBasicDefinition()->setDataProvider($container->getName());
+		}
+	}
+
+	/**
+	 * This method parses the root entries definition.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
+	protected function parseRootEntries(ContainerInterface $container)
+	{
+		// TODO to be implemented
+	}
+
+	/**
+	 * This method parses the parent-child conditions.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
+	protected function parseParentChildConditions(ContainerInterface $container)
+	{
+		// TODO to be implemented
 	}
 
 	/**
@@ -221,6 +307,164 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		if ($configured) {
 			$listing->setLabelFormatter($formatter);
 		}
+	}
+
+	/**
+	 * Parse the defined palettes and populate the definition.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
+	protected function parsePanel(ContainerInterface $container)
+	{
+		$config = $this->getBackendViewDefinition($container);
+
+		$layout = $config->getPanelLayout();
+		$rows = $layout->getRows();
+
+		foreach (explode(';', (string)$this->getFromDca('list/sorting/panelLayout')) as $rowNo => $elementRow)
+		{
+			if ($rows->getRowCount() < $rowNo+1)
+			{
+				$row = $rows->addRow();
+			}
+			else
+			{
+				$row = $rows->getRow($rowNo);
+			}
+
+			foreach (explode(',', $elementRow) as $element)
+			{
+				switch ($element)
+				{
+					case 'filter':
+						foreach ($this->getFromDca('fields') as $property => $value)
+						{
+							if (isset($value['filter']))
+							{
+								$element = new DefaultFilterElementInformation();
+								$element->setPropertyName($property);
+								if (!$row->hasElement($element->getName()))
+								{
+									$row->addElement($element);
+								}
+							}
+						}
+						continue;
+					case 'sort':
+						if ($row->hasElement('sort'))
+						{
+							$element = $row->getElement('sort');
+						}
+						else
+						{
+							$element = new DefaultSortElementInformation();
+							$row->addElement($element);
+						}
+
+						foreach ($this->getFromDca('fields') as $property => $value)
+						{
+							if (isset($value['sorting']))
+							{
+								$element->addProperty($property, (int)$value['flag']);
+							}
+						}
+						continue;
+					case 'search':
+						if ($row->hasElement('search'))
+						{
+							$element = $row->getElement('search');
+						}
+						else
+						{
+							$element = new DefaultSearchElementInformation();
+						}
+						foreach ($this->getFromDca('fields') as $property => $value)
+						{
+							if (isset($value['search']))
+							{
+								$element->addProperty($property);
+							}
+						}
+						if ($element->getPropertyNames() && !$row->hasElement('search'))
+						{
+							$row->addElement($element);
+						}
+						continue;
+					case 'limit':
+						if (!$row->hasElement('limit'))
+						{
+							$row->addElement(new DefaultLimitElementInformation());
+						}
+						continue;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Parse the defined container scoped operations and populate the definition.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
+	protected function parseContainerOperations(ContainerInterface $container)
+	{
+		// TODO to be implemented
+	}
+
+	/**
+	 * Parse the defined model scoped operations and populate the definition.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
+	protected function parseModelOperations(ContainerInterface $container)
+	{
+		// TODO to be implemented
+	}
+
+	/**
+	 * Parse the defined palettes and populate the definition.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
+	protected function parsePalettes(ContainerInterface $container)
+	{
+		$palettesDefinition = $this->getFromDca('palettes');
+		$subPalettesDefinition = $this->getFromDca('subpalettes');
+
+		// skip while there is no legacy palette definition
+		if (!is_array($palettesDefinition)) {
+			return;
+		}
+
+		// ignore non-legacy subpalette definition
+		if (!is_array($subPalettesDefinition)) {
+			$subPalettesDefinition = array();
+		}
+
+		if ($container->hasDefinition(PalettesDefinitionInterface::NAME))
+		{
+			$palettesDefinition = $container->getDefinition(PalettesDefinitionInterface::NAME);
+		}
+		else
+		{
+			$palettesDefinition = new DefaultPalettesDefinition();
+			$container->setDefinition(PalettesDefinitionInterface::NAME, $palettesDefinition);
+		}
+
+		$palettesParser = new LegacyPalettesParser();
+		$palettesParser->parse(
+			$palettesDefinition,
+			$subPalettesDefinition,
+			$palettesDefinition
+		);
 	}
 
 	/**
@@ -336,194 +580,32 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	}
 
 	/**
-	 * This method parses all data provider related information from Contao legacy data container arrays.
+	 * Get the Contao2BackendViewDefinition from the container.
 	 *
 	 * @param ContainerInterface $container
 	 *
-	 * @return void
+	 * @return Contao2BackendViewDefinition|\DcGeneral\DataDefinition\Definition\DefinitionInterface
+	 *
+	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException If a predefined definition is not compatible.
 	 */
-	protected function parseDataProvider(ContainerInterface $container)
+	protected function getBackendViewDefinition(ContainerInterface $container)
 	{
-		// parse data provider
-		if ($container->hasDataProviderDefinition())
+		if ($container->hasDefinition(Contao2BackendViewDefinitionInterface::NAME))
 		{
-			$config = $container->getDataProviderDefinition();
+			$config = $container->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
 		}
 		else
 		{
-			$config = new DefaultDataProviderDefinition();
-			$container->setDataProviderDefinition($config);
+			$config = new Contao2BackendViewDefinition();
+			$container->setDefinition(Contao2BackendViewDefinitionInterface::NAME, $config);
 		}
 
-		if (($parentTable = $this->getFromDca('config/ptable')) !== null)
+		if (!$config instanceof Contao2BackendViewDefinitionInterface)
 		{
-			// Check config if it already exists, if not, add it.
-			if (!$config->hasInformation($parentTable))
-			{
-				$providerInformation = new ContaoDataProviderInformation();
-				$providerInformation->setName($parentTable);
-				$config->addInformation($providerInformation);
-			}
-			else
-			{
-				$providerInformation = $config->getInformation($parentTable);
-			}
-
-			if ($providerInformation instanceof ContaoDataProviderInformation)
-			{
-				$providerInformation
-					->setTableName($parentTable)
-					->setInitializationData(array(
-						'source' => $container->getName()
-					));
-
-				$container->getBasicDefinition()->setRootDataProvider($parentTable);
-			}
+			throw new DcGeneralInvalidArgumentException('Configured BackendViewDefinition does not implement Contao2BackendViewDefinitionInterface.');
 		}
 
-		// Check config if it already exists, if not, add it.
-		if (!$config->hasInformation($container->getName()))
-		{
-			$providerInformation = new ContaoDataProviderInformation();
-			$providerInformation->setName($container->getName());
-			$config->addInformation($providerInformation);
-		}
-		else
-		{
-			$providerInformation = $config->getInformation($container->getName());
-		}
-
-		if ($providerInformation instanceof ContaoDataProviderInformation)
-		{
-			$providerInformation
-				->setTableName($container->getName())
-				->setInitializationData(array(
-					'source' => $container->getName()
-				))
-				->isVersioningEnabled((bool)$this->getFromDca('config/enableVersioning'));
-
-			$container->getBasicDefinition()->setDataProvider($container->getName());
-		}
-	}
-
-	protected function parsePanel(ContainerInterface $container)
-	{
-		$config = $this->getBackendViewDefinition($container);
-
-		$layout = $config->getPanelLayout();
-		$rows = $layout->getRows();
-
-		foreach (explode(';', (string)$this->getFromDca('list/sorting/panelLayout')) as $rowNo => $elementRow)
-		{
-			if ($rows->getRowCount() < $rowNo+1)
-			{
-				$row = $rows->addRow();
-			}
-			else
-			{
-				$row = $rows->getRow($rowNo);
-			}
-
-			foreach (explode(',', $elementRow) as $element)
-			{
-				switch ($element)
-				{
-					case 'filter':
-						foreach ($this->getFromDca('fields') as $property => $value)
-						{
-							if (isset($value['filter']))
-							{
-								$element = new DefaultFilterElementInformation();
-								$element->setPropertyName($property);
-								if (!$row->hasElement($element->getName()))
-								{
-									$row->addElement($element);
-								}
-							}
-						}
-						continue;
-					case 'sort':
-						if ($row->hasElement('sort'))
-						{
-							$element = $row->getElement('sort');
-						}
-						else
-						{
-							$element = new DefaultSortElementInformation();
-							$row->addElement($element);
-						}
-
-						foreach ($this->getFromDca('fields') as $property => $value)
-						{
-							if (isset($value['sorting']))
-							{
-								$element->addProperty($property, (int)$value['flag']);
-							}
-						}
-						continue;
-					case 'search':
-						if ($row->hasElement('search'))
-						{
-							$element = $row->getElement('search');
-						}
-						else
-						{
-							$element = new DefaultSearchElementInformation();
-						}
-						foreach ($this->getFromDca('fields') as $property => $value)
-						{
-							if (isset($value['search']))
-							{
-								$element->addProperty($property);
-							}
-						}
-						if ($element->getPropertyNames() && !$row->hasElement('search'))
-						{
-							$row->addElement($element);
-						}
-						continue;
-					case 'limit':
-						if (!$row->hasElement('limit'))
-						{
-							$row->addElement(new DefaultLimitElementInformation());
-						}
-						continue;
-				}
-			}
-		}
-	}
-
-	protected function parsePalettes(ContainerInterface $container)
-	{
-		$palettesDefinition = $this->getFromDca('palettes');
-		$subPalettesDefinition = $this->getFromDca('subpalettes');
-
-		// skip while there is no legacy palette definition
-		if (!is_array($palettesDefinition)) {
-			return;
-		}
-
-		// ignore non-legacy subpalette definition
-		if (!is_array($subPalettesDefinition)) {
-			$subPalettesDefinition = array();
-		}
-
-		if ($container->hasDefinition(PalettesDefinitionInterface::NAME))
-		{
-			$palettesDefinition = $container->getDefinition(PalettesDefinitionInterface::NAME);
-		}
-		else
-		{
-			$palettesDefinition = new DefaultPalettesDefinition();
-			$container->setDefinition(PalettesDefinitionInterface::NAME, $palettesDefinition);
-		}
-
-		$palettesParser = new LegacyPalettesParser();
-		$palettesParser->parse(
-			$palettesDefinition,
-			$subPalettesDefinition,
-			$palettesDefinition
-		);
+		return $config;
 	}
 
 	/**
