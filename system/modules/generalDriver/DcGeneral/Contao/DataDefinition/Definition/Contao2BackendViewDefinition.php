@@ -14,7 +14,7 @@ namespace DcGeneral\Contao\DataDefinition\Definition;
 
 use DcGeneral\DataDefinition\Definition\View\DefaultListingConfig;
 use DcGeneral\DataDefinition\Definition\View\DefaultPanelLayout;
-use DcGeneral\DataDefinition\Definition\View\OperationCollectionInterface;
+use DcGeneral\DataDefinition\Definition\View\CommandCollectionInterface;
 use DcGeneral\DataDefinition\Definition\View\PanelLayoutInterface;
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 
@@ -31,7 +31,7 @@ class Contao2BackendViewDefinition implements Contao2BackendViewDefinitionInterf
 	protected $listingConfig;
 
 	/**
-	 * @var OperationCollectionInterface
+	 * @var CommandCollectionInterface
 	 */
 	protected $operations;
 
@@ -59,7 +59,7 @@ class Contao2BackendViewDefinition implements Contao2BackendViewDefinitionInterf
 	/**
 	 * @param $location
 	 *
-	 * @return OperationCollectionInterface
+	 * @return CommandCollectionInterface
 	 */
 	public function getOperations($location)
 	{

@@ -13,7 +13,7 @@
 namespace DcGeneral\DataDefinition\Definition;
 
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
-use DcGeneral\DataDefinition\Definition\View\OperationCollectionInterface;
+use DcGeneral\DataDefinition\Definition\View\CommandCollectionInterface;
 use DcGeneral\DataDefinition\Definition\View\PanelLayoutInterface;
 
 /**
@@ -31,7 +31,7 @@ interface ViewDefinitionInterface extends DefinitionInterface
 	/**
 	 * @param $location
 	 *
-	 * @return OperationCollectionInterface
+	 * @return CommandCollectionInterface
 	 */
 	public function getOperations($location);
 

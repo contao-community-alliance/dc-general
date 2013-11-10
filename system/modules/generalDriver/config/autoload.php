@@ -33,7 +33,7 @@ ClassLoader::addClasses(array
 	'DcGeneral\DataDefinition\RootConditionInterface'               => 'system/modules/generalDriver/DcGeneral/DataDefinition/RootConditionInterface.php',
 	'DcGeneral\DataDefinition\PropertyInterface'                    => 'system/modules/generalDriver/DcGeneral/DataDefinition/PropertyInterface.php',
 	'DcGeneral\DataDefinition\ContainerInterface'                   => 'system/modules/generalDriver/DcGeneral/DataDefinition/ContainerInterface.php',
-	'DcGeneral\DataDefinition\OperationInterface'                   => 'system/modules/generalDriver/DcGeneral/DataDefinition/OperationInterface.php',
+	'DcGeneral\DataDefinition\OperationInterface'                   => 'system/modules/generalDriver/DcGeneral/DataDefinition/CommandInterface.php
 	'DcGeneral\DataDefinition\ParentChildConditionInterface'        => 'system/modules/generalDriver/DcGeneral/DataDefinition/ParentChildConditionInterface.php',
 	'DcGeneral\DataDefinition\AbstractCondition'                    => 'system/modules/generalDriver/DcGeneral/DataDefinition/AbstractCondition.php',
 	'DcGeneral\DataDefinition\ConditionInterface'                   => 'system/modules/generalDriver/DcGeneral/DataDefinition/ConditionInterface.php',
