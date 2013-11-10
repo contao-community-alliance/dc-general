@@ -101,6 +101,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			default:
 		}
 
+		// TODO need to be documented or moved
 		if (($switchToEdit = $this->getFromDca('config/switchToEdit')) !== null)
 		{
 			$config->setSwitchToEditEnabled((bool) $switchToEdit);
