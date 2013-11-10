@@ -1431,9 +1431,9 @@ class DefaultController implements ControllerInterface
 
 	public function getBaseConfig()
 	{
-		$objConfig     = $this->getEnvironment()->getDataDriver()->getEmptyConfig();
+		$objConfig     = $this->getEnvironment()->getDataProvider()->getEmptyConfig();
 		$objDefinition = $this->getEnvironment()->getDataDefinition();
-		$arrAdditional = $objDefinition->getAdditionalFilter();
+		$arrAdditional = array(); // TODO incomplete $objDefinition->getAdditionalFilter();
 
 		// Custom filter common for all modes.
 		if ($arrAdditional)
@@ -1442,6 +1442,8 @@ class DefaultController implements ControllerInterface
 		}
 
 		// Special filter for certain modes.
+		/*
+		 * TODO refactore
 		if ($this->getEnvironment()->getDataDefinition()->getSortingMode() == 4)
 		{
 			$this->addParentFilter(
@@ -1449,8 +1451,11 @@ class DefaultController implements ControllerInterface
 				$objConfig
 			);
 		}
+		*/
 
 		// Set the default sorting as defined in the data definition (if any).
+		/*
+		 * TODO refactore
 		if ($sorting = $objDefinition->getAdditionalSorting())
 		{
 			$newSort = array();
@@ -1460,6 +1465,7 @@ class DefaultController implements ControllerInterface
 			}
 			$objConfig->setSorting($newSort);
 		}
+		*/
 
 		return $objConfig;
 	}
