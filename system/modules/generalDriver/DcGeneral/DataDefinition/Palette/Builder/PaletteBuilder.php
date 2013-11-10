@@ -38,6 +38,10 @@ use DcGeneral\DataDefinition\Palette\Builder\Event\SetPalettePropertyValueCondit
 use DcGeneral\DataDefinition\Palette\Builder\Event\SetPropertyClassNameEvent;
 use DcGeneral\DataDefinition\Palette\Builder\Event\SetPropertyConditionChainClassNameEvent;
 use DcGeneral\DataDefinition\Palette\Builder\Event\SetPropertyValueConditionClassNameEvent;
+use DcGeneral\DataDefinition\Palette\Builder\Event\UseLegendEvent;
+use DcGeneral\DataDefinition\Palette\Builder\Event\UsePaletteCollectionEvent;
+use DcGeneral\DataDefinition\Palette\Builder\Event\UsePaletteEvent;
+use DcGeneral\DataDefinition\Palette\Builder\Event\UsePropertyEvent;
 use DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionChain;
 use DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionInterface;
 use DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionChain;
@@ -474,6 +478,26 @@ class PaletteBuilder
 	}
 
 	/**
+	 * Reuse an existing palette collection.
+	 *
+	 * @param PaletteCollectionInterface $paletteCollection
+	 *
+	 * @return PaletteBuilder
+	 */
+	public function usePaletteCollection(PaletteCollectionInterface $paletteCollection)
+	{
+		if ($this->paletteCollection) {
+			$this->finishPaletteCollection();
+		}
+
+		$event = new UsePaletteCollectionEvent($paletteCollection, $this);
+		$this->dispatchEvent($event);
+		$this->paletteCollection = $paletteCollection;
+
+		return $this;
+	}
+
+	/**
 	 * Start a new palette collection.
 	 *
 	 * @return PaletteBuilder
@@ -517,6 +541,26 @@ class PaletteBuilder
 		$collection = $event->getPaletteCollection();
 
 		$this->paletteCollection = null;
+
+		return $this;
+	}
+
+	/**
+	 * Reuse an existing palette.
+	 *
+	 * @param PaletteInterface $palette
+	 *
+	 * @return PaletteBuilder
+	 */
+	public function usePalette(PaletteInterface $palette)
+	{
+		if ($this->palette) {
+			$this->finishPalette();
+		}
+
+		$event = new UsePaletteEvent($palette, $this);
+		$this->dispatchEvent($event);
+		$this->palette = $palette;
 
 		return $this;
 	}
@@ -583,6 +627,26 @@ class PaletteBuilder
 	}
 
 	/**
+	 * Reuse an existing legend.
+	 *
+	 * @param LegendInterface $legend
+	 *
+	 * @return PaletteBuilder
+	 */
+	public function useLegend(LegendInterface $legend)
+	{
+		if ($this->legend) {
+			$this->finishLegend();
+		}
+
+		$event = new UseLegendEvent($legend, $this);
+		$this->dispatchEvent($event);
+		$this->legend = $legend;
+
+		return $this;
+	}
+
+	/**
 	 * Start a new legend.
 	 *
 	 * @param string $name
@@ -633,6 +697,36 @@ class PaletteBuilder
 		}
 
 		$this->legend = null;
+
+		return $this;
+	}
+
+	/**
+	 * Reuse an existing property or set of properties.
+	 *
+	 * @param PropertyInterface[]|PropertyInterface $propertyName
+	 *
+	 * @return PaletteBuilder
+	 */
+	public function useProperty($property, $_ = null)
+	{
+		if ($this->property) {
+			$this->finishProperty();
+		}
+
+		$properties = func_get_args();
+
+		$this->property = array();
+		foreach ($properties as $property) {
+			$event = new UsePropertyEvent($property, $this);
+			$this->dispatchEvent($event);
+
+			$this->property[] = $property;
+		}
+
+		if (count($this->property) == 1) {
+			$this->property = array_shift($this->property);
+		}
 
 		return $this;
 	}
