@@ -160,4 +160,18 @@ class Legend implements LegendInterface
 			return array_values($this->properties);
 		}
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function __clone()
+	{
+		$this->palette = null;
+
+		$properties = array();
+		foreach ($this->properties as $index => $property) {
+			$properties[$index] = clone $property;
+		}
+		$this->properties = $properties;
+	}
 }

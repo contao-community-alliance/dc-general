@@ -111,4 +111,9 @@ interface PaletteInterface
 	 * @return PaletteConditionInterface|null
 	 */
 	public function getCondition();
+
+	/**
+	 * Create a deep clone of the palette.
+	 */
+	public function __clone();
 }

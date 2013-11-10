@@ -148,4 +148,18 @@ class Palette implements PaletteInterface
 	{
 		return $this->condition;
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function __clone()
+	{
+		$legends = array();
+		foreach ($legends as $index => $legend) {
+			$legends[$index] = clone $legend;
+		}
+		$this->legends = $legends;
+
+		$this->condition = clone $this->condition;
+	}
 }

@@ -117,4 +117,16 @@ abstract class AbstractConditionChain implements ConditionChainInterface
 	{
 		return $this->conjunction;
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function __clone()
+	{
+		$conditions = array();
+		foreach ($conditions as $index => $condition) {
+			$conditions[$index] = clone $condition;
+		}
+		$this->conditions = $conditions;
+	}
 }

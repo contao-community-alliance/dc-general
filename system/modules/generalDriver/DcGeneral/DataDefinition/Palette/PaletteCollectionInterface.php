@@ -116,4 +116,9 @@ interface PaletteCollectionInterface
 	 * @throws DcGeneralInvalidArgumentException Is thrown if there is no palette with this name.
 	 */
 	public function getPaletteByName($paletteName);
+
+	/**
+	 * Create a deep clone of the palette collection.
+	 */
+	public function __clone();
 }

@@ -94,4 +94,11 @@ class PropertyFalseCondition implements PropertyConditionInterface
 
 		return $this->strict ? ($value === false) : !$value;
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function __clone()
+	{
+	}
 }

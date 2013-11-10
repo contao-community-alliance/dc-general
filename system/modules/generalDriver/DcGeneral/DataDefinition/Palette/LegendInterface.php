@@ -106,4 +106,9 @@ interface LegendInterface
 	 * @return PropertyInterface[]
 	 */
 	public function getProperties(ModelInterface $model = null, PropertyValueBag $input = null);
+
+	/**
+	 * Create a deep clone of the legend.
+	 */
+	public function __clone();
 }

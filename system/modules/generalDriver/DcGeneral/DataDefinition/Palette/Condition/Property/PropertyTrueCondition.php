@@ -91,4 +91,11 @@ class PropertyTrueCondition implements PropertyConditionInterface
 
 		return $this->strict ? ($value === true) : (bool) $value;
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function __clone()
+	{
+	}
 }

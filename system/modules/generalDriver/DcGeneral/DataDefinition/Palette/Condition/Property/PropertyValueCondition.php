@@ -65,4 +65,11 @@ class PropertyValueCondition implements PropertyConditionInterface
 
 		return $this->strict ? ($value === $this->propertyValue) : ($value == $this->propertyValue);
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function __clone()
+	{
+	}
 }

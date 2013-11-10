@@ -32,4 +32,9 @@ interface PropertyConditionInterface extends ConditionInterface
 	 * @return bool
 	 */
 	public function match(ModelInterface $model = null, PropertyValueBag $input = null);
+
+	/**
+	 * Create a deep clone of the condition.
+	 */
+	public function __clone();
 }
