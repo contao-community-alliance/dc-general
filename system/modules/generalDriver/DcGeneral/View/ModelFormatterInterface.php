@@ -12,6 +12,8 @@
 
 namespace DcGeneral\View;
 
+use DcGeneral\Data\ModelInterface;
+
 /**
  * The model formatter format a model and create a string representation.
  */
@@ -22,5 +24,5 @@ interface ModelFormatterInterface
      * 
      * @return string
      */
-    public function format(Model $model);
+    public function format(ModelInterface $model);
 }

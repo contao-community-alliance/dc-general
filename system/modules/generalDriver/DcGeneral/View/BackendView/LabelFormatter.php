@@ -12,6 +12,9 @@
 
 namespace DcGeneral\View\BackendView;
 
+use DcGeneral\Data\ModelInterface;
+use DcGeneral\View\ModelFormatterInterface;
+
 /**
  * Format a model and create a listing child record.
  */
@@ -101,7 +104,7 @@ class LabelFormatter implements ModelFormatterInterface
     /**
      * {@inheritdoc}
      */
-    public function format(Model $model)
+    public function format(ModelInterface $model)
     {
         $args = array();
         foreach ($this->propertyNames as $propertyName) {
