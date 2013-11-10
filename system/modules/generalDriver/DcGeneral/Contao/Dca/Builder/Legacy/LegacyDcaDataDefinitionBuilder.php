@@ -25,6 +25,8 @@ use DcGeneral\DataDefinition\Definition\Palette\DefaultProperty;
 use DcGeneral\DataDefinition\Definition\Palette\PropertyInterface;
 use DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\DefaultPropertiesDefinition;
+use DcGeneral\DataDefinition\Definition\View\Command;
+use DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\DataDefinition\Definition\View\Panel\DefaultFilterElementInformation;
 use DcGeneral\DataDefinition\Definition\View\Panel\DefaultLimitElementInformation;
@@ -229,7 +231,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		$this->parseListing($container, $view);
 		$this->parsePanel($container, $view);
-		$this->parseContainerOperations($container, $view);
+		$this->parseGlobalOperations($container, $view);
 		$this->parseModelOperations($container, $view);
 	}
 
@@ -436,9 +438,20 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 *
 	 * @return void
 	 */
-	protected function parseContainerOperations(ContainerInterface $container, Contao2BackendViewDefinitionInterface $view)
+	protected function parseGlobalOperations(ContainerInterface $container, Contao2BackendViewDefinitionInterface $view)
 	{
-		// TODO to be implemented
+		$operationsDca = $this->getFromDca('list/global_operations');
+
+		if (!is_array($operationsDca)) {
+			return;
+		}
+
+		$collection = $view->getGlobalCommands();
+
+		foreach ($operationsDca as $operationName => $operationDca) {
+			$command = $this->createCommand($operationName, $operationsDca);
+			$collection->addCommand($command);
+		}
 	}
 
 	/**
@@ -450,7 +463,18 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 */
 	protected function parseModelOperations(ContainerInterface $container, Contao2BackendViewDefinitionInterface $view)
 	{
-		// TODO to be implemented
+		$operationsDca = $this->getFromDca('list/operations');
+
+		if (!is_array($operationsDca)) {
+			return;
+		}
+
+		$collection = $view->getModelCommands();
+
+		foreach ($operationsDca as $operationName => $operationDca) {
+			$command = $this->createCommand($operationName, $operationsDca);
+			$collection->addCommand($command);
+		}
 	}
 
 	/**
@@ -603,6 +627,82 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			}
 
 		}
+	}
+
+	/**
+	 * Create a command from dca.
+	 *
+	 * @param string $commandName
+	 * @param array $commandDca
+	 *
+	 * @return CommandInterface
+	 */
+	protected function createCommand($commandName, array $commandDca)
+	{
+		$command = new Command();
+		$command->setName($commandName);
+
+		$parameters = $command->getParameters();
+
+		if (isset($commandDca['href'])) {
+			parse_str($commandDca['href'], $queryParameters);
+			foreach ($queryParameters as $name => $value) {
+				if ($name == 'act') {
+					$command->setName($value);
+				}
+				else {
+					$parameters[$name] = $value;
+				}
+			}
+			unset($commandDca['href']);
+		}
+
+		if (isset($commandDca['parameters'])) {
+			foreach ($commandDca['parameters'] as $name => $value) {
+				$parameters[$name] = $value;
+			}
+			unset($commandDca['parameters']);
+		}
+
+		if (isset($commandDca['label'])) {
+			$lang = $commandDca['label'];
+
+			if (is_array($lang)) {
+				$label = rewind($lang);
+				$description = next($lang);
+
+				$command->setDescription($description);
+			}
+			else {
+				$label = $lang;
+			}
+
+			$command->setLabel($label);
+
+			unset($commandDca['label']);
+		}
+
+		if (isset($commandDca['description'])) {
+			$command->setDescription($commandDca['description']);
+
+			unset($commandDca['description']);
+		}
+
+		if (isset($commandDca['button_callback'])) {
+			// TODO handle callback
+
+			unset($commandDca['button_callback']);
+		}
+
+		if (count($commandDca)) {
+			$extra = $command->getExtra();
+
+			foreach ($commandDca as $name => $value) {
+				$extra[$name] = $value;
+			}
+		}
+
+		return $command;
 	}
 
 	/**
