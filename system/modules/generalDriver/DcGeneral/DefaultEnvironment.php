@@ -12,12 +12,9 @@
 
 namespace DcGeneral;
 
-use DcGeneral\EnvironmentInterface;
 use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
-use DcGeneral\InputProviderInterface;
-use DcGeneral\Panel\PanelContainerInterface;
 use DcGeneral\Contao\View\Contao2BackendView\BaseView;
 
 class DefaultEnvironment implements EnvironmentInterface

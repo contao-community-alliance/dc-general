@@ -11,10 +11,6 @@
 
 namespace DcGeneral;
 
-use DcGeneral\Clipboard\DefaultClipboard;
-use DcGeneral\Contao\InputProvider;
-use DcGeneral\Contao\TranslationManager;
-use DcGeneral\Controller\DefaultController as DefaultController;
 use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\DefaultDriver;
@@ -23,14 +19,6 @@ use DcGeneral\Data\DriverInterface;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Factory\DcGeneralFactory;
-use DcGeneral\Helper\WidgetAccessor;
-use DcGeneral\EnvironmentInterface;
-use DcGeneral\DefaultEnvironment;
-use DcGeneral\Contao\View\Contao2BackendView as BackendView;
-use DcGeneral\Contao\View\Contao2BackendView\ListView;
-use DcGeneral\Contao\View\Contao2BackendView\ParentView;
-use DcGeneral\Contao\View\Contao2BackendView\TreeView;
-use DcGeneral\View\ViewInterface;
 
 class DC_General extends \DataContainer implements DataContainerInterface
 {
