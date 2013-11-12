@@ -647,12 +647,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		if (isset($commandDca['href'])) {
 			parse_str($commandDca['href'], $queryParameters);
 			foreach ($queryParameters as $name => $value) {
-				if ($name == 'act') {
-					$command->setName($value);
-				}
-				else {
-					$parameters[$name] = $value;
-				}
+				$parameters[$name] = $value;
 			}
 			unset($commandDca['href']);
 		}
