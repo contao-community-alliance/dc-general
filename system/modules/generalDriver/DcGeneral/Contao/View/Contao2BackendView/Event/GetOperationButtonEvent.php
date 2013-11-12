@@ -15,12 +15,12 @@ namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 class GetOperationButtonEvent
 	extends BaseButtonEvent
 {
-    const NAME = 'dc-general.view.contao2backend.get-operation-button';
+	const NAME = 'dc-general.view.contao2backend.get-operation-button';
 
 	/**
-	 * @var \DcGeneral\DataDefinition\OperationInterface
+	 * @var \DcGeneral\DataDefinition\Definition\View\CommandInterface
 	 */
-	protected $operation;
+	protected $command;
 
 	/**
 	 * @var \DcGeneral\Data\ModelInterface
@@ -53,23 +53,23 @@ class GetOperationButtonEvent
 	protected $href;
 
 	/**
-	 * @param \DcGeneral\DataDefinition\OperationInterface $objOperation
+	 * @param \DcGeneral\DataDefinition\Definition\View\CommandInterface
 	 *
 	 * @return $this
 	 */
-	public function setObjOperation($objOperation)
+	public function setCommand($objCommand)
 	{
-		$this->objOperation = $objOperation;
+		$this->command = $objCommand;
 
 		return $this;
 	}
 
 	/**
-	 * @return \DcGeneral\DataDefinition\OperationInterface
+	 * @return \DcGeneral\DataDefinition\Definition\View\CommandInterface
 	 */
-	public function getObjOperation()
+	public function getCommand()
 	{
-		return $this->operation;
+		return $this->command;
 	}
 
 	/**

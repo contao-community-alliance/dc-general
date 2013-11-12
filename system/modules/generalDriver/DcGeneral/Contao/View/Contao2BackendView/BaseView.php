@@ -1745,7 +1745,7 @@ class BaseView implements BackendViewInterface
 
 		$buttonEvent = new GetOperationButtonEvent($this->getEnvironment());
 		$buttonEvent
-			->setObjOperation($objCommand)
+			->setCommand($objCommand)
 			->setObjModel($objModel)
 			->setAttributes($attributes)
 			->setLabel($label)
@@ -1756,7 +1756,13 @@ class BaseView implements BackendViewInterface
 			->setPrevious($strPrevious)
 			->setNext($strNext);
 
-		$this->dispatchEvent(GetOperationButtonEvent::NAME, $buttonEvent);
+		$this->getEnvironment()->getEventPropagator()->propagate(
+			$buttonEvent,
+			array(
+				$this->getEnvironment()->getDataDefinition()->getName(),
+				$objCommand->getName()
+			)
+		);
 
 		// If the event created a button, use it.
 		if (!is_null($buttonEvent->getHtml()))
