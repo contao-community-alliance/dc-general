@@ -41,9 +41,9 @@ class ExtendedLegacyDcaPopulator extends AbstractEventDrivenEnvironmentPopulator
 			return;
 		}
 
-		/** @var ExtendedDca $definition */
-		$definition = $definition->getDefinition(ExtendedDca::NAME);
-		$class   = $definition->getCallbackClass();
+		/** @var ExtendedDca $extendedDefinition */
+		$extendedDefinition = $definition->getDefinition(ExtendedDca::NAME);
+		$class              = $extendedDefinition->getCallbackClass();
 
 		if (!$class)
 		{
@@ -82,9 +82,9 @@ class ExtendedLegacyDcaPopulator extends AbstractEventDrivenEnvironmentPopulator
 			return;
 		}
 
-		/** @var ExtendedDca $definition */
-		$definition = $definition->getDefinition(ExtendedDca::NAME);
-		$class   = $definition->getViewClass();
+		/** @var ExtendedDca $extendedDefinition */
+		$extendedDefinition = $definition->getDefinition(ExtendedDca::NAME);
+		$class              = $extendedDefinition->getViewClass();
 
 		if (!$class)
 		{
@@ -122,9 +122,9 @@ class ExtendedLegacyDcaPopulator extends AbstractEventDrivenEnvironmentPopulator
 			return;
 		}
 
-		/** @var ExtendedDca $definition */
-		$definition = $definition->getDefinition(ExtendedDca::NAME);
-		$class   = $definition->getControllerClass();
+		/** @var ExtendedDca $extendedDefinition */
+		$extendedDefinition = $definition->getDefinition(ExtendedDca::NAME);
+		$class              = $extendedDefinition->getControllerClass();
 
 		if (!$class)
 		{

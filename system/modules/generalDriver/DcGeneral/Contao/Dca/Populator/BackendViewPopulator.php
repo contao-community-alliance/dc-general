@@ -116,11 +116,11 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
 		$panel->setEnvironment($environment);
 		$view->setPanel($panel);
 
-		/** @var Contao2BackendViewDefinitionInterface $definition  */
-		$definition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+		/** @var Contao2BackendViewDefinitionInterface $backendViewDefinition  */
+		$backendViewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
 
 		/** @var \DcGeneral\DataDefinition\Definition\View\PanelLayoutInterface $panelLayout */
-		$panelLayout = $definition->getPanelLayout();
+		$panelLayout = $backendViewDefinition->getPanelLayout();
 
 		$rows         = $panelLayout->getRows();
 		$objPanel     = null;
