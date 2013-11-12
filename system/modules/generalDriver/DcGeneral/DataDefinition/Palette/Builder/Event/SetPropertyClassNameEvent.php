@@ -32,7 +32,7 @@ class SetPropertyClassNameEvent extends BuilderEvent
 	function __construct($propertyClassName, PaletteBuilder $paletteBuilder)
 	{
 		$this->setPropertyClassName($propertyClassName);
-		$this->setPaletteBuilder($paletteBuilder);
+		parent::__construct($paletteBuilder);
 	}
 
 	/**

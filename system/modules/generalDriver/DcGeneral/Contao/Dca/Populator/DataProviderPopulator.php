@@ -16,7 +16,7 @@ class DataProviderPopulator extends AbstractEventDrivenEnvironmentPopulator
 	{
 		$definition = $environment->getDataDefinition();
 
-		foreach ($definition->getDataProviderSection() as $dataProviderInformation)
+		foreach ($definition->getDataProviderDefinition() as $dataProviderInformation)
 		{
 			if ($dataProviderInformation instanceof ContaoDataProviderInformation)
 			{

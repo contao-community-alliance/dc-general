@@ -35,7 +35,7 @@ class CreatePropertyValueConditionEvent extends BuilderEvent
 	function __construct($propertyValueCondition, PaletteBuilder $paletteBuilder)
 	{
 		$this->setPropertyValueCondition($propertyValueCondition);
-		$this->setPaletteBuilder($paletteBuilder);
+		parent::__construct($paletteBuilder);
 	}
 
 	/**
@@ -43,7 +43,7 @@ class CreatePropertyValueConditionEvent extends BuilderEvent
 	 */
 	public function setPropertyValueCondition($propertyValueCondition)
 	{
-		if (!$propertyValueCondition instanceof PalettePropertyValueCondition and !$propertyValueCondition instanceof PropertyValueCondition) {
+		if (!($propertyValueCondition instanceof PalettePropertyValueCondition or $propertyValueCondition instanceof PropertyValueCondition)) {
 			throw new DcGeneralInvalidArgumentException();
 		}
 

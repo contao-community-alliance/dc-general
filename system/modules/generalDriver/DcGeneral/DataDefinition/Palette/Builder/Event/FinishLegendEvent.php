@@ -33,7 +33,7 @@ class FinishLegendEvent extends BuilderEvent
 	function __construct(LegendInterface $legend, PaletteBuilder $paletteBuilder)
 	{
 		$this->setLegend($legend);
-		$this->setPaletteBuilder($paletteBuilder);
+		parent::__construct($paletteBuilder);
 	}
 
 	/**

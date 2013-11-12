@@ -41,7 +41,7 @@ if (version_compare(VERSION, '3.0', '<'))
 }
 
 // Attach ourselves to the DIC.
-$GLOBALS['TL_EVENT_SUBSCRIBERS'][] = 'DcGeneral\Event\Subscriber';
+$GLOBALS['TL_EVENT_SUBSCRIBERS'][] = 'DcGeneral\Contao\Event\Subscriber';
 
 // TODO: defining the event handlers like this is pretty ugly, we should really make this better.
 $GLOBALS['TL_EVENTS'][\DcGeneral\Factory\Event\BuildDataDefinitionEvent::NAME][] = array(

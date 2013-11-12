@@ -10,18 +10,18 @@
  * @filesource
  */
 
-namespace DcGeneral\Contao\Dca\Section;
+namespace DcGeneral\Contao\Dca\Definition;
 
-use DcGeneral\DataDefinition\Section\ContainerSectionInterface;
+use DcGeneral\DataDefinition\Definition\DefinitionInterface;
 
-class ExtendedDca implements ContainerSectionInterface
+class ExtendedDca implements DefinitionInterface
 {
 	const NAME = 'extended-dca';
 
 	/**
 	 * Callback class to use.
 	 *
-	 * NOTE: Callbacks are deprecated and only executed via the compatibility event \DcGeneral\Event\Subscriber.
+	 * NOTE: Callbacks are deprecated and only executed via the compatibility event \DcGeneral\Contao\Event\Subscriber.
 	 *
 	 * @var string
 	 */

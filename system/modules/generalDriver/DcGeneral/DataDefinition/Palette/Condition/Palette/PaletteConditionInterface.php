@@ -30,4 +30,9 @@ interface PaletteConditionInterface extends ConditionInterface
 	 * @return bool
 	 */
 	public function getMatchCount(ModelInterface $model = null, PropertyValueBag $input = null);
+
+	/**
+	 * Create a deep clone of the condition.
+	 */
+	public function __clone();
 }

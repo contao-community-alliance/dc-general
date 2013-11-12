@@ -113,4 +113,13 @@ class Property implements PropertyInterface
 	{
 		return $this->editableCondition;
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function __clone()
+	{
+		$this->visibleCondition  = clone $this->visibleCondition;
+		$this->editableCondition = clone $this->editableCondition;
+	}
 }

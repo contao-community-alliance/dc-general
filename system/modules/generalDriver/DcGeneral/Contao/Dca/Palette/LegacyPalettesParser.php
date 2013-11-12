@@ -16,6 +16,7 @@ namespace DcGeneral\Contao\Dca\Palette;
 use DcGeneral\Contao\Dca\Container;
 use DcGeneral\DataDefinition\Palette\Condition\Palette\DefaultPaletteCondition;
 use DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionChain;
+use DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionInterface;
 use DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition as PalettePropertyValueCondition;
 use DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyTrueCondition as PalettePropertyTrueCondition;
 use DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionChain;
@@ -25,11 +26,20 @@ use DcGeneral\DataDefinition\Palette\Legend;
 use DcGeneral\DataDefinition\Palette\Palette;
 use DcGeneral\DataDefinition\Palette\PaletteCollection;
 use DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
+use DcGeneral\DataDefinition\Palette\PaletteInterface;
 use DcGeneral\DataDefinition\Palette\Property;
 use DcGeneral\DataDefinition\Palette\PropertyInterface;
 
 class LegacyPalettesParser
 {
+	/**
+	 * Parse the palette and subpalette array and create a complete palette collection.
+	 *
+	 * @param array <string, string>      $palettes
+	 * @param array <string, string>      $subpalettes
+	 *
+	 * @return PaletteCollectionInterface
+	 */
 	public function parse(array $palettes, array $subpalettes = array(), PaletteCollectionInterface $collection = null)
 	{
 		if (isset($palettes['__selector__'])) {
@@ -40,7 +50,14 @@ class LegacyPalettesParser
 			$selectorFieldNames = array();
 		}
 
-		$subpaletteProperties = $this->parseSubpalettes($subpalettes, $selectorFieldNames);
+		$subPaletteProperties = $this->parseSubpalettes($subpalettes, $selectorFieldNames);
+
+		return $this->parsePalettes(
+			$palettes,
+			$subPaletteProperties,
+			$selectorFieldNames,
+			$collection
+		);
 	}
 
 	/**
@@ -49,15 +66,13 @@ class LegacyPalettesParser
 	 * @param                            array <string, PropertyInterface[]> $subPaletteProperties Mapped array from
 	 *                                         subpalette
 	 * @param array                      $selectorFieldNames
-	 * @param PaletteCollectionInterface $collection
 	 *
 	 * @return PaletteCollectionInterface
 	 */
 	public function parsePalettes(
 		array $palettes,
 		array $subPaletteProperties = array(),
-		array $selectorFieldNames = array(),
-		PaletteCollectionInterface $collection = null
+		array $selectorFieldNames = array(), PaletteCollectionInterface $collection = null
 	) {
 		if (!$collection) {
 			$collection = new PaletteCollection();
@@ -70,7 +85,30 @@ class LegacyPalettesParser
 		}
 
 		foreach ($palettes as $selector => $fields) {
+			// fields list must be a string
+			if (!is_string($fields)) {
+				continue;
+			}
 
+			if ($collection->hasPaletteByName($selector)) {
+				$palette = $collection->getPaletteByName($selector);
+				$this->parsePalette(
+					$selector,
+					$fields,
+					$subPaletteProperties,
+					$selectorFieldNames,
+					$palette
+				);
+			}
+			else {
+				$palette = $this->parsePalette(
+					$selector,
+					$fields,
+					$subPaletteProperties,
+					$selectorFieldNames
+				);
+				$collection->addPalette($palette);
+			}
 		}
 
 		return $collection;
@@ -79,25 +117,87 @@ class LegacyPalettesParser
 	/**
 	 * @param string $paletteSelector
 	 * @param string $fields
-	 * @param array  $subPaletteProperties
-	 * @param array  $selectorFieldNames
+	 * @param        array <string, PropertyInterface>  $subPaletteProperties
+	 * @param        array <string>  $selectorFieldNames
 	 *
-	 * return Palette
+	 * @return Palette
 	 */
 	public function parsePalette(
 		$paletteSelector,
 		$fields,
 		array $subPaletteProperties = array(),
 		array $selectorFieldNames = array(),
-		Palette $palette = null
+		PaletteInterface $palette = null
 	) {
 		if (!$palette) {
 			$palette = new Palette();
+			$palette->setName($paletteSelector);
 		}
 
-		// this is the default palette
+		$condition = $this->createPaletteCondition($paletteSelector, $selectorFieldNames);
+		$palette->setCondition($condition);
+
+		// we ignore the difference between fieldset (separated by ";") and fields (separated by ",")
+		$fields = preg_split('~[;,]~', $fields);
+		$fields = array_map('trim', $fields);
+		$fields = array_filter($fields);
+
+		$legend = null;
+
+		foreach ($fields as $field) {
+			// TODO what about :hide? this is currently not supported by LegendInterface
+			if (preg_match('~^\{(.*?)(_legend)?(:hide)?\}$~', $field, $matches)) {
+				$name = $matches[1];
+				if ($palette->hasLegend($name)) {
+					$legend = $palette->getLegend($name);
+				}
+				else {
+					$legend = new Legend($matches[1]);
+					$palette->addLegend($legend);
+				}
+			}
+			else {
+				// fallback for incomplete palettes without legend,
+				// create an empty legend
+				if (!$legend) {
+					$name = 'unnamed';
+					if ($palette->hasLegend($name)) {
+						$legend = $palette->getLegend($name);
+					}
+					else {
+						$legend = new Legend($matches[1]);
+						$palette->addLegend($legend);
+					}
+				}
+
+				// add the current field to the legend
+				$property = new Property($field);
+				$legend->addProperty($property);
+
+				// add subpalette fields to the legend
+				if (isset($subPaletteProperties[$field])) {
+					foreach ($subPaletteProperties[$field] as $property) {
+						$legend->addProperty(clone $property);
+					}
+				}
+			}
+		}
+
+		return $palette;
+	}
+
+	/**
+	 * Parse the palette selector and create the corresponding condition.
+	 *
+	 * @param string $paletteSelector
+	 * @param array  $selectorFieldNames
+	 *
+	 * @return PaletteConditionInterface
+	 */
+	public function createPaletteCondition($paletteSelector, array $selectorFieldNames)
+	{
 		if ($paletteSelector == 'default') {
-			$palette->setCondition(new DefaultPaletteCondition());
+			return new DefaultPaletteCondition();
 		}
 
 		else {
@@ -144,44 +244,25 @@ class LegacyPalettesParser
 				}
 			}
 
-			$palette->setCondition($condition);
+			return $condition;
 		}
-
-		$fields = preg_split('~[;,]~', $fields);
-		$fields = array_map('trim', $fields);
-		$fields = array_filter($fields);
-
-		$legend = null;
-
-		foreach ($fields as $field) {
-			if (preg_match('~^\{(.*?)(_legend)?(:hide)?\}$~', $field, $matches)) {
-				$legend = new Legend($matches[1]);
-			}
-			else {
-				// fallback for incomplete palettes without legend,
-				// create an empty legend
-				if (!$legend) {
-					$legend = new Legend('unnamed');
-					$palette->addLegend($legend);
-				}
-
-				$legend->addProperty()
-			}
-		}
-
-		return $palette;
 	}
 
 	/**
 	 * @param array $subpalettes
 	 *
-	 * return array<string, PropertyInterface[]>
+	 * @return array<string, PropertyInterface[]>
 	 */
 	public function parseSubpalettes(array $subpalettes, array $selectorFieldNames = array())
 	{
 		$properties = array();
 
 		foreach ($subpalettes as $subPaletteSelector => $childFields) {
+			// child fields list must be a string
+			if (!is_string($childFields)) {
+				continue;
+			}
+
 			// build field name for subpalette selector
 			// case 1: the subpalette selector contain a combination of "field name" + value
 			//         require that the "field name" is in $selectors
@@ -210,8 +291,9 @@ class LegacyPalettesParser
 	 *
 	 * @param string $subPaletteSelector
 	 * @param string $childFields
+	 * @param array  $selectorFieldNames
 	 *
-	 * return PropertyInterface[]
+	 * @return PropertyInterface[]
 	 */
 	public function parseSubpalette($subPaletteSelector, $childFields, array $selectorFieldNames = array())
 	{
@@ -220,8 +302,10 @@ class LegacyPalettesParser
 
 		// build basic condition for the subpalette selector
 		// case 1: the subpalette selector contain a combination of "field name" + value
-		//         require that the "field name" is in $selectors
+		//         require that the "field name" is in $selectorFieldNames
+		//         -> select/radio type
 		// case 2: the subpalette selector is only a "field name", the value is implicated as true
+		//         -> checkbox type
 		$condition = null;
 
 		// try case 1

@@ -188,7 +188,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 	{
 		foreach ($this->getPropertyNames() as $field)
 		{
-			$arrLabel = $this->getEnvironment()->getDataDefinition()->getPropertiesSection()->getProperty($field)->getLabel();
+			$arrLabel = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getProperty($field)->getLabel();
 
 			$arrOptions[] = array(
 				'value'      => specialchars($field),

@@ -13,10 +13,13 @@
 namespace DcGeneral\Contao\Dca\Builder\Legacy;
 
 use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
-use DcGeneral\Contao\Dca\Section\ExtendedDca;
+use DcGeneral\Contao\Dca\Definition\ExtendedDca;
 use DcGeneral\DataDefinition\ContainerInterface;
-use DcGeneral\DataDefinition\Section\DefaultDataProviderSection;
+use DcGeneral\DataDefinition\Definition\DefaultDataProviderDefinition;
+use DcGeneral\DataDefinition\Definition\DefaultPalettesDefinition;
+use DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
+use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 
 /**
  * Build the container config from legacy DCA syntax.
@@ -30,7 +33,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 	/**
 	 * {@inheritdoc}
 	 */
-	public function build(ContainerInterface $container)
+	public function build(ContainerInterface $container, BuildDataDefinitionEvent $event)
 	{
 		if (!$this->loadDca($container->getName()))
 		{
@@ -39,28 +42,29 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
 		// TODO parse $localDca variable into $container
 		$this->parseDataProvider($container);
+		$this->parsePalettes($container);
 	}
 
 	protected function parseClassNames(ContainerInterface $container)
 	{
 		// parse data provider
-		if ($container->hasSection(ExtendedDca::NAME))
+		if ($container->hasDefinition(ExtendedDca::NAME))
 		{
-			$section = $container->getSection(ExtendedDca::NAME);
+			$definition = $container->getDefinition(ExtendedDca::NAME);
 
-			if (!($section instanceof ExtendedDca))
+			if (!($definition instanceof ExtendedDca))
 			{
 				throw new DcGeneralInvalidArgumentException(sprintf(
-					'Section with name %s must be an instance of ExtendedDca but instance of %s encountered.',
+					'Definition with name %s must be an instance of ExtendedDca but instance of %s encountered.',
 					ExtendedDca::NAME,
-					get_class($section)
+					get_class($definition)
 				));
 			}
 		}
 		else
 		{
-			$section = new ExtendedDca();
-			$container->setSection(ExtendedDca::NAME, $section);
+			$definition = new ExtendedDca();
+			$container->setDefinition(ExtendedDca::NAME, $definition);
 		}
 
 		if ($this->getFromDca('dca_config') === null)
@@ -70,17 +74,17 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
 		if (($class = $this->getFromDca('dca_config/callback')) === null)
 		{
-			$section->setCallbackClass($class);
+			$definition->setCallbackClass($class);
 		}
 
 		if (($class = $this->getFromDca('dca_config/controller')) === null)
 		{
-			$section->setControllerClass($class);
+			$definition->setControllerClass($class);
 		}
 
 		if (($class = $this->getFromDca('dca_config/view')) === null)
 		{
-			$section->setViewClass($class);
+			$definition->setViewClass($class);
 		}
 	}
 
@@ -94,45 +98,53 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 	protected function parseDataProvider(ContainerInterface $container)
 	{
 		// parse data provider
-		if ($container->hasDataProviderSection())
+		if ($container->hasDataProviderDefinition())
 		{
-			$config = $container->getDataProviderSection();
+			$config = $container->getDataProviderDefinition();
 		}
 		else
 		{
-			$config = new DefaultDataProviderSection();
-			$container->setDataProviderSection($config);
+			$config = new DefaultDataProviderDefinition();
+			$container->setDataProviderDefinition($config);
 		}
 
 		// First check if we are using the "new" notation used in DcGeneral 0.9.
-		if ($this->getFromDca('dca_config/data_provider') === null)
+		if (!is_array($this->getFromDca('dca_config/data_provider')))
 		{
 			return;
 		}
 
-		// determine the "local" data provider (if any) and if we know the driver for it.
-		if (($defaultProvider = $this->getFromDca('dca_config/data_provider/default')) !== null)
-		{
-			// Determine the name.
-			if (($defaultProviderSource = $this->getFromDca('dca_config/data_provider/default/source')) !== null)
-			{
-				$providerName = $defaultProviderSource;
-			}
-			else
-			{
-				$providerName =$container->getName();
-			}
+		$dataProvidersDca = $this->getFromDca('dca_config/data_provider');
 
-			// Check config if it already exists, if not, add it.
-			if (!$config->hasInformation($providerName))
-			{
-				$providerInformation = new ContaoDataProviderInformation();
-				$providerInformation->setName($providerName);
-				$config->addInformation($providerInformation);
+		foreach ($dataProvidersDca as $dataProviderDcaName => $dataProviderDca)
+		{
+			if (isset($dataProviderDca['factory'])) {
+				$factoryClass = new \ReflectionClass($dataProviderDca['factory']);
+				$factory = $factoryClass->newInstance();
+				$providerInformation = $factory->build($dataProviderDca);
 			}
-			else
-			{
-				$providerInformation = $config->getInformation($providerName);
+			else {
+				// Determine the name.
+				if (isset($dataProviderDca['source']))
+				{
+					$providerName = $dataProviderDca['source'];
+				}
+				else
+				{
+					$providerName = $container->getName();
+				}
+
+				// Check config if it already exists, if not, add it.
+				if (!$config->hasInformation($providerName))
+				{
+					$providerInformation = new ContaoDataProviderInformation();
+					$providerInformation->setName($providerName);
+					$config->addInformation($providerInformation);
+				}
+				else
+				{
+					$providerInformation = $config->getInformation($providerName);
+				}
 			}
 
 			if ($providerInformation instanceof ContaoDataProviderInformation)
@@ -140,87 +152,49 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 				// Set versioning information.
 				$providerInformation
 					->setTableName($providerName)
-					->setInitializationData($defaultProvider)
-					->isVersioningEnabled((bool)$this->getFromDca('config/enableVersioning'));
+					->setInitializationData($dataProviderDca);
 
 				// TODO: add additional information here.
+				switch ($dataProviderDcaName) {
+					case 'default':
+						$providerInformation->isVersioningEnabled(
+							(bool) $this->getFromDca('config/enableVersioning')
+						);
 
-				$container->getBasicSection()->setDataProvider($providerInformation->getName());
+						$container->getBasicDefinition()->setDataProvider($providerInformation->getName());
+						break;
+
+					case 'root':
+						$container->getBasicDefinition()->setRootDataProvider($providerInformation->getName());
+						break;
+
+					case 'parent':
+						$container->getBasicDefinition()->setParentDataProvider($providerInformation->getName());
+						break;
+				}
 			}
 		}
+	}
 
-		// Determine the root data provider (if any configured).
-		if (($rootProvider = $this->getFromDca('dca_config/data_provider/root')) !== null)
+	protected function parsePalettes(ContainerInterface $container)
+	{
+		$palettesDca = $this->getFromDca('palettes');
+
+		// skip while there is no extended palette definition
+		if (!is_callable($palettesDca)) {
+			return;
+		}
+
+		if ($container->hasDefinition(PalettesDefinitionInterface::NAME))
 		{
-			// Determine the name.
-			if (($rootProviderSource = $this->getFromDca('dca_config/data_provider/root/source')) !== null)
-			{
-				$providerName = $rootProviderSource;
-			}
-			else
-			{
-				$providerName = $container->getName();
-			}
-
-			// Check config if it already exists, if not, add it.
-			if (!$config->hasInformation($providerName))
-			{
-				$providerInformation = new ContaoDataProviderInformation();
-				$providerInformation->setName($providerName);
-				$config->addInformation($providerInformation);
-			}
-			else
-			{
-				$providerInformation = $config->getInformation($providerName);
-			}
-
-			if ($providerInformation instanceof ContaoDataProviderInformation)
-			{
-				$providerInformation
-					->setTableName($rootProviderSource)
-					->setInitializationData($rootProvider);
-
-				// TODO: add additional information here.
-
-				$container->getBasicSection()->setRootDataProvider($providerInformation->getName());
-			}
+			$palettesDefinition = $container->getDefinition(PalettesDefinitionInterface::NAME);
 		}
-
-		// Determine the parent data provider (if any configured).
-		if (($parentProvider = $this->getFromDca('dca_config/data_provider/parent')) !== null)
+		else
 		{
-			// Determine the name.
-			if (($parentProviderSource = $this->getFromDca('dca_config/data_provider/parent/source')) !== null)
-			{
-				$providerName = $parentProviderSource;
-			}
-			else
-			{
-				$providerName = $container->getName();
-			}
-
-			// Check config if it already exists, if not, add it.
-			if (!$config->hasInformation($providerName))
-			{
-				$providerInformation = new ContaoDataProviderInformation();
-				$providerInformation->setName($providerName);
-				$config->addInformation($providerInformation);
-			}
-			else
-			{
-				$providerInformation = $config->getInformation($providerName);
-			}
-
-			if ($providerInformation instanceof ContaoDataProviderInformation)
-			{
-				$providerInformation
-					->setTableName($parentProviderSource)
-					->setInitializationData($parentProvider);
-
-				// TODO: add additional information here.
-
-				$container->getBasicSection()->setParentDataProvider($providerInformation->getName());
-			}
+			$palettesDefinition = new DefaultPalettesDefinition();
+			$container->setDefinition(PalettesDefinitionInterface::NAME, $palettesDefinition);
 		}
+
+		call_user_func($palettesDca, $palettesDefinition, $container);
 	}
 }

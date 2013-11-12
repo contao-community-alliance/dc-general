@@ -32,7 +32,7 @@ class SetPaletteCollectionClassNameEvent extends BuilderEvent
 	function __construct($paletteCollectionClassName, PaletteBuilder $paletteBuilder)
 	{
 		$this->setPaletteCollectionClassName($paletteCollectionClassName);
-		$this->setPaletteBuilder($paletteBuilder);
+		parent::__construct($paletteBuilder);
 	}
 
 	/**

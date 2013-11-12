@@ -32,7 +32,7 @@ class SetLegendClassNameEvent extends BuilderEvent
 	function __construct($legendClassName, PaletteBuilder $paletteBuilder)
 	{
 		$this->setLegendClassName($legendClassName);
-		$this->setPaletteBuilder($paletteBuilder);
+		parent::__construct($paletteBuilder);
 	}
 
 	/**

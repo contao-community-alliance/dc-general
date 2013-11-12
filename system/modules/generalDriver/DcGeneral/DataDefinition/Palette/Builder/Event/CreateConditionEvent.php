@@ -37,7 +37,7 @@ class CreateConditionEvent extends BuilderEvent
 	function __construct($condition, PaletteBuilder $paletteBuilder)
 	{
 		$this->setCondition($condition);
-		$this->setPaletteBuilder($paletteBuilder);
+		parent::__construct($paletteBuilder);
 	}
 
 	/**

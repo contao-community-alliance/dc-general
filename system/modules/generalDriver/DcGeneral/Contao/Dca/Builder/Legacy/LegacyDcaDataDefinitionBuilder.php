@@ -13,21 +13,29 @@
 namespace DcGeneral\Contao\Dca\Builder\Legacy;
 
 use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
+use DcGeneral\Contao\Dca\Palette\LegacyPalettesParser;
 use DcGeneral\DataDefinition\ContainerInterface;
-use DcGeneral\DataDefinition\Section\BackendViewSectionInterface;
-use DcGeneral\DataDefinition\Section\BasicSectionInterface;
-use DcGeneral\DataDefinition\Section\DefaultBackendViewSection;
-use DcGeneral\DataDefinition\Section\DefaultBasicSection;
-use DcGeneral\DataDefinition\Section\DefaultDataProviderSection;
-use DcGeneral\DataDefinition\Section\DefaultPalettesSection;
-use DcGeneral\DataDefinition\Section\Palette\DefaultProperty;
-use DcGeneral\DataDefinition\Section\PalettesSectionInterface;
-use DcGeneral\DataDefinition\Section\DefaultPropertiesSection;
-use DcGeneral\DataDefinition\Section\View\Panel\DefaultFilterElementInformation;
-use DcGeneral\DataDefinition\Section\View\Panel\DefaultLimitElementInformation;
-use DcGeneral\DataDefinition\Section\View\Panel\DefaultSearchElementInformation;
-use DcGeneral\DataDefinition\Section\View\Panel\DefaultSortElementInformation;
+use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinition;
+use DcGeneral\DataDefinition\Definition\DefaultBasicDefinition;
+use DcGeneral\DataDefinition\Definition\DefaultDataProviderDefinition;
+use DcGeneral\DataDefinition\Definition\DefaultPalettesDefinition;
+use DcGeneral\DataDefinition\Definition\Palette\DefaultProperty;
+use DcGeneral\DataDefinition\Definition\Palette\PropertyInterface;
+use DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
+use DcGeneral\DataDefinition\Definition\DefaultPropertiesDefinition;
+use DcGeneral\DataDefinition\Definition\View\Command;
+use DcGeneral\DataDefinition\Definition\View\CommandInterface;
+use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
+use DcGeneral\DataDefinition\Definition\View\Panel\DefaultFilterElementInformation;
+use DcGeneral\DataDefinition\Definition\View\Panel\DefaultLimitElementInformation;
+use DcGeneral\DataDefinition\Definition\View\Panel\DefaultSearchElementInformation;
+use DcGeneral\DataDefinition\Definition\View\Panel\DefaultSortElementInformation;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
+use DcGeneral\Exception\DcGeneralRuntimeException;
+use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
+use DcGeneral\Contao\View\Contao2BackendView\LabelFormatter;
 
 /**
  * Build the container config from legacy DCA syntax.
@@ -41,51 +49,40 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	/**
 	 * {@inheritDoc}
 	 */
-	public function build(ContainerInterface $container)
+	public function build(ContainerInterface $container, BuildDataDefinitionEvent $event)
 	{
 		if (!$this->loadDca($container->getName()))
 		{
 			return;
 		}
 
-		$this->parseBasicSection($container);
-		$this->parseProperties($container);
-		$this->parsePalettes($container);
+		$this->parseBasicDefinition($container);
 		$this->parseDataProvider($container);
-		$this->parsePanel($container);
+		$this->parseRootEntries($container);
+		$this->parseParentChildConditions($container);
+		$this->parseBackendView($container);
+		$this->parsePalettes($container);
+		$this->parseProperties($container);
 	}
 
-	protected function getBackendViewSection(ContainerInterface $container)
-	{
-		if ($container->hasSection(BackendViewSectionInterface::NAME))
-		{
-			$config = $container->getSection(BackendViewSectionInterface::NAME);
-		}
-		else
-		{
-			$config = new DefaultBackendViewSection();
-			$container->setSection(BackendViewSectionInterface::NAME, $config);
-		}
-
-		if (!$config instanceof BackendViewSectionInterface)
-		{
-			throw new DcGeneralInvalidArgumentException('Configured BackendViewSection does not implement BackendViewSectionInterface.');
-		}
-
-		return $config;
-	}
-
-	protected function parseBasicSection(ContainerInterface $container)
+	/**
+	 * Parse the basic configuration and populate the definition.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
+	protected function parseBasicDefinition(ContainerInterface $container)
 	{
 		// parse data provider
-		if ($container->hasBasicSection())
+		if ($container->hasBasicDefinition())
 		{
-			$config = $container->getBasicSection();
+			$config = $container->getBasicDefinition();
 		}
 		else
 		{
-			$config = new DefaultBasicSection();
-			$container->setBasicSection($config);
+			$config = new DefaultBasicDefinition();
+			$container->setBasicDefinition($config);
 		}
 
 		switch ($this->getFromDca('list/sorting/mode'))
@@ -94,130 +91,22 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			case 1: // Records are sorted by a fixed field
 			case 2: // Records are sorted by a switchable field
 			case 3: // Records are sorted by the parent table
-				$config->setMode(BasicSectionInterface::MODE_FLAT);
+				$config->setMode(BasicDefinitionInterface::MODE_FLAT);
 				break;
 			case 4: // Displays the child records of a parent record (see style sheets module)
-				$config->setMode(BasicSectionInterface::MODE_PARENTEDLIST);
+				$config->setMode(BasicDefinitionInterface::MODE_PARENTEDLIST);
 				break;
 			case 5: // Records are displayed as tree (see site structure)
 			case 6: // Displays the child records within a tree structure (see articles module)
-				$config->setMode(BasicSectionInterface::MODE_HIERARCHICAL);
+				$config->setMode(BasicDefinitionInterface::MODE_HIERARCHICAL);
 				break;
 			default:
 		}
 
+		// TODO need to be documented or moved
 		if (($switchToEdit = $this->getFromDca('config/switchToEdit')) !== null)
 		{
 			$config->setSwitchToEditEnabled((bool) $switchToEdit);
-		}
-	}
-
-	/**
-	 * Parse the defined properties and populate the section.
-	 *
-	 * @param ContainerInterface $container
-	 *
-	 * @return void
-	 */
-	protected function parseProperties(ContainerInterface $container)
-	{
-		// parse data provider
-		if ($container->hasPropertiesSection())
-		{
-			$section = $container->getPropertiesSection();
-		}
-		else
-		{
-			$section = new DefaultPropertiesSection();
-			$container->setPropertiesSection($section);
-		}
-
-		foreach ($this->getFromDca('fields') as $propName => $propInfo)
-		{
-			if ($section->hasProperty($propName))
-			{
-				$property = $section->getProperty($propName);
-			}
-			else
-			{
-				$property = new DefaultProperty($propName);
-				$section->addProperty($property);
-			}
-
-			if (!$property->getLabel() && isset($propInfo['label']))
-			{
-				$property->setLabel($propInfo['label']);
-			}
-
-			if (!$property->getDescription() && isset($propInfo['description']))
-			{
-				$property->setDescription($propInfo['description']);
-			}
-
-			if (!$property->getDefaultValue() && isset($propInfo['default']))
-			{
-				$property->setDefaultValue($propInfo['default']);
-			}
-
-			if (isset($propInfo['exclude']))
-			{
-				$property->setExcluded($propInfo['exclude']);
-			}
-
-			if (isset($propInfo['search']))
-			{
-				$property->setSearchable($propInfo['search']);
-			}
-
-			if (isset($propInfo['sorting']))
-			{
-				$property->setSortable($propInfo['sorting']);
-			}
-
-			if (isset($propInfo['filter']))
-			{
-				$property->setFilterable($propInfo['filter']);
-			}
-
-			if (isset($propInfo['flag']))
-			{
-				if (!$property->getGroupingMode())
-				{
-					// // TODO: determine grouping mode here
-					$property->setGroupingMode($propInfo['flag']);
-				}
-				if (!$property->getSortingMode())
-				{
-					// // TODO: determine sorting mode here
-					$property->getSortingMode($propInfo['flag']);
-				}
-			}
-
-			if (!$property->getGroupingLength() && isset($propInfo['length']))
-			{
-				$property->setGroupingLength($propInfo['length']);
-			}
-
-			if (!$property->getWidgetType() && isset($propInfo['inputType']))
-			{
-				$property->setWidgetType($propInfo['inputType']);
-			}
-
-			if (!$property->getOptions() && isset($propInfo['options']))
-			{
-				$property->setOptions($propInfo['options']);
-			}
-
-			if (!$property->getExplanation() && isset($propInfo['explanation']))
-			{
-				$property->setExplanation($propInfo['explanation']);
-			}
-
-			if (!$property->getExtra() && isset($propInfo['eval']))
-			{
-				$property->setExtra($propInfo['eval']);
-			}
-
 		}
 	}
 
@@ -231,14 +120,14 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	protected function parseDataProvider(ContainerInterface $container)
 	{
 		// parse data provider
-		if ($container->hasDataProviderSection())
+		if ($container->hasDataProviderDefinition())
 		{
-			$config = $container->getDataProviderSection();
+			$config = $container->getDataProviderDefinition();
 		}
 		else
 		{
-			$config = new DefaultDataProviderSection();
-			$container->setDataProviderSection($config);
+			$config = new DefaultDataProviderDefinition();
+			$container->setDataProviderDefinition($config);
 		}
 
 		if (($parentTable = $this->getFromDca('config/ptable')) !== null)
@@ -263,7 +152,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 						'source' => $container->getName()
 					));
 
-				$container->getBasicSection()->setRootDataProvider($parentTable);
+				$container->getBasicDefinition()->setRootDataProvider($parentTable);
 			}
 		}
 
@@ -288,15 +177,178 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 				))
 				->isVersioningEnabled((bool)$this->getFromDca('config/enableVersioning'));
 
-			$container->getBasicSection()->setDataProvider($container->getName());
+			$container->getBasicDefinition()->setDataProvider($container->getName());
 		}
 	}
 
-	protected function parsePanel(ContainerInterface $container)
+	/**
+	 * This method parses the root entries definition.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
+	protected function parseRootEntries(ContainerInterface $container)
 	{
-		$config = $this->getBackendViewSection($container);
+		// TODO to be implemented
+	}
 
-		$layout = $config->getPanelLayout();
+	/**
+	 * This method parses the parent-child conditions.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
+	protected function parseParentChildConditions(ContainerInterface $container)
+	{
+		// TODO to be implemented
+	}
+
+	/**
+	 * Parse and build the backend view definition for the old Contao2 backend view.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
+	protected function parseBackendView(ContainerInterface $container)
+	{
+		if ($container->hasDefinition(Contao2BackendViewDefinitionInterface::NAME))
+		{
+			$view = $container->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+		}
+		else
+		{
+			$view = new Contao2BackendViewDefinition();
+			$container->setDefinition(Contao2BackendViewDefinitionInterface::NAME, $view);
+		}
+
+		if (!$view instanceof Contao2BackendViewDefinitionInterface)
+		{
+			throw new DcGeneralInvalidArgumentException('Configured BackendViewDefinition does not implement Contao2BackendViewDefinitionInterface.');
+		}
+
+		$this->parseListing($container, $view);
+		$this->parsePanel($container, $view);
+		$this->parseGlobalOperations($container, $view);
+		$this->parseModelOperations($container, $view);
+	}
+
+	/**
+	 * Parse the listing configuration.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
+	protected function parseListing(ContainerInterface $container, Contao2BackendViewDefinitionInterface $view)
+	{
+
+		$listing = $view->getListingConfig();
+
+		$listDca = $this->getFromDca('list');
+
+		// cancel if no list configuration found
+		if (!$listDca) {
+			return;
+		}
+
+		$this->parseListSorting($listing, $listDca);
+		$this->parseListLabel($listing, $listDca);
+	}
+
+	/**
+	 * Parse the sorting part of listing configuration.
+	 *
+	 * @param ListingConfigInterface $listing
+	 *
+	 * @return void
+	 */
+	protected function parseListSorting(ListingConfigInterface $listing, array $listDca)
+	{
+		$sortingDca = isset($listDca['sorting']) ? $listDca['sorting'] : array();
+
+		if (isset($sortingDca['flag'])) {
+			$this->evalFlag($listing, $sortingDca['flag']);
+		}
+
+		if (isset($sortingDca['fields'])) {
+			$fields = array();
+
+			foreach ($sortingDca['fields'] as $field) {
+				if (preg_match('~^(\w+)(?: (ASC|DESC))?$~', $field, $matches)) {
+					$fields[$matches[1]] = isset($matches[2]) ? $matches[2] : 'ASC';
+				}
+				else {
+					throw new DcGeneralRuntimeException('Custom SQL in sorting fields are currently unsupported');
+				}
+			}
+
+			$listing->setDefaultSortingFields($fields);
+		}
+
+		if (isset($sortingDca['headerFields'])) {
+			$listing->setHeaderPropertyNames((array) $sortingDca['headerFields']);
+		}
+
+		if (isset($sortingDca['icon'])) {
+			$listing->setRootIcon($sortingDca['icon']);
+		}
+
+		if (isset($sortingDca['disableGrouping']) && $sortingDca['disableGrouping']) {
+			$listing->setGroupingMode(ListingConfigInterface::GROUP_NONE);
+		}
+
+		if (isset($sortingDca['child_record_class'])) {
+			$listing->setItemCssClass($sortingDca['child_record_class']);
+		}
+	}
+
+	/**
+	 * Parse the sorting part of listing configuration.
+	 *
+	 * @param ListingConfigInterface $listing
+	 *
+	 * @return void
+	 */
+	protected function parseListLabel(ListingConfigInterface $listing, array $listDca)
+	{
+		$labelDca   = isset($listDca['label']) ? $listDca['label'] : array();
+
+		$formatter  = new LabelFormatter();
+		$configured = false;
+
+		if (isset($labelDca['fields'])) {
+			$formatter->setPropertyNames($labelDca['fields']);
+			$configured = true;
+		}
+
+		if (isset($labelDca['format'])) {
+			$formatter->setFormat($labelDca['format']);
+			$configured = true;
+		}
+
+		if (isset($labelDca['maxCharacters'])) {
+			$formatter->setMaxLenght($labelDca['maxCharacters']);
+			$configured = true;
+		}
+
+		if ($configured) {
+			$listing->setLabelFormatter($formatter);
+		}
+	}
+
+	/**
+	 * Parse the defined palettes and populate the definition.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
+	protected function parsePanel(ContainerInterface $container, Contao2BackendViewDefinitionInterface $view)
+	{
+		$layout = $view->getPanelLayout();
 		$rows = $layout->getRows();
 
 		foreach (explode(';', (string)$this->getFromDca('list/sorting/panelLayout')) as $rowNo => $elementRow)
@@ -379,27 +431,397 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		}
 	}
 
+	/**
+	 * Parse the defined container scoped operations and populate the definition.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
+	protected function parseGlobalOperations(ContainerInterface $container, Contao2BackendViewDefinitionInterface $view)
+	{
+		$operationsDca = $this->getFromDca('list/global_operations');
+
+		if (!is_array($operationsDca)) {
+			return;
+		}
+
+		$collection = $view->getGlobalCommands();
+
+		foreach ($operationsDca as $operationName => $operationDca) {
+			$command = $this->createCommand($operationName, $operationsDca);
+			$collection->addCommand($command);
+		}
+	}
+
+	/**
+	 * Parse the defined model scoped operations and populate the definition.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
+	protected function parseModelOperations(ContainerInterface $container, Contao2BackendViewDefinitionInterface $view)
+	{
+		$operationsDca = $this->getFromDca('list/operations');
+
+		if (!is_array($operationsDca)) {
+			return;
+		}
+
+		$collection = $view->getModelCommands();
+
+		foreach ($operationsDca as $operationName => $operationDca) {
+			$command = $this->createCommand($operationName, $operationsDca);
+			$collection->addCommand($command);
+		}
+	}
+
+	/**
+	 * Parse the defined palettes and populate the definition.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
 	protected function parsePalettes(ContainerInterface $container)
 	{
 		$palettesDefinition = $this->getFromDca('palettes');
+		$subPalettesDefinition = $this->getFromDca('subpalettes');
 
-		// There is no legacy palette definition
+		// skip while there is no legacy palette definition
 		if (!is_array($palettesDefinition)) {
 			return;
 		}
 
-		if ($container->hasSection(PalettesSectionInterface::NAME))
+		// ignore non-legacy subpalette definition
+		if (!is_array($subPalettesDefinition)) {
+			$subPalettesDefinition = array();
+		}
+
+		if ($container->hasDefinition(PalettesDefinitionInterface::NAME))
 		{
-			$palettesSection = $container->getSection(PalettesSectionInterface::NAME);
+			$palettesDefinition = $container->getDefinition(PalettesDefinitionInterface::NAME);
 		}
 		else
 		{
-			$palettesSection = new DefaultPalettesSection();
-			$container->setSection(PalettesSectionInterface::NAME, $palettesSection);
+			$palettesDefinition = new DefaultPalettesDefinition();
+			$container->setDefinition(PalettesDefinitionInterface::NAME, $palettesDefinition);
 		}
 
-		foreach ($palettesDefinition as $paletteSelector => $paletteFields) {
+		$palettesParser = new LegacyPalettesParser();
+		$palettesParser->parse(
+			$palettesDefinition,
+			$subPalettesDefinition,
+			$palettesDefinition
+		);
+	}
 
+	/**
+	 * Parse the defined properties and populate the definition.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
+	protected function parseProperties(ContainerInterface $container)
+	{
+		// parse data provider
+		if ($container->hasPropertiesDefinition())
+		{
+			$definition = $container->getPropertiesDefinition();
+		}
+		else
+		{
+			$definition = new DefaultPropertiesDefinition();
+			$container->setPropertiesDefinition($definition);
+		}
+
+		foreach ($this->getFromDca('fields') as $propName => $propInfo)
+		{
+			if ($definition->hasProperty($propName))
+			{
+				$property = $definition->getProperty($propName);
+			}
+			else
+			{
+				$property = new DefaultProperty($propName);
+				$definition->addProperty($property);
+			}
+
+			if (!$property->getLabel() && isset($propInfo['label']))
+			{
+				$lang = $propInfo['label'];
+
+				if (is_array($lang)) {
+					$label       = reset($lang);
+					$description = next($lang);
+
+					$property->setDescription($description);
+				}
+				else {
+					$label = $lang;
+				}
+
+				$property->setLabel($label);
+			}
+
+			if (!$property->getDescription() && isset($propInfo['description']))
+			{
+				$property->setDescription($propInfo['description']);
+			}
+
+			if (!$property->getDefaultValue() && isset($propInfo['default']))
+			{
+				$property->setDefaultValue($propInfo['default']);
+			}
+
+			if (isset($propInfo['exclude']))
+			{
+				$property->setExcluded($propInfo['exclude']);
+			}
+
+			if (isset($propInfo['search']))
+			{
+				$property->setSearchable($propInfo['search']);
+			}
+
+			if (isset($propInfo['sorting']))
+			{
+				$property->setSortable($propInfo['sorting']);
+			}
+
+			if (isset($propInfo['filter']))
+			{
+				$property->setFilterable($propInfo['filter']);
+			}
+
+			if (isset($propInfo['flag']))
+			{
+				$this->evalFlag($property, $propInfo['flag']);
+			}
+
+			if (!$property->getGroupingLength() && isset($propInfo['length']))
+			{
+				$property->setGroupingLength($propInfo['length']);
+			}
+
+			if (!$property->getWidgetType() && isset($propInfo['inputType']))
+			{
+				$property->setWidgetType($propInfo['inputType']);
+			}
+
+			if (!$property->getOptions() && isset($propInfo['options']))
+			{
+				$property->setOptions($propInfo['options']);
+			}
+
+			if (!$property->getExplanation() && isset($propInfo['explanation']))
+			{
+				$property->setExplanation($propInfo['explanation']);
+			}
+
+			if (!$property->getExtra() && isset($propInfo['eval']))
+			{
+				$property->setExtra($propInfo['eval']);
+			}
+
+		}
+	}
+
+	/**
+	 * Create a command from dca.
+	 *
+	 * @param string $commandName
+	 * @param array $commandDca
+	 *
+	 * @return CommandInterface
+	 */
+	protected function createCommand($commandName, array $commandDca)
+	{
+		$command = new Command();
+		$command->setName($commandName);
+
+		$parameters = $command->getParameters();
+
+		if (isset($commandDca['href'])) {
+			parse_str($commandDca['href'], $queryParameters);
+			foreach ($queryParameters as $name => $value) {
+				if ($name == 'act') {
+					$command->setName($value);
+				}
+				else {
+					$parameters[$name] = $value;
+				}
+			}
+			unset($commandDca['href']);
+		}
+
+		if (isset($commandDca['parameters'])) {
+			foreach ($commandDca['parameters'] as $name => $value) {
+				$parameters[$name] = $value;
+			}
+			unset($commandDca['parameters']);
+		}
+
+		if (isset($commandDca['label'])) {
+			$lang = $commandDca['label'];
+
+			if (is_array($lang)) {
+				$label = rewind($lang);
+				$description = next($lang);
+
+				$command->setDescription($description);
+			}
+			else {
+				$label = $lang;
+			}
+
+			$command->setLabel($label);
+
+			unset($commandDca['label']);
+		}
+
+		if (isset($commandDca['description'])) {
+			$command->setDescription($commandDca['description']);
+
+			unset($commandDca['description']);
+		}
+
+		if (isset($commandDca['button_callback'])) {
+			// TODO handle callback
+
+			unset($commandDca['button_callback']);
+		}
+
+		if (count($commandDca)) {
+			$extra = $command->getExtra();
+
+			foreach ($commandDca as $name => $value) {
+				$extra[$name] = $value;
+			}
+		}
+
+		return $command;
+	}
+
+	/**
+	 * Evaluate the contao 2 sorting flag into sorting mode, grouping mode and grouping length.
+	 *
+	 * @param ListingConfigInterface|PropertyInterface $config
+	 * @param int $flag
+	 */
+	protected function evalFlag($config, $flag)
+	{
+		switch ($flag) {
+			// Sort by initial letter ascending
+			// Aufsteigende Sortierung nach Anfangsbuchstabe
+			case 1:
+			// Sort by initial two letters ascending
+			// Aufsteigende Sortierung nach den ersten beiden Buchstaben
+			case 3:
+			// Sort by day ascending
+			// Aufsteigende Sortierung nach Tag
+			case 5:
+			// Sort by month ascending
+			// Aufsteigende Sortierung nach Monat
+			case 7:
+			// Sort by year ascending
+			// Aufsteigende Sortierung nach Jahr
+			case 9:
+			// Sort ascending
+			// Aufsteigende Sortierung
+			case 11:
+				$config->setSortingMode(ListingConfigInterface::SORT_ASC);
+				break;
+			// Sort by initial letter descending
+			// Absteigende Sortierung nach Anfangsbuchstabe
+			case 2:
+			// Sort by initial two letters descending
+			// Absteigende Sortierung nach den ersten beiden Buchstaben
+			case 4:
+			// Sort by day descending
+			// Absteigende Sortierung nach Tag
+			case 6:
+			// Sort by month descending
+			// Absteigende Sortierung nach Monat
+			case 8:
+			// Sort by year descending
+			// Absteigende Sortierung nach Jahr
+			case 10:
+			// Sort descending
+			// Absteigende Sortierung
+			case 12:
+				$config->setSortingMode(ListingConfigInterface::SORT_DESC);
+				break;
+		}
+
+		switch ($flag) {
+			// Sort by initial letter ascending
+			// Aufsteigende Sortierung nach Anfangsbuchstabe
+			case 1:
+			// Sort by initial letter descending
+			// Absteigende Sortierung nach Anfangsbuchstabe
+			case 2:
+			// Sort by initial two letters ascending
+			// Aufsteigende Sortierung nach den ersten beiden Buchstaben
+			case 3:
+			// Sort by initial two letters descending
+			// Absteigende Sortierung nach den ersten beiden Buchstaben
+			case 4:
+				$config->setGroupingMode(ListingConfigInterface::GROUP_CHAR);
+				break;
+			// Sort by day ascending
+			// Aufsteigende Sortierung nach Tag
+			case 5:
+			// Sort by day descending
+			// Absteigende Sortierung nach Tag
+			case 6:
+				$config->setGroupingMode(ListingConfigInterface::GROUP_DAY);
+				break;
+			// Sort by month ascending
+			// Aufsteigende Sortierung nach Monat
+			case 7:
+			// Sort by month descending
+			// Absteigende Sortierung nach Monat
+			case 8:
+				$config->setGroupingMode(ListingConfigInterface::GROUP_MONTH);
+				break;
+			// Sort by year ascending
+			// Aufsteigende Sortierung nach Jahr
+			case 9:
+			// Sort by year descending
+			// Absteigende Sortierung nach Jahr
+			case 10:
+				$config->setGroupingMode(ListingConfigInterface::GROUP_YEAR);
+				break;
+			// Sort ascending
+			// Aufsteigende Sortierung
+			case 11:
+			// Sort descending
+			// Absteigende Sortierung
+			case 12:
+				$config->setGroupingMode(ListingConfigInterface::GROUP_NONE);
+				break;
+		}
+
+		switch ($flag) {
+			// Sort by initial letter ascending
+			// Aufsteigende Sortierung nach Anfangsbuchstabe
+			case 1:
+			// Sort by initial letter descending
+			// Absteigende Sortierung nach Anfangsbuchstabe
+			case 2:
+				$config->setGroupingLength(1);
+				break;
+			// Sort by initial two letters ascending
+			// Aufsteigende Sortierung nach den ersten beiden Buchstaben
+			case 3:
+			// Sort by initial two letters descending
+			// Absteigende Sortierung nach den ersten beiden Buchstaben
+			case 4:
+				$config->setGroupingLength(2);
+				break;
 		}
 	}
 }

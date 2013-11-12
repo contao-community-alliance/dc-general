@@ -151,4 +151,16 @@ class PaletteCollection implements PaletteCollectionInterface
 
 		return new DcGeneralInvalidArgumentException('No palette found for name ' . $paletteName);
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function __clone()
+	{
+		$palettes = array();
+		foreach ($this->palettes as $index => $palette) {
+			$palettes[$index] = clone $palette;
+		}
+		$this->palettes = $palettes;
+	}
 }

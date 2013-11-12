@@ -12,6 +12,7 @@
 
 namespace DcGeneral\DataDefinition\Palette\Builder;
 
+use DcGeneral\DataDefinition\ConditionChainInterface;
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\DataDefinition\Palette\Builder\Event\AddConditionEvent;
 use DcGeneral\DataDefinition\Palette\Builder\Event\BuilderEvent;
@@ -38,10 +39,18 @@ use DcGeneral\DataDefinition\Palette\Builder\Event\SetPalettePropertyValueCondit
 use DcGeneral\DataDefinition\Palette\Builder\Event\SetPropertyClassNameEvent;
 use DcGeneral\DataDefinition\Palette\Builder\Event\SetPropertyConditionChainClassNameEvent;
 use DcGeneral\DataDefinition\Palette\Builder\Event\SetPropertyValueConditionClassNameEvent;
+use DcGeneral\DataDefinition\Palette\Builder\Event\UseLegendEvent;
+use DcGeneral\DataDefinition\Palette\Builder\Event\UsePaletteCollectionEvent;
+use DcGeneral\DataDefinition\Palette\Builder\Event\UsePaletteEvent;
+use DcGeneral\DataDefinition\Palette\Builder\Event\UsePropertyEvent;
 use DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionChain;
 use DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionInterface;
 use DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionChain;
 use DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterface;
+use DcGeneral\DataDefinition\Palette\LegendInterface;
+use DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
+use DcGeneral\DataDefinition\Palette\PaletteInterface;
+use DcGeneral\DataDefinition\Palette\PropertyInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
@@ -52,9 +61,19 @@ use DcGeneral\Exception\DcGeneralRuntimeException;
 class PaletteBuilder
 {
 	/**
-	 * @var EnvironmentInterface
+	 * The condition define if the property is viewable.
 	 */
-	protected $environment;
+	const VISIBLE = 'view';
+
+	/**
+	 * The condition define if the property is editable.
+	 */
+	const EDITABLE = 'edit';
+
+	/**
+	 * @var ContainerInterface
+	 */
+	protected $container;
 
 	/**
 	 * @var string
@@ -167,7 +186,7 @@ class PaletteBuilder
 	protected $property = null;
 
 	/**
-	 * @var PropertyConditionInterface|PaletteConditionInterface|null
+	 * @var PropertyConditionInterface|PaletteConditionInterface|ConditionChainInterface|null
 	 */
 	protected $condition = null;
 
@@ -176,17 +195,17 @@ class PaletteBuilder
 	 *
 	 * @return PaletteBuilder
 	 */
-	static public function create(EnvironmentInterface $environment)
+	static public function create(ContainerInterface $container)
 	{
-		return new PaletteBuilder($environment);
+		return new PaletteBuilder($container);
 	}
 
 	/**
 	 * Create a new palette builder.
 	 */
-	public function __construct(EnvironmentInterface $environment)
+	public function __construct(ContainerInterface $container)
 	{
-		$this->environment = $environment;
+		$this->container = $container;
 
 		$this->paletteCollectionClass = new \ReflectionClass($this->paletteCollectionClassName);
 		$this->paletteClass = new \ReflectionClass($this->paletteClassName);
@@ -202,11 +221,11 @@ class PaletteBuilder
 	}
 
 	/**
-	 * @return \DcGeneral\EnvironmentInterface
+	 * @return ContainerInterface
 	 */
-	public function getEnvironment()
+	public function getContainer()
 	{
-		return $this->environment;
+		return $this->container;
 	}
 
 	/**
@@ -474,6 +493,26 @@ class PaletteBuilder
 	}
 
 	/**
+	 * Reuse an existing palette collection.
+	 *
+	 * @param PaletteCollectionInterface $paletteCollection
+	 *
+	 * @return PaletteBuilder
+	 */
+	public function usePaletteCollection(PaletteCollectionInterface $paletteCollection)
+	{
+		if ($this->paletteCollection) {
+			$this->finishPaletteCollection();
+		}
+
+		$event = new UsePaletteCollectionEvent($paletteCollection, $this);
+		$this->dispatchEvent($event);
+		$this->paletteCollection = $paletteCollection;
+
+		return $this;
+	}
+
+	/**
 	 * Start a new palette collection.
 	 *
 	 * @return PaletteBuilder
@@ -517,6 +556,26 @@ class PaletteBuilder
 		$collection = $event->getPaletteCollection();
 
 		$this->paletteCollection = null;
+
+		return $this;
+	}
+
+	/**
+	 * Reuse an existing palette.
+	 *
+	 * @param PaletteInterface $palette
+	 *
+	 * @return PaletteBuilder
+	 */
+	public function usePalette(PaletteInterface $palette)
+	{
+		if ($this->palette) {
+			$this->finishPalette();
+		}
+
+		$event = new UsePaletteEvent($palette, $this);
+		$this->dispatchEvent($event);
+		$this->palette = $palette;
 
 		return $this;
 	}
@@ -583,6 +642,26 @@ class PaletteBuilder
 	}
 
 	/**
+	 * Reuse an existing legend.
+	 *
+	 * @param LegendInterface $legend
+	 *
+	 * @return PaletteBuilder
+	 */
+	public function useLegend(LegendInterface $legend)
+	{
+		if ($this->legend) {
+			$this->finishLegend();
+		}
+
+		$event = new UseLegendEvent($legend, $this);
+		$this->dispatchEvent($event);
+		$this->legend = $legend;
+
+		return $this;
+	}
+
+	/**
 	 * Start a new legend.
 	 *
 	 * @param string $name
@@ -595,8 +674,7 @@ class PaletteBuilder
 			$this->finishLegend();
 		}
 
-		$legend = $this->legendClass->newInstance();
-		$legend->setName($name);
+		$legend = $this->legendClass->newInstance($name);
 
 		$event = new CreateLegendEvent($legend, $this);
 		$this->dispatchEvent($event);
@@ -638,6 +716,36 @@ class PaletteBuilder
 	}
 
 	/**
+	 * Reuse an existing property or set of properties.
+	 *
+	 * @param PropertyInterface[]|PropertyInterface $propertyName
+	 *
+	 * @return PaletteBuilder
+	 */
+	public function useProperty($property, $_ = null)
+	{
+		if ($this->property) {
+			$this->finishProperty();
+		}
+
+		$properties = func_get_args();
+
+		$this->property = array();
+		foreach ($properties as $property) {
+			$event = new UsePropertyEvent($property, $this);
+			$this->dispatchEvent($event);
+
+			$this->property[] = $property;
+		}
+
+		if (count($this->property) == 1) {
+			$this->property = array_shift($this->property);
+		}
+
+		return $this;
+	}
+
+	/**
 	 * Start a new single property or set of properties.
 	 *
 	 * @param string $propertyName
@@ -654,8 +762,7 @@ class PaletteBuilder
 
 		$this->property = array();
 		foreach ($propertyNames as $propertyName) {
-			$property = $this->propertyClass->newInstance();
-			$property->setName($propertyName);
+			$property = $this->propertyClass->newInstance($propertyName);
 
 			$event = new CreatePropertyEvent($property, $this);
 			$this->dispatchEvent($event);
@@ -690,7 +797,7 @@ class PaletteBuilder
 			$this->finishCondition();
 		}
 
-		$properties = (array) $this->property;
+		$properties = is_object($this->property) ? array($this->property) : $this->property;
 
 		foreach ($properties as $index => $tempProperty) {
 			$event = new FinishPropertyEvent($tempProperty, $this);
@@ -721,13 +828,15 @@ class PaletteBuilder
 			$condition = $this->paletteConditionChainClass->newInstance();
 			$event = new CreatePaletteConditionChainEvent($condition, $this);
 			$this->dispatchEvent($event);
-			$this->condition = $event->getCondition();
+			$condition = $event->getCondition();
 
-			$event = new CreateConditionEvent($this->condition, $this);
+			$event = new CreateConditionEvent($condition, $this);
 			$this->dispatchEvent($event);
-			$this->condition = $event->getCondition();
+			$condition = $event->getCondition();
 
-			$this->condition->addCondition($previousCondition);
+			$condition->addCondition($previousCondition);
+
+			$this->condition = $condition;
 		}
 
 		return $this;
@@ -740,19 +849,21 @@ class PaletteBuilder
 	 */
 	protected function createPropertyConditionChain($conjunction = PropertyConditionChain::AND_CONJUNCTION)
 	{
-		if (!$this->condition instanceof PropertyConditionChain && $this->condition->getConjunction() != $conjunction) {
+		if (!$this->condition instanceof PropertyConditionChain || $this->condition->getConjunction() != $conjunction) {
 			$previousCondition = $this->condition;
 
-			$condition = $this->paletteConditionChainClass->newInstance();
+			$condition = $this->propertyConditionChainClass->newInstance();
 			$event = new CreatePropertyConditionChainEvent($condition, $this);
 			$this->dispatchEvent($event);
-			$this->condition = $event->getCondition();
+			$condition = $event->getPropertyConditionChain();
 
-			$event = new CreateConditionEvent($this->condition, $this);
+			$event = new CreateConditionEvent($condition, $this);
 			$this->dispatchEvent($event);
-			$this->condition = $event->getCondition();
+			$condition = $event->getCondition();
 
-			$this->condition->addCondition($previousCondition);
+			$condition->addCondition($previousCondition);
+
+			$this->condition = $condition;
 		}
 
 		return $this;
@@ -778,9 +889,9 @@ class PaletteBuilder
 		$condition = $this->defaultPaletteConditionClass->newInstance();
 		$event = new CreateDefaultPaletteConditionEvent($condition, $this);
 		$this->dispatchEvent($event);
-		$this->condition = $event->getCondition();
+		$condition = $event->getCondition();
 
-		$event = new CreateConditionEvent($this->condition, $this);
+		$event = new CreateConditionEvent($condition, $this);
 		$this->dispatchEvent($event);
 		$this->condition = $event->getCondition();
 
@@ -848,9 +959,9 @@ class PaletteBuilder
 		$condition->setPropertyValue($propertyValue);
 		$condition->setStrict($strict);
 
-		$event = new CreatePropertyValueConditionEvent($this->condition, $this);
+		$event = new CreatePropertyValueConditionEvent($condition, $this);
 		$this->dispatchEvent($event);
-		$condition = $event->getCondition();
+		$condition = $event->getPropertyValueCondition();
 
 		$event = new CreateConditionEvent($condition, $this);
 		$this->dispatchEvent($event);
@@ -890,9 +1001,9 @@ class PaletteBuilder
 		$condition->setPropertyValue($propertyValue);
 		$condition->setStrict($strict);
 
-		$event = new CreatePropertyValueConditionEvent($this->condition, $this);
+		$event = new CreatePropertyValueConditionEvent($condition, $this);
 		$this->dispatchEvent($event);
-		$condition = $event->getCondition();
+		$condition = $event->getPropertyValueCondition();
 
 		$event = new CreateConditionEvent($condition, $this);
 		$this->dispatchEvent($event);
@@ -933,7 +1044,7 @@ class PaletteBuilder
 	 *
 	 * @param PaletteConditionInterface|PropertyConditionInterface $condition
 	 */
-	public function addCondition($condition)
+	public function addCondition($condition, $scope = self::VISIBLE)
 	{
 		if ($condition instanceof PaletteConditionInterface)
 		{
@@ -954,7 +1065,7 @@ class PaletteBuilder
 				$previousCondition->addCondition($condition);
 			}
 			else {
-				$chain = new PropertyConditionChain();
+				$chain = $this->paletteConditionChainClass->newInstance();
 				$chain->addCondition($previousCondition);
 				$chain->addCondition($condition);
 				$this->palette->setCondition($chain);
@@ -967,26 +1078,40 @@ class PaletteBuilder
 				throw new DcGeneralRuntimeException('Property is missing, please create a property first');
 			}
 
-			$properties = (array) $this->property;
+			$properties = is_object($this->property) ? array($this->property) : $this->property;
 
 			foreach ($properties as $property) {
+				/** @var PropertyInterface $property */
 				$event = new AddConditionEvent($condition, $property, $this);
 				$this->dispatchEvent($event);
 				$condition = $event->getCondition();
 
-				$previousCondition = $property->getCondition();
+				$previousCondition = $scope == self::EDITABLE
+					? $property->getEditableCondition()
+					: $property->getVisibleCondition();
 
 				if (!$previousCondition) {
-					$property->setCondition($condition);
+					if ($scope == self::EDITABLE) {
+						$property->setEditableCondition($condition);
+					}
+					else {
+						$property->setVisibleCondition($condition);
+					}
 				}
 				else if ($previousCondition instanceof PropertyConditionChain) {
 					$previousCondition->addCondition($condition);
 				}
 				else {
-					$chain = new PropertyConditionChain();
+					$chain = $this->propertyConditionChainClass->newInstance();
 					$chain->addCondition($previousCondition);
 					$chain->addCondition($condition);
-					$property->setCondition($chain);
+
+					if ($scope == self::EDITABLE) {
+						$property->setEditableCondition($chain);
+					}
+					else {
+						$property->setVisibleCondition($chain);
+					}
 				}
 			}
 		}

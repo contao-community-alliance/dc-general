@@ -13,6 +13,7 @@
 namespace DcGeneral\DataDefinition\Builder;
 
 use DcGeneral\DataDefinition\ContainerInterface;
+use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 
 interface DataDefinitionBuilderInterface
 {
@@ -23,5 +24,5 @@ interface DataDefinitionBuilderInterface
 	 *
 	 * @return void
 	 */
-	public function build(ContainerInterface $container);
+	public function build(ContainerInterface $container, BuildDataDefinitionEvent $event);
 }

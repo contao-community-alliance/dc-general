@@ -46,7 +46,7 @@ class AddConditionEvent extends BuilderEvent
 	{
 		$this->setCondition($condition);
 		$this->setTarget($target);
-		$this->setPaletteBuilder($paletteBuilder);
+		parent::__construct($paletteBuilder);
 	}
 
 	/**

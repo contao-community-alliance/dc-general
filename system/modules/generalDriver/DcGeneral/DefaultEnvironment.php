@@ -12,13 +12,10 @@
 
 namespace DcGeneral;
 
-use DcGeneral\EnvironmentInterface;
 use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
-use DcGeneral\InputProviderInterface;
-use DcGeneral\Panel\PanelContainerInterface;
-use DcGeneral\View\BackendView\BaseView;
+use DcGeneral\Contao\View\Contao2BackendView\BaseView;
 
 class DefaultEnvironment implements EnvironmentInterface
 {
@@ -257,7 +254,7 @@ class DefaultEnvironment implements EnvironmentInterface
 	}
 
 	/**
-	 * {@inheritdoc}
+	 * @deprecated Use getDataProvider() instead!
 	 */
 	public function getDataDriver($strSource = null)
 	{
@@ -266,7 +263,7 @@ class DefaultEnvironment implements EnvironmentInterface
 	}
 
 	/**
-	 * {@inheritdoc}
+	 * @deprecated Use addDataProvider() instead!
 	 */
 	public function addDataDriver($strSource, $objDriver)
 	{
@@ -278,7 +275,7 @@ class DefaultEnvironment implements EnvironmentInterface
 	}
 
 	/**
-	 * @deprecated use
+	 * @deprecated use removeDataProvider() instead!
 	 */
 	public function removeDataDriver($strSource)
 	{
@@ -289,7 +286,7 @@ class DefaultEnvironment implements EnvironmentInterface
 	}
 
 	/**
-	 * {@inheritdoc}
+	 * @deprecated use the proper interface in the view!
 	 */
 	public function setPanelContainer($objPanelContainer)
 	{
@@ -306,7 +303,7 @@ class DefaultEnvironment implements EnvironmentInterface
 	}
 
 	/**
-	 * {@inheritdoc}
+	 * @deprecated use the proper interface in the view!
 	 */
 	public function getPanelContainer()
 	{

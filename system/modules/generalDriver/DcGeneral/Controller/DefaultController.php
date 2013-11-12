@@ -13,16 +13,13 @@
 namespace DcGeneral\Controller;
 
 use DcGeneral\Contao\BackendBindings;
-use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Data\DCGE;
-use DcGeneral\Data\DriverInterface;
 use DcGeneral\Data\ModelInterface;
 
 use DcGeneral\DataContainerInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
-use DcGeneral\Panel\DefaultPanel;
 
 class DefaultController implements ControllerInterface
 {
@@ -1431,9 +1428,9 @@ class DefaultController implements ControllerInterface
 
 	public function getBaseConfig()
 	{
-		$objConfig     = $this->getEnvironment()->getDataDriver()->getEmptyConfig();
+		$objConfig     = $this->getEnvironment()->getDataProvider()->getEmptyConfig();
 		$objDefinition = $this->getEnvironment()->getDataDefinition();
-		$arrAdditional = $objDefinition->getAdditionalFilter();
+		$arrAdditional = array(); // TODO incomplete $objDefinition->getAdditionalFilter();
 
 		// Custom filter common for all modes.
 		if ($arrAdditional)
@@ -1442,6 +1439,8 @@ class DefaultController implements ControllerInterface
 		}
 
 		// Special filter for certain modes.
+		/*
+		 * TODO refactore
 		if ($this->getEnvironment()->getDataDefinition()->getSortingMode() == 4)
 		{
 			$this->addParentFilter(
@@ -1449,8 +1448,11 @@ class DefaultController implements ControllerInterface
 				$objConfig
 			);
 		}
+		*/
 
 		// Set the default sorting as defined in the data definition (if any).
+		/*
+		 * TODO refactore
 		if ($sorting = $objDefinition->getAdditionalSorting())
 		{
 			$newSort = array();
@@ -1460,6 +1462,7 @@ class DefaultController implements ControllerInterface
 			}
 			$objConfig->setSorting($newSort);
 		}
+		*/
 
 		return $objConfig;
 	}
@@ -2417,7 +2420,7 @@ class DefaultController implements ControllerInterface
 					else
 					{
 						// FIXME: dependency injection?
-						$objDate = new \Contao\Date($arrSession['filter'][$strFilter][$field]);
+						$objDate = new \Date($arrSession['filter'][$strFilter][$field]);
 						$this->getDC()->setFilter(array(
 							array('operation' => '>', 'property' => $field, 'value' => $objDate->dayBegin),
 							array('operation' => '<', 'property' => $field, 'value' => $objDate->dayEnd)
@@ -2435,7 +2438,7 @@ class DefaultController implements ControllerInterface
 					else
 					{
 						// FIXME: dependency injection?
-						$objDate = new \Contao\Date($arrSession['filter'][$strFilter][$field]);
+						$objDate = new \Date($arrSession['filter'][$strFilter][$field]);
 						$this->getDC()->setFilter(array(
 							array('operation' => '>', 'property' => $field, 'value' => $objDate->monthBegin),
 							array('operation' => '<', 'property' => $field, 'value' => $objDate->monthEnd)

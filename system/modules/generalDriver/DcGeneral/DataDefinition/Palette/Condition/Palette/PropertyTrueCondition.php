@@ -97,4 +97,11 @@ class PropertyTrueCondition extends AbstractWeightAwarePaletteCondition
 
 		return ($this->strict ? ($value === true) : $value) ? $this->getWeight() : false;
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function __clone()
+	{
+	}
 }

@@ -145,9 +145,9 @@ class Legend implements LegendInterface
 
 			foreach ($this->properties as $property)
 			{
-				$condition = $property->getCondition();
+				$condition = $property->getVisibleCondition();
 
-				if (!$condition || $condition->isVisible($model, $input))
+				if (!$condition || $condition->match($model, $input))
 				{
 					$selectedProperties[] = $property;
 				}
@@ -159,5 +159,19 @@ class Legend implements LegendInterface
 		{
 			return array_values($this->properties);
 		}
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function __clone()
+	{
+		$this->palette = null;
+
+		$properties = array();
+		foreach ($this->properties as $index => $property) {
+			$properties[$index] = clone $property;
+		}
+		$this->properties = $properties;
 	}
 }

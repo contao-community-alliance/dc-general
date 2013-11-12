@@ -89,4 +89,9 @@ interface PropertyInterface
 	 * @return PropertyConditionInterface
 	 */
 	public function getEditableCondition();
+
+	/**
+	 * Create a deep clone of the property.
+	 */
+	public function __clone();
 }

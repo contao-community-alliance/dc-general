@@ -28,4 +28,11 @@ class DefaultPaletteCondition implements PaletteConditionInterface
 	{
 		return 0;
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function __clone()
+	{
+	}
 }
