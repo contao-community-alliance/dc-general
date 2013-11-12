@@ -449,7 +449,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		$collection = $view->getGlobalCommands();
 
 		foreach ($operationsDca as $operationName => $operationDca) {
-			$command = $this->createCommand($operationName, $operationsDca);
+			$command = $this->createCommand($operationName, $operationsDca[$operationName]);
 			$collection->addCommand($command);
 		}
 	}
@@ -472,7 +472,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		$collection = $view->getModelCommands();
 
 		foreach ($operationsDca as $operationName => $operationDca) {
-			$command = $this->createCommand($operationName, $operationsDca);
+			$command = $this->createCommand($operationName, $operationsDca[$operationName]);
 			$collection->addCommand($command);
 		}
 	}
@@ -668,7 +668,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			$lang = $commandDca['label'];
 
 			if (is_array($lang)) {
-				$label = rewind($lang);
+				$label = reset($lang);
 				$description = next($lang);
 
 				$command->setDescription($description);
