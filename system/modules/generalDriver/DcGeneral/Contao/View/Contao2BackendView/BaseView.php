@@ -233,6 +233,16 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
+	 * Retrieve the view section for this view.
+	 *
+	 * @return Contao2BackendViewDefinitionInterface
+	 */
+	protected function getViewSection()
+	{
+		return $this->getDataDefinition()->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+	}
+
+	/**
 	 * Determines if this view is opened in a popup frame.
 	 *
 	 * @return bool
@@ -1639,90 +1649,103 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
-	 * @param \DcGeneral\DataDefinition\OperationInterface $objOperation
+	 * @param \DcGeneral\DataDefinition\Definition\View\CommandInterface $objCommand
 	 *
-	 * @param \DcGeneral\Data\ModelInterface               $objModel
+	 * @param \DcGeneral\Data\ModelInterface                             $objModel
 	 *
-	 * @param bool                                         $blnCircularReference
+	 * @param bool                                                       $blnCircularReference
 	 *
-	 * @param array                                        $arrChildRecordIds
+	 * @param array                                                      $arrChildRecordIds
 	 *
-	 * @param string                                       $strPrevious
+	 * @param string                                                     $strPrevious
 	 *
-	 * @param string                                       $strNext
+	 * @param string                                                     $strNext
 	 *
 	 * @return string
 	 */
-	protected function buildOperation($objOperation, $objModel, $blnCircularReference, $arrChildRecordIds, $strPrevious, $strNext)
+	protected function buildCommand($objCommand, $objModel, $blnCircularReference, $arrChildRecordIds, $strPrevious, $strNext)
 	{
 		// Set basic information.
-		$opLabel = $objOperation->getLabel();
-		if (strlen($opLabel[0]) )
+		$opLabel = $objCommand->getLabel();
+		if (strlen($opLabel))
 		{
-			$label = $opLabel[0];
-			$title = sprintf($opLabel[1], $objModel->getID());
+			$label = $opLabel;
 		}
 		else
 		{
-			$label = $objOperation->getName();
+			$label = $objCommand->getName();
+		}
+
+		$opDesc = $objCommand->getDescription();
+		if (strlen($opDesc))
+		{
+			$title = sprintf($opDesc, $objModel->getID());;
+		}
+		else
+		{
 			$title = sprintf('%s id %s', $label, $objModel->getID());
 		}
 
-		$strAttributes = $objOperation->getAttributes();
+		$strAttributes = $objCommand->getExtra()['attributes'];
 		$attributes    = '';
 		if (strlen($strAttributes))
 		{
 			$attributes = ltrim(sprintf($strAttributes, $objModel->getID()));
 		}
 
+		$arrParameters = (array) $objCommand->getParameters();
+
 		// Cut needs some special information.
-		if ($objOperation->getName() == 'cut')
+		if ($objCommand->getName() == 'cut')
 		{
 			// Get data provider from current and parent
 			$strCDP = $objModel->getProviderName();
 			$strPDP = $objModel->getMeta(DCGE::MODEL_PTABLE);
 
-			$strAdd2Url = "";
 
-			// Add url + id + currentDataProvider
-			$strAdd2Url .= $objOperation->getHref() . '&amp;cdp=' . $strCDP;
+			$arrParameters['cdp'] = $strCDP;
 
 			// Add parent provider if exists.
 			if ($strPDP != null)
 			{
-				$strAdd2Url .= '&amp;pdp=' . $strPDP;
+				$arrParameters['pdp'] = $strPDP;
 			}
 
 			// If we have a id add it, used for mode 4 and all parent -> current views
 			if ($this->getEnvironment()->getInputProvider()->hasParameter('id'))
 			{
-				$strAdd2Url .= '&amp;id=' . $this->getEnvironment()->getInputProvider()->getParameter('id');
+				$arrParameters['id'] = $this->getEnvironment()->getInputProvider()->getParameter('id');
 			}
 
 			// Source is the id of the element which should move
-			$strAdd2Url .= '&amp;source=' . $objModel->getID();
-
-			$strHref = BackendBindings::addToUrl($strAdd2Url);
+			$arrParameters['source'] = $objModel->getID();
 		}
 		else
 		{
 			// TODO: Shall we interface this option?
-			$idParam = $objOperation->get('idparam');
+			$idParam = $objCommand->getExtra()['idparam'];
 			if ($idParam)
 			{
-				$idParam = sprintf('id=&amp;%s=%s', $idParam, $objModel->getID());
+				$arrParameters['id'] = '';
+				$arrParameters[$idParam] = $objModel->getID();
 			}
 			else
 			{
-				$idParam = sprintf('id=%s', $objModel->getID());
+				$arrParameters['id'] = $objModel->getID();
 			}
-
-			$strHref = BackendBindings::addToUrl($objOperation->getHref() . '&amp;' . $idParam);
 		}
+
+		$strHref = '';
+		foreach ($arrParameters as $key => $value)
+		{
+			$strHref .= sprintf('&amp;%s=%s', $key, $value);
+		}
+		$strHref = BackendBindings::addToUrl($strHref);
+
 
 		$buttonEvent = new GetOperationButtonEvent($this->getEnvironment());
 		$buttonEvent
-			->setObjOperation($objOperation)
+			->setObjOperation($objCommand)
 			->setObjModel($objModel)
 			->setAttributes($attributes)
 			->setLabel($label)
@@ -1745,7 +1768,7 @@ class BaseView implements BackendViewInterface
 			$buttonEvent->getHref(),
 			specialchars($buttonEvent->getTitle()),
 			$buttonEvent->getAttributes(),
-			BackendBindings::generateImage($objOperation->getIcon(), $buttonEvent->getLabel())
+			BackendBindings::generateImage($objCommand->getExtra()['icon'], $buttonEvent->getLabel())
 		);
 	}
 
@@ -1805,19 +1828,12 @@ class BaseView implements BackendViewInterface
 	 */
 	protected function generateButtons(ModelInterface $objModelRow, $strTable, $arrRootIds = array(), $blnCircularReference = false, $arrChildRecordIds = null, $strPrevious = null, $strNext = null)
 	{
-		return; // TODO refactore
-
-		$arrOperations = $this->getDataDefinition()->getOperationNames();
-		if (!$arrOperations)
-		{
-			return '';
-		}
+		$commands = $this->getViewSection()->getModelCommands();
 
 		$arrButtons = array();
-		foreach ($arrOperations as $operation)
+		foreach ($commands->getCommands() as $command)
 		{
-			$objOperation = $this->getDataDefinition()->getOperation($operation);
-			$arrButtons[$operation] = $this->buildOperation($objOperation, $objModelRow, $blnCircularReference, $arrChildRecordIds, $strPrevious, $strNext);
+			$arrButtons[$command->getName()] = $this->buildCommand($command, $objModelRow, $blnCircularReference, $arrChildRecordIds, $strPrevious, $strNext);
 		}
 
 		// Add paste into/after icons
