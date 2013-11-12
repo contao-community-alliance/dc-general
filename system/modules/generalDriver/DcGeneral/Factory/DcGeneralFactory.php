@@ -14,6 +14,8 @@ namespace DcGeneral\Factory;
 
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\EnvironmentInterface;
+use DcGeneral\Event\EventPropagator;
+use DcGeneral\Event\EventPropagatorInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use DcGeneral\Factory\Event\CreateDcGeneralEvent;
@@ -122,66 +124,63 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 
 		/** @var \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher */
 		$dispatcher = $container['event-dispatcher'];
+		$propagator = new EventPropagator($dispatcher);
 
 		// 1. pass: fires BuildDataDefinitionEvent
-		$dataContainer = $this->createContainer();
+		$dataContainer = $this->createContainer($propagator);
 
 		// 2. pass: fires PopulateEnvironmentEvent
-		$environment = $this->createEnvironment($dataContainer);
+		$environment = $this->createEnvironment($dataContainer, $propagator);
 
 		// create reflections classes at one place
 		$dcGeneralClass = new \ReflectionClass($this->dcGeneralClassName);
 
+		/** @var \DcGeneral\DcGeneral $dcGeneral */
 		$dcGeneral = $dcGeneralClass->newInstance($environment);
 
 		$event = new CreateDcGeneralEvent($dcGeneral);
-		$dispatcher->dispatch($event::NAME, $event);
+		$propagator->propagate($event, array($this->containerName));
 
 		return $dcGeneral;
 	}
 
 	/**
 	 *
-	 * @param ContainerInterface $dataContainer
+	 * @param ContainerInterface                        $dataContainer
+	 *
+	 * @param \DcGeneral\Event\EventPropagatorInterface $propagator
 	 *
 	 * @return EnvironmentInterface
 	 */
-	protected function createEnvironment(ContainerInterface $dataContainer)
+	protected function createEnvironment(ContainerInterface $dataContainer, EventPropagatorInterface $propagator)
 	{
-		global $container;
-
-		/** @var \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher */
-		$dispatcher = $container['event-dispatcher'];
-
 		$environmentClass = new \ReflectionClass($this->environmentClassName);
 
 		/** @var EnvironmentInterface $environment */
 		$environment = $environmentClass->newInstance();
 		$environment->setDataDefinition($dataContainer);
+		$environment->setEventPropagator($propagator);
 
 		$event = new PopulateEnvironmentEvent($environment);
-		$dispatcher->dispatch($event::NAME, $event);
+		$propagator->propagate($event, array($this->containerName));
 
 		return $environment;
 	}
 
 	/**
+	 * @param \DcGeneral\Event\EventPropagatorInterface $propagator
+	 *
 	 * @return ContainerInterface
 	 */
-	protected function createContainer()
+	protected function createContainer(EventPropagatorInterface $propagator)
 	{
-		global $container;
-
-		/** @var \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher */
-		$dispatcher = $container['event-dispatcher'];
-
 		$containerClass = new \ReflectionClass($this->containerClassName);
 
 		/** @var ContainerInterface $dataContainer */
 		$dataContainer = $containerClass->newInstance($this->containerName);
 
 		$event = new BuildDataDefinitionEvent($dataContainer);
-		$dispatcher->dispatch($event::NAME, $event);
+		$propagator->propagate($event, array($this->containerName));
 
 		return $dataContainer;
 	}

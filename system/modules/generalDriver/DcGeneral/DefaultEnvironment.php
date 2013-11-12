@@ -89,6 +89,11 @@ class DefaultEnvironment implements EnvironmentInterface
 	protected $objTranslationManager;
 
 	/**
+	 * @var \DcGeneral\Event\EventPropagatorInterface
+	 */
+	protected $eventPropagator;
+
+	/**
 	 * {@inheritdoc}
 	 */
 	public function setController($objController)
@@ -435,5 +440,21 @@ class DefaultEnvironment implements EnvironmentInterface
 	public function getTranslationManager()
 	{
 		return $this->objTranslationManager;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setEventPropagator($propagator)
+	{
+		$this->eventPropagator = $propagator;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getEventPropagator()
+	{
+		return $this->eventPropagator;
 	}
 }

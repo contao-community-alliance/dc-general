@@ -233,4 +233,16 @@ interface EnvironmentInterface
 	 * @return \DcGeneral\TranslationManagerInterface
 	 */
 	public function getTranslationManager();
+
+	/**
+	 * @param \DcGeneral\Event\EventPropagatorInterface $propagator
+	 *
+	 * @return \DcGeneral\EnvironmentInterface
+	 */
+
+	public function setEventPropagator($propagator);
+	/**
+	 * @return \DcGeneral\Event\EventPropagatorInterface
+	 */
+	public function getEventPropagator();
 }
