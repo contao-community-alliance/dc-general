@@ -119,7 +119,13 @@ class Property implements PropertyInterface
 	 */
 	public function __clone()
 	{
-		$this->visibleCondition  = clone $this->visibleCondition;
-		$this->editableCondition = clone $this->editableCondition;
+		if ($this->visibleCondition !== null)
+		{
+			$this->visibleCondition = clone $this->visibleCondition;
+		}
+		if ($this->editableCondition !== null)
+		{
+			$this->editableCondition = clone $this->editableCondition;
+		}
 	}
 }
