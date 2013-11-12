@@ -486,17 +486,17 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 */
 	protected function parsePalettes(ContainerInterface $container)
 	{
-		$palettesDefinition = $this->getFromDca('palettes');
-		$subPalettesDefinition = $this->getFromDca('subpalettes');
+		$palettesDefinitionArray = $this->getFromDca('palettes');
+		$subPalettesDefinitionArray = $this->getFromDca('subpalettes');
 
 		// skip while there is no legacy palette definition
-		if (!is_array($palettesDefinition)) {
+		if (!is_array($palettesDefinitionArray)) {
 			return;
 		}
 
-		// ignore non-legacy subpalette definition
-		if (!is_array($subPalettesDefinition)) {
-			$subPalettesDefinition = array();
+		// ignore non-legacy sub palette definition
+		if (!is_array($subPalettesDefinitionArray)) {
+			$subPalettesDefinitionArray = array();
 		}
 
 		if ($container->hasDefinition(PalettesDefinitionInterface::NAME))
@@ -511,8 +511,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		$palettesParser = new LegacyPalettesParser();
 		$palettesParser->parse(
-			$palettesDefinition,
-			$subPalettesDefinition,
+			$palettesDefinitionArray,
+			$subPalettesDefinitionArray,
 			$palettesDefinition
 		);
 	}
