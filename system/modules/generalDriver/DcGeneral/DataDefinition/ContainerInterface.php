@@ -159,7 +159,7 @@ interface ContainerInterface
 	/**
 	 * Convenience method to check if a data provider definition is contained.
 	 *
-	 * @return BasicDefinitionInterface
+	 * @return bool
 	 */
 	public function hasDataProviderDefinition();
 
