@@ -98,7 +98,7 @@ class PaletteCollection implements PaletteCollectionInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function findPalette(ModelInterface $model = null, PropertyValueBag $input)
+	public function findPalette(ModelInterface $model = null, PropertyValueBag $input = null)
 	{
 		$matches = array();
 

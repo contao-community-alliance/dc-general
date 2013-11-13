@@ -91,7 +91,7 @@ interface PaletteCollectionInterface
 	 *
 	 * @throws DcGeneralRuntimeException Is thrown if there is no palette found.
 	 */
-	public function findPalette(ModelInterface $model = null, PropertyValueBag $input);
+	public function findPalette(ModelInterface $model = null, PropertyValueBag $input = null);
 
 	/**
 	 * Check if a palette for the given name exists in this collection.
