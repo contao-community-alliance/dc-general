@@ -338,51 +338,6 @@ interface ContainerInterface
 	//public function getOperationNames();
 
 	/**
-	 * Boolean flag determining if this data container is closed.
-	 *
-	 * True means, there may not be any records added or deleted, false means there may be any record appended or
-	 * deleted..
-	 *
-	 * @return bool
-	 */
-	//public function isClosed();
-
-	/**
-	 * Boolean flag determining if this data container is editable.
-	 *
-	 * True means, the data records may be edited.
-	 *
-	 * @return bool
-	 */
-	//public function isEditable();
-
-	/**
-	 * Boolean flag determining if this data container is deletable.
-	 *
-	 * True means, the data records may be deleted.
-	 *
-	 * @return bool
-	 */
-	//public function isDeletable();
-
-	/**
-	 * Determines if new entries may be created within this data container.
-	 *
-	 * True means new entries may be created, false prohibits creation of new entries.
-	 *
-	 * @return bool
-	 */
-	//public function isCreatable();
-
-	/**
-	 * Determines if the view shall switch automatically into edit mode.
-	 * This most likely only affects parenting modes like trees etc.
-	 *
-	 * @return bool
-	 */
-	//public function isSwitchToEdit();
-
-	/**
 	 * Allows you to disable the group headers in list view and parent view.
 	 *
 	 * True means, the data records will not be grouped with headers.

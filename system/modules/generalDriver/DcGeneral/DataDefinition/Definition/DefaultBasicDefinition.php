@@ -44,6 +44,26 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
 	/**
 	 * @var bool
 	 */
+	protected $isClosed;
+
+	/**
+	 * @var bool
+	 */
+	protected $isEditable;
+
+	/**
+	 * @var bool
+	 */
+	protected $isDeletable;
+
+	/**
+	 * @var bool
+	 */
+	protected $isCreatable;
+
+	/**
+	 * @var bool
+	 */
 	protected $switchToEditEnabled;
 
 	/**
@@ -117,6 +137,79 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
 	{
 		return $this->providerName;
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setClosed($value)
+	{
+		$this->isClosed = $value;
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function isClosed()
+	{
+		return $this->isClosed;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setEditable($value)
+	{
+		$this->isEditable = $value;
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function isEditable()
+	{
+		return $this->isEditable;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setDeletable($value)
+	{
+		$this->isDeletable = $value;
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function isDeletable()
+	{
+		return $this->isDeletable;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setCreatable($value)
+	{
+		$this->isCreatable = $value;
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function isCreatable()
+	{
+		return $this->isCreatable;
+	}
+
 
 	/**
 	 * {@inheritdoc}

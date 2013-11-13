@@ -101,6 +101,7 @@ interface BasicDefinitionInterface extends DefinitionInterface
 	 *
 	 * @param string $providerName
 	 *
+	 * @return BasicDefinitionInterface
 	 */
 	public function setDataProvider($providerName);
 
@@ -112,13 +113,92 @@ interface BasicDefinitionInterface extends DefinitionInterface
 	public function getDataProvider();
 
 	/**
+	 * If true, adding of further records is prohibited.
+	 *
+	 * @param bool $value
+	 *
+	 * @return BasicDefinitionInterface
+	 */
+	public function setClosed($value);
+
+	/**
+	 * Boolean flag determining if this data container is closed.
+	 *
+	 * True means, there may not be any records added or deleted, false means there may be any record appended or
+	 * deleted..
+	 *
+	 * @return bool
+	 */
+	public function isClosed();
+
+	/**
+	 * Boolean flag determining if this data container is editable.
+	 *
+	 * @param bool $value True means, the data records may be edited.
+	 *
+	 * @return BasicDefinitionInterface
+	 */
+	public function setEditable($value);
+
+	/**
+	 * Boolean flag determining if this data container is editable.
+	 *
+	 * True means, the data records may be edited.
+	 *
+	 * @return bool
+	 */
+	public function isEditable();
+
+	/**
+	 * Set boolean flag determining if this data container is deletable.
+	 *
+	 * @param bool $value True means, the data records may be deleted.
+	 *
+	 * @return BasicDefinitionInterface
+	 */
+	public function setDeletable($value);
+
+	/**
+	 * Boolean flag determining if this data container is deletable.
+	 *
+	 * True means, the data records may be deleted.
+	 *
+	 * @return bool
+	 */
+	public function isDeletable();
+
+	/**
+	 * Determines if new entries may be created within this data container.
+	 *
+	 * @param bool $value True means new entries may be created, false prohibits creation of new entries.
+	 *
+	 * @return BasicDefinitionInterface
+	 */
+	public function setCreatable($value);
+
+	/**
+	 * Determines if new entries may be created within this data container.
+	 *
+	 * True means new entries may be created, false prohibits creation of new entries.
+	 *
+	 * @return bool
+	 */
+	public function isCreatable();
+
+	/**
+	 * Determines if the view shall switch automatically into edit mode.
+	 * This most likely only affects parenting modes like trees etc.
+	 *
 	 * @param bool $switchToEditEnabled
 	 *
-	 * @return DefinitionInterface
+	 * @return BasicDefinitionInterface
 	 */
 	public function setSwitchToEditEnabled($switchToEditEnabled);
 
 	/**
+	 * Determines if the view shall switch automatically into edit mode.
+	 * This most likely only affects parenting modes like trees etc.
+	 *
 	 * @return bool
 	 */
 	public function isSwitchToEditEnabled();
