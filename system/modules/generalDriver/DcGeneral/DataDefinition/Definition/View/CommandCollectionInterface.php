@@ -49,6 +49,15 @@ interface CommandCollectionInterface
 	public function hasCommand(CommandInterface $command);
 
 	/**
+	 * Check if the operation with a given name exists in this collection.
+	 *
+	 * @param string $name
+	 *
+	 * @return bool
+	 */
+	public function hasCommandNamed($name);
+
+	/**
 	 * Add an operation to this collection.
 	 *
 	 * @param CommandInterface $command
@@ -61,6 +70,26 @@ interface CommandCollectionInterface
 	 * @param CommandInterface $command
 	 */
 	public function removeCommand(CommandInterface $command);
+
+	/**
+	 * Remove an operation with given name from this collection.
+	 *
+	 * @param string $name
+	 *
+	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException If no command was found.
+	 */
+	public function removeCommandNamed($name);
+
+	/**
+	 * Get operation with given name from this collection.
+	 *
+	 * @param string $name
+	 *
+	 * @return CommandInterface
+	 *
+	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException If no command was found.
+	 */
+	public function getCommandNamed($name);
 
 	/**
 	 * Get operations from this collection.
