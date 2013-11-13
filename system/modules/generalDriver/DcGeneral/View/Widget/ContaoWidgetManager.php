@@ -28,14 +28,25 @@ class ContaoWidgetManager implements WidgetManagerInterface
 	protected $environment;
 
 	/**
+	 * @var \DcGeneral\Data\ModelInterface
+	 */
+	protected $model;
+
+	/**
 	 * A list with all widgets
 	 * @var array
 	 */
 	protected $arrWidgets = array();
 
-	function __construct(EnvironmentInterface $environment)
+	/**
+	 * @param EnvironmentInterface           $environment
+	 *
+	 * @param \DcGeneral\Data\ModelInterface $model
+	 */
+	function __construct(EnvironmentInterface $environment, $model)
 	{
 		$this->environment = $environment;
+		$this->model       = $model;
 	}
 
 	/**

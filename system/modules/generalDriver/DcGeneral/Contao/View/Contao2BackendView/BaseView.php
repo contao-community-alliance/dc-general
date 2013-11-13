@@ -86,13 +86,6 @@ class BaseView implements BackendViewInterface
 	protected $environment;
 
 	/**
-	 * The widget manager.
-	 *
-	 * @var WidgetManagerInterface
-	 */
-	protected $widgetManager;
-
-	/**
 	 * @var PanelContainerInterface
 	 */
 	protected $panel;
@@ -143,8 +136,6 @@ class BaseView implements BackendViewInterface
 	public function setEnvironment(EnvironmentInterface $environment)
 	{
 		$this->environment = $environment;
-		// TODO is this a good place to create the WidgetManager?
-		$this->widgetManager = new ContaoWidgetManager($environment);
 	}
 
 	/**
@@ -1876,16 +1867,20 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
-	 * {@inheritdoc}
+	 * Process input and return all modified properties or null if there is no input.
+	 *
+	 * @param ContaoWidgetManager $widgetManager
+	 *
+	 * @return null|PropertyValueBag
 	 */
-	public function processInput()
+	public function processInput($widgetManager)
 	{
 		$input = $this->getEnvironment()->getInputProvider();
 
 		if ($_POST && $input->getValue('FORM_SUBMIT') == $this->getEnvironment()->getDataDefinition()->getName())
 		{
 			$propertyValues = new PropertyValueBag();
-			$propertyNames = $this->getEnvironment()->getDataDefinition()->getPropertyNames();
+			$propertyNames = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getPropertyNames();
 
 			// process input and update changed properties.
 			foreach ($propertyNames as $propertyName)
@@ -1897,7 +1892,7 @@ class BaseView implements BackendViewInterface
 				}
 			}
 
-			$this->widgetManager->processInput($propertyValues);
+			$widgetManager->processInput($propertyValues);
 
 			return $propertyValues;
 		}
