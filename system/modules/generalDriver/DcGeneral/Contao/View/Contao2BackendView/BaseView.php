@@ -439,50 +439,15 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
-	 * FIXME: this code is only for legacy purposes for providing the functionality invented by s.heimes.
-	 */
-	protected function getLegacyEditButtons()
-	{
-		$buttons    = array();
-
-		foreach ($this->getDC()->getButtonsDefinition() as $strButton => $arrButton)
-		{
-			// Check if the button has the label value itself
-			if(!empty($arrButton['value']))
-			{
-				$strLabel = $arrButton['value'];
-			}
-			// else try to find a language array
-			else
-			{
-				$strLabel = $this->getButtonLabel($strButton);
-			}
-
-			$buttons[$strButton] = sprintf(
-				'<input type="submit" name="%s" id="%s" class="tl_submit%s" accesskey="%s" value="%s" />',
-				$arrButton['formkey'],
-				$arrButton['id'],
-				(!empty($arrButton['class'])? ' ' . $arrButton['class'] : ''),
-				$arrButton['accesskey'],
-				$strLabel
-			);
-		}
-
-		return $buttons;
-	}
-
-	/**
 	 * Retrieve a list of html buttons to use in the bottom panel (submit area).
 	 *
 	 * @return array()
 	 */
 	protected function getEditButtons()
 	{
-		// TODO: remove call to getLegacyEditButtons() after grace period and solely use the values from events.
-		// $buttons    = array();
-		$buttons    = $this->getLegacyEditButtons();
-		$definition = $this->getEnvironment()->getDataDefinition();
-		$definition->isClosed();
+		$buttons         = array();
+		$definition      = $this->getEnvironment()->getDataDefinition();
+		$basicDefinition = $definition->getBasicDefinition();
 
 		// TODO: we have hardcoded html in here, is this really the best idea?
 
