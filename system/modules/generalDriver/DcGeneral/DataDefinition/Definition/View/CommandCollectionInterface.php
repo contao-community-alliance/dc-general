@@ -17,6 +17,8 @@ interface CommandCollectionInterface
 {
 	/**
 	 * Remove all operations from this collection.
+	 *
+	 * @return CommandCollectionInterface
 	 */
 	public function clearCommands();
 
@@ -24,6 +26,8 @@ interface CommandCollectionInterface
 	 * Set the operations of this collection.
 	 *
 	 * @param CommandInterface[]|array $commands
+	 *
+	 * @return CommandCollectionInterface
 	 */
 	public function setCommands(array $commands);
 
@@ -31,6 +35,8 @@ interface CommandCollectionInterface
 	 * Add operations to this collection.
 	 *
 	 * @param CommandInterface[]|array $commands
+	 *
+	 * @return CommandCollectionInterface
 	 */
 	public function addCommands(array $commands);
 
@@ -38,11 +44,15 @@ interface CommandCollectionInterface
 	 * Remove operations from this collection.
 	 *
 	 * @param CommandInterface[]|array $commands
+	 *
+	 * @return CommandCollectionInterface
 	 */
 	public function removeCommands(array $commands);
 
 	/**
 	 * Check if the operation exists in this collection.
+	 *
+	 * @param CommandInterface $command
 	 *
 	 * @return bool
 	 */
@@ -61,6 +71,8 @@ interface CommandCollectionInterface
 	 * Add an operation to this collection.
 	 *
 	 * @param CommandInterface $command
+	 *
+	 * @return CommandCollectionInterface
 	 */
 	public function addCommand(CommandInterface $command);
 
@@ -68,6 +80,8 @@ interface CommandCollectionInterface
 	 * Remove an operation from this collection.
 	 *
 	 * @param CommandInterface $command
+	 *
+	 * @return CommandCollectionInterface
 	 */
 	public function removeCommand(CommandInterface $command);
 

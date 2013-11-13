@@ -13,10 +13,12 @@
 
 namespace DcGeneral\DataDefinition\Definition\View;
 
+use DcGeneral\Exception\DcGeneralInvalidArgumentException;
+
 class CommandCollection implements CommandCollectionInterface
 {
 	/**
-	 * @var array
+	 * @var CommandInterface[]
 	 */
 	protected $commands = array();
 
@@ -26,6 +28,7 @@ class CommandCollection implements CommandCollectionInterface
 	public function clearCommands()
 	{
 		$this->commands = array();
+		return $this;
 	}
 
 	/**
