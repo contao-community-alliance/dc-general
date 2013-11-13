@@ -51,7 +51,7 @@
 <input type="hidden" name="FORM_SUBMIT" value="<?php echo specialchars($this->table); ?>" />
 <input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>" />
 <?php if($this->error): ?>
-  <p class="tl_error"><?php echo $GLOBALS['TL_LANG']['ERR']['general']; ?></p>
+  <p class="tl_error"><?php echo implode('<br />', $this->error)// $GLOBALS['TL_LANG']['ERR']['general']; ?></p>
   <script type="text/javascript">
   <!--//--><![CDATA[//><!--
 	window.addEvent('domready', function() {
@@ -61,11 +61,7 @@
   </script>
 <?php endif; ?>
 
-<?php if($this->oldBE): foreach($this->fieldsets as $arrFieldset): ?>
-<div class="<?php echo $arrFieldset['class']; ?> block">
-  <?php echo $arrFieldset['palette']; ?>
-</div>
-<?php endforeach; else: foreach($this->fieldsets as $arrFieldset): if($arrFieldset['legend']): ?>
+<?php foreach($this->fieldsets as $arrFieldset): if($arrFieldset['legend']): ?>
 <fieldset id="pal_<?php echo specialchars($arrFieldset['legend']); ?>" class="<?php echo $arrFieldset['class']; ?> block">
 <legend onclick="AjaxRequest.toggleFieldset(this,'<?php echo specialchars($arrFieldset['legend']); ?>','<?php echo specialchars($this->table); ?>')"><?php echo $arrFieldset['label']; ?></legend>
   <?php echo $arrFieldset['palette']; ?>
@@ -74,7 +70,7 @@
 <fieldset class="<?php echo $arrFieldset['class']; ?> block nolegend">
   <?php echo $arrFieldset['palette']; ?>
 </fieldset>
-<?php endif; endforeach; endif; ?>
+<?php endif; endforeach; ?>
 
 </div>
 
