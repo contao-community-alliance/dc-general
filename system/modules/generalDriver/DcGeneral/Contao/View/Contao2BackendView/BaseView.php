@@ -1317,55 +1317,6 @@ class BaseView implements BackendViewInterface
 		return ob_get_clean();
 	}
 
-	protected function buildDatePicker($objWidget)
-	{
-		$strFormat = $GLOBALS['TL_CONFIG'][$objWidget->rgxp . 'Format'];
-
-		$arrConfig = array(
-			'allowEmpty' => true,
-			'toggleElements' => '#toggle_' . $objWidget->id,
-			'pickerClass' => 'datepicker_dashboard',
-			'format' => $strFormat,
-			'inputOutputFormat' => $strFormat,
-			'positionOffset' => array(
-				'x' => 130,
-				'y' => -185
-			),
-			'startDay' => $this->translate('weekOffset', 'MSC'),
-			'days' => array_values((array)$this->translate('DAYS', 'MSC')),
-			'dayShort' => $this->translate('dayShortLength', 'MSC'),
-			'months' => array_values((array)$this->translate('MONTHS', 'MSC')),
-			'monthShort' => $this->translate('monthShortLength', 'MSC')
-		);
-
-		switch ($objWidget->rgxp)
-		{
-			case 'datim':
-				$arrConfig['timePicker'] = true;
-				$time = ",\n      timePicker:true";
-				break;
-
-			case 'time':
-				$arrConfig['timePickerOnly'] = true;
-				$time = ",\n      pickOnly:\"time\"";
-				break;
-			default:
-				$time = '';
-		}
-
-		if (version_compare(DATEPICKER, '2.1','>')) return 'new Picker.Date($$("#ctrl_' . $objWidget->id . '"), {
-			draggable:false,
-			toggle:$$("#toggle_' . $objWidget->id . '"),
-			format:"' . \Date::formatToJs($strFormat) . '",
-			positionOffset:{x:-197,y:-182}' . $time . ',
-			pickerClass:"datepicker_dashboard",
-			useFadeInOut:!Browser.ie,
-			startDay:' . $this->translate('weekOffset', 'MSC') . ',
-			titleFormat:"' . $this->translate('titleFormat', 'MSC') . '"
-		});';
-		return 'new DatePicker(' . json_encode('#ctrl_' . $objWidget->id) . ', ' . json_encode($arrConfig) . ');';
-	}
-
 	public static function combiner($names)
 	{
 		$return = array('');

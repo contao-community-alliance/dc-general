@@ -276,6 +276,61 @@ class ContaoWidgetManager implements WidgetManagerInterface
 		return $this->arrWidgets[$fieldName] = $objWidget;
 	}
 
+	protected function buildDatePicker($objWidget)
+	{
+		$translator = $this->getEnvironment()->getTranslator();
+		// TODO: need better interface to Contao Config class here.
+		$strFormat = $GLOBALS['TL_CONFIG'][$objWidget->rgxp . 'Format'];
+
+		$arrConfig = array(
+			'allowEmpty' => true,
+			'toggleElements' => '#toggle_' . $objWidget->id,
+			'pickerClass' => 'datepicker_dashboard',
+			'format' => $strFormat,
+			'inputOutputFormat' => $strFormat,
+			'positionOffset' => array(
+				'x' => 130,
+				'y' => -185
+			),
+			'startDay' => $translator->translate('weekOffset', 'MSC'),
+			'days' => array_values((array)$translator->translate('DAYS', 'MSC')),
+			'dayShort' => $translator->translate('dayShortLength', 'MSC'),
+			'months' => array_values((array)$translator->translate('MONTHS', 'MSC')),
+			'monthShort' => $translator->translate('monthShortLength', 'MSC')
+		);
+
+		switch ($objWidget->rgxp)
+		{
+			case 'datim':
+				$arrConfig['timePicker'] = true;
+				$time = ",\n      timePicker:true";
+				break;
+
+			case 'time':
+				$arrConfig['timePickerOnly'] = true;
+				$time = ",\n      pickOnly:\"time\"";
+				break;
+			default:
+				$time = '';
+		}
+
+		if (version_compare(DATEPICKER, '2.1','>'))
+		{
+			return 'new Picker.Date($$("#ctrl_' . $objWidget->id . '"), {
+				draggable:false,
+				toggle:$$("#toggle_' . $objWidget->id . '"),
+				format:"' . \Date::formatToJs($strFormat) . '",
+				positionOffset:{x:-197,y:-182}' . $time . ',
+				pickerClass:"datepicker_dashboard",
+				useFadeInOut:!Browser.ie,
+				startDay:' . $translator->translate('weekOffset', 'MSC') . ',
+				titleFormat:"' . $translator->translate('titleFormat', 'MSC') . '"
+			});';
+		}
+
+		return 'new DatePicker(' . json_encode('#ctrl_' . $objWidget->id) . ', ' . json_encode($arrConfig) . ');';
+	}
+
 	/**
 	 * Generate the help msg for a property.
 	 *
