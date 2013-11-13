@@ -19,13 +19,13 @@ class LangArrayTranslator implements  TranslatorInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function translate($string, $domain = null)
+	public function translate($string, $domain = null, array $parameters = array(), $locale = null)
 	{
 		if (!$domain) {
 			$domain = 'default';
 		}
 
-		BackendBindings::loadLanguageFile($domain);
+		BackendBindings::loadLanguageFile($domain, $locale);
 
 		if (!is_array($GLOBALS['TL_LANG'][$domain])) {
 			return $string;

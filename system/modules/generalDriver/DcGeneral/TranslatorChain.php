@@ -51,7 +51,7 @@ class TranslatorChain implements TranslatorInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function translate($string, $domain = null)
+	public function translate($string, $domain = null, array $parameters = array(), $locale = null)
 	{
 		$original = $string;
 
@@ -60,7 +60,7 @@ class TranslatorChain implements TranslatorInterface
 			$string == $original;
 			$translator = next($this->translators)
 		) {
-			$string = $translator->translate($string, $domain);
+			$string = $translator->translate($string, $domain, $parameters, $locale);
 		}
 
 		return $string;

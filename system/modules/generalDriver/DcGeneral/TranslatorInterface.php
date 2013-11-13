@@ -17,10 +17,12 @@ interface TranslatorInterface
 	/**
 	 * Translate a string in a specific domain.
 	 *
-	 * @param string $string The translation string.
-	 * @param string $domain The translation domain.
+	 * @param string $string     The translation string.
+	 * @param string $domain     The translation domain.
+	 * @param array  $parameters Parameters used in translation.
+	 * @param string $locale     The translation locale.
 	 *
 	 * @return string
 	 */
-	public function translate($string, $domain = null);
+	public function translate($string, $domain = null, array $parameters = array(), $locale = null);
 }
