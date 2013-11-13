@@ -47,15 +47,18 @@ class ContaoWidgetManager implements WidgetManagerInterface
 	}
 
 	/**
-	 * Check if the given field has a widget.
-	 *
-	 * @param $fieldName
-	 *
-	 * @return bool
+	 * {@inheritDoc}
 	 */
-	public function hasWidget($fieldName)
+	public function hasWidget($property)
 	{
-
+		try
+		{
+			return $this->getWidget($property) !== null;
+		}
+		catch(\Exception $e)
+		{
+			return false;
+		}
 	}
 
 	/**
