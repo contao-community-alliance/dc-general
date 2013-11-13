@@ -127,6 +127,7 @@ class BaseView implements BackendViewInterface
 	 * @param string                                   $eventName
 	 *
 	 * @param \Symfony\Component\EventDispatcher\Event $event
+	 * @deprecated Use $this->getEnvironment()->getEventPropagator()->propagate() instead.
 	 */
 	protected function dispatchEvent($eventName, $event)
 	{
@@ -492,7 +493,7 @@ class BaseView implements BackendViewInterface
 		$event = new GetEditModeButtonsEvent($this->getEnvironment());
 		$event->setButtons($buttons);
 
-		$this->dispatchEvent(GetEditModeButtonsEvent::NAME, $event);
+		$this->getEnvironment()->getEventPropagator()->propagate($event, array($definition->getName()));
 
 		return $event->getButtons();
 	}
