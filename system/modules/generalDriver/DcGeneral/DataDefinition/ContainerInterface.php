@@ -13,6 +13,7 @@
 namespace DcGeneral\DataDefinition;
 
 
+use DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
 use DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
 use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\DefinitionInterface;
@@ -179,6 +180,32 @@ interface ContainerInterface
 	 */
 	public function getDataProviderDefinition();
 
+	/**
+	 * Convenience method to check if a data provider definition is contained.
+	 *
+	 * @return bool
+	 */
+	public function hasModelRelationshipDefinition();
+
+	/**
+	 * Convenience method to set the data provider definition.
+	 *
+	 * @param ModelRelationshipDefinitionInterface $definition
+	 *
+	 * @return DataProviderDefinitionInterface
+	 */
+	public function setModelRelationshipDefinition(ModelRelationshipDefinitionInterface $definition);
+
+	/**
+	 * Convenience method to retrieve the data provider definition.
+	 *
+	 * @return ModelRelationshipDefinitionInterface
+	 */
+	public function getModelRelationshipDefinition();
+
+
+
+
 	// TODO extract
 
 	/**
@@ -217,33 +244,6 @@ interface ContainerInterface
 	 * @return bool
 	 */
 	//public function isGroupingDisabled();
-
-	/**
-	 * Retrieve the root condition for the current table.
-	 *
-	 * @return \DcGeneral\DataDefinition\RootConditionInterface
-	 */
-	//public function getRootCondition();
-
-	/**
-	 * Retrieve the parent child condition for the current table.
-	 *
-	 * @param string $strSrcTable The parenting table.
-	 *
-	 * @param string $strDstTable The child table.
-	 *
-	 * @return \DcGeneral\DataDefinition\ParentChildConditionInterface
-	 */
-	//public function getChildCondition($strSrcTable, $strDstTable);
-
-	/**
-	 * Retrieve the parent child conditions for the current table.
-	 *
-	 * @param string $strSrcTable The parenting table for which child conditions shall be assembled for (optional).
-	 *
-	 * @return \DcGeneral\DataDefinition\ParentChildConditionInterface[]
-	 */
-	//public function getChildConditions($strSrcTable = '');
 
 	/**
 	 * Retrieve the label information for listing of datasets.

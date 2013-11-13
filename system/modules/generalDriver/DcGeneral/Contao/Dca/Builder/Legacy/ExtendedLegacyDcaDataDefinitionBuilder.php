@@ -16,8 +16,12 @@ use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
 use DcGeneral\Contao\Dca\Definition\ExtendedDca;
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\DataDefinition\Definition\DefaultDataProviderDefinition;
+use DcGeneral\DataDefinition\Definition\DefaultModelRelationshipDefinition;
 use DcGeneral\DataDefinition\Definition\DefaultPalettesDefinition;
+use DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
+use DcGeneral\DataDefinition\ModelRelationship\ParentChildCondition;
+use DcGeneral\DataDefinition\ModelRelationship\RootCondition;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 
@@ -43,6 +47,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 		// TODO parse $localDca variable into $container
 		$this->parseDataProvider($container);
 		$this->parsePalettes($container);
+		$this->parseConditions($container);
 	}
 
 	protected function parseClassNames(ContainerInterface $container)
@@ -196,5 +201,46 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 		}
 
 		call_user_func($palettesDca, $palettesDefinition, $container);
+	}
+
+	protected function parseConditions(ContainerInterface $container)
+	{
+		if ($container->hasDefinition(ModelRelationshipDefinitionInterface::NAME))
+		{
+			$definition = $container->getDefinition(ModelRelationshipDefinitionInterface::NAME);
+		}
+		else
+		{
+			$definition = new DefaultModelRelationshipDefinition();
+			$container->setDefinition(ModelRelationshipDefinitionInterface::NAME, $definition);
+		}
+
+		if (($rootCondition = $this->getFromDca('dca_config/rootEntries')) !== null)
+		{
+			$rootProvider = $container->getBasicDefinition()->getRootDataProvider();
+			$rootCondition = $rootCondition[$rootProvider];
+
+			$relationship = new RootCondition();
+			$relationship
+				->setSourceName($rootProvider)
+				->setFilterArray($rootCondition['filter'])
+				->setSetters($rootCondition['setOn']);
+			$definition->setRootCondition($relationship);
+		}
+
+		if (($childConditions = $this->getFromDca('dca_config/childCondition')) !== null)
+		{
+			foreach ((array) $childConditions as $childCondition)
+			{
+				$relationship = new ParentChildCondition();
+				$relationship
+					->setSourceName($childCondition['from'])
+					->setDestinationName($childCondition['to'])
+					->setFilterArray($childCondition['filter'])
+					->setSetters($childCondition['setOn'])
+					->setInverseFilterArray($childCondition['inverse']);
+				$definition->addChildCondition($relationship);
+			}
+		}
 	}
 }

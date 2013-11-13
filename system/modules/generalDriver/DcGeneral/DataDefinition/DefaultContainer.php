@@ -16,6 +16,7 @@ namespace DcGeneral\DataDefinition;
 use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\DefinitionInterface;
 use DcGeneral\DataDefinition\Definition\DataProviderDefinitionInterface;
+use DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
@@ -223,5 +224,29 @@ class DefaultContainer implements ContainerInterface
 	public function getDataProviderDefinition()
 	{
 		return $this->getDefinition(DataProviderDefinitionInterface::NAME);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function hasModelRelationshipDefinition()
+	{
+		return $this->hasDefinition(ModelRelationshipDefinitionInterface::NAME);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setModelRelationshipDefinition(ModelRelationshipDefinitionInterface $definition)
+	{
+		return $this->setDefinition(ModelRelationshipDefinitionInterface::NAME, $definition);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getModelRelationshipDefinition()
+	{
+		return $this->getDefinition(ModelRelationshipDefinitionInterface::NAME);
 	}
 }
