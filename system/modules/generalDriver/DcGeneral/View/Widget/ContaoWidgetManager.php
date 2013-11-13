@@ -12,11 +12,13 @@
 
 namespace DcGeneral\View\Widget;
 
+use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Data\PropertyValueBag;
-use DcGeneral\DataContainerInterface;
+use DcGeneral\DataDefinition\Definition\Palette\PropertyInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
-use DcGeneral\View\Widget\Event\ResolveWidgetErrorMessage;
+use DcGeneral\View\ContaoBackendViewTemplate;
+use DcGeneral\View\Widget\Event\ResolveWidgetErrorMessageEvent;
 
 class ContaoWidgetManager implements WidgetManagerInterface
 {
@@ -54,6 +56,113 @@ class ContaoWidgetManager implements WidgetManagerInterface
 	public function hasWidget($fieldName)
 	{
 
+	}
+
+	/**
+	 * Get special labels
+	 *
+	 * @param PropertyInterface $propInfo
+	 *
+	 * @return string
+	 */
+	protected function getXLabel($propInfo)
+	{
+		$strXLabel = '';
+		$environment = $this->getEnvironment();
+		$defName     = $environment->getDataDefinition()->getName();
+		$translator  = $environment->getTranslator();
+
+		// Toggle line wrap (textarea)
+		if ($propInfo->getWidgetType() === 'textarea' && !array_key_exists('rte', $propInfo->getExtra()))
+		{
+			$strXLabel .= ' ' . BackendBindings::generateImage(
+					'wrap.gif',
+					$translator->translate('wordWrap', 'MSC'),
+					sprintf(
+						'title="%s" class="toggleWrap" onclick="Backend.toggleWrap(\'ctrl_%s\');"',
+						specialchars($translator->translate('wordWrap', 'MSC')),
+						$propInfo->getName()
+					)
+				);
+		}
+
+		// Add the help wizard
+		if (array_key_exists('helpwizard', $propInfo->getExtra()))
+		{
+			$strXLabel .= sprintf(
+				' <a href="contao/help.php?table=%s&amp;field=%s" title="%s" onclick="Backend.openWindow(this, 600, 500); return false;">%s</a>',
+				$defName,
+				$propInfo->getName(),
+				specialchars($translator->translate('helpWizard', 'MSC')),
+				BackendBindings::generateImage(
+					'about.gif',
+					$translator->translate('helpWizard', 'MSC'),
+					'style="vertical-align:text-bottom;"'
+				)
+			);
+		}
+
+		// Add the popup file manager
+		if ($propInfo->getWidgetType() === 'fileTree')
+		{
+			// In Contao 3 it is always a file picker - no need for the button.
+			if (version_compare(VERSION, '3.0', '<'))
+			{
+				$strXLabel .= sprintf(
+					' <a href="contao/files.php" title="%s" onclick="Backend.getScrollOffset(); Backend.openWindow(this, 750, 500); return false;">%s</a>',
+					specialchars($translator->translate('fileManager', 'MSC')),
+					BackendBindings::generateImage(
+						'filemanager.gif', $translator->translate('fileManager', 'MSC'), 'style="vertical-align:text-bottom;"'
+					)
+				);
+			}
+		}
+		// Add table import wizard
+		else if ($propInfo->getWidgetType() === 'tableWizard')
+		{
+			$strXLabel .= sprintf(
+				' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a> %s%s',
+				ampersand(BackendBindings::addToUrl('key=table')),
+				specialchars($translator->translate('importTable/1', $defName)),
+				BackendBindings::generateImage(
+					'tablewizard.gif',
+					$translator->translate('importTable/0', $defName),
+					'style="vertical-align:text-bottom;"'
+				),
+				BackendBindings::generateImage(
+					'demagnify.gif',
+					$translator->translate('shrink/0', $defName),
+					sprintf(
+						'title="%s" style="vertical-align:text-bottom; cursor:pointer;" onclick="Backend.tableWizardResize(0.9);"',
+						specialchars($translator->translate('shrink/1', $defName))
+					)
+				),
+				BackendBindings::generateImage(
+					'magnify.gif',
+					$translator->translate('expand/0', $defName),
+					sprintf(
+						'title="%s" style="vertical-align:text-bottom; cursor:pointer;" onclick="Backend.tableWizardResize(1.1);"',
+						specialchars($translator->translate('expand/1', $defName))
+					)
+				)
+			);
+		}
+		// Add list import wizard
+		else if ($propInfo->getWidgetType() === 'listWizard')
+		{
+			$strXLabel .= sprintf(
+				' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a>',
+				ampersand(BackendBindings::addToUrl('key=list')),
+				specialchars($translator->translate('importList/1', $defName)),
+				BackendBindings::generateImage(
+					'tablewizard.gif',
+					$translator->translate('importList/0', $defName),
+					'style="vertical-align:text-bottom;"'
+				)
+			);
+		}
+
+		return $strXLabel;
 	}
 
 	/**
@@ -162,6 +271,30 @@ class ContaoWidgetManager implements WidgetManagerInterface
 		$objWidget->wizard = implode('', $this->getEnvironment()->getCallbackHandler()->executeCallbacks($arrConfig['wizard'], $this));
 
 		return $this->arrWidgets[$fieldName] = $objWidget;
+	}
+
+	/**
+	 * Generate the help msg for a property.
+	 *
+	 * @param string $property The name of the property
+	 *
+	 * @return string
+	 */
+	protected function generateHelpText($property)
+	{
+		$environment = $this->getEnvironment();
+		$defName     = $environment->getDataDefinition()->getName();
+		$propInfo    = $environment->getDataDefinition()->getPropertiesDefinition()->getProperty($property);
+		$label       = $propInfo->getLabel();
+		$widgetType  = $propInfo->getWidgetType();
+
+		// TODO: need better interface to Contao Config class here.
+		if (!$GLOBALS['TL_CONFIG']['showHelp'] || $widgetType == 'password' || !strlen($label))
+		{
+			return '';
+		}
+
+		return '<p class="tl_help tl_tip">' . $label . '</p>';
 	}
 
 	/**

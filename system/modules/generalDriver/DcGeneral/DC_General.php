@@ -1274,23 +1274,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	 * -------------------------------------------------------------------------
 	 * ////////////////////////////////////////////////////////////////////// */
 
-	/**
-	 * Generate the help msg for each field.
-	 *
-	 * @return String
-	 */
-	public function generateHelpText($strField)
-	{
-		$return = $GLOBALS['TL_DCA'][$this->strTable]['fields'][$strField]['label'][1];
-
-		if (!$GLOBALS['TL_CONFIG']['showHelp'] || $GLOBALS['TL_DCA'][$this->strTable]['fields'][$strField]['inputType'] == 'password' || !strlen($return))
-		{
-			return '';
-		}
-
-		return '<p class="tl_help' . (!$GLOBALS['TL_CONFIG']['oldBeTheme'] ? ' tl_tip' : '') . '">' . $return . '</p>';
-	}
-
 	/* /////////////////////////////////////////////////////////////////////////
 	 * -------------------------------------------------------------------------
 	 * Helper
@@ -1442,75 +1425,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		$group = $this->getEnvironment()->getCallbackHandler()->groupCallback($group, $mode, $field, $objModelRow);
 
 		return $group;
-	}
-
-	/**
-	 * Get special lables
-	 *
-	 * @param array $arrConfig
-	 * @return string
-	 */
-	public function getXLabel($arrConfig)
-	{
-		$strXLabel = '';
-
-		// Toggle line wrap (textarea)
-		if ($arrConfig['inputType'] == 'textarea' && !strlen($arrConfig['eval']['rte']))
-		{
-			$strXLabel .= ' ' . $this->generateImage(
-					'wrap.gif', $GLOBALS['TL_LANG']['MSC']['wordWrap'], sprintf(
-						'title="%s" class="toggleWrap" onclick="Backend.toggleWrap(\'ctrl_%s\');"', specialchars($GLOBALS['TL_LANG']['MSC']['wordWrap']), $this->strInputName
-					)
-			);
-		}
-
-		// Add the help wizard
-		if ($arrConfig['eval']['helpwizard'])
-		{
-			$strXLabel .= sprintf(
-				' <a href="contao/help.php?table=%s&amp;field=%s" title="%s" onclick="Backend.openWindow(this, 600, 500); return false;">%s</a>', $this->strTable, $this->strField, specialchars($GLOBALS['TL_LANG']['MSC']['helpWizard']), $this->generateImage(
-					'about.gif', $GLOBALS['TL_LANG']['MSC']['helpWizard'], 'style="vertical-align:text-bottom;"'
-				)
-			);
-		}
-
-		// Add the popup file manager
-		if ($arrConfig['inputType'] == 'fileTree' && $this->strTable . '.' . $this->strField != 'tl_theme.templates')
-		{
-			// In Contao 3 it is always a file picker - no need for the button.
-			if (version_compare(VERSION, '3.0', '<'))
-			{
-				$strXLabel .= sprintf(
-					' <a href="contao/files.php" title="%s" onclick="Backend.getScrollOffset(); Backend.openWindow(this, 750, 500); return false;">%s</a>', specialchars($GLOBALS['TL_LANG']['MSC']['fileManager']), $this->generateImage(
-						'filemanager.gif', $GLOBALS['TL_LANG']['MSC']['fileManager'], 'style="vertical-align:text-bottom;"'
-					)
-				);
-			}
-		}
-		// Add table import wizard
-		else if ($arrConfig['inputType'] == 'tableWizard')
-		{
-			$strXLabel .= sprintf(
-				' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a> %s%s', ampersand($this->addToUrl('key=table')), specialchars($GLOBALS['TL_LANG'][$this->strTable]['importTable'][1]), $this->generateImage(
-					'tablewizard.gif', $GLOBALS['TL_LANG'][$this->strTable]['importTable'][0], 'style="vertical-align:text-bottom;"'
-				), $this->generateImage(
-					'demagnify.gif', $GLOBALS['TL_LANG']['tl_content']['shrink'][0], 'title="' . specialchars($GLOBALS['TL_LANG']['tl_content']['shrink'][1]) . '" style="vertical-align:text-bottom; cursor:pointer;" onclick="Backend.tableWizardResize(0.9);"'
-				), $this->generateImage(
-					'magnify.gif', $GLOBALS['TL_LANG']['tl_content']['expand'][0], 'title="' . specialchars($GLOBALS['TL_LANG']['tl_content']['expand'][1]) . '" style="vertical-align:text-bottom; cursor:pointer;" onclick="Backend.tableWizardResize(1.1);"'
-				)
-			);
-		}
-		// Add list import wizard
-		else if ($arrConfig['inputType'] == 'listWizard')
-		{
-			$strXLabel .= sprintf(
-				' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a>', ampersand($this->addToUrl('key=list')), specialchars($GLOBALS['TL_LANG'][$this->strTable]['importList'][1]), $this->generateImage(
-					'tablewizard.gif', $GLOBALS['TL_LANG'][$this->strTable]['importList'][0], 'style="vertical-align:text-bottom;"'
-				)
-			);
-		}
-
-		return $strXLabel;
 	}
 
 	/**
