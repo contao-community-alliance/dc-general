@@ -86,7 +86,7 @@ class DefaultEnvironment implements EnvironmentInterface
 	/**
 	 * @var \DcGeneral\EnvironmentInterface
 	 */
-	protected $objTranslationManager;
+	protected $translator;
 
 	/**
 	 * @var \DcGeneral\Event\EventPropagatorInterface
@@ -427,9 +427,9 @@ class DefaultEnvironment implements EnvironmentInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function setTranslationManager($manager)
+	public function setTranslator(TranslatorInterface $translator)
 	{
-		$this->objTranslationManager = $manager;
+		$this->translator = $translator;
 
 		return $this;
 	}
@@ -437,9 +437,9 @@ class DefaultEnvironment implements EnvironmentInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function getTranslationManager()
+	public function getTranslator()
 	{
-		return $this->objTranslationManager;
+		return $this->translator;
 	}
 
 	/**

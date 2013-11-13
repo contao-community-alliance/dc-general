@@ -291,7 +291,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			// TODO: make inputprovider configurable somehow - unsure how though.
 			->setInputProvider(new InputProvider())
 			->setClipboard(new DefaultClipboard())
-			->setTranslationManager(new TranslationManager());
+			->setTranslator(new LangArrayTranslator());
 
 		$parentTable = $this->getEnvironment()->getDataDefinition()->getParentDriverName();
 		if ($parentTable)

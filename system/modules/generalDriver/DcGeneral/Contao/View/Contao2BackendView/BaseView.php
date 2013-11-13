@@ -181,12 +181,7 @@ class BaseView implements BackendViewInterface
 
 	protected function translate($path, $section = null)
 	{
-		if ($section !== null)
-		{
-			$this->getEnvironment()->getTranslationManager()->loadSection($section);
-		}
-
-		return $this->getEnvironment()->getTranslationManager()->getString($path);
+		return $this->getEnvironment()->getTranslator()->translate($path, $section);
 	}
 
 	protected function addToTemplate($name, $value, $template)
@@ -265,7 +260,7 @@ class BaseView implements BackendViewInterface
 
 		if ($property->get('inputType') == 'checkbox' && !$evaluation['multiple'])
 		{
-			$remoteNew = ($value != '') ? ucfirst($this->translate('MSC/yes')) : ucfirst($this->translate('MSC/no'));
+			$remoteNew = ($value != '') ? ucfirst($this->translate('yes', 'MSC')) : ucfirst($this->translate('no', 'MSC'));
 		}
 		elseif ($property->get('foreignKey'))
 		{
@@ -303,7 +298,7 @@ class BaseView implements BackendViewInterface
 			$remoteNew = ($value != '') ? date('Y-m', $value) : '-';
 			$intMonth = ($value != '') ? (date('m', $value) - 1) : '-';
 
-			if ($month = $this->translate('MONTHS/' . $intMonth))
+			if ($month = $this->translate($intMonth, 'MONTHS'))
 			{
 				$remoteNew = ($value != '') ? $month . ' ' . date('Y', $value) : '-';
 			}
@@ -428,11 +423,11 @@ class BaseView implements BackendViewInterface
 	protected function getButtonLabel($strButton)
 	{
 		$definition = $this->getEnvironment()->getDataDefinition();
-		if ($label = $this->translate($definition->getName() . '/' . $strButton))
+		if ($label = $this->translate($strButton, $definition->getName()))
 		{
 			return $label;
 		}
-		else if ($label = $this->translate('MSC/' . $strButton))
+		else if ($label = $this->translate($strButton, 'MSC'))
 		{
 			return $label;
 		}
@@ -556,31 +551,31 @@ class BaseView implements BackendViewInterface
 			$buttons['delete'] = sprintf(
 				'<input type="submit" name="delete" id="delete" class="tl_submit" accesskey="d" onclick="return confirm(\'%s\')" value="%s">',
 				$GLOBALS['TL_LANG']['MSC']['delAllConfirm'],
-				specialchars($this->translate('MSC/deleteSelected'))
+				specialchars($this->translate('deleteSelected', 'MSC'))
 			);
 		}
 
 		// TODO: strictly spoken, cut is editing - should we wrap this within if ($definition->isEditable()) here?
 		$buttons['cut'] = sprintf(
 			'<input type="submit" name="cut" id="cut" class="tl_submit" accesskey="x" value="%s">',
-			specialchars($this->translate('MSC/moveSelected'))
+			specialchars($this->translate('moveSelected', 'MSC'))
 		);
 
 		$buttons['copy'] = sprintf(
 			'<input type="submit" name="copy" id="copy" class="tl_submit" accesskey="c" value="%s">',
-			specialchars($this->translate('MSC/copySelected'))
+			specialchars($this->translate('copySelected', 'MSC'))
 		);
 
 		if (true) // TODO refactore $definition->isEditable())
 		{
 			$buttons['override'] = sprintf(
 				'<input type="submit" name="override" id="override" class="tl_submit" accesskey="v" value="%s">',
-				specialchars($this->translate('MSC/overrideSelected'))
+				specialchars($this->translate('overrideSelected', 'MSC'))
 			);
 
 			$buttons['edit'] = sprintf(
 				'<input type="submit" name="edit" id="edit" class="tl_submit" accesskey="s" value="%s">',
-				specialchars($this->translate('MSC/editSelected'))
+				specialchars($this->translate('editSelected', 'MSC'))
 			);
 		}
 		/**
@@ -859,12 +854,12 @@ class BaseView implements BackendViewInterface
 
 		if ($model->getId())
 		{
-			$strHeadline = sprintf($this->translate('MSC/editRecord'), 'ID ' . $model->getId());
+			$strHeadline = sprintf($this->translate('editRecord', 'MSC'), 'ID ' . $model->getId());
 		}
 		else
 		{
 			// TODO: new language string for "new" model?
-			$strHeadline = sprintf($this->translate('MSC/editRecord'), '');
+			$strHeadline = sprintf($this->translate('editRecord', 'MSC'), '');
 		}
 
 		// FIXME: dependency injection or rather template factory?
@@ -999,7 +994,7 @@ class BaseView implements BackendViewInterface
 		// FIXME: dependency injection or rather template factory?
 		$objTemplate            = new \BackendTemplate("dcbe_general_show");
 		$this
-			->addToTemplate('headline', sprintf($this->translate('MSC/showRecord'), ($objDBModel->getId() ? 'ID ' . $objDBModel->getId() : '')), $objTemplate)
+			->addToTemplate('headline', sprintf($this->translate('showRecord', 'MSC'), ($objDBModel->getId() ? 'ID ' . $objDBModel->getId() : '')), $objTemplate)
 			->addToTemplate('arrFields', $arrFieldValues, $objTemplate)
 			->addToTemplate('arrLabels', $arrFieldLabels, $objTemplate);
 
@@ -1371,11 +1366,11 @@ class BaseView implements BackendViewInterface
 				'x' => 130,
 				'y' => -185
 			),
-			'startDay' => $this->translate('MSC/weekOffset'),
-			'days' => array_values((array)$this->translate('MSC/DAYS')),
-			'dayShort' => $this->translate('MSC/dayShortLength'),
-			'months' => array_values((array)$this->translate('MSC/MONTHS')),
-			'monthShort' => $this->translate('MSC/monthShortLength')
+			'startDay' => $this->translate('weekOffset', 'MSC'),
+			'days' => array_values((array)$this->translate('DAYS', 'MSC')),
+			'dayShort' => $this->translate('dayShortLength', 'MSC'),
+			'months' => array_values((array)$this->translate('MONTHS', 'MSC')),
+			'monthShort' => $this->translate('monthShortLength', 'MSC')
 		);
 
 		switch ($objWidget->rgxp)
@@ -1400,8 +1395,8 @@ class BaseView implements BackendViewInterface
 			positionOffset:{x:-197,y:-182}' . $time . ',
 			pickerClass:"datepicker_dashboard",
 			useFadeInOut:!Browser.ie,
-			startDay:' . $this->translate('MSC/weekOffset') . ',
-			titleFormat:"' . $this->translate('MSC/titleFormat') . '"
+			startDay:' . $this->translate('weekOffset', 'MSC') . ',
+			titleFormat:"' . $this->translate('titleFormat', 'MSC') . '"
 		});';
 		return 'new DatePicker(' . json_encode('#ctrl_' . $objWidget->id) . ', ' . json_encode($arrConfig) . ');';
 	}
@@ -1526,8 +1521,8 @@ class BaseView implements BackendViewInterface
 							'accesskey'  => 'n',
 							'href'       => $strHref,
 							'attributes' => 'onclick="Backend.getScrollOffset();"',
-							'title'      => $this->translate($providerName . '/new/1'),
-							'label'      => $this->translate($providerName . '/new/0')
+							'title'      => $this->translate('new/1', $providerName),
+							'label'      => $this->translate('new/0', $providerName)
 						)
 					),
 					$globalOperations
@@ -1546,8 +1541,8 @@ class BaseView implements BackendViewInterface
 						'class'      => 'header_clipboard',
 						'accesskey'  => 'x',
 						'href'       => BackendBindings::addToUrl('clipboard=1'),
-						'title'      => $this->translate('MSC/clearClipboard'),
-						'label'      => $this->translate('MSC/clearClipboard')
+						'title'      => $this->translate('clearClipboard', 'MSC'),
+						'label'      => $this->translate('clearClipboard', 'MSC')
 					)
 				)
 				, $globalOperations
@@ -1565,8 +1560,8 @@ class BaseView implements BackendViewInterface
 						'accesskey'  => 'b',
 						'href'       => BackendBindings::getReferer(true, $this->getEnvironment()->getDataDefinition()->getParentDriverName()),
 						'attributes' => 'onclick="Backend.getScrollOffset();"',
-						'title'      => $this->translate('MSC/backBT'),
-						'label'      => $this->translate('MSC/backBT')
+						'title'      => $this->translate('backBT', 'MSC'),
+						'label'      => $this->translate('backBT', 'MSC')
 					)
 				),
 				$globalOperations
@@ -1767,7 +1762,7 @@ class BaseView implements BackendViewInterface
 			return $event->getHtmlPasteInto();
 		}
 
-		$strLabel = $this->translate($event->getModel()->getProviderName() . '/pasteinto/0');
+		$strLabel = $this->translate('pasteinto/0', $event->getModel()->getProviderName());
 		if ($event->isPasteIntoDisabled())
 		{
 			return BackendBindings::generateImage('pasteinto_.gif', $strLabel, 'class="blink"');
@@ -1788,7 +1783,7 @@ class BaseView implements BackendViewInterface
 			return $event->getHtmlPasteAfter();
 		}
 
-		$strLabel = $this->translate($event->getModel()->getProviderName() . '/pasteafter/0');
+		$strLabel = $this->translate('pasteafter/0', $event->getModel()->getProviderName());
 		if ($event->isPasteIntoDisabled())
 		{
 			return BackendBindings::generateImage('pasteafter_.gif', $strLabel, 'class="blink"');
