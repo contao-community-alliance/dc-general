@@ -19,6 +19,13 @@ class TranslatorChain implements TranslatorInterface
 	 */
 	protected $translators = array();
 
+	/**
+	 * Keep going over translators, even if a translation was found.
+	 *
+	 * @var bool
+	 */
+	protected $keepGoing = false;
+
 	public function clear()
 	{
 		$this->translators = array();
@@ -49,6 +56,27 @@ class TranslatorChain implements TranslatorInterface
 	}
 
 	/**
+	 * Set keep going status.
+	 *
+	 * @param boolean $keepGoing
+	 */
+	public function setKeepGoing($keepGoing)
+	{
+		$this->keepGoing = $keepGoing;
+		return $this;
+	}
+
+	/**
+	 * Determinate if keep going is enabled.
+	 *
+	 * @return boolean
+	 */
+	public function isKeepGoing()
+	{
+		return $this->keepGoing;
+	}
+
+	/**
 	 * {@inheritdoc}
 	 */
 	public function translate($string, $domain = null, array $parameters = array(), $locale = null)
@@ -57,7 +85,7 @@ class TranslatorChain implements TranslatorInterface
 
 		for (
 			$translator = reset($this->translators);
-			$string == $original;
+			$this->keepGoing || $string == $original;
 			$translator = next($this->translators)
 		) {
 			$string = $translator->translate($string, $domain, $parameters, $locale);
