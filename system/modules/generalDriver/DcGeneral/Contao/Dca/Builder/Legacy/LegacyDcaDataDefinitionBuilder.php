@@ -108,6 +108,26 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		{
 			$config->setSwitchToEditEnabled((bool) $switchToEdit);
 		}
+
+		if (($value = $this->getFromDca('config/closed')) !== null)
+		{
+			$config->setClosed((bool) $value);
+		}
+
+		if (($value = $this->getFromDca('config/notEditable')) !== null)
+		{
+			$config->setEditable(!$value);
+		}
+
+		if (($value = $this->getFromDca('config/notDeletable')) !== null)
+		{
+			$config->setDeletable(!$value);
+		}
+
+		if (($value = $this->getFromDca('config/notCreatable')) !== null)
+		{
+			$config->setCreatable(!(bool) $value);
+		}
 	}
 
 	/**
