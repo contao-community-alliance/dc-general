@@ -137,25 +137,7 @@ class BaseView implements BackendViewInterface
 	 */
 	protected function dispatchEvent($eventName, $event)
 	{
-		global $container;
-		/** @var \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher */
-		$dispatcher       = $container['event-dispatcher'];
-
-		// First, try to dispatch to all DCA registered subscribers.
-		$dispatcher->dispatch(
-			sprintf(
-				'%s[%s]',
-				$eventName,
-				$this->getEnvironment()->getDataDefinition()->getName()
-			),
-			$event
-		);
-
-		// Second, try to dispatch to all globally registered subscribers.
-		if (!$event->isPropagationStopped())
-		{
-			$dispatcher->dispatch($eventName, $event);
-		}
+		$this->getEnvironment()->getEventPropagator()->propagate($event, array($this->getEnvironment()->getDataDefinition()->getName()));
 	}
 
 	public function setEnvironment(EnvironmentInterface $environment)
