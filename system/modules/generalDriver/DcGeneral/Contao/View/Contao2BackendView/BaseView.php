@@ -175,6 +175,13 @@ class BaseView implements BackendViewInterface
 		return $this->getEnvironment()->getTranslator()->translate($path, $section);
 	}
 
+	/**
+	 * @param $name
+	 * @param $value
+	 * @param $template
+	 *
+	 * @return BaseView
+	 */
 	protected function addToTemplate($name, $value, $template)
 	{
 		$template->$name = $value;
