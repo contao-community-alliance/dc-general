@@ -18,8 +18,8 @@ use DcGeneral\Data\DCGE;
 use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
-use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\EnvironmentInterface;
+use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Panel\FilterElementInterface;
 use DcGeneral\Panel\LimitElementInterface;
@@ -792,25 +792,71 @@ class BaseView implements BackendViewInterface
 	 * Generate the view for edit
 	 *
 	 * @return string
+	 *
+	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException
 	 */
 	public function edit()
 	{
-		// Load basic informations
+		// Load basic information
 		$this->checkLanguage();
 
-		$environment = $this->getEnvironment();
-		$definition  = $environment->getDataDefinition();
-		$driver      = $environment->getDataDriver();
-		$model       = $environment->getCurrentModel();
+		$environment         = $this->getEnvironment();
+		$definition          = $environment->getDataDefinition();
+		$driver              = $environment->getDataProvider();
+		$palettesDefinition  = $definition->getPalettesDefinition();
+		$model               = $driver->fetch($driver->getEmptyConfig()->setId($environment->getInputProvider()->getParameter('id')));
+		$propertyDefinitions = $definition->getPropertiesDefinition();
+		$widgetManager       = new ContaoWidgetManager($environment, $model);
 
-		// Get all selectors
-		$this->arrStack[] = $definition->getSubPalettes();
-		$this->calculateSelectors($this->arrStack[0]);
-		$this->parseRootPalette();
+		// Pass 1: Get the palette for the values stored in the model.
+		$palette = $palettesDefinition->findPalette($model);
+
+		$propertyValues     = $this->processInput($widgetManager);
+		$errors             = array();
+		if ($propertyValues)
+		{
+			// Pass 3: Determine the real palette we want to work on if we have some data submitted.
+			$palette = $palettesDefinition->findPalette($model, $propertyValues);
+
+			// Update the model - the model might add some more errors to the propertyValueBag via exceptions.
+			$this->getEnvironment()->getController()->updateModelFromPropertyBag($model, $propertyValues);
+		}
+
+		$arrFieldSets = array();
+		foreach ($palette->getLegends() as $legend)
+		{
+			$legendName = $environment->getTranslator()->translate($legend->getName() . '_legend', $definition->getName());
+			$fields     = array();
+			foreach($legend->getProperties($model, $propertyValues) as $property)
+			{
+				if (!$propertyDefinitions->hasProperty($property->getName()))
+				{
+					throw new DcGeneralInvalidArgumentException('Property ' . $property->getName() . ' is mentioned in palette but not defined in propertyDefinition.');
+				}
+
+				// if this property is invalid, fetch the error.
+				if ($propertyValues && $propertyValues->isPropertyValueInvalid($property->getName()))
+				{
+					$errors += $propertyValues->getPropertyValueErrors($property);
+				}
+
+				$fields[] = $widgetManager->renderWidget($property->getName());
+			}
+			$arrFieldSet['label']   = $legendName;
+			$arrFieldSet['class']   = 'tl_box';
+			$arrFieldSet['palette'] = implode('', $fields);
+			$arrFieldSet['legend']  = $legend->getName();
+
+			$arrFieldSets[] = $arrFieldSet;
+		}
 
 		if ($model->getId())
 		{
-			$strHeadline = sprintf($this->translate('editRecord', 'MSC'), 'ID ' . $model->getId());
+			$strHeadline = sprintf($this->translate('editRecord', $definition->getName()), 'ID ' . $model->getId());
+			if ($strHeadline === 'editRecord')
+			{
+				$strHeadline = sprintf($this->translate('editRecord', 'MSC'), 'ID ' . $model->getId());
+			}
 		}
 		else
 		{
@@ -821,16 +867,14 @@ class BaseView implements BackendViewInterface
 		// FIXME: dependency injection or rather template factory?
 		$objTemplate = new \BackendTemplate('dcbe_general_edit');
 		$objTemplate->setData(array(
-			'fieldsets' => $this->generateFieldsets('dcbe_general_field', array()),
-			'oldBE' => $GLOBALS['TL_CONFIG']['oldBeTheme'],
+			'fieldsets' => $arrFieldSets,
 			'versions' => $driver->getVersions($model->getId()),
 			'subHeadline' => $strHeadline,
 			'table' => $definition->getName(),
-			'enctype' => $this->getDC()->isUploadable() ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
-			//'onsubmit' => implode(' ', $this->onsubmit),
-			'error' => $this->noReload,
+			'enctype' => 'multipart/form-data',
+			'error' => $errors,
 			'editButtons' => $this->getEditButtons(),
-			'noReload' => $this->getDC()->isNoReload()
+			'noReload' => (bool) $errors
 		));
 
 		if ($this->isMultiLanguage($model->getId()))
