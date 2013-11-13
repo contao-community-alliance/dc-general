@@ -13,7 +13,37 @@
 /**
  * Register the classes
  */
-// TODO temporary remove all classes, we need to update them for non-composer support
+ClassLoader::addClasses(array
+(
+	// TODO temporarily remove all classes, we need to update them for non-composer support
+
+	// FIXME: we can not deprecate this class as the only way for Contao is to load the class from root namespace.
+	'DC_General'                                                => 'system/modules/generalDriver/DC_General.php',
+
+	// Backwards compatibility layer from here on. DEPRECATED only, DO NOT USE.
+	'GeneralDataMultiLanguageDefault'                          => 'system/modules/generalDriver/deprecated/GeneralDataMultiLanguageDefault.php',
+	'GeneralControllerDefault'                                 => 'system/modules/generalDriver/deprecated/GeneralControllerDefault.php',
+	'AbstractGeneralModel'                                     => 'system/modules/generalDriver/deprecated/AbstractGeneralModel.php',
+	'InterfaceGeneralCallback'                                 => 'system/modules/generalDriver/deprecated/InterfaceGeneralCallback.php',
+	'GeneralAjax2X'                                            => 'system/modules/generalDriver/deprecated/GeneralAjax2X.php',
+	'GeneralAjax'                                              => 'system/modules/generalDriver/deprecated/GeneralAjax.php',
+	'InterfaceGeneralModel'                                    => 'system/modules/generalDriver/deprecated/InterfaceGeneralModel.php',
+	'GeneralCollectionDefault'                                 => 'system/modules/generalDriver/deprecated/GeneralCollectionDefault.php',
+	'InterfaceGeneralController'                               => 'system/modules/generalDriver/deprecated/InterfaceGeneralController.php',
+	'GeneralDataDefault'                                       => 'system/modules/generalDriver/deprecated/GeneralDataDefault.php',
+	'InterfaceGeneralCollection'                               => 'system/modules/generalDriver/deprecated/InterfaceGeneralCollection.php',
+	'InterfaceGeneralDataMultiLanguage'                        => 'system/modules/generalDriver/deprecated/InterfaceGeneralDataMultiLanguage.php',
+	'GeneralDataTableRowsAsRecords'                            => 'system/modules/generalDriver/deprecated/GeneralDataTableRowsAsRecords.php',
+	'GeneralDataConfigDefault'                                 => 'system/modules/generalDriver/deprecated/GeneralDataConfigDefault.php',
+	'GeneralAjax3X'                                            => 'system/modules/generalDriver/deprecated/GeneralAjax3X.php',
+	'GeneralViewDefault'                                       => 'system/modules/generalDriver/deprecated/GeneralViewDefault.php',
+	'WidgetAccessor'                                           => 'system/modules/generalDriver/deprecated/WidgetAccessor.php',
+	'InterfaceGeneralDataConfig'                               => 'system/modules/generalDriver/deprecated/InterfaceGeneralDataConfig.php',
+	'DCGE'                                                     => 'system/modules/generalDriver/deprecated/DCGE.php',
+	'InterfaceGeneralData'                                     => 'system/modules/generalDriver/deprecated/InterfaceGeneralData.php',
+	'InterfaceGeneralView'                                     => 'system/modules/generalDriver/deprecated/InterfaceGeneralView.php',
+	'GeneralCallbackDefault'                                   => 'system/modules/generalDriver/deprecated/GeneralCallbackDefault.php',
+));
 
 /**
  * Register the templates
