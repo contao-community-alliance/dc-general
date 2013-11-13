@@ -180,95 +180,96 @@ class ContaoWidgetManager implements WidgetManagerInterface
 	}
 
 	/**
-	 * Return the widget for a given field.
-	 *
-	 * @param $fieldName
-	 *
-	 * @return \Widget
-	 *
-	 * @throws DcGeneralInvalidArgumentException
+	 * {@inheritDoc}
 	 */
 	public function getWidget($fieldName)
 	{
-
 		// Load from cache
-		if (isset($this->arrWidgets[$fieldName]))
+		if (isset($this->arrWidgets[$property]))
 		{
-			return $this->arrWidgets[$fieldName];
+			return $this->arrWidgets[$property];
 		}
 
-		// Check if editable
-		if (!$this->isEditableField($fieldName))
+		$environment         = $this->getEnvironment();
+		$defName             = $environment->getDataDefinition()->getName();
+		$propertyDefinitions = $environment->getDataDefinition()->getPropertiesDefinition();
+
+		if (!$propertyDefinitions->hasProperty($property))
 		{
-			return NULL;
+			throw new DcGeneralInvalidArgumentException('Property ' . $property . ' is not defined in propertyDefinitions.');
 		}
 
-		// Get config and check it
-		$arrConfig = $this->getFieldDefinition($fieldName);
-		if (count($arrConfig) == 0)
-		{
-			return NULL;
-		}
+		$propInfo  = $propertyDefinitions->getProperty($property);
+		$propExtra = $propInfo->getExtra();
 
-		$strInputName = $fieldName . '_' . $this->mixWidgetID;
-		// FIXME: do we need to unset this again? do we need to set this elsewhere? load/save/wizard, all want to know this - centralize it
-		$this->strField = $fieldName;
-		$this->strInputName = $strInputName;
+		$varValue = deserialize($this->model->getProperty($property));
 
-		/* $arrConfig['eval']['encrypt'] ? $this->Encryption->decrypt($this->objActiveRecord->$fieldName) : */
-		$varValue = deserialize($this->getEnvironment()->getCurrentModel()->getProperty($fieldName));
-
-		// Load Callback
-		$mixedValue = $this->getEnvironment()->getCallbackHandler()->loadCallback($fieldName, $varValue);
+		// TODO: pass into some event here.
+		$mixedValue = $this->getEnvironment()->getCallbackHandler()->loadCallback($property, $varValue);
 
 		if (!is_null($mixedValue))
 		{
 			$varValue = $mixedValue;
 		}
 
-		$arrConfig['eval']['xlabel'] = $this->getXLabel($arrConfig);
+		$xLabel = $this->getXLabel($propInfo);
+
+		// TODO: pass into some event here.
 		if (is_array($arrConfig['input_field_callback']))
 		{
 			$this->import($arrConfig['input_field_callback'][0]);
-			$objWidget = $this->{$arrConfig['input_field_callback'][0]}->{$arrConfig['input_field_callback'][1]}($this, $arrConfig['eval']['xlabel']);
-			return $this->arrWidgets[$fieldName] = isset($objWidget) ? $objWidget : '';
+			$objWidget = $this->{$arrConfig['input_field_callback'][0]}->{$arrConfig['input_field_callback'][1]}($this, $xLabel);
+			return $this->arrWidgets[$property] = isset($objWidget) ? $objWidget : '';
 		}
 
 		// ToDo: switch for BE / FE handling
-		$strClass = $GLOBALS['BE_FFL'][$arrConfig['inputType']];
-		if (!$this->classFileExists($strClass))
+		$strClass = $GLOBALS['BE_FFL'][$propInfo->getWidgetType()];
+		if (!class_exists($strClass))
 		{
-			return $this->arrWidgets[$fieldName] = NULL;
+			return $this->arrWidgets[$property] = NULL;
 		}
 
 		// FIXME TEMPORARY WORKAROUND! To be fixed in the core: Controller::prepareForWidget(..)
-		if (isset(self::$arrDates[$arrConfig['eval']['rgxp']])
-			&& !$arrConfig['eval']['mandatory']
+		if (in_array($propExtra['eval']['rgxp'], array('date', 'time', 'datim'))
+			&& !$propExtra['eval']['mandatory']
 			&& is_numeric($varValue) && $varValue == 0)
 		{
 			$varValue = '';
 		}
 
 		// OH: why not $required = $mandatory always? source: DataContainer 226
-		$arrConfig['eval']['required'] = $varValue == '' && $arrConfig['eval']['mandatory'] ? true : false;
+		$propExtra['eval']['required'] = $varValue == '' && $propExtra['eval']['mandatory'] ? true : false;
 		// OH: the whole prepareForWidget(..) thing is an only mess
-		// widgets should parse the configuration by themselfs, depending on what they need
+		// widgets should parse the configuration by themselves, depending on what they need
+
+		$arrConfig = array(
+			'inputType' => $propInfo->getWidgetType(),
+			'label' => array(
+				$propInfo->getLabel(),
+				$propInfo->getDescription()
+			),
+			'eval' => $propExtra,
+			// TODO: populate these.
+			// 'options_callback' => null,
+			// 'foreignKey' => null
+			// 'reference' =>
+		);
 
 		if (version_compare(VERSION, '3.0', '>='))
 		{
-			$arrPrepared = \Widget::getAttributesFromDca($arrConfig, $strInputName, $varValue, $fieldName, $this->strTable, $this);
+			$arrPrepared = \Widget::getAttributesFromDca($arrConfig, $propInfo->getName(), $varValue, $property, $defName, $this);
 		}
 		else
 		{
-			$arrPrepared = $this->prepareForWidget($arrConfig, $strInputName, $varValue, $fieldName, $this->strTable);
+			$arrPrepared = BackendBindings::prepareForWidget($arrConfig, $propInfo->getName(), $varValue, $property, $defName);
 		}
 
 		// Bugfix CS: ajax subpalettes are really broken.
 		// Therefore we reset to the default checkbox behaviour here and submit the entire form.
 		// This way, the javascript needed by the widget (wizards) will be correctly evaluated.
-		if ($arrConfig['inputType'] == 'checkbox' && is_array($GLOBALS['TL_DCA'][$this->strTable]['subpalettes']) && in_array($fieldName, array_keys($GLOBALS['TL_DCA'][$this->strTable]['subpalettes'])) && $arrConfig['eval']['submitOnChange'])
+		if ($arrConfig['inputType'] == 'checkbox' && is_array($GLOBALS['TL_DCA'][$defName]['subpalettes']) && in_array($property, array_keys($GLOBALS['TL_DCA'][$defName]['subpalettes'])) && $arrConfig['eval']['submitOnChange'])
 		{
-			$arrPrepared['onclick'] = $arrConfig['eval']['submitOnChange'] ? "Backend.autoSubmit('".$this->strTable."')" : '';
+			$arrPrepared['onclick'] = $arrConfig['eval']['submitOnChange'] ? "Backend.autoSubmit('".$defName."')" : '';
 		}
 		//$arrConfig['options'] = $arrPrepared['options'];
 
@@ -276,15 +277,10 @@ class ContaoWidgetManager implements WidgetManagerInterface
 		// OH: what is this? source: DataContainer 232
 		$objWidget->currentRecord = $this->intId;
 
-		if ($objWidget instanceof \uploadable)
-		{
-			$this->blnUploadable = true;
-		}
-
 		// OH: xlabel, wizard: two ways to rome? wizards are the better way I think
 		$objWidget->wizard = implode('', $this->getEnvironment()->getCallbackHandler()->executeCallbacks($arrConfig['wizard'], $this));
 
-		return $this->arrWidgets[$fieldName] = $objWidget;
+		return $this->arrWidgets[$property] = $objWidget;
 	}
 
 	protected function buildDatePicker($objWidget)
@@ -367,36 +363,84 @@ class ContaoWidgetManager implements WidgetManagerInterface
 	}
 
 	/**
-	 * Process all values from the PropertyValueBag through the widgets.
-	 *
-	 * @param PropertyValueBag $input
+	 * {@inheritDoc}
 	 */
-	public function processInput(PropertyValueBag $propertyValues)
+	public function renderWidget($property)
 	{
+		$environment         = $this->getEnvironment();
+		$definition          = $environment->getDataDefinition();
+		$propertyDefinitions = $definition->getPropertiesDefinition();
+		$propInfo            = $propertyDefinitions->getProperty($property);
+		$propExtra           = $propInfo->getExtra();
+		$widget              = $this->getWidget($property);
 
+		$strDatePicker = '';
+		if (isset($propExtra['datepicker']))
+		{
+			$strDatePicker = $this->buildDatePicker($widget);
+		}
+
+		$objTemplateFoo = new ContaoBackendViewTemplate('dcbe_general_field');
+		$objTemplateFoo->setData(array(
+			'strName'       => $property,
+			'strClass'      => $propExtra['tl_class'],
+			'widget'        => $widget->parse(),
+			'hasErrors'     => $widget->hasErrors(),
+			'strDatepicker' => $strDatePicker,
+			// TODO: need 'update' value - (\Input::get('act') == 'overrideAll' && ($arrData['inputType'] == 'checkbox' || $arrData['inputType'] == 'checkboxWizard') && $arrData['eval']['multiple'])
+			'blnUpdate'     => false, // $blnUpdate,
+			'strHelp'       => $this->generateHelpText($property)
+		));
+
+		$fields[] = $objTemplateFoo->parse();
+
+		return $objTemplateFoo->parse();
 	}
 
 	/**
-	 * Process all errors from the PropertyValueBag and add them to the widgets.
-	 *
-	 * @param PropertyValueBag $input
+	 * {@inheritDoc}
+	 */
+	public function processInput(PropertyValueBag $propertyValues)
+	{
+		foreach (array_keys($propertyValues->getArrayCopy()) as $property)
+		{
+			$widget = $this->getWidget($property);
+			$widget->value = $propertyValues->getPropertyValue($property);
+			$widget->validate();
+
+			if ($widget->hasErrors())
+			{
+				foreach ($widget->getErrors() as $error)
+				{
+					$propertyValues->markPropertyValueAsInvalid($property, $error);
+				}
+			}
+			else
+			{
+				$propertyValues->setPropertyValue($property, $widget->value);
+			}
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
 	 */
 	public function processErrors(PropertyValueBag $propertyValues)
 	{
 		$propertyErrors = $propertyValues->getInvalidPropertyErrors();
+		$definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
-		if ($propertyErrors) {
-			global $container;
-			/** @var \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher */
-			$dispatcher       = $container['event-dispatcher'];
+		if ($propertyErrors)
+		{
+			$propagator = $this->getEnvironment()->getEventPropagator();
 
 			foreach ($propertyErrors as $property => $errors)
 			{
 				$widget = $this->getWidget($property);
 
 				foreach ($errors as $error) {
-					$event = new ResolveWidgetErrorMessage($error);
-					$dispatcher->dispatch($event::NAME, $event);
+					$event = new ResolveWidgetErrorMessageEvent($error);
+					$propagator->propagate($event, array($definitionName, $property));
 
 					$widget->addError($event->getError());
 				}

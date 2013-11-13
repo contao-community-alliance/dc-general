@@ -27,36 +27,44 @@ interface WidgetManagerInterface
 	public function getEnvironment();
 
 	/**
-	 * Check if the given field has a widget.
+	 * Check if the given property has a widget.
 	 *
-	 * @param $fieldName
+	 * @param $property
 	 *
 	 * @return bool
 	 */
-	public function hasWidget($fieldName);
+	public function hasWidget($property);
 
 	/**
-	 * Return the widget for a given field.
+	 * Return the widget for a given property.
 	 *
-	 * @param $fieldName
+	 * @param string $property
 	 *
+	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException
 	 * @return \Widget
-	 *
-	 * @throws DcGeneralInvalidArgumentException
 	 */
-	public function getWidget($fieldName);
+	public function getWidget($property);
+
+	/**
+	 * Render the named widget to an html string.
+	 *
+	 * @param string $property
+	 *
+	 * @return string
+	 */
+	public function renderWidget($property);
 
 	/**
 	 * Process all values from the PropertyValueBag through the widgets.
 	 *
-	 * @param PropertyValueBag $input
+	 * @param PropertyValueBag $propertyValues
 	 */
 	public function processInput(PropertyValueBag $propertyValues);
 
 	/**
 	 * Process all errors from the PropertyValueBag and add them to the widgets.
 	 *
-	 * @param PropertyValueBag $input
+	 * @param PropertyValueBag $propertyValues
 	 */
 	public function processErrors(PropertyValueBag $propertyValues);
 }
