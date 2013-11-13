@@ -85,11 +85,4 @@ interface ViewInterface
 	public function undo();
 
 	public function generateAjaxPalette($strSelector);
-
-	/**
-	 * Process input and return all modified properties or null if there is no input.
-	 *
-	 * @return null|PropertyValueBag
-	 */
-	public function processInput();
 }
