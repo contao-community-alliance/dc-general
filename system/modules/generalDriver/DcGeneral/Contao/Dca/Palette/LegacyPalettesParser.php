@@ -229,7 +229,7 @@ class LegacyPalettesParser
 
 				// the part is a value (but which?) (select box like selector)
 				else {
-					$orCondition = new PaletteConditionChain(PaletteConditionChain::OR_CONJUNCTION);
+					$orCondition = new PaletteConditionChain(array(), PaletteConditionChain::OR_CONJUNCTION);
 
 					foreach ($selectorFieldNames as $selectorFieldName) {
 						$orCondition->addCondition(
