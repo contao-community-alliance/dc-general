@@ -65,7 +65,7 @@ class Palette implements PaletteInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function getProperties(ModelInterface $model = null, PropertyValueBag $input)
+	public function getProperties(ModelInterface $model = null, PropertyValueBag $input = null)
 	{
 		$properties = array();
 
