@@ -182,7 +182,7 @@ class ContaoWidgetManager implements WidgetManagerInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getWidget($fieldName)
+	public function getWidget($property)
 	{
 		// Load from cache
 		if (isset($this->arrWidgets[$property]))
