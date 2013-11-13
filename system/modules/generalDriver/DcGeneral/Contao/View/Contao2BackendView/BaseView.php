@@ -38,12 +38,8 @@ use DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
-
-// TODO: this is not as elegant as it could be.
 use DcGeneral\Contao\BackendBindings;
-
 use DcGeneral\DataContainerInterface;
-use DcGeneral\View\Widget\WidgetManagerInterface;
 
 class BaseView implements BackendViewInterface
 {
