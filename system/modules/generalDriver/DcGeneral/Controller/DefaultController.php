@@ -17,7 +17,9 @@ use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ModelInterface;
 
+use DcGeneral\Data\PropertyValueBagInterface;
 use DcGeneral\DataContainerInterface;
+use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 
@@ -207,6 +209,69 @@ class DefaultController implements ControllerInterface
 		}
 
 		return $arrIds;
+	}
+
+	/**
+	 * Update the current model from a post request. Additionally, trigger meta palettes, if installed.
+	 *
+	 * @param ModelInterface            $model
+	 *
+	 * @param PropertyValueBagInterface $propertyValues
+	 *
+	 * @return ControllerInterface
+	 */
+	public function updateModelFromPropertyBag($model, $propertyValues)
+	{
+		if (!$propertyValues)
+		{
+			return $this;
+		}
+
+		// callback to tell visitors that we have just updated the model.
+		$this->getEnvironment()->getCallbackHandler()->onModelBeforeUpdateCallback($model);
+
+		foreach ($propertyValues as $property => $value)
+		{
+			try
+			{
+				$model->setProperty($property, $value);
+				$model->setMeta(DCGE::MODEL_IS_CHANGED, true);
+			}
+			catch (\Exception $exception)
+			{
+				$propertyValues->markPropertyValueAsInvalid($property, $exception->getMessage());
+			}
+		}
+
+		$basicDefinition = $this->getEnvironment()->getDataDefinition()->getBasicDefinition();
+
+		// FIXME: dependency injection.
+		if (($basicDefinition->getMode() & (BasicDefinitionInterface::MODE_PARENTEDLIST | BasicDefinitionInterface::MODE_HIERARCHICAL)) && (strlen(\Input::getInstance()->get('pid')) > 0))
+		{
+			$providerName       = $basicDefinition->getDataProvider();
+			$parentProviderName = $basicDefinition->getParentDataProvider();
+			$objParentDriver    = $this->getEnvironment()->getDataProvider($parentProviderName);
+			$objParentModel     = $objParentDriver->fetch($objParentDriver->getEmptyConfig()->setId(\Input::getInstance()->get('pid')));
+
+			$relationship = $this->getEnvironment()->getDataDefinition()->getModelRelationshipDefinition()->getChildCondition($parentProviderName, $providerName);
+
+			if ($relationship && $relationship->getSetters())
+			{
+				$relationship->applyTo($objParentModel, $model);
+			}
+		}
+
+		// TODO: is this really a wise idea here?
+		// FIXME: dependency injection.
+		if (in_array('metapalettes', \Config::getInstance()->getActiveModules()))
+		{
+			\MetaPalettes::getInstance()->generateSubSelectPalettes($this);
+		}
+
+		// callback to tell visitors that we have just updated the model.
+		$this->getEnvironment()->getCallbackHandler()->onModelUpdateCallback($model);
+
+		return $this;
 	}
 
 	/**

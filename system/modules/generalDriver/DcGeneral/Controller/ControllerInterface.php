@@ -58,6 +58,17 @@ interface ControllerInterface
 	public function assembleAllChildrenFrom($objModel, $strDataProvider = '');
 
 	/**
+	 * Update the current model from a post request. Additionally, trigger meta palettes, if installed.
+	 *
+	 * @param ModelInterface            $model
+	 *
+	 * @param \DcGeneral\Data\PropertyValueBagInterface $propertyValues
+	 *
+	 * @return ControllerInterface
+	 */
+	public function updateModelFromPropertyBag($model, $propertyValues);
+
+	/**
 	 * Recursively retrieve a collection of all complete node hierarchy.
 	 *
 	 * @param array $rootId        The ids of the root node.

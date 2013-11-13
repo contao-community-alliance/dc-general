@@ -1183,66 +1183,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	}
 
 	/**
-	 * Update the current model from a post request. Additionally, trigger meta palettes, if installed.
-	 */
-	public function updateModelFromPOST()
-	{
-		$propertyValues = $this->getEnvironment()->getView()->processInput();
-		if ($propertyValues) {
-			// callback to tell visitors that we have just updated the model.
-			$this->getCallbackClass()->onModelBeforeUpdateCallback($this->getEnvironment()->getCurrentModel());
-
-			foreach ($propertyValues as $property => $value)
-			{
-				try
-				{
-					$this->getEnvironment()->getCurrentModel()->setProperty($property, $value);
-					$this->getEnvironment()->getCurrentModel()->setMeta(DCGE::MODEL_IS_CHANGED, true);
-				}
-				catch (\Exception $exception)
-				{
-					$this->blnNoReload = true;
-					$propertyValues->markPropertyValueAsInvalid($property, $exception);
-				}
-			}
-
-			// FIXME: dependency injection.
-			if (in_array($this->arrDCA['list']['sorting']['mode'], array(4, 5, 6)) && (strlen(\Input::getInstance()->get('pid')) > 0))
-			{
-				$objParentDriver = $this->getEnvironment()->getDataDriver($this->getEnvironment()->getDataDefinition()->getParentDriverName());
-				// pull correct condition from DCA and update according to setOn values.
-				$objParentModel = $objParentDriver->fetch($objParentDriver->getEmptyConfig()->setId(\Input::getInstance()->get('pid')));
-				$arrCond = $this->getParentChildCondition($objParentModel, $this->getEnvironment()->getDataDefinition()->getName());
-
-				if (is_array($arrCond) && array_key_exists('setOn', $arrCond))
-				{
-					foreach ($arrCond['setOn'] as $arrSetOn)
-					{
-						if ($arrSetOn['from_field'])
-						{
-							$this->getEnvironment()->getCurrentModel()->setProperty($arrSetOn['to_field'], $objParentModel->getProperty($arrSetOn['from_field']));
-						}
-						else
-						{
-							$this->getEnvironment()->getCurrentModel()->setProperty($arrSetOn['to_field'], $arrSetOn['value']);
-						}
-					}
-				}
-			}
-
-			// TODO: is this really a wise idea here?
-			// FIXME: dependency injection.
-			if (in_array('metapalettes', \Config::getInstance()->getActiveModules()))
-			{
-				\MetaPalettes::getInstance()->generateSubSelectPalettes($this);
-			}
-
-			// callback to tell visitors that we have just updated the model.
-			$this->getCallbackClass()->onModelUpdateCallback($this->getEnvironment()->getCurrentModel());
-		}
-	}
-
-	/**
 	 * Return the Child DC
 	 * @return DC_General
 	 */
