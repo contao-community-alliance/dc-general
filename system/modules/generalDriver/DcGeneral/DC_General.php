@@ -281,9 +281,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 
 		$this->objEnvironment = $dcGeneral->getEnvironment();
 
-
-		$environment  = $this->getEnvironment();
-
 /*
 		$this->objEnvironment = new DefaultEnvironment();
 		$this->getEnvironment()
@@ -326,10 +323,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			$this->blnForceEdit = true;
 			$this->intId        = 1;
 		}
-		
-		// SH: We need the buttons here, because the onloadCallback is (the only) one 
-		// to remove buttons.
-		$this->loadDefaultButtons();
 
 		// Load the clipboard.
 		$this->getEnvironment()->getClipboard()
@@ -380,31 +373,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		$this->loadDataProvider();
 	}
 	
-	/**
-	 * Load the default button. 'Save' and 'Save and close'.
-	 */
-	protected function loadDefaultButtons()
-	{
-		// Set buttons
-		$this->addButton("save", array(
-			'id'				 => 'save',
-			'formkey'			 => 'save',
-			'class'				 => '',
-			'accesskey'			 => 's',
-			'value'				 => null, // Lookup from DC_General
-			'button_callback'	 => null  // Core feature from DC_General
-		));
-
-		$this->addButton("saveNclose", array(
-			'id'				 => 'saveNclose',
-			'formkey'			 => 'saveNclose',
-			'class'				 => '',
-			'accesskey'			 => 'c',
-			'value'				 => null, // Lookup from DC_General
-			'button_callback'	 => null  // Core feature from DC_General
-		));
-	}
-
 	protected function bootDataDriver($strSource, $arrConfig)
 	{
 		if ($this->getEnvironment()->hasDataProvider($strSource))
@@ -935,7 +903,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	/**
 	 * Set the name of the child table
 	 *
-	 * @param stirng $strChildTable
+	 * @param string $strChildTable
 	 */
 	public function setChildTable($strChildTable)
 	{
@@ -947,7 +915,9 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	/**
 	 * Set the primary field for sorting
 	 *
-	 * @param str $strFirstSorting
+	 * @param string $strFirstSorting
+	 *
+	 * @param string $strSortingOrder
 	 */
 	public function setFirstSorting($strFirstSorting, $strSortingOrder = DCGE::MODEL_SORTING_ASC)
 	{
@@ -1666,6 +1636,8 @@ class DC_General extends \DataContainer implements DataContainerInterface
 
 	public function edit()
 	{
+		return $this->getViewHandler()->edit();
+
 		$strReturn = $this->objController->edit();
 		if ($strReturn != null && $strReturn != "")
 		{

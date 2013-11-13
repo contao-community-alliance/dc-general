@@ -245,7 +245,7 @@ class BaseView implements BackendViewInterface
 	 */
 	public function formatCurrentValue($field, $value, $mode)
 	{
-		$property   = $this->getDataDefinition()->getProperty($field);
+		$property   = $this->getDataDefinition()->getPropertiesSection()->getProperty($field);
 
 		// No property? Get out!
 		if (!$property)
@@ -253,10 +253,10 @@ class BaseView implements BackendViewInterface
 			return '-';
 		}
 
-		$evaluation = $property->getEvaluation();
+		$evaluation = $property->getExtra();
 		$remoteNew  = '';
 
-		if ($property->get('inputType') == 'checkbox' && !$evaluation['multiple'])
+		if ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple'])
 		{
 			$remoteNew = ($value != '') ? ucfirst($this->translate('yes', 'MSC')) : ucfirst($this->translate('no', 'MSC'));
 		}
@@ -307,7 +307,7 @@ class BaseView implements BackendViewInterface
 		}
 		else
 		{
-			if ($property->get('inputType') == 'checkbox' && !$evaluation['multiple'])
+			if ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple'])
 			{
 				$remoteNew = ($value != '') ? $field : '';
 			}
@@ -316,9 +316,9 @@ class BaseView implements BackendViewInterface
 				$reference = $property->get('reference');
 				$remoteNew = $reference[$value];
 			}
-			elseif (array_is_assoc($property->get('options')))
+			elseif (array_is_assoc($property->getOptions()))
 			{
-				$options   = $property->get('options');
+				$options   = $property->getOptions();
 				$remoteNew = $options[$value];
 			}
 			else
@@ -359,8 +359,8 @@ class BaseView implements BackendViewInterface
 
 		$environment = $this->getEnvironment();
 		$definition  = $environment->getDataDefinition();
-		$property    = $definition->getProperty($field);
-		$options     = $property->get('options');
+		$property    = $definition->getPropertiesSection()->getProperty($field);
+		$options     = $property->getOptions();
 		$reference   = $property->get('reference');
 
 		if (array_is_assoc($options))
@@ -459,7 +459,7 @@ class BaseView implements BackendViewInterface
 			$this->getButtonLabel('saveNclose')
 		);
 
-		if (!($this->isPopup() || $definition->isClosed()) && $definition->isCreatable())
+		if (!($this->isPopup() || $basicDefinition->isClosed()) && $basicDefinition->isCreatable())
 		{
 			$buttons['saveNcreate'] = sprintf(
 				'<input type="submit" name="saveNcreate" id="saveNcreate" class="tl_submit" accesskey="n" value="%s" />',
@@ -477,9 +477,9 @@ class BaseView implements BackendViewInterface
 		}
 		elseif (
 			!$this->isPopup()
-			&& (($definition->getSortingMode() == 4)
-				|| strlen($definition->getParentDriverName())
-				|| $definition->isSwitchToEdit()
+			&& (($basicDefinition->getMode() == BasicDefinitionInterface::MODE_PARENTEDLIST)
+				|| strlen($basicDefinition->getParentDataProvider())
+				|| $basicDefinition->isSwitchToEditEnabled()
 			)
 		)
 		{
@@ -606,7 +606,7 @@ class BaseView implements BackendViewInterface
 				$objModel = $objDataProv->fetch($objDataProv->getEmptyConfig()->setId($id));
 
 				// We have to ignore all children of this element in mode 5 (to prevent circular references).
-				if ($this->getEnvironment()->getDataDefinition()->getSortingMode() == 5)
+				if ($this->getDataDefinition()->getBasicDefinition()->getMode() == BasicDefinitionInterface::MODE_HIERARCHICAL)
 				{
 					$arrIgnored = $this->getEnvironment()->getController()->assembleAllChildrenFrom($objModel);
 				}
@@ -659,7 +659,7 @@ class BaseView implements BackendViewInterface
 	{
 		$environment     = $this->getEnvironment();
 		$inputProvider   = $environment->getInputProvider();
-		$objDataProvider = $environment->getDataDriver();
+		$objDataProvider = $environment->getDataProvider();
 		$strProviderName = $environment->getDataDefinition()->getName();
 		$mixID           = $environment->getInputProvider()->getParameter('id');
 		$arrLanguage     = $environment->getController()->getSupportedLanguages($mixID);
@@ -1067,9 +1067,10 @@ class BaseView implements BackendViewInterface
 	{
 		$environment      = $this->getEnvironment();
 		$definition       = $environment->getDataDefinition();
+		$listingConfig    = $this->getViewSection()->getListingConfig();
 		$providerName     = $environment->getDataDefinition()->getName();
 		$arrReturn        = array();
-		$globalOperations = $this->getDC()->arrDCA['list']['global_operations'];
+		$globalOperations = $this->getViewSection()->getGlobalCommands();
 
 
 		if (!is_array($globalOperations))
@@ -1108,7 +1109,7 @@ class BaseView implements BackendViewInterface
 					$strHref = '';
 					if (strlen($basicDefinition->getParentDataProvider()))
 					{
-						if ($definition->getSortingMode() < 4)
+						if ($listingConfig->getSortingMode() < 4)
 						{
 							$strHref = '&amp;mode=2';
 						}
@@ -1484,7 +1485,7 @@ class BaseView implements BackendViewInterface
 			$this->dispatchEvent(GetPasteButtonEvent::NAME, $buttonEvent);
 
 			$arrButtons['pasteafter'] = $this->renderPasteAfterButton($buttonEvent);
-			if ($this->getDataDefinition()->getSortingMode() == 5)
+			if ($this->getDataDefinition()->getBasicDefinition()->getMode() == BasicDefinitionInterface::MODE_HIERARCHICAL)
 			{
 				$arrButtons['pasteinto'] = $this->renderPasteIntoButton($buttonEvent);
 			}

@@ -44,7 +44,7 @@ class ListView extends BaseView
 		$environment->setCurrentCollection($objCollection);
 
 		// If we want to group the elements, do so now.
-		if (isset($objCondition) && ($definition->getSortingMode() == 3))
+		if (isset($objCondition) && ($this->getViewSection()->getListingConfig()->getGroupingMode() == ListingConfigInterface::GROUP_CHAR))
 		{
 			foreach ($objCollection as $objModel)
 			{

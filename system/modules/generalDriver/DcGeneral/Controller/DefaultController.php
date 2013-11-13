@@ -192,7 +192,7 @@ class DefaultController implements ControllerInterface
 		// Check all data providers for children of the given element.
 		foreach ($this->getEnvironment()->getDataDefinition()->getChildConditions($objModel->getProviderName()) as $objChildCondition)
 		{
-			$objDataProv = $this->getEnvironment()->getDataDriver($objChildCondition->getDestinationName());
+			$objDataProv = $this->getEnvironment()->getDataProvider($objChildCondition->getDestinationName());
 			$objConfig   = $objDataProv->getEmptyConfig();
 			$objConfig->setFilter($objChildCondition->getFilter($objModel));
 
@@ -284,14 +284,14 @@ class DefaultController implements ControllerInterface
 	protected function addParentFilter($idParent, $objConfig)
 	{
 		// Setup
-		$objCurrentDataProvider = $this->getEnvironment()->getDataDriver();
-		$objParentDataProvider  = $this->getEnvironment()->getDataDriver($this->getEnvironment()->getDataDefinition()->getParentDriverName());
+		$objCurrentDataProvider = $this->getEnvironment()->getDataProvider();
+		$objParentDataProvider  = $this->getEnvironment()->getDataProvider($this->getEnvironment()->getDataDefinition()->getParentDriverName());
 
 		if ($objParentDataProvider)
 		{
 			$objParent = $objParentDataProvider->fetch($objParentDataProvider->getEmptyConfig()->setId($idParent));
 
-			$objCondition = $this->getDC()->getEnvironment()->getDataDefinition()->getChildCondition(
+			$objCondition = $this->getEnvironment()->getDataDefinition()->getChildCondition(
 				$objParentDataProvider->getEmptyModel()->getProviderName(),
 				$objCurrentDataProvider->getEmptyModel()->getProviderName()
 			);
@@ -365,7 +365,7 @@ class DefaultController implements ControllerInterface
 			}
 
 			// Create a new Config
-			$objChildConfig = $this->getEnvironment()->getDataDriver($strSubTable)->getEmptyConfig();
+			$objChildConfig = $this->getEnvironment()->getDataProvider($strSubTable)->getEmptyConfig();
 			$objChildConfig->setFilter($arrChildFilter->getFilter($objModel));
 
 			$objChildConfig->setFields($this->calcNeededFields($objModel, $strSubTable));
@@ -373,7 +373,7 @@ class DefaultController implements ControllerInterface
 			$objChildConfig->setSorting(array('sorting' => 'ASC'));
 
 			// Fetch all children
-			$objChildCollection = $this->getEnvironment()->getDataDriver($strSubTable)->fetchAll($objChildConfig);
+			$objChildCollection = $this->getEnvironment()->getDataProvider($strSubTable)->fetchAll($objChildConfig);
 
 			// Speed up
 			if ($objChildCollection->length() > 0 && !$objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN))
@@ -438,7 +438,7 @@ class DefaultController implements ControllerInterface
 	{
 		$environment      = $this->getEnvironment();
 		$definition       = $environment->getDataDefinition();
-		$dataDriver       = $environment->getDataDriver();
+		$dataDriver       = $environment->getDataProvider();
 		$objTableTreeData = $dataDriver->getEmptyCollection();
 		$objRootConfig    = $dataDriver->getEmptyConfig();
 
@@ -552,7 +552,7 @@ class DefaultController implements ControllerInterface
 		// FIXME: dependency injection.
 		if (\Input::getInstance()->get('table') && !is_null($this->getEnvironment()->getDataDefinition()->getParentDriverName()))
 		{
-			$objParentDP = $this->getEnvironment()->getDataDriver($this->getDC()->getEnvironment()->getDataDefinition()->getParentDriverName());
+			$objParentDP = $this->getEnvironment()->getDataProvider($this->getDC()->getEnvironment()->getDataDefinition()->getParentDriverName());
 			$objParentItem = $objParentDP->fetch($objParentDP->getEmptyConfig()->setId(CURRENT_ID));
 			$objCollection = $objParentDP->getEmptyCollection();
 			// no parent item found, might have been deleted - we transparently create it for our filter to be able to filter to nothing.
@@ -605,7 +605,7 @@ class DefaultController implements ControllerInterface
 	public function getSupportedLanguages($mixID)
 	{
 		$environment     = $this->getEnvironment();
-		$objDataProvider = $environment->getDataDriver();
+		$objDataProvider = $environment->getDataProvider();
 
 		// Check if current data provider supports multi language
 		if (in_array('DcGeneral\Data\MultiLanguageDriverInterface', class_implements($objDataProvider)))
@@ -652,7 +652,7 @@ class DefaultController implements ControllerInterface
 		$environment     = $this->getEnvironment();
 		$inputProvider   = $environment->getInputProvider();
 		$intID           = $this->getDC()->getId();
-		$objDataProvider = $environment->getDataDriver();
+		$objDataProvider = $environment->getDataProvider();
 		$strProviderName = $environment->getDataDefinition()->getName();
 
 		$arrLanguage = $this->getSupportedLanguages($intID);
@@ -780,11 +780,11 @@ class DefaultController implements ControllerInterface
 		// Get current DataProvider
 		if (!empty($strCDP))
 		{
-			$objCurrentDataProvider = $this->getEnvironment()->getDataDriver($strCDP);
+			$objCurrentDataProvider = $this->getEnvironment()->getDataProvider($strCDP);
 		}
 		else
 		{
-			$objCurrentDataProvider = $this->getEnvironment()->getDataDriver();
+			$objCurrentDataProvider = $this->getEnvironment()->getDataProvider();
 		}
 
 		if ($objCurrentDataProvider == null)
@@ -796,7 +796,7 @@ class DefaultController implements ControllerInterface
 		$objParentDataProvider = null;
 		if (!empty($strPDP))
 		{
-			$objParentDataProvider = $this->getEnvironment()->getDataDriver($strPDP);
+			$objParentDataProvider = $this->getEnvironment()->getDataProvider($strPDP);
 
 			if ($objCurrentDataProvider == null)
 			{
@@ -914,7 +914,7 @@ class DefaultController implements ControllerInterface
 				$this->getDC()->preloadTinyMce();
 
 				// Load record from data provider - Load the source model
-				$objDataProvider = $this->getEnvironment()->getDataDriver();
+				$objDataProvider = $this->getEnvironment()->getDataProvider();
 				$objSrcModel = $objDataProvider->fetch($objDataProvider->getEmptyConfig()->setId($intId));
 
 				$objDBModel = clone $objSrcModel;
@@ -1027,7 +1027,7 @@ class DefaultController implements ControllerInterface
 		$this->checkLanguage();
 
 		// Load current values
-		$objCurrentDataProvider = $this->getEnvironment()->getDataDriver();
+		$objCurrentDataProvider = $this->getEnvironment()->getDataProvider();
 
 		// Check if we have fields
 		if (!$this->getEnvironment()->getDataDefinition()->hasEditableProperties())
@@ -1047,7 +1047,7 @@ class DefaultController implements ControllerInterface
 			// check if the pid id/word is set
 			if ($this->Input->get('pid'))
 			{
-				$objParentDP = $this->getEnvironment()->getDataDriver($this->getEnvironment()->getDataDefinition()->getParentDriverName());
+				$objParentDP = $this->getEnvironment()->getDataProvider($this->getEnvironment()->getDataDefinition()->getParentDriverName());
 				$objParent = $objParentDP->fetch($objParentDP->getEmptyConfig()->setId($this->Input->get('pid')));
 				$this->setParent($objDBModel, $objParent, 'self');
 			}
@@ -1062,10 +1062,10 @@ class DefaultController implements ControllerInterface
 			}
 
 			// FIXME: dependency injection.
-			$objParentDP = $this->getEnvironment()->getDataDriver($this->getEnvironment()->getDataDefinition()->getParentDriverName());
+			$objParentDP = $this->getEnvironment()->getDataProvider($this->getEnvironment()->getDataDefinition()->getParentDriverName());
 			$objParent = $objParentDP->fetch($objParentDP->getEmptyConfig()->setId(\Input::getInstance()->get('pid')));
 			$this->setParent($objDBModel, $objParent, 'self');
-			$objCDP = $this->getEnvironment()->getDataDriver();
+			$objCDP = $this->getEnvironment()->getDataProvider();
 			$arrChildCondition   = $this->objDC->getParentChildCondition($objParent, $objCDP->getEmptyModel()->getProviderName());
 			$objDBModel->setProperty($arrChildCondition['setOn'][0]['to_field'], \Input::getInstance()->get('pid'));
 
@@ -1103,7 +1103,7 @@ class DefaultController implements ControllerInterface
 			}
 
 			// Load current data provider
-			$objCurrentDataProvider = $this->getEnvironment()->getDataDriver($strCDP);
+			$objCurrentDataProvider = $this->getEnvironment()->getDataProvider($strCDP);
 			if ($objCurrentDataProvider == null)
 			{
 				throw new DcGeneralRuntimeException('Could not load current data provider in ' . __CLASS__ . ' - ' . __FUNCTION__);
@@ -1112,7 +1112,7 @@ class DefaultController implements ControllerInterface
 			$objParentDataProvider = null;
 			if (!empty($strPDP))
 			{
-				$objParentDataProvider = $this->getEnvironment()->getDataDriver($strPDP);
+				$objParentDataProvider = $this->getEnvironment()->getDataProvider($strPDP);
 				if ($objParentDataProvider == null)
 				{
 					throw new DcGeneralRuntimeException('Could not load parent data provider ' . $strPDP . ' in ' . __CLASS__ . ' - ' . __FUNCTION__);
@@ -1192,8 +1192,8 @@ class DefaultController implements ControllerInterface
 					$mixInto  = \Input::getInstance()->get('into');
 
 					$this->getNewPosition(
-						$this->getEnvironment()->getDataDriver($strPDP),
-						$this->getEnvironment()->getDataDriver($strCDP),
+						$this->getEnvironment()->getDataProvider($strPDP),
+						$this->getEnvironment()->getDataProvider($strCDP),
 						$this->getEnvironment()->getCurrentModel(),
 						$mixAfter,
 						$mixInto,
@@ -1288,11 +1288,11 @@ class DefaultController implements ControllerInterface
 		$objChildCondition = $definition->getChildCondition($objParentModel->getProviderName(), $definition->getName());
 
 		// Build filter
-		$objChildConfig = $environment->getDataDriver()->getEmptyConfig();
+		$objChildConfig = $environment->getDataProvider()->getEmptyConfig();
 		$objChildConfig->setFilter($objChildCondition->getFilter($objParentModel));
 
 		// Get child collection
-		$objChildCollection = $environment->getDataDriver()->fetchAll($objChildConfig);
+		$objChildCollection = $environment->getDataProvider()->fetchAll($objChildConfig);
 
 		$arrIDs = array();
 		foreach ($objChildCollection as $objChildModel)
@@ -1310,7 +1310,9 @@ class DefaultController implements ControllerInterface
 	public function delete()
 	{
 		// Load current values
-		$objCurrentDataProvider = $this->getEnvironment()->getDataDriver();
+		$environment            = $this->getEnvironment();
+		$definition             = $environment->getDataDefinition();
+		$objCurrentDataProvider = $environment->getDataProvider();
 
 		// Init some vars
 		$intRecordID = $this->getDC()->getId();
@@ -1322,20 +1324,27 @@ class DefaultController implements ControllerInterface
 		}
 
 		// Check if is it allowed to delete a record
-		if ($this->getDC()->arrDCA['config']['notDeletable'])
+		if (!$definition->isDeletable())
 		{
 			BackendBindings::log('Table "' . $definition->getName() . '" is not deletable', 'DC_General - DefaultController - delete()', TL_ERROR);
 			BackendBindings::redirect('contao/main.php?act=error');
 		}
 
 		// Callback
-		$this->getEnvironment()->setCurrentModel($objCurrentDataProvider->fetch($objCurrentDataProvider->getEmptyConfig()->setId($intRecordID)));
-		$this->getEnvironment()->getCallbackHandler()->ondeleteCallback();
+		$environment->setCurrentModel($objCurrentDataProvider->fetch($objCurrentDataProvider->getEmptyConfig()->setId($intRecordID)));
+
+		if (!$environment->getCurrentModel())
+		{
+			throw new \RuntimeException('Could not load model with id ' . $intRecordID);
+		}
+
+
+		$environment->getCallbackHandler()->ondeleteCallback();
 
 		$arrDelIDs = array();
 
 		// Delete record
-		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
+		switch ($definition->getSortingMode())
 		{
 			case 0:
 			case 1:
@@ -1355,7 +1364,7 @@ class DefaultController implements ControllerInterface
 		// Delete all entries
 		foreach ($arrDelIDs as $intId)
 		{
-			$this->getEnvironment()->getDataDriver()->delete($intId);
+			$this->getEnvironment()->getDataProvider()->delete($intId);
 
 			// Add a log entry unless we are deleting from tl_log itself
 			if ($environment->getDataDefinition()->getName() != 'tl_log')
@@ -1370,7 +1379,7 @@ class DefaultController implements ControllerInterface
 	public function edit()
 	{
 		// Load some vars
-		$objCurrentDataProvider = $this->getEnvironment()->getDataDriver();
+		$objCurrentDataProvider = $this->getEnvironment()->getDataProvider();
 
 		// Check
 		$this->checkIsWritable();
@@ -1474,7 +1483,7 @@ class DefaultController implements ControllerInterface
 	public function show()
 	{
 		// Load check multi language
-		$objCurrentDataProvider = $this->getEnvironment()->getDataDriver();
+		$objCurrentDataProvider = $this->getEnvironment()->getDataProvider();
 
 		// Check
 		$this->checkLanguage($this->getDC());
@@ -1621,7 +1630,7 @@ class DefaultController implements ControllerInterface
 		// Load something
 		$this->getDC()->preloadTinyMce();
 
-		$objDataProvider = $this->getEnvironment()->getDataDriver();
+		$objDataProvider = $this->getEnvironment()->getDataProvider();
 
 		// Load record from data provider
 		$objDBModel = $objDataProvider->fetch($objDataProvider->getEmptyConfig()->setId($this->getDC()->getId()));
@@ -1647,7 +1656,7 @@ class DefaultController implements ControllerInterface
 	 */
 	protected function loadVersion($intID, $mixVersion)
 	{
-		$objCurrentDataProvider = $this->getEnvironment()->getDataDriver();
+		$objCurrentDataProvider = $this->getEnvironment()->getDataProvider();
 
 
 		// Load record from version
@@ -1705,7 +1714,7 @@ class DefaultController implements ControllerInterface
 		$this->getDC()->getCallbackClass()->onsubmitCallback();
 
 		// Refresh timestamp
-		if ($this->getEnvironment()->getDataDriver()->fieldExists("tstamp") == true)
+		if ($this->getEnvironment()->getDataProvider()->fieldExists("tstamp") == true)
 		{
 			$objDBModel->setProperty("tstamp", time());
 		}
@@ -1730,29 +1739,29 @@ class DefaultController implements ControllerInterface
 			return $objDBModel;
 		}
 
-		$this->getEnvironment()->getDataDriver()->save($objDBModel);
+		$this->getEnvironment()->getDataProvider()->save($objDBModel);
 
 		// Check if versioning is enabled
 		if (isset($this->getDC()->arrDCA['config']['enableVersioning']) && $this->getDC()->arrDCA['config']['enableVersioning'] == true)
 		{
 			// Compare version and current record
-			$mixCurrentVersion = $this->getEnvironment()->getDataDriver()->getActiveVersion($objDBModel->getID());
+			$mixCurrentVersion = $this->getEnvironment()->getDataProvider()->getActiveVersion($objDBModel->getID());
 			if ($mixCurrentVersion != null)
 			{
-				$mixCurrentVersion = $this->getEnvironment()->getDataDriver()->getVersion($objDBModel->getID(), $mixCurrentVersion);
+				$mixCurrentVersion = $this->getEnvironment()->getDataProvider()->getVersion($objDBModel->getID(), $mixCurrentVersion);
 
-				if ($this->getEnvironment()->getDataDriver()->sameModels($objDBModel, $mixCurrentVersion) == false)
+				if ($this->getEnvironment()->getDataProvider()->sameModels($objDBModel, $mixCurrentVersion) == false)
 				{
 					// TODO: FE|BE switch
 					$user = \BackendUser::getInstance();
-					$this->getEnvironment()->getDataDriver()->saveVersion($objDBModel, $user->username);
+					$this->getEnvironment()->getDataProvider()->saveVersion($objDBModel, $user->username);
 				}
 			}
 			else
 			{
 				// TODO: FE|BE switch
 				$user = \BackendUser::getInstance();
-				$this->getEnvironment()->getDataDriver()->saveVersion($objDBModel, $user->username);
+				$this->getEnvironment()->getDataProvider()->saveVersion($objDBModel, $user->username);
 			}
 		}
 
@@ -1785,6 +1794,9 @@ class DefaultController implements ControllerInterface
 			throw new DcGeneralRuntimeException('No model provided!');
 		}
 
+		$environment = $this->getEnvironment();
+		$definition  = $environment->getDataDefinition();
+
 		// Check if we have a sorting field, if not skip here.
 		if (!$objCDP->fieldExists('sorting'))
 		{
@@ -1794,7 +1806,7 @@ class DefaultController implements ControllerInterface
 		// Load default DataProvider.
 		if (is_null($objCDP))
 		{
-			$objCDP = $this->getEnvironment()->getDataDriver();
+			$objCDP = $this->getEnvironment()->getDataProvider();
 		}
 
 		if ($mixAfter === DCGE::INSERT_AFTER_START)
@@ -1812,13 +1824,13 @@ class DefaultController implements ControllerInterface
 
 			if (in_array($this->getDC()->arrDCA['list']['sorting']['mode'], array(4, 5, 6)))
 			{
-				$arrConditions = $this->objDC->getRootConditions($objCDP->getEmptyModel()->getProviderName());
+				$arrConditions = $definition->getRootCondition()->getFilter();
 
 				if ($arrConditions)
 				{
 					foreach ($arrConditions as $arrCondition)
 					{
-						if (key_exists('remote', $arrCondition))
+						if (array_key_exists('remote', $arrCondition))
 						{
 							$arrFilter[] = array(
 								'value'		 => Input::getInstance()->get($arrCondition['remote']),
@@ -1826,7 +1838,7 @@ class DefaultController implements ControllerInterface
 								'operation'	 => $arrCondition['operation']
 							);
 						}
-						else if (key_exists('remote_value', $arrCondition))
+						else if (array_key_exists('remote_value', $arrCondition))
 						{
 							$arrFilter[] = array(
 								'value'		 => Input::getInstance()->get($arrCondition['remote_value']),
@@ -2014,13 +2026,13 @@ class DefaultController implements ControllerInterface
 	/**
 	 * Reorder all sortings for one table.
 	 *
-	 * @param Config $objConfig
+	 * @param ConfigInterface $objConfig
 	 *
 	 * @return void
 	 */
 	protected function reorderSorting($objConfig)
 	{
-		$objCurrentDataProvider = $this->getEnvironment()->getDataDriver();
+		$objCurrentDataProvider = $this->getEnvironment()->getDataProvider();
 
 		if ($objConfig == null)
 		{
@@ -2062,7 +2074,7 @@ class DefaultController implements ControllerInterface
 	protected function insertCopyModel($intIdSource, $intIdTarget, $intMode, $blnChilds, $strFieldId, $strFieldPid, $strOperation)
 	{
 		// Get dataprovider
-		$objDataProvider = $this->getEnvironment()->getDataDriver();
+		$objDataProvider = $this->getEnvironment()->getDataProvider();
 
 		// Load the source model
 		$objSrcModel = $objDataProvider->fetch($objDataProvider->getEmptyConfig()->setId($intIdSource));
@@ -2126,10 +2138,10 @@ class DefaultController implements ControllerInterface
 			}
 			else
 			{
-				$objParentConfig = $this->getEnvironment()->getDataDriver()->getEmptyConfig();
+				$objParentConfig = $this->getEnvironment()->getDataProvider()->getEmptyConfig();
 				$objParentConfig->setId($intIdTarget);
 
-				$objParentModel = $this->getEnvironment()->getDataDriver()->fetch($objParentConfig);
+				$objParentModel = $this->getEnvironment()->getDataProvider()->fetch($objParentConfig);
 
 				$this->setParent($objCopyModel, $objParentModel, 'self');
 			}
@@ -2164,7 +2176,7 @@ class DefaultController implements ControllerInterface
 
 	protected function getFilteredDataConfig()
 	{
-		$objCurrentDataProvider = $this->getEnvironment()->getDataDriver();
+		$objCurrentDataProvider = $this->getEnvironment()->getDataProvider();
 
 		$objConfig = $objCurrentDataProvider->getEmptyConfig()
 			->setFilter($this->getFilter())
@@ -2190,8 +2202,8 @@ class DefaultController implements ControllerInterface
 	protected function viewList()
 	{
 		// Setup
-		$objCurrentDataProvider = $this->getEnvironment()->getDataDriver();
-		$objParentDataProvider  = $this->getEnvironment()->getDataDriver($this->getEnvironment()->getDataDefinition()->getParentDriverName());
+		$objCurrentDataProvider = $this->getEnvironment()->getDataProvider();
+		$objParentDataProvider  = $this->getEnvironment()->getDataProvider($this->getEnvironment()->getDataDefinition()->getParentDriverName());
 
 		$objConfig = $this->getBaseConfig();
 		$this->getDC()->getEnvironment()->getPanelContainer()->initialize($objConfig);
@@ -2268,8 +2280,8 @@ class DefaultController implements ControllerInterface
 //					list($strTable, $strField) = explode('.', $strTable);
 //
 //
-//					$objModel = $this->getEnvironment()->getDataDriver($strTable)->fetch(
-//						$this->getEnvironment()->getDataDriver()->getEmptyConfig()
+//					$objModel = $this->getEnvironment()->getDataProvider($strTable)->fetch(
+//						$this->getEnvironment()->getDataProvider()->getEmptyConfig()
 //							->setId($row[$strKey])
 //							->setFields(array($strField))
 //					);
@@ -2286,7 +2298,7 @@ class DefaultController implements ControllerInterface
 	{
 		$environment     = $this->getEnvironment();
 		$definition      = $environment->getDataDefinition();
-		$dataDriver      = $environment->getDataDriver();
+		$dataDriver      = $environment->getDataProvider();
 		$arrNeededFields = $this->calcNeededFields($dataDriver->getEmptyModel(), $definition->getName());
 		$arrTitlePattern = $this->calcLabelPattern($definition->getName());
 		$inputProvider   = $environment->getInputProvider();
@@ -2419,7 +2431,7 @@ class DefaultController implements ControllerInterface
 		}
 
 		// Add some default values, if we have this values in DB.
-		if($this->getEnvironment()->getDataDriver($strDstTable)->fieldExists('enabled'))
+		if($this->getEnvironment()->getDataProvider($strDstTable)->fieldExists('enabled'))
 		{
 			$arrFields [] = 'enabled';
 		}
@@ -2610,8 +2622,8 @@ class DefaultController implements ControllerInterface
 				}
 			}
 
-			$objCollection = $this->getEnvironment()->getDataDriver()->getFilterOptions(
-				$this->getEnvironment()->getDataDriver()
+			$objCollection = $this->getEnvironment()->getDataProvider()->getFilterOptions(
+				$this->getEnvironment()->getDataProvider()
 					->getEmptyConfig()
 					->setFields(array($field))
 					->setFilter($arrProcedure)
@@ -2791,8 +2803,8 @@ class DefaultController implements ControllerInterface
 					{
 						$key = explode('.', $this->getDC()->arrDCA['fields'][$field]['foreignKey'], 2);
 
-						$objModel = $this->getEnvironment()->getDataDriver($key[0])->fetch(
-							$this->getEnvironment()->getDataDriver($key[0])->getEmptyConfig()
+						$objModel = $this->getEnvironment()->getDataProvider($key[0])->fetch(
+							$this->getEnvironment()->getDataProvider($key[0])->getEmptyConfig()
 								->setId($vv)
 								->setFields(array($key[1] . ' AS value'))
 						);
@@ -2832,8 +2844,8 @@ class DefaultController implements ControllerInterface
 							$showFields[0] = 'id';
 						}
 
-						$objModel = $this->getEnvironment()->getDataDriver($this->getEnvironment()->getDataDefinition()->getParentDriverName())->fetch(
-							$this->getEnvironment()->getDataDriver($this->getEnvironment()->getDataDefinition()->getParentDriverName())->getEmptyConfig()
+						$objModel = $this->getEnvironment()->getDataProvider($this->getEnvironment()->getDataDefinition()->getParentDriverName())->fetch(
+							$this->getEnvironment()->getDataProvider($this->getEnvironment()->getDataDefinition()->getParentDriverName())->getEmptyConfig()
 								->setId($vv)
 								->setFields(array($showFields[0]))
 						);
@@ -2939,11 +2951,11 @@ class DefaultController implements ControllerInterface
 		}
 
 		// Create a new Config
-		$objConfig = $this->getEnvironment()->getDataDriver()->getEmptyConfig();
+		$objConfig = $this->getEnvironment()->getDataProvider()->getEmptyConfig();
 		$objConfig->setFilter($arrFilter);
 
 		// Fetch all children
-		if ($this->getEnvironment()->getDataDriver()->getCount($objConfig) != 0)
+		if ($this->getEnvironment()->getDataProvider()->getCount($objConfig) != 0)
 		{
 			return true;
 		}
@@ -2990,20 +3002,20 @@ class DefaultController implements ControllerInterface
 		// If we have only the id load current model
 		if ($objCurrentModel == null)
 		{
-			$objCurrentConfig = $this->getEnvironment()->getDataDriver()->getEmptyConfig();
+			$objCurrentConfig = $this->getEnvironment()->getDataProvider()->getEmptyConfig();
 			$objCurrentConfig->setId($intCurrentID);
 
-			$objCurrentModel = $this->getEnvironment()->getDataDriver()->fetch($objCurrentConfig);
+			$objCurrentModel = $this->getEnvironment()->getDataProvider()->fetch($objCurrentConfig);
 		}
 
 		// Build child to parent
 		$strFilter = $arrJoinCondition[0]['srcField'] . $arrJoinCondition[0]['operation'] . $objCurrentModel->getProperty($arrJoinCondition[0]['dstField']);
 
 		// Load model
-		$objParentConfig = $this->getEnvironment()->getDataDriver()->getEmptyConfig();
+		$objParentConfig = $this->getEnvironment()->getDataProvider()->getEmptyConfig();
 		$objParentConfig->setFilter(array($strFilter));
 
-		return $this->getEnvironment()->getDataDriver()->fetch($objParentConfig);
+		return $this->getEnvironment()->getDataProvider()->fetch($objParentConfig);
 	}
 
 	protected function isRootEntry($strTable, $mixID)
