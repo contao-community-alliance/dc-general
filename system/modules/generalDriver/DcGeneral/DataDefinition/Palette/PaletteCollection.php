@@ -119,9 +119,11 @@ class PaletteCollection implements PaletteCollectionInterface
 		// get palettes with highest matching count
 		$palettes = array_pop($matches);
 
-		if (count($palettes) > 1) {
+		if (count($palettes) !== 1) {
 			throw new DcGeneralInvalidArgumentException();
 		}
+
+		return $palettes[0];
 	}
 
 	/**
