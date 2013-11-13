@@ -153,12 +153,16 @@ interface EnvironmentInterface
 	 * @param \DcGeneral\Data\CollectionInterface $objCurrentCollection
 	 *
 	 * @return EnvironmentInterface
+	 *
+	 * @deprecated Please attach collection to events or pass via method parameter.
 	 */
 	public function setCurrentCollection($objCurrentCollection);
 
 	/**
 	 *
 	 * @return \DcGeneral\Data\CollectionInterface
+	 *
+	 * @deprecated Please attach collection to events or pass via method parameter.
 	 */
 	public function getCurrentCollection();
 
@@ -167,12 +171,16 @@ interface EnvironmentInterface
 	 * @param \DcGeneral\Data\ModelInterface $objCurrentModel
 	 *
 	 * @return EnvironmentInterface
+	 *
+	 * @deprecated Please attach model to events or pass via method parameter.
 	 */
 	public function setCurrentModel($objCurrentModel);
 
 	/**
 	 *
 	 * @return \DcGeneral\Data\ModelInterface
+	 *
+	 * @deprecated Please attach model to events or pass via method parameter.
 	 */
 	public function getCurrentModel();
 
@@ -181,12 +189,16 @@ interface EnvironmentInterface
 	 * @param \DcGeneral\Data\CollectionInterface $objCurrentParentCollection
 	 *
 	 * @return EnvironmentInterface
+	 *
+	 * @deprecated Please attach parent collection to events or pass via method parameter.
 	 */
 	public function setCurrentParentCollection($objCurrentParentCollection);
 
 	/**
 	 *
 	 * @return \DcGeneral\Data\CollectionInterface
+	 *
+	 * @deprecated Please attach parent collection to events or pass via method parameter.
 	 */
 	public function getCurrentParentCollection();
 
