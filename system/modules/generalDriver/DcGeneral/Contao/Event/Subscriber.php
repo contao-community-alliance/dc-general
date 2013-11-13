@@ -88,10 +88,17 @@ class Subscriber
 	 */
 	public function GetOperationButton(GetOperationButtonEvent $event)
 	{
+		$arrOperation = array_merge(array
+			(
+				'href' => $event->getHref(),
+			),
+			$event->getCommand()->getExtra()->getArrayCopy()
+		);
+
 		// Call a custom function instead of using the default button
 		$strButtonCallback = $event->getEnvironment()->getCallbackHandler()->buttonCallback(
 			$event->getModel(),
-			$event->getObjOperation(),
+			$arrOperation,
 			$event->getLabel(),
 			$event->getTitle(),
 			$event->getAttributes(),

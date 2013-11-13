@@ -13,7 +13,6 @@
 namespace DcGeneral\Callbacks;
 
 use DcGeneral\Data\ModelInterface;
-use DcGeneral\DataDefinition\OperationInterface;
 
 class ContaoStyleCallbacks implements CallbacksInterface
 {
@@ -192,19 +191,9 @@ class ContaoStyleCallbacks implements CallbacksInterface
 	 */
 	public function buttonCallback($objModelRow, $arrOperation, $strLabel, $strTitle, $arrAttributes, $strTable, $arrRootIds, $arrChildRecordIds, $blnCircularReference, $strPrevious, $strNext)
 	{
-		if ($arrOperation instanceof OperationInterface)
-		{
-			/** @var \DcGeneral\DataDefinition\OperationInterface $arrOperation */
-			$strHref     = $arrOperation->getHref();
-			$strIcon     = $arrOperation->getIcon();
-			$arrCallback = $arrOperation->getCallback();
-		}
-		else
-		{
-			$strHref     = $arrOperation['href'];
-			$strIcon     = $arrOperation['icon'];
-			$arrCallback = $arrOperation['button_callback'];
-		}
+		$strHref     = $arrOperation['href'];
+		$strIcon     = $arrOperation['icon'];
+		$arrCallback = $arrOperation['button_callback'];
 
 		// Check Callback.
 		if (is_array($arrCallback))
