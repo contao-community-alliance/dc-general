@@ -93,4 +93,22 @@ class TranslatorChain implements TranslatorInterface
 
 		return $string;
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function translatePluralized($string, $number, $domain = null, array $parameters = array(), $locale = null)
+	{
+		$original = $string;
+
+		for (
+			$translator = reset($this->translators);
+			$this->keepGoing || $string == $original;
+			$translator = next($this->translators)
+		) {
+			$string = $translator->translatePluralized($string, $number, $domain, $parameters, $locale);
+		}
+
+		return $string;
+	}
 }
