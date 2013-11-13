@@ -73,6 +73,13 @@ interface ViewInterface
 
 	public function show();
 
+	/**
+	 * Overview listing over all items in the current scope.
+	 *
+	 * This is the default action to perform if no other action has been specified in the URL.
+	 *
+	 * @return string
+	 */
 	public function showAll();
 
 	public function undo();

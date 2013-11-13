@@ -1773,17 +1773,22 @@ class DefaultController implements ControllerInterface
 	 * Calculate the new position of an element
 	 *
 	 * Warning this function needs the cdp (current data provider).
+	 *
 	 * Warning this function needs the pdp (parent data provider).
 	 *
 	 * Based on backbone87 PR - "creating items in parent modes generates sorting value of 0"
 	 *
-	 * @param Driver $objCDP - Current data provider
-	 * @param Driver $objPDP - Parent data provider
-	 * @param ModelInterface $objDBModel - Model of element which should moved
-	 * @param mixed $mixAfter - Target element
-	 * @param string $strMode - Mode like cut | create and so on
-	 * @param integer $intInsertMode - Insert Mode => 1 After | 2 Into
-	 * @param mixed $mixParentID - Parent ID of table or element
+	 * @param DriverInterface $objCDP             Current data provider
+	 * @param DriverInterface $objPDP             Parent data provider
+	 * @param ModelInterface  $objDBModel         Model of element which should moved
+	 * @param mixed           $mixAfter           Target element
+	 * @param                 $mixInto
+	 * @param string          $strMode            Mode like cut | create and so on
+	 * @param mixed           $mixParentID        Parent ID of table or element
+	 * @param integer         $intInsertMode      Insert Mode => 1 After | 2 Into
+	 * @param bool            $blnWithoutReorder
+	 *
+	 * @throws \RuntimeException
 	 *
 	 * @return void
 	 */
