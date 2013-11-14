@@ -842,7 +842,7 @@ class BaseView implements BackendViewInterface
 				}
 
 				// if this property is invalid, fetch the error.
-				if ($propertyValues && $propertyValues->isPropertyValueInvalid($property->getName()))
+				if ($propertyValues && $propertyValues->hasPropertyValue($property->getName()) && $propertyValues->isPropertyValueInvalid($property->getName()))
 				{
 					$errors = array_merge($errors, $propertyValues->getPropertyValueErrors($property));
 				}
