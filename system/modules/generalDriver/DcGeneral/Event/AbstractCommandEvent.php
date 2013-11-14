@@ -15,7 +15,7 @@ namespace DcGeneral\Event;
 use DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use DcGeneral\EnvironmentInterface;
 
-abstract class AbstractCommandEvent extends EnvironmentAwareEvent implements CommandEventInterface
+abstract class AbstractCommandEvent extends AbstractEnvironmentAwareEvent implements CommandEventInterface
 {
 	/**
 	 * @var CommandInterface

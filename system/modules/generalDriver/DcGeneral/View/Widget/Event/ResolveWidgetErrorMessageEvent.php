@@ -13,10 +13,10 @@
 namespace DcGeneral\View\Widget\Event;
 
 use DcGeneral\Data\ModelInterface;
-use DcGeneral\Event\EnvironmentAwareEvent;
+use DcGeneral\Event\AbstractEnvironmentAwareEvent;
 
 class ResolveWidgetErrorMessageEvent
-	extends EnvironmentAwareEvent
+	extends AbstractEnvironmentAwareEvent
 {
     const NAME = 'dc-general.view.widget.resolve-error-message';
 

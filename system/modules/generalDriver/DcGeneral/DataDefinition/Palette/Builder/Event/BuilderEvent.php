@@ -21,7 +21,7 @@ use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
 use DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Event\AbstractContainerAwareEvent;
-use DcGeneral\Event\EnvironmentAwareEvent;
+use DcGeneral\Event\AbstractEnvironmentAwareEvent;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 

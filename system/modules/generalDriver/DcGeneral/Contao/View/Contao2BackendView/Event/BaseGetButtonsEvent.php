@@ -12,10 +12,10 @@
 
 namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
-use DcGeneral\Event\EnvironmentAwareEvent;
+use DcGeneral\Event\AbstractEnvironmentAwareEvent;
 
 class BaseGetButtonsEvent
-	extends EnvironmentAwareEvent
+	extends AbstractEnvironmentAwareEvent
 {
     const NAME = 'dc-general.view.contao2backend.get-buttons';
 

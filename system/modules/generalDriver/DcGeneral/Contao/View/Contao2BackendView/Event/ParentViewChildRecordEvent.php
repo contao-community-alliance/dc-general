@@ -13,10 +13,10 @@
 namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
 use DcGeneral\Data\ModelInterface;
-use DcGeneral\Event\EnvironmentAwareEvent;
+use DcGeneral\Event\AbstractEnvironmentAwareEvent;
 
 class ParentViewChildRecordEvent
-	extends EnvironmentAwareEvent
+	extends AbstractEnvironmentAwareEvent
 {
     const NAME = 'dc-general.view.contao2backend.parent-view-child-record';
 

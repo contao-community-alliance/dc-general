@@ -13,9 +13,9 @@
 namespace DcGeneral\Factory\Event;
 
 use DcGeneral\EnvironmentInterface;
-use DcGeneral\Event\EnvironmentAwareEvent;
+use DcGeneral\Event\AbstractEnvironmentAwareEvent;
 
-class PopulateEnvironmentEvent extends EnvironmentAwareEvent
+class PopulateEnvironmentEvent extends AbstractEnvironmentAwareEvent
 {
     const NAME = 'dc-general.factory.populate-environment';
 

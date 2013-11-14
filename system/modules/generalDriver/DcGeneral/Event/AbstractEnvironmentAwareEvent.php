@@ -16,7 +16,7 @@ use DcGeneral\EnvironmentAwareInterface;
 use DcGeneral\EnvironmentInterface;
 use Symfony\Component\EventDispatcher\Event;
 
-class EnvironmentAwareEvent
+abstract class AbstractEnvironmentAwareEvent
 	extends Event
 	implements EnvironmentAwareInterface
 {
@@ -33,8 +33,6 @@ class EnvironmentAwareEvent
 	public function __construct(EnvironmentInterface $environment)
 	{
 		$this->environment = $environment;
-
-		return $this;
 	}
 
 	/**
