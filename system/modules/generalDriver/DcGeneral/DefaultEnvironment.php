@@ -208,7 +208,7 @@ class DefaultEnvironment implements EnvironmentInterface
 	{
 		if ($strSource === null)
 		{
-			$strSource = $this->getDataDefinition()->getName();
+			$strSource = $this->getDataDefinition()->getBasicDefinition()->getDataProvider();
 		}
 
 		return (isset($this->arrDataProvider[$strSource]));
@@ -221,7 +221,7 @@ class DefaultEnvironment implements EnvironmentInterface
 	{
 		if ($strSource === null)
 		{
-			$strSource = $this->getDataDefinition()->getName();
+			$strSource = $this->getDataDefinition()->getBasicDefinition()->getDataProvider();
 		}
 
 		if (isset($this->arrDataProvider[$strSource]))
