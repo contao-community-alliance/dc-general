@@ -432,10 +432,9 @@ class ContaoStyleCallbacks implements CallbacksInterface
 				}
 			}
 
-			return $varValue;
 		}
 
-		return null;
+		return $varValue;
 	}
 
 	/**
