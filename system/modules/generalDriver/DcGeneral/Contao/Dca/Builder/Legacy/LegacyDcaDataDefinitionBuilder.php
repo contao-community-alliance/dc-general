@@ -12,6 +12,9 @@
 
 namespace DcGeneral\Contao\Dca\Builder\Legacy;
 
+use DcGeneral\Contao\Callbacks\ContainerOnDeleteCallbackListener;
+use DcGeneral\Contao\Callbacks\ContainerOnSubmitCallbackListener;
+use DcGeneral\Contao\Callbacks\StaticCallbackListener;
 use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
 use DcGeneral\Contao\Dca\Palette\LegacyPalettesParser;
 use DcGeneral\DataDefinition\ContainerInterface;
@@ -36,6 +39,8 @@ use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use DcGeneral\Contao\View\Contao2BackendView\LabelFormatter;
+use DcGeneral\Factory\Event\CreateDcGeneralEvent;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * Build the container config from legacy DCA syntax.
@@ -56,6 +61,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			return;
 		}
 
+		$this->parseCallbacks($container, $event->getDispatcher());
 		$this->parseBasicDefinition($container);
 		$this->parseDataProvider($container);
 		$this->parseRootEntries($container);
@@ -63,6 +69,72 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		$this->parseBackendView($container);
 		$this->parsePalettes($container);
 		$this->parseProperties($container);
+	}
+
+	/**
+	 * Parse the basic configuration and populate the definition.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 */
+	protected function parseCallbacks(ContainerInterface $container, EventDispatcher $dispatcher)
+	{
+		if (isset($GLOBALS['objDcGeneral']) && ($value = $this->getFromDca('config/onload_callback')) !== null)
+		{
+			$dispatcher->addListener(
+				CreateDcGeneralEvent::NAME,
+				new StaticCallbackListener($value, $GLOBALS['objDcGeneral'])
+			);
+		}
+
+		if (isset($GLOBALS['objDcGeneral']) && ($value = $this->getFromDca('config/onsubmit_callback')) !== null)
+		{
+			// TODO use the submit related event here
+			/*
+			$dispatcher->addListener(
+				CreateDcGeneralEvent::NAME,
+				new ContainerOnSubmitCallbackListener($value, $GLOBALS['objDcGeneral'])
+			);
+			*/
+		}
+
+		if (isset($GLOBALS['objDcGeneral']) && ($value = $this->getFromDca('config/ondelete_callback')) !== null)
+		{
+			// TODO use the submit related event here
+			/*
+			$dispatcher->addListener(
+				CreateDcGeneralEvent::NAME,
+				new ContainerOnDeleteCallbackListener($value, $GLOBALS['objDcGeneral'])
+			);
+			*/
+		}
+
+		/*
+		if (isset($GLOBALS['objDcGeneral']) && ($value = $this->getFromDca('config/onload_callback')) !== null)
+		{
+			$dispatcher->addListener(
+				CreateDcGeneralEvent::NAME,
+				new StaticCallbackListener($value, $GLOBALS['objDcGeneral'])
+			);
+		}
+
+		if (isset($GLOBALS['objDcGeneral']) && ($value = $this->getFromDca('config/onload_callback')) !== null)
+		{
+			$dispatcher->addListener(
+				CreateDcGeneralEvent::NAME,
+				new StaticCallbackListener($value, $GLOBALS['objDcGeneral'])
+			);
+		}
+
+		if (isset($GLOBALS['objDcGeneral']) && ($value = $this->getFromDca('config/onload_callback')) !== null)
+		{
+			$dispatcher->addListener(
+				CreateDcGeneralEvent::NAME,
+				new StaticCallbackListener($value, $GLOBALS['objDcGeneral'])
+			);
+		}
+		*/
 	}
 
 	/**
