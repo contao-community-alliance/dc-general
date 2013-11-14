@@ -819,7 +819,7 @@ class BaseView implements BackendViewInterface
 		$errors             = array();
 		if ($propertyValues)
 		{
-			// Pass 3: Determine the real palette we want to work on if we have some data submitted.
+			// Pass 2: Determine the real palette we want to work on if we have some data submitted.
 			$palette = $palettesDefinition->findPalette($model, $propertyValues);
 
 			// Update the model - the model might add some more errors to the propertyValueBag via exceptions.
@@ -841,7 +841,7 @@ class BaseView implements BackendViewInterface
 				// if this property is invalid, fetch the error.
 				if ($propertyValues && $propertyValues->isPropertyValueInvalid($property->getName()))
 				{
-					$errors += $propertyValues->getPropertyValueErrors($property);
+					$errors = array_merge($errors, $propertyValues->getPropertyValueErrors($property));
 				}
 
 				$fields[] = $widgetManager->renderWidget($property->getName());
