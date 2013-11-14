@@ -10,14 +10,10 @@
  * @filesource
  */
 
-namespace DcGeneral;
+namespace DcGeneral\Event;
 
-use DcGeneral\Data\ModelInterface;
+use DcGeneral\ModelAwareInterface;
 
-interface ModelAwareInterface
+interface ModelCommandEventInterface extends CommandEventInterface, ModelAwareInterface
 {
-	/**
-	 * @return ModelInterface
-	 */
-	public function getModel();
 }

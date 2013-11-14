@@ -10,14 +10,18 @@
  * @filesource
  */
 
-namespace DcGeneral;
+namespace DcGeneral\Event;
 
-use DcGeneral\Data\ModelInterface;
+use DcGeneral\DataDefinition\Definition\View\CommandInterface;
+use DcGeneral\EnvironmentAwareInterface;
+use DcGeneral\EnvironmentInterface;
 
-interface ModelAwareInterface
+interface CommandEventInterface extends EnvironmentAwareInterface
 {
 	/**
-	 * @return ModelInterface
+	 * Return the command.
+	 * 
+	 * @return CommandInterface
 	 */
-	public function getModel();
+	public function getCommand();
 }
