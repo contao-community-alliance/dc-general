@@ -44,22 +44,22 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
 	/**
 	 * @var bool
 	 */
-	protected $isClosed;
+	protected $isClosed = false;
 
 	/**
 	 * @var bool
 	 */
-	protected $isEditable;
+	protected $isEditable = true;
 
 	/**
 	 * @var bool
 	 */
-	protected $isDeletable;
+	protected $isDeletable  = true;
 
 	/**
 	 * @var bool
 	 */
-	protected $isCreatable;
+	protected $isCreatable = true;
 
 	/**
 	 * @var bool
