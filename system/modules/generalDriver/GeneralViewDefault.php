@@ -1185,7 +1185,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 				$strClass = $arrConfig['eval']['tl_class'];
 
 				// TODO: this should be correctly specified in DCAs, notyetbepatient
-				if($arrConfig['inputType'] == 'checkbox' && !$arrConfig['eval']['multiple'] && strpos($strClass, 'w50') !== false && strpos($strClass, 'cbx') === false) 
+				if($arrConfig['inputType'] == 'checkbox' && !$arrConfig['eval']['multiple'] && strpos($strClass, 'w50') !== false && strpos($strClass, 'cbx') === false)
 				{
 					$strClass .= ' cbx';
 				}
@@ -1413,7 +1413,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 			$colspan = 1;
 
 			// Call label callback
-			$mixedArgs = $this->getDC()->getCallbackClass()->labelCallback($objModelRow, $label, $this->getDC()->arrDCA['list']['label'], $args);
+			$mixedArgs = $this->getDC()->getCallbackClass()->labelCallback($objModelRow, $label, $args);
 
 			if (!is_null($mixedArgs))
 			{
@@ -1427,6 +1427,7 @@ class GeneralViewDefault extends Controller implements InterfaceGeneralView
 					$mixedArgs = array($mixedArgs);
 					$colspan = count($this->getDC()->arrDCA['list']['label']['fields']);
 				}
+				$args = $mixedArgs;
 			}
 
 			$arrLabel = array();
