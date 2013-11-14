@@ -418,11 +418,11 @@ class BaseView implements BackendViewInterface
 	protected function getButtonLabel($strButton)
 	{
 		$definition = $this->getEnvironment()->getDataDefinition();
-		if ($label = $this->translate($strButton, $definition->getName()))
+		if (($label = $this->translate($strButton, $definition->getName())) !== $strButton)
 		{
 			return $label;
 		}
-		else if ($label = $this->translate($strButton, 'MSC'))
+		else if (($label = $this->translate($strButton, 'MSC')) !== $strButton)
 		{
 			return $label;
 		}
