@@ -440,7 +440,7 @@ class DefaultDriver implements DriverInterface
 					$objModel->setID($value);
 				}
 
-				$objModel->setProperty($key, $value);
+				$objModel->setProperty($key, deserialize($value));
 			}
 
 			$objCollection->add($objModel);
