@@ -329,6 +329,24 @@ class DefaultDriver implements DriverInterface
 		}
 	}
 
+	protected function createModelFromDatabaseResult($dbResult)
+	{
+		$objModel = $this->getEmptyModel();
+
+		/** @var \Contao\Database\Result $dbResult */
+		foreach ($dbResult->row() as $key => $value)
+		{
+			if ($key == "id")
+			{
+				$objModel->setID($value);
+			}
+
+			$objModel->setProperty($key, deserialize($value));
+		}
+
+		return $objModel;
+	}
+
 	/**
 	 * Fetch a single or first record by id or filter.
 	 *
@@ -346,10 +364,9 @@ class DefaultDriver implements DriverInterface
 		{
 			$strQuery = "SELECT " . $this->buildFieldQuery($objConfig) . " FROM $this->strSource WHERE id = ?";
 
-			$arrResult = $this->objDatabase
+			$dbResult = $this->objDatabase
 				->prepare($strQuery)
-				->execute($objConfig->getId())
-				->fetchAllAssoc();
+				->execute($objConfig->getId());
 		}
 		else
 		{
@@ -360,31 +377,18 @@ class DefaultDriver implements DriverInterface
 			$query .= $this->buildSortingQuery($objConfig);
 
 			// Execute db query.
-			$arrResult = $this->objDatabase
+			$dbResult = $this->objDatabase
 				->prepare($query)
 				->limit(1, 0)
-				->execute($arrParams)
-				->fetchAllAssoc();
+				->executeUncached($arrParams);
 		}
 
-		if (count($arrResult) == 0)
+		if ($dbResult->numRows == 0)
 		{
 			return null;
 		}
 
-		$objModel = $this->getEmptyModel();
-
-		foreach ($arrResult[0] as $key => $value)
-		{
-			if ($key == "id")
-			{
-				$objModel->setID($value);
-			}
-
-			$objModel->setProperty($key, $value);
-		}
-
-		return $objModel;
+		return $this->createModelFromDatabaseResult($dbResult);
 	}
 
 	/**
@@ -410,40 +414,23 @@ class DefaultDriver implements DriverInterface
 			$objDatabaseQuery->limit($objConfig->getAmount(), $objConfig->getStart());
 		}
 
-		$arrResult = $objDatabaseQuery->executeUncached($arrParams)->fetchAllAssoc();
+		$dbResult = $objDatabaseQuery->executeUncached($arrParams);
 
 		if ($objConfig->getIdOnly())
 		{
-			$arrIds = array();
-			foreach ($arrResult as $intId)
-			{
-				$arrIds[] = $intId['id'];
-			}
-
-			return $arrIds;
+			return $dbResult->fetchEach('id');
 		}
 
 		$objCollection = $this->getEmptyCollection();
 
-		if (count($arrResult) == 0)
+		if ($dbResult->numRows == 0)
 		{
 			return $objCollection;
 		}
 
-		foreach ($arrResult as $arrValue)
+		while ($dbResult->next())
 		{
-			$objModel = $this->getEmptyModel();
-			foreach ($arrValue as $key => $value)
-			{
-				if ($key == "id")
-				{
-					$objModel->setID($value);
-				}
-
-				$objModel->setProperty($key, deserialize($value));
-			}
-
-			$objCollection->add($objModel);
+			$objCollection->add($this->createModelFromDatabaseResult($dbResult));
 		}
 
 		return $objCollection;
@@ -482,7 +469,7 @@ class DefaultDriver implements DriverInterface
 				$this->strSource,
 				$this->buildWhereQuery($objConfig, $arrParams)
 			))
-			->execute($arrParams);
+			->executeUncached($arrParams);
 
 		$objCollection = $this->getEmptyCollection();
 		while ($objValues->next())
@@ -511,7 +498,7 @@ class DefaultDriver implements DriverInterface
 
 		$objCount = $this->objDatabase
 			->prepare($query)
-			->execute($arrParams);
+			->executeUncached($arrParams);
 
 		return $objCount->count;
 	}
@@ -534,7 +521,7 @@ class DefaultDriver implements DriverInterface
 	{
 		$objUnique = $this->objDatabase
 			->prepare('SELECT * FROM ' . $this->strSource . ' WHERE ' . $strField . ' = ? ')
-			->execute($varNew);
+			->executeUncached($varNew);
 
 		if ($objUnique->numRows == 0)
 		{
