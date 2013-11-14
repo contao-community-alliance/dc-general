@@ -12,9 +12,6 @@
 namespace DcGeneral;
 
 use CyberSpectrum\ContaoDebugger\Debugger;
-use DcGeneral\Controller\ControllerInterface;
-use DcGeneral\Data\DefaultDriver;
-use DcGeneral\Data\DriverInterface;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Factory\DcGeneralFactory;
@@ -81,55 +78,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	 */
 	protected $blnVersionSubmit = false;
 
-	/**
-	 * State of languagesubmit
-	 * @var boolean
-	 */
-	protected $blnLanguageSubmit = false;
-
-	/**
-	 * State of select submit
-	 * @var boolean
-	 */
-	protected $blnSelectSubmit = false;
-
 	// Misc. -----------------------
-
-	/**
-	 * Parameter to sort the collection
-	 * @var array
-	 */
-	protected $arrSorting = null;
-
-	/**
-	 * Value for the first sorting
-	 * @var string
-	 */
-	protected $strFirstSorting = null;
-
-	/**
-	 * Order of the first sorting
-	 * @var string
-	 */
-	protected $strFirstSortingOrder = null;
-
-	/**
-	 * Parameter to filter the collection
-	 * @var array
-	 */
-	protected $arrFilter = null;
-
-	/**
-	 * Value vor the limit in the view
-	 * @var string
-	 */
-	protected $strLimit = null;
-
-	/**
-	 * Input values
-	 * @var array
-	 */
-	protected $arrInputs = array();
 
 	/**
 	 * Fieldstate information
@@ -163,10 +112,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 
 	public function __construct($strTable, array &$arrDCA = null, $blnOnloadCallback = true)
 	{
-		// Set start timer
-		$this->intTimerStart = microtime(true);
-		$this->intQueryCount = count($GLOBALS['TL_DEBUG']);
-
 		// Call parent
 		parent::__construct();
 
@@ -276,8 +221,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 
 		$this->blnSubmitted = false;
 		$this->blnVersionSubmit = false;
-		$this->blnLanguageSubmit = false;
-		$this->blnSelectSubmit = false;
 
 		// Form Submit check
 		switch ($_POST['FORM_SUBMIT'])
@@ -288,19 +231,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 
 			case 'tl_version':
 				$this->blnVersionSubmit = true;
-				break;
-
-			case 'language_switch':
-				$this->blnLanguageSubmit = true;
-				break;
-		}
-
-		// Act check
-		// TODO: dependency injection.
-		switch (\Input::getInstance()->get('act'))
-		{
-			case 'select':
-				$this->blnSelectSubmit = true;
 				break;
 		}
 
@@ -347,11 +277,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		return $this->arrDCA;
 	}
 
-	public function updateDCA($arrDCA)
-	{
-		$this->arrDCA = array_merge($this->arrDCA, $arrDCA);
-	}
-
 	// Submitting / State -------------------
 
 	public function isSubmitted()
@@ -367,16 +292,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	public function isVersionSubmit()
 	{
 		return $this->blnVersionSubmit;
-	}
-
-	public function isLanguageSubmit()
-	{
-		return $this->blnLanguageSubmit;
-	}
-
-	public function isSelectSubmit()
-	{
-		return $this->blnSelectSubmit;
 	}
 
 	// MVC ----------------------------------
