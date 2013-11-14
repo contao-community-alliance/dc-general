@@ -1,3 +1,4 @@
+src-branch: contao3
 src-path: /system/modules/generalDriver/DcGeneral
 docs-repository: contao-community-alliance/dc-general-docs
 docs-path: /api
