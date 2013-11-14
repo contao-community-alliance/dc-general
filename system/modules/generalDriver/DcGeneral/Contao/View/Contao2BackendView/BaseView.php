@@ -18,6 +18,8 @@ use DcGeneral\Data\DCGE;
 use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use DcGeneral\DataDefinition\Definition\Palette\PropertyInterface;
+use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
@@ -911,21 +913,22 @@ class BaseView implements BackendViewInterface
 	public function show()
 	{
 		// Load check multi language
-		$environment     = $this->getEnvironment();
-		$definition      = $environment->getDataDefinition();
-		$objDataProvider = $environment->getDataDriver();
-		$mixId           = $environment->getInputProvider()->getParameter('id');
+		$environment  = $this->getEnvironment();
+		$definition   = $environment->getDataDefinition();
+		$properties   = $definition->getPropertiesDefinition();
+		$dataProvider = $environment->getDataProvider();
+		$mixId        = $environment->getInputProvider()->getParameter('id');
 
 		// Check
 		$this->checkLanguage();
 
 		// Load record from data provider
-		$objDBModel = $objDataProvider->fetch($objDataProvider->getEmptyConfig()->setId($mixId));
+		$objDBModel = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($mixId));
 
 		if ($objDBModel == null)
 		{
 			$this->log('Could not find ID ' . $mixId . ' in Table ' . $definition->getName() . '.', 'DC_General show()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			$this->redirect('contao/main.php?act=error'); // TODO refactore
 		}
 
 		$environment->setCurrentModel($objDBModel);
@@ -945,9 +948,9 @@ class BaseView implements BackendViewInterface
 		}
 
 		// Get allowed fields from dca
-		if ($definition->getPropertyNames())
+		if ($properties->getPropertyNames())
 		{
-			$allowedFields = array_unique(array_merge($allowedFields, $definition->getPropertyNames()));
+			$allowedFields = array_unique(array_merge($allowedFields, $properties->getPropertyNames()));
 		}
 
 		$fields = array_intersect($allowedFields, $fields);
@@ -955,29 +958,33 @@ class BaseView implements BackendViewInterface
 		// Show all allowed fields
 		foreach ($fields as $strFieldName)
 		{
-			$objProperty = $definition->getProperty($strFieldName);
+			$property = $properties->getProperty($strFieldName);
 			// TODO: we should examine the palette here and hide irrelevant fields.
-			if ($objProperty)
+			if ($property)
 			{
-				$eval = $objProperty->getEvaluation();
+				$extra = $property->getExtra();
 
 				if (!in_array($strFieldName, $allowedFields)
-					|| $objProperty->getWidgetType() == 'password'
-					|| ($eval && (
-							array_key_exists('doNotShow', $eval)
-							|| array_key_exists('hideInput', $eval))))
+					|| $property->getWidgetType() == 'password'
+					|| ($extra && (
+							array_key_exists('doNotShow', $extra)
+							|| array_key_exists('hideInput', $extra))))
 				{
 					continue;
 				}
-				$label = $objProperty->getLabel();
+
+				$label = $property->getLabel();
 			}
 			else
 			{
 				$label = '';
 			}
 
+			$value = $this->getCurrentModel()->getProperty($strFieldName);
+			$value = deserialize($value);
+
 			// Make it human readable
-			$arrFieldValues[$strFieldName] = $this->getReadableFieldValue($strFieldName, deserialize($this->getCurrentModel()->getProperty($strFieldName)));
+			$arrFieldValues[$strFieldName] = $this->getReadableFieldValue($property, $objDBModel, $value);
 
 			// Label
 			if (count($label))
