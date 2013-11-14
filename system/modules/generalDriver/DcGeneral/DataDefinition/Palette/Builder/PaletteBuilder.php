@@ -946,7 +946,7 @@ class PaletteBuilder
 		}
 
 		if ($this->property) {
-			$condition = $this->palettePropertyValueConditionClass->newInstance();
+			$condition = $this->propertyValueConditionClass->newInstance();
 		}
 		else if ($this->palette) {
 			$condition = $this->palettePropertyValueConditionClass->newInstance();
