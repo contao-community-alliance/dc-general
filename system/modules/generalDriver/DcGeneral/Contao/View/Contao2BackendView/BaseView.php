@@ -974,6 +974,8 @@ class BaseView implements BackendViewInterface
 				}
 
 				$label = $property->getLabel();
+
+				$label = $this->getEnvironment()->getTranslator()->translate($label, $definition->getName());
 			}
 			else
 			{
