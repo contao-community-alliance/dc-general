@@ -16,25 +16,10 @@ use DcGeneral\DC_General;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use Symfony\Component\EventDispatcher\Event;
 
-class ContainerOnSubmitCallbackListener extends AbstractCallbackListener
+class ContainerOnSubmitCallbackListener extends AbstractStaticCallbackListener
 {
-	/**
-	 * @var DC_General
-	 */
-	protected $dcGeneral;
-
 	function __construct($callback, DC_General $dcGeneral)
 	{
-		parent::__construct($callback);
-		$this->dcGeneral = $dcGeneral;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getArgs(Event $event = null)
-	{
-		// TODO find a way to get tl_undo record ID here
-		return array($this->dcGeneral, 0);
+		parent::__construct($callback, $dcGeneral);
 	}
 }
