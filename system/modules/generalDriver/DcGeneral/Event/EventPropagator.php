@@ -32,6 +32,13 @@ class EventPropagator implements EventPropagatorInterface
 	 */
 	public function propagate($event, $suffixes = array())
 	{
+		if (!is_array($suffixes)) {
+			$suffixes = func_get_args();
+
+			// skip $event
+			array_shift($suffixes);
+		}
+
 		$eventName = $event::NAME;
 
 		while ($suffixes)
