@@ -166,7 +166,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 				// TODO: add additional information here.
 				switch ($dataProviderDcaName) {
 					case 'default':
-						$providerInformation->isVersioningEnabled(
+						$providerInformation->setVersioningEnabled(
 							(bool) $this->getFromDca('config/enableVersioning')
 						);
 
