@@ -987,7 +987,7 @@ class PaletteBuilder
 	{
 		if ($this->property) {
 			$this->createPropertyConditionChain($conjunction);
-			$condition = $this->palettePropertyValueConditionClass->newInstance();
+			$condition = $this->propertyValueConditionClass->newInstance();
 		}
 		else if ($this->palette) {
 			$this->createPaletteConditionChain();
