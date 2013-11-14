@@ -41,11 +41,62 @@ class PropertyValueCondition implements PropertyConditionInterface
 	 */
 	protected $strict;
 
-	function __construct($propertyName, $propertyValue, $strict = false)
+	function __construct($propertyName = '', $propertyValue = null, $strict = false)
 	{
 		$this->propertyName  = (string) $propertyName;
-		$this->propertyValue = (string) $propertyValue;
+		$this->propertyValue = $propertyValue;
 		$this->strict        = (bool) $strict;
+	}
+
+	/**
+	 * @param string $propertyName
+	 */
+	public function setPropertyName($propertyName)
+	{
+		$this->propertyName = (string) $propertyName;
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPropertyName()
+	{
+		return $this->propertyName;
+	}
+
+	/**
+	 * @param mixed $propertyValue
+	 */
+	public function setPropertyValue($propertyValue)
+	{
+		$this->propertyValue = $propertyValue;
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getPropertyValue()
+	{
+		return $this->propertyValue;
+	}
+
+	/**
+	 * @param boolean $strict
+	 */
+	public function setStrict($strict)
+	{
+		$this->strict = $strict;
+		return $this;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function getStrict()
+	{
+		return $this->strict;
 	}
 
 	/**
