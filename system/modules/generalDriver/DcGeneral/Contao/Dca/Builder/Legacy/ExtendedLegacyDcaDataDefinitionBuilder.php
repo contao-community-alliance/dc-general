@@ -150,13 +150,17 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 				{
 					$providerInformation = $config->getInformation($providerName);
 				}
+
+				if (!$providerInformation->getTableName()) {
+					$providerInformation
+						->setTableName($providerName);
+				}
 			}
 
 			if ($providerInformation instanceof ContaoDataProviderInformation)
 			{
 				// Set versioning information.
 				$providerInformation
-					->setTableName($providerName)
 					->setInitializationData($dataProviderDca);
 
 				if (isset($dataProviderDca['class'])) {
