@@ -11,86 +11,27 @@
 
 namespace DcGeneral;
 
+use CyberSpectrum\ContaoDebugger\Debugger;
 use DcGeneral\Controller\ControllerInterface;
-use DcGeneral\Data\DCGE;
 use DcGeneral\Data\DefaultDriver;
-use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\DriverInterface;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Factory\DcGeneralFactory;
+use DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 
 class DC_General extends \DataContainer implements DataContainerInterface
 {
-	/* /////////////////////////////////////////////////////////////////////////
-	 * -------------------------------------------------------------------------
-	 *  Vars
-	 * -------------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////////// */
-
-
-	// Basic Vars ------------------
-
 	/**
 	 * @var EnvironmentInterface
 	 */
 	protected $objEnvironment;
 
 	/**
-	 * Id of the item currently in edit view
-	 * @var int
-	 */
-	protected $intId = null;
-
-	/**
-	 * Name of current table
-	 * @var String
-	 */
-	protected $strTable = null;
-
-	/**
-	 * Name of current parent table
-	 * @var String
-	 */
-	protected $strParentTable = null;
-
-	/**
-	 * Name of the child table
-	 * @var String
-	 */
-	protected $strChildTable = null;
-
-	/**
 	 * DCA configuration
 	 * @var array
 	 */
 	protected $arrDCA = null;
-
-	/**
-	 * Force the edit mode.
-	 * @var boolean 
-	 */
-	protected $blnForceEdit = false;
-
-	// Core Objects ----------------
-
-	/**
-	 * Includes all data provider
-	 * @var DriverInterface[]
-	 */
-	protected $arrDataProvider = array();
-
-	/**
-	 * The controller that shall be used .
-	 * @var ControllerInterface
-	 */
-	protected $objController = null;
-
-	/**
-	 * The child DC
-	 * @var DC_General
-	 */
-	protected $objChildDC = null;
 
 	// Config ----------------------
 
@@ -151,18 +92,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	 * @var boolean
 	 */
 	protected $blnSelectSubmit = false;
-
-	// Debug -----------------------
-
-	/**
-	 * Timer
-	 */
-	protected $intTimerStart;
-
-	/**
-	 * Amount of queries issued while in DC scope.
-	 */
-	protected $intQueryCount;
 
 	// Misc. -----------------------
 
@@ -226,18 +155,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	 */
 	protected $mixWidgetID = null;
 
-	// Const. ----------------------
-
-	/**
-	 * Lookup for special regex
-	 * @var array
-	 */
-	private static $arrDates = array(
-		'date' => true,
-		'time' => true,
-		'datim' => true
-	);
-
 	/* /////////////////////////////////////////////////////////////////////////
 	 * -------------------------------------------------------------------------
 	 *  Constructor and co.
@@ -256,8 +173,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		// Callback
 		$strTable = $this->getTablenameCallback($strTable);
 
-		// Basic vars Init
-		$this->strTable = $strTable;
 		// in contao 3 the second constructor parameter is the backend module array.
 		// Therefore we have to check if the passed argument is indeed a valid DCA.
 		if ($arrDCA != null && $arrDCA['config'])
@@ -266,40 +181,24 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		}
 		else
 		{
-			$this->arrDCA = &$GLOBALS['TL_DCA'][$this->strTable];
+			$this->arrDCA = &$GLOBALS['TL_DCA'][$strTable];
 		}
 
-		$factory = new DcGeneralFactory();
+		global $container;
+		$dispatcher = $container['event-dispatcher'];
+		/** @var \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher */
+		$dispatcher->addListener(PopulateEnvironmentEvent::NAME, array($this, 'handlePopulateEnvironment'));
 
+		$factory = new DcGeneralFactory();
 		// FIXME: transporting the current instance via $GLOBALS is needed to tell the callback handler about this class.
-		// We definitely want to get rid of this again when dropping all the callback handlers.
+		// We definitely want to get rid of this again when dropping all the callback handlers. See also: ExtendedLegacyDcaPopulator::populateCallback()
 		$GLOBALS['objDcGeneral'] = $this;
 		$dcGeneral = $factory
 			->setContainerName($strTable)
 			->createDcGeneral();
 		unset($GLOBALS['objDcGeneral']);
+		$dispatcher->removeListener(PopulateEnvironmentEvent::NAME, array($this, 'handlePopulateEnvironment'));
 
-		$this->objEnvironment = $dcGeneral->getEnvironment();
-
-/*
-		$this->objEnvironment = new DefaultEnvironment();
-		$this->getEnvironment()
-			->setDataDefinition(new Contao\Dca\Container($this->strTable, $this->arrDCA))
-			// TODO: make inputprovider configurable somehow - unsure how though.
-			->setInputProvider(new InputProvider())
-			->setClipboard(new DefaultClipboard())
-			->setTranslator(new LangArrayTranslator());
-
-		$parentTable = $this->getEnvironment()->getDataDefinition()->getParentDriverName();
-		if ($parentTable)
-		{
-			$this->loadDataContainer($parentTable);
-			$this->getEnvironment()->setParentDataDefinition(new Contao\Dca\Container(
-				$parentTable,
-				$GLOBALS['TL_DCA'][$parentTable]
-			));
-		}
-*/
 		// Switch user for FE / BE support
 		switch (TL_MODE)
 		{
@@ -315,7 +214,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 
 		// Load
 		$this->checkPostGet();
-		$this->loadProviderAndHandler();
 
 		// Check for forcemode
 		if ($this->arrDCA['config']['forceEdit'])
@@ -335,6 +233,11 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		{
 			$this->getControllerHandler()->executePostActions();
 		}
+	}
+
+	public function handlePopulateEnvironment(PopulateEnvironmentEvent $event)
+	{
+		$this->objEnvironment = $event->getEnvironment();
 	}
 
 	/**
@@ -364,80 +267,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	}
 
 	/**
-	 * Load the dataprovider and view handler,
-	 * if not set try to load the default one.
-	 */
-	protected function loadProviderAndHandler()
-	{
-		// Load controller, view and provider.
-		$this->loadDataProvider();
-	}
-	
-	protected function bootDataDriver($strSource, $arrConfig)
-	{
-		if ($this->getEnvironment()->hasDataProvider($strSource))
-		{
-			return;
-		}
-
-		if ($arrConfig['source'])
-		{
-			$this->loadLanguageFile($arrConfig['source']);
-			$this->loadDataContainer($arrConfig['source']);
-		}
-
-		if (array_key_exists('class', $arrConfig))
-		{
-			$strClass = $arrConfig['class'];
-			$provider = new $strClass();
-		}
-		else
-		{
-			$provider = new DefaultDriver();
-		}
-
-		$provider->setBaseConfig($arrConfig);
-
-		$this->getEnvironment()->addDataProvider($strSource, $provider);
-	}
-
-	/**
-	 * Load the data provider,
-	 * if not set try to load the default one.
-	 */
-	protected function loadDataProvider()
-	{
-		$arrSourceConfigs = $this->arrDCA['dca_config']['data_provider'];
-
-		// Set default data provider
-		if (isset($arrSourceConfigs['default']))
-		{
-			$this->bootDataDriver($this->strTable, $arrSourceConfigs['default']);
-		}
-		else
-		{
-			$this->bootDataDriver($this->strTable, array(
-				'class' => '\DcGeneral\Data\DefaultDriver',
-				'source' => $this->strTable
-			));
-
-			// DC_Table compatibility fallback, shall we remove this?
-			if ($this->arrDCA['config']['ptable'])
-			{
-				$this->bootDataDriver($this->arrDCA['config']['ptable'], array(
-					'class' => '\DcGeneral\Data\DefaultDriver',
-					'source' => $this->arrDCA['config']['ptable']
-				));
-			}
-		}
-
-		if (isset($arrSourceConfigs['parent']))
-		{
-			$this->bootDataDriver($arrSourceConfigs['parent']['source'], $arrSourceConfigs['parent']);
-		}
-	}
-
-	/**
 	 * Check all post/get informations
 	 */
 	public function checkPostGet()
@@ -453,7 +282,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		// Form Submit check
 		switch ($_POST['FORM_SUBMIT'])
 		{
-			case $this->strTable:
+			case $this->getEnvironment()->getDataDefinition()->getName():
 				$this->blnSubmitted = true;
 				break;
 
@@ -482,7 +311,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 
 		// TODO: dependency injection.
 		$this->arrStates = \Session::getInstance()->get('fieldset_states');
-		$this->arrStates = (array) $this->arrStates[$this->strTable];
+		$this->arrStates = (array) $this->arrStates[$this->getEnvironment()->getDataDefinition()->getName()];
 	}
 
 	/* /////////////////////////////////////////////////////////////////////////
@@ -504,42 +333,18 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	 */
 	public function __get($name)
 	{
-		// TODO: we should get rid of all of this when finally dropping the final BC parts.
 		switch ($name)
 		{
-			// DataContainer overwrite
-			case 'id':
-				return $this->intId;
-
-			// DataContainer overwrite
 			case 'table':
-				return $this->strTable;
-
-			// DataContainer overwrite
-			case 'field':
-				return $this->strField;
-
-			// @overwrite DataContainer overwrite
-			case 'inputName':
-				return $this->strInputName;
-
-			// Return the current DCA
-			case 'DCA':
-			case 'arrDCA':
-			case 'configuration':
-			case 'config':
-				return $this->arrDCA;
-
-			// DataContainer overwrite
-			case 'palette':
-			case 'activeRecord':
-				throw new DcGeneralRuntimeException("Unsupported getter function for '$name' in DC_General.");
+				return $this->getEnvironment()->getDataDefinition()->getName();
 		}
-		// allow importing of objects in Contao 3.
-		if (version_compare(VERSION, '3.0', '>='))
-		{
-			return $this->arrObjects[$name];
-		}
+
+		throw new DcGeneralRuntimeException("Unsupported getter function for '$name' in DC_General.");
+	}
+
+	public function getDCA()
+	{
+		return $this->arrDCA;
 	}
 
 	public function updateDCA($arrDCA)
@@ -578,47 +383,17 @@ class DC_General extends \DataContainer implements DataContainerInterface
 
 	public function getName()
 	{
-		return $this->strTable;
-	}
-
-	/**
-	 * {@inheritdoc}
-	 *
-	 * @deprecated
-	 */
-	public function getDataProvider($strSource = null)
-	{
-		trigger_error('deprecated use of getDataProvider() - use getEnvironment()->getDataDriver() instead.');
-		return $this->getEnvironment()->getDataDriver($strSource);
+		return $this->getEnvironment()->getDataDefinition()->getName();
 	}
 
 	public function getEnvironment()
 	{
+		if (!$this->objEnvironment)
+		{
+			throw new DcGeneralRuntimeException('No Environment set.');
+		}
+
 		return $this->objEnvironment;
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getInputProvider()
-	{
-		return $this->getEnvironment()->getInputProvider();
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getDataDefinition()
-	{
-		return $this->getEnvironment()->getDataDefinition();
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getPanelInformation()
-	{
-		return $this->getEnvironment()->getPanelContainer();
 	}
 
 	public function getViewHandler()
@@ -626,29 +401,9 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		return $this->getEnvironment()->getView();
 	}
 
-	public function setViewHandler($objViewHandler)
-	{
-		$this->getEnvironment()->setView($objViewHandler);
-	}
-
-	/**
-	 * Get the callback class for this dc
-	 *
-	 * @deprecated
-	 */
-	public function getCallbackClass()
-	{
-		return $this->getEnvironment()->getCallbackHandler();
-	}
-
 	public function getControllerHandler()
 	{
-		return $this->objController;
-	}
-
-	public function setControllerHandler($objController)
-	{
-		$this->objController = $objController;
+		return $this->getEnvironment()->getController();
 	}
 
 	// Join Conditions & Co. ----------------
@@ -854,395 +609,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			}
 		}
 	}
-
-	// Basic vars ---------------------------
-
-	public function getId()
-	{
-		return $this->intId;
-	}
-
-	/**
-	 * @return array|null
-	 *
-	 * @deprecated Use getEnvironment()->getRootIds() instead.
-	 */
-	public function getRootIds()
-	{
-		trigger_error('deprecated use of getRootIds() - use getEnvironment()->getRootIds() instead.', E_USER_DEPRECATED);
-
-		return $this->getEnvironment()->getRootIds();
-	}
-
-	public function getTable()
-	{
-		return $this->strTable;
-	}
-
-	/**
-	 * @return string
-	 *
-	 * @deprecated
-	 */
-	public function getParentTable()
-	{
-		trigger_error('Use of deprecated getParentTable() - use getEnvironment()->getDataDefinition()->getParentDriverName() instead');
-		return $this->getDataDefinition()->getParentDriverName();
-	}
-
-	/**
-	 * Get name of child table
-	 *
-	 * @return string
-	 */
-	public function getChildTable()
-	{
-		return $this->strChildTable;
-	}
-
-	/**
-	 * Set the name of the child table
-	 *
-	 * @param string $strChildTable
-	 */
-	public function setChildTable($strChildTable)
-	{
-		$this->strChildTable = $strChildTable;
-	}
-
-	// Sorting ------------------------------
-
-	/**
-	 * Set the primary field for sorting
-	 *
-	 * @param string $strFirstSorting
-	 *
-	 * @param string $strSortingOrder
-	 */
-	public function setFirstSorting($strFirstSorting, $strSortingOrder = DCGE::MODEL_SORTING_ASC)
-	{
-		$this->strFirstSorting = $strFirstSorting;
-		$this->strFirstSortingOrder = $strSortingOrder;
-	}
-
-	/**
-	 * Get the primary field for sorting
-	 *
-	 * @return string
-	 */
-	public function getFirstSorting()
-	{
-		return $this->strFirstSorting;
-	}
-
-	/**
-	 * Get the order for the primary field of sorting
-	 *
-	 * @return string
-	 */
-	public function getFirstSortingOrder()
-	{
-		return $this->strFirstSortingOrder;
-	}
-
-	/**
-	 * Set the sorting fields
-	 *
-	 * @param array $arrSorting
-	 */
-	public function setSorting($arrSorting)
-	{
-		$this->arrSorting = $arrSorting;
-	}
-
-	/**
-	 * Get the sorting fields
-	 *
-	 * @return array
-	 */
-	public function getSorting()
-	{
-		return $this->arrSorting;
-	}
-
-	// Msc. ---------------------------------
-
-	public function getFilter()
-	{
-		return $this->arrFilter;
-	}
-
-	public function getLimit()
-	{
-		return $this->strLimit;
-	}
-
-	public function getDCA()
-	{
-		return $this->arrDCA;
-	}
-
-	public function isNoReload()
-	{
-		return $this->blnNoReload;
-	}
-
-	public function getInputs()
-	{
-		return $this->arrInputs;
-	}
-
-	public function getStates()
-	{
-		return $this->arrStates;
-	}
-
-	public function getButtonId()
-	{
-		return $this->strButtonId;
-	}
-
-	/**
-	 * @param $arrRootIds
-	 *
-	 * @deprecated use getEnvironment()->setRootIds() instead.
-	 */
-	public function setRootIds($arrRootIds)
-	{
-		trigger_error('deprecated use of setRootIds() - use getEnvironment()->setRootIds() instead.', E_USER_DEPRECATED);
-
-		$this->getEnvironment()->setRootIds($arrRootIds);
-	}
-
-	public function setFilter($arrFilter)
-	{
-		if (is_array($this->arrFilter))
-		{
-			$this->arrFilter = array_merge($this->arrFilter, $arrFilter);
-		}
-		else
-		{
-			$this->arrFilter = $arrFilter;
-		}
-	}
-
-	public function setButtonId($strButtonId)
-	{
-		$this->strButtonId = $strButtonId;
-	}
-
-	/**
-	 * Check if this DCA is editable
-	 *
-	 * @return boolean
-	 *
-	 * @deprecated Use getDataDefinition()->isEditable()
-	 */
-	public function isEditable()
-	{
-		return $this->getDataDefinition()->isEditable();
-	}
-
-	/**
-	 * Check if this DCA is closed
-	 *
-	 * @return boolean
-	 *
-	 * @deprecated Use getDataDefinition()->isClosed()
-	 */
-	public function isClosed()
-	{
-		return $this->getDataDefinition()->isClosed();
-	}
-
-	/**
-	 *
-	 * @return CollectionInterface
-	 *
-	 * @deprecated
-	 */
-	public function getCurrentCollecion()
-	{
-		trigger_error('do not use this method, it was a typo! - use getCurrentCollection() instead.', E_USER_DEPRECATED);
-		return $this->getCurrentCollection();
-	}
-
-	/**
-	 *
-	 * @return CollectionInterface
-	 *
-	 * @deprecated
-	 */
-	public function getCurrentCollection()
-	{
-		trigger_error('deprecated - use getEnvironment()->getCurrentCollection() instead.', E_USER_DEPRECATED);
-		return $this->getEnvironment()->getCurrentCollection();
-	}
-
-	/**
-	 *
-	 * @return CollectionInterface
-	 *
-	 * @deprecated
-	 */
-	public function getCurrentParentCollection()
-	{
-		trigger_error('deprecated us of getCurrentParentCollection - use getEnvironment()->getCurrentParentCollection() instead.', E_USER_DEPRECATED);
-		return $this->getEnvironment()->getCurrentParentCollection();
-	}
-
-	/**
-	 *
-	 * @return ModelInterface
-	 *
-	 * @deprecated
-	 */
-	public function getCurrentModel()
-	{
-		trigger_error('deprecated - use getEnvironment()->getCurrentModel() instead.', E_USER_DEPRECATED);
-		return $this->getEnvironment()->getCurrentModel();
-	}
-
-	/**
-	 *
-	 * @param CollectionInterface $objCurrentParentCollection
-	 *
-	 * @deprecated
-	 */
-	public function setCurrentParentCollection(CollectionInterface $objCurrentParentCollection)
-	{
-		trigger_error('deprecated us of setCurrentParentCollection - use getEnvironment()->setCurrentParentCollection() instead.', E_USER_DEPRECATED);
-		$this->getEnvironment()->setCurrentParentCollection($objCurrentParentCollection);
-	}
-
-	/**
-	 * @param CollectionInterface $objCurrentCollection
-	 *
-	 * @deprecated
-	 */
-	public function setCurrentCollecion(CollectionInterface $objCurrentCollection)
-	{
-		trigger_error('do not use this method, it was a typo! - use setCurrentCollection() instead.', E_USER_DEPRECATED);
-		$this->setCurrentCollection($objCurrentCollection);
-	}
-
-	/**
-	 *
-	 * @param CollectionInterface $objCurrentCollection
-	 *
-	 * @return void
-	 *
-	 * @deprecated
-	 */
-	public function setCurrentCollection(CollectionInterface $objCurrentCollection)
-	{
-		trigger_error('deprecated - use getEnvironment()->setCurrentCollection() instead.', E_USER_DEPRECATED);
-		$this->getEnvironment()->setCurrentCollection($objCurrentCollection);
-	}
-
-	/**
-	 *
-	 * @param ModelInterface $objCurrentModel
-	 *
-	 * @deprecated
-	 */
-	public function setCurrentModel(ModelInterface $objCurrentModel)
-	{
-		trigger_error('deprecated - use getEnvironment()->setCurrentModel() instead.', E_USER_DEPRECATED);
-		return $this->getEnvironment()->setCurrentModel($objCurrentModel);
-	}
-
-	/**
-	 * Return the Child DC
-	 * @return DC_General
-	 */
-	public function getChildDC()
-	{
-		return $this->objChildDC;
-	}
-
-	/**
-	 * Set the Child DC
-	 * @param DC_General $objChildDC
-	 */
-	public function setChildDC($objChildDC)
-	{
-		$this->objChildDC = $objChildDC;
-	}
-
-	/**
-	 * Check if we have editable fields
-	 *
-	 * @return boolean
-	 */
-	public function hasEditableFields()
-	{
-		return count($this->arrFields) != 0 ? true : false;
-	}
-
-	/**
-	 * True if we have a ubloadable widget
-	 *
-	 * @return boolean
-	 */
-	public function isUploadable()
-	{
-		return $this->blnUploadable;
-	}
-
-	/**
-	 * Get subpalettes definition
-	 *
-	 * @return array
-	 *
-	 * @deprecated use getEnvironment()->getDataDefinition()->getSubPalettes() instead.
-	 */
-	public function getSubpalettesDefinition()
-	{
-		trigger_error('deprecated use of getSubpalettesDefinition() - use getEnvironment()->getDataDefinition()->getSubPalettes() instead.');
-		// return is_array($this->arrDCA['subpalettes']) ? $this->arrDCA['subpalettes'] : array();
-		return $this->getEnvironment()->getDataDefinition()->getSubPalettes();
-	}
-
-	/**
-	 * Get palettes definition
-	 *
-	 * @return array
-	 *
-	 * @deprecated use getEnvironment()->getDataDefinition()->getPalettes() instead.
-	 */
-	public function getPalettesDefinition()
-	{
-		trigger_error('deprecated use of getPalettesDefinition() - use getEnvironment()->getDataDefinition()->getPalettes() instead.');
-		// return is_array($this->arrDCA['palettes']) ? $this->arrDCA['palettes'] : array();
-		return $this->getEnvironment()->getDataDefinition()->getPalettes();
-	}
-
-	/**
-	 * Get field definition
-	 *
-	 * @return array
-	 */
-	public function getFieldDefinition($strField)
-	{
-		return is_array($this->arrDCA['fields'][$strField]) ? $this->arrDCA['fields'][$strField] : null;
-	}
-
-	/**
-	 * Return a list with all fields
-	 *
-	 * @return array
-	 */
-	public function getFieldList()
-	{
-		return is_array($this->arrDCA['fields']) ? $this->arrDCA['fields'] : array();
-	}
-
-	/* /////////////////////////////////////////////////////////////////////////
-	 * -------------------------------------------------------------------------
-	 * Functions
-	 * -------------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////////// */
 
 	/* /////////////////////////////////////////////////////////////////////////
 	 * -------------------------------------------------------------------------
