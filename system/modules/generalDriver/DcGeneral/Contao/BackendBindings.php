@@ -44,6 +44,11 @@ if (version_compare(VERSION, '3.0', '<'))
 			parent::redirect($strLocation, $intStatus);
 		}
 
+		public function reload()
+		{
+			parent::reload();
+		}
+
 		public function addToUrl($strRequest)
 		{
 			return parent::addToUrl($strRequest);
@@ -132,6 +137,18 @@ class BackendBindings
 		else
 		{
 			BackendBindingInternal::getInstance()->redirect($strLocation, $intStatus);
+		}
+	}
+
+	public static function reload()
+	{
+		if (version_compare(VERSION, '3.1', '>='))
+		{
+			\Backend::reload();
+		}
+		else
+		{
+			BackendBindingInternal::getInstance()->reload();
 		}
 	}
 
