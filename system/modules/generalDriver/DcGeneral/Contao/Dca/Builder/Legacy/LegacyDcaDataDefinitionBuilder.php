@@ -13,6 +13,7 @@
 namespace DcGeneral\Contao\Dca\Builder\Legacy;
 
 use DcGeneral\Contao\Callbacks\ContainerOnDeleteCallbackListener;
+use DcGeneral\Contao\Callbacks\ContainerOnLoadCallbackListener;
 use DcGeneral\Contao\Callbacks\ContainerOnSubmitCallbackListener;
 use DcGeneral\Contao\Callbacks\StaticCallbackListener;
 use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
@@ -80,59 +81,61 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 */
 	protected function parseCallbacks(ContainerInterface $container, EventDispatcher $dispatcher)
 	{
-		if (isset($GLOBALS['objDcGeneral']) && ($value = $this->getFromDca('config/onload_callback')) !== null)
+		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/onload_callback')))
 		{
-			$dispatcher->addListener(
-				CreateDcGeneralEvent::NAME,
-				new StaticCallbackListener($value, $GLOBALS['objDcGeneral'])
-			);
+			foreach ($callbacks as $callback) {
+				$dispatcher->addListener(
+					CreateDcGeneralEvent::NAME,
+					new ContainerOnLoadCallbackListener($callback, $GLOBALS['objDcGeneral'])
+				);
+			}
 		}
 
-		if (isset($GLOBALS['objDcGeneral']) && ($value = $this->getFromDca('config/onsubmit_callback')) !== null)
+		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/onsubmit_callback')))
 		{
 			// TODO use the submit related event here
 			/*
-			$dispatcher->addListener(
-				CreateDcGeneralEvent::NAME,
-				new ContainerOnSubmitCallbackListener($value, $GLOBALS['objDcGeneral'])
-			);
+			foreach ($callbacks as $callback) {
+				$dispatcher->addListener(
+					CreateDcGeneralEvent::NAME,
+					new ContainerOnSubmitCallbackListener($callback, $GLOBALS['objDcGeneral'])
+				);
+			}
 			*/
 		}
 
-		if (isset($GLOBALS['objDcGeneral']) && ($value = $this->getFromDca('config/ondelete_callback')) !== null)
+		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/ondelete_callback')))
 		{
 			// TODO use the submit related event here
 			/*
-			$dispatcher->addListener(
-				CreateDcGeneralEvent::NAME,
-				new ContainerOnDeleteCallbackListener($value, $GLOBALS['objDcGeneral'])
-			);
+			foreach ($callbacks as $callback) {
+				$dispatcher->addListener(
+					CreateDcGeneralEvent::NAME,
+					new ContainerOnDeleteCallbackListener($callback, $GLOBALS['objDcGeneral'])
+				);
+			}
 			*/
 		}
 
 		/*
-		if (isset($GLOBALS['objDcGeneral']) && ($value = $this->getFromDca('config/onload_callback')) !== null)
+		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/oncut_callback')))
 		{
-			$dispatcher->addListener(
-				CreateDcGeneralEvent::NAME,
-				new StaticCallbackListener($value, $GLOBALS['objDcGeneral'])
-			);
+			foreach ($callbacks as $callback) {
+				$dispatcher->addListener(
+					CreateDcGeneralEvent::NAME,
+					new StaticCallbackListener($callback, $GLOBALS['objDcGeneral'])
+				);
+			}
 		}
 
-		if (isset($GLOBALS['objDcGeneral']) && ($value = $this->getFromDca('config/onload_callback')) !== null)
+		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/oncopy_callback')))
 		{
-			$dispatcher->addListener(
-				CreateDcGeneralEvent::NAME,
-				new StaticCallbackListener($value, $GLOBALS['objDcGeneral'])
-			);
-		}
-
-		if (isset($GLOBALS['objDcGeneral']) && ($value = $this->getFromDca('config/onload_callback')) !== null)
-		{
-			$dispatcher->addListener(
-				CreateDcGeneralEvent::NAME,
-				new StaticCallbackListener($value, $GLOBALS['objDcGeneral'])
-			);
+			foreach ($callbacks as $callback) {
+				$dispatcher->addListener(
+					CreateDcGeneralEvent::NAME,
+					new StaticCallbackListener($callback, $GLOBALS['objDcGeneral'])
+				);
+			}
 		}
 		*/
 	}
