@@ -28,6 +28,7 @@ use DcGeneral\Panel\SearchElementInterface;
 use DcGeneral\Panel\SortElementInterface;
 use DcGeneral\Panel\SubmitElementInterface;
 use DcGeneral\View\ContaoBackendViewTemplate;
+use DcGeneral\View\Event\RenderReadablePropertyValueEvent;
 use DcGeneral\View\Widget\ContaoWidgetManager;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetEditModeButtonsEvent;
@@ -976,7 +977,7 @@ class BaseView implements BackendViewInterface
 			}
 
 			// Make it human readable
-			$arrFieldValues[$strFieldName] = $this->getDC()->getReadableFieldValue($strFieldName, deserialize($this->getCurrentModel()->getProperty($strFieldName)));
+			$arrFieldValues[$strFieldName] = $this->getReadableFieldValue($strFieldName, deserialize($this->getCurrentModel()->getProperty($strFieldName)));
 
 			// Label
 			if (count($label))
@@ -1620,5 +1621,30 @@ class BaseView implements BackendViewInterface
 		}
 
 		return null;
+	}
+
+	/**
+	 * Get for a field the readable value
+	 *
+	 * @param PropertyInterface $property
+	 * @param ModelInterface $model
+	 * @param mixed $value
+	 *
+	 * @return mixed
+	 */
+	public function getReadableFieldValue(PropertyInterface $property, ModelInterface $model, $value)
+	{
+		$event = new RenderReadablePropertyValueEvent($this->getEnvironment(), $model, $property, $value);
+		$this->getEnvironment()->getEventPropagator()->propagate(
+			$event,
+			$this->getEnvironment()->getDataDefinition()->getName(),
+			$property->getName()
+		);
+
+		if ($event->getRendered() !== null) {
+			return $event->getRendered();
+		}
+
+		return $value;
 	}
 }
