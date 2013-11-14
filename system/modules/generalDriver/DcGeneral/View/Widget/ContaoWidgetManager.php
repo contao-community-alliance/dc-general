@@ -13,6 +13,8 @@
 namespace DcGeneral\View\Widget;
 
 use DcGeneral\Contao\BackendBindings;
+use DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
 use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\DataDefinition\Definition\Palette\PropertyInterface;
 use DcGeneral\EnvironmentInterface;
@@ -47,6 +49,40 @@ class ContaoWidgetManager implements WidgetManagerInterface
 	{
 		$this->environment = $environment;
 		$this->model       = $model;
+	}
+
+	public function encodeValue($property, $value)
+	{
+		$environment = $this->getEnvironment();
+
+		$event = new EncodePropertyValueFromWidgetEvent($environment);
+		$event
+			->setProperty($property)
+			->setValue($value);
+
+		$environment->getEventPropagator()->propagate($event, array(
+			$environment->getDataDefinition()->getName(),
+			$property
+		));
+
+		return $event->getValue();
+	}
+
+	public function decodeValue($property, $value)
+	{
+		$environment = $this->getEnvironment();
+
+		$event = new DecodePropertyValueForWidgetEvent($environment);
+		$event
+			->setProperty($property)
+			->setValue($value);
+
+		$environment->getEventPropagator()->propagate($event, array(
+			$environment->getDataDefinition()->getName(),
+			$property
+		));
+
+		return $event->getValue();
 	}
 
 	/**
@@ -201,21 +237,11 @@ class ContaoWidgetManager implements WidgetManagerInterface
 
 		$propInfo  = $propertyDefinitions->getProperty($property);
 		$propExtra = $propInfo->getExtra();
-
-		$varValue = deserialize($this->model->getProperty($property));
-
-		// TODO: pass into some event here.
-		$mixedValue = $this->getEnvironment()->getCallbackHandler()->loadCallback($property, $varValue);
-
-		if (!is_null($mixedValue))
-		{
-			$varValue = $mixedValue;
-		}
-
-		$xLabel = $this->getXLabel($propInfo);
+		$varValue  = $this->decodeValue($property, $this->model->getProperty($property));
+		$xLabel    = $this->getXLabel($propInfo);
 
 		// TODO: pass into some event here.
-		if (is_array($arrConfig['input_field_callback']))
+		if (is_array($propExtra['input_field_callback']))
 		{
 			$this->import($arrConfig['input_field_callback'][0]);
 			$objWidget = $this->{$arrConfig['input_field_callback'][0]}->{$arrConfig['input_field_callback'][1]}($this, $xLabel);
@@ -406,7 +432,7 @@ class ContaoWidgetManager implements WidgetManagerInterface
 		foreach (array_keys($propertyValues->getArrayCopy()) as $property)
 		{
 			$widget = $this->getWidget($property);
-			$widget->value = $propertyValues->getPropertyValue($property);
+			$widget->value = $this->decodeValue($property, $propertyValues->getPropertyValue($property));
 			$widget->validate();
 
 			if ($widget->hasErrors())
@@ -418,7 +444,7 @@ class ContaoWidgetManager implements WidgetManagerInterface
 			}
 			else
 			{
-				$propertyValues->setPropertyValue($property, $widget->value);
+				$propertyValues->setPropertyValue($property, $this->encodeValue($property, $widget->value));
 			}
 		}
 	}
