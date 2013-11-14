@@ -1543,179 +1543,83 @@ class DC_General extends \DataContainer implements DataContainerInterface
 	 * -------------------------------------------------------------------------
 	 * ////////////////////////////////////////////////////////////////////// */
 
+	/**
+	 * Delegate all calls directly to current view.
+	 */
 	public function __call($name, $arguments)
 	{
-		$strReturn = call_user_func_array(array($this->objController, $name), array_merge(array($this), $arguments));
-		if ($strReturn != null && $strReturn != "")
-		{
-			return $strReturn;
-		}
-
-		return call_user_func_array(array($this->getViewHandler(), $name), array_merge(array($this), $arguments));
+		return call_user_func_array(array($this->getViewHandler(), $name), $arguments);
 	}
 
-	public function paste()
-	{
-		return call_user_func_array(array($this->getViewHandler(), 'paste'), func_get_args());
-	}
-
-	public function generateAjaxPalette($strSelector)
-	{
-		$strReturn = $this->objController->generateAjaxPalette($strSelector);
-		if ($strReturn != null && $strReturn != "")
-		{
-			return $strReturn;
-		}
-
-		return $this->getViewHandler()->generateAjaxPalette($strSelector);
-	}
-
-	public function ajaxTreeView($intID, $intLevel)
-	{
-		return $this->getViewHandler()->ajaxTreeView($intID, $intLevel);
-
-		$strReturn = $this->objController->ajaxTreeView($intID, $intLevel);
-		if ($strReturn != null && $strReturn != "")
-		{
-			return $strReturn;
-		}
-
-		return $this->getViewHandler()->ajaxTreeView($intID, $intLevel);
-	}
-
+	/**
+	 * @deprecated Only here as requirement of \editable
+	 */
 	public function copy()
 	{
-		$strReturn = $this->objController->copy();
-		if ($strReturn != null && $strReturn != "")
-		{
-			return $strReturn;
-		}
-
 		return $this->getViewHandler()->copy();
 	}
 
+	/**
+	 * @deprecated Only here as requirement of \editable
+	 */
 	public function create()
 	{
-		// If forcemode true, use edit mode only.
-		if($this->blnForceEdit)
-		{
-			return $this->edit();
-		}
-
-		$strReturn = $this->objController->create();
-		if ($strReturn != null && $strReturn != "")
-		{
-			return $strReturn;
-		}
-
-		$strReturn = $GLOBALS['TL_CONFIG']['debugMode'] ? $this->setupTimer() : '';
-		return $strReturn . $this->getViewHandler()->create();
+		return $this->getViewHandler()->create();
 	}
 
+	/**
+	 * @deprecated Only here as requirement of \editable
+	 */
 	public function cut()
 	{
-		$strReturn = $this->objController->cut();
-		if ($strReturn != null && $strReturn != "")
-		{
-			return $strReturn;
-		}
-
 		return $this->getViewHandler()->cut();
 	}
 
+	/**
+	 * @deprecated Only here as requirement of \listable
+	 */
 	public function delete()
 	{
-		$strReturn = $this->objController->delete();
-		if ($strReturn != null && $strReturn != "")
-		{
-			return $strReturn;
-		}
-
 		return $this->getViewHandler()->delete();
 	}
 
+	/**
+	 * @deprecated Only here as requirement of \editable
+	 */
 	public function edit()
 	{
 		return $this->getViewHandler()->edit();
-
-		$strReturn = $this->objController->edit();
-		if ($strReturn != null && $strReturn != "")
-		{
-			return $strReturn;
-		}
-
-		$strReturn = $GLOBALS['TL_CONFIG']['debugMode'] ? $this->setupTimer() : '';
-		return $strReturn . $this->getViewHandler()->edit();
 	}
 
+	/**
+	 * @deprecated Only here as requirement of \editable
+	 */
 	public function move()
 	{
-		$strReturn = $this->objController->move();
-		if ($strReturn != null && $strReturn != "")
-		{
-			return $strReturn;
-		}
-
 		return $this->getViewHandler()->move();
 	}
 
+	/**
+	 * @deprecated Only here as requirement of \listable
+	 */
 	public function show()
 	{
-		// If forcemode true, use edit mode only.
-		if($this->blnForceEdit)
-		{
-			return $this->edit();
-		}
-
-		$strReturn = $this->objController->show();
-		if ($strReturn != null && $strReturn != "")
-		{
-			return $strReturn;
-		}
-
-		$strReturn = $GLOBALS['TL_CONFIG']['debugMode'] ? $this->setupTimer() : '';
-		return $strReturn . $this->getViewHandler()->show();
+		return $this->getViewHandler()->show();
 	}
 
+	/**
+	 * @deprecated Only here as requirement of \listable
+	 */
 	public function showAll()
 	{
-		// If force edit mode true, use edit mode only.
-		if($this->blnForceEdit)
-		{
-			return $this->edit();
-		}
-
-		return $this->getEnvironment()->getView()->showAll();
+		return $this->getViewHandler()->showAll();
 	}
 
+	/**
+	 * @deprecated Only here as requirement of \listable
+	 */
 	public function undo()
 	{
-		$strReturn = $this->getControllerHandler()->undo();
-		if ($strReturn != null && $strReturn != "")
-		{
-			return $strReturn;
-		}
-
 		return $this->getViewHandler()->undo();
 	}
-
-	protected function setupTimer()
-	{
-		if (version_compare(VERSION, '3.1', '>='))
-		{
-			$query_count = count($GLOBALS['TL_DEBUG']['database_queries']);
-		}
-		else
-		{
-			$query_count = $GLOBALS['TL_DEBUG'];
-		}
-
-		return sprintf(
-			'<div style="padding:5px; border:1px solid gray; margin:7px;"> Runtime: %s Sec. - Queries: %s - Mem: %s</div>',
-			number_format((microtime(true) - $this->intTimerStart), 4),
-			$query_count - $this->intQueryCount,
-			$this->getReadableSize(memory_get_peak_usage(true))
-		);
-	}
-
 }
