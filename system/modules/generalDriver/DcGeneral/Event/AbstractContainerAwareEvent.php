@@ -17,7 +17,7 @@ use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\EnvironmentInterface;
 use Symfony\Component\EventDispatcher\Event;
 
-class ContainerAwareEvent
+abstract class AbstractContainerAwareEvent
 	extends Event
 	implements ContainerAwareInterface
 {
@@ -34,8 +34,6 @@ class ContainerAwareEvent
 	public function __construct(ContainerInterface $container)
 	{
 		$this->container = $container;
-
-		return $this;
 	}
 
 	/**

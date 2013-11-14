@@ -20,12 +20,12 @@ use DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterfa
 use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
 use DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
 use DcGeneral\EnvironmentInterface;
-use DcGeneral\Event\ContainerAwareEvent;
+use DcGeneral\Event\AbstractContainerAwareEvent;
 use DcGeneral\Event\EnvironmentAwareEvent;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 
-abstract class BuilderEvent extends ContainerAwareEvent
+abstract class BuilderEvent extends AbstractContainerAwareEvent
 {
 	/**
 	 * @var PaletteBuilder
