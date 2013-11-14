@@ -248,6 +248,7 @@ class ContaoWidgetManager implements WidgetManagerInterface
 				$propInfo->getLabel(),
 				$propInfo->getDescription()
 			),
+			'options' => $propInfo->getOptions(),
 			'eval' => $propExtra,
 			// TODO: populate these.
 			// 'options_callback' => null,
