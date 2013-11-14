@@ -126,7 +126,11 @@ class DefaultModel extends AbstractModel
 	 */
 	public function setProperty($strPropertyName, $varValue)
 	{
-		$this->arrProperties[$strPropertyName] = $varValue;
+		if ($varValue !== $this->arrProperties[$strPropertyName])
+		{
+			$this->setMeta(DCGE::MODEL_IS_CHANGED, true);
+			$this->arrProperties[$strPropertyName] = $varValue;
+		}
 	}
 
 	/**
@@ -145,7 +149,10 @@ class DefaultModel extends AbstractModel
 				unset($arrProperties["id"]);
 			}
 
-			$this->arrProperties = $arrProperties;
+			foreach ($arrProperties as $strPropertyName => $varValue)
+			{
+				$this->setProperty($strPropertyName, $varValue);
+			}
 		}
 	}
 
