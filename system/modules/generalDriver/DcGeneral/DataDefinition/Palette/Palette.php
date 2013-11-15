@@ -15,6 +15,7 @@ namespace DcGeneral\DataDefinition\Palette;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionInterface;
+use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -98,10 +99,10 @@ class Palette implements PaletteInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function addLegends(array $legends)
+	public function addLegends(array $legends, LegendInterface $before = null)
 	{
 		foreach ($legends as $legend) {
-			$this->addLegend($legend);
+			$this->addLegend($legend, $before);
 		}
 		return $this;
 	}
@@ -132,10 +133,30 @@ class Palette implements PaletteInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function addLegend(LegendInterface $legend)
+	public function addLegend(LegendInterface $legend, LegendInterface $before = null)
 	{
 		$hash = spl_object_hash($legend);
-		$this->legends[$hash] = $legend;
+
+		if ($before) {
+			$beforeHash = spl_object_hash($before);
+
+			if (isset($this->legends[$beforeHash])) {
+				$hashes = array_keys($this->legends);
+				$position = array_search($beforeHash, $hashes);
+				$this->legends = array_merge(
+					array_slice($this->legends, 0, $position),
+					array($hash => $legend),
+					array_slice($this->legends, $position)
+				);
+			}
+			else {
+				throw new DcGeneralInvalidArgumentException('Legend ' . $before->getName() . ' not found');
+			}
+		}
+		else {
+			$this->legends[$hash] = $legend;
+		}
+
 		$legend->setPalette($this);
 		return $this;
 	}

@@ -70,10 +70,11 @@ interface PaletteInterface
 	 * Add all legends to this palette.
 	 *
 	 * @param array|LegendInterface[] $legends
+	 * @param LegendInterface $before
 	 *
 	 * @return PaletteInterface
 	 */
-	public function addLegends(array $legends);
+	public function addLegends(array $legends, LegendInterface $before = null);
 
 	/**
 	 * Determine if a legend with the given name exists in this palette.
@@ -96,11 +97,12 @@ interface PaletteInterface
 	/**
 	 * Add a legend to this palette.
 	 *
-	 * @param array|LegendInterface[] $legend
+	 * @param LegendInterface $legend
+	 * @param LegendInterface $before
 	 *
 	 * @return PaletteInterface
 	 */
-	public function addLegend(LegendInterface $legend);
+	public function addLegend(LegendInterface $legend, LegendInterface $before = null);
 
 	/**
 	 * Remove a legend from this palette.
