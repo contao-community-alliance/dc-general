@@ -152,13 +152,14 @@ class ParentView extends BaseView
 				$objModel->setMeta(DCGE::MODEL_BUTTONS, $buttons);
 			}
 
-			$event = new ParentViewChildRecordEvent();
+			$event = new ParentViewChildRecordEvent($this->getEnvironment());
+			$event->setModel($objModel);
 
-			$event
-				->setEnvironment($this->getEnvironment())
-				->setModel($objModel);
-
-			$this->dispatchEvent(ParentViewChildRecordEvent::NAME, $event);
+			$this->getEnvironment()->getEventPropagator()->propagate(
+				$event,
+				$this->getEnvironment()->getDataDefinition()->getName(),
+				$objModel->getId()
+			);
 
 			if ($event->getHtml() !== null)
 			{
