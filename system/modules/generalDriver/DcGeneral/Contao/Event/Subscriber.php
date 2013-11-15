@@ -28,7 +28,6 @@ class Subscriber
 		return array
 		(
 			GetGlobalButtonEvent::NAME       => 'GetGlobalButton',
-			GetGlobalButtonsEvent::NAME      => 'GetGlobalButtons',
 			GetOperationButtonEvent::NAME    => 'GetOperationButton',
 
 			GetGroupHeaderEvent::NAME        => 'GetGroupHeader',
@@ -68,12 +67,6 @@ class Subscriber
 
 			return;
 		}
-	}
-
-
-	public function GetGlobalButtons(GetGlobalButtonsEvent $event)
-	{
-		// TODO: there was no callback in Contao for this event. We might want to add it?
 	}
 
 	/**
