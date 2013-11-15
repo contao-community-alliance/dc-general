@@ -277,43 +277,43 @@ class DefaultController implements ControllerInterface
 	/**
 	 * @param mixed $idParent
 	 *
-	 * @param ConfigInterface $objConfig
+	 * @param ConfigInterface $config
 	 *
 	 * @return \DcGeneral\Data\ConfigInterface
 	 */
-	protected function addParentFilter($idParent, $objConfig)
+	protected function addParentFilter($idParent, $config)
 	{
 		// Setup
-		$objCurrentDataProvider = $this->getEnvironment()->getDataProvider();
-		$objParentDataProvider  = $this->getEnvironment()->getDataProvider($this->getEnvironment()->getDataDefinition()->getParentDriverName());
+		$environment        = $this->getEnvironment();
+		$definition         = $environment->getDataDefinition();
+		$providerName       = $definition->getBasicDefinition()->getDataProvider();
+		$parentProviderName = $definition->getBasicDefinition()->getParentDataProvider();
+		$parentProvider     = $environment->getDataProvider($parentProviderName);
 
-		if ($objParentDataProvider)
+		if ($parentProvider)
 		{
-			$objParent = $objParentDataProvider->fetch($objParentDataProvider->getEmptyConfig()->setId($idParent));
+			$objParent = $parentProvider->fetch($parentProvider->getEmptyConfig()->setId($idParent));
 
-			$objCondition = $this->getEnvironment()->getDataDefinition()->getChildCondition(
-				$objParentDataProvider->getEmptyModel()->getProviderName(),
-				$objCurrentDataProvider->getEmptyModel()->getProviderName()
-			);
+			$condition = $definition->getModelRelationshipDefinition()->getChildCondition($parentProviderName, $providerName);
 
-			if ($objCondition)
+			if ($condition)
 			{
-				$arrBaseFilter = $objConfig->getFilter();
-				$arrFilter     = $objCondition->getFilter($objParent);
+				$arrBaseFilter = $config->getFilter();
+				$arrFilter     = $condition->getFilter($objParent);
 
 				if ($arrBaseFilter)
 				{
 					$arrFilter = array_merge($arrBaseFilter, $arrFilter);
 				}
 
-				$objConfig->setFilter(array(array(
+				$config->setFilter(array(array(
 					'operation' => 'AND',
 					'children'    => $arrFilter,
 				)));
 			}
 		}
 
-		return $objConfig;
+		return $config;
 	}
 
 	/**
