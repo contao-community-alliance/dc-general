@@ -1139,12 +1139,13 @@ class BaseView implements BackendViewInterface
 	 */
 	protected function generateHeaderButtons($strButtonId)
 	{
-		$environment      = $this->getEnvironment();
-		$definition       = $environment->getDataDefinition();
-		$listingConfig    = $this->getViewSection()->getListingConfig();
-		$providerName     = $environment->getDataDefinition()->getName();
-		$arrReturn        = array();
-		$globalOperations = $this->getViewSection()->getGlobalCommands();
+		$environment        = $this->getEnvironment();
+		$definition         = $environment->getDataDefinition();
+		$listingConfig      = $this->getViewSection()->getListingConfig();
+		$providerName       = $environment->getDataDefinition()->getName();
+		$parentProviderName = $environment->getDataDefinition()->getName();
+		$arrReturn          = array();
+		$globalOperations   = $this->getViewSection()->getGlobalCommands();
 
 
 		if (!is_array($globalOperations))
@@ -1181,13 +1182,13 @@ class BaseView implements BackendViewInterface
 				case BasicDefinitionInterface::MODE_FLAT:
 					// Add new button
 					$strHref = '';
-					if (strlen($basicDefinition->getParentDataProvider()))
+					if (strlen($parentProviderName))
 					{
 						if ($listingConfig->getSortingMode() < 4)
 						{
 							$strHref = '&amp;mode=2';
 						}
-						$strHref = BackendBindings::addToUrl($strHref . '&amp;id=&amp;act=create&amp;pid=' . $this->getDC()->getId());
+						$strHref = BackendBindings::addToUrl($strHref . '&amp;id=&amp;act=create&amp;pid=' . $environment->getInputProvider()->getParameter('id'));
 					}
 					else
 					{
@@ -1199,20 +1200,8 @@ class BaseView implements BackendViewInterface
 
 				case BasicDefinitionInterface::MODE_HIERARCHICAL:
 				case BasicDefinitionInterface::MODE_PARENTEDLIST:
-					// Add new button
-					$strCDP = $this->getEnvironment()->getDataDriver()->getEmptyModel()->getProviderName();
-
-					if ($this->getEnvironment()->getDataDefinition()->getParentDriverName() != null)
-					{
-						$strPDP = $this->getEnvironment()->getDataDriver($this->getEnvironment()->getDataDefinition()->getParentDriverName())->getEmptyModel()->getProviderName();
-					}
-					else
-					{
-						$strPDP = null;
-					}
-
-					$strHref   = BackendBindings::addToUrl(sprintf('act=paste&amp;mode=create&amp;cdp=%s&amp;pdp=%s', $strCDP, $strPDP));
-					$addButton = !($this->getDataDefinition()->isClosed() || $this->getEnvironment()->getClipboard()->isNotEmpty());
+					$strHref   = BackendBindings::addToUrl(sprintf('act=paste&amp;mode=create&amp;cdp=%s&amp;pdp=%s', $providerName, $parentProviderName));
+					$addButton = !($definition->getBasicDefinition()->isClosed() || $environment->getClipboard()->isNotEmpty());
 
 					break;
 			}
@@ -1256,7 +1245,7 @@ class BaseView implements BackendViewInterface
 		}
 
 		// Add back button
-		if ($this->isSelectModeActive() || $basicDefinition->getParentDataProvider())
+		if ($this->isSelectModeActive() || $parentProviderName)
 		{
 			$globalOperations = array_merge(
 				array(
@@ -1264,7 +1253,7 @@ class BaseView implements BackendViewInterface
 					(
 						'class'      => 'header_back',
 						'accesskey'  => 'b',
-						'href'       => BackendBindings::getReferer(true, $this->getEnvironment()->getDataDefinition()->getParentDriverName()),
+						'href'       => BackendBindings::getReferer(true, $parentProviderName),
 						'attributes' => 'onclick="Backend.getScrollOffset();"',
 						'title'      => $this->translate('backBT', 'MSC'),
 						'label'      => $this->translate('backBT', 'MSC')
