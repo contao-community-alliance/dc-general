@@ -20,6 +20,7 @@ use DcGeneral\Contao\Callback\ContainerOnSubmitCallbackListener;
 use DcGeneral\Contao\Callback\ContainerPasteRootButtonCallbackListener;
 use DcGeneral\Contao\Callback\ModelChildRecordCallbackListener;
 use DcGeneral\Contao\Callback\ModelGroupCallbackListener;
+use DcGeneral\Contao\Callback\ModelLabelCallbackListener;
 use DcGeneral\Contao\Callback\StaticCallbackListener;
 use DcGeneral\Contao\Callback\PropertyOnLoadCallbackListener;
 use DcGeneral\Contao\Callback\PropertyOnSaveCallbackListener;
@@ -173,6 +174,14 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			$dispatcher->addListener(
 				sprintf('%s[%s]', FormatGroupLabelEvent::NAME, $container->getName()),
 				new ModelGroupCallbackListener($callback)
+			);
+		}
+
+		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/label/label_callback'))
+		{
+			$dispatcher->addListener(
+				sprintf('%s[%s]', FormatGroupLabelEvent::NAME, $container->getName()),
+				new ModelLabelCallbackListener($callback, $GLOBALS['objDcGeneral'])
 			);
 		}
 

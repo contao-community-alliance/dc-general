@@ -14,7 +14,6 @@ use DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonsEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
-use DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 
 /**
  * Class Subscriber - gateway to the legacy Contao HOOK style callbacks.
@@ -32,7 +31,6 @@ class Subscriber
 			GetGlobalButtonsEvent::NAME      => 'GetGlobalButtons',
 			GetOperationButtonEvent::NAME    => 'GetOperationButton',
 
-			ModelToLabelEvent::NAME          => 'ModelToLabel',
 			GetGroupHeaderEvent::NAME        => 'GetGroupHeader',
 			GetParentHeaderEvent::NAME       => 'GetParentHeader',
 
@@ -114,28 +112,6 @@ class Subscriber
 				->stopPropagation();
 
 			return;
-		}
-	}
-
-	/**
-	 * Triggers the labelCallback() of the registered callback handler in the environment.
-	 *
-	 * @param ModelToLabelEvent $event
-	 */
-	public function ModelToLabel(ModelToLabelEvent $event)
-	{
-		// Call label callback
-		$mixedArgs = $event->getEnvironment()
-			->getCallbackHandler()->labelCallback(
-				$event->getModel(),
-				$event->getLabel(),
-				$event->getListLabel(),
-				$event->getArgs()
-			);
-
-		if ($mixedArgs)
-		{
-			$event->setArgs($mixedArgs);
 		}
 	}
 
