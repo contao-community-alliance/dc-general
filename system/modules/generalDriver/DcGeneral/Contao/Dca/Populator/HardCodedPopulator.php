@@ -5,7 +5,6 @@ namespace DcGeneral\Contao\Dca\Populator;
 use DcGeneral\Callbacks\ContaoStyleCallbacks;
 use DcGeneral\Clipboard\DefaultClipboard;
 use DcGeneral\Contao\InputProvider;
-use DcGeneral\Contao\LangArrayTranslator;
 use DcGeneral\Controller\DefaultController;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\EnvironmentPopulator\AbstractEventDrivenEnvironmentPopulator;
@@ -81,11 +80,6 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
 		if (!$environment->getClipboard())
 		{
 			$environment->setClipboard(new DefaultClipboard());
-		}
-
-		if (!$environment->getTranslator())
-		{
-			$environment->setTranslator(new LangArrayTranslator());
 		}
 
 		$this->populateCallback($environment);

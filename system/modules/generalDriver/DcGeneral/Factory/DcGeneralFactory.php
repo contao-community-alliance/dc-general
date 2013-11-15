@@ -19,6 +19,7 @@ use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use DcGeneral\Factory\Event\CreateDcGeneralEvent;
 use DcGeneral\Factory\Event\PopulateEnvironmentEvent;
+use DcGeneral\TranslatorInterface;
 
 class DcGeneralFactory implements DcGeneralFactoryInterface
 {
@@ -34,6 +35,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	{
 		$factory = new DcGeneralFactory();
 		$factory->setEventPropagator($environment->getEventPropagator());
+		$factory->setTranslator($environment->getTranslator());
 		$factory->setEnvironmentClassName(get_class($environment));
 		$factory->setContainerClassName(get_class($environment->getDataDefinition()));
 		return $factory;
@@ -78,6 +80,11 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	 * @var EventPropagatorInterface
 	 */
 	protected $eventPropagator = null;
+
+	/**
+	 * @var TranslatorInterface
+	 */
+	protected $translator = null;
 
 	/**
 	 * @var EnvironmentInterface
@@ -177,6 +184,23 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	/**
 	 * {@inheritdoc}
 	 */
+	public function setTranslator(TranslatorInterface $translator)
+	{
+		$this->translator = $translator;
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getTranslator()
+	{
+		return $this->translator;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
 	public function setEnvironment(EnvironmentInterface $environment = null)
 	{
 		$this->environment = $environment;
@@ -253,6 +277,10 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 			throw new DcGeneralRuntimeException('Required event propagator is missing');
 		}
 
+		if (empty($this->translator)) {
+			throw new DcGeneralRuntimeException('Required translator is missing');
+		}
+
 		if ($this->dataContainer) {
 			$dataContainer = $this->dataContainer;
 		}
@@ -266,6 +294,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 		$environment = $environmentClass->newInstance();
 		$environment->setDataDefinition($dataContainer);
 		$environment->setEventPropagator($this->eventPropagator);
+		$environment->setTranslator($this->translator);
 
 		$event = new PopulateEnvironmentEvent($environment);
 		$this->eventPropagator->propagate($event, array($this->containerName));

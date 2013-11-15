@@ -15,6 +15,7 @@ use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\DcGeneral;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Event\EventPropagatorInterface;
+use DcGeneral\TranslatorInterface;
 
 interface DcGeneralFactoryInterface
 {
@@ -67,6 +68,16 @@ interface DcGeneralFactoryInterface
 	 * @return EventPropagatorInterface
 	 */
 	public function getEventPropagator();
+
+	/**
+	 * @param TranslatorInterface $translator
+	 */
+	public function setTranslator(TranslatorInterface $translator);
+
+	/**
+	 * @return TranslatorInterface
+	 */
+	public function getTranslator();
 
 	/**
 	 * @param EnvironmentInterface $environment

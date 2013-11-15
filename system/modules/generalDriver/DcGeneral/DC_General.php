@@ -12,6 +12,7 @@
 namespace DcGeneral;
 
 use CyberSpectrum\ContaoDebugger\Debugger;
+use DcGeneral\Contao\LangArrayTranslator;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Event\EventPropagator;
 use DcGeneral\Exception\DcGeneralRuntimeException;
@@ -139,6 +140,9 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		$dispatcher = $container['event-dispatcher'];
 		$propagator = new EventPropagator($dispatcher);
 
+		// TODO support additional translators
+		$translator = new LangArrayTranslator();
+
 		$factory = new DcGeneralFactory();
 		// FIXME: transporting the current instance via $GLOBALS is needed to tell the callback handler about this class.
 		// We definitely want to get rid of this again when dropping all the callback handlers. See also: ExtendedLegacyDcaPopulator::populateCallback()
@@ -146,6 +150,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		$dcGeneral = $factory
 			->setContainerName($strTable)
 			->setEventPropagator($propagator)
+			->setTranslator($translator)
 			->createDcGeneral();
 		unset($GLOBALS['objDcGeneral']);
 		$dispatcher->removeListener(PopulateEnvironmentEvent::NAME, array($this, 'handlePopulateEnvironment'));
