@@ -64,13 +64,17 @@ class ListView extends BaseView
 	{
 		$arrTableHead = array();
 		$definition   = $this->getEnvironment()->getDataDefinition();
+		$properties   = $definition->getPropertiesDefinition();
+		/** @var Contao2BackendViewDefinitionInterface $viewDefinition */
+		$viewDefinition    = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+		$listingDefinition = $viewDefinition->getListingConfig();
 
 		// Generate the table header if the "show columns" option is active.
-		if (false) // TODO refactore $definition->getListLabel()->isShowColumnsActive())
+		if ($listingDefinition->getShowColumns())
 		{
-			foreach ($definition->getPropertyNames() as $f)
+			foreach ($properties->getPropertyNames() as $f)
 			{
-				$property = $definition->getProperty($f);
+				$property = $properties->getProperty($f);
 				if ($property)
 				{
 					$label = $property->getLabel();
@@ -81,7 +85,8 @@ class ListView extends BaseView
 				}
 
 				$arrTableHead[] = array(
-					'class' => 'tl_folder_tlist col_' . $f . ((in_array($f, $definition->getAdditionalSorting())) ? ' ordered_by' : ''),
+					// FIXME: getAdditionalSorting() unimplemented
+					'class' => 'tl_folder_tlist col_' /* . $f . ((in_array($f, $definition->getAdditionalSorting())) ? ' ordered_by' : '') */,
 					'content' => $label[0]
 				);
 			}
