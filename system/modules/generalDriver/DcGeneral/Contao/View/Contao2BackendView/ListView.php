@@ -13,6 +13,7 @@
 namespace DcGeneral\Contao\View\Contao2BackendView;
 
 use DcGeneral\Contao\BackendBindings;
+use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
@@ -25,7 +26,7 @@ class ListView extends BaseView
 	/**
 	 * Load the collection of child items and the parent item for the currently selected parent item.
 	 *
-	 * @return ListView
+	 * @return CollectionInterface
 	 *
 	 * @throws DcGeneralRuntimeException
 	 */
@@ -41,8 +42,6 @@ class ListView extends BaseView
 
 		$objCollection = $objCurrentDataProvider->fetchAll($objConfig);
 
-		$environment->setCurrentCollection($objCollection);
-
 		// If we want to group the elements, do so now.
 		if (isset($objCondition) && ($this->getViewSection()->getListingConfig()->getGroupingMode() == ListingConfigInterface::GROUP_CHAR))
 		{
@@ -57,6 +56,8 @@ class ListView extends BaseView
 				$objModel->setMeta(DCGE::MODEL_PID, $objParent->getId());
 			}
 		}
+
+		return $objCollection;
 	}
 
 	protected function getTableHead()
@@ -194,9 +195,11 @@ class ListView extends BaseView
 	}
 
 	/**
-	 * Set label for list view
+	 * Set label for list view.
+	 *
+	 * @param CollectionInterface $collection
 	 */
-	protected function setListViewLabel()
+	protected function setListViewLabel($collection)
 	{
 		$definition   = $this->getEnvironment()->getDataDefinition();
 		$view = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
@@ -220,7 +223,7 @@ class ListView extends BaseView
 		$groupclass = 'tl_folder_tlist';
 		$eoCount = -1;
 
-		foreach ($this->getCurrentCollection() as $objModelRow)
+		foreach ($collection as $objModelRow)
 		{
 			/** @var \DcGeneral\Data\ModelInterface $objModelRow */
 
@@ -347,9 +350,11 @@ class ListView extends BaseView
 	/**
 	 * Generate list view from current collection
 	 *
+	 * @param CollectionInterface $collection
+	 *
 	 * @return string
 	 */
-	protected function viewList()
+	protected function viewList($collection)
 	{
 		$environment = $this->getEnvironment();
 		$definition  = $environment->getDataDefinition();
@@ -358,10 +363,9 @@ class ListView extends BaseView
 		$listing     = $view->getListingConfig();
 
 		// Set label
-		$this->setListViewLabel();
+		$this->setListViewLabel($collection);
 
 		// Generate buttons
-		$collection = $this->getCurrentCollection();
 		foreach ($collection as $i => $objModel)
 		{
 			// Regular buttons - only if not in select mode!
@@ -411,7 +415,7 @@ class ListView extends BaseView
 
 		$this
 			->addToTemplate('tableName', strlen($definition->getName())? $definition->getName() : 'none', $objTemplate)
-			->addToTemplate('collection', $this->getCurrentCollection(), $objTemplate)
+			->addToTemplate('collection', $collection, $objTemplate)
 			->addToTemplate('select', $this->getEnvironment()->getInputProvider()->getParameter('act'), $objTemplate)
 			->addToTemplate('action', ampersand(\Environment::getInstance()->request, true), $objTemplate)
 			->addToTemplate('mode', $listing->getSortingMode(), $objTemplate)
@@ -448,12 +452,12 @@ class ListView extends BaseView
 	public function showAll()
 	{
 		$this->checkClipboard();
-		$this->loadCollection();
+		$collection = $this->loadCollection();
 
 		$arrReturn            = array();
 		$arrReturn['panel']   = $this->panel();
 		$arrReturn['buttons'] = $this->generateHeaderButtons('tl_buttons_a');
-		$arrReturn['body']    = $this->viewList();
+		$arrReturn['body']    = $this->viewList($collection);
 
 		// Return all
 		return implode("\n", $arrReturn);
