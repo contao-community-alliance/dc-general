@@ -141,25 +141,27 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			}
 		}
 
-		foreach ($this->getFromDca('fields') as $propName => $propInfo)
-		{
-			if (isset($propInfo['load_callback']))
+		if (isset($GLOBALS['objDcGeneral'])) {
+			foreach ($this->getFromDca('fields') as $propName => $propInfo)
 			{
-				foreach ($propInfo['load_callback'] as $callback) {
-					$dispatcher->addListener(
-						DecodePropertyValueForWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
-						new PropertyOnLoadCallbackListener($callback, $GLOBALS['objDcGeneral'])
-					);
+				if (isset($propInfo['load_callback']))
+				{
+					foreach ($propInfo['load_callback'] as $callback) {
+						$dispatcher->addListener(
+							DecodePropertyValueForWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
+							new PropertyOnLoadCallbackListener($callback, $GLOBALS['objDcGeneral'])
+						);
+					}
 				}
-			}
 
-			if (isset($propInfo['save_callback']))
-			{
-				foreach ($propInfo['save_callback'] as $callback) {
-					$dispatcher->addListener(
-						EncodePropertyValueFromWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
-						new PropertyOnSaveCallbackListener($callback, $GLOBALS['objDcGeneral'])
-					);
+				if (isset($propInfo['save_callback']))
+				{
+					foreach ($propInfo['save_callback'] as $callback) {
+						$dispatcher->addListener(
+							EncodePropertyValueFromWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
+							new PropertyOnSaveCallbackListener($callback, $GLOBALS['objDcGeneral'])
+						);
+					}
 				}
 			}
 		}
