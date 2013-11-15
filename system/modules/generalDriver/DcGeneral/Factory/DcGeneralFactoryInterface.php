@@ -89,16 +89,24 @@ interface DcGeneralFactoryInterface
 	public function getDataContainer();
 
 	/**
+	 * Create a new instance of DcGeneral.
+	 * If no environment is given, a new one is created.
+	 *
 	 * @return DcGeneral
 	 */
 	public function createDcGeneral();
 
 	/**
+	 * Create a new instance of Environment.
+	 * If no container is given, a new one is created.
+	 *
 	 * @return EnvironmentInterface
 	 */
 	public function createEnvironment();
 
 	/**
+	 * Create a new instance of Container.
+	 *
 	 * @return ContainerInterface
 	 */
 	public function createContainer();

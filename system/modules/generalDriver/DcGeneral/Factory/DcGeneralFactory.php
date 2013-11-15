@@ -14,7 +14,6 @@ namespace DcGeneral\Factory;
 
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\EnvironmentInterface;
-use DcGeneral\Event\EventPropagator;
 use DcGeneral\Event\EventPropagatorInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
@@ -35,6 +34,8 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	{
 		$factory = new DcGeneralFactory();
 		$factory->setEventPropagator($environment->getEventPropagator());
+		$factory->setEnvironmentClassName(get_class($environment));
+		$factory->setContainerClassName(get_class($environment->getDataDefinition()));
 		return $factory;
 	}
 
@@ -212,8 +213,6 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	 */
 	public function createDcGeneral()
 	{
-		global $container;
-
 		if (empty($this->containerName) && !$this->dataContainer) {
 			throw new DcGeneralRuntimeException('Required container name or container is missing');
 		}
@@ -242,12 +241,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	}
 
 	/**
-	 *
-	 * @param ContainerInterface                        $dataContainer
-	 *
-	 * @param \DcGeneral\Event\EventPropagatorInterface $propagator
-	 *
-	 * @return EnvironmentInterface
+	 * {@inheritdoc}
 	 */
 	public function createEnvironment()
 	{
@@ -280,9 +274,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	}
 
 	/**
-	 * @param \DcGeneral\Event\EventPropagatorInterface $propagator
-	 *
-	 * @return ContainerInterface
+	 * {@inheritdoc}
 	 */
 	public function createContainer()
 	{
