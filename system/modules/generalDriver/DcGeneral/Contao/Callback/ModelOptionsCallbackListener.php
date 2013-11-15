@@ -13,6 +13,7 @@
 namespace DcGeneral\Contao\Callback;
 
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
+use DcGeneral\DC_General;
 
 class ModelOptionsCallbackListener extends AbstractReturningCallbackListener
 {
