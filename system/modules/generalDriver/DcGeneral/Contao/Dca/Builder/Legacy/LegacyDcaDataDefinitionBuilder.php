@@ -12,10 +12,12 @@
 
 namespace DcGeneral\Contao\Dca\Builder\Legacy;
 
-use DcGeneral\Contao\Callbacks\ContainerOnDeleteCallbackListener;
-use DcGeneral\Contao\Callbacks\ContainerOnLoadCallbackListener;
-use DcGeneral\Contao\Callbacks\ContainerOnSubmitCallbackListener;
-use DcGeneral\Contao\Callbacks\StaticCallbackListener;
+use DcGeneral\Contao\Callback\ContainerOnCopyCallbackListener;
+use DcGeneral\Contao\Callback\ContainerOnCutCallbackListener;
+use DcGeneral\Contao\Callback\ContainerOnDeleteCallbackListener;
+use DcGeneral\Contao\Callback\ContainerOnLoadCallbackListener;
+use DcGeneral\Contao\Callback\ContainerOnSubmitCallbackListener;
+use DcGeneral\Contao\Callback\StaticCallbackListener;
 use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
 use DcGeneral\Contao\Dca\Palette\LegacyPalettesParser;
 use DcGeneral\DataDefinition\ContainerInterface;

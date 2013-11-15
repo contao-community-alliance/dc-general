@@ -10,7 +10,7 @@
  * @filesource
  */
 
-namespace DcGeneral\Contao\Callbacks;
+namespace DcGeneral\Contao\Callback;
 
 use DcGeneral\DC_General;
 use DcGeneral\Exception\DcGeneralRuntimeException;
