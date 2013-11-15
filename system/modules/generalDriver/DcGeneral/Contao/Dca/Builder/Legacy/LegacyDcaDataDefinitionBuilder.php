@@ -64,9 +64,11 @@ use DcGeneral\Event\PostPasteModelEvent;
 use DcGeneral\Event\PostPersistModelEvent;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
+use DcGeneral\Factory\DcGeneralFactory;
 use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use DcGeneral\Contao\View\Contao2BackendView\LabelFormatter;
 use DcGeneral\Factory\Event\CreateDcGeneralEvent;
+use DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -96,6 +98,26 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		$this->parseBackendView($container);
 		$this->parsePalettes($container);
 		$this->parseProperties($container);
+		$this->loadAdditionalDefinitions($container, $event);
+	}
+
+	protected function loadAdditionalDefinitions(ContainerInterface $container, BuildDataDefinitionEvent $event)
+	{
+		if ($this->getFromDca('config/ptable'))
+		{
+			$event->getDispatcher()->addListener(
+				sprintf('%s[%s]', PopulateEnvironmentEvent::NAME, $container->getName()),
+				function (PopulateEnvironmentEvent $event) {
+					$environment      = $event->getEnvironment();
+					$definition       = $environment->getDataDefinition();
+					$parentName       = $definition->getBasicDefinition()->getParentDataProvider();
+					$factory          = DcGeneralFactory::deriveEmptyFromEnvironment($environment)->setContainerName($parentName);
+					$parentDefinition = $factory->createContainer();
+
+					$environment->setParentDataDefinition($parentDefinition);
+				}
+			);
+		}
 	}
 
 	/**
