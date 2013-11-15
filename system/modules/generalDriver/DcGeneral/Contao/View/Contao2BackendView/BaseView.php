@@ -1292,7 +1292,11 @@ class BaseView implements BackendViewInterface
 				->setLabel($label)
 				->setTitle($title);
 
-			$this->dispatchEvent(GetGlobalButtonEvent::NAME, $buttonEvent);
+			$this->getEnvironment()->getEventPropagator()->propagate(
+				$buttonEvent,
+				$this->getEnvironment()->getDataDefinition()->getName(),
+				$k
+			);
 
 			// Allow to override the button entirely.
 			$html =$buttonEvent->getHtml();
