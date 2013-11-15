@@ -263,18 +263,7 @@ class LegacyPalettesParser
 				continue;
 			}
 
-			// build field name for subpalette selector
-			// case 1: the subpalette selector contain a combination of "field name" + value
-			//         require that the "field name" is in $selectors
-			// case 2: the subpalette selector is only a "field name", the value is implicated as true
-			$selectorValues    = explode('_', $subPaletteSelector);
-			$selectorFieldName = array_shift($selectorValues);
-			while (count($selectorValues)) {
-				if (in_array($selectorFieldName, $selectorFieldNames)) {
-					break;
-				}
-				$selectorFieldName .= '_' . array_shift($selectorValues);
-			}
+			$selectorFieldName = $this->createSubpaletteSelectorFieldName($subpalettes, $selectorFieldNames);
 
 			$properties[$selectorFieldName] = $this->parseSubpalette(
 				$subPaletteSelector,
@@ -300,6 +289,47 @@ class LegacyPalettesParser
 		$childFields = explode(',', $childFields);
 		$childFields = array_map('trim', $childFields);
 
+		$condition = $this->createSubpaletteCondition($subPaletteSelector, $selectorFieldNames);
+
+		$properties = array();
+
+		foreach ($childFields as $childField) {
+			$property = new Property($childField);
+			$property->setVisibleCondition(clone $condition);
+			$properties[] = $property;
+		}
+
+		return $properties;
+	}
+
+	public function createSubpaletteSelectorFieldName($subPaletteSelector, array $selectorFieldNames = array())
+	{
+		// build field name for subpalette selector
+		// case 1: the subpalette selector contain a combination of "field name" + value
+		//         require that the "field name" is in $selectors
+		// case 2: the subpalette selector is only a "field name", the value is implicated as true
+		$selectorValues    = explode('_', $subPaletteSelector);
+		$selectorFieldName = array_shift($selectorValues);
+		while (count($selectorValues)) {
+			if (in_array($selectorFieldName, $selectorFieldNames)) {
+				break;
+			}
+			$selectorFieldName .= '_' . array_shift($selectorValues);
+		}
+
+		return $selectorFieldName;
+	}
+
+	/**
+	 * Parse the subpalette selector and create the corresponding condition.
+	 *
+	 * @param string $subPaletteSelector
+	 * @param array  $selectorFieldNames
+	 *
+	 * @return PropertyTrueCondition|PropertyValueCondition|null
+	 */
+	public function createSubpaletteCondition($subPaletteSelector, array $selectorFieldNames = array())
+	{
 		// build basic condition for the subpalette selector
 		// case 1: the subpalette selector contain a combination of "field name" + value
 		//         require that the "field name" is in $selectorFieldNames
@@ -324,14 +354,6 @@ class LegacyPalettesParser
 			$condition = new PropertyTrueCondition($subPaletteSelector);
 		}
 
-		$properties = array();
-
-		foreach ($childFields as $childField) {
-			$property = new Property($childField);
-			$property->setVisibleCondition(clone $condition);
-			$properties[] = $property;
-		}
-
-		return $properties;
+		return $condition;
 	}
 }
