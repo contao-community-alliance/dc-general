@@ -18,8 +18,12 @@ use DcGeneral\Contao\Callback\ContainerOnDeleteCallbackListener;
 use DcGeneral\Contao\Callback\ContainerOnLoadCallbackListener;
 use DcGeneral\Contao\Callback\ContainerOnSubmitCallbackListener;
 use DcGeneral\Contao\Callback\StaticCallbackListener;
+use DcGeneral\Contao\Callback\PropertyOnLoadCallbackListener;
+use DcGeneral\Contao\Callback\PropertyOnSaveCallbackListener;
 use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
 use DcGeneral\Contao\Dca\Palette\LegacyPalettesParser;
+use DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
@@ -134,6 +138,29 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 					sprintf('%s[%s]', PostDuplicateModelEvent::NAME, $container->getName()),
 					new ContainerOnCopyCallbackListener($callback, $GLOBALS['objDcGeneral'])
 				);
+			}
+		}
+
+		foreach ($this->getFromDca('fields') as $propName => $propInfo)
+		{
+			if (isset($propInfo['load_callback']))
+			{
+				foreach ($propInfo['load_callback'] as $callback) {
+					$dispatcher->addListener(
+						DecodePropertyValueForWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
+						new PropertyOnLoadCallbackListener($callback, $GLOBALS['objDcGeneral'])
+					);
+				}
+			}
+
+			if (isset($propInfo['save_callback']))
+			{
+				foreach ($propInfo['save_callback'] as $callback) {
+					$dispatcher->addListener(
+						EncodePropertyValueFromWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
+						new PropertyOnSaveCallbackListener($callback, $GLOBALS['objDcGeneral'])
+					);
+				}
 			}
 		}
 	}
@@ -718,7 +745,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			{
 				$property->setExtra($propInfo['eval']);
 			}
-
 		}
 	}
 
