@@ -1652,39 +1652,6 @@ class DefaultController implements ControllerInterface
 	 * ////////////////////////////////////////////////////////////////// */
 
 	/**
-	 * Load an older version
-	 */
-	protected function loadVersion($intID, $mixVersion)
-	{
-		$objCurrentDataProvider = $this->getEnvironment()->getDataProvider();
-
-
-		// Load record from version
-		$objVersionModel = $objCurrentDataProvider->getVersion($intID, $mixVersion);
-
-		// Redirect if there is no record with the given ID
-		if ($objVersionModel == null)
-		{
-			BackendBindings::log('Could not load record ID ' . $intID . ' of table "' . $this->getDC()->getTable() . '"', 'DC_General - DefaultController - edit()', TL_ERROR);
-			BackendBindings::redirect('contao/main.php?act=error');
-		}
-
-		$objCurrentDataProvider->save($objVersionModel);
-		$objCurrentDataProvider->setVersionActive($intID, $mixVersion);
-
-		// Callback onrestoreCallback
-		$arrData = $objVersionModel->getPropertiesAsArray();
-		$arrData["id"] = $objVersionModel->getID();
-
-		$this->getDC()->getCallbackClass()->onrestoreCallback($intID, $this->getDC()->getTable(), $arrData, $mixVersion);
-
-		BackendBindings::log(sprintf('Version %s of record ID %s (table %s) has been restored', $this->Input->post('version'), $this->getDC()->getId(), $this->getDC()->getTable()), 'DC_General - DefaultController - edit()', TL_GENERAL);
-
-		// Reload page with new recored
-		$this->reload();
-	}
-
-	/**
 	 * Perform low level saving of the current model in a DC.
 	 * NOTE: the model will get populated with the new values within this function.
 	 * Therefore the current submitted data will be stored within the model but only on

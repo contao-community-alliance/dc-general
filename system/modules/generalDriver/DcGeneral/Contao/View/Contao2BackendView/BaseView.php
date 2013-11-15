@@ -795,6 +795,34 @@ class BaseView implements BackendViewInterface
 		return vsprintf($this->notImplMsg, 'undo - Mode');
 	}
 
+	protected function checkRestoreVersion()
+	{
+		$environment             = $this->getEnvironment();
+		$definition              = $environment->getDataDefinition();
+		$dataProvider            = $environment->getDataProvider();
+		$dataProviderInformation = $definition->getDataProviderDefinition()->getInformation($definition->getBasicDefinition()->getDataProvider());
+		$inputProvider           = $environment->getInputProvider();
+		$modelId                 = $environment->getInputProvider()->getParameter('id');
+
+		if ($dataProviderInformation->isVersioningEnabled()
+			&& ($inputProvider->getValue('FORM_SUBMIT') === 'tl_version')
+			&& ($modelVersion = $inputProvider->getValue('version')) !== null)
+		{
+			$model = $dataProvider->getVersion($modelId, $modelVersion);
+
+			if ($model === null)
+			{
+				$message = sprintf('Could not load version %s of record ID %s from %s', $modelVersion, $modelId, $definition->getBasicDefinition()->getDataProvider());
+				BackendBindings::log($message, TL_ERROR, 'DC_General - edit()');
+				throw new DcGeneralRuntimeException($message);
+			}
+
+			$dataProvider->save($model);
+			$dataProvider->setVersionActive($modelId, $modelVersion);
+			BackendBindings::reload();
+		}
+	}
+
 	/**
 	 * Generate the view for edit
 	 *
