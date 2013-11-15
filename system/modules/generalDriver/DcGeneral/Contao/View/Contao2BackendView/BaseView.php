@@ -20,7 +20,6 @@ use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\Palette\PropertyInterface;
-use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
@@ -43,16 +42,9 @@ use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
 use DcGeneral\Contao\BackendBindings;
-use DcGeneral\DataContainerInterface;
 
 class BaseView implements BackendViewInterface
 {
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 * Vars
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
-
 	// Palettes/View vars ---------------------------
 	protected $arrSelectors = array();
 	protected $arrAjaxPalettes = array();
@@ -60,23 +52,6 @@ class BaseView implements BackendViewInterface
 
 	// Overall Vars ---------------------------------
 	protected $notImplMsg = "<div style='text-align:center; font-weight:bold; padding:40px;'>The function/view &quot;%s&quot; is not implemented.</div>";
-
-	// Objects --------------------------------------
-
-	/**
-	 * Driver class
-	 * @var DataContainerInterface
-	 *
-	 * @deprecated
-	 */
-	protected $objDC = null;
-
-	/**
-	 * Used by palette rendering.
-	 *
-	 * @var array
-	 */
-	protected $arrStack = array();
 
 	/**
 	 * The attached environment.
@@ -89,27 +64,6 @@ class BaseView implements BackendViewInterface
 	 * @var PanelContainerInterface
 	 */
 	protected $panel;
-
-	/**
-	 * @return DataContainerInterface
-	 *
-	 * @deprecated
-	 */
-	public function getDC()
-	{
-		return $this->objDC;
-	}
-
-	/**
-	 * @param DataContainerInterface $objDC
-	 *
-	 * @deprecated
-	 */
-	public function setDC($objDC)
-	{
-		$this->objDC = $objDC;
-		$this->setEnvironment($objDC->getEnvironment());
-	}
 
 	/**
 	 * Dispatch an event to the dispatcher.

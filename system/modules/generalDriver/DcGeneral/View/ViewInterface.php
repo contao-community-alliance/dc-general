@@ -35,24 +35,6 @@ interface ViewInterface
 	 */
 	public function getEnvironment();
 
-	/**
-	 * Set the DC
-	 *
-	 * @param DataContainerInterface $objDC
-	 *
-	 * @deprecated Please do only use the Environment.
-	 */
-	public function setDC($objDC);
-
-	/**
-	 * Get the DC
-	 *
-	 * @return DataContainerInterface
-	 *
-	 * @deprecated Please do only use the Environment.
-	 */
-	public function getDC();
-
 	public function paste();
 
 	public function copy();
