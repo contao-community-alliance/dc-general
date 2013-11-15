@@ -12,6 +12,7 @@
 namespace DcGeneral;
 
 use CyberSpectrum\ContaoDebugger\Debugger;
+use DcGeneral\Contao\View\Contao2BackendView\Event\FormatGroupLabelEvent;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Factory\DcGeneralFactory;
@@ -673,7 +674,15 @@ class DC_General extends \DataContainer implements DataContainerInterface
 			}
 		}
 
-		$group = $this->getEnvironment()->getCallbackHandler()->groupCallback($group, $mode, $field, $objModelRow);
+		$event = new FormatGroupLabelEvent($this->getEnvironment(), $objModelRow, $field, $mode);
+		$event->setGroupLabel($group);
+
+		$this->getEnvironment()->getEventPropagator()->propagate(
+			$event,
+			$this->getEnvironment()->getDataDefinition()->getName()
+		);
+
+		$group = $event->getGroupLabel();
 
 		return $group;
 	}

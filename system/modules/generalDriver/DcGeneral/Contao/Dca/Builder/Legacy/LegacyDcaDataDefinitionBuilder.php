@@ -19,6 +19,7 @@ use DcGeneral\Contao\Callback\ContainerOnLoadCallbackListener;
 use DcGeneral\Contao\Callback\ContainerOnSubmitCallbackListener;
 use DcGeneral\Contao\Callback\ContainerPasteRootButtonCallbackListener;
 use DcGeneral\Contao\Callback\ModelChildRecordCallbackListener;
+use DcGeneral\Contao\Callback\ModelGroupCallbackListener;
 use DcGeneral\Contao\Callback\StaticCallbackListener;
 use DcGeneral\Contao\Callback\PropertyOnLoadCallbackListener;
 use DcGeneral\Contao\Callback\PropertyOnSaveCallbackListener;
@@ -26,6 +27,7 @@ use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
 use DcGeneral\Contao\Dca\Palette\LegacyPalettesParser;
 use DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\FormatGroupLabelEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
@@ -163,6 +165,14 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			$dispatcher->addListener(
 				sprintf('%s[%s]', ParentViewChildRecordEvent::NAME, $container->getName()),
 				new ModelChildRecordCallbackListener($callback)
+			);
+		}
+
+		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/label/group_callback'))
+		{
+			$dispatcher->addListener(
+				sprintf('%s[%s]', FormatGroupLabelEvent::NAME, $container->getName()),
+				new ModelGroupCallbackListener($callback)
 			);
 		}
 
