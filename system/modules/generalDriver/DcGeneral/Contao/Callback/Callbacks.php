@@ -48,6 +48,7 @@ class Callbacks
 		catch(\Exception $e) {
 			throw new DcGeneralRuntimeException(
 				'Execute callback ' . (is_array($callback) ? implode('::', $callback) : $callback) . ' failed',
+				0,
 				$e
 			);
 		}
