@@ -582,6 +582,10 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		if ($configured) {
 			$listing->setLabelFormatter($formatter);
 		}
+
+		if (isset($labelDca['showColumns'])) {
+			$listing->setShowColumns($labelDca['showColumns']);
+		}
 	}
 
 	/**

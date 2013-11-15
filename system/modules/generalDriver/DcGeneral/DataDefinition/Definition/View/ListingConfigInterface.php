@@ -193,4 +193,20 @@ interface ListingConfigInterface
 	 * @return ModelFormatterInterface
 	 */
 	public function getLabelFormatter();
+
+	/**
+	 * Set if the listing shall be in table columns.
+	 *
+	 * @param bool $value
+	 *
+	 * @return ListingConfigInterface
+	 */
+	public function setShowColumns($value);
+
+	/**
+	 * Get if the listing shall be in table columns.
+	 *
+	 * @return bool
+	 */
+	public function getShowColumns();
 }

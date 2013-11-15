@@ -45,6 +45,11 @@ class DefaultListingConfig implements ListingConfigInterface
 	protected $itemFormatter;
 
 	/**
+	 * @var bool
+	 */
+	protected $showColumns;
+
+	/**
 	 * Set the grouping mode.
 	 *
 	 * @param string $value
@@ -236,5 +241,29 @@ class DefaultListingConfig implements ListingConfigInterface
 	public function getLabelFormatter()
 	{
 		return $this->itemFormatter;
+	}
+
+	/**
+	 * Set if the listing shall be in table columns.
+	 *
+	 * @param bool $value
+	 *
+	 * @return ListingConfigInterface
+	 */
+	public function setShowColumns($value)
+	{
+		$this->showColumns = $value;
+
+		return $this;
+	}
+
+	/**
+	 * Get if the listing shall be in table columns.
+	 *
+	 * @return bool
+	 */
+	public function getShowColumns()
+	{
+		return $this->showColumns;
 	}
 }
