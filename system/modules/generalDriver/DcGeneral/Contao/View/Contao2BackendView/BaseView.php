@@ -796,6 +796,44 @@ class BaseView implements BackendViewInterface
 		return vsprintf($this->notImplMsg, 'undo - Mode');
 	}
 
+	/**
+	 * Handle the submit and determine which button has been triggered.
+	 */
+	protected function handleSubmit()
+	{
+		$environment             = $this->getEnvironment();
+		$inputProvider           = $environment->getInputProvider();
+		if ($inputProvider->hasValue('save'))
+		{
+			BackendBindings::reload();
+		}
+		elseif ($inputProvider->hasValue('saveNclose'))
+		{
+			setcookie('BE_PAGE_OFFSET', 0, 0, '/');
+
+			$_SESSION['TL_INFO'] = '';
+			$_SESSION['TL_ERROR'] = '';
+			$_SESSION['TL_CONFIRM'] = '';
+
+			BackendBindings::redirect(BackendBindings::getReferer());
+		}
+		elseif ($inputProvider->hasValue('saveNcreate'))
+		{
+			setcookie('BE_PAGE_OFFSET', 0, 0, '/');
+
+			$_SESSION['TL_INFO'] = '';
+			$_SESSION['TL_ERROR'] = '';
+			$_SESSION['TL_CONFIRM'] = '';
+
+			BackendBindings::redirect(BackendBindings::addToUrl('act=create&id='));
+		}
+		elseif ($inputProvider->hasValue('saveNback'))
+		{
+			echo vsprintf($this->notImplMsg, 'Save and go back');
+			exit;
+		}
+	}
+
 	protected function checkRestoreVersion()
 	{
 		$environment             = $this->getEnvironment();
@@ -918,7 +956,7 @@ class BaseView implements BackendViewInterface
 			$arrFieldSets[] = $arrFieldSet;
 		}
 
-		if ($blnSubmitted)
+		if ($blnSubmitted && empty($errors))
 		{
 			$event = new EditModelBeforeSaveEvent($environment, $model);
 			$environment->getEventPropagator()->propagate($event, array(
@@ -942,7 +980,7 @@ class BaseView implements BackendViewInterface
 				}
 			}
 
-			BackendBindings::reload();
+			$this->handleSubmit();
 		}
 
 		if ($model->getId())
