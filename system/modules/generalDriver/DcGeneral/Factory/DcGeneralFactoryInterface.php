@@ -11,7 +11,10 @@
 
 namespace DcGeneral\Factory;
 
+use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\DcGeneral;
+use DcGeneral\EnvironmentInterface;
+use DcGeneral\Event\EventPropagatorInterface;
 
 interface DcGeneralFactoryInterface
 {
@@ -56,7 +59,47 @@ interface DcGeneralFactoryInterface
 	public function getDcGeneralClassName();
 
 	/**
+	 * @param EventPropagatorInterface $eventPropagator
+	 */
+	public function setEventPropagator(EventPropagatorInterface $eventPropagator);
+
+	/**
+	 * @return EventPropagatorInterface
+	 */
+	public function getEventPropagator();
+
+	/**
+	 * @param EnvironmentInterface $environment
+	 */
+	public function setEnvironment(EnvironmentInterface $environment = null);
+
+	/**
+	 * @return EnvironmentInterface
+	 */
+	public function getEnvironment();
+
+	/**
+	 * @param ContainerInterface $dataContainer
+	 */
+	public function setDataContainer(ContainerInterface $dataContainer = null);
+
+	/**
+	 * @return ContainerInterface
+	 */
+	public function getDataContainer();
+
+	/**
 	 * @return DcGeneral
 	 */
 	public function createDcGeneral();
+
+	/**
+	 * @return EnvironmentInterface
+	 */
+	public function createEnvironment();
+
+	/**
+	 * @return ContainerInterface
+	 */
+	public function createContainer();
 }

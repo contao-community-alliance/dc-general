@@ -24,6 +24,36 @@ use DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 class DcGeneralFactory implements DcGeneralFactoryInterface
 {
 	/**
+	 * Create a new factory with basic settings from the environment.
+	 * This factory can be used to create a new Container, Environment, DcGeneral with the same base settings as the given environment.
+	 *
+	 * @param EnvironmentInterface $environment
+	 *
+	 * @return DcGeneralFactory
+	 */
+	static public function deriveEmptyFromEnvironment(EnvironmentInterface $environment)
+	{
+		$factory = new DcGeneralFactory();
+		$factory->setEventPropagator($environment->getEventPropagator());
+		return $factory;
+	}
+
+	/**
+	 * Create a new factory with basic settings and same container name as the given environment is build for.
+	 * This factory can be used to create a second Container, Environment, DcGeneral for the same container.
+	 *
+	 * @param EnvironmentInterface $environment
+	 *
+	 * @return DcGeneralFactory
+	 */
+	static public function deriveFromEnvironment(EnvironmentInterface $environment)
+	{
+		$factory = static::deriveEmptyFromEnvironment($environment);
+		$factory->setContainerName($environment->getDataDefinition()->getName());
+		return $factory;
+	}
+
+	/**
 	 * @var string
 	 */
 	protected $environmentClassName = 'DcGeneral\DefaultEnvironment';
@@ -42,6 +72,21 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	 * @var string
 	 */
 	protected $dcGeneralClassName = 'DcGeneral\DcGeneral';
+
+	/**
+	 * @var EventPropagatorInterface
+	 */
+	protected $eventPropagator = null;
+
+	/**
+	 * @var EnvironmentInterface
+	 */
+	protected $environment = null;
+
+	/**
+	 * @var ContainerInterface
+	 */
+	protected $dataContainer = null;
 
 	/**
 	 * {@inheritdoc}
@@ -114,23 +159,75 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	/**
 	 * {@inheritdoc}
 	 */
+	public function setEventPropagator(EventPropagatorInterface $eventPropagator)
+	{
+		$this->eventPropagator = $eventPropagator;
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getEventPropagator()
+	{
+		return $this->eventPropagator;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setEnvironment(EnvironmentInterface $environment = null)
+	{
+		$this->environment = $environment;
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getEnvironment()
+	{
+		return $this->environment;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setDataContainer(ContainerInterface $dataContainer = null)
+	{
+		$this->dataContainer = $dataContainer;
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getDataContainer()
+	{
+		return $this->dataContainer;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
 	public function createDcGeneral()
 	{
 		global $container;
 
-		if (empty($this->containerName)) {
-			throw new DcGeneralRuntimeException('Required container name is missing');
+		if (empty($this->containerName) && !$this->dataContainer) {
+			throw new DcGeneralRuntimeException('Required container name or container is missing');
 		}
 
-		/** @var \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher */
-		$dispatcher = $container['event-dispatcher'];
-		$propagator = new EventPropagator($dispatcher);
+		if (empty($this->eventPropagator)) {
+			throw new DcGeneralRuntimeException('Required event propagator is missing');
+		}
 
-		// 1. pass: fires BuildDataDefinitionEvent
-		$dataContainer = $this->createContainer($propagator);
-
-		// 2. pass: fires PopulateEnvironmentEvent
-		$environment = $this->createEnvironment($dataContainer, $propagator);
+		if ($this->environment) {
+			$environment = $this->environment;
+		}
+		else {
+			$environment = $this->createEnvironment();
+		}
 
 		// create reflections classes at one place
 		$dcGeneralClass = new \ReflectionClass($this->dcGeneralClassName);
@@ -139,7 +236,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 		$dcGeneral = $dcGeneralClass->newInstance($environment);
 
 		$event = new CreateDcGeneralEvent($dcGeneral);
-		$propagator->propagate($event, array($this->containerName));
+		$this->eventPropagator->propagate($event, array($this->containerName));
 
 		return $dcGeneral;
 	}
@@ -152,17 +249,32 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	 *
 	 * @return EnvironmentInterface
 	 */
-	protected function createEnvironment(ContainerInterface $dataContainer, EventPropagatorInterface $propagator)
+	public function createEnvironment()
 	{
+		if (empty($this->containerName) && !$this->dataContainer) {
+			throw new DcGeneralRuntimeException('Required container name or container is missing');
+		}
+
+		if (empty($this->eventPropagator)) {
+			throw new DcGeneralRuntimeException('Required event propagator is missing');
+		}
+
+		if ($this->dataContainer) {
+			$dataContainer = $this->dataContainer;
+		}
+		else {
+			$dataContainer = $this->createContainer();
+		}
+
 		$environmentClass = new \ReflectionClass($this->environmentClassName);
 
 		/** @var EnvironmentInterface $environment */
 		$environment = $environmentClass->newInstance();
 		$environment->setDataDefinition($dataContainer);
-		$environment->setEventPropagator($propagator);
+		$environment->setEventPropagator($this->eventPropagator);
 
 		$event = new PopulateEnvironmentEvent($environment);
-		$propagator->propagate($event, array($this->containerName));
+		$this->eventPropagator->propagate($event, array($this->containerName));
 
 		return $environment;
 	}
@@ -172,15 +284,23 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	 *
 	 * @return ContainerInterface
 	 */
-	protected function createContainer(EventPropagatorInterface $propagator)
+	public function createContainer()
 	{
+		if (empty($this->containerName)) {
+			throw new DcGeneralRuntimeException('Required container name is missing');
+		}
+
+		if (empty($this->eventPropagator)) {
+			throw new DcGeneralRuntimeException('Required event propagator is missing');
+		}
+
 		$containerClass = new \ReflectionClass($this->containerClassName);
 
 		/** @var ContainerInterface $dataContainer */
 		$dataContainer = $containerClass->newInstance($this->containerName);
 
 		$event = new BuildDataDefinitionEvent($dataContainer);
-		$propagator->propagate($event, array($this->containerName));
+		$this->eventPropagator->propagate($event, array($this->containerName));
 
 		return $dataContainer;
 	}
