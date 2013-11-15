@@ -27,7 +27,6 @@ class Subscriber
 			GetBreadcrumbEvent::NAME         => 'GetBreadcrumb',
 
 			ResolveWidgetErrorMessageEvent::NAME => array('resolveWidgetErrorMessage', -1),
-			GetPropertyOptionsEvent::NAME    => 'GetPropertyOptions',
 
 			RenderReadablePropertyValueEvent::NAME => 'renderReadablePropertyValue',
 		);
@@ -64,14 +63,6 @@ class Subscriber
 		{
 			$event->setError(sprintf('[%s]', gettype($error)));
 		}
-	}
-
-	public function GetPropertyOptions(GetPropertyOptionsEvent $event)
-	{
-		$arrReturn = $event->getEnvironment()
-			->getCallbackHandler()->optionsCallback($event->getFieldName());
-
-		$event->setOptions($arrReturn);
 	}
 
 	public function renderReadablePropertyValue(RenderReadablePropertyValueEvent $event)

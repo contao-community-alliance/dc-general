@@ -328,7 +328,11 @@ class BaseView implements BackendViewInterface
 				$event = new GetPropertyOptionsEvent($environment);
 				$event->setFieldName($field);
 
-				$this->dispatchEvent(GetPropertyOptionsEvent::NAME, $event);
+				$this->getEnvironment()->getEventPropagator()->propagate(
+					$event,
+					$this->getEnvironment()->getDataDefinition()->getName(),
+					$field
+				);
 
 				$lookup[$field] = $event->getOptions();
 			}

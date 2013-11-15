@@ -24,6 +24,7 @@ use DcGeneral\Contao\Callback\ModelChildRecordCallbackListener;
 use DcGeneral\Contao\Callback\ModelGroupCallbackListener;
 use DcGeneral\Contao\Callback\ModelLabelCallbackListener;
 use DcGeneral\Contao\Callback\ModelOperationButtonCallbackListener;
+use DcGeneral\Contao\Callback\ModelOptionsCallbackListener;
 use DcGeneral\Contao\Callback\StaticCallbackListener;
 use DcGeneral\Contao\Callback\PropertyOnLoadCallbackListener;
 use DcGeneral\Contao\Callback\PropertyOnSaveCallbackListener;
@@ -38,6 +39,7 @@ use DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
 use DcGeneral\DataDefinition\ContainerInterface;
@@ -250,6 +252,15 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 							new PropertyOnSaveCallbackListener($callback, $GLOBALS['objDcGeneral'])
 						);
 					}
+				}
+
+				if (isset($propInfo['options_callback']))
+				{
+					$callback = $propInfo['options_callback'];
+					$dispatcher->addListener(
+						GetPropertyOptionsEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
+						new ModelOptionsCallbackListener($callback, $GLOBALS['objDcGeneral'])
+					);
 				}
 			}
 		}
