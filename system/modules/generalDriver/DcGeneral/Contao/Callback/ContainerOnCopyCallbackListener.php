@@ -13,6 +13,7 @@
 namespace DcGeneral\Contao\Callback;
 
 use DcGeneral\DC_General;
+use DcGeneral\Event\PostDuplicateModelEvent;
 
 class ContainerOnCopyCallbackListener extends AbstractCallbackListener
 {
@@ -28,13 +29,12 @@ class ContainerOnCopyCallbackListener extends AbstractCallbackListener
 	}
 
 	/**
-	 * @param \Symfony\Component\EventDispatcher\Event $event
+	 * @param PostDuplicateModelEvent $event
 	 *
 	 * @return array
 	 */
 	public function getArgs($event)
 	{
-		// TODO find a way to get inserted model ID here
-		return array(0, $this->dcGeneral);
+		return array($event->getModel()->getId(), $this->dcGeneral);
 	}
 }
