@@ -13,6 +13,7 @@
 namespace DcGeneral\Contao\Callback;
 
 use DcGeneral\DC_General;
+use DcGeneral\Event\PostDeleteModelEvent;
 
 class ContainerOnDeleteCallbackListener extends AbstractCallbackListener
 {
@@ -28,7 +29,7 @@ class ContainerOnDeleteCallbackListener extends AbstractCallbackListener
 	}
 
 	/**
-	 * @param \Symfony\Component\EventDispatcher\Event $event
+	 * @param PostDeleteModelEvent $event
 	 *
 	 * @return array
 	 */
