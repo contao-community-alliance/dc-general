@@ -9,8 +9,6 @@ use DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use DcGeneral\View\Widget\Event\ResolveWidgetErrorMessageEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
-use DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonsEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
@@ -27,7 +25,6 @@ class Subscriber
 	{
 		return array
 		(
-			GetGlobalButtonEvent::NAME       => 'GetGlobalButton',
 			GetOperationButtonEvent::NAME    => 'GetOperationButton',
 
 			GetGroupHeaderEvent::NAME        => 'GetGroupHeader',
@@ -40,33 +37,6 @@ class Subscriber
 
 			RenderReadablePropertyValueEvent::NAME => 'renderReadablePropertyValue',
 		);
-	}
-
-	/**
-	 * Triggers the globalButtonCallback() of the registered callback handler in the environment.
-	 *
-	 * @param GetGlobalButtonEvent $event
-	 */
-	public function GetGlobalButton(GetGlobalButtonEvent $event)
-	{
-		// Call a custom function instead of using the default button
-		$strButtonCallback = $event->getEnvironment()->getCallbackHandler()->globalButtonCallback(
-			$event->getKey(),
-			$event->getLabel(),
-			$event->getTitle(),
-			$event->getAttributes(),
-			$event->getEnvironment()->getDataDefinition()->getName(),
-			$event->getEnvironment()->getRootIds()
-		);
-
-		if (!is_null($strButtonCallback))
-		{
-			$event
-				->setHtml($strButtonCallback)
-				->stopPropagation();
-
-			return;
-		}
 	}
 
 	/**

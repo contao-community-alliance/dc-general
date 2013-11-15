@@ -12,6 +12,7 @@
 
 namespace DcGeneral\Contao\Dca\Builder\Legacy;
 
+use DcGeneral\Contao\Callback\ContainerGlobalButtonCallbackListener;
 use DcGeneral\Contao\Callback\ContainerOnCopyCallbackListener;
 use DcGeneral\Contao\Callback\ContainerOnCutCallbackListener;
 use DcGeneral\Contao\Callback\ContainerOnDeleteCallbackListener;
@@ -29,6 +30,7 @@ use DcGeneral\Contao\Dca\Palette\LegacyPalettesParser;
 use DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\FormatGroupLabelEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
@@ -183,6 +185,20 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 				sprintf('%s[%s]', FormatGroupLabelEvent::NAME, $container->getName()),
 				new ModelLabelCallbackListener($callback, $GLOBALS['objDcGeneral'])
 			);
+		}
+
+		if (isset($GLOBALS['objDcGeneral'])) {
+			foreach ($this->getFromDca('global_operations') as $operationName => $operationInfo)
+			{
+				if (isset($operationInfo['button_callback']))
+				{
+					$callback = $operationInfo['button_callback'];
+					$dispatcher->addListener(
+						sprintf('%s[%s][%s]', GetGlobalButtonEvent::NAME, $container->getName(), $operationName),
+						new ContainerGlobalButtonCallbackListener($callback)
+					);
+				}
+			}
 		}
 
 		if (isset($GLOBALS['objDcGeneral'])) {
