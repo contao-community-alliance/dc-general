@@ -360,7 +360,10 @@ class BaseView implements BackendViewInterface
 			->setSortingMode($mode)
 			->setValue($field);
 
-		$this->dispatchEvent(GetGroupHeaderEvent::NAME, $event);
+		$this->getEnvironment()->getEventPropagator()->propagate(
+			$event,
+			$this->getEnvironment()->getDataDefinition()->getName()
+		);
 
 		$group = $event->getGroupField();
 
