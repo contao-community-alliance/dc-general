@@ -12,6 +12,7 @@
 
 namespace DcGeneral\Contao\View\Contao2BackendView;
 
+use DcGeneral\Contao\View\Contao2BackendView\Event\EditModelBeforeSaveEvent;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\MultiLanguageDriverInterface;
 use DcGeneral\Data\DCGE;
@@ -911,6 +912,11 @@ class BaseView implements BackendViewInterface
 
 		if ($blnSubmitted)
 		{
+			$event = new EditModelBeforeSaveEvent($environment, $model);
+			$environment->getEventPropagator()->propagate($event, array(
+				$this->getEnvironment()->getDataDefinition()->getName(),
+			));
+
 			if ($model->getMeta(DCGE::MODEL_IS_CHANGED))
 			{
 				$dataProvider->save($model);
