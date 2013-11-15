@@ -52,8 +52,6 @@ class Callbacks
 				$e
 			);
 		}
-
-		throw new DcGeneralRuntimeException('Could not execute callback ' . (is_array($callback) ? implode('::', $callback) : $callback));
 	}
 
 	/**
