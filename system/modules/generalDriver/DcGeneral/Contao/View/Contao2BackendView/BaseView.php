@@ -45,11 +45,6 @@ use DcGeneral\Contao\BackendBindings;
 
 class BaseView implements BackendViewInterface
 {
-	// Palettes/View vars ---------------------------
-	protected $arrSelectors = array();
-	protected $arrAjaxPalettes = array();
-	protected $arrRootPalette = array();
-
 	// Overall Vars ---------------------------------
 	protected $notImplMsg = "<div style='text-align:center; font-weight:bold; padding:40px;'>The function/view &quot;%s&quot; is not implemented.</div>";
 
@@ -509,21 +504,6 @@ class BaseView implements BackendViewInterface
 		$this->dispatchEvent(GetSelectModeButtonsEvent::NAME, $event);
 
 		return $event->getButtons();
-	}
-
-	public function isSelector($strSelector)
-	{
-		return isset($this->arrSelectors[$strSelector]);
-	}
-
-	public function getSelectors()
-	{
-		return $this->arrSelectors;
-	}
-
-	public function isEmptyPalette()
-	{
-		return !count($this->arrRootPalette);
 	}
 
 	/**
@@ -1136,7 +1116,7 @@ class BaseView implements BackendViewInterface
 	 */
 	public function generateAjaxPalette($strSelector)
 	{
-		return is_array($this->arrAjaxPalettes[$strSelector]) ? $this->generatePalette($this->arrAjaxPalettes[$strSelector], 'dcbe_general_field') : '';
+		return vsprintf($this->notImplMsg, 'generateAjaxPalette');
 	}
 
 	/* /////////////////////////////////////////////////////////////////////
