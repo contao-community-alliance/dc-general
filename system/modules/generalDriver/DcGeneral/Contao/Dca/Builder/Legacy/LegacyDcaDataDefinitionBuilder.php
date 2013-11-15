@@ -202,29 +202,33 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		}
 
 		if (isset($GLOBALS['objDcGeneral'])) {
-			foreach ($this->getFromDca('global_operations') as $operationName => $operationInfo)
-			{
-				if (isset($operationInfo['button_callback']))
+			if (is_array($operations = $this->getFromDca('global_operations'))) {
+				foreach ($operations as $operationName => $operationInfo)
 				{
-					$callback = $operationInfo['button_callback'];
-					$dispatcher->addListener(
-						sprintf('%s[%s][%s]', GetGlobalButtonEvent::NAME, $container->getName(), $operationName),
-						new ContainerGlobalButtonCallbackListener($callback)
-					);
+					if (isset($operationInfo['button_callback']))
+					{
+						$callback = $operationInfo['button_callback'];
+						$dispatcher->addListener(
+							sprintf('%s[%s][%s]', GetGlobalButtonEvent::NAME, $container->getName(), $operationName),
+							new ContainerGlobalButtonCallbackListener($callback)
+						);
+					}
 				}
 			}
 		}
 
 		if (isset($GLOBALS['objDcGeneral'])) {
-			foreach ($this->getFromDca('operations') as $operationName => $operationInfo)
-			{
-				if (isset($operationInfo['button_callback']))
+			if (is_array($operations = $this->getFromDca('operations'))) {
+				foreach ($operations as $operationName => $operationInfo)
 				{
-					$callback = $operationInfo['button_callback'];
-					$dispatcher->addListener(
-						sprintf('%s[%s][%s]', GetOperationButtonEvent::NAME, $container->getName(), $operationName),
-						new ModelOperationButtonCallbackListener($callback)
-					);
+					if (isset($operationInfo['button_callback']))
+					{
+						$callback = $operationInfo['button_callback'];
+						$dispatcher->addListener(
+							sprintf('%s[%s][%s]', GetOperationButtonEvent::NAME, $container->getName(), $operationName),
+							new ModelOperationButtonCallbackListener($callback)
+						);
+					}
 				}
 			}
 		}
