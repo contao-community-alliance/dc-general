@@ -1438,10 +1438,8 @@ class BaseView implements BackendViewInterface
 
 		$this->getEnvironment()->getEventPropagator()->propagate(
 			$buttonEvent,
-			array(
-				$this->getEnvironment()->getDataDefinition()->getName(),
-				$objCommand->getName()
-			)
+			$this->getEnvironment()->getDataDefinition()->getName(),
+			$objCommand->getName()
 		);
 
 		// If the event created a button, use it.

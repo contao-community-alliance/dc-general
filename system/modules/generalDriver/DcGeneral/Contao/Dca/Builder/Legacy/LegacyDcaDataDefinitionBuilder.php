@@ -22,6 +22,7 @@ use DcGeneral\Contao\Callback\ContainerPasteRootButtonCallbackListener;
 use DcGeneral\Contao\Callback\ModelChildRecordCallbackListener;
 use DcGeneral\Contao\Callback\ModelGroupCallbackListener;
 use DcGeneral\Contao\Callback\ModelLabelCallbackListener;
+use DcGeneral\Contao\Callback\ModelOperationButtonCallbackListener;
 use DcGeneral\Contao\Callback\StaticCallbackListener;
 use DcGeneral\Contao\Callback\PropertyOnLoadCallbackListener;
 use DcGeneral\Contao\Callback\PropertyOnSaveCallbackListener;
@@ -31,6 +32,7 @@ use DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetE
 use DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\FormatGroupLabelEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
@@ -196,6 +198,20 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 					$dispatcher->addListener(
 						sprintf('%s[%s][%s]', GetGlobalButtonEvent::NAME, $container->getName(), $operationName),
 						new ContainerGlobalButtonCallbackListener($callback)
+					);
+				}
+			}
+		}
+
+		if (isset($GLOBALS['objDcGeneral'])) {
+			foreach ($this->getFromDca('operations') as $operationName => $operationInfo)
+			{
+				if (isset($operationInfo['button_callback']))
+				{
+					$callback = $operationInfo['button_callback'];
+					$dispatcher->addListener(
+						sprintf('%s[%s][%s]', GetOperationButtonEvent::NAME, $container->getName(), $operationName),
+						new ModelOperationButtonCallbackListener($callback)
 					);
 				}
 			}
