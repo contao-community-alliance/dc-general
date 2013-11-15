@@ -1569,7 +1569,10 @@ class BaseView implements BackendViewInterface
 				->setPasteAfterDisabled($objClipboard->isCut() && in_array($objModelRow->getID(), $objClipboard->getCircularIds()))
 				->setPasteIntoDisabled($objClipboard->isCut() && in_array($objModelRow->getID(), $objClipboard->getCircularIds()));
 
-			$this->dispatchEvent(GetPasteButtonEvent::NAME, $buttonEvent);
+			$this->getEnvironment()->getEventPropagator()->propagate(
+				$buttonEvent,
+				$this->getEnvironment()->getDataDefinition()->getName()
+			);
 
 			$arrButtons['pasteafter'] = $this->renderPasteAfterButton($buttonEvent);
 			if ($this->getDataDefinition()->getBasicDefinition()->getMode() == BasicDefinitionInterface::MODE_HIERARCHICAL)

@@ -229,7 +229,10 @@ class TreeView extends BaseView
 				)
 				->setPasteDisabled(false);
 
-			$this->dispatchEvent(GetPasteRootButtonEvent::NAME, $buttonEvent);
+			$this->getEnvironment()->getEventPropagator()->propagate(
+				$buttonEvent,
+				$this->getEnvironment()->getDataDefinition()->getName()
+			);
 
 			$strRootPasteInto = $this->renderPasteRootButton($buttonEvent);
 		}
