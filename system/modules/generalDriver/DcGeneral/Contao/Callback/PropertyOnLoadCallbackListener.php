@@ -14,7 +14,7 @@ namespace DcGeneral\Contao\Callback;
 
 use DcGeneral\DC_General;
 
-class PropertyOnLoadCallbackListener extends AbstractCallbackListener
+class PropertyOnLoadCallbackListener extends AbstractReturningCallbackListener
 {
 	/**
 	 * @var DC_General
@@ -28,19 +28,6 @@ class PropertyOnLoadCallbackListener extends AbstractCallbackListener
 	}
 
 	/**
-	 * Invoke the callback.
-	 *
-	 * @param \DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent $event
-	 */
-	public function __invoke($event)
-	{
-		if ($this->getCallback())
-		{
-			$event->setValue(Callbacks::callArgs($this->getCallback(), $this->getArgs($event)));
-		}
-	}
-
-	/**
 	 * @param \DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent $event
 	 *
 	 * @return array
@@ -48,5 +35,15 @@ class PropertyOnLoadCallbackListener extends AbstractCallbackListener
 	public function getArgs($event)
 	{
 		return array($event->getValue(), $this->dcGeneral);
+	}
+
+	/**
+	 * @param \DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent $event
+	 *
+	 * @return void
+	 */
+	public function update($event, $value)
+	{
+		$event->setValue($value);
 	}
 }
