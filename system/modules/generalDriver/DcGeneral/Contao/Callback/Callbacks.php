@@ -20,7 +20,9 @@ class Callbacks
 	 * Call a Contao style callback.
 	 *
 	 * @param array|callable $callback
-	 * @param mixed $_
+	 * @param mixed          $_
+	 *
+	 * @return mixed
 	 */
 	static public function call($callback, $_ = null)
 	{
@@ -36,7 +38,11 @@ class Callbacks
 	 * Call a Contao style callback.
 	 *
 	 * @param array|callable $callback
-	 * @param array $args
+	 * @param array          $args
+	 *
+	 * @return mixed
+	 *
+	 * @throws \DcGeneral\Exception\DcGeneralRuntimeException
 	 */
 	static public function callArgs($callback, array $args = array())
 	{

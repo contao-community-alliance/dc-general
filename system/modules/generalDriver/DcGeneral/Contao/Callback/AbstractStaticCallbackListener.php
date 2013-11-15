@@ -12,7 +12,6 @@
 
 namespace DcGeneral\Contao\Callback;
 
-use DcGeneral\Exception\DcGeneralRuntimeException;
 use Symfony\Component\EventDispatcher\Event;
 
 abstract class AbstractStaticCallbackListener extends AbstractCallbackListener
@@ -33,9 +32,11 @@ abstract class AbstractStaticCallbackListener extends AbstractCallbackListener
 	}
 
 	/**
+	 * @param \Symfony\Component\EventDispatcher\Event $event
+	 *
 	 * @return array
 	 */
-	public function getArgs(Event $event = null)
+	public function getArgs($event)
 	{
 		return $this->args;
 	}

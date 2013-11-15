@@ -12,9 +12,6 @@
 
 namespace DcGeneral\Contao\Callback;
 
-use DcGeneral\Exception\DcGeneralRuntimeException;
-use Symfony\Component\EventDispatcher\Event;
-
 abstract class AbstractCallbackListener
 {
 	/**
@@ -39,14 +36,18 @@ abstract class AbstractCallbackListener
 	}
 
 	/**
+	 * @param \Symfony\Component\EventDispatcher\Event $event
+	 *
 	 * @return array
 	 */
-	abstract public function getArgs(Event $event = null);
+	abstract public function getArgs($event);
 
 	/**
 	 * Invoke the callback.
+	 *
+	 * @param \Symfony\Component\EventDispatcher\Event $event
 	 */
-	public function __invoke(Event $event = null)
+	public function __invoke($event)
 	{
 		if ($this->getCallback()) {
 			Callbacks::callArgs($this->getCallback(), $this->getArgs($event));

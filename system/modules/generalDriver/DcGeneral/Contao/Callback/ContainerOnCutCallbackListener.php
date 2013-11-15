@@ -13,8 +13,6 @@
 namespace DcGeneral\Contao\Callback;
 
 use DcGeneral\DC_General;
-use DcGeneral\Exception\DcGeneralRuntimeException;
-use Symfony\Component\EventDispatcher\Event;
 
 class ContainerOnCutCallbackListener extends AbstractStaticCallbackListener
 {

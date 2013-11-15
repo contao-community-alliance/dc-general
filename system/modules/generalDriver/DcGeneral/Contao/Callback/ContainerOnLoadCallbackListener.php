@@ -13,7 +13,6 @@
 namespace DcGeneral\Contao\Callback;
 
 use DcGeneral\DC_General;
-use DcGeneral\Exception\DcGeneralRuntimeException;
 
 class ContainerOnLoadCallbackListener extends AbstractStaticCallbackListener
 {

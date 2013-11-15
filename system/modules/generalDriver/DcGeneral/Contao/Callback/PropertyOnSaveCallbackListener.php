@@ -14,7 +14,7 @@ namespace DcGeneral\Contao\Callback;
 
 use DcGeneral\DC_General;
 
-class ContainerOnDeleteCallbackListener extends AbstractCallbackListener
+class PropertyOnSaveCallbackListener extends AbstractCallbackListener
 {
 	/**
 	 * @var DC_General
@@ -28,13 +28,25 @@ class ContainerOnDeleteCallbackListener extends AbstractCallbackListener
 	}
 
 	/**
-	 * @param \Symfony\Component\EventDispatcher\Event $event
+	 * Invoke the callback.
+	 *
+	 * @param \DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent $event
+	 */
+	public function __invoke($event)
+	{
+		if ($this->getCallback())
+		{
+			$event->setValue(Callbacks::callArgs($this->getCallback(), $this->getArgs($event)));
+		}
+	}
+
+	/**
+	 * @param \DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent $event
 	 *
 	 * @return array
 	 */
 	public function getArgs($event)
 	{
-		// TODO find a way to get tl_undo record ID here
-		return array($this->dcGeneral, 0);
+		return array($event->getValue(), $this->dcGeneral);
 	}
 }

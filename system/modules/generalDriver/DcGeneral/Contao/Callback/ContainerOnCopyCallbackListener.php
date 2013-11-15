@@ -13,8 +13,6 @@
 namespace DcGeneral\Contao\Callback;
 
 use DcGeneral\DC_General;
-use DcGeneral\Exception\DcGeneralRuntimeException;
-use Symfony\Component\EventDispatcher\Event;
 
 class ContainerOnCopyCallbackListener extends AbstractCallbackListener
 {
@@ -30,9 +28,11 @@ class ContainerOnCopyCallbackListener extends AbstractCallbackListener
 	}
 
 	/**
+	 * @param \Symfony\Component\EventDispatcher\Event $event
+	 *
 	 * @return array
 	 */
-	public function getArgs(Event $event = null)
+	public function getArgs($event)
 	{
 		// TODO find a way to get inserted model ID here
 		return array(0, $this->dcGeneral);
