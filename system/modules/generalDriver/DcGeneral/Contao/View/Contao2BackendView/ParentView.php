@@ -125,12 +125,12 @@ class ParentView extends BaseView
 				// If the current First sorting is the default one use the global flag
 				else if ($firstSorting == $orderBy[0])
 				{
-					$sortingMode = $listing->getSortingMode();
+					$sortingMode = $listing->getGroupingMode();
 				}
 				// Use the field flag, if given
-				else if ($properties->getProperty($firstSorting)->getSortingMode() != '')
+				else if ($properties->getProperty($firstSorting)->getGroupingMode() != '')
 				{
-					$sortingMode = $properties->getProperty($firstSorting)->getSortingMode();
+					$sortingMode = $properties->getProperty($firstSorting)->getGroupingMode();
 				}
 				// Use the global as fallback
 				else
