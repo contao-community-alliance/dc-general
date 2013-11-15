@@ -32,6 +32,7 @@ use DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetE
 use DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\FormatGroupLabelEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
@@ -176,7 +177,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/label/group_callback'))
 		{
 			$dispatcher->addListener(
-				sprintf('%s[%s]', FormatGroupLabelEvent::NAME, $container->getName()),
+				sprintf('%s[%s]', GetGroupHeaderEvent::NAME, $container->getName()),
 				new ModelGroupCallbackListener($callback)
 			);
 		}

@@ -12,7 +12,6 @@
 namespace DcGeneral;
 
 use CyberSpectrum\ContaoDebugger\Debugger;
-use DcGeneral\Contao\View\Contao2BackendView\Event\FormatGroupLabelEvent;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Factory\DcGeneralFactory;

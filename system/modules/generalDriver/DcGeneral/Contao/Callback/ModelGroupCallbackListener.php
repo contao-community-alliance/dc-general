@@ -12,27 +12,27 @@
 
 namespace DcGeneral\Contao\Callback;
 
-use DcGeneral\Contao\View\Contao2BackendView\Event\FormatGroupLabelEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 
 class ModelGroupCallbackListener extends AbstractReturningCallbackListener
 {
 	/**
-	 * @param FormatGroupLabelEvent $event
+	 * @param GetGroupHeaderEvent $event
 	 *
 	 * @return array
 	 */
 	public function getArgs($event)
 	{
 		return array(
-			$event->getGroupLabel(),
-			$event->getMode(),
-			$event->getPropertyName(),
+			$event->getGroupField(),
+			$event->getSortingMode(),
+			$event->getValue(),
 			$event->getModel()->getPropertiesAsArray()
 		);
 	}
 
 	/**
-	 * @param FormatGroupLabelEvent $event
+	 * @param GetGroupHeaderEvent $event
 	 *
 	 * @return void
 	 */
@@ -42,7 +42,7 @@ class ModelGroupCallbackListener extends AbstractReturningCallbackListener
 			return;
 		}
 
-		$event->setGroupLabel($value);
+		$event->setGroupField($value);
 		$event->stopPropagation();
 	}
 }

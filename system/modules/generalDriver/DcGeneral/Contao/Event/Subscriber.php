@@ -24,7 +24,6 @@ class Subscriber
 	{
 		return array
 		(
-			GetGroupHeaderEvent::NAME        => 'GetGroupHeader',
 			GetParentHeaderEvent::NAME       => 'GetParentHeader',
 
 			GetBreadcrumbEvent::NAME         => 'GetBreadcrumb',
@@ -33,19 +32,6 @@ class Subscriber
 			GetPropertyOptionsEvent::NAME    => 'GetPropertyOptions',
 
 			RenderReadablePropertyValueEvent::NAME => 'renderReadablePropertyValue',
-		);
-	}
-
-	public function GetGroupHeader(GetGroupHeaderEvent $event)
-	{
-		$event->setGroupField(
-			$event->getEnvironment()
-			->getCallbackHandler()->groupCallback(
-				$event->getGroupField(),
-				$event->getSortingMode(),
-				$event->getValue(),
-				$event->getModel()
-			)
 		);
 	}
 
