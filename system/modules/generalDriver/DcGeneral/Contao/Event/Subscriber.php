@@ -15,7 +15,6 @@ use DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
-use DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
 
 /**
  * Class Subscriber - gateway to the legacy Contao HOOK style callbacks.
@@ -36,7 +35,6 @@ class Subscriber
 			ModelToLabelEvent::NAME          => 'ModelToLabel',
 			GetGroupHeaderEvent::NAME        => 'GetGroupHeader',
 			GetParentHeaderEvent::NAME       => 'GetParentHeader',
-			ParentViewChildRecordEvent::NAME => 'ParentViewChildRecord',
 
 			GetBreadcrumbEvent::NAME         => 'GetBreadcrumb',
 
@@ -162,22 +160,6 @@ class Subscriber
 		if ($additional !== null)
 		{
 			$event->setAdditional($additional);
-		}
-	}
-
-	/**
-	 * Handles $GLOBALS['TL_DCA']['tl_*']['list']['sorting']['child_record_class'] callbacks.
-	 *
-	 * @param ParentViewChildRecordEvent $event
-	 */
-	public function ParentViewChildRecord(ParentViewChildRecordEvent $event)
-	{
-		$html = $event->getEnvironment()
-			->getCallbackHandler()->childRecordCallback($event->getModel());
-
-		if ($html !== null)
-		{
-			$event->setHtml($html);
 		}
 	}
 

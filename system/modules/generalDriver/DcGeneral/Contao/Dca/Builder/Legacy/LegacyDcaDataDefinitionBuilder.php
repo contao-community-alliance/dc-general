@@ -18,6 +18,7 @@ use DcGeneral\Contao\Callback\ContainerOnDeleteCallbackListener;
 use DcGeneral\Contao\Callback\ContainerOnLoadCallbackListener;
 use DcGeneral\Contao\Callback\ContainerOnSubmitCallbackListener;
 use DcGeneral\Contao\Callback\ContainerPasteRootButtonCallbackListener;
+use DcGeneral\Contao\Callback\ModelChildRecordCallbackListener;
 use DcGeneral\Contao\Callback\StaticCallbackListener;
 use DcGeneral\Contao\Callback\PropertyOnLoadCallbackListener;
 use DcGeneral\Contao\Callback\PropertyOnSaveCallbackListener;
@@ -27,6 +28,7 @@ use DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetE
 use DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
@@ -153,6 +155,14 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			$dispatcher->addListener(
 				sprintf('%s[%s]', GetPasteButtonEvent::NAME, $container->getName()),
 				new ContainerPasteRootButtonCallbackListener($callback, $GLOBALS['objDcGeneral'])
+			);
+		}
+
+		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/sorting/child_record_callback'))
+		{
+			$dispatcher->addListener(
+				sprintf('%s[%s]', ParentViewChildRecordEvent::NAME, $container->getName()),
+				new ModelChildRecordCallbackListener($callback)
 			);
 		}
 
