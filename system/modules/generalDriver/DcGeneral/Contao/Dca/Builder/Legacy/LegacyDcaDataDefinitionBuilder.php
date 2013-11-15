@@ -13,6 +13,7 @@
 namespace DcGeneral\Contao\Dca\Builder\Legacy;
 
 use DcGeneral\Contao\Callback\ContainerGlobalButtonCallbackListener;
+use DcGeneral\Contao\Callback\ContainerHeaderCallbackListener;
 use DcGeneral\Contao\Callback\ContainerOnCopyCallbackListener;
 use DcGeneral\Contao\Callback\ContainerOnCutCallbackListener;
 use DcGeneral\Contao\Callback\ContainerOnDeleteCallbackListener;
@@ -34,6 +35,7 @@ use DcGeneral\Contao\View\Contao2BackendView\Event\FormatGroupLabelEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
@@ -153,6 +155,14 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 					new ContainerOnCopyCallbackListener($callback, $GLOBALS['objDcGeneral'])
 				);
 			}
+		}
+
+		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/sorting/header_callback'))
+		{
+			$dispatcher->addListener(
+				sprintf('%s[%s]', GetParentHeaderEvent::NAME, $container->getName()),
+				new ContainerHeaderCallbackListener($callback, $GLOBALS['objDcGeneral'])
+			);
 		}
 
 		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/sorting/paste_button_callback'))

@@ -24,8 +24,6 @@ class Subscriber
 	{
 		return array
 		(
-			GetParentHeaderEvent::NAME       => 'GetParentHeader',
-
 			GetBreadcrumbEvent::NAME         => 'GetBreadcrumb',
 
 			ResolveWidgetErrorMessageEvent::NAME => array('resolveWidgetErrorMessage', -1),
@@ -33,17 +31,6 @@ class Subscriber
 
 			RenderReadablePropertyValueEvent::NAME => 'renderReadablePropertyValue',
 		);
-	}
-
-	public function GetParentHeader(GetParentHeaderEvent $event)
-	{
-		$additional = $event->getEnvironment()
-			->getCallbackHandler()->headerCallback($event->getAdditional());
-
-		if ($additional !== null)
-		{
-			$event->setAdditional($additional);
-		}
 	}
 
 	public function GetBreadcrumb(GetBreadcrumbEvent $event)

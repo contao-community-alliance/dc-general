@@ -243,12 +243,13 @@ class ParentView extends BaseView
 			}
 		}
 
-		$event = new GetParentHeaderEvent();
-		$event
-			->setEnvironment($environment)
-			->setAdditional($add);
+		$event = new GetParentHeaderEvent($this->getEnvironment());
+		$event->setAdditional($add);
 
-		$this->dispatchEvent(GetParentHeaderEvent::NAME, $event);
+		$this->getEnvironment()->getEventPropagator()->propagate(
+			$event,
+			$this->getEnvironment()->getDataDefinition()->getName()
+		);
 
 		if (!$event->getAdditional() !== null)
 		{
