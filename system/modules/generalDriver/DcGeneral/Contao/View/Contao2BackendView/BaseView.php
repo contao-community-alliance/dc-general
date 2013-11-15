@@ -849,7 +849,15 @@ class BaseView implements BackendViewInterface
 
 		$this->checkRestoreVersion();
 
-		$model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId));
+		if (strlen($modelId))
+		{
+			$model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId));
+		}
+		else
+		{
+			$model = $dataProvider->getEmptyModel();
+		}
+
 		$widgetManager = new ContaoWidgetManager($environment, $model);
 
 		// Check if table is editable
