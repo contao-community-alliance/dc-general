@@ -195,7 +195,7 @@ class BaseView implements BackendViewInterface
 	 */
 	public function formatCurrentValue($field, $value, $mode)
 	{
-		$property   = $this->getDataDefinition()->getPropertiesSection()->getProperty($field);
+		$property   = $this->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
 
 		// No property? Get out!
 		if (!$property)
@@ -210,7 +210,8 @@ class BaseView implements BackendViewInterface
 		{
 			$remoteNew = ($value != '') ? ucfirst($this->translate('yes', 'MSC')) : ucfirst($this->translate('no', 'MSC'));
 		}
-		elseif ($property->get('foreignKey'))
+		// TODO: refactor foreignKey is yet undefined.
+		elseif (false && $property->getForeignKey())
 		{
 			// TODO: case handling
 
@@ -261,7 +262,8 @@ class BaseView implements BackendViewInterface
 			{
 				$remoteNew = ($value != '') ? $field : '';
 			}
-			elseif (is_array($property->get('reference')))
+			// TODO: refactor reference is yet undefined.
+			elseif (false && is_array($property->get('reference')))
 			{
 				$reference = $property->get('reference');
 				$remoteNew = $reference[$value];
@@ -309,9 +311,10 @@ class BaseView implements BackendViewInterface
 
 		$environment = $this->getEnvironment();
 		$definition  = $environment->getDataDefinition();
-		$property    = $definition->getPropertiesSection()->getProperty($field);
+		$property    = $definition->getPropertiesDefinition()->getProperty($field);
 		$options     = $property->getOptions();
-		$reference   = $property->get('reference');
+		// TODO: refactor reference is yet undefined.
+		$reference   = null; // $property->get('reference');
 
 		if (array_is_assoc($options))
 		{
