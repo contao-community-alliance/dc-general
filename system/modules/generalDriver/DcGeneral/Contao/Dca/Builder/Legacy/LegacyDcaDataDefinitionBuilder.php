@@ -38,6 +38,10 @@ use DcGeneral\DataDefinition\Definition\View\Panel\DefaultFilterElementInformati
 use DcGeneral\DataDefinition\Definition\View\Panel\DefaultLimitElementInformation;
 use DcGeneral\DataDefinition\Definition\View\Panel\DefaultSearchElementInformation;
 use DcGeneral\DataDefinition\Definition\View\Panel\DefaultSortElementInformation;
+use DcGeneral\Event\PostDeleteModelEvent;
+use DcGeneral\Event\PostDuplicateModelEvent;
+use DcGeneral\Event\PostPasteModelEvent;
+use DcGeneral\Event\PostPersistModelEvent;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
@@ -87,7 +91,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		{
 			foreach ($callbacks as $callback) {
 				$dispatcher->addListener(
-					CreateDcGeneralEvent::NAME,
+					sprintf('%s[%s]', CreateDcGeneralEvent::NAME, $container->getName()),
 					new ContainerOnLoadCallbackListener($callback, $GLOBALS['objDcGeneral'])
 				);
 			}
@@ -95,37 +99,30 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/onsubmit_callback')))
 		{
-			// TODO use the submit related event here
-			/*
 			foreach ($callbacks as $callback) {
 				$dispatcher->addListener(
-					CreateDcGeneralEvent::NAME,
+					sprintf('%s[%s]', PostPersistModelEvent::NAME, $container->getName()),
 					new ContainerOnSubmitCallbackListener($callback, $GLOBALS['objDcGeneral'])
 				);
 			}
-			*/
 		}
 
 		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/ondelete_callback')))
 		{
-			// TODO use the submit related event here
-			/*
 			foreach ($callbacks as $callback) {
 				$dispatcher->addListener(
-					CreateDcGeneralEvent::NAME,
+					sprintf('%s[%s]', PostDeleteModelEvent::NAME, $container->getName()),
 					new ContainerOnDeleteCallbackListener($callback, $GLOBALS['objDcGeneral'])
 				);
 			}
-			*/
 		}
 
-		/*
 		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/oncut_callback')))
 		{
 			foreach ($callbacks as $callback) {
 				$dispatcher->addListener(
-					CreateDcGeneralEvent::NAME,
-					new StaticCallbackListener($callback, $GLOBALS['objDcGeneral'])
+					sprintf('%s[%s]', PostPasteModelEvent::NAME, $container->getName()),
+					new ContainerOnCutCallbackListener($callback, $GLOBALS['objDcGeneral'])
 				);
 			}
 		}
@@ -134,12 +131,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		{
 			foreach ($callbacks as $callback) {
 				$dispatcher->addListener(
-					CreateDcGeneralEvent::NAME,
-					new StaticCallbackListener($callback, $GLOBALS['objDcGeneral'])
+					sprintf('%s[%s]', PostDuplicateModelEvent::NAME, $container->getName()),
+					new ContainerOnCopyCallbackListener($callback, $GLOBALS['objDcGeneral'])
 				);
 			}
 		}
-		*/
 	}
 
 	/**
