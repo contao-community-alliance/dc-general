@@ -17,6 +17,7 @@ use DcGeneral\Contao\Callback\ContainerOnCutCallbackListener;
 use DcGeneral\Contao\Callback\ContainerOnDeleteCallbackListener;
 use DcGeneral\Contao\Callback\ContainerOnLoadCallbackListener;
 use DcGeneral\Contao\Callback\ContainerOnSubmitCallbackListener;
+use DcGeneral\Contao\Callback\ContainerPasteRootButtonCallbackListener;
 use DcGeneral\Contao\Callback\StaticCallbackListener;
 use DcGeneral\Contao\Callback\PropertyOnLoadCallbackListener;
 use DcGeneral\Contao\Callback\PropertyOnSaveCallbackListener;
@@ -24,6 +25,8 @@ use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
 use DcGeneral\Contao\Dca\Palette\LegacyPalettesParser;
 use DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
@@ -139,6 +142,18 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 					new ContainerOnCopyCallbackListener($callback, $GLOBALS['objDcGeneral'])
 				);
 			}
+		}
+
+		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/sorting/paste_button_callback'))
+		{
+			$dispatcher->addListener(
+				sprintf('%s[%s]', GetPasteRootButtonEvent::NAME, $container->getName()),
+				new ContainerPasteRootButtonCallbackListener($callback, $GLOBALS['objDcGeneral'])
+			);
+			$dispatcher->addListener(
+				sprintf('%s[%s]', GetPasteButtonEvent::NAME, $container->getName()),
+				new ContainerPasteRootButtonCallbackListener($callback, $GLOBALS['objDcGeneral'])
+			);
 		}
 
 		if (isset($GLOBALS['objDcGeneral'])) {

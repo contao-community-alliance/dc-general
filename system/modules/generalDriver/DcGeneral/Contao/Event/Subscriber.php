@@ -14,8 +14,6 @@ use DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonsEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
-use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
-use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
 
@@ -34,8 +32,6 @@ class Subscriber
 			GetGlobalButtonEvent::NAME       => 'GetGlobalButton',
 			GetGlobalButtonsEvent::NAME      => 'GetGlobalButtons',
 			GetOperationButtonEvent::NAME    => 'GetOperationButton',
-			GetPasteButtonEvent::NAME        => 'GetPasteButton',
-			GetPasteRootButtonEvent::NAME    => 'GetPasteRootButton',
 
 			ModelToLabelEvent::NAME          => 'ModelToLabel',
 			GetGroupHeaderEvent::NAME        => 'GetGroupHeader',
@@ -112,63 +108,6 @@ class Subscriber
 			$event->getPrevious(),
 			$event->getNext()
 		);
-
-		if (!is_null($strButtonCallback))
-		{
-			$event
-				->setHtml($strButtonCallback)
-				->stopPropagation();
-
-			return;
-		}
-	}
-
-	/**
-	 * Triggers the globalButtonCallback() of the registered callback handler in the environment.
-	 *
-	 * @param GetPasteButtonEvent $event
-	 */
-	public function GetPasteButton(GetPasteButtonEvent $event)
-	{
-		// Callback for paste btt
-		$strButtonCallback = $event->getEnvironment()
-			->getCallbackHandler()
-			->pasteButtonCallback(
-				($objModel = $event->getModel()) ? $objModel->getPropertiesAsArray() : null,
-				$event->getEnvironment()->getDataDefinition()->getName(),
-				$event->getCircularReference(),
-				$event->getEnvironment()->getClipboard()->getContainedIds(),
-				$event->getPrevious(),
-				$event->getNext()
-			);
-
-		if (!is_null($strButtonCallback))
-		{
-			$event
-				->setHtml($strButtonCallback)
-				->stopPropagation();
-
-			return;
-		}
-	}
-	/**
-	 * Triggers the globalButtonCallback() of the registered callback handler in the environment.
-	 *
-	 * @param GetPasteRootButtonEvent $event
-	 */
-	public function GetPasteRootButton(GetPasteRootButtonEvent $event)
-	{
-		// Callback for paste btt
-		$strButtonCallback = $event->getEnvironment()
-			->getCallbackHandler()
-			->pasteButtonCallback(
-				$event->getEnvironment()->getDataDriver()->getEmptyModel()->getPropertiesAsArray(),
-				$event->getEnvironment()->getDataDefinition()->getName(),
-				false,
-				$event->getEnvironment()->getClipboard()->getContainedIds(),
-				null,
-				null
-			);
 
 		if (!is_null($strButtonCallback))
 		{
