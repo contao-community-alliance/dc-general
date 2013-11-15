@@ -19,6 +19,7 @@ use DcGeneral\Data\DCGE;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
 use DcGeneral\Data\ModelInterface;
+use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 
 class ParentView extends BaseView
@@ -90,8 +91,15 @@ class ParentView extends BaseView
 	 */
 	protected function renderEntries($collection)
 	{
-		$definition   = $this->getEnvironment()->getDataDefinition();
-		$firstSorting = $definition->getFirstSorting();
+		$environment = $this->getEnvironment();
+		$definition  = $environment->getDataDefinition();
+		$view        = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+		/** @var Contao2BackendViewDefinitionInterface $view */
+		$listing     = $view->getListingConfig();
+
+		$objConfig = $environment->getDataProvider()->getEmptyConfig();
+		$this->getPanel()->initialize($objConfig);
+		$firstSorting = $objConfig->getSorting() ? reset($objConfig->getSorting()) : '';
 
 		$strGroup = '';
 
@@ -101,11 +109,11 @@ class ParentView extends BaseView
 		{
 			/** @var ModelInterface $model */
 			$i++;
-			// Get model
 
 			// Add the group header
-			if (!$definition->isGroupingDisabled() && $firstSorting != 'sorting')
+			if (($listing->getGroupingMode() !== ListingConfigInterface::GROUP_NONE) && ($firstSorting != 'sorting'))
 			{
+				$properties = $definition->getPropertiesDefinition();
 				// get a list with all fields for sorting
 				$orderBy = $definition->getAdditionalSorting();
 
@@ -117,17 +125,17 @@ class ParentView extends BaseView
 				// If the current First sorting is the default one use the global flag
 				else if ($firstSorting == $orderBy[0])
 				{
-					$sortingMode = $definition->getSortingFlag();
+					$sortingMode = $listing->getSortingMode();
 				}
 				// Use the field flag, if given
-				else if ($definition->getProperty($firstSorting)->getSortingFlag() != '')
+				else if ($properties->getProperty($firstSorting)->getSortingMode() != '')
 				{
-					$sortingMode = $definition->getProperty($firstSorting)->getSortingFlag();
+					$sortingMode = $properties->getProperty($firstSorting)->getSortingMode();
 				}
 				// Use the global as fallback
 				else
 				{
-					$sortingMode = $definition->getSortingFlag();
+					$sortingMode = $listing->getSortingMode();
 				}
 
 				$remoteNew = $this->formatCurrentValue($firstSorting, $model->getProperty($firstSorting), $sortingMode);
@@ -140,15 +148,18 @@ class ParentView extends BaseView
 				}
 			}
 
-			$model->setMeta(DCGE::MODEL_CLASS, ($this->getDC()->arrDCA['list']['sorting']['child_record_class'] != '') ? ' ' . $this->getDC()->arrDCA['list']['sorting']['child_record_class'] : '');
+			if ($listing->getItemCssClass())
+			{
+				$model->setMeta(DCGE::MODEL_CLASS, $listing->getItemCssClass());
+			}
 
 			// Regular buttons
 			if (!$this->isSelectModeActive())
 			{
-				$strPrevious = ((!is_null($this->getCurrentCollection()->get($i - 1))) ? $this->getCurrentCollection()->get($i - 1)->getID() : null);
-				$strNext = ((!is_null($this->getCurrentCollection()->get($i + 1))) ? $this->getCurrentCollection()->get($i + 1)->getID() : null);
+				$strPrevious = ((!is_null($collection->get($i - 1))) ? $collection->get($i - 1)->getID() : null);
+				$strNext = ((!is_null($collection->get($i + 1))) ? $collection->get($i + 1)->getID() : null);
 
-				$buttons = $this->generateButtons($model, $this->getDataDefinition()->getName(), $this->getDC()->getEnvironment()->getRootIds(), false, null, $strPrevious, $strNext);
+				$buttons = $this->generateButtons($model, $definition->getName(), $environment->getRootIds(), false, null, $strPrevious, $strNext);
 
 				$model->setMeta(DCGE::MODEL_BUTTONS, $buttons);
 			}
@@ -401,7 +412,7 @@ class ParentView extends BaseView
 			->addToTemplate('selectButtons', $this->getSelectButtons(), $objTemplate)
 			->addToTemplate('headerButtons', $this->getHeaderButtons($parentModel), $objTemplate);
 
-		$this->renderEntries();
+		$this->renderEntries($collection);
 
 		// Add breadcrumb, if we have one
 		$strBreadcrumb = $this->breadcrumb();
