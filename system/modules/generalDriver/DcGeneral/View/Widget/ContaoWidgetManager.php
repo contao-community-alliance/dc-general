@@ -432,7 +432,10 @@ class ContaoWidgetManager implements WidgetManagerInterface
 		foreach (array_keys($propertyValues->getArrayCopy()) as $property)
 		{
 			$widget = $this->getWidget($property);
-			$widget->value = $this->decodeValue($property, $propertyValues->getPropertyValue($property));
+			// NOTE: the passed input values are RAW DATA from the input provider - aka widget known values and not native data as in the model.
+			// Therefore we do not need to decode them but MUST encode them.
+			// $widget->value = $this->decodeValue($property, $propertyValues->getPropertyValue($property));
+			$widget->value = $propertyValues->getPropertyValue($property);
 			$widget->validate();
 
 			if ($widget->hasErrors())

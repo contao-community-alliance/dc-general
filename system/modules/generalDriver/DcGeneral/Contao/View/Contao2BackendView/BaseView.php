@@ -828,6 +828,7 @@ class BaseView implements BackendViewInterface
 	 *
 	 * @return string
 	 *
+	 * @throws \DcGeneral\Exception\DcGeneralRuntimeException
 	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException
 	 */
 	public function edit()
@@ -835,20 +836,43 @@ class BaseView implements BackendViewInterface
 		// Load basic information
 		$this->checkLanguage();
 
-		$environment         = $this->getEnvironment();
-		$definition          = $environment->getDataDefinition();
-		$driver              = $environment->getDataProvider();
-		$palettesDefinition  = $definition->getPalettesDefinition();
-		$model               = $driver->fetch($driver->getEmptyConfig()->setId($environment->getInputProvider()->getParameter('id')));
-		$propertyDefinitions = $definition->getPropertiesDefinition();
-		$widgetManager       = new ContaoWidgetManager($environment, $model);
+		$environment             = $this->getEnvironment();
+		$definition              = $environment->getDataDefinition();
+		$dataProvider            = $environment->getDataProvider();
+		$dataProviderInformation = $definition->getDataProviderDefinition()->getInformation($definition->getBasicDefinition()->getDataProvider());
+		$inputProvider           = $environment->getInputProvider();
+		$palettesDefinition      = $definition->getPalettesDefinition();
+		$modelId                 = $inputProvider->getParameter('id');
+		$propertyDefinitions     = $definition->getPropertiesDefinition();
+		$blnSubmitted            = ($inputProvider->getValue('FORM_SUBMIT') === $definition->getName());
+
+		$this->checkRestoreVersion();
+
+		$model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId));
+		$widgetManager = new ContaoWidgetManager($environment, $model);
+
+		// Check if table is editable
+		if (!$definition->getBasicDefinition()->isEditable())
+		{
+			$message = 'DataContainer ' . $definition->getName() . ' is not editable';
+			BackendBindings::log($message, TL_ERROR, 'DC_General - edit()');
+			throw new DcGeneralRuntimeException($message);
+		}
+
+		// Check if table is closed but we are adding a new item.
+		if ((!$modelId) && $definition->getBasicDefinition()->isClosed())
+		{
+			$message = 'DataContainer ' . $definition->getName() . ' is closed';
+			BackendBindings::log($message, TL_ERROR, 'DC_General - edit()');
+			throw new DcGeneralRuntimeException($message);
+		}
 
 		// Pass 1: Get the palette for the values stored in the model.
 		$palette = $palettesDefinition->findPalette($model);
 
 		$propertyValues     = $this->processInput($widgetManager);
 		$errors             = array();
-		if ($propertyValues)
+		if ($blnSubmitted && $propertyValues)
 		{
 			// Pass 2: Determine the real palette we want to work on if we have some data submitted.
 			$palette = $palettesDefinition->findPalette($model, $propertyValues);
@@ -885,6 +909,28 @@ class BaseView implements BackendViewInterface
 			$arrFieldSets[] = $arrFieldSet;
 		}
 
+		if ($blnSubmitted)
+		{
+			if ($model->getMeta(DCGE::MODEL_IS_CHANGED))
+			{
+				$dataProvider->save($model);
+
+				if ($dataProviderInformation->isVersioningEnabled())
+				{
+					// Compare version and current record
+					$currentVersion = $dataProvider->getActiveVersion($modelId);
+					if (!$currentVersion || !$dataProvider->sameModels($model, $dataProvider->getVersion($modelId, $currentVersion)))
+					{
+						// TODO: FE|BE switch
+						$user = \BackendUser::getInstance();
+						$dataProvider->saveVersion($model, $user->username);
+					}
+				}
+			}
+
+			BackendBindings::reload();
+		}
+
 		if ($model->getId())
 		{
 			$strHeadline = sprintf($this->translate('editRecord', $definition->getName()), 'ID ' . $model->getId());
@@ -903,7 +949,7 @@ class BaseView implements BackendViewInterface
 		$objTemplate = new \BackendTemplate('dcbe_general_edit');
 		$objTemplate->setData(array(
 			'fieldsets' => $arrFieldSets,
-			'versions' => $driver->getVersions($model->getId()),
+			'versions' => $dataProviderInformation->isVersioningEnabled() ? $dataProvider->getVersions($model->getId()) : null,
 			'subHeadline' => $strHeadline,
 			'table' => $definition->getName(),
 			'enctype' => 'multipart/form-data',
@@ -917,11 +963,11 @@ class BaseView implements BackendViewInterface
 			$langsNative = array();
 			include(TL_ROOT . '/system/config/languages.php');
 
-			/** @var MultiLanguageDriverInterface $driver */
+			/** @var MultiLanguageDriverInterface $dataProvider */
 			$this
 				->addToTemplate('languages', $environment->getController()->getSupportedLanguages($model->getId()), $objTemplate)
-				->addToTemplate('language', $driver->getCurrentLanguage(), $objTemplate)
-				->addToTemplate('languageHeadline', $langsNative[$driver->getCurrentLanguage()], $objTemplate);
+				->addToTemplate('language', $dataProvider->getCurrentLanguage(), $objTemplate)
+				->addToTemplate('languageHeadline', $langsNative[$dataProvider->getCurrentLanguage()], $objTemplate);
 		}
 		else
 		{
@@ -1651,7 +1697,6 @@ class BaseView implements BackendViewInterface
 					$propertyValues->setPropertyValue($propertyName, $propertyValue);
 				}
 			}
-
 			$widgetManager->processInput($propertyValues);
 
 			return $propertyValues;
