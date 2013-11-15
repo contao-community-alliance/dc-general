@@ -3,11 +3,8 @@
 namespace DcGeneral\Contao\Event;
 
 use DcGeneral\Contao\BackendBindings;
-use DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
-use DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\View\Event\RenderReadablePropertyValueEvent;
-use DcGeneral\Factory\Event\CreateDcGeneralEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use DcGeneral\View\Widget\Event\ResolveWidgetErrorMessageEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
@@ -50,12 +47,7 @@ class Subscriber
 			ResolveWidgetErrorMessageEvent::NAME => array('resolveWidgetErrorMessage', -1),
 			GetPropertyOptionsEvent::NAME    => 'GetPropertyOptions',
 
-			CreateDcGeneralEvent::NAME       => 'CreateDcGeneral',
-
 			RenderReadablePropertyValueEvent::NAME => 'renderReadablePropertyValue',
-
-			DecodePropertyValueForWidgetEvent::NAME => 'decodePropertyValueForWidget',
-			EncodePropertyValueFromWidgetEvent::NAME => 'encodePropertyValueFromWidget',
 		);
 	}
 
@@ -291,16 +283,6 @@ class Subscriber
 		$event->setOptions($arrReturn);
 	}
 
-	public function CreateDcGeneral(CreateDcGeneralEvent $event)
-	{
-		$environment = $event->getDcGeneral()->getEnvironment();
-		$definition  = $environment->getDataDefinition();
-
-		$environment
-			->getCallbackHandler()
-			->onloadCallback($definition->getName());
-	}
-
 	public function renderReadablePropertyValue(RenderReadablePropertyValueEvent $event)
 	{
 		if ($event->getRendered() !== null) {
@@ -395,30 +377,5 @@ class Subscriber
 		else if ($value instanceof \DateTime) {
 			$event->setRendered(BackendBindings::parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $value->getTimestamp()));
 		}
-	}
-
-
-	public function decodePropertyValueForWidget(DecodePropertyValueForWidgetEvent $event)
-	{
-		$mixedValue = $event
-			->getEnvironment()
-			->getCallbackHandler()
-			->loadCallback($event->getProperty(), $event->getValue());
-
-		$event->setValue($mixedValue);
-	}
-
-	public function encodePropertyValueFromWidget(EncodePropertyValueFromWidgetEvent $event)
-	{
-		$mixedValue = $event
-			->getEnvironment()
-			->getCallbackHandler()
-			->saveCallback(
-				array(
-				$event->getProperty()
-				)
-				, $event->getValue());
-
-		$event->setValue($mixedValue);
 	}
 }
