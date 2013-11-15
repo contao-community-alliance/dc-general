@@ -75,16 +75,17 @@ interface LegendInterface
 	 *
 	 * @return LegendInterface
 	 */
-	public function addProperties(array $properties);
+	public function addProperties(array $properties, PropertyInterface $before = null);
 
 	/**
 	 * Add a property to this legend.
 	 *
 	 * @param PropertyInterface $property
+	 * @param PropertyInterface $before
 	 *
 	 * @return LegendInterface
 	 */
-	public function addProperty(PropertyInterface $property);
+	public function addProperty(PropertyInterface $property, PropertyInterface $before = null);
 
 	/**
 	 * Remove a property from this legend.

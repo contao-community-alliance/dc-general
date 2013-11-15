@@ -14,6 +14,7 @@ namespace DcGeneral\DataDefinition\Palette;
 
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\PropertyValueBag;
+use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 /**
  * Default implementation of a legend.
@@ -106,10 +107,10 @@ class Legend implements LegendInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function addProperties(array $properties)
+	public function addProperties(array $properties, PropertyInterface $before = null)
 	{
 		foreach ($properties as $property) {
-			$this->addProperty($property);
+			$this->addProperty($property, $before);
 		}
 		return $this;
 	}
@@ -117,10 +118,30 @@ class Legend implements LegendInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function addProperty(PropertyInterface $property)
+	public function addProperty(PropertyInterface $property, PropertyInterface $before = null)
 	{
 		$hash = spl_object_hash($property);
-		$this->properties[$hash] = $property;
+
+		if ($before) {
+			$beforeHash = spl_object_hash($before);
+
+			if (isset($this->properties[$beforeHash])) {
+				$hashes = array_keys($this->properties);
+				$position = array_search($beforeHash, $hashes);
+				$this->properties = array_merge(
+					array_slice($this->properties, 0, $position),
+					array($hash => $property),
+					array_slice($this->properties, $position)
+				);
+			}
+			else {
+				throw new DcGeneralInvalidArgumentException('Property ' . $before->getName() . ' not found');
+			}
+		}
+		else {
+			$this->properties[$hash] = $property;
+		}
+
 		return $this;
 	}
 
