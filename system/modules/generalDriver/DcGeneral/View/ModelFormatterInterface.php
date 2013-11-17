@@ -19,10 +19,12 @@ use DcGeneral\Data\ModelInterface;
  */
 interface ModelFormatterInterface
 {
-    /**
-     * Format a model and return a string representation.
-     * 
-     * @return string
-     */
-    public function format(ModelInterface $model);
+	/**
+	 * Format a model and return a string representation.
+	 *
+	 * @param ModelInterface $model
+	 *
+	 * @return string
+	 */
+	public function format(ModelInterface $model);
 }
