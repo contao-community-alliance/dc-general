@@ -603,7 +603,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		}
 
 		if (isset($labelDca['maxCharacters'])) {
-			$formatter->setMaxLenght($labelDca['maxCharacters']);
+			$formatter->setMaxLength($labelDca['maxCharacters']);
 			$configured = true;
 		}
 
