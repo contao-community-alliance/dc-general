@@ -134,6 +134,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/onload_callback')))
 		{
 			foreach ($callbacks as $callback) {
+				/** @noinspection PhpParamsInspection */
 				$dispatcher->addListener(
 					sprintf('%s[%s]', CreateDcGeneralEvent::NAME, $container->getName()),
 					new ContainerOnLoadCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -144,6 +145,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/onsubmit_callback')))
 		{
 			foreach ($callbacks as $callback) {
+				/** @noinspection PhpParamsInspection */
 				$dispatcher->addListener(
 					sprintf('%s[%s]', PostPersistModelEvent::NAME, $container->getName()),
 					new ContainerOnSubmitCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -154,6 +156,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/ondelete_callback')))
 		{
 			foreach ($callbacks as $callback) {
+				/** @noinspection PhpParamsInspection */
 				$dispatcher->addListener(
 					sprintf('%s[%s]', PostDeleteModelEvent::NAME, $container->getName()),
 					new ContainerOnDeleteCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -164,6 +167,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/oncut_callback')))
 		{
 			foreach ($callbacks as $callback) {
+				/** @noinspection PhpParamsInspection */
 				$dispatcher->addListener(
 					sprintf('%s[%s]', PostPasteModelEvent::NAME, $container->getName()),
 					new ContainerOnCutCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -174,6 +178,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/oncopy_callback')))
 		{
 			foreach ($callbacks as $callback) {
+				/** @noinspection PhpParamsInspection */
 				$dispatcher->addListener(
 					sprintf('%s[%s]', PostDuplicateModelEvent::NAME, $container->getName()),
 					new ContainerOnCopyCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -183,6 +188,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/sorting/header_callback'))
 		{
+			/** @noinspection PhpParamsInspection */
 			$dispatcher->addListener(
 				sprintf('%s[%s]', GetParentHeaderEvent::NAME, $container->getName()),
 				new ContainerHeaderCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -191,10 +197,12 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/sorting/paste_button_callback'))
 		{
+			/** @noinspection PhpParamsInspection */
 			$dispatcher->addListener(
 				sprintf('%s[%s]', GetPasteRootButtonEvent::NAME, $container->getName()),
 				new ContainerPasteRootButtonCallbackListener($callback, $GLOBALS['objDcGeneral'])
 			);
+			/** @noinspection PhpParamsInspection */
 			$dispatcher->addListener(
 				sprintf('%s[%s]', GetPasteButtonEvent::NAME, $container->getName()),
 				new ContainerPasteRootButtonCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -203,6 +211,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/sorting/child_record_callback'))
 		{
+			/** @noinspection PhpParamsInspection */
 			$dispatcher->addListener(
 				sprintf('%s[%s]', ParentViewChildRecordEvent::NAME, $container->getName()),
 				new ModelChildRecordCallbackListener($callback)
@@ -211,6 +220,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/label/group_callback'))
 		{
+			/** @noinspection PhpParamsInspection */
 			$dispatcher->addListener(
 				sprintf('%s[%s]', GetGroupHeaderEvent::NAME, $container->getName()),
 				new ModelGroupCallbackListener($callback)
@@ -219,6 +229,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/label/label_callback'))
 		{
+			/** @noinspection PhpParamsInspection */
 			$dispatcher->addListener(
 				sprintf('%s[%s]', ModelToLabelEvent::NAME, $container->getName()),
 				new ModelLabelCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -232,6 +243,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 					if (isset($operationInfo['button_callback']))
 					{
 						$callback = $operationInfo['button_callback'];
+						/** @noinspection PhpParamsInspection */
 						$dispatcher->addListener(
 							sprintf('%s[%s][%s]', GetGlobalButtonEvent::NAME, $container->getName(), $operationName),
 							new ContainerGlobalButtonCallbackListener($callback)
@@ -248,6 +260,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 					if (isset($operationInfo['button_callback']))
 					{
 						$callback = $operationInfo['button_callback'];
+						/** @noinspection PhpParamsInspection */
 						$dispatcher->addListener(
 							sprintf('%s[%s][%s]', GetOperationButtonEvent::NAME, $container->getName(), $operationName),
 							new ModelOperationButtonCallbackListener($callback)
@@ -263,6 +276,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 				if (isset($propInfo['load_callback']))
 				{
 					foreach ($propInfo['load_callback'] as $callback) {
+						/** @noinspection PhpParamsInspection */
 						$dispatcher->addListener(
 							DecodePropertyValueForWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
 							new PropertyOnLoadCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -273,6 +287,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 				if (isset($propInfo['save_callback']))
 				{
 					foreach ($propInfo['save_callback'] as $callback) {
+						/** @noinspection PhpParamsInspection */
 						$dispatcher->addListener(
 							EncodePropertyValueFromWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
 							new PropertyOnSaveCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -283,6 +298,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 				if (isset($propInfo['options_callback']))
 				{
 					$callback = $propInfo['options_callback'];
+					/** @noinspection PhpParamsInspection */
 					$dispatcher->addListener(
 						GetPropertyOptionsEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
 						new ModelOptionsCallbackListener($callback, $GLOBALS['objDcGeneral'])
