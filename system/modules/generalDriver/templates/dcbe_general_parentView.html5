@@ -1,3 +1,5 @@
+<?php echo $this->getMessages(); ?>
+
 <?php if ($this->select): ?>
 
 	<form action="<?php echo $this->action; ?>" id="tl_select" class="tl_form" method="post">
@@ -8,7 +10,7 @@
 		<?php endif; ?>
 
 		<div class="tl_listing_container parent_view table_<?php echo $this->tableName; ?>">
-			
+
 			<?php if(strlen($this->breadcrumb)) echo $this->breadcrumb; ?>
 
 			<div class="tl_header" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
@@ -25,7 +27,7 @@
 						<?php if (!$this->notEditableParent): ?>
 							<a href="<?php echo $this->editHeader['href']; ?>" title="<?php echo $this->editHeader['title']; ?>" onclick="Backend.getScrollOffset()"><?php echo $this->editHeader['content']; ?></a>
 						<?php endif; ?>
-							
+
 						<?php if (!$this->notEditable): ?>
 							<a href="<?php echo $this->pasteNew['href']; ?>" title="<?php echo $this->pasteNew['title']; ?>"><?php echo $this->pasteNew['content']; ?></a>
 						<?php endif; ?>
@@ -49,13 +51,13 @@
 
 				</table>
 
-			</div>     
+			</div>
 
-			<?php if ($this->hasSorting): ?><ul id="ul_<?php echo CURRENT_ID; ?>" class="sortable"><?php endif; ?>	
+			<?php if ($this->hasSorting): ?><ul id="ul_<?php echo CURRENT_ID; ?>" class="sortable"><?php endif; ?>
 
 				<?php foreach ($this->collection as $objModel): ?>
 
-					<?php if ($this->hasSorting): ?><li id="li_<?php echo $objModel->getID(); ?>"><?php endif; ?>	
+					<?php if ($this->hasSorting): ?><li id="li_<?php echo $objModel->getID(); ?>"><?php endif; ?>
 
 						<?php if (strlen($objModel->getMeta(DCGE::MODEL_GROUP_HEADER)) > 0): ?>
 							<div class="tl_content_header"><?php echo $objModel->getMeta(DCGE::MODEL_GROUP_HEADER); ?></div>
@@ -74,10 +76,10 @@
 
 							<?php echo $objModel->getMeta(DCGE::MODEL_LABEL_VALUE); ?>
 						</div>
-						<?php if ($this->hasSorting): ?></li><?php endif; ?>	
+						<?php if ($this->hasSorting): ?></li><?php endif; ?>
 				<?php endforeach; ?>
 
-				<?php if ($this->hasSorting): ?></ul><?php endif; ?>	
+				<?php if ($this->hasSorting): ?></ul><?php endif; ?>
 
 			<?php if ($this->collection->length() == 0): ?>
 
