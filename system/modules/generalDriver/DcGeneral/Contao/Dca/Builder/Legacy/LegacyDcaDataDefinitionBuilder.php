@@ -458,6 +458,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 * @param ContainerInterface $container
 	 *
 	 * @return void
+	 *
+	 * @throws DcGeneralInvalidArgumentException
 	 */
 	protected function parseBackendView(ContainerInterface $container)
 	{
@@ -485,7 +487,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	/**
 	 * Parse the listing configuration.
 	 *
-	 * @param ContainerInterface $container
+	 * @param ContainerInterface                    $container
+	 *
+	 * @param Contao2BackendViewDefinitionInterface $view
 	 *
 	 * @return void
 	 */
@@ -510,7 +514,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 *
 	 * @param ListingConfigInterface $listing
 	 *
+	 * @param array                  $listDca
+	 *
 	 * @return void
+	 *
+	 * @throws DcGeneralRuntimeException
 	 */
 	protected function parseListSorting(ListingConfigInterface $listing, array $listDca)
 	{
@@ -557,6 +565,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 *
 	 * @param ListingConfigInterface $listing
 	 *
+	 * @param array                  $listDca
+	 *
 	 * @return void
 	 */
 	protected function parseListLabel(ListingConfigInterface $listing, array $listDca)
@@ -593,7 +603,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	/**
 	 * Parse the defined palettes and populate the definition.
 	 *
-	 * @param ContainerInterface $container
+	 * @param ContainerInterface                    $container
+	 *
+	 * @param Contao2BackendViewDefinitionInterface $view
 	 *
 	 * @return void
 	 */
@@ -685,7 +697,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	/**
 	 * Parse the defined container scoped operations and populate the definition.
 	 *
-	 * @param ContainerInterface $container
+	 * @param ContainerInterface                    $container
+	 *
+	 * @param Contao2BackendViewDefinitionInterface $view
 	 *
 	 * @return void
 	 */
@@ -708,7 +722,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	/**
 	 * Parse the defined model scoped operations and populate the definition.
 	 *
-	 * @param ContainerInterface $container
+	 * @param ContainerInterface                    $container
+	 *
+	 * @param Contao2BackendViewDefinitionInterface $view
 	 *
 	 * @return void
 	 */
@@ -933,9 +949,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			unset($commandDca['description']);
 		}
 
+		// Callback is transformed into event in parseCallbacks().
 		if (isset($commandDca['button_callback'])) {
-			// TODO handle callback
-
 			unset($commandDca['button_callback']);
 		}
 
