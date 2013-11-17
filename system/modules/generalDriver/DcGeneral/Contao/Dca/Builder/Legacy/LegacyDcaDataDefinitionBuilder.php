@@ -69,7 +69,7 @@ use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use DcGeneral\Contao\View\Contao2BackendView\LabelFormatter;
 use DcGeneral\Factory\Event\CreateDcGeneralEvent;
 use DcGeneral\Factory\Event\PopulateEnvironmentEvent;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Build the container config from legacy DCA syntax.
@@ -123,11 +123,13 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	/**
 	 * Parse the basic configuration and populate the definition.
 	 *
-	 * @param ContainerInterface $container
+	 * @param ContainerInterface       $container
+	 *
+	 * @param EventDispatcherInterface $dispatcher
 	 *
 	 * @return void
 	 */
-	protected function parseCallbacks(ContainerInterface $container, EventDispatcher $dispatcher)
+	protected function parseCallbacks(ContainerInterface $container, EventDispatcherInterface $dispatcher)
 	{
 		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/onload_callback')))
 		{
