@@ -411,20 +411,6 @@ class DefaultController implements ControllerInterface
 	 * ////////////////////////////////////////////////////////////////// */
 
 	/**
-	 * Redirects to the real back end module.
-	 */
-	protected function redirectHome()
-	{
-		// FIXME: dependency injection.
-		if (\Input::getInstance()->get('table') && \Input::getInstance()->get('id'))
-		{
-			BackendBindings::redirect(sprintf('contao/main.php?do=%s&table=%s&id=%s', \Input::getInstance()->get('do'), $this->getDC()->getTable(), \Input::getInstance()->get('id')));
-		}
-
-		BackendBindings::redirect('contao/main.php?do=' . \Input::getInstance()->get('do'));
-	}
-
-	/**
 	 * Return all supported languages from the default data driver.
 	 *
 	 * @param mixed $mixID

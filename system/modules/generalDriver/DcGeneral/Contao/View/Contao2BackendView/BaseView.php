@@ -169,6 +169,36 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
+	 * Redirects to the real back end module.
+	 */
+	protected function redirectHome()
+	{
+		$input = $this->getEnvironment()->getInputProvider();
+		if ($input->hasParameter('table') && $input->hasParameter('id'))
+		{
+			if ($input->hasParameter('id'))
+			{
+				BackendBindings::redirect(sprintf(
+						'contao/main.php?do=%s&table=%s&id=%s',
+						$input->getParameter('do'),
+						$input->getParameter('table'),
+						$input->getParameter('id')
+				));
+			}
+			BackendBindings::redirect(sprintf(
+					'contao/main.php?do=%s&table=%s',
+					$input->getParameter('do'),
+					$input->getParameter('table')
+			));
+		}
+
+		BackendBindings::redirect(sprintf(
+				'contao/main.php?do=%s',
+				$input->getParameter('do')
+		));
+	}
+
+	/**
 	 * Determines if this view is opened in a popup frame.
 	 *
 	 * @return bool
