@@ -5,7 +5,8 @@
                 <img src="system/themes/default/images/<?php echo ($this->objModel->getMeta(\DcGeneral\Data\DCGE::TREE_VIEW_IS_OPEN)) ? 'folMinus.gif' : 'folPlus.gif'; ?>" width="18" height="18" alt="" style="margin-right:-2px;">
             </a>
         <?php endif; ?>
-            <div class="tl_pagetree_content"><?php echo $this->objModel->getMeta(\DcGeneral\Data\DCGE::TREE_VIEW_TITLE); ?></div>
+        <?php $arrLabels = $this->objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_LABEL_VALUE); ?>
+        <div class="tl_pagetree_content"><?php echo $arrLabels[0]['content']; ?></div>
     </div>
     <div class="tl_right">
         <?php echo $this->objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_BUTTONS); ?>
