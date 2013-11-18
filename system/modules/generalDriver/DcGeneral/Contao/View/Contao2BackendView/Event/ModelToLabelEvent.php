@@ -12,6 +12,7 @@
 
 namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
+use DcGeneral\DataDefinition\Definition\View\ModelFormatterConfigInterface;
 use DcGeneral\Event\AbstractEnvironmentAwareEvent;
 
 class ModelToLabelEvent
@@ -80,11 +81,11 @@ class ModelToLabelEvent
 	}
 
 	/**
-	 * @param \DcGeneral\DataDefinition\ListLabelInterface $listLabel
+	 * @param ModelFormatterConfigInterface $listLabel
 	 *
 	 * @return $this
 	 */
-	public function setListLabel($listLabel)
+	public function setFormatter($listLabel)
 	{
 		$this->listLabel = $listLabel;
 
@@ -92,9 +93,9 @@ class ModelToLabelEvent
 	}
 
 	/**
-	 * @return \DcGeneral\DataDefinition\ListLabelInterface
+	 * @return ModelFormatterConfigInterface
 	 */
-	public function getListLabel()
+	public function getFormatter()
 	{
 		return $this->listLabel;
 	}
