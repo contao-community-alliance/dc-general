@@ -42,6 +42,11 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
 	protected $providerName;
 
 	/**
+	 * @var array
+	 */
+	protected $rootFilter;
+
+	/**
 	 * @var bool
 	 */
 	protected $isClosed = false;
@@ -137,6 +142,33 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
 	{
 		return $this->providerName;
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setRootFilter($filter)
+	{
+		$this->rootFilter = $filter;
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function hasRootFilter()
+	{
+		return isset($this->rootFilter);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getRootFilter()
+	{
+		return $this->rootFilter;
+	}
+
 
 	/**
 	 * {@inheritdoc}

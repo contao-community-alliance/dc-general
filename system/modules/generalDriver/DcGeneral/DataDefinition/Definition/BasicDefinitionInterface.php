@@ -113,6 +113,29 @@ interface BasicDefinitionInterface extends DefinitionInterface
 	public function getDataProvider();
 
 	/**
+	 * Set the filter to be used for retrieving the root elements of the view.
+	 *
+	 * @param array $filter
+	 *
+	 * @return BasicDefinitionInterface
+	 */
+	public function setRootFilter($filter);
+
+	/**
+	 * Determine if there has been a root filter set.
+	 *
+	 * @return bool
+	 */
+	public function hasRootFilter();
+
+	/**
+	 * Get the filter to be used for retrieving the root elements of the view.
+	 *
+	 * @return array
+	 */
+	public function getRootFilter();
+
+	/**
 	 * If true, adding of further records is prohibited.
 	 *
 	 * @param bool $value
