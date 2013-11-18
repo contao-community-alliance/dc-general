@@ -375,6 +375,34 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		{
 			$config->setCreatable(!(bool) $value);
 		}
+
+		if (($filters = $this->getFromDca('list/sorting/filter')) !== null)
+		{
+			if (is_array($filters) && !empty($filters))
+			{
+				$myFilters = array();
+				foreach ($filters as $filter)
+				{
+					// FIXME: this only takes array('name', 'value') into account. Add support for: array('name=?', 'value')
+					$myFilters = array('operation' => '=', 'property' => $filter[0], 'value' => $filter[1]);
+				}
+				if ($config->hasAdditionalFilter())
+				{
+					$currentFilter = $config->getAdditionalFilter();
+					$currentFilter = array_merge($currentFilter, $myFilters);
+					$filter = array(
+						'operation' => 'AND',
+						'children' => array($currentFilter)
+					);
+				}
+				else
+				{
+					$filter = $myFilters;
+				}
+
+				$config->setAdditionalFilter($config->getDataProvider(), $filter);
+			}
+		}
 	}
 
 	/**
