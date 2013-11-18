@@ -19,6 +19,7 @@ use DcGeneral\Contao\Callback\ContainerOnCutCallbackListener;
 use DcGeneral\Contao\Callback\ContainerOnDeleteCallbackListener;
 use DcGeneral\Contao\Callback\ContainerOnLoadCallbackListener;
 use DcGeneral\Contao\Callback\ContainerOnSubmitCallbackListener;
+use DcGeneral\Contao\Callback\ContainerPasteButtonCallbackListener;
 use DcGeneral\Contao\Callback\ContainerPasteRootButtonCallbackListener;
 use DcGeneral\Contao\Callback\ModelChildRecordCallbackListener;
 use DcGeneral\Contao\Callback\ModelGroupCallbackListener;
@@ -205,7 +206,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			/** @noinspection PhpParamsInspection */
 			$dispatcher->addListener(
 				sprintf('%s[%s]', GetPasteButtonEvent::NAME, $container->getName()),
-				new ContainerPasteRootButtonCallbackListener($callback, $GLOBALS['objDcGeneral'])
+				new ContainerPasteButtonCallbackListener($callback, $GLOBALS['objDcGeneral'])
 			);
 		}
 
