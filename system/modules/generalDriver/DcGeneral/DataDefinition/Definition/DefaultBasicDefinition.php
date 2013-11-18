@@ -44,11 +44,6 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
 	/**
 	 * @var array
 	 */
-	protected $rootFilter;
-
-	/**
-	 * @var array
-	 */
 	protected $additionalFilter;
 
 	/**
@@ -146,32 +141,6 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
 	public function getDataProvider()
 	{
 		return $this->providerName;
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setRootFilter($filter)
-	{
-		$this->rootFilter = $filter;
-
-		return $this;
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function hasRootFilter()
-	{
-		return isset($this->rootFilter);
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getRootFilter()
-	{
-		return $this->rootFilter;
 	}
 
 	/**
