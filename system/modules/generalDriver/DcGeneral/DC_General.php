@@ -12,6 +12,7 @@
 namespace DcGeneral;
 
 use CyberSpectrum\ContaoDebugger\Debugger;
+use DcGeneral\Contao\Callback\Callbacks;
 use DcGeneral\Contao\LangArrayTranslator;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Event\EventPropagator;
@@ -209,8 +210,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		{
 			foreach ($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback'] as $callback)
 			{
-				$this->import($callback[0]);
-				$strCurrentTable = $this->$callback[0]->$callback[1]($strTable, $this);
+				$strCurrentTable = Callbacks::call($callback, $strTable, $this);
 
 				if ($strCurrentTable != null)
 				{
