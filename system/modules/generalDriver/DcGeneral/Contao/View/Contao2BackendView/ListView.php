@@ -206,12 +206,12 @@ class ListView extends BaseView
 	 */
 	protected function setListViewLabel($collection)
 	{
-		$definition   = $this->getEnvironment()->getDataDefinition();
-		$view = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-		/** @var Contao2BackendViewDefinitionInterface $view */
-		$listingConfig = $view->getListingConfig();
-
-		$sortingFields  = (array) $listingConfig->getDefaultSortingFields();
+		$definition     = $this->getEnvironment()->getDataDefinition();
+		$viewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+		/** @var Contao2BackendViewDefinitionInterface $viewDefinition */
+		$listingConfig  = $viewDefinition->getListingConfig();
+		$properties     = $definition->getPropertiesDefinition();
+		$sortingFields  = array_keys((array) $listingConfig->getDefaultSortingFields());
 		$firstSorting   = reset($sortingFields);
 
 		// FIXME: this is not possible with the new environmental approach.
@@ -232,35 +232,28 @@ class ListView extends BaseView
 			/** @var \DcGeneral\Data\ModelInterface $objModelRow */
 
 			// Build the sorting groups
-			if (false) // TODO refactore
+			if ($listingConfig->getSortingMode() !== ListingConfigInterface::SORT_RANDOM)
 			{
 				// Get the current value of first sorting
 				if ($firstSorting)
 				{
-					$property = $definition->getProperty($firstSorting);
+					$property = $properties->getProperty($firstSorting);
 					$current  = $objModelRow->getProperty($firstSorting);
-					$orderBy  = $definition->getAdditionalSorting();
 
 					// Default ASC
-					if (count($orderBy) == 0)
+					if (count($sortingFields) == 0)
 					{
-						$sortingMode = 9;
+						$sortingMode = ListingConfigInterface::GROUP_NONE;
 					}
 					// Use the fild flag, if given
-					else if ($property->get('flag') != '')
+					else if ($property->getGroupingMode() != '')
 					{
-						$sortingMode = $property->get('flag');
-					}
-					// ToDo: Should we remove this, because we allready have the fallback ?
-					// If the current First sorting is the default one use the global flag
-					else if ($firstSorting == $orderBy[0])
-					{
-						$sortingMode = $definition->getSortingFlag();
+						$sortingMode = $property->getGroupingMode();
 					}
 					// Use the global as fallback
 					else
 					{
-						$sortingMode = $definition->getSortingFlag();
+						$sortingMode = $listingConfig->getGroupingMode();
 					}
 
 					// ToDo: Why such a big if ?
@@ -269,7 +262,7 @@ class ListView extends BaseView
 					$remoteNew = $this->formatCurrentValue($firstSorting, $current, $sortingMode);
 
 					// Add the group header
-					if (!$labelFormatter->isShowColumnsActive() && !$this->getDataDefinition()->isGroupingDisabled() && ($remoteNew != $remoteCur || $remoteCur === false))
+					if (!$listingConfig->getShowColumns() && ($listingConfig->getGroupingMode() !== ListingConfigInterface::GROUP_NONE) && ($remoteNew != $remoteCur || $remoteCur === false))
 					{
 						$eoCount = -1;
 
