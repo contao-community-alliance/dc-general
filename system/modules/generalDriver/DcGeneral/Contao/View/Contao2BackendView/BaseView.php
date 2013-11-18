@@ -664,6 +664,11 @@ class BaseView implements BackendViewInterface
 	 * ---------------------------------------------------------------------
 	 * ////////////////////////////////////////////////////////////////// */
 
+	public function handleAjaxCall()
+	{
+		$action = $this->getEnvironment()->getInputProvider()->getValue('action');
+	}
+
 	/**
 	 * @todo All
 	 * @return string

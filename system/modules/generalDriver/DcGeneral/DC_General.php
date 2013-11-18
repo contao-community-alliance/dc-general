@@ -14,6 +14,8 @@ namespace DcGeneral;
 use CyberSpectrum\ContaoDebugger\Debugger;
 use DcGeneral\Contao\Callback\Callbacks;
 use DcGeneral\Contao\LangArrayTranslator;
+use DcGeneral\Controller\Ajax2X;
+use DcGeneral\Controller\Ajax3X;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Event\EventPropagator;
 use DcGeneral\Exception\DcGeneralRuntimeException;
@@ -188,7 +190,18 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		// FIXME: dependency injection
 		if ($_POST && \Environment::getInstance()->isAjaxRequest)
 		{
-			$this->getControllerHandler()->executePostActions();
+			$this->getViewHandler()->handleAjaxCall();
+
+			// Fallback to Contao for ajax requests we do not know.
+			if (version_compare(VERSION, '3.0', '>='))
+			{
+				$objHandler = new Ajax3X();
+			}
+			else
+			{
+				$objHandler = new Ajax2X();
+			}
+			$objHandler->executePostActions($this);
 		}
 	}
 

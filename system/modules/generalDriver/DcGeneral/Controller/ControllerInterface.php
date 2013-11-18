@@ -117,6 +117,4 @@ interface ControllerInterface
 	 * @return void | String if error
 	 */
 	public function showAll();
-
-	public function executePostActions();
 }

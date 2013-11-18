@@ -35,6 +35,13 @@ interface ViewInterface
 	 */
 	public function getEnvironment();
 
+	/**
+	 * Handle an ajax request.
+	 *
+	 * @return void
+	 */
+	public function handleAjaxCall();
+
 	public function paste();
 
 	public function copy();
