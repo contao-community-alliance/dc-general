@@ -56,7 +56,7 @@ class ContaoWidgetManager implements WidgetManagerInterface
 	{
 		$environment = $this->getEnvironment();
 
-		$event = new EncodePropertyValueFromWidgetEvent($environment);
+		$event = new EncodePropertyValueFromWidgetEvent($environment, $this->model);
 		$event
 			->setProperty($property)
 			->setValue($value);
@@ -73,7 +73,7 @@ class ContaoWidgetManager implements WidgetManagerInterface
 	{
 		$environment = $this->getEnvironment();
 
-		$event = new DecodePropertyValueForWidgetEvent($environment);
+		$event = new DecodePropertyValueForWidgetEvent($environment, $this->model);
 		$event
 			->setProperty($property)
 			->setValue($value);

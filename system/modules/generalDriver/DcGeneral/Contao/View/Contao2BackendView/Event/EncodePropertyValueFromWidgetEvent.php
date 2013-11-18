@@ -12,10 +12,10 @@
 
 namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
-use DcGeneral\Event\AbstractEnvironmentAwareEvent;
+use DcGeneral\Event\AbstractModelAwareEvent;
 
 class EncodePropertyValueFromWidgetEvent
-	extends AbstractEnvironmentAwareEvent
+	extends AbstractModelAwareEvent
 {
 	const NAME = 'dc-general.view.contao2backend.encode-property-value-from-widget';
 
