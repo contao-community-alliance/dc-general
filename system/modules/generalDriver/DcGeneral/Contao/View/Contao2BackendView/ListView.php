@@ -211,7 +211,6 @@ class ListView extends BaseView
 		/** @var Contao2BackendViewDefinitionInterface $view */
 		$listingConfig = $view->getListingConfig();
 
-		$labelFormatter = $listingConfig->getLabelFormatter();
 		$sortingFields  = (array) $listingConfig->getDefaultSortingFields();
 		$firstSorting   = reset($sortingFields);
 
@@ -231,12 +230,6 @@ class ListView extends BaseView
 		foreach ($collection as $objModelRow)
 		{
 			/** @var \DcGeneral\Data\ModelInterface $objModelRow */
-
-			$label = $labelFormatter->format($objModelRow);
-
-			// Remove empty brackets (), [], {}, <> and empty tags from the label
-			$label = preg_replace('/\( *\) ?|\[ *\] ?|\{ *\} ?|< *> ?/i', '', $label);
-			$label = preg_replace('/<[^>]+>\s*<\/[^>]+>/i', '', $label);
 
 			// Build the sorting groups
 			if (false) // TODO refactore
@@ -293,62 +286,7 @@ class ListView extends BaseView
 
 			$objModelRow->setMeta(DCGE::MODEL_EVEN_ODD_CLASS, ((++$eoCount % 2 == 0) ? 'even' : 'odd'));
 
-			$colspan = 1;
-
-			/*
-			 * TODO refactore
-			$event = new ModelToLabelEvent($this->getEnvironment());
-			$event
-				->setModel($objModelRow)
-				->setLabel($label)
-				->setListLabel($labelFormatter)
-				->setArgs($args);
-
-			$this->dispatchEvent(ModelToLabelEvent::NAME, $event);
-
-			if (!is_null($event->getArgs()))
-			{
-				$newArgs = $event->getArgs();
-				// Handle strings and arrays (backwards compatibility)
-				if (!$labelFormatter->isShowColumnsActive())
-				{
-					$label = vsprintf((strlen($labelFormatter->getFormat()) ? $labelFormatter->getFormat() : '%s'), (array) $newArgs);
-				}
-				elseif (!is_array($newArgs))
-				{
-					$colspan = count($labelFormatter->getFields());
-				}
-			}
-			 */
-
-			$arrLabel = array();
-
-			// Add columns
-			/*
-			 * TODO refactore
-			if ($labelFormatter->isShowColumnsActive())
-			{
-				$fields = $labelFormatter->getFields();
-				foreach ($labelFormatter- as $j => $arg)
-				{
-					$arrLabel[] = array(
-						'colspan' => $colspan,
-						'class' => 'tl_file_list col_' . $fields[$j] . (($fields[$j] == $firstSorting) ? ' ordered_by' : ''),
-						'content' => (($arg != '') ? $arg : '-')
-					);
-				}
-			}
-			else
-			{
-			 */
-				$arrLabel[] = array(
-					'colspan' => NULL,
-					'class' => 'tl_file_list',
-					'content' => $label
-				);
-			// }
-
-			$objModelRow->setMeta(DCGE::MODEL_LABEL_VALUE, $arrLabel);
+			$objModelRow->setMeta(DCGE::MODEL_LABEL_VALUE, $this->formatModel($objModelRow));
 		}
 	}
 
