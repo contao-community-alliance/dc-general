@@ -47,6 +47,11 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
 	protected $rootFilter;
 
 	/**
+	 * @var array
+	 */
+	protected $additionalFilter;
+
+	/**
 	 * @var bool
 	 */
 	protected $isClosed = false;
@@ -169,6 +174,41 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
 		return $this->rootFilter;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setAdditionalFilter($dataProvider, $filter)
+	{
+		$this->additionalFilter[$dataProvider] = $filter;
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function hasAdditionalFilter($dataProvider = null)
+	{
+		if ($dataProvider === null)
+		{
+			$dataProvider = $this->getDataProvider();
+		}
+
+		return isset($this->additionalFilter[$dataProvider]);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getAdditionalFilter($dataProvider = null)
+	{
+		if ($dataProvider === null)
+		{
+			$dataProvider = $this->getDataProvider();
+		}
+
+		return $this->additionalFilter[$dataProvider];
+	}
 
 	/**
 	 * {@inheritdoc}

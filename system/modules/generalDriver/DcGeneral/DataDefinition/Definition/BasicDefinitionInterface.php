@@ -136,6 +136,35 @@ interface BasicDefinitionInterface extends DefinitionInterface
 	public function getRootFilter();
 
 	/**
+	 * Set the additional filters to be used for retrieving elements for the view.
+	 *
+	 * @param string $dataProvider
+	 *
+	 * @param array  $filter
+	 *
+	 * @return BasicDefinitionInterface
+	 */
+	public function setAdditionalFilter($dataProvider, $filter);
+
+	/**
+	 * Determine if additional filters are set for the given data provider.
+	 *
+	 * @param string $dataProvider
+	 *
+	 * @return bool
+	 */
+	public function hasAdditionalFilter($dataProvider = null);
+
+	/**
+	 * Get the additional filters to be used for retrieving elements for the view.
+	 *
+	 * @param string $dataProvider
+	 *
+	 * @return array
+	 */
+	public function getAdditionalFilter($dataProvider = null);
+
+	/**
 	 * If true, adding of further records is prohibited.
 	 *
 	 * @param bool $value
