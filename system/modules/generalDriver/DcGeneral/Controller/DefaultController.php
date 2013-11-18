@@ -1513,16 +1513,13 @@ class DefaultController implements ControllerInterface
 		}
 
 		// Special filter for certain modes.
-		/*
-		 * TODO refactore
-		if ($this->getEnvironment()->getDataDefinition()->getSortingMode() == 4)
+		if ($objDefinition->getBasicDefinition()->getMode() == BasicDefinitionInterface::MODE_PARENTEDLIST)
 		{
 			$this->addParentFilter(
 				$this->getEnvironment()->getInputProvider()->getParameter('id'),
 				$objConfig
 			);
 		}
-		*/
 
 		// Set the default sorting as defined in the data definition (if any).
 		/*
