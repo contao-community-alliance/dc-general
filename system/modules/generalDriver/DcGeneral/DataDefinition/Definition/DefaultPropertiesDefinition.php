@@ -105,4 +105,12 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
 
 		return $this->properties[$name];
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getIterator()
+	{
+		return new \ArrayIterator($this->properties);
+	}
 }

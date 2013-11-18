@@ -19,7 +19,7 @@ use DcGeneral\DataDefinition\Definition\Palette\PropertyInterface;
  *
  * @package DcGeneral\DataDefinition\Definition
  */
-interface PropertiesDefinitionInterface extends DefinitionInterface
+interface PropertiesDefinitionInterface extends DefinitionInterface, \IteratorAggregate
 {
 	/**
 	 * The name of the definition.
