@@ -52,10 +52,13 @@ class Callbacks
 			return call_user_func_array($callback, $args);
 		}
 		catch(\Exception $e) {
+			if (is_array($callback) && is_object($callback[0]))
+			{
+				$callback[0] = get_class($callback[0]);
+			}
 			throw new DcGeneralRuntimeException(
-				'Execute callback ' . (is_array($callback) ? implode('::', $callback) : $callback) . ' failed',
-				0,
-				$e
+				'Execute callback ' . (is_array($callback) ? implode('::', $callback) : $callback) . ' failed - ' . $e->getMessage(),
+				0
 			);
 		}
 	}
