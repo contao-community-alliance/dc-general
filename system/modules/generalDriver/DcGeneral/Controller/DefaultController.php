@@ -293,6 +293,10 @@ class DefaultController implements ControllerInterface
 		if ($parentProvider)
 		{
 			$objParent = $parentProvider->fetch($parentProvider->getEmptyConfig()->setId($idParent));
+			if (!$objParent)
+			{
+				throw new DcGeneralRuntimeException('Parent item ' . $idParent . ' not found in ' . $parentProviderName);
+			}
 
 			$condition = $definition->getModelRelationshipDefinition()->getChildCondition($parentProviderName, $providerName);
 

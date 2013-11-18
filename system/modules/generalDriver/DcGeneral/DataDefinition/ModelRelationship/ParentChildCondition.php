@@ -12,6 +12,8 @@
 
 namespace DcGeneral\DataDefinition\ModelRelationship;
 
+use DcGeneral\Exception\DcGeneralInvalidArgumentException;
+
 class ParentChildCondition
 	extends AbstractCondition
 	implements ParentChildConditionInterface
@@ -121,6 +123,11 @@ class ParentChildCondition
 	 */
 	public function getFilter($objParent)
 	{
+		if (!$objParent)
+		{
+			throw new DcGeneralInvalidArgumentException('No parent model passed.');
+		}
+
 		$arrResult = array();
 		foreach ($this->getFilterArray() as $arrRule)
 		{
