@@ -13,6 +13,7 @@
 namespace DcGeneral\Contao\View\Contao2BackendView;
 
 use DcGeneral\Contao\View\Contao2BackendView\Event\EditModelBeforeSaveEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\MultiLanguageDriverInterface;
 use DcGeneral\Data\DCGE;
@@ -1693,6 +1694,103 @@ class BaseView implements BackendViewInterface
 		}
 
 		return null;
+	}
+
+	/**
+	 * Format a model accordingly to the current configuration.
+	 *
+	 * Returns either an array when in tree mode or a string in (parented) list mode.
+	 *
+	 * @param ModelInterface $model
+	 *
+	 * @return array
+	 */
+	public function formatModel(ModelInterface $model)
+	{
+		$listing      = $this->getViewSection()->getListingConfig();
+		$properties   = $this->getDataDefinition()->getPropertiesDefinition();
+		$formatter    = $listing->getLabelFormatter($model->getProviderName());
+		$sorting      = array_keys((array) $listing->getDefaultSortingFields());
+		$firstSorting = reset($sorting);
+
+		$args = array();
+		foreach ($formatter->getPropertyNames() as $propertyName)
+		{
+			if ($properties->hasProperty($propertyName))
+			{
+				$property = $properties->getProperty($propertyName);
+				$args[$propertyName] = (string) $this->getReadableFieldValue($property, $model, $model->getProperty($propertyName));
+			}
+			else
+			{
+				$args[$propertyName] = '-';
+			}
+
+		}
+
+		$event = new ModelToLabelEvent($this->getEnvironment());
+		$event
+			->setModel($model)
+			->setArgs($args)
+			->setLabel($formatter->getFormat())
+			->setFormatter($formatter);
+
+		$this->getEnvironment()->getEventPropagator()->propagate(
+			$event,
+			$this->getEnvironment()->getDataDefinition()->getName()
+		);
+
+		$arrLabel = array();
+
+		// Add columns
+		if ($listing->getShowColumns())
+		{
+			$fields = $formatter->getPropertyNames();
+			$args   = $event->getArgs();
+
+			if (!is_array($args))
+			{
+				$arrLabel[] = array(
+					'colspan' => count($fields),
+					'class' => 'tl_file_list col_1',
+					'content' => $args
+				);
+			}
+			else
+			{
+				foreach ($fields as $j => $propertyName)
+				{
+					$arrLabel[] = array(
+						'colspan' => 1,
+						'class' => 'tl_file_list col_' . $fields[$j] . (($fields[$j] == $firstSorting) ? ' ordered_by' : ''),
+						'content' => (($args[$propertyName] != '') ? $args[$propertyName] : '-')
+					);
+				}
+			}
+		}
+		else
+		{
+			if (!is_array($event->getArgs()))
+			{
+				$string = $event->getArgs();
+			}
+			else
+			{
+				$string = vsprintf($event->getLabel(), $event->getArgs());
+			}
+
+			if ($formatter->getMaxLength() !== null && strlen($string) > $formatter->getMaxLength()) {
+				$string = substr($string, 0, $formatter->getMaxLength());
+			}
+
+			$arrLabel[] = array(
+				'colspan' => NULL,
+				'class' => 'tl_file_list',
+				'content' => $string
+			);
+		}
+
+		return $arrLabel;
 	}
 
 	/**
