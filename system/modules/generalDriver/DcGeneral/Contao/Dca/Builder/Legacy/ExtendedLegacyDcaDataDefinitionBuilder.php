@@ -28,7 +28,9 @@ use DcGeneral\DataDefinition\ModelRelationship\ParentChildCondition;
 use DcGeneral\DataDefinition\ModelRelationship\RootCondition;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
+use DcGeneral\Factory\DcGeneralFactory;
 use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
+use DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 
 /**
  * Build the container config from legacy DCA syntax.
@@ -54,6 +56,40 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 		$this->parsePalettes($container);
 		$this->parseConditions($container);
 		$this->parseBackendView($container);
+		$this->loadAdditionalDefinitions($container, $event);
+	}
+
+	protected function loadAdditionalDefinitions(ContainerInterface $container, BuildDataDefinitionEvent $event)
+	{
+		if (($providers = $this->getFromDca('dca_config/data_provider')) !== null)
+		{
+			$event->getDispatcher()->addListener(
+				sprintf('%s[%s]', PopulateEnvironmentEvent::NAME, $container->getName()),
+				function (PopulateEnvironmentEvent $event) {
+					$environment = $event->getEnvironment();
+					$definition  = $environment->getDataDefinition();
+
+					$parentName  = $definition->getBasicDefinition()->getParentDataProvider();
+					if ($parentName)
+					{
+						$factory          = DcGeneralFactory::deriveEmptyFromEnvironment($environment)->setContainerName($parentName);
+						$parentDefinition = $factory->createContainer();
+
+						$environment->setParentDataDefinition($parentDefinition);
+					}
+
+					$rootName = $definition->getBasicDefinition()->getRootDataProvider();
+					if ($rootName)
+					{
+
+						$factory        = DcGeneralFactory::deriveEmptyFromEnvironment($environment)->setContainerName($rootName);
+						$rootDefinition = $factory->createContainer();
+
+						// $environment->setRootDataDefinition($rootDefinition);
+					}
+				}
+			);
+		}
 	}
 
 	protected function parseClassNames(ContainerInterface $container)

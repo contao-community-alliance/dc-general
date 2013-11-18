@@ -448,6 +448,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 					));
 
 				$container->getBasicDefinition()->setRootDataProvider($parentTable);
+				$container->getBasicDefinition()->setParentDataProvider($parentTable);
 			}
 		}
 
