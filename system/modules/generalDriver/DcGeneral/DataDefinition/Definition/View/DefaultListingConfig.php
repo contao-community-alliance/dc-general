@@ -2,6 +2,8 @@
 
 namespace DcGeneral\DataDefinition\Definition\View;
 
+use DcGeneral\Exception\DcGeneralInvalidArgumentException;
+
 class DefaultListingConfig implements ListingConfigInterface
 {
 	/**
@@ -40,7 +42,7 @@ class DefaultListingConfig implements ListingConfigInterface
 	protected $itemCssClass;
 
 	/**
-	 * @var \DcGeneral\View\ModelFormatterInterface
+	 * @var DefaultModelFormatterConfig[]
 	 */
 	protected $itemFormatter;
 
@@ -222,13 +224,15 @@ class DefaultListingConfig implements ListingConfigInterface
 	/**
 	 * Set the label formatter.
 	 *
+	 * @param string                                  $providerName
+	 *
 	 * @param \DcGeneral\View\ModelFormatterInterface $value
 	 *
 	 * @return ListingConfigInterface
 	 */
-	public function setLabelFormatter($value)
+	public function setLabelFormatter($providerName, $value)
 	{
-		$this->itemFormatter = $value;
+		$this->itemFormatter[$providerName] = $value;
 
 		return $this;
 	}
@@ -236,11 +240,20 @@ class DefaultListingConfig implements ListingConfigInterface
 	/**
 	 * Return the label formatter.
 	 *
+	 * @param string $providerName
+	 *
 	 * @return \DcGeneral\View\ModelFormatterInterface
+	 *
+	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException
 	 */
-	public function getLabelFormatter()
+	public function getLabelFormatter($providerName)
 	{
-		return $this->itemFormatter;
+		if (!isset($this->itemFormatter[$providerName]))
+		{
+			throw new DcGeneralInvalidArgumentException('Formatter configuration for data provider ' . $providerName . ' is not registered.');
+		}
+
+		return $this->itemFormatter[$providerName];
 	}
 
 	/**

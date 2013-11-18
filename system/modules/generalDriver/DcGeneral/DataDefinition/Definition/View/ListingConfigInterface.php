@@ -12,8 +12,6 @@
 
 namespace DcGeneral\DataDefinition\Definition\View;
 
-use DcGeneral\View\ModelFormatterInterface;
-
 interface ListingConfigInterface
 {
 	/**
@@ -181,18 +179,22 @@ interface ListingConfigInterface
 	/**
 	 * Set the label formatter.
 	 *
-	 * @param ModelFormatterInterface $value
+	 * @param string                        $providerName
+	 *
+	 * @param ModelFormatterConfigInterface $value
 	 *
 	 * @return ListingConfigInterface
 	 */
-	public function setLabelFormatter($value);
+	public function setLabelFormatter($providerName, $value);
 
 	/**
 	 * Return the label formatter.
 	 *
-	 * @return ModelFormatterInterface
+	 * @param string $providerName
+	 *
+	 * @return ModelFormatterConfigInterface
 	 */
-	public function getLabelFormatter();
+	public function getLabelFormatter($providerName);
 
 	/**
 	 * Set if the listing shall be in table columns.
