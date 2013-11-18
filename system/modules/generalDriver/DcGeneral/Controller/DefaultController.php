@@ -1504,7 +1504,7 @@ class DefaultController implements ControllerInterface
 	{
 		$objConfig     = $this->getEnvironment()->getDataProvider()->getEmptyConfig();
 		$objDefinition = $this->getEnvironment()->getDataDefinition();
-		$arrAdditional = array(); // TODO incomplete $objDefinition->getAdditionalFilter();
+		$arrAdditional = $objDefinition->getBasicDefinition()->getAdditionalFilter();
 
 		// Custom filter common for all modes.
 		if ($arrAdditional)
