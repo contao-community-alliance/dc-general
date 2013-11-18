@@ -47,7 +47,9 @@ use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinition;
 use DcGeneral\DataDefinition\Definition\DefaultBasicDefinition;
 use DcGeneral\DataDefinition\Definition\DefaultDataProviderDefinition;
+use DcGeneral\DataDefinition\Definition\DefaultModelRelationshipDefinition;
 use DcGeneral\DataDefinition\Definition\DefaultPalettesDefinition;
+use DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\Palette\DefaultProperty;
 use DcGeneral\DataDefinition\Definition\Palette\PropertyInterface;
 use DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
@@ -60,6 +62,7 @@ use DcGeneral\DataDefinition\Definition\View\Panel\DefaultFilterElementInformati
 use DcGeneral\DataDefinition\Definition\View\Panel\DefaultLimitElementInformation;
 use DcGeneral\DataDefinition\Definition\View\Panel\DefaultSearchElementInformation;
 use DcGeneral\DataDefinition\Definition\View\Panel\DefaultSortElementInformation;
+use DcGeneral\DataDefinition\ModelRelationship\RootCondition;
 use DcGeneral\Event\PostDeleteModelEvent;
 use DcGeneral\Event\PostDuplicateModelEvent;
 use DcGeneral\Event\PostPasteModelEvent;
@@ -457,6 +460,23 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		// TODO to be implemented
 	}
 
+	protected function getRootProviderName(ContainerInterface $container)
+	{
+		$rootProvider = $container->getBasicDefinition()->getRootDataProvider();
+
+		if (!$rootProvider)
+		{
+			throw new DcGeneralRuntimeException('Root data provider name not specified in DCA but rootEntries section specified.');
+		}
+
+		if (!$container->getDataProviderDefinition()->hasInformation($rootProvider))
+		{
+			throw new DcGeneralRuntimeException('Unknown root data provider but rootEntries section specified.');
+		}
+
+		return $rootProvider;
+	}
+
 	/**
 	 * This method parses the parent-child conditions.
 	 *
@@ -466,7 +486,65 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 */
 	protected function parseParentChildConditions(ContainerInterface $container)
 	{
-		// TODO to be implemented
+		if ($container->hasDefinition(ModelRelationshipDefinitionInterface::NAME))
+		{
+			$definition = $container->getDefinition(ModelRelationshipDefinitionInterface::NAME);
+		}
+		else
+		{
+			$definition = new DefaultModelRelationshipDefinition();
+		}
+
+		// If ptable defined and no root setter we need to add (Contao default id=>pid mapping).
+		if (($value = $this->getFromDca('config/ptable')) !== null)
+		{
+			$rootProvider = $this->getRootProviderName($container);
+
+			if (($relationship = $definition->getRootCondition()) === null)
+			{
+				$relationship = new RootCondition();
+				$relationship
+					->setSourceName($rootProvider);
+				$definition->setRootCondition($relationship);
+			}
+			if (!$relationship->getSetters())
+			{
+				$relationship
+					->setSetters(array(array('pid' => 'id')));
+			}
+
+			$container->setDefinition(ModelRelationshipDefinitionInterface::NAME, $definition);
+		}
+
+		// If root id defined, add condition to root filter for id=?.
+		if (($value = $this->getFromDca('list/sorting/root')) !== null)
+		{
+			$rootProvider = $this->getRootProviderName($container);
+
+			$myFilter = array('operation' => '=', 'property' => 'id', 'value' => $value);
+
+			if (($relationship = $definition->getRootCondition()) === null)
+			{
+				$relationship = new RootCondition();
+				$filter       = $myFilter;
+			}
+			else
+			{
+				$filter   = $relationship->getFilterArray();
+				$filter[] = $myFilter;
+				$filter   = array(
+					'operation' => 'AND',
+					'children' => array($filter)
+				);
+			}
+
+			$relationship
+				->setSourceName($rootProvider)
+				->setFilterArray($filter);
+			$definition->setRootCondition($relationship);
+
+			$container->setDefinition(ModelRelationshipDefinitionInterface::NAME, $definition);
+		}
 	}
 
 	/**

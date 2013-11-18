@@ -247,11 +247,35 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 			{
 				$rootCondition = $rootCondition[$rootProvider];
 
-				$relationship = new RootCondition();
+				$myFilter = $rootCondition['filter'];
+				$mySetter = $rootCondition['setOn'];
+
+				if (($relationship = $definition->getRootCondition()) === null)
+				{
+					$relationship = new RootCondition();
+					$setter       = $mySetter;
+					$filter       = $myFilter;
+				}
+				else
+				{
+					if ($relationship->getSetters())
+					{
+						$setter = array_merge_recursive($mySetter, $relationship->getSetters());
+					}
+					else{
+						$setter = $mySetter;
+					}
+					$filter   = array_merge($relationship->getFilterArray(), $myFilter);
+					$filter   = array(
+						'operation' => 'AND',
+						'children' => array($filter)
+					);
+				}
+
 				$relationship
 					->setSourceName($rootProvider)
-					->setFilterArray($rootCondition['filter'])
-					->setSetters($rootCondition['setOn']);
+					->setFilterArray($filter)
+					->setSetters($setter);
 				$definition->setRootCondition($relationship);
 			}
 		}
