@@ -27,6 +27,7 @@ use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\DataDefinition\ModelRelationship\ParentChildCondition;
 use DcGeneral\DataDefinition\ModelRelationship\RootCondition;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 
 /**
@@ -231,14 +232,28 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 		if (($rootCondition = $this->getFromDca('dca_config/rootEntries')) !== null)
 		{
 			$rootProvider = $container->getBasicDefinition()->getRootDataProvider();
-			$rootCondition = $rootCondition[$rootProvider];
 
-			$relationship = new RootCondition();
-			$relationship
-				->setSourceName($rootProvider)
-				->setFilterArray($rootCondition['filter'])
-				->setSetters($rootCondition['setOn']);
-			$definition->setRootCondition($relationship);
+			if (!$rootProvider)
+			{
+				throw new DcGeneralRuntimeException('Root data provider name not specified in DCA but rootEntries section specified.');
+			}
+
+			if (!$container->getDataProviderDefinition()->hasInformation($rootProvider))
+			{
+				throw new DcGeneralRuntimeException('Unknown root data provider but rootEntries section specified.');
+			}
+
+			if (isset($rootCondition[$rootProvider]))
+			{
+				$rootCondition = $rootCondition[$rootProvider];
+
+				$relationship = new RootCondition();
+				$relationship
+					->setSourceName($rootProvider)
+					->setFilterArray($rootCondition['filter'])
+					->setSetters($rootCondition['setOn']);
+				$definition->setRootCondition($relationship);
+			}
 		}
 
 		if (($childConditions = $this->getFromDca('dca_config/childCondition')) !== null)
