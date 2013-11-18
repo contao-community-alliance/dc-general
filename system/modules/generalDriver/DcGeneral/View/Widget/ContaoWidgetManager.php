@@ -15,6 +15,7 @@ namespace DcGeneral\View\Widget;
 use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
 use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\DataDefinition\Definition\Palette\PropertyInterface;
 use DcGeneral\EnvironmentInterface;
@@ -268,13 +269,27 @@ class ContaoWidgetManager implements WidgetManagerInterface
 		// OH: the whole prepareForWidget(..) thing is an only mess
 		// widgets should parse the configuration by themselves, depending on what they need
 
+		$options = $propInfo->getOptions();
+		$event = new GetPropertyOptionsEvent($environment, $this->model);
+		$event->setFieldName($property);
+		$environment->getEventPropagator()->propagate(
+			$event,
+			$environment->getDataDefinition()->getName(),
+			$property
+		);
+
+		if ($event->getOptions())
+		{
+			$options = $event->getOptions();
+		}
+
 		$arrConfig = array(
 			'inputType' => $propInfo->getWidgetType(),
 			'label' => array(
 				$propInfo->getLabel(),
 				$propInfo->getDescription()
 			),
-			'options' => $propInfo->getOptions(),
+			'options' => $options,
 			'eval' => $propExtra,
 			// TODO: populate these.
 			// 'options_callback' => null,
