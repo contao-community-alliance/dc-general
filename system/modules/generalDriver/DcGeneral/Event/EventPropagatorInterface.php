@@ -35,7 +35,20 @@ interface EventPropagatorInterface
 	 *
 	 * @param string[]                                $suffixes Suffixes to attach to the event.
 	 *
-	 * @return void
+	 * @return \Symfony\Component\EventDispatcher\Event
 	 */
 	public function propagate($event, $suffixes = array());
+
+	/**
+	 * Propagate an event to the defined event dispatcher.
+	 *
+	 * The given suffixes will get appended to the event name and the resulting event name will get fired.
+	 *
+	 * @param \Symfony\Component\EventDispatcher\Event $event   The Event to propagate.
+	 *
+	 * @param string[]                                $suffixes Suffixes to attach to the event.
+	 *
+	 * @return \Symfony\Component\EventDispatcher\Event
+	 */
+	public function propagateExact($event, $suffixes = array());
 }

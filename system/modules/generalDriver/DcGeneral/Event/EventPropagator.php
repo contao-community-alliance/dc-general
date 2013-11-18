@@ -44,19 +44,12 @@ class EventPropagator implements EventPropagatorInterface
 		while ($suffixes)
 		{
 			// First, try to dispatch to all DCA registered subscribers.
-			$this->dispatcher->dispatch(
-				sprintf(
-					'%s%s',
-					$eventName,
-					'[' . implode('][', $suffixes) . ']'
-				),
-				$event
-			);
+			$this->propagateExact($event, $suffixes);
 			array_pop($suffixes);
 
 			if ($event->isPropagationStopped() === true)
 			{
-				return;
+				return $event;
 			}
 		}
 
@@ -65,5 +58,30 @@ class EventPropagator implements EventPropagatorInterface
 		{
 			$this->dispatcher->dispatch($eventName, $event);
 		}
+
+		return $event;
+	}
+
+	public function propagateExact($event, $suffixes = array())
+	{
+		if (!is_array($suffixes)) {
+			$suffixes = func_get_args();
+
+			// skip $event
+			array_shift($suffixes);
+		}
+
+		$eventName = $event::NAME;
+
+		$this->dispatcher->dispatch(
+			sprintf(
+				'%s%s',
+				$eventName,
+				'[' . implode('][', $suffixes) . ']'
+			),
+			$event
+		);
+
+		return $event;
 	}
 }
