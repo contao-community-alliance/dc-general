@@ -13,54 +13,68 @@
 namespace DcGeneral\Contao\View\Contao2BackendView;
 
 use DcGeneral\Contao\BackendBindings;
+use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
 
 class TreeView extends BaseView
 {
-	/**
-	 * Load the collection of child items and the parent item for the currently selected parent item.
-	 *
-	 * @return ListView
-	 *
-	 * @throws \RuntimeException
-	 */
-	public function loadCollection($rootId = null, $intLevel = 0)
+	protected function getToggleId()
 	{
-		$environment     = $this->getEnvironment();
-		$definition      = $environment->getDataDefinition();
-		$dataDriver      = $environment->getDataDriver();
-		$inputProvider   = $environment->getInputProvider();
+		return $this->getEnvironment()->getDataDefinition()->getName() . '_tree';
+	}
 
-		// TODO: @CS we need this to be srctable_dsttable_tree for interoperability, for mode5 this will be self_self_tree but with strTable.
-		$strToggleID = $definition->getName() . '_tree';
+	protected function getOpenElements()
+	{
+		$inputProvider = $this->getEnvironment()->getInputProvider();
 
-		$arrOpenParents = $inputProvider->getPersistentValue($strToggleID);
-		if (!is_array($arrOpenParents))
+		$openElements = $inputProvider->getPersistentValue($this->getToggleId());
+		if (!is_array($openElements))
 		{
-			$arrOpenParents = array();
+			$openElements = array();
+			$inputProvider->setPersistentValue($this->getToggleId(), $openElements);
 		}
 
 		// Check if the open/close all is active
 		if ($inputProvider->getParameter('ptg') == 'all')
 		{
-			$arrOpenParents = array();
-			if (!array_key_exists('all', $arrOpenParents))
+			$openElements = array();
+			if (!array_key_exists('all', $openElements))
 			{
-				$arrOpenParents = array();
-				$arrOpenParents['all'] = 1;
+				$openElements = array();
+				$openElements['all'] = 1;
 			}
 
-			// Save in session and redirect
-			$inputProvider->setPersistentValue($strToggleID, $arrOpenParents);
-			$this->redirectHome();
+			// Save in session and reload.
+			$inputProvider->setPersistentValue($this->getToggleId(), $openElements);
+			BackendBindings::reload();
 		}
-/*
-		$arrNeededFields = $this->calcNeededFields($dataDriver->getEmptyModel(), $definition->getName());
-		$arrTitlePattern = $this->calcLabelPattern($definition->getName());
-*/
-		$objCollection = $environment->getController()->getTreeCollectionRecursive($rootId, $arrOpenParents, $intLevel);
+
+		// Check if any item has been toggled.
+		// TODO: this has to be done.
+
+		return $openElements;
+	}
+
+	/**
+	 * Load the collection of child items and the parent item for the currently selected parent item.
+	 *
+	 * @param mixed $rootId   The root element (or null to fetch everything).
+	 *
+	 * @param int   $intLevel The current level in the tree (of the optional root element).
+	 *
+	 * @return CollectionInterface
+	 *
+	 */
+	public function loadCollection($rootId = null, $intLevel = 0)
+	{
+		$environment     = $this->getEnvironment();
+		$dataDriver      = $environment->getDataProvider();
+
+		$openElements = $this->getOpenElements();
+
+		$objCollection = $this->getTreeCollectionRecursive($rootId, $openElements, $intLevel);
 
 		if ($rootId)
 		{
@@ -73,11 +87,189 @@ class TreeView extends BaseView
 					$objTableTreeData->add($objSubModel);
 				}
 			}
-			$environment->setCurrentCollection($objTableTreeData);
+			return $objTableTreeData;
 		}
 		else
 		{
-			$environment->setCurrentCollection($objCollection);
+			return $objCollection;
+		}
+	}
+
+	protected function calcLabelFields($strTable)
+	{
+		return $config = $this->getViewSection()->getListingConfig()->getLabelFormatter($strTable)->getPropertyNames();
+	}
+
+	/**
+	 * @param ModelInterface $model
+	 *
+	 * @param                $level
+	 *
+	 * @param                $openModels
+	 *
+	 */
+	protected function determineModelState(ModelInterface $model, $level, $openModels)
+	{
+		$model->setMeta(DCGE::TREE_VIEW_LEVEL, $level);
+		$model->setMeta(DCGE::TREE_VIEW_IS_OPEN,
+			$openModels['all'] == 1 || isset($openModels[$model->getProviderName()][$model->getID()])
+		);
+	}
+
+	/**
+	 * This "renders" a model for tree view.
+	 *
+	 * @param ModelInterface $objModel     the model to render.
+	 *
+	 * @param int   $intLevel     the current level in the tree hierarchy.
+	 *
+	 * @param array $arrToggle    the array that determines the current toggle states for the table of the given model.
+	 *
+	 * @param array $arrSubTables the tables that shall be rendered "below" this item.
+	 *
+	 */
+	protected function treeWalkModel(ModelInterface $objModel, $intLevel, $arrToggle, $arrSubTables = array())
+	{
+		$inputProvider = $this->getEnvironment()->getInputProvider();
+		$relationships = $this->getEnvironment()->getDataDefinition()->getModelRelationshipDefinition();
+		$blnHasChild = false;
+
+		$this->determineModelState($objModel, $intLevel, $arrToggle);
+
+		$arrChildCollections = array();
+		foreach ($arrSubTables as $strSubTable)
+		{
+			// evaluate the child filter for this item.
+			$arrChildFilter = $relationships->getChildCondition($objModel->getProviderName(), $strSubTable);
+
+			// if we do not know how to render this table within here, continue with the next one.
+			if (!$arrChildFilter)
+			{
+				continue;
+			}
+
+			// Create a new Config
+			$objChildConfig = $this->getEnvironment()->getDataProvider($strSubTable)->getEmptyConfig();
+			$objChildConfig->setFilter($arrChildFilter->getFilter($objModel));
+
+			$objChildConfig->setFields($this->calcLabelFields($strSubTable));
+
+			// TODO: hardcoded sorting... NOT GOOD!
+			$objChildConfig->setSorting(array('sorting' => 'ASC'));
+
+			// Fetch all children
+			$objChildCollection = $this->getEnvironment()->getDataProvider($strSubTable)->fetchAll($objChildConfig);
+
+			// Speed up
+			if ($objChildCollection->length() > 0 && !$objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN))
+			{
+				$blnHasChild = true;
+				break;
+			}
+			else if ($objChildCollection->length() > 0)
+			{
+				$blnHasChild = true;
+
+				// TODO: @CS we need this to be srctable_dsttable_tree for interoperability, for mode5 this will be self_self_tree but with strTable.
+				$strToggleID = $this->getEnvironment()->getDataDefinition()->getName() . '_tree';
+
+				$arrSubToggle = (array)$inputProvider->getPersistentValue($strToggleID);
+
+				foreach ($objChildCollection as $objChildModel)
+				{
+					// let the child know about it's parent.
+					$objModel->setMeta(DCGE::MODEL_PID, $objModel->getID());
+					$objModel->setMeta(DCGE::MODEL_PTABLE, $objModel->getProviderName());
+
+					$mySubTables = array();
+					foreach ($relationships->getChildConditions($objModel->getProviderName()) as $condition)
+					{
+						$mySubTables[] = $condition->getDestinationName();
+					}
+
+					$this->treeWalkModel($objChildModel, $intLevel + 1, $arrSubToggle, $mySubTables);
+				}
+				$arrChildCollections[] = $objChildCollection;
+
+				// speed up, if not open, one item is enough to break as we have some children.
+				if (!$objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN))
+				{
+					break;
+				}
+			}
+		}
+
+		// If open store children
+		if ($objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN) && count($arrChildCollections) != 0)
+		{
+			$objModel->setMeta(DCGE::TREE_VIEW_CHILD_COLLECTION, $arrChildCollections);
+		}
+
+		$objModel->setMeta(DCGE::TREE_VIEW_HAS_CHILDS, $blnHasChild);
+	}
+
+	/**
+	 * Recursively retrieve a collection of all complete node hierarchy.
+	 *
+	 * @param array $rootId        The ids of the root node.
+	 *
+	 * @param array $arrOpenParents The ids of the opened parent nodes. This may contain "all" to open all nodes.
+	 *
+	 * @param int $intLevel         The level the items are residing on.
+	 *
+	 * @return \DcGeneral\Data\CollectionInterface
+	 */
+	public function getTreeCollectionRecursive($rootId, $arrOpenParents, $intLevel = 0)
+	{
+		$environment      = $this->getEnvironment();
+		$definition       = $environment->getDataDefinition();
+		$dataDriver       = $environment->getDataProvider();
+		$objTableTreeData = $dataDriver->getEmptyCollection();
+		$objRootConfig    = $environment->getController()->getBaseConfig();
+
+		$this->getPanel()->initialize($objRootConfig);
+		$objRootConfig->setFields($this->calcLabelFields($definition->getBasicDefinition()->getDataProvider()));
+
+		if (!$rootId)
+		{
+			$objRootCondition = $definition->getModelRelationshipDefinition()->getRootCondition();
+
+			if ($objRootCondition)
+			{
+				$arrBaseFilter = $objRootConfig->getFilter();
+				$arrFilter     = $objRootCondition->getFilterArray();
+
+				if ($arrBaseFilter)
+				{
+					$arrFilter = array_merge($arrBaseFilter, $arrFilter);
+				}
+
+				$objRootConfig->setFilter(array(array(
+					'operation' => 'AND',
+					'children'    => $arrFilter,
+				)));
+			}
+			// Fetch all root elements
+			$objRootCollection = $dataDriver->fetchAll($objRootConfig);
+
+			foreach ($objRootCollection as $objRootModel)
+			{
+				/** @var ModelInterface $objRootModel */
+				$objTableTreeData->add($objRootModel);
+				$this->treeWalkModel($objRootModel, $intLevel, $arrOpenParents, array($objRootModel->getProviderName()));
+			}
+
+			return $objTableTreeData;
+		}
+		else
+		{
+			$objRootConfig->setId($rootId);
+			// Fetch root element
+			$objRootModel = $dataDriver->fetch($objRootConfig);
+			$this->treeWalkModel($objRootModel, $intLevel, $arrOpenParents, array($objRootModel->getProviderName()));
+			$objRootCollection = $dataDriver->getEmptyCollection();
+			$objRootCollection->add($objRootModel);
+			return $objRootCollection;
 		}
 	}
 
@@ -91,12 +283,14 @@ class TreeView extends BaseView
 	protected function parseModel($objModel, $strToggleID)
 	{
 		$objModel->setMeta(DCGE::MODEL_BUTTONS, $this->generateButtons($objModel, $objModel->getProviderName()));
+		$objModel->setMeta(DCGE::MODEL_LABEL_VALUE, $this->formatModel($objModel));
 
 		$objTemplate = $this->getTemplate('dcbe_general_treeview_entry');
 
 		$this
 			->addToTemplate('objModel', $objModel, $objTemplate)
-			->addToTemplate('intMode', $this->getDataDefinition()->getSortingMode(), $objTemplate)
+			// FIXME: add real tree mode here.
+			->addToTemplate('intMode', 6, $objTemplate)
 			->addToTemplate('strToggleID', $strToggleID, $objTemplate);
 
 		return $objTemplate->parse();
@@ -175,14 +369,16 @@ class TreeView extends BaseView
 	/**
 	 * Render the tree view.
 	 *
+	 * @param CollectionInterface $collection
+	 *
 	 * @return string
 	 */
-	protected function viewTree()
+	protected function viewTree($collection)
 	{
 		$definition = $this->getDataDefinition();
 
 		// Init some Vars
-		switch ($definition->getSortingMode())
+		switch (6 /*$definition->getSortingMode()*/)
 		{
 			case 6:
 				$treeClass = 'tree_xtnd';
@@ -193,7 +389,8 @@ class TreeView extends BaseView
 		}
 
 		// Label + Icon
-		if (strlen($definition->getLabel()) == 0 )
+		// FIXME: we need the tree root element label here.
+		if (true || strlen($this->getViewSection()->getListingConfig()->getLabel()) == 0)
 		{
 			$strLabelText = 'DC General Tree BackendView Ultimate';
 		}
@@ -201,7 +398,9 @@ class TreeView extends BaseView
 		{
 			$strLabelText = $definition->getLabel();
 		}
-		if (strlen($definition->getIcon()) == 0 )
+
+		// FIXME: we need the tree root element icon here.
+		if (true || strlen($definition->getIcon()) == 0 )
 		{
 			$strLabelIcon = 'pagemounts.gif';
 		}
@@ -214,9 +413,8 @@ class TreeView extends BaseView
 		if ($this->getEnvironment()->getClipboard()->isNotEmpty())
 		{
 			$objClipboard = $this->getEnvironment()->getClipboard();
-			$buttonEvent  = new GetPasteRootButtonEvent();
+			$buttonEvent  = new GetPasteRootButtonEvent($this->getEnvironment());
 			$buttonEvent
-				->setEnvironment($this->getEnvironment())
 				->setCircularReference(false)
 				->setPrevious(null)
 				->setNext(null)
@@ -245,11 +443,12 @@ class TreeView extends BaseView
 		// FIXME: dependency injection or rather template factory?
 		$objTemplate               = new \BackendTemplate('dcbe_general_treeview');
 		$objTemplate->treeClass    = 'tl_' . $treeClass;
-		$objTemplate->tableName    = $this->getEnvironment()->getDataDriver()->getEmptyModel()->getProviderName();
+		$objTemplate->tableName    = $definition->getName();
 		$objTemplate->strLabelIcon = BackendBindings::generateImage($strLabelIcon);
 		$objTemplate->strLabelText = $strLabelText;
-		$objTemplate->strHTML      = $this->generateTreeView($this->getCurrentCollection(), $treeClass);
-		$objTemplate->intMode      = $this->getDataDefinition()->getSortingMode();
+		$objTemplate->strHTML      = $this->generateTreeView($collection, $treeClass);
+		// FIXME: set real tree mode here.
+		$objTemplate->intMode      = 6;
 		$objTemplate->strRootPasteinto = $strRootPasteInto;
 
 		// Add breadcrumb, if we have one
@@ -271,15 +470,18 @@ class TreeView extends BaseView
 	public function showAll()
 	{
 		$this->checkClipboard();
-		$this->loadCollection();
+
+		$collection = $this->loadCollection();
 
 		$arrReturn            = array();
+/*
 		if ($this->getDataDefinition()->getSortingMode() == 5)
 		{
 			$arrReturn['panel'] = $this->panel();
 		}
+*/
 		$arrReturn['buttons'] = $this->generateHeaderButtons('tl_buttons_a');
-		$arrReturn['body']    = $this->viewTree();
+		$arrReturn['body']    = $this->viewTree($collection);
 
 		// Return all
 		return implode("\n", $arrReturn);
@@ -288,7 +490,7 @@ class TreeView extends BaseView
 	public function ajaxTreeView($intID, $intLevel)
 	{
 		$this->checkClipboard();
-		$this->loadCollection($intID, $intLevel);
+		$collection = $this->loadCollection($intID, $intLevel);
 
 		$treeClass = '';
 		switch ($this->getDataDefinition()->getSortingMode())
@@ -302,7 +504,7 @@ class TreeView extends BaseView
 				break;
 		}
 
-		$strHTML = $this->generateTreeView($this->getCurrentCollection(), $this->getDataDefinition()->getSortingMode(), $treeClass);
+		$strHTML = $this->generateTreeView($collection, $this->getDataDefinition()->getSortingMode(), $treeClass);
 
 		return $strHTML;
 	}
