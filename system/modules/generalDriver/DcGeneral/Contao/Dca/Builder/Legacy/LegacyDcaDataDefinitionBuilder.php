@@ -53,6 +53,7 @@ use DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\DefaultPropertiesDefinition;
 use DcGeneral\DataDefinition\Definition\View\Command;
 use DcGeneral\DataDefinition\Definition\View\CommandInterface;
+use DcGeneral\DataDefinition\Definition\View\DefaultModelFormatterConfig;
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\DataDefinition\Definition\View\Panel\DefaultFilterElementInformation;
 use DcGeneral\DataDefinition\Definition\View\Panel\DefaultLimitElementInformation;
@@ -66,7 +67,6 @@ use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Factory\DcGeneralFactory;
 use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
-use DcGeneral\Contao\View\Contao2BackendView\LabelFormatter;
 use DcGeneral\Factory\Event\CreateDcGeneralEvent;
 use DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -589,7 +589,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	{
 		$labelDca   = isset($listDca['label']) ? $listDca['label'] : array();
 
-		$formatter  = new LabelFormatter();
+		$formatter  = new DefaultModelFormatterConfig();
 		$configured = false;
 
 		if (isset($labelDca['fields'])) {

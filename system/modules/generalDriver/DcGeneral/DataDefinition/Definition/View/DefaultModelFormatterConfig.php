@@ -10,15 +10,12 @@
  * @filesource
  */
 
-namespace DcGeneral\Contao\View\Contao2BackendView;
-
-use DcGeneral\Data\ModelInterface;
-use DcGeneral\View\ModelFormatterInterface;
+namespace DcGeneral\DataDefinition\Definition\View;
 
 /**
  * Format a model and create a listing child record.
  */
-class LabelFormatter implements ModelFormatterInterface
+class DefaultModelFormatterConfig implements ModelFormatterConfigInterface
 {
 	/**
 	 * The used property names.
@@ -42,9 +39,7 @@ class LabelFormatter implements ModelFormatterInterface
 	protected $maxLength = null;
 
 	/**
-	 * Set the used property names.
-	 *
-	 * @param array $propertyNames
+	 * {@inheritDoc}
 	 */
 	public function setPropertyNames(array $propertyNames)
 	{
@@ -52,9 +47,7 @@ class LabelFormatter implements ModelFormatterInterface
 	}
 
 	/**
-	 * Return the used property names.
-	 *
-	 * @return array
+	 * {@inheritDoc}
 	 */
 	public function getPropertyNames()
 	{
@@ -62,9 +55,7 @@ class LabelFormatter implements ModelFormatterInterface
 	}
 
 	/**
-	 * Set the format string.
-	 *
-	 * @param string $format
+	 * {@inheritDoc}
 	 */
 	public function setFormat($format)
 	{
@@ -72,9 +63,7 @@ class LabelFormatter implements ModelFormatterInterface
 	}
 
 	/**
-	 * Return the format string.
-	 *
-	 * @return string
+	 * {@inheritDoc}
 	 */
 	public function getFormat()
 	{
@@ -82,9 +71,7 @@ class LabelFormatter implements ModelFormatterInterface
 	}
 
 	/**
-	 * Set the formatted maximum length.
-	 *
-	 * @param int|null $maxLength
+	 * {@inheritDoc}
 	 */
 	public function setMaxLength($maxLength)
 	{
@@ -92,33 +79,10 @@ class LabelFormatter implements ModelFormatterInterface
 	}
 
 	/**
-	 * Return the formatted maximum length.
-	 *
-	 * @return int|null
+	 * {@inheritDoc}
 	 */
 	public function getMaxLength()
 	{
 		return $this->maxLength;
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function format(ModelInterface $model)
-	{
-		$args = array();
-		foreach ($this->propertyNames as $propertyName) {
-			$args[] = (string) $model->getProperty($propertyName);
-		}
-
-
-
-		$string = vsprintf($this->format, $args);
-
-		if ($this->maxLength !== null && strlen($string) > $this->maxLength) {
-			$string = substr($string, 0, $this->maxLength);
-		}
-
-		return $string;
 	}
 }
