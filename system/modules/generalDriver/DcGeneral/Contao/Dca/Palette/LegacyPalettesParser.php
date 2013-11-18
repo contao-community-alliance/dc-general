@@ -263,7 +263,7 @@ class LegacyPalettesParser
 				continue;
 			}
 
-			$selectorFieldName = $this->createSubpaletteSelectorFieldName($subpalettes, $selectorFieldNames);
+			$selectorFieldName = $this->createSubpaletteSelectorFieldName($subPaletteSelector, $selectorFieldNames);
 
 			$properties[$selectorFieldName] = $this->parseSubpalette(
 				$subPaletteSelector,
