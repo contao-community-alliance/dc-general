@@ -12,6 +12,8 @@
 
 namespace DcGeneral\Contao\Dca\Builder\Legacy;
 
+use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinition;
+use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
 use DcGeneral\Contao\Dca\Definition\ExtendedDca;
 use DcGeneral\DataDefinition\ContainerInterface;
@@ -20,6 +22,8 @@ use DcGeneral\DataDefinition\Definition\DefaultModelRelationshipDefinition;
 use DcGeneral\DataDefinition\Definition\DefaultPalettesDefinition;
 use DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
+use DcGeneral\DataDefinition\Definition\View\DefaultModelFormatterConfig;
+use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\DataDefinition\ModelRelationship\ParentChildCondition;
 use DcGeneral\DataDefinition\ModelRelationship\RootCondition;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
@@ -48,6 +52,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 		$this->parseDataProvider($container);
 		$this->parsePalettes($container);
 		$this->parseConditions($container);
+		$this->parseBackendView($container);
 	}
 
 	protected function parseClassNames(ContainerInterface $container)
@@ -248,6 +253,102 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 					->setSetters($childCondition['setOn'])
 					->setInverseFilterArray($childCondition['inverse']);
 				$definition->addChildCondition($relationship);
+			}
+		}
+	}
+
+	/**
+	 * Parse and build the backend view definition for the old Contao2 backend view.
+	 *
+	 * @param ContainerInterface $container
+	 *
+	 * @return void
+	 *
+	 * @throws DcGeneralInvalidArgumentException
+	 */
+	protected function parseBackendView(ContainerInterface $container)
+	{
+		if ($container->hasDefinition(Contao2BackendViewDefinitionInterface::NAME))
+		{
+			$view = $container->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+		}
+		else
+		{
+			$view = new Contao2BackendViewDefinition();
+			$container->setDefinition(Contao2BackendViewDefinitionInterface::NAME, $view);
+		}
+
+		if (!$view instanceof Contao2BackendViewDefinitionInterface)
+		{
+			throw new DcGeneralInvalidArgumentException('Configured BackendViewDefinition does not implement Contao2BackendViewDefinitionInterface.');
+		}
+
+		$this->parseListing($container, $view);
+	}
+
+	/**
+	 * Parse the listing configuration.
+	 *
+	 * @param ContainerInterface                    $container
+	 *
+	 * @param Contao2BackendViewDefinitionInterface $view
+	 *
+	 * @return void
+	 */
+	protected function parseListing(ContainerInterface $container, Contao2BackendViewDefinitionInterface $view)
+	{
+		$listing = $view->getListingConfig();
+
+		$listDca = $this->getFromDca('list');
+
+		// cancel if no list configuration found
+		if (!$listDca) {
+			return;
+		}
+
+		$this->parseListLabel($container, $listing, $listDca);
+	}
+
+	/**
+	 * Parse the sorting part of listing configuration.
+	 *
+	 * @param \DcGeneral\DataDefinition\ContainerInterface $container
+	 *
+	 * @param ListingConfigInterface                       $listing
+	 *
+	 * @param array                                        $listDca
+	 *
+	 * @return void
+	 */
+	protected function parseListLabel(ContainerInterface $container, ListingConfigInterface $listing, array $listDca)
+	{
+		if (($formats = $this->getFromDca('dca_config/child_list')) === null)
+		{
+			return;
+		}
+
+		foreach ($formats as $providerName => $format)
+		{
+			$formatter  = new DefaultModelFormatterConfig();
+			$configured = false;
+
+			if (isset($format['fields'])) {
+				$formatter->setPropertyNames($format['fields']);
+				$configured = true;
+			}
+
+			if (isset($format['format'])) {
+				$formatter->setFormat($format['format']);
+				$configured = true;
+			}
+
+			if (isset($format['maxCharacters'])) {
+				$formatter->setMaxLength($format['maxCharacters']);
+				$configured = true;
+			}
+
+			if ($configured) {
+				$listing->setLabelFormatter($providerName, $formatter);
 			}
 		}
 	}

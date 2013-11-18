@@ -523,7 +523,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		}
 
 		$this->parseListSorting($listing, $listDca);
-		$this->parseListLabel($listing, $listDca);
+		$this->parseListLabel($container, $listing, $listDca);
 	}
 
 	/**
@@ -580,13 +580,15 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	/**
 	 * Parse the sorting part of listing configuration.
 	 *
-	 * @param ListingConfigInterface $listing
+	 * @param \DcGeneral\DataDefinition\ContainerInterface $container
 	 *
-	 * @param array                  $listDca
+	 * @param ListingConfigInterface                       $listing
+	 *
+	 * @param array                                        $listDca
 	 *
 	 * @return void
 	 */
-	protected function parseListLabel(ListingConfigInterface $listing, array $listDca)
+	protected function parseListLabel(ContainerInterface $container, ListingConfigInterface $listing, array $listDca)
 	{
 		$labelDca   = isset($listDca['label']) ? $listDca['label'] : array();
 
@@ -609,7 +611,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		}
 
 		if ($configured) {
-			$listing->setLabelFormatter($formatter);
+			$listing->setLabelFormatter($container->getBasicDefinition()->getDataProvider(), $formatter);
 		}
 
 		if (isset($labelDca['showColumns'])) {
