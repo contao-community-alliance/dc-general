@@ -19,7 +19,7 @@ define('DCGENERAL_VERSION', '1.0.0-dev');
  */
 if(TL_MODE == 'BE')
 {
-	$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/generalDriver/html/js/generalDriver.js';
+	$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/generalDriver/html/js/generalDriver_src.js';
 }
 
 // For the moment, we add our auto loader at the end for non composerized Contao 2.X compatibility.

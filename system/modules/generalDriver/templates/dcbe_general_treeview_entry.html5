@@ -1,7 +1,7 @@
 <li class="<?php echo ($this->objModel->getMeta(\DcGeneral\Data\DCGE::TREE_VIEW_LEVEL) == 0) ? 'tl_folder' : 'tl_file'; ?>" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
     <div class="tl_left" style="padding-left:<?php echo $this->objModel->getMeta(\DcGeneral\Data\DCGE::TREE_VIEW_LEVEL) * 20 ?>px;">
         <?php if ($this->objModel->getMeta(\DcGeneral\Data\DCGE::TREE_VIEW_HAS_CHILDS) == true): ?>
-            <a class="folding" href="<?php echo $this->addToUrl('ptg=' . $this->objModel->getID()); ?>" title="<?php echo ($this->objModel->getMeta(\DcGeneral\Data\DCGE::TREE_VIEW_IS_OPEN)) ? $GLOBALS['TL_LANG']['MSC']['collapseNode'] : $GLOBALS['TL_LANG']['MSC']['expandNode']; ?>" onclick="Backend.getScrollOffset(); return AjaxRequest.toggleStructure(this, '<?php echo $this->strToggleID; ?>', <?php echo $this->objModel->getMeta('dc_gen_tv_level'); ?>, <?php echo $this->intMode; ?>);">
+            <a class="folding" href="<?php echo $this->toggleUrl; ?>" title="<?php echo $this->toggleTitle; ?>" onclick="<?php echo $this->toggleScript; ?>">
                 <img src="system/themes/default/images/<?php echo ($this->objModel->getMeta(\DcGeneral\Data\DCGE::TREE_VIEW_IS_OPEN)) ? 'folMinus.gif' : 'folPlus.gif'; ?>" width="18" height="18" alt="" style="margin-right:-2px;">
             </a>
         <?php endif; ?>
