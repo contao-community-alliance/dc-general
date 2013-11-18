@@ -137,7 +137,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		global $container;
 		$dispatcher = $container['event-dispatcher'];
 		/** @var \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher */
-		$dispatcher->addListener(PopulateEnvironmentEvent::NAME, array($this, 'handlePopulateEnvironment'));
+		$dispatcher->addListener(PopulateEnvironmentEvent::NAME, array($this, 'handlePopulateEnvironment'), 4800);
 
 		/** @var \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher */
 		$dispatcher = $container['event-dispatcher'];
