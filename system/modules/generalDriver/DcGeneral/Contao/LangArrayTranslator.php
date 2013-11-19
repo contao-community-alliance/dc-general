@@ -28,7 +28,7 @@ class LangArrayTranslator implements  TranslatorInterface
 			return $string;
 		}
 
-		$chunks = explode('/', $string);
+		$chunks = explode('.', $string);
 		$lang = $GLOBALS['TL_LANG'][$domain];
 
 		while (($chunk = array_shift($chunks)) !== null)

@@ -1255,8 +1255,8 @@ class BaseView implements BackendViewInterface
 							'accesskey'  => 'n',
 							'href'       => $strHref,
 							'attributes' => 'onclick="Backend.getScrollOffset();"',
-							'title'      => $this->translate('new/1', $providerName),
-							'label'      => $this->translate('new/0', $providerName)
+							'title'      => $this->translate('new.1', $providerName),
+							'label'      => $this->translate('new.0', $providerName)
 						)
 					),
 					$globalOperations
@@ -1498,7 +1498,7 @@ class BaseView implements BackendViewInterface
 			return $event->getHtmlPasteInto();
 		}
 
-		$strLabel = $this->translate('pasteinto/0', $event->getModel()->getProviderName());
+		$strLabel = $this->translate('pasteinto.0', $event->getModel()->getProviderName());
 		if ($event->isPasteIntoDisabled())
 		{
 			return BackendBindings::generateImage('pasteinto_.gif', $strLabel, 'class="blink"');
@@ -1519,7 +1519,7 @@ class BaseView implements BackendViewInterface
 			return $event->getHtmlPasteAfter();
 		}
 
-		$strLabel = $this->translate('pasteafter/0', $event->getModel()->getProviderName());
+		$strLabel = $this->translate('pasteafter.0', $event->getModel()->getProviderName());
 		if ($event->isPasteIntoDisabled())
 		{
 			return BackendBindings::generateImage('pasteafter_.gif', $strLabel, 'class="blink"');

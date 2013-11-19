@@ -174,26 +174,26 @@ class ContaoWidgetManager implements WidgetManagerInterface
 			$strXLabel .= sprintf(
 				' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a> %s%s',
 				ampersand(BackendBindings::addToUrl('key=table')),
-				specialchars($translator->translate('importTable/1', $defName)),
+				specialchars($translator->translate('importTable.1', $defName)),
 				BackendBindings::generateImage(
 					'tablewizard.gif',
-					$translator->translate('importTable/0', $defName),
+					$translator->translate('importTable.0', $defName),
 					'style="vertical-align:text-bottom;"'
 				),
 				BackendBindings::generateImage(
 					'demagnify.gif',
-					$translator->translate('shrink/0', $defName),
+					$translator->translate('shrink.0', $defName),
 					sprintf(
 						'title="%s" style="vertical-align:text-bottom; cursor:pointer;" onclick="Backend.tableWizardResize(0.9);"',
-						specialchars($translator->translate('shrink/1', $defName))
+						specialchars($translator->translate('shrink.1', $defName))
 					)
 				),
 				BackendBindings::generateImage(
 					'magnify.gif',
-					$translator->translate('expand/0', $defName),
+					$translator->translate('expand.0', $defName),
 					sprintf(
 						'title="%s" style="vertical-align:text-bottom; cursor:pointer;" onclick="Backend.tableWizardResize(1.1);"',
-						specialchars($translator->translate('expand/1', $defName))
+						specialchars($translator->translate('expand.1', $defName))
 					)
 				)
 			);
@@ -204,10 +204,10 @@ class ContaoWidgetManager implements WidgetManagerInterface
 			$strXLabel .= sprintf(
 				' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a>',
 				ampersand(BackendBindings::addToUrl('key=list')),
-				specialchars($translator->translate('importList/1', $defName)),
+				specialchars($translator->translate('importList.1', $defName)),
 				BackendBindings::generateImage(
 					'tablewizard.gif',
-					$translator->translate('importList/0', $defName),
+					$translator->translate('importList.0', $defName),
 					'style="vertical-align:text-bottom;"'
 				)
 			);

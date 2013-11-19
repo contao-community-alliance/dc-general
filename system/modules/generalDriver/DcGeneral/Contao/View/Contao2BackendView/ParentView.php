@@ -257,7 +257,7 @@ class ParentView extends BaseView
 			// Add the sorting field
 			if ($_v != '')
 			{
-				$lang = $this->translate(sprintf('%s/0',  $v), $parentName);
+				$lang = $this->translate(sprintf('%s.0',  $v), $parentName);
 				$key = $lang ? $lang : $v;
 				$add[$key] = $_v;
 			}
@@ -329,8 +329,8 @@ class ParentView extends BaseView
 					'<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
 					// TODO: why the same id in both, id and pid?
 					BackendBindings::addToUrl('act=create&amp;mode=2&amp;pid=' . $parentModel->getID() . '&amp;id=' . $parentModel->getID()),
-					specialchars($this->translate('pastenew/1', $definition->getName())),
-					BackendBindings::generateImage('new.gif', $this->translate('pastenew/0', $definition->getName()))
+					specialchars($this->translate('pastenew.1', $definition->getName())),
+					BackendBindings::generateImage('new.gif', $this->translate('pastenew.0', $definition->getName()))
 				);
 			}
 
@@ -339,8 +339,8 @@ class ParentView extends BaseView
 				$headerButtons['editHeader'] = sprintf(
 					'<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
 					preg_replace('/&(amp;)?table=[^& ]*/i', ($parentName ? '&amp;table=' . $parentName : ''), BackendBindings::addToUrl('act=edit')),
-					specialchars($this->translate('editheader/1', $definition->getName())),
-					BackendBindings::generateImage('edit.gif', $this->translate('editheader/0', $definition->getName()))
+					specialchars($this->translate('editheader.1', $definition->getName())),
+					BackendBindings::generateImage('edit.gif', $this->translate('editheader.0', $definition->getName()))
 				);
 			}
 
@@ -349,8 +349,8 @@ class ParentView extends BaseView
 				$headerButtons['pasteAfter'] = sprintf(
 					'<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
 					BackendBindings::addToUrl('act=' . $clipboard->getMode() . '&amp;mode=2&amp;pid=' . $parentModel->getID()),
-					specialchars($this->translate('pasteafter/1', $definition->getName())),
-					BackendBindings::generateImage('pasteafter.gif', $this->translate('pasteafter/0', $definition->getName()), 'class="blink"')
+					specialchars($this->translate('pasteafter.1', $definition->getName())),
+					BackendBindings::generateImage('pasteafter.gif', $this->translate('pasteafter.0', $definition->getName()), 'class="blink"')
 				);
 			}
 		}
