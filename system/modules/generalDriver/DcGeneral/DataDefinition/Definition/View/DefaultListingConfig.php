@@ -237,6 +237,11 @@ class DefaultListingConfig implements ListingConfigInterface
 		return $this;
 	}
 
+	public function hasLabelFormatter($providerName)
+	{
+		return isset($this->itemFormatter[$providerName]);
+	}
+
 	/**
 	 * Return the label formatter.
 	 *

@@ -188,6 +188,15 @@ interface ListingConfigInterface
 	public function setLabelFormatter($providerName, $value);
 
 	/**
+	 * Determine if the label formatter is present.
+	 *
+	 * @param string $providerName
+	 *
+	 * @return bool
+	 */
+	public function hasLabelFormatter($providerName);
+
+	/**
 	 * Return the label formatter.
 	 *
 	 * @param string $providerName
