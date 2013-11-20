@@ -359,7 +359,7 @@ class BaseView implements BackendViewInterface
 		{
 			if (!isset($lookup[$field]))
 			{
-				$event = new GetPropertyOptionsEvent($environment);
+				$event = new GetPropertyOptionsEvent($environment, $objModelRow);
 				$event->setFieldName($field);
 
 				$this->getEnvironment()->getEventPropagator()->propagate(
