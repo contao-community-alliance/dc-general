@@ -65,6 +65,8 @@ class DefaultContainer implements ContainerInterface
 	public function clearDefinitions()
 	{
 		$this->definitions = array();
+
+		return $this;
 	}
 
 	/**
@@ -75,6 +77,8 @@ class DefaultContainer implements ContainerInterface
 		$this
 			->clearDefinitions()
 			->addDefinitions($definitions);
+
+		return $this;
 	}
 
 	/**
@@ -91,6 +95,8 @@ class DefaultContainer implements ContainerInterface
 
 			$this->setDefinition($name, $definition);
 		}
+
+		return $this;
 	}
 
 	/**
@@ -99,6 +105,8 @@ class DefaultContainer implements ContainerInterface
 	public function setDefinition($definitionName, DefinitionInterface $definition)
 	{
 		$this->definitions[$definitionName] = $definition;
+
+		return $this;
 	}
 
 	/**
@@ -107,6 +115,8 @@ class DefaultContainer implements ContainerInterface
 	public function removeDefinition($definitionName)
 	{
 		unset($this->definitions[$definitionName]);
+
+		return $this;
 	}
 
 	/**

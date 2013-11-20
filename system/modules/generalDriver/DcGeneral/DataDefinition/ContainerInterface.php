@@ -114,7 +114,7 @@ interface ContainerInterface
 	 *
 	 * @param Definition\BasicDefinitionInterface $basicDefinition
 	 *
-	 * @return DefinitionInterface
+	 * @return ContainerInterface
 	 */
 	public function setBasicDefinition(BasicDefinitionInterface $basicDefinition);
 
@@ -133,7 +133,7 @@ interface ContainerInterface
 	/**
 	 * @param PropertiesDefinitionInterface $propertiesDefinition
 	 *
-	 * @return DefinitionInterface
+	 * @return ContainerInterface
 	 */
 	public function setPropertiesDefinition(PropertiesDefinitionInterface $propertiesDefinition);
 
@@ -149,6 +149,8 @@ interface ContainerInterface
 
 	/**
 	 * @param PalettesDefinitionInterface $palettesDefinition
+	 *
+	 * @return ContainerInterface
 	 */
 	public function setPalettesDefinition(PalettesDefinitionInterface $palettesDefinition);
 
@@ -169,7 +171,7 @@ interface ContainerInterface
 	 *
 	 * @param DataProviderDefinitionInterface $dataProviderDefinition
 	 *
-	 * @return DataProviderDefinitionInterface
+	 * @return ContainerInterface
 	 */
 	public function setDataProviderDefinition(DataProviderDefinitionInterface $dataProviderDefinition);
 
@@ -192,7 +194,7 @@ interface ContainerInterface
 	 *
 	 * @param ModelRelationshipDefinitionInterface $definition
 	 *
-	 * @return DataProviderDefinitionInterface
+	 * @return ContainerInterface
 	 */
 	public function setModelRelationshipDefinition(ModelRelationshipDefinitionInterface $definition);
 
