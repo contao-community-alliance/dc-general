@@ -226,7 +226,7 @@ class DefaultListingConfig implements ListingConfigInterface
 	 *
 	 * @param string                                  $providerName
 	 *
-	 * @param \DcGeneral\View\ModelFormatterInterface $value
+	 * @param ModelFormatterConfigInterface $value
 	 *
 	 * @return ListingConfigInterface
 	 */
@@ -242,7 +242,7 @@ class DefaultListingConfig implements ListingConfigInterface
 	 *
 	 * @param string $providerName
 	 *
-	 * @return \DcGeneral\View\ModelFormatterInterface
+	 * @return ModelFormatterConfigInterface
 	 *
 	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException
 	 */
