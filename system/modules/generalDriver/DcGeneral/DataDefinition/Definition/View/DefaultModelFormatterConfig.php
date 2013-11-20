@@ -22,7 +22,7 @@ class DefaultModelFormatterConfig implements ModelFormatterConfigInterface
 	 *
 	 * @var array
 	 */
-	protected $propertyNames;
+	protected $propertyNames = array();
 
 	/**
 	 * The format string.
