@@ -25,7 +25,7 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
 	/**
 	 * @var PropertyInterface[]
 	 */
-	protected $properties;
+	protected $properties = array();
 
 	/**
 	 * {@inheritdoc}
