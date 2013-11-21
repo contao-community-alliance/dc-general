@@ -143,8 +143,8 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		$dispatcher = $container['event-dispatcher'];
 		$propagator = new EventPropagator($dispatcher);
 
-		// TODO support additional translators
-		$translator = new LangArrayTranslator();
+		$translator = new TranslatorChain();
+		$translator->add(new LangArrayTranslator());
 
 		$factory = new DcGeneralFactory();
 		// FIXME: transporting the current instance via $GLOBALS is needed to tell the callback handler about this class.
