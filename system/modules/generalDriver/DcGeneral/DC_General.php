@@ -1784,7 +1784,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 		// if field has regex from type date, formate the value to date
 		else if ($varNew != '' && isset(self::$arrDates[$arrConfig['eval']['rgxp']]))
 		{ // OH: this should be a widget feature
-			$objDate = new Date($varNew, $GLOBALS['TL_CONFIG'][$arrConfig['eval']['rgxp'] . 'Format']);
+			$objDate = new \Date($varNew, $GLOBALS['TL_CONFIG'][$arrConfig['eval']['rgxp'] . 'Format']);
 			$varNew = $objDate->tstamp;
 		}
 
