@@ -26,28 +26,54 @@ class TranslatorChain implements TranslatorInterface
 	 */
 	protected $keepGoing = false;
 
+	/**
+	 * @return TranslatorChain
+	 */
 	public function clear()
 	{
 		$this->translators = array();
+
+		return $this;
 	}
 
+	/**
+	 * @param array $translators
+	 *
+	 * @return TranslatorChain
+	 */
 	public function addAll(array $translators)
 	{
 		foreach ($translators as $translator) {
 			$this->add($translator);
 		}
+
+		return $this;
 	}
 
+	/**
+	 * @param TranslatorInterface $translator
+	 *
+	 * @return TranslatorChain
+	 */
 	public function add(TranslatorInterface $translator)
 	{
 		$hash = spl_object_hash($translator);
 		$this->translators[$hash] = $translator;
+
+		return $this;
 	}
 
+	/**
+	 * @param TranslatorInterface $translator
+	 *
+	 * @return TranslatorChain
+	 */
 	public function remove(TranslatorInterface $translator)
 	{
 		$hash = spl_object_hash($translator);
 		unset($this->translators[$hash]);
+
+		return $this;
 	}
 
 	public function getAll()
@@ -59,10 +85,13 @@ class TranslatorChain implements TranslatorInterface
 	 * Set keep going status.
 	 *
 	 * @param boolean $keepGoing
+	 *
+	 * @return TranslatorChain
 	 */
 	public function setKeepGoing($keepGoing)
 	{
 		$this->keepGoing = $keepGoing;
+
 		return $this;
 	}
 
