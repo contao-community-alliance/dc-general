@@ -30,13 +30,18 @@ abstract class AbstractTranslator implements TranslatorInterface
 	 */
 	public function translate($string, $domain = null, array $parameters = array(), $locale = null)
 	{
-		$string = $this->getValue($string, $domain, $locale);
+		$newString = $this->getValue($string, $domain, $locale);
 
-		if (count($parameters)) {
-			$string = vsprintf($string, $parameters);
+		if ($newString == $string)
+		{
+			return $string;
 		}
 
-		return $string;
+		if (count($parameters)) {
+			$newString = vsprintf($newString, $parameters);
+		}
+
+		return $newString;
 	}
 
 	/**
@@ -48,7 +53,7 @@ abstract class AbstractTranslator implements TranslatorInterface
 
 		if (is_array($choices)) {
 			if (isset($choices[$number])) {
-				$string = $choices[$number];
+				$newString = $choices[$number];
 			}
 			else {
 				$array = array();
@@ -92,18 +97,23 @@ abstract class AbstractTranslator implements TranslatorInterface
 					}
 
 					if ($number >= $choice->range->from && $number <= $choice->range->to) {
-						$string = $choice->string;
+						$newString = $choice->string;
 						break;
 					}
 				}
 			}
 		}
 
-		if (count($parameters)) {
-			$string = vsprintf($string, $parameters);
+		if (!isset($newString))
+		{
+			return $string;
 		}
 
-		return $string;
+		if (count($parameters)) {
+			$newString = vsprintf($newString, $parameters);
+		}
+
+		return $newString;
 	}
 }
 
