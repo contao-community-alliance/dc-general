@@ -53,6 +53,22 @@ interface LegendInterface
 	public function getName();
 
 	/**
+	 * Set if this legend's initial state is visible (expanded).
+	 *
+	 * @param $value
+	 *
+	 * @return bool
+	 */
+	public function setInitialVisibility($value);
+
+	/**
+	 * Determine if this legend's initial state shall be expanded.
+	 *
+	 * @return LegendInterface
+	 */
+	public function isInitialVisible();
+
+	/**
 	 * Clear all properties from this legend.
 	 *
 	 * @return LegendInterface

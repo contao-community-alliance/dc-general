@@ -36,6 +36,13 @@ class Legend implements LegendInterface
 	protected $name = '';
 
 	/**
+	 * Determinator if this legend is initially expanded.
+	 *
+	 * @var bool
+	 */
+	protected $initiallyVisible = true;
+
+	/**
 	 * The properties in this legend.
 	 *
 	 * @var PropertyInterface[]|array
@@ -83,6 +90,24 @@ class Legend implements LegendInterface
 	public function getName()
 	{
 		return $this->name;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setInitialVisibility($value)
+	{
+		$this->initiallyVisible = (bool) $value;
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function isInitialVisible()
+	{
+		return $this->initiallyVisible;
 	}
 
 	/**
