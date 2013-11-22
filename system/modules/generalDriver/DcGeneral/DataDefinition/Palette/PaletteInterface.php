@@ -88,7 +88,7 @@ interface PaletteInterface
 	/**
 	 * Determine if a legend exists in this palette.
 	 *
-	 * @param string $name
+	 * @param LegendInterface $legend
 	 *
 	 * @return bool
 	 */
@@ -107,7 +107,7 @@ interface PaletteInterface
 	/**
 	 * Remove a legend from this palette.
 	 *
-	 * @param array|LegendInterface[] $legend
+	 * @param LegendInterface $legend
 	 *
 	 * @return PaletteInterface
 	 */
