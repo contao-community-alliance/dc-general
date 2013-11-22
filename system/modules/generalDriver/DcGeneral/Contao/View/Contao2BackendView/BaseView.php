@@ -1014,10 +1014,38 @@ class BaseView implements BackendViewInterface
 		return $objTemplate->parse();
 	}
 
+	protected function getLabelForShow(PropertyInterface $property)
+	{
+		$environment  = $this->getEnvironment();
+		$definition   = $environment->getDataDefinition();
+
+		$label = $environment->getTranslator()->translate($property->getLabel(), $definition->getName());
+
+		// Label
+		if (!$label)
+		{
+			$label = $environment->getTranslator()->translate('MSC.' . $property->getName());
+		}
+
+		if (is_array($label))
+		{
+			$label = $label[0];
+		}
+
+		if (!$label)
+		{
+			$label = $property->getName();
+		}
+
+		return $label;
+	}
+
 	/**
-	 * Show Informations about a data set
+	 * Show Information about a model.
 	 *
 	 * @return String
+	 *
+	 * @throws \DcGeneral\Exception\DcGeneralRuntimeException
 	 */
 	public function show()
 	{
@@ -1025,115 +1053,83 @@ class BaseView implements BackendViewInterface
 		$environment  = $this->getEnvironment();
 		$definition   = $environment->getDataDefinition();
 		$properties   = $definition->getPropertiesDefinition();
+		$translator   = $environment->getTranslator();
 		$dataProvider = $environment->getDataProvider();
-		$mixId        = $environment->getInputProvider()->getParameter('id');
+		$modelId      = $environment->getInputProvider()->getParameter('id');
 
-		// Check
+		// Select language in data provider.
 		$this->checkLanguage();
 
 		// Load record from data provider
-		$objDBModel = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($mixId));
+		$objDBModel = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId));
 
 		if ($objDBModel == null)
 		{
-			$this->log('Could not find ID ' . $mixId . ' in Table ' . $definition->getName() . '.', 'DC_General show()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error'); // TODO refactore
+			BackendBindings::log('Could not find ID ' . $modelId . ' in ' . $definition->getName() . '.', 'DC_General show()', TL_ERROR);
+			BackendBindings::redirect('contao/main.php?act=error');
 		}
-
-		$environment->setCurrentModel($objDBModel);
-
-		// Load basic information.
-		$this->checkLanguage();
 
 		// Init
-		$fields = array();
-		$arrFieldValues = array();
-		$arrFieldLabels = array();
-		$allowedFields = array('pid', 'sorting', 'tstamp');
+		$values = array();
+		$labels = array();
 
-		foreach ($this->getCurrentModel() as $key => $value)
-		{
-			$fields[] = $key;
-		}
-
-		// Get allowed fields from dca
-		if ($properties->getPropertyNames())
-		{
-			$allowedFields = array_unique(array_merge($allowedFields, $properties->getPropertyNames()));
-		}
-
-		$fields = array_intersect($allowedFields, $fields);
+		$palette = $definition->getPalettesDefinition()->findPalette($objDBModel);
 
 		// Show all allowed fields
-		foreach ($fields as $strFieldName)
+		foreach ($palette->getVisibleProperties($objDBModel) as $paletteProperty)
 		{
-			$property = $properties->getProperty($strFieldName);
-			// TODO: we should examine the palette here and hide irrelevant fields.
-			if ($property)
+			$property = $properties->getProperty($paletteProperty->getName());
+
+			if (!$property)
 			{
-				$extra = $property->getExtra();
-
-				if (!in_array($strFieldName, $allowedFields)
-					|| $property->getWidgetType() == 'password'
-					|| ($extra && (
-							array_key_exists('doNotShow', $extra)
-							|| array_key_exists('hideInput', $extra))))
-				{
-					continue;
-				}
-
-				$label = $property->getLabel();
-
-				$label = $this->getEnvironment()->getTranslator()->translate($label, $definition->getName());
+				throw new DcGeneralRuntimeException('Unable to retrieve property ' . $paletteProperty->getName());
 			}
-			else
-			{
-				$label = '';
-			}
-
-			$value = $this->getCurrentModel()->getProperty($strFieldName);
-			$value = deserialize($value);
 
 			// Make it human readable
-			$arrFieldValues[$strFieldName] = $this->getReadableFieldValue($property, $objDBModel, $value);
-
-			// Label
-			if (count($label))
-			{
-				$arrFieldLabels[$strFieldName] = is_array($label) ? $label[0] : $label;
-			}
-			else
-			{
-				$arrFieldLabels[$strFieldName] = is_array($GLOBALS['TL_LANG']['MSC'][$strFieldName]) ? $GLOBALS['TL_LANG']['MSC'][$strFieldName][0] : $GLOBALS['TL_LANG']['MSC'][$strFieldName];
-			}
-
-			if (!strlen($arrFieldLabels[$strFieldName]))
-			{
-				$arrFieldLabels[$strFieldName] = $strFieldName;
-			}
+			$values[$paletteProperty->getName()] = $this->getReadableFieldValue(
+				$property,
+				$objDBModel,
+				$objDBModel->getProperty($paletteProperty->getName())
+			);
+			$labels[$paletteProperty->getName()] = $this->getLabelForShow($property);
 		}
 
-		// Create new template
-		// FIXME: dependency injection or rather template factory?
-		$objTemplate            = new \BackendTemplate("dcbe_general_show");
+		$headline = $translator->translate(
+			'MSC.showRecord',
+			$definition->getName(),
+			array($objDBModel->getId() ? 'ID ' . $objDBModel->getId() : '')
+		);
+
+		if ($headline == 'MSC.showRecord')
+		{
+			$headline = $translator->translate(
+				'MSC.showRecord',
+				null,
+				array($objDBModel->getId() ? 'ID ' . $objDBModel->getId() : '')
+			);
+		}
+
+		$template = $this->getTemplate('dcbe_general_show');
 		$this
-			->addToTemplate('headline', sprintf(
-				$this->translate('MSC.showRecord'),
-				($objDBModel->getId() ? 'ID ' . $objDBModel->getId() : '')
-			), $objTemplate)
-			->addToTemplate('arrFields', $arrFieldValues, $objTemplate)
-			->addToTemplate('arrLabels', $arrFieldLabels, $objTemplate);
+			->addToTemplate('headline', $headline, $template)
+			->addToTemplate('arrFields', $values, $template)
+			->addToTemplate('arrLabels', $labels, $template);
 
 		if ($this->isMultiLanguage($objDBModel->getId()))
 		{
-			$this->addToTemplate('language', $environment->getController()->getSupportedLanguages($objDBModel->getId()), $objTemplate);
+			/** @var MultiLanguageDriverInterface $dataProvider */
+			$this
+				->addToTemplate('languages', $environment->getController()->getSupportedLanguages($objDBModel->getId()), $template)
+				->addToTemplate('currentLanguage', $dataProvider->getCurrentLanguage(), $template)
+				->addToTemplate('languageSubmit', specialchars($translator->translate('MSC.showSelected')), $template)
+				->addToTemplate('backBT', specialchars($translator->translate('MSC.backBT')), $template);
 		}
 		else
 		{
-			$this->addToTemplate('language', null, $objTemplate);
+			$this->addToTemplate('language', null, $template);
 		}
 
-		return $objTemplate->parse();
+		return $template->parse();
 	}
 
 	/**
