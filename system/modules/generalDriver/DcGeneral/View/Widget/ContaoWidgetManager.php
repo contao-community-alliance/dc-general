@@ -20,6 +20,7 @@ use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\DataDefinition\Definition\Palette\PropertyInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\View\ContaoBackendViewTemplate;
 use DcGeneral\View\Widget\Event\ResolveWidgetErrorMessageEvent;
 
@@ -415,6 +416,11 @@ class ContaoWidgetManager implements WidgetManagerInterface
 		$propInfo            = $propertyDefinitions->getProperty($property);
 		$propExtra           = $propInfo->getExtra();
 		$widget              = $this->getWidget($property);
+
+		if (!$widget)
+		{
+			throw new DcGeneralRuntimeException('No widget for property ' . $property);
+		}
 
 		$strDatePicker = '';
 		if (isset($propExtra['datepicker']))
