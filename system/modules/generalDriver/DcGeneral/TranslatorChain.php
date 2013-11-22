@@ -114,7 +114,7 @@ class TranslatorChain implements TranslatorInterface
 
 		for (
 			$translator = reset($this->translators);
-			$this->keepGoing || $string == $original;
+			$translator && ($this->keepGoing || $string == $original);
 			$translator = next($this->translators)
 		) {
 			$string = $translator->translate($string, $domain, $parameters, $locale);
