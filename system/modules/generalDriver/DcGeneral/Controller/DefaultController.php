@@ -452,7 +452,7 @@ class DefaultController implements ControllerInterface
 		$arrLanguage = array();
 		foreach ($objLanguagesSupported as $value)
 		{
-			$arrLanguage[$value->getID()] = $value->getProperty("name");
+			$arrLanguage[$value->getID()] = $environment->getTranslator()->translate('LNG.' . $value->getID(), 'languages');
 		}
 
 		return $arrLanguage;
