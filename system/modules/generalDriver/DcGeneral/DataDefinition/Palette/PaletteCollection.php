@@ -120,7 +120,7 @@ class PaletteCollection implements PaletteCollectionInterface
 		$palettes = array_pop($matches);
 
 		if (count($palettes) !== 1) {
-			throw new DcGeneralInvalidArgumentException();
+			throw new DcGeneralInvalidArgumentException(sprintf('%d matching palettes found.', count($palettes)));
 		}
 
 		return $palettes[0];
