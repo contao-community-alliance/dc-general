@@ -89,6 +89,8 @@ interface LegendInterface
 	 *
 	 * @param array|PropertyInterface[] $properties
 	 *
+	 * @param PropertyInterface         $before
+	 *
 	 * @return LegendInterface
 	 */
 	public function addProperties(array $properties, PropertyInterface $before = null);
