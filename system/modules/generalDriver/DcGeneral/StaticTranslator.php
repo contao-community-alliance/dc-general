@@ -87,7 +87,7 @@ class StaticTranslator extends AbstractTranslator
 			$this->values[$locale] = array();
 		}
 
-		if (!is_array($this->values[$locale]))
+		if (!is_array($this->values[$locale][$domain]))
 		{
 			$this->values[$locale][$domain] = array();
 		}
