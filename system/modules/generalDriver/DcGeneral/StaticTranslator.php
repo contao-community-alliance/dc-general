@@ -93,7 +93,8 @@ class StaticTranslator extends AbstractTranslator
 		}
 
 		$chunks = explode('.', $string);
-		$lang   = $this->values[$locale][$domain];
+		$lang   = &$this->values[$locale][$domain];
+		$key    = array_pop($chunks);
 
 		while (($chunk = array_shift($chunks)) !== null)
 		{
@@ -105,7 +106,7 @@ class StaticTranslator extends AbstractTranslator
 			$lang = &$lang[$chunk];
 		}
 
-		$lang = $value;
+		$lang[$key] = $value;
 
 		return $this;
 	}
