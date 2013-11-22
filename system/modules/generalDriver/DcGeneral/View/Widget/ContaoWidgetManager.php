@@ -139,7 +139,7 @@ class ContaoWidgetManager implements WidgetManagerInterface
 		}
 
 		// Add the help wizard
-		if (array_key_exists('helpwizard', $propInfo->getExtra()))
+		if ($propInfo->getExtra() && array_key_exists('helpwizard', $propInfo->getExtra()))
 		{
 			$strXLabel .= sprintf(
 				' <a href="contao/help.php?table=%s&amp;field=%s" title="%s" onclick="Backend.openWindow(this, 600, 500); return false;">%s</a>',
