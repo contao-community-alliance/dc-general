@@ -24,12 +24,20 @@ class LangArrayTranslator extends AbstractTranslator
 
 		BackendBindings::loadLanguageFile($domain, $locale);
 
-		if (!is_array($GLOBALS['TL_LANG'][$domain])) {
-			return $string;
+		// we have to treat 'languages', 'default', 'modules' etc. domains differently. :(
+		if (!(is_array($GLOBALS['TL_LANG'][$domain])) && (substr($domain, 0, 2) != 'tl_'))
+		{
+			$lang = $GLOBALS['TL_LANG'];
+		}
+		else
+		{
+			if (!is_array($GLOBALS['TL_LANG'][$domain])) {
+				return $string;
+			}
+			$lang = $GLOBALS['TL_LANG'][$domain];
 		}
 
 		$chunks = explode('.', $string);
-		$lang = $GLOBALS['TL_LANG'][$domain];
 
 		while (($chunk = array_shift($chunks)) !== null)
 		{
