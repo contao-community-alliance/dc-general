@@ -50,6 +50,27 @@ interface PaletteInterface
 	 */
 	public function getProperties(ModelInterface $model = null, PropertyValueBag $input = null);
 
+
+	/**
+	 * Get all properties from all legends in this palette that are visible.
+	 *
+	 * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
+	 * @param PropertyValueBag $input If given, selectors will be evaluated depending on the input data.
+	 *
+	 * @return PropertyInterface[]
+	 */
+	public function getVisibleProperties(ModelInterface $model = null, PropertyValueBag $input = null);
+
+	/**
+	 * Get all properties from all legends in this palette that are editable.
+	 *
+	 * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
+	 * @param PropertyValueBag $input If given, selectors will be evaluated depending on the input data.
+	 *
+	 * @return PropertyInterface[]
+	 */
+	public function getEditableProperties(ModelInterface $model = null, PropertyValueBag $input = null);
+
 	/**
 	 * Clear all legends from this palette.
 	 *

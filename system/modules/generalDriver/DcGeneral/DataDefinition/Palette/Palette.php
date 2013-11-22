@@ -77,6 +77,32 @@ class Palette implements PaletteInterface
 		return $properties;
 	}
 
+	public function getVisibleProperties(ModelInterface $model = null, PropertyValueBag $input = null)
+	{
+		$properties = array();
+
+		foreach ($this->getProperties($model, $input) as $property) {
+			if ($property->isVisible($model, $input)) {
+				$properties[] = $property;
+			}
+		}
+
+		return $properties;
+	}
+
+	public function getEditableProperties(ModelInterface $model = null, PropertyValueBag $input = null)
+	{
+		$properties = array();
+
+		foreach ($this->getProperties($model, $input) as $property) {
+			if ($property->isEditable($model, $input)) {
+				$properties[] = $property;
+			}
+		}
+
+		return $properties;
+	}
+
 	/**
 	 * {@inheritdoc}
 	 */
