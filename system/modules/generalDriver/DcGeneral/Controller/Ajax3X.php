@@ -86,7 +86,7 @@ class Ajax3X extends Ajax
 					else
 					{
 						$varValue[$k] = \Dbafs::addResource($v)->uuid;
-                    			}
+					}
 				}
 			}
 
