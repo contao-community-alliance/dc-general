@@ -42,6 +42,11 @@ class ParentView extends BaseView
 
 		$objChildConfig = $environment->getController()->getBaseConfig();
 
+		if (!$objChildConfig->getSorting())
+		{
+			$objChildConfig->setSorting($this->getViewSection()->getListingConfig()->getDefaultSortingFields());
+		}
+
 		$this->getPanel()->initialize($objChildConfig);
 
 		$objChildCollection = $objCurrentDataProvider->fetchAll($objChildConfig);
