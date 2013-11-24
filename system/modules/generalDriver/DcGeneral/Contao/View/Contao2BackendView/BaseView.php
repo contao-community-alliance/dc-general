@@ -32,7 +32,7 @@ use DcGeneral\Panel\SortElementInterface;
 use DcGeneral\Panel\SubmitElementInterface;
 use DcGeneral\View\ContaoBackendViewTemplate;
 use DcGeneral\View\Event\RenderReadablePropertyValueEvent;
-use DcGeneral\View\Widget\ContaoWidgetManager;
+use DcGeneral\Contao\View\Contao2BackendView\ContaoWidgetManager;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetEditModeButtonsEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;

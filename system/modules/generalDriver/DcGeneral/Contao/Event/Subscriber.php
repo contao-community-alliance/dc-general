@@ -6,11 +6,8 @@ use DcGeneral\Contao\BackendBindings;
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\View\Event\RenderReadablePropertyValueEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
-use DcGeneral\View\Widget\Event\ResolveWidgetErrorMessageEvent;
-use DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
-use DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
 
 /**
  * Class Subscriber - gateway to the legacy Contao HOOK style callbacks.

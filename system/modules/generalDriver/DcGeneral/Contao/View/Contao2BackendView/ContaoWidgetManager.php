@@ -10,21 +10,21 @@
  * @filesource
  */
 
-namespace DcGeneral\View\Widget;
+namespace DcGeneral\Contao\View\Contao2BackendView;
 
 use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
 use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\DataDefinition\Definition\Palette\PropertyInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\View\ContaoBackendViewTemplate;
-use DcGeneral\View\Widget\Event\ResolveWidgetErrorMessageEvent;
 
-class ContaoWidgetManager implements WidgetManagerInterface
+class ContaoWidgetManager
 {
 	/**
 	 * @var EnvironmentInterface

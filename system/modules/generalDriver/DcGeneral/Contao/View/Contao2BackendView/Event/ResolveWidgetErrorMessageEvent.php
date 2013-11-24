@@ -10,15 +10,14 @@
  * @filesource
  */
 
-namespace DcGeneral\View\Widget\Event;
+namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
-use DcGeneral\Data\ModelInterface;
 use DcGeneral\Event\AbstractEnvironmentAwareEvent;
 
 class ResolveWidgetErrorMessageEvent
 	extends AbstractEnvironmentAwareEvent
 {
-    const NAME = 'dc-general.view.widget.resolve-error-message';
+	const NAME = 'dc-general.view.widget.resolve-error-message';
 
 	/**
 	 * @var mixed
