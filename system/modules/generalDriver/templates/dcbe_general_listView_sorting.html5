@@ -1,7 +1,9 @@
+<?php echo $this->getMessages(); ?>
+
 <?php if ($this->collection->length() < 1): ?>
 
     <p class="tl_empty"><?php echo $GLOBALS['TL_LANG']['MSC']['noResult']; ?></p>
-    
+
 <?php else: ?>
 
     <?php if ($this->select): ?>
@@ -12,7 +14,7 @@
     <?php endif; ?>
 
             <div class="tl_listing_container list_view table_<?php echo $this->tableName; ?>">
-				
+
 				<?php if(strlen($this->breadcrumb)) echo $this->breadcrumb; ?>
 
                 <?php if ($this->select): ?>
@@ -22,7 +24,7 @@
                     </div>
 				<?php elseif ($this->clipboard): ?>
 					<a href="<?php echo $this->pasteAfter['href']; ?>" title="<?php echo $this->pasteAfter['title']; ?>"><?php echo $this->pasteAfter['content']; ?></a>
-				<?php endif; ?>		
+				<?php endif; ?>
 
                 <table class="tl_listing<?php echo ($GLOBALS['TL_DCA'][$this->strTable]['list']['label']['showColumns']) ? ' showColumns' : ''; ?>">
 
@@ -33,15 +35,15 @@
                             <?php endforeach; ?>
                         </tr>
                     <?php endif; ?>
-						
+
 				</table>
-				
+
 				<ul id="ul_<?php echo CURRENT_ID; ?>" class="sortable">
-					
+
                     <?php foreach ($this->collection as $objModel): ?>
-				
+
 						<li id="li_<?php echo $objModel->getID(); ?>">
-							
+
 							<div class="tl_content<?php echo $objModel->getMeta(DCGE::MODEL_CLASS); ?>" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
 								<?php $arrLabels = $objModel->getMeta(DCGE::MODEL_LABEL_VALUE); ?>
 
@@ -59,14 +61,14 @@
 
 									<?php echo $objModel->getMeta(DCGE::MODEL_BUTTONS); ?>
 
-								</div>	
+								</div>
 							</div>
-							
+
 						</li>
                     <?php endforeach; ?>
-						
+
                 </ul>
-				
+
 				<script>
 					BackendGeneral.makeParentViewSortable("ul_<?php echo CURRENT_ID; ?>", "<?php echo $this->cdp; ?>", "<?php echo $this->pdp; ?>");
 				</script>

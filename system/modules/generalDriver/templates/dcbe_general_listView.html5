@@ -1,7 +1,9 @@
+<?php echo $this->getMessages(); ?>
+
 <?php if ($this->collection->length() < 1): ?>
 
     <p class="tl_empty"><?php echo $GLOBALS['TL_LANG']['MSC']['noResult']; ?></p>
-    
+
 <?php else: ?>
 
     <?php if ($this->select): ?>
@@ -12,7 +14,7 @@
     <?php endif; ?>
 
             <div class="tl_listing_container list_view table_<?php echo $this->tableName; ?>">
-				
+
 				<?php if(strlen($this->breadcrumb)) echo $this->breadcrumb; ?>
 
                 <?php if ($this->select): ?>
