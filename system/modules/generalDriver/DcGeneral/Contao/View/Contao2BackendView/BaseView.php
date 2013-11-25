@@ -1799,7 +1799,7 @@ class BaseView implements BackendViewInterface
 				{
 					$arrLabel[] = array(
 						'colspan' => 1,
-						'class' => 'tl_file_list col_' . $fields[$j] . (($fields[$j] == $firstSorting) ? ' ordered_by' : ''),
+						'class' => 'tl_file_list col_' . $j . (($propertyName == $firstSorting) ? ' ordered_by' : ''),
 						'content' => (($args[$propertyName] != '') ? $args[$propertyName] : '-')
 					);
 				}
