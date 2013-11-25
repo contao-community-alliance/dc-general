@@ -122,8 +122,7 @@ class ParentView extends BaseView
 			// Add the group header
 			if ($groupingInformation)
 			{
-				$current   = $model->getProperty($groupingInformation['property']);
-				$remoteNew = $this->formatCurrentValue($groupingInformation['property'], $current, $groupingInformation['mode'], $groupingInformation['length']);
+				$remoteNew = $this->formatCurrentValue($groupingInformation['property'], $model, $groupingInformation['mode'], $groupingInformation['length']);
 
 				// Add the group header if it differs from the last header.
 				if (!$listing->getShowColumns() && ($groupingInformation['mode'] !== ListingConfigInterface::GROUP_NONE) && (($remoteNew != $remoteCur) || ($remoteCur === null)))

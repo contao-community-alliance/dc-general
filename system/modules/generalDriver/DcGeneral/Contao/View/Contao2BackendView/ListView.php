@@ -123,8 +123,7 @@ class ListView extends BaseView
 			// Build the sorting groups
 			if ($groupingInformation)
 			{
-				$current   = $objModelRow->getProperty($groupingInformation['property']);
-				$remoteNew = $this->formatCurrentValue($groupingInformation['property'], $current, $groupingInformation['mode'], $groupingInformation['length']);
+				$remoteNew = $this->formatCurrentValue($groupingInformation['property'], $objModelRow, $groupingInformation['mode'], $groupingInformation['length']);
 
 				// Add the group header if it differs from the last header.
 				if (!$listingConfig->getShowColumns() && ($groupingInformation['mode'] !== ListingConfigInterface::GROUP_NONE) && (($remoteNew != $remoteCur) || ($remoteCur === null)))

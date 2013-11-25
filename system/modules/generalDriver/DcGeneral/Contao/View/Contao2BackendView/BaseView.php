@@ -274,18 +274,19 @@ class BaseView implements BackendViewInterface
 	/**
 	 * Return the formatted value for use in group headers as string
 	 *
-	 * @param string $field
+	 * @param string         $field
 	 *
-	 * @param mixed  $value
+	 * @param ModelInterface $model
 	 *
-	 * @param string $groupMode
+	 * @param string         $groupMode
 	 *
-	 * @param int    $groupLength
+	 * @param int            $groupLength
 	 *
 	 * @return string
 	 */
-	public function formatCurrentValue($field, $value, $groupMode, $groupLength)
+	public function formatCurrentValue($field, $model, $groupMode, $groupLength)
 	{
+		$value      = $model->getProperty($field);
 		$property   = $this->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
 
 		// No property? Get out!
@@ -371,6 +372,22 @@ class BaseView implements BackendViewInterface
 				$remoteNew = '-';
 			}
 		}
+
+
+		$event = new GetGroupHeaderEvent($this->getEnvironment());
+
+		$event
+			->setModel($model)
+			->setGroupField($field)
+			->setSortingMode($groupMode)
+			->setValue($remoteNew);
+
+		$this->getEnvironment()->getEventPropagator()->propagate(
+			$event,
+			$this->getEnvironment()->getDataDefinition()->getName()
+		);
+
+		$remoteNew = $event->getValue();
 
 		return $remoteNew;
 	}
