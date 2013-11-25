@@ -43,6 +43,8 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
 	/**
 	 * @param ModelToLabelEvent $event
 	 *
+	 * @param                   $value
+	 *
 	 * @return void
 	 */
 	public function update($event, $value)
@@ -51,6 +53,6 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
 			return;
 		}
 
-		$event->setArgs($value);
+		$event->setLabel($value);
 	}
 }
