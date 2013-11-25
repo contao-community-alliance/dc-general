@@ -105,8 +105,6 @@ interface ControllerInterface
 
 	public function delete();
 
-	public function edit();
-
 	public function move();
 
 	/**
