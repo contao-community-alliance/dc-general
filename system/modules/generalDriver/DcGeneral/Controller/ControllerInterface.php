@@ -109,8 +109,6 @@ interface ControllerInterface
 
 	public function move();
 
-	public function show();
-
 	/**
 	 * Show all entries from a table
 	 *

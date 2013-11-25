@@ -1230,29 +1230,6 @@ class DefaultController implements ControllerInterface
 		}
 	}
 
-	/**
-	 * Show informations about one entry
-	 */
-	public function show()
-	{
-		// Load check multi language
-		$objCurrentDataProvider = $this->getEnvironment()->getDataProvider();
-
-		// Check
-		$this->checkLanguage($this->getDC());
-
-		// Load record from data provider
-		$objDBModel = $objCurrentDataProvider->fetch($objCurrentDataProvider->getEmptyConfig()->setId($this->getDC()->getId()));
-
-		if ($objDBModel == null)
-		{
-			BackendBindings::log('Could not find ID ' . $this->getDC()->getId() . ' in Table ' . $this->getDC()->getTable() . '.', 'DC_General show()', TL_ERROR);
-			BackendBindings::redirect('contao/main.php?act=error');
-		}
-
-		$this->getDC()->getEnvironment()->setCurrentModel($objDBModel);
-	}
-
 	public function getBaseConfig()
 	{
 		$objConfig     = $this->getEnvironment()->getDataProvider()->getEmptyConfig();
