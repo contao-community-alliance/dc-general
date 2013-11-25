@@ -2,6 +2,7 @@
 
 namespace DcGeneral\Panel;
 
+use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Panel\AbstractElement;
@@ -72,7 +73,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 
 	protected function lookupFlag($strProperty)
 	{
-		return ($this->arrSorting[$strProperty])
+		return isset($this->arrSorting[$strProperty])
 			? $this->arrSorting[$strProperty]
 			: $this->getDefaultFlag();
 	}
@@ -84,7 +85,9 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 
 	protected function getAdditionalSorting()
 	{
-		$tmp = $this->getEnvironment()->getDataDefinition()->getAdditionalSorting();
+		/** @var Contao2BackendViewDefinitionInterface $view */
+		$view = $this->getEnvironment()->getDataDefinition()->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+		$tmp  = $view->getListingConfig()->getDefaultSortingFields();
 		if (!$tmp)
 		{
 			return array();
@@ -127,7 +130,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 				$value = $input->getValue('tl_sort');
 				$flag  = $this->lookupFlag($value);
 
-				$this->setPersistent($value, (($flag%2) ? DCGE::MODEL_SORTING_ASC : DCGE::MODEL_SORTING_DESC));
+				$this->setPersistent($value);
 
 				$this->setSelected($this->getPersistent());
 			}
@@ -137,21 +140,11 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 			}
 		}
 
-		if (!($this->getSelected() && ($this->getFlag() !== null)))
-		{
-			return;
-		}
-
 		$current = $objConfig->getSorting();
 
 		if (!is_array($current))
 		{
 			$current = array();
-		}
-
-		if (!$this->getSelected())
-		{
-
 		}
 
 		$arrSecondOrder = $this->getAdditionalSorting();
@@ -173,7 +166,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 			}
 		}
 
-		if (!$this->getSelected())
+		if ($this->getSelected())
 		{
 			$current[$this->getSelected()] = $this->flagToDirection($this->getFlag());
 		}
