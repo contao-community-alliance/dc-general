@@ -12,6 +12,7 @@
 
 namespace DcGeneral\Contao\Dca\Builder\Legacy;
 
+use DcGeneral\Contao\Callback\ContainerGetBreadcrumbCallbackListener;
 use DcGeneral\Contao\Callback\ContainerGlobalButtonCallbackListener;
 use DcGeneral\Contao\Callback\ContainerHeaderCallbackListener;
 use DcGeneral\Contao\Callback\ContainerOnCopyCallbackListener;
@@ -32,6 +33,7 @@ use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
 use DcGeneral\Contao\Dca\Palette\LegacyPalettesParser;
 use DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
@@ -309,6 +311,14 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 					);
 				}
 			}
+		}
+
+		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/presentation/breadcrumb_callback')) {
+			/** @noinspection PhpParamsInspection */
+			$dispatcher->addListener(
+				sprintf('%s[%s]', GetBreadcrumbEvent::NAME, $container->getName()),
+				new ContainerGetBreadcrumbCallbackListener($callback, $GLOBALS['objDcGeneral'])
+			);
 		}
 	}
 

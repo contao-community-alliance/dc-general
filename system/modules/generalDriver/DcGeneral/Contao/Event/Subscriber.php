@@ -5,7 +5,6 @@ namespace DcGeneral\Contao\Event;
 use DcGeneral\Contao\BackendBindings;
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\View\Event\RenderReadablePropertyValueEvent;
-use DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -21,20 +20,10 @@ class Subscriber
 	{
 		return array
 		(
-			GetBreadcrumbEvent::NAME         => 'GetBreadcrumb',
-
 			ResolveWidgetErrorMessageEvent::NAME => array('resolveWidgetErrorMessage', -1),
 
 			RenderReadablePropertyValueEvent::NAME => 'renderReadablePropertyValue',
 		);
-	}
-
-	public function GetBreadcrumb(GetBreadcrumbEvent $event)
-	{
-		$arrReturn = $event->getEnvironment()
-			->getCallbackHandler()->generateBreadcrumb();
-
-		$event->setElements($arrReturn);
 	}
 
 	public function resolveWidgetErrorMessage(ResolveWidgetErrorMessageEvent $event)
