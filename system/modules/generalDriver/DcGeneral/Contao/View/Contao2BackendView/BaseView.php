@@ -21,6 +21,7 @@ use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\Palette\PropertyInterface;
+use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
@@ -213,18 +214,77 @@ class BaseView implements BackendViewInterface
 		return \Input::getInstance()->get('act') == 'select';
 	}
 
+	protected function getGroupingMode()
+	{
+		$viewDefinition = $this->getViewSection();
+		/** @var Contao2BackendViewDefinitionInterface $viewDefinition */
+		$listingConfig  = $viewDefinition->getListingConfig();
+
+		if ($listingConfig->getSortingMode() === ListingConfigInterface::SORT_RANDOM)
+		{
+			return null;
+		}
+
+		$definition     = $this->getEnvironment()->getDataDefinition();
+		$properties     = $definition->getPropertiesDefinition();
+		$sortingFields  = array_keys((array) $listingConfig->getDefaultSortingFields());
+		$firstSorting   = reset($sortingFields);
+
+		$panel = $this->getPanel()->getPanel('sorting');
+		if ($panel)
+		{
+			/** @var \DcGeneral\Panel\SortElementInterface $panel */
+			$firstSorting = $panel->getSelected();
+		}
+
+		// Get the current value of first sorting
+		if (!$firstSorting)
+		{
+			return null;
+		}
+
+		$property = $properties->getProperty($firstSorting);
+
+		if (count($sortingFields) == 0)
+		{
+			$groupMode = ListingConfigInterface::GROUP_NONE;
+			$groupLength = 0;
+		}
+		// Use the information from the property, if given.
+		else if ($property->getGroupingMode() != '')
+		{
+			$groupMode = $property->getGroupingMode();
+			$groupLength = $property->getGroupingLength();
+		}
+		// Use the global as fallback
+		else
+		{
+			$groupMode = $listingConfig->getGroupingMode();
+			$groupLength = $listingConfig->getGroupingLength();
+		}
+
+		return array
+		(
+			'mode'     => $groupMode,
+			'length'   => $groupLength,
+			'property' => $firstSorting
+		);
+	}
+
 	/**
 	 * Return the formatted value for use in group headers as string
 	 *
-	 * @param string  $field
+	 * @param string $field
 	 *
-	 * @param mixed   $value
+	 * @param mixed  $value
 	 *
-	 * @param integer $mode
+	 * @param string $groupMode
+	 *
+	 * @param int    $groupLength
 	 *
 	 * @return string
 	 */
-	public function formatCurrentValue($field, $value, $mode)
+	public function formatCurrentValue($field, $value, $groupMode, $groupLength)
 	{
 		$property   = $this->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
 
@@ -252,40 +312,32 @@ class BaseView implements BackendViewInterface
 			}
 
 		}
-		elseif (in_array($mode, array(1, 2)))
+		elseif ($groupMode != ListingConfigInterface::GROUP_NONE)
 		{
-			$remoteNew = ($value != '') ? ucfirst(utf8_substr($value, 0, 1)) : '-';
-		}
-		elseif (in_array($mode, array(3, 4)))
-		{
-			if ($property->get('length'))
+			switch ($groupMode)
 			{
-				$length = $property->get('length');
-			}
-			else
-			{
-				$length = 2;
-			}
+				case ListingConfigInterface::GROUP_CHAR:
+					$remoteNew = ($value != '') ? ucfirst(utf8_substr($value, 0, $groupLength)) : '-';
+					break;
 
-			$remoteNew = ($value != '') ? ucfirst(utf8_substr($value, 0, $length)) : '-';
-		}
-		elseif (in_array($mode, array(5, 6)))
-		{
-			$remoteNew = ($value != '') ? BackendBindings::parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $value) : '-';
-		}
-		elseif (in_array($mode, array(7, 8)))
-		{
-			$remoteNew = ($value != '') ? date('Y-m', $value) : '-';
-			$intMonth = ($value != '') ? (date('m', $value) - 1) : '-';
+				case ListingConfigInterface::GROUP_DAY:
+					$remoteNew = ($value != '') ? BackendBindings::parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $value) : '-';
+					break;
 
-			if ($month = $this->translate('MONTHS' . $intMonth))
-			{
-				$remoteNew = ($value != '') ? $month . ' ' . date('Y', $value) : '-';
+				case ListingConfigInterface::GROUP_MONTH:
+					$remoteNew = ($value != '') ? date('Y-m', $value) : '-';
+					$intMonth = ($value != '') ? (date('m', $value) - 1) : '-';
+
+					if ($month = $this->translate('MONTHS' . $intMonth))
+					{
+						$remoteNew = ($value != '') ? $month . ' ' . date('Y', $value) : '-';
+					}
+					break;
+
+				case ListingConfigInterface::GROUP_YEAR:
+					$remoteNew = ($value != '') ? date('Y', $value) : '-';
+					break;
 			}
-		}
-		elseif (in_array($mode, array(9, 10)))
-		{
-			$remoteNew = ($value != '') ? date('Y', $value) : '-';
 		}
 		else
 		{
@@ -382,7 +434,7 @@ class BaseView implements BackendViewInterface
 
 		if (empty($group))
 		{
-			$group = $value;
+			$group = $this->getReadableFieldValue($property, $objModelRow, $value);
 
 			if ($this->arrDCA['fields'][$field]['eval']['isBoolean'] && $value != '-')
 			{

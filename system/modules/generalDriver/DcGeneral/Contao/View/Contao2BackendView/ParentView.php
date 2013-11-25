@@ -93,14 +93,18 @@ class ParentView extends BaseView
 	 *
 	 * @param CollectionInterface $collection
 	 *
+	 * @param array               $groupingInformation
 	 */
-	protected function renderEntries($collection)
+	protected function renderEntries($collection, $groupingInformation)
 	{
 		$environment = $this->getEnvironment();
 		$definition  = $environment->getDataDefinition();
 		$view        = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
 		/** @var Contao2BackendViewDefinitionInterface $view */
 		$listing     = $view->getListingConfig();
+		$remoteCur   = null;
+		$groupclass  = 'tl_folder_tlist';
+		$eoCount     = -1;
 
 		$objConfig = $environment->getDataProvider()->getEmptyConfig();
 		$this->getPanel()->initialize($objConfig);
@@ -116,40 +120,23 @@ class ParentView extends BaseView
 			$i++;
 
 			// Add the group header
-			if (($listing->getGroupingMode() !== ListingConfigInterface::GROUP_NONE) && ($firstSorting != 'sorting'))
+			if ($groupingInformation)
 			{
-				$properties = $definition->getPropertiesDefinition();
-				// get a list with all fields for sorting
-				$orderBy = $definition->getAdditionalSorting();
+				$current   = $model->getProperty($groupingInformation['property']);
+				$remoteNew = $this->formatCurrentValue($groupingInformation['property'], $current, $groupingInformation['mode'], $groupingInformation['length']);
 
-				// Default ASC
-				if (count($orderBy) == 0)
+				// Add the group header if it differs from the last header.
+				if (!$listing->getShowColumns() && ($groupingInformation['mode'] !== ListingConfigInterface::GROUP_NONE) && (($remoteNew != $remoteCur) || ($remoteCur === null)))
 				{
-					$sortingMode = 9;
-				}
-				// If the current First sorting is the default one use the global flag
-				else if ($firstSorting == $orderBy[0])
-				{
-					$sortingMode = $listing->getGroupingMode();
-				}
-				// Use the field flag, if given
-				else if ($properties->getProperty($firstSorting)->getGroupingMode() != '')
-				{
-					$sortingMode = $properties->getProperty($firstSorting)->getGroupingMode();
-				}
-				// Use the global as fallback
-				else
-				{
-					$sortingMode = $listing->getSortingMode();
-				}
+					$eoCount = -1;
 
-				$remoteNew = $this->formatCurrentValue($firstSorting, $model->getProperty($firstSorting), $sortingMode);
-				$group = $this->formatGroupHeader($firstSorting, $remoteNew, $sortingMode, $model);
+					$model->setMeta(DCGE::MODEL_GROUP_VALUE, array(
+						'class' => $groupclass,
+						'value' => $remoteNew
+					));
 
-				if ($group != $strGroup)
-				{
-					$strGroup = $group;
-					$model->setMeta(DCGE::MODEL_GROUP_HEADER, $group);
+					$groupclass = 'tl_folder_list';
+					$remoteCur = $remoteNew;
 				}
 			}
 
@@ -180,7 +167,18 @@ class ParentView extends BaseView
 
 			if ($event->getHtml() !== null)
 			{
-				$model->setMeta(DCGE::MODEL_LABEL_VALUE, $event->getHtml());
+				$information = array(
+					array(
+						'colspan' => 1,
+						'class'   => 'tl_file_list col_1',
+						'content' => $event->getHtml()
+					)
+				);
+				$model->setMeta(DCGE::MODEL_LABEL_VALUE, $information);
+			}
+			else
+			{
+				$model->setMeta(DCGE::MODEL_LABEL_VALUE, $this->formatModel($model));
 			}
 		}
 	}
@@ -375,13 +373,10 @@ class ParentView extends BaseView
 	 */
 	protected function viewParent($collection, $parentModel)
 	{
-		$definition       = $this->getEnvironment()->getDataDefinition();
-		$parentProvider   = $definition->getBasicDefinition()->getParentDataProvider();
-		$objConfig        = $this->getEnvironment()->getController()->getBaseConfig();
+		$definition          = $this->getEnvironment()->getDataDefinition();
+		$parentProvider      = $definition->getBasicDefinition()->getParentDataProvider();
+		$groupingInformation = $this->getGroupingMode();
 
-		$this->getPanel()->initialize($objConfig);
-
-		$strSorting       = $objConfig->getSorting();
 
 		// Skip if we have no parent or parent collection.
 		if (!$parentModel)
@@ -394,7 +389,6 @@ class ParentView extends BaseView
 				__CLASS__ . ' ' . __FUNCTION__ . '()',
 				TL_ERROR
 			);
-			die();
 			BackendBindings::redirect('contao/main.php?act=error');
 		}
 
@@ -411,13 +405,14 @@ class ParentView extends BaseView
 			->addToTemplate('select', $this->isSelectModeActive(), $objTemplate)
 			->addToTemplate('action', ampersand(\Environment::getInstance()->request, true), $objTemplate)
 			->addToTemplate('header', $this->renderFormattedHeaderFields($parentModel), $objTemplate)
-			->addToTemplate('hasSorting', ($strSorting == 'sorting'), $objTemplate)
+			->addToTemplate('hasSorting', ($groupingInformation['property'] == 'sorting'), $objTemplate)
+			->addToTemplate('mode', ($groupingInformation ? $groupingInformation['mode'] : null), $objTemplate)
 			->addToTemplate('pdp', (string)$parentProvider, $objTemplate)
 			->addToTemplate('cdp', $definition->getName(), $objTemplate)
 			->addToTemplate('selectButtons', $this->getSelectButtons(), $objTemplate)
 			->addToTemplate('headerButtons', $this->getHeaderButtons($parentModel), $objTemplate);
 
-		$this->renderEntries($collection);
+		$this->renderEntries($collection, $groupingInformation);
 
 		// Add breadcrumb, if we have one
 		$strBreadcrumb = $this->breadcrumb();

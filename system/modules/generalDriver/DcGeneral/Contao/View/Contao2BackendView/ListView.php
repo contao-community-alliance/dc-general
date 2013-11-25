@@ -104,77 +104,40 @@ class ListView extends BaseView
 	 * Set label for list view.
 	 *
 	 * @param CollectionInterface $collection
+	 *
+	 * @param array               $groupingInformation
 	 */
-	protected function setListViewLabel($collection)
+	protected function setListViewLabel($collection, $groupingInformation)
 	{
-		$definition     = $this->getEnvironment()->getDataDefinition();
-		$viewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+		$viewDefinition = $this->getViewSection();
 		/** @var Contao2BackendViewDefinitionInterface $viewDefinition */
 		$listingConfig  = $viewDefinition->getListingConfig();
-		$properties     = $definition->getPropertiesDefinition();
-		$sortingFields  = array_keys((array) $listingConfig->getDefaultSortingFields());
-		$firstSorting   = reset($sortingFields);
-
-		// FIXME: this is not possible with the new environmental approach.
-		// Automatically add the "order by" field as last column if we do not have group headers
-		/*
-		if ($listLabel->isShowColumnsActive() && !in_array($firstSorting, $listLabel->getFields()))
-		{
-			$this->getDC()->arrDCA['list']['label']['fields'][] = $firstSorting;
-		}
-		*/
-
-		$remoteCur = false;
-		$groupclass = 'tl_folder_tlist';
-		$eoCount = -1;
+		$remoteCur      = null;
+		$groupclass     = 'tl_folder_tlist';
+		$eoCount        = -1;
 
 		foreach ($collection as $objModelRow)
 		{
 			/** @var \DcGeneral\Data\ModelInterface $objModelRow */
 
 			// Build the sorting groups
-			if ($listingConfig->getSortingMode() !== ListingConfigInterface::SORT_RANDOM)
+			if ($groupingInformation)
 			{
-				// Get the current value of first sorting
-				if ($firstSorting)
+				$current   = $objModelRow->getProperty($groupingInformation['property']);
+				$remoteNew = $this->formatCurrentValue($groupingInformation['property'], $current, $groupingInformation['mode'], $groupingInformation['length']);
+
+				// Add the group header if it differs from the last header.
+				if (!$listingConfig->getShowColumns() && ($groupingInformation['mode'] !== ListingConfigInterface::GROUP_NONE) && (($remoteNew != $remoteCur) || ($remoteCur === null)))
 				{
-					$property = $properties->getProperty($firstSorting);
-					$current  = $objModelRow->getProperty($firstSorting);
+					$eoCount = -1;
 
-					// Default ASC
-					if (count($sortingFields) == 0)
-					{
-						$sortingMode = ListingConfigInterface::GROUP_NONE;
-					}
-					// Use the fild flag, if given
-					else if ($property->getGroupingMode() != '')
-					{
-						$sortingMode = $property->getGroupingMode();
-					}
-					// Use the global as fallback
-					else
-					{
-						$sortingMode = $listingConfig->getGroupingMode();
-					}
+					$objModelRow->setMeta(DCGE::MODEL_GROUP_VALUE, array(
+						'class' => $groupclass,
+						'value' => $remoteNew
+					));
 
-					// ToDo: Why such a big if ?
-//				$sortingMode = (count($orderBy) == 1 && $firstSorting == $orderBy[0] && $this->getDC()->arrDCA['list']['sorting']['flag'] != '' && $this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'] == '') ? $this->getDC()->arrDCA['list']['sorting']['flag'] : $this->getDC()->arrDCA['fields'][$this->getDC()->getFirstSorting()]['flag'];
-
-					$remoteNew = $this->formatCurrentValue($firstSorting, $current, $sortingMode);
-
-					// Add the group header
-					if (!$listingConfig->getShowColumns() && ($listingConfig->getGroupingMode() !== ListingConfigInterface::GROUP_NONE) && ($remoteNew != $remoteCur || $remoteCur === false))
-					{
-						$eoCount = -1;
-
-						$objModelRow->setMeta(DCGE::MODEL_GROUP_VALUE, array(
-							'class' => $groupclass,
-							'value' => $this->formatGroupHeader($firstSorting, $remoteNew, $sortingMode, $objModelRow)
-						));
-
-						$groupclass = 'tl_folder_list';
-						$remoteCur = $remoteNew;
-					}
+					$groupclass = 'tl_folder_list';
+					$remoteCur = $remoteNew;
 				}
 			}
 
@@ -199,8 +162,10 @@ class ListView extends BaseView
 		/** @var Contao2BackendViewDefinitionInterface $view */
 		$listing     = $view->getListingConfig();
 
+		$groupingInformation = $this->getGroupingMode();
+
 		// Set label
-		$this->setListViewLabel($collection);
+		$this->setListViewLabel($collection, $groupingInformation);
 
 		// Generate buttons
 		foreach ($collection as $i => $objModel)
@@ -228,18 +193,8 @@ class ListView extends BaseView
 			}
 		}
 
-		// FIXME: hack, we should define a better handling for manual sorting.
-		$sorting = $listing->getDefaultSortingFields();
-
-		$panel = false; // TODO refactore $this->getEnvironment()->getPanelContainer()->getPanel('sorting');
-		if ($panel)
-		{
-			/** @var \DcGeneral\Panel\SortElementInterface $panel */
-			$sorting = $panel->getSelected();
-		}
-
 		// Add template
-		if ($sorting == 'sorting')
+		if ($groupingInformation['property'] == 'sorting')
 		{
 			// FIXME: dependency injection or rather template factory?
 			$objTemplate = new \BackendTemplate('dcbe_general_listView_sorting');
@@ -255,7 +210,7 @@ class ListView extends BaseView
 			->addToTemplate('collection', $collection, $objTemplate)
 			->addToTemplate('select', $this->getEnvironment()->getInputProvider()->getParameter('act'), $objTemplate)
 			->addToTemplate('action', ampersand(\Environment::getInstance()->request, true), $objTemplate)
-			->addToTemplate('mode', $listing->getSortingMode(), $objTemplate)
+			->addToTemplate('mode', ($groupingInformation ? $groupingInformation['mode'] : null), $objTemplate)
 			->addToTemplate('tableHead', $this->getTableHead(), $objTemplate)
 			// Set dataprovider from current and parent
 			->addToTemplate('pdp', '', $objTemplate)
