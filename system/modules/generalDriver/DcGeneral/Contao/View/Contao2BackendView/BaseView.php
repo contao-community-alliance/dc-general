@@ -394,16 +394,16 @@ class BaseView implements BackendViewInterface
 
 		$event
 			->setModel($objModelRow)
-			->setGroupField($group)
+			->setGroupField($field)
 			->setSortingMode($mode)
-			->setValue($field);
+			->setValue($group);
 
 		$this->getEnvironment()->getEventPropagator()->propagate(
 			$event,
 			$this->getEnvironment()->getDataDefinition()->getName()
 		);
 
-		$group = $event->getGroupField();
+		$group = $event->getValue();
 
 		return $group;
 	}
