@@ -53,7 +53,7 @@ class DefaultPanelRow implements PanelRowInterface
 		}
 		else
 		{
-			array_splice($this->elements, $index, 0, $element);
+			array_splice($this->elements, $index, 0, array($element));
 		}
 
 		return $this;

@@ -49,7 +49,7 @@ class DefaultPanelRowCollection implements PanelRowCollectionInterface
 		}
 		else
 		{
-			array_splice($this->rows, $index, 0, $row);
+			array_splice($this->rows, $index, 0, array($row));
 		}
 
 		return $row;
