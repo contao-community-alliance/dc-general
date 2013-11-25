@@ -22,7 +22,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 	/**
 	 * @var array
 	 */
-	protected $arrSorting;
+	protected $arrSorting = array();
 
 	/**
 	 * @var mixed
@@ -94,23 +94,14 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 		}
 
 		$arrReturn = array();
-		foreach ($tmp as $strOrder)
+		foreach ($tmp as $strProperty => $strDirection)
 		{
-			$arrOrder = explode(' ', $strOrder);
-			$strProperty  = $arrOrder[0];
 			if ($this->getSelected() == $strProperty)
 			{
 				continue;
 			}
 
-			if (count($arrOrder) == 1)
-			{
-				// TODO: implicit ascending - should we rather lookup the real value from the flag?
-				$arrReturn[$strProperty] = DCGE::MODEL_SORTING_ASC;
-			}
-			else{
-				$arrReturn[$strProperty] = $arrOrder[1];
-			}
+			$arrReturn[$strProperty] = $strDirection;
 		}
 		return $arrReturn;
 	}
@@ -179,6 +170,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 	 */
 	public function render(ViewTemplateInterface $objTemplate)
 	{
+		$arrOptions = array();
 		foreach ($this->getPropertyNames() as $field)
 		{
 			$arrLabel = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getProperty($field)->getLabel();
