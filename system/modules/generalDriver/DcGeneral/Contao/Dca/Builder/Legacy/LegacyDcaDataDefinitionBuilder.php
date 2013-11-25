@@ -64,6 +64,7 @@ use DcGeneral\DataDefinition\Definition\View\Panel\DefaultFilterElementInformati
 use DcGeneral\DataDefinition\Definition\View\Panel\DefaultLimitElementInformation;
 use DcGeneral\DataDefinition\Definition\View\Panel\DefaultSearchElementInformation;
 use DcGeneral\DataDefinition\Definition\View\Panel\DefaultSortElementInformation;
+use DcGeneral\DataDefinition\Definition\View\Panel\DefaultSubmitElementInformation;
 use DcGeneral\DataDefinition\ModelRelationship\RootCondition;
 use DcGeneral\Event\PostDeleteModelEvent;
 use DcGeneral\Event\PostDuplicateModelEvent;
@@ -750,6 +751,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		$layout = $view->getPanelLayout();
 		$rows = $layout->getRows();
 
+		$hasSubmit = false;
+
 		foreach (explode(';', (string)$this->getFromDca('list/sorting/panelLayout')) as $rowNo => $elementRow)
 		{
 			if ($rows->getRowCount() < $rowNo+1)
@@ -825,8 +828,26 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 							$row->addElement(new DefaultLimitElementInformation());
 						}
 						continue;
+					case 'submit':
+						if (!$row->hasElement('submit'))
+						{
+							$row->addElement(new DefaultSubmitElementInformation());
+							$hasSubmit = true;
+						}
+						continue;
 				}
 			}
+
+			if ($row->getCount() == 0)
+			{
+				$rows->deleteRow($rowNo);
+			}
+		}
+
+		if (!$hasSubmit && $rows->getRowCount())
+		{
+			$row = $rows->getRow($rows->getRowCount() - 1);
+			$row->addElement(new DefaultSubmitElementInformation(), 0);
 		}
 	}
 

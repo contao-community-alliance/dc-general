@@ -8,6 +8,7 @@ use DcGeneral\DataDefinition\Definition\View\Panel\FilterElementInformationInter
 use DcGeneral\DataDefinition\Definition\View\Panel\LimitElementInformationInterface;
 use DcGeneral\DataDefinition\Definition\View\Panel\SearchElementInformationInterface;
 use DcGeneral\DataDefinition\Definition\View\Panel\SortElementInformationInterface;
+use DcGeneral\DataDefinition\Definition\View\Panel\SubmitElementInformationInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\EnvironmentPopulator\AbstractEventDrivenEnvironmentPopulator;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
@@ -122,22 +123,12 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
 		/** @var \DcGeneral\DataDefinition\Definition\View\PanelLayoutInterface $panelLayout */
 		$panelLayout = $backendViewDefinition->getPanelLayout();
 
-		$rows         = $panelLayout->getRows();
-		$objPanel     = null;
-		$lastPanelKey = $rows->getRowCount();
-
 		foreach ($panelLayout->getRows() as $panelKey => $row)
 		{
 			// We need a new panel.
 			$panelRow = new DefaultPanel();
 
 			$panel->addPanel($panelKey, $panelRow);
-
-			// TODO: this is maybe not as elegant as it should be.
-			if ($panelKey == $lastPanelKey)
-			{
-				$panelRow->addElement('submit', new DefaultSubmitElement());
-			}
 
 			foreach ($row as $element)
 			{
@@ -174,6 +165,12 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
 
 					$panelRow->addElement($element->getName(), $panelElement);
 				}
+				elseif ($element instanceof SubmitElementInformationInterface)
+				{
+					$panelElement = new DefaultSubmitElement();
+					$panelRow->addElement($element->getName(), $panelElement);
+				}
+
 			}
 		}
 	}
