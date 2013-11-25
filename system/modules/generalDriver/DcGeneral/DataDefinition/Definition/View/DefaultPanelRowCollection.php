@@ -61,6 +61,7 @@ class DefaultPanelRowCollection implements PanelRowCollectionInterface
 	public function deleteRow($index)
 	{
 		unset($this->rows[$index]);
+		$this->rows = array_values($this->rows);
 
 		return $this;
 	}
