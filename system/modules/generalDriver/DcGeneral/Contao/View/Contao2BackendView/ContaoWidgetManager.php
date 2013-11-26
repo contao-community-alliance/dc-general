@@ -220,7 +220,12 @@ class ContaoWidgetManager
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
+	 * @param string $property Name of the property for which the widget shall be retrieved.
+	 *
+	 * @return \Contao\Widget
+	 *
+	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException
 	 */
 	public function getWidget($property)
 	{
@@ -429,6 +434,7 @@ class ContaoWidgetManager
 		$propertyDefinitions = $definition->getPropertiesDefinition();
 		$propInfo            = $propertyDefinitions->getProperty($property);
 		$propExtra           = $propInfo->getExtra();
+		/** @var \Contao\Widget $widget */
 		$widget              = $this->getWidget($property);
 
 		if (!$widget)
