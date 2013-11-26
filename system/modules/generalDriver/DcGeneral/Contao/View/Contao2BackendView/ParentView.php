@@ -159,8 +159,10 @@ class ParentView extends BaseView
 
 			$this->getEnvironment()->getEventPropagator()->propagate(
 				$event,
-				$this->getEnvironment()->getDataDefinition()->getName(),
-				$model->getId()
+				array(
+					$this->getEnvironment()->getDataDefinition()->getName(),
+					$model->getId()
+				)
 			);
 
 			if ($event->getHtml() !== null)
