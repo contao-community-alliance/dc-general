@@ -982,7 +982,14 @@ class BaseView implements BackendViewInterface
 		{
 			$legendName = $environment->getTranslator()->translate($legend->getName() . '_legend', $definition->getName());
 			$fields     = array();
-			foreach($legend->getProperties($model, $propertyValues) as $property)
+			$properties = $legend->getProperties($model, $propertyValues);
+
+			if (!$properties)
+			{
+				continue;
+			}
+
+			foreach($properties as $property)
 			{
 				if (!$propertyDefinitions->hasProperty($property->getName()))
 				{
