@@ -1008,8 +1008,7 @@ class BaseView implements BackendViewInterface
 			$arrFieldSet['class']   = 'tl_box';
 			$arrFieldSet['palette'] = implode('', $fields);
 			$arrFieldSet['legend']  = $legend->getName();
-
-			$arrFieldSets[] = $arrFieldSet;
+			$arrFieldSets[]         = $arrFieldSet;
 		}
 
 		if ($blnSubmitted && empty($errors))
