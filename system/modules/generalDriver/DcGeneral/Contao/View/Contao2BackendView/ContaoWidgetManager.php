@@ -17,6 +17,7 @@ use DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
 use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\DataDefinition\Definition\Palette\PropertyInterface;
@@ -325,8 +326,16 @@ class ContaoWidgetManager
 		// OH: what is this? source: DataContainer 232
 		$objWidget->currentRecord = $this->intId;
 
-		// OH: xlabel, wizard: two ways to rome? wizards are the better way I think
-		$objWidget->wizard = implode('', $this->getEnvironment()->getCallbackHandler()->executeCallbacks($arrConfig['wizard'], $this));
+		$objWidget->wizard = $xLabel;
+
+		$event = new ManipulateWidgetEvent($environment, $this->model, $objWidget);
+		$environment->getEventPropagator()->propagate(
+			$event,
+			array(
+				$defName,
+				$property
+			)
+		);
 
 		return $this->arrWidgets[$property] = $objWidget;
 	}

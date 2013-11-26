@@ -28,6 +28,7 @@ use DcGeneral\Contao\Callback\ModelLabelCallbackListener;
 use DcGeneral\Contao\Callback\ModelOperationButtonCallbackListener;
 use DcGeneral\Contao\Callback\ModelOptionsCallbackListener;
 use DcGeneral\Contao\Callback\PropertyInputFieldCallbackListener;
+use DcGeneral\Contao\Callback\PropertyInputFieldGetWizardCallbackListener;
 use DcGeneral\Contao\Callback\PropertyOnLoadCallbackListener;
 use DcGeneral\Contao\Callback\PropertyOnSaveCallbackListener;
 use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
@@ -43,6 +44,7 @@ use DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
+use DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
 use DcGeneral\DataDefinition\ContainerInterface;
@@ -321,6 +323,16 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 					$dispatcher->addListener(
 						BuildWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
 						new PropertyInputFieldCallbackListener($callback, $GLOBALS['objDcGeneral'])
+					);
+				}
+
+				if (isset($propInfo['wizard']))
+				{
+					$callback = $propInfo['wizard'];
+					/** @noinspection PhpParamsInspection */
+					$dispatcher->addListener(
+						ManipulateWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
+						new PropertyInputFieldGetWizardCallbackListener($callback, $GLOBALS['objDcGeneral'])
 					);
 				}
 			}
