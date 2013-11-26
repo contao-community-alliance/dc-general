@@ -329,7 +329,7 @@ class ContaoWidgetManager
 
 		$objWidget = new $strClass($arrPrepared);
 		// OH: what is this? source: DataContainer 232
-		$objWidget->currentRecord = $this->intId;
+		$objWidget->currentRecord = $this->model->getId();
 
 		$objWidget->wizard = $xLabel;
 
