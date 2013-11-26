@@ -269,15 +269,15 @@ class ContaoWidgetManager
 		}
 
 		// FIXME TEMPORARY WORKAROUND! To be fixed in the core: Controller::prepareForWidget(..)
-		if (in_array($propExtra['eval']['rgxp'], array('date', 'time', 'datim'))
-			&& !$propExtra['eval']['mandatory']
+		if (in_array($propExtra['rgxp'], array('date', 'time', 'datim'))
+			&& !$propExtra['mandatory']
 			&& is_numeric($varValue) && $varValue == 0)
 		{
 			$varValue = '';
 		}
 
 		// OH: why not $required = $mandatory always? source: DataContainer 226
-		$propExtra['eval']['required'] = $varValue == '' && $propExtra['eval']['mandatory'] ? true : false;
+		$propExtra['required'] = $varValue == '' && $propExtra['mandatory'] ? true : false;
 		// OH: the whole prepareForWidget(..) thing is an only mess
 		// widgets should parse the configuration by themselves, depending on what they need
 
