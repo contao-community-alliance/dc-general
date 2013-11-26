@@ -27,10 +27,12 @@ use DcGeneral\Contao\Callback\ModelGroupCallbackListener;
 use DcGeneral\Contao\Callback\ModelLabelCallbackListener;
 use DcGeneral\Contao\Callback\ModelOperationButtonCallbackListener;
 use DcGeneral\Contao\Callback\ModelOptionsCallbackListener;
+use DcGeneral\Contao\Callback\PropertyInputFieldCallbackListener;
 use DcGeneral\Contao\Callback\PropertyOnLoadCallbackListener;
 use DcGeneral\Contao\Callback\PropertyOnSaveCallbackListener;
 use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
 use DcGeneral\Contao\Dca\Palette\LegacyPalettesParser;
+use DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
@@ -309,6 +311,16 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 					$dispatcher->addListener(
 						GetPropertyOptionsEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
 						new ModelOptionsCallbackListener($callback, $GLOBALS['objDcGeneral'])
+					);
+				}
+
+				if (isset($propInfo['input_field_callback']))
+				{
+					$callback = $propInfo['input_field_callback'];
+					/** @noinspection PhpParamsInspection */
+					$dispatcher->addListener(
+						BuildWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
+						new PropertyInputFieldCallbackListener($callback, $GLOBALS['objDcGeneral'])
 					);
 				}
 			}

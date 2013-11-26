@@ -13,6 +13,7 @@
 namespace DcGeneral\Contao\View\Contao2BackendView;
 
 use DcGeneral\Contao\BackendBindings;
+use DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
@@ -237,18 +238,22 @@ class ContaoWidgetManager
 			throw new DcGeneralInvalidArgumentException('Property ' . $property . ' is not defined in propertyDefinitions.');
 		}
 
+		$event = new BuildWidgetEvent($environment, $this->model, $propertyDefinitions->getProperty($property));
+
+		$environment->getEventPropagator()->propagate($event, array(
+			$defName,
+			$property
+		));
+
+		if ($event->getWidget())
+		{
+			return $this->arrWidgets[$property] = $event->getWidget();
+		}
+
 		$propInfo  = $propertyDefinitions->getProperty($property);
 		$propExtra = $propInfo->getExtra();
 		$varValue  = $this->decodeValue($property, $this->model->getProperty($property));
 		$xLabel    = $this->getXLabel($propInfo);
-
-		// TODO: pass into some event here.
-		if (is_array($propExtra['input_field_callback']))
-		{
-			$this->import($arrConfig['input_field_callback'][0]);
-			$objWidget = $this->{$arrConfig['input_field_callback'][0]}->{$arrConfig['input_field_callback'][1]}($this, $xLabel);
-			return $this->arrWidgets[$property] = isset($objWidget) ? $objWidget : '';
-		}
 
 		// ToDo: switch for BE / FE handling
 		$strClass = $GLOBALS['BE_FFL'][$propInfo->getWidgetType()];
