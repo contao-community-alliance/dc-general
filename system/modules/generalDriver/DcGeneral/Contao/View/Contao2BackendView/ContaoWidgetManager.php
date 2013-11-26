@@ -331,7 +331,7 @@ class ContaoWidgetManager
 		// OH: what is this? source: DataContainer 232
 		$objWidget->currentRecord = $this->model->getId();
 
-		$objWidget->wizard = $xLabel;
+		$objWidget->wizard .= $xLabel;
 
 		$event = new ManipulateWidgetEvent($environment, $this->model, $objWidget);
 		$environment->getEventPropagator()->propagate(
