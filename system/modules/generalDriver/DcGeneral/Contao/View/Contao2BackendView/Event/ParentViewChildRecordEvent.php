@@ -12,23 +12,17 @@
 
 namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
-use DcGeneral\Data\ModelInterface;
-use DcGeneral\Event\AbstractEnvironmentAwareEvent;
+use DcGeneral\Event\AbstractModelAwareEvent;
 
 class ParentViewChildRecordEvent
-	extends AbstractEnvironmentAwareEvent
+	extends AbstractModelAwareEvent
 {
-    const NAME = 'dc-general.view.contao2backend.parent-view-child-record';
+	const NAME = 'dc-general.view.contao2backend.parent-view-child-record';
 
 	/**
 	 * @var string
 	 */
 	protected $html;
-
-	/**
-	 * @var \DcGeneral\Data\ModelInterface
-	 */
-	protected $model;
 
 	/**
 	 * Set the html code to use as child record.
@@ -52,29 +46,5 @@ class ParentViewChildRecordEvent
 	public function getHtml()
 	{
 		return $this->html;
-	}
-
-	/**
-	 * Set the model for which the child record html code shall be generated.
-	 *
-	 * @param \DcGeneral\Data\ModelInterface $model
-	 *
-	 * @return $this
-	 */
-	public function setModel($model)
-	{
-		$this->model = $model;
-
-		return $this;
-	}
-
-	/**
-	 * Retrieve the model for which the child record html code shall be generated.
-	 *
-	 * @return \DcGeneral\Data\ModelInterface
-	 */
-	public function getModel()
-	{
-		return $this->model;
 	}
 }
