@@ -333,7 +333,7 @@ class ContaoWidgetManager
 
 		$objWidget->wizard .= $xLabel;
 
-		$event = new ManipulateWidgetEvent($environment, $this->model, $objWidget);
+		$event = new ManipulateWidgetEvent($environment, $this->model, $propInfo, $objWidget);
 		$environment->getEventPropagator()->propagate(
 			$event,
 			array(

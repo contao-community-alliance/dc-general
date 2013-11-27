@@ -13,6 +13,7 @@
 namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
 use DcGeneral\Data\ModelInterface;
+use DcGeneral\DataDefinition\Definition\Palette\PropertyInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Event\AbstractModelAwareEvent;
 
@@ -27,19 +28,27 @@ class ManipulateWidgetEvent
 	protected $widget;
 
 	/**
+	 * @var PropertyInterface
+	 */
+	protected $property;
+
+	/**
 	 * Create a new event.
 	 *
 	 * @param EnvironmentInterface $environment
 	 *
 	 * @param ModelInterface       $model
 	 *
+	 * @param PropertyInterface    $property
+	 *
 	 * @param \Widget              $widget
 	 */
-	public function __construct(EnvironmentInterface $environment, ModelInterface $model, \Widget $widget)
+	public function __construct(EnvironmentInterface $environment, ModelInterface $model, PropertyInterface $property, \Widget $widget)
 	{
 		parent::__construct($environment, $model);
 
-		$this->widget = $widget;
+		$this->property = $property;
+		$this->widget   = $widget;
 	}
 
 	/**
@@ -48,5 +57,13 @@ class ManipulateWidgetEvent
 	public function getWidget()
 	{
 		return $this->widget;
+	}
+
+	/**
+	 * @return PropertyInterface
+	 */
+	public function getProperty()
+	{
+		return $this->property;
 	}
 }
