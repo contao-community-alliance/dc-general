@@ -40,6 +40,11 @@ class Command implements CommandInterface
 	 */
 	protected $extra;
 
+	/**
+	 * @var bool
+	 */
+	protected $disabled;
+
 	function __construct()
 	{
 		$this->parameters = new \ArrayObject();
@@ -129,5 +134,23 @@ class Command implements CommandInterface
 	public function getExtra()
 	{
 		return $this->extra;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setDisabled($disabled = true)
+	{
+		$this->disabled = $disabled;
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function isDisabled()
+	{
+		return $this->disabled;
 	}
 }

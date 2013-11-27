@@ -94,4 +94,20 @@ interface CommandInterface
 	 * @return \ArrayObject
 	 */
 	public function getExtra();
+
+	/**
+	 * Set the command enabled or disabled (true means disabled).
+	 *
+	 * @param boolean $disabled
+	 *
+	 * @return $this
+	 */
+	public function setDisabled($disabled = true);
+
+	/**
+	 * Determine if the command is disabled.
+	 *
+	 * @return boolean
+	 */
+	public function isDisabled();
 }

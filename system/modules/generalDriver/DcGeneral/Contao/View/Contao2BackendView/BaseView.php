@@ -1560,11 +1560,20 @@ class BaseView implements BackendViewInterface
 			return trim($buttonEvent->getHtml());
 		}
 
+		$extra = $objCommand->getExtra();
+		$icon  = $extra['icon'];
+
+		if ($objCommand->isDisabled())
+		{
+			$icon = substr_replace($icon, '_1', strrpos($icon, '.'), 0);
+			return BackendBindings::generateImage($icon, $buttonEvent->getLabel());
+		}
+
 		return sprintf(' <a href="%s" title="%s" %s>%s</a>',
 			$buttonEvent->getHref(),
 			specialchars($buttonEvent->getTitle()),
 			$buttonEvent->getAttributes(),
-			BackendBindings::generateImage($objCommand->getExtra()['icon'], $buttonEvent->getLabel())
+			BackendBindings::generateImage($icon, $buttonEvent->getLabel())
 		);
 	}
 
