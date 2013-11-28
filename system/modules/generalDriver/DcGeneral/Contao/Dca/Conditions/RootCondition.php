@@ -45,7 +45,14 @@ class RootCondition
 	 */
 	public function getFilter()
 	{
-		return $this->get('filter');
+		$arrData = $this->get('filter');
+
+		if($arrData == null)
+		{
+			$arrData = $this->objParent->getFromDca(sprintf('dca_config/rootEntries/%s/%s', 'self', 'filter'));
+		}
+
+		return $arrData;
 	}
 
 	/**
