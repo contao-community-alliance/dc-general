@@ -315,6 +315,16 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 			throw new DcGeneralRuntimeException('Required event propagator is missing');
 		}
 
+		global $container;
+
+		/** @var \DcGeneral\DataDefinitionContainerInterface $definitions */
+		$definitions = $container['dc-general.data-definition-container'];
+
+		if ($definitions->hasDefinition($this->containerName))
+		{
+			return $definitions->getDefinition($this->containerName);
+		}
+
 		$containerClass = new \ReflectionClass($this->containerClassName);
 
 		/** @var ContainerInterface $dataContainer */
