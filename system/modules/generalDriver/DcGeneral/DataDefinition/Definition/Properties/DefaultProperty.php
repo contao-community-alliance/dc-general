@@ -10,7 +10,7 @@
  * @filesource
  */
 
-namespace DcGeneral\DataDefinition\Definition\Palette;
+namespace DcGeneral\DataDefinition\Definition\Properties;
 
 class DefaultProperty implements PropertyInterface
 {

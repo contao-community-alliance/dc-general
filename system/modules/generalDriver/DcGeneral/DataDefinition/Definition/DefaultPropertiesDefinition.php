@@ -12,7 +12,7 @@
 
 namespace DcGeneral\DataDefinition\Definition;
 
-use DcGeneral\DataDefinition\Definition\Palette\PropertyInterface;
+use DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 /**
