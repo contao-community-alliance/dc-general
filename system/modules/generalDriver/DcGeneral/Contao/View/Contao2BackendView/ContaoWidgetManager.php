@@ -20,7 +20,7 @@ use DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
 use DcGeneral\Data\PropertyValueBag;
-use DcGeneral\DataDefinition\Definition\Palette\PropertyInterface;
+use DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;

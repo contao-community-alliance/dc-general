@@ -20,7 +20,7 @@ use DcGeneral\Data\DCGE;
 use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
-use DcGeneral\DataDefinition\Definition\Palette\PropertyInterface;
+use DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;

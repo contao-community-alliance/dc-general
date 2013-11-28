@@ -13,7 +13,7 @@
 namespace DcGeneral\View\Event;
 
 use DcGeneral\Data\ModelInterface;
-use DcGeneral\DataDefinition\Definition\Palette\PropertyInterface;
+use DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Event\AbstractModelAwareEvent;
 
