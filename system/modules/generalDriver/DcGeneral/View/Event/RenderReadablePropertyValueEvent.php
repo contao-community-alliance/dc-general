@@ -45,7 +45,7 @@ class RenderReadablePropertyValueEvent
 	}
 
 	/**
-	 * @return \DcGeneral\DataDefinition\Definition\Palette\PropertyInterface
+	 * @return PropertyInterface
 	 */
 	public function getProperty()
 	{
@@ -62,6 +62,8 @@ class RenderReadablePropertyValueEvent
 
 	/**
 	 * @param null|string $rendered
+	 *
+	 * @return RenderReadablePropertyValueEvent
 	 */
 	public function setRendered($rendered)
 	{
