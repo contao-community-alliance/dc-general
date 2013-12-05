@@ -53,7 +53,10 @@
 		"contao-community-alliance/event-dispatcher": "1.1.*@dev"
 	},
 	"require-dev": {
-		"contao/core":"dev-master"
+		"metamodels/php-coding-standard": "*",
+		"pdepend/pdepend": "1.1.*",
+		"phpunit/phpunit": ">=3.7.10,<4-dev",
+		"phpmd/phpmd": "1.5"
 	},
 	"conflict": {
 		"contao/core": "3.0.*"
@@ -80,5 +83,6 @@
 			"dev-master": "0.9.x-dev",
 			"dev-contao3": "1.0.x-dev"
 		}
-	}
+	},
+	"minimum-stability": "dev"
 }

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<project name="Example" default="test">
+	<target name="phpunit">
+		<exec dir="${basedir}" executable="vendor/bin/phpunit" failonerror="false" />
+	</target>
+
+	<target name="phpcs">
+		<exec dir="${basedir}" executable="vendor/bin/phpcs" failonerror="true">
+			<arg line="--standard=${basedir}/vendor/metamodels/php-coding-standard/MetaModels/ruleset.xml ${basedir}/system"/>
+		</exec>
+	</target>
+
+	<target name="phpmd">
+		<exec dir="${basedir}" executable="vendor/bin/phpmd" failonerror="true">
+			<arg line="${basedir}/system text ${basedir}/vendor/metamodels/php-coding-standard/MetaModels/ruleset.xml"/>
+		</exec>
+	</target>
+
+	<target name="test" depends="phpunit,phpcs,phpmd"/>
+</project>
