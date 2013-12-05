@@ -11,7 +11,10 @@
  */
 
 trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
+
 /**
+ * Do not use anymore, use \DcGeneral\Callbacks\ContaoStyleCallbacks.
+ *
  * @deprecated
  */
 class GeneralCallbackDefault extends DcGeneral\Callbacks\ContaoStyleCallbacks

@@ -11,7 +11,10 @@
  */
 
 trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
+
 /**
+ * Do not use anymore, use \DcGeneral\Controller\Ajax3X.
+ *
  * @deprecated
  */
 class GeneralAjax3X extends DcGeneral\Controller\Ajax3X

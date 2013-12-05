@@ -12,7 +12,10 @@
  */
 
 trigger_error('Usage of deprecated '. __FILE__, E_USER_DEPRECATED);
+
 /**
+ * Do not use anymore, use \DcGeneral\Data\AbstractModel.
+ *
  * @deprecated
  */
 abstract class AbstractGeneralModel extends \DcGeneral\Data\AbstractModel
