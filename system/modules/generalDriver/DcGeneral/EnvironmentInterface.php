@@ -12,9 +12,6 @@
 
 namespace DcGeneral;
 
-use DcGeneral\View\ViewInterface;
-use DcGeneral\Data\ModelInterface;
-
 interface EnvironmentInterface
 {
 	/**
