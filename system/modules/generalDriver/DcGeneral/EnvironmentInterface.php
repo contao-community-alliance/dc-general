@@ -12,6 +12,15 @@
 
 namespace DcGeneral;
 
+/**
+ * Interface EnvironmentInterface.
+ *
+ * This interface describes the environment of a DcGeneral instance. It holds reference to the data providers, the view,
+ * the data definition etc.
+ * One could say the Environment is the glue of DcGeneral, holding everything together.
+ *
+ * @package DcGeneral
+ */
 interface EnvironmentInterface
 {
 	/**
@@ -40,55 +49,64 @@ interface EnvironmentInterface
 	public function setView($objView);
 
 	/**
-	 * Retrieve the Controller from the current setup.
+	 * Retrieve the View from the current setup.
 	 *
 	 * @return \DcGeneral\View\ViewInterface
 	 */
 	public function getView();
 
 	/**
-	 * Retrieve the data definition
+	 * Set the data definition for this instance.
 	 *
-	 * @param \DcGeneral\DataDefinition\ContainerInterface $objContainer
+	 * @param \DcGeneral\DataDefinition\ContainerInterface $objContainer The data definition container to store.
 	 *
 	 * @return EnvironmentInterface
 	 */
 	public function setDataDefinition($objContainer);
 
 	/**
+	 * Retrieve the data definition for this instance.
+	 *
 	 * @return \DcGeneral\DataDefinition\ContainerInterface
 	 */
 	public function getDataDefinition();
 
 	/**
-	 * Retrieve the data definition of the parent table.
+	 * Set the data definition of the parent container.
 	 *
-	 * @param \DcGeneral\DataDefinition\ContainerInterface $objContainer
+	 * @param \DcGeneral\DataDefinition\ContainerInterface $objContainer The data definition container to store.
 	 *
 	 * @return EnvironmentInterface
 	 */
 	public function setParentDataDefinition($objContainer);
 
 	/**
+	 * Retrieve the data definition for the parent container. This applies only when in parented mode.
+	 *
 	 * @return \DcGeneral\DataDefinition\ContainerInterface
 	 */
 	public function getParentDataDefinition();
 
 	/**
-	 * @param \DcGeneral\InputProviderInterface $objInputProvider
+	 * Set the input provider to use.
+	 *
+	 * @param \DcGeneral\InputProviderInterface $objInputProvider The input provider to use.
 	 *
 	 * @return EnvironmentInterface
 	 */
 	public function setInputProvider($objInputProvider);
 
 	/**
+	 * Retrieve the input provider.
+	 *
 	 * @return \DcGeneral\InputProviderInterface
 	 */
 	public function getInputProvider();
 
 	/**
+	 * Note: you should not use this anymore, as the callback system is deprecated.
 	 *
-	 * @param \DcGeneral\Callbacks\CallbacksInterface $objCallbackHandler
+	 * @param \DcGeneral\Callbacks\CallbacksInterface $objCallbackHandler The callback handler to use.
 	 *
 	 * @return EnvironmentInterface
 	 *
@@ -97,6 +115,7 @@ interface EnvironmentInterface
 	public function setCallbackHandler($objCallbackHandler);
 
 	/**
+	 * Note: you should not use this anymore, as the callback system is deprecated.
 	 *
 	 * @return \DcGeneral\Callbacks\CallbacksInterface
 	 *
@@ -107,7 +126,7 @@ interface EnvironmentInterface
 	/**
 	 * Determine if the data provider with the given name exists.
 	 *
-	 * @param null $strSource
+	 * @param string|null $strSource The source name to check the providers for.
 	 *
 	 * @return mixed
 	 */
@@ -162,25 +181,34 @@ interface EnvironmentInterface
 	public function setClipboard($objClipboard);
 
 	/**
-	 * @param \DcGeneral\TranslatorInterface $manager
+	 * Set the translation manager to use.
+	 *
+	 * @param TranslatorInterface $manager The translation manager.
 	 *
 	 * @return \DcGeneral\EnvironmentInterface
 	 */
 	public function setTranslator(TranslatorInterface $manager);
 
 	/**
+	 * Retrieve the translation manager to use.
+	 *
 	 * @return \DcGeneral\TranslatorInterface
 	 */
 	public function getTranslator();
 
 	/**
-	 * @param \DcGeneral\Event\EventPropagatorInterface $propagator
+	 * Set the event propagator to use.
+	 *
+	 * @param \DcGeneral\Event\EventPropagatorInterface $propagator The event propagator to use.
 	 *
 	 * @return \DcGeneral\EnvironmentInterface
 	 */
 
 	public function setEventPropagator($propagator);
+
 	/**
+	 * Retrieve the event propagator to use.
+	 *
 	 * @return \DcGeneral\Event\EventPropagatorInterface
 	 */
 	public function getEventPropagator();
