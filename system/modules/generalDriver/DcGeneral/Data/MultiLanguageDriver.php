@@ -52,18 +52,22 @@ class MultiLanguageDriver extends DefaultDriver implements MultiLanguageDriverIn
 		$objCollection = $this->getEmptyCollection();
 
 		$objModel = $this->getEmptyModel();
-		$objModel->setID("de");
-		$objModel->setProperty("name", "Deutsch");
-		if ($this->strCurrentLanguage == "de")
-			$objModel->setProperty("active", true);
+		$objModel->setID('de');
+		$objModel->setProperty('name', 'Deutsch');
+		if ($this->strCurrentLanguage == 'de')
+		{
+			$objModel->setProperty('active', true);
+		}
 
 		$objCollection->add($objModel);
 
 		$objModel = $this->getEmptyModel();
-		$objModel->setId("en");
-		$objModel->setProperty("name", "English");
-		if ($this->strCurrentLanguage == "en")
-			$objModel->setProperty("active", true);
+		$objModel->setId('en');
+		$objModel->setProperty('name', 'English');
+		if ($this->strCurrentLanguage == 'en')
+		{
+			$objModel->setProperty('active', true);
+		}
 
 		$objCollection->add($objModel);
 
@@ -81,8 +85,8 @@ class MultiLanguageDriver extends DefaultDriver implements MultiLanguageDriverIn
 	public function getFallbackLanguage($mixID)
 	{
 		$objModel = $this->getEmptyModel();
-		$objModel->setId("en");
-		$objModel->setProperty("name", "English");
+		$objModel->setId('en');
+		$objModel->setProperty('name', 'English');
 
 		return $objModel;
 	}
