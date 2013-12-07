@@ -37,10 +37,8 @@ abstract class AbstractModel implements ModelInterface
 		{
 			return $this->arrMetaInformation[$strMetaName];
 		}
-		else
-		{
-			return null;
-		}
+
+		return null;
 	}
 
 	/**
