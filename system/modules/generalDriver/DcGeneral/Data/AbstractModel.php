@@ -12,6 +12,13 @@
 
 namespace DcGeneral\Data;
 
+/**
+ * Class AbstractModel.
+ * Abstract base class for data provider models.
+ * This class implements the setter and getter for meta data.
+ *
+ * @package DcGeneral\Data
+ */
 abstract class AbstractModel implements ModelInterface
 {
 	/**
