@@ -12,8 +12,6 @@
 
 namespace DcGeneral\Data;
 
-use DcGeneral\Data\ModelInterface;
-
 abstract class AbstractModel implements ModelInterface
 {
 	/**
