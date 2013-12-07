@@ -12,7 +12,6 @@
 
 namespace DcGeneral\Data;
 
-use DcGeneral\Data\ModelInterface;
 use DcGeneral\Exception\DcGeneralException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 
