@@ -26,7 +26,7 @@ interface ModelInterface extends \IteratorAggregate
 	/**
 	 * Copy this model, without the id.
 	 *
-	 * @return ModelInterface
+	 * @return void
 	 */
 	public function __clone();
 
