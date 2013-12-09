@@ -14,6 +14,13 @@ namespace DcGeneral\Data;
 
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
+/**
+ * Interface ModelInterface.
+ *
+ * This interface describes a model used in data providers.
+ *
+ * @package DcGeneral\Data
+ */
 interface ModelInterface extends \IteratorAggregate
 {
 	/**
@@ -73,9 +80,9 @@ interface ModelInterface extends \IteratorAggregate
 	/**
 	 * Update the property value in the model.
 	 *
-	 * @param string $strPropertyName
+	 * @param string $strPropertyName The property name to be set.
 	 *
-	 * @param mixed  $varValue
+	 * @param mixed  $varValue        The value to be set.
 	 *
 	 * @return void
 	 */
@@ -126,7 +133,7 @@ interface ModelInterface extends \IteratorAggregate
 	 *
 	 * @return ModelInterface
 	 *
-	 * @throws DcGeneralInvalidArgumentException
+	 * @throws DcGeneralInvalidArgumentException When a property in the value bag has been marked as invalid.
 	 */
 	public function readFromPropertyValueBag(PropertyValueBagInterface $valueBag);
 
