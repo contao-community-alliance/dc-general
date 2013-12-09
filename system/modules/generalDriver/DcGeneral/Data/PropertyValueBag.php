@@ -33,15 +33,16 @@ class PropertyValueBag implements PropertyValueBagInterface
 	 */
 	protected $errors = array();
 
-	function __construct($properties = null)
+	public function __construct($properties = null)
 	{
 		if (is_array($properties) || $properties instanceof \Traversable)
 		{
-			foreach ($properties as $property => $value) {
+			foreach ($properties as $property => $value)
+			{
 				$this->setPropertyValue($property, $value);
 			}
 		}
-		else if ($properties !== null)
+		elseif ($properties !== null)
 		{
 			throw new DcGeneralInvalidArgumentException('The parameter $properties does not contain any properties nor values');
 		}
@@ -108,7 +109,7 @@ class PropertyValueBag implements PropertyValueBagInterface
 	 */
 	public function hasInvalidPropertyValues()
 	{
-		return (bool) $this->errors;
+		return (bool)$this->errors;
 	}
 
 	/**
@@ -125,7 +126,7 @@ class PropertyValueBag implements PropertyValueBagInterface
 	public function isPropertyValueInvalid($property)
 	{
 		$this->requirePropertyValue($property);
-		return (bool) $this->errors[$property];
+		return (bool)$this->errors[$property];
 	}
 
 	/**
@@ -149,7 +150,7 @@ class PropertyValueBag implements PropertyValueBagInterface
 			$this->errors[$property] = array();
 		}
 
-		foreach ((array) $error as $singleError)
+		foreach ((array)$error as $singleError)
 		{
 			$this->errors[$property][] = $singleError;
 		}
@@ -182,7 +183,7 @@ class PropertyValueBag implements PropertyValueBagInterface
 	public function getPropertyValueErrors($property)
 	{
 		$this->requirePropertyValue($property);
-		return (array) $this->errors[$property];
+		return (array)$this->errors[$property];
 	}
 
 	/**
@@ -244,7 +245,7 @@ class PropertyValueBag implements PropertyValueBagInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	function __isset($name)
+	public function __isset($name)
 	{
 		return $this->hasPropertyValue($name);
 	}
@@ -252,7 +253,7 @@ class PropertyValueBag implements PropertyValueBagInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	function __get($name)
+	public function __get($name)
 	{
 		return $this->getPropertyValue($name);
 	}
@@ -260,7 +261,7 @@ class PropertyValueBag implements PropertyValueBagInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	function __set($name, $value)
+	public function __set($name, $value)
 	{
 		$this->setPropertyValue($name, $value);
 	}
@@ -268,7 +269,7 @@ class PropertyValueBag implements PropertyValueBagInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	function __unset($name)
+	public function __unset($name)
 	{
 		$this->removePropertyValue($name);
 	}
