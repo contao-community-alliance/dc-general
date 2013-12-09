@@ -203,6 +203,7 @@ class DefaultCollection implements CollectionInterface
 	public function reverse()
 	{
 		$newCollection = clone $this;
+
 		$newCollection->arrCollection = array_reverse($this->arrCollection);
 
 		return $newCollection;
