@@ -15,6 +15,14 @@ namespace DcGeneral\Data;
 use DcGeneral\Exception\DcGeneralException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 
+/**
+ * Class DefaultCollection.
+ *
+ * This is the default implementation of a model collection in DcGeneral.
+ * Internally it simply holds an array.
+ *
+ * @package DcGeneral\Data
+ */
 class DefaultCollection implements CollectionInterface
 {
 	/**
@@ -37,7 +45,7 @@ class DefaultCollection implements CollectionInterface
 	/**
 	 * Get the model at a specific index.
 	 *
-	 * @param integer $intIndex The index of the model to retrieve.
+	 * @param int $intIndex The index of the model to retrieve.
 	 *
 	 * @return ModelInterface
 	 */
@@ -60,9 +68,9 @@ class DefaultCollection implements CollectionInterface
 	 *
 	 * @return void
 	 *
-	 * @throws DcGeneralException when no model has been passed.
+	 * @throws DcGeneralRuntimeException When no model has been passed.
 	 *
-	 * @see push
+	 * @deprecated Use push.
 	 */
 	public function add(ModelInterface $objModel)
 	{
@@ -76,13 +84,13 @@ class DefaultCollection implements CollectionInterface
 	 *
 	 * @return void
 	 *
-	 * @throws DcGeneralRuntimeException when no model has been passed.
+	 * @throws DcGeneralRuntimeException When no model has been passed.
 	 */
 	public function push(ModelInterface $objModel)
 	{
 		if (!$objModel)
 		{
-			throw new DcGeneralRuntimeException("push() - no model passed", 1);
+			throw new DcGeneralRuntimeException('push() - no model passed', 1);
 		}
 
 		if ($objModel->hasProperties())
@@ -150,7 +158,7 @@ class DefaultCollection implements CollectionInterface
 	 * Move all records at position >= $index one index up.
 	 * If $index is out of bounds, just add at the end (does not fill with empty records!).
 	 *
-	 * @param integer               $intIndex  The index where the model shall be placed.
+	 * @param int            $intIndex The index where the model shall be placed.
 	 *
 	 * @param ModelInterface $objModel The model to insert.
 	 *
@@ -218,7 +226,7 @@ class DefaultCollection implements CollectionInterface
 	}
 
 	/**
-	 * Get a iterator for this collection
+	 * Get a iterator for this collection.
 	 *
 	 * @return \IteratorAggregate
 	 */
