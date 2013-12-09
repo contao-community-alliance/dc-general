@@ -17,8 +17,6 @@ namespace DcGeneral\Data;
  */
 class DCGE
 {
-	// Language ------------------------------------------------------------
-
 	/**
 	 * Single language
 	 */
@@ -29,8 +27,6 @@ class DCGE
 	 * Multi language
 	 */
 	const LANGUAGE_ML = 2;
-
-	// Sorting Modis -------------------------------------------------------
 
 	/**
 	 * Move/Insert after Start
@@ -57,16 +53,36 @@ class DCGE
 	 */
 	const MODEL_SORTING_DESC = 'DESC';
 
-	// Modes ---------------------------------------------------------------
+	/**
+	 * Sorting unsorted.
+	 */
 	const MODE_NON_SORTING = 0;
-	const MODE_FIXED_FIELD = 1;
-	const MODE_VARIABLE_FIELD = 2;
-	const MODE_PARENT_VIEW = 3;
-	// SH: CS: mode 4 missing, no idear for a good name :(
-	const MODE_SIMPLE_TREEVIEW = 5;
-	const MODE_PARENT_TREEVIEW = 6;
 
-	// Meta Tags -----------------------------------------------------------
+	/**
+	 * Sorting by a fixed field.
+	 */
+	const MODE_FIXED_FIELD = 1;
+
+	/**
+	 * Sorting by a variable field.
+	 */
+	const MODE_VARIABLE_FIELD = 2;
+
+	/**
+	 * Sorting by the parent record.
+	 */
+	const MODE_PARENT_VIEW = 3;
+
+	// TODO: SH: CS: mode 4 missing, no idea for a good name.
+	/**
+	 * Sorting as a simple tree.
+	 */
+	const MODE_SIMPLE_TREEVIEW = 5;
+
+	/**
+	 * Sorting as a parented tree.
+	 */
+	const MODE_PARENT_TREEVIEW = 6;
 
 	/**
 	 * Title of an item in a tree view.
@@ -84,29 +100,27 @@ class DCGE
 	const TREE_VIEW_IS_OPEN = 'dc_gen_tv_open';
 
 	/**
-	 * Child Collection
+	 * Child Collection.
 	 */
 	const TREE_VIEW_CHILD_COLLECTION = 'dc_gen_children_collection';
 
 	/**
-	 * State if we have childs
+	 * State if we have children.
 	 */
 	const TREE_VIEW_HAS_CHILDS = 'dc_gen_tv_children';
-	const MODEL_BUTTONS = '%buttons%';
-	const MODEL_LABEL_ARGS = '%args%';
-	const MODEL_LABEL_VALUE = '%content%';
-	const MODEL_GROUP_HEADER = '%header%';
-	const MODEL_GROUP_VALUE = '%group%';
-	const MODEL_CLASS = '%class%';
+	const MODEL_BUTTONS        = '%buttons%';
+	const MODEL_LABEL_ARGS     = '%args%';
+	const MODEL_LABEL_VALUE    = '%content%';
+	const MODEL_GROUP_HEADER   = '%header%';
+	const MODEL_GROUP_VALUE    = '%group%';
+	const MODEL_CLASS          = '%class%';
 
 	/**
 	 * State if the model is changed
 	 */
 	const MODEL_IS_CHANGED = 'isChanged';
 
-
-
-	//todo: merge with MODEL_CLASS?
+	// TODO: Merge with MODEL_CLASS?
 	const MODEL_EVEN_ODD_CLASS = '%rowClass%';
 
 	/**
@@ -118,5 +132,4 @@ class DCGE
 	 * parents provider name.
 	 */
 	const MODEL_PTABLE = 'ptable';
-
 }
