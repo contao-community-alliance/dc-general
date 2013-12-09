@@ -11,7 +11,7 @@
 
 namespace DcGeneral\Data;
 
-use DcGeneralDcGeneralException\DcGeneralException;
+use DcGeneral\Exception\DcGeneralException;
 
 /**
  * This is the MetaModel filter interface.
