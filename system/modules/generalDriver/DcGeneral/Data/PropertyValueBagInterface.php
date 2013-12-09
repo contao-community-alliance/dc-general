@@ -26,7 +26,7 @@ interface PropertyValueBagInterface
 	/**
 	 * Check if a property exists in this bag.
 	 *
-	 * @param string $property
+	 * @param string $property The name of the property to check.
 	 *
 	 * @return bool
 	 */
@@ -35,19 +35,20 @@ interface PropertyValueBagInterface
 	/**
 	 * Return the value of a property.
 	 *
-	 * @param string $property
+	 * @param string $property The name of the property to check.
 	 *
 	 * @return mixed
 	 *
-	 * @throws DcGeneralInvalidArgumentException
+	 * @throws DcGeneralInvalidArgumentException If the property is not contained within the bag.
 	 */
 	public function getPropertyValue($property);
 
 	/**
 	 * Set the value of a property.
 	 *
-	 * @param string $property
-	 * @param mixed $value
+	 * @param string $property The name of the property to set.
+	 *
+	 * @param mixed  $value    The value to use.
 	 *
 	 * @return PropertyValueBag
 	 */
@@ -56,11 +57,11 @@ interface PropertyValueBagInterface
 	/**
 	 * Remove the value of a property.
 	 *
-	 * @param string $property
-	 *
-	 * @throws DcGeneralInvalidArgumentException
+	 * @param string $property The name of the property to remove.
 	 *
 	 * @return PropertyValueBag
+	 *
+	 * @throws DcGeneralInvalidArgumentException If the property is not contained within the bag.
 	 */
 	public function removePropertyValue($property);
 
@@ -81,7 +82,7 @@ interface PropertyValueBagInterface
 	/**
 	 * Check if a property value is invalid.
 	 *
-	 * @param string $property
+	 * @param string $property The name of the property to check.
 	 *
 	 * @return bool
 	 */
@@ -90,7 +91,7 @@ interface PropertyValueBagInterface
 	/**
 	 * Check if a property value is valid.
 	 *
-	 * @param string $property
+	 * @param string $property The name of the property to check.
 	 *
 	 * @return bool
 	 */
@@ -99,9 +100,11 @@ interface PropertyValueBagInterface
 	/**
 	 * Mark a property as invalid and add an error message to the property.
 	 *
-	 * @param string $property
-	 * @param string|array|mixed $error
-	 * @param bool $append Append this error and keep previous errors.
+	 * @param string             $property The name of the property to mark.
+	 *
+	 * @param string|array|mixed $error    The error message to attach for this property.
+	 *
+	 * @param bool               $append   Append this error and keep previous errors (optional).
 	 *
 	 * @return PropertyValueBag
 	 */
@@ -110,7 +113,7 @@ interface PropertyValueBagInterface
 	/**
 	 * Reset the state of a property and remove all errors.
 	 *
-	 * @param string $property
+	 * @param string $property The name of the property to reset.
 	 *
 	 * @return PropertyValueBag
 	 */
@@ -126,7 +129,7 @@ interface PropertyValueBagInterface
 	/**
 	 * Return all errors of an invalid property value.
 	 *
-	 * @param string $property
+	 * @param string $property The name of the property to retrieve the errors for.
 	 *
 	 * @return array
 	 */
