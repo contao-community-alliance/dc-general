@@ -14,6 +14,13 @@ namespace DcGeneral\Data;
 
 use DcGeneral\Exception\DcGeneralRuntimeException;
 
+/**
+ * Interface DriverInterface.
+ *
+ * This interface describes a data provider in DcGeneral.
+ *
+ * @package DcGeneral\Data
+ */
 interface DriverInterface
 {
 	/**
@@ -23,7 +30,7 @@ interface DriverInterface
 	 *
 	 * @return void
 	 *
-	 * @throws DcGeneralRuntimeException when no source has been defined.
+	 * @throws DcGeneralRuntimeException When no source has been defined.
 	 */
 	public function setBaseConfig(array $arrConfig);
 
@@ -55,7 +62,7 @@ interface DriverInterface
 	 *
 	 * If the model shall be retrieved by filter, use $objConfig->setFilter() to populate the config with a filter.
 	 *
-	 * @param ConfigInterface $objConfig
+	 * @param ConfigInterface $objConfig The configuration to use.
 	 *
 	 * @return ModelInterface
 	 */
@@ -67,7 +74,7 @@ interface DriverInterface
 	 * This returns a collection of all models matching the config object. If idOnly is true, an array containing all
 	 * matching ids is returned.
 	 *
-	 * @param ConfigInterface $objConfig
+	 * @param ConfigInterface $objConfig The configuration to use.
 	 *
 	 * @return CollectionInterface|array
 	 */
@@ -82,7 +89,7 @@ interface DriverInterface
 	 * The only information being interpreted from the passed config object is the first property to fetch and the
 	 * filter definition.
 	 *
-	 * @param ConfigInterface $objConfig   The filter config options.
+	 * @param ConfigInterface $objConfig The filter config options.
 	 *
 	 * @return CollectionInterface
 	 */
@@ -91,7 +98,7 @@ interface DriverInterface
 	/**
 	 * Return the amount of total items (filtering may be used in the config).
 	 *
-	 * @param ConfigInterface $objConfig
+	 * @param ConfigInterface $objConfig The configuration to use.
 	 *
 	 * @return int
 	 */
@@ -103,11 +110,11 @@ interface DriverInterface
 	 * If the item does not have an Id yet, the save operation will add it as a new row to the database and
 	 * populate the Id of the model accordingly.
 	 *
-	 * @param ModelInterface $objItem   The model to save back.
+	 * @param ModelInterface $objItem The model to save back.
 	 *
 	 * @return ModelInterface The passed model.
 	 */
-	 public function save(ModelInterface $objItem);
+	public function save(ModelInterface $objItem);
 
 	/**
 	 * Save a collection of items to the data provider.
@@ -125,7 +132,9 @@ interface DriverInterface
 	 *
 	 * @param mixed $item Id or the model itself, to delete.
 	 *
-	 * @throws DcGeneralRuntimeException when an unusable object has been passed.
+	 * @return void
+	 *
+	 * @throws DcGeneralRuntimeException When an unusable object has been passed.
 	 */
 	public function delete($item);
 
@@ -134,7 +143,7 @@ interface DriverInterface
 	 *
 	 * @param ModelInterface $objModel    The model for which a new version shall be created.
 	 *
-	 * @param string                $strUsername The username to attach to the version as creator.
+	 * @param string         $strUsername The username to attach to the version as creator.
 	 *
 	 * @return void
 	 */
@@ -169,6 +178,8 @@ interface DriverInterface
 	 * @param mixed $mixID      The ID of the model.
 	 *
 	 * @param mixed $mixVersion The version number to set active.
+	 *
+	 * @return void
 	 */
 	public function setVersionActive($mixID, $mixVersion);
 
@@ -198,11 +209,11 @@ interface DriverInterface
 	/**
 	 * Check if the value is unique in the data provider.
 	 *
-	 * @param string $strField the field in which to test.
+	 * @param string $strField The field in which to test.
 	 *
-	 * @param mixed  $varNew   the value about to be saved.
+	 * @param mixed  $varNew   The value about to be saved.
 	 *
-	 * @param int    $intId    the (optional) id of the item currently in scope - pass null for new items.
+	 * @param int    $intId    The (optional) id of the item currently in scope - pass null for new items.
 	 *
 	 * Documentation:
 	 *      Evaluation - unique => If true the field value cannot be saved if it exists already.
