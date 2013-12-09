@@ -96,16 +96,17 @@ class NoOpDriver implements DriverInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	 public function save(ModelInterface $objItem)
-	 {
-	 }
+	public function save(ModelInterface $objItem)
+	{
+	}
 
 	/**
 	 * {@inheritdoc}
 	 */
 	public function saveEach(CollectionInterface $objItems)
 	{
-		foreach ($objItems as $objItem) {
+		foreach ($objItems as $objItem)
+		{
 			$this->save($objItem);
 		}
 	}
@@ -188,11 +189,13 @@ class NoOpDriver implements DriverInterface
 
 		$arrKeys = array_merge(array_keys($arrProperties1), array_keys($arrProperties2));
 		$arrKeys = array_unique($arrKeys);
-		foreach ($arrKeys as $strKey) {
+		foreach ($arrKeys as $strKey)
+		{
 			if (!array_key_exists($strKey, $arrProperties1) ||
 				!array_key_exists($strKey, $arrProperties2) ||
 				$arrProperties1[$strKey] != $arrProperties2[$strKey]
-			) {
+			)
+			{
 				return false;
 			}
 		}
