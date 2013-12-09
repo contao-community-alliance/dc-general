@@ -12,6 +12,14 @@
 
 namespace DcGeneral\Data;
 
+/**
+ * Interface ConfigInterface.
+ *
+ * This interface describes the configuration objects to use when retrieving models and collections from a data
+ * provider.
+ *
+ * @package DcGeneral\Data
+ */
 interface ConfigInterface
 {
 	/**
@@ -31,9 +39,9 @@ interface ConfigInterface
 	public function getId();
 
 	/**
-	 * Set specific id.
+	 * Set a specific id for an element to be retrieved.
 	 *
-	 * @param mixed $mixId
+	 * @param mixed $mixId The id of the element to be retrieved.
 	 *
 	 * @return ConfigInterface
 	 */
@@ -58,14 +66,14 @@ interface ConfigInterface
 	/**
 	 * Return flag if only ids should be returned.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIdOnly();
 
 	/**
 	 * Set flag for return id only.
 	 *
-	 * @param boolean $blnIdOnly Boolean flag to determine that only Ids shall be returned when calling fetchAll().
+	 * @param bool $blnIdOnly Boolean flag to determine that only Ids shall be returned when calling fetchAll().
 	 *
 	 * @return ConfigInterface
 	 */
@@ -76,7 +84,7 @@ interface ConfigInterface
 	 *
 	 * This is the offset to use for pagination.
 	 *
-	 * @return integer
+	 * @return int
 	 */
 	public function getStart();
 
@@ -85,7 +93,7 @@ interface ConfigInterface
 	 *
 	 * This is the offset to use for pagination.
 	 *
-	 * @param integer $intStart Number of first element to return.
+	 * @param int $intStart Number of first element to return.
 	 *
 	 * @return ConfigInterface
 	 */
@@ -96,7 +104,7 @@ interface ConfigInterface
 	 *
 	 * This is the amount of items to return for pagination.
 	 *
-	 * @return integer
+	 * @return int
 	 */
 	public function getAmount();
 
@@ -105,7 +113,7 @@ interface ConfigInterface
 	 *
 	 * This is the amount of items to return for pagination.
 	 *
-	 * @param integer $intAmount
+	 * @param int $intAmount The amount to use.
 	 *
 	 * @return ConfigInterface
 	 */
