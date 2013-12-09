@@ -55,10 +55,8 @@ class DefaultCollection implements CollectionInterface
 		{
 			return $this->arrCollection[$intIndex];
 		}
-		else
-		{
-			return null;
-		}
+
+		return null;
 	}
 
 	/**
@@ -112,10 +110,8 @@ class DefaultCollection implements CollectionInterface
 		{
 			return array_pop($this->arrCollection);
 		}
-		else
-		{
-			return null;
-		}
+
+		return null;
 	}
 
 	/**
@@ -146,10 +142,8 @@ class DefaultCollection implements CollectionInterface
 		{
 			return array_shift($this->arrCollection);
 		}
-		else
-		{
-			return null;
-		}
+
+		return null;
 	}
 
 	/**
