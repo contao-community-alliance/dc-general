@@ -84,10 +84,8 @@ class DefaultModel extends AbstractModel
 		{
 			return $this->arrProperties[$strPropertyName];
 		}
-		else
-		{
-			return null;
-		}
+
+		return null;
 	}
 
 	/**
@@ -98,7 +96,7 @@ class DefaultModel extends AbstractModel
 	public function getPropertiesAsArray()
 	{
 		$arrArray       = $this->arrProperties;
-		$arrArray["id"] = $this->mixID;
+		$arrArray['id'] = $this->mixID;
 
 		return $arrArray;
 	}
@@ -151,9 +149,9 @@ class DefaultModel extends AbstractModel
 	{
 		if (is_array($arrProperties))
 		{
-			if (array_key_exists("id", $arrProperties))
+			if (array_key_exists('id', $arrProperties))
 			{
-				unset($arrProperties["id"]);
+				unset($arrProperties['id']);
 			}
 
 			foreach ($arrProperties as $strPropertyName => $varValue)
