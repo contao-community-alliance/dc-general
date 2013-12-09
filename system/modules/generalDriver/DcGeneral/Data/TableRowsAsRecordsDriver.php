@@ -14,26 +14,25 @@ namespace DcGeneral\Data;
 use DcGeneral\Exception\DcGeneralException;
 
 /**
- * This is the MetaModel filter interface.
+ * Class TableRowsAsRecordsDriver.
  *
- * @package    generalDriver
- * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * This driver allows to map multiple rows of a SQL table into a single model for usage in a MultiColumnWizard.
+ *
+ * @package DcGeneral\Data
  */
 class TableRowsAsRecordsDriver extends DefaultDriver
 {
-	/* /////////////////////////////////////////////////////////////////////////
-	 * -------------------------------------------------------------------------
-	 * Getter | Setter
-	 * -------------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////////// */
-
 	/**
-	 * grouping column to use to tie rows together.
+	 * Grouping column to use to tie rows together.
+	 *
+	 * @var string
 	 */
 	protected $strGroupCol = 'pid';
 
 	/**
-	 * sorting column to sort the entries by.
+	 * Sorting column to sort the entries by.
+	 *
+	 * @var string
 	 */
 	protected $strSortCol = '';
 
@@ -44,7 +43,7 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * @return void
 	 *
-	 * @throws DcGeneralException when no source has been defined.
+	 * @throws DcGeneralException When no source has been defined.
 	 */
 	public function setBaseConfig(array $arrConfig)
 	{
@@ -71,7 +70,10 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * @param string $strMethod The name of the method being called.
 	 *
-	 * @throws DcGeneralException
+	 * @throws DcGeneralException Throws always an exception telling that the method (see param $strMethod) must not be
+	 *                            called.
+	 *
+	 * @return void
 	 */
 	protected function youShouldNotCallMe($strMethod)
 	{
@@ -83,6 +85,8 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 * Unsupported in this data provider, throws an Exception.
 	 *
 	 * @param mixed $item Unused.
+	 *
+	 * @return void
 	 *
 	 * @throws DcGeneralException Always throws exception.
 	 */
@@ -96,11 +100,11 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * This data provider only supports retrieving by id so use $objConfig->setId() to populate the config with an Id.
 	 *
-	 * @param ConfigInterface $objConfig
+	 * @param ConfigInterface $objConfig The configuration to use.
 	 *
 	 * @return ModelInterface
 	 *
-	 * @throws DcGeneralException if config object does not contain an Id.
+	 * @throws DcGeneralException If config object does not contain an Id.
 	 */
 	public function fetch(ConfigInterface $objConfig)
 	{
@@ -201,7 +205,7 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * @param ModelInterface $objItem   The model to save.
 	 *
-	 * @param bool                  $recursive Ignored as not relevant in this data provider.
+	 * @param bool           $recursive Ignored as not relevant in this data provider.
 	 *
 	 * @return ModelInterface The passed Model.
 	 *
@@ -325,7 +329,7 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * @param ModelInterface $objModel    Unused.
 	 *
-	 * @param string                $strUsername Unused.
+	 * @param string         $strUsername Unused.
 	 *
 	 * @return void
 	 *
