@@ -33,6 +33,13 @@ class PropertyValueBag implements PropertyValueBagInterface
 	 */
 	protected $errors = array();
 
+	/**
+	 * Create a new instance of a property bag.
+	 *
+	 * @param array|null $properties The initial property values to use.
+	 *
+	 * @throws DcGeneralInvalidArgumentException If the passed properties aren't null or an array.
+	 */
 	public function __construct($properties = null)
 	{
 		if (is_array($properties) || $properties instanceof \Traversable)
@@ -51,9 +58,12 @@ class PropertyValueBag implements PropertyValueBagInterface
 	/**
 	 * Check if a property exists, otherwise through an exception.
 	 *
-	 * @param string $property
+	 * @param string $property The name of the property to require.
 	 *
-	 * @throws DcGeneralInvalidArgumentException
+	 * @return void
+	 *
+	 * @throws DcGeneralInvalidArgumentException If the property is not registered.
+	 *
 	 * @internal
 	 */
 	protected function requirePropertyValue($property)
