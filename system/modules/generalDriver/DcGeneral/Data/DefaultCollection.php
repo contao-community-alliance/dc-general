@@ -202,7 +202,10 @@ class DefaultCollection implements CollectionInterface
 	 */
 	public function reverse()
 	{
-		$this->arrCollection = array_reverse($this->arrCollection);
+		$newCollection = clone $this;
+		$newCollection->arrCollection = array_reverse($this->arrCollection);
+
+		return $newCollection;
 	}
 
 	/**
@@ -214,9 +217,12 @@ class DefaultCollection implements CollectionInterface
 	 */
 	public function sort($callback)
 	{
-		uasort($this->arrCollection, $callback);
+		$newCollection = clone $this;
+		uasort($newCollection->arrCollection, $callback);
 
-		$this->arrCollection = array_values($this->arrCollection);
+		$newCollection->arrCollection = array_values($newCollection->arrCollection);
+
+		return $newCollection;
 	}
 
 	/**
