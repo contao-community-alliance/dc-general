@@ -12,8 +12,21 @@
 
 namespace DcGeneral\Data;
 
+/**
+ * Class NoOpDriver.
+ *
+ * Base implementation of an no operational driver. This driver is simply a stub endpoint without any logic at all.
+ * It is useful as parent class for drivers that only implement a fraction of all DcGeneral features.
+ *
+ * @package DcGeneral\Data
+ */
 class NoOpDriver implements DriverInterface
 {
+	/**
+	 * The configuration data for this instance.
+	 *
+	 * @var array
+	 */
 	protected $arrBaseConfig;
 
 	/**
