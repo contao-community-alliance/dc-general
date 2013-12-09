@@ -12,7 +12,7 @@
 
 namespace DcGeneral\Data;
 
-use DcGeneral\Data\ModelInterface;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * Interface InterfaceGeneralCollection
@@ -31,7 +31,7 @@ interface CollectionInterface extends \IteratorAggregate
 	/**
 	 * Get the model at a specific index.
 	 *
-	 * @param integer $intIndex The index of the model to retrieve.
+	 * @param int $intIndex The index of the model to retrieve.
 	 *
 	 * @return ModelInterface
 	 */
@@ -44,7 +44,9 @@ interface CollectionInterface extends \IteratorAggregate
 	 *
 	 * @return void
 	 *
-	 * @see push
+	 * @throws DcGeneralRuntimeException When no model has been passed.
+	 *
+	 * @deprecated Use push.
 	 */
 	public function add(ModelInterface $objModel);
 
@@ -54,6 +56,8 @@ interface CollectionInterface extends \IteratorAggregate
 	 * @param ModelInterface $objModel The model to append to the collection.
 	 *
 	 * @return void
+	 *
+	 * @throws DcGeneralRuntimeException When no model has been passed.
 	 */
 	public function push(ModelInterface $objModel);
 
@@ -90,9 +94,9 @@ interface CollectionInterface extends \IteratorAggregate
 	 * Move all records at position >= $index one index up.
 	 * If $index is out of bounds, just add at the end (does not fill with empty records!).
 	 *
-	 * @param integer $intIndex  The index where the model shall be placed.
+	 * @param int            $intIndex The index where the model shall be placed.
 	 *
-	 * @param ModelInterface   $objModel The model to insert.
+	 * @param ModelInterface $objModel The model to insert.
 	 *
 	 * @return void
 	 */
@@ -119,7 +123,7 @@ interface CollectionInterface extends \IteratorAggregate
 	/**
 	 * Sort the records with the given callback and return the new sorted collection.
 	 *
-	 * @param callback $callback
+	 * @param callback $callback The callback function to use.
 	 *
 	 * @return ModelInterface
 	 */
