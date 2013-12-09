@@ -211,7 +211,7 @@ class DefaultCollection implements CollectionInterface
 	/**
 	 * Sort the records with the given callback and return the new sorted collection.
 	 *
-	 * @param callback $callback
+	 * @param callback $callback The callback function to use.
 	 *
 	 * @return CollectionInterface
 	 */
