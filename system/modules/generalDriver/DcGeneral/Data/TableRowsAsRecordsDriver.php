@@ -197,6 +197,8 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 *
 	 * @param string $strField Unused.
 	 *
+	 * @return void
+	 *
 	 * @throws DcGeneralException Always throws exception.
 	 */
 	public function resetFallback($strField)
