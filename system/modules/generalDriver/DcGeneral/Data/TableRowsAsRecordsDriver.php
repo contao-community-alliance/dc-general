@@ -77,7 +77,10 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 */
 	protected function youShouldNotCallMe($strMethod)
 	{
-		throw new DcGeneralException(sprintf('Error, %s not available, as the data provider is intended for edit mode only.', $strMethod), 1);
+		throw new DcGeneralException(sprintf(
+			'Error, %s not available, as the data provider is intended for edit mode only.',
+			$strMethod
+		), 1);
 	}
 
 
@@ -110,10 +113,18 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	{
 		if (!$objConfig->getId())
 		{
-			throw new DcGeneralException('Error, no id passed, DcGeneral\Data\TableRowsAsRecordsDriver is only intended for edit mode.', 1);
+			throw new DcGeneralException(
+				'Error, no id passed, DcGeneral\Data\TableRowsAsRecordsDriver is only intended for edit mode.',
+				1
+			);
 		}
 
-		$strQuery = sprintf('SELECT %s FROM %s WHERE %s=?', $this->buildFieldQuery($objConfig), $this->strSource, $this->strGroupCol);
+		$strQuery = sprintf(
+			'SELECT %s FROM %s WHERE %s=?',
+			$this->buildFieldQuery($objConfig),
+			$this->strSource,
+			$this->strGroupCol
+		);
 
 		if ($this->strSortCol)
 		{
@@ -220,12 +231,12 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 		}
 
 		$arrKeep = array();
-		foreach($arrData as $arrRow)
+		foreach ($arrData as $arrRow)
 		{
 			// TODO: add an option to restrict this to some allowed fields?
 			$arrSQL = $arrRow;
 
-			// update all.
+			// Update all.
 			$intId = intval($arrRow['id']);
 
 			// Work around the fact that multicolumnwizard does not clear any hidden fields when copying a dataset.
@@ -236,7 +247,7 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 				unset($arrSQL['id']);
 			}
 
-			if ($intId>0)
+			if ($intId > 0)
 			{
 				$this->objDatabase
 					->prepare(sprintf('UPDATE %s %%s WHERE id=? AND %s=?', $this->strSource, $this->strGroupCol))
@@ -244,16 +255,16 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 					->execute($intId, $objItem->getId());
 				$arrKeep[] = $intId;
 			} else {
-				// force group col value:
+				// Force group col value.
 				$arrSQL[$this->strGroupCol] = $objItem->getId();
-				$arrKeep[] = $this->objDatabase
+				$arrKeep[]                  = $this->objDatabase
 					->prepare(sprintf('INSERT INTO %s %%s', $this->strSource))
 					->set($arrSQL)
 					->execute()
 					->insertId;
 			}
 		}
-		// house keeping, kill the rest.
+		// House keeping, kill the rest.
 		$this->objDatabase
 			->prepare(sprintf(
 				'DELETE FROM  %s WHERE %s=? AND id NOT IN (%s)',
@@ -320,7 +331,7 @@ class TableRowsAsRecordsDriver extends DefaultDriver
 	 */
 	public function getVersions($mixID, $blnOnlyActive = false)
 	{
-		// sorry, versioning not supported. :/
+		// Sorry, versioning not supported.
 		return null;
 	}
 
