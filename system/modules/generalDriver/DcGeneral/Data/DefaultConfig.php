@@ -12,8 +12,6 @@
 
 namespace DcGeneral\Data;
 
-use DcGeneral\Data\ConfigInterface;
-
 /**
  * Class DefaultConfig.
  *
@@ -66,8 +64,6 @@ class DefaultConfig implements ConfigInterface
 	 * @var array|null
 	 */
 	protected $arrFilter = null;
-	protected $arrSearch = null;
-	protected $arrSorting = null;
 
 	/**
 	 * The properties to use for sorting.
@@ -333,10 +329,8 @@ class DefaultConfig implements ConfigInterface
 		{
 			return $this->arrData[$strKey];
 		}
-		else
-		{
-			return null;
-		}
+
+		return null;
 	}
 
 	/**
