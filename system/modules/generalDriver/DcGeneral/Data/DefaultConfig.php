@@ -14,6 +14,13 @@ namespace DcGeneral\Data;
 
 use DcGeneral\Data\ConfigInterface;
 
+/**
+ * Class DefaultConfig.
+ *
+ * This class is the default implementation of the ConfigInterface.
+ *
+ * @package DcGeneral\Data
+ */
 class DefaultConfig implements ConfigInterface
 {
 	/**
@@ -23,14 +30,67 @@ class DefaultConfig implements ConfigInterface
 	 */
 	protected $mixId = null;
 
+	/**
+	 * The ids to be retrieved.
+	 *
+	 * @var array
+	 */
 	protected $arrIds = array();
+
+	/**
+	 * Flag determining if only the ids shall get fetched or models.
+	 *
+	 * @var bool
+	 *
+	 * @see fetch
+	 */
 	protected $blnIdOnly = false;
+
+	/**
+	 * Offset for retrieving entries.
+	 *
+	 * @var int
+	 */
 	protected $intStart = 0;
+
+	/**
+	 * Amount of entries to be retrieved.
+	 *
+	 * @var int
+	 */
 	protected $intAmount = 0;
+
+	/**
+	 * The filters to use.
+	 *
+	 * @var array|null
+	 */
 	protected $arrFilter = null;
 	protected $arrSearch = null;
 	protected $arrSorting = null;
+
+	/**
+	 * The properties to use for sorting.
+	 *
+	 * @var array(string => string)
+	 */
+	protected $arrSorting = array();
+
+	/**
+	 * The properties to retrieve.
+	 *
+	 * @var array|null
+	 */
 	protected $arrFields = null;
+
+	/**
+	 * Miscellaneous arbitrary data stored in the config.
+	 *
+	 * @var array
+	 *
+	 * @see set
+	 * @see get
+	 */
 	protected $arrData = array();
 
 	/**
@@ -66,9 +126,9 @@ class DefaultConfig implements ConfigInterface
 	}
 
 	/**
-	 * Set specific id.
+	 * Set a specific id for an element to be retrieved.
 	 *
-	 * @param mixed $mixId
+	 * @param mixed $mixId The id of the element to be retrieved.
 	 *
 	 * @return ConfigInterface
 	 */
@@ -172,7 +232,7 @@ class DefaultConfig implements ConfigInterface
 	 *
 	 * This is the amount of items to return for pagination.
 	 *
-	 * @param integer $intAmount
+	 * @param int $intAmount The amount to use.
 	 *
 	 * @return ConfigInterface
 	 */
