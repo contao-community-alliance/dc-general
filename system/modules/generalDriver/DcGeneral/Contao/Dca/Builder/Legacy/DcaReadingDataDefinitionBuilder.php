@@ -43,6 +43,7 @@ abstract class DcaReadingDataDefinitionBuilder extends AbstractEventDrivenDataDe
 			$this->dca = $GLOBALS['TL_DCA'][$dcaName];
 		}
 		$GLOBALS['TL_DCA']  = $previousDca;
+		unset($GLOBALS['loadDataContainer'][$dcaName]);
 
 		return $this->dca !== null;
 	}
