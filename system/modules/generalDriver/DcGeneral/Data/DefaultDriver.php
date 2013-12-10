@@ -168,6 +168,23 @@ class DefaultDriver implements DriverInterface
 
 		return sprintf('(%s %s ?)', $operation['property'], $operation['operation']);
 	}
+
+	/**
+	 * Return the filter query for a "foo IN ('a', 'b')" filter.
+	 *
+	 * @param array $operation The operation to apply.
+	 *
+	 * @param array &$params   The parameters of the entire query.
+	 *
+	 * @return string
+	 */
+	protected function getFilterForInList($operation, &$params)
+	{
+		$params    = array_merge($params, array_values($operation['values']));
+		$wildcards = rtrim(str_repeat('?,', count($operation['values'])), ',');
+
+		return sprintf('(%s IN (%s))', $operation['property'], $wildcards);
+	}
 	/**
 	 * Combine a filter in standard filter array notation.
 	 *
@@ -221,9 +238,7 @@ class DefaultDriver implements DriverInterface
 				return $this->getFilterForComparingOperator($arrFilter, $arrParams);
 
 			case 'IN':
-				$arrParams    = array_merge($arrParams, array_values($arrFilter['values']));
-				$strWildcards = rtrim(str_repeat('?,', count($arrFilter['values'])), ',');
-				return sprintf('(%s IN (%s))', $arrFilter['property'], $strWildcards);
+				return $this->getFilterForInList($arrFilter, $arrParams);
 
 			case 'LIKE':
 				$strWildcards = str_replace(array('*', '?'), array('%', '_'), $arrFilter['value']);
