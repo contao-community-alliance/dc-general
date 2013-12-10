@@ -264,8 +264,9 @@ class DefaultDriver implements DriverInterface
 				return $this->getFilterForLike($arrFilter, $arrParams);
 
 			default:
-				throw new DcGeneralRuntimeException('Error processing filter array ' . var_export($arrFilter, true), 1);
 		}
+
+		throw new DcGeneralRuntimeException('Error processing filter array ' . var_export($arrFilter, true), 1);
 	}
 
 	/**
