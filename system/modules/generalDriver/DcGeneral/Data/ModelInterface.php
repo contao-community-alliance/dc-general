@@ -131,7 +131,7 @@ interface ModelInterface extends \IteratorAggregate
 	public function readFromPropertyValueBag(PropertyValueBagInterface $valueBag);
 
 	/**
-	 * Read values from a value bag.
+	 * Write values to a value bag.
 	 *
 	 * @param PropertyValueBagInterface $valueBag The value bag where to write to.
 	 *
