@@ -12,12 +12,6 @@
 
 namespace DcGeneral\Data;
 
-use DcGeneral\Data\ConfigInterface;
-use DcGeneral\Data\CollectionInterface;
-use DcGeneral\Data\ModelInterface;
-use DcGeneral\Data\DefaultCollection;
-use DcGeneral\Data\DefaultConfig;
-use DcGeneral\Data\DefaultModel;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
