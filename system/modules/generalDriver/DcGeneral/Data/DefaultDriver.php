@@ -185,6 +185,26 @@ class DefaultDriver implements DriverInterface
 
 		return sprintf('(%s IN (%s))', $operation['property'], $wildcards);
 	}
+
+	/**
+	 * Return the filter query for a "foo LIKE '%ba_r%'" filter.
+	 *
+	 * The searched value may contain the wildcards '*' and '?' which will get converted to proper SQL.
+	 *
+	 * @param array $operation The operation to apply.
+	 *
+	 * @param array &$params   The parameters of the entire query.
+	 *
+	 * @return string
+	 */
+	protected function getFilterForLike($operation, &$params)
+	{
+		$wildcards = str_replace(array('*', '?'), array('%', '_'), $operation['value']);
+		$params[]  = $wildcards;
+
+		return sprintf('(%s LIKE ?)', $operation['property'], $wildcards);
+	}
+
 	/**
 	 * Combine a filter in standard filter array notation.
 	 *
@@ -241,9 +261,7 @@ class DefaultDriver implements DriverInterface
 				return $this->getFilterForInList($arrFilter, $arrParams);
 
 			case 'LIKE':
-				$strWildcards = str_replace(array('*', '?'), array('%', '_'), $arrFilter['value']);
-				$arrParams[]  = $strWildcards;
-				return sprintf('(%s LIKE ?)', $arrFilter['property'], $strWildcards);
+				return $this->getFilterForLike($arrFilter, $arrParams);
 
 			default:
 				throw new DcGeneralRuntimeException('Error processing filter array ' . var_export($arrFilter, true), 1);
