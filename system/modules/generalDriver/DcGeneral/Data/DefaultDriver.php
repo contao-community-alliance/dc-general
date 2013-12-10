@@ -20,7 +20,13 @@ use DcGeneral\Data\DefaultConfig;
 use DcGeneral\Data\DefaultModel;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 
-
+/**
+ * Class DefaultDriver.
+ *
+ * Default implementation for a data provider using the Contao default database as backend.
+ *
+ * @package DcGeneral\Data
+ */
 class DefaultDriver implements DriverInterface
 {
 	/**
@@ -33,13 +39,15 @@ class DefaultDriver implements DriverInterface
 	/**
 	 * The Database instance.
 	 *
-	 * @todo: Use DI container for database instance.
-	 *
 	 * @var \Database
+	 *
+	 * @todo: Use DI container for database instance.
 	 */
 	protected $objDatabase = null;
 
-
+	/**
+	 * Create a new instance of the data provider.
+	 */
 	public function __construct()
 	{
 		// Init Helper
@@ -47,13 +55,9 @@ class DefaultDriver implements DriverInterface
 	}
 
 	/**
-	 * Set base config with source and other necessary parameter.
+	 * {@inheritDoc}
 	 *
-	 * @param array $arrConfig The configuration to use.
-	 *
-	 * @return void
-	 *
-	 * @throws DcGeneralRuntimeException when no source has been defined.
+	 * @throws DcGeneralRuntimeException When no source has been defined.
 	 */
 	public function setBaseConfig(array $arrConfig)
 	{
@@ -67,9 +71,7 @@ class DefaultDriver implements DriverInterface
 	}
 
 	/**
-	 * Return an empty configuration object.
-	 *
-	 * @return ConfigInterface
+	 * {@inheritDoc}
 	 */
 	public function getEmptyConfig()
 	{
@@ -77,9 +79,7 @@ class DefaultDriver implements DriverInterface
 	}
 
 	/**
-	 * Fetch an empty single record (new model).
-	 *
-	 * @return ModelInterface
+	 * {@inheritDoc}
 	 */
 	public function getEmptyModel()
 	{
@@ -89,9 +89,7 @@ class DefaultDriver implements DriverInterface
 	}
 
 	/**
-	 * Fetch an empty single collection (new model list).
-	 *
-	 * @return CollectionInterface
+	 * {@inheritDoc}
 	 */
 	public function getEmptyCollection()
 	{
@@ -130,6 +128,7 @@ class DefaultDriver implements DriverInterface
 
 	/**
 	 * Combine a filter in standard filter array notation.
+	 *
 	 * Supported operations are:
 	 * operation      needed arguments     argument type.
 	 * AND
@@ -159,7 +158,7 @@ class DefaultDriver implements DriverInterface
 	 *
 	 * @return string The combined WHERE conditions.
 	 *
-	 * @throws DcGeneralRuntimeException if an invalid filter entry is encountered.
+	 * @throws DcGeneralRuntimeException If an invalid filter entry is encountered.
 	 */
 	protected function calculateSubfilter($arrFilter, array &$arrParams)
 	{
@@ -216,7 +215,7 @@ class DefaultDriver implements DriverInterface
 	 *
 	 * @param ConfigInterface $objConfig  The configuration to use.
 	 *
-	 * @param array  &$arrParams The query parameters will get stored into this array.
+	 * @param array           &$arrParams The query parameters will get stored into this array.
 	 *
 	 * @return string  The combined WHERE clause (including the word "WHERE").
 	 */
@@ -234,11 +233,11 @@ class DefaultDriver implements DriverInterface
 	}
 
 	/**
-	 * Build the WHERE conditions via calculateSubfilter()
+	 * Build the WHERE conditions via calculateSubfilter().
 	 *
 	 * @param ConfigInterface $objConfig  The configuration to use.
 	 *
-	 * @param array  &$arrParams The query parameters will get stored into this array.
+	 * @param array           &$arrParams The query parameters will get stored into this array.
 	 *
 	 * @return string The combined WHERE conditions.
 	 */
@@ -260,7 +259,7 @@ class DefaultDriver implements DriverInterface
 	/**
 	 * Build the order by part of a query.
 	 *
-	 * @param ConfigInterface $objConfig
+	 * @param ConfigInterface $objConfig The configuration to use.
 	 *
 	 * @return string
 	 */
@@ -289,16 +288,7 @@ class DefaultDriver implements DriverInterface
 	}
 
 	/**
-	 * Delete an item.
-	 *
-	 * The given value may be either integer, string or an instance of InterfaceGeneralModel
-	 *
-	 * @param mixed $item Id or the model itself, to delete.
-	 *
-	 * @throws DcGeneralRuntimeException
-	 *
-	 * @return void
-	 *
+	 * {@inheritDoc}
 	 */
 	public function delete($item)
 	{
@@ -348,15 +338,7 @@ class DefaultDriver implements DriverInterface
 	}
 
 	/**
-	 * Fetch a single or first record by id or filter.
-	 *
-	 * If the model shall be retrieved by id, use $objConfig->setId() to populate the config with an Id.
-	 *
-	 * If the model shall be retrieved by filter, use $objConfig->setFilter() to populate the config with a filter.
-	 *
-	 * @param ConfigInterface $objConfig
-	 *
-	 * @return ModelInterface
+	 * {@inheritDoc}
 	 */
 	public function fetch(ConfigInterface $objConfig)
 	{
@@ -392,11 +374,7 @@ class DefaultDriver implements DriverInterface
 	}
 
 	/**
-	 * Fetch all records (optional filtered, sorted and limited).
-	 *
-	 * @param ConfigInterface $objConfig
-	 *
-	 * @return CollectionInterface
+	 * {@inheritDoc}
 	 */
 	public function fetchAll(ConfigInterface $objConfig)
 	{
@@ -437,17 +415,7 @@ class DefaultDriver implements DriverInterface
 	}
 
 	/**
-	 * Retrieve all unique values for the given property.
-	 *
-	 * The result set will be an array containing all unique values contained in the data provider.
-	 * Note: this only re-ensembles really used values for at least one data set.
-	 *
-	 * The only information being interpreted from the passed config object is the first property to fetch and the
-	 * filter definition.
-	 *
-	 * @param ConfigInterface $objConfig   The filter config options.
-	 *
-	 * @return CollectionInterface
+	 * {@inheritDoc}
 	 *
 	 * @throws DcGeneralRuntimeException if improper values have been passed (i.e. not exactly one field requested).
 	 */
@@ -483,11 +451,7 @@ class DefaultDriver implements DriverInterface
 	}
 
 	/**
-	 * Return the amount of total items (filtering may be used in the config).
-	 *
-	 * @param ConfigInterface $objConfig
-	 *
-	 * @return int
+	 * {@inheritDoc}
 	 */
 	public function getCount(ConfigInterface $objConfig)
 	{
@@ -504,18 +468,7 @@ class DefaultDriver implements DriverInterface
 	}
 
 	/**
-	 * Check if the value is unique in table
-	 *
-	 * @param string $strField The field in which to test.
-	 *
-	 * @param mixed  $varNew   The value about to be saved.
-	 *
-	 * @param int    $intId    The (optional) id of the item currently in scope - pass null for new items.
-	 *
-	 * Documentation:
-	 *      Evaluation - unique => If true the field value cannot be saved if it exists already.
-	 *
-	 * @return boolean
+	 * {@inheritDoc}
 	 */
 	public function isUniqueValue($strField, $varNew, $intId = null)
 	{
@@ -537,16 +490,7 @@ class DefaultDriver implements DriverInterface
 	}
 
 	/**
-	 * Reset the fallback field.
-	 *
-	 * This clears the given property in all items in the table to an empty value.
-	 *
-	 * Documentation:
-	 *      Evaluation - fallback => If true the field can only be assigned once per table.
-	 *
-	 * @param string $strField The field to reset.
-	 *
-	 * @return void
+	 * {@inheritDoc}
 	 */
 	public function resetFallback($strField)
 	{
@@ -554,14 +498,7 @@ class DefaultDriver implements DriverInterface
 	}
 
 	/**
-	 * Save an item to the database.
-	 *
-	 * If the item does not have an Id yet, the save operation will add it as a new row to the database and
-	 * populate the Id of the model accordingly.
-	 *
-	 * @param ModelInterface $objItem   The model to save back.
-	 *
-	 * @return ModelInterface The passed model.
+	 * {@inheritDoc}
 	 */
 	public function save(ModelInterface $objItem)
 	{
@@ -609,11 +546,7 @@ class DefaultDriver implements DriverInterface
 	}
 
 	/**
-	 * Save a collection of items to the database.
-	 *
-	 * @param CollectionInterface $objItems The collection containing all items to be saved.
-	 *
-	 * @return void
+	 * {@inheritDoc}
 	 */
 	public function saveEach(CollectionInterface $objItems)
 	{
@@ -624,11 +557,7 @@ class DefaultDriver implements DriverInterface
 	}
 
 	/**
-	 * Check if a property with the given name exists in the table.
-	 *
-	 * @param string $strField The name of the property to search.
-	 *
-	 * @return boolean
+	 * {@inheritDoc}
 	 */
 	public function fieldExists($strField)
 	{
@@ -636,13 +565,7 @@ class DefaultDriver implements DriverInterface
 	}
 
 	/**
-	 * Return a model based of the version information.
-	 *
-	 * @param mixed $mixID      The ID of the item.
-	 *
-	 * @param mixed $mixVersion The ID of the version.
-	 *
-	 * @return ModelInterface
+	 * {@inheritDoc}
 	 */
 	public function getVersion($mixID, $mixVersion)
 	{
@@ -737,7 +660,7 @@ class DefaultDriver implements DriverInterface
 	 *
 	 * @param ModelInterface $objModel    The model for which a new version shall be created.
 	 *
-	 * @param string                $strUsername The username to attach to the version as creator.
+	 * @param string         $strUsername The username to attach to the version as creator.
 	 *
 	 * @return void
 	 */
@@ -849,13 +772,16 @@ class DefaultDriver implements DriverInterface
 	}
 
 	/**
-	 * TODO: this is not in the interface yet and has to be documented.
+	 * Store an undo entry in the table tl_undo.
+	 * Currently this only supports delete queries.
 	 *
-	 * @param string $strSourceSQL
+	 * @param string $strSourceSQL The SQL used to perform the action to be undone.
 	 *
-	 * @param string $strSaveSQL
+	 * @param string $strSaveSQL   The SQL query to retrieve the current entries.
 	 *
-	 * @param string $strTable
+	 * @param string $strTable     The table to be affected by the action.
+	 *
+	 * @return void
 	 */
 	protected function insertUndo($strSourceSQL, $strSaveSQL, $strTable)
 	{
