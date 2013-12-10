@@ -152,6 +152,22 @@ class DefaultDriver implements DriverInterface
 
 		return implode(sprintf(' %s ', $operation['operation']), $combine);
 	}
+
+	/**
+	 * Build the sub query for a comparing operator like =,<,>.
+	 *
+	 * @param array $operation The operation to apply.
+	 *
+	 * @param array &$params   The parameters of the entire query.
+	 *
+	 * @return string
+	 */
+	protected function getFilterForComparingOperator($operation, &$params)
+	{
+		$params[] = $operation['value'];
+
+		return sprintf('(%s %s ?)', $operation['property'], $operation['operation']);
+	}
 	/**
 	 * Combine a filter in standard filter array notation.
 	 *
@@ -202,8 +218,7 @@ class DefaultDriver implements DriverInterface
 			case '=':
 			case '>':
 			case '<':
-				$arrParams[] = $arrFilter['value'];
-				return sprintf('(%s %s ?)', $arrFilter['property'], $arrFilter['operation']);
+				return $this->getFilterForComparingOperator($arrFilter, $arrParams);
 
 			case 'IN':
 				$arrParams    = array_merge($arrParams, array_values($arrFilter['values']));
