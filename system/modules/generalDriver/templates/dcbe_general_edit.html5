@@ -6,9 +6,12 @@
 <input type="hidden" name="FORM_SUBMIT" value="tl_version" />
 <input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>" />
 <select name="version" class="tl_select">
-<?php foreach($this->versions as $objVersion): ?>
-	<option value="<?php echo $objVersion->getProperty('version'); ?>"<?php if($objVersion->getProperty('active')): ?> selected="selected"<?php endif; ?>>
-	<?php echo $GLOBALS['TL_LANG']['MSC']['version']; ?> <?php echo $objVersion->getProperty('version'); ?> (<?php echo $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $objVersion->getProperty('tstamp')); ?>) <?php echo  $objVersion->getProperty('username'); ?>
+<?php foreach($this->versions as $objVersion): /** @var \DcGeneral\Data\VersionModelInterface $objVersion */ ?>
+	<option value="<?php echo $objVersion->getId(); ?>"<?php if($objVersion->isCurrent()): ?> selected="selected"<?php endif; ?>>
+	<?php echo $GLOBALS['TL_LANG']['MSC']['version']; ?> <?php echo $objVersion->getVersion(); ?> (<?php echo $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $objVersion->getDateTime()->getTimestamp()); ?>)
+	<?php if ($objVersion->getAuthorName()): ?> &ndash; <?php echo $objVersion->getAuthorName() ?> (<?php echo $objVersion->getAuthorUsername(); ?>)
+	<?php elseif ($objVersion->getAuthorUsername()): ?> &ndash; (<?php echo $objVersion->getAuthorUsername(); ?>)
+	<?php endif; ?>
 	</option>
 <?php endforeach; ?>
 </select> <input type="submit" name="showVersion" id="showVersion" class="tl_submit" value="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['restore']); ?>" />
