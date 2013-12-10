@@ -44,7 +44,6 @@ class DefaultDriver implements DriverInterface
 	 */
 	public function __construct()
 	{
-		// Init Helper
 		$this->objDatabase = \Database::getInstance();
 	}
 
@@ -56,12 +55,12 @@ class DefaultDriver implements DriverInterface
 	public function setBaseConfig(array $arrConfig)
 	{
 		// Check configuration.
-		if (!isset($arrConfig["source"]))
+		if (!isset($arrConfig['source']))
 		{
-			throw new DcGeneralRuntimeException("Missing table name.");
+			throw new DcGeneralRuntimeException('Missing table name.');
 		}
 
-		$this->strSource = $arrConfig["source"];
+		$this->strSource = $arrConfig['source'];
 	}
 
 	/**
@@ -107,7 +106,7 @@ class DefaultDriver implements DriverInterface
 		{
 			$strFields = 'id';
 		}
-		else if (!is_null($objConfig->getFields()))
+		elseif (!is_null($objConfig->getFields()))
 		{
 			$strFields = implode(', ', $objConfig->getFields());
 
@@ -165,7 +164,7 @@ class DefaultDriver implements DriverInterface
 		{
 			case 'AND':
 			case 'OR':
-				// FIXME: backwards compat - remove when done
+				// FIXME: backwards compat - remove when done.
 				if (is_array($arrFilter['childs']))
 				{
 					trigger_error('Filter array uses deprecated entry "childs", please use "children" instead.', E_USER_DEPRECATED);
@@ -190,13 +189,13 @@ class DefaultDriver implements DriverInterface
 				return sprintf('(%s %s ?)', $arrFilter['property'], $arrFilter['operation']);
 
 			case 'IN':
-				$arrParams = array_merge($arrParams, array_values($arrFilter['values']));
+				$arrParams    = array_merge($arrParams, array_values($arrFilter['values']));
 				$strWildcards = rtrim(str_repeat('?,', count($arrFilter['values'])), ',');
 				return sprintf('(%s IN (%s))', $arrFilter['property'], $strWildcards);
 
 			case 'LIKE':
 				$strWildcards = str_replace(array('*', '?'), array('%', '_'), $arrFilter['value']);
-				$arrParams[] = $strWildcards;
+				$arrParams[]  = $strWildcards;
 				return sprintf('(%s LIKE ?)', $arrFilter['property'], $strWildcards);
 
 			default:
@@ -246,7 +245,7 @@ class DefaultDriver implements DriverInterface
 			), $arrParams
 		);
 
-		// combine filter syntax.
+		// Combine filter syntax.
 		return $strReturn ? $strReturn : '';
 	}
 
@@ -260,12 +259,12 @@ class DefaultDriver implements DriverInterface
 	protected function buildSortingQuery($objConfig)
 	{
 		$arrSorting = $objConfig->getSorting();
-		$strReturn = '';
-		$arrFields = array();
+		$strReturn  = '';
+		$arrFields  = array();
 
 		if (!is_null($arrSorting) && is_array($arrSorting) && count($arrSorting) > 0)
 		{
-			foreach ($arrSorting AS $strField => $strOrder)
+			foreach ($arrSorting as $strField => $strOrder)
 			{
 				if (!in_array($strOrder, array(DCGE::MODEL_SORTING_ASC, DCGE::MODEL_SORTING_DESC)))
 				{
@@ -283,36 +282,52 @@ class DefaultDriver implements DriverInterface
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws DcGeneralRuntimeException When an unusable object has been passed.
 	 */
 	public function delete($item)
 	{
+		$id = null;
 		if (is_numeric($item) || is_string($item))
 		{
-			// Insert undo
-			$this->insertUndo('DELETE FROM ' . $this->strSource . ' WHERE id = ' . $item, 'SELECT * FROM ' . $this->strSource . '  WHERE id = ' . $item, $this->strSource);
-
-			$this->objDatabase
-				->prepare("DELETE FROM $this->strSource WHERE id=?")
-				->execute($item);
+			$id = $item;
 		}
-		else if (is_object($item) && $item instanceof ModelInterface)
+		elseif (is_object($item) && $item instanceof ModelInterface && strlen($item->getID()) != 0)
 		{
-			if (strlen($item->getID()) != 0)
-			{
-				// Insert undo
-				$this->insertUndo('DELETE FROM ' . $this->strSource . ' WHERE id = ' . $item->getID(), 'SELECT * FROM ' . $this->strSource . '  WHERE id = ' . $item->getID(), $this->strSource);
-
-				$this->objDatabase
-					->prepare("DELETE FROM $this->strSource WHERE id=?")
-					->execute($item->getID());
-			}
+			$id = $item->getID();
 		}
 		else
 		{
 			throw new DcGeneralRuntimeException("ID missing or given object not of type 'ModelInterface'.");
 		}
+
+		// Insert undo.
+		$this->insertUndo(
+			sprintf(
+				'DELETE FROM %1$s WHERE id = %2$s',
+				$this->strSource,
+				$id
+			),
+			sprintf(
+				'SELECT * FROM %1$s WHERE id = %2$s',
+				$this->strSource,
+				$id
+			),
+			$this->strSource
+		);
+
+		$this->objDatabase
+			->prepare(sprintf('DELETE FROM %s WHERE id=?', $this->strSource))
+			->execute($id);
 	}
 
+	/**
+	 * Create a model from a database result.
+	 *
+	 * @param \Database_Result $dbResult The database result to create a model from.
+	 *
+	 * @return ModelInterface
+	 */
 	protected function createModelFromDatabaseResult($dbResult)
 	{
 		$objModel = $this->getEmptyModel();
@@ -320,7 +335,7 @@ class DefaultDriver implements DriverInterface
 		/** @var \Contao\Database\Result $dbResult */
 		foreach ($dbResult->row() as $key => $value)
 		{
-			if ($key == "id")
+			if ($key == 'id')
 			{
 				$objModel->setID($value);
 			}
@@ -338,7 +353,11 @@ class DefaultDriver implements DriverInterface
 	{
 		if ($objConfig->getId() != null)
 		{
-			$strQuery = "SELECT " . $this->buildFieldQuery($objConfig) . " FROM $this->strSource WHERE id = ?";
+			$strQuery = sprintf(
+				'SELECT %s  FROM %s WHERE id = ?',
+				$this->buildFieldQuery($objConfig),
+				$this->strSource
+			);
 
 			$dbResult = $this->objDatabase
 				->prepare($strQuery)
@@ -348,7 +367,11 @@ class DefaultDriver implements DriverInterface
 		{
 			$arrParams = array();
 			// Build SQL.
-			$query = "SELECT " . $this->buildFieldQuery($objConfig) . " FROM " . $this->strSource;
+			$query  = sprintf(
+				'SELECT %s FROM %s',
+				$this->buildFieldQuery($objConfig),
+				$this->strSource
+			);
 			$query .= $this->buildWhereQuery($objConfig, $arrParams);
 			$query .= $this->buildSortingQuery($objConfig);
 
@@ -373,12 +396,16 @@ class DefaultDriver implements DriverInterface
 	public function fetchAll(ConfigInterface $objConfig)
 	{
 		$arrParams = array();
-		// Build SQL
-		$query = "SELECT " . $this->buildFieldQuery($objConfig) . " FROM " . $this->strSource;
+		// Build SQL.
+		$query  = sprintf(
+			'SELECT %s FROM %s',
+			$this->buildFieldQuery($objConfig),
+			$this->strSource
+		);
 		$query .= $this->buildWhereQuery($objConfig, $arrParams);
 		$query .= $this->buildSortingQuery($objConfig);
 
-		// Execute db query
+		// Execute db query.
 		$objDatabaseQuery = $this->objDatabase->prepare($query);
 
 		if ($objConfig->getAmount() != 0)
@@ -416,7 +443,7 @@ class DefaultDriver implements DriverInterface
 	public function getFilterOptions(ConfigInterface $objConfig)
 	{
 		$arrProperties = $objConfig->getFields();
-		$strProperty = $arrProperties[0];
+		$strProperty   = $arrProperties[0];
 
 		if (count($arrProperties) <> 1)
 		{
@@ -451,7 +478,10 @@ class DefaultDriver implements DriverInterface
 	{
 		$arrParams = array();
 
-		$query = "SELECT COUNT(*) AS count FROM " . $this->strSource;
+		$query  = sprintf(
+			'SELECT COUNT(*) AS count FROM %s',
+			$this->strSource
+		);
 		$query .= $this->buildWhereQuery($objConfig, $arrParams);
 
 		$objCount = $this->objDatabase
@@ -500,7 +530,7 @@ class DefaultDriver implements DriverInterface
 
 		foreach ($objItem as $key => $value)
 		{
-			if ($key == "id")
+			if ($key == 'id')
 			{
 				continue;
 			}
@@ -515,11 +545,10 @@ class DefaultDriver implements DriverInterface
 			}
 		}
 
-
-		if ($objItem->getID() == null || $objItem->getID() == "")
+		if ($objItem->getID() == null || $objItem->getID() == '')
 		{
 			$objInsert = $this->objDatabase
-				->prepare("INSERT INTO $this->strSource %s")
+				->prepare(sprintf('INSERT INTO %s %%s', $this->strSource))
 				->set($arrSet)
 				->execute();
 
@@ -531,7 +560,7 @@ class DefaultDriver implements DriverInterface
 		else
 		{
 			$this->objDatabase
-				->prepare("UPDATE $this->strSource %s WHERE id=?")
+				->prepare(sprintf('UPDATE %s %%s WHERE id=?', $this->strSource))
 				->set($arrSet)
 				->execute($objItem->getID());
 		}
@@ -564,7 +593,7 @@ class DefaultDriver implements DriverInterface
 	public function getVersion($mixID, $mixVersion)
 	{
 		$objVersion = $this->objDatabase
-			->prepare("SELECT * FROM tl_version WHERE pid=? AND version=? AND fromTable=?")
+			->prepare('SELECT * FROM tl_version WHERE pid=? AND version=? AND fromTable=?')
 			->execute($mixID, $mixVersion, $this->strSource);
 
 		if ($objVersion->numRows == 0)
@@ -579,19 +608,19 @@ class DefaultDriver implements DriverInterface
 			return null;
 		}
 
-		$objModell = $this->getEmptyModel();
-		$objModell->setID($mixID);
+		$objModel = $this->getEmptyModel();
+		$objModel->setID($mixID);
 		foreach ($arrData as $key => $value)
 		{
-			if ($key == "id")
+			if ($key == 'id')
 			{
 				continue;
 			}
 
-			$objModell->setProperty($key, $value);
+			$objModel->setProperty($key, $value);
 		}
 
-		return $objModell;
+		return $objModel;
 	}
 
 	/**
@@ -606,20 +635,20 @@ class DefaultDriver implements DriverInterface
 	 */
 	public function getVersions($mixID, $blnOnlyActive = false)
 	{
+		$sql = 'SELECT tstamp, version, username, active FROM tl_version WHERE fromTable = ? AND pid = ?';
 		if ($blnOnlyActive)
 		{
-			$arrVersion = $this->objDatabase
-				->prepare('SELECT tstamp, version, username, active FROM tl_version WHERE fromTable = ? AND pid = ? AND active = 1')
-				->execute($this->strSource, $mixID)
-				->fetchAllAssoc();
+			$sql .= ' AND active = 1';
 		}
 		else
 		{
-			$arrVersion = $this->objDatabase
-				->prepare('SELECT tstamp, version, username, active FROM tl_version WHERE fromTable = ? AND pid = ? ORDER BY version DESC')
-				->execute($this->strSource, $mixID)
-				->fetchAllAssoc();
+			$sql .= ' ORDER BY version DESC';
 		}
+
+		$arrVersion = $this->objDatabase
+			->prepare($sql)
+			->execute($this->strSource, $mixID)
+			->fetchAllAssoc();
 
 		if (count($arrVersion) == 0)
 		{
@@ -635,7 +664,7 @@ class DefaultDriver implements DriverInterface
 
 			foreach ($versionValue as $key => $value)
 			{
-				if ($key == "id")
+				if ($key == 'id')
 				{
 					continue;
 				}
@@ -661,22 +690,21 @@ class DefaultDriver implements DriverInterface
 	public function saveVersion(ModelInterface $objModel, $strUsername)
 	{
 		$objCount = $this->objDatabase
-			->prepare("SELECT count(*) as mycount FROM tl_version WHERE pid=? AND fromTable = ?")
+			->prepare('SELECT count(*) as mycount FROM tl_version WHERE pid=? AND fromTable = ?')
 			->execute($objModel->getID(), $this->strSource);
 
-		$mixNewVersion = intval($objCount->mycount) + 1;
+		$mixNewVersion = (intval($objCount->mycount) + 1);
 
-		$mixData = $objModel->getPropertiesAsArray();
-		$mixData["id"] = $objModel->getID();
-		$mixData = serialize($mixData);
+		$mixData       = $objModel->getPropertiesAsArray();
+		$mixData['id'] = $objModel->getID();
 
-		$arrInsert = array();
-		$arrInsert['pid'] = $objModel->getID();
-		$arrInsert['tstamp'] = time();
-		$arrInsert['version'] = $mixNewVersion;
+		$arrInsert              = array();
+		$arrInsert['pid']       = $objModel->getID();
+		$arrInsert['tstamp']    = time();
+		$arrInsert['version']   = $mixNewVersion;
 		$arrInsert['fromTable'] = $this->strSource;
-		$arrInsert['username'] = $strUsername;
-		$arrInsert['data'] = $mixData;
+		$arrInsert['username']  = $strUsername;
+		$arrInsert['data']      = serialize($mixData);
 
 		$this->objDatabase->prepare('INSERT INTO tl_version %s')
 			->set($arrInsert)
@@ -715,7 +743,7 @@ class DefaultDriver implements DriverInterface
 	public function getActiveVersion($mixID)
 	{
 		$objVersionID = $this->objDatabase
-			->prepare("SELECT version FROM tl_version WHERE pid = ? AND fromTable = ? AND active = 1")
+			->prepare('SELECT version FROM tl_version WHERE pid = ? AND fromTable = ? AND active = 1')
 			->execute($mixID, $this->strSource);
 
 		if ($objVersionID->numRows == 0)
@@ -739,7 +767,7 @@ class DefaultDriver implements DriverInterface
 	{
 		foreach ($objModel1 as $key => $value)
 		{
-			if ($key == "id")
+			if ($key == 'id')
 			{
 				continue;
 			}
@@ -756,7 +784,7 @@ class DefaultDriver implements DriverInterface
 					return false;
 				}
 			}
-			else if ($value != $objModel2->getProperty($key))
+			elseif ($value != $objModel2->getProperty($key))
 			{
 				return false;
 			}
@@ -767,6 +795,7 @@ class DefaultDriver implements DriverInterface
 
 	/**
 	 * Store an undo entry in the table tl_undo.
+	 *
 	 * Currently this only supports delete queries.
 	 *
 	 * @param string $strSourceSQL The SQL used to perform the action to be undone.
@@ -779,19 +808,19 @@ class DefaultDriver implements DriverInterface
 	 */
 	protected function insertUndo($strSourceSQL, $strSaveSQL, $strTable)
 	{
-		// Load row
+		// Load row.
 		$arrResult = $this->objDatabase
 			->prepare($strSaveSQL)
 			->executeUncached()
 			->fetchAllAssoc();
 
-		// Check if we have a result
+		// Check if we have a result.
 		if (count($arrResult) == 0)
 		{
 			return;
 		}
 
-		// Save information in array
+		// Save information in array.
 		$arrSave = array();
 		foreach ($arrResult as $value)
 		{
@@ -801,10 +830,17 @@ class DefaultDriver implements DriverInterface
 		$strPrefix = '<span style="color:#b3b3b3; padding-right:3px;">(DC General)</span>';
 		$objUser   = \BackendUser::getInstance();
 
-		// Write into undo
+		// Write into undo.
 		$this->objDatabase
-			->prepare("INSERT INTO tl_undo (pid, tstamp, fromTable, query, affectedRows, data) VALUES (?, ?, ?, ?, ?, ?)")
-			->execute($objUser->id, time(), $strTable, $strPrefix . $strSourceSQL, count($arrSave[$strTable]), serialize($arrSave));
+			->prepare('INSERT INTO tl_undo (pid, tstamp, fromTable, query, affectedRows, data) VALUES (?, ?, ?, ?, ?, ?)')
+			->execute(
+				$objUser->id,
+				time(),
+				$strTable,
+				$strPrefix .
+				$strSourceSQL,
+				count($arrSave[$strTable]),
+				serialize($arrSave)
+			);
 	}
-
 }
