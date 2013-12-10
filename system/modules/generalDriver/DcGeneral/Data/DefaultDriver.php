@@ -120,6 +120,39 @@ class DefaultDriver implements DriverInterface
 	}
 
 	/**
+	 * Build an AND or OR query.
+	 *
+	 * @param array $operation The operation to convert.
+	 *
+	 * @param array &$params   The parameter array for the resulting query.
+	 *
+	 * @return string
+	 */
+	protected function getAndOrFilter($operation, &$params)
+	{
+		// FIXME: backwards compat - remove when done.
+		if (is_array($operation['childs']))
+		{
+			trigger_error('Filter array uses deprecated entry "childs", please use "children" instead.', E_USER_DEPRECATED);
+			$operation['children'] = $operation['childs'];
+		}
+
+		$children = $operation['children'];
+
+		if (!$children)
+		{
+			return '';
+		}
+
+		$combine = array();
+		foreach ($children as $child)
+		{
+			$combine[] = $this->calculateSubfilter($child, $params);
+		}
+
+		return implode(sprintf(' %s ', $operation['operation']), $combine);
+	}
+	/**
 	 * Combine a filter in standard filter array notation.
 	 *
 	 * Supported operations are:
@@ -164,23 +197,7 @@ class DefaultDriver implements DriverInterface
 		{
 			case 'AND':
 			case 'OR':
-				// FIXME: backwards compat - remove when done.
-				if (is_array($arrFilter['childs']))
-				{
-					trigger_error('Filter array uses deprecated entry "childs", please use "children" instead.', E_USER_DEPRECATED);
-					$arrFilter['children'] = $arrFilter['childs'];
-				}
-
-				if (!$arrFilter['children'])
-				{
-					return '';
-				}
-				$arrCombine = array();
-				foreach ($arrFilter['children'] as $arrChild)
-				{
-					$arrCombine[] = $this->calculateSubfilter($arrChild, $arrParams);
-				}
-				return implode(sprintf(' %s ', $arrFilter['operation']), $arrCombine);
+				return $this->getAndOrFilter($arrFilter, $arrParams);
 
 			case '=':
 			case '>':
