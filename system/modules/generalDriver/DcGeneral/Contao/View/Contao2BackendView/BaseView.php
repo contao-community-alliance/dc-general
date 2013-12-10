@@ -762,13 +762,19 @@ class BaseView implements BackendViewInterface
 	/**
 	 * Handle the submit and determine which button has been triggered.
 	 */
-	protected function handleSubmit()
+	protected function handleSubmit(ModelInterface $model)
 	{
 		$environment             = $this->getEnvironment();
 		$inputProvider           = $environment->getInputProvider();
+
 		if ($inputProvider->hasValue('save'))
 		{
-			BackendBindings::reload();
+			if ($inputProvider->getValue('id')) {
+				BackendBindings::reload();
+			}
+			else {
+				BackendBindings::redirect(BackendBindings::addToUrl('id=' . $model->getId()));
+			}
 		}
 		elseif ($inputProvider->hasValue('saveNclose'))
 		{
@@ -949,7 +955,7 @@ class BaseView implements BackendViewInterface
 				}
 			}
 
-			$this->handleSubmit();
+			$this->handleSubmit($model);
 		}
 
 		if ($model->getId())
