@@ -32,11 +32,18 @@ class ListView extends BaseView
 	 */
 	public function loadCollection()
 	{
-		$environment            = $this->getEnvironment();
-		$definition             = $environment->getDataDefinition();
+		$environment   = $this->getEnvironment();
+		$definition    = $environment->getDataDefinition();
+		/** @var Contao2BackendViewDefinitionInterface $backendView */
+		$backendView   = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+		$listingConfig = $backendView->getListingConfig();
+
 		$objCurrentDataProvider = $environment->getDataProvider();
 		$objParentDataProvider  = $environment->getDataProvider($definition->getBasicDefinition()->getParentDataProvider());
 		$objConfig              = $environment->getController()->getBaseConfig();
+
+		// initialize sorting
+		$objConfig->setSorting($listingConfig->getDefaultSortingFields());
 
 		$this->getPanel()->initialize($objConfig);
 
