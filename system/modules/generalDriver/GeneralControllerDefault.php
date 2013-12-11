@@ -633,7 +633,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
 		{
 			case 0:
-				$this->getNewPosition($objCurrentDataProvider, $objParentDataProvider, $objSrcModel, DCGE::INSERT_AFTER_END, null, 'cut');
+				$this->getNewPosition($objCurrentDataProvider, $objParentDataProvider, $objSrcModel, ($mixAfter == DCGE::INSERT_AFTER_START) ? 0 : $mixAfter, null, 'cut');
 				break;
 			case 1:
 			case 2:
