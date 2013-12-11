@@ -187,6 +187,122 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 
 		return $this->getDC()->getFilter();
 	}
+	
+	/**
+	 * Prepare filter array from search values
+	 * @return array
+	 */
+	protected function getSearch()
+	{
+		$arrSession = Session::getInstance()->getData();
+		
+		// return if there is no search or the search value is empty
+		if(count($arrSession['search'][$this->getDC()->getTable()]) < 1 || strlen($arrSession['search'][$this->getDC()->getTable()]['value']) < 1)
+		{
+			return array();
+		}
+		
+		$bolStrictSearch = true;
+		
+		// don't need a foreach here, it's always one search at a time
+		$field = $arrSession['search'][$this->getDC()->getTable()]['field'];
+		$search = $arrSession['search'][$this->getDC()->getTable()]['value'];
+		
+		$arrField = $this->getDC()->arrDCA['fields'][$field];
+		
+		switch($arrField['inputType'])
+		{
+			case 'checkbox':
+			case 'radio':
+			case 'select':
+				$objDatabase = Database::getInstance();
+				$objAttribute = MetaModelFactory::byTableName($this->getDC()->getTable())->getAttribute($field);
+				
+				$operation = ($bolStrictSearch ? "=?" : "LIKE '%".$search."%'");
+				
+				$arrIds = array();
+				
+				if($objAttribute->get('type') == 'tags')
+				{
+					// check if the attribute has an option value that fits the search
+					$objOptions = $objDatabase->prepare(
+						" SELECT * FROM ".$objAttribute->get('tag_table').
+						" WHERE ".$objAttribute->get('tag_column')." ".$operation." ".($objAttribute->get('tag_where') ? " AND ".$objAttribute->get('tag_where'):"") . "")
+										->limit(1)
+										->execute($search);
+					// return an impossible filter, to get an empty result
+					if($objOptions->numRows < 1)
+					{	
+						return array(array('operation'=>'=','property'=>'id','value'=>-1));
+					}
+				
+					// fetch entries from `tl_metamodel_tag_relation`
+					$objEntries = $objDatabase->prepare("SELECT item_id FROM tl_metamodel_tag_relation WHERE att_id=? AND value_id IN(".implode(',',  $objOptions->fetchEach('id') ).")")->execute($objAttribute->get('id'));
+					if($objEntries->numRows > 0)
+					{
+						$arrIds = $objEntries->fetchEach('item_id');
+					}
+				}
+				// fetch entries from metamodel table
+				else
+				{
+					// check if the attribute has an option value that fits the search
+					$objOptions = $objDatabase->prepare(
+						" SELECT * FROM ".$objAttribute->get('select_table').
+						" WHERE ".$objAttribute->get('select_column')." ".$operation." ".($objAttribute->get('select_where') ? " AND ".$objAttribute->get('select_where'):"") . "")
+										->limit(1)
+										->execute($search);
+					// return an impossible filter, to get an empty result
+					if($objOptions->numRows < 1)
+					{	
+						return array(array('operation'=>'=','property'=>'id','value'=>-1));
+					}
+					
+					$objEntries = $objDatabase->prepare("SELECT id FROM ".$this->getDC()->getTable()." WHERE FIND_IN_SET(".implode(',',  $objOptions->fetchEach('id') ).",".$field.")")->execute();
+					if($objEntries->numRows > 0)
+					{
+						$arrIds = $objEntries->fetchEach('id');
+					}
+				}
+				
+				// return an impossible search, to get an empty result
+				if(count($arrIds) < 1)
+				{
+					return array(array('operation'=>'=','property'=>'id','value'=>-1));
+				}
+				
+				$arrReturn = array
+				(
+					array
+					(
+						'operation' => 'IN',
+						'property' 	=> 'id',
+						'value' 	=> $arrIds,
+					)
+				);
+				
+				
+				break;
+			case 'text':
+				$arrReturn = array
+				(
+					array
+					(
+						'operation' => 'LIKE',
+						'property' 	=> $field,
+						'value' 	=> ($bolStrictSearch ? $search : '%'.$search.'%'),
+					)
+				);
+				break;
+			default: 
+				// hook here for custom types?
+				break;
+		}
+		
+		
+		return $arrReturn;
+	}
+
 
 	/**
 	 * Get limit for the data provider
@@ -1955,6 +2071,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 				->setStart($arrLimit[0])
 				->setAmount($arrLimit[1])
 				->setFilter($this->getFilter())
+				->setFilter($this->getSearch())
 				->setSorting(array($this->getDC()->getFirstSorting() => $this->getDC()->getFirstSortingOrder()));
 
 		$objCollection = $objCurrentDataProvider->fetchAll($objConfig);
@@ -2401,7 +2518,7 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 		}
 
 		// Store search value in the current session
-		if ($this->Input->post('FORM_SUBMIT') == 'tl_filters123')
+		if ($this->Input->post('FORM_SUBMIT') == 'tl_filters')
 		{
 			$arrSession['search'][$this->getDC()->getTable()]['value'] = '';
 			$arrSession['search'][$this->getDC()->getTable()]['field'] = $this->Input->post('tl_field', true);
@@ -2409,26 +2526,29 @@ class GeneralControllerDefault extends Controller implements InterfaceGeneralCon
 			// Make sure the regular expression is valid
 			if ($this->Input->postRaw('tl_value') != '')
 			{
-				try
-				{
-					$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()
-							->setSorting($this->getListViewSorting())
-							->setSearch(
-							array(
-								array(
-									'mode' => DCGE::DP_MODE_REGEX,
-									'field' => $this->Input->post('tl_field', true),
-									'value' => $this->Input->postRaw('tl_value')
-					)));
-
-					$this->getDC()->getDataProvider()->fetchAll($objConfig);
-
-					$arrSession['search'][$this->getDC()->getTable()]['value'] = $this->Input->postRaw('tl_value');
-				}
-				catch (Exception $e)
-				{
-					// Do nothing
-				}
+				#try
+				#{
+				#	$objConfig = $this->getDC()->getDataProvider()->getEmptyConfig()
+				#			->setSorting($this->getListViewSorting())
+				#			->setSearch(
+				#			array(
+				#				array(
+				#					'mode' => DCGE::DP_MODE_REGEX,
+				#					'field' => $this->Input->post('tl_field', true),
+				#					'value' => $this->Input->postRaw('tl_value')
+				#	)));
+				#
+				#	$this->getDC()->getDataProvider()->fetchAll($objConfig);
+				#
+				#	$arrSession['search'][$this->getDC()->getTable()]['value'] = $this->Input->postRaw('tl_value');
+				#}
+				#catch (Exception $e)
+				#{
+				#	// Do nothing
+				#}
+				
+				// who needs a rgxp?? it's just a search. Hit it or beat it.
+				$arrSession['search'][$this->getDC()->getTable()]['value'] = $this->Input->postRaw('tl_value');
 			}
 
 			Session::getInstance()->setData($arrSession);
