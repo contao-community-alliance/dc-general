@@ -12,6 +12,13 @@
 
 namespace DcGeneral\Clipboard;
 
+/**
+ * Class DefaultClipboard.
+ *
+ * Default implementation of the clipboard.
+ *
+ * @package DcGeneral\Clipboard
+ */
 class DefaultClipboard implements ClipboardInterface
 {
 	/**
@@ -29,6 +36,8 @@ class DefaultClipboard implements ClipboardInterface
 	protected $arrCircularIds;
 
 	/**
+	 * The current mode the clipboard is in.
+	 *
 	 * @var string
 	 */
 	protected $mode;
@@ -91,6 +100,9 @@ class DefaultClipboard implements ClipboardInterface
 		$objEnvironment->getInputProvider()->setPersistentValue('CLIPBOARD', $arrClipboard);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function clear()
 	{
 		unset($this->arrIds);
@@ -131,6 +143,9 @@ class DefaultClipboard implements ClipboardInterface
 		return $this->mode == self::MODE_COPY;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function isCreate()
 	{
 		return $this->mode == self::MODE_CREATE;
