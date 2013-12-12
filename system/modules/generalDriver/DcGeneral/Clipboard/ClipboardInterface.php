@@ -12,6 +12,14 @@
 
 namespace DcGeneral\Clipboard;
 
+/**
+ * Interface ClipboardInterface.
+ *
+ * This interface describes the internal clipboard of DcGeneral.
+ * The implementing class will store the values persistent to the input provider stored in the environment.
+ *
+ * @package DcGeneral\Clipboard
+ */
 interface ClipboardInterface
 {
 	/**
@@ -32,16 +40,18 @@ interface ClipboardInterface
 	/**
 	 * Load the content of the clipboard from the input provider stored in the environment.
 	 *
-	 * @param \DcGeneral\EnvironmentInterface $objEnvironment
+	 * @param \DcGeneral\EnvironmentInterface $objEnvironment The environment where the input provider will retrieve the
+	 *                                                        values from.
 	 *
 	 * @return mixed
 	 */
 	public function loadFrom($objEnvironment);
 
 	/**
-	 * Save the content of the clipboard to the given input provider.
+	 * Save the content of the clipboard to the input provider stored in the environment.
 	 *
-	 * @param \DcGeneral\EnvironmentInterface $objEnvironment
+	 * @param \DcGeneral\EnvironmentInterface $objEnvironment The environment where the input provider will store the
+	 *                                                        values to.
 	 *
 	 * @return mixed
 	 */
@@ -108,9 +118,9 @@ interface ClipboardInterface
 	public function cut($ids);
 
 	/**
-	 * Set the clipboard to create mode for a child of the given parent dataset.
+	 * Set the clipboard to create mode for a child of the given parent data set.
 	 *
-	 * @param mixed $parentId The id of the parent dataset.
+	 * @param mixed $parentId The id of the parent data set.
 	 *
 	 * @return ClipboardInterface
 	 */
@@ -149,6 +159,8 @@ interface ClipboardInterface
 	public function getCircularIds();
 
 	/**
+	 * Retrieve the current mode of the clipboard.
+	 *
 	 * @return string Either cut|paste|mode
 	 */
 	public function getMode();
