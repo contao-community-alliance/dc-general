@@ -14,14 +14,29 @@ namespace DcGeneral\Contao\Callback;
 
 use Symfony\Component\EventDispatcher\Event;
 
+/**
+ * Class AbstractStaticCallbackListener.
+ *
+ * Abstract base class for callbacks with static arguments that are independent from the event.
+ * The parameters are passed as optional list to the constructor.
+ *
+ * @package DcGeneral\Contao\Callback
+ */
 abstract class AbstractStaticCallbackListener extends AbstractCallbackListener
 {
 	/**
+	 * Arguments for the callback.
+	 *
 	 * @var array
 	 */
 	protected $args;
 
 	function __construct($callback, $_ = null)
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @param mixed $_ [optional] A variable list of arguments to be passed to the callback.
+	 */
 	{
 		parent::__construct($callback);
 
@@ -32,9 +47,7 @@ abstract class AbstractStaticCallbackListener extends AbstractCallbackListener
 	}
 
 	/**
-	 * @param \Symfony\Component\EventDispatcher\Event $event
-	 *
-	 * @return array
+	 * {@inheritdoc}
 	 */
 	public function getArgs($event)
 	{
