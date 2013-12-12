@@ -14,10 +14,19 @@ namespace DcGeneral\Contao\Callback;
 
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 
+/**
+ * Class ModelOperationButtonCallbackListener.
+ *
+ * Handle the button_callbacks.
+ *
+ * @package DcGeneral\Contao\Callback
+ */
 class ModelOperationButtonCallbackListener extends AbstractReturningCallbackListener
 {
 	/**
-	 * @param GetOperationButtonEvent $event
+	 * Retrieve the arguments for the callback.
+	 *
+	 * @param GetOperationButtonEvent $event The event being emitted.
 	 *
 	 * @return array
 	 */
@@ -42,13 +51,18 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
 	}
 
 	/**
-	 * @param GetOperationButtonEvent $event
+	 * Set the value in the event.
+	 *
+	 * @param GetOperationButtonEvent $event The event being emitted.
+	 *
+	 * @param string                  $value The value returned by the callback.
 	 *
 	 * @return void
 	 */
 	public function update($event, $value)
 	{
-		if (is_null($value)) {
+		if (is_null($value))
+		{
 			return;
 		}
 
