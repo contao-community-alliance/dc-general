@@ -14,13 +14,21 @@ namespace DcGeneral\Contao\Callback;
 
 use DcGeneral\Exception\DcGeneralRuntimeException;
 
+/**
+ * Class Callbacks.
+ *
+ * Static callback emitting class.
+ *
+ * @package DcGeneral\Contao\Callback
+ */
 class Callbacks
 {
 	/**
 	 * Call a Contao style callback.
 	 *
-	 * @param array|callable $callback
-	 * @param mixed          $_
+	 * @param array|callable $callback The callback to invoke.
+	 *
+	 * @param mixed          $_        List of arguments to pass to the callback [optional].
 	 *
 	 * @return mixed
 	 */
@@ -37,12 +45,13 @@ class Callbacks
 	/**
 	 * Call a Contao style callback.
 	 *
-	 * @param array|callable $callback
-	 * @param array          $args
+	 * @param array|callable $callback The callback to invoke.
+	 *
+	 * @param array          $args     List of arguments to pass to the callback.
 	 *
 	 * @return mixed
 	 *
-	 * @throws \DcGeneral\Exception\DcGeneralRuntimeException
+	 * @throws DcGeneralRuntimeException When the callback throws an exception.
 	 */
 	static public function callArgs($callback, array $args = array())
 	{
@@ -66,7 +75,7 @@ class Callbacks
 	/**
 	 * Evaluate the callback and create an object instance if required and possible.
 	 *
-	 * @param array|callable $callback
+	 * @param array|callable $callback The callback to invoke.
 	 *
 	 * @return array|callable
 	 */
