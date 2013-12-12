@@ -14,10 +14,19 @@ namespace DcGeneral\Contao\Callback;
 
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
 
+/**
+ * Class ContainerGlobalButtonCallbackListener.
+ *
+ * Handler for the global buttons.
+ *
+ * @package DcGeneral\Contao\Callback
+ */
 class ContainerGlobalButtonCallbackListener extends AbstractReturningCallbackListener
 {
 	/**
-	 * @param GetGlobalButtonEvent $event
+	 * Retrieve the arguments for the callback.
+	 *
+	 * @param GetGlobalButtonEvent $event The event being emitted.
 	 *
 	 * @return array
 	 */
@@ -35,13 +44,18 @@ class ContainerGlobalButtonCallbackListener extends AbstractReturningCallbackLis
 	}
 
 	/**
-	 * @param GetGlobalButtonEvent $event
+	 * Update the event with the information returned by the callback.
+	 *
+	 * @param GetGlobalButtonEvent $event The event being emitted.
+	 *
+	 * @param string               $value The HTML representation of the button.
 	 *
 	 * @return void
 	 */
 	public function update($event, $value)
 	{
-		if (is_null($value)) {
+		if (is_null($value))
+		{
 			return;
 		}
 
