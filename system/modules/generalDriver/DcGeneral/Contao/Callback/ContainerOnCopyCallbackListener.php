@@ -15,21 +15,39 @@ namespace DcGeneral\Contao\Callback;
 use DcGeneral\DC_General;
 use DcGeneral\Event\PostDuplicateModelEvent;
 
+/**
+ * Class ContainerOnCopyCallbackListener.
+ *
+ * Handle callbacks to be invoked when a copy operation is made.
+ *
+ * @package DcGeneral\Contao\Callback
+ */
 class ContainerOnCopyCallbackListener extends AbstractCallbackListener
 {
 	/**
+	 * The DC_General instance.
+	 *
 	 * @var DC_General
 	 */
 	protected $dcGeneral;
 
-	function __construct($callback, DC_General $dcGeneral)
+	/**
+	 * Create a new instance of the listener.
+	 *
+	 * @param array|callable $callback  The callback to call when invoked.
+	 *
+	 * @param DC_General     $dcGeneral The DC_General instance to use in the callback.
+	 */
+	public function __construct($callback, DC_General $dcGeneral)
 	{
 		parent::__construct($callback);
 		$this->dcGeneral = $dcGeneral;
 	}
 
 	/**
-	 * @param PostDuplicateModelEvent $event
+	 * Retrieve the arguments for the callback.
+	 *
+	 * @param PostDuplicateModelEvent $event The event being emitted.
 	 *
 	 * @return array
 	 */
