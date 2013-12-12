@@ -31,12 +31,12 @@ abstract class AbstractStaticCallbackListener extends AbstractCallbackListener
 	 */
 	protected $args;
 
-	function __construct($callback, $_ = null)
 	/**
 	 * {@inheritdoc}
 	 *
 	 * @param mixed $_ [optional] A variable list of arguments to be passed to the callback.
 	 */
+	public function __construct($callback, $_ = null)
 	{
 		parent::__construct($callback);
 
