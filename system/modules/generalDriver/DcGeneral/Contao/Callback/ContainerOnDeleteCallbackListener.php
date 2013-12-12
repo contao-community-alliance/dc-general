@@ -53,7 +53,7 @@ class ContainerOnDeleteCallbackListener extends AbstractCallbackListener
 	 */
 	public function getArgs($event)
 	{
-		// TODO find a way to get tl_undo record ID here
+		// TODO: Find a way to get tl_undo record ID here.
 		return array($this->dcGeneral, 0);
 	}
 }

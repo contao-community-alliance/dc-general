@@ -30,7 +30,7 @@ class ContainerOnLoadCallbackListener extends AbstractStaticCallbackListener
 	 *
 	 * @param DC_General     $dcGeneral The DC_General instance to use in the callback.
 	 */
-	function __construct($callback, DC_General $dcGeneral)
+	public function __construct($callback, DC_General $dcGeneral)
 	{
 		parent::__construct($callback, $dcGeneral);
 	}

@@ -16,6 +16,13 @@ use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
 use DcGeneral\DC_General;
 
+/**
+ * Class ContainerPasteRootButtonCallbackListener.
+ *
+ * Handler for the paste into root buttons.
+ *
+ * @package DcGeneral\Contao\Callback
+ */
 class ContainerPasteRootButtonCallbackListener extends AbstractReturningCallbackListener
 {
 	/**
