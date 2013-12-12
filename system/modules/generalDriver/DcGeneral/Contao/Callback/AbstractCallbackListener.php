@@ -33,7 +33,7 @@ abstract class AbstractCallbackListener
 	 *
 	 * @param array|callable $callback The callback to call when invoked.
 	 */
-	function __construct($callback = null)
+	public function __construct($callback = null)
 	{
 		$this->callback = $callback;
 	}
@@ -66,7 +66,8 @@ abstract class AbstractCallbackListener
 	 */
 	public function __invoke($event)
 	{
-		if ($this->getCallback()) {
+		if ($this->getCallback())
+		{
 			Callbacks::callArgs($this->getCallback(), $this->getArgs($event));
 		}
 	}
