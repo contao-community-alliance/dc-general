@@ -12,15 +12,26 @@
 
 namespace DcGeneral\Contao\Callback;
 
+/**
+ * Class AbstractCallbackListener.
+ *
+ * Abstract base class for a callback listener.
+ *
+ * @package DcGeneral\Contao\Callback
+ */
 abstract class AbstractCallbackListener
 {
 	/**
+	 * The callback to use.
+	 *
 	 * @var array|callable
 	 */
 	protected $callback;
 
 	/**
-	 * @param array|callable $callback
+	 * Create a new instance of the listener.
+	 *
+	 * @param array|callable $callback The callback to call when invoked.
 	 */
 	function __construct($callback = null)
 	{
@@ -28,6 +39,8 @@ abstract class AbstractCallbackListener
 	}
 
 	/**
+	 * Retrieve the attached callback.
+	 *
 	 * @return array|callable
 	 */
 	public function getCallback()
@@ -36,7 +49,9 @@ abstract class AbstractCallbackListener
 	}
 
 	/**
-	 * @param \Symfony\Component\EventDispatcher\Event $event
+	 * Retrieve the arguments for the callback.
+	 *
+	 * @param \Symfony\Component\EventDispatcher\Event $event The event being emitted.
 	 *
 	 * @return array
 	 */
@@ -45,7 +60,9 @@ abstract class AbstractCallbackListener
 	/**
 	 * Invoke the callback.
 	 *
-	 * @param \Symfony\Component\EventDispatcher\Event $event
+	 * @param \Symfony\Component\EventDispatcher\Event $event The Event for which the callback shall be invoked.
+	 *
+	 * @return void
 	 */
 	public function __invoke($event)
 	{
