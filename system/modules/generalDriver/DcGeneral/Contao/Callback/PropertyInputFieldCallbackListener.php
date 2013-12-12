@@ -12,23 +12,42 @@
 
 namespace DcGeneral\Contao\Callback;
 
+use DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use DcGeneral\DC_General;
 
+/**
+ * Class PropertyInputFieldCallbackListener.
+ *
+ * Handle input_field_callbacks.
+ *
+ * @package DcGeneral\Contao\Callback
+ */
 class PropertyInputFieldCallbackListener extends AbstractReturningCallbackListener
 {
 	/**
+	 * The DC_General instance.
+	 *
 	 * @var DC_General
 	 */
 	protected $dcGeneral;
 
-	function __construct($callback, DC_General $dcGeneral)
+	/**
+	 * Create a new instance of the listener.
+	 *
+	 * @param array|callable $callback  The callback to call when invoked.
+	 *
+	 * @param DC_General     $dcGeneral The DC_General instance to use in the callback.
+	 */
+	public function __construct($callback, DC_General $dcGeneral)
 	{
 		parent::__construct($callback);
 		$this->dcGeneral = $dcGeneral;
 	}
 
 	/**
-	 * @param \DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent $event
+	 * Retrieve the arguments for the callback.
+	 *
+	 * @param BuildWidgetEvent $event The event being emitted.
 	 *
 	 * @return array
 	 */
@@ -38,9 +57,11 @@ class PropertyInputFieldCallbackListener extends AbstractReturningCallbackListen
 	}
 
 	/**
-	 * @param \DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent $event
+	 * Update the widget in the event.
 	 *
-	 * @param \Widget                                                          $value
+	 * @param BuildWidgetEvent $event The event being emitted.
+	 *
+	 * @param \Widget          $value The widget that has been constructed.
 	 *
 	 * @return void
 	 */
