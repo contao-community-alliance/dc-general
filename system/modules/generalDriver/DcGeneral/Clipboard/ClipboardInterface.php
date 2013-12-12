@@ -15,7 +15,22 @@ namespace DcGeneral\Clipboard;
 interface ClipboardInterface
 {
 	/**
-	 * Load the content of the clipboard to the given input provider.
+	 * Clipboard is in copy mode.
+	 */
+	const MODE_COPY = 'copy';
+
+	/**
+	 * Clipboard is in cut mode.
+	 */
+	const MODE_CUT = 'cut';
+
+	/**
+	 * Clipboard is in create mode.
+	 */
+	const MODE_CREATE = 'create';
+
+	/**
+	 * Load the content of the clipboard from the input provider stored in the environment.
 	 *
 	 * @param \DcGeneral\EnvironmentInterface $objEnvironment
 	 *

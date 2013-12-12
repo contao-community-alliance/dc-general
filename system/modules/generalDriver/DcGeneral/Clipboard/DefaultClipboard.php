@@ -120,7 +120,7 @@ class DefaultClipboard implements ClipboardInterface
 	 */
 	public function isCut()
 	{
-		return $this->mode == 'cut';
+		return $this->mode == self::MODE_CUT;
 	}
 
 	/**
@@ -128,12 +128,12 @@ class DefaultClipboard implements ClipboardInterface
 	 */
 	public function isCopy()
 	{
-		return $this->mode == 'copy';
+		return $this->mode == self::MODE_COPY;
 	}
 
 	public function isCreate()
 	{
-		return $this->mode == 'create';
+		return $this->mode == self::MODE_CREATE;
 	}
 
 	/**
@@ -141,7 +141,7 @@ class DefaultClipboard implements ClipboardInterface
 	 */
 	public function copy($ids)
 	{
-		$this->mode = 'copy';
+		$this->mode = self::MODE_COPY;
 
 		if (is_array($ids) || is_null($ids))
 		{
@@ -160,7 +160,7 @@ class DefaultClipboard implements ClipboardInterface
 	 */
 	public function cut($ids)
 	{
-		$this->mode = 'cut';
+		$this->mode = self::MODE_CUT;
 
 		if (is_array($ids) || is_null($ids))
 		{
@@ -179,7 +179,7 @@ class DefaultClipboard implements ClipboardInterface
 	 */
 	public function create($parentId)
 	{
-		$this->mode = 'create';
+		$this->mode = self::MODE_CREATE;
 
 		$this->setContainedIds($parentId);
 
