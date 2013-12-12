@@ -32,11 +32,11 @@ class Callbacks
 	 *
 	 * @return mixed
 	 */
-	static public function call($callback, $_ = null)
+	public static function call($callback, $_ = null)
 	{
-		// get method parameters as callback parameters
+		// Get method parameters as callback parameters.
 		$args = func_get_args();
-		// ... but skip $callback
+		// But skip $callback.
 		array_shift($args);
 
 		return static::callArgs($callback, $args);
@@ -53,7 +53,7 @@ class Callbacks
 	 *
 	 * @throws DcGeneralRuntimeException When the callback throws an exception.
 	 */
-	static public function callArgs($callback, array $args = array())
+	public static function callArgs($callback, array $args = array())
 	{
 		try {
 			$callback = static::evaluateCallback($callback);
@@ -61,15 +61,22 @@ class Callbacks
 			return call_user_func_array($callback, $args);
 		}
 		catch(\Exception $e) {
-			if (is_array($callback) && is_object($callback[0]))
-			{
-				$callback[0] = get_class($callback[0]);
-			}
-			throw new DcGeneralRuntimeException(
-				'Execute callback ' . (is_array($callback) ? implode('::', $callback) : $callback) . ' failed - ' . $e->getMessage(),
-				0
-			);
+			$message = $e->getMessage();
 		}
+
+		if (is_array($callback) && is_object($callback[0]))
+		{
+			$callback[0] = get_class($callback[0]);
+		}
+
+		throw new DcGeneralRuntimeException(
+			sprintf(
+				'Execute callback %s failed - Exception message: %s',
+				(is_array($callback) ? implode('::', $callback) : $callback),
+				$message
+			),
+			0
+		);
 	}
 
 	/**
@@ -79,28 +86,31 @@ class Callbacks
 	 *
 	 * @return array|callable
 	 */
-	static protected function evaluateCallback($callback)
+	protected static function evaluateCallback($callback)
 	{
 		if (is_array($callback) && count($callback) == 2 && is_string($callback[0]) && is_string($callback[1]))
 		{
 			$class = new \ReflectionClass($callback[0]);
 
-			// if the method is static, do not create an instance
-			if ($class->hasMethod($callback[1]) && $class->getMethod($callback[1])->isStatic()) {
+			// Ff the method is static, do not create an instance.
+			if ($class->hasMethod($callback[1]) && $class->getMethod($callback[1])->isStatic())
+			{
 				return $callback;
 			}
 
-			// fetch singleton instance
-			if ($class->hasMethod('getInstance')) {
+			// Fetch singleton instance.
+			if ($class->hasMethod('getInstance'))
+			{
 				$getInstanceMethod = $class->getMethod('getInstance');
 
-				if ($getInstanceMethod->isStatic()) {
+				if ($getInstanceMethod->isStatic())
+				{
 					$callback[0] = $getInstanceMethod->invoke(null);
 					return $callback;
 				}
 			}
 
-			// create a new instance
+			// Create a new instance.
 			$callback[0] = $class->newInstance();
 		}
 
