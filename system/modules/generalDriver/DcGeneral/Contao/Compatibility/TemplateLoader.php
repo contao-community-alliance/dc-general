@@ -27,8 +27,11 @@ class TemplateLoader
 	/**
 	 * No op.
 	 *
-	 * @param string $name The template name
-	 * @param string $file The path to the template folder
+	 * @param string $name The template name.
+	 *
+	 * @param string $file The path to the template folder.
+	 *
+	 * @return void
 	 */
 	public static function addFile($name, $file)
 	{
@@ -39,7 +42,9 @@ class TemplateLoader
 	/**
 	 * No op.
 	 *
-	 * @param array $files An array of files
+	 * @param array $files An array of files.
+	 *
+	 * @return void
 	 */
 	public static function addFiles($files)
 	{
@@ -47,9 +52,11 @@ class TemplateLoader
 	}
 
 	/**
-	 * No op
+	 * No op.
 	 *
-	 * @throws DcGeneralException
+	 * @throws DcGeneralException Always.
+	 *
+	 * @return void
 	 */
 	public static function getFiles()
 	{
@@ -57,11 +64,13 @@ class TemplateLoader
 	}
 
 	/**
-	 * No op
+	 * No op.
 	 *
-	 * @param string $prefix The prefix (e.g. "moo_")
+	 * @param string $prefix The prefix (e.g. "moo_").
 	 *
-	 * @throws DcGeneralException
+	 * @throws DcGeneralException Always.
+	 *
+	 * @return void
 	 */
 	public static function getPrefixedFiles($prefix)
 	{
@@ -71,13 +80,17 @@ class TemplateLoader
 	/**
 	 * No op.
 	 *
-	 * @param string $template The template name
-	 * @param string $format   The output format (e.g. "html5")
-	 * @param string $custom   The custom templates folder (defaults to "templates")
+	 * @param string $template The template name.
 	 *
-	 * @throws DcGeneralException If $template does not exist
+	 * @param string $format   The output format (e.g. "html5").
+	 *
+	 * @param string $custom   The custom templates folder (defaults to "templates").
+	 *
+	 * @throws DcGeneralException If $template does not exist.
+	 *
+	 * @return void
 	 */
-	public static function getPath($template, $format, $custom='templates')
+	public static function getPath($template, $format, $custom = 'templates')
 	{
 		throw new DcGeneralException('TemplateLoader is a non op compatibility class by DcGeneral.');
 	}

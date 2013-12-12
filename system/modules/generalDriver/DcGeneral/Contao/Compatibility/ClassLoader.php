@@ -23,7 +23,8 @@ namespace DcGeneral\Contao\Compatibility;
 class ClassLoader
 {
 	/**
-	 * Known namespaces
+	 * Known namespaces.
+	 *
 	 * @var array
 	 */
 	protected static $namespaces = array
@@ -32,15 +33,18 @@ class ClassLoader
 	);
 
 	/**
-	 * Known classes
+	 * Known classes.
+	 *
 	 * @var array
 	 */
 	protected static $classes = array();
 
 	/**
-	 * Add a new namespace
+	 * Add a new namespace.
 	 *
-	 * @param string $name The namespace name
+	 * @param string $name The namespace name.
+	 *
+	 * @return void
 	 */
 	public static function addNamespace($name)
 	{
@@ -54,9 +58,11 @@ class ClassLoader
 
 
 	/**
-	 * Add multiple new namespaces
+	 * Add multiple new namespaces.
 	 *
-	 * @param array $names An array of namespace names
+	 * @param array $names An array of namespace names.
+	 *
+	 * @return void
 	 */
 	public static function addNamespaces($names)
 	{
@@ -68,9 +74,9 @@ class ClassLoader
 
 
 	/**
-	 * Return the namespaces as array
+	 * Return the namespaces as array.
 	 *
-	 * @return array An array of all namespaces
+	 * @return array An array of all namespaces.
 	 */
 	public static function getNamespaces()
 	{
@@ -79,10 +85,13 @@ class ClassLoader
 
 
 	/**
-	 * Add a new class with its file path
+	 * Add a new class with its file path.
 	 *
-	 * @param string $class The class name
-	 * @param string $file  The path to the class file
+	 * @param string $class The class name.
+	 *
+	 * @param string $file  The path to the class file.
+	 *
+	 * @return void
 	 */
 	public static function addClass($class, $file)
 	{
@@ -93,19 +102,21 @@ class ClassLoader
 		{
 			\Cache::getInstance()->{'classFileExists-' . $class} = true;
 		}
-		\FileCache::getInstance('classes')->$class = true;
+		\FileCache::getInstance('classes')->$class  = true;
 		\FileCache::getInstance('autoload')->$class = $file;
 	}
 
 
 	/**
-	 * Add multiple new classes with their file paths
+	 * Add multiple new classes with their file paths.
 	 *
-	 * @param array $classes An array of classes
+	 * @param array $classes An array of classes.
+	 *
+	 * @return void
 	 */
 	public static function addClasses($classes)
 	{
-		foreach ($classes as $class=>$file)
+		foreach ($classes as $class => $file)
 		{
 			self::addClass($class, $file);
 		}
@@ -115,7 +126,7 @@ class ClassLoader
 	/**
 	 * Return the classes as array.
 	 *
-	 * @return array An array of all classes
+	 * @return array An array of all classes.
 	 */
 	public static function getClasses()
 	{
@@ -124,12 +135,14 @@ class ClassLoader
 
 
 	/**
-	 * Autoload a class and create an alias in the global namespace
+	 * Autoload a class and create an alias in the global namespace.
 	 *
 	 * To preserve backwards compatibility with Contao 2 extensions, all core
 	 * classes will be aliased into the global namespace.
 	 *
-	 * @param string $class The class name
+	 * @param string $class The class name.
+	 *
+	 * @return void
 	 */
 	public static function load($class)
 	{
@@ -138,7 +151,7 @@ class ClassLoader
 			return;
 		}
 
-		// The class file is set in the mapper
+		// The class file is set in the mapper.
 		if (isset(self::$classes[$class]))
 		{
 			if ($GLOBALS['TL_CONFIG']['debugMode'])
@@ -146,10 +159,10 @@ class ClassLoader
 				$GLOBALS['TL_DEBUG']['classes_set'][] = $class;
 			}
 
-			include TL_ROOT . '/' . self::$classes[$class];
+			require_once TL_ROOT . DIRECTORY_SEPARATOR . self::$classes[$class];
 		}
 
-		// Find the class in the registered namespaces
+		// Find the class in the registered namespaces.
 		elseif (($namespaced = self::findClass($class)) != false)
 		{
 			if ($GLOBALS['TL_CONFIG']['debugMode'])
@@ -157,20 +170,20 @@ class ClassLoader
 				$GLOBALS['TL_DEBUG']['classes_aliased'][] = $class . ' <span style="color:#999">(' . $namespaced . ')</span>';
 			}
 
-			include TL_ROOT . '/' . self::$classes[$namespaced];
+			require_once TL_ROOT . DIRECTORY_SEPARATOR . self::$classes[$namespaced];
 			class_alias($namespaced, $class);
 		}
 
-		// Pass the request to other autoloaders (e.g. Swift)
+		// Pass the request to other auto loaders (e.g. Swift).
 	}
 
 
 	/**
-	 * Search the namespaces for a matching entry
+	 * Search the namespaces for a matching entry.
 	 *
-	 * @param string $class The class name
+	 * @param string $class The class name.
 	 *
-	 * @return string The full path including the namespace
+	 * @return string The full path including the namespace.
 	 */
 	protected static function findClass($class)
 	{
@@ -187,7 +200,9 @@ class ClassLoader
 
 
 	/**
-	 * Register the autoloader
+	 * Register the auto loader.
+	 *
+	 * @return void
 	 */
 	public static function register()
 	{
@@ -199,6 +214,8 @@ class ClassLoader
 
 	/**
 	 * Dummy method.
+	 *
+	 * @return void
 	 */
 	public static function scanAndRegister()
 	{
@@ -206,7 +223,11 @@ class ClassLoader
 
 		foreach (scan($modules) as $module)
 		{
-			$file = $modules . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'autoload.php';
+			$file =
+				$modules . DIRECTORY_SEPARATOR .
+				$module . DIRECTORY_SEPARATOR .
+				'config' . DIRECTORY_SEPARATOR .
+				'autoload.php';
 			if (file_exists($file))
 			{
 				require_once $file;
