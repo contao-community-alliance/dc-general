@@ -12,19 +12,28 @@
 
 namespace DcGeneral\Contao\Callback;
 
+/**
+ * Class AbstractReturningCallbackListener.
+ *
+ * Abstract base class for callbacks that are returning a value.
+ *
+ * @package DcGeneral\Contao\Callback
+ */
 abstract class AbstractReturningCallbackListener extends AbstractCallbackListener
 {
 	/**
-	 * @param \Symfony\Component\EventDispatcher\Event $event
+	 * Update the values in the event with the value returned by the callback.
+	 *
+	 * @param \Symfony\Component\EventDispatcher\Event $event The event being emitted.
+	 *
+	 * @param mixed                                    $value The value returned by the callback.
 	 *
 	 * @return void
 	 */
 	abstract public function update($event, $value);
 
 	/**
-	 * Invoke the callback.
-	 *
-	 * @param \Symfony\Component\EventDispatcher\Event $event
+	 * {@inheritdoc}
 	 */
 	public function __invoke($event)
 	{
