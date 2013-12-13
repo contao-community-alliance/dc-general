@@ -8,10 +8,25 @@ use DcGeneral\EnvironmentInterface;
 use DcGeneral\EnvironmentPopulator\AbstractEventDrivenEnvironmentPopulator;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 
+/**
+ * Class DataProviderPopulator.
+ *
+ * This class reacts to the PopulateEnvironmentEvent and populates the environment with all data providers implementing
+ * the interface ContaoDataProviderInformation.
+ *
+ * @package DcGeneral\Contao\Dca\Populator
+ */
 class DataProviderPopulator extends AbstractEventDrivenEnvironmentPopulator
 {
 	const PRIORITY = 100;
 
+	/**
+	 * Instantiates and adds the data providers implementing ContaoDataProviderInformation to the environment.
+	 *
+	 * @param EnvironmentInterface $environment The environment to populate.
+	 *
+	 * @throws DcGeneralRuntimeException When a data provider has already been added to the environment.
+	 */
 	public function populate(EnvironmentInterface $environment)
 	{
 		$definition = $environment->getDataDefinition();
@@ -22,7 +37,10 @@ class DataProviderPopulator extends AbstractEventDrivenEnvironmentPopulator
 			{
 				if ($environment->hasDataProvider($dataProviderInformation->getName()))
 				{
-					throw new DcGeneralRuntimeException('Data provider ' . $dataProviderInformation->getName() . ' already added to environment.');
+					throw new DcGeneralRuntimeException(sprintf(
+						'Data provider %s already added to environment.',
+						$dataProviderInformation->getName()
+					));
 				}
 
 				$providerClass = new \ReflectionClass($dataProviderInformation->getClassName());
