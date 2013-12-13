@@ -14,10 +14,20 @@ namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
 use DcGeneral\Event\AbstractEnvironmentAwareEvent;
 
+/**
+ * Class BaseButtonEvent.
+ *
+ * This event is the base for all button events for the Contao 2 backend view.
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView\Event
+ */
 class BaseButtonEvent
 	extends AbstractEnvironmentAwareEvent
 {
-    const NAME = 'dc-general.view.contao2backend.button';
+	/**
+	 * The name of the event.
+	 */
+	const NAME = 'dc-general.view.contao2backend.button';
 
 	/**
 	 * The html attributes to use for the button.
@@ -55,7 +65,11 @@ class BaseButtonEvent
 	protected $title;
 
 	/**
-	 * @param string $attributes
+	 * Set the HTML attributes for the button.
+	 *
+	 * This might be a string like: 'onclick="foo" style="float:left;"' etc.
+	 *
+	 * @param string $attributes The attributes to be used.
 	 *
 	 * @return $this
 	 */
@@ -67,6 +81,8 @@ class BaseButtonEvent
 	}
 
 	/**
+	 * Get the HTML attributes for the button.
+	 *
 	 * @return string
 	 */
 	public function getAttributes()
@@ -75,7 +91,9 @@ class BaseButtonEvent
 	}
 
 	/**
-	 * @param string $html
+	 * Set the HTML code for the button.
+	 *
+	 * @param string $html The HTML code.
 	 *
 	 * @return $this
 	 */
@@ -87,6 +105,8 @@ class BaseButtonEvent
 	}
 
 	/**
+	 * Get the HTML code for the button.
+	 *
 	 * @return string
 	 */
 	public function getHtml()
@@ -95,7 +115,9 @@ class BaseButtonEvent
 	}
 
 	/**
-	 * @param string $key
+	 * Set the action key (hotkey) for the button.
+	 *
+	 * @param string $key The hotkey to use.
 	 *
 	 * @return $this
 	 */
@@ -107,6 +129,8 @@ class BaseButtonEvent
 	}
 
 	/**
+	 * Get the action key (hotkey) for the button.
+	 *
 	 * @return string
 	 */
 	public function getKey()
@@ -115,7 +139,9 @@ class BaseButtonEvent
 	}
 
 	/**
-	 * @param string $label
+	 * Set the button label text.
+	 *
+	 * @param string $label The label text to use.
 	 *
 	 * @return $this
 	 */
@@ -127,6 +153,8 @@ class BaseButtonEvent
 	}
 
 	/**
+	 * Get the button label text.
+	 *
 	 * @return string
 	 */
 	public function getLabel()
@@ -135,7 +163,9 @@ class BaseButtonEvent
 	}
 
 	/**
-	 * @param string $title
+	 * Set the button title.
+	 *
+	 * @param string $title The title text.
 	 *
 	 * @return $this
 	 */
@@ -147,6 +177,8 @@ class BaseButtonEvent
 	}
 
 	/**
+	 * Get the button title.
+	 *
 	 * @return string
 	 */
 	public function getTitle()
