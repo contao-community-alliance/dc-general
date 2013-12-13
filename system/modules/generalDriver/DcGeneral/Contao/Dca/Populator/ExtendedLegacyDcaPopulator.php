@@ -10,10 +10,10 @@ use DcGeneral\EnvironmentPopulator\AbstractEventDrivenEnvironmentPopulator;
 use DcGeneral\View\ViewInterface;
 
 /**
- * Class HardCodedPopulator
+ * Class ExtendedLegacyDcaPopulator.
  *
- * This class only exists to have some intermediate hardcoded transition point until the builder ans populators have been
- * properly coded. This class will then be removed from the code base.
+ * This class only populates the environment with the extended information available via the ExtendedDca data definition
+ * section.
  *
  * @package DcGeneral\Contao\Dca\Populator
  */
@@ -26,9 +26,10 @@ class ExtendedLegacyDcaPopulator extends AbstractEventDrivenEnvironmentPopulator
 	 *
 	 * NOTE: callback classes are deprecated due to the events used in DcGeneral.
 	 *
-	 * @param EnvironmentInterface $environment
+	 * @param EnvironmentInterface $environment The environment to populate.
 	 *
-	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException
+	 * @return void
+	 *
 	 * @internal
 	 */
 	protected function populateCallback(EnvironmentInterface $environment)
@@ -61,9 +62,10 @@ class ExtendedLegacyDcaPopulator extends AbstractEventDrivenEnvironmentPopulator
 	/**
 	 * Create a view instance in the environment if none has been defined yet.
 	 *
-	 * @param EnvironmentInterface $environment
+	 * @param EnvironmentInterface $environment The environment to populate.
 	 *
-	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException
+	 * @return void
+	 *
 	 * @internal
 	 */
 	protected function populateView(EnvironmentInterface $environment)
@@ -103,7 +105,10 @@ class ExtendedLegacyDcaPopulator extends AbstractEventDrivenEnvironmentPopulator
 	/**
 	 * Create a controller instance in the environment if none has been defined yet.
 	 *
-	 * @param EnvironmentInterface $environment
+	 * @param EnvironmentInterface $environment The environment to populate.
+	 *
+	 * @return void
+	 *
 	 * @internal
 	 */
 	public function populateController(EnvironmentInterface $environment)
