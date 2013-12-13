@@ -16,6 +16,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class Subscriber
 	implements EventSubscriberInterface
 {
+	/**
+	 * {@inheritDoc}
+	 */
 	public static function getSubscribedEvents()
 	{
 		return array
@@ -26,6 +29,13 @@ class Subscriber
 		);
 	}
 
+	/**
+	 * Resolve a widget error message.
+	 *
+	 * @param ResolveWidgetErrorMessageEvent $event The event being processed.
+	 *
+	 * @return void
+	 */
 	public function resolveWidgetErrorMessage(ResolveWidgetErrorMessageEvent $event)
 	{
 		$error = $event->getError();
@@ -34,26 +44,34 @@ class Subscriber
 		{
 			$event->setError($error->getMessage());
 		}
-		else if (is_object($error))
+		elseif (is_object($error))
 		{
 			if (method_exists($error, '__toString'))
 			{
-				$event->setError((string) $error);
+				$event->setError((string)$error);
 			}
 			else
 			{
 				$event->setError(sprintf('[%s]', get_class($error)));
 			}
 		}
-		else if (!is_string($error))
+		elseif (!is_string($error))
 		{
 			$event->setError(sprintf('[%s]', gettype($error)));
 		}
 	}
 
+	/**
+	 * Render a property value to readable text.
+	 *
+	 * @param RenderReadablePropertyValueEvent $event The event being processed.
+	 *
+	 * @return void
+	 */
 	public function renderReadablePropertyValue(RenderReadablePropertyValueEvent $event)
 	{
-		if ($event->getRendered() !== null) {
+		if ($event->getRendered() !== null)
+		{
 			return;
 		}
 
@@ -62,8 +80,8 @@ class Subscriber
 
 		$extra = $property->getExtra();
 
+		// TODO: refactor - foreign key handling is not yet supported.
 		/*
-		 * TODO refactor
 		if (isset($arrFieldConfig['foreignKey']))
 		{
 			$temp = array();
@@ -93,41 +111,46 @@ class Subscriber
 			{
 				if (is_array($vv))
 				{
-					$vals = array_values($vv);
+					$vals       = array_values($vv);
 					$value[$kk] = $vals[0] . ' (' . $vals[1] . ')';
 				}
 			}
 
 			$event->setRendered(implode(', ', $value));
 		}
-		// Date Formate
-		else if ($extra['rgxp'] == 'date')
+		// Date format.
+		elseif ($extra['rgxp'] == 'date')
 		{
 			$event->setRendered(BackendBindings::parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $value));
 		}
-		// Date Formate
-		else if ($extra['rgxp'] == 'time')
+		// Time format.
+		elseif ($extra['rgxp'] == 'time')
 		{
 			$event->setRendered(BackendBindings::parseDate($GLOBALS['TL_CONFIG']['timeFormat'], $value));
 		}
-		// Date Formate
-		else if (
-			$extra['rgxp'] == 'datim' ||
-			in_array($property->getGroupingMode(), array(ListingConfigInterface::GROUP_DAY, ListingConfigInterface::GROUP_MONTH, ListingConfigInterface::GROUP_YEAR)) ||
+		// Date and time format.
+		elseif ($extra['rgxp'] == 'datim' ||
+			in_array(
+				$property->getGroupingMode(),
+				array(
+					ListingConfigInterface::GROUP_DAY,
+					ListingConfigInterface::GROUP_MONTH,
+					ListingConfigInterface::GROUP_YEAR)
+			) ||
 			$property->getName() == 'tstamp'
 		) {
 			$event->setRendered(BackendBindings::parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $value));
 		}
-		else if ($property->getWidgetType() == 'checkbox' && !$extra['multiple'])
+		elseif ($property->getWidgetType() == 'checkbox' && !$extra['multiple'])
 		{
 			$event->setRendered(strlen($value) ? $GLOBALS['TL_LANG']['MSC']['yes'] : $GLOBALS['TL_LANG']['MSC']['no']);
 		}
-		else if ($property->getWidgetType() == 'textarea' && ($extra['allowHtml'] || $extra['preserveTags']))
+		elseif ($property->getWidgetType() == 'textarea' && ($extra['allowHtml'] || $extra['preserveTags']))
 		{
 			$event->setRendered(nl2br_html5(specialchars($value)));
 		}
+		// TODO: refactor - reference handling is not yet supported.
 		/**
-		 * TODO refactor
 		else if (is_array($arrFieldConfig['reference']))
 		{
 			return isset($arrFieldConfig['reference'][$mixModelField]) ?
@@ -137,12 +160,13 @@ class Subscriber
 				$mixModelField;
 		}
 		 */
-		else if (array_is_assoc($property->getOptions()))
+		elseif (array_is_assoc($property->getOptions()))
 		{
 			$options = $property->getOptions();
 			$event->setRendered($options[$value]);
 		}
-		else if ($value instanceof \DateTime) {
+		elseif ($value instanceof \DateTime)
+		{
 			$event->setRendered(BackendBindings::parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $value->getTimestamp()));
 		}
 	}
