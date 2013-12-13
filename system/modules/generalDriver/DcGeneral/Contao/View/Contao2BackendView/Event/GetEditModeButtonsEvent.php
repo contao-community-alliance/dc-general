@@ -12,8 +12,17 @@
 
 namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
+/**
+ * Class GetEditModeButtonsEvent.
+ *
+ * This event gets issued to retrieve the buttons to be displayed in when in edit mode on the very bottom.
+ *
+ * These buttons include, but are not limited to, save, save and close, save and back, ...
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView\Event
+ */
 class GetEditModeButtonsEvent
 	extends BaseGetButtonsEvent
 {
-    const NAME = 'dc-general.view.contao2backend.get-edit-mode-buttons';
+	const NAME = 'dc-general.view.contao2backend.get-edit-mode-buttons';
 }
