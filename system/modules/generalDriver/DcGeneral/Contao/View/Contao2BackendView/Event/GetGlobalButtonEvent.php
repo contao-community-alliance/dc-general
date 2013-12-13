@@ -12,28 +12,45 @@
 
 namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
+/**
+ * Class GetGlobalButtonEvent.
+ *
+ * This event gets issued when the top level buttons in the listing view are being retrieved.
+ *
+ * These buttons include, but are not limited to, the "back" button and the "edit multiple" button.
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView\Event
+ */
 class GetGlobalButtonEvent
 	extends BaseButtonEvent
 {
-    const NAME = 'dc-general.view.contao2backend.get-global-button';
+	const NAME = 'dc-general.view.contao2backend.get-global-button';
 
 	/**
+	 * The hotkey for the button.
+	 *
 	 * @var string
 	 */
 	protected $accessKey;
 
 	/**
+	 * The css class to use.
+	 *
 	 * @var string
 	 */
 	protected $class;
 
 	/**
+	 * The href to use.
+	 *
 	 * @var string
 	 */
 	protected $href;
 
 	/**
-	 * @param string $accessKey
+	 * Set the hotkey for the button.
+	 *
+	 * @param string $accessKey The hotkey for the button.
 	 *
 	 * @return $this
 	 */
@@ -45,6 +62,8 @@ class GetGlobalButtonEvent
 	}
 
 	/**
+	 * Get the hotkey for the button.
+	 *
 	 * @return string
 	 */
 	public function getAccessKey()
@@ -53,7 +72,9 @@ class GetGlobalButtonEvent
 	}
 
 	/**
-	 * @param string $class
+	 * Set the css class for this button.
+	 *
+	 * @param string $class The css class.
 	 *
 	 * @return $this
 	 */
@@ -65,6 +86,8 @@ class GetGlobalButtonEvent
 	}
 
 	/**
+	 * Get the css class for this button.
+	 *
 	 * @return string
 	 */
 	public function getClass()
@@ -73,7 +96,9 @@ class GetGlobalButtonEvent
 	}
 
 	/**
-	 * @param string $href
+	 * Set the href for this button.
+	 *
+	 * @param string $href The href.
 	 *
 	 * @return $this
 	 */
@@ -85,30 +110,12 @@ class GetGlobalButtonEvent
 	}
 
 	/**
+	 * Get the href for this button.
+	 *
 	 * @return string
 	 */
 	public function getHref()
 	{
 		return $this->href;
-	}
-
-	/**
-	 * @param string $key
-	 *
-	 * @return $this
-	 */
-	public function setKey($key)
-	{
-		$this->key = $key;
-
-		return $this;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getKey()
-	{
-		return $this->key;
 	}
 }
