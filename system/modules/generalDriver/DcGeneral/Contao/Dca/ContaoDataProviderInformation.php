@@ -14,6 +14,13 @@ namespace DcGeneral\Contao\Dca;
 
 use DcGeneral\DataDefinition\DataProviderInformation;
 
+/**
+ * Class ContaoDataProviderInformation.
+ *
+ * This Information holds the details of a Contao data provider definition.
+ *
+ * @package DcGeneral\Contao\Dca
+ */
 class ContaoDataProviderInformation extends DataProviderInformation
 {
 	/**
@@ -40,7 +47,7 @@ class ContaoDataProviderInformation extends DataProviderInformation
 	/**
 	 * Set the table name of the data provider.
 	 *
-	 * @param $tableName
+	 * @param string $tableName The name of the table in the database.
 	 *
 	 * @return ContaoDataProviderInformation
 	 */
@@ -64,7 +71,7 @@ class ContaoDataProviderInformation extends DataProviderInformation
 	/**
 	 * Set the data provider class to use, defaults to 'DcGeneral\Data\DefaultDriver'.
 	 *
-	 * @param string $className
+	 * @param string $className The name of the data provider class to use.
 	 *
 	 * @return ContaoDataProviderInformation
 	 */
@@ -88,7 +95,9 @@ class ContaoDataProviderInformation extends DataProviderInformation
 	/**
 	 * Set the data to use for initialization of the data provider.
 	 *
-	 * @param mixed $initializationData
+	 * The nature of this data is subject to the concrete implementation of the driver defined as the class to use.
+	 *
+	 * @param mixed $initializationData The initialization data the driver class expects.
 	 *
 	 * @return ContaoDataProviderInformation
 	 */
