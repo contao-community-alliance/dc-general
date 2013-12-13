@@ -14,6 +14,14 @@ namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
 use DcGeneral\Event\AbstractModelAwareEvent;
 
+/**
+ * Class EditModelBeforeSaveEvent.
+ *
+ * This event gets issued just before a model will get passed to the data provider for saving.
+ * You can subscribe to it to manipulate the model just before saving to the data provider.
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView\Event
+ */
 class EditModelBeforeSaveEvent
 	extends AbstractModelAwareEvent
 {
