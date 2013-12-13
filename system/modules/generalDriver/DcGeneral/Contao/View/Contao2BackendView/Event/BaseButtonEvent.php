@@ -44,7 +44,7 @@ class BaseButtonEvent
 	protected $html;
 
 	/**
-	 * The key of the button.
+	 * The key/name of the button.
 	 *
 	 * @var string
 	 */
@@ -115,9 +115,9 @@ class BaseButtonEvent
 	}
 
 	/**
-	 * Set the action key (hotkey) for the button.
+	 * Set the key/name for the button.
 	 *
-	 * @param string $key The hotkey to use.
+	 * @param string $key The key/name to use.
 	 *
 	 * @return $this
 	 */
@@ -129,7 +129,7 @@ class BaseButtonEvent
 	}
 
 	/**
-	 * Get the action key (hotkey) for the button.
+	 * Get the action key/name for the button.
 	 *
 	 * @return string
 	 */
