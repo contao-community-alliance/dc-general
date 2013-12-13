@@ -42,7 +42,8 @@ abstract class DcaReadingDataDefinitionBuilder extends AbstractEventDrivenDataDe
 		{
 			$this->dca = $GLOBALS['TL_DCA'][$dcaName];
 		}
-		$GLOBALS['TL_DCA']  = $previousDca;
+
+		$GLOBALS['TL_DCA'] = $previousDca;
 		unset($GLOBALS['loadDataContainer'][$dcaName]);
 
 		return $this->dca !== null;
@@ -51,7 +52,7 @@ abstract class DcaReadingDataDefinitionBuilder extends AbstractEventDrivenDataDe
 	/**
 	 * Read the specified sub path from the dca.
 	 *
-	 * @param string $path
+	 * @param string $path The path from the Dca to read.
 	 *
 	 * @return mixed
 	 *
