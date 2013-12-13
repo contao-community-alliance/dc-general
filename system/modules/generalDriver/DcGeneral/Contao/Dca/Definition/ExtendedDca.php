@@ -14,6 +14,14 @@ namespace DcGeneral\Contao\Dca\Definition;
 
 use DcGeneral\DataDefinition\Definition\DefinitionInterface;
 
+/**
+ * Class ExtendedDca.
+ *
+ * This interface holds information that extends the default DC_Table compatible definition.
+ * It holds reference of which classes to use for the controller, the view and the callbacks.
+ *
+ * @package DcGeneral\Contao\Dca\Definition
+ */
 class ExtendedDca implements DefinitionInterface
 {
 	const NAME = 'extended-dca';
@@ -42,7 +50,13 @@ class ExtendedDca implements DefinitionInterface
 	protected $viewClass;
 
 	/**
-	 * @param string $callbackClass
+	 * Set the callback class to use.
+	 *
+	 * @param string $callbackClass The class name.
+	 *
+	 * @return void
+	 *
+	 * @deprecated This method is deprecated as the callback system has been replaced by the event driven approach.
 	 */
 	public function setCallbackClass($callbackClass)
 	{
@@ -50,7 +64,11 @@ class ExtendedDca implements DefinitionInterface
 	}
 
 	/**
+	 * Get the callback class to use.
+	 *
 	 * @return string
+	 *
+	 * @deprecated This method is deprecated as the callback system has been replaced by the event driven approach.
 	 */
 	public function getCallbackClass()
 	{
@@ -58,7 +76,11 @@ class ExtendedDca implements DefinitionInterface
 	}
 
 	/**
-	 * @param string $controllerClass
+	 * Set the class name of the controller class.
+	 *
+	 * @param string $controllerClass The class name.
+	 *
+	 * @return void
 	 */
 	public function setControllerClass($controllerClass)
 	{
@@ -66,6 +88,8 @@ class ExtendedDca implements DefinitionInterface
 	}
 
 	/**
+	 * Get the class name of the controller class.
+	 *
 	 * @return string
 	 */
 	public function getControllerClass()
@@ -74,7 +98,11 @@ class ExtendedDca implements DefinitionInterface
 	}
 
 	/**
-	 * @param string $viewClass
+	 * Set the class name of the view class.
+	 *
+	 * @param string $viewClass The class name.
+	 *
+	 * @return void
 	 */
 	public function setViewClass($viewClass)
 	{
@@ -82,6 +110,8 @@ class ExtendedDca implements DefinitionInterface
 	}
 
 	/**
+	 * Get the class name of the view class.
+	 *
 	 * @return string
 	 */
 	public function getViewClass()
