@@ -14,18 +14,33 @@ namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
 use DcGeneral\Event\AbstractEnvironmentAwareEvent;
 
+/**
+ * Class BaseGetButtonsEvent.
+ *
+ * Base event for retrieving buttons. This event is not being emitted anywhere as it is only a base class for other
+ * events.
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView\Event
+ */
 class BaseGetButtonsEvent
 	extends AbstractEnvironmentAwareEvent
 {
-    const NAME = 'dc-general.view.contao2backend.get-buttons';
+	/**
+	 * The name of the event.
+	 */
+	const NAME = 'dc-general.view.contao2backend.get-buttons';
 
 	/**
+	 * The list of buttons.
+	 *
 	 * @var string[]
 	 */
 	protected $buttons;
 
 	/**
-	 * @param \string[] $buttons
+	 * Set the list of buttons.
+	 *
+	 * @param string[] $buttons The buttons to be returned.
 	 *
 	 * @return $this
 	 */
@@ -37,7 +52,9 @@ class BaseGetButtonsEvent
 	}
 
 	/**
-	 * @return \string[]
+	 * Get the list of buttons.
+	 *
+	 * @return string[]
 	 */
 	public function getButtons()
 	{
