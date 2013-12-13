@@ -17,6 +17,7 @@ use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInter
 use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
 use DcGeneral\Contao\Dca\Definition\ExtendedDca;
 use DcGeneral\DataDefinition\ContainerInterface;
+use DcGeneral\DataDefinition\Definition\DataProviderDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\DefaultDataProviderDefinition;
 use DcGeneral\DataDefinition\Definition\DefaultModelRelationshipDefinition;
 use DcGeneral\DataDefinition\Definition\DefaultPalettesDefinition;
@@ -39,8 +40,6 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 {
 	const PRIORITY = 100;
 
-	protected $dca;
-
 	/**
 	 * {@inheritdoc}
 	 */
@@ -51,7 +50,6 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 			return;
 		}
 
-		// TODO parse $localDca variable into $container
 		$this->parseDataProvider($container);
 		$this->parsePalettes($container);
 		$this->parseConditions($container);
@@ -59,6 +57,15 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 		$this->loadAdditionalDefinitions($container, $event);
 	}
 
+	/**
+	 * Load all additional definitions, like naming of parent data provider etc.
+	 *
+	 * @param ContainerInterface       $container The container where the data shall be stored.
+	 *
+	 * @param BuildDataDefinitionEvent $event     The event being emitted.
+	 *
+	 * @return void
+	 */
 	protected function loadAdditionalDefinitions(ContainerInterface $container, BuildDataDefinitionEvent $event)
 	{
 		if (($providers = $this->getFromDca('dca_config/data_provider')) !== null)
@@ -68,8 +75,8 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 				function (PopulateEnvironmentEvent $event) {
 					$environment = $event->getEnvironment();
 					$definition  = $environment->getDataDefinition();
-
 					$parentName  = $definition->getBasicDefinition()->getParentDataProvider();
+
 					if ($parentName)
 					{
 						$factory          = DcGeneralFactory::deriveEmptyFromEnvironment($environment)->setContainerName($parentName);
@@ -85,16 +92,24 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 						$factory        = DcGeneralFactory::deriveEmptyFromEnvironment($environment)->setContainerName($rootName);
 						$rootDefinition = $factory->createContainer();
 
-						// $environment->setRootDataDefinition($rootDefinition);
+						$environment->setRootDataDefinition($rootDefinition);
 					}
 				}
 			);
 		}
 	}
 
+	/**
+	 * Parse all class names for view, controller and callback class.
+	 *
+	 * @param ContainerInterface $container The container where the data shall be stored.
+	 *
+	 * @return void
+	 *
+	 * @throws DcGeneralInvalidArgumentException When the container is of invalid type.
+	 */
 	protected function parseClassNames(ContainerInterface $container)
 	{
-		// parse data provider
 		if ($container->hasDefinition(ExtendedDca::NAME))
 		{
 			$definition = $container->getDefinition(ExtendedDca::NAME);
@@ -136,15 +151,72 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 	}
 
 	/**
+	 * Parse a single data provider information and prepare the definition object for it.
+	 *
+	 * @param ContainerInterface              $container   The container where the data shall be stored.
+	 *
+	 * @param DataProviderDefinitionInterface $providers   The data provider container.
+	 *
+	 * @param array                           $information The information for the data provider to be parsed.
+	 *
+	 * @return ContaoDataProviderInformation|null
+	 */
+	protected function parseSingleDataProvider(
+		ContainerInterface $container,
+		DataProviderDefinitionInterface $providers,
+		array $information
+	)
+	{
+		if (isset($information['factory']))
+		{
+			$factoryClass        = new \ReflectionClass($information['factory']);
+			$factory             = $factoryClass->newInstance();
+			$providerInformation = $factory->build($information);
+		}
+		else
+		{
+			// Determine the name.
+			if (isset($information['source']))
+			{
+				$providerName = $information['source'];
+			}
+			else
+			{
+				$providerName = $container->getName();
+			}
+
+			// Check config if it already exists, if not, add it.
+			if (!$providers->hasInformation($providerName))
+			{
+				$providerInformation = new ContaoDataProviderInformation();
+				$providerInformation->setName($providerName);
+				$providers->addInformation($providerInformation);
+			}
+			else
+			{
+				$providerInformation = $providers->getInformation($providerName);
+			}
+
+			if (!$providerInformation->getTableName())
+			{
+				$providerInformation
+					->setTableName($providerName);
+			}
+		}
+
+		return $providerInformation;
+	}
+
+	/**
 	 * This method parses all data provider related information from Contao legacy data container arrays.
 	 *
-	 * @param ContainerInterface $container
+	 * @param ContainerInterface $container The container where the data shall be stored.
 	 *
 	 * @return void
 	 */
 	protected function parseDataProvider(ContainerInterface $container)
 	{
-		// parse data provider
+		// Parse data provider.
 		if ($container->hasDataProviderDefinition())
 		{
 			$config = $container->getDataProviderDefinition();
@@ -165,39 +237,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
 		foreach ($dataProvidersDca as $dataProviderDcaName => $dataProviderDca)
 		{
-			if (isset($dataProviderDca['factory'])) {
-				$factoryClass = new \ReflectionClass($dataProviderDca['factory']);
-				$factory = $factoryClass->newInstance();
-				$providerInformation = $factory->build($dataProviderDca);
-			}
-			else {
-				// Determine the name.
-				if (isset($dataProviderDca['source']))
-				{
-					$providerName = $dataProviderDca['source'];
-				}
-				else
-				{
-					$providerName = $container->getName();
-				}
-
-				// Check config if it already exists, if not, add it.
-				if (!$config->hasInformation($providerName))
-				{
-					$providerInformation = new ContaoDataProviderInformation();
-					$providerInformation->setName($providerName);
-					$config->addInformation($providerInformation);
-				}
-				else
-				{
-					$providerInformation = $config->getInformation($providerName);
-				}
-
-				if (!$providerInformation->getTableName()) {
-					$providerInformation
-						->setTableName($providerName);
-				}
-			}
+			$providerInformation = $this->parseSingleDataProvider($container, $config, $dataProviderDca);
 
 			if ($providerInformation instanceof ContaoDataProviderInformation)
 			{
@@ -205,15 +245,16 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 				$providerInformation
 					->setInitializationData($dataProviderDca);
 
-				if (isset($dataProviderDca['class'])) {
-					$providerInformation->setClassName($dataProviderDca['class']);
+				if (isset($information['class']))
+				{
+					$providerInformation->setClassName($information['class']);
 				}
 
-				// TODO: add additional information here.
-				switch ($dataProviderDcaName) {
+				switch ($dataProviderDcaName)
+				{
 					case 'default':
 						$providerInformation->setVersioningEnabled(
-							(bool) $this->getFromDca('config/enableVersioning')
+							(bool)$this->getFromDca('config/enableVersioning')
 						);
 
 						$container->getBasicDefinition()->setDataProvider($providerInformation->getName());
@@ -226,17 +267,27 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 					case 'parent':
 						$container->getBasicDefinition()->setParentDataProvider($providerInformation->getName());
 						break;
+
+					default:
 				}
 			}
 		}
 	}
 
+	/**
+	 * Parse the palette information.
+	 *
+	 * @param ContainerInterface $container The container where the data shall be stored.
+	 *
+	 * @return void
+	 */
 	protected function parsePalettes(ContainerInterface $container)
 	{
 		$palettesDca = $this->getFromDca('palettes');
 
-		// skip while there is no extended palette definition
-		if (!is_callable($palettesDca)) {
+		// Skip while there is no extended palette definition.
+		if (!is_callable($palettesDca))
+		{
 			return;
 		}
 
@@ -253,6 +304,17 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 		call_user_func($palettesDca, $palettesDefinition, $container);
 	}
 
+	/**
+	 * Parse the conditions for model relationships from the definition.
+	 *
+	 * This includes root entry filters, parent child relationship.
+	 *
+	 * @param ContainerInterface $container The container where the data shall be stored.
+	 *
+	 * @return void
+	 *
+	 * @throws DcGeneralRuntimeException If any information is missing or invalid.
+	 */
 	protected function parseConditions(ContainerInterface $container)
 	{
 		if ($container->hasDefinition(ModelRelationshipDefinitionInterface::NAME))
@@ -271,7 +333,9 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
 			if (!$rootProvider)
 			{
-				throw new DcGeneralRuntimeException('Root data provider name not specified in DCA but rootEntries section specified.');
+				throw new DcGeneralRuntimeException(
+					'Root data provider name not specified in DCA but rootEntries section specified.'
+				);
 			}
 
 			if (!$container->getDataProviderDefinition()->hasInformation($rootProvider))
@@ -294,15 +358,17 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 				}
 				else
 				{
+					/** @var \DcGeneral\DataDefinition\ModelRelationship\RootConditionInterface $relationship */
 					if ($relationship->getSetters())
 					{
 						$setter = array_merge_recursive($mySetter, $relationship->getSetters());
 					}
-					else{
+					else
+					{
 						$setter = $mySetter;
 					}
-					$filter   = array_merge($relationship->getFilterArray(), $myFilter);
-					$filter   = array(
+					$filter = array_merge($relationship->getFilterArray(), $myFilter);
+					$filter = array(
 						'operation' => 'AND',
 						'children' => array($filter)
 					);
@@ -318,9 +384,10 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
 		if (($childConditions = $this->getFromDca('dca_config/childCondition')) !== null)
 		{
-			foreach ((array) $childConditions as $childCondition)
+			foreach ((array)$childConditions as $childCondition)
 			{
 				$relationship = new ParentChildCondition();
+				/** @var \DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface $relationship */
 				$relationship
 					->setSourceName($childCondition['from'])
 					->setDestinationName($childCondition['to'])
@@ -335,11 +402,13 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 	/**
 	 * Parse and build the backend view definition for the old Contao2 backend view.
 	 *
-	 * @param ContainerInterface $container
+	 * This method expects to find an instance of Contao2BackendViewDefinitionInterface in the container.
+	 *
+	 * @param ContainerInterface $container The container where the data shall be stored.
 	 *
 	 * @return void
 	 *
-	 * @throws DcGeneralInvalidArgumentException
+	 * @throws DcGeneralInvalidArgumentException If the stored definition in the container is of invalid type.
 	 */
 	protected function parseBackendView(ContainerInterface $container)
 	{
@@ -355,47 +424,36 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
 		if (!$view instanceof Contao2BackendViewDefinitionInterface)
 		{
-			throw new DcGeneralInvalidArgumentException('Configured BackendViewDefinition does not implement Contao2BackendViewDefinitionInterface.');
+			throw new DcGeneralInvalidArgumentException(
+				'Configured BackendViewDefinition does not implement Contao2BackendViewDefinitionInterface.'
+			);
 		}
 
-		$this->parseListing($container, $view);
+		$this->parseListing($view);
 	}
 
 	/**
 	 * Parse the listing configuration.
 	 *
-	 * @param ContainerInterface                    $container
-	 *
-	 * @param Contao2BackendViewDefinitionInterface $view
+	 * @param Contao2BackendViewDefinitionInterface $view The backend view definition.
 	 *
 	 * @return void
 	 */
-	protected function parseListing(ContainerInterface $container, Contao2BackendViewDefinitionInterface $view)
+	protected function parseListing(Contao2BackendViewDefinitionInterface $view)
 	{
 		$listing = $view->getListingConfig();
 
-		$listDca = $this->getFromDca('list');
-
-		// cancel if no list configuration found
-		if (!$listDca) {
-			return;
-		}
-
-		$this->parseListLabel($container, $listing, $listDca);
+		$this->parseListLabel($listing);
 	}
 
 	/**
 	 * Parse the sorting part of listing configuration.
 	 *
-	 * @param \DcGeneral\DataDefinition\ContainerInterface $container
-	 *
-	 * @param ListingConfigInterface                       $listing
-	 *
-	 * @param array                                        $listDca
+	 * @param ListingConfigInterface $listing The listing configuration to be populated.
 	 *
 	 * @return void
 	 */
-	protected function parseListLabel(ContainerInterface $container, ListingConfigInterface $listing, array $listDca)
+	protected function parseListLabel(ListingConfigInterface $listing)
 	{
 		if (($formats = $this->getFromDca('dca_config/child_list')) === null)
 		{
@@ -407,22 +465,26 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 			$formatter  = new DefaultModelFormatterConfig();
 			$configured = false;
 
-			if (isset($format['fields'])) {
+			if (isset($format['fields']))
+			{
 				$formatter->setPropertyNames($format['fields']);
 				$configured = true;
 			}
 
-			if (isset($format['format'])) {
+			if (isset($format['format']))
+			{
 				$formatter->setFormat($format['format']);
 				$configured = true;
 			}
 
-			if (isset($format['maxCharacters'])) {
+			if (isset($format['maxCharacters']))
+			{
 				$formatter->setMaxLength($format['maxCharacters']);
 				$configured = true;
 			}
 
-			if ($configured) {
+			if ($configured)
+			{
 				$listing->setLabelFormatter($providerName, $formatter);
 			}
 		}
