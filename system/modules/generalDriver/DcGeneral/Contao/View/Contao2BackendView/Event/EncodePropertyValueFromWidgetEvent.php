@@ -14,23 +14,37 @@ namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
 use DcGeneral\Event\AbstractModelAwareEvent;
 
+/**
+ * Class EncodePropertyValueFromWidgetEvent.
+ *
+ * This event is issued when a property value has to be converted from data understood by the widget into the native
+ * data (presented by the data provider).
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView\Event
+ */
 class EncodePropertyValueFromWidgetEvent
 	extends AbstractModelAwareEvent
 {
 	const NAME = 'dc-general.view.contao2backend.encode-property-value-from-widget';
 
 	/**
+	 * The name of the property for which the data shall be decoded.
+	 *
 	 * @var string
 	 */
 	protected $property;
 
 	/**
+	 * The value of the data.
+	 *
 	 * @var mixed
 	 */
 	protected $value;
 
 	/**
-	 * @param string $property
+	 * Set the name of the property.
+	 *
+	 * @param string $property The name of the property.
 	 *
 	 * @return DecodePropertyValueForWidgetEvent
 	 */
@@ -42,6 +56,8 @@ class EncodePropertyValueFromWidgetEvent
 	}
 
 	/**
+	 * Retrieve the name of the property.
+	 *
 	 * @return string
 	 */
 	public function getProperty()
@@ -50,7 +66,9 @@ class EncodePropertyValueFromWidgetEvent
 	}
 
 	/**
-	 * @param mixed $value
+	 * Set the value in the event.
+	 *
+	 * @param mixed $value The new value.
 	 *
 	 * @return DecodePropertyValueForWidgetEvent
 	 */
@@ -62,6 +80,8 @@ class EncodePropertyValueFromWidgetEvent
 	}
 
 	/**
+	 * Retrieve the value from the event.
+	 *
 	 * @return mixed
 	 */
 	public function getValue()
