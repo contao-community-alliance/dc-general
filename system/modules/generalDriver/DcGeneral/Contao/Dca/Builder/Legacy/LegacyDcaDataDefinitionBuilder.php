@@ -60,6 +60,7 @@ use DcGeneral\DataDefinition\Definition\Properties\DefaultProperty;
 use DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\DefaultPropertiesDefinition;
+use DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\View\Command;
 use DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use DcGeneral\DataDefinition\Definition\View\DefaultModelFormatterConfig;
@@ -69,6 +70,8 @@ use DcGeneral\DataDefinition\Definition\View\Panel\DefaultLimitElementInformatio
 use DcGeneral\DataDefinition\Definition\View\Panel\DefaultSearchElementInformation;
 use DcGeneral\DataDefinition\Definition\View\Panel\DefaultSortElementInformation;
 use DcGeneral\DataDefinition\Definition\View\Panel\DefaultSubmitElementInformation;
+use DcGeneral\DataDefinition\Definition\View\Panel\SubmitElementInformationInterface;
+use DcGeneral\DataDefinition\Definition\View\PanelRowInterface;
 use DcGeneral\DataDefinition\ModelRelationship\RootCondition;
 use DcGeneral\Event\PostDeleteModelEvent;
 use DcGeneral\Event\PostDuplicateModelEvent;
@@ -88,8 +91,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 {
 	const PRIORITY = 100;
-
-	protected $dca;
 
 	/**
 	 * {@inheritDoc}
@@ -112,6 +113,18 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		$this->loadAdditionalDefinitions($container, $event);
 	}
 
+	/**
+	 * Load additional definitions, like naming of parent data provider.
+	 *
+	 * This method will register an event to the populate environment event in which the parent data provider container
+	 * will get loaded.
+	 *
+	 * @param ContainerInterface       $container The container where the data shall be stored.
+	 *
+	 * @param BuildDataDefinitionEvent $event     The event being emitted.
+	 *
+	 * @return void
+	 */
 	protected function loadAdditionalDefinitions(ContainerInterface $container, BuildDataDefinitionEvent $event)
 	{
 		if ($this->getFromDca('config/ptable'))
@@ -134,9 +147,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	/**
 	 * Parse the basic configuration and populate the definition.
 	 *
-	 * @param ContainerInterface       $container
+	 * @param ContainerInterface       $container  The container where the data shall be stored.
 	 *
-	 * @param EventDispatcherInterface $dispatcher
+	 * @param EventDispatcherInterface $dispatcher The event dispatcher in use.
 	 *
 	 * @return void
 	 */
@@ -144,8 +157,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	{
 		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/onload_callback')))
 		{
-			foreach ($callbacks as $callback) {
-				/** @noinspection PhpParamsInspection */
+			foreach ($callbacks as $callback)
+			{
 				$dispatcher->addListener(
 					sprintf('%s[%s]', CreateDcGeneralEvent::NAME, $container->getName()),
 					new ContainerOnLoadCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -155,8 +168,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/onsubmit_callback')))
 		{
-			foreach ($callbacks as $callback) {
-				/** @noinspection PhpParamsInspection */
+			foreach ($callbacks as $callback)
+			{
 				$dispatcher->addListener(
 					sprintf('%s[%s]', PostPersistModelEvent::NAME, $container->getName()),
 					new ContainerOnSubmitCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -166,8 +179,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/ondelete_callback')))
 		{
-			foreach ($callbacks as $callback) {
-				/** @noinspection PhpParamsInspection */
+			foreach ($callbacks as $callback)
+			{
 				$dispatcher->addListener(
 					sprintf('%s[%s]', PostDeleteModelEvent::NAME, $container->getName()),
 					new ContainerOnDeleteCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -177,8 +190,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/oncut_callback')))
 		{
-			foreach ($callbacks as $callback) {
-				/** @noinspection PhpParamsInspection */
+			foreach ($callbacks as $callback)
+			{
 				$dispatcher->addListener(
 					sprintf('%s[%s]', PostPasteModelEvent::NAME, $container->getName()),
 					new ContainerOnCutCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -188,8 +201,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/oncopy_callback')))
 		{
-			foreach ($callbacks as $callback) {
-				/** @noinspection PhpParamsInspection */
+			foreach ($callbacks as $callback)
+			{
 				$dispatcher->addListener(
 					sprintf('%s[%s]', PostDuplicateModelEvent::NAME, $container->getName()),
 					new ContainerOnCopyCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -199,7 +212,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/sorting/header_callback'))
 		{
-			/** @noinspection PhpParamsInspection */
 			$dispatcher->addListener(
 				sprintf('%s[%s]', GetParentHeaderEvent::NAME, $container->getName()),
 				new ContainerHeaderCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -208,12 +220,10 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/sorting/paste_button_callback'))
 		{
-			/** @noinspection PhpParamsInspection */
 			$dispatcher->addListener(
 				sprintf('%s[%s]', GetPasteRootButtonEvent::NAME, $container->getName()),
 				new ContainerPasteRootButtonCallbackListener($callback, $GLOBALS['objDcGeneral'])
 			);
-			/** @noinspection PhpParamsInspection */
 			$dispatcher->addListener(
 				sprintf('%s[%s]', GetPasteButtonEvent::NAME, $container->getName()),
 				new ContainerPasteButtonCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -222,7 +232,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/sorting/child_record_callback'))
 		{
-			/** @noinspection PhpParamsInspection */
 			$dispatcher->addListener(
 				sprintf('%s[%s]', ParentViewChildRecordEvent::NAME, $container->getName()),
 				new ModelChildRecordCallbackListener($callback)
@@ -231,7 +240,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/label/group_callback'))
 		{
-			/** @noinspection PhpParamsInspection */
 			$dispatcher->addListener(
 				sprintf('%s[%s]', GetGroupHeaderEvent::NAME, $container->getName()),
 				new ModelGroupCallbackListener($callback)
@@ -240,21 +248,21 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/label/label_callback'))
 		{
-			/** @noinspection PhpParamsInspection */
 			$dispatcher->addListener(
 				sprintf('%s[%s]', ModelToLabelEvent::NAME, $container->getName()),
 				new ModelLabelCallbackListener($callback, $GLOBALS['objDcGeneral'])
 			);
 		}
 
-		if (isset($GLOBALS['objDcGeneral'])) {
-			if (is_array($operations = $this->getFromDca('global_operations'))) {
+		if (isset($GLOBALS['objDcGeneral']))
+		{
+			if (is_array($operations = $this->getFromDca('global_operations')))
+			{
 				foreach ($operations as $operationName => $operationInfo)
 				{
 					if (isset($operationInfo['button_callback']))
 					{
 						$callback = $operationInfo['button_callback'];
-						/** @noinspection PhpParamsInspection */
 						$dispatcher->addListener(
 							sprintf('%s[%s][%s]', GetGlobalButtonEvent::NAME, $container->getName(), $operationName),
 							new ContainerGlobalButtonCallbackListener($callback)
@@ -264,14 +272,15 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			}
 		}
 
-		if (isset($GLOBALS['objDcGeneral'])) {
-			if (is_array($operations = $this->getFromDca('operations'))) {
+		if (isset($GLOBALS['objDcGeneral']))
+		{
+			if (is_array($operations = $this->getFromDca('operations')))
+			{
 				foreach ($operations as $operationName => $operationInfo)
 				{
 					if (isset($operationInfo['button_callback']))
 					{
 						$callback = $operationInfo['button_callback'];
-						/** @noinspection PhpParamsInspection */
 						$dispatcher->addListener(
 							sprintf('%s[%s][%s]', GetOperationButtonEvent::NAME, $container->getName(), $operationName),
 							new ModelOperationButtonCallbackListener($callback)
@@ -281,13 +290,14 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			}
 		}
 
-		if (isset($GLOBALS['objDcGeneral'])) {
+		if (isset($GLOBALS['objDcGeneral']))
+		{
 			foreach ($this->getFromDca('fields') as $propName => $propInfo)
 			{
 				if (isset($propInfo['load_callback']))
 				{
-					foreach ($propInfo['load_callback'] as $callback) {
-						/** @noinspection PhpParamsInspection */
+					foreach ($propInfo['load_callback'] as $callback)
+					{
 						$dispatcher->addListener(
 							DecodePropertyValueForWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
 							new PropertyOnLoadCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -297,8 +307,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 				if (isset($propInfo['save_callback']))
 				{
-					foreach ($propInfo['save_callback'] as $callback) {
-						/** @noinspection PhpParamsInspection */
+					foreach ($propInfo['save_callback'] as $callback)
+					{
 						$dispatcher->addListener(
 							EncodePropertyValueFromWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
 							new PropertyOnSaveCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -309,7 +319,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 				if (isset($propInfo['options_callback']))
 				{
 					$callback = $propInfo['options_callback'];
-					/** @noinspection PhpParamsInspection */
 					$dispatcher->addListener(
 						GetPropertyOptionsEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
 						new ModelOptionsCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -319,7 +328,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 				if (isset($propInfo['input_field_callback']))
 				{
 					$callback = $propInfo['input_field_callback'];
-					/** @noinspection PhpParamsInspection */
 					$dispatcher->addListener(
 						BuildWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
 						new PropertyInputFieldCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -329,7 +337,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 				if (isset($propInfo['wizard']))
 				{
 					$callback = $propInfo['wizard'];
-					/** @noinspection PhpParamsInspection */
 					$dispatcher->addListener(
 						ManipulateWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
 						new PropertyInputFieldGetWizardCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -338,8 +345,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			}
 		}
 
-		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/presentation/breadcrumb_callback')) {
-			/** @noinspection PhpParamsInspection */
+		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/presentation/breadcrumb_callback'))
+		{
 			$dispatcher->addListener(
 				sprintf('%s[%s]', GetBreadcrumbEvent::NAME, $container->getName()),
 				new ContainerGetBreadcrumbCallbackListener($callback, $GLOBALS['objDcGeneral'])
@@ -348,52 +355,57 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	}
 
 	/**
-	 * Parse the basic configuration and populate the definition.
+	 * Parse the mode, flat, parented or hierarchical.
 	 *
-	 * @param ContainerInterface $container
+	 * @param BasicDefinitionInterface $config The basic definition of the data definition.
 	 *
 	 * @return void
 	 */
-	protected function parseBasicDefinition(ContainerInterface $container)
+	protected function parseBasicMode(BasicDefinitionInterface $config)
 	{
-		// parse data provider
-		if ($container->hasBasicDefinition())
-		{
-			$config = $container->getBasicDefinition();
-		}
-		else
-		{
-			$config = new DefaultBasicDefinition();
-			$container->setBasicDefinition($config);
-		}
-
 		switch ($this->getFromDca('list/sorting/mode'))
 		{
-			case 0: // Records are not sorted
-			case 1: // Records are sorted by a fixed field
-			case 2: // Records are sorted by a switchable field
-			case 3: // Records are sorted by the parent table
+			case 0:
+				// Records are not sorted.
+			case 1:
+				// Records are sorted by a fixed field.
+			case 2:
+				// Records are sorted by a switchable field.
+			case 3:
+				// Records are sorted by the parent table.
 				$config->setMode(BasicDefinitionInterface::MODE_FLAT);
 				break;
-			case 4: // Displays the child records of a parent record (see style sheets module)
+			case 4:
+				// Displays the child records of a parent record (see style sheets module).
 				$config->setMode(BasicDefinitionInterface::MODE_PARENTEDLIST);
 				break;
-			case 5: // Records are displayed as tree (see site structure)
-			case 6: // Displays the child records within a tree structure (see articles module)
+			case 5:
+				// Records are displayed as tree (see site structure).
+			case 6:
+				// Displays the child records within a tree structure (see articles module).
 				$config->setMode(BasicDefinitionInterface::MODE_HIERARCHICAL);
 				break;
 			default:
 		}
+	}
 
-		// TODO need to be documented or moved
+	/**
+	 * Parse the basic flags.
+	 *
+	 * @param BasicDefinitionInterface $config The basic definition of the data definition.
+	 *
+	 * @return void
+	 */
+	protected function parseBasicFlags(BasicDefinitionInterface $config)
+	{
 		if (($switchToEdit = $this->getFromDca('config/switchToEdit')) !== null)
 		{
-			$config->setSwitchToEditEnabled((bool) $switchToEdit);
+			$config->setSwitchToEditEnabled((bool)$switchToEdit);
 		}
 
 		if (($value = $this->getFromDca('config/closed')) !== null)
 		{
-			$config->setClosed((bool) $value);
+			$config->setClosed((bool)$value);
 		}
 
 		if (($value = $this->getFromDca('config/notEditable')) !== null)
@@ -408,8 +420,32 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if (($value = $this->getFromDca('config/notCreatable')) !== null)
 		{
-			$config->setCreatable(!(bool) $value);
+			$config->setCreatable(!(bool)$value);
 		}
+	}
+
+	/**
+	 * Parse the basic configuration and populate the definition.
+	 *
+	 * @param ContainerInterface $container The container where the data shall be stored.
+	 *
+	 * @return void
+	 */
+	protected function parseBasicDefinition(ContainerInterface $container)
+	{
+		// Parse data provider.
+		if ($container->hasBasicDefinition())
+		{
+			$config = $container->getBasicDefinition();
+		}
+		else
+		{
+			$config = new DefaultBasicDefinition();
+			$container->setBasicDefinition($config);
+		}
+
+		$this->parseBasicMode($config);
+		$this->parseBasicFlags($config);
 
 		if (($filters = $this->getFromDca('list/sorting/filter')) !== null)
 		{
@@ -418,16 +454,16 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 				$myFilters = array();
 				foreach ($filters as $filter)
 				{
-					// FIXME: this only takes array('name', 'value') into account. Add support for: array('name=?', 'value')
+					// FIXME: this only takes array('name', 'value') into account. Add support for: array('name=?', 'value').
 					$myFilters = array('operation' => '=', 'property' => $filter[0], 'value' => $filter[1]);
 				}
 				if ($config->hasAdditionalFilter())
 				{
 					$currentFilter = $config->getAdditionalFilter();
 					$currentFilter = array_merge($currentFilter, $myFilters);
-					$filter = array(
+					$filter        = array(
 						'operation' => 'AND',
-						'children' => array($currentFilter)
+						'children'  => array($currentFilter)
 					);
 				}
 				else
@@ -443,13 +479,12 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	/**
 	 * This method parses all data provider related information from Contao legacy data container arrays.
 	 *
-	 * @param ContainerInterface $container
+	 * @param ContainerInterface $container The container where the data shall be stored.
 	 *
 	 * @return void
 	 */
 	protected function parseDataProvider(ContainerInterface $container)
 	{
-		// parse data provider
 		if ($container->hasDataProviderDefinition())
 		{
 			$config = $container->getDataProviderDefinition();
@@ -515,22 +550,33 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	/**
 	 * This method parses the root entries definition.
 	 *
-	 * @param ContainerInterface $container
+	 * @param ContainerInterface $container The container where the data shall be stored.
 	 *
 	 * @return void
 	 */
 	protected function parseRootEntries(ContainerInterface $container)
 	{
-		// TODO to be implemented
+		// FIXME: to be implemented.
 	}
 
+	/**
+	 * Determine the root provider name from the container.
+	 *
+	 * @param ContainerInterface $container The container from where the name shall be retrieved.
+	 *
+	 * @return string
+	 *
+	 * @throws DcGeneralRuntimeException If the root provider can not be determined.
+	 */
 	protected function getRootProviderName(ContainerInterface $container)
 	{
 		$rootProvider = $container->getBasicDefinition()->getRootDataProvider();
 
 		if (!$rootProvider)
 		{
-			throw new DcGeneralRuntimeException('Root data provider name not specified in DCA but rootEntries section specified.');
+			throw new DcGeneralRuntimeException(
+				'Root data provider name not specified in DCA but rootEntries section specified.'
+			);
 		}
 
 		if (!$container->getDataProviderDefinition()->hasInformation($rootProvider))
@@ -544,7 +590,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	/**
 	 * This method parses the parent-child conditions.
 	 *
-	 * @param ContainerInterface $container
+	 * @param ContainerInterface $container The container where the data shall be stored.
 	 *
 	 * @return void
 	 */
@@ -614,11 +660,12 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	/**
 	 * Parse and build the backend view definition for the old Contao2 backend view.
 	 *
-	 * @param ContainerInterface $container
+	 * @param ContainerInterface $container The container where the data shall be stored.
 	 *
 	 * @return void
 	 *
-	 * @throws DcGeneralInvalidArgumentException
+	 * @throws DcGeneralInvalidArgumentException If the stored backend view definition does not implement the correct
+	 *                                           interface.
 	 */
 	protected function parseBackendView(ContainerInterface $container)
 	{
@@ -634,33 +681,34 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if (!$view instanceof Contao2BackendViewDefinitionInterface)
 		{
-			throw new DcGeneralInvalidArgumentException('Configured BackendViewDefinition does not implement Contao2BackendViewDefinitionInterface.');
+			throw new DcGeneralInvalidArgumentException(
+				'Configured BackendViewDefinition does not implement Contao2BackendViewDefinitionInterface.'
+			);
 		}
 
 		$this->parseListing($container, $view);
-		$this->parsePanel($container, $view);
-		$this->parseGlobalOperations($container, $view);
-		$this->parseModelOperations($container, $view);
+		$this->parsePanel($view);
+		$this->parseGlobalOperations($view);
+		$this->parseModelOperations($view);
 	}
 
 	/**
 	 * Parse the listing configuration.
 	 *
-	 * @param ContainerInterface                    $container
+	 * @param ContainerInterface                    $container The container where the data shall be stored.
 	 *
-	 * @param Contao2BackendViewDefinitionInterface $view
+	 * @param Contao2BackendViewDefinitionInterface $view      The view information for the backend view.
 	 *
 	 * @return void
 	 */
 	protected function parseListing(ContainerInterface $container, Contao2BackendViewDefinitionInterface $view)
 	{
-
 		$listing = $view->getListingConfig();
-
 		$listDca = $this->getFromDca('list');
 
-		// cancel if no list configuration found
-		if (!$listDca) {
+		// Cancel if no list configuration found.
+		if (!$listDca)
+		{
 			return;
 		}
 
@@ -671,30 +719,38 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	/**
 	 * Parse the sorting part of listing configuration.
 	 *
-	 * @param ListingConfigInterface $listing
+	 * NOTE: this method currently does NOT support the custom SQL sorting information as supported by DC_Table in
+	 * Contao.
 	 *
-	 * @param array                  $listDca
+	 * @param ListingConfigInterface $listing The listing configuration definition to populate.
+	 *
+	 * @param array                  $listDca The DCA part containing the information to use.
 	 *
 	 * @return void
 	 *
-	 * @throws DcGeneralRuntimeException
+	 * @throws DcGeneralRuntimeException In case unsupported values are encountered.
 	 */
 	protected function parseListSorting(ListingConfigInterface $listing, array $listDca)
 	{
 		$sortingDca = isset($listDca['sorting']) ? $listDca['sorting'] : array();
 
-		if (isset($sortingDca['flag'])) {
+		if (isset($sortingDca['flag']))
+		{
 			$this->evalFlag($listing, $sortingDca['flag']);
 		}
 
-		if (isset($sortingDca['fields'])) {
+		if (isset($sortingDca['fields']))
+		{
 			$fields = array();
 
-			foreach ($sortingDca['fields'] as $field) {
-				if (preg_match('~^(\w+)(?: (ASC|DESC))?$~', $field, $matches)) {
+			foreach ($sortingDca['fields'] as $field)
+			{
+				if (preg_match('~^(\w+)(?: (ASC|DESC))?$~', $field, $matches))
+				{
 					$fields[$matches[1]] = isset($matches[2]) ? $matches[2] : 'ASC';
 				}
-				else {
+				else
+				{
 					throw new DcGeneralRuntimeException('Custom SQL in sorting fields are currently unsupported');
 				}
 			}
@@ -702,19 +758,23 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			$listing->setDefaultSortingFields($fields);
 		}
 
-		if (isset($sortingDca['headerFields'])) {
-			$listing->setHeaderPropertyNames((array) $sortingDca['headerFields']);
+		if (isset($sortingDca['headerFields']))
+		{
+			$listing->setHeaderPropertyNames((array)$sortingDca['headerFields']);
 		}
 
-		if (isset($sortingDca['icon'])) {
+		if (isset($sortingDca['icon']))
+		{
 			$listing->setRootIcon($sortingDca['icon']);
 		}
 
-		if (isset($sortingDca['disableGrouping']) && $sortingDca['disableGrouping']) {
+		if (isset($sortingDca['disableGrouping']) && $sortingDca['disableGrouping'])
+		{
 			$listing->setGroupingMode(ListingConfigInterface::GROUP_NONE);
 		}
 
-		if (isset($sortingDca['child_record_class'])) {
+		if (isset($sortingDca['child_record_class']))
+		{
 			$listing->setItemCssClass($sortingDca['child_record_class']);
 		}
 	}
@@ -722,64 +782,215 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	/**
 	 * Parse the sorting part of listing configuration.
 	 *
-	 * @param \DcGeneral\DataDefinition\ContainerInterface $container
+	 * @param ContainerInterface     $container The container where the data shall be stored.
 	 *
-	 * @param ListingConfigInterface                       $listing
+	 * @param ListingConfigInterface $listing   The listing configuration definition to populate.
 	 *
-	 * @param array                                        $listDca
+	 * @param array                  $listDca   The DCA part containing the information to use.
 	 *
 	 * @return void
 	 */
 	protected function parseListLabel(ContainerInterface $container, ListingConfigInterface $listing, array $listDca)
 	{
 		$labelDca   = isset($listDca['label']) ? $listDca['label'] : array();
-
 		$formatter  = new DefaultModelFormatterConfig();
 		$configured = false;
 
-		if (isset($labelDca['fields'])) {
+		if (isset($labelDca['fields']))
+		{
 			$formatter->setPropertyNames($labelDca['fields']);
 			$configured = true;
 		}
 
-		if (isset($labelDca['format'])) {
+		if (isset($labelDca['format']))
+		{
 			$formatter->setFormat($labelDca['format']);
 			$configured = true;
 		}
 
-		if (isset($labelDca['maxCharacters'])) {
+		if (isset($labelDca['maxCharacters']))
+		{
 			$formatter->setMaxLength($labelDca['maxCharacters']);
 			$configured = true;
 		}
 
-		if ($configured) {
+		if ($configured)
+		{
 			$listing->setLabelFormatter($container->getBasicDefinition()->getDataProvider(), $formatter);
 		}
 
-		if (isset($labelDca['showColumns'])) {
+		if (isset($labelDca['showColumns']))
+		{
 			$listing->setShowColumns($labelDca['showColumns']);
+		}
+	}
+
+	/**
+	 * Add filter elements to the panel.
+	 *
+	 * @param PanelRowInterface $row The row to which the element shall get added to.
+	 *
+	 * @return void
+	 */
+	protected function parsePanelFilter(PanelRowInterface $row)
+	{
+		foreach ($this->getFromDca('fields') as $property => $value)
+		{
+			if (isset($value['filter']))
+			{
+				$element = new DefaultFilterElementInformation();
+				$element->setPropertyName($property);
+				if (!$row->hasElement($element->getName()))
+				{
+					$row->addElement($element);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Add sort element to the panel.
+	 *
+	 * @param PanelRowInterface $row The row to which the element shall get added to.
+	 *
+	 * @return void
+	 */
+	protected function parsePanelSort(PanelRowInterface $row)
+	{
+		if ($row->hasElement('sort'))
+		{
+			$element = $row->getElement('sort');
+		}
+		else
+		{
+			$element = new DefaultSortElementInformation();
+			$row->addElement($element);
+		}
+
+		foreach ($this->getFromDca('fields') as $property => $value)
+		{
+			if (isset($value['sorting']))
+			{
+				$element->addProperty($property, (int)$value['flag']);
+			}
+		}
+	}
+
+	/**
+	 * Add search element to the panel.
+	 *
+	 * @param PanelRowInterface $row The row to which the element shall get added to.
+	 *
+	 * @return void
+	 */
+	protected function parsePanelSearch(PanelRowInterface $row)
+	{
+		if ($row->hasElement('search'))
+		{
+			$element = $row->getElement('search');
+		}
+		else
+		{
+			$element = new DefaultSearchElementInformation();
+		}
+		foreach ($this->getFromDca('fields') as $property => $value)
+		{
+			if (isset($value['search']))
+			{
+				$element->addProperty($property);
+			}
+		}
+		if ($element->getPropertyNames() && !$row->hasElement('search'))
+		{
+			$row->addElement($element);
+		}
+	}
+
+	/**
+	 * Add  elements to the panel.
+	 *
+	 * @param PanelRowInterface $row The row to which the element shall get added to.
+	 *
+	 * @return void
+	 */
+	protected function parsePanelLimit(PanelRowInterface $row)
+	{
+		if (!$row->hasElement('limit'))
+		{
+			$row->addElement(new DefaultLimitElementInformation());
+		}
+	}
+
+	/**
+	 * Add  elements to the panel.
+	 *
+	 * @param PanelRowInterface $row The row to which the element shall get added to.
+	 *
+	 * @return void
+	 */
+	protected function parsePanelSubmit(PanelRowInterface $row)
+	{
+		if (!$row->hasElement('submit'))
+		{
+			$row->addElement(new DefaultSubmitElementInformation());
+		}
+	}
+
+	/**
+	 * Parse a single panel row.
+	 *
+	 * @param PanelRowInterface $row         The row to be populated.
+	 *
+	 * @param string            $elementList A comma separated list of elements to be stored in the row.
+	 *
+	 * @return void
+	 */
+	protected function parsePanelRow(PanelRowInterface $row, $elementList)
+	{
+		foreach (explode(',', $elementList) as $element)
+		{
+			switch ($element)
+			{
+				case 'filter':
+					$this->parsePanelFilter($row);
+					break;
+
+				case 'sort':
+					$this->parsePanelSort($row);
+					break;
+
+				case 'search':
+					$this->parsePanelSearch($row);
+					break;
+
+				case 'limit':
+					$this->parsePanelLimit($row);
+					break;
+
+				case 'submit':
+					$this->parsePanelSubmit($row);
+					break;
+
+				default:
+			}
 		}
 	}
 
 	/**
 	 * Parse the defined palettes and populate the definition.
 	 *
-	 * @param ContainerInterface                    $container
-	 *
-	 * @param Contao2BackendViewDefinitionInterface $view
+	 * @param Contao2BackendViewDefinitionInterface $view The listing configuration definition to populate.
 	 *
 	 * @return void
 	 */
-	protected function parsePanel(ContainerInterface $container, Contao2BackendViewDefinitionInterface $view)
+	protected function parsePanel(Contao2BackendViewDefinitionInterface $view)
 	{
 		$layout = $view->getPanelLayout();
-		$rows = $layout->getRows();
-
-		$hasSubmit = false;
+		$rows   = $layout->getRows();
 
 		foreach (explode(';', (string)$this->getFromDca('list/sorting/panelLayout')) as $rowNo => $elementRow)
 		{
-			if ($rows->getRowCount() < $rowNo+1)
+			if ($rows->getRowCount() < ($rowNo + 1))
 			{
 				$row = $rows->addRow();
 			}
@@ -788,83 +999,29 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 				$row = $rows->getRow($rowNo);
 			}
 
-			foreach (explode(',', $elementRow) as $element)
-			{
-				switch ($element)
-				{
-					case 'filter':
-						foreach ($this->getFromDca('fields') as $property => $value)
-						{
-							if (isset($value['filter']))
-							{
-								$element = new DefaultFilterElementInformation();
-								$element->setPropertyName($property);
-								if (!$row->hasElement($element->getName()))
-								{
-									$row->addElement($element);
-								}
-							}
-						}
-						continue;
-					case 'sort':
-						if ($row->hasElement('sort'))
-						{
-							$element = $row->getElement('sort');
-						}
-						else
-						{
-							$element = new DefaultSortElementInformation();
-							$row->addElement($element);
-						}
-
-						foreach ($this->getFromDca('fields') as $property => $value)
-						{
-							if (isset($value['sorting']))
-							{
-								$element->addProperty($property, (int)$value['flag']);
-							}
-						}
-						continue;
-					case 'search':
-						if ($row->hasElement('search'))
-						{
-							$element = $row->getElement('search');
-						}
-						else
-						{
-							$element = new DefaultSearchElementInformation();
-						}
-						foreach ($this->getFromDca('fields') as $property => $value)
-						{
-							if (isset($value['search']))
-							{
-								$element->addProperty($property);
-							}
-						}
-						if ($element->getPropertyNames() && !$row->hasElement('search'))
-						{
-							$row->addElement($element);
-						}
-						continue;
-					case 'limit':
-						if (!$row->hasElement('limit'))
-						{
-							$row->addElement(new DefaultLimitElementInformation());
-						}
-						continue;
-					case 'submit':
-						if (!$row->hasElement('submit'))
-						{
-							$row->addElement(new DefaultSubmitElementInformation());
-							$hasSubmit = true;
-						}
-						continue;
-				}
-			}
+			$this->parsePanelRow($row, $elementRow);
 
 			if ($row->getCount() == 0)
 			{
 				$rows->deleteRow($rowNo);
+			}
+		}
+
+		$hasSubmit = false;
+		foreach ($rows as $row)
+		{
+			foreach ($row as $element)
+			{
+				if ($element instanceof SubmitElementInformationInterface)
+				{
+					$hasSubmit = true;
+					break;
+				}
+
+				if ($hasSubmit)
+				{
+					break;
+				}
 			}
 		}
 
@@ -878,23 +1035,23 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	/**
 	 * Parse the defined container scoped operations and populate the definition.
 	 *
-	 * @param ContainerInterface                    $container
-	 *
-	 * @param Contao2BackendViewDefinitionInterface $view
+	 * @param Contao2BackendViewDefinitionInterface $view The backend view configuration definition to populate.
 	 *
 	 * @return void
 	 */
-	protected function parseGlobalOperations(ContainerInterface $container, Contao2BackendViewDefinitionInterface $view)
+	protected function parseGlobalOperations(Contao2BackendViewDefinitionInterface $view)
 	{
 		$operationsDca = $this->getFromDca('list/global_operations');
 
-		if (!is_array($operationsDca)) {
+		if (!is_array($operationsDca))
+		{
 			return;
 		}
 
 		$collection = $view->getGlobalCommands();
 
-		foreach ($operationsDca as $operationName => $operationDca) {
+		foreach ($operationsDca as $operationName => $operationDca)
+		{
 			$command = $this->createCommand($operationName, $operationsDca[$operationName]);
 			$collection->addCommand($command);
 		}
@@ -903,23 +1060,23 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	/**
 	 * Parse the defined model scoped operations and populate the definition.
 	 *
-	 * @param ContainerInterface                    $container
-	 *
-	 * @param Contao2BackendViewDefinitionInterface $view
+	 * @param Contao2BackendViewDefinitionInterface $view The backend view configuration definition to populate.
 	 *
 	 * @return void
 	 */
-	protected function parseModelOperations(ContainerInterface $container, Contao2BackendViewDefinitionInterface $view)
+	protected function parseModelOperations(Contao2BackendViewDefinitionInterface $view)
 	{
 		$operationsDca = $this->getFromDca('list/operations');
 
-		if (!is_array($operationsDca)) {
+		if (!is_array($operationsDca))
+		{
 			return;
 		}
 
 		$collection = $view->getModelCommands();
 
-		foreach ($operationsDca as $operationName => $operationDca) {
+		foreach ($operationsDca as $operationName => $operationDca)
+		{
 			$command = $this->createCommand($operationName, $operationsDca[$operationName]);
 			$collection->addCommand($command);
 		}
@@ -928,22 +1085,24 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	/**
 	 * Parse the defined palettes and populate the definition.
 	 *
-	 * @param ContainerInterface $container
+	 * @param ContainerInterface $container The container where the data shall be stored.
 	 *
 	 * @return void
 	 */
 	protected function parsePalettes(ContainerInterface $container)
 	{
-		$palettesDefinitionArray = $this->getFromDca('palettes');
+		$palettesDefinitionArray    = $this->getFromDca('palettes');
 		$subPalettesDefinitionArray = $this->getFromDca('subpalettes');
 
-		// skip while there is no legacy palette definition
-		if (!is_array($palettesDefinitionArray)) {
+		// Skip while there is no legacy palette definition.
+		if (!is_array($palettesDefinitionArray))
+		{
 			return;
 		}
 
-		// ignore non-legacy sub palette definition
-		if (!is_array($subPalettesDefinitionArray)) {
+		// Ignore non-legacy sub palette definition.
+		if (!is_array($subPalettesDefinitionArray))
+		{
 			$subPalettesDefinitionArray = array();
 		}
 
@@ -966,15 +1125,116 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	}
 
 	/**
+	 * Parse the label of a single property.
+	 *
+	 * @param PropertyInterface $property The property to parse the label for.
+	 *
+	 * @param string|array      $label    The label value.
+	 */
+	protected function parseSinglePropertyLabel(PropertyInterface $property, $label)
+	{
+		if (!$property->getLabel())
+		{
+			if (is_array($label))
+			{
+				$lang        = $label;
+				$label       = reset($lang);
+				$description = next($lang);
+
+				$property->setDescription($description);
+			}
+
+			$property->setLabel($label);
+		}
+	}
+
+	/**
+	 * Parse a single property.
+	 *
+	 * @param PropertyInterface $property The property to parse.
+	 *
+	 * @param array             $propInfo The property information.
+	 *
+	 * @return void
+	 */
+	protected function parseSingleProperty(PropertyInterface $property, array $propInfo)
+	{
+		foreach ($propInfo as $key => $value)
+		{
+			switch ($key)
+			{
+				case 'label':
+					$this->parseSinglePropertyLabel($property, $value);
+					break;
+
+				case 'description':
+					if (!$property->getDescription())
+					{
+						$property->setDescription($value);
+					}
+					break;
+
+				case 'default':
+					if (!$property->getDefaultValue())
+					{
+						$property->setDefaultValue($value);
+					}
+					break;
+
+				case 'exclude':
+					$property->setExcluded((bool)$value);
+					break;
+
+				case 'search':
+					$property->setSearchable((bool)$value);
+					break;
+
+				case 'sorting':
+					$property->setSortable((bool)$value);
+					break;
+
+				case 'filter':
+					$property->setFilterable((bool)$value);
+					break;
+
+				case 'flag':
+					$this->evalFlag($property, $value);
+					break;
+
+				case 'length':
+					$property->setGroupingLength($value);
+					break;
+
+				case 'inputType':
+					$property->setWidgetType($value);
+					break;
+
+				case 'options':
+					$property->setOptions($value);
+					break;
+
+				case 'explanation':
+					$property->setExplanation($value);
+					break;
+
+				case 'eval':
+					$property->setExtra($value);
+					break;
+
+				default:
+			}
+		}
+	}
+
+	/**
 	 * Parse the defined properties and populate the definition.
 	 *
-	 * @param ContainerInterface $container
+	 * @param ContainerInterface $container The container where the data shall be stored.
 	 *
 	 * @return void
 	 */
 	protected function parseProperties(ContainerInterface $container)
 	{
-		// parse data provider
 		if ($container->hasPropertiesDefinition())
 		{
 			$definition = $container->getPropertiesDefinition();
@@ -997,90 +1257,16 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 				$definition->addProperty($property);
 			}
 
-			if (!$property->getLabel() && isset($propInfo['label']))
-			{
-				$lang = $propInfo['label'];
-
-				if (is_array($lang)) {
-					$label       = reset($lang);
-					$description = next($lang);
-
-					$property->setDescription($description);
-				}
-				else {
-					$label = $lang;
-				}
-
-				$property->setLabel($label);
-			}
-
-			if (!$property->getDescription() && isset($propInfo['description']))
-			{
-				$property->setDescription($propInfo['description']);
-			}
-
-			if (!$property->getDefaultValue() && isset($propInfo['default']))
-			{
-				$property->setDefaultValue($propInfo['default']);
-			}
-
-			if (isset($propInfo['exclude']))
-			{
-				$property->setExcluded($propInfo['exclude']);
-			}
-
-			if (isset($propInfo['search']))
-			{
-				$property->setSearchable($propInfo['search']);
-			}
-
-			if (isset($propInfo['sorting']))
-			{
-				$property->setSortable($propInfo['sorting']);
-			}
-
-			if (isset($propInfo['filter']))
-			{
-				$property->setFilterable($propInfo['filter']);
-			}
-
-			if (isset($propInfo['flag']))
-			{
-				$this->evalFlag($property, $propInfo['flag']);
-			}
-
-			if (!$property->getGroupingLength() && isset($propInfo['length']))
-			{
-				$property->setGroupingLength($propInfo['length']);
-			}
-
-			if (!$property->getWidgetType() && isset($propInfo['inputType']))
-			{
-				$property->setWidgetType($propInfo['inputType']);
-			}
-
-			if (!$property->getOptions() && isset($propInfo['options']))
-			{
-				$property->setOptions($propInfo['options']);
-			}
-
-			if (!$property->getExplanation() && isset($propInfo['explanation']))
-			{
-				$property->setExplanation($propInfo['explanation']);
-			}
-
-			if (!$property->getExtra() && isset($propInfo['eval']))
-			{
-				$property->setExtra($propInfo['eval']);
-			}
+			$this->parseSingleProperty($property, $propInfo);
 		}
 	}
 
 	/**
 	 * Create a command from dca.
 	 *
-	 * @param string $commandName
-	 * @param array $commandDca
+	 * @param string $commandName The name of the command to parse.
+	 *
+	 * @param array  $commandDca  The chunk from the DCA containing the command specification.
 	 *
 	 * @return CommandInterface
 	 */
@@ -1091,26 +1277,32 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		$parameters = $command->getParameters();
 
-		if (isset($commandDca['href'])) {
+		if (isset($commandDca['href']))
+		{
 			parse_str($commandDca['href'], $queryParameters);
-			foreach ($queryParameters as $name => $value) {
+			foreach ($queryParameters as $name => $value)
+			{
 				$parameters[$name] = $value;
 			}
 			unset($commandDca['href']);
 		}
 
-		if (isset($commandDca['parameters'])) {
-			foreach ($commandDca['parameters'] as $name => $value) {
+		if (isset($commandDca['parameters']))
+		{
+			foreach ($commandDca['parameters'] as $name => $value)
+			{
 				$parameters[$name] = $value;
 			}
 			unset($commandDca['parameters']);
 		}
 
-		if (isset($commandDca['label'])) {
+		if (isset($commandDca['label']))
+		{
 			$lang = $commandDca['label'];
 
-			if (is_array($lang)) {
-				$label = reset($lang);
+			if (is_array($lang))
+			{
+				$label       = reset($lang);
 				$description = next($lang);
 
 				$command->setDescription($description);
@@ -1124,21 +1316,25 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			unset($commandDca['label']);
 		}
 
-		if (isset($commandDca['description'])) {
+		if (isset($commandDca['description']))
+		{
 			$command->setDescription($commandDca['description']);
 
 			unset($commandDca['description']);
 		}
 
 		// Callback is transformed into event in parseCallbacks().
-		if (isset($commandDca['button_callback'])) {
+		if (isset($commandDca['button_callback']))
+		{
 			unset($commandDca['button_callback']);
 		}
 
-		if (count($commandDca)) {
+		if (count($commandDca))
+		{
 			$extra = $command->getExtra();
 
-			foreach ($commandDca as $name => $value) {
+			foreach ($commandDca as $name => $value)
+			{
 				$extra[$name] = $value;
 			}
 		}
@@ -1147,122 +1343,103 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	}
 
 	/**
+	 * Evaluate the contao 2 sorting flag into sorting mode.
+	 *
+	 * @param ListingConfigInterface|PropertyInterface $config The property to evaluate the flag for.
+	 *
+	 * @param int                                      $flag   The flag to be evaluated.
+	 *
+	 * @return void
+	 */
+	protected function evalFlagSorting($config, $flag)
+	{
+		if (($flag < 0) || ($flag > 12))
+		{
+			return;
+		}
+
+		if (($flag % 2) == 1)
+		{
+			$config->setSortingMode(ListingConfigInterface::SORT_ASC);
+		}
+		else
+		{
+			$config->setSortingMode(ListingConfigInterface::SORT_DESC);
+		}
+	}
+
+	/**
+	 * Evaluate the contao 2 sorting flag into grouping mode.
+	 *
+	 * @param ListingConfigInterface|PropertyInterface $config The property to evaluate the flag for.
+	 *
+	 * @param int                                      $flag   The flag to be evaluated.
+	 *
+	 * @return void
+	 */
+	protected function evalFlagGrouping($config, $flag)
+	{
+		if (($flag < 0) || ($flag > 12))
+		{
+			return;
+		}
+
+		if ($flag <= 4)
+		{
+			$config->setGroupingMode(ListingConfigInterface::GROUP_CHAR);
+		}
+		elseif ($flag <= 6)
+		{
+			$config->setGroupingMode(ListingConfigInterface::GROUP_DAY);
+		}
+		elseif ($flag <= 8)
+		{
+			$config->setGroupingMode(ListingConfigInterface::GROUP_MONTH);
+		}
+		elseif ($flag <= 10)
+		{
+			$config->setGroupingMode(ListingConfigInterface::GROUP_YEAR);
+		}
+		else
+		{
+			$config->setGroupingMode(ListingConfigInterface::GROUP_NONE);
+		}
+	}
+
+	/**
+	 * Evaluate the contao 2 sorting flag into grouping length.
+	 *
+	 * @param ListingConfigInterface|PropertyInterface $config The property to evaluate the flag for.
+	 *
+	 * @param int                                      $flag   The flag to be evaluated.
+	 *
+	 * @return void
+	 */
+	protected function evalFlagGroupingLength($config, $flag)
+	{
+		if (($flag == 1) || ($flag == 2))
+		{
+			$config->setGroupingLength(1);
+		}
+		elseif(($flag == 3) || ($flag == 4))
+		{
+			$config->setGroupingLength(2);
+		}
+	}
+
+	/**
 	 * Evaluate the contao 2 sorting flag into sorting mode, grouping mode and grouping length.
 	 *
-	 * @param ListingConfigInterface|PropertyInterface $config
-	 * @param int $flag
+	 * @param ListingConfigInterface|PropertyInterface $config The property to evaluate the flag for.
+	 *
+	 * @param int                                      $flag   The flag to be evaluated.
+	 *
+	 * @return void
 	 */
 	protected function evalFlag($config, $flag)
 	{
-		switch ($flag) {
-			// Sort by initial letter ascending
-			// Aufsteigende Sortierung nach Anfangsbuchstabe
-			case 1:
-			// Sort by initial two letters ascending
-			// Aufsteigende Sortierung nach den ersten beiden Buchstaben
-			case 3:
-			// Sort by day ascending
-			// Aufsteigende Sortierung nach Tag
-			case 5:
-			// Sort by month ascending
-			// Aufsteigende Sortierung nach Monat
-			case 7:
-			// Sort by year ascending
-			// Aufsteigende Sortierung nach Jahr
-			case 9:
-			// Sort ascending
-			// Aufsteigende Sortierung
-			case 11:
-				$config->setSortingMode(ListingConfigInterface::SORT_ASC);
-				break;
-			// Sort by initial letter descending
-			// Absteigende Sortierung nach Anfangsbuchstabe
-			case 2:
-			// Sort by initial two letters descending
-			// Absteigende Sortierung nach den ersten beiden Buchstaben
-			case 4:
-			// Sort by day descending
-			// Absteigende Sortierung nach Tag
-			case 6:
-			// Sort by month descending
-			// Absteigende Sortierung nach Monat
-			case 8:
-			// Sort by year descending
-			// Absteigende Sortierung nach Jahr
-			case 10:
-			// Sort descending
-			// Absteigende Sortierung
-			case 12:
-				$config->setSortingMode(ListingConfigInterface::SORT_DESC);
-				break;
-		}
-
-		switch ($flag) {
-			// Sort by initial letter ascending
-			// Aufsteigende Sortierung nach Anfangsbuchstabe
-			case 1:
-			// Sort by initial letter descending
-			// Absteigende Sortierung nach Anfangsbuchstabe
-			case 2:
-			// Sort by initial two letters ascending
-			// Aufsteigende Sortierung nach den ersten beiden Buchstaben
-			case 3:
-			// Sort by initial two letters descending
-			// Absteigende Sortierung nach den ersten beiden Buchstaben
-			case 4:
-				$config->setGroupingMode(ListingConfigInterface::GROUP_CHAR);
-				break;
-			// Sort by day ascending
-			// Aufsteigende Sortierung nach Tag
-			case 5:
-			// Sort by day descending
-			// Absteigende Sortierung nach Tag
-			case 6:
-				$config->setGroupingMode(ListingConfigInterface::GROUP_DAY);
-				break;
-			// Sort by month ascending
-			// Aufsteigende Sortierung nach Monat
-			case 7:
-			// Sort by month descending
-			// Absteigende Sortierung nach Monat
-			case 8:
-				$config->setGroupingMode(ListingConfigInterface::GROUP_MONTH);
-				break;
-			// Sort by year ascending
-			// Aufsteigende Sortierung nach Jahr
-			case 9:
-			// Sort by year descending
-			// Absteigende Sortierung nach Jahr
-			case 10:
-				$config->setGroupingMode(ListingConfigInterface::GROUP_YEAR);
-				break;
-			// Sort ascending
-			// Aufsteigende Sortierung
-			case 11:
-			// Sort descending
-			// Absteigende Sortierung
-			case 12:
-				$config->setGroupingMode(ListingConfigInterface::GROUP_NONE);
-				break;
-		}
-
-		switch ($flag) {
-			// Sort by initial letter ascending
-			// Aufsteigende Sortierung nach Anfangsbuchstabe
-			case 1:
-			// Sort by initial letter descending
-			// Absteigende Sortierung nach Anfangsbuchstabe
-			case 2:
-				$config->setGroupingLength(1);
-				break;
-			// Sort by initial two letters ascending
-			// Aufsteigende Sortierung nach den ersten beiden Buchstaben
-			case 3:
-			// Sort by initial two letters descending
-			// Absteigende Sortierung nach den ersten beiden Buchstaben
-			case 4:
-				$config->setGroupingLength(2);
-				break;
-		}
+		$this->evalFlagSorting($config, $flag);
+		$this->evalFlagGrouping($config, $flag);
+		$this->evalFlagGroupingLength($config, $flag);
 	}
 }
