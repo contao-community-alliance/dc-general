@@ -12,8 +12,15 @@
 
 namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
+/**
+ * Class GetGlobalButtonsEvent.
+ *
+ * This event gets issued when all global buttons have been generated and holds the list of the rendered buttons.
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView\Event
+ */
 class GetGlobalButtonsEvent
 	extends BaseGetButtonsEvent
 {
-    const NAME = 'dc-general.view.contao2backend.get-global-buttons';
+	const NAME = 'dc-general.view.contao2backend.get-global-buttons';
 }
