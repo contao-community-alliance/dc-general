@@ -88,6 +88,22 @@ interface EnvironmentInterface
 	public function getParentDataDefinition();
 
 	/**
+	 * Set the data definition of the root container.
+	 *
+	 * @param \DcGeneral\DataDefinition\ContainerInterface $objContainer The data definition container to store.
+	 *
+	 * @return EnvironmentInterface
+	 */
+	public function setRootDataDefinition($objContainer);
+
+	/**
+	 * Retrieve the data definition for the root container. This applies only when in hierarchical mode.
+	 *
+	 * @return \DcGeneral\DataDefinition\ContainerInterface
+	 */
+	public function getRootDataDefinition();
+
+	/**
 	 * Set the input provider to use.
 	 *
 	 * @param \DcGeneral\InputProviderInterface $objInputProvider The input provider to use.

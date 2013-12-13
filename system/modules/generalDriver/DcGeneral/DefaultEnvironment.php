@@ -44,6 +44,13 @@ class DefaultEnvironment implements EnvironmentInterface
 	protected $objParentDataDefinition;
 
 	/**
+	 * The data container definition of the root table.
+	 *
+	 * @var \DcGeneral\DataDefinition\ContainerInterface
+	 */
+	protected $objRootDataDefinition;
+
+	/**
 	 * @var InputProviderInterface
 	 */
 	protected $objInputProvider;
@@ -163,6 +170,24 @@ class DefaultEnvironment implements EnvironmentInterface
 	public function getParentDataDefinition()
 	{
 		return $this->objParentDataDefinition;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setRootDataDefinition($objRootDataDefinition)
+	{
+		$this->objRootDataDefinition = $objRootDataDefinition;
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getRootDataDefinition()
+	{
+		return $this->objRootDataDefinition;
 	}
 
 	/**
