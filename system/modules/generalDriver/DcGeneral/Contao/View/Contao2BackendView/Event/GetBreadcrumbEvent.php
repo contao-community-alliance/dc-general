@@ -14,18 +14,29 @@ namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
 use DcGeneral\Event\AbstractEnvironmentAwareEvent;
 
+/**
+ * Class GetBreadcrumbEvent.
+ *
+ * This event gets issued when the backend listing bread crumb is generated.
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView\Event
+ */
 class GetBreadcrumbEvent
 	extends AbstractEnvironmentAwareEvent
 {
-    const NAME = 'dc-general.view.contao2backend.get-breadcrumb';
+	const NAME = 'dc-general.view.contao2backend.get-breadcrumb';
 
 	/**
+	 * The breadcrumb elements to be displayed in the backend.
+	 *
 	 * @var array
 	 */
 	protected $elements;
 
 	/**
-	 * @param array $elements
+	 * Set the breadcrumb elements to be displayed in the backend.
+	 *
+	 * @param array $elements The elements.
 	 *
 	 * @return $this
 	 */
@@ -37,6 +48,8 @@ class GetBreadcrumbEvent
 	}
 
 	/**
+	 * Get the breadcrumb elements to be displayed in the backend.
+	 *
 	 * @return array
 	 */
 	public function getElements()
