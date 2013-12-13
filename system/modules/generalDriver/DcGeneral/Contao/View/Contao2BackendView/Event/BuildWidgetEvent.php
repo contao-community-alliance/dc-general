@@ -17,16 +17,31 @@ use DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Event\AbstractModelAwareEvent;
 
+/**
+ * Class BuildWidgetEvent.
+ *
+ * This event is being emitted when the widget manager wants to create a new widget instance.
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView\Event
+ */
 class BuildWidgetEvent
 	extends AbstractModelAwareEvent
 {
+	/**
+	 * The name of the event.
+	 */
 	const NAME = 'dc-general.view.contao2backend.build-widget';
 
 	/**
+	 * The property for which a widget shall get instantiated.
+	 *
 	 * @var PropertyInterface
 	 */
 	protected $property;
+
 	/**
+	 * The instantiated widget.
+	 *
 	 * @var \Widget
 	 */
 	protected $widget;
@@ -34,11 +49,11 @@ class BuildWidgetEvent
 	/**
 	 * Create a new event.
 	 *
-	 * @param EnvironmentInterface $environment
+	 * @param EnvironmentInterface $environment The environment instance in use.
 	 *
-	 * @param ModelInterface       $model
+	 * @param ModelInterface       $model       The model holding the data for the widget that shall be instantiated.
 	 *
-	 * @param PropertyInterface    $property
+	 * @param PropertyInterface    $property    The property for which the widget shall be instantiated.
 	 */
 	public function __construct(EnvironmentInterface $environment, ModelInterface $model, PropertyInterface $property)
 	{
@@ -48,7 +63,9 @@ class BuildWidgetEvent
 	}
 
 	/**
-	 * @param \Widget $widget
+	 * Stores the widget instance into the event.
+	 *
+	 * @param \Widget $widget The widget instance.
 	 *
 	 * @return BuildWidgetEvent
 	 */
@@ -60,6 +77,8 @@ class BuildWidgetEvent
 	}
 
 	/**
+	 * Retrieve the widget instance from the event.
+	 *
 	 * @return \Widget
 	 */
 	public function getWidget()
@@ -68,6 +87,8 @@ class BuildWidgetEvent
 	}
 
 	/**
+	 * Retrieve the property definition from the event for which the widget shall be instantiated.
+	 *
 	 * @return PropertyInterface
 	 */
 	public function getProperty()
