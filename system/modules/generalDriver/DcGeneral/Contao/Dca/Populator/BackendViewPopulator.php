@@ -12,7 +12,6 @@ use DcGeneral\DataDefinition\Definition\View\Panel\SubmitElementInformationInter
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\EnvironmentPopulator\AbstractEventDrivenEnvironmentPopulator;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
-use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Panel\DefaultFilterElement;
 use DcGeneral\Panel\DefaultLimitElement;
 use DcGeneral\Panel\DefaultPanel;
@@ -40,9 +39,11 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
 	/**
 	 * Create a view instance in the environment if none has been defined yet.
 	 *
-	 * @param EnvironmentInterface $environment
+	 * @param EnvironmentInterface $environment The environment to populate.
 	 *
-	 * @throws DcGeneralInvalidArgumentException
+	 * @return void
+	 *
+	 * @throws DcGeneralInvalidArgumentException Upon an unknown view mode has been encountered.
 	 * @internal
 	 */
 	protected function populateView(EnvironmentInterface $environment)
@@ -84,9 +85,8 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
 	/**
 	 * Create a panel instance in the view if none has been defined yet.
 	 *
-	 * @param EnvironmentInterface $environment
+	 * @param EnvironmentInterface $environment The environment to populate.
 	 *
-	 * @throws DcGeneralRuntimeException
 	 * @internal
 	 */
 	protected function populatePanel(EnvironmentInterface $environment)
@@ -104,7 +104,7 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
 			return;
 		}
 
-		/**  @var BackendViewInterface $view */
+		/** @var BackendViewInterface $view */
 		$view = $environment->getView();
 
 		// Already populated.
@@ -160,7 +160,7 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
 
 					foreach ($element->getPropertyNames() as $propName)
 					{
-						$panelElement->addProperty($propName,  $element->getPropertyFlag($propName));
+						$panelElement->addProperty($propName, $element->getPropertyFlag($propName));
 					}
 
 					$panelRow->addElement($element->getName(), $panelElement);
@@ -175,14 +175,14 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
 		}
 	}
 
-		/**
-		 * Create a view instance in the environment if none has been defined yet.
-		 *
-		 * @param EnvironmentInterface $environment
-		 *
-		 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException
-		 */
-		public function populate(EnvironmentInterface $environment)
+	/**
+	 * Create a view instance in the environment if none has been defined yet.
+	 *
+	 * @param EnvironmentInterface $environment The environment to populate.
+	 *
+	 * @return void
+	 */
+	public function populate(EnvironmentInterface $environment)
 	{
 		$this->populateView($environment);
 
