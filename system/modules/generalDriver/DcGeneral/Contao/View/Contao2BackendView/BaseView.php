@@ -1541,8 +1541,8 @@ class BaseView implements BackendViewInterface
 	 * @param array $arrRootIds
 	 * @param boolean $blnCircularReference
 	 * @param array $arrChildRecordIds
-	 * @param ModelInterface $strPrevious
-	 * @param ModelInterface $strNext
+	 * @param ModelInterface $previous
+	 * @param ModelInterface $next
 	 * @return string
 	 */
 	protected function generateButtons(ModelInterface $objModelRow, $strTable, $arrRootIds = array(), $blnCircularReference = false, $arrChildRecordIds = null, $previous = null, $next = null)
@@ -1578,8 +1578,8 @@ class BaseView implements BackendViewInterface
 			$buttonEvent
 				->setModel($objModelRow)
 				->setCircularReference(false)
-				->setPrevious(null)
-				->setNext(null)
+				->setPrevious($previous)
+				->setNext($next)
 				->setHrefAfter(BackendBindings::addToUrl($strAdd2UrlAfter))
 				->setHrefInto(BackendBindings::addToUrl($strAdd2UrlInto))
 				// Check if the id is in the ignore list.

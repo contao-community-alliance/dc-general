@@ -67,16 +67,16 @@ class GetPasteButtonEvent
 	protected $model;
 
 	/**
-	 * Id of the next model in the list.
+	 * The next model in the list.
 	 *
-	 * @var string
+	 * @var \DcGeneral\Data\ModelInterface
 	 */
 	protected $next;
 
 	/**
-	 * Id of the previous model in the list.
+	 * The previous model in the list.
 	 *
-	 * @var string
+	 * @var \DcGeneral\Data\ModelInterface
 	 */
 	protected $previous;
 
@@ -244,23 +244,23 @@ class GetPasteButtonEvent
 	}
 
 	/**
-	 * Set the id of the next model.
+	 * Set the next model.
 	 *
-	 * @param string $strNext The id of the next model.
+	 * @param \DcGeneral\Data\ModelInterface $next The next model.
 	 *
 	 * @return $this
 	 */
-	public function setNext($strNext)
+	public function setNext($next)
 	{
-		$this->next = $strNext;
+		$this->next = $next;
 
 		return $this;
 	}
 
 	/**
-	 * Get the id of the next model.
+	 * Get the next model.
 	 *
-	 * @return string
+	 * @return \DcGeneral\Data\ModelInterface
 	 */
 	public function getNext()
 	{
@@ -268,23 +268,23 @@ class GetPasteButtonEvent
 	}
 
 	/**
-	 * Set the id of the previous model.
+	 * Set the previous model.
 	 *
-	 * @param string $strPrevious The id of the previous model.
+	 * @param \DcGeneral\Data\ModelInterface $previous The previous model.
 	 *
 	 * @return $this
 	 */
-	public function setPrevious($strPrevious)
+	public function setPrevious($previous)
 	{
-		$this->previous = $strPrevious;
+		$this->previous = $previous;
 
 		return $this;
 	}
 
 	/**
-	 * Get the id of the previous model.
+	 * Get the previous model.
 	 *
-	 * @return string
+	 * @return \DcGeneral\Data\ModelInterface
 	 */
 	public function getPrevious()
 	{

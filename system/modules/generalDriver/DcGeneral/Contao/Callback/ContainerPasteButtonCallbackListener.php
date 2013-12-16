@@ -60,8 +60,8 @@ class ContainerPasteButtonCallbackListener extends AbstractReturningCallbackList
 			$event->getEnvironment()->getDataDefinition()->getName(),
 			$event->getCircularReference(),
 			$event->getEnvironment()->getClipboard()->getContainedIds(),
-			$event->getPrevious(),
-			$event->getNext()
+			$event->getPrevious()->getId(),
+			$event->getNext()->getId()
 		);
 	}
 

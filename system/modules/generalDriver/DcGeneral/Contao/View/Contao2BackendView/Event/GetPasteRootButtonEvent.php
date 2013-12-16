@@ -30,12 +30,12 @@ class GetPasteRootButtonEvent
 	protected $href;
 
 	/**
-	 * @var string
+	 * @var \DcGeneral\Data\ModelInterface
 	 */
 	protected $next;
 
 	/**
-	 * @var string
+	 * @var \DcGeneral\Data\ModelInterface
 	 */
 	protected $previous;
 
@@ -84,19 +84,19 @@ class GetPasteRootButtonEvent
 	}
 
 	/**
-	 * @param string $strNext
+	 * @param \DcGeneral\Data\ModelInterface $next
 	 *
 	 * @return $this
 	 */
-	public function setNext($strNext)
+	public function setNext($next)
 	{
-		$this->next = $strNext;
+		$this->next = $next;
 
 		return $this;
 	}
 
 	/**
-	 * @return string
+	 * @return \DcGeneral\Data\ModelInterface
 	 */
 	public function getNext()
 	{
@@ -104,19 +104,19 @@ class GetPasteRootButtonEvent
 	}
 
 	/**
-	 * @param string $strPrevious
+	 * @param \DcGeneral\Data\ModelInterface $previous
 	 *
 	 * @return $this
 	 */
-	public function setPrevious($strPrevious)
+	public function setPrevious($previous)
 	{
-		$this->previous = $strPrevious;
+		$this->previous = $previous;
 
 		return $this;
 	}
 
 	/**
-	 * @return string
+	 * @return \DcGeneral\Data\ModelInterface
 	 */
 	public function getPrevious()
 	{
