@@ -13,7 +13,6 @@
 namespace DcGeneral\Contao\Callback;
 
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
-use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
 use DcGeneral\DC_General;
 
 /**
@@ -48,7 +47,7 @@ class ContainerPasteButtonCallbackListener extends AbstractReturningCallbackList
 	/**
 	 * Retrieve the arguments for the callback.
 	 *
-	 * @param GetPasteButtonEvent|GetPasteRootButtonEvent $event The event being emitted.
+	 * @param GetPasteButtonEvent $event The event being emitted.
 	 *
 	 * @return array
 	 */
@@ -68,9 +67,9 @@ class ContainerPasteButtonCallbackListener extends AbstractReturningCallbackList
 	/**
 	 * Set the HTML code for the button.
 	 *
-	 * @param GetPasteButtonEvent|GetPasteRootButtonEvent $event The event being emitted.
+	 * @param GetPasteButtonEvent $event The event being emitted.
 	 *
-	 * @param string                                      $value The value returned by the callback.
+	 * @param string              $value The value returned by the callback.
 	 *
 	 * @return void
 	 */
