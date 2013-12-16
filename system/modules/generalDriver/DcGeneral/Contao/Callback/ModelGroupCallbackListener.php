@@ -34,7 +34,7 @@ class ModelGroupCallbackListener extends AbstractReturningCallbackListener
 	{
 		return array(
 			$event->getGroupField(),
-			$event->getSortingMode(),
+			$event->getGroupingMode(),
 			$event->getValue(),
 			$event->getModel()->getPropertiesAsArray()
 		);
