@@ -45,8 +45,8 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
 			$event->getEnvironment()->getRootIds(),
 			$event->getChildRecordIds(),
 			$event->getCircularReference(),
-			$event->getPrevious(),
-			$event->getNext()
+			$event->getPrevious()->getId(),
+			$event->getNext()->getId()
 		);
 	}
 

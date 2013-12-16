@@ -147,10 +147,18 @@ class ParentView extends BaseView
 			// Regular buttons
 			if (!$this->isSelectModeActive())
 			{
-				$strPrevious = ((!is_null($collection->get($i - 1))) ? $collection->get($i - 1)->getID() : null);
-				$strNext = ((!is_null($collection->get($i + 1))) ? $collection->get($i + 1)->getID() : null);
+				$previous = ((!is_null($collection->get($i - 1))) ? $collection->get($i - 1) : null);
+				$next     = ((!is_null($collection->get($i + 1))) ? $collection->get($i + 1) : null);
 
-				$buttons = $this->generateButtons($model, $definition->getName(), $environment->getRootIds(), false, null, $strPrevious, $strNext);
+				$buttons = $this->generateButtons(
+					$model,
+					$definition->getName(),
+					$environment->getRootIds(),
+					false,
+					null,
+					$previous,
+					$next
+				);
 
 				$model->setMeta(DCGE::MODEL_BUTTONS, $buttons);
 			}

@@ -55,18 +55,14 @@ class GetOperationButtonEvent
 	/**
 	 * The id of the next model succeeding the current model.
 	 *
-	 * TODO: should this rather be the real model? Might be of more use.
-	 *
-	 * @var string
+	 * @var ModelInterface
 	 */
 	protected $next;
 
 	/**
 	 * The id of the model preceeding the current model.
 	 *
-	 * TODO: should this rather be the real model? Might be of more use.
-	 *
-	 * @var string
+	 * @var ModelInterface
 	 */
 	protected $previous;
 
@@ -156,9 +152,9 @@ class GetOperationButtonEvent
 	}
 
 	/**
-	 * Set the id of the next model in the list, succeeding the current model.
+	 * Set the next model in the list, succeeding the current model.
 	 *
-	 * @param string $next The id of the successor.
+	 * @param \DcGeneral\Data\ModelInterface $next The successor.
 	 *
 	 * @return $this
 	 */
@@ -170,9 +166,9 @@ class GetOperationButtonEvent
 	}
 
 	/**
-	 * Get the id of the next model in the list, succeeding the current model.
+	 * Get the next model in the list, succeeding the current model.
 	 *
-	 * @return string
+	 * @return \DcGeneral\Data\ModelInterface
 	 */
 	public function getNext()
 	{
@@ -180,9 +176,9 @@ class GetOperationButtonEvent
 	}
 
 	/**
-	 * Set the id of the previous model in the list, preceding the current model.
+	 * Set the previous model in the list, preceding the current model.
 	 *
-	 * @param string $previous The id of the predecessor.
+	 * @param \DcGeneral\Data\ModelInterface $previous The id of the predecessor.
 	 *
 	 * @return $this
 	 */
@@ -194,9 +190,9 @@ class GetOperationButtonEvent
 	}
 
 	/**
-	 * Get the id of the previous model in the list, preceding the current model.
+	 * Get the previous model in the list, preceding the current model.
 	 *
-	 * @return string
+	 * @return \DcGeneral\Data\ModelInterface
 	 */
 	public function getPrevious()
 	{

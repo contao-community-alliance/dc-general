@@ -179,11 +179,9 @@ class ListView extends BaseView
 			// Regular buttons - only if not in select mode!
 			if (!$this->isSelectModeActive())
 			{
-				$strPrevious = ((!is_null($collection->get($i - 1))) ? $collection->get($i - 1)->getID() : null);
-				$strNext     = ((!is_null($collection->get($i + 1))) ? $collection->get($i + 1)->getID() : null);
-				/**
-				 * @var \DcGeneral\Data\ModelInterface $objModel
-				 */
+				$previous = ((!is_null($collection->get($i - 1))) ? $collection->get($i - 1) : null);
+				$next     = ((!is_null($collection->get($i + 1))) ? $collection->get($i + 1) : null);
+				/** @var \DcGeneral\Data\ModelInterface $objModel */
 				$objModel->setMeta(
 					DCGE::MODEL_BUTTONS,
 					$this->generateButtons(
@@ -192,8 +190,8 @@ class ListView extends BaseView
 						$environment->getRootIds(),
 						false,
 						null,
-						$strPrevious,
-						$strNext
+						$previous,
+						$next
 					)
 				);
 			}

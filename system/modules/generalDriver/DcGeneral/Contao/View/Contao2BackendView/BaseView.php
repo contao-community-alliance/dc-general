@@ -1363,13 +1363,13 @@ class BaseView implements BackendViewInterface
 	 *
 	 * @param array                                                      $arrChildRecordIds
 	 *
-	 * @param string                                                     $strPrevious
+	 * @param \DcGeneral\Data\ModelInterface                             $previous
 	 *
-	 * @param string                                                     $strNext
+	 * @param \DcGeneral\Data\ModelInterface                             $next
 	 *
 	 * @return string
 	 */
-	protected function buildCommand($objCommand, $objModel, $blnCircularReference, $arrChildRecordIds, $strPrevious, $strNext)
+	protected function buildCommand($objCommand, $objModel, $blnCircularReference, $arrChildRecordIds, $previous, $next)
 	{
 		// Set basic information.
 		$opLabel = $objCommand->getLabel();
@@ -1459,8 +1459,8 @@ class BaseView implements BackendViewInterface
 			->setHref($strHref)
 			->setChildRecordIds($arrChildRecordIds)
 			->setCircularReference($blnCircularReference)
-			->setPrevious($strPrevious)
-			->setNext($strNext);
+			->setPrevious($previous)
+			->setNext($next);
 
 		$this->getEnvironment()->getEventPropagator()->propagate(
 			$buttonEvent,
@@ -1541,18 +1541,18 @@ class BaseView implements BackendViewInterface
 	 * @param array $arrRootIds
 	 * @param boolean $blnCircularReference
 	 * @param array $arrChildRecordIds
-	 * @param int $strPrevious
-	 * @param int $strNext
+	 * @param ModelInterface $strPrevious
+	 * @param ModelInterface $strNext
 	 * @return string
 	 */
-	protected function generateButtons(ModelInterface $objModelRow, $strTable, $arrRootIds = array(), $blnCircularReference = false, $arrChildRecordIds = null, $strPrevious = null, $strNext = null)
+	protected function generateButtons(ModelInterface $objModelRow, $strTable, $arrRootIds = array(), $blnCircularReference = false, $arrChildRecordIds = null, $previous = null, $next = null)
 	{
 		$commands = $this->getViewSection()->getModelCommands();
 
 		$arrButtons = array();
 		foreach ($commands->getCommands() as $command)
 		{
-			$arrButtons[$command->getName()] = $this->buildCommand($command, $objModelRow, $blnCircularReference, $arrChildRecordIds, $strPrevious, $strNext);
+			$arrButtons[$command->getName()] = $this->buildCommand($command, $objModelRow, $blnCircularReference, $arrChildRecordIds, $previous, $next);
 		}
 
 		// Add paste into/after icons
