@@ -14,18 +14,29 @@ namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
 use DcGeneral\Event\AbstractEnvironmentAwareEvent;
 
+/**
+ * Class GetParentHeaderEvent.
+ *
+ * This event gets emitted when the header section of a parent view is generated.
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView\Event
+ */
 class GetParentHeaderEvent
 	extends AbstractEnvironmentAwareEvent
 {
-    const NAME = 'dc-general.view.contao2backend.get-parent-header';
+	const NAME = 'dc-general.view.contao2backend.get-parent-header';
 
 	/**
+	 * The additional lines that shall be added to the header section.
+	 *
 	 * @var array
 	 */
 	protected $additional;
 
 	/**
-	 * @param array $additional
+	 * Set the additional lines that shall be added to the header section.
+	 *
+	 * @param array $additional The lines to use as header.
 	 *
 	 * @return $this
 	 */
@@ -37,6 +48,8 @@ class GetParentHeaderEvent
 	}
 
 	/**
+	 * Get the additional lines that shall be added to the header section.
+	 *
 	 * @return array
 	 */
 	public function getAdditional()
