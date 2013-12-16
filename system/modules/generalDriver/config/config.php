@@ -17,7 +17,7 @@ define('DCGENERAL_VERSION', '1.0.0-dev');
 /**
  * JS
  */
-if(TL_MODE == 'BE')
+if (TL_MODE == 'BE')
 {
 	$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/generalDriver/html/js/generalDriver_src.js';
 }
