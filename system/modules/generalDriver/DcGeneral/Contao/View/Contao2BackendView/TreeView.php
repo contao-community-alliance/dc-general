@@ -486,9 +486,6 @@ class TreeView extends BaseView
 			$objClipboard = $this->getEnvironment()->getClipboard();
 			$buttonEvent  = new GetPasteRootButtonEvent($this->getEnvironment());
 			$buttonEvent
-				->setCircularReference(false)
-				->setPrevious(null)
-				->setNext(null)
 				->setHref(
 					BackendBindings::addToUrl(sprintf('act=%s&amp;mode=2&amp;after=0&amp;pid=0&amp;id=%s&amp;childs=%s',
 						$objClipboard->getMode(),

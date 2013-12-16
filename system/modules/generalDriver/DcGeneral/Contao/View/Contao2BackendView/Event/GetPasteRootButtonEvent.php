@@ -18,11 +18,6 @@ class GetPasteRootButtonEvent
     const NAME = 'dc-general.view.contao2backend.get-paste-root-button';
 
 	/**
-	 * @var bool
-	 */
-	protected $blnCircularReference;
-
-	/**
 	 * The href information to use for the paste button.
 	 *
 	 * @var string
@@ -30,39 +25,9 @@ class GetPasteRootButtonEvent
 	protected $href;
 
 	/**
-	 * @var \DcGeneral\Data\ModelInterface
-	 */
-	protected $next;
-
-	/**
-	 * @var \DcGeneral\Data\ModelInterface
-	 */
-	protected $previous;
-
-	/**
 	 * @var bool
 	 */
 	protected $pasteDisabled;
-
-	/**
-	 * @param boolean $blnCircularReference
-	 *
-	 * @return $this
-	 */
-	public function setCircularReference($blnCircularReference)
-	{
-		$this->blnCircularReference = $blnCircularReference;
-
-		return $this;
-	}
-
-	/**
-	 * @return boolean
-	 */
-	public function getCircularReference()
-	{
-		return $this->blnCircularReference;
-	}
 
 	/**
 	 * @param string $href
@@ -81,46 +46,6 @@ class GetPasteRootButtonEvent
 	public function getHref()
 	{
 		return $this->href;
-	}
-
-	/**
-	 * @param \DcGeneral\Data\ModelInterface $next
-	 *
-	 * @return $this
-	 */
-	public function setNext($next)
-	{
-		$this->next = $next;
-
-		return $this;
-	}
-
-	/**
-	 * @return \DcGeneral\Data\ModelInterface
-	 */
-	public function getNext()
-	{
-		return $this->next;
-	}
-
-	/**
-	 * @param \DcGeneral\Data\ModelInterface $previous
-	 *
-	 * @return $this
-	 */
-	public function setPrevious($previous)
-	{
-		$this->previous = $previous;
-
-		return $this;
-	}
-
-	/**
-	 * @return \DcGeneral\Data\ModelInterface
-	 */
-	public function getPrevious()
-	{
-		return $this->previous;
 	}
 
 	/**
