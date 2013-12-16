@@ -12,12 +12,21 @@
 
 namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
+/**
+ * Class GetPasteButtonEvent.
+ *
+ * This event gets emitted when a paste button is generated.
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView\Event
+ */
 class GetPasteButtonEvent
 	extends BaseButtonEvent
 {
-    const NAME = 'dc-general.view.contao2backend.get-paste-button';
+	const NAME = 'dc-general.view.contao2backend.get-paste-button';
 
 	/**
+	 * Determinator if there is a circular reference from an item in the clipboard to the current model.
+	 *
 	 * @var bool
 	 */
 	protected $blnCircularReference;
@@ -51,32 +60,47 @@ class GetPasteButtonEvent
 	protected $htmlPasteInto;
 
 	/**
+	 * The model to which the command shall be applied to.
+	 *
 	 * @var \DcGeneral\Data\ModelInterface
 	 */
 	protected $model;
 
 	/**
+	 * Id of the next model in the list.
+	 *
 	 * @var string
 	 */
 	protected $next;
 
 	/**
+	 * Id of the previous model in the list.
+	 *
 	 * @var string
 	 */
 	protected $previous;
 
 	/**
+	 * Determinator if the paste into button shall be disabled.
+	 *
 	 * @var bool
 	 */
 	protected $pasteIntoDisabled;
 
 	/**
+	 * Determinator if the paste after button shall be disabled.
+	 *
 	 * @var bool
 	 */
 	protected $pasteAfterDisabled;
 
 	/**
-	 * @param boolean $blnCircularReference
+	 * Set determinator if there exists a circular reference.
+	 *
+	 * This flag determines if there exists a circular reference between the item currently in the clipboard and the
+	 * current model. A circular reference is of relevance when performing a cut and paste operation for example.
+	 *
+	 * @param boolean $blnCircularReference The flag.
 	 *
 	 * @return $this
 	 */
@@ -88,6 +112,11 @@ class GetPasteButtonEvent
 	}
 
 	/**
+	 * Get determinator if there exists a circular reference.
+	 *
+	 * This flag determines if there exists a circular reference between the item currently in the clipboard and the
+	 * current model. A circular reference is of relevance when performing a cut and paste operation for example.
+	 *
 	 * @return boolean
 	 */
 	public function getCircularReference()
@@ -96,7 +125,9 @@ class GetPasteButtonEvent
 	}
 
 	/**
-	 * @param string $hrefAfter
+	 * Set the href for the paste after button.
+	 *
+	 * @param string $hrefAfter The href.
 	 *
 	 * @return $this
 	 */
@@ -107,6 +138,8 @@ class GetPasteButtonEvent
 		return $this;
 	}
 	/**
+	 * Get the href for the paste after button.
+	 *
 	 * @return string
 	 */
 	public function getHrefAfter()
@@ -115,7 +148,9 @@ class GetPasteButtonEvent
 	}
 
 	/**
-	 * @param string $hrefInto
+	 * Set the href for the paste into button.
+	 *
+	 * @param string $hrefInto The href.
 	 *
 	 * @return $this
 	 */
@@ -127,6 +162,8 @@ class GetPasteButtonEvent
 	}
 
 	/**
+	 * Get the href for the paste into button.
+	 *
 	 * @return string
 	 */
 	public function getHrefInto()
@@ -135,7 +172,9 @@ class GetPasteButtonEvent
 	}
 
 	/**
-	 * @param string $html
+	 * Set the html code for the paste after button.
+	 *
+	 * @param string $html The HTML code.
 	 *
 	 * @return $this
 	 */
@@ -147,6 +186,8 @@ class GetPasteButtonEvent
 	}
 
 	/**
+	 * Get the html code for the paste after button.
+	 *
 	 * @return string
 	 */
 	public function getHtmlPasteAfter()
@@ -155,7 +196,9 @@ class GetPasteButtonEvent
 	}
 
 	/**
-	 * @param string $html
+	 * Set the html code for the paste into button.
+	 *
+	 * @param string $html The HTML code.
 	 *
 	 * @return $this
 	 */
@@ -167,6 +210,8 @@ class GetPasteButtonEvent
 	}
 
 	/**
+	 * Get the html code for the paste after button.
+	 *
 	 * @return string
 	 */
 	public function getHtmlPasteInto()
@@ -175,7 +220,9 @@ class GetPasteButtonEvent
 	}
 
 	/**
-	 * @param \DcGeneral\Data\ModelInterface $model
+	 * Set the model currently in scope.
+	 *
+	 * @param \DcGeneral\Data\ModelInterface $model The model currently in scope.
 	 *
 	 * @return $this
 	 */
@@ -187,6 +234,8 @@ class GetPasteButtonEvent
 	}
 
 	/**
+	 * Get the model currently in scope.
+	 *
 	 * @return \DcGeneral\Data\ModelInterface
 	 */
 	public function getModel()
@@ -195,7 +244,9 @@ class GetPasteButtonEvent
 	}
 
 	/**
-	 * @param string $strNext
+	 * Set the id of the next model.
+	 *
+	 * @param string $strNext The id of the next model.
 	 *
 	 * @return $this
 	 */
@@ -207,6 +258,8 @@ class GetPasteButtonEvent
 	}
 
 	/**
+	 * Get the id of the next model.
+	 *
 	 * @return string
 	 */
 	public function getNext()
@@ -215,7 +268,9 @@ class GetPasteButtonEvent
 	}
 
 	/**
-	 * @param string $strPrevious
+	 * Set the id of the previous model.
+	 *
+	 * @param string $strPrevious The id of the previous model.
 	 *
 	 * @return $this
 	 */
@@ -227,6 +282,8 @@ class GetPasteButtonEvent
 	}
 
 	/**
+	 * Get the id of the previous model.
+	 *
 	 * @return string
 	 */
 	public function getPrevious()
@@ -235,7 +292,9 @@ class GetPasteButtonEvent
 	}
 
 	/**
-	 * @param boolean $pasteAfterDisabled
+	 * Set the determinator if the paste after button shall be disabled.
+	 *
+	 * @param boolean $pasteAfterDisabled Determinator flag for the disabling state.
 	 *
 	 * @return $this
 	 */
@@ -247,6 +306,8 @@ class GetPasteButtonEvent
 	}
 
 	/**
+	 * Check if the paste after button shall be disabled.
+	 *
 	 * @return boolean
 	 */
 	public function isPasteAfterDisabled()
@@ -255,7 +316,9 @@ class GetPasteButtonEvent
 	}
 
 	/**
-	 * @param boolean $pasteIntoDisabled
+	 * Set the determinator if the paste into button shall be disabled.
+	 *
+	 * @param boolean $pasteIntoDisabled Determinator flag for the disabling state.
 	 *
 	 * @return $this
 	 */
@@ -267,6 +330,8 @@ class GetPasteButtonEvent
 	}
 
 	/**
+	 * Check if the paste into button shall be disabled.
+	 *
 	 * @return boolean
 	 */
 	public function isPasteIntoDisabled()
