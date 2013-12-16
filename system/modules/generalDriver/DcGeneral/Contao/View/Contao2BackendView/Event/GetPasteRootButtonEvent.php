@@ -12,10 +12,17 @@
 
 namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
+/**
+ * Class GetPasteRootButtonEvent.
+ *
+ * This event gets emitted when a root button get's rendered in hierarchical mode.
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView\Event
+ */
 class GetPasteRootButtonEvent
 	extends BaseButtonEvent
 {
-    const NAME = 'dc-general.view.contao2backend.get-paste-root-button';
+	const NAME = 'dc-general.view.contao2backend.get-paste-root-button';
 
 	/**
 	 * The href information to use for the paste button.
@@ -25,12 +32,16 @@ class GetPasteRootButtonEvent
 	protected $href;
 
 	/**
+	 * Determinator if the paste button shall be disabled.
+	 *
 	 * @var bool
 	 */
 	protected $pasteDisabled;
 
 	/**
-	 * @param string $href
+	 * Set the href for the button.
+	 *
+	 * @param string $href The href.
 	 *
 	 * @return $this
 	 */
@@ -41,6 +52,8 @@ class GetPasteRootButtonEvent
 		return $this;
 	}
 	/**
+	 * Get the href for the button.
+	 *
 	 * @return string
 	 */
 	public function getHref()
@@ -49,7 +62,9 @@ class GetPasteRootButtonEvent
 	}
 
 	/**
-	 * @param boolean $pasteDisabled
+	 * Set the determinator if the button shall be disabled or not.
+	 *
+	 * @param boolean $pasteDisabled The flag.
 	 *
 	 * @return $this
 	 */
@@ -61,6 +76,8 @@ class GetPasteRootButtonEvent
 	}
 
 	/**
+	 * Check if the paste button shall be disabled or not.
+	 *
 	 * @return boolean
 	 */
 	public function isPasteDisabled()
