@@ -14,30 +14,53 @@ namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
 use DcGeneral\Event\AbstractModelAwareEvent;
 
+/**
+ * Class GetGroupHeaderEvent.
+ *
+ * Render the group header in the listing view.
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView\Event
+ */
 class GetGroupHeaderEvent
 	extends AbstractModelAwareEvent
 {
-    const NAME = 'dc-general.view.contao2backend.get-group-header';
+	const NAME = 'dc-general.view.contao2backend.get-group-header';
 
 	/**
+	 * The current property to be rendered for the group header.
+	 *
 	 * @var string
 	 */
 	protected $groupField;
 
 	/**
-	 * @var \DcGeneral\Data\ModelInterface
+	 * The grouping mode in use as defined in the listing config.
+	 *
+	 * @var string
+	 *
+	 * @see ListingConfigInterface
 	 */
 	protected $groupingMode;
 
 	/**
+	 * The value to be rendered.
+	 *
 	 * @var string
 	 */
 	protected $value;
 
 	/**
-	 * @param string $groupField
+	 * Create a new group header event.
 	 *
-	 * @return $this
+	 * @param EnvironmentInterface $environment   The environment.
+	 *
+	 * @param ModelInterface       $model         The model being used as group header.
+	 *
+	 * @param string               $propertyName  The name of the property being rendered into the group header.
+	 *
+	 * @param mixed                $propertyValue The value of the property being rendered into the group header.
+	 *
+	 * @param string               $groupingMode  The grouping mode currently active.
 	 */
 	public function __construct(
 		EnvironmentInterface $environment,
@@ -55,6 +78,8 @@ class GetGroupHeaderEvent
 	}
 
 	/**
+	 * Retrieve the property name to be rendered.
+	 *
 	 * @return string
 	 */
 	public function getGroupField()
@@ -79,7 +104,7 @@ class GetGroupHeaderEvent
 	 *
 	 * @param string $value The value.
 	 *
-	 * @return $this
+	 * @return GetGroupHeaderEvent
 	 */
 	public function setValue($value)
 	{
@@ -89,6 +114,8 @@ class GetGroupHeaderEvent
 	}
 
 	/**
+	 * Retrieve the value to use in the group header.
+	 *
 	 * @return string
 	 */
 	public function getValue()
