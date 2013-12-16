@@ -53,14 +53,14 @@ class GetOperationButtonEvent
 	protected $circularReference;
 
 	/**
-	 * The id of the next model succeeding the current model.
+	 * The next model succeeding the current model.
 	 *
 	 * @var ModelInterface
 	 */
 	protected $next;
 
 	/**
-	 * The id of the model preceeding the current model.
+	 * The model preceeding the current model.
 	 *
 	 * @var ModelInterface
 	 */
