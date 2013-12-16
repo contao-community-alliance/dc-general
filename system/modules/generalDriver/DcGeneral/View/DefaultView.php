@@ -1329,16 +1329,20 @@ class DefaultView implements ViewInterface
 				$time = '';
 		}
 
-		if (version_compare(DATEPICKER, '2.1','>')) return 'new Picker.Date($$("#ctrl_' . $objWidget->id . '"), {
-			draggable:false,
-			toggle:$$("#toggle_' . $objWidget->id . '"),
-			format:"' . Date::formatToJs($strFormat) . '",
-			positionOffset:{x:-197,y:-182}' . $time . ',
-			pickerClass:"datepicker_dashboard",
-			useFadeInOut:!Browser.ie,
-			startDay:' . $GLOBALS['TL_LANG']['MSC']['weekOffset'] . ',
-			titleFormat:"' . $GLOBALS['TL_LANG']['MSC']['titleFormat'] . '"
-		});';
+		if (version_compare(VERSION, '2.1', '>'))
+		{
+			return 'new Picker.Date($("ctrl_' . $objWidget->id . '"), {
+					draggable:false,
+					toggle:$$("#toggle_' . $objWidget->id . '"),
+					format:"' . \Date::formatToJs($strFormat) . '",
+					positionOffset:{x:-197,y:-182}' . $time . ',
+					pickerClass:"datepicker_dashboard",
+					useFadeInOut:!Browser.ie,
+					startDay:' . $GLOBALS['TL_LANG']['MSC']['weekOffset'] . ',
+					titleFormat:"' . $GLOBALS['TL_LANG']['MSC']['titleFormat'] . '"
+				});';
+		}
+
 		return 'new DatePicker(' . json_encode('#ctrl_' . $objWidget->id) . ', ' . json_encode($arrConfig) . ');';
 	}
 
