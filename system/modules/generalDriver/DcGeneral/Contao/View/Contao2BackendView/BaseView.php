@@ -374,13 +374,7 @@ class BaseView implements BackendViewInterface
 		}
 
 
-		$event = new GetGroupHeaderEvent($this->getEnvironment());
-
-		$event
-			->setModel($model)
-			->setGroupField($field)
-			->setSortingMode($groupMode)
-			->setValue($remoteNew);
+		$event = new GetGroupHeaderEvent($this->getEnvironment(), $model, $field, $remoteNew, $groupMode);
 
 		$this->getEnvironment()->getEventPropagator()->propagate(
 			$event,

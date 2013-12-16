@@ -12,10 +12,10 @@
 
 namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
-use DcGeneral\Event\AbstractEnvironmentAwareEvent;
+use DcGeneral\Event\AbstractModelAwareEvent;
 
 class GetGroupHeaderEvent
-	extends AbstractEnvironmentAwareEvent
+	extends AbstractModelAwareEvent
 {
     const NAME = 'dc-general.view.contao2backend.get-group-header';
 
@@ -27,12 +27,7 @@ class GetGroupHeaderEvent
 	/**
 	 * @var \DcGeneral\Data\ModelInterface
 	 */
-	protected $model;
-
-	/**
-	 * @var int
-	 */
-	protected $sortingMode;
+	protected $groupingMode;
 
 	/**
 	 * @var string
@@ -44,11 +39,19 @@ class GetGroupHeaderEvent
 	 *
 	 * @return $this
 	 */
-	public function setGroupField($groupField)
+	public function __construct(
+		EnvironmentInterface $environment,
+		ModelInterface $model,
+		$propertyName,
+		$propertyValue,
+		$groupingMode
+	)
 	{
-		$this->groupField = $groupField;
+		parent::__construct($environment, $model);
 
-		return $this;
+		$this->groupField   = $propertyName;
+		$this->value        = $propertyValue;
+		$this->groupingMode = $groupingMode;
 	}
 
 	/**
@@ -60,47 +63,21 @@ class GetGroupHeaderEvent
 	}
 
 	/**
-	 * @param \DcGeneral\Data\ModelInterface $model
+	 * Get the grouping mode in use as defined in the listing config.
 	 *
-	 * @return $this
-	 */
-	public function setModel($model)
-	{
-		$this->model = $model;
-
-		return $this;
-	}
-
-	/**
-	 * @return \DcGeneral\Data\ModelInterface
-	 */
-	public function getModel()
-	{
-		return $this->model;
-	}
-
-	/**
-	 * @param int $sortingMode
+	 * @return string
 	 *
-	 * @return $this
+	 * @see    ListingConfigInterface
 	 */
-	public function setSortingMode($sortingMode)
+	public function getGroupingMode()
 	{
-		$this->sortingMode = $sortingMode;
-
-		return $this;
+		return $this->groupingMode;
 	}
 
 	/**
-	 * @return int
-	 */
-	public function getSortingMode()
-	{
-		return $this->sortingMode;
-	}
-
-	/**
-	 * @param string $value
+	 * Set the value to use in the group header.
+	 *
+	 * @param string $value The value.
 	 *
 	 * @return $this
 	 */
