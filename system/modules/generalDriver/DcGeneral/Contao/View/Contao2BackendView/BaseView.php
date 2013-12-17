@@ -535,8 +535,8 @@ class BaseView implements BackendViewInterface
 		// Push some entry into clipboard.
 		elseif ($objInput->getParameter('act') == 'paste')
 		{
-			$objDataProv  = $this->getEnvironment()->getDataDriver();
-			$id           = $objInput->getParameter('id');
+			$objDataProv = $this->getEnvironment()->getDataProvider();
+			$id          = $objInput->getParameter('id');
 
 			if ($objInput->getParameter('mode') == 'cut')
 			{
