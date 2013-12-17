@@ -14,43 +14,86 @@ namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
 use DcGeneral\Event\AbstractModelAwareEvent;
 
+/**
+ * Class GetPropertyOptionsEvent.
+ *
+ * This event gets emitted when the options for a property shall get retrieved for the edit view.
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView\Event
+ */
 class GetPropertyOptionsEvent
 	extends AbstractModelAwareEvent
 {
 	const NAME = 'dc-general.view.contao2backend.get-property-options';
 
 	/**
+	 * The name of the property to retrieve the options for.
+	 *
 	 * @var string
 	 */
-	protected $fieldName;
+	protected $propertyName;
 
 	/**
+	 * The options for the properties.
+	 *
 	 * @var array
 	 */
 	protected $options;
 
 	/**
-	 * @param string $fieldName
+	 * Set the property name to retrieve the options for.
+	 *
+	 * @param string $propertyName The name of the property.
+	 *
+	 * @return $this
+	 *
+	 * @deprecated this method has been renamed to setPropertyName.
+	 */
+	public function setFieldName($propertyName)
+	{
+		return $this->setPropertyName($propertyName);
+	}
+
+	/**
+	 * Get the property name to retrieve the options for.
+	 *
+	 * @return string
+	 *
+	 * @deprecated this method has been renamed to getPropertyName.
+	 */
+	public function getFieldName()
+	{
+		return $this->getPropertyName();
+	}
+
+	/**
+	 * Set the property name to retrieve the options for.
+	 *
+	 * @param string $propertyName The name of the property.
 	 *
 	 * @return $this
 	 */
-	public function setFieldName($fieldName)
+	public function setPropertyName($propertyName)
 	{
-		$this->fieldName = $fieldName;
+		$this->propertyName = $propertyName;
 
 		return $this;
 	}
 
 	/**
+	 * Get the property name to retrieve the options for.
+	 *
 	 * @return string
 	 */
-	public function getFieldName()
+	public function getPropertyName()
 	{
-		return $this->fieldName;
+		return $this->propertyName;
 	}
 
 	/**
-	 * @param array $options
+	 * Set the options for the property in the event.
+	 *
+	 * @param array $options The options.
 	 *
 	 * @return $this
 	 */
@@ -62,6 +105,8 @@ class GetPropertyOptionsEvent
 	}
 
 	/**
+	 * Retrieve the options for the property from the event.
+	 *
 	 * @return array
 	 */
 	public function getOptions()
