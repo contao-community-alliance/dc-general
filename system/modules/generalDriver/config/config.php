@@ -23,7 +23,7 @@ if(TL_MODE == 'BE')
 }
 
 // For the moment, we add our auto loader at the end for non composerized Contao 2.X compatibility.
-if (version_compare(VERSION, '3.0', '<'))
+if (version_compare(VERSION, '3.0', '<') && !class_exists('ContaoCommunityAlliance\Contao\Composer\ClassLoader', false))
 {
 	$baseDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'DcGeneral' . DIRECTORY_SEPARATOR . 'Contao' . DIRECTORY_SEPARATOR . 'Compatibility' . DIRECTORY_SEPARATOR;
 	// Fake the Contao 3 class loading.
