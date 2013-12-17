@@ -510,7 +510,7 @@ class ContaoWidgetManager
 				$widget = $this->getWidget($property);
 
 				foreach ($errors as $error) {
-					$event = new ResolveWidgetErrorMessageEvent($error);
+					$event = new ResolveWidgetErrorMessageEvent($this->getEnvironment(), $error);
 					$propagator->propagate($event, array($definitionName, $property));
 
 					$widget->addError($event->getError());

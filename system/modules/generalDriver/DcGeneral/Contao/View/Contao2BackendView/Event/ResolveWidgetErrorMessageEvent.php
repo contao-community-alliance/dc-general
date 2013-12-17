@@ -25,7 +25,9 @@ class ResolveWidgetErrorMessageEvent
 	protected $error;
 
 	public function __construct($error)
+	public function __construct(EnvironmentInterface $environment, $error)
 	{
+		parent::__construct($environment);
 		$this->error = $error;
 	}
 
