@@ -14,12 +14,21 @@ namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
 use DcGeneral\Event\AbstractModelAwareEvent;
 
+/**
+ * Class ParentViewChildRecordEvent.
+ *
+ * This event gets emitted when a child record gets rendered in the parent view.
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView\Event
+ */
 class ParentViewChildRecordEvent
 	extends AbstractModelAwareEvent
 {
 	const NAME = 'dc-general.view.contao2backend.parent-view-child-record';
 
 	/**
+	 * The html code to use for the model.
+	 *
 	 * @var string
 	 */
 	protected $html;
@@ -27,7 +36,7 @@ class ParentViewChildRecordEvent
 	/**
 	 * Set the html code to use as child record.
 	 *
-	 * @param string $html
+	 * @param string $html The html code.
 	 *
 	 * @return $this
 	 */
