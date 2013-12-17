@@ -15,30 +15,47 @@ namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 use DcGeneral\DataDefinition\Definition\View\ModelFormatterConfigInterface;
 use DcGeneral\Event\AbstractModelAwareEvent;
 
+/**
+ * Class ModelToLabelEvent.
+ *
+ * This event gets emitted when a model shall be translated to an html representation.
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView\Event
+ */
 class ModelToLabelEvent
 	extends AbstractModelAwareEvent
 {
-    const NAME = 'dc-general.view.contao2backend.model-to-label';
+	const NAME = 'dc-general.view.contao2backend.model-to-label';
 
 	/**
+	 * The label for the model.
+	 *
+	 * This is a format string to use in vsprintf().
+	 *
 	 * @var string
 	 */
 	protected $label;
 
 	/**
-	 * @var \DcGeneral\DataDefinition\ListLabelInterface
+	 * The label information instance.
+	 *
+	 * @var ModelFormatterConfigInterface
 	 */
 	protected $listLabel;
 
 	/**
+	 * The arguments to use when building the label from the format string.
+	 *
 	 * @var array
 	 */
 	protected $args;
 
 	/**
-	 * @param array $args
+	 * Set the arguments to use when generating the final string representation using the format string.
 	 *
-	 * @return $this
+	 * @param array $args The arguments.
+	 *
+	 * @return ModelToLabelEvent
 	 */
 	public function setArgs($args)
 	{
@@ -48,6 +65,8 @@ class ModelToLabelEvent
 	}
 
 	/**
+	 * Retrieve the arguments to use when generating the final string representation using the format string.
+	 *
 	 * @return array
 	 */
 	public function getArgs()
@@ -56,9 +75,13 @@ class ModelToLabelEvent
 	}
 
 	/**
-	 * @param string $label
+	 * Set the label for the model.
 	 *
-	 * @return $this
+	 * This is a format string to use in vsprintf().
+	 *
+	 * @param string $label The label string.
+	 *
+	 * @return ModelToLabelEvent
 	 */
 	public function setLabel($label)
 	{
@@ -68,6 +91,10 @@ class ModelToLabelEvent
 	}
 
 	/**
+	 * Get the label for the model.
+	 *
+	 * This is a format string to use in vsprintf().
+	 *
 	 * @return string
 	 */
 	public function getLabel()
@@ -76,9 +103,11 @@ class ModelToLabelEvent
 	}
 
 	/**
-	 * @param ModelFormatterConfigInterface $listLabel
+	 * Set the label information instance.
 	 *
-	 * @return $this
+	 * @param ModelFormatterConfigInterface $listLabel The label information instance.
+	 *
+	 * @return ModelToLabelEvent
 	 */
 	public function setFormatter($listLabel)
 	{
@@ -88,6 +117,8 @@ class ModelToLabelEvent
 	}
 
 	/**
+	 * Retrieve the label information instance.
+	 *
 	 * @return ModelFormatterConfigInterface
 	 */
 	public function getFormatter()
