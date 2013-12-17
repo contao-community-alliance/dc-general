@@ -457,12 +457,13 @@ class BaseView implements BackendViewInterface
 	 */
 	protected function getSelectButtons()
 	{
-		$definition = $this->getEnvironment()->getDataDefinition();
+		$definition      = $this->getDataDefinition();
+		$basicDefinition = $definition->getBasicDefinition();
 		$buttons    = array();
 
 		// TODO: we have hardcoded html in here, is this really the best idea?
 
-		if (false) // TODO refactore $definition->isDeletable())
+		if ($basicDefinition->isDeletable())
 		{
 			$buttons['delete'] = sprintf(
 				'<input type="submit" name="delete" id="delete" class="tl_submit" accesskey="d" onclick="return confirm(\'%s\')" value="%s">',
@@ -482,7 +483,7 @@ class BaseView implements BackendViewInterface
 			specialchars($this->translate('MSC.copySelected'))
 		);
 
-		if (true) // TODO refactore $definition->isEditable())
+		if ($basicDefinition->isEditable())
 		{
 			$buttons['override'] = sprintf(
 				'<input type="submit" name="override" id="override" class="tl_submit" accesskey="v" value="%s">',
