@@ -17,17 +17,33 @@ use DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Event\AbstractModelAwareEvent;
 
+/**
+ * Class ManipulateWidgetEvent.
+ *
+ * This event gets emitted when a widget shall get manipulated.
+ * This happens directly after all the initialization has been done.
+ *
+ * If you want to create the widget entirely by yourself refer to the BuildWidgetEvent event.
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView\Event
+ *
+ * @see BuildWidgetEvent
+ */
 class ManipulateWidgetEvent
 	extends AbstractModelAwareEvent
 {
 	const NAME = 'dc-general.view.contao2backend.manipulate-widget';
 
 	/**
+	 * The widget instance to manipulate.
+	 *
 	 * @var \Widget
 	 */
 	protected $widget;
 
 	/**
+	 * The property information for which the widget has been created.
+	 *
 	 * @var PropertyInterface
 	 */
 	protected $property;
@@ -35,15 +51,20 @@ class ManipulateWidgetEvent
 	/**
 	 * Create a new event.
 	 *
-	 * @param EnvironmentInterface $environment
+	 * @param EnvironmentInterface $environment The environment in use.
 	 *
-	 * @param ModelInterface       $model
+	 * @param ModelInterface       $model       The model for which the widget is created.
 	 *
-	 * @param PropertyInterface    $property
+	 * @param PropertyInterface    $property    The property information for which the widget is created.
 	 *
-	 * @param \Widget              $widget
+	 * @param \Widget              $widget      The widget instance to manipulate.
 	 */
-	public function __construct(EnvironmentInterface $environment, ModelInterface $model, PropertyInterface $property, \Widget $widget)
+	public function __construct(
+		EnvironmentInterface $environment,
+		ModelInterface $model,
+		PropertyInterface $property,
+		\Widget $widget
+	)
 	{
 		parent::__construct($environment, $model);
 
@@ -52,6 +73,8 @@ class ManipulateWidgetEvent
 	}
 
 	/**
+	 * Retrieve the widget instance.
+	 *
 	 * @return \Widget
 	 */
 	public function getWidget()
@@ -60,6 +83,8 @@ class ManipulateWidgetEvent
 	}
 
 	/**
+	 * Retrieve the property information for which the widget is created for.
+	 *
 	 * @return PropertyInterface
 	 */
 	public function getProperty()
