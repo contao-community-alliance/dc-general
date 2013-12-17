@@ -33,7 +33,6 @@ use DcGeneral\Panel\SortElementInterface;
 use DcGeneral\Panel\SubmitElementInterface;
 use DcGeneral\View\ContaoBackendViewTemplate;
 use DcGeneral\View\Event\RenderReadablePropertyValueEvent;
-use DcGeneral\Contao\View\Contao2BackendView\ContaoWidgetManager;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetEditModeButtonsEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
@@ -41,7 +40,6 @@ use DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonsEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
-use DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
 use DcGeneral\Contao\BackendBindings;
 
@@ -109,19 +107,6 @@ class BaseView implements BackendViewInterface
 	/**
 	 * @return \DcGeneral\Data\CollectionInterface
 	 */
-	protected function getCurrentCollection()
-	{
-		return $this->getEnvironment()->getCurrentCollection();
-	}
-
-	/**
-	 * @return ModelInterface
-	 */
-	protected function getCurrentModel()
-	{
-		return $this->getEnvironment()->getCurrentModel();
-	}
-
 	protected function translate($path, $section = null)
 	{
 		return $this->getEnvironment()->getTranslator()->translate($path, $section);
