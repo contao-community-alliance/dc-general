@@ -14,16 +14,27 @@ namespace DcGeneral\Contao\View\Contao2BackendView;
 
 use DcGeneral\View\ViewInterface;
 
+/**
+ * Interface BackendViewInterface.
+ *
+ * This interface describes extensions over the ViewInterface regarding the Contao 2 Backend view.
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView
+ */
 interface BackendViewInterface extends ViewInterface
 {
 	/**
-	 * @param \DcGeneral\Panel\PanelContainerInterface $panelContainer
+	 * Set the panel container.
+	 *
+	 * @param \DcGeneral\Panel\PanelContainerInterface $panelContainer The panel container.
 	 *
 	 * @return BackendViewInterface
 	 */
 	public function setPanel($panelContainer);
 
 	/**
+	 * Retrieve the panel container from the view.
+	 *
 	 * @return \DcGeneral\Panel\PanelContainerInterface
 	 */
 	public function getPanel();
