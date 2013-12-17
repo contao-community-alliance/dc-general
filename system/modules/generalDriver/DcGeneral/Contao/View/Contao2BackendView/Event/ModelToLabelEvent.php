@@ -13,17 +13,12 @@
 namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
 use DcGeneral\DataDefinition\Definition\View\ModelFormatterConfigInterface;
-use DcGeneral\Event\AbstractEnvironmentAwareEvent;
+use DcGeneral\Event\AbstractModelAwareEvent;
 
 class ModelToLabelEvent
-	extends AbstractEnvironmentAwareEvent
+	extends AbstractModelAwareEvent
 {
     const NAME = 'dc-general.view.contao2backend.model-to-label';
-
-	/**
-	 * @var \DcGeneral\Data\ModelInterface
-	 */
-	protected $model;
 
 	/**
 	 * @var string
@@ -98,25 +93,5 @@ class ModelToLabelEvent
 	public function getFormatter()
 	{
 		return $this->listLabel;
-	}
-
-	/**
-	 * @param \DcGeneral\Data\ModelInterface $model
-	 *
-	 * @return $this
-	 */
-	public function setModel($model)
-	{
-		$this->model = $model;
-
-		return $this;
-	}
-
-	/**
-	 * @return \DcGeneral\Data\ModelInterface
-	 */
-	public function getModel()
-	{
-		return $this->model;
 	}
 }
