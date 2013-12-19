@@ -21,6 +21,7 @@ use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
+use DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
@@ -43,10 +44,24 @@ use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
 use DcGeneral\Contao\BackendBindings;
 
+/**
+ * Class BaseView.
+ *
+ * This class is the base class for the different backend view mode sub classes.
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView
+ */
 class BaseView implements BackendViewInterface
 {
-	// Overall Vars ---------------------------------
-	protected $notImplMsg = "<div style='text-align:center; font-weight:bold; padding:40px;'>The function/view &quot;%s&quot; is not implemented.</div>";
+	/**
+	 * The error message format string to use when a method is not implemented.
+	 *
+	 * @var string
+	 */
+	protected $notImplMsg =
+		'<div style="text-align:center; font-weight:bold; padding:40px;">
+		The function/view &quot;%s&quot; is not implemented.
+		</div>';
 
 	/**
 	 * The attached environment.
@@ -56,6 +71,8 @@ class BaseView implements BackendViewInterface
 	protected $environment;
 
 	/**
+	 * The panel container in use.
+	 *
 	 * @var PanelContainerInterface
 	 */
 	protected $panel;
@@ -73,9 +90,12 @@ class BaseView implements BackendViewInterface
 	 *   1. dispatch: "some-event[tl_table]"
 	 *   2. dispatch: "some-event"
 	 *
-	 * @param string                                   $eventName
+	 * @param string                                   $eventName The name of the event to dispatch.
 	 *
-	 * @param \Symfony\Component\EventDispatcher\Event $event
+	 * @param \Symfony\Component\EventDispatcher\Event $event     The event to dispatch.
+	 *
+	 * @return void
+	 *
 	 * @deprecated Use $this->getEnvironment()->getEventPropagator()->propagate() instead.
 	 */
 	protected function dispatchEvent($eventName, $event)
@@ -83,13 +103,16 @@ class BaseView implements BackendViewInterface
 		$this->getEnvironment()->getEventPropagator()->propagate($event, array($this->getEnvironment()->getDataDefinition()->getName()));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function setEnvironment(EnvironmentInterface $environment)
 	{
 		$this->environment = $environment;
 	}
 
 	/**
-	 * @return \DcGeneral\EnvironmentInterface
+	 * {@inheritDoc}
 	 */
 	public function getEnvironment()
 	{
@@ -97,6 +120,8 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
+	 * Retrieve the data definition from the environment.
+	 *
 	 * @return \DcGeneral\DataDefinition\ContainerInterface
 	 */
 	protected function getDataDefinition()
@@ -105,7 +130,13 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
-	 * @return \DcGeneral\Data\CollectionInterface
+	 * Translate a string via the translator.
+	 *
+	 * @param string      $path    The path within the translation where the string can be found.
+	 *
+	 * @param string|null $section The section from which the translation shall be retrieved.
+	 *
+	 * @return string
 	 */
 	protected function translate($path, $section = null)
 	{
@@ -113,9 +144,13 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
-	 * @param $name
-	 * @param $value
-	 * @param $template
+	 * Add the value to the template.
+	 *
+	 * @param string    $name     Name of the value.
+	 *
+	 * @param mixed     $value    The value to add to the template.
+	 *
+	 * @param \Template $template The template to add the value to.
 	 *
 	 * @return BaseView
 	 */
@@ -156,6 +191,8 @@ class BaseView implements BackendViewInterface
 
 	/**
 	 * Redirects to the real back end module.
+	 *
+	 * @return void
 	 */
 	protected function redirectHome()
 	{
@@ -194,11 +231,23 @@ class BaseView implements BackendViewInterface
 		return \Input::getInstance()->get('popup');
 	}
 
+	/**
+	 * Determine if the select mode is currently active or not.
+	 *
+	 * @return bool
+	 */
 	protected function isSelectModeActive()
 	{
 		return \Input::getInstance()->get('act') == 'select';
 	}
 
+	/**
+	 * Retrieve the currently active grouping mode.
+	 *
+	 * @return array|null
+	 *
+	 * @see    ListingConfigInterface
+	 */
 	protected function getGroupingMode()
 	{
 		$viewDefinition = $this->getViewSection();
@@ -257,15 +306,16 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
-	 * Return the formatted value for use in group headers as string
+	 * Return the formatted value for use in group headers as string.
 	 *
-	 * @param string         $field
+	 * @param string         $field       The name of the property to format.
 	 *
-	 * @param ModelInterface $model
+	 * @param ModelInterface $model       The model from which the value shall be taken from.
 	 *
-	 * @param string         $groupMode
+	 * @param string         $groupMode   The grouping mode in use.
 	 *
-	 * @param int            $groupLength
+	 * @param int            $groupLength The length of the value to use for grouping (only used when grouping mode is
+	 *                                    ListingConfigInterface::GROUP_CHAR).
 	 *
 	 * @return string
 	 */
@@ -371,6 +421,18 @@ class BaseView implements BackendViewInterface
 		return $remoteNew;
 	}
 
+	/**
+	 * Get the label for a button from the translator.
+	 *
+	 * The fallback is as follows:
+	 * 1. Try to translate the button via the data definition name as translation section.
+	 * 2. Try to translate the button name with the prefix 'MSC.'.
+	 * 3. Return the input value as nothing worked out.
+	 *
+	 * @param string $strButton The non translated label for the button.
+	 *
+	 * @return string
+	 */
 	protected function getButtonLabel($strButton)
 	{
 		$definition = $this->getEnvironment()->getDataDefinition();
@@ -392,7 +454,7 @@ class BaseView implements BackendViewInterface
 	/**
 	 * Retrieve a list of html buttons to use in the bottom panel (submit area).
 	 *
-	 * @return array()
+	 * @return array
 	 */
 	protected function getEditButtons()
 	{
@@ -453,7 +515,7 @@ class BaseView implements BackendViewInterface
 	/**
 	 * Retrieve a list of html buttons to use in the bottom panel (submit area).
 	 *
-	 * @return array()
+	 * @return array
 	 */
 	protected function getSelectButtons()
 	{
@@ -522,7 +584,7 @@ class BaseView implements BackendViewInterface
 	 * clipboard bool   Flag determining if the clipboard shall get cleared.
 	 * act       string Action to perform, either paste, cut or create.
 	 * id        mixed  The Id of the item to copy. In mode cut this is the id of the item to be moved.
-
+	 *
 	 * @return BaseView
 	 */
 	public function checkClipboard()
@@ -586,14 +648,20 @@ class BaseView implements BackendViewInterface
 		return $this;
 	}
 
+	/**
+	 * Determine if we are currently working in multi language mode.
+	 *
+	 * @param mixed $mixId The id of the current model.
+	 *
+	 * @return bool
+	 */
 	protected function isMultiLanguage($mixId)
 	{
 		return count($this->getEnvironment()->getController()->getSupportedLanguages($mixId)) > 0;
 	}
 
 	/**
-	 * Check if the data provider is multi language.
-	 * Save the current language and language array.
+	 * Check if the data provider is multi language and prepare the data provider with the selected language.
 	 *
 	 * @return void
 	 */
@@ -649,17 +717,23 @@ class BaseView implements BackendViewInterface
 		$objDataProvider->setCurrentLanguage($strCurrentLanguage);
 	}
 
+	/**
+	 * Create a new instance of ContaoBackendViewTemplate with the template file of the given name.
+	 *
+	 * @param string $strTemplate Name of the template to create.
+	 *
+	 * @return ContaoBackendViewTemplate
+	 */
 	protected function getTemplate($strTemplate)
 	{
 		return new ContaoBackendViewTemplate($strTemplate);
 	}
 
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 *  Core function
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
-
+	/**
+	 * TODO: Handle an ajax call, this method is currently not implemented.
+	 *
+	 * @return string
+	 */
 	public function handleAjaxCall()
 	{
 		$action = $this->getEnvironment()->getInputProvider()->getValue('action');
@@ -684,7 +758,10 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
-	 * @see edit()
+	 * Create a new item.
+	 *
+	 * @see    edit()
+	 *
 	 * @return string
 	 */
 	public function create()
@@ -744,6 +821,12 @@ class BaseView implements BackendViewInterface
 
 	/**
 	 * Handle the submit and determine which button has been triggered.
+	 *
+	 * This method will redirect the client.
+	 *
+	 * @param ModelInterface $model The model that has been submitted.
+	 *
+	 * @return void
 	 */
 	protected function handleSubmit(ModelInterface $model)
 	{
@@ -786,6 +869,16 @@ class BaseView implements BackendViewInterface
 		}
 	}
 
+	/**
+	 * Check the submitted data if we want to restore a previous version of a model.
+	 *
+	 * If so, the model will get loaded and marked as active version in the data provider and the client will perform a
+	 * reload of the page.
+	 *
+	 * @return void
+	 *
+	 * @throws DcGeneralRuntimeException When the requested version could not be located in the database.
+	 */
 	protected function checkRestoreVersion()
 	{
 		$environment             = $this->getEnvironment();
@@ -815,12 +908,13 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
-	 * Generate the view for edit
+	 * Generate the view for edit.
 	 *
 	 * @return string
 	 *
-	 * @throws \DcGeneral\Exception\DcGeneralRuntimeException
-	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException
+	 * @throws DcGeneralRuntimeException         When the current data definition is not editable or is closed.
+	 *
+	 * @throws DcGeneralInvalidArgumentException When an unknown property is mentioned in the palette.
 	 */
 	public function edit()
 	{
@@ -994,6 +1088,13 @@ class BaseView implements BackendViewInterface
 		return $objTemplate->parse();
 	}
 
+	/**
+	 * Calculate the label of a property to se in "show" view.
+	 *
+	 * @param PropertyInterface $property The property for which the label shall be calculated.
+	 *
+	 * @return string
+	 */
 	protected function getLabelForShow(PropertyInterface $property)
 	{
 		$environment  = $this->getEnvironment();
@@ -1023,9 +1124,9 @@ class BaseView implements BackendViewInterface
 	/**
 	 * Show Information about a model.
 	 *
-	 * @return String
+	 * @return string
 	 *
-	 * @throws \DcGeneral\Exception\DcGeneralRuntimeException
+	 * @throws DcGeneralRuntimeException When an unknown property is mentioned in the palette.
 	 */
 	public function show()
 	{
@@ -1113,48 +1214,31 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
-	 * Show all entries from one table
+	 * Show all entries from one table.
 	 *
-	 * @return string HTML
+	 * @return string
 	 */
 	public function showAll()
 	{
 		return vsprintf($this->notImplMsg, 'showAll - Mode ' . $this->getEnvironment()->getDataDefinition()->getSortingMode());
 	}
 
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 * AJAX Calls
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
-
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 * Sub Views
-	 * Helper functions for the main views
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
-
 	/**
-	 * Generates a subpalette for the given selector (field name)
+	 * Generates a sub palette for the given selector (field name).
 	 *
-	 * @param string $strSelector the name of the selector field.
+	 * @param string $strSelector The name of the selector field.
 	 *
-	 * @return string the generated HTML code.
+	 * @return string
 	 */
 	public function generateAjaxPalette($strSelector)
 	{
 		return vsprintf($this->notImplMsg, 'generateAjaxPalette');
 	}
 
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 * Button functions
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
-
 	/**
-	 * Generate all button for the header of a view.
+	 * Generate all buttons for the header of a view.
+	 *
+	 * @param string $strButtonId The id for the surrounding html div element.
 	 *
 	 * @return string
 	 */
@@ -1351,17 +1435,20 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
-	 * @param \DcGeneral\DataDefinition\Definition\View\CommandInterface $objCommand
+	 * Render a command button.
 	 *
-	 * @param \DcGeneral\Data\ModelInterface                             $objModel
+	 * @param CommandInterface $objCommand           The command to render the button for.
 	 *
-	 * @param bool                                                       $blnCircularReference
+	 * @param ModelInterface   $objModel             The model to which the command shall get applied.
 	 *
-	 * @param array                                                      $arrChildRecordIds
+	 * @param bool             $blnCircularReference Determinator if there exists a circular reference between the model
+	 *                                               and the model(s) contained in the clipboard.
 	 *
-	 * @param \DcGeneral\Data\ModelInterface                             $previous
+	 * @param array            $arrChildRecordIds    List of the ids of all child models of the current model.
 	 *
-	 * @param \DcGeneral\Data\ModelInterface                             $next
+	 * @param ModelInterface   $previous             The previous model in the collection.
+	 *
+	 * @param ModelInterface   $next                 The next model in the collection.
 	 *
 	 * @return string
 	 */
@@ -1489,6 +1576,13 @@ class BaseView implements BackendViewInterface
 		);
 	}
 
+	/**
+	 * Render the paste into button.
+	 *
+	 * @param GetPasteButtonEvent $event The event that has been triggered.
+	 *
+	 * @return string
+	 */
 	public function renderPasteIntoButton(GetPasteButtonEvent $event)
 	{
 		if (!is_null($event->getHtmlPasteInto()))
@@ -1510,6 +1604,13 @@ class BaseView implements BackendViewInterface
 			);
 	}
 
+	/**
+	 * Render the paste after button.
+	 *
+	 * @param GetPasteButtonEvent $event The event that has been triggered.
+	 *
+	 * @return string
+	 */
 	public function renderPasteAfterButton(GetPasteButtonEvent $event)
 	{
 		if (!is_null($event->getHtmlPasteAfter()))
@@ -1532,15 +1633,15 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
-	 * Compile buttons from the table configuration array and return them as HTML
+	 * Compile buttons from the table configuration array and return them as HTML.
 	 *
-	 * @param ModelInterface $objModelRow
-	 * @param string $strTable
-	 * @param array $arrRootIds
-	 * @param boolean $blnCircularReference
-	 * @param array $arrChildRecordIds
-	 * @param ModelInterface $previous
-	 * @param ModelInterface $next
+	 * @param ModelInterface $objModelRow          The model for which the buttons shall be generated for.
+	 * @param string         $strTable             The name of the data definition (unused).
+	 * @param array          $arrRootIds           The root ids (unused).
+	 * @param boolean        $blnCircularReference The ids building a circular reference (unused).
+	 * @param array          $arrChildRecordIds    The ids of all child records of the model (unused).
+	 * @param ModelInterface $previous             The previous model in the collection.
+	 * @param ModelInterface $next                 The next model in the collection.
 	 * @return string
 	 */
 	protected function generateButtons(ModelInterface $objModelRow, $strTable, $arrRootIds = array(), $blnCircularReference = false, $arrChildRecordIds = null, $previous = null, $next = null)
@@ -1600,12 +1701,13 @@ class BaseView implements BackendViewInterface
 		return implode(' ', $arrButtons);
 	}
 
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 * Panel
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
-
+	/**
+	 * Render the panel.
+	 *
+	 * @return string
+	 *
+	 * @throws DcGeneralRuntimeException When no panel has been defined.
+	 */
 	protected function panel()
 	{
 		if ($this->getPanel() === null)
@@ -1661,14 +1763,8 @@ class BaseView implements BackendViewInterface
 		return '';
 	}
 
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 * Breadcrumb
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
-
 	/**
-	 * Get the breadcrumb navigation by callback
+	 * Get the breadcrumb navigation via event.
 	 *
 	 * @return string
 	 */
@@ -1699,7 +1795,7 @@ class BaseView implements BackendViewInterface
 	/**
 	 * Process input and return all modified properties or null if there is no input.
 	 *
-	 * @param ContaoWidgetManager $widgetManager
+	 * @param ContaoWidgetManager $widgetManager The widget manager in use.
 	 *
 	 * @return null|PropertyValueBag
 	 */
@@ -1734,7 +1830,7 @@ class BaseView implements BackendViewInterface
 	 *
 	 * Returns either an array when in tree mode or a string in (parented) list mode.
 	 *
-	 * @param ModelInterface $model
+	 * @param ModelInterface $model The model that shall be formatted.
 	 *
 	 * @return array
 	 */
@@ -1827,11 +1923,13 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
-	 * Get for a field the readable value
+	 * Get for a field the readable value.
 	 *
-	 * @param PropertyInterface $property
-	 * @param ModelInterface $model
-	 * @param mixed $value
+	 * @param PropertyInterface $property The property to be rendered.
+	 *
+	 * @param ModelInterface    $model    The model from which the property value shall be retrieved from.
+	 *
+	 * @param mixed             $value    The value for the property.
 	 *
 	 * @return mixed
 	 */
