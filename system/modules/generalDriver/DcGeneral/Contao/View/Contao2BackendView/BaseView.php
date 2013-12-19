@@ -100,7 +100,10 @@ class BaseView implements BackendViewInterface
 	 */
 	protected function dispatchEvent($eventName, $event)
 	{
-		$this->getEnvironment()->getEventPropagator()->propagate($event, array($this->getEnvironment()->getDataDefinition()->getName()));
+		$this->getEnvironment()->getEventPropagator()->propagate(
+			$event,
+			array($this->getEnvironment()->getDataDefinition()->getName())
+		);
 	}
 
 	/**
@@ -250,8 +253,8 @@ class BaseView implements BackendViewInterface
 	 */
 	protected function getGroupingMode()
 	{
-		$viewDefinition = $this->getViewSection();
 		/** @var Contao2BackendViewDefinitionInterface $viewDefinition */
+		$viewDefinition = $this->getViewSection();
 		$listingConfig  = $viewDefinition->getListingConfig();
 
 		if ($listingConfig->getSortingMode() === ListingConfigInterface::SORT_RANDOM)
@@ -259,10 +262,10 @@ class BaseView implements BackendViewInterface
 			return null;
 		}
 
-		$definition     = $this->getEnvironment()->getDataDefinition();
-		$properties     = $definition->getPropertiesDefinition();
-		$sortingFields  = array_keys((array) $listingConfig->getDefaultSortingFields());
-		$firstSorting   = reset($sortingFields);
+		$definition    = $this->getEnvironment()->getDataDefinition();
+		$properties    = $definition->getPropertiesDefinition();
+		$sortingFields = array_keys((array)$listingConfig->getDefaultSortingFields());
+		$firstSorting  = reset($sortingFields);
 
 		$panel = $this->getPanel()->getPanel('sorting');
 		if ($panel)
@@ -271,7 +274,7 @@ class BaseView implements BackendViewInterface
 			$firstSorting = $panel->getSelected();
 		}
 
-		// Get the current value of first sorting
+		// Get the current value of first sorting.
 		if (!$firstSorting)
 		{
 			return null;
@@ -281,19 +284,19 @@ class BaseView implements BackendViewInterface
 
 		if (count($sortingFields) == 0)
 		{
-			$groupMode = ListingConfigInterface::GROUP_NONE;
+			$groupMode   = ListingConfigInterface::GROUP_NONE;
 			$groupLength = 0;
 		}
 		// Use the information from the property, if given.
-		else if ($property->getGroupingMode() != '')
+		elseif ($property->getGroupingMode() != '')
 		{
-			$groupMode = $property->getGroupingMode();
+			$groupMode   = $property->getGroupingMode();
 			$groupLength = $property->getGroupingLength();
 		}
-		// Use the global as fallback
+		// Use the global as fallback.
 		else
 		{
-			$groupMode = $listingConfig->getGroupingMode();
+			$groupMode   = $listingConfig->getGroupingMode();
 			$groupLength = $listingConfig->getGroupingLength();
 		}
 
@@ -321,8 +324,8 @@ class BaseView implements BackendViewInterface
 	 */
 	public function formatCurrentValue($field, $model, $groupMode, $groupLength)
 	{
-		$value      = $model->getProperty($field);
-		$property   = $this->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
+		$value    = $model->getProperty($field);
+		$property = $this->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
 
 		// No property? Get out!
 		if (!$property)
@@ -340,9 +343,8 @@ class BaseView implements BackendViewInterface
 		// TODO: refactor foreignKey is yet undefined.
 		elseif (false && $property->getForeignKey())
 		{
-			// TODO: case handling
-
-			if($objParentModel->hasProperties())
+			// TODO: case handling.
+			if ($objParentModel->hasProperties())
 			{
 				$remoteNew = $objParentModel->getProperty('value');
 			}
@@ -362,7 +364,7 @@ class BaseView implements BackendViewInterface
 
 				case ListingConfigInterface::GROUP_MONTH:
 					$remoteNew = ($value != '') ? date('Y-m', $value) : '-';
-					$intMonth = ($value != '') ? (date('m', $value) - 1) : '-';
+					$intMonth  = ($value != '') ? (date('m', $value) - 1) : '-';
 
 					if ($month = $this->translate('MONTHS' . $intMonth))
 					{
@@ -373,6 +375,7 @@ class BaseView implements BackendViewInterface
 				case ListingConfigInterface::GROUP_YEAR:
 					$remoteNew = ($value != '') ? date('Y', $value) : '-';
 					break;
+				default:
 			}
 		}
 		else
@@ -408,7 +411,6 @@ class BaseView implements BackendViewInterface
 			}
 		}
 
-
 		$event = new GetGroupHeaderEvent($this->getEnvironment(), $model, $field, $remoteNew, $groupMode);
 
 		$this->getEnvironment()->getEventPropagator()->propagate(
@@ -440,15 +442,13 @@ class BaseView implements BackendViewInterface
 		{
 			return $label;
 		}
-		else if (($label = $this->translate('MSC.' . $strButton)) !== $strButton)
+		elseif (($label = $this->translate('MSC.' . $strButton)) !== $strButton)
 		{
 			return $label;
 		}
+
 		// Fallback, just return the key as is it.
-		else
-		{
-			return $strButton;
-		}
+		return $strButton;
 	}
 
 	/**
@@ -461,8 +461,6 @@ class BaseView implements BackendViewInterface
 		$buttons         = array();
 		$definition      = $this->getEnvironment()->getDataDefinition();
 		$basicDefinition = $definition->getBasicDefinition();
-
-		// TODO: we have hardcoded html in here, is this really the best idea?
 
 		$buttons['save'] = sprintf(
 			'<input type="submit" name="save" id="save" class="tl_submit" accesskey="s" value="%s" />',
@@ -490,8 +488,7 @@ class BaseView implements BackendViewInterface
 				$this->getButtonLabel('saveNedit')
 			);
 		}
-		elseif (
-			!$this->isPopup()
+		elseif(!$this->isPopup()
 			&& (($basicDefinition->getMode() == BasicDefinitionInterface::MODE_PARENTEDLIST)
 				|| strlen($basicDefinition->getParentDataProvider())
 				|| $basicDefinition->isSwitchToEditEnabled()
@@ -521,14 +518,19 @@ class BaseView implements BackendViewInterface
 	{
 		$definition      = $this->getDataDefinition();
 		$basicDefinition = $definition->getBasicDefinition();
-		$buttons    = array();
-
-		// TODO: we have hardcoded html in here, is this really the best idea?
+		$buttons         = array();
 
 		if ($basicDefinition->isDeletable())
 		{
 			$buttons['delete'] = sprintf(
-				'<input type="submit" name="delete" id="delete" class="tl_submit" accesskey="d" onclick="return confirm(\'%s\')" value="%s">',
+				'<input
+				type="submit"
+				name="delete"
+				id="delete"
+				class="tl_submit"
+				accesskey="d"
+				onclick="return confirm(\'%s\')"
+				value="%s" />',
 				$GLOBALS['TL_LANG']['MSC']['delAllConfirm'],
 				specialchars($this->translate('MSC.deleteSelected'))
 			);
@@ -557,12 +559,6 @@ class BaseView implements BackendViewInterface
 				specialchars($this->translate('MSC.editSelected'))
 			);
 		}
-		/**
-		$buttons[''] = sprintf(
-		'',
-		specialchars($GLOBALS['TL_LANG']['MSC'][''])
-		);
-		 */
 
 		$event = new GetSelectModeButtonsEvent($this->getEnvironment());
 		$event->setButtons($buttons);
@@ -592,7 +588,7 @@ class BaseView implements BackendViewInterface
 		$objInput     = $this->getEnvironment()->getInputProvider();
 		$objClipboard = $this->getEnvironment()->getClipboard();
 
-		// Reset Clipboard
+		// Reset Clipboard.
 		if ($objInput->getParameter('clipboard') == '1')
 		{
 			$objClipboard->clear();
@@ -679,7 +675,7 @@ class BaseView implements BackendViewInterface
 			return;
 		}
 
-		// Load language from Session
+		// Load language from Session.
 		$arrSession = $inputProvider->getPersistentValue('dc_general');
 		if (!is_array($arrSession))
 		{
@@ -687,18 +683,19 @@ class BaseView implements BackendViewInterface
 		}
 		/** @var \DcGeneral\Data\MultiLanguageDriverInterface $objDataProvider */
 
-		// try to get the language from session
-		if (isset($arrSession["ml_support"][$strProviderName][$mixID]))
+		// Try to get the language from session.
+		if (isset($arrSession['ml_support'][$strProviderName][$mixID]))
 		{
-			$strCurrentLanguage = $arrSession["ml_support"][$strProviderName][$mixID];
+			$strCurrentLanguage = $arrSession['ml_support'][$strProviderName][$mixID];
 		}
 		else
 		{
 			$strCurrentLanguage = $GLOBALS['TL_LANGUAGE'];
 		}
 
-		// Get/Check the new language
-		if (strlen($inputProvider->getValue('language')) != 0 && $inputProvider->getValue('FORM_SUBMIT') == 'language_switch')
+		// Get/Check the new language.
+		if ((strlen($inputProvider->getValue('language')) != 0)
+			&& ($inputProvider->getValue('FORM_SUBMIT') == 'language_switch'))
 		{
 			if (array_key_exists($inputProvider->getValue('language'), $arrLanguage))
 			{
@@ -708,7 +705,7 @@ class BaseView implements BackendViewInterface
 
 		if (!array_key_exists($strCurrentLanguage, $arrLanguage))
 		{
-			$strCurrentLanguage  = $objDataProvider->getFallbackLanguage($mixID)->getID();
+			$strCurrentLanguage = $objDataProvider->getFallbackLanguage($mixID)->getID();
 		}
 
 		$arrSession['ml_support'][$strProviderName][$mixID] = $strCurrentLanguage;
@@ -830,15 +827,17 @@ class BaseView implements BackendViewInterface
 	 */
 	protected function handleSubmit(ModelInterface $model)
 	{
-		$environment             = $this->getEnvironment();
-		$inputProvider           = $environment->getInputProvider();
+		$environment   = $this->getEnvironment();
+		$inputProvider = $environment->getInputProvider();
 
 		if ($inputProvider->hasValue('save'))
 		{
-			if ($inputProvider->getValue('id')) {
+			if ($inputProvider->getValue('id'))
+			{
 				BackendBindings::reload();
 			}
-			else {
+			else
+			{
 				BackendBindings::redirect(BackendBindings::addToUrl('id=' . $model->getId()));
 			}
 		}
@@ -846,8 +845,8 @@ class BaseView implements BackendViewInterface
 		{
 			setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
-			$_SESSION['TL_INFO'] = '';
-			$_SESSION['TL_ERROR'] = '';
+			$_SESSION['TL_INFO']    = '';
+			$_SESSION['TL_ERROR']   = '';
 			$_SESSION['TL_CONFIRM'] = '';
 
 			BackendBindings::redirect(BackendBindings::getReferer());
@@ -856,8 +855,8 @@ class BaseView implements BackendViewInterface
 		{
 			setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
-			$_SESSION['TL_INFO'] = '';
-			$_SESSION['TL_ERROR'] = '';
+			$_SESSION['TL_INFO']    = '';
+			$_SESSION['TL_ERROR']   = '';
 			$_SESSION['TL_CONFIRM'] = '';
 
 			BackendBindings::redirect(BackendBindings::addToUrl('act=create&id='));
@@ -883,10 +882,12 @@ class BaseView implements BackendViewInterface
 	{
 		$environment             = $this->getEnvironment();
 		$definition              = $environment->getDataDefinition();
+		$basicDefinition         = $definition->getBasicDefinition();
+		$dataProviderDefinition  = $definition->getDataProviderDefinition();
 		$dataProvider            = $environment->getDataProvider();
-		$dataProviderInformation = $definition->getDataProviderDefinition()->getInformation($definition->getBasicDefinition()->getDataProvider());
+		$dataProviderInformation = $dataProviderDefinition->getInformation($basicDefinition->getDataProvider());
 		$inputProvider           = $environment->getInputProvider();
-		$modelId                 = $environment->getInputProvider()->getParameter('id');
+		$modelId                 = $inputProvider->getParameter('id');
 
 		if ($dataProviderInformation->isVersioningEnabled()
 			&& ($inputProvider->getValue('FORM_SUBMIT') === 'tl_version')
@@ -896,7 +897,12 @@ class BaseView implements BackendViewInterface
 
 			if ($model === null)
 			{
-				$message = sprintf('Could not load version %s of record ID %s from %s', $modelVersion, $modelId, $definition->getBasicDefinition()->getDataProvider());
+				$message = sprintf(
+					'Could not load version %s of record ID %s from %s',
+					$modelVersion,
+					$modelId,
+					$basicDefinition->getDataProvider()
+				);
 				BackendBindings::log($message, TL_ERROR, 'DC_General - edit()');
 				throw new DcGeneralRuntimeException($message);
 			}
@@ -918,13 +924,14 @@ class BaseView implements BackendViewInterface
 	 */
 	public function edit()
 	{
-		// Load basic information
 		$this->checkLanguage();
 
 		$environment             = $this->getEnvironment();
 		$definition              = $environment->getDataDefinition();
+		$basicDefinition         = $definition->getBasicDefinition();
 		$dataProvider            = $environment->getDataProvider();
-		$dataProviderInformation = $definition->getDataProviderDefinition()->getInformation($definition->getBasicDefinition()->getDataProvider());
+		$dataProviderDefinition  = $definition->getDataProviderDefinition();
+		$dataProviderInformation = $dataProviderDefinition->getInformation($basicDefinition->getDataProvider());
 		$inputProvider           = $environment->getInputProvider();
 		$palettesDefinition      = $definition->getPalettesDefinition();
 		$modelId                 = $inputProvider->getParameter('id');
@@ -944,8 +951,8 @@ class BaseView implements BackendViewInterface
 
 		$widgetManager = new ContaoWidgetManager($environment, $model);
 
-		// Check if table is editable
-		if (!$definition->getBasicDefinition()->isEditable())
+		// Check if table is editable.
+		if (!$basicDefinition->isEditable())
 		{
 			$message = 'DataContainer ' . $definition->getName() . ' is not editable';
 			BackendBindings::log($message, TL_ERROR, 'DC_General - edit()');
@@ -953,7 +960,7 @@ class BaseView implements BackendViewInterface
 		}
 
 		// Check if table is closed but we are adding a new item.
-		if ((!$modelId) && $definition->getBasicDefinition()->isClosed())
+		if ((!$modelId) && $basicDefinition->isClosed())
 		{
 			$message = 'DataContainer ' . $definition->getName() . ' is closed';
 			BackendBindings::log($message, TL_ERROR, 'DC_General - edit()');
@@ -963,8 +970,8 @@ class BaseView implements BackendViewInterface
 		// Pass 1: Get the palette for the values stored in the model.
 		$palette = $palettesDefinition->findPalette($model);
 
-		$propertyValues     = $this->processInput($widgetManager);
-		$errors             = array();
+		$propertyValues = $this->processInput($widgetManager);
+		$errors         = array();
 		if ($blnSubmitted && $propertyValues)
 		{
 			// Pass 2: Determine the real palette we want to work on if we have some data submitted.
@@ -986,15 +993,23 @@ class BaseView implements BackendViewInterface
 				continue;
 			}
 
-			foreach($properties as $property)
+			foreach ($properties as $property)
 			{
 				if (!$propertyDefinitions->hasProperty($property->getName()))
 				{
-					throw new DcGeneralInvalidArgumentException('Property ' . $property->getName() . ' is mentioned in palette but not defined in propertyDefinition.');
+					throw new DcGeneralInvalidArgumentException(
+						sprintf(
+							'Property %s is mentioned in palette but not defined in propertyDefinition.',
+							$property->getName()
+						)
+					);
 				}
 
-				// if this property is invalid, fetch the error.
-				if ($propertyValues && $propertyValues->hasPropertyValue($property->getName()) && $propertyValues->isPropertyValueInvalid($property->getName()))
+				// If this property is invalid, fetch the error.
+				if ($propertyValues
+					&& $propertyValues->hasPropertyValue($property->getName())
+					&& $propertyValues->isPropertyValueInvalid($property->getName())
+				)
 				{
 					$errors = array_merge($errors, $propertyValues->getPropertyValueErrors($property->getName()));
 				}
@@ -1023,11 +1038,13 @@ class BaseView implements BackendViewInterface
 
 				if ($dataProviderInformation->isVersioningEnabled())
 				{
-					// Compare version and current record
+					// Compare version and current record.
 					$currentVersion = $dataProvider->getActiveVersion($modelId);
-					if (!$currentVersion || !$dataProvider->sameModels($model, $dataProvider->getVersion($modelId, $currentVersion)))
+					if (!$currentVersion
+						|| !$dataProvider->sameModels($model, $dataProvider->getVersion($modelId, $currentVersion))
+					)
 					{
-						// TODO: FE|BE switch
+						// TODO: FE|BE switch.
 						$user = \BackendUser::getInstance();
 						$dataProvider->saveVersion($model, $user->username);
 					}
@@ -1064,15 +1081,15 @@ class BaseView implements BackendViewInterface
 			'enctype' => 'multipart/form-data',
 			'error' => $errors,
 			'editButtons' => $this->getEditButtons(),
-			'noReload' => (bool) $errors
+			'noReload' => (bool)$errors
 		));
 
 		if ($this->isMultiLanguage($model->getId()))
 		{
-			$langsNative = array();
-			include(TL_ROOT . '/system/config/languages.php');
-
 			/** @var MultiLanguageDriverInterface $dataProvider */
+			$langsNative = array();
+			require TL_ROOT . '/system/config/languages.php';
+
 			$this
 				->addToTemplate('languages', $environment->getController()->getSupportedLanguages($model->getId()), $objTemplate)
 				->addToTemplate('language', $dataProvider->getCurrentLanguage(), $objTemplate)
@@ -1097,12 +1114,11 @@ class BaseView implements BackendViewInterface
 	 */
 	protected function getLabelForShow(PropertyInterface $property)
 	{
-		$environment  = $this->getEnvironment();
-		$definition   = $environment->getDataDefinition();
+		$environment = $this->getEnvironment();
+		$definition  = $environment->getDataDefinition();
 
 		$label = $environment->getTranslator()->translate($property->getLabel(), $definition->getName());
 
-		// Label
 		if (!$label)
 		{
 			$label = $environment->getTranslator()->translate('MSC.' . $property->getName());
@@ -1130,7 +1146,7 @@ class BaseView implements BackendViewInterface
 	 */
 	public function show()
 	{
-		// Load check multi language
+		// Load check multi language.
 		$environment  = $this->getEnvironment();
 		$definition   = $environment->getDataDefinition();
 		$properties   = $definition->getPropertiesDefinition();
@@ -1141,22 +1157,27 @@ class BaseView implements BackendViewInterface
 		// Select language in data provider.
 		$this->checkLanguage();
 
-		// Load record from data provider
 		$objDBModel = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId));
 
 		if ($objDBModel == null)
 		{
-			BackendBindings::log('Could not find ID ' . $modelId . ' in ' . $definition->getName() . '.', 'DC_General show()', TL_ERROR);
+			BackendBindings::log(
+				sprintf(
+					'Could not find ID %s in %s.', 'DC_General show()',
+					$modelId,
+					$definition->getName()
+				),
+				TL_ERROR
+			);
 			BackendBindings::redirect('contao/main.php?act=error');
 		}
 
-		// Init
 		$values = array();
 		$labels = array();
 
 		$palette = $definition->getPalettesDefinition()->findPalette($objDBModel);
 
-		// Show all allowed fields
+		// Show only allowed fields.
 		foreach ($palette->getVisibleProperties($objDBModel) as $paletteProperty)
 		{
 			$property = $properties->getProperty($paletteProperty->getName());
@@ -1166,7 +1187,7 @@ class BaseView implements BackendViewInterface
 				throw new DcGeneralRuntimeException('Unable to retrieve property ' . $paletteProperty->getName());
 			}
 
-			// Make it human readable
+			// Make it human readable.
 			$values[$paletteProperty->getName()] = $this->getReadableFieldValue(
 				$property,
 				$objDBModel,
@@ -1220,7 +1241,10 @@ class BaseView implements BackendViewInterface
 	 */
 	public function showAll()
 	{
-		return vsprintf($this->notImplMsg, 'showAll - Mode ' . $this->getEnvironment()->getDataDefinition()->getSortingMode());
+		return sprintf(
+			$this->notImplMsg,
+			'showAll - Mode ' . $this->getViewSection()->getListingConfig()->getGroupingMode()
+		);
 	}
 
 	/**
@@ -1269,23 +1293,22 @@ class BaseView implements BackendViewInterface
 		{
 			unset($globalOperations['all']);
 		}
-		// We have the select mode
+		// We have the select mode.
 		else
 		{
 			$addButton = false;
 			$strHref   = '';
 
-			$viewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-			$basicDefinition = $definition->getBasicDefinition();
 			/** @var Contao2BackendViewDefinitionInterface $viewDefinition */
-			$listingConfig = $viewDefinition->getListingConfig();
-			$dataProviderDefinition = $definition->getDataProviderDefinition();
+			$viewDefinition  = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+			$basicDefinition = $definition->getBasicDefinition();
+			$listingConfig   = $viewDefinition->getListingConfig();
 
-			// Add Buttons for mode x
+			// Add Buttons for mode x.
 			switch ($basicDefinition->getMode())
 			{
 				case BasicDefinitionInterface::MODE_FLAT:
-					// Add new button
+					// Add new button.
 					$strHref = '';
 					if (strlen($parentProviderName))
 					{
@@ -1293,22 +1316,34 @@ class BaseView implements BackendViewInterface
 						{
 							$strHref = '&amp;mode=2';
 						}
-						$strHref = BackendBindings::addToUrl($strHref . '&amp;id=&amp;act=create&amp;pid=' . $environment->getInputProvider()->getParameter('id'));
+						$strHref = BackendBindings::addToUrl(
+							$strHref .
+							'&amp;id=&amp;act=create&amp;pid=' .
+							$environment->getInputProvider()->getParameter('id')
+						);
 					}
 					else
 					{
 						$strHref = BackendBindings::addToUrl('act=create');
 					}
 
-					$addButton = true; // TODO refactore !$basicDefinition->isClosed();
+					$addButton = !$basicDefinition->isClosed();
 					break;
 
 				case BasicDefinitionInterface::MODE_HIERARCHICAL:
 				case BasicDefinitionInterface::MODE_PARENTEDLIST:
-					$strHref   = BackendBindings::addToUrl(sprintf('act=paste&amp;mode=create&amp;cdp=%s&amp;pdp=%s', $providerName, $parentProviderName));
-					$addButton = !($definition->getBasicDefinition()->isClosed() || $environment->getClipboard()->isNotEmpty());
+					$strHref = BackendBindings::addToUrl(
+						sprintf(
+							'act=paste&amp;mode=create&amp;cdp=%s&amp;pdp=%s',
+							$providerName, $parentProviderName
+						)
+					);
+
+					$addButton = !($basicDefinition->isClosed() || $environment->getClipboard()->isNotEmpty());
 
 					break;
+
+				default:
 			}
 
 			if ($addButton)
@@ -1331,7 +1366,7 @@ class BaseView implements BackendViewInterface
 
 		}
 
-		// add clear clipboard button if needed.
+		// Add clear clipboard button if needed.
 		if ($this->getEnvironment()->getClipboard()->isNotEmpty())
 		{
 			$globalOperations = array_merge(
@@ -1344,12 +1379,12 @@ class BaseView implements BackendViewInterface
 						'title'      => $this->translate('MSC.clearClipboard'),
 						'label'      => $this->translate('MSC.clearClipboard')
 					)
-				)
-				, $globalOperations
+				),
+				$globalOperations
 			);
 		}
 
-		// Add back button
+		// Add back button.
 		if ($this->isSelectModeActive() || $parentProviderName)
 		{
 			$globalOperations = array_merge(
@@ -1368,7 +1403,7 @@ class BaseView implements BackendViewInterface
 			);
 		}
 
-		// Add global buttons
+		// Add global buttons.
 		foreach ($globalOperations as $k => $v)
 		{
 			$v          = is_array($v) ? $v : array($v);
@@ -1402,7 +1437,7 @@ class BaseView implements BackendViewInterface
 			);
 
 			// Allow to override the button entirely.
-			$html =$buttonEvent->getHtml();
+			$html = $buttonEvent->getHtml();
 			if (!is_null($html))
 			{
 				if (!empty($html))
@@ -1468,7 +1503,7 @@ class BaseView implements BackendViewInterface
 		$opDesc = $objCommand->getDescription();
 		if (strlen($opDesc))
 		{
-			$title = sprintf($opDesc, $objModel->getID());;
+			$title = sprintf($opDesc, $objModel->getID());
 		}
 		else
 		{
@@ -1482,31 +1517,28 @@ class BaseView implements BackendViewInterface
 			$attributes = ltrim(sprintf($strAttributes, $objModel->getID()));
 		}
 
-		$arrParameters = (array) $objCommand->getParameters();
+		$arrParameters = (array)$objCommand->getParameters();
 
 		// Cut needs some special information.
 		if ($objCommand->getName() == 'cut')
 		{
-			// Get data provider from current and parent
-			$strCDP = $objModel->getProviderName();
-			$strPDP = $objModel->getMeta(DCGE::MODEL_PTABLE);
-
-
-			$arrParameters['cdp'] = $strCDP;
+			// Get data provider from current and parent.
+			$strParentDataProvider = $objModel->getMeta(DCGE::MODEL_PTABLE);
+			$arrParameters['cdp']  = $objModel->getProviderName();
 
 			// Add parent provider if exists.
-			if ($strPDP != null)
+			if ($strParentDataProvider != null)
 			{
-				$arrParameters['pdp'] = $strPDP;
+				$arrParameters['pdp'] = $strParentDataProvider;
 			}
 
-			// If we have a id add it, used for mode 4 and all parent -> current views
+			// If we have a id add it, used for mode 4 and all parent -> current views.
 			if ($this->getEnvironment()->getInputProvider()->hasParameter('id'))
 			{
 				$arrParameters['id'] = $this->getEnvironment()->getInputProvider()->getParameter('id');
 			}
 
-			// Source is the id of the element which should move
+			// Source is the id of the element which should move.
 			$arrParameters['source'] = $objModel->getID();
 		}
 		else
@@ -1515,7 +1547,7 @@ class BaseView implements BackendViewInterface
 			$idParam = $objCommand->getExtra()['idparam'];
 			if ($idParam)
 			{
-				$arrParameters['id'] = '';
+				$arrParameters['id']     = '';
 				$arrParameters[$idParam] = $objModel->getID();
 			}
 			else
@@ -1644,7 +1676,15 @@ class BaseView implements BackendViewInterface
 	 * @param ModelInterface $next                 The next model in the collection.
 	 * @return string
 	 */
-	protected function generateButtons(ModelInterface $objModelRow, $strTable, $arrRootIds = array(), $blnCircularReference = false, $arrChildRecordIds = null, $previous = null, $next = null)
+	protected function generateButtons(
+		ModelInterface $objModelRow,
+		$strTable,
+		$arrRootIds = array(),
+		$blnCircularReference = false,
+		$arrChildRecordIds = null,
+		$previous = null,
+		$next = null
+	)
 	{
 		$commands = $this->getViewSection()->getModelCommands();
 
@@ -1654,15 +1694,14 @@ class BaseView implements BackendViewInterface
 			$arrButtons[$command->getName()] = $this->buildCommand($command, $objModelRow, $blnCircularReference, $arrChildRecordIds, $previous, $next);
 		}
 
-		// Add paste into/after icons
+		// Add paste into/after icons.
 		if ($this->getEnvironment()->getClipboard()->isNotEmpty())
 		{
 			$objClipboard = $this->getEnvironment()->getClipboard();
 
 			$strMode = $objClipboard->getMode();
 
-			// Switch mode
-			// Add ext. information
+			// Add ext. information.
 			$strAdd2UrlAfter = sprintf('act=%s&amp;mode=1&amp;after=%s&amp;',
 				$strMode,
 				$objModelRow->getID()
@@ -1776,16 +1815,13 @@ class BaseView implements BackendViewInterface
 
 		$arrReturn = $event->getElements();
 
-		// Check if we have a result with elements
 		if (!is_array($arrReturn) || count($arrReturn) == 0)
 		{
 			return null;
 		}
 
-		// Include the breadcrumb css
 		$GLOBALS['TL_CSS'][] = 'system/modules/generalDriver/html/css/generalBreadcrumb.css';
 
-		// Build template
 		$objTemplate = $this->getTemplate('dcbe_general_breadcrumb');
 		$this->addToTemplate('elements', $arrReturn, $objTemplate);
 
@@ -1803,12 +1839,12 @@ class BaseView implements BackendViewInterface
 	{
 		$input = $this->getEnvironment()->getInputProvider();
 
-		if ($_POST && $input->getValue('FORM_SUBMIT') == $this->getEnvironment()->getDataDefinition()->getName())
+		if ($input->getValue('FORM_SUBMIT') == $this->getEnvironment()->getDataDefinition()->getName())
 		{
 			$propertyValues = new PropertyValueBag();
-			$propertyNames = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getPropertyNames();
+			$propertyNames  = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getPropertyNames();
 
-			// process input and update changed properties.
+			// Process input and update changed properties.
 			foreach ($propertyNames as $propertyName)
 			{
 				if ($input->hasValue($propertyName))
@@ -1839,7 +1875,7 @@ class BaseView implements BackendViewInterface
 		$listing      = $this->getViewSection()->getListingConfig();
 		$properties   = $this->getDataDefinition()->getPropertiesDefinition();
 		$formatter    = $listing->getLabelFormatter($model->getProviderName());
-		$sorting      = array_keys((array) $listing->getDefaultSortingFields());
+		$sorting      = array_keys((array)$listing->getDefaultSortingFields());
 		$firstSorting = reset($sorting);
 
 		$args = array();
@@ -1848,7 +1884,8 @@ class BaseView implements BackendViewInterface
 			if ($properties->hasProperty($propertyName))
 			{
 				$property = $properties->getProperty($propertyName);
-				$args[$propertyName] = (string) $this->getReadableFieldValue($property, $model, $model->getProperty($propertyName));
+
+				$args[$propertyName] = (string)$this->getReadableFieldValue($property, $model, $model->getProperty($propertyName));
 			}
 			else
 			{
@@ -1871,7 +1908,7 @@ class BaseView implements BackendViewInterface
 
 		$arrLabel = array();
 
-		// Add columns
+		// Add columns.
 		if ($listing->getShowColumns())
 		{
 			$fields = $formatter->getPropertyNames();
@@ -1908,13 +1945,14 @@ class BaseView implements BackendViewInterface
 				$string = vsprintf($event->getLabel(), $event->getArgs());
 			}
 
-			if ($formatter->getMaxLength() !== null && strlen($string) > $formatter->getMaxLength()) {
+			if ($formatter->getMaxLength() !== null && strlen($string) > $formatter->getMaxLength())
+			{
 				$string = substr($string, 0, $formatter->getMaxLength());
 			}
 
 			$arrLabel[] = array(
-				'colspan' => NULL,
-				'class' => 'tl_file_list',
+				'colspan' => null,
+				'class'   => 'tl_file_list',
 				'content' => $string
 			);
 		}
@@ -1942,7 +1980,8 @@ class BaseView implements BackendViewInterface
 			$property->getName()
 		);
 
-		if ($event->getRendered() !== null) {
+		if ($event->getRendered() !== null)
+		{
 			return $event->getRendered();
 		}
 
