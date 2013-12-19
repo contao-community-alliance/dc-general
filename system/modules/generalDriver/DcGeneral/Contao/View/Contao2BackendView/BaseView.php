@@ -363,7 +363,7 @@ class BaseView implements BackendViewInterface
 
 		$this->getEnvironment()->getEventPropagator()->propagate(
 			$event,
-			$this->getEnvironment()->getDataDefinition()->getName()
+			array($this->getEnvironment()->getDataDefinition()->getName())
 		);
 
 		$remoteNew = $event->getValue();
@@ -505,7 +505,10 @@ class BaseView implements BackendViewInterface
 		$event = new GetSelectModeButtonsEvent($this->getEnvironment());
 		$event->setButtons($buttons);
 
-		$this->dispatchEvent(GetSelectModeButtonsEvent::NAME, $event);
+		$this->getEnvironment()->getEventPropagator()->propagate(
+			$event,
+			array($this->getEnvironment()->getDataDefinition()->getName())
+		);
 
 		return $event->getButtons();
 	}
@@ -914,9 +917,11 @@ class BaseView implements BackendViewInterface
 		if ($blnSubmitted && empty($errors))
 		{
 			$event = new EditModelBeforeSaveEvent($environment, $model);
-			$environment->getEventPropagator()->propagate($event, array(
-				$this->getEnvironment()->getDataDefinition()->getName(),
-			));
+			$environment->getEventPropagator()->propagate($event,
+				array(
+					$this->getEnvironment()->getDataDefinition()->getName(),
+				)
+			);
 
 			if ($model->getMeta(DCGE::MODEL_IS_CHANGED))
 			{
@@ -1306,8 +1311,10 @@ class BaseView implements BackendViewInterface
 
 			$this->getEnvironment()->getEventPropagator()->propagate(
 				$buttonEvent,
-				$this->getEnvironment()->getDataDefinition()->getName(),
-				$k
+				array(
+					$this->getEnvironment()->getDataDefinition()->getName(),
+					$k
+				)
 			);
 
 			// Allow to override the button entirely.
@@ -1333,9 +1340,12 @@ class BaseView implements BackendViewInterface
 		}
 
 		$buttonsEvent = new GetGlobalButtonsEvent($this->getEnvironment());
-		$buttonsEvent
-			->setButtons($arrReturn);
-		$this->dispatchEvent(GetGlobalButtonsEvent::NAME, $buttonsEvent);
+		$buttonsEvent->setButtons($arrReturn);
+
+		$this->getEnvironment()->getEventPropagator()->propagate(
+			$buttonsEvent,
+			array($this->getEnvironment()->getDataDefinition()->getName())
+		);
 
 		return '<div id="' . $strButtonId . '">' . implode(' &nbsp; :: &nbsp; ', $buttonsEvent->getButtons()) . '</div>';
 	}
@@ -1450,8 +1460,10 @@ class BaseView implements BackendViewInterface
 
 		$this->getEnvironment()->getEventPropagator()->propagate(
 			$buttonEvent,
-			$this->getEnvironment()->getDataDefinition()->getName(),
-			$objCommand->getName()
+			array(
+				$this->getEnvironment()->getDataDefinition()->getName(),
+				$objCommand->getName()
+			)
 		);
 
 		// If the event created a button, use it.
