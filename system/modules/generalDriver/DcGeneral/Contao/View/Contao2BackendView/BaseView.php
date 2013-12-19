@@ -375,6 +375,7 @@ class BaseView implements BackendViewInterface
 				case ListingConfigInterface::GROUP_YEAR:
 					$remoteNew = ($value != '') ? date('Y', $value) : '-';
 					break;
+
 				default:
 			}
 		}
@@ -1282,7 +1283,6 @@ class BaseView implements BackendViewInterface
 		$arrReturn          = array();
 		$globalOperations   = $this->getViewSection()->getGlobalCommands();
 
-
 		if (!is_array($globalOperations))
 		{
 			$globalOperations = array();
@@ -1568,7 +1568,6 @@ class BaseView implements BackendViewInterface
 			$strHref .= sprintf('&amp;%s=%s', $key, $value);
 		}
 		$strHref = BackendBindings::addToUrl($strHref);
-
 
 		$buttonEvent = new GetOperationButtonEvent($this->getEnvironment());
 		$buttonEvent
