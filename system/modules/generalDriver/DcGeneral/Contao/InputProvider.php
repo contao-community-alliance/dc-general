@@ -14,6 +14,13 @@ namespace DcGeneral\Contao;
 
 use DcGeneral\InputProviderInterface;
 
+/**
+ * Class InputProvider.
+ *
+ * This class is the Contao binding of an input provider.
+ *
+ * @package DcGeneral\Contao
+ */
 class InputProvider implements InputProviderInterface
 {
 	/**
@@ -61,10 +68,10 @@ class InputProvider implements InputProviderInterface
 		if ($blnRaw)
 		{
 			return \Input::getInstance()->postRaw($strKey);
-		} else {
-			// TODO: unsure if we should use postHtml here.
-			return \Input::getInstance()->post($strKey);
 		}
+
+		// TODO: unsure if we should use postHtml here.
+		return \Input::getInstance()->post($strKey);
 	}
 
 	/**
@@ -121,6 +128,9 @@ class InputProvider implements InputProviderInterface
 		return (\Session::getInstance()->get($strKey) !== null);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function getRequestUrl()
 	{
 
