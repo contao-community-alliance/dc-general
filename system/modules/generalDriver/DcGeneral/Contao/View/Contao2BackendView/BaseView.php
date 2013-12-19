@@ -544,10 +544,13 @@ class BaseView implements BackendViewInterface
 			);
 		}
 
-		$buttons['copy'] = sprintf(
-			'<input type="submit" name="copy" id="copy" class="tl_submit" accesskey="c" value="%s">',
-			specialchars($this->translate('MSC.copySelected'))
-		);
+		if ($basicDefinition->isCreatable())
+		{
+			$buttons['copy'] = sprintf(
+				'<input type="submit" name="copy" id="copy" class="tl_submit" accesskey="c" value="%s">',
+				specialchars($this->translate('MSC.copySelected'))
+			);
+		}
 
 		if ($basicDefinition->isEditable())
 		{
