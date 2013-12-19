@@ -12,6 +12,13 @@
 
 namespace DcGeneral\DataDefinition\Definition\Properties;
 
+/**
+ * Interface PropertyInterface.
+ *
+ * This interface describes a property information.
+ *
+ * @package DcGeneral\DataDefinition\Definition\Properties
+ */
 interface PropertyInterface
 {
 	/**
@@ -24,7 +31,7 @@ interface PropertyInterface
 	/**
 	 * Set the label language key.
 	 *
-	 * @param string $value
+	 * @param string $value The label value.
 	 *
 	 * @return PropertyInterface
 	 */
@@ -40,7 +47,7 @@ interface PropertyInterface
 	/**
 	 * Set the description language key.
 	 *
-	 * @param string $value
+	 * @param string $value The description text.
 	 *
 	 * @return PropertyInterface
 	 */
@@ -56,7 +63,7 @@ interface PropertyInterface
 	/**
 	 * Set the default value of the property.
 	 *
-	 * @param mixed $value
+	 * @param mixed $value The default value.
 	 *
 	 * @return PropertyInterface
 	 */
@@ -72,7 +79,7 @@ interface PropertyInterface
 	/**
 	 * Set if the property is excluded from access.
 	 *
-	 * @param string $value
+	 * @param bool $value The flag.
 	 *
 	 * @return PropertyInterface
 	 */
@@ -88,7 +95,7 @@ interface PropertyInterface
 	/**
 	 * Set the search determinator.
 	 *
-	 * @param string $value
+	 * @param bool $value The flag.
 	 *
 	 * @return PropertyInterface
 	 */
@@ -104,7 +111,7 @@ interface PropertyInterface
 	/**
 	 * Set the sorting determinator.
 	 *
-	 * @param string $value
+	 * @param bool $value The flag.
 	 *
 	 * @return PropertyInterface
 	 */
@@ -120,7 +127,7 @@ interface PropertyInterface
 	/**
 	 * Set filtering determinator.
 	 *
-	 * @param string $value
+	 * @param bool $value The flag.
 	 *
 	 * @return PropertyInterface
 	 */
@@ -136,7 +143,9 @@ interface PropertyInterface
 	/**
 	 * Set the grouping mode.
 	 *
-	 * @param string $value
+	 * See ListingConfigInterface::GROUP_* flags.
+	 *
+	 * @param string $value The grouping mode to apply.
 	 *
 	 * @return PropertyInterface
 	 */
@@ -150,25 +159,32 @@ interface PropertyInterface
 	public function getGroupingMode();
 
 	/**
-	 * Set the grouping length is used for char or digit grouping and define
-	 * how many chars or digits should be respected when group.
+	 * Set the grouping length is used for char or digit grouping.
 	 *
-	 * @param string $value
+	 * This defines how many chars or digits should be respected when grouping.
+	 *
+	 * @param int $value The prefix length.
 	 *
 	 * @return PropertyInterface
 	 */
 	public function setGroupingLength($value);
 
 	/**
-	 * The grouping length is used for char or digit grouping and define
-	 * how many chars or digits should be respected when group.
+	 * Get the grouping length is used for char or digit grouping.
+	 *
+	 * The grouping length is used for char or digit grouping and define how many chars or digits should be respected
+	 * when grouping.
+	 *
+	 * @return int
 	 */
 	public function getGroupingLength();
 
 	/**
 	 * Set the the list sorting mode.
 	 *
-	 * @param string $value
+	 * See ListingConfigInterface::SORT_* flags.
+	 *
+	 * @param string $value The sorting mode to apply.
 	 *
 	 * @return PropertyInterface
 	 */
@@ -176,34 +192,39 @@ interface PropertyInterface
 
 	/**
 	 * Return the list sorting mode.
+	 *
 	 * This sorting is applied after grouping and could also be called "in-group sorting".
+	 *
+	 * See ListingConfigInterface::SORT_* flags.
 	 *
 	 * @return string
 	 */
 	public function getSortingMode();
 
 	/**
-	 * @todo this is view related, should be moved there?
 	 * Set the widget type name.
 	 *
-	 * @param string $value
+	 * @param string $value The type name of the widget.
 	 *
 	 * @return PropertyInterface
+	 *
+	 * @todo this is view related, should be moved there?
 	 */
 	public function setWidgetType($value);
 
 	/**
-	 * @todo this is view related, should be moved there?
 	 * Return the widget type name.
 	 *
 	 * @return string
+	 *
+	 * @todo this is view related, should be moved there?
 	 */
 	public function getWidgetType();
 
 	/**
 	 * Set the valid values of this property.
 	 *
-	 * @param array $value
+	 * @param array $value The options.
 	 *
 	 * @return PropertyInterface
 	 */
@@ -219,7 +240,7 @@ interface PropertyInterface
 	/**
 	 * Set the explanation language string.
 	 *
-	 * @param string $value
+	 * @param string $value The explanation text.
 	 *
 	 * @return PropertyInterface
 	 */
@@ -235,7 +256,7 @@ interface PropertyInterface
 	/**
 	 * Set the extra data of the property.
 	 *
-	 * @param array $value
+	 * @param array $value The extra data for this property.
 	 *
 	 * @return PropertyInterface
 	 */
