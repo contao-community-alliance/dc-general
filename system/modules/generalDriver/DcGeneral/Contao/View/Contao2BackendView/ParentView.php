@@ -13,7 +13,6 @@
 namespace DcGeneral\Contao\View\Contao2BackendView;
 
 use DcGeneral\Contao\BackendBindings;
-use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
@@ -22,6 +21,13 @@ use DcGeneral\Data\ModelInterface;
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 
+/**
+ * Class ParentView.
+ *
+ * Implementation of the parent view.
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView
+ */
 class ParentView extends BaseView
 {
 	/**
@@ -30,14 +36,11 @@ class ParentView extends BaseView
 	 * Consumes input parameter "id".
 	 *
 	 * @return CollectionInterface
-	 *
-	 * @throws DcGeneralRuntimeException
 	 */
 	public function loadCollection()
 	{
 		$environment = $this->getEnvironment();
 
-		// Setup
 		$objCurrentDataProvider = $environment->getDataProvider();
 
 		$objChildConfig = $environment->getController()->getBaseConfig();
@@ -59,7 +62,8 @@ class ParentView extends BaseView
 	 *
 	 * @return \DcGeneral\Data\ModelInterface
 	 *
-	 * @throws \DcGeneral\Exception\DcGeneralRuntimeException
+	 * @throws DcGeneralRuntimeException If the parent view requirements are not fulfilled - either no data provider
+	 *                                   defined or no parent model id given.
 	 */
 	protected function loadParentModel()
 	{
@@ -67,19 +71,30 @@ class ParentView extends BaseView
 
 		if (!($parentId = $environment->getInputProvider()->getParameter('id')))
 		{
-			throw new DcGeneralRuntimeException('ParentView needs a proper parent id defined, somehow none is defined?', 1);
+			throw new DcGeneralRuntimeException(
+				'ParentView needs a proper parent id defined, somehow none is defined?',
+				1
+			);
 		}
 
-		if (!($objParentProvider = $environment->getDataProvider($environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider())))
+		if (!($objParentProvider =
+			$environment->getDataProvider(
+				$environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider()
+			)
+		))
 		{
-			throw new DcGeneralRuntimeException("ParentView needs a proper parent data provider defined, somehow none is defined?", 1);
+			throw new DcGeneralRuntimeException(
+				'ParentView needs a proper parent data provider defined, somehow none is defined?',
+				1
+			);
 		}
 
 		$objParentItem = $objParentProvider->fetch($objParentProvider->getEmptyConfig()->setId($parentId));
 
 		if (!$objParentItem)
 		{
-			// No parent item found, might have been deleted - we transparently create it for our filter to be able to filter to nothing.
+			// No parent item found, might have been deleted.
+			// We transparently create it for our filter to be able to filter to nothing.
 			// TODO: shall we rather bail with "parent not found"?
 			$objParentItem = $objParentProvider->getEmptyModel();
 			$objParentItem->setID($parentId);
@@ -91,51 +106,58 @@ class ParentView extends BaseView
 	/**
 	 * Render the entries for parent view.
 	 *
-	 * @param CollectionInterface $collection
+	 * @param CollectionInterface $collection          The collection to render.
 	 *
-	 * @param array               $groupingInformation
+	 * @param array               $groupingInformation The grouping information as retrieved via
+	 *                            BaseView::getGroupingMode().
+	 *
+	 * @return void
 	 */
 	protected function renderEntries($collection, $groupingInformation)
 	{
 		$environment = $this->getEnvironment();
 		$definition  = $environment->getDataDefinition();
-		$view        = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-		/** @var Contao2BackendViewDefinitionInterface $view */
+		$view        = $this->getViewSection();
 		$listing     = $view->getListingConfig();
 		$remoteCur   = null;
-		$groupclass  = 'tl_folder_tlist';
+		$groupClass  = 'tl_folder_tlist';
 		$eoCount     = -1;
 
 		$objConfig = $environment->getDataProvider()->getEmptyConfig();
 		$this->getPanel()->initialize($objConfig);
-		$firstSorting = $objConfig->getSorting() ? reset($objConfig->getSorting()) : '';
 
-		$strGroup = '';
-
-		// Run each model
+		// Run each model.
 		$i = 0;
 		foreach ($collection as $model)
 		{
 			/** @var ModelInterface $model */
 			$i++;
 
-			// Add the group header
+			// Add the group header.
 			if ($groupingInformation)
 			{
-				$remoteNew = $this->formatCurrentValue($groupingInformation['property'], $model, $groupingInformation['mode'], $groupingInformation['length']);
+				$remoteNew = $this->formatCurrentValue(
+					$groupingInformation['property'],
+					$model,
+					$groupingInformation['mode'],
+					$groupingInformation['length']
+				);
 
 				// Add the group header if it differs from the last header.
-				if (!$listing->getShowColumns() && ($groupingInformation['mode'] !== ListingConfigInterface::GROUP_NONE) && (($remoteNew != $remoteCur) || ($remoteCur === null)))
+				if (!$listing->getShowColumns()
+					&& ($groupingInformation['mode'] !== ListingConfigInterface::GROUP_NONE)
+					&& (($remoteNew != $remoteCur) || ($remoteCur === null))
+				)
 				{
 					$eoCount = -1;
 
 					$model->setMeta(DCGE::MODEL_GROUP_VALUE, array(
-						'class' => $groupclass,
+						'class' => $groupClass,
 						'value' => $remoteNew
 					));
 
-					$groupclass = 'tl_folder_list';
-					$remoteCur = $remoteNew;
+					$groupClass = 'tl_folder_list';
+					$remoteCur  = $remoteNew;
 				}
 			}
 
@@ -144,7 +166,7 @@ class ParentView extends BaseView
 				$model->setMeta(DCGE::MODEL_CLASS, $listing->getItemCssClass());
 			}
 
-			// Regular buttons
+			// Regular buttons.
 			if (!$this->isSelectModeActive())
 			{
 				$previous = ((!is_null($collection->get($i - 1))) ? $collection->get($i - 1) : null);
@@ -173,6 +195,8 @@ class ParentView extends BaseView
 				)
 			);
 
+			$model->setMeta(DCGE::MODEL_EVEN_ODD_CLASS, (((++$eoCount) % 2 == 0) ? 'even' : 'odd'));
+
 			if ($event->getHtml() !== null)
 			{
 				$information = array(
@@ -192,10 +216,9 @@ class ParentView extends BaseView
 	}
 
 	/**
-	 * Render the header of the parent view with information
-	 * from the parent table
+	 * Render the header of the parent view with information from the parent table.
 	 *
-	 * @param ModelInterface $parentModel
+	 * @param ModelInterface $parentModel The parent model.
 	 *
 	 * @return array
 	 */
@@ -203,8 +226,7 @@ class ParentView extends BaseView
 	{
 		$environment       = $this->getEnvironment();
 		$definition        = $environment->getDataDefinition();
-		/** @var Contao2BackendViewDefinitionInterface $viewDefinition */
-		$viewDefinition    = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+		$viewDefinition    = $this->getViewSection();
 		$listingDefinition = $viewDefinition->getListingConfig();
 		$headerFields      = $listingDefinition->getHeaderPropertyNames();
 		$parentDefinition  = $environment->getParentDataDefinition();
@@ -213,14 +235,13 @@ class ParentView extends BaseView
 
 		foreach ($headerFields as $v)
 		{
-			$_v = deserialize($parentModel->getProperty($v));
+			$value = deserialize($parentModel->getProperty($v));
 
 			if ($v == 'tstamp')
 			{
-				$_v = date($GLOBALS['TL_CONFIG']['datimFormat'], $_v);
+				$value = date($GLOBALS['TL_CONFIG']['datimFormat'], $value);
 			}
 
-			// FIXME: enable again when parent definition is available.
 			$property = $parentDefinition->getPropertiesDefinition()->getProperty($v);
 
 			// FIXME: foreignKey is not implemented yet.
@@ -231,46 +252,47 @@ class ParentView extends BaseView
 				// $reference  = $property->get('reference');
 				$options    = $property->getOptions();
 
-				if (is_array($_v))
+				if (is_array($value))
 				{
-					$_v = implode(', ', $_v);
+					$value = implode(', ', $value);
 				}
 				elseif ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple'])
 				{
-					$_v = strlen($_v) ? $this->translate('yes', 'MSC') : $this->translate('no', 'MSC');
+					$value = strlen($value) ? $this->translate('yes', 'MSC') : $this->translate('no', 'MSC');
 				}
-				elseif ($_v && $evaluation['rgxp'] == 'date')
+				elseif ($value && $evaluation['rgxp'] == 'date')
 				{
-					$_v = BackendBindings::parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $_v);
+					$value = BackendBindings::parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $value);
 				}
-				elseif ($_v && $evaluation['rgxp'] == 'time')
+				elseif ($value && $evaluation['rgxp'] == 'time')
 				{
-					$_v = BackendBindings::parseDate($GLOBALS['TL_CONFIG']['timeFormat'], $_v);
+					$value = BackendBindings::parseDate($GLOBALS['TL_CONFIG']['timeFormat'], $value);
 				}
-				elseif ($_v && $evaluation['rgxp'] == 'datim')
+				elseif ($value && $evaluation['rgxp'] == 'datim')
 				{
-					$_v = BackendBindings::parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $_v);
+					$value = BackendBindings::parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $value);
 				}
-				elseif (is_array($reference[$_v]))
+				elseif (is_array($reference[$value]))
 				{
-					$_v = $reference[$_v][0];
+					$value = $reference[$value][0];
 				}
-				elseif (isset($reference[$_v]))
+				elseif (isset($reference[$value]))
 				{
-					$_v = $reference[$_v];
+					$value = $reference[$value];
 				}
 				elseif ($evaluation['isAssociative'] || array_is_assoc($options))
 				{
-					$_v = $options[$_v];
+					$value = $options[$value];
 				}
 			}
 
-			// Add the sorting field
-			if ($_v != '')
+			// Add the sorting field.
+			if ($value != '')
 			{
-				$lang = $this->translate(sprintf('%s.0',  $v), $parentName);
-				$key = $lang ? $lang : $v;
-				$add[$key] = $_v;
+				$lang = $this->translate(sprintf('%s.0', $v), $parentName);
+				$key  = $lang ? $lang : $v;
+
+				$add[$key] = $value;
 			}
 		}
 
@@ -287,7 +309,7 @@ class ParentView extends BaseView
 			$add = $event->getAdditional();
 		}
 
-		// Set header data
+		// Set header data.
 		$arrHeader = array();
 		foreach ($add as $k => $v)
 		{
@@ -305,7 +327,7 @@ class ParentView extends BaseView
 	/**
 	 * Retrieve a list of html buttons to use in the top panel (submit area).
 	 *
-	 * @param ModelInterface $parentModel
+	 * @param ModelInterface $parentModel The parent model.
 	 *
 	 * @return array
 	 */
@@ -322,7 +344,11 @@ class ParentView extends BaseView
 		if ($this->isSelectModeActive())
 		{
 			$headerButtons['selectAll'] = sprintf(
-				'<label for="tl_select_trigger" class="tl_select_label">%s</label> <input type="checkbox" id="tl_select_trigger" onclick="Backend.toggleCheckboxes(this)" class="tl_tree_checkbox">',
+				'<label for="tl_select_trigger" class="tl_select_label">%s</label>
+				<input type="checkbox"
+					id="tl_select_trigger"
+					onclick="Backend.toggleCheckboxes(this)"
+					class="tl_tree_checkbox" />',
 				$this->translate('selectAll', 'MSC')
 			);
 		}
@@ -339,7 +365,9 @@ class ParentView extends BaseView
 				$headerButtons['pasteNew'] = sprintf(
 					'<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
 					// TODO: why the same id in both, id and pid?
-					BackendBindings::addToUrl('act=create&amp;mode=2&amp;pid=' . $parentModel->getID() . '&amp;id=' . $parentModel->getID()),
+					BackendBindings::addToUrl(
+						'act=create&amp;mode=2&amp;pid=' . $parentModel->getID() . '&amp;id=' . $parentModel->getID()
+					),
 					specialchars($this->translate('pastenew.1', $definition->getName())),
 					BackendBindings::generateImage('new.gif', $this->translate('pastenew.0', $definition->getName()))
 				);
@@ -349,7 +377,10 @@ class ParentView extends BaseView
 			{
 				$headerButtons['editHeader'] = sprintf(
 					'<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
-					preg_replace('/&(amp;)?table=[^& ]*/i', ($parentName ? '&amp;table=' . $parentName : ''), BackendBindings::addToUrl('act=edit')),
+					preg_replace(
+						'/&(amp;)?table=[^& ]*/i',
+						($parentName ? '&amp;table=' . $parentName : ''), BackendBindings::addToUrl('act=edit')
+					),
 					specialchars($this->translate('editheader.1', $definition->getName())),
 					BackendBindings::generateImage('edit.gif', $this->translate('editheader.0', $definition->getName()))
 				);
@@ -361,7 +392,11 @@ class ParentView extends BaseView
 					'<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
 					BackendBindings::addToUrl('act=' . $clipboard->getMode() . '&amp;mode=2&amp;pid=' . $parentModel->getID()),
 					specialchars($this->translate('pasteafter.1', $definition->getName())),
-					BackendBindings::generateImage('pasteafter.gif', $this->translate('pasteafter.0', $definition->getName()), 'class="blink"')
+					BackendBindings::generateImage(
+						'pasteafter.gif',
+						$this->translate('pasteafter.0', $definition->getName()),
+						'class="blink"'
+					)
 				);
 			}
 		}
@@ -373,9 +408,9 @@ class ParentView extends BaseView
 	/**
 	 * Show parent view mode 4.
 	 *
-	 * @param CollectionInterface $collection
+	 * @param CollectionInterface $collection  The collection containing the models.
 	 *
-	 * @param ModelInterface      $parentModel
+	 * @param ModelInterface      $parentModel The parent model.
 	 *
 	 * @return string HTML output
 	 */
@@ -400,11 +435,11 @@ class ParentView extends BaseView
 			BackendBindings::redirect('contao/main.php?act=error');
 		}
 
-		// Load language file and data container array of the parent table
+		// Load language file and data container array of the parent table.
 		BackendBindings::loadLanguageFile($parentProvider);
 		BackendBindings::loadDataContainer($parentProvider);
 
-		// Add template
+		// Add template.
 		$objTemplate = $this->getTemplate('dcbe_general_parentView');
 
 		$this
@@ -422,9 +457,9 @@ class ParentView extends BaseView
 
 		$this->renderEntries($collection, $groupingInformation);
 
-		// Add breadcrumb, if we have one
+		// Add breadcrumb, if we have one.
 		$strBreadcrumb = $this->breadcrumb();
-		if($strBreadcrumb != null)
+		if ($strBreadcrumb != null)
 		{
 			$this->addToTemplate('breadcrumb', $strBreadcrumb, $objTemplate);
 		}
@@ -433,7 +468,7 @@ class ParentView extends BaseView
 	}
 
 	/**
-	 * Show all entries from one table
+	 * Show all entries from one table.
 	 *
 	 * @return string HTML
 	 */
