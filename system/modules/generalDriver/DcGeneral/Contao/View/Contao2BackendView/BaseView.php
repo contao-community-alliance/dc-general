@@ -536,11 +536,13 @@ class BaseView implements BackendViewInterface
 			);
 		}
 
-		// TODO: strictly spoken, cut is editing - should we wrap this within if ($definition->isEditable()) here?
-		$buttons['cut'] = sprintf(
-			'<input type="submit" name="cut" id="cut" class="tl_submit" accesskey="x" value="%s">',
-			specialchars($this->translate('MSC.moveSelected'))
-		);
+		if ($basicDefinition->isEditable())
+		{
+			$buttons['cut'] = sprintf(
+				'<input type="submit" name="cut" id="cut" class="tl_submit" accesskey="x" value="%s">',
+				specialchars($this->translate('MSC.moveSelected'))
+			);
+		}
 
 		$buttons['copy'] = sprintf(
 			'<input type="submit" name="copy" id="copy" class="tl_submit" accesskey="c" value="%s">',
