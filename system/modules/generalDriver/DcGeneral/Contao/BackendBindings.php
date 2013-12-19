@@ -14,108 +14,35 @@ namespace DcGeneral\Contao;
 
 if (version_compare(VERSION, '3.0', '<'))
 {
-	class BackendBindingInternal extends \Backend
-	{
-		protected static $objInstance;
-
-		protected function __construct()
-		{
-			self::$objInstance = $this;
-			parent::__construct();
-		}
-
-		public static function getInstance()
-		{
-			if (!self::$objInstance)
-			{
-				new self;
-			}
-
-			return self::$objInstance;
-		}
-
-		public function log($strText, $strFunction, $strCategory)
-		{
-			parent::log($strText, $strFunction, $strCategory);
-		}
-
-		public function redirect($strLocation, $intStatus)
-		{
-			parent::redirect($strLocation, $intStatus);
-		}
-
-		public function reload()
-		{
-			parent::reload();
-		}
-
-		public function addToUrl($strRequest)
-		{
-			return parent::addToUrl($strRequest);
-		}
-
-		public function loadLanguageFile($strName, $strLanguage = false, $blnNoCache = false)
-		{
-			parent::loadLanguageFile($strName, $strLanguage, $blnNoCache);
-		}
-
-		public function generateImage($src, $alt = '', $attributes = '')
-		{
-			return parent::generateImage($src, $alt, $attributes);
-		}
-
-		public function getImage($image, $width, $height, $mode = '', $target = NULL, $force = false)
-		{
-			return parent::getImage($image, $width, $height, $mode, $target, $force);
-		}
-
-		public function getReferer($blnEncodeAmpersands=false, $strTable=null)
-		{
-			return parent::getReferer($blnEncodeAmpersands, $strTable);
-		}
-
-		public function loadDataContainer($strName, $blnNoCache=false)
-		{
-			parent::loadDataContainer($strName, $blnNoCache);
-		}
-
-		public function parseDate($strFormat, $intTimestamp=null)
-		{
-			return parent::parseDate($strFormat, $intTimestamp);
-		}
-	}
+	class_alias('DcGeneral\Contao\BackendBindingInternal\ContaoTwoEleven', 'BackendBindingInternal');
 }
 else
 {
-	class BackendBindingInternal extends \Backend
-	{
-		protected static $objInstance;
-
-		protected function __construct()
-		{
-			self::$objInstance = $this;
-			parent::__construct();
-		}
-
-		public static function getInstance()
-		{
-			if (!self::$objInstance)
-			{
-				new self;
-			}
-
-			return self::$objInstance;
-		}
-
-		public function loadDataContainer($strName, $blnNoCache=false)
-		{
-			parent::loadDataContainer($strName, $blnNoCache);
-		}
-	}
+	class_alias('DcGeneral\Contao\BackendBindingInternal\ContaoThree', 'BackendBindingInternal');
 }
 
+/**
+ * Class BackendBindings.
+ *
+ * This class abstracts the Contao backend methods used within DcGeneral over all Contao versions.
+ *
+ * This is needed to limit the amount of version_compare() calls to an absolute minimum.
+ *
+ * @package DcGeneral\Contao
+ */
 class BackendBindings
 {
+	/**
+	 * Log a message to the contao system log.
+	 *
+	 * @param string $strText     The message text to add to the log.
+	 *
+	 * @param string $strFunction The method/function the message originates from.
+	 *
+	 * @param string $strCategory The category under which the message shall be logged.
+	 *
+	 * @return void
+	 */
 	public static function log($strText, $strFunction, $strCategory)
 	{
 		if (version_compare(VERSION, '3.1', '>='))
@@ -128,6 +55,17 @@ class BackendBindings
 		}
 	}
 
+	/**
+	 * Redirect the browser to a new location.
+	 *
+	 * NOTE: This method exits the script.
+	 *
+	 * @param string $strLocation The new URI to which the browser shall get redirected to.
+	 *
+	 * @param int    $intStatus   The HTTP status code to use. 301, 302, 303, 307. Defaults to 303.
+	 *
+	 * @return void
+	 */
 	public static function redirect($strLocation, $intStatus = 303)
 	{
 		if (version_compare(VERSION, '3.1', '>='))
@@ -140,6 +78,13 @@ class BackendBindings
 		}
 	}
 
+	/**
+	 * Reload the current page.
+	 *
+	 * NOTE: This method exits the script.
+	 *
+	 * @return void
+	 */
 	public static function reload()
 	{
 		if (version_compare(VERSION, '3.1', '>='))
@@ -152,19 +97,37 @@ class BackendBindings
 		}
 	}
 
+	/**
+	 * Add a request string to the current URI string.
+	 *
+	 * @param string $strRequest The parameters to add to the current URL separated by &.
+	 *
+	 * @return string
+	 */
 	public static function addToUrl($strRequest)
 	{
 		if (version_compare(VERSION, '3.1', '>='))
 		{
 			return \Backend::addToUrl($strRequest);
 		}
-		else
-		{
-			return BackendBindingInternal::getInstance()->addToUrl($strRequest);
-		}
+
+		return BackendBindingInternal::getInstance()->addToUrl($strRequest);
 	}
 
-	public static function loadLanguageFile($strName, $strLanguage=null, $blnNoCache=false)
+	/**
+	 * Load a set of language files.
+	 *
+	 * @param string  $strName     The table name.
+	 *
+	 * @param boolean $strLanguage An optional language code.
+	 *
+	 * @param boolean $blnNoCache  If true, the cache will be bypassed.
+	 *
+	 * @return void
+	 *
+	 * @throws \Exception In case a language does not exist.
+	 */
+	public static function loadLanguageFile($strName, $strLanguage = null, $blnNoCache = false)
 	{
 		if (version_compare(VERSION, '3.1', '>='))
 		{
@@ -176,64 +139,119 @@ class BackendBindings
 		}
 	}
 
-	public static function getImage($image, $width, $height, $mode='', $target=null, $force=false)
+	/**
+	 * Resize an image and store the resized version in the assets/images folder.
+	 *
+	 * @param string  $image  The image path.
+	 * @param integer $width  The target width.
+	 * @param integer $height The target height.
+	 * @param string  $mode   The resize mode.
+	 * @param string  $target An optional target path.
+	 * @param boolean $force  Override existing target images.
+	 *
+	 * @return string|null The path of the resized image or null.
+	 */
+	public static function getImage($image, $width, $height, $mode = '', $target = null, $force = false)
 	{
 		if (version_compare(VERSION, '3.1', '>='))
 		{
 			return \Image::get($image, $width, $height, $mode, $target, $force);
 		}
-		else{
-			return BackendBindingInternal::getInstance()->getImage($image, $width, $height, $mode, $target, $force);
-		}
+
+		return BackendBindingInternal::getInstance()->getImage($image, $width, $height, $mode, $target, $force);
 	}
 
-	public static function generateImage($src, $alt='', $attributes='')
+	/**
+	 * Generate an image tag and return it as string.
+	 *
+	 * @param string $src        The image path.
+	 * @param string $alt        An optional alt attribute.
+	 * @param string $attributes A string of other attributes.
+	 *
+	 * @return string The image HTML tag.
+	 */
+	public static function generateImage($src, $alt = '', $attributes = '')
 	{
 		if (version_compare(VERSION, '3.1', '>='))
 		{
 			return \Image::getHtml($src, $alt, $attributes);
 		}
-		else{
-			return BackendBindingInternal::getInstance()->generateImage($src, $alt, $attributes);
-		}
+
+		return BackendBindingInternal::getInstance()->generateImage($src, $alt, $attributes);
 	}
 
-	public static function getReferer($blnEncodeAmpersands=false, $strTable=null)
+	/**
+	 * Return the current referer URL and optionally encode ampersands.
+	 *
+	 * @param boolean $blnEncodeAmpersands If true, ampersands will be encoded.
+	 *
+	 * @param string  $strTable            An optional table name.
+	 *
+	 * @return string The referer URL
+	 */
+	public static function getReferer($blnEncodeAmpersands = false, $strTable = null)
 	{
 		if (version_compare(VERSION, '3.1', '>='))
 		{
 			return \Backend::getReferer($blnEncodeAmpersands, $strTable);
 		}
-		else{
-			return BackendBindingInternal::getInstance()->getReferer($blnEncodeAmpersands, $strTable);
-		}
+
+		return BackendBindingInternal::getInstance()->getReferer($blnEncodeAmpersands, $strTable);
 	}
 
-	public static function loadDataContainer($strTable, $blnNoCache=false)
+	/**
+	 * Load a set of DCA files.
+	 *
+	 * @param string  $strTable   The table name.
+	 *
+	 * @param boolean $blnNoCache If true, the cache will be bypassed.
+	 *
+	 * @return void
+	 */
+	public static function loadDataContainer($strTable, $blnNoCache = false)
 	{
 		BackendBindingInternal::getInstance()->loadDataContainer($strTable, $blnNoCache);
 	}
 
-	public static function parseDate($strFormat, $intTimestamp=null)
+	/**
+	 * Parse a date format string and translate textual representations.
+	 *
+	 * @param string  $strFormat    The date format string.
+	 *
+	 * @param integer $intTimestamp An optional timestamp.
+	 *
+	 * @return string The textual representation of the date.
+	 */
+	public static function parseDate($strFormat, $intTimestamp = null)
 	{
 		if (version_compare(VERSION, '3.1', '>='))
 		{
 			return \Date::parse($strFormat, $intTimestamp);
 		}
-		else{
-			return BackendBindingInternal::getInstance()->parseDate($strFormat, $intTimestamp);
-		}
+
+		return BackendBindingInternal::getInstance()->parseDate($strFormat, $intTimestamp);
 	}
 
+	/**
+	 * Shorten a HTML string to a certain number of characters.
+	 *
+	 * Shortens a string to a given number of characters preserving words
+	 * (therefore it might be a bit shorter or longer than the number of
+	 * characters specified). Preserves allowed tags.
+	 *
+	 * @param string  $strString        The Html string to cut.
+	 *
+	 * @param integer $intNumberOfChars The amount of chars to preserve.
+	 *
+	 * @return string
+	 */
 	public static function substrHtml($strString, $intNumberOfChars)
 	{
 		if (version_compare(VERSION, '3.1', '>='))
 		{
 			return \String::substrHtml($strString, $intNumberOfChars);
 		}
-		else
-		{
-			return \String::getInstance()->substrHtml($strString, $intNumberOfChars);
-		}
+
+		return \String::getInstance()->substrHtml($strString, $intNumberOfChars);
 	}
 }
