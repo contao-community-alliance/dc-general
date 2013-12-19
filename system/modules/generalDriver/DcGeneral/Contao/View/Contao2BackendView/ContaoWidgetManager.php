@@ -19,6 +19,7 @@ use DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidget
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
+use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use DcGeneral\EnvironmentInterface;
@@ -26,35 +27,58 @@ use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\View\ContaoBackendViewTemplate;
 
+/**
+ * Class ContaoWidgetManager.
+ *
+ * This class is responsible for creating widgets and processing data through them.
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView
+ */
 class ContaoWidgetManager
 {
 	/**
+	 * The environment in use.
+	 *
 	 * @var EnvironmentInterface
 	 */
 	protected $environment;
 
 	/**
-	 * @var \DcGeneral\Data\ModelInterface
+	 * The model for which widgets shall be generated.
+	 *
+	 * @var ModelInterface
 	 */
 	protected $model;
 
 	/**
-	 * A list with all widgets
+	 * A list with all widgets.
+	 *
 	 * @var array
 	 */
 	protected $arrWidgets = array();
 
 	/**
-	 * @param EnvironmentInterface           $environment
+	 * Create a new instance.
 	 *
-	 * @param \DcGeneral\Data\ModelInterface $model
+	 * @param EnvironmentInterface $environment The environment in use.
+	 *
+	 * @param ModelInterface       $model       The model for which widgets shall be generated.
 	 */
-	function __construct(EnvironmentInterface $environment, $model)
+	public function __construct(EnvironmentInterface $environment, ModelInterface $model)
 	{
 		$this->environment = $environment;
 		$this->model       = $model;
 	}
 
+	/**
+	 * Encode a value from the widget to native data of the data provider via event.
+	 *
+	 * @param string $property The property.
+	 *
+	 * @param mixed  $value    The value of the property.
+	 *
+	 * @return mixed
+	 */
 	public function encodeValue($property, $value)
 	{
 		$environment = $this->getEnvironment();
@@ -72,6 +96,15 @@ class ContaoWidgetManager
 		return $event->getValue();
 	}
 
+	/**
+	 * Decode a value from native data of the data provider to the widget via event.
+	 *
+	 * @param string $property The property.
+	 *
+	 * @param mixed  $value    The value of the property.
+	 *
+	 * @return mixed
+	 */
 	public function decodeValue($property, $value)
 	{
 		$environment = $this->getEnvironment();
@@ -108,25 +141,26 @@ class ContaoWidgetManager
 		}
 		catch(\Exception $e)
 		{
-			return false;
+			// Fall though and return false.
 		}
+		return false;
 	}
 
 	/**
-	 * Get special labels
+	 * Get special labels.
 	 *
-	 * @param PropertyInterface $propInfo
+	 * @param PropertyInterface $propInfo The property for which the X label shall be generated.
 	 *
 	 * @return string
 	 */
 	protected function getXLabel($propInfo)
 	{
-		$strXLabel = '';
+		$strXLabel   = '';
 		$environment = $this->getEnvironment();
 		$defName     = $environment->getDataDefinition()->getName();
 		$translator  = $environment->getTranslator();
 
-		// Toggle line wrap (textarea)
+		// Toggle line wrap (textarea).
 		if ($propInfo->getWidgetType() === 'textarea' && !array_key_exists('rte', $propInfo->getExtra()))
 		{
 			$strXLabel .= ' ' . BackendBindings::generateImage(
@@ -140,11 +174,13 @@ class ContaoWidgetManager
 				);
 		}
 
-		// Add the help wizard
+		// Add the help wizard.
 		if ($propInfo->getExtra() && array_key_exists('helpwizard', $propInfo->getExtra()))
 		{
 			$strXLabel .= sprintf(
-				' <a href="contao/help.php?table=%s&amp;field=%s" title="%s" onclick="Backend.openWindow(this, 600, 500); return false;">%s</a>',
+				' <a href="contao/help.php?table=%s&amp;field=%s"
+				title="%s"
+				onclick="Backend.openWindow(this, 600, 500); return false;">%s</a>',
 				$defName,
 				$propInfo->getName(),
 				specialchars($translator->translate('helpWizard', 'MSC')),
@@ -156,14 +192,16 @@ class ContaoWidgetManager
 			);
 		}
 
-		// Add the popup file manager
+		// Add the popup file manager.
 		if ($propInfo->getWidgetType() === 'fileTree')
 		{
 			// In Contao 3 it is always a file picker - no need for the button.
 			if (version_compare(VERSION, '3.0', '<'))
 			{
 				$strXLabel .= sprintf(
-					' <a href="contao/files.php" title="%s" onclick="Backend.getScrollOffset(); Backend.openWindow(this, 750, 500); return false;">%s</a>',
+					' <a href="contao/files.php"
+					title="%s"
+					onclick="Backend.getScrollOffset(); Backend.openWindow(this, 750, 500); return false;">%s</a>',
 					specialchars($translator->translate('fileManager', 'MSC')),
 					BackendBindings::generateImage(
 						'filemanager.gif', $translator->translate('fileManager', 'MSC'), 'style="vertical-align:text-bottom;"'
@@ -171,8 +209,8 @@ class ContaoWidgetManager
 				);
 			}
 		}
-		// Add table import wizard
-		else if ($propInfo->getWidgetType() === 'tableWizard')
+		// Add table import wizard.
+		elseif ($propInfo->getWidgetType() === 'tableWizard')
 		{
 			$strXLabel .= sprintf(
 				' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a> %s%s',
@@ -201,8 +239,8 @@ class ContaoWidgetManager
 				)
 			);
 		}
-		// Add list import wizard
-		else if ($propInfo->getWidgetType() === 'listWizard')
+		// Add list import wizard.
+		elseif ($propInfo->getWidgetType() === 'listWizard')
 		{
 			$strXLabel .= sprintf(
 				' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a>',
@@ -220,16 +258,17 @@ class ContaoWidgetManager
 	}
 
 	/**
+	 * Retrieve the instance of a widget for the given property.
 	 *
 	 * @param string $property Name of the property for which the widget shall be retrieved.
 	 *
 	 * @return \Contao\Widget
 	 *
-	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException
+	 * @throws DcGeneralInvalidArgumentException If an undefined property name has been passed.
 	 */
 	public function getWidget($property)
 	{
-		// Load from cache
+		// Load from cache.
 		if (isset($this->arrWidgets[$property]))
 		{
 			return $this->arrWidgets[$property];
@@ -261,14 +300,14 @@ class ContaoWidgetManager
 		$varValue  = $this->decodeValue($property, $this->model->getProperty($property));
 		$xLabel    = $this->getXLabel($propInfo);
 
-		// ToDo: switch for BE / FE handling
+		// ToDo: switch for BE / FE handling.
 		$strClass = $GLOBALS['BE_FFL'][$propInfo->getWidgetType()];
 		if (!class_exists($strClass))
 		{
-			return $this->arrWidgets[$property] = NULL;
+			return $this->arrWidgets[$property] = null;
 		}
 
-		// FIXME TEMPORARY WORKAROUND! To be fixed in the core: Controller::prepareForWidget(..)
+		// FIXME TEMPORARY WORKAROUND! To be fixed in the core: Controller::prepareForWidget(..).
 		if (in_array($propExtra['rgxp'], array('date', 'time', 'datim'))
 			&& !$propExtra['mandatory']
 			&& is_numeric($varValue) && $varValue == 0)
@@ -276,14 +315,14 @@ class ContaoWidgetManager
 			$varValue = '';
 		}
 
-		// OH: why not $required = $mandatory always? source: DataContainer 226
-		$propExtra['required'] = $varValue == '' && $propExtra['mandatory'] ? true : false;
+		// OH: why not $required = $mandatory always? source: DataContainer 226.
 		// OH: the whole prepareForWidget(..) thing is an only mess
-		// widgets should parse the configuration by themselves, depending on what they need
+		// Widgets should parse the configuration by themselves, depending on what they need.
+		$propExtra['required'] = ($varValue == '') && $propExtra['mandatory'];
 
 		$options = $propInfo->getOptions();
-		$event = new GetPropertyOptionsEvent($environment, $this->model);
-		$event->setFieldName($property);
+		$event   = new GetPropertyOptionsEvent($environment, $this->model);
+		$event->setPropertyName($property);
 		$environment->getEventPropagator()->propagate(
 			$event,
 			$environment->getDataDefinition()->getName(),
@@ -311,7 +350,14 @@ class ContaoWidgetManager
 
 		if (version_compare(VERSION, '3.0', '>='))
 		{
-			$arrPrepared = \Widget::getAttributesFromDca($arrConfig, $propInfo->getName(), $varValue, $property, $defName, $this);
+			$arrPrepared = \Widget::getAttributesFromDca(
+				$arrConfig,
+				$propInfo->getName(),
+				$varValue,
+				$property,
+				$defName,
+				$this
+			);
 		}
 		else
 		{
@@ -321,14 +367,17 @@ class ContaoWidgetManager
 		// Bugfix CS: ajax subpalettes are really broken.
 		// Therefore we reset to the default checkbox behaviour here and submit the entire form.
 		// This way, the javascript needed by the widget (wizards) will be correctly evaluated.
-		if ($arrConfig['inputType'] == 'checkbox' && is_array($GLOBALS['TL_DCA'][$defName]['subpalettes']) && in_array($property, array_keys($GLOBALS['TL_DCA'][$defName]['subpalettes'])) && $arrConfig['eval']['submitOnChange'])
+		if ($arrConfig['inputType'] == 'checkbox'
+			&& is_array($GLOBALS['TL_DCA'][$defName]['subpalettes'])
+			&& in_array($property, array_keys($GLOBALS['TL_DCA'][$defName]['subpalettes']))
+			&& $arrConfig['eval']['submitOnChange']
+		)
 		{
 			$arrPrepared['onclick'] = $arrConfig['eval']['submitOnChange'] ? "Backend.autoSubmit('".$defName."')" : '';
 		}
-		//$arrConfig['options'] = $arrPrepared['options'];
 
 		$objWidget = new $strClass($arrPrepared);
-		// OH: what is this? source: DataContainer 232
+		// OH: what is this? source: DataContainer 232.
 		$objWidget->currentRecord = $this->model->getId();
 
 		$objWidget->wizard .= $xLabel;
@@ -345,6 +394,13 @@ class ContaoWidgetManager
 		return $this->arrWidgets[$property] = $objWidget;
 	}
 
+	/**
+	 * Build the date picker string.
+	 *
+	 * @param \Contao\Widget $objWidget The widget instance to generate the date picker string for.
+	 *
+	 * @return string
+	 */
 	protected function buildDatePicker($objWidget)
 	{
 		$translator = $this->getEnvironment()->getTranslator();
@@ -372,18 +428,20 @@ class ContaoWidgetManager
 		{
 			case 'datim':
 				$arrConfig['timePicker'] = true;
+
 				$time = ",\n      timePicker:true";
 				break;
 
 			case 'time':
 				$arrConfig['timePickerOnly'] = true;
+
 				$time = ",\n      pickOnly:\"time\"";
 				break;
 			default:
 				$time = '';
 		}
 
-		if (version_compare(DATEPICKER, '2.1','>'))
+		if (version_compare(DATEPICKER, '2.1', '>'))
 		{
 			return 'new Picker.Date($$("#ctrl_' . $objWidget->id . '"), {
 				draggable:false,
@@ -403,14 +461,13 @@ class ContaoWidgetManager
 	/**
 	 * Generate the help msg for a property.
 	 *
-	 * @param string $property The name of the property
+	 * @param string $property The name of the property.
 	 *
 	 * @return string
 	 */
 	protected function generateHelpText($property)
 	{
 		$environment = $this->getEnvironment();
-		$defName     = $environment->getDataDefinition()->getName();
 		$propInfo    = $environment->getDataDefinition()->getPropertiesDefinition()->getProperty($property);
 		$label       = $propInfo->getLabel();
 		$widgetType  = $propInfo->getWidgetType();
@@ -426,6 +483,8 @@ class ContaoWidgetManager
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws DcGeneralRuntimeException When no widget can be created.
 	 */
 	public function renderWidget($property)
 	{
@@ -434,9 +493,9 @@ class ContaoWidgetManager
 		$propertyDefinitions = $definition->getPropertiesDefinition();
 		$propInfo            = $propertyDefinitions->getProperty($property);
 		$propExtra           = $propInfo->getExtra();
-		/** @var \Contao\Widget $widget */
 		$widget              = $this->getWidget($property);
 
+		/** @var \Contao\Widget $widget */
 		if (!$widget)
 		{
 			throw new DcGeneralRuntimeException('No widget for property ' . $property);
@@ -473,9 +532,9 @@ class ContaoWidgetManager
 		foreach (array_keys($propertyValues->getArrayCopy()) as $property)
 		{
 			$widget = $this->getWidget($property);
-			// NOTE: the passed input values are RAW DATA from the input provider - aka widget known values and not native data as in the model.
+			// NOTE: the passed input values are RAW DATA from the input provider - aka widget known values and not
+			// native data as in the model.
 			// Therefore we do not need to decode them but MUST encode them.
-			// $widget->value = $this->decodeValue($property, $propertyValues->getPropertyValue($property));
 			$widget->value = $propertyValues->getPropertyValue($property);
 			$widget->validate();
 
@@ -509,7 +568,8 @@ class ContaoWidgetManager
 			{
 				$widget = $this->getWidget($property);
 
-				foreach ($errors as $error) {
+				foreach ($errors as $error)
+				{
 					$event = new ResolveWidgetErrorMessageEvent($this->getEnvironment(), $error);
 					$propagator->propagate($event, array($definitionName, $property));
 
@@ -520,7 +580,7 @@ class ContaoWidgetManager
 	}
 
 	/**
-	 * Lookup buffer for processInput()
+	 * Lookup buffer for processInput().
 	 *
 	 * holds the values of all already processed input fields.
 	 *
