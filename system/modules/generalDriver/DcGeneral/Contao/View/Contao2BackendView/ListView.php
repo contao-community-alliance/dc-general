@@ -12,37 +12,40 @@
 
 namespace DcGeneral\Contao\View\Contao2BackendView;
 
-use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
-use DcGeneral\Exception\DcGeneralRuntimeException;
-use DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 
+/**
+ * Class ListView.
+ *
+ * The implementation of a plain listing view.
+ *
+ * @package DcGeneral\Contao\View\Contao2BackendView
+ */
 class ListView extends BaseView
 {
 	/**
 	 * Load the collection of child items and the parent item for the currently selected parent item.
 	 *
 	 * @return CollectionInterface
-	 *
-	 * @throws DcGeneralRuntimeException
 	 */
 	public function loadCollection()
 	{
-		$environment   = $this->getEnvironment();
-		$definition    = $environment->getDataDefinition();
+		$environment = $this->getEnvironment();
+		$definition  = $environment->getDataDefinition();
+		$backendView = $this->getViewSection();
+
 		/** @var Contao2BackendViewDefinitionInterface $backendView */
-		$backendView   = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
 		$listingConfig = $backendView->getListingConfig();
 
 		$objCurrentDataProvider = $environment->getDataProvider();
 		$objParentDataProvider  = $environment->getDataProvider($definition->getBasicDefinition()->getParentDataProvider());
 		$objConfig              = $environment->getController()->getBaseConfig();
 
-		// initialize sorting
+		// Initialize sorting.
 		$objConfig->setSorting($listingConfig->getDefaultSortingFields());
 
 		$this->getPanel()->initialize($objConfig);
@@ -50,7 +53,9 @@ class ListView extends BaseView
 		$objCollection = $objCurrentDataProvider->fetchAll($objConfig);
 
 		// If we want to group the elements, do so now.
-		if (isset($objCondition) && ($this->getViewSection()->getListingConfig()->getGroupingMode() == ListingConfigInterface::GROUP_CHAR))
+		if (isset($objCondition)
+			&& ($this->getViewSection()->getListingConfig()->getGroupingMode() == ListingConfigInterface::GROUP_CHAR)
+		)
 		{
 			foreach ($objCollection as $objModel)
 			{
@@ -67,13 +72,17 @@ class ListView extends BaseView
 		return $objCollection;
 	}
 
+	/**
+	 * Return the table heading.
+	 *
+	 * @return array
+	 */
 	protected function getTableHead()
 	{
-		$arrTableHead = array();
-		$definition   = $this->getEnvironment()->getDataDefinition();
-		$properties   = $definition->getPropertiesDefinition();
-		/** @var Contao2BackendViewDefinitionInterface $viewDefinition */
-		$viewDefinition    = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+		$arrTableHead      = array();
+		$definition        = $this->getEnvironment()->getDataDefinition();
+		$properties        = $definition->getPropertiesDefinition();
+		$viewDefinition    = $this->getViewSection();
 		$listingDefinition = $viewDefinition->getListingConfig();
 
 		// Generate the table header if the "show columns" option is active.
@@ -93,7 +102,8 @@ class ListView extends BaseView
 
 				$arrTableHead[] = array(
 					// FIXME: getAdditionalSorting() unimplemented
-					'class' => 'tl_folder_tlist col_' /* . $f . ((in_array($f, $definition->getAdditionalSorting())) ? ' ordered_by' : '') */,
+					'class' => 'tl_folder_tlist col_'
+					/* . $f . ((in_array($f, $definition->getAdditionalSorting())) ? ' ordered_by' : '') */,
 					'content' => $label[0]
 				);
 			}
@@ -110,53 +120,62 @@ class ListView extends BaseView
 	/**
 	 * Set label for list view.
 	 *
-	 * @param CollectionInterface $collection
+	 * @param CollectionInterface $collection          The collection containing the models.
 	 *
-	 * @param array               $groupingInformation
+	 * @param array               $groupingInformation The grouping information as retrieved via
+	 *                                                 BaseView::getGroupingMode().
+	 *
+	 * @return void
 	 */
 	protected function setListViewLabel($collection, $groupingInformation)
 	{
 		$viewDefinition = $this->getViewSection();
-		/** @var Contao2BackendViewDefinitionInterface $viewDefinition */
 		$listingConfig  = $viewDefinition->getListingConfig();
 		$remoteCur      = null;
-		$groupclass     = 'tl_folder_tlist';
+		$groupClass     = 'tl_folder_tlist';
 		$eoCount        = -1;
 
 		foreach ($collection as $objModelRow)
 		{
 			/** @var \DcGeneral\Data\ModelInterface $objModelRow */
 
-			// Build the sorting groups
+			// Build the sorting groups.
 			if ($groupingInformation)
 			{
-				$remoteNew = $this->formatCurrentValue($groupingInformation['property'], $objModelRow, $groupingInformation['mode'], $groupingInformation['length']);
+				$remoteNew = $this->formatCurrentValue(
+					$groupingInformation['property'],
+					$objModelRow,
+					$groupingInformation['mode'],
+					$groupingInformation['length']
+				);
 
 				// Add the group header if it differs from the last header.
-				if (!$listingConfig->getShowColumns() && ($groupingInformation['mode'] !== ListingConfigInterface::GROUP_NONE) && (($remoteNew != $remoteCur) || ($remoteCur === null)))
+				if (!$listingConfig->getShowColumns()
+					&& ($groupingInformation['mode'] !== ListingConfigInterface::GROUP_NONE)
+					&& (($remoteNew != $remoteCur) || ($remoteCur === null)))
 				{
 					$eoCount = -1;
 
 					$objModelRow->setMeta(DCGE::MODEL_GROUP_VALUE, array(
-						'class' => $groupclass,
+						'class' => $groupClass,
 						'value' => $remoteNew
 					));
 
-					$groupclass = 'tl_folder_list';
-					$remoteCur = $remoteNew;
+					$groupClass = 'tl_folder_list';
+					$remoteCur  = $remoteNew;
 				}
 			}
 
-			$objModelRow->setMeta(DCGE::MODEL_EVEN_ODD_CLASS, ((++$eoCount % 2 == 0) ? 'even' : 'odd'));
+			$objModelRow->setMeta(DCGE::MODEL_EVEN_ODD_CLASS, (((++$eoCount) % 2 == 0) ? 'even' : 'odd'));
 
 			$objModelRow->setMeta(DCGE::MODEL_LABEL_VALUE, $this->formatModel($objModelRow));
 		}
 	}
 
 	/**
-	 * Generate list view from current collection
+	 * Generate list view from current collection.
 	 *
-	 * @param CollectionInterface $collection
+	 * @param CollectionInterface $collection The collection containing the models.
 	 *
 	 * @return string
 	 */
@@ -164,16 +183,13 @@ class ListView extends BaseView
 	{
 		$environment = $this->getEnvironment();
 		$definition  = $environment->getDataDefinition();
-		$view        = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-		/** @var Contao2BackendViewDefinitionInterface $view */
-		$listing     = $view->getListingConfig();
 
 		$groupingInformation = $this->getGroupingMode();
 
-		// Set label
+		// Set label.
 		$this->setListViewLabel($collection, $groupingInformation);
 
-		// Generate buttons
+		// Generate buttons.
 		foreach ($collection as $i => $objModel)
 		{
 			// Regular buttons - only if not in select mode!
@@ -197,16 +213,14 @@ class ListView extends BaseView
 			}
 		}
 
-		// Add template
+		// Add template.
 		if ($groupingInformation['property'] == 'sorting')
 		{
-			// FIXME: dependency injection or rather template factory?
-			$objTemplate = new \BackendTemplate('dcbe_general_listView_sorting');
+			$objTemplate = $this->getTemplate('dcbe_general_listView_sorting');
 		}
 		else
 		{
-			// FIXME: dependency injection or rather template factory?
-			$objTemplate = new \BackendTemplate('dcbe_general_listView');
+			$objTemplate = $this->getTemplate('dcbe_general_listView');
 		}
 
 		$this
@@ -216,14 +230,14 @@ class ListView extends BaseView
 			->addToTemplate('action', ampersand(\Environment::getInstance()->request, true), $objTemplate)
 			->addToTemplate('mode', ($groupingInformation ? $groupingInformation['mode'] : null), $objTemplate)
 			->addToTemplate('tableHead', $this->getTableHead(), $objTemplate)
-			// Set dataprovider from current and parent
+			// Set dataprovider from current and parent.
 			->addToTemplate('pdp', '', $objTemplate)
 			->addToTemplate('cdp', $definition->getName(), $objTemplate)
 			->addToTemplate('selectButtons', $this->getSelectButtons(), $objTemplate);
 
-		// Add breadcrumb, if we have one
+		// Add breadcrumb, if we have one.
 		$strBreadcrumb = $this->breadcrumb();
-		if($strBreadcrumb != null)
+		if ($strBreadcrumb != null)
 		{
 			$this->addToTemplate('breadcrumb', $strBreadcrumb, $objTemplate);
 		}
@@ -233,7 +247,9 @@ class ListView extends BaseView
 
 
 	/**
-	 * @return String
+	 * Copy mode - this redirects to edit.
+	 *
+	 * @return string
 	 */
 	public function copy()
 	{
@@ -241,9 +257,9 @@ class ListView extends BaseView
 	}
 
 	/**
-	 * Show all entries from one table
+	 * Show all entries from one table.
 	 *
-	 * @return string HTML
+	 * @return string
 	 */
 	public function showAll()
 	{
@@ -255,7 +271,7 @@ class ListView extends BaseView
 		$arrReturn['buttons'] = $this->generateHeaderButtons('tl_buttons_a');
 		$arrReturn['body']    = $this->viewList($collection);
 
-		// Return all
+		// Return all.
 		return implode("\n", $arrReturn);
 	}
 }
