@@ -14,24 +14,36 @@ namespace DcGeneral\Contao;
 
 use DcGeneral\AbstractTranslator;
 
+/**
+ * Class LangArrayTranslator.
+ *
+ * Contao language array translator implementation.
+ *
+ * @package DcGeneral\Contao
+ */
 class LangArrayTranslator extends AbstractTranslator
 {
+	/**
+	 * {@inheritDoc}
+	 */
 	protected function getValue($string, $domain, $locale)
 	{
-		if (!$domain) {
+		if (!$domain)
+		{
 			$domain = 'default';
 		}
 
 		BackendBindings::loadLanguageFile($domain, $locale);
 
-		// we have to treat 'languages', 'default', 'modules' etc. domains differently. :(
+		// We have to treat 'languages', 'default', 'modules' etc. domains differently.
 		if (!(is_array($GLOBALS['TL_LANG'][$domain])) && (substr($domain, 0, 2) != 'tl_'))
 		{
 			$lang = $GLOBALS['TL_LANG'];
 		}
 		else
 		{
-			if (!is_array($GLOBALS['TL_LANG'][$domain])) {
+			if (!is_array($GLOBALS['TL_LANG'][$domain]))
+			{
 				return $string;
 			}
 			$lang = $GLOBALS['TL_LANG'][$domain];
