@@ -1726,7 +1726,7 @@ class BaseView implements BackendViewInterface
 
 			$this->getEnvironment()->getEventPropagator()->propagate(
 				$buttonEvent,
-				$this->getEnvironment()->getDataDefinition()->getName()
+				array($this->getEnvironment()->getDataDefinition()->getName())
 			);
 
 			$arrButtons['pasteafter'] = $this->renderPasteAfterButton($buttonEvent);
@@ -1811,7 +1811,10 @@ class BaseView implements BackendViewInterface
 	{
 		$event = new GetBreadcrumbEvent($this->getEnvironment());
 
-		$this->dispatchEvent(GetBreadcrumbEvent::NAME, $event);
+		$this->getEnvironment()->getEventPropagator()->propagate(
+			$event,
+			array($this->getEnvironment()->getDataDefinition()->getName())
+		);
 
 		$arrReturn = $event->getElements();
 
@@ -1894,16 +1897,15 @@ class BaseView implements BackendViewInterface
 
 		}
 
-		$event = new ModelToLabelEvent($this->getEnvironment());
+		$event = new ModelToLabelEvent($this->getEnvironment(), $model);
 		$event
-			->setModel($model)
 			->setArgs($args)
 			->setLabel($formatter->getFormat())
 			->setFormatter($formatter);
 
 		$this->getEnvironment()->getEventPropagator()->propagate(
 			$event,
-			$this->getEnvironment()->getDataDefinition()->getName()
+			array($this->getEnvironment()->getDataDefinition()->getName())
 		);
 
 		$arrLabel = array();
@@ -1976,8 +1978,10 @@ class BaseView implements BackendViewInterface
 		$event = new RenderReadablePropertyValueEvent($this->getEnvironment(), $model, $property, $value);
 		$this->getEnvironment()->getEventPropagator()->propagate(
 			$event,
-			$this->getEnvironment()->getDataDefinition()->getName(),
-			$property->getName()
+			array(
+				$this->getEnvironment()->getDataDefinition()->getName(),
+				$property->getName()
+			)
 		);
 
 		if ($event->getRendered() !== null)
