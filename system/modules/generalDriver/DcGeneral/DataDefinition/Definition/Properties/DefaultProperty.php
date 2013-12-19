@@ -12,79 +12,120 @@
 
 namespace DcGeneral\DataDefinition\Definition\Properties;
 
+/**
+ * Class DefaultProperty.
+ *
+ * Default implementation of a property definition.
+ *
+ * @package DcGeneral\DataDefinition\Definition\Properties
+ */
 class DefaultProperty implements PropertyInterface
 {
 	/**
+	 * The property name.
+	 *
 	 * @var string
 	 */
 	protected $name;
 
 	/**
+	 * The label of the property.
+	 *
 	 * @var string
 	 */
 	protected $label;
 
 	/**
+	 * The description of the property.
+	 *
 	 * @var string
 	 */
 	protected $description;
 
 	/**
+	 * The default value of the property.
+	 *
 	 * @var mixed
 	 */
 	protected $defaultValue;
 
 	/**
+	 * Define if this property shall be excluded by default.
+	 *
 	 * @var bool
 	 */
 	protected $excluded;
 
 	/**
+	 * Flag if this property shall be searchable.
+	 *
 	 * @var bool
 	 */
 	protected $searchable;
 
 	/**
+	 * Flag if this property shall be sortable.
+	 *
 	 * @var bool
 	 */
 	protected $sortable;
 
 	/**
+	 * Flag if this property shall be filterable.
+	 *
 	 * @var bool
 	 */
 	protected $filterable;
 
 	/**
+	 * The grouping mode for this property.
+	 *
+	 * See ListingConfigInterface::GROUP_* flags.
+	 *
 	 * @var string
 	 */
 	protected $groupingMode;
 
 	/**
+	 * The grouing length of this property. See grouping mode.
+	 *
 	 * @var string
 	 */
 	protected $groupingLength;
 
 	/**
+	 * The sorting mode for this property.
+	 *
+	 * See ListingConfigInterface::SORT_* flags.
+	 *
 	 * @var string
 	 */
 	protected $sortingMode;
 
 	/**
+	 * The input widget type to use.
+	 *
 	 * @var string
 	 */
 	protected $widgetType;
 
 	/**
+	 * The value options for this property.
+	 *
 	 * @var array|null
 	 */
 	protected $options;
 
 	/**
+	 * The explanation string for this property.
+	 *
 	 * @var string
 	 */
 	protected $explanation;
 
 	/**
+	 * The extra information for this property.
+	 *
 	 * @var array
 	 */
 	protected $extra;
@@ -92,7 +133,7 @@ class DefaultProperty implements PropertyInterface
 	/**
 	 * Create an instance.
 	 *
-	 * @param string $name
+	 * @param string $name The name of the property.
 	 */
 	public function __construct($name)
 	{
