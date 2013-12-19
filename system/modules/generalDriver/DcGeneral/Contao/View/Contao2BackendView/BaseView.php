@@ -739,6 +739,7 @@ class BaseView implements BackendViewInterface
 	public function handleAjaxCall()
 	{
 		$action = $this->getEnvironment()->getInputProvider()->getValue('action');
+		return vsprintf($this->notImplMsg, 'handleAjaxCall()');
 	}
 
 	/**
