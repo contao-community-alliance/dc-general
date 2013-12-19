@@ -1692,18 +1692,36 @@ class BaseView implements BackendViewInterface
 		$next = null
 	)
 	{
-		$commands = $this->getViewSection()->getModelCommands();
+		$commands     = $this->getViewSection()->getModelCommands();
+		$objClipboard = $this->getEnvironment()->getClipboard();
+
+		if ($this->getEnvironment()->getClipboard()->isNotEmpty())
+		{
+			$circularIds = $objClipboard->getCircularIds();
+			$isCircular  = in_array($objModelRow->getID(), $circularIds);
+		}
+		else
+		{
+			$circularIds = array();
+			$isCircular  = false;
+		}
 
 		$arrButtons = array();
 		foreach ($commands->getCommands() as $command)
 		{
-			$arrButtons[$command->getName()] = $this->buildCommand($command, $objModelRow, $blnCircularReference, $arrChildRecordIds, $previous, $next);
+			$arrButtons[$command->getName()] = $this->buildCommand(
+				$command,
+				$objModelRow,
+				$isCircular,
+				$circularIds,
+				$previous,
+				$next
+			);
 		}
 
 		// Add paste into/after icons.
 		if ($this->getEnvironment()->getClipboard()->isNotEmpty())
 		{
-			$objClipboard = $this->getEnvironment()->getClipboard();
 
 			$strMode = $objClipboard->getMode();
 
@@ -1721,14 +1739,14 @@ class BaseView implements BackendViewInterface
 			$buttonEvent = new GetPasteButtonEvent($this->getEnvironment());
 			$buttonEvent
 				->setModel($objModelRow)
-				->setCircularReference(false)
+				->setCircularReference($isCircular)
 				->setPrevious($previous)
 				->setNext($next)
 				->setHrefAfter(BackendBindings::addToUrl($strAdd2UrlAfter))
 				->setHrefInto(BackendBindings::addToUrl($strAdd2UrlInto))
 				// Check if the id is in the ignore list.
-				->setPasteAfterDisabled($objClipboard->isCut() && in_array($objModelRow->getID(), $objClipboard->getCircularIds()))
-				->setPasteIntoDisabled($objClipboard->isCut() && in_array($objModelRow->getID(), $objClipboard->getCircularIds()));
+				->setPasteAfterDisabled($objClipboard->isCut() && $isCircular)
+				->setPasteIntoDisabled($objClipboard->isCut() && $isCircular);
 
 			$this->getEnvironment()->getEventPropagator()->propagate(
 				$buttonEvent,
