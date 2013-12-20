@@ -4,59 +4,80 @@ namespace DcGeneral\DataDefinition\Definition\View;
 
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
+/**
+ * Class DefaultListingConfig.
+ *
+ * Default implementation of a listing config.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View
+ */
 class DefaultListingConfig implements ListingConfigInterface
 {
 	/**
+	 * The grouping mode to use.
+	 *
 	 * @var string
 	 */
 	protected $groupingMode;
 
 	/**
+	 * The grouing length to use.
+	 *
 	 * @var string
 	 */
 	protected $groupingLength;
 
 	/**
+	 * The default sorting mode.
+	 *
 	 * @var string
 	 */
 	protected $sortingMode;
 
 	/**
+	 * The names of the properties that will be used for sorting by default.
+	 *
 	 * @var array
 	 */
 	protected $defaultSortingFields;
 
 	/**
+	 * The properties to display in the heder (parented mode only).
+	 *
 	 * @var array
 	 */
 	protected $headerProperties;
 
 	/**
+	 * The root icon to use (hierarchical mode only).
+	 *
 	 * @var string
 	 */
 	protected $rootIcon;
 
 	/**
+	 * The CSS class to apply to each item in the listing.
+	 *
 	 * @var string
 	 */
 	protected $itemCssClass;
 
 	/**
+	 * The item formatter to use.
+	 *
 	 * @var DefaultModelFormatterConfig[]
 	 */
 	protected $itemFormatter;
 
 	/**
+	 * Flag if the properties displayed shall be shown as table layout.
+	 *
 	 * @var bool
 	 */
 	protected $showColumns;
 
 	/**
-	 * Set the grouping mode.
-	 *
-	 * @param string $value
-	 *
-	 * @return ListingConfigInterface
+	 * {@inheritdoc}
 	 */
 	public function setGroupingMode($value)
 	{
@@ -66,9 +87,7 @@ class DefaultListingConfig implements ListingConfigInterface
 	}
 
 	/**
-	 * Return the grouping mode.
-	 *
-	 * @return string
+	 * {@inheritdoc}
 	 */
 	public function getGroupingMode()
 	{
@@ -76,11 +95,7 @@ class DefaultListingConfig implements ListingConfigInterface
 	}
 
 	/**
-	 * Set the grouping length.
-	 *
-	 * @param int $value
-	 *
-	 * @return ListingConfigInterface
+	 * {@inheritdoc}
 	 */
 	public function setGroupingLength($value)
 	{
@@ -90,10 +105,7 @@ class DefaultListingConfig implements ListingConfigInterface
 	}
 
 	/**
-	 * The grouping length is used for char or digit grouping and define
-	 * how many chars or digits should be respected when group.
-	 *
-	 * @return int
+	 * {@inheritdoc}
 	 */
 	public function getGroupingLength()
 	{
@@ -101,11 +113,7 @@ class DefaultListingConfig implements ListingConfigInterface
 	}
 
 	/**
-	 * Set the list sorting mode.
-	 *
-	 * @param string $value
-	 *
-	 * @return ListingConfigInterface
+	 * {@inheritdoc}
 	 */
 	public function setSortingMode($value)
 	{
@@ -115,10 +123,7 @@ class DefaultListingConfig implements ListingConfigInterface
 	}
 
 	/**
-	 * Return the list sorting mode.
-	 * This sorting is applied after grouping and could also be called "in-group sorting".
-	 *
-	 * @return string
+	 * {@inheritdoc}
 	 */
 	public function getSortingMode()
 	{
@@ -126,11 +131,7 @@ class DefaultListingConfig implements ListingConfigInterface
 	}
 
 	/**
-	 * Set the default sorting fields.
-	 *
-	 * @param array $value
-	 *
-	 * @return ListingConfigInterface
+	 * {@inheritdoc}
 	 */
 	public function setDefaultSortingFields($value)
 	{
@@ -140,9 +141,7 @@ class DefaultListingConfig implements ListingConfigInterface
 	}
 
 	/**
-	 * Get the default sorting fields which are used if the user does not define a sorting.
-	 *
-	 * @return array
+	 * {@inheritdoc}
 	 */
 	public function getDefaultSortingFields()
 	{
@@ -150,11 +149,7 @@ class DefaultListingConfig implements ListingConfigInterface
 	}
 
 	/**
-	 * Set the list of parent's model property names.
-	 *
-	 * @param array $value
-	 *
-	 * @return ListingConfigInterface
+	 * {@inheritdoc}
 	 */
 	public function setHeaderPropertyNames($value)
 	{
@@ -164,9 +159,7 @@ class DefaultListingConfig implements ListingConfigInterface
 	}
 
 	/**
-	 * Return a list of parent's model property names, which are shown above the item list.
-	 *
-	 * @return array
+	 * {@inheritdoc}
 	 */
 	public function getHeaderPropertyNames()
 	{
@@ -174,11 +167,7 @@ class DefaultListingConfig implements ListingConfigInterface
 	}
 
 	/**
-	 * Set the icon path to the root item's icon.
-	 *
-	 * @param  $value
-	 *
-	 * @return ListingConfigInterface
+	 * {@inheritdoc}
 	 */
 	public function setRootIcon($value)
 	{
@@ -188,9 +177,7 @@ class DefaultListingConfig implements ListingConfigInterface
 	}
 
 	/**
-	 * Return the icon path to the root item's icon.
-	 *
-	 * @return string
+	 * {@inheritdoc}
 	 */
 	public function getRootIcon()
 	{
@@ -198,11 +185,7 @@ class DefaultListingConfig implements ListingConfigInterface
 	}
 
 	/**
-	 * Set the css classes that should be added to the items container.
-	 *
-	 * @param string $value
-	 *
-	 * @return ListingConfigInterface
+	 * {@inheritdoc}
 	 */
 	public function setItemCssClass($value)
 	{
@@ -212,9 +195,7 @@ class DefaultListingConfig implements ListingConfigInterface
 	}
 
 	/**
-	 * Return css classes that should be added to the items container.
-	 *
-	 * @return string
+	 * {@inheritdoc}
 	 */
 	public function getItemCssClass()
 	{
@@ -222,13 +203,7 @@ class DefaultListingConfig implements ListingConfigInterface
 	}
 
 	/**
-	 * Set the label formatter.
-	 *
-	 * @param string                                  $providerName
-	 *
-	 * @param ModelFormatterConfigInterface $value
-	 *
-	 * @return ListingConfigInterface
+	 * {@inheritdoc}
 	 */
 	public function setLabelFormatter($providerName, $value)
 	{
@@ -237,36 +212,33 @@ class DefaultListingConfig implements ListingConfigInterface
 		return $this;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function hasLabelFormatter($providerName)
 	{
 		return isset($this->itemFormatter[$providerName]);
 	}
 
 	/**
-	 * Return the label formatter.
+	 * {@inheritdoc}
 	 *
-	 * @param string $providerName
-	 *
-	 * @return ModelFormatterConfigInterface
-	 *
-	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException
+	 * @throws DcGeneralInvalidArgumentException When no formatter has been defined.
 	 */
 	public function getLabelFormatter($providerName)
 	{
 		if (!isset($this->itemFormatter[$providerName]))
 		{
-			throw new DcGeneralInvalidArgumentException('Formatter configuration for data provider ' . $providerName . ' is not registered.');
+			throw new DcGeneralInvalidArgumentException(
+				'Formatter configuration for data provider ' . $providerName . ' is not registered.'
+			);
 		}
 
 		return $this->itemFormatter[$providerName];
 	}
 
 	/**
-	 * Set if the listing shall be in table columns.
-	 *
-	 * @param bool $value
-	 *
-	 * @return ListingConfigInterface
+	 * {@inheritdoc}
 	 */
 	public function setShowColumns($value)
 	{
@@ -276,9 +248,7 @@ class DefaultListingConfig implements ListingConfigInterface
 	}
 
 	/**
-	 * Get if the listing shall be in table columns.
-	 *
-	 * @return bool
+	 * {@inheritdoc}
 	 */
 	public function getShowColumns()
 	{
