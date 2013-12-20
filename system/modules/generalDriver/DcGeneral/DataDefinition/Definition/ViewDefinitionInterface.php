@@ -17,23 +17,29 @@ use DcGeneral\DataDefinition\Definition\View\CommandCollectionInterface;
 use DcGeneral\DataDefinition\Definition\View\PanelLayoutInterface;
 
 /**
- * Interface BasicDefinitionInterface
+ * This interface describes the base information about views.
  *
  * @package DcGeneral\DataDefinition\Definition
  */
 interface ViewDefinitionInterface extends DefinitionInterface
 {
 	/**
+	 * Retrieve the listing configuration.
+	 *
 	 * @return ListingConfigInterface
 	 */
 	public function getListingConfig();
 
 	/**
+	 * Retrieve the global commands.
+	 *
 	 * @return CommandCollectionInterface
 	 */
 	public function getGlobalCommands();
 
 	/**
+	 * Retrieve the model command colletion.
+	 *
 	 * @return CommandCollectionInterface
 	 */
 	public function getModelCommands();
