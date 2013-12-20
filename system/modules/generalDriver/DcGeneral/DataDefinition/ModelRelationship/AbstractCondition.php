@@ -15,8 +15,26 @@ namespace DcGeneral\DataDefinition\ModelRelationship;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 
+/**
+ * This class is an abstract base for defining model relationship conditions.
+ *
+ * It implements a basic condition check.
+ *
+ * @package DcGeneral\DataDefinition\ModelRelationship
+ */
 abstract class AbstractCondition
 {
+	/**
+	 * Check if the passed filter rules apply to the given model.
+	 *
+	 * @param ModelInterface $objParentModel The model to check the condition against.
+	 *
+	 * @param array          $arrFilter      The condition filter to be applied.
+	 *
+	 * @return bool
+	 *
+	 * @throws DcGeneralRuntimeException When an unknown filter operation is encountered.
+	 */
 	public static function checkCondition(ModelInterface $objParentModel, $arrFilter)
 	{
 		switch ($arrFilter['operation'])
@@ -29,13 +47,12 @@ abstract class AbstractCondition
 					trigger_error('Filter array uses deprecated entry "childs", please use "children" instead.', E_USER_DEPRECATED);
 					$arrFilter['children'] = $arrFilter['childs'];
 				}
-				// End of b.c. code.
 
 				if ($arrFilter['operation'] == 'AND')
 				{
 					foreach ($arrFilter['children'] as $arrChild)
 					{
-						// AND => first false means false
+						// AND => first false means false.
 						if (!self::checkCondition($objParentModel, $arrChild))
 						{
 							return false;
@@ -47,7 +64,7 @@ abstract class AbstractCondition
 				{
 					foreach ($arrFilter['children'] as $arrChild)
 					{
-						// OR => first true means true
+						// OR => first true means true.
 						if (self::checkCondition($objParentModel, $arrChild))
 						{
 							return true;
@@ -59,20 +76,21 @@ abstract class AbstractCondition
 
 			case '=':
 				return ($objParentModel->getProperty($arrFilter['property']) == $arrFilter['value']);
-				break;
+
 			case '>':
 				return ($objParentModel->getProperty($arrFilter['property']) > $arrFilter['value']);
-				break;
+
 			case '<':
 				return ($objParentModel->getProperty($arrFilter['property']) < $arrFilter['value']);
-				break;
 
 			case 'IN':
 				return in_array($objParentModel->getProperty($arrFilter['property']), $arrFilter['value']);
-				break;
 
 			default:
-				throw new DcGeneralRuntimeException('Error processing filter array - unknown operation ' . var_export($arrFilter, true), 1);
+				throw new DcGeneralRuntimeException(
+					'Error processing filter array - unknown operation ' . var_export($arrFilter, true),
+					1
+				);
 		}
 	}
 }
