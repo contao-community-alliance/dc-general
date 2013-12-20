@@ -15,7 +15,7 @@ namespace DcGeneral\DataDefinition\Definition;
 use DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 
 /**
- * Interface BasicDefinitionInterface
+ * This interface describes the data definition that holds all property information.
  *
  * @package DcGeneral\DataDefinition\Definition
  */
@@ -41,14 +41,18 @@ interface PropertiesDefinitionInterface extends DefinitionInterface, \IteratorAg
 	public function getPropertyNames();
 
 	/**
-	 * @param PropertyInterface $property
+	 * Add a property information to the definition.
+	 *
+	 * @param PropertyInterface $property The property information to add.
 	 *
 	 * @return PropertiesDefinitionInterface
 	 */
 	public function addProperty($property);
 
 	/**
-	 * @param PropertyInterface|string $property
+	 * Remove a property information from the definition.
+	 *
+	 * @param PropertyInterface|string $property The information or the name of the property to remove.
 	 *
 	 * @return PropertiesDefinitionInterface
 	 */
@@ -57,7 +61,7 @@ interface PropertiesDefinitionInterface extends DefinitionInterface, \IteratorAg
 	/**
 	 * Check if a property exists.
 	 * 
-	 * @param string $name
+	 * @param string $name The name of the property.
 	 * 
 	 * @return bool
 	 */
@@ -66,7 +70,7 @@ interface PropertiesDefinitionInterface extends DefinitionInterface, \IteratorAg
 	/**
 	 * Get a property by name.
 	 *
-	 * @param $name
+	 * @param string $name The name of the property.
 	 *
 	 * @return PropertyInterface
 	 */
