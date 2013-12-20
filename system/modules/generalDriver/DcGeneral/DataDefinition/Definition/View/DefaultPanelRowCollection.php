@@ -14,9 +14,16 @@ namespace DcGeneral\DataDefinition\Definition\View;
 
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
+/**
+ * Default implementation for a panel row collection.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View
+ */
 class DefaultPanelRowCollection implements PanelRowCollectionInterface
 {
 	/**
+	 * The panel rows.
+	 *
 	 * @var PanelRowInterface[]
 	 */
 	protected $rows = array();

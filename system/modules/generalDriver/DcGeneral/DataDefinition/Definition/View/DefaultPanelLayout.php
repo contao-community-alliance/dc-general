@@ -22,7 +22,7 @@ class DefaultPanelLayout implements PanelLayoutInterface
 	/**
 	 * The rows of the layout.
 	 *
-	 * @var PanelRowCollectionInterface[]
+	 * @var PanelRowCollectionInterface
 	 */
 	protected $rows;
 
