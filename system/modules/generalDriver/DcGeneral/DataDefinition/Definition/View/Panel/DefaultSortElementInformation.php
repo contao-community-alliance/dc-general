@@ -12,15 +12,26 @@
 
 namespace DcGeneral\DataDefinition\Definition\View\Panel;
 
+/**
+ * Class DefaultSortElementInformation.
+ *
+ * Default implementation of a sort definition on properties.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View\Panel
+ */
 class DefaultSortElementInformation implements SortElementInformationInterface
 {
 	/**
+	 * The names of the properties to be sortable.
+	 *
 	 * @var array
 	 */
 	protected $properties = array();
 
 	/**
-	 * @var int
+	 * The sorting flag to use by default.
+	 *
+	 * @var string
 	 */
 	protected $defaultFlag = SortElementInformationInterface::SORTING_FLAG_NONE;
 
