@@ -12,9 +12,18 @@
 
 namespace DcGeneral\DataDefinition\Definition\View\Panel;
 
+/**
+ * Interface FilterElementInformationInterface.
+ *
+ * This interface describes a filter panel element information filtering on a property.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View\Panel
+ */
 interface FilterElementInformationInterface extends ElementInformationInterface
 {
 	/**
+	 * Set the name of the property to filter on.
+	 *
 	 * @param string $propertyName The property to filter on.
 	 *
 	 * @return FilterElementInformationInterface
@@ -22,6 +31,8 @@ interface FilterElementInformationInterface extends ElementInformationInterface
 	public function setPropertyName($propertyName);
 
 	/**
+	 * Retrieve the name of the property to filter on.
+	 *
 	 * @return string
 	 */
 	public function getPropertyName();
