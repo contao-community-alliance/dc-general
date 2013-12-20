@@ -15,7 +15,9 @@ namespace DcGeneral\DataDefinition\Definition;
 use DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
 
 /**
- * Interface BasicDefinitionInterface
+ * This interface describes a palette definition.
+ *
+ * All methods are being derived from the parenting interfaces currently.
  *
  * @package DcGeneral\DataDefinition\Definition
  */
