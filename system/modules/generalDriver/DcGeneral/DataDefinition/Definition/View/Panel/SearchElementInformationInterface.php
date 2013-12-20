@@ -12,9 +12,18 @@
 
 namespace DcGeneral\DataDefinition\Definition\View\Panel;
 
+/**
+ * Interface SearchElementInformationInterface.
+ *
+ * This interface describes a search panel element information filtering on properties.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View\Panel
+ */
 interface SearchElementInformationInterface extends ElementInformationInterface
 {
 	/**
+	 * Add a property name to the element.
+	 *
 	 * @param string $propertyName The property to allow to search on.
 	 *
 	 * @return SearchElementInformationInterface
