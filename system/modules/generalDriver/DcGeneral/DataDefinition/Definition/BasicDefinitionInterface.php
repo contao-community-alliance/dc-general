@@ -13,7 +13,7 @@
 namespace DcGeneral\DataDefinition\Definition;
 
 /**
- * Interface BasicDefinitionInterface
+ * This interface describes the basic information about the data definition.
  *
  * @package DcGeneral\DataDefinition\Definition
  */
@@ -40,6 +40,8 @@ interface BasicDefinitionInterface extends DefinitionInterface
 	const MODE_HIERARCHICAL = 2;
 
 	/**
+	 * Set the mode the data definition is in.
+	 *
 	 * @param int $mode
 	 *
 	 * See the constants in this interface. The mode should either be {@link BasicDefinitionInterface::MODE_FLAT}
@@ -50,6 +52,8 @@ interface BasicDefinitionInterface extends DefinitionInterface
 	public function setMode($mode);
 
 	/**
+	 * Get the mode the data definition is in.
+	 *
 	 * @return int
 	 */
 	public function getMode();
@@ -57,19 +61,22 @@ interface BasicDefinitionInterface extends DefinitionInterface
 	/**
 	 * Set the name of the data provider that holds the models for the root level.
 	 *
-	 * Be aware that there may be any number of in-between data sources, depending on the defined {@link ParentChildCondition}s
+	 * Be aware that there may be any number of in-between data sources, depending on the defined
+	 * {@link ParentChildCondition}s
 	 *
 	 * Note: This does only apply when in tree mode or parenting mode. For flat mode this does not make sense.
 	 *
-	 * @param string $providerName
+	 * @param string $providerName The name of the data provider of the root elements.
 	 *
+	 * @return BasicDefinitionInterface
 	 */
 	public function setRootDataProvider($providerName);
 
 	/**
 	 * Retrieve the name of data provider that holds the models for the root level.
 	 *
-	 * Be aware that there may be any number of in-between data sources, depending on the defined {@link ParentChildCondition}s
+	 * Be aware that there may be any number of in-between data sources, depending on the defined
+	 * {@link ParentChildCondition}s
 	 *
 	 * Note: This does only apply when in tree mode or parenting mode. For flat mode this does not make sense.
 	 *
@@ -82,8 +89,9 @@ interface BasicDefinitionInterface extends DefinitionInterface
 	 *
 	 * Note: This does only apply when in tree mode or parenting mode. For flat mode this does not make sense.
 	 *
-	 * @param string $providerName
+	 * @param string $providerName The name of the data provider of the parent element.
 	 *
+	 * @return BasicDefinitionInterface
 	 */
 	public function setParentDataProvider($providerName);
 
@@ -99,7 +107,7 @@ interface BasicDefinitionInterface extends DefinitionInterface
 	/**
 	 * Set the name of the data provider which holds the models that we work on.
 	 *
-	 * @param string $providerName
+	 * @param string $providerName The name of the data provider of the elements being processed.
 	 *
 	 * @return BasicDefinitionInterface
 	 */
@@ -115,9 +123,9 @@ interface BasicDefinitionInterface extends DefinitionInterface
 	/**
 	 * Set the additional filters to be used for retrieving elements for the view.
 	 *
-	 * @param string $dataProvider
+	 * @param string $dataProvider The name of the data provider for which additional filters shall be passed.
 	 *
-	 * @param array  $filter
+	 * @param array  $filter       Array of filter rules.
 	 *
 	 * @return BasicDefinitionInterface
 	 */
@@ -126,7 +134,7 @@ interface BasicDefinitionInterface extends DefinitionInterface
 	/**
 	 * Determine if additional filters are set for the given data provider.
 	 *
-	 * @param string $dataProvider
+	 * @param string $dataProvider The name of the data provider for which additional filters shall be checked.
 	 *
 	 * @return bool
 	 */
@@ -135,7 +143,7 @@ interface BasicDefinitionInterface extends DefinitionInterface
 	/**
 	 * Get the additional filters to be used for retrieving elements for the view.
 	 *
-	 * @param string $dataProvider
+	 * @param string $dataProvider The name of the data provider for which additional filters shall be retrieved.
 	 *
 	 * @return array
 	 */
@@ -144,7 +152,7 @@ interface BasicDefinitionInterface extends DefinitionInterface
 	/**
 	 * If true, adding of further records is prohibited.
 	 *
-	 * @param bool $value
+	 * @param bool $value The flag - true means prohibit element creation, false means allow creation of new elements.
 	 *
 	 * @return BasicDefinitionInterface
 	 */
@@ -216,9 +224,11 @@ interface BasicDefinitionInterface extends DefinitionInterface
 
 	/**
 	 * Determines if the view shall switch automatically into edit mode.
+	 *
 	 * This most likely only affects parenting modes like trees etc.
 	 *
-	 * @param bool $switchToEditEnabled
+	 * @param bool $switchToEditEnabled The flag - true means switch automatically to editing mode, false allows
+	 *                                  listing.
 	 *
 	 * @return BasicDefinitionInterface
 	 */
@@ -226,6 +236,7 @@ interface BasicDefinitionInterface extends DefinitionInterface
 
 	/**
 	 * Determines if the view shall switch automatically into edit mode.
+	 *
 	 * This most likely only affects parenting modes like trees etc.
 	 *
 	 * @return bool
