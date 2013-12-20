@@ -12,6 +12,11 @@
 
 namespace DcGeneral\DataDefinition\Definition\View;
 
+/**
+ * This interface describes a panel layout definition.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View
+ */
 interface PanelLayoutInterface
 {
 	/**
