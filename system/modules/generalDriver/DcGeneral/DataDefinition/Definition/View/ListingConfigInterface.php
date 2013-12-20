@@ -12,6 +12,13 @@
 
 namespace DcGeneral\DataDefinition\Definition\View;
 
+/**
+ * Interface ListingConfigInterface.
+ *
+ * This interface describes a property.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View
+ */
 interface ListingConfigInterface
 {
 	/**
@@ -56,16 +63,25 @@ interface ListingConfigInterface
 	 */
 	const GROUP_YEAR = 'year';
 
+	/**
+	 * Sort ascending.
+	 */
 	const SORT_ASC = 'asc';
 
+	/**
+	 * Sort descending.
+	 */
 	const SORT_DESC = 'desc';
 
+	/**
+	 * Shuffle all records instead of sorting.
+	 */
 	const SORT_RANDOM = 'random';
 
 	/**
 	 * Set the grouping mode.
 	 *
-	 * @param string $value
+	 * @param string $value The new mode.
 	 *
 	 * @return ListingConfigInterface
 	 */
@@ -81,15 +97,16 @@ interface ListingConfigInterface
 	/**
 	 * Set the grouping length.
 	 *
-	 * @param int $value
+	 * @param int $value The new value.
 	 *
 	 * @return ListingConfigInterface
 	 */
 	public function setGroupingLength($value);
 
 	/**
-	 * The grouping length is used for char or digit grouping and define
-	 * how many chars or digits should be respected when group.
+	 * The grouping length is used for char or digit grouping.
+	 *
+	 * It defines how many chars or digits should be respected when group mode is GROUP_CHAR.
 	 *
 	 * @return int
 	 */
@@ -98,7 +115,7 @@ interface ListingConfigInterface
 	/**
 	 * Set the list sorting mode.
 	 *
-	 * @param string $value
+	 * @param string $value The new value.
 	 *
 	 * @return ListingConfigInterface
 	 */
@@ -106,6 +123,7 @@ interface ListingConfigInterface
 
 	/**
 	 * Return the list sorting mode.
+	 *
 	 * This sorting is applied after grouping and could also be called "in-group sorting".
 	 *
 	 * @return string
@@ -115,7 +133,7 @@ interface ListingConfigInterface
 	/**
 	 * Set the default sorting fields.
 	 *
-	 * @param array $value
+	 * @param array $value The sorting fields to use.
 	 *
 	 * @return ListingConfigInterface
 	 */
@@ -131,7 +149,7 @@ interface ListingConfigInterface
 	/**
 	 * Set the list of parent's model property names.
 	 *
-	 * @param array $value
+	 * @param array $value The property names to use.
 	 *
 	 * @return ListingConfigInterface
 	 */
@@ -147,7 +165,7 @@ interface ListingConfigInterface
 	/**
 	 * Set the icon path to the root item's icon.
 	 *
-	 * @param  $value
+	 * @param string $value The path to the icon.
 	 *
 	 * @return ListingConfigInterface
 	 */
@@ -163,7 +181,7 @@ interface ListingConfigInterface
 	/**
 	 * Set the css classes that should be added to the items container.
 	 *
-	 * @param string $value
+	 * @param string $value The CSS class to use.
 	 *
 	 * @return ListingConfigInterface
 	 */
@@ -179,27 +197,27 @@ interface ListingConfigInterface
 	/**
 	 * Set the label formatter.
 	 *
-	 * @param string                        $providerName
+	 * @param string                        $providerName The name of the data provider.
 	 *
-	 * @param ModelFormatterConfigInterface $value
+	 * @param ModelFormatterConfigInterface $value        The model formatter to use.
 	 *
 	 * @return ListingConfigInterface
 	 */
 	public function setLabelFormatter($providerName, $value);
 
 	/**
-	 * Determine if the label formatter is present.
+	 * Determine if the label formatter is present for a certain data provider.
 	 *
-	 * @param string $providerName
+	 * @param string $providerName The name of the data provider.
 	 *
 	 * @return bool
 	 */
 	public function hasLabelFormatter($providerName);
 
 	/**
-	 * Return the label formatter.
+	 * Return the label formatter for a certain data provider.
 	 *
-	 * @param string $providerName
+	 * @param string $providerName The name of the data provider.
 	 *
 	 * @return ModelFormatterConfigInterface
 	 */
@@ -208,7 +226,7 @@ interface ListingConfigInterface
 	/**
 	 * Set if the listing shall be in table columns.
 	 *
-	 * @param bool $value
+	 * @param bool $value The flag.
 	 *
 	 * @return ListingConfigInterface
 	 */
