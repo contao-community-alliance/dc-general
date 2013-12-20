@@ -12,10 +12,15 @@
 
 namespace DcGeneral\DataDefinition\Definition\View\Panel;
 
+/**
+ * Class DefaultSubmitElementInformation.
+ *
+ * Default implementation for a submit panel element information.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View\Panel
+ */
 class DefaultSubmitElementInformation implements SubmitElementInformationInterface
 {
-	protected $properties;
-
 	/**
 	 * {@inheritDoc}
 	 */
