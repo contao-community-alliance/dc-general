@@ -14,12 +14,17 @@ namespace DcGeneral\DataDefinition\ModelRelationship;
 
 use DcGeneral\Data\ModelInterface;
 
+/**
+ * This interface holds the information how a parent model relates to a child model.
+ *
+ * @package DcGeneral\DataDefinition\ModelRelationship
+ */
 interface ParentChildConditionInterface
 {
 	/**
 	 * Set the condition as filter.
 	 *
-	 * @param array $value
+	 * @param array $value The filter rules describing the relationship.
 	 *
 	 * @return ParentChildConditionInterface
 	 */
@@ -35,7 +40,7 @@ interface ParentChildConditionInterface
 	/**
 	 * Set the condition setters.
 	 *
-	 * @param array $value
+	 * @param array $value The values to be applied to a model when it shall get set as child of another one.
 	 *
 	 * @return ParentChildConditionInterface
 	 */
@@ -51,7 +56,7 @@ interface ParentChildConditionInterface
 	/**
 	 * Set the inverse filter for the condition.
 	 *
-	 * @param array $value
+	 * @param array $value The filter rules to use when inverting the condition to look up the parent.
 	 *
 	 * @return ParentChildConditionInterface
 	 */
@@ -76,23 +81,23 @@ interface ParentChildConditionInterface
 	/**
 	 * Set the name of the source provider.
 	 *
-	 * @param string $value
+	 * @param string $value The name of the provider.
 	 *
 	 * @return ParentChildConditionInterface
 	 */
 	public function setSourceName($value);
 
 	/**
-	 * Return the name of the source provider.
+	 * Return the name of the source provider (parent).
 	 *
 	 * @return string
 	 */
 	public function getSourceName();
 
 	/**
-	 * Set the name of the destination provider.
+	 * Set the name of the destination provider (child).
 	 *
-	 * @param string $value
+	 * @param string $value The name of the provider.
 	 *
 	 * @return ParentChildConditionInterface
 	 */
@@ -110,7 +115,7 @@ interface ParentChildConditionInterface
 	 *
 	 * @param ModelInterface $objParent The parent object.
 	 *
-	 * @param ModelInterface $objChild The object on which the condition shall be enforced on.
+	 * @param ModelInterface $objChild  The object on which the condition shall be enforced on.
 	 *
 	 * @return void
 	 */
@@ -118,9 +123,11 @@ interface ParentChildConditionInterface
 
 	/**
 	 * Get the inverted condition as filter.
+	 *
 	 * This allows to look up the parent of a child model.
 	 *
-	 * @param ModelInterface $objChild The model that shall get used as child and for which the parent filter shall get retrieved.
+	 * @param ModelInterface $objChild The model that shall get used as child and for which the parent filter shall get
+	 *                                 retrieved.
 	 *
 	 * @return array|null
 	 */
@@ -129,9 +136,9 @@ interface ParentChildConditionInterface
 	/**
 	 * Test if the given parent is indeed a parent of the given child object for this condition.
 	 *
-	 * @param ModelInterface $objParent
+	 * @param ModelInterface $objParent The parent model.
 	 *
-	 * @param ModelInterface $objChild
+	 * @param ModelInterface $objChild  The child model.
 	 *
 	 * @return bool
 	 */
