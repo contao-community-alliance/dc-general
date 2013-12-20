@@ -46,6 +46,8 @@ class DefaultModelFormatterConfig implements ModelFormatterConfigInterface
 	public function setPropertyNames(array $propertyNames)
 	{
 		$this->propertyNames = $propertyNames;
+
+		return $this;
 	}
 
 	/**
@@ -62,6 +64,8 @@ class DefaultModelFormatterConfig implements ModelFormatterConfigInterface
 	public function setFormat($format)
 	{
 		$this->format = (string)$format;
+
+		return $this;
 	}
 
 	/**
@@ -78,6 +82,8 @@ class DefaultModelFormatterConfig implements ModelFormatterConfigInterface
 	public function setMaxLength($maxLength)
 	{
 		$this->maxLength = ($maxLength !== null) ? (int)$maxLength : null;
+
+		return $this;
 	}
 
 	/**

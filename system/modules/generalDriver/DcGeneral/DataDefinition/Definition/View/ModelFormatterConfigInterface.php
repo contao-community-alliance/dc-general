@@ -21,6 +21,8 @@ interface ModelFormatterConfigInterface
 	 * Set the used property names.
 	 *
 	 * @param array $propertyNames
+	 *
+	 * @return ModelFormatterConfigInterface
 	 */
 	public function setPropertyNames(array $propertyNames);
 
@@ -35,6 +37,8 @@ interface ModelFormatterConfigInterface
 	 * Set the format string.
 	 *
 	 * @param string $format
+	 *
+	 * @return ModelFormatterConfigInterface
 	 */
 	public function setFormat($format);
 
@@ -49,6 +53,8 @@ interface ModelFormatterConfigInterface
 	 * Set the formatted maximum length.
 	 *
 	 * @param int|null $maxLength
+	 *
+	 * @return ModelFormatterConfigInterface
 	 */
 	public function setMaxLength($maxLength);
 
