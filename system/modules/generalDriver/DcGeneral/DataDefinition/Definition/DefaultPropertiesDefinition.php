@@ -23,6 +23,8 @@ use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
 {
 	/**
+	 * The property definitions contained.
+	 *
 	 * @var PropertyInterface[]
 	 */
 	protected $properties = array();
@@ -45,6 +47,9 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException When an invalid property has been passed or a property with the given
+	 *                                           name has already been registered.
 	 */
 	public function addProperty($property)
 	{
@@ -67,6 +72,8 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException When an a property with the given name has not been registered.
 	 */
 	public function removeProperty($property)
 	{
@@ -81,7 +88,7 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
 
 		if (!$this->hasProperty($name))
 		{
-			throw new DcGeneralInvalidArgumentException('Property ' . $name . ' is already registered.');
+			throw new DcGeneralInvalidArgumentException('Property ' . $name . ' is not registered.');
 		}
 	}
 
@@ -95,6 +102,8 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException When an a property with the given name has not been registered.
 	 */
 	public function getProperty($name)
 	{
