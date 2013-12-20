@@ -14,22 +14,52 @@ namespace DcGeneral\DataDefinition\ModelRelationship;
 
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
+/**
+ * Default implementation of a parent child relationship.
+ *
+ * @package DcGeneral\DataDefinition\ModelRelationship
+ */
 class ParentChildCondition
 	extends AbstractCondition
 	implements ParentChildConditionInterface
 {
+	/**
+	 * The filter rules.
+	 *
+	 * @var array
+	 */
 	protected $filter;
 
+	/**
+	 * The filter rules to use for an inverse filter.
+	 *
+	 * @var array
+	 */
 	protected $inverseFilter;
 
+	/**
+	 * The values to use when enforcing a root condition.
+	 *
+	 * @var array
+	 */
 	protected $setOn;
 
+	/**
+	 * The name of the source provider (parent).
+	 *
+	 * @var string
+	 */
 	protected $sourceProvider;
 
+	/**
+	 * The name of the destination provider (child).
+	 *
+	 * @var string
+	 */
 	protected $destinationProvider;
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function setFilterArray($value)
 	{
@@ -39,7 +69,7 @@ class ParentChildCondition
 	}
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function getFilterArray()
 	{
@@ -47,7 +77,7 @@ class ParentChildCondition
 	}
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function setSetters($value)
 	{
@@ -57,7 +87,7 @@ class ParentChildCondition
 	}
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function getSetters()
 	{
@@ -65,7 +95,7 @@ class ParentChildCondition
 	}
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function setInverseFilterArray($value)
 	{
@@ -75,7 +105,7 @@ class ParentChildCondition
 	}
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function getInverseFilterArray()
 	{
@@ -83,7 +113,7 @@ class ParentChildCondition
 	}
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function setSourceName($value)
 	{
@@ -93,7 +123,7 @@ class ParentChildCondition
 	}
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function getSourceName()
 	{
@@ -101,7 +131,7 @@ class ParentChildCondition
 	}
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function setDestinationName($value)
 	{
@@ -111,7 +141,7 @@ class ParentChildCondition
 	}
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function getDestinationName()
 	{
@@ -119,7 +149,7 @@ class ParentChildCondition
 	}
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function getFilter($objParent)
 	{
@@ -162,7 +192,7 @@ class ParentChildCondition
 	}
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function applyTo($objParent, $objChild)
 	{
@@ -172,7 +202,7 @@ class ParentChildCondition
 	}
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function getInverseFilterFor($objChild)
 	{
@@ -205,7 +235,7 @@ class ParentChildCondition
 	}
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function matches($objParent, $objChild)
 	{
