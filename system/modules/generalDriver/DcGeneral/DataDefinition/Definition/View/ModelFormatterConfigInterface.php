@@ -14,13 +14,15 @@ namespace DcGeneral\DataDefinition\Definition\View;
 
 /**
  * The model formatter format a model and create a string representation.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View
  */
 interface ModelFormatterConfigInterface
 {
 	/**
 	 * Set the used property names.
 	 *
-	 * @param array $propertyNames
+	 * @param array $propertyNames The property names.
 	 *
 	 * @return ModelFormatterConfigInterface
 	 */
@@ -36,7 +38,7 @@ interface ModelFormatterConfigInterface
 	/**
 	 * Set the format string.
 	 *
-	 * @param string $format
+	 * @param string $format The format string to use.
 	 *
 	 * @return ModelFormatterConfigInterface
 	 */
@@ -52,7 +54,7 @@ interface ModelFormatterConfigInterface
 	/**
 	 * Set the formatted maximum length.
 	 *
-	 * @param int|null $maxLength
+	 * @param int|null $maxLength The length to use - pass null to clear the cutting.
 	 *
 	 * @return ModelFormatterConfigInterface
 	 */
