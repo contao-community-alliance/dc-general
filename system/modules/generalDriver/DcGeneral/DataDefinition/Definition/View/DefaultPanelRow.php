@@ -15,9 +15,16 @@ namespace DcGeneral\DataDefinition\Definition\View;
 use DcGeneral\DataDefinition\Definition\View\Panel\ElementInformationInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
+/**
+ * Default implementation of a panel row.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View
+ */
 class DefaultPanelRow implements PanelRowInterface
 {
 	/**
+	 * The contained elements.
+	 *
 	 * @var ElementInformationInterface[]
 	 */
 	protected $elements = array();
@@ -94,6 +101,8 @@ class DefaultPanelRow implements PanelRowInterface
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException When an invalid value for the element name has been passed.
 	 */
 	public function hasElement($instanceOrName)
 	{
@@ -129,6 +138,9 @@ class DefaultPanelRow implements PanelRowInterface
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException When an invalid value for the element name has been passed or the
+	 *                                           index is out of bounds.
 	 */
 	public function getElement($indexOrName)
 	{
