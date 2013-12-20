@@ -12,8 +12,13 @@
 
 namespace DcGeneral\DataDefinition\Definition;
 
+use DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface;
+use DcGeneral\DataDefinition\ModelRelationship\RootConditionInterface;
+
 /**
- * Interface RelationshipDefinitionInterface
+ * This interface describes the relationships between data providers.
+ *
+ * It holds a root condition for the root data provider and many parent child relationships.
  *
  * @package DcGeneral\DataDefinition\Definition
  */
@@ -27,7 +32,7 @@ interface ModelRelationshipDefinitionInterface extends DefinitionInterface
 	/**
 	 * Set the root condition for the current table.
 	 *
-	 * @param \DcGeneral\DataDefinition\ModelRelationship\RootConditionInterface $condition
+	 * @param RootConditionInterface $condition The root condition.
 	 *
 	 * @return ModelRelationshipDefinitionInterface
 	 */
@@ -36,12 +41,14 @@ interface ModelRelationshipDefinitionInterface extends DefinitionInterface
 	/**
 	 * Retrieve the root condition for the current table.
 	 *
-	 * @return \DcGeneral\DataDefinition\ModelRelationship\RootConditionInterface
+	 * @return RootConditionInterface
 	 */
 	public function getRootCondition();
 
 	/**
-	 * @param \DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface $condition
+	 * Add a parent child condition.
+	 *
+	 * @param ParentChildConditionInterface $condition The parent child condition.
 	 *
 	 * @return ModelRelationshipDefinitionInterface
 	 */
@@ -54,7 +61,7 @@ interface ModelRelationshipDefinitionInterface extends DefinitionInterface
 	 *
 	 * @param string $dstProvider The child table.
 	 *
-	 * @return \DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface
+	 * @return ParentChildConditionInterface
 	 */
 	public function getChildCondition($srcProvider, $dstProvider);
 
@@ -63,7 +70,7 @@ interface ModelRelationshipDefinitionInterface extends DefinitionInterface
 	 *
 	 * @param string $srcProvider The parenting table for which child conditions shall be assembled for (optional).
 	 *
-	 * @return \DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface[]
+	 * @return ParentChildConditionInterface[]
 	 */
 	public function getChildConditions($srcProvider = '');
 }
