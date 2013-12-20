@@ -12,10 +12,15 @@
 
 namespace DcGeneral\DataDefinition\Definition\View\Panel;
 
+/**
+ * Class DefaultLimitElementInformation.
+ *
+ * Default implementation of a limit definition.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View\Panel
+ */
 class DefaultLimitElementInformation implements LimitElementInformationInterface
 {
-	protected $properties;
-
 	/**
 	 * {@inheritDoc}
 	 */
