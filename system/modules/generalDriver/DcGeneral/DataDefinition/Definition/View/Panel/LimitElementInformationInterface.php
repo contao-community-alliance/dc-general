@@ -12,6 +12,13 @@
 
 namespace DcGeneral\DataDefinition\Definition\View\Panel;
 
+/**
+ * Interface LimitElementInformationInterface.
+ *
+ * This interface describes a limit panel element information.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View\Panel
+ */
 interface LimitElementInformationInterface extends ElementInformationInterface
 {
 }
