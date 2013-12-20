@@ -14,12 +14,17 @@ namespace DcGeneral\DataDefinition\ModelRelationship;
 
 use DcGeneral\Data\ModelInterface;
 
+/**
+ * This interface holds the information about the characteristics of a root model.
+ *
+ * @package DcGeneral\DataDefinition\ModelRelationship
+ */
 interface RootConditionInterface
 {
 	/**
 	 * Set the condition as filter.
 	 *
-	 * @param array $value
+	 * @param array $value The filter rules to be used for finding root models.
 	 *
 	 * @return RootConditionInterface
 	 */
@@ -35,7 +40,7 @@ interface RootConditionInterface
 	/**
 	 * Set the condition setters.
 	 *
-	 * @param array $value
+	 * @param array $value The values to be used when making a model a root model.
 	 *
 	 * @return RootConditionInterface
 	 */
@@ -51,7 +56,7 @@ interface RootConditionInterface
 	/**
 	 * Set the name of the source provider.
 	 *
-	 * @param string $value
+	 * @param string $value The data provider name.
 	 *
 	 * @return RootConditionInterface
 	 */
@@ -67,7 +72,7 @@ interface RootConditionInterface
 	/**
 	 * Apply the root condition to a model.
 	 *
-	 * @param ModelInterface $objModel
+	 * @param ModelInterface $objModel The model that shall become a root model.
 	 *
 	 * @return RootConditionInterface
 	 */
@@ -76,7 +81,7 @@ interface RootConditionInterface
 	/**
 	 * Test if the given model is indeed a root object according to this condition.
 	 *
-	 * @param ModelInterface $objModel
+	 * @param ModelInterface $objModel The model to be tested.
 	 *
 	 * @return bool
 	 */
