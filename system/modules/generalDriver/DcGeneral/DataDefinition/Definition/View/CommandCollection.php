@@ -15,9 +15,18 @@ namespace DcGeneral\DataDefinition\Definition\View;
 
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
+/**
+ * Class CommandCollection.
+ *
+ * Implementation of a command collection.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View
+ */
 class CommandCollection implements CommandCollectionInterface
 {
 	/**
+	 * The commands contained within the collection.
+	 *
 	 * @var CommandInterface[]
 	 */
 	protected $commands = array();
@@ -28,6 +37,7 @@ class CommandCollection implements CommandCollectionInterface
 	public function clearCommands()
 	{
 		$this->commands = array();
+
 		return $this;
 	}
 
@@ -38,6 +48,7 @@ class CommandCollection implements CommandCollectionInterface
 	{
 		$this->clearCommands();
 		$this->addCommands($commands);
+
 		return $this;
 	}
 
@@ -46,9 +57,11 @@ class CommandCollection implements CommandCollectionInterface
 	 */
 	public function addCommands(array $commands)
 	{
-		foreach ($commands as $command) {
+		foreach ($commands as $command)
+		{
 			$this->addCommand($command);
 		}
+
 		return $this;
 	}
 
@@ -57,9 +70,11 @@ class CommandCollection implements CommandCollectionInterface
 	 */
 	public function removeCommands(array $commands)
 	{
-		foreach ($commands as $command) {
+		foreach ($commands as $command)
+		{
 			$this->removeCommand($command);
 		}
+
 		return $this;
 	}
 
@@ -69,6 +84,7 @@ class CommandCollection implements CommandCollectionInterface
 	public function hasCommand(CommandInterface $command)
 	{
 		$hash = spl_object_hash($command);
+
 		return isset($this->commands[$hash]);
 	}
 
@@ -77,11 +93,14 @@ class CommandCollection implements CommandCollectionInterface
 	 */
 	public function hasCommandNamed($name)
 	{
-		foreach ($this->commands as $command) {
-			if ($command->getName() == $name) {
+		foreach ($this->commands as $command)
+		{
+			if ($command->getName() == $name)
+			{
 				return true;
 			}
 		}
+
 		return false;
 	}
 
@@ -91,7 +110,9 @@ class CommandCollection implements CommandCollectionInterface
 	public function addCommand(CommandInterface $command)
 	{
 		$hash = spl_object_hash($command);
+
 		$this->commands[$hash] = $command;
+
 		return $this;
 	}
 
@@ -102,17 +123,23 @@ class CommandCollection implements CommandCollectionInterface
 	{
 		$hash = spl_object_hash($command);
 		unset($this->commands[$hash]);
+
 		return $this;
 	}
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException when the requested command could not be found.
 	 */
 	public function removeCommandNamed($name)
 	{
-		foreach ($this->commands as $command) {
-			if ($command->getName() == $name) {
+		foreach ($this->commands as $command)
+		{
+			if ($command->getName() == $name)
+			{
 				$this->removeCommand($command);
+
 				return $this;
 			}
 		}
@@ -122,11 +149,15 @@ class CommandCollection implements CommandCollectionInterface
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException when the requested command could not be found.
 	 */
 	public function getCommandNamed($name)
 	{
-		foreach ($this->commands as $command) {
-			if ($command->getName() == $name) {
+		foreach ($this->commands as $command)
+		{
+			if ($command->getName() == $name)
+			{
 				return $command;
 			}
 		}
