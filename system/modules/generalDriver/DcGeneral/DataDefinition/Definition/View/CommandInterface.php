@@ -13,12 +13,19 @@
 
 namespace DcGeneral\DataDefinition\Definition\View;
 
+/**
+ * Interface CommandInterface.
+ *
+ * This interface describes a command that can be applied to a model.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View
+ */
 interface CommandInterface
 {
 	/**
-	 * Return the name of the command.
+	 * Set the name of the command.
 	 *
-	 * @param string $name
+	 * @param string $name The name of the command.
 	 *
 	 * @return CommandInterface
 	 */
@@ -34,7 +41,7 @@ interface CommandInterface
 	/**
 	 * Set the action properties of the command.
 	 *
-	 * @param \ArrayObject $parameters
+	 * @param \ArrayObject $parameters The parameters.
 	 *
 	 * @return CommandInterface
 	 */
@@ -50,7 +57,7 @@ interface CommandInterface
 	/**
 	 * Set the label of the command.
 	 *
-	 * @param string $label
+	 * @param string $label The label text.
 	 *
 	 * @return CommandInterface
 	 */
@@ -66,7 +73,7 @@ interface CommandInterface
 	/**
 	 * Set the description of the command.
 	 *
-	 * @param string $description
+	 * @param string $description The description text.
 	 *
 	 * @return CommandInterface
 	 */
@@ -82,7 +89,7 @@ interface CommandInterface
 	/**
 	 * Set extra information.
 	 *
-	 * @param \ArrayObject $extra
+	 * @param \ArrayObject $extra The extra data.
 	 *
 	 * @return CommandInterface
 	 */
@@ -98,7 +105,7 @@ interface CommandInterface
 	/**
 	 * Set the command enabled or disabled (true means disabled).
 	 *
-	 * @param boolean $disabled
+	 * @param boolean $disabled The flag.
 	 *
 	 * @return $this
 	 */
