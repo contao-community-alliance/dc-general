@@ -13,7 +13,7 @@
 namespace DcGeneral\DataDefinition\Definition;
 
 /**
- * Interface DataProviderDefinitionInterface
+ * Default implementation of the basic information about the data definition.
  *
  * @package DcGeneral\DataDefinition\Definition
  */
@@ -27,46 +27,64 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
 	protected $mode;
 
 	/**
+	 * The name of the data provider of the root elements.
+	 *
 	 * @var string
 	 */
 	protected $rootProviderName;
 
 	/**
+	 * The name of the data provider of the parent element.
+	 *
 	 * @var string
 	 */
 	protected $parentProviderName;
 
 	/**
+	 * The name of the data provider of the elements being processed.
+	 *
 	 * @var string
 	 */
 	protected $providerName;
 
 	/**
+	 * Array of filter rules.
+	 *
 	 * @var array
 	 */
 	protected $additionalFilter;
 
 	/**
+	 * If true, adding of further records is prohibited.
+	 *
 	 * @var bool
 	 */
 	protected $isClosed = false;
 
 	/**
+	 * Boolean flag determining if this data container is editable.
+	 *
 	 * @var bool
 	 */
 	protected $isEditable = true;
 
 	/**
+	 * Boolean flag determining if this data container is deletable.
+	 *
 	 * @var bool
 	 */
-	protected $isDeletable  = true;
+	protected $isDeletable = true;
 
 	/**
+	 * Determines if new entries may be created within this data container.
+	 *
 	 * @var bool
 	 */
 	protected $isCreatable = true;
 
 	/**
+	 * Determines if the view shall switch automatically into edit mode.
+	 *
 	 * @var bool
 	 */
 	protected $switchToEditEnabled;
