@@ -13,39 +13,61 @@
 
 namespace DcGeneral\DataDefinition\Definition\View;
 
+/**
+ * Class Command.
+ *
+ * Implementation about a command definition.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View
+ */
 class Command implements CommandInterface
 {
 	/**
+	 * Name of the command.
+	 *
 	 * @var string
 	 */
 	protected $name;
 
 	/**
+	 * The parameters for the command.
+	 *
 	 * @var \ArrayObject
 	 */
 	protected $parameters;
 
 	/**
+	 * The label string for the command.
+	 *
 	 * @var string
 	 */
 	protected $label;
 
 	/**
+	 * The description text for the command.
+	 *
 	 * @var string
 	 */
 	protected $description;
 
 	/**
+	 * The extra data for the command.
+	 *
 	 * @var \ArrayObject
 	 */
 	protected $extra;
 
 	/**
+	 * Flag if the command is disabled or not.
+	 *
 	 * @var bool
 	 */
 	protected $disabled;
 
-	function __construct()
+	/**
+	 * Create a new instance.
+	 */
+	public function __construct()
 	{
 		$this->parameters = new \ArrayObject();
 		$this->extra      = new \ArrayObject();
@@ -56,7 +78,8 @@ class Command implements CommandInterface
 	 */
 	public function setName($name)
 	{
-		$this->name = (string) $name;
+		$this->name = (string)$name;
+
 		return $this;
 	}
 
@@ -74,6 +97,7 @@ class Command implements CommandInterface
 	public function setParameters(\ArrayObject $parameters)
 	{
 		$this->parameters = $parameters;
+
 		return $this;
 	}
 
@@ -90,7 +114,8 @@ class Command implements CommandInterface
 	 */
 	public function setLabel($label)
 	{
-		$this->label = (string) $label;
+		$this->label = (string)$label;
+
 		return $this;
 	}
 
@@ -107,7 +132,8 @@ class Command implements CommandInterface
 	 */
 	public function setDescription($description)
 	{
-		$this->description = (string) $description;
+		$this->description = (string)$description;
+
 		return $this;
 	}
 
@@ -125,6 +151,7 @@ class Command implements CommandInterface
 	public function setExtra(\ArrayObject $extra)
 	{
 		$this->extra = $extra;
+
 		return $this;
 	}
 
