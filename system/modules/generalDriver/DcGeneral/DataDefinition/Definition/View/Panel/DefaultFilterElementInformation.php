@@ -12,9 +12,18 @@
 
 namespace DcGeneral\DataDefinition\Definition\View\Panel;
 
+/**
+ * Class DefaultFilterElementInformation.
+ *
+ * Default implementation of a filter definition for a property.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View\Panel
+ */
 class DefaultFilterElementInformation implements FilterElementInformationInterface
 {
 	/**
+	 * The name of the property to filter on.
+	 *
 	 * @var string
 	 */
 	protected $propertyName;
