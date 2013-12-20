@@ -36,6 +36,8 @@ abstract class BuilderEvent extends AbstractContainerAwareEvent
 	 */
 	public function __construct(PaletteBuilder $paletteBuilder)
 	{
+		parent::__construct($this->paletteBuilder->getContainer());
+
 		$this->paletteBuilder = $paletteBuilder;
 	}
 
@@ -47,13 +49,5 @@ abstract class BuilderEvent extends AbstractContainerAwareEvent
 	public function getPaletteBuilder()
 	{
 		return $this->paletteBuilder;
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getEnvironment()
-	{
-		return $this->paletteBuilder->getContainer();
 	}
 }
