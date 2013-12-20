@@ -25,6 +25,50 @@ use DcGeneral\Exception\DcGeneralRuntimeException;
 abstract class AbstractCondition
 {
 	/**
+	 * Check if an AND condition filter matches.
+	 *
+	 * @param ModelInterface $model  The model to check the condition against.
+	 *
+	 * @param array          $filter The filter rules to be applied.
+	 *
+	 * @return bool
+	 */
+	protected static function checkAndFilter($model, $filter)
+	{
+		foreach ($filter['children'] as $child)
+		{
+			// AND => first false means false.
+			if (!self::checkCondition($model, $child))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Check if an AND condition filter matches.
+	 *
+	 * @param ModelInterface $model  The model to check the condition against.
+	 *
+	 * @param array          $filter The filter rules to be applied.
+	 *
+	 * @return bool
+	 */
+	protected static function checkOrFilter($model, $filter)
+	{
+		foreach ($filter['children'] as $child)
+		{
+			// OR => first true means true.
+			if (self::checkCondition($model, $child))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Check if the passed filter rules apply to the given model.
 	 *
 	 * @param ModelInterface $objParentModel The model to check the condition against.
@@ -41,7 +85,7 @@ abstract class AbstractCondition
 		{
 			case 'AND':
 			case 'OR':
-				// FIXME: backwards compat - remove when done
+				// FIXME: backwards compat - remove when done.
 				if (is_array($arrFilter['childs']))
 				{
 					trigger_error('Filter array uses deprecated entry "childs", please use "children" instead.', E_USER_DEPRECATED);
@@ -50,27 +94,11 @@ abstract class AbstractCondition
 
 				if ($arrFilter['operation'] == 'AND')
 				{
-					foreach ($arrFilter['children'] as $arrChild)
-					{
-						// AND => first false means false.
-						if (!self::checkCondition($objParentModel, $arrChild))
-						{
-							return false;
-						}
-					}
-					return true;
+					return self::checkAndFilter($objParentModel, $arrFilter['children']);
 				}
 				else
 				{
-					foreach ($arrFilter['children'] as $arrChild)
-					{
-						// OR => first true means true.
-						if (self::checkCondition($objParentModel, $arrChild))
-						{
-							return true;
-						}
-					}
-					return false;
+					return self::checkOrFilter($objParentModel, $arrFilter['children']);
 				}
 				break;
 
@@ -87,10 +115,11 @@ abstract class AbstractCondition
 				return in_array($objParentModel->getProperty($arrFilter['property']), $arrFilter['value']);
 
 			default:
-				throw new DcGeneralRuntimeException(
-					'Error processing filter array - unknown operation ' . var_export($arrFilter, true),
-					1
-				);
 		}
+
+		throw new DcGeneralRuntimeException(
+			'Error processing filter array - unknown operation ' . var_export($arrFilter, true),
+			1
+		);
 	}
 }
