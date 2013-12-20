@@ -83,6 +83,8 @@ class DefaultPanelRowCollection implements PanelRowCollectionInterface
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException When the index does not exist.
 	 */
 	public function getRow($index)
 	{
