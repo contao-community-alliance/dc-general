@@ -12,11 +12,10 @@
 
 namespace DcGeneral\DataDefinition\Definition;
 
-use DcGeneral\DataDefinition\DataProviderInformation;
-use DcGeneral\Exception\DcGeneralInvalidArgumentException;
+use DcGeneral\DataDefinition\DataProviderInformationInterface;
 
 /**
- * Interface DataProviderDefinitionInterface
+ * This interface describes a collection of data provider information.
  *
  * @package DcGeneral\DataDefinition\Definition
  */
@@ -29,41 +28,47 @@ interface DataProviderDefinitionInterface
 	const NAME = 'dataProvider';
 
 	/**
-	 * @param DataProviderInformation|string $information
+	 * Add a data provider information to the definition.
 	 *
-	 * @throws DcGeneralInvalidArgumentException
+	 * @param DataProviderInformationInterface $information The data provider instance to add.
 	 *
 	 * @return DataProviderDefinitionInterface
 	 */
 	public function addInformation($information);
 
 	/**
-	 * @param $information
+	 * Remove the data provider information with the given name.
+	 *
+	 * @param DataProviderInformationInterface|string $information The information or name of a data provider.
 	 *
 	 * @return DataProviderDefinitionInterface
 	 */
 	public function removeInformation($information);
 
 	/**
-	 * @param string                  $name
+	 * Forcefully overwrite a stored data provider with another one.
 	 *
-	 * @param DataProviderInformation $information
+	 * @param string                           $name        The name of a data provider to overwrite.
+	 *
+	 * @param DataProviderInformationInterface $information The information of the new data provider.
 	 *
 	 * @return DataProviderDefinitionInterface
 	 */
 	public function setInformation($name, $information);
 
 	/**
-	 * @param DataProviderInformation|string $information
+	 * Check if there exists a definition of a data provider with the given name.
 	 *
-	 * @throws DcGeneralInvalidArgumentException
+	 * @param DataProviderInformationInterface|string $information The information or name of a data provider.
 	 *
 	 * @return bool
 	 */
 	public function hasInformation($information);
 
 	/**
-	 * @param string $information
+	 * Retrieve the data provider information with the given name.
+	 *
+	 * @param string $information The name of a data provider.
 	 *
 	 * @return DataProviderInformation
 	 */

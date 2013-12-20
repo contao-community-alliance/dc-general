@@ -12,27 +12,32 @@
 
 namespace DcGeneral\DataDefinition\Definition;
 
-use DcGeneral\DataDefinition\DataProviderInformation;
+use DcGeneral\DataDefinition\DataProviderInformationInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 /**
- * Interface DataProviderDefinitionInterface
+ * This is the default implementation of a collection of data provider information.
  *
  * @package DcGeneral\DataDefinition\Definition
  */
 class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
 {
 	/**
-	 * @var DataProviderInformation[]
+	 * The data provider information stored in the definition.
+	 *
+	 * @var DataProviderInformationInterface[]
 	 */
 	protected $information = array();
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException When an invalid instance has been passed or a provider definition with
+	 *                                           the given name has already been registered.
 	 */
 	public function addInformation($information)
 	{
-		if (!($information instanceof DataProviderInformation))
+		if (!($information instanceof DataProviderInformationInterface))
 		{
 			throw new DcGeneralInvalidArgumentException('Invalid value passed.');
 		}
@@ -48,17 +53,22 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
 	}
 
 	/**
-	 * @param $information
+	 * Convert a value into a data definition name.
+	 *
+	 * Convenience method to ensure we have a data provider name.
+	 *
+	 * @param DataProviderInformationInterface|string $information The information or name of a data provider.
 	 *
 	 * @return string
 	 *
-	 * @throws DcGeneralInvalidArgumentException
+	 * @throws DcGeneralInvalidArgumentException If neither a string nor an instance of DataProviderInformationInterface
+	 *                                           has been passed.
 	 *
 	 * @internal
 	 */
 	protected function makeName($information)
 	{
-		if ($information instanceof DataProviderInformation)
+		if ($information instanceof DataProviderInformationInterface)
 		{
 			$information = $information->getName();
 		}
@@ -76,7 +86,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
 	 */
 	public function removeInformation($information)
 	{
-		unset($this->information[$information]);
+		unset($this->information[$this->makeName($information)]);
 	}
 
 	/**
@@ -162,7 +172,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	function __isset($name)
+	public function __isset($name)
 	{
 		return $this->hasInformation($name);
 	}
@@ -170,7 +180,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	function __get($name)
+	public function __get($name)
 	{
 		return $this->getInformation($name);
 	}
@@ -178,7 +188,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	function __set($name, $value)
+	public function __set($name, $value)
 	{
 		$this->setInformation($name, $value);
 	}
@@ -186,7 +196,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	function __unset($name)
+	public function __unset($name)
 	{
 		$this->removeInformation($name);
 	}
