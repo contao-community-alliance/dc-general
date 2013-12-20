@@ -12,12 +12,27 @@
 
 namespace DcGeneral\DataDefinition\Definition;
 
+use DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface;
+use DcGeneral\DataDefinition\ModelRelationship\RootConditionInterface;
+
+/**
+ * Default implementation of a model relationship definition.
+ *
+ * @package DcGeneral\DataDefinition\Definition
+ */
 class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionInterface
 {
+	/**
+	 * The root condition relationship.
+	 *
+	 * @var RootConditionInterface
+	 */
 	protected $rootCondition;
 
 	/**
-	 * @var \DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface[]
+	 * A collection of parent child conditions.
+	 *
+	 * @var ParentChildConditionInterface[]
 	 */
 	protected $childConditions = array();
 
@@ -27,6 +42,8 @@ class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionI
 	public function setRootCondition($condition)
 	{
 		$this->rootCondition = $condition;
+
+		return $this;
 	}
 
 	/**
@@ -43,7 +60,10 @@ class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionI
 	public function addChildCondition($condition)
 	{
 		$hash = spl_object_hash($condition);
+
 		$this->childConditions[$hash] = $condition;
+
+		return $this;
 	}
 
 	/**
