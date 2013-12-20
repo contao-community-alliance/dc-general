@@ -12,18 +12,31 @@
 
 namespace DcGeneral\DataDefinition\Definition\View;
 
+/**
+ * Default implementation of a panel layout definition.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View
+ */
 class DefaultPanelLayout implements PanelLayoutInterface
 {
 	/**
+	 * The rows of the layout.
+	 *
 	 * @var PanelRowCollectionInterface[]
 	 */
 	protected $rows;
 
+	/**
+	 * Create a new instance.
+	 */
 	public function __construct()
 	{
 		$this->rows = new DefaultPanelRowCollection();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function getRows()
 	{
 		return $this->rows;
