@@ -14,6 +14,11 @@ namespace DcGeneral\DataDefinition\Definition\View;
 
 use DcGeneral\DataDefinition\Definition\View\Panel\ElementInformationInterface;
 
+/**
+ * This interface describes a panel row definition.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View
+ */
 interface PanelRowInterface extends \IteratorAggregate
 {
 	/**
@@ -33,9 +38,9 @@ interface PanelRowInterface extends \IteratorAggregate
 	 * If the index is negative or greater than the total amount of rows present, the new element will get placed at the
 	 * end of the list.
 	 *
-	 * @param ElementInformationInterface $element
+	 * @param ElementInformationInterface $element The element to add.
 	 *
-	 * @param int                         $index Target position for the element.
+	 * @param int                         $index   Target position for the element.
 	 *
 	 * @return PanelRowInterface
 	 */
@@ -55,11 +60,9 @@ interface PanelRowInterface extends \IteratorAggregate
 	 *
 	 * Throws an exception when an invalid value has been passed.
 	 *
-	 * @param ElementInformationInterface|string $instanceOrName
+	 * @param ElementInformationInterface|string $instanceOrName The element instance or the name of an element to check.
 	 *
 	 * @return bool
-	 *
-	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException
 	 */
 	public function hasElement($instanceOrName);
 
@@ -80,6 +83,10 @@ interface PanelRowInterface extends \IteratorAggregate
 	public function getElement($indexOrName);
 
 	/**
+	 * Retrieve an external iterator.
+	 *
+	 * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
+	 *
 	 * @return ElementInformationInterface[]
 	 */
 	public function getIterator();
