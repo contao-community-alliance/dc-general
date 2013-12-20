@@ -19,30 +19,41 @@ use DcGeneral\DataDefinition\Palette\Condition\Property\PropertyValueCondition;
 use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
 use DcGeneral\DataDefinition\Palette\PaletteInterface;
 use DcGeneral\DataDefinition\Palette\PropertyInterface;
-use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
+/**
+ * This event is emitted when an condition is added by the palette builder.
+ *
+ * @package DcGeneral\DataDefinition\Palette\Builder\Event
+ */
 class AddConditionEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.add-condition';
+	const NAME = 'dc-general.data-definition.palette.builder.add-condition';
 
 	/**
+	 * The condition that is being added.
+	 *
 	 * @var PaletteConditionInterface|PropertyConditionInterface
 	 */
 	protected $condition;
 
 	/**
+	 * The target to which the condition is being added.
+	 *
 	 * @var PaletteInterface|PropertyInterface
 	 */
 	protected $target;
 
 	/**
-	 * @param PaletteConditionInterface|PropertyConditionInterface $condition
-	 * @param PaletteInterface|PropertyInterface $target
-	 * @param PaletteBuilder $paletteBuilder
-	 * @param EnvironmentInterface $environment
+	 * Create a new instance.
+	 *
+	 * @param PaletteConditionInterface|PropertyConditionInterface $condition      The condition being added.
+	 *
+	 * @param PaletteInterface|PropertyInterface                   $target         The target property or palette.
+	 *
+	 * @param PaletteBuilder                                       $paletteBuilder The palette builder in use.
 	 */
-	function __construct($condition, $target, PaletteBuilder $paletteBuilder)
+	public function __construct($condition, $target, PaletteBuilder $paletteBuilder)
 	{
 		$this->setCondition($condition);
 		$this->setTarget($target);
@@ -50,11 +61,18 @@ class AddConditionEvent extends BuilderEvent
 	}
 
 	/**
-	 * @param PalettePropertyValueCondition|PropertyValueCondition $condition
+	 * Set the condition.
+	 *
+	 * @param PalettePropertyValueCondition|PropertyValueCondition $condition The condition.
+	 *
+	 * @return AddConditionEvent
+	 *
+	 * @throws DcGeneralInvalidArgumentException When an invalid condition has been passed.
 	 */
 	public function setCondition($condition)
 	{
-		if (!$condition instanceof PaletteConditionInterface and !$condition instanceof PropertyConditionInterface) {
+		if ((!$condition instanceof PaletteConditionInterface) && (!$condition instanceof PropertyConditionInterface))
+		{
 			throw new DcGeneralInvalidArgumentException();
 		}
 
@@ -63,6 +81,8 @@ class AddConditionEvent extends BuilderEvent
 	}
 
 	/**
+	 * Retrieve the condition.
+	 *
 	 * @return PalettePropertyValueCondition|PropertyValueCondition
 	 */
 	public function getCondition()
@@ -71,11 +91,18 @@ class AddConditionEvent extends BuilderEvent
 	}
 
 	/**
-	 * @param PaletteInterface|PropertyInterface $target
+	 * Set the target.
+	 *
+	 * @param PaletteInterface|PropertyInterface $target The target property or palette.
+	 *
+	 * @return AddConditionEvent
+	 *
+	 * @throws DcGeneralInvalidArgumentException When an invalid target has been passed.
 	 */
 	public function setTarget($target)
 	{
-		if (!$target instanceof PaletteInterface and !$target instanceof PropertyInterface) {
+		if ((!$target instanceof PaletteInterface) && (!$target instanceof PropertyInterface))
+		{
 			throw new DcGeneralInvalidArgumentException();
 		}
 
@@ -84,6 +111,8 @@ class AddConditionEvent extends BuilderEvent
 	}
 
 	/**
+	 * Retrieve the target.
+	 *
 	 * @return PaletteInterface|PropertyInterface
 	 */
 	public function getTarget()

@@ -17,48 +17,67 @@ use DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition as
 use DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterface;
 use DcGeneral\DataDefinition\Palette\Condition\Property\PropertyValueCondition;
 use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
-use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
+/**
+ * This event gets emitted when a condition is created.
+ *
+ * @package DcGeneral\DataDefinition\Palette\Builder\Event
+ */
 class CreateConditionEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.create-condition';
+	const NAME = 'dc-general.data-definition.palette.builder.create-condition';
 
 	/**
+	 * The condition being created.
+	 *
 	 * @var PaletteConditionInterface|PropertyConditionInterface
 	 */
 	protected $condition;
 
 	/**
-	 * @param PaletteConditionInterface|PropertyConditionInterface $condition
-	 * @param PaletteBuilder $paletteBuilder
-	 * @param EnvironmentInterface $environment
+	 * Create a new instance.
+	 *
+	 * @param PaletteConditionInterface|PropertyConditionInterface $condition      The condition that has been created.
+	 *
+	 * @param PaletteBuilder                                       $paletteBuilder The palette builder that created the
+	 *                                                                             condition.
 	 */
-	function __construct($condition, PaletteBuilder $paletteBuilder)
+	public function __construct($condition, PaletteBuilder $paletteBuilder)
 	{
 		$this->setCondition($condition);
+
 		parent::__construct($paletteBuilder);
 	}
 
 	/**
-	 * @param PalettePropertyValueCondition|PropertyValueCondition $condition
+	 * Set the condition.
+	 *
+	 * @param PalettePropertyValueCondition|PropertyValueCondition $condition The condition to use.
+	 *
+	 * @return CreateConditionEvent
+	 *
+	 * @throws DcGeneralInvalidArgumentException When an invalid condition has been passed.
 	 */
 	public function setCondition($condition)
 	{
-		if (!$condition instanceof PaletteConditionInterface and !$condition instanceof PropertyConditionInterface) {
+		if ((!$condition instanceof PaletteConditionInterface) && (!$condition instanceof PropertyConditionInterface))
+		{
 			throw new DcGeneralInvalidArgumentException();
 		}
 
 		$this->condition = $condition;
+
 		return $this;
 	}
 
 	/**
+	 * Retrieve the condition.
+	 *
 	 * @return PalettePropertyValueCondition|PropertyValueCondition
 	 */
 	public function getCondition()
 	{
 		return $this->condition;
 	}
-
 }

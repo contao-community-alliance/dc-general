@@ -14,43 +14,57 @@ namespace DcGeneral\DataDefinition\Palette\Builder\Event;
 
 use DcGeneral\DataDefinition\Palette\LegendInterface;
 use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
-use DcGeneral\EnvironmentInterface;
 
+/**
+ * This event gets emitted when a legend is created.
+ *
+ * @package DcGeneral\DataDefinition\Palette\Builder\Event
+ */
 class CreateLegendEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.create-legend';
+	const NAME = 'dc-general.data-definition.palette.builder.create-legend';
 
 	/**
+	 * The legend that has been created.
+	 *
 	 * @var LegendInterface
 	 */
 	protected $legend;
 
 	/**
-	 * @param LegendInterface $legend
-	 * @param PaletteBuilder $paletteBuilder
-	 * @param EnvironmentInterface $environment
+	 * Create a new instance.
+	 *
+	 * @param LegendInterface $legend         The legend being created.
+	 *
+	 * @param PaletteBuilder  $paletteBuilder The palette builder in use.
 	 */
-	function __construct(LegendInterface $legend, PaletteBuilder $paletteBuilder)
+	public function __construct(LegendInterface $legend, PaletteBuilder $paletteBuilder)
 	{
 		$this->setLegend($legend);
 		parent::__construct($paletteBuilder);
 	}
 
 	/**
-	 * @param LegendInterface $legend
+	 * Set the legend.
+	 *
+	 * @param LegendInterface $legend The legend.
+	 *
+	 * @return CreateLegendEvent
 	 */
 	public function setLegend(LegendInterface $legend)
 	{
 		$this->legend = $legend;
+
 		return $this;
 	}
 
 	/**
+	 * Retrieve the legend.
+	 *
 	 * @return LegendInterface
 	 */
 	public function getLegend()
 	{
 		return $this->legend;
 	}
-
 }

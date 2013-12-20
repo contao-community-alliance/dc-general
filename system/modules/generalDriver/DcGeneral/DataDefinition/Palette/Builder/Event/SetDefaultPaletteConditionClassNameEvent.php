@@ -13,43 +13,56 @@
 namespace DcGeneral\DataDefinition\Palette\Builder\Event;
 
 use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
-use DcGeneral\EnvironmentInterface;
 
+/**
+ * This event gets emitted when the class name of the default palette condition is set.
+ *
+ * @package DcGeneral\DataDefinition\Palette\Builder\Event
+ */
 class SetDefaultPaletteConditionClassNameEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.set-default-palette-condition-class-name';
+	const NAME = 'dc-general.data-definition.palette.builder.set-default-palette-condition-class-name';
 
 	/**
+	 * The class name.
+	 *
 	 * @var string
 	 */
 	protected $defaultPaletteConditionClassName;
 
 	/**
-	 * @param string               $defaultPaletteConditionClassName
-	 * @param PaletteBuilder       $paletteBuilder
-	 * @param EnvironmentInterface $environment
+	 * Create a new instance.
+	 *
+	 * @param string         $defaultPaletteConditionClassName The class name.
+	 *
+	 * @param PaletteBuilder $paletteBuilder                   The palette builder in use.
 	 */
-	function __construct($defaultPaletteConditionClassName, PaletteBuilder $paletteBuilder)
+	public function __construct($defaultPaletteConditionClassName, PaletteBuilder $paletteBuilder)
 	{
 		$this->setDefaultPaletteConditionClassName($defaultPaletteConditionClassName);
 		parent::__construct($paletteBuilder);
 	}
 
 	/**
-	 * @param string $defaultPaletteConditionClassName
+	 * Set the class name.
+	 *
+	 * @param string $defaultPaletteConditionClassName The class name.
+	 *
+	 * @return SetDefaultPaletteConditionClassNameEvent
 	 */
 	public function setDefaultPaletteConditionClassName($defaultPaletteConditionClassName)
 	{
-		$this->defaultPaletteConditionClassName = (string) $defaultPaletteConditionClassName;
+		$this->defaultPaletteConditionClassName = (string)$defaultPaletteConditionClassName;
 		return $this;
 	}
 
 	/**
+	 * Retrieve the class name.
+	 *
 	 * @return string
 	 */
 	public function getDefaultPaletteConditionClassName()
 	{
 		return $this->defaultPaletteConditionClassName;
 	}
-
 }

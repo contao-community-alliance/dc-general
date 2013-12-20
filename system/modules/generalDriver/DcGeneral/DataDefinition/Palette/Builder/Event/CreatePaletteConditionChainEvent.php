@@ -14,43 +14,57 @@ namespace DcGeneral\DataDefinition\Palette\Builder\Event;
 
 use DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionChain;
 use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
-use DcGeneral\EnvironmentInterface;
 
+/**
+ * This event gets emitted when a palette condition chain is created.
+ *
+ * @package DcGeneral\DataDefinition\Palette\Builder\Event
+ */
 class CreatePaletteConditionChainEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.create-plaette-condition-chain';
+	const NAME = 'dc-general.data-definition.palette.builder.create-plaette-condition-chain';
 
 	/**
+	 * The palette condition chain being created.
+	 *
 	 * @var PaletteConditionChain
 	 */
 	protected $paletteConditionChain;
 
 	/**
-	 * @param PaletteConditionChain $paletteConditionChain
-	 * @param PaletteBuilder $paletteBuilder
-	 * @param EnvironmentInterface $environment
+	 * Create a new instance.
+	 *
+	 * @param PaletteConditionChain $paletteConditionChain The palette condition chain.
+	 *
+	 * @param PaletteBuilder        $paletteBuilder        The palette builder in use.
 	 */
-	function __construct(PaletteConditionChain $paletteConditionChain, PaletteBuilder $paletteBuilder)
+	public function __construct(PaletteConditionChain $paletteConditionChain, PaletteBuilder $paletteBuilder)
 	{
 		$this->setPaletteConditionChain($paletteConditionChain);
 		parent::__construct($paletteBuilder);
 	}
 
 	/**
-	 * @param PaletteConditionChain $paletteConditionChain
+	 * Set the palette condition chain.
+	 *
+	 * @param PaletteConditionChain $paletteConditionChain The condition chain.
+	 *
+	 * @return CreatePaletteConditionChainEvent
 	 */
 	public function setPaletteConditionChain(PaletteConditionChain $paletteConditionChain)
 	{
 		$this->paletteConditionChain = $paletteConditionChain;
+
 		return $this;
 	}
 
 	/**
+	 * Retrieve the palette condition chain.
+	 *
 	 * @return PaletteConditionChain
 	 */
 	public function getPaletteConditionChain()
 	{
 		return $this->paletteConditionChain;
 	}
-
 }

@@ -14,43 +14,57 @@ namespace DcGeneral\DataDefinition\Palette\Builder\Event;
 
 use DcGeneral\DataDefinition\Palette\LegendInterface;
 use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
-use DcGeneral\EnvironmentInterface;
 
+/**
+ * This event gets emitted when a legend is finished.
+ *
+ * @package DcGeneral\DataDefinition\Palette\Builder\Event
+ */
 class FinishLegendEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.finish-legend';
+	const NAME = 'dc-general.data-definition.palette.builder.finish-legend';
 
 	/**
+	 * The legend.
+	 *
 	 * @var LegendInterface
 	 */
 	protected $legend;
 
 	/**
-	 * @param LegendInterface $legend
-	 * @param PaletteBuilder $paletteBuilder
-	 * @param EnvironmentInterface $environment
+	 * Create a new instance.
+	 *
+	 * @param LegendInterface $legend         The legend.
+	 *
+	 * @param PaletteBuilder  $paletteBuilder The palette builder in use.
 	 */
-	function __construct(LegendInterface $legend, PaletteBuilder $paletteBuilder)
+	public function __construct(LegendInterface $legend, PaletteBuilder $paletteBuilder)
 	{
 		$this->setLegend($legend);
 		parent::__construct($paletteBuilder);
 	}
 
 	/**
-	 * @param LegendInterface $legend
+	 * Set the legend.
+	 *
+	 * @param LegendInterface $legend The legend.
+	 *
+	 * @return FinishLegendEvent
 	 */
 	public function setLegend(LegendInterface $legend)
 	{
 		$this->legend = $legend;
+
 		return $this;
 	}
 
 	/**
+	 * Retrieve the legend.
+	 *
 	 * @return LegendInterface
 	 */
 	public function getLegend()
 	{
 		return $this->legend;
 	}
-
 }

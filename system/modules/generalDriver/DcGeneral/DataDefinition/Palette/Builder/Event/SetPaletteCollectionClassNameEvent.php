@@ -13,43 +13,57 @@
 namespace DcGeneral\DataDefinition\Palette\Builder\Event;
 
 use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
-use DcGeneral\EnvironmentInterface;
 
+/**
+ * This event gets emitted when a palette collection class name is set.
+ *
+ * @package DcGeneral\DataDefinition\Palette\Builder\Event
+ */
 class SetPaletteCollectionClassNameEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.set-palette-collection-class-name';
+	const NAME = 'dc-general.data-definition.palette.builder.set-palette-collection-class-name';
 
 	/**
+	 * The palette collection class name.
+	 *
 	 * @var string
 	 */
 	protected $paletteCollectionClassName;
 
 	/**
-	 * @param string               $paletteCollectionClassName
-	 * @param PaletteBuilder       $paletteBuilder
-	 * @param EnvironmentInterface $environment
+	 * Create a new instance.
+	 *
+	 * @param string         $paletteCollectionClassName The class name.
+	 *
+	 * @param PaletteBuilder $paletteBuilder             The palette builder.
 	 */
-	function __construct($paletteCollectionClassName, PaletteBuilder $paletteBuilder)
+	public function __construct($paletteCollectionClassName, PaletteBuilder $paletteBuilder)
 	{
 		$this->setPaletteCollectionClassName($paletteCollectionClassName);
 		parent::__construct($paletteBuilder);
 	}
 
 	/**
-	 * @param string $paletteCollectionClassName
+	 * Set the class name.
+	 *
+	 * @param string $paletteCollectionClassName The class name.
+	 *
+	 * @return SetPaletteCollectionClassNameEvent
 	 */
 	public function setPaletteCollectionClassName($paletteCollectionClassName)
 	{
-		$this->paletteCollectionClassName = (string) $paletteCollectionClassName;
+		$this->paletteCollectionClassName = (string)$paletteCollectionClassName;
+
 		return $this;
 	}
 
 	/**
+	 * Retrieve the class name.
+	 *
 	 * @return string
 	 */
 	public function getPaletteCollectionClassName()
 	{
 		return $this->paletteCollectionClassName;
 	}
-
 }

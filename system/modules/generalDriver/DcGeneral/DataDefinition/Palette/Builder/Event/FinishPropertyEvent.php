@@ -14,30 +14,42 @@ namespace DcGeneral\DataDefinition\Palette\Builder\Event;
 
 use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
 use DcGeneral\DataDefinition\Palette\PropertyInterface;
-use DcGeneral\EnvironmentInterface;
 
+/**
+ * This event gets emitted when a property is finished.
+ *
+ * @package DcGeneral\DataDefinition\Palette\Builder\Event
+ */
 class FinishPropertyEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.finish-property';
+	const NAME = 'dc-general.data-definition.palette.builder.finish-property';
 
 	/**
+	 * The property.
+	 *
 	 * @var PropertyInterface
 	 */
 	protected $property;
 
 	/**
-	 * @param PropertyInterface $property
-	 * @param PaletteBuilder $paletteBuilder
-	 * @param EnvironmentInterface $environment
+	 * Create a new instance.
+	 *
+	 * @param PropertyInterface $property       The property.
+	 *
+	 * @param PaletteBuilder    $paletteBuilder The palette builder in use.
 	 */
-	function __construct(PropertyInterface $property, PaletteBuilder $paletteBuilder)
+	public function __construct(PropertyInterface $property, PaletteBuilder $paletteBuilder)
 	{
 		$this->setProperty($property);
 		parent::__construct($paletteBuilder);
 	}
 
 	/**
-	 * @param PropertyInterface $property
+	 * Set the property.
+	 *
+	 * @param PropertyInterface $property The property.
+	 *
+	 * @return FinishPropertyEvent
 	 */
 	public function setProperty(PropertyInterface $property)
 	{
@@ -46,11 +58,12 @@ class FinishPropertyEvent extends BuilderEvent
 	}
 
 	/**
+	 * Retrieve the property.
+	 *
 	 * @return PropertyInterface
 	 */
 	public function getProperty()
 	{
 		return $this->property;
 	}
-
 }

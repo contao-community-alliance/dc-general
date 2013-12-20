@@ -13,43 +13,57 @@
 namespace DcGeneral\DataDefinition\Palette\Builder\Event;
 
 use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
-use DcGeneral\EnvironmentInterface;
 
+/**
+ * This event gets emitted when a property class name is set.
+ *
+ * @package DcGeneral\DataDefinition\Palette\Builder\Event
+ */
 class SetPropertyClassNameEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.set-property-class-name';
+	const NAME = 'dc-general.data-definition.palette.builder.set-property-class-name';
 
 	/**
+	 * The class name.
+	 *
 	 * @var string
 	 */
 	protected $propertyClassName;
 
 	/**
-	 * @param string               $propertyClassName
-	 * @param PaletteBuilder       $paletteBuilder
-	 * @param EnvironmentInterface $environment
+	 * Create a new instance.
+	 *
+	 * @param string         $propertyClassName The class name.
+	 *
+	 * @param PaletteBuilder $paletteBuilder    The palette builder in use.
 	 */
-	function __construct($propertyClassName, PaletteBuilder $paletteBuilder)
+	public function __construct($propertyClassName, PaletteBuilder $paletteBuilder)
 	{
 		$this->setPropertyClassName($propertyClassName);
 		parent::__construct($paletteBuilder);
 	}
 
 	/**
-	 * @param string $propertyClassName
+	 * Set the class name.
+	 *
+	 * @param string $propertyClassName The class name.
+	 *
+	 * @return SetPropertyClassNameEvent
 	 */
 	public function setPropertyClassName($propertyClassName)
 	{
-		$this->propertyClassName = (string) $propertyClassName;
+		$this->propertyClassName = (string)$propertyClassName;
+
 		return $this;
 	}
 
 	/**
+	 * Retrieve the class name.
+	 *
 	 * @return string
 	 */
 	public function getPropertyClassName()
 	{
 		return $this->propertyClassName;
 	}
-
 }

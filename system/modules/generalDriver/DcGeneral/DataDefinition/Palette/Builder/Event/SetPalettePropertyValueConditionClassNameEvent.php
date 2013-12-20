@@ -13,43 +13,57 @@
 namespace DcGeneral\DataDefinition\Palette\Builder\Event;
 
 use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
-use DcGeneral\EnvironmentInterface;
 
+/**
+ * This event gets emitted when a palette property value condition class name is set.
+ *
+ * @package DcGeneral\DataDefinition\Palette\Builder\Event
+ */
 class SetPalettePropertyValueConditionClassNameEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.set-palette-property-value-condition-class-name';
+	const NAME = 'dc-general.data-definition.palette.builder.set-palette-property-value-condition-class-name';
 
 	/**
+	 * The class name.
+	 *
 	 * @var string
 	 */
 	protected $palettePropertyValueConditionClassName;
 
 	/**
-	 * @param string               $palettePropertyValueConditionClassName
-	 * @param PaletteBuilder       $paletteBuilder
-	 * @param EnvironmentInterface $environment
+	 * Create a new instance.
+	 *
+	 * @param string         $palettePropertyValueConditionClassName The class name.
+	 *
+	 * @param PaletteBuilder $paletteBuilder                         The palette builder in use.
 	 */
-	function __construct($palettePropertyValueConditionClassName, PaletteBuilder $paletteBuilder)
+	public function __construct($palettePropertyValueConditionClassName, PaletteBuilder $paletteBuilder)
 	{
 		$this->setPalettePropertyValueConditionClassName($palettePropertyValueConditionClassName);
 		parent::__construct($paletteBuilder);
 	}
 
 	/**
-	 * @param string $palettePropertyValueConditionClassName
+	 * Set the class name.
+	 *
+	 * @param string $palettePropertyValueConditionClassName The class name.
+	 *
+	 * @return SetPalettePropertyValueConditionClassNameEvent
 	 */
 	public function setPalettePropertyValueConditionClassName($palettePropertyValueConditionClassName)
 	{
-		$this->palettePropertyValueConditionClassName = (string) $palettePropertyValueConditionClassName;
+		$this->palettePropertyValueConditionClassName = (string)$palettePropertyValueConditionClassName;
+
 		return $this;
 	}
 
 	/**
+	 * Retrieve the class name.
+	 *
 	 * @return string
 	 */
 	public function getPalettePropertyValueConditionClassName()
 	{
 		return $this->palettePropertyValueConditionClassName;
 	}
-
 }

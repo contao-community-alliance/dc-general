@@ -13,43 +13,56 @@
 namespace DcGeneral\DataDefinition\Palette\Builder\Event;
 
 use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
-use DcGeneral\EnvironmentInterface;
 
+/**
+ * This event gets emitted when a palette condition chain class name is set.
+ *
+ * @package DcGeneral\DataDefinition\Palette\Builder\Event
+ */
 class SetPaletteConditionChainClassNameEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.set-palette-condition-chain-class-name';
+	const NAME = 'dc-general.data-definition.palette.builder.set-palette-condition-chain-class-name';
 
 	/**
+	 * The class name.
+	 *
 	 * @var string
 	 */
 	protected $paletteConditionChainClassName;
 
 	/**
-	 * @param string               $paletteConditionChainClassName
-	 * @param PaletteBuilder       $paletteBuilder
-	 * @param EnvironmentInterface $environment
+	 * Create a new instance.
+	 *
+	 * @param string         $paletteConditionChainClassName The class name.
+	 *
+	 * @param PaletteBuilder $paletteBuilder                 The palette builder in use.
 	 */
-	function __construct($paletteConditionChainClassName, PaletteBuilder $paletteBuilder)
+	public function __construct($paletteConditionChainClassName, PaletteBuilder $paletteBuilder)
 	{
 		$this->setPaletteConditionChainClassName($paletteConditionChainClassName);
 		parent::__construct($paletteBuilder);
 	}
 
 	/**
-	 * @param string $paletteConditionChainClassName
+	 * Set the class name.
+	 *
+	 * @param string $paletteConditionChainClassName The class name.
+	 *
+	 * @return SetPaletteConditionChainClassNameEvent
 	 */
 	public function setPaletteConditionChainClassName($paletteConditionChainClassName)
 	{
-		$this->paletteConditionChainClassName = (string) $paletteConditionChainClassName;
+		$this->paletteConditionChainClassName = (string)$paletteConditionChainClassName;
 		return $this;
 	}
 
 	/**
+	 * Retrieve the class name.
+	 *
 	 * @return string
 	 */
 	public function getPaletteConditionChainClassName()
 	{
 		return $this->paletteConditionChainClassName;
 	}
-
 }

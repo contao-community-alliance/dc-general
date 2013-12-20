@@ -13,43 +13,57 @@
 namespace DcGeneral\DataDefinition\Palette\Builder\Event;
 
 use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
-use DcGeneral\EnvironmentInterface;
 
+/**
+ * This event gets emitted when a legend class name is set.
+ *
+ * @package DcGeneral\DataDefinition\Palette\Builder\Event
+ */
 class SetLegendClassNameEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.set-legend-class-name';
+	const NAME = 'dc-general.data-definition.palette.builder.set-legend-class-name';
 
 	/**
+	 * The class name.
+	 *
 	 * @var string
 	 */
 	protected $legendClassName;
 
 	/**
-	 * @param string               $legendClassName
-	 * @param PaletteBuilder       $paletteBuilder
-	 * @param EnvironmentInterface $environment
+	 * Create a new instance.
+	 *
+	 * @param string         $legendClassName The class name.
+	 *
+	 * @param PaletteBuilder $paletteBuilder  The palette builder in use.
 	 */
-	function __construct($legendClassName, PaletteBuilder $paletteBuilder)
+	public function __construct($legendClassName, PaletteBuilder $paletteBuilder)
 	{
 		$this->setLegendClassName($legendClassName);
 		parent::__construct($paletteBuilder);
 	}
 
 	/**
-	 * @param string $legendClassName
+	 * Set the legend class name.
+	 *
+	 * @param string $legendClassName The class name.
+	 *
+	 * @return SetLegendClassNameEvent
 	 */
 	public function setLegendClassName($legendClassName)
 	{
-		$this->legendClassName = (string) $legendClassName;
+		$this->legendClassName = (string)$legendClassName;
+
 		return $this;
 	}
 
 	/**
+	 * Retrieve the class name.
+	 *
 	 * @return string
 	 */
 	public function getLegendClassName()
 	{
 		return $this->legendClassName;
 	}
-
 }

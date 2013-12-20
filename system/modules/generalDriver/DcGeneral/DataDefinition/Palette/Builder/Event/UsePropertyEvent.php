@@ -14,29 +14,39 @@ namespace DcGeneral\DataDefinition\Palette\Builder\Event;
 
 use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
 use DcGeneral\DataDefinition\Palette\PropertyInterface;
-use DcGeneral\EnvironmentInterface;
 
+/**
+ * This event is emitted when a property is used.
+ *
+ * @package DcGeneral\DataDefinition\Palette\Builder\Event
+ */
 class UsePropertyEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.use-property';
+	const NAME = 'dc-general.data-definition.palette.builder.use-property';
 
 	/**
+	 * The property.
+	 *
 	 * @var PropertyInterface
 	 */
 	protected $property;
 
 	/**
-	 * @param PropertyInterface $property
-	 * @param PaletteBuilder $paletteBuilder
-	 * @param EnvironmentInterface $environment
+	 * Create a new instance.
+	 *
+	 * @param PropertyInterface $property       The property.
+	 *
+	 * @param PaletteBuilder    $paletteBuilder The palette builder in use.
 	 */
-	function __construct(PropertyInterface $property, PaletteBuilder $paletteBuilder)
+	public function __construct(PropertyInterface $property, PaletteBuilder $paletteBuilder)
 	{
 		$this->property = $property;
 		parent::__construct($paletteBuilder);
 	}
 
 	/**
+	 * Retrieve the property.
+	 *
 	 * @return PropertyInterface
 	 */
 	public function getProperty()

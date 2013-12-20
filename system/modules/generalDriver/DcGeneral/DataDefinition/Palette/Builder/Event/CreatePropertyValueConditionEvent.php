@@ -15,35 +15,51 @@ namespace DcGeneral\DataDefinition\Palette\Builder\Event;
 use DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition as PalettePropertyValueCondition;
 use DcGeneral\DataDefinition\Palette\Condition\Property\PropertyValueCondition;
 use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
-use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
+/**
+ * This event gets emitted when a property value condition gets created.
+ *
+ * @package DcGeneral\DataDefinition\Palette\Builder\Event
+ */
 class CreatePropertyValueConditionEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.create-property-value-condition';
+	const NAME = 'dc-general.data-definition.palette.builder.create-property-value-condition';
 
 	/**
+	 * The property value condition.
+	 *
 	 * @var PalettePropertyValueCondition|PropertyValueCondition
 	 */
 	protected $propertyValueCondition;
 
 	/**
-	 * @param PalettePropertyValueCondition|PropertyValueCondition $propertyValueCondition
-	 * @param PaletteBuilder $paletteBuilder
-	 * @param EnvironmentInterface $environment
+	 * Create a new instance.
+	 *
+	 * @param PalettePropertyValueCondition|PropertyValueCondition $propertyValueCondition The condition.
+	 *
+	 * @param PaletteBuilder                                       $paletteBuilder         The palette builder in use.
 	 */
-	function __construct($propertyValueCondition, PaletteBuilder $paletteBuilder)
+	public function __construct($propertyValueCondition, PaletteBuilder $paletteBuilder)
 	{
 		$this->setPropertyValueCondition($propertyValueCondition);
 		parent::__construct($paletteBuilder);
 	}
 
 	/**
-	 * @param PalettePropertyValueCondition|PropertyValueCondition $propertyValueCondition
+	 * Set the property value condition.
+	 *
+	 * @param PalettePropertyValueCondition|PropertyValueCondition $propertyValueCondition The property value condition.
+	 *
+	 * @return CreatePropertyValueConditionEvent
+	 *
+	 * @throws DcGeneralInvalidArgumentException When an invalid condition has been passed.
 	 */
 	public function setPropertyValueCondition($propertyValueCondition)
 	{
-		if (!($propertyValueCondition instanceof PalettePropertyValueCondition or $propertyValueCondition instanceof PropertyValueCondition)) {
+		if (!($propertyValueCondition instanceof PalettePropertyValueCondition)
+			&& (!$propertyValueCondition instanceof PropertyValueCondition))
+		{
 			throw new DcGeneralInvalidArgumentException();
 		}
 
@@ -52,11 +68,12 @@ class CreatePropertyValueConditionEvent extends BuilderEvent
 	}
 
 	/**
+	 * Retrieve the property value condition.
+	 *
 	 * @return PalettePropertyValueCondition|PropertyValueCondition
 	 */
 	public function getPropertyValueCondition()
 	{
 		return $this->propertyValueCondition;
 	}
-
 }

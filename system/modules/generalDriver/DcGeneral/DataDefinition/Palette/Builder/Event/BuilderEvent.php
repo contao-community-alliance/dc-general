@@ -12,32 +12,36 @@
 
 namespace DcGeneral\DataDefinition\Palette\Builder\Event;
 
-use DcGeneral\DataDefinition\ContainerInterface;
-use DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionChain;
-use DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionInterface;
-use DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionChain;
-use DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterface;
 use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
-use DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
-use DcGeneral\EnvironmentInterface;
 use DcGeneral\Event\AbstractContainerAwareEvent;
-use DcGeneral\Event\AbstractEnvironmentAwareEvent;
-use DcGeneral\Exception\DcGeneralInvalidArgumentException;
-use DcGeneral\Exception\DcGeneralRuntimeException;
 
+/**
+ * This event is the base class for all palette builder events.
+ *
+ * @package DcGeneral\DataDefinition\Palette\Builder\Event
+ */
 abstract class BuilderEvent extends AbstractContainerAwareEvent
 {
 	/**
+	 * The palette builder in use.
+	 *
 	 * @var PaletteBuilder
 	 */
 	protected $paletteBuilder;
 
-	function __construct(PaletteBuilder $paletteBuilder)
+	/**
+	 * Create a new instance.
+	 *
+	 * @param PaletteBuilder $paletteBuilder The palette builder in use.
+	 */
+	public function __construct(PaletteBuilder $paletteBuilder)
 	{
 		$this->paletteBuilder = $paletteBuilder;
 	}
 
 	/**
+	 * Retrieve the palette builder.
+	 *
 	 * @return PaletteBuilder
 	 */
 	public function getPaletteBuilder()

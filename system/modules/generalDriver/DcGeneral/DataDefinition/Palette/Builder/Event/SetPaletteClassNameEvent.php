@@ -13,38 +13,53 @@
 namespace DcGeneral\DataDefinition\Palette\Builder\Event;
 
 use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
-use DcGeneral\EnvironmentInterface;
 
+/**
+ * This event gets emitted when a palette class name is set.
+ *
+ * @package DcGeneral\DataDefinition\Palette\Builder\Event
+ */
 class SetPaletteClassNameEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.set-palette-class-name';
+	const NAME = 'dc-general.data-definition.palette.builder.set-palette-class-name';
 
 	/**
+	 * The palette class name.
+	 *
 	 * @var string
 	 */
 	protected $paletteClassName;
 
 	/**
-	 * @param string               $paletteClassName
-	 * @param PaletteBuilder       $paletteBuilder
-	 * @param EnvironmentInterface $environment
+	 * Create a new instance.
+	 *
+	 * @param string         $paletteClassName The class name.
+	 *
+	 * @param PaletteBuilder $paletteBuilder   The palette builder in use.
 	 */
-	function __construct($paletteClassName, PaletteBuilder $paletteBuilder)
+	public function __construct($paletteClassName, PaletteBuilder $paletteBuilder)
 	{
 		$this->setPaletteClassName($paletteClassName);
 		parent::__construct($paletteBuilder);
 	}
 
 	/**
-	 * @param string $paletteClassName
+	 * Set the class name.
+	 *
+	 * @param string $paletteClassName The class name.
+	 *
+	 * @return SetPaletteClassNameEvent
 	 */
 	public function setPaletteClassName($paletteClassName)
 	{
-		$this->paletteClassName = (string) $paletteClassName;
+		$this->paletteClassName = (string)$paletteClassName;
+
 		return $this;
 	}
 
 	/**
+	 * Retrieve the class name.
+	 *
 	 * @return string
 	 */
 	public function getPaletteClassName()

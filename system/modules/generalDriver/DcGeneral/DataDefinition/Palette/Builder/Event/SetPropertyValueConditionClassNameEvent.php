@@ -13,43 +13,56 @@
 namespace DcGeneral\DataDefinition\Palette\Builder\Event;
 
 use DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
-use DcGeneral\EnvironmentInterface;
 
+/**
+ * This event gets emitted when a property value condition class name is set.
+ *
+ * @package DcGeneral\DataDefinition\Palette\Builder\Event
+ */
 class SetPropertyValueConditionClassNameEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.set-property-value-condition-class-name';
+	const NAME = 'dc-general.data-definition.palette.builder.set-property-value-condition-class-name';
 
 	/**
+	 * The class name.
+	 *
 	 * @var string
 	 */
 	protected $propertyValueConditionClassName;
 
 	/**
-	 * @param string               $propertyValueConditionClassName
-	 * @param PaletteBuilder       $paletteBuilder
-	 * @param EnvironmentInterface $environment
+	 * Create a new instance.
+	 *
+	 * @param string         $propertyValueConditionClassName The class name.
+	 *
+	 * @param PaletteBuilder $paletteBuilder                  The palette builder in use.
 	 */
-	function __construct($propertyValueConditionClassName, PaletteBuilder $paletteBuilder)
+	public function __construct($propertyValueConditionClassName, PaletteBuilder $paletteBuilder)
 	{
 		$this->setPropertyValueConditionClassName($propertyValueConditionClassName);
 		parent::__construct($paletteBuilder);
 	}
 
 	/**
-	 * @param string $propertyValueConditionClassName
+	 * Set the class name.
+	 *
+	 * @param string $propertyValueConditionClassName The class name.
+	 *
+	 * @return SetPropertyValueConditionClassNameEvent
 	 */
 	public function setPropertyValueConditionClassName($propertyValueConditionClassName)
 	{
-		$this->propertyValueConditionClassName = (string) $propertyValueConditionClassName;
+		$this->propertyValueConditionClassName = (string)$propertyValueConditionClassName;
 		return $this;
 	}
 
 	/**
+	 * Retrieve the class name.
+	 *
 	 * @return string
 	 */
 	public function getPropertyValueConditionClassName()
 	{
 		return $this->propertyValueConditionClassName;
 	}
-
 }
