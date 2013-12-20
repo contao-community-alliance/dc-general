@@ -12,12 +12,27 @@
 
 namespace DcGeneral\DataDefinition\ModelRelationship;
 
+/**
+ * Default implementation of a root condition.
+ *
+ * @package DcGeneral\DataDefinition\ModelRelationship
+ */
 class RootCondition
 	extends AbstractCondition
 	implements RootConditionInterface
 {
+	/**
+	 * The filter rules to use.
+	 *
+	 * @var array
+	 */
 	protected $filter;
 
+	/**
+	 * The setter information to use when a model shall get marked as root item.
+	 *
+	 * @var array
+	 */
 	protected $setOn;
 
 	/**
@@ -28,7 +43,7 @@ class RootCondition
 	protected $sourceProvider;
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function setFilterArray($value)
 	{
@@ -38,7 +53,7 @@ class RootCondition
 	}
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function getFilterArray()
 	{
@@ -46,7 +61,7 @@ class RootCondition
 	}
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function setSetters($value)
 	{
@@ -56,7 +71,7 @@ class RootCondition
 	}
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function getSetters()
 	{
@@ -64,7 +79,7 @@ class RootCondition
 	}
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function setSourceName($value)
 	{
@@ -74,7 +89,7 @@ class RootCondition
 	}
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function getSourceName()
 	{
@@ -82,7 +97,7 @@ class RootCondition
 	}
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function applyTo($objModel)
 	{
@@ -98,7 +113,7 @@ class RootCondition
 	}
 
 	/**
-	 * {@inheritedDoc}
+	 * {@inheritdoc}
 	 */
 	public function matches($objModel)
 	{
