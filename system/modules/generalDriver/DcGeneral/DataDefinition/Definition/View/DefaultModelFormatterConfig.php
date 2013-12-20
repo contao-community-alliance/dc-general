@@ -14,6 +14,8 @@ namespace DcGeneral\DataDefinition\Definition\View;
 
 /**
  * Format a model and create a listing child record.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View
  */
 class DefaultModelFormatterConfig implements ModelFormatterConfigInterface
 {
@@ -59,7 +61,7 @@ class DefaultModelFormatterConfig implements ModelFormatterConfigInterface
 	 */
 	public function setFormat($format)
 	{
-		$this->format = (string) $format;
+		$this->format = (string)$format;
 	}
 
 	/**
@@ -75,7 +77,7 @@ class DefaultModelFormatterConfig implements ModelFormatterConfigInterface
 	 */
 	public function setMaxLength($maxLength)
 	{
-		$this->maxLength = $maxLength !== null ? (int) $maxLength : null;
+		$this->maxLength = ($maxLength !== null) ? (int)$maxLength : null;
 	}
 
 	/**
