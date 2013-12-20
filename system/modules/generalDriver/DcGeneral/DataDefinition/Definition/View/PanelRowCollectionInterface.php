@@ -12,6 +12,11 @@
 
 namespace DcGeneral\DataDefinition\Definition\View;
 
+/**
+ * This interface describes a panel row collection.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View
+ */
 interface PanelRowCollectionInterface extends \IteratorAggregate
 {
 	/**
@@ -19,6 +24,8 @@ interface PanelRowCollectionInterface extends \IteratorAggregate
 	 *
 	 * This will return the following for example:
 	 * array(array('filter[prop1]', 'filter[prop2]'), array('search', 'limit'))
+	 *
+	 * Note that each panel element decides its name on its own.
 	 *
 	 * @return array
 	 */
@@ -38,6 +45,8 @@ interface PanelRowCollectionInterface extends \IteratorAggregate
 	public function addRow($index = -1);
 
 	/**
+	 * Delete a row from the collection.
+	 *
 	 * @param int $index Remove the row with the given index.
 	 *
 	 * @return PanelRowCollectionInterface
@@ -59,12 +68,14 @@ interface PanelRowCollectionInterface extends \IteratorAggregate
 	 * @param int $index Position of the row.
 	 *
 	 * @return PanelRowInterface
-	 *
-	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException
 	 */
 	public function getRow($index);
 
 	/**
+	 * Retrieve an external iterator.
+	 *
+	 * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
+	 *
 	 * @return PanelRowInterface[]
 	 */
 	public function getIterator();
