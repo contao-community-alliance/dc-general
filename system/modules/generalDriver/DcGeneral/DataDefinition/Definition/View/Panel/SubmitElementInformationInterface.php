@@ -12,6 +12,11 @@
 
 namespace DcGeneral\DataDefinition\Definition\View\Panel;
 
+/**
+ * This interface describes a panel submit element information.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View\Panel
+ */
 interface SubmitElementInformationInterface extends ElementInformationInterface
 {
 }
