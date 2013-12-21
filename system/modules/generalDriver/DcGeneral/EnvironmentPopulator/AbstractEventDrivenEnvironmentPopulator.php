@@ -14,6 +14,14 @@ namespace DcGeneral\EnvironmentPopulator;
 
 use DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 
+/**
+ * Abstract base implementation for an event driven environment populator.
+ *
+ * To utilize this class, you only have to implement the remaining method "populate" and register the populators
+ * static method "process" to the event dispatcher.
+ *
+ * @package DcGeneral\EnvironmentPopulator
+ */
 abstract class AbstractEventDrivenEnvironmentPopulator implements EnvironmentPopulatorInterface
 {
 	/**
@@ -28,11 +36,11 @@ abstract class AbstractEventDrivenEnvironmentPopulator implements EnvironmentPop
 	 * The attached environment {@link DcGeneral\EnvironmentInterface} will be populated
 	 * with the information from the builder's data source.
 	 *
-	 * @param PopulateEnvironmentEvent $event The event to process
+	 * @param PopulateEnvironmentEvent $event The event to process.
 	 *
 	 * @return void
 	 */
-	static public function process(PopulateEnvironmentEvent $event)
+	public static function process(PopulateEnvironmentEvent $event)
 	{
 		$builder = new static();
 		/** @var $builder EnvironmentPopulatorInterface */
