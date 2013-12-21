@@ -250,6 +250,8 @@ class Palette implements PaletteInterface
 	public function setCondition(PaletteConditionInterface $condition = null)
 	{
 		$this->condition = $condition;
+
+		return $this;
 	}
 
 	/**
