@@ -12,6 +12,14 @@
 
 namespace DcGeneral\DataDefinition;
 
+/**
+ * Interface of a condition.
+ *
+ * This interface functions as an aggregator interface to re-ensemble compatible implementations to be used in
+ * ConditionChainInterfaces etc.
+ *
+ * @package DcGeneral\DataDefinition
+ */
 interface ConditionInterface
 {
 }
