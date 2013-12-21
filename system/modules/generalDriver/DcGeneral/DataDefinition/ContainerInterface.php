@@ -12,15 +12,12 @@
 
 namespace DcGeneral\DataDefinition;
 
-
 use DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
-use DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
 use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\DefinitionInterface;
 use DcGeneral\DataDefinition\Definition\DataProviderDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
-use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 /**
  * This interface is the base of a data definition.
@@ -225,76 +222,4 @@ interface ContainerInterface
 	 * @return ModelRelationshipDefinitionInterface
 	 */
 	public function getModelRelationshipDefinition();
-
-
-
-
-	// TODO extract
-
-	/**
-	 * Return the name of the parenting definition.
-	 *
-	 * @return string
-	 */
-	//public function getParentDriverName();
-
-	/**
-	 * Return the label of the definition.
-	 *
-	 * @return string
-	 */
-	//public function getLabel();
-
-	/**
-	 * Return the icon of the definition.
-	 *
-	 * @return string
-	 */
-	//public function getIcon();
-
-	/**
-	 * Retrieve the names of properties to use for secondary sorting.
-	 *
-	 * @return string[]
-	 */
-	//public function getAdditionalSorting();
-
-	/**
-	 * Allows you to disable the group headers in list view and parent view.
-	 *
-	 * True means, the data records will not be grouped with headers.
-	 *
-	 * @return bool
-	 */
-	//public function isGroupingDisabled();
-
-	/**
-	 * Retrieve the label information for listing of datasets.
-	 *
-	 * @return \DcGeneral\DataDefinition\ListLabelInterface
-	 */
-	//public function getListLabel();
-
-	/**
-	 * One or more properties that will be shown in the header element (sorting mode 4 only).
-	 *
-	 * @return array
-	 */
-	//public function getParentViewHeaderProperties();
-
-	/**
-	 * Return the additional filters to be applied for retrieving data.
-	 *
-	 * This is some custom filter defined by the admin or something like that.
-	 *
-	 * @return array
-	 */
-	//public function getAdditionalFilter();
-
-	/**
-	 * Get the palettes of this container.
-	 *
-	 * @return PaletteCollectionInterface
-	 */
-	//public function getPalettes();
 }
