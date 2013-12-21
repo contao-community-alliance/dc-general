@@ -23,7 +23,7 @@ interface LegendInterface
 	/**
 	 * Return the palette this legend belongs to.
 	 *
-	 * @param PaletteInterface|null $palette
+	 * @param PaletteInterface|null $palette The palette.
 	 *
 	 * @return LegendInterface
 	 */
@@ -39,7 +39,7 @@ interface LegendInterface
 	/**
 	 * Set the name of this legend (e.g. "title", not "title_legend").
 	 *
-	 * @param string $name
+	 * @param string $name The name.
 	 *
 	 * @return LegendInterface
 	 */
@@ -55,7 +55,7 @@ interface LegendInterface
 	/**
 	 * Set if this legend's initial state is visible (expanded).
 	 *
-	 * @param $value
+	 * @param bool $value The visibility state.
 	 *
 	 * @return bool
 	 */
@@ -78,7 +78,7 @@ interface LegendInterface
 	/**
 	 * Set the properties of this legend.
 	 *
-	 * @param array|PropertyInterface[] $properties
+	 * @param array|PropertyInterface[] $properties The properties.
 	 *
 	 * @return LegendInterface
 	 */
@@ -87,9 +87,10 @@ interface LegendInterface
 	/**
 	 * Add all properties to this legend.
 	 *
-	 * @param array|PropertyInterface[] $properties
+	 * @param array|PropertyInterface[] $properties The properties.
 	 *
-	 * @param PropertyInterface         $before
+	 * @param PropertyInterface         $before     The property before the passed properties shall be inserted
+	 *                                              (optional).
 	 *
 	 * @return LegendInterface
 	 */
@@ -98,8 +99,9 @@ interface LegendInterface
 	/**
 	 * Add a property to this legend.
 	 *
-	 * @param PropertyInterface $property
-	 * @param PropertyInterface $before
+	 * @param PropertyInterface $property The property.
+	 *
+	 * @param PropertyInterface $before   The property before the passed property shall be inserted (optional).
 	 *
 	 * @return LegendInterface
 	 */
@@ -108,7 +110,7 @@ interface LegendInterface
 	/**
 	 * Remove a property from this legend.
 	 *
-	 * @param PropertyInterface $property
+	 * @param PropertyInterface $property The property.
 	 *
 	 * @return LegendInterface
 	 */
@@ -118,9 +120,12 @@ interface LegendInterface
 	 * Get all properties in this legend.
 	 *
 	 * @param ModelInterface|null $model If given, subpalettes will be evaluated depending on the model.
-	 * If no model is given, all properties will be returned, including subpalette properties.
-	 * @param PropertyValueBag $input If given, subpalettes will be evaluated depending on the input data.
-	 * If no model and no input data is given, all properties will be returned, including subpalette properties.
+	 *                                   If no model is given, all properties will be returned, including subpalette
+	 *                                   properties.
+	 *
+	 * @param PropertyValueBag    $input If given, subpalettes will be evaluated depending on the input data.
+	 *                                   If no model and no input data is given, all properties will be returned,
+	 *                                   including subpalette properties.
 	 *
 	 * @return PropertyInterface[]
 	 */
@@ -128,6 +133,8 @@ interface LegendInterface
 
 	/**
 	 * Create a deep clone of the legend.
+	 *
+	 * @return void
 	 */
 	public function __clone();
 }
