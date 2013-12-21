@@ -12,7 +12,6 @@
 
 namespace DcGeneral\DataDefinition;
 
-
 use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\DefinitionInterface;
 use DcGeneral\DataDefinition\Definition\DataProviderDefinitionInterface;
@@ -21,14 +20,23 @@ use DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
+/**
+ * Default implementation of a data definition container.
+ *
+ * @package DcGeneral\DataDefinition
+ */
 class DefaultContainer implements ContainerInterface
 {
 	/**
+	 * The name of the container.
+	 *
 	 * @var string
 	 */
 	protected $name;
 
 	/**
+	 * The contained definition instances.
+	 *
 	 * @var DefinitionInterface[]
 	 */
 	protected $definitions;
@@ -36,11 +44,11 @@ class DefaultContainer implements ContainerInterface
 	/**
 	 * Create a new default container.
 	 *
-	 * @param string $name
+	 * @param string $name The name of the container.
 	 */
-	function __construct($name)
+	public function __construct($name)
 	{
-		$this->name = (string) $name;
+		$this->name = (string)$name;
 	}
 
 	/**
@@ -83,6 +91,8 @@ class DefaultContainer implements ContainerInterface
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException When a passed definition does not implement the DefinitionInterface.
 	 */
 	public function addDefinitions(array $definitions)
 	{
@@ -121,12 +131,16 @@ class DefaultContainer implements ContainerInterface
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException Is thrown when there is no definition with this name.
 	 */
 	public function getDefinition($definitionName)
 	{
 		if (!$this->hasDefinition($definitionName))
 		{
-			throw new DcGeneralInvalidArgumentException('Definition ' . $definitionName . ' is not registered in the configuration.');
+			throw new DcGeneralInvalidArgumentException(
+				'Definition ' . $definitionName . ' is not registered in the configuration.'
+			);
 		}
 
 		return $this->definitions[$definitionName];
