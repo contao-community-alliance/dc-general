@@ -13,6 +13,9 @@
 namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
 use DcGeneral\Event\AbstractModelAwareEvent;
+use DcGeneral\EnvironmentInterface;
+use DcGeneral\Data\ModelInterface;
+use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 
 /**
  * Class GetGroupHeaderEvent.
