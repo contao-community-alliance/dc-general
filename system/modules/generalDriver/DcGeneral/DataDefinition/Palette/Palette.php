@@ -52,6 +52,7 @@ class Palette implements PaletteInterface
 	public function setName($name)
 	{
 		$this->name = (string)$name;
+
 		return $this;
 	}
 
@@ -120,6 +121,7 @@ class Palette implements PaletteInterface
 	public function clearLegends()
 	{
 		$this->legends = array();
+
 		return $this;
 	}
 
@@ -130,6 +132,7 @@ class Palette implements PaletteInterface
 	{
 		$this->clearLegends();
 		$this->addLegends($legends);
+
 		return $this;
 	}
 
@@ -142,6 +145,7 @@ class Palette implements PaletteInterface
 		{
 			$this->addLegend($legend, $before);
 		}
+
 		return $this;
 	}
 
@@ -215,6 +219,7 @@ class Palette implements PaletteInterface
 	{
 		$hash = spl_object_hash($legend);
 		unset($this->legends[$hash]);
+
 		return $this;
 	}
 
