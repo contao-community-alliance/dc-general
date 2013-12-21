@@ -22,6 +22,16 @@ use DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
+/**
+ * This interface is the base of a data definition.
+ *
+ * Within this interface, all the information about a data definition is to be found.
+ *
+ * Most commonly used definitions have their getter and setter defined in this interface, for those definitions that
+ * are not so common, please use the generic getter and setter using names.
+ *
+ * @package DcGeneral\DataDefinition
+ */
 interface ContainerInterface
 {
 	/**
@@ -34,7 +44,7 @@ interface ContainerInterface
 	/**
 	 * Check if this container has a definition.
 	 *
-	 * @param string $definitionName
+	 * @param string $definitionName The name of the definition to check for.
 	 *
 	 * @return bool
 	 */
@@ -50,7 +60,7 @@ interface ContainerInterface
 	/**
 	 * Set the definitions of this container.
 	 *
-	 * @param DefinitionInterface[] $definitions
+	 * @param array|DefinitionInterface[] $definitions The definitons.
 	 *
 	 * @return ContainerInterface
 	 */
@@ -59,7 +69,7 @@ interface ContainerInterface
 	/**
 	 * Add multiple definitions to this container.
 	 *
-	 * @param DefinitionInterface[] $definitions
+	 * @param array|DefinitionInterface[] $definitions The definitons.
 	 *
 	 * @return ContainerInterface
 	 */
@@ -68,8 +78,9 @@ interface ContainerInterface
 	/**
 	 * Set a definitions of this container.
 	 *
-	 * @param string $definitionName
-	 * @param DefinitionInterface $definition
+	 * @param string              $definitionName The name of the definition.
+	 *
+	 * @param DefinitionInterface $definition     The definition.
 	 *
 	 * @return ContainerInterface
 	 */
@@ -78,7 +89,7 @@ interface ContainerInterface
 	/**
 	 * Remove a definitions from this container.
 	 *
-	 * @param string $definitionName
+	 * @param string $definitionName The name of the definition.
 	 *
 	 * @return ContainerInterface
 	 */
@@ -87,11 +98,9 @@ interface ContainerInterface
 	/**
 	 * Get a definitions of this container.
 	 *
-	 * @param string $definitionName
+	 * @param string $definitionName The name of the definition.
 	 *
 	 * @return DefinitionInterface
-	 *
-	 * @throws DcGeneralInvalidArgumentException Is thrown when there is no definition with this name.
 	 */
 	public function getDefinition($definitionName);
 
@@ -112,7 +121,7 @@ interface ContainerInterface
 	/**
 	 * Convenience method to set the basic definition.
 	 *
-	 * @param Definition\BasicDefinitionInterface $basicDefinition
+	 * @param BasicDefinitionInterface $basicDefinition The basic definition to use.
 	 *
 	 * @return ContainerInterface
 	 */
@@ -126,35 +135,47 @@ interface ContainerInterface
 	public function getBasicDefinition();
 
 	/**
+	 * Convenience method to check if there has been a properties definition defined.
+	 *
 	 * @return bool
 	 */
 	public function hasPropertiesDefinition();
 
 	/**
-	 * @param PropertiesDefinitionInterface $propertiesDefinition
+	 * Convenience method to set the properties definition to use.
+	 *
+	 * @param PropertiesDefinitionInterface $propertiesDefinition The properties definition to use.
 	 *
 	 * @return ContainerInterface
 	 */
 	public function setPropertiesDefinition(PropertiesDefinitionInterface $propertiesDefinition);
 
 	/**
+	 * Convenience method to retrieve the properties definition to use.
+	 *
 	 * @return PropertiesDefinitionInterface
 	 */
 	public function getPropertiesDefinition();
 
 	/**
+	 * Convenience method to check if there has been a palettes definition defined.
+	 *
 	 * @return bool
 	 */
 	public function hasPalettesDefinition();
 
 	/**
-	 * @param PalettesDefinitionInterface $palettesDefinition
+	 * Convenience method to set the palettes definition to use.
+	 *
+	 * @param PalettesDefinitionInterface $palettesDefinition The palettes definition to use.
 	 *
 	 * @return ContainerInterface
 	 */
 	public function setPalettesDefinition(PalettesDefinitionInterface $palettesDefinition);
 
 	/**
+	 * Convenience method to retrieve the palettes definition to use.
+	 *
 	 * @return PalettesDefinitionInterface
 	 */
 	public function getPalettesDefinition();
@@ -169,7 +190,7 @@ interface ContainerInterface
 	/**
 	 * Convenience method to set the data provider definition.
 	 *
-	 * @param DataProviderDefinitionInterface $dataProviderDefinition
+	 * @param DataProviderDefinitionInterface $dataProviderDefinition The data provider definition to use.
 	 *
 	 * @return ContainerInterface
 	 */
@@ -192,7 +213,7 @@ interface ContainerInterface
 	/**
 	 * Convenience method to set the data provider definition.
 	 *
-	 * @param ModelRelationshipDefinitionInterface $definition
+	 * @param ModelRelationshipDefinitionInterface $definition The model relationship definition to use.
 	 *
 	 * @return ContainerInterface
 	 */
