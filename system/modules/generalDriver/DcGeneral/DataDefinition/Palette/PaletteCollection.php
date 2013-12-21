@@ -22,6 +22,8 @@ use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 class PaletteCollection implements PaletteCollectionInterface
 {
 	/**
+	 * The palettes contained in the collection.
+	 *
 	 * @var array|PaletteInterface[]
 	 */
 	protected $palettes = array();
@@ -52,7 +54,8 @@ class PaletteCollection implements PaletteCollectionInterface
 	 */
 	public function addPalettes(array $palettes)
 	{
-		foreach ($palettes as $palette) {
+		foreach ($palettes as $palette)
+		{
 			$this->addPalette($palette);
 		}
 		return $this;
@@ -64,6 +67,7 @@ class PaletteCollection implements PaletteCollectionInterface
 	public function addPalette(PaletteInterface $palette)
 	{
 		$hash = spl_object_hash($palette);
+
 		$this->palettes[$hash] = $palette;
 		return $this;
 	}
@@ -97,29 +101,34 @@ class PaletteCollection implements PaletteCollectionInterface
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException Is thrown if there is no palette found or more than one palette.
 	 */
 	public function findPalette(ModelInterface $model = null, PropertyValueBag $input = null)
 	{
 		$matches = array();
 
-		// determinate the matching count for each palette
+		// Determinate the matching count for each palette.
 		foreach ($this->palettes as $palette)
 		{
 			$condition = $palette->getCondition();
 
-			if ($condition) {
+			if ($condition)
+			{
 				$count = $condition->getMatchCount($model, $input);
+
 				$matches[$count][] = $palette;
 			}
 		}
 
-		// sort by count
+		// Sort by count.
 		ksort($matches);
 
-		// get palettes with highest matching count
+		// Get palettes with highest matching count.
 		$palettes = array_pop($matches);
 
-		if (count($palettes) !== 1) {
+		if (count($palettes) !== 1)
+		{
 			throw new DcGeneralInvalidArgumentException(sprintf('%d matching palettes found.', count($palettes)));
 		}
 
@@ -131,8 +140,10 @@ class PaletteCollection implements PaletteCollectionInterface
 	 */
 	public function hasPaletteByName($paletteName)
 	{
-		foreach ($this->palettes as $palette) {
-			if ($palette->getName() == $paletteName) {
+		foreach ($this->palettes as $palette)
+		{
+			if ($palette->getName() == $paletteName)
+			{
 				return true;
 			}
 		}
@@ -142,16 +153,20 @@ class PaletteCollection implements PaletteCollectionInterface
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException Is thrown if there is no palette with this name.
 	 */
 	public function getPaletteByName($paletteName)
 	{
-		foreach ($this->palettes as $palette) {
-			if ($palette->getName() == $paletteName) {
+		foreach ($this->palettes as $palette)
+		{
+			if ($palette->getName() == $paletteName)
+			{
 				return $palette;
 			}
 		}
 
-		return new DcGeneralInvalidArgumentException('No palette found for name ' . $paletteName);
+		throw new DcGeneralInvalidArgumentException('No palette found for name ' . $paletteName);
 	}
 
 	/**
@@ -160,7 +175,8 @@ class PaletteCollection implements PaletteCollectionInterface
 	public function __clone()
 	{
 		$palettes = array();
-		foreach ($this->palettes as $index => $palette) {
+		foreach ($this->palettes as $index => $palette)
+		{
 			$palettes[$index] = clone $palette;
 		}
 		$this->palettes = $palettes;
