@@ -38,7 +38,7 @@ class CreatePropertyEvent extends BuilderEvent
 	 *
 	 * @param PaletteBuilder    $paletteBuilder The palette builder in use.
 	 */
-	function __construct(PropertyInterface $property, PaletteBuilder $paletteBuilder)
+	public function __construct(PropertyInterface $property, PaletteBuilder $paletteBuilder)
 	{
 		$this->setProperty($property);
 		parent::__construct($paletteBuilder);
