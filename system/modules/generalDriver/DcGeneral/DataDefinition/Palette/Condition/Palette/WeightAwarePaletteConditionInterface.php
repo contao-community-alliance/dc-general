@@ -12,16 +12,17 @@
 
 namespace DcGeneral\DataDefinition\Palette\Condition\Palette;
 
-use DcGeneral\Data\ModelInterface;
-use DcGeneral\Data\PropertyValueBag;
-use DcGeneral\DataDefinition\ConditionInterface;
-
+/**
+ * This interface describes a weight aware palette condition.
+ *
+ * @package DcGeneral\DataDefinition\Palette\Condition\Palette
+ */
 interface WeightAwarePaletteConditionInterface extends PaletteConditionInterface
 {
 	/**
 	 * Set the weight of this condition.
 	 *
-	 * @param int $weight
+	 * @param int $weight The weight of this condition.
 	 *
 	 * @return WeightAwarePaletteConditionInterface
 	 */

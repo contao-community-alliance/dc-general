@@ -25,9 +25,12 @@ interface PropertyConditionInterface extends ConditionInterface
 	 * Check if the condition match.
 	 *
 	 * @param ModelInterface|null $model If given, subpalettes will be evaluated depending on the model.
-	 * If no model is given, all properties will be returned, including subpalette properties.
-	 * @param PropertyValueBag $input If given, subpalettes will be evaluated depending on the input data.
-	 * If no model and no input data is given, all properties will be returned, including subpalette properties.
+	 *                                   If no model is given, all properties will be returned, including subpalette
+	 *                                   properties.
+	 *
+	 * @param PropertyValueBag    $input If given, subpalettes will be evaluated depending on the input data.
+	 *                                   If no model and no input data is given, all properties will be returned,
+	 *                                   including subpalette properties.
 	 *
 	 * @return bool
 	 */
@@ -35,6 +38,8 @@ interface PropertyConditionInterface extends ConditionInterface
 
 	/**
 	 * Create a deep clone of the condition.
+	 *
+	 * @return void
 	 */
 	public function __clone();
 }

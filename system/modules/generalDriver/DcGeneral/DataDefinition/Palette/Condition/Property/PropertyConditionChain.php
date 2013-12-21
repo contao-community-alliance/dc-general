@@ -15,10 +15,9 @@ namespace DcGeneral\DataDefinition\Palette\Condition\Property;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\DataDefinition\AbstractConditionChain;
-use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 /**
- * A condition define when a property is visible or editable and when not.
+ * A chain of property conditions.
  */
 class PropertyConditionChain extends AbstractConditionChain implements PropertyConditionInterface
 {
@@ -27,23 +26,27 @@ class PropertyConditionChain extends AbstractConditionChain implements PropertyC
 	 */
 	public function match(ModelInterface $model = null, PropertyValueBag $input = null)
 	{
-		if ($this->conjunction == static::AND_CONJUNCTION) {
-			foreach ($this->conditions as $condition) {
-				if (!$condition->match($model, $input)) {
+		if ($this->conjunction == static::AND_CONJUNCTION)
+		{
+			foreach ($this->conditions as $condition)
+			{
+				if (!$condition->match($model, $input))
+				{
 					return false;
 				}
 			}
 
 			return true;
 		}
-		else {
-			foreach ($this->conditions as $condition) {
-				if ($condition->match($model, $input)) {
-					return true;
-				}
-			}
 
-			return false;
+		foreach ($this->conditions as $condition)
+		{
+			if ($condition->match($model, $input))
+			{
+				return true;
+			}
 		}
+
+		return false;
 	}
 }

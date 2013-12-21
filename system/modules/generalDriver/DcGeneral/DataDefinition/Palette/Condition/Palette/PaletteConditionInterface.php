@@ -25,7 +25,8 @@ interface PaletteConditionInterface extends ConditionInterface
 	 * Calculate how "strong" (aka "count of matches") this condition match the model and input parameters.
 	 *
 	 * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
-	 * @param PropertyValueBag $input If given, selectors will be evaluated depending on the input data.
+	 *
+	 * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
 	 *
 	 * @return bool
 	 */
@@ -33,6 +34,8 @@ interface PaletteConditionInterface extends ConditionInterface
 
 	/**
 	 * Create a deep clone of the condition.
+	 *
+	 * @return void
 	 */
 	public function __clone();
 }

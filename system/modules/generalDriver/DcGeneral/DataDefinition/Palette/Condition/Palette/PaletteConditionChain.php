@@ -17,7 +17,7 @@ use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\DataDefinition\AbstractConditionChain;
 
 /**
- * A condition define when a property is visible or editable and when not.
+ * A chain of palette conditions.
  */
 class PaletteConditionChain extends AbstractConditionChain implements PaletteConditionInterface
 {
@@ -27,19 +27,21 @@ class PaletteConditionChain extends AbstractConditionChain implements PaletteCon
 	public function getMatchCount(ModelInterface $model = null, PropertyValueBag $input = null)
 	{
 		$totalCount = false;
-		
+
 		foreach ($this->conditions as $condition)
 		{
 			$conditionCount = $condition->getMatchCount($model, $input);
 
-			if ($conditionCount !== false) {
+			if ($conditionCount !== false)
+			{
 				$totalCount += $conditionCount;
 			}
-			else if ($this->conjunction == static::AND_CONJUNCTION) {
+			elseif ($this->conjunction == static::AND_CONJUNCTION)
+			{
 				return false;
 			}
 		}
-		
+
 		return $totalCount;
 	}
 }

@@ -14,10 +14,9 @@ namespace DcGeneral\DataDefinition\Palette\Condition\Palette;
 
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\PropertyValueBag;
-use DcGeneral\DataDefinition\ConditionInterface;
 
 /**
- * Condition for the default palette.
+ * Condition checking that the value of a property is the same as a passed value.
  */
 class PropertyValueCondition extends AbstractWeightAwarePaletteCondition
 {
@@ -42,24 +41,41 @@ class PropertyValueCondition extends AbstractWeightAwarePaletteCondition
 	 */
 	protected $strict;
 
-	function __construct($propertyName = '', $propertyValue = null, $strict = false, $weight = 1)
+	/**
+	 * Create a new instance.
+	 *
+	 * @param string $propertyName  The name of the property.
+	 *
+	 * @param mixed  $propertyValue The value of the property to match.
+	 *
+	 * @param bool   $strict        Flag if the comparison shall be strict (type safe).
+	 *
+	 * @param int    $weight        The weight of this condition to apply.
+	 */
+	public function __construct($propertyName = '', $propertyValue = null, $strict = false, $weight = 1)
 	{
-		$this->propertyName  = (string) $propertyName;
+		$this->propertyName  = (string)$propertyName;
 		$this->propertyValue = $propertyValue;
-		$this->strict        = (bool) $strict;
+		$this->strict        = (bool)$strict;
 		$this->setWeight($weight);
 	}
 
 	/**
-	 * @param string $propertyName
+	 * Set the property name.
+	 *
+	 * @param string $propertyName The property name.
+	 *
+	 * @return PropertyValueCondition
 	 */
 	public function setPropertyName($propertyName)
 	{
-		$this->propertyName = (string) $propertyName;
+		$this->propertyName = (string)$propertyName;
 		return $this;
 	}
 
 	/**
+	 * Retrieve the property name.
+	 *
 	 * @return string
 	 */
 	public function getPropertyName()
@@ -68,7 +84,11 @@ class PropertyValueCondition extends AbstractWeightAwarePaletteCondition
 	}
 
 	/**
-	 * @param mixed $propertyValue
+	 * Set the property value to match.
+	 *
+	 * @param mixed $propertyValue The value.
+	 *
+	 * @return PropertyValueCondition
 	 */
 	public function setPropertyValue($propertyValue)
 	{
@@ -77,6 +97,8 @@ class PropertyValueCondition extends AbstractWeightAwarePaletteCondition
 	}
 
 	/**
+	 * Retrieve the property value to match.
+	 *
 	 * @return mixed
 	 */
 	public function getPropertyValue()
@@ -85,15 +107,21 @@ class PropertyValueCondition extends AbstractWeightAwarePaletteCondition
 	}
 
 	/**
-	 * @param boolean $strict
+	 * Set the flag if the comparison shall be strict (type safe).
+	 *
+	 * @param boolean $strict The flag.
+	 *
+	 * @return PropertyValueCondition
 	 */
 	public function setStrict($strict)
 	{
-		$this->strict = (bool) $strict;
+		$this->strict = (bool)$strict;
 		return $this;
 	}
 
 	/**
+	 * Retrieve the flag if the comparison shall be strict (type safe).
+	 *
 	 * @return boolean
 	 */
 	public function getStrict()
@@ -106,21 +134,27 @@ class PropertyValueCondition extends AbstractWeightAwarePaletteCondition
 	 */
 	public function getMatchCount(ModelInterface $model = null, PropertyValueBag $input = null)
 	{
-		if (!$this->propertyName) {
+		if (!$this->propertyName)
+		{
 			return false;
 		}
 
-		if ($input && $input->hasPropertyValue($this->propertyName)) {
+		if ($input && $input->hasPropertyValue($this->propertyName))
+		{
 			$value = $input->getPropertyValue($this->propertyName);
 		}
-		else if ($model) {
+		elseif ($model)
+		{
 			$value = $model->getProperty($this->propertyName);
 		}
-		else {
+		else
+		{
 			return false;
 		}
 
-		return ($this->strict ? ($value === $this->propertyValue) : ($value == $this->propertyValue)) ? $this->getWeight() : false;
+		return ($this->strict ? ($value === $this->propertyValue) : ($value == $this->propertyValue))
+			? $this->getWeight()
+			: false;
 	}
 
 	/**

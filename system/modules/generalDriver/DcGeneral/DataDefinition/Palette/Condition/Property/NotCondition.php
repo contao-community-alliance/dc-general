@@ -16,7 +16,7 @@ use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\PropertyValueBag;
 
 /**
- * Condition for the default palette.
+ * Negate a condition.
  */
 class NotCondition implements PropertyConditionInterface
 {
@@ -27,13 +27,22 @@ class NotCondition implements PropertyConditionInterface
 	 */
 	protected $condition;
 
-	function __construct(PropertyConditionInterface $condition)
+	/**
+	 * Create a new instance.
+	 *
+	 * @param PropertyConditionInterface $condition The condition to negate.
+	 */
+	public function __construct(PropertyConditionInterface $condition)
 	{
 		$this->condition = $condition;
 	}
 
 	/**
-	 * @param PropertyConditionInterface $condition
+	 * Set the condition to negate.
+	 *
+	 * @param PropertyConditionInterface $condition The condition.
+	 *
+	 * @return NotCondition
 	 */
 	public function setCondition(PropertyConditionInterface $condition)
 	{
@@ -42,6 +51,8 @@ class NotCondition implements PropertyConditionInterface
 	}
 
 	/**
+	 * Retrieve the condition to negate.
+	 *
 	 * @return PropertyConditionInterface
 	 */
 	public function getCondition()

@@ -27,24 +27,33 @@ class BooleanCondition implements PropertyConditionInterface
 	 */
 	protected $value;
 
-	function __construct($value)
+	/**
+	 * Create a new instance.
+	 *
+	 * @param bool $value The value to use.
+	 */
+	public function __construct($value)
 	{
-		$this->value = $value;
+		$this->value = (bool)$value;
 	}
 
 	/**
-	 * @param bool $value
+	 * Set the value.
+	 *
+	 * @param bool $value The value to use.
 	 *
 	 * @return BooleanCondition
 	 */
 	public function setValue($value)
 	{
-		$this->value = $value;
+		$this->value = (bool)$value;
 
 		return $this;
 	}
 
 	/**
+	 * Retrieve the value.
+	 *
 	 * @return bool
 	 */
 	public function getValue()

@@ -16,7 +16,7 @@ use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\PropertyValueBag;
 
 /**
- * Condition for the default palette.
+ * Condition checking that the value of a property is false.
  */
 class PropertyFalseCondition implements PropertyConditionInterface
 {
@@ -34,22 +34,36 @@ class PropertyFalseCondition implements PropertyConditionInterface
 	 */
 	protected $strict;
 
-	function __construct($propertyName, $strict = false)
+	/**
+	 * Create a new instance.
+	 *
+	 * @param string $propertyName The name of the property.
+	 *
+	 * @param bool   $strict       Flag if the comparison shall be strict (type safe).
+	 */
+	public function __construct($propertyName, $strict = false)
 	{
-		$this->propertyName  = (string) $propertyName;
-		$this->strict        = (bool) $strict;
+		$this->propertyName = (string)$propertyName;
+		$this->strict       = (bool)$strict;
 	}
 
 	/**
-	 * @param string $propertyName
+	 * Set the property name.
+	 *
+	 * @param string $propertyName The property name.
+	 *
+	 * @return PropertyTrueCondition
 	 */
 	public function setPropertyName($propertyName)
 	{
-		$this->propertyName = $propertyName;
+		$this->propertyName = (string)$propertyName;
+
 		return $this;
 	}
 
 	/**
+	 * Retrieve the property name.
+	 *
 	 * @return string
 	 */
 	public function getPropertyName()
@@ -58,15 +72,22 @@ class PropertyFalseCondition implements PropertyConditionInterface
 	}
 
 	/**
-	 * @param boolean $strict
+	 * Set the flag if the comparison shall be strict (type safe).
+	 *
+	 * @param boolean $strict The flag.
+	 *
+	 * @return PropertyTrueCondition
 	 */
 	public function setStrict($strict)
 	{
-		$this->strict = $strict;
+		$this->strict = (bool)$strict;
+
 		return $this;
 	}
 
 	/**
+	 * Retrieve the flag if the comparison shall be strict (type safe).
+	 *
 	 * @return boolean
 	 */
 	public function getStrict()
@@ -79,16 +100,20 @@ class PropertyFalseCondition implements PropertyConditionInterface
 	 */
 	public function match(ModelInterface $model = null, PropertyValueBag $input = null)
 	{
-		if ($input && $input->hasPropertyValue($this->propertyName)) {
+		if ($input && $input->hasPropertyValue($this->propertyName))
+		{
 			$value = $input->getPropertyValue($this->propertyName);
 		}
-		else if ($model) {
+		elseif ($model)
+		{
 			$value = $model->getProperty($this->propertyName);
 		}
-		else if ($this->strict) {
+		elseif ($this->strict)
+		{
 			return false;
 		}
-		else {
+		else
+		{
 			return true;
 		}
 

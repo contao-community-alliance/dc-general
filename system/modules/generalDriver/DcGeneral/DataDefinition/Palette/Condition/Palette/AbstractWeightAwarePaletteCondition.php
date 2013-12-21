@@ -12,10 +12,11 @@
 
 namespace DcGeneral\DataDefinition\Palette\Condition\Palette;
 
-use DcGeneral\Data\ModelInterface;
-use DcGeneral\Data\PropertyValueBag;
-use DcGeneral\DataDefinition\ConditionInterface;
-
+/**
+ * This is the abstract base class for weight aware palette conditions.
+ *
+ * @package DcGeneral\DataDefinition\Palette\Condition\Palette
+ */
 abstract class AbstractWeightAwarePaletteCondition implements WeightAwarePaletteConditionInterface
 {
 	/**

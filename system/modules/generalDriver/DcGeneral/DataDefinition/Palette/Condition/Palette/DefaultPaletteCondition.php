@@ -14,7 +14,6 @@ namespace DcGeneral\DataDefinition\Palette\Condition\Palette;
 
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\PropertyValueBag;
-use DcGeneral\DataDefinition\ConditionInterface;
 
 /**
  * Condition for the default palette.
