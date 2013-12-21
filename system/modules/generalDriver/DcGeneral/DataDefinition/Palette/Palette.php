@@ -26,9 +26,9 @@ class Palette implements PaletteInterface
 	/**
 	 * The name of this palette.
 	 *
-	 * @deprecated Only for backwards compatibility, we will remove palette names in the future!
-	 *
 	 * @var string
+	 *
+	 * @deprecated Only for backwards compatibility, we will remove palette names in the future!
 	 */
 	protected $name = null;
 
@@ -51,7 +51,7 @@ class Palette implements PaletteInterface
 	 */
 	public function setName($name)
 	{
-		$this->name = (string) $name;
+		$this->name = (string)$name;
 		return $this;
 	}
 
@@ -70,19 +70,25 @@ class Palette implements PaletteInterface
 	{
 		$properties = array();
 
-		foreach ($this->legends as $legend) {
+		foreach ($this->legends as $legend)
+		{
 			$properties = array_merge($properties, $legend->getProperties($model, $input));
 		}
 
 		return $properties;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function getVisibleProperties(ModelInterface $model = null, PropertyValueBag $input = null)
 	{
 		$properties = array();
 
-		foreach ($this->getProperties($model, $input) as $property) {
-			if ($property->isVisible($model, $input)) {
+		foreach ($this->getProperties($model, $input) as $property)
+		{
+			if ($property->isVisible($model, $input))
+			{
 				$properties[] = $property;
 			}
 		}
@@ -90,12 +96,17 @@ class Palette implements PaletteInterface
 		return $properties;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function getEditableProperties(ModelInterface $model = null, PropertyValueBag $input = null)
 	{
 		$properties = array();
 
-		foreach ($this->getProperties($model, $input) as $property) {
-			if ($property->isEditable($model, $input)) {
+		foreach ($this->getProperties($model, $input) as $property)
+		{
+			if ($property->isEditable($model, $input))
+			{
 				$properties[] = $property;
 			}
 		}
@@ -127,7 +138,8 @@ class Palette implements PaletteInterface
 	 */
 	public function addLegends(array $legends, LegendInterface $before = null)
 	{
-		foreach ($legends as $legend) {
+		foreach ($legends as $legend)
+		{
 			$this->addLegend($legend, $before);
 		}
 		return $this;
@@ -138,8 +150,10 @@ class Palette implements PaletteInterface
 	 */
 	public function hasLegend($name)
 	{
-		foreach ($this->legends as $legend) {
-			if ($legend->getName() == $name) {
+		foreach ($this->legends as $legend)
+		{
+			if ($legend->getName() == $name)
+			{
 				return true;
 			}
 		}
@@ -158,28 +172,35 @@ class Palette implements PaletteInterface
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException when the legend passed as $before can not be found.
 	 */
 	public function addLegend(LegendInterface $legend, LegendInterface $before = null)
 	{
 		$hash = spl_object_hash($legend);
 
-		if ($before) {
+		if ($before)
+		{
 			$beforeHash = spl_object_hash($before);
 
-			if (isset($this->legends[$beforeHash])) {
-				$hashes = array_keys($this->legends);
+			if (isset($this->legends[$beforeHash]))
+			{
+				$hashes   = array_keys($this->legends);
 				$position = array_search($beforeHash, $hashes);
+
 				$this->legends = array_merge(
 					array_slice($this->legends, 0, $position),
 					array($hash => $legend),
 					array_slice($this->legends, $position)
 				);
 			}
-			else {
+			else
+			{
 				throw new DcGeneralInvalidArgumentException('Legend ' . $before->getName() . ' not found');
 			}
 		}
-		else {
+		else
+		{
 			$this->legends[$hash] = $legend;
 		}
 
@@ -199,11 +220,15 @@ class Palette implements PaletteInterface
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralRuntimeException When the legend does not exist.
 	 */
 	public function getLegend($name)
 	{
-		foreach ($this->legends as $legend) {
-			if ($legend->getName() == $name) {
+		foreach ($this->legends as $legend)
+		{
+			if ($legend->getName() == $name)
+			{
 				return $legend;
 			}
 		}
@@ -241,7 +266,8 @@ class Palette implements PaletteInterface
 	public function __clone()
 	{
 		$legends = array();
-		foreach ($legends as $index => $legend) {
+		foreach ($legends as $index => $legend)
+		{
 			$legends[$index] = clone $legend;
 		}
 		$this->legends = $legends;
