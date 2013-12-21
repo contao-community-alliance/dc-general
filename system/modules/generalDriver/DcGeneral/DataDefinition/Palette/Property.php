@@ -16,24 +16,40 @@ use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterface;
 
+/**
+ * A property contained within a palette.
+ *
+ * @package DcGeneral\DataDefinition\Palette
+ */
 class Property implements PropertyInterface
 {
 	/**
+	 * The name of the property.
+	 *
 	 * @var string
 	 */
 	protected $name;
 
 	/**
+	 * The condition to be examined to determine if this property is visible.
+	 *
 	 * @var PropertyConditionInterface
 	 */
 	protected $visibleCondition;
 
 	/**
+	 * The condition to be examined to determine if this property is editable.
+	 *
 	 * @var PropertyConditionInterface
 	 */
 	protected $editableCondition;
 
-	function __construct($name)
+	/**
+	 * Create a new instance.
+	 *
+	 * @param string $name The name of the property.
+	 */
+	public function __construct($name)
 	{
 		$this->setName($name);
 	}
@@ -43,7 +59,7 @@ class Property implements PropertyInterface
 	 */
 	public function setName($name)
 	{
-		$this->name = (string) $name;
+		$this->name = (string)$name;
 	}
 
 	/**
@@ -59,7 +75,8 @@ class Property implements PropertyInterface
 	 */
 	public function isVisible(ModelInterface $model = null, PropertyValueBag $input = null)
 	{
-		if ($this->visibleCondition) {
+		if ($this->visibleCondition)
+		{
 			return $this->visibleCondition->match($model, $input);
 		}
 
@@ -71,7 +88,8 @@ class Property implements PropertyInterface
 	 */
 	public function isEditable(ModelInterface $model = null, PropertyValueBag $input = null)
 	{
-		if ($this->editableCondition) {
+		if ($this->editableCondition)
+		{
 			return $this->editableCondition->match($model, $input);
 		}
 
