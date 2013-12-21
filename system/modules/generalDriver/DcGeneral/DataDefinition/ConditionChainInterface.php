@@ -12,8 +12,6 @@
 
 namespace DcGeneral\DataDefinition;
 
-use DcGeneral\DataDefinition\ConditionInterface;
-
 /**
  * A condition define when a property is visible or editable and when not.
  */
@@ -39,6 +37,8 @@ interface ConditionChainInterface extends ConditionInterface
 	/**
 	 * Set the conditions in this chain.
 	 *
+	 * @param array|ConditionInterface[] $conditions The conditions.
+	 *
 	 * @return ConditionChainInterface
 	 */
 	public function setConditions(array $conditions);
@@ -46,7 +46,7 @@ interface ConditionChainInterface extends ConditionInterface
 	/**
 	 * Add multiple conditions to this chain.
 	 *
-	 * @param PaletteConditionInterface[] $conditions
+	 * @param array|ConditionInterface[] $conditions The conditions.
 	 *
 	 * @return ConditionChainInterface
 	 */
@@ -55,7 +55,7 @@ interface ConditionChainInterface extends ConditionInterface
 	/**
 	 * Add a condition to this chain.
 	 *
-	 * @param PaletteConditionInterface[] $conditions
+	 * @param ConditionInterface $condition The condition.
 	 *
 	 * @return ConditionChainInterface
 	 */
@@ -64,27 +64,31 @@ interface ConditionChainInterface extends ConditionInterface
 	/**
 	 * Remove a condition from this chain.
 	 *
-	 * @param PaletteConditionInterface[] $conditions
+	 * @param ConditionInterface $condition The condition.
 	 *
 	 * @return ConditionChainInterface
 	 */
 	public function removeCondition(ConditionInterface $condition);
 
 	/**
+	 * Retrieve the conditions contained in the chain.
+	 *
 	 * @return ConditionInterface[]
 	 */
 	public function getConditions();
 
 	/**
-	 * @param string $conjunction
+	 * Set the conjunction.
+	 *
+	 * @param string $conjunction The conjunction.
 	 *
 	 * @return ConditionChainInterface
-	 *
-	 * @throws DcGeneralInvalidArgumentException
 	 */
 	public function setConjunction($conjunction);
 
 	/**
+	 * Retrieve the conjunction.
+	 *
 	 * @return string
 	 */
 	public function getConjunction();
