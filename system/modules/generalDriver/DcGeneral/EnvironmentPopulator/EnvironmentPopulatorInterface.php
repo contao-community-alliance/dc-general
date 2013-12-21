@@ -14,7 +14,22 @@ namespace DcGeneral\EnvironmentPopulator;
 
 use DcGeneral\EnvironmentInterface;
 
+/**
+ * This interface describes a generic environment populator.
+ *
+ * It only consists of a single "populate" method which will create instances of objects and push them into the
+ * environment.
+ *
+ * @package DcGeneral\EnvironmentPopulator
+ */
 interface EnvironmentPopulatorInterface
 {
+	/**
+	 * Create all needed objects the populator knows to create and put them into the environment.
+	 *
+	 * @param EnvironmentInterface $environment The environment to populate.
+	 *
+	 * @return void
+	 */
 	public function populate(EnvironmentInterface $environment);
 }
