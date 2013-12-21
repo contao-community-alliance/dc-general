@@ -13,15 +13,16 @@
 namespace DcGeneral\DataDefinition;
 
 /**
- * Interface DataProviderInformationInterface
+ * A generic data provider information.
  *
+ * @package DcGeneral\DataDefinition
  */
 interface DataProviderInformationInterface
 {
 	/**
 	 * Set the name of the data provider.
 	 *
-	 * @param $name
+	 * @param string $name The name.
 	 *
 	 * @return DataProviderInformationInterface
 	 */
@@ -35,13 +36,17 @@ interface DataProviderInformationInterface
 	public function getName();
 
 	/**
-	 * @param bool $versioningEnabled
+	 * Set if versioning is enabled for this data provider or not.
+	 *
+	 * @param bool $versioningEnabled The flag.
 	 *
 	 * @return DataProviderInformationInterface
 	 */
 	public function setVersioningEnabled($versioningEnabled);
 
 	/**
+	 * Check if versioning is enabled for this data provider or not.
+	 *
 	 * @return bool
 	 */
 	public function isVersioningEnabled();
