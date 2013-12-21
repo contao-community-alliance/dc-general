@@ -12,10 +12,11 @@
 
 namespace DcGeneral\DataDefinition\Palette;
 
-use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 /**
+ * The palette factory.
+ *
  * @deprecated This class is deprecated for the moment, use the PaletteBuilder instead.
  */
 class PaletteFactory
@@ -25,11 +26,15 @@ class PaletteFactory
 	 *
 	 * @param array|PaletteInterface $palettes A list of palettes. Can be multiple arrays and arrays of arrays.
 	 *
+	 *
+	 * @param PaletteInterface       $_        A list of palettes. Can be multiple arrays and arrays of arrays.
+	 *
 	 * @return PaletteCollectionInterface
 	 */
-	static public function createPaletteCollection($palettes, $_ = null)
+	public static function createPaletteCollection($palettes, $_ = null)
 	{
 		$collection = new PaletteCollection();
+
 		$args = func_get_args();
 		static::fillPaletteCollection($collection, $args);
 		return $collection;
@@ -38,21 +43,28 @@ class PaletteFactory
 	/**
 	 * Fill a palette collection from a multidimensional array of palettes.
 	 *
-	 * @param PaletteCollection $collection
-	 * @param array             $palettes
+	 * @param PaletteCollection $collection The collection.
 	 *
-	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException
+	 * @param array             $palettes   The palettes to fill.
+	 *
+	 * @return void
+	 *
+	 * @throws DcGeneralInvalidArgumentException When an invalid palette has been passed.
 	 */
-	static public function fillPaletteCollection(PaletteCollection $collection, array $palettes)
+	public static function fillPaletteCollection(PaletteCollection $collection, array $palettes)
 	{
-		foreach ($palettes as $palette) {
-			if ($palette instanceof PaletteInterface) {
+		foreach ($palettes as $palette)
+		{
+			if ($palette instanceof PaletteInterface)
+			{
 				$collection->addPalette($palette);
 			}
-			else if (is_array($palette)) {
+			elseif (is_array($palette))
+			{
 				static::fillPaletteCollection($collection, $palette);
 			}
-			else {
+			else
+			{
 				$type = is_object($palette) ? get_class($palette) : gettype($palette);
 				throw new DcGeneralInvalidArgumentException('Palette [' . $type . '] does not implement PaletteInterface');
 			}
@@ -62,17 +74,22 @@ class PaletteFactory
 	/**
 	 * Create a new palette from a list of legends.
 	 *
-	 * @param string $name (deprecated) The name of the palette, can be omitted.
-	 * @param array $legend A list of legends. Can be multiple arrays and arrays of arrays.
+	 * @param string $name   The name of the palette, can be omitted (deprecated).
+	 *
+	 * @param array  $legend A list of legends. Can be multiple arrays and arrays of arrays.
+	 *
+	 * @param array  $_      A list of legends. Can be multiple arrays and arrays of arrays.
 	 *
 	 * @return PaletteInterface
 	 */
-	static public function createPalette($name = null, $legend = null, $_ = null)
+	public static function createPalette($name = null, $legend = null, $_ = null)
 	{
 		$palette = new Palette();
+
 		$args = func_get_args();
 
-		if (is_string($args[0])) {
+		if (is_string($args[0]))
+		{
 			$name = array_shift($args);
 			$palette->setName($name);
 		}
@@ -85,19 +102,24 @@ class PaletteFactory
 	/**
 	 * Fill a palette from a multidimensional array of legends.
 	 *
-	 * @param PaletteInterface $palette
-	 * @param array            $legends
+	 * @param PaletteInterface $palette The palette.
 	 *
-	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException
+	 * @param array            $legends The legends.
+	 *
+	 * @return void
+	 *
+	 * @throws DcGeneralInvalidArgumentException When an invalid legend has been passed.
 	 */
-	static public function fillPalette(PaletteInterface $palette, array $legends)
+	public static function fillPalette(PaletteInterface $palette, array $legends)
 	{
 		foreach ($legends as $legend)
 		{
-			if ($legend instanceof LegendInterface) {
+			if ($legend instanceof LegendInterface)
+			{
 				$palette->addLegend($legend);
 			}
-			else if (is_array($legend)) {
+			elseif (is_array($legend))
+			{
 				static::fillPalette($palette, $legend);
 			}
 			else {
@@ -110,18 +132,21 @@ class PaletteFactory
 	/**
 	 * Create a new legend from a list of properties.
 	 *
-	 * @param string $name
-	 * @param array|PropertyInterface $property
+	 * @param string                  $name     The name of the legend.
+	 *
+	 * @param array|PropertyInterface $property A list of properties. Can be multiple arrays and arrays of arrays.
+	 *
+	 * @param PropertyInterface       $_        A list of properties. Can be multiple arrays and arrays of arrays.
 	 *
 	 * @return LegendInterface
 	 */
-	static public function createLegend($name, $property = null, $_ = null)
+	public static function createLegend($name, $property = null, $_ = null)
 	{
 		$legend = new Legend();
 		$legend->setName($name);
 
 		$args = func_get_args();
-		// drop the name from argument list
+		// Drop the name from argument list.
 		array_shift($args);
 
 		static::fillLegend($legend, $args);
@@ -132,12 +157,15 @@ class PaletteFactory
 	/**
 	 * Fill a legend from a multidimensional array of properties.
 	 *
-	 * @param LegendInterface $legend
-	 * @param array           $properties
+	 * @param LegendInterface $legend     The legend.
 	 *
-	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException
+	 * @param array           $properties The properties.
+	 *
+	 * @return void
+	 *
+	 * @throws DcGeneralInvalidArgumentException When an invalid property is encountered.
 	 */
-	static public function fillLegend(LegendInterface $legend, array $properties)
+	public static function fillLegend(LegendInterface $legend, array $properties)
 	{
 		foreach ($properties as $property)
 		{
@@ -145,7 +173,7 @@ class PaletteFactory
 			{
 				$legend->addProperty($property);
 			}
-			else if (is_array($property))
+			elseif (is_array($property))
 			{
 				static::fillLegend($legend, $property);
 			}
