@@ -49,7 +49,12 @@ class Legend implements LegendInterface
 	 */
 	protected $properties = array();
 
-	function __construct($name)
+	/**
+	 * Create a new instance.
+	 *
+	 * @param string $name The name of the legend.
+	 */
+	public function __construct($name)
 	{
 		$this->setName($name);
 	}
@@ -59,7 +64,8 @@ class Legend implements LegendInterface
 	 */
 	public function setPalette(PaletteInterface $palette = null)
 	{
-		if ($this->palette) {
+		if ($this->palette)
+		{
 			$this->palette->removeLegend($this);
 		}
 
@@ -80,7 +86,7 @@ class Legend implements LegendInterface
 	 */
 	public function setName($name)
 	{
-		$this->name = (string) $name;
+		$this->name = (string)$name;
 		return $this;
 	}
 
@@ -97,7 +103,7 @@ class Legend implements LegendInterface
 	 */
 	public function setInitialVisibility($value)
 	{
-		$this->initiallyVisible = (bool) $value;
+		$this->initiallyVisible = (bool)$value;
 
 		return $this;
 	}
@@ -134,7 +140,8 @@ class Legend implements LegendInterface
 	 */
 	public function addProperties(array $properties, PropertyInterface $before = null)
 	{
-		foreach ($properties as $property) {
+		foreach ($properties as $property)
+		{
 			$this->addProperty($property, $before);
 		}
 		return $this;
@@ -142,28 +149,35 @@ class Legend implements LegendInterface
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException When the property passed as $before can not be found.
 	 */
 	public function addProperty(PropertyInterface $property, PropertyInterface $before = null)
 	{
 		$hash = spl_object_hash($property);
 
-		if ($before) {
+		if ($before)
+		{
 			$beforeHash = spl_object_hash($before);
 
-			if (isset($this->properties[$beforeHash])) {
-				$hashes = array_keys($this->properties);
+			if (isset($this->properties[$beforeHash]))
+			{
+				$hashes   = array_keys($this->properties);
 				$position = array_search($beforeHash, $hashes);
+
 				$this->properties = array_merge(
 					array_slice($this->properties, 0, $position),
 					array($hash => $property),
 					array_slice($this->properties, $position)
 				);
 			}
-			else {
+			else
+			{
 				throw new DcGeneralInvalidArgumentException('Property ' . $before->getName() . ' not found');
 			}
 		}
-		else {
+		else
+		{
 			$this->properties[$hash] = $property;
 		}
 
@@ -201,10 +215,8 @@ class Legend implements LegendInterface
 
 			return $selectedProperties;
 		}
-		else
-		{
-			return array_values($this->properties);
-		}
+
+		return array_values($this->properties);
 	}
 
 	/**
@@ -215,7 +227,8 @@ class Legend implements LegendInterface
 		$this->palette = null;
 
 		$properties = array();
-		foreach ($this->properties as $index => $property) {
+		foreach ($this->properties as $index => $property)
+		{
 			$properties[$index] = clone $property;
 		}
 		$this->properties = $properties;
