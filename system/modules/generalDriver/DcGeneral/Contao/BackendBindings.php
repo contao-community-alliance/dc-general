@@ -14,11 +14,11 @@ namespace DcGeneral\Contao;
 
 if (version_compare(VERSION, '3.0', '<'))
 {
-	class_alias('DcGeneral\Contao\BackendBindingInternal\ContaoTwoEleven', 'BackendBindingInternal');
+	class_alias('DcGeneral\Contao\BackendBindingInternal\ContaoTwoEleven', 'DcGeneral\Contao\BackendBindingInternal');
 }
 else
 {
-	class_alias('DcGeneral\Contao\BackendBindingInternal\ContaoThree', 'BackendBindingInternal');
+	class_alias('DcGeneral\Contao\BackendBindingInternal\ContaoThree', 'DcGeneral\Contao\BackendBindingInternal');
 }
 
 /**
