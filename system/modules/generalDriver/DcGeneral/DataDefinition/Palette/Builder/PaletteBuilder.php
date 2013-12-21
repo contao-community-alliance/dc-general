@@ -1198,83 +1198,130 @@ class PaletteBuilder
 	}
 
 	/**
+	 * Add a custom condition to last created palette.
+	 *
+	 * @param PaletteConditionInterface $condition The condition to add.
+	 *
+	 * @return void
+	 *
+	 * @throws DcGeneralRuntimeException If the palette is missing.
+	 */
+	protected function addPaletteCondition(PaletteConditionInterface $condition)
+	{
+		if (!$this->palette)
+		{
+			throw new DcGeneralRuntimeException('Palette is missing, please create a palette first');
+		}
+
+		$event = new AddConditionEvent($condition, $this->palette, $this);
+		$this->dispatchEvent($event);
+		$condition = $event->getCondition();
+
+		$previousCondition = $this->palette->getCondition();
+
+		if (!$previousCondition)
+		{
+			$this->palette->setCondition($condition);
+		}
+		elseif ($previousCondition instanceof PropertyConditionChain)
+		{
+			$previousCondition->addCondition($condition);
+		}
+		else
+		{
+			$chain = $this->paletteConditionChainClass->newInstance();
+			$chain->addCondition($previousCondition);
+			$chain->addCondition($condition);
+			$this->palette->setCondition($chain);
+		}
+	}
+
+	/**
+	 * Add a custom condition to last created property.
+	 *
+	 * @param PropertyConditionInterface $condition The condition to add.
+	 *
+	 * @param string                     $scope     The scope.
+	 *
+	 * @return void
+	 *
+	 * @throws DcGeneralRuntimeException If the the property is missing.
+	 */
+	protected function addPropertyCondition(PropertyConditionInterface $condition, $scope = self::VISIBLE)
+	{
+		if (!$this->property)
+		{
+			throw new DcGeneralRuntimeException('Property is missing, please create a property first');
+		}
+
+		$properties = is_object($this->property) ? array($this->property) : $this->property;
+
+		foreach ($properties as $property)
+		{
+			/** @var PropertyInterface $property */
+			$event = new AddConditionEvent($condition, $property, $this);
+			$this->dispatchEvent($event);
+			$condition = $event->getCondition();
+
+			$previousCondition = $scope == self::EDITABLE
+				? $property->getEditableCondition()
+				: $property->getVisibleCondition();
+
+			if (!$previousCondition)
+			{
+				if ($scope == self::EDITABLE)
+				{
+					$property->setEditableCondition($condition);
+				}
+				else {
+					$property->setVisibleCondition($condition);
+				}
+			}
+			elseif ($previousCondition instanceof PropertyConditionChain)
+			{
+				$previousCondition->addCondition($condition);
+			}
+			else
+			{
+				$chain = $this->propertyConditionChainClass->newInstance();
+				$chain->addCondition($previousCondition);
+				$chain->addCondition($condition);
+
+				if ($scope == self::EDITABLE)
+				{
+					$property->setEditableCondition($chain);
+				}
+				else
+				{
+					$property->setVisibleCondition($chain);
+				}
+			}
+		}
+	}
+
+	/**
 	 * Add a custom condition to last created property or palette.
 	 *
-	 * @param PaletteConditionInterface|PropertyConditionInterface $condition
+	 * @param PaletteConditionInterface|PropertyConditionInterface $condition The condition to add.
+	 *
+	 * @param string                                               $scope     The scope.
+	 *
+	 * @return PaletteBuilder
+	 *
+	 * @throws DcGeneralInvalidArgumentException When an unknown condition type is passed.
 	 */
 	public function addCondition($condition, $scope = self::VISIBLE)
 	{
 		if ($condition instanceof PaletteConditionInterface)
 		{
-			if (!$this->palette) {
-				throw new DcGeneralRuntimeException('Palette is missing, please create a palette first');
-			}
-
-			$event = new AddConditionEvent($condition, $this->palette, $this);
-			$this->dispatchEvent($event);
-			$condition = $event->getCondition();
-
-			$previousCondition = $this->palette->getCondition();
-
-			if (!$previousCondition) {
-				$this->palette->setCondition($condition);
-			}
-			else if ($previousCondition instanceof PropertyConditionChain) {
-				$previousCondition->addCondition($condition);
-			}
-			else {
-				$chain = $this->paletteConditionChainClass->newInstance();
-				$chain->addCondition($previousCondition);
-				$chain->addCondition($condition);
-				$this->palette->setCondition($chain);
-			}
+			$this->addPaletteCondition($condition);
 		}
-
-		else if ($condition instanceof PropertyConditionInterface)
+		elseif ($condition instanceof PropertyConditionInterface)
 		{
-			if (!$this->property) {
-				throw new DcGeneralRuntimeException('Property is missing, please create a property first');
-			}
-
-			$properties = is_object($this->property) ? array($this->property) : $this->property;
-
-			foreach ($properties as $property) {
-				/** @var PropertyInterface $property */
-				$event = new AddConditionEvent($condition, $property, $this);
-				$this->dispatchEvent($event);
-				$condition = $event->getCondition();
-
-				$previousCondition = $scope == self::EDITABLE
-					? $property->getEditableCondition()
-					: $property->getVisibleCondition();
-
-				if (!$previousCondition) {
-					if ($scope == self::EDITABLE) {
-						$property->setEditableCondition($condition);
-					}
-					else {
-						$property->setVisibleCondition($condition);
-					}
-				}
-				else if ($previousCondition instanceof PropertyConditionChain) {
-					$previousCondition->addCondition($condition);
-				}
-				else {
-					$chain = $this->propertyConditionChainClass->newInstance();
-					$chain->addCondition($previousCondition);
-					$chain->addCondition($condition);
-
-					if ($scope == self::EDITABLE) {
-						$property->setEditableCondition($chain);
-					}
-					else {
-						$property->setVisibleCondition($chain);
-					}
-				}
-			}
+			$this->addPropertyCondition($condition, $scope);
 		}
-
-		else {
+		else
+		{
 			$type = is_object($condition) ? get_class($condition) : gettype($condition);
 			throw new DcGeneralInvalidArgumentException('Cannot handle condition of type [' . $type . ']');
 		}
