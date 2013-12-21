@@ -25,18 +25,20 @@ interface PaletteInterface
 	/**
 	 * Set the name of this palette.
 	 *
-	 * @deprecated Only for backwards compatibility, we will remove palette names in the future!
+	 * @param string $name The name.
 	 *
 	 * @return PaletteInterface
+	 *
+	 * @deprecated Only for backwards compatibility, we will remove palette names in the future!
 	 */
 	public function setName($name);
 
 	/**
 	 * Return the name of this palette.
 	 *
-	 * @deprecated Only for backwards compatibility, we will remove palette names in the future!
-	 *
 	 * @return string
+	 *
+	 * @deprecated Only for backwards compatibility, we will remove palette names in the future!
 	 */
 	public function getName();
 
@@ -44,7 +46,8 @@ interface PaletteInterface
 	 * Get all properties from all legends in this palette.
 	 *
 	 * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
-	 * @param PropertyValueBag $input If given, selectors will be evaluated depending on the input data.
+	 *
+	 * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
 	 *
 	 * @return PropertyInterface[]
 	 */
@@ -55,7 +58,8 @@ interface PaletteInterface
 	 * Get all properties from all legends in this palette that are visible.
 	 *
 	 * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
-	 * @param PropertyValueBag $input If given, selectors will be evaluated depending on the input data.
+	 *
+	 * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
 	 *
 	 * @return PropertyInterface[]
 	 */
@@ -65,7 +69,8 @@ interface PaletteInterface
 	 * Get all properties from all legends in this palette that are editable.
 	 *
 	 * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
-	 * @param PropertyValueBag $input If given, selectors will be evaluated depending on the input data.
+	 *
+	 * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
 	 *
 	 * @return PropertyInterface[]
 	 */
@@ -81,7 +86,7 @@ interface PaletteInterface
 	/**
 	 * Set all legends to this palette.
 	 *
-	 * @param array|LegendInterface[] $legends
+	 * @param array|LegendInterface[] $legends The legends.
 	 *
 	 * @return PaletteInterface
 	 */
@@ -90,8 +95,9 @@ interface PaletteInterface
 	/**
 	 * Add all legends to this palette.
 	 *
-	 * @param array|LegendInterface[] $legends
-	 * @param LegendInterface $before
+	 * @param array|LegendInterface[] $legends The legends.
+	 *
+	 * @param LegendInterface         $before  The legend before which the new legends shall be inserted (optional).
 	 *
 	 * @return PaletteInterface
 	 */
@@ -100,7 +106,7 @@ interface PaletteInterface
 	/**
 	 * Determine if a legend with the given name exists in this palette.
 	 *
-	 * @param string $name
+	 * @param string $name The name of the legend to search for.
 	 *
 	 * @return bool
 	 */
@@ -109,7 +115,7 @@ interface PaletteInterface
 	/**
 	 * Determine if a legend exists in this palette.
 	 *
-	 * @param LegendInterface $legend
+	 * @param LegendInterface $legend The legend to be checked.
 	 *
 	 * @return bool
 	 */
@@ -118,8 +124,9 @@ interface PaletteInterface
 	/**
 	 * Add a legend to this palette.
 	 *
-	 * @param LegendInterface $legend
-	 * @param LegendInterface $before
+	 * @param LegendInterface $legend The legend to add.
+	 *
+	 * @param LegendInterface $before The legend before which the new legend shall be inserted (optional).
 	 *
 	 * @return PaletteInterface
 	 */
@@ -128,7 +135,7 @@ interface PaletteInterface
 	/**
 	 * Remove a legend from this palette.
 	 *
-	 * @param LegendInterface $legend
+	 * @param LegendInterface $legend The legend to remove.
 	 *
 	 * @return PaletteInterface
 	 */
@@ -137,7 +144,7 @@ interface PaletteInterface
 	/**
 	 * Return the legend with the given name.
 	 *
-	 * @param string $name
+	 * @param string $name The name of the legend to search for.
 	 *
 	 * @return LegendInterface
 	 *
@@ -155,7 +162,9 @@ interface PaletteInterface
 	/**
 	 * Set the condition bound to this palette.
 	 *
-	 * @param PaletteConditionInterface|null $condition
+	 * @param PaletteConditionInterface|null $condition The condition to be bound to this palette.
+	 *
+	 * @return PaletteInterface
 	 */
 	public function setCondition(PaletteConditionInterface $condition = null);
 
@@ -168,6 +177,8 @@ interface PaletteInterface
 
 	/**
 	 * Create a deep clone of the palette.
+	 *
+	 * @return void
 	 */
 	public function __clone();
 }
