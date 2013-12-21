@@ -12,6 +12,11 @@
 
 namespace DcGeneral\DataDefinition;
 
+/**
+ * An abstract condition chain.
+ *
+ * @package DcGeneral\DataDefinition
+ */
 abstract class AbstractConditionChain implements ConditionChainInterface
 {
 	/**
@@ -31,10 +36,11 @@ abstract class AbstractConditionChain implements ConditionChainInterface
 	/**
 	 * Create a new condition chain.
 	 *
-	 * @param array  $conditions
-	 * @param string $conjunction
+	 * @param array  $conditions  The conditions to initialize the chain with (optional).
+	 *
+	 * @param string $conjunction The conjunction this chain contains (defaults to AND).
 	 */
-	function __construct(array $conditions = array(), $conjunction = self::AND_CONJUNCTION)
+	public function __construct(array $conditions = array(), $conjunction = self::AND_CONJUNCTION)
 	{
 		$this->addConditions($conditions);
 		$this->setConjunction($conjunction);
@@ -64,7 +70,8 @@ abstract class AbstractConditionChain implements ConditionChainInterface
 	 */
 	public function addConditions(array $conditions)
 	{
-		foreach ($conditions as $condition) {
+		foreach ($conditions as $condition)
+		{
 			$this->addCondition($condition);
 		}
 		return $this;
@@ -99,14 +106,20 @@ abstract class AbstractConditionChain implements ConditionChainInterface
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException When the conjunction is neither AND nor OR.
 	 */
 	public function setConjunction($conjunction)
 	{
-		if ($conjunction != static::AND_CONJUNCTION && $conjunction != static::OR_CONJUNCTION) {
-			throw new DcGeneralInvalidArgumentException('Conjunction must be ConditionChainInterface::AND_CONJUNCTION or ConditionChainInterface::OR_CONJUNCTION');
+		if ($conjunction != static::AND_CONJUNCTION && $conjunction != static::OR_CONJUNCTION)
+		{
+			throw new DcGeneralInvalidArgumentException(
+				'Conjunction must be ConditionChainInterface::AND_CONJUNCTION or ConditionChainInterface::OR_CONJUNCTION'
+			);
 		}
 
-		$this->conjunction = (string) $conjunction;
+		$this->conjunction = (string)$conjunction;
+
 		return $this;
 	}
 
@@ -124,7 +137,8 @@ abstract class AbstractConditionChain implements ConditionChainInterface
 	public function __clone()
 	{
 		$conditions = array();
-		foreach ($conditions as $index => $condition) {
+		foreach ($conditions as $index => $condition)
+		{
 			$conditions[$index] = clone $condition;
 		}
 		$this->conditions = $conditions;
