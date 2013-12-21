@@ -14,8 +14,6 @@ namespace DcGeneral\DataDefinition\Palette;
 
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\PropertyValueBag;
-use DcGeneral\Exception\DcGeneralInvalidArgumentException;
-use DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * Contains multiple palettes, organised by its name.
@@ -32,7 +30,7 @@ interface PaletteCollectionInterface
 	/**
 	 * Set all palettes in this collection.
 	 *
-	 * @param array|PaletteInterface[] $palettes
+	 * @param array|PaletteInterface[] $palettes The palettes.
 	 *
 	 * @return PaletteCollectionInterface
 	 */
@@ -41,7 +39,7 @@ interface PaletteCollectionInterface
 	/**
 	 * Add multiple palettes to this collection.
 	 *
-	 * @param PaletteInterface[] $palettes
+	 * @param array|PaletteInterface[] $palettes The palettes.
 	 *
 	 * @return PaletteInterface
 	 */
@@ -50,7 +48,7 @@ interface PaletteCollectionInterface
 	/**
 	 * Add a palette to this collection.
 	 *
-	 * @param PaletteInterface $palette
+	 * @param PaletteInterface $palette The palette.
 	 *
 	 * @return PaletteInterface
 	 */
@@ -59,7 +57,7 @@ interface PaletteCollectionInterface
 	/**
 	 * Remove a palette from this collection.
 	 *
-	 * @param PaletteInterface $palette
+	 * @param PaletteInterface $palette The palette.
 	 *
 	 * @return PaletteInterface
 	 */
@@ -75,7 +73,7 @@ interface PaletteCollectionInterface
 	/**
 	 * Check if a palette exists in this collection.
 	 *
-	 * @param string $paletteName
+	 * @param PaletteInterface $palette The palette.
 	 *
 	 * @return bool
 	 */
@@ -85,40 +83,39 @@ interface PaletteCollectionInterface
 	 * Find the palette matching model and input parameters.
 	 *
 	 * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
-	 * @param PropertyValueBag $input If given, selectors will be evaluated depending on the input data.
+	 *
+	 * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
 	 *
 	 * @return PaletteInterface
-	 *
-	 * @throws DcGeneralRuntimeException Is thrown if there is no palette found.
 	 */
 	public function findPalette(ModelInterface $model = null, PropertyValueBag $input = null);
 
 	/**
 	 * Check if a palette for the given name exists in this collection.
 	 *
-	 * @deprecated Only for backwards compatibility, we will remove palette names in the future!
-	 *
-	 * @param string $paletteName
+	 * @param string $paletteName The palette name.
 	 *
 	 * @return bool
+	 *
+	 * @deprecated Only for backwards compatibility, we will remove palette names in the future!
 	 */
 	public function hasPaletteByName($paletteName);
 
 	/**
 	 * Return the palette for the given name.
 	 *
-	 * @deprecated Only for backwards compatibility, we will remove palette names in the future!
-	 *
-	 * @param string $paletteName
+	 * @param string $paletteName The palette name.
 	 *
 	 * @return PaletteInterface
 	 *
-	 * @throws DcGeneralInvalidArgumentException Is thrown if there is no palette with this name.
+	 * @deprecated Only for backwards compatibility, we will remove palette names in the future!
 	 */
 	public function getPaletteByName($paletteName);
 
 	/**
 	 * Create a deep clone of the palette collection.
+	 *
+	 * @return void
 	 */
 	public function __clone();
 }
