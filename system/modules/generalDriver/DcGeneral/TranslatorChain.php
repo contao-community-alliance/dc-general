@@ -12,9 +12,20 @@
 
 namespace DcGeneral;
 
-class TranslatorChain implements TranslatorInterface
+/**
+ * This translator is a chain of translators.
+ *
+ * When a translation is requested, the chain tries all stored translators and returns the first value not equal to the
+ * input.
+ *
+ * @package DcGeneral
+ */
+class TranslatorChain
+	implements TranslatorInterface
 {
 	/**
+	 * The list of stored translators.
+	 *
 	 * @var TranslatorInterface[]
 	 */
 	protected $translators = array();
@@ -27,6 +38,8 @@ class TranslatorChain implements TranslatorInterface
 	protected $keepGoing = false;
 
 	/**
+	 * Clear the chain.
+	 *
 	 * @return TranslatorChain
 	 */
 	public function clear()
@@ -37,13 +50,16 @@ class TranslatorChain implements TranslatorInterface
 	}
 
 	/**
-	 * @param array $translators
+	 * Add all passed translators to the chain.
+	 *
+	 * @param array $translators The translators to add.
 	 *
 	 * @return TranslatorChain
 	 */
 	public function addAll(array $translators)
 	{
-		foreach ($translators as $translator) {
+		foreach ($translators as $translator)
+		{
 			$this->add($translator);
 		}
 
@@ -51,31 +67,42 @@ class TranslatorChain implements TranslatorInterface
 	}
 
 	/**
-	 * @param TranslatorInterface $translator
+	 * Add a translator to the chain.
+	 *
+	 * @param TranslatorInterface $translator The translator to add.
 	 *
 	 * @return TranslatorChain
 	 */
 	public function add(TranslatorInterface $translator)
 	{
 		$hash = spl_object_hash($translator);
+
 		$this->translators[$hash] = $translator;
 
 		return $this;
 	}
 
 	/**
-	 * @param TranslatorInterface $translator
+	 * Remove a translator from the chain.
+	 *
+	 * @param TranslatorInterface $translator The translator.
 	 *
 	 * @return TranslatorChain
 	 */
 	public function remove(TranslatorInterface $translator)
 	{
 		$hash = spl_object_hash($translator);
+
 		unset($this->translators[$hash]);
 
 		return $this;
 	}
 
+	/**
+	 * Get an array of all translators.
+	 *
+	 * @return array
+	 */
 	public function getAll()
 	{
 		return array_values($this->translators);
@@ -84,7 +111,7 @@ class TranslatorChain implements TranslatorInterface
 	/**
 	 * Set keep going status.
 	 *
-	 * @param boolean $keepGoing
+	 * @param bool $keepGoing Set the keep going status.
 	 *
 	 * @return TranslatorChain
 	 */
@@ -112,11 +139,10 @@ class TranslatorChain implements TranslatorInterface
 	{
 		$original = $string;
 
-		for (
-			$translator = reset($this->translators);
+		for ($translator = reset($this->translators);
 			$translator && ($this->keepGoing || $string == $original);
-			$translator = next($this->translators)
-		) {
+			$translator = next($this->translators))
+		{
 			$string = $translator->translate($string, $domain, $parameters, $locale);
 		}
 
@@ -130,11 +156,10 @@ class TranslatorChain implements TranslatorInterface
 	{
 		$original = $string;
 
-		for (
-			$translator = reset($this->translators);
+		for ($translator = reset($this->translators);
 			$this->keepGoing || $string == $original;
-			$translator = next($this->translators)
-		) {
+			$translator = next($this->translators))
+		{
 			$string = $translator->translatePluralized($string, $number, $domain, $parameters, $locale);
 		}
 
