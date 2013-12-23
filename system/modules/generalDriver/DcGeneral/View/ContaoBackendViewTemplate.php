@@ -12,6 +12,13 @@
 
 namespace DcGeneral\View;
 
-class ContaoBackendViewTemplate extends \BackendTemplate implements ViewTemplateInterface
+/**
+ * This class is used for the contao backend view as template.
+ *
+ * @package DcGeneral\View
+ */
+class ContaoBackendViewTemplate
+	extends \BackendTemplate
+	implements ViewTemplateInterface
 {
 }
