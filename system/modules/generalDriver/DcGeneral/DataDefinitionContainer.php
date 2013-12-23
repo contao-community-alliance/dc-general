@@ -15,9 +15,19 @@ namespace DcGeneral;
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
-class DataDefinitionContainer implements DataDefinitionContainerInterface
+/**
+ * Default implementation of the data definition container.
+ *
+ * This container holds all created data definitions.
+ *
+ * @package DcGeneral
+ */
+class DataDefinitionContainer
+	implements DataDefinitionContainerInterface
 {
 	/**
+	 * The definitions stored in the container.
+	 *
 	 * @var ContainerInterface[]
 	 */
 	protected $definitions;
@@ -49,6 +59,8 @@ class DataDefinitionContainer implements DataDefinitionContainerInterface
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException When a definition is requested that is not contained.
 	 */
 	public function getDefinition($name)
 	{
