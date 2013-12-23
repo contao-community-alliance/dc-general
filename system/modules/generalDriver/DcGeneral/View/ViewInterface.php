@@ -12,8 +12,6 @@
 
 namespace DcGeneral\View;
 
-use DcGeneral\Data\PropertyValueBag;
-use DcGeneral\DataContainerInterface;
 use DcGeneral\EnvironmentInterface;
 
 // TODO: we need to flesh this out some more out and add real interface methods. Currently this interface is rather useless.
