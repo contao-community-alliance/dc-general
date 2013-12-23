@@ -14,9 +14,16 @@ namespace DcGeneral;
 
 use DcGeneral\Data\ModelInterface;
 
+/**
+ * Base interface providing access to a model.
+ *
+ * @package DcGeneral
+ */
 interface ModelAwareInterface
 {
 	/**
+	 * Retrieve the attached model.
+	 *
 	 * @return ModelInterface
 	 */
 	public function getModel();
