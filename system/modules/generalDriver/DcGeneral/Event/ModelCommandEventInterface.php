@@ -14,6 +14,11 @@ namespace DcGeneral\Event;
 
 use DcGeneral\ModelAwareInterface;
 
+/**
+ * This interface describes a command event that references a model.
+ *
+ * @package DcGeneral\Event
+ */
 interface ModelCommandEventInterface extends CommandEventInterface, ModelAwareInterface
 {
 }

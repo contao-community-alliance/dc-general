@@ -12,10 +12,11 @@
 
 namespace DcGeneral\Event;
 
-use DcGeneral\Data\ModelInterface;
-use DcGeneral\EnvironmentInterface;
-use DcGeneral\ModelAwareInterface;
-
+/**
+ * This event is emitted after a model has been deleted.
+ *
+ * @package DcGeneral\Event
+ */
 class PostDeleteModelEvent extends AbstractModelAwareEvent
 {
 	const NAME = 'dc-general.model.post-delete';

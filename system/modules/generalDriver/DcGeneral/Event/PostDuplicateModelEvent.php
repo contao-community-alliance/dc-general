@@ -14,17 +14,32 @@ namespace DcGeneral\Event;
 
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\EnvironmentInterface;
-use DcGeneral\ModelAwareInterface;
 
+/**
+ * This event is emitted after a model has been duplicated.
+ *
+ * @package DcGeneral\Event
+ */
 class PostDuplicateModelEvent extends AbstractModelAwareEvent
 {
 	const NAME = 'dc-general.model.post-duplicate';
 
 	/**
+	 * The source model.
+	 *
 	 * @var ModelInterface
 	 */
 	protected $sourceModel;
 
+	/**
+	 * Create a new instance.
+	 *
+	 * @param EnvironmentInterface $environment The environment.
+	 *
+	 * @param ModelInterface       $model       The new model.
+	 *
+	 * @param ModelInterface       $sourceModel The source model.
+	 */
 	public function __construct(EnvironmentInterface $environment, ModelInterface $model, ModelInterface $sourceModel)
 	{
 		parent::__construct($environment, $model);
@@ -32,6 +47,8 @@ class PostDuplicateModelEvent extends AbstractModelAwareEvent
 	}
 
 	/**
+	 * Retrieve the source model.
+	 *
 	 * @return \DcGeneral\Data\ModelInterface
 	 */
 	public function getSourceModel()

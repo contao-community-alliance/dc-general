@@ -15,14 +15,28 @@ namespace DcGeneral\Event;
 use DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use DcGeneral\EnvironmentInterface;
 
+/**
+ * This class is the base foundation for a command event.
+ *
+ * @package DcGeneral\Event
+ */
 abstract class AbstractCommandEvent extends AbstractEnvironmentAwareEvent implements CommandEventInterface
 {
 	/**
+	 * The command attached to the event.
+	 *
 	 * @var CommandInterface
 	 */
 	protected $command;
 
-	function __construct(CommandInterface $command, EnvironmentInterface $environment)
+	/**
+	 * Create a new instance.
+	 *
+	 * @param CommandInterface     $command     The command to attach.
+	 *
+	 * @param EnvironmentInterface $environment The environment in use.
+	 */
+	public function __construct(CommandInterface $command, EnvironmentInterface $environment)
 	{
 		parent::__construct($environment);
 		$this->command = $command;

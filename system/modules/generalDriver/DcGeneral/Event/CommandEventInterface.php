@@ -14,8 +14,12 @@ namespace DcGeneral\Event;
 
 use DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use DcGeneral\EnvironmentAwareInterface;
-use DcGeneral\EnvironmentInterface;
 
+/**
+ * This interface describes an event referencing an environment and a command.
+ *
+ * @package DcGeneral\Event
+ */
 interface CommandEventInterface extends EnvironmentAwareInterface
 {
 	/**

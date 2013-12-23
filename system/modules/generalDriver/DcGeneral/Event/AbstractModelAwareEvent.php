@@ -16,19 +16,28 @@ use DcGeneral\Data\ModelInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\ModelAwareInterface;
 
+/**
+ * Abstract base class for an event that need an environment and a model.
+ *
+ * @package DcGeneral\Event
+ */
 class AbstractModelAwareEvent
 	extends AbstractEnvironmentAwareEvent
 	implements ModelAwareInterface
 {
 	/**
+	 * The model attached to the event.
+	 *
 	 * @var ModelInterface
 	 */
 	protected $model;
 
 	/**
 	 * Create a new model aware event.
-	 * 
-	 * @param ModelInterface $model
+	 *
+	 * @param EnvironmentInterface $environment The environment.
+	 *
+	 * @param ModelInterface       $model       The model attached to the event.
 	 */
 	public function __construct(EnvironmentInterface $environment, ModelInterface $model)
 	{

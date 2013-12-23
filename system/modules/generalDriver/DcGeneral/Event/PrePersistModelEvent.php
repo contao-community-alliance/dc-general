@@ -12,10 +12,11 @@
 
 namespace DcGeneral\Event;
 
-use DcGeneral\Data\ModelInterface;
-use DcGeneral\EnvironmentInterface;
-use DcGeneral\ModelAwareInterface;
-
+/**
+ * This event is emitted just before a model is saved to the data provider.
+ *
+ * @package DcGeneral\Event
+ */
 class PrePersistModelEvent extends AbstractModelAwareEvent
 {
 	const NAME = 'dc-general.model.pre-persist';

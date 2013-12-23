@@ -14,14 +14,22 @@ namespace DcGeneral\Event;
 
 use DcGeneral\ContainerAwareInterface;
 use DcGeneral\DataDefinition\ContainerInterface;
-use DcGeneral\EnvironmentInterface;
 use Symfony\Component\EventDispatcher\Event;
 
+/**
+ * Abstract base class for container aware events.
+ *
+ * This class solely implements the ContainerAwareInterface.
+ *
+ * @package DcGeneral\Event
+ */
 abstract class AbstractContainerAwareEvent
 	extends Event
 	implements ContainerAwareInterface
 {
 	/**
+	 * The container in use.
+	 *
 	 * @var ContainerInterface
 	 */
 	protected $container;
@@ -29,7 +37,7 @@ abstract class AbstractContainerAwareEvent
 	/**
 	 * Create a new container aware event.
 	 * 
-	 * @param ContainerInterface $container
+	 * @param ContainerInterface $container The container in use.
 	 */
 	public function __construct(ContainerInterface $container)
 	{

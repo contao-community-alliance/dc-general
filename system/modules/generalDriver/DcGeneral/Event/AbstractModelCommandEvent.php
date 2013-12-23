@@ -15,26 +15,43 @@ namespace DcGeneral\Event;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use DcGeneral\EnvironmentInterface;
-use DcGeneral\ModelAwareInterface;
 
-abstract class AbstractModelCommandEvent extends AbstractCommandEvent implements ModelCommandEventInterface
+/**
+ * Abstract base class for a command event referencing a model.
+ *
+ * @package DcGeneral\Event
+ */
+abstract class AbstractModelCommandEvent
+	extends AbstractCommandEvent
+	implements ModelCommandEventInterface
 {
 	/**
+	 * The attached model.
+	 *
 	 * @var ModelInterface
 	 */
 	protected $model;
 
-	function __construct(CommandInterface $command, ModelInterface $model, EnvironmentInterface $environment)
+	/**
+	 * Create a new instance.
+	 *
+	 * @param CommandInterface     $command     The command.
+	 *
+	 * @param ModelInterface       $model       The model.
+	 *
+	 * @param EnvironmentInterface $environment The environment.
+	 */
+	public function __construct(CommandInterface $command, ModelInterface $model, EnvironmentInterface $environment)
 	{
 		parent::__construct($command, $environment);
 		$this->model = $model;
 	}
 
 	/**
-	 * @return
+	 * {@inheritDoc}
 	 */
 	public function getModel()
 	{
-	    return $this->model;
+		return $this->model;
 	}
 }

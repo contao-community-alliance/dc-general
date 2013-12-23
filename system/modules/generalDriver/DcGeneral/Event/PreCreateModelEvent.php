@@ -12,10 +12,13 @@
 
 namespace DcGeneral\Event;
 
-use DcGeneral\Data\ModelInterface;
-use DcGeneral\EnvironmentInterface;
-use DcGeneral\ModelAwareInterface;
-
+/**
+ * This event is emitted before a model is created.
+ *
+ * TODO: how is this event possible? How to pass a model before it is created?
+ *
+ * @package DcGeneral\Event
+ */
 class PreCreateModelEvent extends AbstractModelAwareEvent
 {
 	const NAME = 'dc-general.model.pre-create';

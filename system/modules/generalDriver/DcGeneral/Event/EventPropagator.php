@@ -12,15 +12,24 @@
 
 namespace DcGeneral\Event;
 
+/**
+ * The generic event propagator implementation.
+ *
+ * @package DcGeneral\Event
+ */
 class EventPropagator implements EventPropagatorInterface
 {
 	/**
+	 * The attached event dispatcher.
+	 *
 	 * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
 	 */
 	protected $dispatcher;
 
 	/**
-	 * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $dispatcher
+	 * Create a new instance.
+	 *
+	 * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $dispatcher The event dispatcher to attach.
 	 */
 	public function __construct($dispatcher)
 	{
@@ -32,10 +41,11 @@ class EventPropagator implements EventPropagatorInterface
 	 */
 	public function propagate($event, $suffixes = array())
 	{
-		if (!is_array($suffixes)) {
+		if (!is_array($suffixes))
+		{
 			$suffixes = func_get_args();
 
-			// skip $event
+			// Skip $event.
 			array_shift($suffixes);
 		}
 
@@ -62,12 +72,16 @@ class EventPropagator implements EventPropagatorInterface
 		return $event;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function propagateExact($event, $suffixes = array())
 	{
-		if (!is_array($suffixes)) {
+		if (!is_array($suffixes))
+		{
 			$suffixes = func_get_args();
 
-			// skip $event
+			// Skip $event.
 			array_shift($suffixes);
 		}
 

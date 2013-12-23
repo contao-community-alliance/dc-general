@@ -12,6 +12,15 @@
 
 namespace DcGeneral\Event;
 
+/**
+ * Generic event propagator.
+ *
+ * The event propagator is used to dispatch an event to the attached event dispatcher.
+ *
+ * When propagating an event, one can pass an array of suffixes that will get appended to the event name in a loop.
+ *
+ * @package DcGeneral\Event
+ */
 interface EventPropagatorInterface
 {
 	/**
@@ -31,9 +40,9 @@ interface EventPropagatorInterface
 	 *   2. dc-general.some.event[param1]
 	 *   3. dc-general.some.event
 	 *
-	 * @param \Symfony\Component\EventDispatcher\Event $event   The Event to propagate.
+	 * @param \Symfony\Component\EventDispatcher\Event $event    The Event to propagate.
 	 *
-	 * @param string[]                                $suffixes Suffixes to attach to the event.
+	 * @param string[]                                 $suffixes Suffixes to attach to the event.
 	 *
 	 * @return \Symfony\Component\EventDispatcher\Event
 	 */
@@ -44,9 +53,9 @@ interface EventPropagatorInterface
 	 *
 	 * The given suffixes will get appended to the event name and the resulting event name will get fired.
 	 *
-	 * @param \Symfony\Component\EventDispatcher\Event $event   The Event to propagate.
+	 * @param \Symfony\Component\EventDispatcher\Event $event    The Event to propagate.
 	 *
-	 * @param string[]                                $suffixes Suffixes to attach to the event.
+	 * @param string[]                                 $suffixes Suffixes to attach to the event.
 	 *
 	 * @return \Symfony\Component\EventDispatcher\Event
 	 */

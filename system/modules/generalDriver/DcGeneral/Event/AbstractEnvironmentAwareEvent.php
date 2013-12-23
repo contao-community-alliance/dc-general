@@ -16,11 +16,18 @@ use DcGeneral\EnvironmentAwareInterface;
 use DcGeneral\EnvironmentInterface;
 use Symfony\Component\EventDispatcher\Event;
 
+/**
+ * Abstract base class for environment aware events
+ *
+ * @package DcGeneral\Event
+ */
 abstract class AbstractEnvironmentAwareEvent
 	extends Event
 	implements EnvironmentAwareInterface
 {
 	/**
+	 * The environment attached to this event.
+	 *
 	 * @var EnvironmentInterface
 	 */
 	protected $environment;
@@ -28,7 +35,7 @@ abstract class AbstractEnvironmentAwareEvent
 	/**
 	 * Create a new environment aware event.
 	 * 
-	 * @param EnvironmentInterface $environment
+	 * @param EnvironmentInterface $environment The environment to attach.
 	 */
 	public function __construct(EnvironmentInterface $environment)
 	{

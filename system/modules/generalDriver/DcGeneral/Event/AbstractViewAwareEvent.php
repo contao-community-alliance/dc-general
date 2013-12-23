@@ -13,9 +13,13 @@
 namespace DcGeneral\Event;
 
 use DcGeneral\ViewAwareInterface;
-use DcGeneral\View\ViewInterface;
 use Symfony\Component\EventDispatcher\Event;
 
+/**
+ * Abstract event class referencing an environment and a view.
+ *
+ * @package DcGeneral\Event
+ */
 class AbstractViewAwareEvent
 	extends AbstractEnvironmentAwareEvent
 	implements ViewAwareInterface

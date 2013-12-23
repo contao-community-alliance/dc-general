@@ -12,10 +12,11 @@
 
 namespace DcGeneral\Event;
 
-use DcGeneral\Data\ModelInterface;
-use DcGeneral\EnvironmentInterface;
-use DcGeneral\ModelAwareInterface;
-
+/**
+ * This event is emitted just before a model is pasted.
+ *
+ * @package DcGeneral\Event
+ */
 class PrePasteModelEvent extends AbstractModelAwareEvent
 {
 	const NAME = 'dc-general.model.pre-paste';
