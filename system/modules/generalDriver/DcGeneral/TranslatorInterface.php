@@ -12,14 +12,22 @@
 
 namespace DcGeneral;
 
+/**
+ * This interface describes a translator.
+ *
+ * @package DcGeneral
+ */
 interface TranslatorInterface
 {
 	/**
 	 * Translate a string in a specific domain.
 	 *
 	 * @param string $string     The translation string.
+	 *
 	 * @param string $domain     The translation domain.
+	 *
 	 * @param array  $parameters Parameters used in translation.
+	 *
 	 * @param string $locale     The translation locale.
 	 *
 	 * @return string
@@ -30,9 +38,13 @@ interface TranslatorInterface
 	 * Translate a pluralized string in a specific domain.
 	 *
 	 * @param string $string     The translation string.
+	 *
 	 * @param int    $number     The pluralization number.
+	 *
 	 * @param string $domain     The translation domain.
+	 *
 	 * @param array  $parameters Parameters used in translation.
+	 *
 	 * @param string $locale     The translation locale.
 	 *
 	 * @return string
