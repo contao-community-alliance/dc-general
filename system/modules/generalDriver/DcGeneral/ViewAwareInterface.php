@@ -14,6 +14,11 @@ namespace DcGeneral;
 
 use DcGeneral\View\ViewInterface;
 
+/**
+ * Base interface providing access to a view.
+ *
+ * @package DcGeneral
+ */
 interface ViewAwareInterface
 {
 	/**
