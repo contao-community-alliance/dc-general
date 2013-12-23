@@ -150,6 +150,8 @@ class ParentChildCondition
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException when an empty parent model is given.
 	 */
 	public function getFilter($objParent)
 	{
