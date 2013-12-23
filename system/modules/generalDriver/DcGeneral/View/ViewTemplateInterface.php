@@ -12,6 +12,11 @@
 
 namespace DcGeneral\View;
 
+/**
+ * This interface describes a view template.
+ *
+ * @package DcGeneral\View
+ */
 interface ViewTemplateInterface
 {
 }
