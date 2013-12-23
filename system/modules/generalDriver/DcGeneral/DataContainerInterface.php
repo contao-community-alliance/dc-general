@@ -26,4 +26,3 @@ interface DataContainerInterface extends \editable, \listable
 	 */
 	public function getEnvironment();
 }
-
