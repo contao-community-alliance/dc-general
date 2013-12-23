@@ -13,14 +13,20 @@
 namespace DcGeneral;
 
 use DcGeneral\DataDefinition\ContainerInterface;
-use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
+/**
+ * This implementation describes a data definition container.
+ *
+ * A data definition container is the top level container where all data definitions get stored.
+ *
+ * @package DcGeneral
+ */
 interface DataDefinitionContainerInterface
 {
 	/**
 	 * Add or override a definition in the container.
 	 *
-	 * @param string             $name       Name of the definition
+	 * @param string             $name       Name of the definition.
 	 *
 	 * @param ContainerInterface $definition The definition to store.
 	 *
@@ -45,8 +51,6 @@ interface DataDefinitionContainerInterface
 	 * @param string $name The name of the definition to retrieve.
 	 *
 	 * @return ContainerInterface
-	 *
-	 * @throws DcGeneralInvalidArgumentException
 	 */
 	public function getDefinition($name);
 }
