@@ -17,70 +17,117 @@ use DcGeneral\EnvironmentInterface;
 use DcGeneral\Event\EventPropagatorInterface;
 use DcGeneral\TranslatorInterface;
 
+/**
+ * This interface describes a DcGeneral factory.
+ *
+ * The factory is responsible for creating a DcGeneral instance including the data definition container and environment.
+ *
+ * @package DcGeneral\Factory
+ */
 interface DcGeneralFactoryInterface
 {
 	/**
-	 * @param string $environmentClassName
+	 * Set the class name to use as environment.
+	 *
+	 * @param string $environmentClassName The class name.
+	 *
+	 * @return DcGeneralFactoryInterface
 	 */
 	public function setEnvironmentClassName($environmentClassName);
 
 	/**
+	 * Retrieve the class name to use as environment.
+	 *
 	 * @return string
 	 */
 	public function getEnvironmentClassName();
 
 	/**
-	 * @param string $containerName
+	 * Set the name for the data definition container.
+	 *
+	 * @param string $containerName The class name.
+	 *
+	 * @return DcGeneralFactoryInterface
 	 */
 	public function setContainerName($containerName);
 
 	/**
+	 * Retrieve the name for the data definition container.
+	 *
 	 * @return string
 	 */
 	public function getContainerName();
 
 	/**
-	 * @param string $containerClassName
+	 * Set the class name to use as data definition container.
+	 *
+	 * @param string $containerClassName The class name.
+	 *
+	 * @return DcGeneralFactoryInterface
 	 */
 	public function setContainerClassName($containerClassName);
 
 	/**
+	 * Retrieve the class name to use as data definition container.
+	 *
 	 * @return string
 	 */
 	public function getContainerClassName();
 
 	/**
-	 * @param string $dcGeneralClassName
+	 * Set the class name to use as DcGeneral.
+	 *
+	 * @param string $dcGeneralClassName The class name.
+	 *
+	 * @return DcGeneralFactoryInterface
 	 */
 	public function setDcGeneralClassName($dcGeneralClassName);
 
 	/**
+	 * Retrieve the class name to use as DcGeneral.
+	 *
 	 * @return string
 	 */
 	public function getDcGeneralClassName();
 
 	/**
-	 * @param EventPropagatorInterface $eventPropagator
+	 * Set the event propagator to use.
+	 *
+	 * @param EventPropagatorInterface $eventPropagator The event propagator.
+	 *
+	 * @return DcGeneralFactoryInterface
 	 */
 	public function setEventPropagator(EventPropagatorInterface $eventPropagator);
 
 	/**
+	 * Retrieve the event propagator.
+	 *
 	 * @return EventPropagatorInterface
 	 */
 	public function getEventPropagator();
 
 	/**
-	 * @param TranslatorInterface $translator
+	 * Set the translator to use.
+	 *
+	 * @param TranslatorInterface $translator The translator instance.
+	 *
+	 * @return DcGeneralFactoryInterface
 	 */
 	public function setTranslator(TranslatorInterface $translator);
 
 	/**
+	 * Get the translator to use.
+	 *
 	 * @return TranslatorInterface
 	 */
 	public function getTranslator();
 
 	/**
-	 * @param EnvironmentInterface $environment
+	 * Set the environment to use.
+	 *
+	 * @param EnvironmentInterface $environment The environment instance.
+	 *
+	 * @return DcGeneralFactoryInterface
 	 */
 	public function setEnvironment(EnvironmentInterface $environment = null);
 
@@ -90,17 +137,24 @@ interface DcGeneralFactoryInterface
 	public function getEnvironment();
 
 	/**
-	 * @param ContainerInterface $dataContainer
+	 * Set the data definition container to use.
+	 *
+	 * @param ContainerInterface $dataContainer The data definition container instance.
+	 *
+	 * @return DcGeneralFactoryInterface
 	 */
 	public function setDataContainer(ContainerInterface $dataContainer = null);
 
 	/**
+	 * Retrieve the data definition container.
+	 *
 	 * @return ContainerInterface
 	 */
 	public function getDataContainer();
 
 	/**
 	 * Create a new instance of DcGeneral.
+	 *
 	 * If no environment is given, a new one is created.
 	 *
 	 * @return DcGeneral
@@ -109,6 +163,7 @@ interface DcGeneralFactoryInterface
 
 	/**
 	 * Create a new instance of Environment.
+	 *
 	 * If no container is given, a new one is created.
 	 *
 	 * @return EnvironmentInterface

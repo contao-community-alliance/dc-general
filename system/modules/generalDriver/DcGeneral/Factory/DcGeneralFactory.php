@@ -21,17 +21,24 @@ use DcGeneral\Factory\Event\CreateDcGeneralEvent;
 use DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 use DcGeneral\TranslatorInterface;
 
+/**
+ * Factory to create a DcGeneral instance.
+ *
+ * @package DcGeneral\Factory
+ */
 class DcGeneralFactory implements DcGeneralFactoryInterface
 {
 	/**
 	 * Create a new factory with basic settings from the environment.
-	 * This factory can be used to create a new Container, Environment, DcGeneral with the same base settings as the given environment.
 	 *
-	 * @param EnvironmentInterface $environment
+	 * This factory can be used to create a new Container, Environment, DcGeneral with the same base settings as the
+	 * given environment.
+	 *
+	 * @param EnvironmentInterface $environment The environment to use as base.
 	 *
 	 * @return DcGeneralFactory
 	 */
-	static public function deriveEmptyFromEnvironment(EnvironmentInterface $environment)
+	public static function deriveEmptyFromEnvironment(EnvironmentInterface $environment)
 	{
 		$factory = new DcGeneralFactory();
 		$factory->setEventPropagator($environment->getEventPropagator());
@@ -43,13 +50,14 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 
 	/**
 	 * Create a new factory with basic settings and same container name as the given environment is build for.
+	 *
 	 * This factory can be used to create a second Container, Environment, DcGeneral for the same container.
 	 *
-	 * @param EnvironmentInterface $environment
+	 * @param EnvironmentInterface $environment The environment to use as base.
 	 *
 	 * @return DcGeneralFactory
 	 */
-	static public function deriveFromEnvironment(EnvironmentInterface $environment)
+	public static function deriveFromEnvironment(EnvironmentInterface $environment)
 	{
 		$factory = static::deriveEmptyFromEnvironment($environment);
 		$factory->setContainerName($environment->getDataDefinition()->getName());
@@ -57,41 +65,57 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	}
 
 	/**
+	 * The class name to use for the environment.
+	 *
 	 * @var string
 	 */
 	protected $environmentClassName = 'DcGeneral\DefaultEnvironment';
 
 	/**
+	 * The name of the data container.
+	 *
 	 * @var string
 	 */
 	protected $containerName;
 
 	/**
+	 * The class name of the class to use for the data definition container.
+	 *
 	 * @var string
 	 */
 	protected $containerClassName = 'DcGeneral\DataDefinition\DefaultContainer';
 
 	/**
+	 * The class name of the class to use as DcGeneral.
+	 *
 	 * @var string
 	 */
 	protected $dcGeneralClassName = 'DcGeneral\DcGeneral';
 
 	/**
+	 * The event propagator to use.
+	 *
 	 * @var EventPropagatorInterface
 	 */
 	protected $eventPropagator = null;
 
 	/**
+	 * The translator that shall be used.
+	 *
 	 * @var TranslatorInterface
 	 */
 	protected $translator = null;
 
 	/**
+	 * The environment for the new instance.
+	 *
 	 * @var EnvironmentInterface
 	 */
 	protected $environment = null;
 
 	/**
+	 * The data definition container instance.
+	 *
 	 * @var ContainerInterface
 	 */
 	protected $dataContainer = null;
@@ -101,7 +125,8 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	 */
 	public function setEnvironmentClassName($environmentClassName)
 	{
-		$this->environmentClassName = (string) $environmentClassName;
+		$this->environmentClassName = (string)$environmentClassName;
+
 		return $this;
 	}
 
@@ -118,7 +143,8 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	 */
 	public function setContainerName($containerName)
 	{
-		$this->containerName = (string) $containerName;
+		$this->containerName = (string)$containerName;
+
 		return $this;
 	}
 
@@ -135,7 +161,8 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	 */
 	public function setContainerClassName($containerClassName)
 	{
-		$this->containerClassName = (string) $containerClassName;
+		$this->containerClassName = (string)$containerClassName;
+
 		return $this;
 	}
 
@@ -152,7 +179,8 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	 */
 	public function setDcGeneralClassName($dcGeneralClassName)
 	{
-		$this->dcGeneralClassName = (string) $dcGeneralClassName;
+		$this->dcGeneralClassName = (string)$dcGeneralClassName;
+
 		return $this;
 	}
 
@@ -170,6 +198,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	public function setEventPropagator(EventPropagatorInterface $eventPropagator)
 	{
 		$this->eventPropagator = $eventPropagator;
+
 		return $this;
 	}
 
@@ -187,6 +216,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	public function setTranslator(TranslatorInterface $translator)
 	{
 		$this->translator = $translator;
+
 		return $this;
 	}
 
@@ -204,6 +234,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	public function setEnvironment(EnvironmentInterface $environment = null)
 	{
 		$this->environment = $environment;
+
 		return $this;
 	}
 
@@ -221,6 +252,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 	public function setDataContainer(ContainerInterface $dataContainer = null)
 	{
 		$this->dataContainer = $dataContainer;
+
 		return $this;
 	}
 
@@ -234,25 +266,31 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralRuntimeException When no container name, no container or no event propagator is given.
 	 */
 	public function createDcGeneral()
 	{
-		if (empty($this->containerName) && !$this->dataContainer) {
+		if (empty($this->containerName) && !$this->dataContainer)
+		{
 			throw new DcGeneralRuntimeException('Required container name or container is missing');
 		}
 
-		if (empty($this->eventPropagator)) {
+		if (empty($this->eventPropagator))
+		{
 			throw new DcGeneralRuntimeException('Required event propagator is missing');
 		}
 
-		if ($this->environment) {
+		if ($this->environment)
+		{
 			$environment = $this->environment;
 		}
-		else {
+		else
+		{
 			$environment = $this->createEnvironment();
 		}
 
-		// create reflections classes at one place
+		// Create reflections classes at one place.
 		$dcGeneralClass = new \ReflectionClass($this->dcGeneralClassName);
 
 		/** @var \DcGeneral\DcGeneral $dcGeneral */
@@ -266,25 +304,33 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralRuntimeException When no container name, no container, no event propagator or no translator
+	 *                                   is given.
 	 */
 	public function createEnvironment()
 	{
-		if (empty($this->containerName) && !$this->dataContainer) {
+		if (empty($this->containerName) && !$this->dataContainer)
+		{
 			throw new DcGeneralRuntimeException('Required container name or container is missing');
 		}
 
-		if (empty($this->eventPropagator)) {
+		if (empty($this->eventPropagator))
+		{
 			throw new DcGeneralRuntimeException('Required event propagator is missing');
 		}
 
-		if (empty($this->translator)) {
+		if (empty($this->translator))
+		{
 			throw new DcGeneralRuntimeException('Required translator is missing');
 		}
 
-		if ($this->dataContainer) {
+		if ($this->dataContainer)
+		{
 			$dataContainer = $this->dataContainer;
 		}
-		else {
+		else
+		{
 			$dataContainer = $this->createContainer();
 		}
 
@@ -304,21 +350,23 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralRuntimeException When no container name or no event propagator is given.
 	 */
 	public function createContainer()
 	{
-		if (empty($this->containerName)) {
+		if (empty($this->containerName))
+		{
 			throw new DcGeneralRuntimeException('Required container name is missing');
 		}
 
-		if (empty($this->eventPropagator)) {
+		if (empty($this->eventPropagator))
+		{
 			throw new DcGeneralRuntimeException('Required event propagator is missing');
 		}
 
-		global $container;
-
 		/** @var \DcGeneral\DataDefinitionContainerInterface $definitions */
-		$definitions = $container['dc-general.data-definition-container'];
+		$definitions = $GLOBALS['container']['dc-general.data-definition-container'];
 
 		if ($definitions->hasDefinition($this->containerName))
 		{
