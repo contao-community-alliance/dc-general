@@ -14,14 +14,27 @@ namespace DcGeneral;
 
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
+/**
+ * Static in memory translator implementation.
+ *
+ * This translator holds all values in memory.
+ *
+ * It is to be populated via the public setValue method.
+ *
+ * @package DcGeneral
+ */
 class StaticTranslator extends AbstractTranslator
 {
 	/**
+	 * The translation values.
+	 *
 	 * @var mixed[]
 	 */
 	protected $values;
 
 	/**
+	 * Retrieve the value.
+	 *
 	 * @param string $string The string to translate.
 	 *
 	 * @param string $domain The domain to use.
@@ -32,11 +45,13 @@ class StaticTranslator extends AbstractTranslator
 	 */
 	protected function getValue($string, $domain, $locale)
 	{
-		if (!$domain) {
+		if (!$domain)
+		{
 			$domain = 'default';
 		}
 
-		if (!$locale) {
+		if (!$locale)
+		{
 			$locale = 'default';
 		}
 
@@ -62,9 +77,11 @@ class StaticTranslator extends AbstractTranslator
 	}
 
 	/**
+	 * Set a translation value in the translator.
+	 *
 	 * @param string $string The string to translate.
 	 *
-	 * @param mixed  $value The value to store.
+	 * @param mixed  $value  The value to store.
 	 *
 	 * @param string $domain The domain to use.
 	 *
@@ -74,11 +91,13 @@ class StaticTranslator extends AbstractTranslator
 	 */
 	public function setValue($string, $value, $domain = null, $locale = null)
 	{
-		if (!$domain) {
+		if (!$domain)
+		{
 			$domain = 'default';
 		}
 
-		if (!$locale) {
+		if (!$locale)
+		{
 			$locale = 'default';
 		}
 
@@ -111,6 +130,17 @@ class StaticTranslator extends AbstractTranslator
 		return $this;
 	}
 
+	/**
+	 * Determine the correct pluralization key.
+	 *
+	 * @param int|null $min The minimum value.
+	 *
+	 * @param int|null $max The maximum value.
+	 *
+	 * @return string
+	 *
+	 * @throws DcGeneralInvalidArgumentException When both, min and max, are null.
+	 */
 	protected function determineKey($min, $max)
 	{
 		// Exact number.
@@ -137,50 +167,58 @@ class StaticTranslator extends AbstractTranslator
 		throw new DcGeneralInvalidArgumentException('You must either specify min or max value.');
 	}
 
+	/**
+	 * Sort the given array for pluralization.
+	 *
+	 * @param array $lang The language array to be sorted.
+	 *
+	 * @return array
+	 */
 	protected function sortPluralized($lang)
 	{
-		uksort($lang, function($a, $b) {
+		uksort($lang, function($a, $b)
+		{
 
 			if ($a == $b)
 			{
 				return 0;
 			}
 
-			$range_a = explode(':', $a);
-			$range_b = explode(':', $b);
+			$rangeA = explode(':', $a);
+			$rangeB = explode(':', $b);
 
 			// Both range starts provided.
-			if (isset($range_a[0]) && isset($range_b[0]))
+			if (isset($rangeA[0]) && isset($rangeB[0]))
 			{
-				return strcmp($range_a[0], $range_b[0]);
+				return strcmp($rangeA[0], $rangeB[0]);
 			}
 
 			// Only second range has a starting point.
-			if (!isset($range_a[0]) && isset($range_b[0]))
+			if (!isset($rangeA[0]) && isset($rangeB[0]))
 			{
 				return -1;
 			}
 
 			// Only first range has a starting point.
-			if (isset($range_a[0]) && !isset($range_b[0]))
+			if (isset($rangeA[0]) && !isset($rangeB[0]))
 			{
 				return 1;
 			}
 
 			// Both are an open start range.
-			if (isset($range_a[1]) && isset($range_b[1]))
+			if (isset($rangeA[1]) && isset($rangeB[1]))
 			{
-				return strcmp($range_a[1], $range_b[1]);
+				return strcmp($rangeA[1], $rangeB[1]);
 			}
 
 			// Only second range is open => First is first.
-			if (!isset($range_a[1]) && isset($range_b[1]))
+			if (!isset($rangeA[1]) && isset($rangeB[1]))
 			{
 				return 1;
 			}
 
 			// Only first range is open => Second is first.
-			if (isset($range_a[1]) && !isset($range_b[1]))
+			if (isset($rangeA[1]) && !isset($rangeB[1]))
 			{
 				return -1;
 			}
@@ -192,13 +230,30 @@ class StaticTranslator extends AbstractTranslator
 		return $lang;
 	}
 
+	/**
+	 * Set a pluralized value in the translator.
+	 *
+	 * @param string   $string The translation string.
+	 *
+	 * @param int|null $min    The minimum value of the range (optional - defaults to null).
+	 *
+	 * @param int|null $max    The maximum value of the range (optional - defaults to null).
+	 *
+	 * @param string   $domain The domain (optional - defaults to null).
+	 *
+	 * @param string   $locale The locale  (optional - defaults to null).
+	 *
+	 * @return StaticTranslator
+	 */
 	public function setValuePluralized($string, $min = null, $max = null, $domain = null, $locale = null)
 	{
-		if (!$domain) {
+		if (!$domain)
+		{
 			$domain = 'default';
 		}
 
-		if (!$locale) {
+		if (!$locale)
+		{
 			$locale = 'default';
 		}
 
