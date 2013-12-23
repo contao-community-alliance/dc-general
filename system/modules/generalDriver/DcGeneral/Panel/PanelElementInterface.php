@@ -15,6 +15,11 @@ namespace DcGeneral\Panel;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\View\ViewTemplateInterface;
 
+/**
+ * A simple element contained within a panel.
+ *
+ * @package DcGeneral\Panel
+ */
 interface PanelElementInterface
 {
 	/**
@@ -34,9 +39,9 @@ interface PanelElementInterface
 	public function setPanel(PanelInterface $objPanel);
 
 	/**
+	 * Initialize the passed configuration with the values of the element.
 	 *
-	 *
-	 * @param ConfigInterface  $objConfig The config to which the initialization shall be applied to.
+	 * @param ConfigInterface       $objConfig  The config to which the initialization shall be applied to.
 	 *
 	 * @param PanelElementInterface $objElement The element to be initialized (if any).
 	 *
@@ -45,7 +50,7 @@ interface PanelElementInterface
 	public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null);
 
 	/**
-	 * Render the element using the given Template
+	 * Render the element using the given Template.
 	 *
 	 * @param ViewTemplateInterface $objTemplate The Template to use.
 	 *

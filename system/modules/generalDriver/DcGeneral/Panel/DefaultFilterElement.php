@@ -14,26 +14,43 @@ namespace DcGeneral\Panel;
 
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Data\ModelInterface;
-use DcGeneral\Panel\AbstractElement;
-use DcGeneral\Panel\PanelElementInterface;
-use DcGeneral\Panel\FilterElementInterface;
 use DcGeneral\View\ViewTemplateInterface;
 
-class DefaultFilterElement extends AbstractElement implements FilterElementInterface
+/**
+ * Default implementation of a filter panel element.
+ *
+ * @package DcGeneral\Panel
+ */
+class DefaultFilterElement
+	extends AbstractElement
+	implements FilterElementInterface
 {
 	/**
+	 * Name of the property this filter reacts on.
+	 *
 	 * @var string
 	 */
 	protected $strProperty;
 
 	/**
+	 * The current value of this filter.
+	 *
 	 * @var mixed
 	 */
 	protected $mixValue;
 
+	/**
+	 * All valid filter options of the property.
+	 *
+	 * @var array
+	 */
 	protected $arrfilterOptions;
 
-
+	/**
+	 * Retrieve the persistent value from the input provider.
+	 *
+	 * @return null|mixed
+	 */
 	protected function getPersistent()
 	{
 		$arrValue = array();
@@ -55,9 +72,16 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
 		return null;
 	}
 
+	/**
+	 * Store the persistent value in the input provider.
+	 *
+	 * @param mixed $strValue The value to store.
+	 *
+	 * @return void
+	 */
 	protected function setPersistent($strValue)
 	{
-		$arrValue = array();
+		$arrValue       = array();
 		$definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
 		if ($this->getInputProvider()->hasPersistentValue('filter'))
@@ -100,7 +124,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
 		if ($input->hasPersistentValue('filter'))
 		{
 			$persistent = $this->getPersistent();
-			$value = $persistent;
+			$value      = $persistent;
 		}
 
 		if (!is_null($value))
@@ -143,15 +167,14 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
 				->getFilterOptions($objTempConfig);
 
 			$arrOptions = array();
-			/**
-			 * @var ModelInterface $objOption
-			 */
+			/** @var ModelInterface $objOption */
 			foreach ($objFilterOptions as $objOption)
 			{
 				$optionKey = $optionValue = $objOption->getProperty($this->getPropertyName());
 
-				if ($optionValue instanceof \DateTime) {
-					$optionKey = $optionValue->getTimestamp();
+				if ($optionValue instanceof \DateTime)
+				{
+					$optionKey   = $optionValue->getTimestamp();
 					$optionValue = $optionValue->format($GLOBALS['TL_CONFIG']['dateFormat']);
 				}
 
@@ -166,7 +189,11 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
 	 */
 	public function render(ViewTemplateInterface $objTemplate)
 	{
-		$arrLabel = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getProperty($this->getPropertyName())->getName();
+		$arrLabel = $this
+			->getEnvironment()
+			->getDataDefinition()
+			->getPropertiesDefinition()
+			->getProperty($this->getPropertyName())->getName();
 
 		$arrOptions = array(
 			array(

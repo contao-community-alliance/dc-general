@@ -16,17 +16,32 @@ use DcGeneral\Data\ConfigInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\InputProviderInterface;
 
-abstract class AbstractElement implements PanelElementInterface
+/**
+ * Abstract base implementation for panel elements.
+ *
+ * @package DcGeneral\Panel
+ */
+abstract class AbstractElement
+	implements PanelElementInterface
 {
 	/**
+	 * The panel this element is contained within.
+	 *
 	 * @var PanelInterface
 	 */
 	protected $objPanel;
 
+	/**
+	 * The base configuration that contains all filter, sorting and limit information for all other panel elements.
+	 *
+	 * This is used for determining the valid values in filters etc.
+	 *
+	 * @var \DcGeneral\Data\ConfigInterface
+	 */
 	private $objOtherConfig;
 
 	/**
-	 * Convenience method to retrieve Environment for this Element.
+	 * Convenience method to retrieve Environment for this element.
 	 *
 	 * @return EnvironmentInterface
 	 */
@@ -46,9 +61,7 @@ abstract class AbstractElement implements PanelElementInterface
 	}
 
 	/**
-	 * Return the parenting panel.
-	 *
-	 * @return PanelInterface
+	 * {@inheritDoc}
 	 */
 	public function getPanel()
 	{
@@ -56,15 +69,13 @@ abstract class AbstractElement implements PanelElementInterface
 	}
 
 	/**
-	 * Return the parenting panel.
-	 *
-	 * @param PanelInterface $objPanel The panel to use as parent.
-	 *
-	 * @return PanelElementInterface
+	 * {@inheritDoc}
 	 */
 	public function setPanel(PanelInterface $objPanel)
 	{
 		$this->objPanel = $objPanel;
+
+		return $this;
 	}
 
 	/**

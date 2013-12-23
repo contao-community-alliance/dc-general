@@ -13,23 +13,32 @@
 namespace DcGeneral\Panel;
 
 use DcGeneral\Data\ConfigInterface;
-use DcGeneral\Panel\PanelContainerInterface;
-use DcGeneral\Panel\PanelElementInterface;
-use DcGeneral\Panel\PanelInterface;
 
-class DefaultPanel implements PanelInterface
+/**
+ * Default implementation of a panel row.
+ *
+ * @package DcGeneral\Panel
+ */
+class DefaultPanel
+	implements PanelInterface
 {
 	/**
+	 * The panel container this panel is contained within.
+	 *
 	 * @var PanelContainerInterface
 	 */
 	protected $objContainer;
 
 	/**
+	 * The elements contained within this panel.
+	 *
 	 * @var PanelElementInterface[]
 	 */
 	protected $arrElements;
 
-
+	/**
+	 * Create a new instance.
+	 */
 	public function __construct()
 	{
 		$this->arrElements = array();
@@ -60,6 +69,8 @@ class DefaultPanel implements PanelInterface
 	{
 		$this->arrElements[$strKey] = $objElement;
 		$objElement->setPanel($this);
+
+		return $this;
 	}
 
 	/**

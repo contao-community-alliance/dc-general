@@ -15,14 +15,24 @@ namespace DcGeneral\Panel;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\EnvironmentInterface;
 
-class DefaultPanelContainer implements PanelContainerInterface
+/**
+ * Default implementation of a panel container.
+ *
+ * @package DcGeneral\Panel
+ */
+class DefaultPanelContainer
+	implements PanelContainerInterface
 {
 	/**
+	 * The environment in use.
+	 *
 	 * @var EnvironmentInterface
 	 */
 	protected $objEnvironment;
 
 	/**
+	 * The panels contained within this container.
+	 *
 	 * @var PanelInterface[]
 	 */
 	protected $arrPanels = array();
@@ -44,11 +54,7 @@ class DefaultPanelContainer implements PanelContainerInterface
 	}
 
 	/**
-	 * @param string $strKey  Name of the panel.
-	 *
-	 * @param PanelInterface $objPanel
-	 *
-	 * @return mixed
+	 * {@inheritdoc}
 	 */
 	public function addPanel($strKey, $objPanel)
 	{
@@ -59,24 +65,29 @@ class DefaultPanelContainer implements PanelContainerInterface
 	}
 
 	/**
-	 * @param $strKey
-	 *
-	 * @return PanelInterface
+	 * {@inheritdoc}
 	 */
 	public function getPanel($strKey)
 	{
 		return $this->arrPanels[$strKey];
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
 	{
 		/** @var PanelInterface $objPanel */
+
 		foreach ($this as $objPanel)
 		{
 			$objPanel->initialize($objConfig, $objElement);
 		}
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function updateValues()
 	{
 		return ($this->getEnvironment()->getInputProvider()->getValue('FORM_SUBMIT') === 'tl_filters');

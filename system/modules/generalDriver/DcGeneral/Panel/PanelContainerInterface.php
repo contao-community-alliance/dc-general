@@ -15,31 +15,46 @@ namespace DcGeneral\Panel;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\EnvironmentInterface;
 
+/**
+ * This interface describes a panel container.
+ *
+ * A Panel container contains panels which contain panel elements.
+ *
+ * @package DcGeneral\Panel
+ */
 interface PanelContainerInterface extends \IteratorAggregate
 {
 	/**
+	 * Get the environment in use.
+	 *
 	 * @return EnvironmentInterface
 	 */
 	public function getEnvironment();
 
 	/**
-	 * @param EnvironmentInterface $objEnvironment The DataContainer to use.
+	 * Set the environment in use.
+	 *
+	 * @param EnvironmentInterface $objEnvironment The environment to use.
 	 *
 	 * @return PanelContainerInterface
 	 */
 	public function setEnvironment(EnvironmentInterface $objEnvironment);
 
 	/**
-	 * @param string $strKey  Name of the panel.
+	 * Add a panel to the container.
 	 *
-	 * @param PanelInterface $objPanel
+	 * @param string         $strKey   Name of the panel.
+	 *
+	 * @param PanelInterface $objPanel The panel to add.
 	 *
 	 * @return PanelContainerInterface
 	 */
 	public function addPanel($strKey, $objPanel);
 
 	/**
-	 * @param $strKey
+	 * Retrieve a panel from the container.
+	 *
+	 * @param string $strKey The name of the panel.
 	 *
 	 * @return PanelInterface
 	 */
@@ -48,7 +63,7 @@ interface PanelContainerInterface extends \IteratorAggregate
 	/**
 	 * Initialize all panels and apply all restrictions to the given Config.
 	 *
-	 * @param ConfigInterface       $objConfig The data config to be populated with the element values.
+	 * @param ConfigInterface       $objConfig  The data config to be populated with the element values.
 	 *
 	 * @param PanelElementInterface $objElement The element currently being initialized.
 	 *

@@ -12,12 +12,17 @@
 
 namespace DcGeneral\Panel;
 
+/**
+ * This interface describes a panel limit element.
+ *
+ * @package DcGeneral\Panel
+ */
 interface LimitElementInterface extends PanelElementInterface
 {
 	/**
 	 * Set the offset to use in this element.
 	 *
-	 * @param int $intOffset
+	 * @param int $intOffset The offset.
 	 *
 	 * @return LimitElementInterface
 	 */
@@ -33,7 +38,7 @@ interface LimitElementInterface extends PanelElementInterface
 	/**
 	 * Set the Amount to use in this element.
 	 *
-	 * @param int $intAmount
+	 * @param int $intAmount The amount.
 	 *
 	 * @return LimitElementInterface
 	 */

@@ -12,7 +12,13 @@
 
 namespace DcGeneral\Panel;
 
-interface SortElementInterface extends PanelElementInterface
+/**
+ * This interface describes a sort panel element.
+ *
+ * @package DcGeneral\Panel
+ */
+interface SortElementInterface
+	extends PanelElementInterface
 {
 	/**
 	 * Set the default flag to use when no flag has been defined for a certain property.
@@ -33,9 +39,9 @@ interface SortElementInterface extends PanelElementInterface
 	/**
 	 * Add a property for sorting.
 	 *
-	 * @param $strPropertyName
+	 * @param string $strPropertyName The property name to enable sorting for.
 	 *
-	 * @param $intFlag
+	 * @param int    $intFlag         The flag to use for sorting.
 	 *
 	 * @return mixed
 	 */
@@ -51,7 +57,7 @@ interface SortElementInterface extends PanelElementInterface
 	/**
 	 * Set the selected property for sorting.
 	 *
-	 * @param $strPropertyName
+	 * @param string $strPropertyName The property name to mark as selected.
 	 *
 	 * @return mixed
 	 */

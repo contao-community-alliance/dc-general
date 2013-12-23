@@ -14,7 +14,15 @@ namespace DcGeneral\Panel;
 
 use DcGeneral\Data\ConfigInterface;
 
-interface PanelInterface extends \IteratorAggregate
+/**
+ * this interface describes a panel.
+ *
+ * A panel is a row of a panel container.
+ *
+ * @package DcGeneral\Panel
+ */
+interface PanelInterface
+	extends \IteratorAggregate
 {
 	/**
 	 * Get the parenting container.
@@ -33,7 +41,9 @@ interface PanelInterface extends \IteratorAggregate
 	public function setContainer(PanelContainerInterface $objContainer);
 
 	/**
-	 * @param string  $strKey     Name of the panel.
+	 * Add an element to the panel.
+	 *
+	 * @param string                $strKey     Name of the panel.
 	 *
 	 * @param PanelElementInterface $objElement The element instance to add.
 	 *
@@ -42,16 +52,18 @@ interface PanelInterface extends \IteratorAggregate
 	public function addElement($strKey, $objElement);
 
 	/**
-	 * @param $strKey
+	 * Retrieve an element with the given name.
+	 *
+	 * @param string $strKey The name of the element.
 	 *
 	 * @return PanelElementInterface
 	 */
 	public function getElement($strKey);
 
 	/**
+	 * Initialize the passed config via all contained elements.
 	 *
-	 *
-	 * @param ConfigInterface  $objConfig        The config to which the initialization shall be applied to.
+	 * @param ConfigInterface       $objConfig  The config to which the initialization shall be applied to.
 	 *
 	 * @param PanelElementInterface $objElement The element to be initialized (if any).
 	 *

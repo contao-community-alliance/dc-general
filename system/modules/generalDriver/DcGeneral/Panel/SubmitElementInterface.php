@@ -12,6 +12,11 @@
 
 namespace DcGeneral\Panel;
 
+/**
+ * This interface describes a submit element in the panel.
+ *
+ * @package DcGeneral\Panel
+ */
 interface SubmitElementInterface extends PanelElementInterface
 {
 }

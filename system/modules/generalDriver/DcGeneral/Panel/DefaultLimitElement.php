@@ -13,28 +13,43 @@
 namespace DcGeneral\Panel;
 
 use DcGeneral\Data\ConfigInterface;
-use DcGeneral\Panel\AbstractElement;
-use DcGeneral\Panel\PanelElementInterface;
-use DcGeneral\Panel\LimitElementInterface;
 use DcGeneral\View\ViewTemplateInterface;
 
-class DefaultLimitElement extends AbstractElement implements LimitElementInterface
+/**
+ * Default implementation of a limit panel element.
+ *
+ * @package DcGeneral\Panel
+ */
+class DefaultLimitElement
+	extends AbstractElement
+	implements LimitElementInterface
 {
 	/**
+	 * The current offset.
+	 *
 	 * @var int
 	 */
 	protected $intOffset;
 
 	/**
+	 * The current amount.
+	 *
 	 * @var int
 	 */
 	protected $intAmount;
 
 	/**
+	 * The total amount of all valid entries.
+	 *
 	 * @var int
 	 */
 	protected $intTotal;
 
+	/**
+	 * Retrieve the persistent value from the input provider.
+	 *
+	 * @return array
+	 */
 	protected function getPersistent()
 	{
 		$arrValue = array();
@@ -51,9 +66,18 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 		return array();
 	}
 
+	/**
+	 * Store the persistent value in the input provider.
+	 *
+	 * @param int $intOffset The offset.
+	 *
+	 * @param int $intAmount The amount of items to show.
+	 *
+	 * @return void
+	 */
 	protected function setPersistent($intOffset, $intAmount)
 	{
-		$arrValue = array();
+		$arrValue       = array();
 		$definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
 		if ($this->getInputProvider()->hasPersistentValue('limit'))
@@ -87,13 +111,13 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 		if (is_null($objElement))
 		{
 			$objTempConfig = $this->getOtherConfig($objConfig);
-			$arrTotal = $this
+			$arrTotal      = $this
 				->getEnvironment()
 				->getDataProvider()
 				->fetchAll($objTempConfig->setIdOnly(true));
 
 			$this->intTotal = $arrTotal ? count($arrTotal) : 0;
-			$offset = 0;
+			$offset         = 0;
 			// TODO: we need to determine the perPage some better way.
 			$amount = $GLOBALS['TL_CONFIG']['resultsPerPage'];
 
@@ -147,24 +171,24 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 			)
 		);
 
-		$options_total = ceil($this->intTotal / $GLOBALS['TL_CONFIG']['resultsPerPage']);
+		$optionsTotal = ceil(($this->intTotal / $GLOBALS['TL_CONFIG']['resultsPerPage']));
 
-		for ($i = 0; $i < $options_total; $i++)
+		for ($i = 0; $i < $optionsTotal; $i++)
 		{
-			$first       = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']);
-			$this_limit  = $first . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
-			$upper_limit = ($first + $GLOBALS['TL_CONFIG']['resultsPerPage']);
+			$first      = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']);
+			$thisLimit  = $first . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
+			$upperLimit = ($first + $GLOBALS['TL_CONFIG']['resultsPerPage']);
 
-			if ($upper_limit > $this->intTotal)
+			if ($upperLimit > $this->intTotal)
 			{
-				$upper_limit = $this->intTotal;
+				$upperLimit = $this->intTotal;
 			}
 
 			$arrOptions[] = array
 			(
-				'value'      => $this_limit,
+				'value'      => $thisLimit,
 				'attributes' => ($this->getOffset() == $first) ? ' selected="selected"' : '',
-				'content'    => ($first + 1) . ' - ' . $upper_limit
+				'content'    => ($first + 1) . ' - ' . $upperLimit
 			);
 		}
 
@@ -173,7 +197,10 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 			$arrOptions[] = array
 			(
 				'value'      => 'all',
-				'attributes' => (($this->getOffset() == 0) && ($this->getAmount() == $this->intTotal)) ? ' selected="selected"' : '',
+				'attributes' =>
+						(($this->getOffset() == 0) && ($this->getAmount() == $this->intTotal))
+						? ' selected="selected"'
+						: '',
 				'content'    => $GLOBALS['TL_LANG']['MSC']['filterAll']
 			);
 		}
@@ -184,11 +211,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 	}
 
 	/**
-	 * Set the offset to use in this element.
-	 *
-	 * @param int $intOffset
-	 *
-	 * @return PanelElementInterface
+	 * {@inheritDoc}
 	 */
 	public function setOffset($intOffset)
 	{
@@ -198,9 +221,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 	}
 
 	/**
-	 * Get the offset to use in this element.
-	 *
-	 * @return int
+	 * {@inheritDoc}
 	 */
 	public function getOffset()
 	{
@@ -208,21 +229,17 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 	}
 
 	/**
-	 * Set the Amount to use in this element.
-	 *
-	 * @param int $intAmount
-	 *
-	 * @return PanelElementInterface
+	 * {@inheritDoc}
 	 */
 	public function setAmount($intAmount)
 	{
 		$this->intAmount = $intAmount;
+
+		return $this;
 	}
 
 	/**
-	 * Get the amount to use in this element.
-	 *
-	 * @return int
+	 * {@inheritDoc}
 	 */
 	public function getAmount()
 	{

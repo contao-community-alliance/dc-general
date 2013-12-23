@@ -13,12 +13,16 @@
 namespace DcGeneral\Panel;
 
 use DcGeneral\Data\ConfigInterface;
-use DcGeneral\Panel\AbstractElement;
-use DcGeneral\Panel\PanelElementInterface;
-use DcGeneral\Panel\SearchElementInterface;
 use DcGeneral\View\ViewTemplateInterface;
 
-class DefaultSearchElement extends AbstractElement implements SearchElementInterface
+/**
+ * Default implementation of a search panel element.
+ *
+ * @package DcGeneral\Panel
+ */
+class DefaultSearchElement
+	extends AbstractElement
+	implements SearchElementInterface
 {
 	/**
 	 * The properties to be allowed to be searched on.
@@ -35,17 +39,17 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 	protected $strSelectedProperty;
 
 	/**
+	 * The current value to be searched.
+	 *
 	 * @var mixed
 	 */
 	protected $mixValue;
 
 	/**
-	 * The filter options available.
+	 * Retrieve the persistent value from the input provider.
 	 *
-	 * @var
+	 * @return array
 	 */
-	protected $arrfilterOptions;
-
 	protected function getPersistent()
 	{
 		$arrValue = array();
@@ -62,6 +66,15 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 		return array();
 	}
 
+	/**
+	 * Store the persistent value in the input provider.
+	 *
+	 * @param string $strProperty The property being searched on.
+	 *
+	 * @param string $strValue    The value being searched for.
+	 *
+	 * @return void
+	 */
 	protected function setPersistent($strProperty, $strValue)
 	{
 		$arrValue       = array();
@@ -161,7 +174,12 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 
 		foreach ($this->getPropertyNames() as $field)
 		{
-			$arrLabel     = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getProperty($field)->getLabel();
+			$arrLabel     = $this
+				->getEnvironment()
+				->getDataDefinition()
+				->getPropertiesDefinition()
+				->getProperty($field)
+				->getLabel();
 			$arrOptions[] = array
 			(
 				'value'      => $field,
@@ -172,7 +190,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 
 		$objTemplate->class   = 'tl_select' . (!is_null($this->getValue()) ? ' active' : '');
 		$objTemplate->options = $arrOptions;
-		$objTemplate->value  = $this->getValue();
+		$objTemplate->value   = $this->getValue();
 
 		return $this;
 	}
@@ -182,7 +200,6 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 	 */
 	public function addProperty($strProperty)
 	{
-
 		$this->arrProperties[] = $strProperty;
 
 		return $this;

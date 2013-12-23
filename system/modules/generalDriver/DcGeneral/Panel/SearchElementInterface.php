@@ -12,9 +12,17 @@
 
 namespace DcGeneral\Panel;
 
-interface SearchElementInterface extends PanelElementInterface
+/**
+ * This interface describes a search panel element.
+ *
+ * @package DcGeneral\Panel
+ */
+interface SearchElementInterface
+	extends PanelElementInterface
 {
 	/**
+	 * Add a property that can be searched.
+	 *
 	 * @param string $strProperty The property to allow to search on.
 	 *
 	 * @return SearchElementInterface
@@ -47,14 +55,16 @@ interface SearchElementInterface extends PanelElementInterface
 	/**
 	 * Set the value to search for.
 	 *
-	 * @param mixed $mixValue The value to filter for.
+	 * @param string $mixValue The value to search for.
 	 *
 	 * @return SearchElementInterface
 	 */
 	public function setValue($mixValue = null);
 
 	/**
-	 * @return mixed
+	 * Retrieve the value to be searched for.
+	 *
+	 * @return string
 	 */
 	public function getValue();
 }

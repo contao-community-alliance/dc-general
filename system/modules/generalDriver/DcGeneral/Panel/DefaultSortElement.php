@@ -13,14 +13,17 @@
 namespace DcGeneral\Panel;
 
 use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
-use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ConfigInterface;
-use DcGeneral\Panel\AbstractElement;
-use DcGeneral\Panel\SortElementInterface;
-use DcGeneral\Panel\PanelElementInterface;
 use DcGeneral\View\ViewTemplateInterface;
 
-class DefaultSortElement extends AbstractElement implements SortElementInterface
+/**
+ * Default implementation of a sort element.
+ *
+ * @package DcGeneral\Panel
+ */
+class DefaultSortElement
+	extends AbstractElement
+	implements SortElementInterface
 {
 	/**
 	 * The default flag to use.
@@ -30,15 +33,24 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 	public $intDefaultFlag;
 
 	/**
+	 * The sorting properties including the direction.
+	 *
 	 * @var array
 	 */
 	protected $arrSorting = array();
 
 	/**
+	 * The selected sorting value.
+	 *
 	 * @var mixed
 	 */
 	protected $strSelected;
 
+	/**
+	 * Retrieve the persistent value from the input provider.
+	 *
+	 * @return array
+	 */
 	protected function getPersistent()
 	{
 		$arrValue = array();
@@ -55,6 +67,13 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 		return array();
 	}
 
+	/**
+	 * Store the persistent value in the input provider.
+	 *
+	 * @param string $strProperty The name of the property to sort by.
+	 *
+	 * @return void
+	 */
 	protected function setPersistent($strProperty)
 	{
 		$arrValue       = array();
@@ -81,6 +100,13 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 		$this->getInputProvider()->setPersistentValue('sorting', $arrValue);
 	}
 
+	/**
+	 * Retrieve the sorting flag to use for a property.
+	 *
+	 * @param string $strProperty The property.
+	 *
+	 * @return int
+	 */
 	protected function lookupFlag($strProperty)
 	{
 		return isset($this->arrSorting[$strProperty])
@@ -88,15 +114,29 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 			: $this->getDefaultFlag();
 	}
 
+	/**
+	 * Calculate the direction from a flag.
+	 *
+	 * @param int $intFlag The flag.
+	 *
+	 * @return string
+	 */
 	protected function flagToDirection($intFlag)
 	{
 		return ($intFlag % 2) ? 'DESC' : 'ASC';
 	}
 
+	/**
+	 * Retrieve the additional sorting properties from the data definition.
+	 *
+	 * @return array
+	 */
 	protected function getAdditionalSorting()
 	{
 		/** @var Contao2BackendViewDefinitionInterface $view */
-		$view = $this->getEnvironment()->getDataDefinition()->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+		$view = $this->getEnvironment()
+			->getDataDefinition()
+			->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
 		$tmp  = $view->getListingConfig()->getDefaultSortingFields();
 		if (!$tmp)
 		{
@@ -129,7 +169,6 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 			if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue('tl_sort'))
 			{
 				$value = $input->getValue('tl_sort');
-				$flag  = $this->lookupFlag($value);
 
 				$this->setPersistent($value);
 
@@ -192,7 +231,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 			);
 		}
 
-		// Sort by option values
+		// Sort by option values.
 		uksort($arrOptions, 'strcasecmp');
 
 		$objTemplate->options = $arrOptions;
@@ -250,6 +289,9 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 		return $this->strSelected;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function getFlag()
 	{
 		return $this->lookupFlag($this->getSelected());
