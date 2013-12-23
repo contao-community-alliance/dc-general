@@ -14,9 +14,16 @@ namespace DcGeneral;
 
 use DcGeneral\DataDefinition\ContainerInterface;
 
+/**
+ * Base interface providing access to a data definition container.
+ *
+ * @package DcGeneral
+ */
 interface ContainerAwareInterface
 {
 	/**
+	 * Retrieve the data definition container.
+	 *
 	 * @return ContainerInterface
 	 */
 	public function getContainer();
