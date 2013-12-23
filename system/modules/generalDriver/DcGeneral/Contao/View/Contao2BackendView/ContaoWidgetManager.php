@@ -25,7 +25,6 @@ use DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
-use DcGeneral\View\ContaoBackendViewTemplate;
 
 /**
  * Class ContaoWidgetManager.

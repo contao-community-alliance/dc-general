@@ -10,7 +10,7 @@
  * @filesource
  */
 
-namespace DcGeneral\View;
+namespace DcGeneral\Contao\View\Contao2BackendView;
 
 /**
  * This class is used for the contao backend view as template.

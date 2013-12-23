@@ -32,7 +32,6 @@ use DcGeneral\Panel\PanelContainerInterface;
 use DcGeneral\Panel\SearchElementInterface;
 use DcGeneral\Panel\SortElementInterface;
 use DcGeneral\Panel\SubmitElementInterface;
-use DcGeneral\View\ContaoBackendViewTemplate;
 use DcGeneral\View\Event\RenderReadablePropertyValueEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetEditModeButtonsEvent;
