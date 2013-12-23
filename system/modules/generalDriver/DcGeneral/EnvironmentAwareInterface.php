@@ -12,9 +12,16 @@
 
 namespace DcGeneral;
 
+/**
+ * Base interface providing access to an environment.
+ *
+ * @package DcGeneral
+ */
 interface EnvironmentAwareInterface
 {
 	/**
+	 * Retrieve the environment.
+	 *
 	 * @return EnvironmentInterface
 	 */
 	public function getEnvironment();
