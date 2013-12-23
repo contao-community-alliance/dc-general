@@ -11,7 +11,6 @@
 
 namespace DcGeneral;
 
-use CyberSpectrum\ContaoDebugger\Debugger;
 use DcGeneral\Contao\Callback\Callbacks;
 use DcGeneral\Contao\LangArrayTranslator;
 use DcGeneral\Controller\Ajax2X;
@@ -22,9 +21,18 @@ use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Factory\DcGeneralFactory;
 use DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 
-class DC_General extends \DataContainer implements DataContainerInterface
+/**
+ * This class is only present so Contao can instantiate a backend properly as it needs a \DataContainer descendant.
+ *
+ * @package DcGeneral
+ */
+class DC_General
+	extends \DataContainer
+	implements DataContainerInterface
 {
 	/**
+	 * The environment attached to this DC.
+	 *
 	 * @var EnvironmentInterface
 	 */
 	protected $objEnvironment;
