@@ -633,7 +633,7 @@ class PaletteBuilder
 	/**
 	 * Finish the current palette collection.
 	 *
-	 * @param PaletteCollectionInterface &$collection Return the final palette collection.
+	 * @param PaletteCollectionInterface $collection Return the final palette collection.
 	 *
 	 * @return PaletteBuilder
 	 *
@@ -712,7 +712,7 @@ class PaletteBuilder
 	/**
 	 * Finish the current palette.
 	 *
-	 * @param PaletteInterface &$palette Return the final palette.
+	 * @param PaletteInterface $palette Return the final palette.
 	 *
 	 * @return PaletteBuilder
 	 *
@@ -795,7 +795,7 @@ class PaletteBuilder
 	/**
 	 * Finish the current legend.
 	 *
-	 * @param LegendInterface &$legend Return the final legend.
+	 * @param LegendInterface $legend Return the final legend.
 	 *
 	 * @return PaletteBuilder
 	 *
@@ -903,7 +903,7 @@ class PaletteBuilder
 	/**
 	 * Finish the current property or set of properties.
 	 *
-	 * @param PropertyInterface|PropertyInterface[] &$property Return the final property or set of properties.
+	 * @param PropertyInterface|PropertyInterface[] $property Return the final property or set of properties.
 	 *
 	 * @return PaletteBuilder
 	 *
@@ -1174,7 +1174,7 @@ class PaletteBuilder
 	/**
 	 * Finish the current condition.
 	 *
-	 * @param PropertyConditionInterface|PaletteConditionInterface &$condition Return the final condition.
+	 * @param PropertyConditionInterface|PaletteConditionInterface $condition Return the final condition.
 	 *
 	 * @return PaletteBuilder
 	 *
