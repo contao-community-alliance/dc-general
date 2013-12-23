@@ -11,6 +11,11 @@
 
 namespace DcGeneral\Exception;
 
+/**
+ * General exception originating from the DcGeneral.
+ *
+ * @package DcGeneral\Exception
+ */
 class DcGeneralException extends \Exception
 {
 }

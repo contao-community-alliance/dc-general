@@ -11,6 +11,11 @@
 
 namespace DcGeneral\Exception;
 
+/**
+ * Exception thrown if an error which can only be found on runtime occurs in DcGeneral.
+ *
+ * @package DcGeneral\Exception
+ */
 class DcGeneralRuntimeException extends \RuntimeException
 {
 }

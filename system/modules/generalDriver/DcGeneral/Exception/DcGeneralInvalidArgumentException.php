@@ -11,6 +11,11 @@
 
 namespace DcGeneral\Exception;
 
+/**
+ * This exception is thrown whenever any argument or parameter is invalid.
+ *
+ * @package DcGeneral\Exception
+ */
 class DcGeneralInvalidArgumentException extends \InvalidArgumentException
 {
 }
