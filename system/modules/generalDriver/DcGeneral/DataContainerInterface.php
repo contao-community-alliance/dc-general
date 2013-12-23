@@ -12,6 +12,11 @@
 
 namespace DcGeneral;
 
+/**
+ * This interface describes an object providing access to an environment.
+ *
+ * @package DcGeneral
+ */
 interface DataContainerInterface extends \editable, \listable
 {
 	/**
