@@ -12,6 +12,8 @@
 
 namespace DcGeneral\Contao\View\Contao2BackendView;
 
+use DcGeneral\View\ViewTemplateInterface;
+
 /**
  * This class is used for the contao backend view as template.
  *
