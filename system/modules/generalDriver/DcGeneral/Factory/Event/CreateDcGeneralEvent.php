@@ -15,19 +15,36 @@ namespace DcGeneral\Factory\Event;
 use DcGeneral\DcGeneral;
 use Symfony\Component\EventDispatcher\Event;
 
+/**
+ * This event is emitted when a DcGeneral instance has been created.
+ *
+ * @package DcGeneral\Factory\Event
+ */
 class CreateDcGeneralEvent extends Event
 {
-    const NAME = 'dc-general.factory.create-dc-general';
+	const NAME = 'dc-general.factory.create-dc-general';
 
+	/**
+	 * The instance that has been created.
+	 *
+	 * @var DcGeneral
+	 */
 	protected $dcGeneral;
 
+	/**
+	 * Create a new instance.
+	 *
+	 * @param DcGeneral $dcGeneral The DcGeneral instance.
+	 */
 	public function __construct(DcGeneral $dcGeneral)
 	{
 		$this->dcGeneral = $dcGeneral;
 	}
 
 	/**
-	 * @return \DcGeneral\DcGeneral
+	 * Retrieve the DcGeneral instance.
+	 *
+	 * @return DcGeneral
 	 */
 	public function getDcGeneral()
 	{

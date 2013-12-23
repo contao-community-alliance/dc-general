@@ -12,15 +12,9 @@
 
 namespace DcGeneral\Factory\Event;
 
-use DcGeneral\EnvironmentInterface;
 use DcGeneral\Event\AbstractEnvironmentAwareEvent;
 
 class PopulateEnvironmentEvent extends AbstractEnvironmentAwareEvent
 {
-    const NAME = 'dc-general.factory.populate-environment';
-
-	function __construct(EnvironmentInterface $environment)
-	{
-		parent::__construct($environment);
-	}
+	const NAME = 'dc-general.factory.populate-environment';
 }

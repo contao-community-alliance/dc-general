@@ -15,21 +15,35 @@ namespace DcGeneral\Factory\Event;
 use DcGeneral\DataDefinition\ContainerInterface;
 use Symfony\Component\EventDispatcher\Event;
 
+/**
+ * This event is emitted when a data definition is being built.
+ *
+ * @package DcGeneral\Factory\Event
+ */
 class BuildDataDefinitionEvent extends Event
 {
-    const NAME = 'dc-general.factory.build-data-definition';
+	const NAME = 'dc-general.factory.build-data-definition';
 
 	/**
+	 * The data definition container being built.
+	 *
 	 * @var ContainerInterface
 	 */
 	protected $container;
 
+	/**
+	 * Create a new instance.
+	 *
+	 * @param ContainerInterface $container The container being built.
+	 */
 	public function __construct(ContainerInterface $container)
 	{
 		$this->container = $container;
 	}
 
 	/**
+	 * Retrieve the data definition container.
+	 *
 	 * @return ContainerInterface
 	 */
 	public function getContainer()
