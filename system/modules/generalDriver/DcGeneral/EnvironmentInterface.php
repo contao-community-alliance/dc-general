@@ -176,7 +176,7 @@ interface EnvironmentInterface
 	 *
 	 * @param string $strSource The name of the source.
 	 *
-	 * @return mixed
+	 * @return EnvironmentInterface
 	 */
 	public function removeDataProvider($strSource);
 
