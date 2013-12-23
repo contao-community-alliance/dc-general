@@ -20,15 +20,7 @@ namespace DcGeneral;
 abstract class AbstractTranslator implements TranslatorInterface
 {
 	/**
-	 * Retrieve a value from the translator backend.
-	 *
-	 * @param string      $string The string to translate.
-	 *
-	 * @param string|null $domain The domain in which to search for the string.
-	 *
-	 * @param string|null $locale The locale in which to search.
-	 *
-	 * @return mixed
+	 * {@inheritdoc}
 	 */
 	abstract protected function getValue($string, $domain, $locale);
 
