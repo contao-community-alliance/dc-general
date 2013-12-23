@@ -12,6 +12,13 @@
 
 namespace DcGeneral;
 
+/**
+ * This interface describes an input provider.
+ *
+ * An input provider provides access to parameters, values and persistent values.
+ *
+ * @package DcGeneral
+ */
 interface InputProviderInterface
 {
 	/**
@@ -46,7 +53,7 @@ interface InputProviderInterface
 	 *
 	 * In plain HTTP, this will be a $_GET parameter, for other implementations consult the API.
 	 *
-	 * @param string $strKey   The name of the parameter to be removed.
+	 * @param string $strKey The name of the parameter to be removed.
 	 *
 	 * @return InputProviderInterface
 	 */
@@ -57,7 +64,7 @@ interface InputProviderInterface
 	 *
 	 * In plain HTTP, this will be a $_GET parameter, for other implementations consult the API.
 	 *
-	 * @param string $strKey   The name of the parameter to be checked.
+	 * @param string $strKey The name of the parameter to be checked.
 	 *
 	 * @return bool
 	 */
@@ -95,7 +102,7 @@ interface InputProviderInterface
 	 *
 	 * In plain HTTP, this will be a $_POST value, for other implementations consult the API.
 	 *
-	 * @param string $strKey   The name of the value to be removed.
+	 * @param string $strKey The name of the value to be removed.
 	 *
 	 * @return InputProviderInterface
 	 */
@@ -106,7 +113,7 @@ interface InputProviderInterface
 	 *
 	 * In plain HTTP, this will be a $_POST value, for other implementations consult the API.
 	 *
-	 * @param string $strKey   The name of the value to be checked.
+	 * @param string $strKey The name of the value to be checked.
 	 *
 	 * @return bool
 	 */
@@ -117,7 +124,7 @@ interface InputProviderInterface
 	 *
 	 * Usually this value is being kept in the user session.
 	 *
-	 * @param string $strKey   The name of the value to be retrieved.
+	 * @param string $strKey The name of the value to be retrieved.
 	 *
 	 * @return mixed
 	 */
@@ -141,12 +148,16 @@ interface InputProviderInterface
 	 *
 	 * Usually this value is being kept in the user session.
 	 *
-	 * @param string $strKey   The name of the value to be checked.
+	 * @param string $strKey The name of the value to be checked.
 	 *
 	 * @return bool
 	 */
 	public function hasPersistentValue($strKey);
 
-
+	/**
+	 * Retrieve the current request url.
+	 *
+	 * @return string
+	 */
 	public function getRequestUrl();
 }
