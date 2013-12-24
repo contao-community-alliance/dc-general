@@ -35,6 +35,8 @@ class DataProviderPopulator extends AbstractEventDrivenEnvironmentPopulator
 	 *
 	 * @param EnvironmentInterface $environment The environment to populate.
 	 *
+	 * @return void
+	 *
 	 * @throws DcGeneralRuntimeException When a data provider has already been added to the environment.
 	 */
 	public function populate(EnvironmentInterface $environment)
