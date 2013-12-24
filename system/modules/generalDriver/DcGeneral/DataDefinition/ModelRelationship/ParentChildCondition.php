@@ -13,6 +13,7 @@
 namespace DcGeneral\DataDefinition\ModelRelationship;
 
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * Default implementation of a parent child relationship.
@@ -195,12 +196,13 @@ class ParentChildCondition
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralRuntimeException As this is currently unimplemented.
 	 */
 	public function applyTo($objParent, $objChild)
 	{
-
-
 		// FIXME: unimplemented.
+		throw new DcGeneralRuntimeException(__CLASS__ . '::' . __METHOD__ . ' is unimplemented yet.');
 	}
 
 	/**
