@@ -60,7 +60,6 @@ use DcGeneral\DataDefinition\Definition\Properties\DefaultProperty;
 use DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\DefaultPropertiesDefinition;
-use DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\View\Command;
 use DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use DcGeneral\DataDefinition\Definition\View\DefaultModelFormatterConfig;
