@@ -1031,6 +1031,7 @@ class BaseView implements BackendViewInterface
 
 		if ($blnSubmitted && empty($errors))
 		{
+			// TODO: Change to PrePersistModelEvent.
 			$event = new EditModelBeforeSaveEvent($environment, $model);
 			$environment->getEventPropagator()->propagate($event,
 				array(
@@ -1041,6 +1042,7 @@ class BaseView implements BackendViewInterface
 			if ($model->getMeta(DCGE::MODEL_IS_CHANGED))
 			{
 				$dataProvider->save($model);
+				// TODO: Emit PostPersistModelEvent.
 
 				if ($dataProviderInformation->isVersioningEnabled())
 				{
