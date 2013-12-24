@@ -12,7 +12,6 @@
 
 namespace DcGeneral\Controller;
 
-use DcGeneral\DataContainerInterface;
 use DcGeneral\Data\PropertyValueBagInterface;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\EnvironmentInterface;
@@ -82,41 +81,4 @@ interface ControllerInterface
 	 * @return array
 	 */
 	public function getSupportedLanguages($mixID);
-
-	// TODO: we need to flesh this out some more out and add real interface methods. Currently this interface is rather useless.
-
-	// FIXME: all methods below are to be removed or refined to be really only common sense methods like setting/getting parent etc.
-
-	/**
-	 * Set the DataContainerInterface.
-	 *
-	 * @param DataContainerInterface $objDC
-	 */
-	public function setDC($objDC);
-
-	/**
-	 * Get the DataContainerInterface.
-	 *
-	 * @return DataContainerInterface
-	 */
-	public function getDC();
-
-	public function generateAjaxPalette($strSelector);
-
-	public function copy();
-
-	public function create();
-
-	public function cut();
-
-	public function delete();
-
-	public function move();
-
-	/**
-	 * Show all entries from a table
-	 *
-	 * @return void | String if error
-	 */
-	public function showAll();
 }
