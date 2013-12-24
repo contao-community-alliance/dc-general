@@ -67,6 +67,5 @@ class DataProviderPopulator extends AbstractEventDrivenEnvironmentPopulator
 				$environment->addDataProvider($dataProviderInformation->getName(), $dataProvider);
 			}
 		}
-
 	}
 }
