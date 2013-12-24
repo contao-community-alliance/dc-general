@@ -11,20 +11,33 @@
 
 namespace DcGeneral;
 
+/**
+ * This class holds everything together.
+ *
+ * @package DcGeneral
+ */
 class DcGeneral
+	implements EnvironmentAwareInterface
 {
 	/**
+	 * The environment instance.
+	 *
 	 * @var EnvironmentInterface
 	 */
 	protected $environment;
 
-	function __construct(EnvironmentInterface $environment)
+	/**
+	 * Create a new instance.
+	 *
+	 * @param EnvironmentInterface $environment The environment.
+	 */
+	public function __construct(EnvironmentInterface $environment)
 	{
 		$this->environment = $environment;
 	}
 
 	/**
-	 * @return EnvironmentInterface
+	 * {@inheritDoc}
 	 */
 	public function getEnvironment()
 	{
