@@ -83,26 +83,6 @@ class DefaultEnvironment implements EnvironmentInterface
 	protected $objCallbackHandler;
 
 	/**
-	 * @var \DcGeneral\Data\CollectionInterface
-	 */
-	protected $objCollection;
-
-	/**
-	 * @var \DcGeneral\Data\CollectionInterface
-	 */
-	protected $objParentCollection;
-
-	/**
-	 * @var \DcGeneral\Data\ModelInterface
-	 */
-	protected $objModel;
-
-	/**
-	 * @var array
-	 */
-	protected $arrRootIds;
-
-	/**
 	 * The clipboard in use.
 	 *
 	 * @var \DcGeneral\Clipboard\ClipboardInterface
@@ -427,82 +407,6 @@ class DefaultEnvironment implements EnvironmentInterface
 
 		/** @var BaseView $view */
 		return $view->getPanel();
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setCurrentCollection($objCurrentCollection)
-	{
-		$this->objCollection = $objCurrentCollection;
-
-		return $this;
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getCurrentCollection()
-	{
-		return $this->objCollection;
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setCurrentModel($objCurrentModel)
-	{
-		$this->objModel = $objCurrentModel;
-
-		return $this;
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getCurrentModel()
-	{
-		return $this->objModel;
-	}
-
-	/**
-	 *
-	 * @param \DcGeneral\Data\CollectionInterface $objCurrentParentCollection
-	 *
-	 * @return EnvironmentInterface
-	 */
-	public function setCurrentParentCollection($objCurrentParentCollection)
-	{
-		$this->objParentCollection = $objCurrentParentCollection;
-
-		return $this;
-	}
-
-	/**
-	 *
-	 * @return \DcGeneral\Data\CollectionInterface
-	 */
-	public function getCurrentParentCollection()
-	{
-		return $this->objParentCollection;
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setRootIds($arrRootIds)
-	{
-		$this->arrRootIds = $arrRootIds;
-
-		return $this;
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getRootIds()
-	{
-		return $this->arrRootIds;
 	}
 
 	/**
