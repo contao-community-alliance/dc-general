@@ -13,15 +13,21 @@
 namespace DcGeneral\Controller;
 
 use DcGeneral\DataContainerInterface;
+use DcGeneral\Data\PropertyValueBagInterface;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\EnvironmentInterface;
 
+/**
+ * This interface describes a controller.
+ *
+ * @package DcGeneral\Controller
+ */
 interface ControllerInterface
 {
 	/**
 	 * Set the environment.
 	 *
-	 * @param EnvironmentInterface $environment
+	 * @param EnvironmentInterface $environment The environment.
 	 *
 	 * @return ControllerInterface
 	 */
@@ -60,9 +66,9 @@ interface ControllerInterface
 	/**
 	 * Update the current model from a post request. Additionally, trigger meta palettes, if installed.
 	 *
-	 * @param ModelInterface            $model
+	 * @param ModelInterface            $model          The model to update.
 	 *
-	 * @param \DcGeneral\Data\PropertyValueBagInterface $propertyValues
+	 * @param PropertyValueBagInterface $propertyValues The value bag to retrieve the values from.
 	 *
 	 * @return ControllerInterface
 	 */
@@ -71,7 +77,7 @@ interface ControllerInterface
 	/**
 	 * Return all supported languages from the default data driver.
 	 *
-	 * @param mixed $mixID
+	 * @param mixed $mixID The id of a model for which the languages shall be retrieved.
 	 *
 	 * @return array
 	 */
