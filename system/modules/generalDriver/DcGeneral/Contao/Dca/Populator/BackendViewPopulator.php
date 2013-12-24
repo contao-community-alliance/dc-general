@@ -97,6 +97,8 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
 	 *
 	 * @param EnvironmentInterface $environment The environment to populate.
 	 *
+	 * @return void
+	 *
 	 * @internal
 	 */
 	protected function populatePanel(EnvironmentInterface $environment)
