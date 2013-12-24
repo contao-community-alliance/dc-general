@@ -27,15 +27,6 @@ class ExtendedDca implements DefinitionInterface
 	const NAME = 'extended-dca';
 
 	/**
-	 * Callback class to use.
-	 *
-	 * NOTE: Callbacks are deprecated and only executed via the compatibility event \DcGeneral\Contao\Event\Subscriber.
-	 *
-	 * @var string
-	 */
-	protected $callbackClass;
-
-	/**
 	 * Controller class to use.
 	 *
 	 * @var string
@@ -48,32 +39,6 @@ class ExtendedDca implements DefinitionInterface
 	 * @var string
 	 */
 	protected $viewClass;
-
-	/**
-	 * Set the callback class to use.
-	 *
-	 * @param string $callbackClass The class name.
-	 *
-	 * @return void
-	 *
-	 * @deprecated This method is deprecated as the callback system has been replaced by the event driven approach.
-	 */
-	public function setCallbackClass($callbackClass)
-	{
-		$this->callbackClass = $callbackClass;
-	}
-
-	/**
-	 * Get the callback class to use.
-	 *
-	 * @return string
-	 *
-	 * @deprecated This method is deprecated as the callback system has been replaced by the event driven approach.
-	 */
-	public function getCallbackClass()
-	{
-		return $this->callbackClass;
-	}
 
 	/**
 	 * Set the class name of the controller class.

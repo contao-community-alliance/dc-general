@@ -12,7 +12,6 @@
 
 namespace DcGeneral\Contao\Dca\Populator;
 
-use DcGeneral\Callbacks\CallbacksInterface;
 use DcGeneral\Contao\Dca\Definition\ExtendedDca;
 use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\EnvironmentInterface;
@@ -30,44 +29,6 @@ use DcGeneral\View\ViewInterface;
 class ExtendedLegacyDcaPopulator extends AbstractEventDrivenEnvironmentPopulator
 {
 	const PRIORITY = 100;
-
-	/**
-	 * Create a callback instance in the environment if none has been defined yet.
-	 *
-	 * NOTE: callback classes are deprecated due to the events used in DcGeneral.
-	 *
-	 * @param EnvironmentInterface $environment The environment to populate.
-	 *
-	 * @return void
-	 *
-	 * @internal
-	 */
-	protected function populateCallback(EnvironmentInterface $environment)
-	{
-		$definition = $environment->getDataDefinition();
-
-		// If we encounter an extended definition, that one may override.
-		if (!$definition->hasDefinition(ExtendedDca::NAME))
-		{
-			return;
-		}
-
-		/** @var ExtendedDca $extendedDefinition */
-		$extendedDefinition = $definition->getDefinition(ExtendedDca::NAME);
-		$class              = $extendedDefinition->getCallbackClass();
-
-		if (!$class)
-		{
-			return;
-		}
-
-		$callbackClass = new \ReflectionClass($class);
-		/** @var CallbacksInterface $callback */
-		$callback = $callbackClass->newInstance();
-
-		$callback->setDC($GLOBALS['objDcGeneral']);
-		$environment->setCallbackHandler($callback);
-	}
 
 	/**
 	 * Create a view instance in the environment if none has been defined yet.
@@ -160,7 +121,6 @@ class ExtendedLegacyDcaPopulator extends AbstractEventDrivenEnvironmentPopulator
 	 */
 	public function populate(EnvironmentInterface $environment)
 	{
-		$this->populateCallback($environment);
 		$this->populateView($environment);
 		$this->populateController($environment);
 	}

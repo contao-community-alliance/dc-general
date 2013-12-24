@@ -12,7 +12,6 @@
 
 namespace DcGeneral\Contao\Dca\Populator;
 
-use DcGeneral\Callbacks\ContaoStyleCallbacks;
 use DcGeneral\Clipboard\DefaultClipboard;
 use DcGeneral\Contao\InputProvider;
 use DcGeneral\Controller\DefaultController;
@@ -31,32 +30,6 @@ use DcGeneral\Contao\View\Contao2BackendView;
 class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
 {
 	const PRIORITY = 1000;
-
-	/**
-	 * Create a callback instance in the environment if none has been defined yet.
-	 *
-	 * NOTE: callback classes are deprecated due to the events used in DcGeneral.
-	 *
-	 * @param EnvironmentInterface $environment The environment to populate.
-	 *
-	 * @return void
-	 *
-	 * @internal
-	 */
-	protected function populateCallback(EnvironmentInterface $environment)
-	{
-		// Already populated, get out then.
-		if ($environment->getCallbackHandler())
-		{
-			return;
-		}
-
-		$callback = new ContaoStyleCallbacks();
-
-		$callback->setDC($GLOBALS['objDcGeneral']);
-
-		$environment->setCallbackHandler($callback);
-	}
 
 	/**
 	 * Create a controller instance in the environment if none has been defined yet.
@@ -96,7 +69,6 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
 			$environment->setClipboard(new DefaultClipboard());
 		}
 
-		$this->populateCallback($environment);
 		$this->populateController($environment);
 	}
 }

@@ -74,15 +74,6 @@ class DefaultEnvironment implements EnvironmentInterface
 	protected $arrDataProvider;
 
 	/**
-	 * The registered callback handler.
-	 *
-	 * @var \DcGeneral\Callbacks\CallbacksInterface
-	 *
-	 * @deprecated
-	 */
-	protected $objCallbackHandler;
-
-	/**
 	 * The clipboard in use.
 	 *
 	 * @var \DcGeneral\Clipboard\ClipboardInterface
@@ -209,24 +200,6 @@ class DefaultEnvironment implements EnvironmentInterface
 	public function getInputProvider()
 	{
 		return $this->objInputProvider;
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setCallbackHandler($objCallbackHandler)
-	{
-		$this->objCallbackHandler = $objCallbackHandler;
-
-		return $this;
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getCallbackHandler()
-	{
-		return $this->objCallbackHandler;
 	}
 
 	/**

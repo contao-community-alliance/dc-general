@@ -134,11 +134,6 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 			return;
 		}
 
-		if (($class = $this->getFromDca('dca_config/callback')) === null)
-		{
-			$definition->setCallbackClass($class);
-		}
-
 		if (($class = $this->getFromDca('dca_config/controller')) === null)
 		{
 			$definition->setControllerClass($class);

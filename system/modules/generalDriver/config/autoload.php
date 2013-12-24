@@ -24,7 +24,6 @@ ClassLoader::addClasses(array
 	'GeneralDataMultiLanguageDefault'                          => 'system/modules/generalDriver/deprecated/GeneralDataMultiLanguageDefault.php',
 	'GeneralControllerDefault'                                 => 'system/modules/generalDriver/deprecated/GeneralControllerDefault.php',
 	'AbstractGeneralModel'                                     => 'system/modules/generalDriver/deprecated/AbstractGeneralModel.php',
-	'InterfaceGeneralCallback'                                 => 'system/modules/generalDriver/deprecated/InterfaceGeneralCallback.php',
 	'GeneralAjax2X'                                            => 'system/modules/generalDriver/deprecated/GeneralAjax2X.php',
 	'GeneralAjax'                                              => 'system/modules/generalDriver/deprecated/GeneralAjax.php',
 	'InterfaceGeneralModel'                                    => 'system/modules/generalDriver/deprecated/InterfaceGeneralModel.php',
@@ -42,7 +41,6 @@ ClassLoader::addClasses(array
 	'DCGE'                                                     => 'system/modules/generalDriver/deprecated/DCGE.php',
 	'InterfaceGeneralData'                                     => 'system/modules/generalDriver/deprecated/InterfaceGeneralData.php',
 	'InterfaceGeneralView'                                     => 'system/modules/generalDriver/deprecated/InterfaceGeneralView.php',
-	'GeneralCallbackDefault'                                   => 'system/modules/generalDriver/deprecated/GeneralCallbackDefault.php',
 ));
 
 /**

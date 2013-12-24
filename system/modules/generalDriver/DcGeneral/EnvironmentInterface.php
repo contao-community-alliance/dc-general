@@ -120,26 +120,6 @@ interface EnvironmentInterface
 	public function getInputProvider();
 
 	/**
-	 * Note: you should not use this anymore, as the callback system is deprecated.
-	 *
-	 * @param \DcGeneral\Callbacks\CallbacksInterface $objCallbackHandler The callback handler to use.
-	 *
-	 * @return EnvironmentInterface
-	 *
-	 * @deprecated Callback handlers are deprecated, use the Events instead.
-	 */
-	public function setCallbackHandler($objCallbackHandler);
-
-	/**
-	 * Note: you should not use this anymore, as the callback system is deprecated.
-	 *
-	 * @return \DcGeneral\Callbacks\CallbacksInterface
-	 *
-	 * @deprecated Callback handlers are deprecated, use the Events instead.
-	 */
-	public function getCallbackHandler();
-
-	/**
 	 * Determine if the data provider with the given name exists.
 	 *
 	 * @param string|null $strSource The source name to check the providers for.
