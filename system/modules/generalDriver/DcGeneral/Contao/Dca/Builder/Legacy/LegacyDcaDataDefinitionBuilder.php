@@ -1130,6 +1130,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 * @param PropertyInterface $property The property to parse the label for.
 	 *
 	 * @param string|array      $label    The label value.
+	 *
+	 * @return void
 	 */
 	protected function parseSinglePropertyLabel(PropertyInterface $property, $label)
 	{
