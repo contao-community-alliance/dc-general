@@ -211,7 +211,16 @@ class Container implements ContainerInterface
 	{
 		foreach ($this->getChildConditions($strSrcTable) as $objCondition)
 		{
-			if ($objCondition->getDestinationName() == $strDstTable)
+			if($objCondition->getDestinationName() == 'self')
+			{
+				$strDstName = $this->getName();
+			}
+			else
+			{
+				$strDstName = $objCondition->getDestinationName();
+			}
+
+			if ($strDstName == $strDstTable)
 			{
 				return $objCondition;
 			}
