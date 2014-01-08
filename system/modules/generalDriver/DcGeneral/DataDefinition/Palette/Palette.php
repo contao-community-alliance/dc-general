@@ -278,10 +278,13 @@ class Palette implements PaletteInterface
 	 */
 	public function __clone()
 	{
+		/** @var Legend[] $legends */
 		$legends = array();
-		foreach ($this->legends as $index => $legend)
+		foreach ($this->legends as $legend)
 		{
-			$legends[$index] = clone $legend;
+			$bobaFett = clone $legend;
+
+			$legends[spl_object_hash($bobaFett)] = $bobaFett->setPalette($this);
 		}
 		$this->legends = $legends;
 
