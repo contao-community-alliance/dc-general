@@ -173,7 +173,13 @@ class Legend implements LegendInterface
 			}
 			else
 			{
-				throw new DcGeneralInvalidArgumentException('Property ' . $before->getName() . ' not found');
+				throw new DcGeneralInvalidArgumentException(
+					sprintf(
+						'Property %s not contained in legend - can not add %s after it.',
+						$before->getName(),
+						$property->getName()
+					)
+				);
 			}
 		}
 		else
