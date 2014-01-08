@@ -288,6 +288,9 @@ class Palette implements PaletteInterface
 		}
 		$this->legends = $legends;
 
-		$this->condition = clone $this->condition;
+		if ($this->condition !== null)
+		{
+			$this->condition = clone $this->condition;
+		}
 	}
 }
