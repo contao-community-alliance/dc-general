@@ -141,9 +141,11 @@ abstract class AbstractConditionChain implements ConditionChainInterface
 	public function __clone()
 	{
 		$conditions = array();
-		foreach ($conditions as $index => $condition)
+		foreach ($this->conditions as $condition)
 		{
-			$conditions[$index] = clone $condition;
+			$bobaFett = clone $condition;
+
+			$conditions[spl_object_hash($bobaFett)] = $bobaFett;
 		}
 		$this->conditions = $conditions;
 	}
