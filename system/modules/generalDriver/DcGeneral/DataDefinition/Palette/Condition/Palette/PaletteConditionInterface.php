@@ -24,6 +24,8 @@ interface PaletteConditionInterface extends ConditionInterface
 	/**
 	 * Calculate how "strong" (aka "count of matches") this condition match the model and input parameters.
 	 *
+	 * If a value is present in the input parameter, that one overrides any existing value in the model.
+	 *
 	 * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
 	 *
 	 * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
