@@ -12,6 +12,8 @@
 
 namespace DcGeneral\DataDefinition;
 
+use DcGeneral\Exception\DcGeneralInvalidArgumentException;
+
 /**
  * An abstract condition chain.
  *
