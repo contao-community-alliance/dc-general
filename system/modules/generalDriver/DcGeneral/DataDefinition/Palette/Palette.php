@@ -273,7 +273,7 @@ class Palette implements PaletteInterface
 	public function __clone()
 	{
 		$legends = array();
-		foreach ($legends as $index => $legend)
+		foreach ($this->legends as $index => $legend)
 		{
 			$legends[$index] = clone $legend;
 		}
