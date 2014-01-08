@@ -15,6 +15,7 @@ namespace DcGeneral\DataDefinition\Palette\Condition\Palette;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\DataDefinition\AbstractConditionChain;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * A chain of palette conditions.
@@ -23,6 +24,9 @@ class PaletteConditionChain extends AbstractConditionChain implements PaletteCon
 {
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralRuntimeException When an condition that does not implement PaletteConditionInterface
+	 *                                   is encountered.
 	 */
 	public function getMatchCount(ModelInterface $model = null, PropertyValueBag $input = null)
 	{
@@ -30,6 +34,11 @@ class PaletteConditionChain extends AbstractConditionChain implements PaletteCon
 
 		foreach ($this->conditions as $condition)
 		{
+			if (!($condition instanceof PaletteConditionInterface))
+			{
+				throw new DcGeneralRuntimeException('Invalid condition in chain: '. get_class($condition));
+			}
+
 			$conditionCount = $condition->getMatchCount($model, $input);
 
 			if ($conditionCount !== false)
