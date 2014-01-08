@@ -200,7 +200,13 @@ class Palette implements PaletteInterface
 			}
 			else
 			{
-				throw new DcGeneralInvalidArgumentException('Legend ' . $before->getName() . ' not found');
+				throw new DcGeneralInvalidArgumentException(
+					sprintf(
+						'Legend %s not contained in palette - can not add %s after it.',
+						$before->getName(),
+						$legend->getName()
+					)
+				);
 			}
 		}
 		else
