@@ -84,7 +84,9 @@ abstract class AbstractConditionChain implements ConditionChainInterface
 	 */
 	public function addCondition(ConditionInterface $condition)
 	{
-		$this->conditions[] = $condition;
+		$hash = spl_object_hash($condition);
+
+		$this->conditions[$hash] = $condition;
 		return $this;
 	}
 
