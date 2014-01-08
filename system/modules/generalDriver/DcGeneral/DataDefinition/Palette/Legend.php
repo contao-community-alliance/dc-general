@@ -233,9 +233,11 @@ class Legend implements LegendInterface
 		$this->palette = null;
 
 		$properties = array();
-		foreach ($this->properties as $index => $property)
+		foreach ($this->properties as $property)
 		{
-			$properties[$index] = clone $property;
+			$bobaFett = clone $property;
+
+			$properties[spl_object_hash($bobaFett)] = $bobaFett;
 		}
 		$this->properties = $properties;
 	}
