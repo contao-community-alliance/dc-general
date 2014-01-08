@@ -117,7 +117,10 @@ class PaletteCollection implements PaletteCollectionInterface
 			{
 				$count = $condition->getMatchCount($model, $input);
 
-				$matches[$count][] = $palette;
+				if ($count !== false)
+				{
+					$matches[$count][] = $palette;
+				}
 			}
 		}
 
