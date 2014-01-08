@@ -131,7 +131,7 @@ class DefaultModel extends AbstractModel
 	 */
 	public function setProperty($strPropertyName, $varValue)
 	{
-		if ($varValue !== $this->arrProperties[$strPropertyName])
+		if ($varValue !== $this->getProperty($strPropertyName))
 		{
 			$this->setMeta(DCGE::MODEL_IS_CHANGED, true);
 			$this->arrProperties[$strPropertyName] = $varValue;
