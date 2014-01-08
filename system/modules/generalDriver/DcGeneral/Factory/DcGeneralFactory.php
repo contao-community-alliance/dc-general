@@ -378,6 +378,8 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 		/** @var ContainerInterface $dataContainer */
 		$dataContainer = $containerClass->newInstance($this->containerName);
 
+		$definitions->setDefinition($this->containerName, $dataContainer);
+
 		$event = new BuildDataDefinitionEvent($dataContainer);
 		$this->eventPropagator->propagate($event, array($this->containerName));
 
