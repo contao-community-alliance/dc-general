@@ -604,8 +604,9 @@ class DefaultController extends \Controller implements ControllerInterface
 		// Save new sorting
 		$objCurrentDataProvider->save($objSrcModel);
 
-		// Reset clipboard + redirect
-		$this->resetClipboard(true);
+		// Clear the clibboard.
+		$this->getDC()->getEnvironment()->getClipboard()->clear();
+		$this->redirectHome();
 	}
 
 	public function move()
@@ -1291,6 +1292,50 @@ class DefaultController extends \Controller implements ControllerInterface
 		$this->getFilter();
 		$this->generatePanelFilter('set');
 
+		// Set the first sorting.
+		$objCurrentDataProvider	 = $this->getDC()->getDataProvider();
+		$objConfig				 = $objCurrentDataProvider->getEmptyConfig();
+		$this->getDC()->getEnvironment()->getPanelContainer()->initialize($objConfig);
+		$arrSorting				 = $objConfig->getSorting();
+
+		if (count($arrSorting))
+		{
+			foreach ($arrSorting as $strField => $strOrder)
+			{
+				$this->getDC()->setFirstSorting($strField, $strOrder);
+				break;
+			}
+		}
+		// Set default values from DCA
+		else
+		{
+			$arrSorting		 = (array) $this->getDC()->arrDCA['list']['sorting']['fields'];
+			$strFirstSorting = preg_replace('/\s+.*$/i', '', strval($arrSorting[0]));
+
+			if (!isset($this->getDC()->arrDCA['list']['sorting']['flag']))
+			{
+				$strFirstSortingOrder = DCGE::MODEL_SORTING_ASC;
+			}
+			else
+			{
+				$strFirstSortingOrder = $this->getDC()->arrDCA['list']['sorting']['flag'] % 2 ? DCGE::MODEL_SORTING_ASC : DCGE::MODEL_SORTING_DESC;
+			}
+
+			if (!strlen($strFirstSorting))
+			{
+				foreach (array('sorting', 'tstamp', 'pid', 'id') as $strField)
+				{
+					if ($objCurrentDataProvider->fieldExists($strField))
+					{
+						$strFirstSorting = $strField;
+						break;
+					}
+				}
+			}
+
+			$this->getDC()->setFirstSorting($strFirstSorting, $strFirstSortingOrder);
+		}
+
 		// Switch mode
 		switch ($this->getDC()->arrDCA['list']['sorting']['mode'])
 		{
@@ -1957,6 +2002,13 @@ class DefaultController extends \Controller implements ControllerInterface
 		$objConfig = $objCurrentDataProvider->getEmptyConfig();
 		$this->getDC()->getEnvironment()->getPanelContainer()->initialize($objConfig);
 
+		// If we did not get the sorting from panels use default one from dc.
+		$arrSorting = $objConfig->getSorting();
+		if(empty($arrSorting))
+		{
+			$objConfig->setSorting(array($this->getDC()->getFirstSorting() => $this->getDC()->getFirstSortingOrder()));
+		}
+
 		$objCollection = $objCurrentDataProvider->fetchAll($this->addParentFilter(
 			$this->getEnvironment()->getInputProvider()->getParameter('id'),
 			$objConfig
@@ -1965,6 +2017,7 @@ class DefaultController extends \Controller implements ControllerInterface
 		$this->getDC()->getEnvironment()->setCurrentCollection($objCollection);
 
 		// If we want to group the elements, do so now.
+		// Fixme: Never used.
 		if (isset($objCondition) && ($this->getEnvironment()->getDataDefinition()->getSortingMode() == 3))
 		{
 			foreach ($objCollection as $objModel)
@@ -2378,6 +2431,13 @@ class DefaultController extends \Controller implements ControllerInterface
 
 		$objConfig = $objCurrentDataProvider->getEmptyConfig();
 		$this->getDC()->getEnvironment()->getPanelContainer()->initialize($objConfig);
+
+		// If we did not get the sorting from panels use default one from dc.
+		$arrSorting = $objConfig->getSorting();
+		if(empty($arrSorting))
+		{
+			$objConfig->setSorting(array($this->getDC()->getFirstSorting() => $this->getDC()->getFirstSortingOrder()));
+		}
 
 		$objCollection = $objCurrentDataProvider->fetchAll($this->addParentFilter(
 			$this->getEnvironment()->getInputProvider()->getParameter('id'),

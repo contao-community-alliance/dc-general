@@ -148,11 +148,6 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 			$current = array();
 		}
 
-		if (!$this->getSelected())
-		{
-
-		}
-
 		$arrSecondOrder = $this->getAdditionalSorting();
 
 		if (!$this->getSelected())
@@ -172,7 +167,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 			}
 		}
 
-		if (!$this->getSelected())
+		if ($this->getSelected())
 		{
 			$current[$this->getSelected()] = $this->flagToDirection($this->getFlag());
 		}
@@ -187,7 +182,13 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 	{
 		foreach ($this->getPropertyNames() as $field)
 		{
+			// Get the lable for the field.
 			$arrLabel = $this->getDataContainer()->getDataDefinition()->getProperty($field)->getLabel();
+			// Or try to get it from translation.
+			if(empty($arrLabel))
+			{
+				$arrLabel = $GLOBALS['TL_LANG']['MSC'][$field];
+			}
 
 			$arrOptions[] = array(
 				'value'      => specialchars($field),
