@@ -1329,7 +1329,7 @@ class DefaultView implements ViewInterface
 				$time = '';
 		}
 
-		if (version_compare(VERSION, '2.1', '>'))
+		if (version_compare(DATEPICKER, '2.0', '>='))
 		{
 			return 'new Picker.Date($("ctrl_' . $objWidget->id . '"), {
 					draggable:false,
