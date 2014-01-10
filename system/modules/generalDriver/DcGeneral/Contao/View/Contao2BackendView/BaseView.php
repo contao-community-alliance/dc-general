@@ -919,6 +919,11 @@ class BaseView implements BackendViewInterface
 		}
 	}
 
+	public function enforceModelRelationship($model)
+	{
+		// No op in this base class but implemented in subclasses to enforce parent<->child relationship.
+	}
+
 	/**
 	 * Generate the view for edit.
 	 *
@@ -986,6 +991,8 @@ class BaseView implements BackendViewInterface
 			// Update the model - the model might add some more errors to the propertyValueBag via exceptions.
 			$this->getEnvironment()->getController()->updateModelFromPropertyBag($model, $propertyValues);
 		}
+
+		$this->enforceModelRelationship($model);
 
 		$arrFieldSets = array();
 		foreach ($palette->getLegends() as $legend)
