@@ -1175,6 +1175,7 @@ class BaseView implements BackendViewInterface
 					$modelId,
 					$definition->getName()
 				),
+				__CLASS__ . '::' . __FUNCTION__,
 				TL_ERROR
 			);
 			BackendBindings::redirect('contao/main.php?act=error');
