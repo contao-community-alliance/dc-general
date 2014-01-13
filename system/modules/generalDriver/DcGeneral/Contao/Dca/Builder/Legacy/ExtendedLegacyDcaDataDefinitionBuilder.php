@@ -54,6 +54,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 		$this->parsePalettes($container);
 		$this->parseConditions($container);
 		$this->parseBackendView($container);
+		$this->parseClassNames($container);
 		$this->loadAdditionalDefinitions($container, $event);
 	}
 
