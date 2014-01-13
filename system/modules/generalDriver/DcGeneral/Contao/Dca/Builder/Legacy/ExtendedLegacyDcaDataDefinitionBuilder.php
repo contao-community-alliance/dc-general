@@ -135,12 +135,12 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 			return;
 		}
 
-		if (($class = $this->getFromDca('dca_config/controller')) === null)
+		if (($class = $this->getFromDca('dca_config/controller')) !== null)
 		{
 			$definition->setControllerClass($class);
 		}
 
-		if (($class = $this->getFromDca('dca_config/view')) === null)
+		if (($class = $this->getFromDca('dca_config/view')) !== null)
 		{
 			$definition->setViewClass($class);
 		}
