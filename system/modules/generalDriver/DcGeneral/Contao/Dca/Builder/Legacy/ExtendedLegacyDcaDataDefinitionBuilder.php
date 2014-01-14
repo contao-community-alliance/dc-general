@@ -45,7 +45,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 	 */
 	public function build(ContainerInterface $container, BuildDataDefinitionEvent $event)
 	{
-		if (!$this->loadDca($container->getName()))
+		if (!$this->loadDca($container->getName(), $event->getDispatcher()))
 		{
 			return;
 		}

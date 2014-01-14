@@ -12,8 +12,10 @@
 
 namespace DcGeneral\Contao\Dca\Builder\Legacy;
 
-use DcGeneral\Contao\BackendBindings;
+use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\LoadDataContainerEvent;
 use DcGeneral\DataDefinition\Builder\AbstractEventDrivenDataDefinitionBuilder;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Build the container config from legacy DCA syntax.
@@ -30,13 +32,14 @@ abstract class DcaReadingDataDefinitionBuilder extends AbstractEventDrivenDataDe
 	/**
 	 * {@inheritdoc}
 	 */
-	public function loadDca($dcaName)
+	public function loadDca($dcaName, EventDispatcherInterface $dispatcher)
 	{
 		$this->dca         = null;
-		$previousDca       = $GLOBALS['TL_DCA'];
+		$previousDca       = isset($GLOBALS['TL_DCA']) ? $GLOBALS['TL_DCA'] : null;
 		$GLOBALS['TL_DCA'] = array();
 
-		BackendBindings::loadDataContainer($dcaName, true);
+		$event = new LoadDataContainerEvent($dcaName, true);
+		$dispatcher->dispatch(ContaoEvents::CONTROLLER_LOAD_DATA_CONTAINER, $event);
 
 		if (isset($GLOBALS['TL_DCA'][$dcaName]))
 		{
