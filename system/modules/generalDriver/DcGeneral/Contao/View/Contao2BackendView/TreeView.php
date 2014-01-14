@@ -12,6 +12,10 @@
 
 namespace DcGeneral\Contao\View\Contao2BackendView;
 
+use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\DCGE;
@@ -66,7 +70,8 @@ class TreeView extends BaseView
 
 			// Save in session and reload.
 			$inputProvider->setPersistentValue($this->getToggleId(), $openElements);
-			BackendBindings::reload();
+
+			$this->getEnvironment()->getEventPropagator()->propagate(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
 		}
 
 		return $openElements;
@@ -391,6 +396,9 @@ class TreeView extends BaseView
 			6
 		);
 
+		$toggleUrlEvent = new AddToUrlEvent('ptg=' . $objModel->getId() . '&amp;provider=' . $objModel->getProviderName());
+		$this->getEnvironment()->getEventPropagator()->propagate(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
+
 		$this
 			->addToTemplate('environment', $this->getEnvironment(), $objTemplate)
 			->addToTemplate('objModel', $objModel, $objTemplate)
@@ -399,9 +407,7 @@ class TreeView extends BaseView
 			->addToTemplate('strToggleID', $strToggleID, $objTemplate)
 			->addToTemplate(
 				'toggleUrl',
-				BackendBindings::addToUrl(
-					'ptg=' . $objModel->getId() . '&amp;provider=' . $objModel->getProviderName()
-				),
+				$toggleUrlEvent->getUrl(),
 				$objTemplate
 			)
 			->addToTemplate('toggleTitle', $toggleTitle, $objTemplate)
@@ -469,14 +475,34 @@ class TreeView extends BaseView
 		$strLabel = $GLOBALS['TL_LANG'][$event->getEnvironment()->getDataDefinition()->getName()]['pasteinto'][0];
 		if ($event->isPasteDisabled())
 		{
-			return BackendBindings::generateImage('pasteinto_.gif', $strLabel, 'class="blink"');
+			/** @var GenerateHtmlEvent $imageEvent */
+			$imageEvent = $event->getEnvironment()->getEventPropagator()->propagate(
+				ContaoEvents::IMAGE_GET_HTML,
+				new GenerateHtmlEvent(
+					'pasteinto_.gif',
+					$strLabel,
+					'class="blink"'
+				)
+			);
+
+			return $imageEvent->getHtml();
 		}
+
+		/** @var GenerateHtmlEvent $imageEvent */
+		$imageEvent = $event->getEnvironment()->getEventPropagator()->propagate(
+			ContaoEvents::IMAGE_GET_HTML,
+			new GenerateHtmlEvent(
+				'pasteinto.gif',
+				$strLabel,
+				'class="blink"'
+			)
+		);
 
 		return sprintf(' <a href="%s" title="%s" %s>%s</a>',
 			$event->getHref(),
 			specialchars($strLabel),
 			'onclick="Backend.getScrollOffset()"',
-			BackendBindings::generateImage('pasteinto.gif', $strLabel, 'class="blink"')
+			$imageEvent->getHtml()
 		);
 	}
 
@@ -527,15 +553,19 @@ class TreeView extends BaseView
 		if ($this->getEnvironment()->getClipboard()->isNotEmpty())
 		{
 			$objClipboard = $this->getEnvironment()->getClipboard();
-			$buttonEvent  = new GetPasteRootButtonEvent($this->getEnvironment());
+			/** @var AddToUrlEvent $urlEvent */
+			$urlEvent = $this->getEnvironment()->getEventPropagator()->propagate(
+				ContaoEvents::BACKEND_ADD_TO_URL,
+				new AddToUrlEvent(sprintf('act=%s&amp;mode=2&amp;after=0&amp;pid=0&amp;id=%s&amp;childs=%s',
+					$objClipboard->getMode(),
+					$objClipboard->getContainedIds(),
+					$objClipboard->getCircularIds()
+				))
+			);
+
+			$buttonEvent = new GetPasteRootButtonEvent($this->getEnvironment());
 			$buttonEvent
-				->setHref(
-					BackendBindings::addToUrl(sprintf('act=%s&amp;mode=2&amp;after=0&amp;pid=0&amp;id=%s&amp;childs=%s',
-						$objClipboard->getMode(),
-						$objClipboard->getContainedIds(),
-						$objClipboard->getCircularIds()
-					))
-				)
+				->setHref($urlEvent->getUrl())
 				->setPasteDisabled(false);
 
 			$this->getEnvironment()->getEventPropagator()->propagate(
@@ -551,12 +581,18 @@ class TreeView extends BaseView
 			$strRootPasteInto = '';
 		}
 
+		/** @var GenerateHtmlEvent $imageEvent */
+		$imageEvent = $this->getEnvironment()->getEventPropagator()->propagate(
+			ContaoEvents::IMAGE_GET_HTML,
+			new GenerateHtmlEvent($strLabelIcon)
+		);
+
 		// Build template.
 		// FIXME: dependency injection or rather template factory?
 		$objTemplate                   = new \BackendTemplate('dcbe_general_treeview');
 		$objTemplate->treeClass        = 'tl_' . $treeClass;
 		$objTemplate->tableName        = $definition->getName();
-		$objTemplate->strLabelIcon     = BackendBindings::generateImage($strLabelIcon);
+		$objTemplate->strLabelIcon     = $imageEvent->getHtml();
 		$objTemplate->strLabelText     = $strLabelText;
 		$objTemplate->strHTML          = $this->generateTreeView($collection, $treeClass);
 		$objTemplate->strRootPasteinto = $strRootPasteInto;
