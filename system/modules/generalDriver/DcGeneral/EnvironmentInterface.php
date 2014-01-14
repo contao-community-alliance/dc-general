@@ -12,6 +12,8 @@
 
 namespace DcGeneral;
 
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
+
 /**
  * Interface EnvironmentInterface.
  *
@@ -188,7 +190,7 @@ interface EnvironmentInterface
 	/**
 	 * Retrieve the translation manager to use.
 	 *
-	 * @return \DcGeneral\TranslatorInterface
+	 * @return TranslatorInterface
 	 */
 	public function getTranslator();
 

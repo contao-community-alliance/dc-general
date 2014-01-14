@@ -11,11 +11,11 @@
 
 namespace DcGeneral\Factory;
 
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\DcGeneral;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Event\EventPropagatorInterface;
-use DcGeneral\TranslatorInterface;
 
 /**
  * This interface describes a DcGeneral factory.

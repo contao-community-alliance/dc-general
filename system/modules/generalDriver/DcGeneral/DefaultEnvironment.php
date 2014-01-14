@@ -12,6 +12,7 @@
 
 namespace DcGeneral;
 
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
@@ -83,7 +84,7 @@ class DefaultEnvironment implements EnvironmentInterface
 	/**
 	 * The translator in use.
 	 *
-	 * @var \DcGeneral\EnvironmentInterface
+	 * @var \ContaoCommunityAlliance\Translator\TranslatorInterface
 	 */
 	protected $translator;
 

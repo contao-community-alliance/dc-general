@@ -12,6 +12,7 @@
 
 namespace DcGeneral\Factory;
 
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Event\EventPropagatorInterface;
@@ -19,7 +20,6 @@ use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use DcGeneral\Factory\Event\CreateDcGeneralEvent;
 use DcGeneral\Factory\Event\PopulateEnvironmentEvent;
-use DcGeneral\TranslatorInterface;
 
 /**
  * Factory to create a DcGeneral instance.

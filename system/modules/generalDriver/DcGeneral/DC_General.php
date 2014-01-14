@@ -11,8 +11,9 @@
 
 namespace DcGeneral;
 
+use ContaoCommunityAlliance\Translator\Contao\LangArrayTranslator;
+use ContaoCommunityAlliance\Translator\TranslatorChain;
 use DcGeneral\Contao\Callback\Callbacks;
-use DcGeneral\Contao\LangArrayTranslator;
 use DcGeneral\Controller\Ajax2X;
 use DcGeneral\Controller\Ajax3X;
 use DcGeneral\Data\ModelInterface;
@@ -149,7 +150,7 @@ class DC_General
 		$propagator = new EventPropagator($dispatcher);
 
 		$translator = new TranslatorChain();
-		$translator->add(new LangArrayTranslator());
+		$translator->add(new LangArrayTranslator($dispatcher));
 
 		$factory = new DcGeneralFactory();
 		// FIXME: transporting the current instance via $GLOBALS is needed to tell the callback handler about this class.
