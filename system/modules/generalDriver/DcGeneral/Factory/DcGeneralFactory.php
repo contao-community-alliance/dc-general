@@ -297,7 +297,11 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 		$dcGeneral = $dcGeneralClass->newInstance($environment);
 
 		$event = new CreateDcGeneralEvent($dcGeneral);
-		$this->eventPropagator->propagate($event, array($this->containerName));
+		$this->eventPropagator->propagate(
+			$event::NAME,
+			$event,
+			array($this->containerName)
+		);
 
 		return $dcGeneral;
 	}
@@ -343,7 +347,11 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 		$environment->setTranslator($this->translator);
 
 		$event = new PopulateEnvironmentEvent($environment);
-		$this->eventPropagator->propagate($event, array($this->containerName));
+		$this->eventPropagator->propagate(
+			$event::NAME,
+			$event,
+			array($this->containerName)
+		);
 
 		return $environment;
 	}
@@ -381,7 +389,11 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 		$definitions->setDefinition($this->containerName, $dataContainer);
 
 		$event = new BuildDataDefinitionEvent($dataContainer);
-		$this->eventPropagator->propagate($event, array($this->containerName));
+		$this->eventPropagator->propagate(
+			$event::NAME,
+			$event,
+			array($this->containerName)
+		);
 
 		return $dataContainer;
 	}

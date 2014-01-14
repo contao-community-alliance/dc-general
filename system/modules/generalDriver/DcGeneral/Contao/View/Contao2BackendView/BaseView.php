@@ -100,6 +100,7 @@ class BaseView implements BackendViewInterface
 	protected function dispatchEvent($eventName, $event)
 	{
 		$this->getEnvironment()->getEventPropagator()->propagate(
+			$event::NAME,
 			$event,
 			array($this->getEnvironment()->getDataDefinition()->getName())
 		);
@@ -414,6 +415,7 @@ class BaseView implements BackendViewInterface
 		$event = new GetGroupHeaderEvent($this->getEnvironment(), $model, $field, $remoteNew, $groupMode);
 
 		$this->getEnvironment()->getEventPropagator()->propagate(
+			$event::NAME,
 			$event,
 			array($this->getEnvironment()->getDataDefinition()->getName())
 		);
@@ -504,7 +506,11 @@ class BaseView implements BackendViewInterface
 		$event = new GetEditModeButtonsEvent($this->getEnvironment());
 		$event->setButtons($buttons);
 
-		$this->getEnvironment()->getEventPropagator()->propagate($event, array($definition->getName()));
+		$this->getEnvironment()->getEventPropagator()->propagate(
+			$event::NAME,
+			$event,
+			array($definition->getName())
+		);
 
 		return $event->getButtons();
 	}
@@ -569,6 +575,7 @@ class BaseView implements BackendViewInterface
 		$event->setButtons($buttons);
 
 		$this->getEnvironment()->getEventPropagator()->propagate(
+			$event::NAME,
 			$event,
 			array($this->getEnvironment()->getDataDefinition()->getName())
 		);
@@ -1040,7 +1047,9 @@ class BaseView implements BackendViewInterface
 		{
 			// TODO: Change to PrePersistModelEvent.
 			$event = new EditModelBeforeSaveEvent($environment, $model);
-			$environment->getEventPropagator()->propagate($event,
+			$environment->getEventPropagator()->propagate(
+				$event::NAME,
+				$event,
 				array(
 					$this->getEnvironment()->getDataDefinition()->getName(),
 				)
@@ -1444,6 +1453,7 @@ class BaseView implements BackendViewInterface
 				->setTitle($title);
 
 			$this->getEnvironment()->getEventPropagator()->propagate(
+				$buttonEvent::NAME,
 				$buttonEvent,
 				array(
 					$this->getEnvironment()->getDataDefinition()->getName(),
@@ -1477,6 +1487,7 @@ class BaseView implements BackendViewInterface
 		$buttonsEvent->setButtons($arrReturn);
 
 		$this->getEnvironment()->getEventPropagator()->propagate(
+			$buttonsEvent::NAME,
 			$buttonsEvent,
 			array($this->getEnvironment()->getDataDefinition()->getName())
 		);
@@ -1592,6 +1603,7 @@ class BaseView implements BackendViewInterface
 			->setNext($next);
 
 		$this->getEnvironment()->getEventPropagator()->propagate(
+			$buttonEvent::NAME,
 			$buttonEvent,
 			array(
 				$this->getEnvironment()->getDataDefinition()->getName(),
@@ -1757,6 +1769,7 @@ class BaseView implements BackendViewInterface
 				->setPasteIntoDisabled($objClipboard->isCut() && $isCircular);
 
 			$this->getEnvironment()->getEventPropagator()->propagate(
+				$buttonEvent::NAME,
 				$buttonEvent,
 				array($this->getEnvironment()->getDataDefinition()->getName())
 			);
@@ -1844,6 +1857,7 @@ class BaseView implements BackendViewInterface
 		$event = new GetBreadcrumbEvent($this->getEnvironment());
 
 		$this->getEnvironment()->getEventPropagator()->propagate(
+			$event::NAME,
 			$event,
 			array($this->getEnvironment()->getDataDefinition()->getName())
 		);
@@ -1936,6 +1950,7 @@ class BaseView implements BackendViewInterface
 			->setFormatter($formatter);
 
 		$this->getEnvironment()->getEventPropagator()->propagate(
+			$event::NAME,
 			$event,
 			array($this->getEnvironment()->getDataDefinition()->getName())
 		);
@@ -2009,6 +2024,7 @@ class BaseView implements BackendViewInterface
 	{
 		$event = new RenderReadablePropertyValueEvent($this->getEnvironment(), $model, $property, $value);
 		$this->getEnvironment()->getEventPropagator()->propagate(
+			$event::NAME,
 			$event,
 			array(
 				$this->getEnvironment()->getDataDefinition()->getName(),

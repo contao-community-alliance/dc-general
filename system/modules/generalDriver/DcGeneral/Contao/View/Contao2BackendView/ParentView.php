@@ -188,6 +188,7 @@ class ParentView extends BaseView
 			$event = new ParentViewChildRecordEvent($this->getEnvironment(), $model);
 
 			$this->getEnvironment()->getEventPropagator()->propagate(
+				$event::NAME,
 				$event,
 				array(
 					$this->getEnvironment()->getDataDefinition()->getName(),
@@ -300,6 +301,7 @@ class ParentView extends BaseView
 		$event->setAdditional($add);
 
 		$this->getEnvironment()->getEventPropagator()->propagate(
+			$event::NAME,
 			$event,
 			$this->getEnvironment()->getDataDefinition()->getName()
 		);

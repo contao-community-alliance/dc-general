@@ -87,10 +87,14 @@ class ContaoWidgetManager
 			->setProperty($property)
 			->setValue($value);
 
-		$environment->getEventPropagator()->propagate($event, array(
-			$environment->getDataDefinition()->getName(),
-			$property
-		));
+		$environment->getEventPropagator()->propagate(
+			$event,
+			$event::NAME,
+			array(
+				$environment->getDataDefinition()->getName(),
+				$property
+			)
+		);
 
 		return $event->getValue();
 	}
@@ -113,10 +117,14 @@ class ContaoWidgetManager
 			->setProperty($property)
 			->setValue($value);
 
-		$environment->getEventPropagator()->propagate($event, array(
-			$environment->getDataDefinition()->getName(),
-			$property
-		));
+		$environment->getEventPropagator()->propagate(
+			$event::NAME,
+			$event,
+			array(
+				$environment->getDataDefinition()->getName(),
+				$property
+			)
+		);
 
 		return $event->getValue();
 	}
@@ -284,10 +292,14 @@ class ContaoWidgetManager
 
 		$event = new BuildWidgetEvent($environment, $this->model, $propertyDefinitions->getProperty($property));
 
-		$environment->getEventPropagator()->propagate($event, array(
-			$defName,
-			$property
-		));
+		$environment->getEventPropagator()->propagate(
+			$event::NAME,
+			$event,
+			array(
+				$defName,
+				$property
+			)
+		);
 
 		if ($event->getWidget())
 		{
@@ -323,6 +335,7 @@ class ContaoWidgetManager
 		$event   = new GetPropertyOptionsEvent($environment, $this->model);
 		$event->setPropertyName($property);
 		$environment->getEventPropagator()->propagate(
+			$event::NAME,
 			$event,
 			$environment->getDataDefinition()->getName(),
 			$property
@@ -383,6 +396,7 @@ class ContaoWidgetManager
 
 		$event = new ManipulateWidgetEvent($environment, $this->model, $propInfo, $objWidget);
 		$environment->getEventPropagator()->propagate(
+			$event::NAME,
 			$event,
 			array(
 				$defName,
@@ -570,7 +584,14 @@ class ContaoWidgetManager
 				foreach ($errors as $error)
 				{
 					$event = new ResolveWidgetErrorMessageEvent($this->getEnvironment(), $error);
-					$propagator->propagate($event, array($definitionName, $property));
+					$propagator->propagate(
+						$event::NAME,
+						$event,
+						array(
+							$definitionName,
+							$property
+						)
+					);
 
 					$widget->addError($event->getError());
 				}

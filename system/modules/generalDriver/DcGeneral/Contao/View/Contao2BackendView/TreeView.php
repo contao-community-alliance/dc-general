@@ -539,6 +539,7 @@ class TreeView extends BaseView
 				->setPasteDisabled(false);
 
 			$this->getEnvironment()->getEventPropagator()->propagate(
+				$buttonEvent::NAME,
 				$buttonEvent,
 				$this->getEnvironment()->getDataDefinition()->getName()
 			);

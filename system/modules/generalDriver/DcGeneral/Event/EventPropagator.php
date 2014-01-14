@@ -39,22 +39,22 @@ class EventPropagator implements EventPropagatorInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function propagate($event, $suffixes = array())
+	public function propagate($eventName, $event = null, $suffixes = array())
 	{
 		if (!is_array($suffixes))
 		{
 			$suffixes = func_get_args();
 
+			// Skip $eventName.
+			array_shift($suffixes);
 			// Skip $event.
 			array_shift($suffixes);
 		}
 
-		$eventName = $event::NAME;
-
 		while ($suffixes)
 		{
 			// First, try to dispatch to all DCA registered subscribers.
-			$this->propagateExact($event, $suffixes);
+			$event = $this->propagateExact($eventName, $event, $suffixes);
 			array_pop($suffixes);
 
 			if ($event->isPropagationStopped() === true)
@@ -64,9 +64,9 @@ class EventPropagator implements EventPropagatorInterface
 		}
 
 		// Second, try to dispatch to all globally registered subscribers.
-		if ($event->isPropagationStopped() !== true)
+		if ((!$event) || $event->isPropagationStopped() === false)
 		{
-			$this->dispatcher->dispatch($eventName, $event);
+			$event = $this->dispatcher->dispatch($eventName, $event);
 		}
 
 		return $event;
@@ -75,19 +75,19 @@ class EventPropagator implements EventPropagatorInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function propagateExact($event, $suffixes = array())
+	public function propagateExact($eventName, $event = null, $suffixes = array())
 	{
 		if (!is_array($suffixes))
 		{
 			$suffixes = func_get_args();
 
+			// Skip $eventName.
+			array_shift($suffixes);
 			// Skip $event.
 			array_shift($suffixes);
 		}
 
-		$eventName = $event::NAME;
-
-		$this->dispatcher->dispatch(
+		$event = $this->dispatcher->dispatch(
 			sprintf(
 				'%s%s',
 				$eventName,
