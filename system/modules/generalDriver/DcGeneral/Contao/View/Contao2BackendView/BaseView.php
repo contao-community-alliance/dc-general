@@ -12,6 +12,14 @@
 
 namespace DcGeneral\Contao\View\Contao2BackendView;
 
+use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Image\ResizeImageEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\EditModelBeforeSaveEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 use DcGeneral\Data\ModelInterface;
@@ -199,29 +207,38 @@ class BaseView implements BackendViewInterface
 	 */
 	protected function redirectHome()
 	{
-		$input = $this->getEnvironment()->getInputProvider();
+		$environment = $this->getEnvironment();
+		$input       = $environment->getInputProvider();
+
 		if ($input->hasParameter('table') && $input->hasParameter('id'))
 		{
 			if ($input->hasParameter('id'))
 			{
-				BackendBindings::redirect(sprintf(
+				$event = new RedirectEvent(sprintf(
 						'contao/main.php?do=%s&table=%s&id=%s',
 						$input->getParameter('do'),
 						$input->getParameter('table'),
 						$input->getParameter('id')
 				));
 			}
-			BackendBindings::redirect(sprintf(
+			else
+			{
+				$event = new RedirectEvent(sprintf(
 					'contao/main.php?do=%s&table=%s',
 					$input->getParameter('do'),
 					$input->getParameter('table')
+				));
+			}
+		}
+		else
+		{
+			$event = new RedirectEvent(sprintf(
+				'contao/main.php?do=%s',
+				$input->getParameter('do')
 			));
 		}
 
-		BackendBindings::redirect(sprintf(
-				'contao/main.php?do=%s',
-				$input->getParameter('do')
-		));
+		$environment->getEventPropagator()->propagate(ContaoEvents::CONTROLLER_REDIRECT, $event);
 	}
 
 	/**
@@ -847,11 +864,16 @@ class BaseView implements BackendViewInterface
 		{
 			if ($inputProvider->getValue('id'))
 			{
-				BackendBindings::reload();
+				$environment->getEventPropagator()->propagate(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
 			}
 			else
 			{
-				BackendBindings::redirect(BackendBindings::addToUrl('id=' . $model->getId()));
+				$newUrlEvent = new AddToUrlEvent('id=' . $model->getId());
+				$environment->getEventPropagator()->propagate(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
+				$environment->getEventPropagator()->propagate(
+					ContaoEvents::CONTROLLER_REDIRECT,
+					new RedirectEvent($newUrlEvent->getUrl())
+				);
 			}
 		}
 		elseif ($inputProvider->hasValue('saveNclose'))
@@ -862,7 +884,12 @@ class BaseView implements BackendViewInterface
 			$_SESSION['TL_ERROR']   = '';
 			$_SESSION['TL_CONFIRM'] = '';
 
-			BackendBindings::redirect(BackendBindings::getReferer());
+			$newUrlEvent = new GetReferrerEvent();
+			$environment->getEventPropagator()->propagate(ContaoEvents::SYSTEM_GET_REFERRER, $newUrlEvent);
+			$environment->getEventPropagator()->propagate(
+				ContaoEvents::CONTROLLER_REDIRECT,
+				new RedirectEvent($newUrlEvent->getReferrerUrl())
+			);
 		}
 		elseif ($inputProvider->hasValue('saveNcreate'))
 		{
@@ -872,13 +899,21 @@ class BaseView implements BackendViewInterface
 			$_SESSION['TL_ERROR']   = '';
 			$_SESSION['TL_CONFIRM'] = '';
 
-			BackendBindings::redirect(BackendBindings::addToUrl('act=create&id='));
+			$newUrlEvent = new AddToUrlEvent('act=create&id=');
+			$environment->getEventPropagator()->propagate(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
+			$environment->getEventPropagator()->propagate(
+				ContaoEvents::CONTROLLER_REDIRECT,
+				new RedirectEvent($newUrlEvent->getUrl())
+			);
+
 		}
 		elseif ($inputProvider->hasValue('saveNback'))
 		{
 			echo vsprintf($this->notImplMsg, 'Save and go back');
 			exit;
 		}
+		else
+		{
 	}
 
 	/**
@@ -916,13 +951,18 @@ class BaseView implements BackendViewInterface
 					$modelId,
 					$basicDefinition->getDataProvider()
 				);
-				BackendBindings::log($message, TL_ERROR, 'DC_General - edit()');
+
+				$environment->getEventPropagator()->propagate(
+					ContaoEvents::SYSTEM_LOG,
+					new LogEvent($message, TL_ERROR, 'DC_General - checkRestoreVersion()')
+				);
+
 				throw new DcGeneralRuntimeException($message);
 			}
 
 			$dataProvider->save($model);
 			$dataProvider->setVersionActive($modelId, $modelVersion);
-			BackendBindings::reload();
+			$environment->getEventPropagator()->propagate(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
 		}
 	}
 
@@ -973,7 +1013,10 @@ class BaseView implements BackendViewInterface
 		if (!$basicDefinition->isEditable())
 		{
 			$message = 'DataContainer ' . $definition->getName() . ' is not editable';
-			BackendBindings::log($message, TL_ERROR, 'DC_General - edit()');
+			$environment->getEventPropagator()->propagate(
+				ContaoEvents::SYSTEM_LOG,
+				new LogEvent($message, TL_ERROR, 'DC_General - edit()')
+			);
 			throw new DcGeneralRuntimeException($message);
 		}
 
@@ -981,7 +1024,10 @@ class BaseView implements BackendViewInterface
 		if ((!$modelId) && $basicDefinition->isClosed())
 		{
 			$message = 'DataContainer ' . $definition->getName() . ' is closed';
-			BackendBindings::log($message, TL_ERROR, 'DC_General - edit()');
+			$environment->getEventPropagator()->propagate(
+				ContaoEvents::SYSTEM_LOG,
+				new LogEvent($message, TL_ERROR, 'DC_General - edit()')
+			);
 			throw new DcGeneralRuntimeException($message);
 		}
 
@@ -1036,6 +1082,7 @@ class BaseView implements BackendViewInterface
 
 				$fields[] = $widgetManager->renderWidget($property->getName());
 			}
+
 			$arrFieldSet['label']   = $legendName;
 			$arrFieldSet['class']   = 'tl_box';
 			$arrFieldSet['palette'] = implode('', $fields);
@@ -1185,16 +1232,23 @@ class BaseView implements BackendViewInterface
 
 		if ($objDBModel == null)
 		{
-			BackendBindings::log(
-				sprintf(
-					'Could not find ID %s in %s.', 'DC_General show()',
-					$modelId,
-					$definition->getName()
-				),
-				__CLASS__ . '::' . __FUNCTION__,
-				TL_ERROR
+			$environment->getEventPropagator()->propagate(
+				ContaoEvents::SYSTEM_LOG,
+				new LogEvent(
+					sprintf(
+						'Could not find ID %s in %s.', 'DC_General show()',
+						$modelId,
+						$definition->getName()
+					),
+					__CLASS__ . '::' . __FUNCTION__,
+					TL_ERROR
+				)
 			);
-			BackendBindings::redirect('contao/main.php?act=error');
+
+			$environment->getEventPropagator()->propagate(
+				ContaoEvents::CONTROLLER_REDIRECT,
+				new RedirectEvent('contao/main.php?act=error')
+			);
 		}
 
 		$values = array();
@@ -1309,7 +1363,15 @@ class BaseView implements BackendViewInterface
 		// Make Urls absolute.
 		foreach ($globalOperations as $k => $v)
 		{
-			$globalOperations[$k]['href'] = BackendBindings::addToUrl($v['href']);
+			/** @var AddToUrlEvent $event */
+			$event = $environment->getEventPropagator()->propagate(
+				ContaoEvents::BACKEND_ADD_TO_URL,
+				new AddToUrlEvent(
+					$v['href']
+				)
+			);
+
+			$globalOperations[$k]['href'] = $event->getUrl();
 		}
 
 		// Special case - if select mode active, we must not display the "edit all" button.
@@ -1340,15 +1402,28 @@ class BaseView implements BackendViewInterface
 						{
 							$strHref = '&amp;mode=2';
 						}
-						$strHref = BackendBindings::addToUrl(
-							$strHref .
-							'&amp;id=&amp;act=create&amp;pid=' .
-							$environment->getInputProvider()->getParameter('id')
+
+						/** @var AddToUrlEvent $event */
+						$event = $environment->getEventPropagator()->propagate(
+							ContaoEvents::BACKEND_ADD_TO_URL,
+							new AddToUrlEvent(
+								$strHref .
+								'&amp;id=&amp;act=create&amp;pid=' .
+								$environment->getInputProvider()->getParameter('id')
+							)
 						);
+
+						$strHref = $event->getUrl();
 					}
 					else
 					{
-						$strHref = BackendBindings::addToUrl('act=create');
+						/** @var AddToUrlEvent $event */
+						$event = $environment->getEventPropagator()->propagate(
+							ContaoEvents::BACKEND_ADD_TO_URL,
+							new AddToUrlEvent('act=create')
+						);
+
+						$strHref = $event->getUrl();
 					}
 
 					$addButton = !$basicDefinition->isClosed();
@@ -1356,12 +1431,18 @@ class BaseView implements BackendViewInterface
 
 				case BasicDefinitionInterface::MODE_HIERARCHICAL:
 				case BasicDefinitionInterface::MODE_PARENTEDLIST:
-					$strHref = BackendBindings::addToUrl(
-						sprintf(
-							'act=paste&amp;mode=create&amp;cdp=%s&amp;pdp=%s',
-							$providerName, $parentProviderName
+					/** @var AddToUrlEvent $event */
+					$event = $environment->getEventPropagator()->propagate(
+						ContaoEvents::BACKEND_ADD_TO_URL,
+						new AddToUrlEvent(
+							sprintf(
+								'act=paste&amp;mode=create&amp;cdp=%s&amp;pdp=%s',
+								$providerName, $parentProviderName
+							)
 						)
 					);
+
+					$strHref = $event->getUrl();
 
 					$addButton = !($basicDefinition->isClosed() || $environment->getClipboard()->isNotEmpty());
 
@@ -1393,13 +1474,19 @@ class BaseView implements BackendViewInterface
 		// Add clear clipboard button if needed.
 		if ($this->getEnvironment()->getClipboard()->isNotEmpty())
 		{
+			/** @var AddToUrlEvent $event */
+			$event = $environment->getEventPropagator()->propagate(
+				ContaoEvents::BACKEND_ADD_TO_URL,
+				new AddToUrlEvent('clipboard=1')
+			);
+
 			$globalOperations = array_merge(
 				array(
 					'button_clipboard'     => array
 					(
 						'class'      => 'header_clipboard',
 						'accesskey'  => 'x',
-						'href'       => BackendBindings::addToUrl('clipboard=1'),
+						'href'       => $event->getUrl(),
 						'title'      => $this->translate('MSC.clearClipboard'),
 						'label'      => $this->translate('MSC.clearClipboard')
 					)
@@ -1411,13 +1498,19 @@ class BaseView implements BackendViewInterface
 		// Add back button.
 		if ($this->isSelectModeActive() || $parentProviderName)
 		{
+			/** @var GetReferrerEvent $event */
+			$event = $environment->getEventPropagator()->propagate(
+				ContaoEvents::SYSTEM_GET_REFERRER,
+				new GetReferrerEvent(true, $parentProviderName)
+			);
+
 			$globalOperations = array_merge(
 				array(
 					'back_button'    => array
 					(
 						'class'      => 'header_back',
 						'accesskey'  => 'b',
-						'href'       => BackendBindings::getReferer(true, $parentProviderName),
+						'href'       => $event->getReferrerUrl(),
 						'attributes' => 'onclick="Backend.getScrollOffset();"',
 						'title'      => $this->translate('MSC.backBT'),
 						'label'      => $this->translate('MSC.backBT')
@@ -1515,6 +1608,8 @@ class BaseView implements BackendViewInterface
 	 */
 	protected function buildCommand($objCommand, $objModel, $blnCircularReference, $arrChildRecordIds, $previous, $next)
 	{
+		$propagator = $this->getEnvironment()->getEventPropagator();
+
 		// Set basic information.
 		$opLabel = $objCommand->getLabel();
 		if (strlen($opLabel))
@@ -1587,7 +1682,14 @@ class BaseView implements BackendViewInterface
 		{
 			$strHref .= sprintf('&amp;%s=%s', $key, $value);
 		}
-		$strHref = BackendBindings::addToUrl($strHref);
+
+		/** @var AddToUrlEvent $event */
+		$event = $propagator->propagate(
+			ContaoEvents::BACKEND_ADD_TO_URL,
+			new AddToUrlEvent($strHref)
+		);
+
+		$strHref = $event->getUrl();
 
 		$buttonEvent = new GetOperationButtonEvent($this->getEnvironment());
 		$buttonEvent
@@ -1602,7 +1704,7 @@ class BaseView implements BackendViewInterface
 			->setPrevious($previous)
 			->setNext($next);
 
-		$this->getEnvironment()->getEventPropagator()->propagate(
+		$propagator->propagate(
 			$buttonEvent::NAME,
 			$buttonEvent,
 			array(
@@ -1622,15 +1724,32 @@ class BaseView implements BackendViewInterface
 
 		if ($objCommand->isDisabled())
 		{
-			$icon = substr_replace($icon, '_1', strrpos($icon, '.'), 0);
-			return BackendBindings::generateImage($icon, $buttonEvent->getLabel());
+			/** @var GenerateHtmlEvent $event */
+			$event = $propagator->propagate(
+				ContaoEvents::IMAGE_GET_HTML,
+				new GenerateHtmlEvent(
+					substr_replace($icon, '_1', strrpos($icon, '.'), 0),
+					$buttonEvent->getLabel()
+				)
+			);
+
+			return $event->getHtml();
 		}
+
+		/** @var GenerateHtmlEvent $event */
+		$event = $propagator->propagate(
+			ContaoEvents::IMAGE_GET_HTML,
+			new GenerateHtmlEvent(
+				$icon,
+				$buttonEvent->getLabel()
+			)
+		);
 
 		return sprintf(' <a href="%s" title="%s" %s>%s</a>',
 			$buttonEvent->getHref(),
 			specialchars($buttonEvent->getTitle()),
 			$buttonEvent->getAttributes(),
-			BackendBindings::generateImage($icon, $buttonEvent->getLabel())
+			$event->getHtml()
 		);
 	}
 
@@ -1651,14 +1770,34 @@ class BaseView implements BackendViewInterface
 		$strLabel = $this->translate('pasteinto.0', $event->getModel()->getProviderName());
 		if ($event->isPasteIntoDisabled())
 		{
-			return BackendBindings::generateImage('pasteinto_.gif', $strLabel, 'class="blink"');
+			/** @var GenerateHtmlEvent $imageEvent */
+			$imageEvent = $this->getEnvironment()->getEventPropagator()->propagate(
+				ContaoEvents::IMAGE_GET_HTML,
+				new GenerateHtmlEvent(
+					'pasteinto_.gif',
+					$strLabel,
+					'class="blink"'
+				)
+			);
+
+			return $imageEvent->getHtml();
 		}
+
+		/** @var GenerateHtmlEvent $imageEvent */
+		$imageEvent = $this->getEnvironment()->getEventPropagator()->propagate(
+			ContaoEvents::IMAGE_GET_HTML,
+			new GenerateHtmlEvent(
+				'pasteinto.gif',
+				$strLabel,
+				'class="blink"'
+			)
+		);
 
 		return sprintf(' <a href="%s" title="%s" %s>%s</a>',
 				$event->getHrefInto(),
 				specialchars($strLabel),
 				'onclick="Backend.getScrollOffset()"',
-				BackendBindings::generateImage('pasteinto.gif', $strLabel, 'class="blink"')
+				$imageEvent->getHtml()
 			);
 	}
 
@@ -1679,14 +1818,34 @@ class BaseView implements BackendViewInterface
 		$strLabel = $this->translate('pasteafter.0', $event->getModel()->getProviderName());
 		if ($event->isPasteIntoDisabled())
 		{
-			return BackendBindings::generateImage('pasteafter_.gif', $strLabel, 'class="blink"');
+			/** @var GenerateHtmlEvent $imageEvent */
+			$imageEvent = $this->getEnvironment()->getEventPropagator()->propagate(
+				ContaoEvents::IMAGE_GET_HTML,
+				new GenerateHtmlEvent(
+					'pasteafter_.gif',
+					$strLabel,
+					'class="blink"'
+				)
+			);
+
+			return $imageEvent->getHtml();
 		}
+
+		/** @var GenerateHtmlEvent $imageEvent */
+		$imageEvent = $this->getEnvironment()->getEventPropagator()->propagate(
+			ContaoEvents::IMAGE_GET_HTML,
+			new GenerateHtmlEvent(
+				'pasteafter.gif',
+				$strLabel,
+				'class="blink"'
+			)
+		);
 
 		return sprintf(' <a href="%s" title="%s" %s>%s</a>',
 			$event->getHrefAfter(),
 			specialchars($strLabel),
 			'onclick="Backend.getScrollOffset()"',
-			BackendBindings::generateImage('pasteafter.gif', $strLabel, 'class="blink"')
+			$imageEvent->getHtml()
 		);
 	}
 
@@ -1714,6 +1873,7 @@ class BaseView implements BackendViewInterface
 	{
 		$commands     = $this->getViewSection()->getModelCommands();
 		$objClipboard = $this->getEnvironment()->getClipboard();
+		$propagator   = $this->getEnvironment()->getEventPropagator();
 
 		if ($this->getEnvironment()->getClipboard()->isNotEmpty())
 		{
@@ -1756,14 +1916,26 @@ class BaseView implements BackendViewInterface
 				$objModelRow->getID()
 			);
 
+			/** @var AddToUrlEvent $urlAfter */
+			$urlAfter = $propagator->propagate(
+				ContaoEvents::BACKEND_ADD_TO_URL,
+				new AddToUrlEvent($strAdd2UrlAfter)
+			);
+
+			/** @var AddToUrlEvent $urlInto */
+			$urlInto = $propagator->propagate(
+				ContaoEvents::BACKEND_ADD_TO_URL,
+				new AddToUrlEvent($strAdd2UrlInto)
+			);
+
 			$buttonEvent = new GetPasteButtonEvent($this->getEnvironment());
 			$buttonEvent
 				->setModel($objModelRow)
 				->setCircularReference($isCircular)
 				->setPrevious($previous)
 				->setNext($next)
-				->setHrefAfter(BackendBindings::addToUrl($strAdd2UrlAfter))
-				->setHrefInto(BackendBindings::addToUrl($strAdd2UrlInto))
+				->setHrefAfter($urlAfter->getUrl())
+				->setHrefInto($urlInto->getUrl())
 				// Check if the id is in the ignore list.
 				->setPasteAfterDisabled($objClipboard->isCut() && $isCircular)
 				->setPasteIntoDisabled($objClipboard->isCut() && $isCircular);
