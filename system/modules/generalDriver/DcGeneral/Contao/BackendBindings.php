@@ -12,14 +12,16 @@
 
 namespace DcGeneral\Contao;
 
-if (version_compare(VERSION, '3.0', '<'))
-{
-	class_alias('DcGeneral\Contao\BackendBindingInternal\ContaoTwoEleven', 'DcGeneral\Contao\BackendBindingInternal');
-}
-else
-{
-	class_alias('DcGeneral\Contao\BackendBindingInternal\ContaoThree', 'DcGeneral\Contao\BackendBindingInternal');
-}
+use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\LoadDataContainerEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Image\ResizeImageEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\System\LoadLanguageFileEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 
 /**
  * Class BackendBindings.
@@ -29,9 +31,16 @@ else
  * This is needed to limit the amount of version_compare() calls to an absolute minimum.
  *
  * @package DcGeneral\Contao
+ *
+ * @deprecated Use events-contao-bindings package.
  */
 class BackendBindings
 {
+	protected static function dispatch($eventName, $event)
+	{
+		return $GLOBALS['container']['event-dispatcher']->dispatch($eventName, $event);
+	}
+
 	/**
 	 * Log a message to the contao system log.
 	 *
@@ -45,14 +54,15 @@ class BackendBindings
 	 */
 	public static function log($strText, $strFunction, $strCategory)
 	{
-		if (version_compare(VERSION, '3.1', '>='))
-		{
-			\Backend::log($strText, $strFunction, $strCategory);
-		}
-		else
-		{
-			BackendBindingInternal::getInstance()->log($strText, $strFunction, $strCategory);
-		}
+		trigger_error(__FILE__ . '::' . __METHOD__ . ' deprecated, use events-contao-bindings.');
+		self::dispatch(
+			ContaoEvents::SYSTEM_LOG,
+			new LogEvent(
+				$strText,
+				$strFunction,
+				$strCategory
+			)
+		);
 	}
 
 	/**
@@ -68,14 +78,14 @@ class BackendBindings
 	 */
 	public static function redirect($strLocation, $intStatus = 303)
 	{
-		if (version_compare(VERSION, '3.1', '>='))
-		{
-			\Backend::redirect($strLocation, $intStatus);
-		}
-		else
-		{
-			BackendBindingInternal::getInstance()->redirect($strLocation, $intStatus);
-		}
+		trigger_error(__FILE__ . '::' . __METHOD__ . ' deprecated, use events-contao-bindings.');
+		self::dispatch(
+			ContaoEvents::CONTROLLER_REDIRECT,
+			new RedirectEvent(
+				$strLocation,
+				$intStatus
+			)
+		);
 	}
 
 	/**
@@ -87,14 +97,12 @@ class BackendBindings
 	 */
 	public static function reload()
 	{
-		if (version_compare(VERSION, '3.1', '>='))
-		{
-			\Backend::reload();
-		}
-		else
-		{
-			BackendBindingInternal::getInstance()->reload();
-		}
+		trigger_error(__FILE__ . '::' . __METHOD__ . ' deprecated, use events-contao-bindings.');
+		self::dispatch(
+			ContaoEvents::CONTROLLER_RELOAD,
+			new ReloadEvent(
+			)
+		);
 	}
 
 	/**
@@ -106,12 +114,13 @@ class BackendBindings
 	 */
 	public static function addToUrl($strRequest)
 	{
-		if (version_compare(VERSION, '3.1', '>='))
-		{
-			return \Backend::addToUrl($strRequest);
-		}
-
-		return BackendBindingInternal::getInstance()->addToUrl($strRequest);
+		trigger_error(__FILE__ . '::' . __METHOD__ . ' deprecated, use events-contao-bindings.');
+		return self::dispatch(
+			ContaoEvents::BACKEND_ADD_TO_URL,
+			new AddToUrlEvent(
+				$strRequest
+			)
+		)->getUrl();
 	}
 
 	/**
@@ -129,14 +138,15 @@ class BackendBindings
 	 */
 	public static function loadLanguageFile($strName, $strLanguage = null, $blnNoCache = false)
 	{
-		if (version_compare(VERSION, '3.1', '>='))
-		{
-			\Backend::loadLanguageFile($strName, $strLanguage, $blnNoCache);
-		}
-		else
-		{
-			BackendBindingInternal::getInstance()->loadLanguageFile($strName, $strLanguage, $blnNoCache);
-		}
+		trigger_error(__FILE__ . '::' . __METHOD__ . ' deprecated, use events-contao-bindings.');
+		self::dispatch(
+			ContaoEvents::SYSTEM_LOAD_LANGUAGE_FILE,
+			new LoadLanguageFileEvent(
+				$strName,
+				$strLanguage,
+				$blnNoCache
+			)
+		);
 	}
 
 	/**
@@ -153,12 +163,18 @@ class BackendBindings
 	 */
 	public static function getImage($image, $width, $height, $mode = '', $target = null, $force = false)
 	{
-		if (version_compare(VERSION, '3.1', '>='))
-		{
-			return \Image::get($image, $width, $height, $mode, $target, $force);
-		}
-
-		return BackendBindingInternal::getInstance()->getImage($image, $width, $height, $mode, $target, $force);
+		trigger_error(__FILE__ . '::' . __METHOD__ . ' deprecated, use events-contao-bindings.');
+		return self::dispatch(
+			ContaoEvents::IMAGE_RESIZE,
+			new ResizeImageEvent(
+				$image,
+				$width,
+				$height,
+				$mode,
+				$target,
+				$force
+			)
+		)->getResultImage();
 	}
 
 	/**
@@ -172,12 +188,15 @@ class BackendBindings
 	 */
 	public static function generateImage($src, $alt = '', $attributes = '')
 	{
-		if (version_compare(VERSION, '3.1', '>='))
-		{
-			return \Image::getHtml($src, $alt, $attributes);
-		}
-
-		return BackendBindingInternal::getInstance()->generateImage($src, $alt, $attributes);
+		trigger_error(__FILE__ . '::' . __METHOD__ . ' deprecated, use events-contao-bindings.');
+		return self::dispatch(
+			ContaoEvents::IMAGE_GET_HTML,
+			new GenerateHtmlEvent(
+				$src,
+				$alt,
+				$attributes
+			)
+		)->getHtml();
 	}
 
 	/**
@@ -191,12 +210,14 @@ class BackendBindings
 	 */
 	public static function getReferer($blnEncodeAmpersands = false, $strTable = null)
 	{
-		if (version_compare(VERSION, '3.1', '>='))
-		{
-			return \Backend::getReferer($blnEncodeAmpersands, $strTable);
-		}
-
-		return BackendBindingInternal::getInstance()->getReferer($blnEncodeAmpersands, $strTable);
+		trigger_error(__FILE__ . '::' . __METHOD__ . ' deprecated, use events-contao-bindings.');
+		return self::dispatch(
+			ContaoEvents::SYSTEM_GET_REFERRER,
+			new GetReferrerEvent(
+				$blnEncodeAmpersands,
+				$strTable
+			)
+		)->getReferrerUrl();
 	}
 
 	/**
@@ -210,7 +231,14 @@ class BackendBindings
 	 */
 	public static function loadDataContainer($strTable, $blnNoCache = false)
 	{
-		BackendBindingInternal::getInstance()->loadDataContainer($strTable, $blnNoCache);
+		trigger_error(__FILE__ . '::' . __METHOD__ . ' deprecated, use events-contao-bindings.');
+		self::dispatch(
+			ContaoEvents::CONTROLLER_LOAD_DATA_CONTAINER,
+			new LoadDataContainerEvent(
+				$strTable,
+				$blnNoCache
+			)
+		);
 	}
 
 	/**
