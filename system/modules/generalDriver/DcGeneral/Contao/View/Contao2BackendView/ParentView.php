@@ -12,6 +12,13 @@
 
 namespace DcGeneral\Contao\View\Contao2BackendView;
 
+use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\LoadDataContainerEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\System\LoadLanguageFileEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\DCGE;
@@ -356,6 +363,8 @@ class ParentView extends BaseView
 		}
 		else
 		{
+			$propagator = $environment->getEventPropagator();
+
 			$objConfig = $this->getEnvironment()->getController()->getBaseConfig();
 			$this->getPanel()->initialize($objConfig);
 			$strSorting = $objConfig->getSorting();
@@ -364,41 +373,83 @@ class ParentView extends BaseView
 				&& !$basicDefinition->isClosed()
 				&& $basicDefinition->isCreatable())
 			{
+				/** @var AddToUrlEvent $urlEvent */
+				$urlEvent = $propagator->propagate(
+					ContaoEvents::BACKEND_ADD_TO_URL,
+					new AddToUrlEvent(
+						'act=create&amp;mode=2&amp;pid=' . $parentModel->getID() . '&amp;id=' . $parentModel->getID()
+					)
+				);
+
+				/** @var GenerateHtmlEvent $imageEvent */
+				$imageEvent = $propagator->propagate(
+					ContaoEvents::IMAGE_GET_HTML,
+					new GenerateHtmlEvent(
+						'new.gif',
+						$this->translate('pastenew.0', $definition->getName())
+					)
+				);
+
 				$headerButtons['pasteNew'] = sprintf(
 					'<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
 					// TODO: why the same id in both, id and pid?
-					BackendBindings::addToUrl(
-						'act=create&amp;mode=2&amp;pid=' . $parentModel->getID() . '&amp;id=' . $parentModel->getID()
-					),
+					$urlEvent->getUrl(),
 					specialchars($this->translate('pastenew.1', $definition->getName())),
-					BackendBindings::generateImage('new.gif', $this->translate('pastenew.0', $definition->getName()))
+					$imageEvent->getHtml()
 				);
 			}
 
 			if ($parentDefinition && $parentDefinition->getBasicDefinition()->isEditable())
 			{
+				/** @var AddToUrlEvent $urlEvent */
+				$urlEvent = $propagator->propagate(
+					ContaoEvents::BACKEND_ADD_TO_URL,
+					new AddToUrlEvent('act=edit')
+				);
+
+				/** @var GenerateHtmlEvent $imageEvent */
+				$imageEvent = $propagator->propagate(
+					ContaoEvents::IMAGE_GET_HTML,
+					new GenerateHtmlEvent(
+						'edit.gif',
+						$this->translate('editheader.0', $definition->getName())
+					)
+				);
+
 				$headerButtons['editHeader'] = sprintf(
 					'<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
 					preg_replace(
 						'/&(amp;)?table=[^& ]*/i',
-						($parentName ? '&amp;table=' . $parentName : ''), BackendBindings::addToUrl('act=edit')
+						($parentName ? '&amp;table=' . $parentName : ''), $urlEvent->getUrl()
 					),
 					specialchars($this->translate('editheader.1', $definition->getName())),
-					BackendBindings::generateImage('edit.gif', $this->translate('editheader.0', $definition->getName()))
+					$imageEvent->getHtml()
 				);
 			}
 
 			if ($clipboard->isNotEmpty())
 			{
-				$headerButtons['pasteAfter'] = sprintf(
-					'<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
-					BackendBindings::addToUrl('act=' . $clipboard->getMode() . '&amp;mode=2&amp;pid=' . $parentModel->getID()),
-					specialchars($this->translate('pasteafter.1', $definition->getName())),
-					BackendBindings::generateImage(
+				/** @var AddToUrlEvent $urlEvent */
+				$urlEvent = $propagator->propagate(
+					ContaoEvents::BACKEND_ADD_TO_URL,
+					new AddToUrlEvent('act=' . $clipboard->getMode() . '&amp;mode=2&amp;pid=' . $parentModel->getID())
+				);
+
+				/** @var GenerateHtmlEvent $imageEvent */
+				$imageEvent = $propagator->propagate(
+					ContaoEvents::IMAGE_GET_HTML,
+					new GenerateHtmlEvent(
 						'pasteafter.gif',
 						$this->translate('pasteafter.0', $definition->getName()),
 						'class="blink"'
 					)
+				);
+
+				$headerButtons['pasteAfter'] = sprintf(
+					'<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
+					$urlEvent->getUrl(),
+					specialchars($this->translate('pasteafter.1', $definition->getName())),
+					$imageEvent->getHtml()
 				);
 			}
 		}
@@ -421,25 +472,40 @@ class ParentView extends BaseView
 		$definition          = $this->getEnvironment()->getDataDefinition();
 		$parentProvider      = $definition->getBasicDefinition()->getParentDataProvider();
 		$groupingInformation = $this->getGroupingMode();
+		$propagator          = $this->getEnvironment()->getEventPropagator();
 
 
 		// Skip if we have no parent or parent collection.
 		if (!$parentModel)
 		{
-			BackendBindings::log(
-				sprintf(
-					'The view for %s has either a empty parent data provider or collection.',
-					$parentProvider
-				),
-				__CLASS__ . ' ' . __FUNCTION__ . '()',
-				TL_ERROR
+			$propagator->propagate(
+				ContaoEvents::SYSTEM_LOG,
+				new LogEvent(
+					sprintf(
+						'The view for %s has either a empty parent data provider or collection.',
+						$parentProvider
+					),
+					__CLASS__ . '::' . __FUNCTION__ . '()',
+					TL_ERROR
+				)
 			);
-			BackendBindings::redirect('contao/main.php?act=error');
+
+			$propagator->propagate(
+				ContaoEvents::CONTROLLER_REDIRECT,
+				new RedirectEvent('contao/main.php?act=error')
+			);
 		}
 
 		// Load language file and data container array of the parent table.
-		BackendBindings::loadLanguageFile($parentProvider);
-		BackendBindings::loadDataContainer($parentProvider);
+		$propagator->propagate(
+			ContaoEvents::SYSTEM_LOAD_LANGUAGE_FILE,
+			new LoadLanguageFileEvent($parentProvider)
+		);
+
+		$propagator->propagate(
+			ContaoEvents::CONTROLLER_LOAD_DATA_CONTAINER,
+			new LoadDataContainerEvent($parentProvider)
+		);
 
 		// Add template.
 		$objTemplate = $this->getTemplate('dcbe_general_parentView');
