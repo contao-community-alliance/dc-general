@@ -70,7 +70,7 @@ interface DataProviderDefinitionInterface
 	 *
 	 * @param string $information The name of a data provider.
 	 *
-	 * @return DataProviderInformation
+	 * @return DataProviderInformationInterface
 	 */
 	public function getInformation($information);
 
