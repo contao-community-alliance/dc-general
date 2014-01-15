@@ -132,6 +132,8 @@ interface DcGeneralFactoryInterface
 	public function setEnvironment(EnvironmentInterface $environment = null);
 
 	/**
+	 * Retrieve the environment to use.
+	 *
 	 * @return EnvironmentInterface
 	 */
 	public function getEnvironment();
