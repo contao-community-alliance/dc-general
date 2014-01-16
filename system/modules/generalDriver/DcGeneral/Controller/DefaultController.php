@@ -606,7 +606,17 @@ class DefaultController extends \Controller implements ControllerInterface
 
 		// Clear the clibboard.
 		$this->getDC()->getEnvironment()->getClipboard()->clear();
-		$this->redirectHome();
+
+		// If we have a ajax just stop here.
+		if(\Environment::get('isAjaxRequest'))
+		{
+			exit();
+		}
+		// else return back to the start page.
+		else
+		{
+			$this->redirectHome();
+		}
 	}
 
 	public function move()
@@ -2899,7 +2909,6 @@ class DefaultController extends \Controller implements ControllerInterface
 				$options = array_unique($options);
 				$arrOptionsCallback = array();
 
-				var_dump($field, $options);
 				// Load options callback
 				if (is_array($this->getDC()->arrDCA['fields'][$field]['options_callback']) && !$this->getDC()->arrDCA['fields'][$field]['reference'])
 				{
