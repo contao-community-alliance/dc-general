@@ -88,8 +88,8 @@ class ContaoWidgetManager
 			->setValue($value);
 
 		$environment->getEventPropagator()->propagate(
-			$event,
 			$event::NAME,
+			$event,
 			array(
 				$environment->getDataDefinition()->getName(),
 				$property
