@@ -201,8 +201,40 @@ class ParentChildCondition
 	 */
 	public function applyTo($objParent, $objChild)
 	{
-		// FIXME: unimplemented.
-		throw new DcGeneralRuntimeException(__CLASS__ . '::' . __METHOD__ . ' is unimplemented yet.');
+		$setters = $this->getSetters();
+
+		if (empty($setters) || !is_array($setters))
+		{
+			throw new DcGeneralRuntimeException(sprintf(
+				'No relationship setter defined from %s to %s.',
+				$this->getSourceName(),
+				$this->getDestinationName()
+			));
+		}
+
+		foreach ($setters as $setter)
+		{
+			if (!(is_array($setter)
+				&& (count($setter) == 2)
+				&& isset($setter['to_field'])
+				&& (isset($setter['from_field']) || isset($setter['value']))
+			))
+			{
+				throw new DcGeneralRuntimeException(sprintf(
+					'Invalid relationship setter entry: %s',
+					var_export($setter, true)
+				));
+			}
+
+			if (isset($setter['from_field']))
+			{
+				$objChild->setProperty($setter['to_field'], $objParent->getProperty($setter['from_field']));
+			}
+			else
+			{
+				$objChild->setProperty($setter['to_field'], $setter['value']);
+			}
+		}
 	}
 
 	/**
