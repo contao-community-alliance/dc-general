@@ -76,7 +76,7 @@ class ParentView extends BaseView
 	{
 		$environment = $this->getEnvironment();
 
-		if (!($parentId = $environment->getInputProvider()->getParameter('id')))
+		if (!($parentId = $environment->getInputProvider()->getParameter('pid')))
 		{
 			throw new DcGeneralRuntimeException(
 				'ParentView needs a proper parent id defined, somehow none is defined?',
