@@ -820,12 +820,22 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
-	 * @todo All
-	 * @return string
+	 * Delete a model and redirect the user to the listing.
+	 *
+	 * NOTE: This method redirects the user to the listing and therefore the script will be ended.
+	 *
+	 * @return void
 	 */
 	public function delete()
 	{
-		return vsprintf($this->notImplMsg, 'delete - Mode');
+		$environment  = $this->getEnvironment();
+		$dataProvider = $environment->getDataProvider();
+		$modelId      = $environment->getInputProvider()->getParameter('id');
+		$model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId));
+
+		$dataProvider->delete($model);
+
+		$this->redirectHome();
 	}
 
 	/**
