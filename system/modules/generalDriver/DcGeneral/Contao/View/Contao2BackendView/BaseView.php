@@ -210,15 +210,15 @@ class BaseView implements BackendViewInterface
 		$environment = $this->getEnvironment();
 		$input       = $environment->getInputProvider();
 
-		if ($input->hasParameter('table') && $input->hasParameter('id'))
+		if ($input->hasParameter('table') && $input->hasParameter('pid'))
 		{
-			if ($input->hasParameter('id'))
+			if ($input->hasParameter('pid'))
 			{
 				$event = new RedirectEvent(sprintf(
-						'contao/main.php?do=%s&table=%s&id=%s',
+						'contao/main.php?do=%s&table=%s&pid=%s',
 						$input->getParameter('do'),
 						$input->getParameter('table'),
-						$input->getParameter('id')
+						$input->getParameter('pid')
 				));
 			}
 			else
