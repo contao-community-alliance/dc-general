@@ -924,6 +924,9 @@ class BaseView implements BackendViewInterface
 		}
 		else
 		{
+			// Custom button logic.
+
+		}
 	}
 
 	/**
