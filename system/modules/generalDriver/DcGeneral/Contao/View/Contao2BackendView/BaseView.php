@@ -1367,6 +1367,11 @@ class BaseView implements BackendViewInterface
 		$parentProviderName = $environment->getDataDefinition()->getName();
 		$arrReturn          = array();
 		$globalOperations   = $this->getViewSection()->getGlobalCommands();
+		$config             = $this->getEnvironment()->getController()->getBaseConfig();
+
+		$this->getPanel()->initialize($config);
+
+		$sorting = $config->getSorting();
 
 		if (!is_array($globalOperations))
 		{
@@ -1396,72 +1401,54 @@ class BaseView implements BackendViewInterface
 		else
 		{
 			$addButton = false;
-			$strHref   = '';
 
-			/** @var Contao2BackendViewDefinitionInterface $viewDefinition */
-			$viewDefinition  = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
 			$basicDefinition = $definition->getBasicDefinition();
-			$listingConfig   = $viewDefinition->getListingConfig();
+			$pid             = $environment->getInputProvider()->getParameter('pid');
+			$strHref         = '';
+			$mode            = $basicDefinition->getMode();
 
-			// Add Buttons for mode x.
-			switch ($basicDefinition->getMode())
+			if (($mode == BasicDefinitionInterface::MODE_FLAT)
+				|| (($mode == BasicDefinitionInterface::MODE_PARENTEDLIST) && !$sorting))
 			{
-				case BasicDefinitionInterface::MODE_FLAT:
-					// Add new button.
-					$strHref = '';
-					if (strlen($parentProviderName))
-					{
-						if ($listingConfig->getSortingMode() < 4)
-						{
-							$strHref = '&amp;mode=2';
-						}
-
-						/** @var AddToUrlEvent $event */
-						$event = $environment->getEventPropagator()->propagate(
-							ContaoEvents::BACKEND_ADD_TO_URL,
-							new AddToUrlEvent(
-								$strHref .
-								'&amp;id=&amp;act=create&amp;pid=' .
-								$environment->getInputProvider()->getParameter('id')
-							)
-						);
-
-						$strHref = $event->getUrl();
-					}
-					else
-					{
-						/** @var AddToUrlEvent $event */
-						$event = $environment->getEventPropagator()->propagate(
-							ContaoEvents::BACKEND_ADD_TO_URL,
-							new AddToUrlEvent('act=create')
-						);
-
-						$strHref = $event->getUrl();
-					}
-
-					$addButton = !$basicDefinition->isClosed();
-					break;
-
-				case BasicDefinitionInterface::MODE_HIERARCHICAL:
-				case BasicDefinitionInterface::MODE_PARENTEDLIST:
+				// Add new button.
+				if (strlen($parentProviderName))
+				{
 					/** @var AddToUrlEvent $event */
 					$event = $environment->getEventPropagator()->propagate(
 						ContaoEvents::BACKEND_ADD_TO_URL,
 						new AddToUrlEvent(
-							sprintf(
-								'act=paste&amp;mode=create&amp;cdp=%s&amp;pdp=%s',
-								$providerName, $parentProviderName
-							)
+							'&amp;act=create' .
+							($pid ? '&amp;pid=' . $pid : '')
 						)
 					);
+				}
+				else
+				{
+					/** @var AddToUrlEvent $event */
+					$event = $environment->getEventPropagator()->propagate(
+						ContaoEvents::BACKEND_ADD_TO_URL,
+						new AddToUrlEvent('act=create')
+					);
+				}
 
-					$strHref = $event->getUrl();
+				$strHref   = $event->getUrl();
+				$addButton = !$basicDefinition->isClosed();
+			}
+			elseif(($mode == BasicDefinitionInterface::MODE_PARENTEDLIST)
+				|| ($mode == BasicDefinitionInterface::MODE_HIERARCHICAL))
+			{
+				/** @var AddToUrlEvent $event */
+				$event = $environment->getEventPropagator()->propagate(
+					ContaoEvents::BACKEND_ADD_TO_URL,
+					new AddToUrlEvent(
+						'&amp;act=paste&amp;mode=create' .
+						($pid ? '&amp;pid=' . $pid : '')
+					)
+				);
 
-					$addButton = !($basicDefinition->isClosed() || $environment->getClipboard()->isNotEmpty());
+				$strHref = $event->getUrl();
 
-					break;
-
-				default:
+				$addButton = !($basicDefinition->isClosed() || $environment->getClipboard()->isNotEmpty());
 			}
 
 			if ($addButton)
@@ -1681,7 +1668,6 @@ class BaseView implements BackendViewInterface
 			$idParam = $objCommand->getExtra()['idparam'];
 			if ($idParam)
 			{
-				$arrParameters['id']     = '';
 				$arrParameters[$idParam] = $objModel->getID();
 			}
 			else

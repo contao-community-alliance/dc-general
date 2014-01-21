@@ -367,9 +367,9 @@ class ParentView extends BaseView
 
 			$objConfig = $this->getEnvironment()->getController()->getBaseConfig();
 			$this->getPanel()->initialize($objConfig);
-			$strSorting = $objConfig->getSorting();
+			$sorting = $objConfig->getSorting();
 
-			if (($strSorting !== null)
+			if ($sorting
 				&& !$basicDefinition->isClosed()
 				&& $basicDefinition->isCreatable())
 			{
@@ -377,7 +377,7 @@ class ParentView extends BaseView
 				$urlEvent = $propagator->propagate(
 					ContaoEvents::BACKEND_ADD_TO_URL,
 					new AddToUrlEvent(
-						'act=create&amp;mode=2&amp;pid=' . $parentModel->getID() . '&amp;id=' . $parentModel->getID()
+						'act=paste&amp;mode=create&amp;pid=' . $parentModel->getID()
 					)
 				);
 
@@ -392,7 +392,6 @@ class ParentView extends BaseView
 
 				$headerButtons['pasteNew'] = sprintf(
 					'<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
-					// TODO: why the same id in both, id and pid?
 					$urlEvent->getUrl(),
 					specialchars($this->translate('pastenew.1', $definition->getName())),
 					$imageEvent->getHtml()
@@ -401,12 +400,6 @@ class ParentView extends BaseView
 
 			if ($parentDefinition && $parentDefinition->getBasicDefinition()->isEditable())
 			{
-				/** @var AddToUrlEvent $urlEvent */
-				$urlEvent = $propagator->propagate(
-					ContaoEvents::BACKEND_ADD_TO_URL,
-					new AddToUrlEvent('act=edit')
-				);
-
 				/** @var GenerateHtmlEvent $imageEvent */
 				$imageEvent = $propagator->propagate(
 					ContaoEvents::IMAGE_GET_HTML,
@@ -418,16 +411,18 @@ class ParentView extends BaseView
 
 				$headerButtons['editHeader'] = sprintf(
 					'<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
-					preg_replace(
-						'/&(amp;)?table=[^& ]*/i',
-						($parentName ? '&amp;table=' . $parentName : ''), $urlEvent->getUrl()
+					sprintf(
+						'contao/main.php?do=%s&amp;act=edit&amp;table=%s&amp;id=%s',
+						$environment->getInputProvider()->getParameter('do'),
+						$parentName,
+						$parentModel->getID()
 					),
 					specialchars($this->translate('editheader.1', $definition->getName())),
 					$imageEvent->getHtml()
 				);
 			}
 
-			if ($clipboard->isNotEmpty())
+			if ($sorting && $clipboard->isNotEmpty())
 			{
 				/** @var AddToUrlEvent $urlEvent */
 				$urlEvent = $propagator->propagate(
