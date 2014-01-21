@@ -14,6 +14,7 @@ namespace DcGeneral\Contao\Dca\Builder\Legacy;
 
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\LoadDataContainerEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\System\LoadLanguageFileEvent;
 use DcGeneral\DataDefinition\Builder\AbstractEventDrivenDataDefinitionBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -48,6 +49,9 @@ abstract class DcaReadingDataDefinitionBuilder extends AbstractEventDrivenDataDe
 
 		$GLOBALS['TL_DCA'] = $previousDca;
 		unset($GLOBALS['loadDataContainer'][$dcaName]);
+
+		$event = new LoadLanguageFileEvent($dcaName);
+		$dispatcher->dispatch(ContaoEvents::SYSTEM_LOAD_LANGUAGE_FILE, $event);
 
 		return $this->dca !== null;
 	}
