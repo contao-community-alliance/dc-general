@@ -1829,7 +1829,7 @@ class BaseView implements BackendViewInterface
 		}
 
 		$strLabel = $this->translate('pasteafter.0', $event->getModel()->getProviderName());
-		if ($event->isPasteIntoDisabled())
+		if ($event->isPasteAfterDisabled())
 		{
 			/** @var GenerateHtmlEvent $imageEvent */
 			$imageEvent = $this->getEnvironment()->getEventPropagator()->propagate(
