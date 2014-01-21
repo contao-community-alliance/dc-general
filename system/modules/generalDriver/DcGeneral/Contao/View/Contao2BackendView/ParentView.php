@@ -496,17 +496,6 @@ class ParentView extends BaseView
 			);
 		}
 
-		// Load language file and data container array of the parent table.
-		$propagator->propagate(
-			ContaoEvents::SYSTEM_LOAD_LANGUAGE_FILE,
-			new LoadLanguageFileEvent($parentProvider)
-		);
-
-		$propagator->propagate(
-			ContaoEvents::CONTROLLER_LOAD_DATA_CONTAINER,
-			new LoadDataContainerEvent($parentProvider)
-		);
-
 		// Add template.
 		$objTemplate = $this->getTemplate('dcbe_general_parentView');
 
