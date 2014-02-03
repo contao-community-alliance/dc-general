@@ -1008,6 +1008,7 @@ class BaseView implements BackendViewInterface
 		$modelId                 = $inputProvider->getParameter('id');
 		$propertyDefinitions     = $definition->getPropertiesDefinition();
 		$blnSubmitted            = ($inputProvider->getValue('FORM_SUBMIT') === $definition->getName());
+		$blnIsAutoSubmit         = ($inputProvider->getValue('SUBMIT_TYPE') === 'auto');
 
 		$this->checkRestoreVersion();
 
@@ -1103,7 +1104,7 @@ class BaseView implements BackendViewInterface
 			$arrFieldSets[]         = $arrFieldSet;
 		}
 
-		if ($blnSubmitted && empty($errors))
+		if ((!$blnIsAutoSubmit) && $blnSubmitted && empty($errors))
 		{
 			// TODO: Change to PrePersistModelEvent.
 			$event = new EditModelBeforeSaveEvent($environment, $model);
