@@ -278,7 +278,7 @@ class TreeView extends BaseView
 			$objChildConfig = $this->getEnvironment()->getDataProvider($strSubTable)->getEmptyConfig();
 			$objChildConfig->setFilter($arrChildFilter->getFilter($objModel));
 
-			$objChildConfig->setFields($this->calcLabelFields($strSubTable));
+			// $objChildConfig->setFields($this->calcLabelFields($strSubTable));
 
 			// TODO: hardcoded sorting... NOT GOOD!
 			$objChildConfig->setSorting(array('sorting' => 'ASC'));
@@ -348,7 +348,7 @@ class TreeView extends BaseView
 		$relationships    = $definition->getModelRelationshipDefinition();
 
 		$this->getPanel()->initialize($objRootConfig);
-		$objRootConfig->setFields($this->calcLabelFields($definition->getBasicDefinition()->getDataProvider()));
+		//$objRootConfig->setFields($this->calcLabelFields($definition->getBasicDefinition()->getDataProvider()));
 
 		if (!$rootId)
 		{
