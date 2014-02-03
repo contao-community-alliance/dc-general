@@ -626,7 +626,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		}
 
 		// If root id defined, add condition to root filter for id=?.
-		if (($value = $this->getFromDca('list/sorting/root')) !== null)
+		if ($value = $this->getFromDca('list/sorting/root'))
 		{
 			$rootProvider = $this->getRootProviderName($container);
 
