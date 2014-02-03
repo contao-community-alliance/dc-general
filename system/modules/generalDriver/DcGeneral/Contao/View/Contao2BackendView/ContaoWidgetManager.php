@@ -532,11 +532,17 @@ class ContaoWidgetManager
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Render the widget for the named property.
 	 *
-	 * @throws DcGeneralRuntimeException When no widget can be created.
+	 * @param string $property     The name of the property for which the widget shall be rendered.
+	 *
+	 * @param bool   $ignoreErrors Flag if the error property of the widget shall get cleared prior rendering.
+	 *
+	 * @return string
+	 *
+	 * @throws DcGeneralRuntimeException For unknown properties.
 	 */
-	public function renderWidget($property)
+	public function renderWidget($property, $ignoreErrors = false)
 	{
 		$environment         = $this->getEnvironment();
 		$definition          = $environment->getDataDefinition();
@@ -549,6 +555,17 @@ class ContaoWidgetManager
 		if (!$widget)
 		{
 			throw new DcGeneralRuntimeException('No widget for property ' . $property);
+		}
+
+		if ($ignoreErrors)
+		{
+			// Clean the errors array and fix up the CSS class.
+			$reflection = new \ReflectionProperty(get_class($widget), 'arrErrors');
+			$reflection->setAccessible(true);
+			$reflection->setValue($widget, array());
+			$reflection = new \ReflectionProperty(get_class($widget), 'strClass');
+			$reflection->setAccessible(true);
+			$reflection->setValue($widget, str_replace('error', '', $reflection->getValue($widget)));
 		}
 
 		$strDatePicker = '';
