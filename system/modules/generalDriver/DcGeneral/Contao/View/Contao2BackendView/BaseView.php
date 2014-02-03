@@ -1045,6 +1045,8 @@ class BaseView implements BackendViewInterface
 			throw new DcGeneralRuntimeException($message);
 		}
 
+		$this->enforceModelRelationship($model);
+
 		// Pass 1: Get the palette for the values stored in the model.
 		$palette = $palettesDefinition->findPalette($model);
 
@@ -1058,8 +1060,6 @@ class BaseView implements BackendViewInterface
 			// Update the model - the model might add some more errors to the propertyValueBag via exceptions.
 			$this->getEnvironment()->getController()->updateModelFromPropertyBag($model, $propertyValues);
 		}
-
-		$this->enforceModelRelationship($model);
 
 		$arrFieldSets = array();
 		foreach ($palette->getLegends() as $legend)
