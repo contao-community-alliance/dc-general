@@ -619,7 +619,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			if (!$relationship->getSetters())
 			{
 				$relationship
-					->setSetters(array(array('pid' => 'id')));
+					->setSetters(array(array('property' => 'pid', 'value' => '0')));
 			}
 
 			$container->setDefinition(ModelRelationshipDefinitionInterface::NAME, $definition);
@@ -630,7 +630,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		{
 			$rootProvider = $this->getRootProviderName($container);
 
-			$myFilter = array('operation' => '=', 'property' => 'id', 'value' => $value);
+			$myFilter = array('operation' => 'IN', 'property' => 'id', 'value' => $value);
 
 			if (($relationship = $definition->getRootCondition()) === null)
 			{
@@ -639,17 +639,24 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			}
 			else
 			{
-				$filter   = $relationship->getFilterArray();
-				$filter[] = $myFilter;
-				$filter   = array(
-					'operation' => 'AND',
-					'children' => array($filter)
-				);
+				$filter = $relationship->getFilterArray();
+				if ($filter)
+				{
+					$filter = array(
+						'operation' => 'AND',
+						'children' => array($filter)
+					);
+
+					$filter['children'][] = $myFilter;
+				}
+				else{
+					$filter = $myFilter;
+				}
 			}
 
 			$relationship
 				->setSourceName($rootProvider)
-				->setFilterArray($filter);
+				->setFilterArray(array($filter));
 			$definition->setRootCondition($relationship);
 
 			$container->setDefinition(ModelRelationshipDefinitionInterface::NAME, $definition);
