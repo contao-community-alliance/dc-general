@@ -124,7 +124,7 @@ class DefaultDriver implements DriverInterface
 	 *
 	 * @param array $operation The operation to convert.
 	 *
-	 * @param array &$params   The parameter array for the resulting query.
+	 * @param array $params    The parameter array for the resulting query.
 	 *
 	 * @return string
 	 */
@@ -147,6 +147,7 @@ class DefaultDriver implements DriverInterface
 		$combine = array();
 		foreach ($children as $child)
 		{
+
 			$combine[] = $this->calculateSubfilter($child, $params);
 		}
 
@@ -158,7 +159,7 @@ class DefaultDriver implements DriverInterface
 	 *
 	 * @param array $operation The operation to apply.
 	 *
-	 * @param array &$params   The parameters of the entire query.
+	 * @param array $params    The parameters of the entire query.
 	 *
 	 * @return string
 	 */
@@ -174,7 +175,7 @@ class DefaultDriver implements DriverInterface
 	 *
 	 * @param array $operation The operation to apply.
 	 *
-	 * @param array &$params   The parameters of the entire query.
+	 * @param array $params    The parameters of the entire query.
 	 *
 	 * @return string
 	 */
@@ -193,7 +194,7 @@ class DefaultDriver implements DriverInterface
 	 *
 	 * @param array $operation The operation to apply.
 	 *
-	 * @param array &$params   The parameters of the entire query.
+	 * @param array $params    The parameters of the entire query.
 	 *
 	 * @return string
 	 */
@@ -231,9 +232,9 @@ class DefaultDriver implements DriverInterface
 	 *                'property'           string (the name of a property)
 	 *                'value'              literal - Wildcards * (Many) ? (One)
 	 *
-	 * @param array $arrFilter  The filter to be combined to a valid SQL filter query.
+	 * @param array $arrFilter The filter to be combined to a valid SQL filter query.
 	 *
-	 * @param array &$arrParams The query parameters will get stored into this array.
+	 * @param array $arrParams The query parameters will get stored into this array.
 	 *
 	 * @return string The combined WHERE conditions.
 	 *
@@ -272,9 +273,9 @@ class DefaultDriver implements DriverInterface
 	/**
 	 * Build the WHERE clause for a configuration.
 	 *
-	 * @param ConfigInterface $objConfig  The configuration to use.
+	 * @param ConfigInterface $objConfig The configuration to use.
 	 *
-	 * @param array           &$arrParams The query parameters will get stored into this array.
+	 * @param array           $arrParams The query parameters will get stored into this array.
 	 *
 	 * @return string  The combined WHERE clause (including the word "WHERE").
 	 */
@@ -294,9 +295,9 @@ class DefaultDriver implements DriverInterface
 	/**
 	 * Build the WHERE conditions via calculateSubfilter().
 	 *
-	 * @param ConfigInterface $objConfig  The configuration to use.
+	 * @param ConfigInterface $objConfig The configuration to use.
 	 *
-	 * @param array           &$arrParams The query parameters will get stored into this array.
+	 * @param array           $arrParams The query parameters will get stored into this array.
 	 *
 	 * @return string The combined WHERE conditions.
 	 */
@@ -390,7 +391,7 @@ class DefaultDriver implements DriverInterface
 	/**
 	 * Create a model from a database result.
 	 *
-	 * @param \Database_Result $dbResult The database result to create a model from.
+	 * @param \Database\Result $dbResult The database result to create a model from.
 	 *
 	 * @return ModelInterface
 	 */
