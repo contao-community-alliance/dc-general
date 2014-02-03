@@ -1906,12 +1906,12 @@ class BaseView implements BackendViewInterface
 			$strMode = $objClipboard->getMode();
 
 			// Add ext. information.
-			$strAdd2UrlAfter = sprintf('act=%s&amp;mode=1&amp;after=%s&amp;',
+			$strAdd2UrlAfter = sprintf('act=%s&amp;after=%s&amp;',
 				$strMode,
 				$objModelRow->getID()
 			);
 
-			$strAdd2UrlInto = sprintf('act=%s&amp;mode=2&amp;into=%s&amp;',
+			$strAdd2UrlInto = sprintf('act=%s&amp;into=%s&amp;',
 				$strMode,
 				$objModelRow->getID()
 			);
