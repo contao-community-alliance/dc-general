@@ -872,7 +872,7 @@ class BaseView implements BackendViewInterface
 
 		if ($inputProvider->hasValue('save'))
 		{
-			if ($inputProvider->getValue('id'))
+			if ($inputProvider->getParameter('id'))
 			{
 				$environment->getEventPropagator()->propagate(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
 			}
