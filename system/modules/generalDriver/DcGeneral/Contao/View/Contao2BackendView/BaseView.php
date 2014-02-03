@@ -1086,7 +1086,8 @@ class BaseView implements BackendViewInterface
 				}
 
 				// If this property is invalid, fetch the error.
-				if ($propertyValues
+				if ((!$blnIsAutoSubmit)
+					&& $propertyValues
 					&& $propertyValues->hasPropertyValue($property->getName())
 					&& $propertyValues->isPropertyValueInvalid($property->getName())
 				)
@@ -1094,7 +1095,7 @@ class BaseView implements BackendViewInterface
 					$errors = array_merge($errors, $propertyValues->getPropertyValueErrors($property->getName()));
 				}
 
-				$fields[] = $widgetManager->renderWidget($property->getName());
+				$fields[] = $widgetManager->renderWidget($property->getName(), $blnIsAutoSubmit);
 			}
 
 			$arrFieldSet['label']   = $legendName;
