@@ -228,7 +228,7 @@ class DefaultController implements ControllerInterface
 		}
 
 		// callback to tell visitors that we have just updated the model.
-		$this->getEnvironment()->getCallbackHandler()->onModelBeforeUpdateCallback($model);
+		// $this->getEnvironment()->getCallbackHandler()->onModelBeforeUpdateCallback($model);
 
 		foreach ($propertyValues as $property => $value)
 		{
@@ -269,7 +269,7 @@ class DefaultController implements ControllerInterface
 		}
 
 		// callback to tell visitors that we have just updated the model.
-		$this->getEnvironment()->getCallbackHandler()->onModelUpdateCallback($model);
+		// $this->getEnvironment()->getCallbackHandler()->onModelUpdateCallback($model);
 
 		return $this;
 	}
