@@ -18,6 +18,7 @@ use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
 use DcGeneral\Contao\Dca\Definition\ExtendedDca;
 use DcGeneral\DataDefinition\ContainerInterface;
 use DcGeneral\DataDefinition\Definition\DataProviderDefinitionInterface;
+use DcGeneral\DataDefinition\Definition\DefaultBasicDefinition;
 use DcGeneral\DataDefinition\Definition\DefaultDataProviderDefinition;
 use DcGeneral\DataDefinition\Definition\DefaultModelRelationshipDefinition;
 use DcGeneral\DataDefinition\Definition\DefaultPalettesDefinition;
@@ -38,7 +39,7 @@ use DcGeneral\Factory\Event\PopulateEnvironmentEvent;
  */
 class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 {
-	const PRIORITY = 100;
+	const PRIORITY = 101;
 
 	/**
 	 * {@inheritdoc}
@@ -50,12 +51,29 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 			return;
 		}
 
+		$this->parseBasicDefinition($container);
 		$this->parseDataProvider($container);
 		$this->parsePalettes($container);
 		$this->parseConditions($container);
 		$this->parseBackendView($container);
 		$this->parseClassNames($container);
 		$this->loadAdditionalDefinitions($container, $event);
+	}
+
+	/**
+	 * Ensure that the basic configuration is set in the definition.
+	 *
+	 * @param ContainerInterface $container The container where the data shall be stored.
+	 *
+	 * @return void
+	 */
+	protected function parseBasicDefinition(ContainerInterface $container)
+	{
+		if (!$container->hasBasicDefinition())
+		{
+			$config = new DefaultBasicDefinition();
+			$container->setBasicDefinition($config);
+		}
 	}
 
 	/**
