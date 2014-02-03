@@ -656,6 +656,26 @@ class TreeView extends BaseView
 		return $objTemplate->parse();
 	}
 
+	public function enforceModelRelationship($model)
+	{
+		$definition = $this->getEnvironment()->getDataDefinition();
+		$basic      = $definition->getBasicDefinition();
+		// No op in this base class but implemented in subclasses to enforce parent<->child relationship.
+		$parent = $this->loadParentModel();
+
+		$condition = $definition
+			->getModelRelationshipDefinition()
+			->getChildCondition(
+				$basic->getParentDataProvider(),
+				$basic->getDataProvider()
+			);
+
+		if ($condition)
+		{
+			$condition->applyTo($parent, $model);
+		}
+	}
+
 	/**
 	 * Show all entries from one table.
 	 *
