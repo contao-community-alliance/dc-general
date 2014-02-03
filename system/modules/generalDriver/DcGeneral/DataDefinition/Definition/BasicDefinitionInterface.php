@@ -155,6 +155,8 @@ interface BasicDefinitionInterface extends DefinitionInterface
 	 * @param bool $value The flag - true means prohibit element creation, false means allow creation of new elements.
 	 *
 	 * @return BasicDefinitionInterface
+	 *
+	 * @todo isn't this a candidate for deprecation? See BasicDefinitionInterface::setCreatable().
 	 */
 	public function setClosed($value);
 
@@ -165,6 +167,8 @@ interface BasicDefinitionInterface extends DefinitionInterface
 	 * deleted..
 	 *
 	 * @return bool
+	 *
+	 * @todo isn't this a candidate for deprecation? See BasicDefinitionInterface::isCreatable().
 	 */
 	public function isClosed();
 
