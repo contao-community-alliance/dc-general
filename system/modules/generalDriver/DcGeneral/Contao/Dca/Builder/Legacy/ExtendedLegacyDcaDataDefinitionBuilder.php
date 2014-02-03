@@ -368,7 +368,10 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 				{
 					$relationship = new RootCondition();
 					$setter       = $mySetter;
-					$filter       = $myFilter;
+					$filter       = array(
+						'operation' => 'AND',
+						'children' => $myFilter
+					);
 				}
 				else
 				{
@@ -390,7 +393,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
 				$relationship
 					->setSourceName($rootProvider)
-					->setFilterArray($filter)
+					->setFilterArray(array($filter))
 					->setSetters($setter);
 				$definition->setRootCondition($relationship);
 			}
