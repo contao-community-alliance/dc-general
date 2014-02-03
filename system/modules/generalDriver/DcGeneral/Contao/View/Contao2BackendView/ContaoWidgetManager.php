@@ -519,7 +519,7 @@ class ContaoWidgetManager
 	{
 		$environment = $this->getEnvironment();
 		$propInfo    = $environment->getDataDefinition()->getPropertiesDefinition()->getProperty($property);
-		$label       = $propInfo->getLabel();
+		$label       = $propInfo->getDescription();
 		$widgetType  = $propInfo->getWidgetType();
 
 		// TODO: need better interface to Contao Config class here.
