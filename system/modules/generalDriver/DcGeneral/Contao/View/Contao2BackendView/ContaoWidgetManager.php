@@ -586,8 +586,6 @@ class ContaoWidgetManager
 			'strHelp'       => $this->generateHelpText($property)
 		));
 
-		$fields[] = $objTemplateFoo->parse();
-
 		return $objTemplateFoo->parse();
 	}
 
