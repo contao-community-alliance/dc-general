@@ -12,7 +12,9 @@
 
 namespace DcGeneral\Contao\View\Contao2BackendView;
 
-use DcGeneral\Contao\BackendBindings;
+use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
@@ -170,20 +172,32 @@ class ContaoWidgetManager
 		// Toggle line wrap (textarea).
 		if ($propInfo->getWidgetType() === 'textarea' && !array_key_exists('rte', $propInfo->getExtra()))
 		{
-			$strXLabel .= ' ' . BackendBindings::generateImage(
-					'wrap.gif',
-					$translator->translate('wordWrap', 'MSC'),
-					sprintf(
-						'title="%s" class="toggleWrap" onclick="Backend.toggleWrap(\'ctrl_%s\');"',
-						specialchars($translator->translate('wordWrap', 'MSC')),
-						$propInfo->getName()
-					)
-				);
+			$event = new GenerateHtmlEvent(
+				'wrap.gif',
+				$translator->translate('wordWrap', 'MSC'),
+				sprintf(
+					'title="%s" class="toggleWrap" onclick="Backend.toggleWrap(\'ctrl_%s\');"',
+					specialchars($translator->translate('wordWrap', 'MSC')),
+					$propInfo->getName()
+				)
+			);
+
+			$environment->getEventPropagator()->propagate(ContaoEvents::IMAGE_GET_HTML, $event);
+
+			$strXLabel .= ' ' . $event->getHtml();
 		}
 
 		// Add the help wizard.
 		if ($propInfo->getExtra() && array_key_exists('helpwizard', $propInfo->getExtra()))
 		{
+			$event = new GenerateHtmlEvent(
+				'about.gif',
+				$translator->translate('helpWizard', 'MSC'),
+				'style="vertical-align:text-bottom;"'
+			);
+
+			$environment->getEventPropagator()->propagate(ContaoEvents::IMAGE_GET_HTML, $event);
+
 			$strXLabel .= sprintf(
 				' <a href="contao/help.php?table=%s&amp;field=%s"
 				title="%s"
@@ -191,11 +205,7 @@ class ContaoWidgetManager
 				$defName,
 				$propInfo->getName(),
 				specialchars($translator->translate('helpWizard', 'MSC')),
-				BackendBindings::generateImage(
-					'about.gif',
-					$translator->translate('helpWizard', 'MSC'),
-					'style="vertical-align:text-bottom;"'
-				)
+				$event->getHtml()
 			);
 		}
 
@@ -205,59 +215,86 @@ class ContaoWidgetManager
 			// In Contao 3 it is always a file picker - no need for the button.
 			if (version_compare(VERSION, '3.0', '<'))
 			{
+				$event = new GenerateHtmlEvent(
+					'filemanager.gif',
+					$translator->translate('fileManager', 'MSC'),
+					'style="vertical-align:text-bottom;"'
+				);
+
+				$environment->getEventPropagator()->propagate(ContaoEvents::IMAGE_GET_HTML, $event);
+
 				$strXLabel .= sprintf(
 					' <a href="contao/files.php"
 					title="%s"
 					onclick="Backend.getScrollOffset(); Backend.openWindow(this, 750, 500); return false;">%s</a>',
 					specialchars($translator->translate('fileManager', 'MSC')),
-					BackendBindings::generateImage(
-						'filemanager.gif', $translator->translate('fileManager', 'MSC'), 'style="vertical-align:text-bottom;"'
-					)
+					$event->getHtml()
 				);
 			}
 		}
 		// Add table import wizard.
 		elseif ($propInfo->getWidgetType() === 'tableWizard')
 		{
+			$urlEvent = new AddToUrlEvent('key=table');
+
+			$importTableEvent = new GenerateHtmlEvent(
+				'tablewizard.gif',
+				$translator->translate('importTable.0', $defName),
+				'style="vertical-align:text-bottom;"'
+			);
+
+			$shrinkEvent = new GenerateHtmlEvent(
+				'demagnify.gif',
+				$translator->translate('shrink.0', $defName),
+				sprintf(
+					'title="%s" style="vertical-align:text-bottom; cursor:pointer;" onclick="Backend.tableWizardResize(0.9);"',
+					specialchars($translator->translate('shrink.1', $defName))
+				)
+			);
+
+			$expandEvent = new GenerateHtmlEvent(
+				'magnify.gif',
+				$translator->translate('expand.0', $defName),
+				sprintf(
+					'title="%s" style="vertical-align:text-bottom; cursor:pointer;" onclick="Backend.tableWizardResize(1.1);"',
+					specialchars($translator->translate('expand.1', $defName))
+				)
+			);
+
+			$environment->getEventPropagator()->propagate(ContaoEvents::BACKEND_ADD_TO_URL, $urlEvent);
+
+			$environment->getEventPropagator()->propagate(ContaoEvents::IMAGE_GET_HTML, $importTableEvent);
+			$environment->getEventPropagator()->propagate(ContaoEvents::IMAGE_GET_HTML, $shrinkEvent);
+			$environment->getEventPropagator()->propagate(ContaoEvents::IMAGE_GET_HTML, $expandEvent);
+
 			$strXLabel .= sprintf(
 				' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a> %s%s',
-				ampersand(BackendBindings::addToUrl('key=table')),
+				ampersand($urlEvent->getUrl()),
 				specialchars($translator->translate('importTable.1', $defName)),
-				BackendBindings::generateImage(
-					'tablewizard.gif',
-					$translator->translate('importTable.0', $defName),
-					'style="vertical-align:text-bottom;"'
-				),
-				BackendBindings::generateImage(
-					'demagnify.gif',
-					$translator->translate('shrink.0', $defName),
-					sprintf(
-						'title="%s" style="vertical-align:text-bottom; cursor:pointer;" onclick="Backend.tableWizardResize(0.9);"',
-						specialchars($translator->translate('shrink.1', $defName))
-					)
-				),
-				BackendBindings::generateImage(
-					'magnify.gif',
-					$translator->translate('expand.0', $defName),
-					sprintf(
-						'title="%s" style="vertical-align:text-bottom; cursor:pointer;" onclick="Backend.tableWizardResize(1.1);"',
-						specialchars($translator->translate('expand.1', $defName))
-					)
-				)
+				$importTableEvent->getHtml(),
+				$shrinkEvent->getHtml(),
+				$expandEvent->getHtml()
 			);
 		}
 		// Add list import wizard.
 		elseif ($propInfo->getWidgetType() === 'listWizard')
 		{
+			$urlEvent = new AddToUrlEvent('key=list');
+
+			$importListEvent = new GenerateHtmlEvent(
+				'tablewizard.gif',
+				$translator->translate('importList.0', $defName),
+				'style="vertical-align:text-bottom;"'
+			);
+
+			$environment->getEventPropagator()->propagate(ContaoEvents::BACKEND_ADD_TO_URL, $urlEvent);
+			$environment->getEventPropagator()->propagate(ContaoEvents::IMAGE_GET_HTML, $importListEvent);
+
 			$strXLabel .= sprintf(
 				' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a>',
-				ampersand(BackendBindings::addToUrl('key=list')),
+				ampersand($urlEvent->getUrl()),
 				specialchars($translator->translate('importList.1', $defName)),
-				BackendBindings::generateImage(
-					'tablewizard.gif',
-					$translator->translate('importList.0', $defName),
-					'style="vertical-align:text-bottom;"'
-				)
+				$importListEvent->getHtml()
 			);
 		}
 
