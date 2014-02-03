@@ -523,7 +523,7 @@ class ParentView extends BaseView
 	{
 		$definition = $this->getEnvironment()->getDataDefinition();
 		$basic      = $definition->getBasicDefinition();
-		$parent = $this->loadParentModel();
+		$parent     = $this->loadParentModel();
 
 		$condition = $definition
 			->getModelRelationshipDefinition()
