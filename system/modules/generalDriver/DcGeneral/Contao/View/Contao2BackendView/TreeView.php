@@ -364,10 +364,7 @@ class TreeView extends BaseView
 					$arrFilter = array_merge($arrBaseFilter, $arrFilter);
 				}
 
-				$objRootConfig->setFilter(array(array(
-					'operation' => 'AND',
-					'children'    => $arrFilter,
-				)));
+				$objRootConfig->setFilter($arrFilter);
 			}
 			// Fetch all root elements.
 			$objRootCollection = $dataDriver->fetchAll($objRootConfig);
