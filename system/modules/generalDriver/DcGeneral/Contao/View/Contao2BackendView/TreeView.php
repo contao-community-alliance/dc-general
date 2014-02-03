@@ -21,6 +21,7 @@ use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * Class TreeView.
@@ -168,6 +169,52 @@ class TreeView extends BaseView
 		}
 
 		return $objCollection;
+	}
+
+	/**
+	 * Load the parent model for the current list.
+	 *
+	 * @return \DcGeneral\Data\ModelInterface
+	 *
+	 * @throws DcGeneralRuntimeException If the parent view requirements are not fulfilled - either no data provider
+	 *                                   defined or no parent model id given.
+	 */
+	protected function loadParentModel()
+	{
+		$environment = $this->getEnvironment();
+
+		if (!($parentId = $environment->getInputProvider()->getParameter('pid')))
+		{
+			throw new DcGeneralRuntimeException(
+				'TreeView needs a proper parent id defined, somehow none is defined?',
+				1
+			);
+		}
+
+		if (!($objParentProvider =
+			$environment->getDataProvider(
+				$environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider()
+			)
+		))
+		{
+			throw new DcGeneralRuntimeException(
+				'TreeView needs a proper parent data provider defined, somehow none is defined?',
+				1
+			);
+		}
+
+		$objParentItem = $objParentProvider->fetch($objParentProvider->getEmptyConfig()->setId($parentId));
+
+		if (!$objParentItem)
+		{
+			// No parent item found, might have been deleted.
+			// We transparently create it for our filter to be able to filter to nothing.
+			// TODO: shall we rather bail with "parent not found"?
+			$objParentItem = $objParentProvider->getEmptyModel();
+			$objParentItem->setID($parentId);
+		}
+
+		return $objParentItem;
 	}
 
 	/**
