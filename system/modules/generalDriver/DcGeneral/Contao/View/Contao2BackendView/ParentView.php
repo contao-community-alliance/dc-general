@@ -182,7 +182,7 @@ class ParentView extends BaseView
 				$buttons = $this->generateButtons(
 					$model,
 					$definition->getName(),
-					$environment->getRootIds(),
+					null, // $environment->getRootIds(),
 					false,
 					null,
 					$previous,

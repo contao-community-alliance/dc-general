@@ -203,7 +203,7 @@ class ListView extends BaseView
 					$this->generateButtons(
 						$objModel,
 						$definition->getName(),
-						$environment->getRootIds(),
+						null, // $environment->getRootIds(),
 						false,
 						null,
 						$previous,
