@@ -513,7 +513,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 				$providerInformation
 					->setTableName($parentTable)
 					->setInitializationData(array(
-						'source' => $container->getName()
+						'source' => $parentTable
 					));
 
 				$container->getBasicDefinition()->setRootDataProvider($parentTable);
