@@ -82,7 +82,7 @@
 		},
 		"branch-alias": {
 			"dev-master": "0.9.x-dev",
-			"dev-contao3": "1.0.x-dev"
+			"dev-contao3": "2.0.x-dev"
 		}
 	},
 	"minimum-stability": "dev"
