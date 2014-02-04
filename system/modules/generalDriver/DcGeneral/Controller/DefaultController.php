@@ -1165,7 +1165,7 @@ class DefaultController implements ControllerInterface
 		if ($objDefinition->getBasicDefinition()->getMode() == BasicDefinitionInterface::MODE_PARENTEDLIST)
 		{
 			$this->addParentFilter(
-				$this->getEnvironment()->getInputProvider()->getParameter('id'),
+				$this->getEnvironment()->getInputProvider()->getParameter('pid'),
 				$objConfig
 			);
 		}
