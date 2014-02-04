@@ -79,7 +79,14 @@ class Ajax3X extends Ajax
 			{
 				foreach ($varValue as $k=>$v)
 				{
-					$varValue[$k] = \Dbafs::addResource($v)->id;
+					if(version_compare(VERSION, '3.2', '<'))
+					{
+						$varValue[$k] = \Dbafs::addResource($v)->id;
+					}
+					else
+					{
+						$varValue[$k] = \Dbafs::addResource($v)->uuid;
+					}
 				}
 			}
 

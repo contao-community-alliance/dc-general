@@ -116,7 +116,7 @@ class DefaultClipboard implements ClipboardInterface
 	 */
 	public function isEmpty()
 	{
-		return (!isset($this->mode)) || empty($this->mode);
+		return ((!isset($this->arrIds) || empty($this->arrIds)) && (!isset($this->mode)) || empty($this->mode));
 	}
 
 	/**

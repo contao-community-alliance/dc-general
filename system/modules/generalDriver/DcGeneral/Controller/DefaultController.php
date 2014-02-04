@@ -896,7 +896,27 @@ class DefaultController implements ControllerInterface
 					// sadly, with our complex rules an getParent() is IMPOSSIBLE (or in other words way too costly as we would be forced to iterate through all items and check if this item would end up in their child collection).
 					// therefore we get the child we want to be next of and set all fields to the same values as in the sibling to end up in the same parent.
 					$objOtherChild = $objCurrentDataProvider->fetch($objCurrentDataProvider->getEmptyConfig()->setId($mixAfter));
-					$this->getDC()->setSameParent($objDBModel, $objOtherChild, $strCDP);
+					if (!$this->getEnvironment()->getDataDefinition($strCDP)->getRootCondition()->matches($objOtherChild))
+					{
+						$this->getDC()->setSameParent($objDBModel, $objOtherChild, $strCDP);
+					}
+					else
+					{
+						// Enforce the child condition from our parent.
+						$objSibling = $objCurrentDataProvider->fetch($objCurrentDataProvider->getEmptyConfig()->setId($mixAfter));
+						$intParendId = $objSibling->getProperty('pid');
+						
+						// If we have a parent use it else set as root entry.
+						if(!empty($intParendId))
+						{
+							$objParent = $objCurrentDataProvider->fetch($objCurrentDataProvider->getEmptyConfig()->setId($intParendId));
+							$this->setParent($objDBModel, $objParent, 'self');
+						}
+						else
+						{
+							$this->setRoot($objDBModel, 'self');
+						}
+					}
 					// TODO: update sorting here.
 					break;
 
@@ -1797,6 +1817,7 @@ class DefaultController implements ControllerInterface
 		$this->getDC()->getEnvironment()->setCurrentCollection($objCollection);
 
 		// If we want to group the elements, do so now.
+		// Fixme: Never used.
 		if (isset($objCondition) && ($this->getEnvironment()->getDataDefinition()->getSortingMode() == 3))
 		{
 			foreach ($objCollection as $objModel)
@@ -2246,7 +2267,6 @@ class DefaultController implements ControllerInterface
 				$options = array_unique($options);
 				$arrOptionsCallback = array();
 
-				var_dump($field, $options);
 				// Load options callback
 				if (is_array($this->getDC()->arrDCA['fields'][$field]['options_callback']) && !$this->getDC()->arrDCA['fields'][$field]['reference'])
 				{

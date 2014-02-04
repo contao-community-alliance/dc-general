@@ -56,11 +56,11 @@
 <?php if($this->error): ?>
   <p class="tl_error"><?php echo implode('<br />', $this->error)// $GLOBALS['TL_LANG']['ERR']['general']; ?></p>
   <script type="text/javascript">
-  <!--//--><![CDATA[//><!--
+  /* <![CDATA[ */
 	window.addEvent('domready', function() {
 	    Backend.vScrollTo(($('<?php echo $this->table; ?>').getElement('label.error').getPosition().y - 20));
 	});
-  //--><!]]>
+  /* ]]> */
   </script>
 <?php endif; ?>
 
