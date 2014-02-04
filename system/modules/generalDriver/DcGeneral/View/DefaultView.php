@@ -1483,7 +1483,7 @@ class DefaultView implements ViewInterface
 			$colspan = 1;
 
 			// Call label callback
-			$mixedArgs = $this->getDC()->getCallbackClass()->labelCallback($objModelRow, $label, $this->getDC()->arrDCA['list']['label'], $args);
+			$mixedArgs = $this->getDC()->getCallbackClass()->labelCallback($objModelRow, $label, $args);
 
 			if (!is_null($mixedArgs))
 			{
@@ -1497,6 +1497,7 @@ class DefaultView implements ViewInterface
 					$mixedArgs = array($mixedArgs);
 					$colspan = count($this->getDC()->arrDCA['list']['label']['fields']);
 				}
+				$args = $mixedArgs;
 			}
 
 			$arrLabel = array();

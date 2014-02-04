@@ -7,15 +7,17 @@ $GLOBALS['TL_CSS'][] = 'system/modules/generalDriver/html/css/generalDriver.css'
 
 <?php echo $this->strGlobalsButton; ?>
 
+<?php echo $this->getMessages(); ?>
+
 <div class="tl_listing_container tree_view table_<?php echo $this->tableName; ?>" id="tl_listing">
 	<?php if(strlen($this->breadcrumb)) echo $this->breadcrumb; ?>
-	
+
     <ul class="tl_listing <?php echo $this->treeClass; ?>">
         <li class="tl_folder_top">
-            <div class="tl_left"> 
-                <?php echo $this->strLabelIcon ?> <label><?php echo $this->strLabelText; ?></label> 
+            <div class="tl_left">
+                <?php echo $this->strLabelIcon ?> <label><?php echo $this->strLabelText; ?></label>
             </div>
-            <div class="tl_right"><?php echo (strlen($this->strRootPasteinto)) ? $this->strRootPasteinto : '';  ?></div> 
+            <div class="tl_right"><?php echo (strlen($this->strRootPasteinto)) ? $this->strRootPasteinto : '';  ?></div>
             <div style="clear:both;"></div>
         </li>
         <?php echo $this->strHTML; ?>
