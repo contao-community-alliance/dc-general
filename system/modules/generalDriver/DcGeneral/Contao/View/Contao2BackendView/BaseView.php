@@ -994,6 +994,30 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
+	 * Create an empty model using the default values from the definition.
+	 *
+	 * @return ModelInterface
+	 */
+	protected function createEmptyModelWithDefaults()
+	{
+		$environment        = $this->getEnvironment();
+		$definition         = $environment->getDataDefinition();
+		$environment        = $this->getEnvironment();
+		$dataProvider       = $environment->getDataProvider();
+		$propertyDefinition = $definition->getPropertiesDefinition();
+		$properties         = $propertyDefinition->getProperties();
+		$model              = $dataProvider->getEmptyModel();
+
+		foreach ($properties as $property)
+		{
+			$propName = $property->getName();
+			$model->setProperty($propName, $property->getDefaultValue());
+		}
+
+		return $model;
+	}
+
+	/**
 	 * Generate the view for edit.
 	 *
 	 * @return string
@@ -1027,7 +1051,7 @@ class BaseView implements BackendViewInterface
 		}
 		else
 		{
-			$model = $dataProvider->getEmptyModel();
+			$model = $this->createEmptyModelWithDefaults();
 		}
 
 		$widgetManager = new ContaoWidgetManager($environment, $model);
