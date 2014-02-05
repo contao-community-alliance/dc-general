@@ -52,13 +52,6 @@ class ContaoWidgetManager
 	protected $model;
 
 	/**
-	 * A list with all widgets.
-	 *
-	 * @var array
-	 */
-	protected $arrWidgets = array();
-
-	/**
 	 * Create a new instance.
 	 *
 	 * @param EnvironmentInterface $environment The environment in use.
@@ -312,12 +305,6 @@ class ContaoWidgetManager
 	 */
 	public function getWidget($property)
 	{
-		// Load from cache.
-		if (isset($this->arrWidgets[$property]))
-		{
-			return $this->arrWidgets[$property];
-		}
-
 		$environment         = $this->getEnvironment();
 		$defName             = $environment->getDataDefinition()->getName();
 		$propertyDefinitions = $environment->getDataDefinition()->getPropertiesDefinition();
@@ -340,7 +327,7 @@ class ContaoWidgetManager
 
 		if ($event->getWidget())
 		{
-			return $this->arrWidgets[$property] = $event->getWidget();
+			return $event->getWidget();
 		}
 
 		$propInfo  = $propertyDefinitions->getProperty($property);
@@ -348,11 +335,10 @@ class ContaoWidgetManager
 		$varValue  = $this->decodeValue($property, $this->model->getProperty($property));
 		$xLabel    = $this->getXLabel($propInfo);
 
-		// ToDo: switch for BE / FE handling.
 		$strClass = $GLOBALS['BE_FFL'][$propInfo->getWidgetType()];
 		if (!class_exists($strClass))
 		{
-			return $this->arrWidgets[$property] = null;
+			return null;
 		}
 
 		// FIXME TEMPORARY WORKAROUND! To be fixed in the core: Controller::prepareForWidget(..).
@@ -441,7 +427,7 @@ class ContaoWidgetManager
 			)
 		);
 
-		return $this->arrWidgets[$property] = $objWidget;
+		return $objWidget;
 	}
 
 	/**
