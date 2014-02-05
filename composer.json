@@ -3,6 +3,7 @@
 	"description":"Universal data container for Contao",
 	"keywords":["framework", "data", "container", "driver", "php", "contao"],
 	"type":"contao-module",
+	"homepage":"http://now.metamodel.me/",
 	"license":"LGPL-3.0+",
 	"authors": [
 		{
