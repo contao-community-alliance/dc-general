@@ -12,6 +12,7 @@
 
 namespace DcGeneral\Contao\View\Contao2BackendView\Event;
 
+use DcGeneral\EnvironmentInterface;
 use DcGeneral\Event\AbstractEnvironmentAwareEvent;
 
 /**
