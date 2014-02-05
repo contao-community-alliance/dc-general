@@ -519,6 +519,9 @@ class ParentView extends BaseView
 		return $objTemplate->parse();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function enforceModelRelationship($model)
 	{
 		$definition = $this->getEnvironment()->getDataDefinition();
