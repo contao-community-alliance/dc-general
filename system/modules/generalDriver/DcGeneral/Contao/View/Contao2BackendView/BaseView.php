@@ -839,7 +839,7 @@ class BaseView implements BackendViewInterface
 		$modelId      = $environment->getInputProvider()->getParameter('id');
 		$model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId));
 
-		// Trigger event before the model will be deleted.
+		// Trigger event befor the model will be deleted.
 		$event = new PreDeleteModelEvent($environment, $model);
 		$environment->getEventPropagator()->propagate(
 			$event::NAME,
@@ -851,7 +851,7 @@ class BaseView implements BackendViewInterface
 
 		$dataProvider->delete($model);
 
-		// Trigger event after the model is delete.
+		// Trigger event after the model is deleted.
 		$event = new PostDeleteModelEvent($environment, $model);
 		$environment->getEventPropagator()->propagate(
 			$event::NAME,

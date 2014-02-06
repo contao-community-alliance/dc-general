@@ -102,14 +102,14 @@ class ListView extends BaseView
 
 				$arrTableHead[] = array(
 					// FIXME: getAdditionalSorting() unimplemented
-					'class' => 'tl_folder_tlist col_'
+					'class'   => 'tl_folder_tlist col_'
 					/* . $f . ((in_array($f, $definition->getAdditionalSorting())) ? ' ordered_by' : '') */,
 					'content' => $label[0]
 				);
 			}
 
 			$arrTableHead[] = array(
-				'class' => 'tl_folder_tlist tl_right_nowrap',
+				'class'   => 'tl_folder_tlist tl_right_nowrap',
 				'content' => '&nbsp;'
 			);
 		}
@@ -152,7 +152,8 @@ class ListView extends BaseView
 				// Add the group header if it differs from the last header.
 				if (!$listingConfig->getShowColumns()
 					&& ($groupingInformation['mode'] !== ListingConfigInterface::GROUP_NONE)
-					&& (($remoteNew != $remoteCur) || ($remoteCur === null)))
+					&& (($remoteNew != $remoteCur) || ($remoteCur === null))
+				)
 				{
 					$eoCount = -1;
 
@@ -228,7 +229,7 @@ class ListView extends BaseView
 		}
 
 		$this
-			->addToTemplate('tableName', strlen($definition->getName())? $definition->getName() : 'none', $objTemplate)
+			->addToTemplate('tableName', strlen($definition->getName()) ? $definition->getName() : 'none', $objTemplate)
 			->addToTemplate('collection', $collection, $objTemplate)
 			->addToTemplate('select', $this->getEnvironment()->getInputProvider()->getParameter('act'), $objTemplate)
 			->addToTemplate('action', ampersand(\Environment::getInstance()->request, true), $objTemplate)
