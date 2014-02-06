@@ -33,8 +33,10 @@ use DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Event\PostCreateModelEvent;
+use DcGeneral\Event\PostDeleteModelEvent;
 use DcGeneral\Event\PostPersistModelEvent;
 use DcGeneral\Event\PreCreateModelEvent;
+use DcGeneral\Event\PreDeleteModelEvent;
 use DcGeneral\Event\PrePersistModelEvent;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
@@ -837,7 +839,27 @@ class BaseView implements BackendViewInterface
 		$modelId      = $environment->getInputProvider()->getParameter('id');
 		$model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId));
 
+		// Trigger event before the model will be deleted.
+		$event = new PreDeleteModelEvent($environment, $model);
+		$environment->getEventPropagator()->propagate(
+			$event::NAME,
+			$event,
+			array(
+				$this->getEnvironment()->getDataDefinition()->getName(),
+			)
+		);
+
 		$dataProvider->delete($model);
+
+		// Trigger event after the model is delete.
+		$event = new PostDeleteModelEvent($environment, $model);
+		$environment->getEventPropagator()->propagate(
+			$event::NAME,
+			$event,
+			array(
+				$this->getEnvironment()->getDataDefinition()->getName(),
+			)
+		);
 
 		$this->redirectHome();
 	}
