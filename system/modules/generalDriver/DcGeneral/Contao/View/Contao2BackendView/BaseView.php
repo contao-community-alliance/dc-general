@@ -1225,8 +1225,7 @@ class BaseView implements BackendViewInterface
 			}
 		}
 
-		// FIXME: dependency injection or rather template factory?
-		$objTemplate = new \BackendTemplate('dcbe_general_edit');
+		$objTemplate = $this->getTemplate('dcbe_general_edit');
 		$objTemplate->setData(array(
 			'fieldsets' => $arrFieldSets,
 			'versions' => $dataProviderInformation->isVersioningEnabled() ? $dataProvider->getVersions($model->getId()) : null,
