@@ -32,7 +32,9 @@ use DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\EnvironmentInterface;
+use DcGeneral\Event\PostCreateModelEvent;
 use DcGeneral\Event\PostPersistModelEvent;
+use DcGeneral\Event\PreCreateModelEvent;
 use DcGeneral\Event\PrePersistModelEvent;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
@@ -1078,6 +1080,7 @@ class BaseView implements BackendViewInterface
 		$propertyDefinitions     = $definition->getPropertiesDefinition();
 		$blnSubmitted            = ($inputProvider->getValue('FORM_SUBMIT') === $definition->getName());
 		$blnIsAutoSubmit         = ($inputProvider->getValue('SUBMIT_TYPE') === 'auto');
+		$blnNewEntry             = false;
 
 		$this->checkRestoreVersion();
 
@@ -1087,7 +1090,8 @@ class BaseView implements BackendViewInterface
 		}
 		else
 		{
-			$model = $this->createEmptyModelWithDefaults();
+			$model       = $this->createEmptyModelWithDefaults();
+			$blnNewEntry = true;
 		}
 
 		// We need to keep the original data here.
@@ -1182,6 +1186,19 @@ class BaseView implements BackendViewInterface
 		{
 			if ($model->getMeta(DCGE::MODEL_IS_CHANGED))
 			{
+				// Trigger the event for post persists or create.
+				if ($blnNewEntry)
+				{
+					$createEvent = new PreCreateModelEvent($this->getEnvironment(), $model);
+					$environment->getEventPropagator()->propagate(
+						$createEvent::NAME,
+						$createEvent,
+						array(
+							$this->getEnvironment()->getDataDefinition()->getName(),
+						)
+					);
+				}
+
 				$event = new PrePersistModelEvent($environment, $model, $originalModel);
 				$environment->getEventPropagator()->propagate(
 					$event::NAME,
@@ -1191,7 +1208,21 @@ class BaseView implements BackendViewInterface
 					)
 				);
 
+				//Save the model.
 				$dataProvider->save($model);
+
+				// Trigger the event for post persists or create.
+				if ($blnNewEntry)
+				{
+					$event = new PostCreateModelEvent($environment, $model);
+					$environment->getEventPropagator()->propagate(
+						$event::NAME,
+						$event,
+						array(
+							$this->getEnvironment()->getDataDefinition()->getName(),
+						)
+					);
+				}
 
 				$event = new PostPersistModelEvent($environment, $model, $originalModel);
 				$environment->getEventPropagator()->propagate(
