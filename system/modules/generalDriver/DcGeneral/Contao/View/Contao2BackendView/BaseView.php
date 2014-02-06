@@ -1020,9 +1020,40 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
+	 * Update the versioning information in the data provider for a given model (if necessary).
+	 *
+	 * @param ModelInterface $model The model to update.
+	 *
+	 * @return void
+	 */
+	protected function storeVersion(ModelInterface $model)
+	{
 		$modelId                 = $model->getId();
 		$environment             = $this->getEnvironment();
 		$definition              = $environment->getDataDefinition();
+		$basicDefinition         = $definition->getBasicDefinition();
+		$dataProvider            = $environment->getDataProvider();
+		$dataProviderDefinition  = $definition->getDataProviderDefinition();
+		$dataProviderInformation = $dataProviderDefinition->getInformation($basicDefinition->getDataProvider());
+
+		if (!$dataProviderInformation->isVersioningEnabled())
+		{
+			return;
+		}
+
+		// Compare version and current record.
+		$currentVersion = $dataProvider->getActiveVersion($modelId);
+		if (!$currentVersion
+			|| !$dataProvider->sameModels($model, $dataProvider->getVersion($modelId, $currentVersion))
+		)
+		{
+			$user = \BackendUser::getInstance();
+
+			$dataProvider->saveVersion($model, $user->username);
+		}
+	}
+
+	/**
 	 * Generate the view for edit.
 	 *
 	 * @return string
@@ -1171,20 +1202,7 @@ class BaseView implements BackendViewInterface
 					)
 				);
 
-				if ($dataProviderInformation->isVersioningEnabled())
-				{
-					// Compare version and current record.
-					$currentVersion = $dataProvider->getActiveVersion($modelId);
-					if (!$currentVersion
-						|| !$dataProvider->sameModels($model, $dataProvider->getVersion($modelId, $currentVersion))
-					)
-					{
-						// TODO: FE|BE switch.
-						$user = \BackendUser::getInstance();
-						$dataProvider->saveVersion($model, $user->username);
-					}
-				}
-
+				$this->storeVersion($model);
 			}
 
 			$this->handleSubmit($model);
