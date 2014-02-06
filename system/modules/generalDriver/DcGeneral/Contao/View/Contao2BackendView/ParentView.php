@@ -492,7 +492,14 @@ class ParentView extends BaseView
 		}
 
 		// Add template.
-		$objTemplate = $this->getTemplate('dcbe_general_parentView');
+		if ($groupingInformation['mode'] != ListingConfigInterface::GROUP_NONE)
+		{
+			$objTemplate = $this->getTemplate('dcbe_general_grouping');
+		}
+		else
+		{
+			$objTemplate = $this->getTemplate('dcbe_general_parentView');
+		}
 
 		$this
 			->addToTemplate('tableName', strlen($definition->getName())? $definition->getName() : 'none', $objTemplate)

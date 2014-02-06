@@ -65,4 +65,5 @@ TemplateLoader::addFiles(array
 	'dcbe_general_treeview_child'   => 'system/modules/generalDriver/templates',
 	'dcbe_general_treeview_entry'   => 'system/modules/generalDriver/templates',
 	'dcbe_general_breadcrumb'       => 'system/modules/generalDriver/templates',
+	'dcbe_general_grouping'         => 'system/modules/generalDriver/templates',
 ));
