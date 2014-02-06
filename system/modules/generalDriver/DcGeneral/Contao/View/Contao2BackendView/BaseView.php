@@ -32,6 +32,8 @@ use DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\EnvironmentInterface;
+use DcGeneral\Event\PostPersistModelEvent;
+use DcGeneral\Event\PrePersistModelEvent;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Panel\FilterElementInterface;
@@ -1018,6 +1020,9 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
+		$modelId                 = $model->getId();
+		$environment             = $this->getEnvironment();
+		$definition              = $environment->getDataDefinition();
 	 * Generate the view for edit.
 	 *
 	 * @return string
@@ -1053,6 +1058,10 @@ class BaseView implements BackendViewInterface
 		{
 			$model = $this->createEmptyModelWithDefaults();
 		}
+
+		// We need to keep the original data here.
+		$originalModel = clone $model;
+		$originalModel->setId($model->getId());
 
 		$widgetManager = new ContaoWidgetManager($environment, $model);
 
@@ -1140,20 +1149,27 @@ class BaseView implements BackendViewInterface
 
 		if ((!$blnIsAutoSubmit) && $blnSubmitted && empty($errors))
 		{
-			// TODO: Change to PrePersistModelEvent.
-			$event = new EditModelBeforeSaveEvent($environment, $model);
-			$environment->getEventPropagator()->propagate(
-				$event::NAME,
-				$event,
-				array(
-					$this->getEnvironment()->getDataDefinition()->getName(),
-				)
-			);
-
 			if ($model->getMeta(DCGE::MODEL_IS_CHANGED))
 			{
+				$event = new PrePersistModelEvent($environment, $model, $originalModel);
+				$environment->getEventPropagator()->propagate(
+					$event::NAME,
+					$event,
+					array(
+						$this->getEnvironment()->getDataDefinition()->getName(),
+					)
+				);
+
 				$dataProvider->save($model);
-				// TODO: Emit PostPersistModelEvent.
+
+				$event = new PostPersistModelEvent($environment, $model, $originalModel);
+				$environment->getEventPropagator()->propagate(
+					$event::NAME,
+					$event,
+					array(
+						$this->getEnvironment()->getDataDefinition()->getName(),
+					)
+				);
 
 				if ($dataProviderInformation->isVersioningEnabled())
 				{
@@ -1168,6 +1184,7 @@ class BaseView implements BackendViewInterface
 						$dataProvider->saveVersion($model, $user->username);
 					}
 				}
+
 			}
 
 			$this->handleSubmit($model);
