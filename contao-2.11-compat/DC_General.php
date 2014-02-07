@@ -10,4 +10,4 @@
  */
 
 // Contao 2.X compatibility.
-require_once TL_ROOT . '/system/modules/generalDriver/DC_General.php';
+require_once TL_ROOT . '/system/modules/dc-general/DC_General.php';

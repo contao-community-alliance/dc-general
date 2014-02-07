@@ -2,11 +2,11 @@
 
 /**
  * PHP version 5
- * @package    generalDriver
+ * @package    dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @copyright  The MetaModels team.
+ * @copyright  Contao Community Alliance.
  * @license    LGPL.
  * @filesource
  */

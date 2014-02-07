@@ -6,13 +6,13 @@
 
 	<target name="phpcs">
 		<exec dir="${basedir}" executable="vendor/bin/phpcs" failonerror="true">
-			<arg line="--standard=${basedir}/vendor/metamodels/php-coding-standard/MetaModels/ruleset.xml ${basedir}/system"/>
+			<arg line="--standard=${basedir}/vendor/metamodels/php-coding-standard/MetaModels/ruleset.xml ${basedir}/src"/>
 		</exec>
 	</target>
 
 	<target name="phpmd">
 		<exec dir="${basedir}" executable="vendor/bin/phpmd" failonerror="true">
-			<arg line="${basedir}/system text ${basedir}/vendor/metamodels/php-coding-standard/MetaModels/ruleset.xml"/>
+			<arg line="${basedir}/src text ${basedir}/vendor/metamodels/php-coding-standard/MetaModels/ruleset.xml"/>
 		</exec>
 	</target>
 

@@ -2,24 +2,19 @@
 
 /**
  * PHP version 5
- * @package    generalDriver
+ * @package    dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  The MetaModels team.
+ * @copyright  Contao Community Alliance.
  * @license    LGPL.
  * @filesource
  */
-
-/**
- * The ABI version of the DcGeneral extension in use.
- */
-define('DCGENERAL_VERSION', '1.0.0-dev');
 
 /**
  * JS
  */
 if (TL_MODE == 'BE')
 {
-	$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/generalDriver/html/js/generalDriver_src.js';
+	$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/dc-general/html/js/generalDriver_src.js';
 }
 
 // For the moment, we add our auto loader at the end for non composerized Contao 2.X compatibility.

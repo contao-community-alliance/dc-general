@@ -25,7 +25,7 @@
 
     <filter>
         <whitelist>
-            <directory>./system/modules/generalDriver/DcGeneral/</directory>
+            <directory>./src/DcGeneral/</directory>
         </whitelist>
     </filter>
 </phpunit>

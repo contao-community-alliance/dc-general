@@ -1,9 +1,9 @@
 {
-	"name":"metamodels/dc_general",
+	"name":"contao-community-alliance/dc-general",
 	"description":"Universal data container for Contao",
 	"keywords":["framework", "data", "container", "driver", "php", "contao"],
 	"type":"contao-module",
-	"homepage":"http://now.metamodel.me/",
+	"homepage":"http://c-c-a.org/",
 	"license":"LGPL-3.0+",
 	"authors": [
 		{
@@ -24,18 +24,6 @@
 			"role":"Developer"
 		},
 		{
-			"name":"Christian de la Haye",
-			"email":"service@delahaye.de",
-			"homepage":"http://www.delahaye.de/",
-			"role":"Developer"
-		},
-		{
-			"name":"Oliver Hoff",
-			"email":"oliver@hofff.com",
-			"homepage":"http://www.hofff.com/",
-			"role":"Developer"
-		},
-		{
 			"name":"Tristan Lins",
 			"email":"tristan.lins@bit3.de",
 			"homepage":"http://bit3.de/",
@@ -43,10 +31,10 @@
 		}
 	],
 	"support":{
-			"issues":"https://github.com/MetaModels/DC_General/issues",
+			"issues":"https://github.com/contao-community-alliance/dc-general/issues",
 			"wiki":"http://de.contaowiki.org/DC_General",
 			"irc":"irc://irc.freenode.org/contao.dev",
-			"source":"https://github.com/MetaModels/DC_General"
+			"source":"https://github.com/contao-community-alliance/dc-general"
 	},
 	"require": {
 		"php":">=5.3",
@@ -66,11 +54,9 @@
 	},
 	"autoload": {
 		"classmap": [
-			"system/modules/generalDriver/DC_General.php",
-			"system/modules/generalDriver/DcGeneral/DC_General.php",
-			"system/modules/generalDriver/deprecated"
+			"src/DC_General.php"
 		],
-		"psr-0": {"DcGeneral": "system/modules/generalDriver"}
+		"psr-0": {"DcGeneral": "src"}
 	},
 	"replace": {
 		"contao-legacy/dc_general": "*"
@@ -78,13 +64,13 @@
 	"extra":{
 		"contao": {
 			"symlinks": {
-				"system/drivers/DC_General.php": "system/drivers/DC_General.php",
-				"system/modules/generalDriver": "system/modules/generalDriver"
+				"contao": "system/modules/dc-general",
+				"src/DC_General.php": "system/modules/dc-general/DC_General.php",
+				"contao-2.11-compat/DC_General.php": "system/drivers/DC_General.php"
 			}
 		},
 		"branch-alias": {
-			"dev-master": "0.9.x-dev",
-			"dev-contao3": "2.0.x-dev"
+			"dev-develop": "2.0.x-dev"
 		}
 	},
 	"minimum-stability": "dev"
