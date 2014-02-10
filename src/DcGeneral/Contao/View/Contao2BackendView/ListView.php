@@ -17,6 +17,8 @@ use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
+use DcGeneral\Event\PreDuplicateModelEvent;
+use DcGeneral\Event\PostDuplicateModelEvent;
 
 /**
  * Class ListView.
@@ -258,7 +260,50 @@ class ListView extends BaseView
 	 */
 	public function copy()
 	{
-		return $this->edit();
+		$this->checkLanguage();
+
+		$environment  = $this->getEnvironment();
+		$dataProvider = $environment->getDataProvider();
+		$modelId      = $environment->getInputProvider()->getParameter('id');
+		$model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId));
+
+		if (strlen($modelId))
+		{
+			$model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId));
+		}
+		else
+		{
+			throw new DcGeneralRuntimeException('Missing model id.');
+		}
+
+		// We need to keep the original data here.
+		$copyModel = clone $model;
+
+		$preFunction = function($environment, $model, $originalModel)
+		{
+			$copyEvent = new PreDuplicateModelEvent($environment, $model);
+			$environment->getEventPropagator()->propagate(
+				$copyEvent::NAME,
+				$copyEvent,
+				array(
+					$environment->getDataDefinition()->getName(),
+				)
+			);
+		};
+
+		$postFunction = function($environment, $model, $originalModel)
+		{
+			$copyEvent = new PostDuplicateModelEvent($environment, $model);
+			$environment->getEventPropagator()->propagate(
+				$copyEvent::NAME,
+				$copyEvent,
+				array(
+					$environment->getDataDefinition()->getName(),
+				)
+			);
+		};
+
+		return $this->createEditMask($copyModel, $model, $preFunction, $postFunction);
 	}
 
 	/**
