@@ -39,6 +39,7 @@
 				<?php endif; ?>
 			</table>
 		<?php endif; ?>
+
 		<?php if($this->header): ?>
 			<div class="tl_header" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
 				<div class="tl_content_right">
@@ -56,56 +57,55 @@
 			<br/>
 		<?php endif; ?>
 
-			<?php $blnFirstRun = true; $strLastId = null; ?>
-			<?php foreach ($this->collection as $objModel): ?>
+		<!-- NEW PART ------------------------------------------------------------------------------------------------->
 
-				<?php $arrGroup = $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_GROUP_VALUE); ?>
-				<?php if($arrGroup != null): ?>
-					<?php if($blnFirstRun != true): ?>
-						</ul>
-						<script>
-							BackendGeneral.makeParentViewSortable("ul_<?php echo $this->tableName; ?>_<?php echo standardize($strLastId); ?>", "<?php echo $this->cdp; ?>", "<?php echo $this->pdp; ?>");
-						</script>
-					<?php else: $blnFirstRun = false; endif; ?>
+		<?php $blnFirstRun = true; $strLastId = null; ?>
+		<?php foreach ($this->collection as $objModel): ?>
+
+			<?php $arrGroup = $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_GROUP_VALUE); ?>
+			<?php if($arrGroup != null): ?>
+
+				<?php if($blnFirstRun != true): ?>
+					</table>
+					<script>
+						BackendGeneral.makeParentViewSortable("table_<?php echo $this->tableName; ?>_<?php echo standardize($strLastId); ?>", "<?php echo $this->cdp; ?>", "<?php echo $this->pdp; ?>");
+					</script>
+				<?php else:
+					$strLastId = $arrGroup['value'];
+					$blnFirstRun = false;
+				endif; ?>
+
+				<?php if ($this->mode): ?>
 					<div class="tl_content_header <?php echo $arrGroup['class']; ?>"><?php echo $arrGroup['value']; ?></div>
-					<ul id="ul_<?php echo $this->tableName; ?>_<?php echo standardize($arrGroup['value']); ?>" class="sortable">
-					<?php $strLastId = $arrGroup['value']; ?>
 				<?php endif; ?>
 
-				<li id="li_<?php echo $objModel->getID(); ?>">
+				<table id="table_<?php echo $this->tableName; ?>_<?php echo standardize($strLastId); ?>" class="tl_listing<?php echo ($GLOBALS['TL_DCA'][$this->strTable]['list']['label']['showColumns']) ? ' showColumns' : ''; ?>">
+				<?php $strLastId = $arrGroup['value']; ?>
+			<?php endif; ?>
 
-					<div class="tl_content<?php echo $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_CLASS); ?>"
-						 onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
-						<?php $arrLabels = $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_LABEL_VALUE); ?>
+			<tr class="<?php echo $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_EVEN_ODD_CLASS); ?>" onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);">
+				<?php $arrLabels = $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_LABEL_VALUE); ?>
 
-						<?php foreach ($arrLabels as $arrLabel): ?>
-							<td <?php echo((!is_null($arrLabel['colspan'])) ? 'colspan="' . $arrLabel['colspan'] . '"' : ''); ?>
-								class="<?php echo $arrLabel['class']; ?>">
-								<?php echo $arrLabel['content']; ?>
-							</td>
-						<?php endforeach; ?>
+				<?php foreach ($arrLabels as $arrLabel): ?>
+					<td <?php echo ((!is_null($arrLabel['colspan'])) ? 'colspan="' . $arrLabel['colspan'] . '"' : ''); ?> class="<?php echo $arrLabel['class']; ?>">
+						<?php echo $arrLabel['content']; ?>
+					</td>
+				<?php endforeach; ?>
 
-						<div class="tl_content_right">
+				<?php if ($this->select): ?>
+					<td class="tl_file_list tl_right_nowrap">
+						<input type="checkbox" name="IDS[]" id="ids_<?php echo $objModel->getProperty('id'); ?>" class="tl_tree_checkbox" value="<?php echo $objModel->getProperty('id'); ?>">
+					</td>
+				<?php else: ?>
+					<td class="tl_file_list tl_right_nowrap">
+						<?php echo $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_BUTTONS); ?>
+					</td>
+				<?php endif; ?>
+			</tr>
 
-							<?php if ($this->select): ?>
-								<input type="checkbox" name="IDS[]" id="ids_<?php echo $objModel->getID(); ?>"
-									   class="tl_tree_checkbox" value="<?php echo $objModel->getID(); ?>">
-							<?php endif; ?>
+		<?php endforeach; ?>
 
-							<?php echo $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_BUTTONS); ?>
-
-						</div>
-					</div>
-
-				</li>
-			<?php endforeach; ?>
-
-		</ul>
-		<script>
-			BackendGeneral.makeParentViewSortable("ul_<?php echo $this->tableName; ?>_<?php echo standardize($strLastId); ?>", "<?php echo $this->cdp; ?>", "<?php echo $this->pdp; ?>");
-		</script>
-
-
+		</table>
 
 	</div>
 
