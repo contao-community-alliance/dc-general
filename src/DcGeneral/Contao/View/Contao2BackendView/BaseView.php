@@ -1090,19 +1090,12 @@ class BaseView implements BackendViewInterface
 	{
 		$this->checkLanguage();
 
-		$environment             = $this->getEnvironment();
-		$definition              = $environment->getDataDefinition();
-		$basicDefinition         = $definition->getBasicDefinition();
-		$dataProvider            = $environment->getDataProvider();
-		$dataProviderDefinition  = $definition->getDataProviderDefinition();
-		$dataProviderInformation = $dataProviderDefinition->getInformation($basicDefinition->getDataProvider());
-		$inputProvider           = $environment->getInputProvider();
-		$palettesDefinition      = $definition->getPalettesDefinition();
-		$modelId                 = $inputProvider->getParameter('id');
-		$propertyDefinitions     = $definition->getPropertiesDefinition();
-		$blnSubmitted            = ($inputProvider->getValue('FORM_SUBMIT') === $definition->getName());
-		$blnIsAutoSubmit         = ($inputProvider->getValue('SUBMIT_TYPE') === 'auto');
-		$blnNewEntry             = false;
+		$environment   = $this->getEnvironment();
+		$definition    = $environment->getDataDefinition();
+		$dataProvider  = $environment->getDataProvider();
+		$inputProvider = $environment->getInputProvider();
+		$modelId       = $inputProvider->getParameter('id');
+		$blnNewEntry   = false;
 
 		$this->checkRestoreVersion();
 
