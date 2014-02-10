@@ -799,7 +799,31 @@ class BaseView implements BackendViewInterface
 	 */
 	public function create()
 	{
-		return $this->edit();
+		$preFunction = function($environment, $model, $originalModel)
+		{
+			$copyEvent = new PreCreateModelEvent($environment, $model);
+			$environment->getEventPropagator()->propagate(
+				$copyEvent::NAME,
+				$copyEvent,
+				array(
+					$environment->getDataDefinition()->getName(),
+				)
+			);
+		};
+
+		$postFunction = function($environment, $model, $originalModel)
+		{
+			$copyEvent = new PostCreateModelEvent($environment, $model);
+			$environment->getEventPropagator()->propagate(
+				$copyEvent::NAME,
+				$copyEvent,
+				array(
+					$environment->getDataDefinition()->getName(),
+				)
+			);
+		};
+
+		return $this->createEditMask($this->createEmptyModelWithDefaults(), null, null, null);
 	}
 
 	/**
