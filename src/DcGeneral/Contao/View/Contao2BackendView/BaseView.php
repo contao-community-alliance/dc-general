@@ -1120,6 +1120,36 @@ class BaseView implements BackendViewInterface
 		$originalModel = clone $model;
 		$originalModel->setId($model->getId());
 
+		return $this->createEditMask($model, $originalModel, null, null);
+	}
+
+	/**
+	 * Chreate the edit mask.
+	 *
+	 * @param $Model         The model with the current data.
+	 *
+	 * @param $originalModel The data from the originoal data.
+	 *
+	 * @return string
+	 */
+	protected function createEditMask($model, $originalModel, $preFunction, $postFunction)
+	{
+		$this->checkLanguage();
+
+		$environment             = $this->getEnvironment();
+		$definition              = $environment->getDataDefinition();
+		$basicDefinition         = $definition->getBasicDefinition();
+		$dataProvider            = $environment->getDataProvider();
+		$dataProviderDefinition  = $definition->getDataProviderDefinition();
+		$dataProviderInformation = $dataProviderDefinition->getInformation($basicDefinition->getDataProvider());
+		$inputProvider           = $environment->getInputProvider();
+		$palettesDefinition      = $definition->getPalettesDefinition();
+		$modelId                 = $inputProvider->getParameter('id');
+		$propertyDefinitions     = $definition->getPropertiesDefinition();
+		$blnSubmitted            = ($inputProvider->getValue('FORM_SUBMIT') === $definition->getName());
+		$blnIsAutoSubmit         = ($inputProvider->getValue('SUBMIT_TYPE') === 'auto');
+		$blnNewEntry             = false;
+
 		$widgetManager = new ContaoWidgetManager($environment, $model);
 
 		// Check if table is editable.
@@ -1209,16 +1239,9 @@ class BaseView implements BackendViewInterface
 			if ($model->getMeta(DCGE::MODEL_IS_CHANGED))
 			{
 				// Trigger the event for post persists or create.
-				if ($blnNewEntry)
+				if ($preFunction != null)
 				{
-					$createEvent = new PreCreateModelEvent($this->getEnvironment(), $model);
-					$environment->getEventPropagator()->propagate(
-						$createEvent::NAME,
-						$createEvent,
-						array(
-							$this->getEnvironment()->getDataDefinition()->getName(),
-						)
-					);
+					$preFunction($environment, $model, $originalModel);
 				}
 
 				$event = new PrePersistModelEvent($environment, $model, $originalModel);
@@ -1234,16 +1257,9 @@ class BaseView implements BackendViewInterface
 				$dataProvider->save($model);
 
 				// Trigger the event for post persists or create.
-				if ($blnNewEntry)
+				if ($postFunction != null)
 				{
-					$event = new PostCreateModelEvent($environment, $model);
-					$environment->getEventPropagator()->propagate(
-						$event::NAME,
-						$event,
-						array(
-							$this->getEnvironment()->getDataDefinition()->getName(),
-						)
-					);
+					$postFunction($environment, $model, $originalModel);
 				}
 
 				$event = new PostPersistModelEvent($environment, $model, $originalModel);
@@ -1280,15 +1296,15 @@ class BaseView implements BackendViewInterface
 
 		$objTemplate = $this->getTemplate('dcbe_general_edit');
 		$objTemplate->setData(array(
-			'fieldsets' => $arrFieldSets,
-			'versions' => $dataProviderInformation->isVersioningEnabled() ? $dataProvider->getVersions($model->getId()) : null,
-			'subHeadline' => $strHeadline,
-			'table' => $definition->getName(),
-			'enctype' => 'multipart/form-data',
-			'error' => $errors,
-			'editButtons' => $this->getEditButtons(),
-			'noReload' => (bool)$errors
-		));
+				'fieldsets' => $arrFieldSets,
+				'versions' => $dataProviderInformation->isVersioningEnabled() ? $dataProvider->getVersions($model->getId()) : null,
+				'subHeadline' => $strHeadline,
+				'table' => $definition->getName(),
+				'enctype' => 'multipart/form-data',
+				'error' => $errors,
+				'editButtons' => $this->getEditButtons(),
+				'noReload' => (bool)$errors
+			));
 
 		if ($this->isMultiLanguage($model->getId()))
 		{
