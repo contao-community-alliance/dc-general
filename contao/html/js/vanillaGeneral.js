@@ -137,7 +137,30 @@ function GeneralTableDnD()
 	 */
 	this.onDrop = function (table, droppedRow)
 	{
-		// Do nothing for now
+		var id = droppedRow.id.replace(/table_row_/, '');
+		var insertAfter = null;
+		var prevElement = GeneralEnvironment.getDom().getPreviousSibling(droppedRow);
+
+		// Check if we have a prev element or the top.
+		if (prevElement == null)
+		{
+			insertAfter = 0;
+		}
+		else
+		{
+			insertAfter = prevElement.id.replace(/table_row_/, '');
+		}
+
+		// Build url.
+		var href = window.location.href.replace(/\?.*$/, '');
+		var req = window.location.search;
+		req += '&act=cut';
+		req += '&source=' + id;
+		req += '&after=' + insertAfter
+		req += '&isAjax=1'
+
+		var href = GeneralEnvironment.getDom().getContaoBase();
+		GeneralEnvironment.getAjax().sendGet(href + req, false, null);
 	}
 
 	/** Get the position of an element by going up the DOM tree and adding up all the offsets */
