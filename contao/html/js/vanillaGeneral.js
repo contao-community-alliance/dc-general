@@ -28,12 +28,15 @@ var currenttable = null;
  *
  * @param ev the event (for Firefox and Safari, otherwise we use window.event for IE)
  */
-document.onmousemove = function (ev) {
-	if (currenttable && currenttable.dragObject) {
+document.onmousemove = function (ev)
+{
+	if (currenttable && currenttable.dragObject)
+	{
 		ev = ev || window.event;
 		var mousePos = currenttable.mouseCoords(ev);
 		var y = mousePos.y - currenttable.mouseOffset.y;
-		if (y != currenttable.oldY) {
+		if (y != currenttable.oldY)
+		{
 			// work out if we're going up or down...
 			var movingDown = y > currenttable.oldY;
 			// update the old value
@@ -43,10 +46,14 @@ document.onmousemove = function (ev) {
 			// If we're over a row then move the dragged row to there so that the user sees the
 			// effect dynamically
 			var currentRow = currenttable.findDropTargetRow(y);
-			if (currentRow) {
-				if (movingDown && currenttable.dragObject != currentRow) {
+			if (currentRow)
+			{
+				if (movingDown && currenttable.dragObject != currentRow)
+				{
 					currenttable.dragObject.parentNode.insertBefore(currenttable.dragObject, currentRow.nextSibling);
-				} else if (!movingDown && currenttable.dragObject != currentRow) {
+				}
+				else if (!movingDown && currenttable.dragObject != currentRow)
+				{
 					currenttable.dragObject.parentNode.insertBefore(currenttable.dragObject, currentRow);
 				}
 			}
@@ -57,8 +64,10 @@ document.onmousemove = function (ev) {
 }
 
 // Similarly for the mouseup
-document.onmouseup = function (ev) {
-	if (currenttable && currenttable.dragObject) {
+document.onmouseup = function (ev)
+{
+	if (currenttable && currenttable.dragObject)
+	{
 		var droppedRow = currenttable.dragObject;
 		// If we have a dragObject, then we need to release it,
 		// The row will already have been moved to the right place so we just reset stuff
@@ -74,11 +83,15 @@ document.onmouseup = function (ev) {
  * get the source element from an event in a way that works for IE and Firefox and Safari
  * @param evt the source event for Firefox (but not IE--IE uses window.event)
  */
-function getEventSource(evt) {
-	if (window.event) {
+function getEventSource(evt)
+{
+	if (window.event)
+	{
 		evt = window.event; // For IE
 		return evt.srcElement;
-	} else {
+	}
+	else
+	{
 		return evt.target; // For Firefox
 	}
 }
@@ -87,7 +100,8 @@ function getEventSource(evt) {
  * Encapsulate table Drag and Drop in a class. We'll have this as a Singleton
  * so we don't get scoping problems.
  */
-function TableDnD() {
+function GeneralTableDnD()
+{
 	/** Keep hold of the current drag object if any */
 	this.dragObject = null;
 	/** The current mouse offset */
@@ -98,13 +112,16 @@ function TableDnD() {
 	this.oldY = 0;
 
 	/** Initialise the drag and drop by capturing mouse move events */
-	this.init = function (table) {
+	this.init = function (table)
+	{
 		this.table = table;
 		var rows = table.tBodies[0].rows; //getElementsByTagName("tr")
-		for (var i = 0; i < rows.length; i++) {
+		for (var i = 0; i < rows.length; i++)
+		{
 			// John Tarr: added to ignore rows that I've added the NoDnD attribute to (Category and Header rows)
 			var nodrag = rows[i].getAttribute("NoDrag")
-			if (nodrag == null || nodrag == "undefined") { //There is no NoDnD attribute on rows I want to drag
+			if (nodrag == null || nodrag == "undefined")
+			{ //There is no NoDnD attribute on rows I want to drag
 				this.makeDraggable(rows[i]);
 			}
 		}
@@ -112,16 +129,19 @@ function TableDnD() {
 
 	/** This function is called when you drop a row, so redefine it in your code
 	 to do whatever you want, for example use Ajax to update the server */
-	this.onDrop = function (table, droppedRow) {
+	this.onDrop = function (table, droppedRow)
+	{
 		// Do nothing for now
 	}
 
 	/** Get the position of an element by going up the DOM tree and adding up all the offsets */
-	this.getPosition = function (e) {
+	this.getPosition = function (e)
+	{
 		var left = 0;
 		var top = 0;
 		/** Safari fix -- thanks to Luis Chato for this! */
-		if (e.offsetHeight == 0) {
+		if (e.offsetHeight == 0)
+		{
 			/** Safari 2 doesn't correctly grab the offsetTop of a table row
 			 this is detailed here:
 			 http://jacob.peargrove.com/blog/2006/technical/table-row-offsettop-bug-in-safari/
@@ -131,7 +151,8 @@ function TableDnD() {
 			e = e.firstChild; // a table cell
 		}
 
-		while (e.offsetParent) {
+		while (e.offsetParent)
+		{
 			left += e.offsetLeft;
 			top += e.offsetTop;
 			e = e.offsetParent;
@@ -144,8 +165,10 @@ function TableDnD() {
 	}
 
 	/** Get the mouse coordinates from the event (allowing for browser differences) */
-	this.mouseCoords = function (ev) {
-		if (ev.pageX || ev.pageY) {
+	this.mouseCoords = function (ev)
+	{
+		if (ev.pageX || ev.pageY)
+		{
 			return {x: ev.pageX, y: ev.pageY};
 		}
 		return {
@@ -156,7 +179,8 @@ function TableDnD() {
 
 	/** Given a target element and a mouse event, get the mouse offset from that element.
 	 To do this we need the element's position and the mouse position */
-	this.getMouseOffset = function (target, ev) {
+	this.getMouseOffset = function (target, ev)
+	{
 		ev = ev || window.event;
 
 		var docPos = this.getPosition(target);
@@ -165,14 +189,22 @@ function TableDnD() {
 	}
 
 	/** Take an item and add an onmousedown method so that we can make it draggable */
-	this.makeDraggable = function (item) {
-		if (!item) return;
+	this.makeDraggable = function (item)
+	{
+		if (!item)
+		{
+			return;
+		}
 		var self = this; // Keep the context of the TableDnd inside the function
-		item.onmousedown = function (ev) {
+		item.onmousedown = function (ev)
+		{
 			// Need to check to see if we are an input or not, if we are an input, then
 			// return true to allow normal processing
 			var target = getEventSource(ev);
-			if (target.tagName == 'INPUT' || target.tagName == 'SELECT') return true;
+			if (target.tagName == 'INPUT' || target.tagName == 'SELECT')
+			{
+				return true;
+			}
 			currenttable = self;
 			self.dragObject = this;
 			self.mouseOffset = self.getMouseOffset(this, ev);
@@ -182,21 +214,26 @@ function TableDnD() {
 	}
 
 	/** We're only worried about the y position really, because we can only move rows up and down */
-	this.findDropTargetRow = function (y) {
+	this.findDropTargetRow = function (y)
+	{
 		var rows = this.table.tBodies[0].rows;
-		for (var i = 0; i < rows.length; i++) {
+		for (var i = 0; i < rows.length; i++)
+		{
 			var row = rows[i];
 			// John Tarr added to ignore rows that I've added the NoDnD attribute to (Header rows)
 			var nodrop = row.getAttribute("NoDrop");
-			if (nodrop == null || nodrop == "undefined") {  //There is no NoDnD attribute on rows I want to drag
+			if (nodrop == null || nodrop == "undefined")
+			{  //There is no NoDnD attribute on rows I want to drag
 				var rowY = this.getPosition(row).y;
 				var rowHeight = parseInt(row.offsetHeight) / 2;
-				if (row.offsetHeight == 0) {
+				if (row.offsetHeight == 0)
+				{
 					rowY = this.getPosition(row.firstChild).y;
 					rowHeight = parseInt(row.firstChild.offsetHeight) / 2;
 				}
 				// Because we always have to insert before, we need to offset the height a bit
-				if ((y > rowY - rowHeight) && (y < (rowY + rowHeight))) {
+				if ((y > rowY - rowHeight) && (y < (rowY + rowHeight)))
+				{
 					// that's the row we're over
 					return row;
 				}
@@ -205,6 +242,7 @@ function TableDnD() {
 		return null;
 	}
 }
+
 
 //*************************************************************************
 // Functions
