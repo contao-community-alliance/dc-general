@@ -70,7 +70,7 @@ class DefaultEnvironment implements EnvironmentInterface
 	/**
 	 * The registered data providers.
 	 *
-	 * @var \DcGeneral\Data\DriverInterface[]
+	 * @var \DcGeneral\Data\DataProviderInterface[]
 	 */
 	protected $arrDataProvider;
 
@@ -239,12 +239,12 @@ class DefaultEnvironment implements EnvironmentInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function addDataProvider($strSource, $objDriver)
+	public function addDataProvider($strSource, $dataProvider)
 	{
-		// Force removal of an potentially registered driver to ease sub-classing.
+		// Force removal of an potentially registered data provider to ease sub-classing.
 		$this->removeDataProvider($strSource);
 
-		$this->arrDataProvider[$strSource] = $objDriver;
+		$this->arrDataProvider[$strSource] = $dataProvider;
 
 		return $this;
 	}
@@ -265,12 +265,12 @@ class DefaultEnvironment implements EnvironmentInterface
 	/**
 	 * Retrieve the data provider for the named source.
 	 *
-	 * If a source name is given, the named driver will get returned, if not given, the default driver will get
-	 * returned, The default is to be determined via: getEnvironment()->getDataDefinition()->getDataProvider()
+	 * If a source name is given, the named data provider will get returned, if not given, the default data provider
+     * will get returned, the default is to be determined via: getEnvironment()->getDataDefinition()->getDataProvider()
 	 *
 	 * @param string|null $strSource The name of the source.
 	 *
-	 * @return \DcGeneral\Data\DriverInterface
+	 * @return \DcGeneral\Data\DataProviderInterface
 	 *
 	 * @deprecated Use getDataProvider() instead!
 	 */
@@ -288,20 +288,20 @@ class DefaultEnvironment implements EnvironmentInterface
 	 *
 	 * @param string                          $strSource The name of the source.
 	 *
-	 * @param \DcGeneral\Data\DriverInterface $objDriver The driver instance to register under the given name.
+	 * @param \DcGeneral\Data\DataProviderInterface $dataProvider The data provider instance to register under the given name.
 	 *
 	 * @return EnvironmentInterface
 	 *
 	 * @deprecated Use addDataProvider() instead!
 	 */
-	public function addDataDriver($strSource, $objDriver)
+	public function addDataDriver($strSource, $dataProvider)
 	{
 		trigger_error(
 			__CLASS__ . '::addDataDriver() is deprecated - please use ' . __CLASS__ . '::addDataProvider().',
 			E_USER_DEPRECATED
 		);
-		// Force removal of an potentially registered driver to ease sub-classing.
-		$this->addDataProvider($strSource, $objDriver);
+		// Force removal of an potentially registered data provider to ease sub-classing.
+		$this->addDataProvider($strSource, $dataProvider);
 
 		return $this;
 	}

@@ -13,13 +13,13 @@
 namespace DcGeneral\Data;
 
 /**
- * Interface MultiLanguageDriverInterface.
+ * Interface MultiLanguageDataProviderInterface.
  *
  * This interface describes how to interface with a multi language data provider.
  *
  * @package DcGeneral\Data
  */
-interface MultiLanguageDriverInterface extends DriverInterface
+interface MultiLanguageDataProviderInterface extends DataProviderInterface
 {
 	/**
 	 * Get all available languages of a certain record.
@@ -46,7 +46,7 @@ interface MultiLanguageDriverInterface extends DriverInterface
 	 *
 	 * @param string $strLanguage The new language, use short tag "2 chars like de, fr etc.".
 	 *
-	 * @return DriverInterface
+	 * @return DataProviderInterface
 	 */
 	public function setCurrentLanguage($strLanguage);
 

@@ -205,7 +205,7 @@ abstract class Ajax extends \Backend
 	 */
 	public function executePostActions(DataContainerInterface $objDc)
 	{
-		// Check DC for a right driver
+		// Check DC for a right data provider
 		if (!$objDc instanceof DataContainerInterface)
 		{
 			return;

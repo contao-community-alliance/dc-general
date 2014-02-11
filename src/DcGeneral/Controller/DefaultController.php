@@ -14,6 +14,7 @@ namespace DcGeneral\Controller;
 
 use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Data\ConfigInterface;
+use DcGeneral\Data\DataProviderInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\ModelInterface;
 
@@ -415,7 +416,7 @@ class DefaultController implements ControllerInterface
 	 * ////////////////////////////////////////////////////////////////// */
 
 	/**
-	 * Return all supported languages from the default data driver.
+	 * Return all supported languages from the default data data provider.
 	 *
 	 * @param mixed $mixID
 	 *
@@ -427,14 +428,14 @@ class DefaultController implements ControllerInterface
 		$objDataProvider = $environment->getDataProvider();
 
 		// Check if current data provider supports multi language
-		if (in_array('DcGeneral\Data\MultiLanguageDriverInterface', class_implements($objDataProvider)))
+		if (in_array('DcGeneral\Data\MultiLanguageDataProvider', class_implements($objDataProvider)))
 		{
-			/** @var \DcGeneral\Data\MultiLanguageDriverInterface $objDataProvider */
+			/** @var \DcGeneral\Data\MultiLanguageDataProviderInterface $objDataProvider */
 			$objLanguagesSupported = $objDataProvider->getLanguages($mixID);
 		}
 		else if (in_array('InterfaceGeneralDataMultiLanguage', class_implements($objDataProvider)))
 		{
-			trigger_error('deprecated use of InterfaceGeneralDataMultiLanguage - use DcGeneral\Data\MultiLanguageDriverInterface instead.', E_USER_DEPRECATED);
+			trigger_error('deprecated use of InterfaceGeneralDataMultiLanguage - use DcGeneral\Data\MultiLanguageDataProvider instead.', E_USER_DEPRECATED);
 			$objLanguagesSupported = $objDataProvider->getLanguages($mixID);
 		}
 		else
@@ -1377,8 +1378,8 @@ class DefaultController implements ControllerInterface
 	 *
 	 * Based on backbone87 PR - "creating items in parent modes generates sorting value of 0"
 	 *
-	 * @param DriverInterface $objCDP             Current data provider
-	 * @param DriverInterface $objPDP             Parent data provider
+	 * @param DataProviderInterface $objCDP             Current data provider
+	 * @param DataProviderInterface $objPDP             Parent data provider
 	 * @param ModelInterface  $objDBModel         Model of element which should moved
 	 * @param mixed           $mixAfter           Target element
 	 * @param                 $mixInto

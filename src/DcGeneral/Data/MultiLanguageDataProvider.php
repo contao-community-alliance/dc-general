@@ -13,14 +13,14 @@
 namespace DcGeneral\Data;
 
 /**
- * Class MultiLanguageDriver.
- * Implementation of a multi language Contao database driver.
+ * Class MultiLanguageDataProvider.
+ * Implementation of a multi language Contao database data provider.
  *
  * The default language will be initialized to "en".
  *
  * @package DcGeneral\Data
  */
-class MultiLanguageDriver extends DefaultDriver implements MultiLanguageDriverInterface
+class MultiLanguageDataProvider extends DefaultDataProvider implements MultiLanguageDataProviderInterface
 {
 	/**
 	 * Buffer to keep the current active working language.
@@ -96,7 +96,7 @@ class MultiLanguageDriver extends DefaultDriver implements MultiLanguageDriverIn
 	 *
 	 * @param string $strLanguage The new language, use short tag "2 chars like de, fr etc.".
 	 *
-	 * @return DriverInterface
+	 * @return DataProviderInterface
 	 */
 	public function setCurrentLanguage($strLanguage)
 	{

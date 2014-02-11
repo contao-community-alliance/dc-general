@@ -23,7 +23,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\EditModelBeforeSaveEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 use DcGeneral\Data\ModelInterface;
-use DcGeneral\Data\MultiLanguageDriverInterface;
+use DcGeneral\Data\MultiLanguageDataProviderInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
@@ -716,7 +716,7 @@ class BaseView implements BackendViewInterface
 		{
 			$arrSession = array();
 		}
-		/** @var \DcGeneral\Data\MultiLanguageDriverInterface $objDataProvider */
+		/** @var \DcGeneral\Data\MultiLanguageDataProviderInterface $objDataProvider */
 
 		// Try to get the language from session.
 		if (isset($arrSession['ml_support'][$strProviderName][$mixID]))
@@ -1325,7 +1325,7 @@ class BaseView implements BackendViewInterface
 
 		if ($this->isMultiLanguage($model->getId()))
 		{
-			/** @var MultiLanguageDriverInterface $dataProvider */
+			/** @var MultiLanguageDataProviderInterface $dataProvider */
 			$langsNative = array();
 			require TL_ROOT . '/system/config/languages.php';
 
@@ -1466,7 +1466,7 @@ class BaseView implements BackendViewInterface
 
 		if ($this->isMultiLanguage($objDBModel->getId()))
 		{
-			/** @var MultiLanguageDriverInterface $dataProvider */
+			/** @var MultiLanguageDataProviderInterface $dataProvider */
 			$this
 				->addToTemplate('languages', $environment->getController()->getSupportedLanguages($objDBModel->getId()), $template)
 				->addToTemplate('currentLanguage', $dataProvider->getCurrentLanguage(), $template)

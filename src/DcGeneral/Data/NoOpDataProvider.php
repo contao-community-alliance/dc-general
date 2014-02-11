@@ -13,14 +13,14 @@
 namespace DcGeneral\Data;
 
 /**
- * Class NoOpDriver.
+ * Class NoOpDataProvider.
  *
- * Base implementation of an no operational driver. This driver is simply a stub endpoint without any logic at all.
- * It is useful as parent class for drivers that only implement a fraction of all DcGeneral features.
+ * Base implementation of an no operational data provider. This data provider is simply a stub endpoint without any
+ * logic at all. It is useful as parent class for drivers that only implement a fraction of all DcGeneral features.
  *
  * @package DcGeneral\Data
  */
-class NoOpDriver implements DriverInterface
+class NoOpDataProvider implements DataProviderInterface
 {
 	/**
 	 * The configuration data for this instance.

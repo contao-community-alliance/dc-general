@@ -92,7 +92,7 @@ class DefaultConfig implements ConfigInterface
 	/**
 	 * Create object.
 	 *
-	 * Private as only the driver shall know how to instantiate.
+	 * Private as only the data provider shall know how to instantiate.
 	 */
 	private function __construct()
 	{

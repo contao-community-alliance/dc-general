@@ -14,13 +14,13 @@ namespace DcGeneral\Data;
 use DcGeneral\Exception\DcGeneralException;
 
 /**
- * Class TableRowsAsRecordsDriver.
+ * Class TableRowsAsRecordsDataProvider.
  *
- * This driver allows to map multiple rows of a SQL table into a single model for usage in a MultiColumnWizard.
+ * This data provider allows to map multiple rows of a SQL table into a single model for usage in a MultiColumnWizard.
  *
  * @package DcGeneral\Data
  */
-class TableRowsAsRecordsDriver extends DefaultDriver
+class TableRowsAsRecordsDataProvider extends DefaultDataProvider
 {
 	/**
 	 * Grouping column to use to tie rows together.

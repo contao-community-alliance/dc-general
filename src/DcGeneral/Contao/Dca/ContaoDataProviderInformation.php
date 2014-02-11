@@ -35,10 +35,10 @@ class ContaoDataProviderInformation extends DataProviderInformation
 	 *
 	 * @var string
 	 */
-	protected $className = 'DcGeneral\Data\DefaultDriver';
+	protected $className = 'DcGeneral\Data\DefaultDataProvider';
 
 	/**
-	 * Custom initialization data to be passed to the constructor of the driver class.
+	 * Custom initialization data to be passed to the constructor of the data provider class.
 	 *
 	 * @var mixed
 	 */
@@ -69,7 +69,7 @@ class ContaoDataProviderInformation extends DataProviderInformation
 	}
 
 	/**
-	 * Set the data provider class to use, defaults to 'DcGeneral\Data\DefaultDriver'.
+	 * Set the data provider class to use, defaults to 'DcGeneral\Data\DefaultDataProvider'.
 	 *
 	 * @param string $className The name of the data provider class to use.
 	 *
@@ -95,9 +95,9 @@ class ContaoDataProviderInformation extends DataProviderInformation
 	/**
 	 * Set the data to use for initialization of the data provider.
 	 *
-	 * The nature of this data is subject to the concrete implementation of the driver defined as the class to use.
+	 * The nature of this data is subject to the concrete implementation of the data provider defined as the class to use.
 	 *
-	 * @param mixed $initializationData The initialization data the driver class expects.
+	 * @param mixed $initializationData The initialization data the data provider class expects.
 	 *
 	 * @return ContaoDataProviderInformation
 	 */

@@ -133,12 +133,12 @@ interface EnvironmentInterface
 	/**
 	 * Retrieve the data provider for the named source.
 	 *
-	 * If a source name is given, the named driver will get returned, if not given, the default driver will get
-	 * returned, The default is to be determined via: getEnvironment()->getDataDefinition()->getDataProvider()
+	 * If a source name is given, the named data provider will get returned, if not given, the default data provider
+     * will get returned, the default is to be determined via: getEnvironment()->getDataDefinition()->getDataProvider()
 	 *
 	 * @param string|null $strSource The name of the source.
 	 *
-	 * @return \DcGeneral\Data\DriverInterface
+	 * @return \DcGeneral\Data\DataProviderInterface
 	 */
 	public function getDataProvider($strSource = null);
 
@@ -147,11 +147,12 @@ interface EnvironmentInterface
 	 *
 	 * @param string                          $strSource The name of the source.
 	 *
-	 * @param \DcGeneral\Data\DriverInterface $objDriver The driver instance to register under the given name.
+	 * @param \DcGeneral\Data\DataProviderInterface $dataProvider The data provider instance to register under
+     * the given name.
 	 *
 	 * @return EnvironmentInterface
 	 */
-	public function addDataProvider($strSource, $objDriver);
+	public function addDataProvider($strSource, $dataProvider);
 
 	/**
 	 * Remove a data provider from the environment.

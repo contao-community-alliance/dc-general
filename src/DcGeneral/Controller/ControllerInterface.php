@@ -74,7 +74,7 @@ interface ControllerInterface
 	public function updateModelFromPropertyBag($model, $propertyValues);
 
 	/**
-	 * Return all supported languages from the default data driver.
+	 * Return all supported languages from the default data data provider.
 	 *
 	 * @param mixed $mixID The id of a model for which the languages shall be retrieved.
 	 *

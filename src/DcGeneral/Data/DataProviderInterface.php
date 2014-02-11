@@ -15,13 +15,13 @@ namespace DcGeneral\Data;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
- * Interface DriverInterface.
+ * Interface DataProviderInterface.
  *
  * This interface describes a data provider in DcGeneral.
  *
  * @package DcGeneral\Data
  */
-interface DriverInterface
+interface DataProviderInterface
 {
 	/**
 	 * Set base config with source and other necessary parameter.

@@ -15,13 +15,13 @@ namespace DcGeneral\Data;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
- * Class DefaultDriver.
+ * Class DefaultDataProvider.
  *
  * Default implementation for a data provider using the Contao default database as backend.
  *
  * @package DcGeneral\Data
  */
-class DefaultDriver implements DriverInterface
+class DefaultDataProvider implements DataProviderInterface
 {
 	/**
 	 * Name of current source.

@@ -13,7 +13,7 @@
 namespace DcGeneral\Contao\Dca\Populator;
 
 use DcGeneral\Contao\Dca\ContaoDataProviderInformation;
-use DcGeneral\Data\DriverInterface;
+use DcGeneral\Data\DataProviderInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\EnvironmentPopulator\AbstractEventDrivenEnvironmentPopulator;
 use DcGeneral\Exception\DcGeneralRuntimeException;
@@ -57,7 +57,7 @@ class DataProviderPopulator extends AbstractEventDrivenEnvironmentPopulator
 
 				$providerClass = new \ReflectionClass($dataProviderInformation->getClassName());
 
-				/** @var DriverInterface $dataProvider */
+				/** @var DataProviderInterface $dataProvider */
 				$dataProvider = $providerClass->newInstance();
 				if ($initializationData = $dataProviderInformation->getInitializationData())
 				{
