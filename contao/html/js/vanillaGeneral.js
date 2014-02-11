@@ -368,16 +368,8 @@ var GeneralAjaxCaller =
 			xmlhttp.onreadystatechange = callback;
 		}
 
-		// Open.
+		// Open and send.
 		xmlhttp.open("GET", strAdress, !!!blnasync);
-
-		// Add the data to the request.
-		for (key in arrData)
-		{
-			xmlhttp.setRequestHeader(key, arrData[key]);
-		}
-
-		// CALL.
 		xmlhttp.send();
 	}
 }
