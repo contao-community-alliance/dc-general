@@ -314,8 +314,8 @@ var GeneralAjaxCaller =
 		if (window.XMLHttpRequest)
 		{
 			xmlhttp = new XMLHttpRequest();
-			// Ups we can not send a request add a log.
 		}
+		// Ups we can not send a request add a log.
 		else
 		{
 			this.logger.log('Can not find the XMLHttpRequest object. Can not send a request.');
@@ -348,8 +348,8 @@ var GeneralAjaxCaller =
 		if (window.XMLHttpRequest)
 		{
 			xmlhttp = new XMLHttpRequest();
-			// Ups we can not send a request add a log.
 		}
+		// Ups we can not send a request add a log.
 		else
 		{
 			this.logger.log('Can not find the XMLHttpRequest object. Can not send a request.');
