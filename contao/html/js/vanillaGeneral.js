@@ -339,3 +339,35 @@ var GeneralAjaxCaller =
 }
 
 
+//*************************************************************************
+// Env
+//*************************************************************************
+
+var GeneralEnvironment =
+{
+	// Vars.
+	instanceLogger: null,
+	instanceAjax: null,
+	// Functions.
+	setLogger: function (objLogger)
+	{
+		this.instanceLogger = objLogger;
+	},
+	setAjax: function (objAjax)
+	{
+		this.instanceAjax = objAjax;
+	},
+	getLogger: function ()
+	{
+		return this.instanceLogger;
+	},
+	getAjax: function ()
+	{
+		return this.instanceAjax;
+	}
+}
+
+// Init the env.
+GeneralEnvironment.setLogger(GeneralLogger);
+GeneralEnvironment.setAjax(GeneralAjaxCaller);
+GeneralEnvironment.getAjax().setLogger(GeneralEnvironment.getLogger());
