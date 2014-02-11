@@ -83,7 +83,7 @@
 				<table id="table_<?php echo $this->tableName; ?>_<?php echo standardize($strLastId); ?>" class="tl_listing<?php echo ($GLOBALS['TL_DCA'][$this->strTable]['list']['label']['showColumns']) ? ' showColumns' : ''; ?>">
 			<?php endif; ?>
 
-			<tr class="<?php echo $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_EVEN_ODD_CLASS); ?>" onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);">
+			<tr id="table_row_<?php echo $objModel->getProperty('id'); ?>" class="<?php echo $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_EVEN_ODD_CLASS); ?>" onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);">
 				<?php $arrLabels = $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_LABEL_VALUE); ?>
 
 				<?php foreach ($arrLabels as $arrLabel): ?>
