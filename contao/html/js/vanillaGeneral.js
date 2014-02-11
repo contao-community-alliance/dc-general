@@ -207,64 +207,86 @@ function TableDnD() {
 }
 
 //*************************************************************************
-// Logger
+// Functions
 //*************************************************************************
 
-function DcLogger() {
-
-	this.disableLog = false;
-
-	// Set the flag for logging.
-	this.setDisableLog = function (flag) {
+/**
+ * Logger wrapper.
+ *
+ * This class/function add a wrapper for the console. It shoul prevent the
+ * system for a exception if no console is set.
+ *
+ * @constructor
+ */
+var GeneralLogger =
+{
+	disableLog: null,
+	setDisableLog: function (flag)
+	{
 		this.disableLog = !!!flag;
-	}
-
-	// Send a log to the console.
-	this.log = function ($msg) {
-		if (this.disableLog == true && (typeof console == "object" || "console" in window)) {
-			try {
-				console.log('Can not found the XMLHttpRequest object.')
+	},
+	log: function ($msg)
+	{
+		if (!this.disableLog && (typeof console == "object" || "console" in window))
+		{
+			try
+			{
+				console.log($msg);
+			} catch (e)
+			{
+				// Nothing to do, just die.
 			}
 		}
-	}
-
-	// Send a log to the console.
-	this.info = function ($msg) {
-		if (this.disableLog == true && (typeof console == "object" || "console" in window)) {
-			try {
-				console.info('Can not found the XMLHttpRequest object.')
+	},
+	info: function ($msg)
+	{
+		if (!this.disableLog && (typeof console == "object" || "console" in window))
+		{
+			try
+			{
+				console.info($msg);
+			} catch (e)
+			{
+				// Nothing to do, just die.
 			}
 		}
 	}
 }
 
-//*************************************************************************
-// AJAX functions
-//*************************************************************************
 
-function AJAXCaller() {
-
-	this.logger = null;
-
-	this.init(objLogger)
+/**
+ * AJAX class
+ *
+ * This class provides functions for sending ajax requests as post and get.
+ *
+ * @constructor
+ */
+var GeneralAjaxCaller =
+{
+	logger: null,
+	setLogger: function (objLogger)
 	{
 		this.logger = objLogger;
-	}
-
-	this.sendPost = function (strAdress, arrData, blnasync, callback) {
+	},
+	sendPost: function (strAdress, arrData, blnasync, callback)
+	{
 		var xmlhttp;
 
 		// Code for IE7+, Firefox, Chrome, Opera, Safari
-		if (window.XMLHttpRequest) {
+		if (window.XMLHttpRequest)
+		{
 			xmlhttp = new XMLHttpRequest();
 			// Ups we can not send a request add a log.
-		} else {
+		}
+		else
+		{
 			this.logger.log('Can not find the XMLHttpRequest object. Can not send a request.');
 			return;
 		}
 
 		// Check if async.
-		if (!!!blnasync == true) {
+		if (!!!blnasync == true)
+		{
 			xmlhttp.onreadystatechange = callback;
 		}
 
@@ -272,28 +294,33 @@ function AJAXCaller() {
 		xmlhttp.open("POST", strAdress, !!!blnasync);
 
 		// Add the data to the request.
-		for (key in arrData) {
+		for (key in arrData)
+		{
 			xmlhttp.setRequestHeader(key, arrData[key]);
 		}
 
 		// CALL.
 		xmlhttp.send();
-	}
-
-	this.sendGet = function (strAdress, blnasync, callback) {
+	},
+	sendGet: function (strAdress, blnasync, callback)
+	{
 		var xmlhttp;
 
 		// Code for IE7+, Firefox, Chrome, Opera, Safari
-		if (window.XMLHttpRequest) {
+		if (window.XMLHttpRequest)
+		{
 			xmlhttp = new XMLHttpRequest();
 			// Ups we can not send a request add a log.
-		} else {
+		}
+		else
+		{
 			this.logger.log('Can not find the XMLHttpRequest object. Can not send a request.');
 			return;
 		}
 
 		// Check if async.
-		if (!!!blnasync == true) {
+		if (!!!blnasync == true)
+		{
 			xmlhttp.onreadystatechange = callback;
 		}
 
@@ -301,7 +328,8 @@ function AJAXCaller() {
 		xmlhttp.open("GET", strAdress, !!!blnasync);
 
 		// Add the data to the request.
-		for (key in arrData) {
+		for (key in arrData)
+		{
 			xmlhttp.setRequestHeader(key, arrData[key]);
 		}
 
