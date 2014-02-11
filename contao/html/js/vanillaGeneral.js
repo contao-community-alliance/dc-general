@@ -376,6 +376,33 @@ var GeneralAjaxCaller =
 	}
 }
 
+/**
+ * General class with dom mainpulation.
+ *
+ * @type {{getPreviousSibling: getPreviousSibling}}
+ */
+var GeneralDom =
+{
+	/**
+	 * Search for the previos sibling and ignore whitepaces.
+	 *
+	 * @param element
+	 *
+	 * @returns {*}
+	 */
+	getPreviousSibling: function (element)
+	{
+		var p = element;
+
+		do {
+			p = p.previousSibling;
+		}
+		while (p && p.nodeType != 1);
+
+		return p;
+	}
+
+}
 
 //*************************************************************************
 // Env
@@ -386,22 +413,36 @@ var GeneralEnvironment =
 	// Vars.
 	instanceLogger: null,
 	instanceAjax: null,
-	// Functions.
-	setLogger: function (objLogger)
+	instanceDom: null,
+
+	// Functions logger.
+	setLogger: function (obj)
 	{
-		this.instanceLogger = objLogger;
-	},
-	setAjax: function (objAjax)
-	{
-		this.instanceAjax = objAjax;
+		this.instanceLogger = obj;
 	},
 	getLogger: function ()
 	{
 		return this.instanceLogger;
 	},
+
+	// Functions ajax.
+	setAjax: function (obj)
+	{
+		this.instanceAjax = obj;
+	},
 	getAjax: function ()
 	{
 		return this.instanceAjax;
+	},
+
+	// Functions ajax.
+	setDom: function (obj)
+	{
+		this.instanceDom = obj;
+	},
+	getDom: function ()
+	{
+		return this.instanceDom;
 	}
 }
 
@@ -409,3 +450,4 @@ var GeneralEnvironment =
 GeneralEnvironment.setLogger(GeneralLogger);
 GeneralEnvironment.setAjax(GeneralAjaxCaller);
 GeneralEnvironment.getAjax().setLogger(GeneralEnvironment.getLogger());
+GeneralEnvironment.setDom(GeneralDom);
