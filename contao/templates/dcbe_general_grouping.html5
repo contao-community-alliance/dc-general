@@ -68,19 +68,21 @@
 				<?php if($blnFirstRun != true): ?>
 					</table>
 					<script>
-						BackendGeneral.makeParentViewSortable("table_<?php echo $this->tableName; ?>_<?php echo standardize($strLastId); ?>", "<?php echo $this->cdp; ?>", "<?php echo $this->pdp; ?>");
+						var table = document.getElementById('table_<?php echo $this->tableName; ?>_<?php echo standardize($strLastId); ?>');
+						var GeneralTableDnD = new GeneralTableDnD();
+						GeneralTableDnD.init(table);
 					</script>
 				<?php else:
-					$strLastId = $arrGroup['value'];
 					$blnFirstRun = false;
 				endif; ?>
+
+				<?php $strLastId = $arrGroup['value']; ?>
 
 				<?php if ($this->mode): ?>
 					<div class="tl_content_header <?php echo $arrGroup['class']; ?>"><?php echo $arrGroup['value']; ?></div>
 				<?php endif; ?>
 
 				<table id="table_<?php echo $this->tableName; ?>_<?php echo standardize($strLastId); ?>" class="tl_listing<?php echo ($GLOBALS['TL_DCA'][$this->strTable]['list']['label']['showColumns']) ? ' showColumns' : ''; ?>">
-				<?php $strLastId = $arrGroup['value']; ?>
 			<?php endif; ?>
 
 			<tr class="<?php echo $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_EVEN_ODD_CLASS); ?>" onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);">
@@ -106,6 +108,11 @@
 		<?php endforeach; ?>
 
 		</table>
+		<script>
+			var table = document.getElementById('table_<?php echo $this->tableName; ?>_<?php echo standardize($strLastId); ?>');
+			var GeneralTableDnD = new TableDnD();
+			GeneralTableDnD.init(table);
+		</script>
 
 	</div>
 
