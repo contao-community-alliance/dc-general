@@ -67,8 +67,8 @@
 					</table>
 					<script>
 						var table = document.getElementById('table_<?php echo $this->tableName; ?>_<?php echo standardize($strLastId); ?>');
-						var GeneralTableDnD = new GeneralTableDnD();
-						GeneralTableDnD.init(table);
+						var SortableTableDnD = new GeneralTableDnD();
+						SortableTableDnD.init(table);
 					</script>
 				<?php else:
 					$blnFirstRun = false;
@@ -108,8 +108,8 @@
 		</table>
 		<script>
 			var table = document.getElementById('table_<?php echo $this->tableName; ?>_<?php echo standardize($strLastId); ?>');
-			var GeneralTableDnD = new GeneralTableDnD();
-			GeneralTableDnD.init(table);
+			var SortableTableDnD = new GeneralTableDnD();
+			SortableTableDnD.init(table);
 		</script>
 
 	</div>
