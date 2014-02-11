@@ -108,7 +108,7 @@
 		</table>
 		<script>
 			var table = document.getElementById('table_<?php echo $this->tableName; ?>_<?php echo standardize($strLastId); ?>');
-			var GeneralTableDnD = new TableDnD();
+			var GeneralTableDnD = new GeneralTableDnD();
 			GeneralTableDnD.init(table);
 		</script>
 
