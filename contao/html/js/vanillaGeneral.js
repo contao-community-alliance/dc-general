@@ -127,8 +127,14 @@ function GeneralTableDnD()
 		}
 	}
 
-	/** This function is called when you drop a row, so redefine it in your code
-	 to do whatever you want, for example use Ajax to update the server */
+	/**
+	 * This function is called when you drop a row, so redefine it in your code
+	 * to do whatever you want, for example use Ajax to update the server
+	 *
+	 * @param table Current Table
+	 *
+	 * @param droppedRow Current row
+	 */
 	this.onDrop = function (table, droppedRow)
 	{
 		// Do nothing for now
@@ -450,7 +456,7 @@ var GeneralEnvironment =
 		return this.instanceAjax;
 	},
 
-	// Functions ajax.
+	// Functions dom.
 	setDom: function (obj)
 	{
 		this.instanceDom = obj;
