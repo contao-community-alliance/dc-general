@@ -57,8 +57,6 @@
 			<br/>
 		<?php endif; ?>
 
-		<!-- NEW PART ------------------------------------------------------------------------------------------------->
-
 		<?php $blnFirstRun = true; $strLastId = null; ?>
 		<?php foreach ($this->collection as $objModel): ?>
 
