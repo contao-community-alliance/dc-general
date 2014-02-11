@@ -217,11 +217,11 @@ class ListView extends BaseView
 		}
 
 		// Add template.
-		if ($groupingInformation['mode'] != ListingConfigInterface::GROUP_NONE)
+		if (isset($groupingInformation['mode']) && ($groupingInformation['mode'] != ListingConfigInterface::GROUP_NONE))
 		{
 			$objTemplate = $this->getTemplate('dcbe_general_grouping');
 		}
-		elseif ($groupingInformation['property'] != '')
+		elseif (isset($groupingInformation['property']) && ($groupingInformation['property'] != ''))
 		{
 			$objTemplate = $this->getTemplate('dcbe_general_listView_sorting');
 		}
