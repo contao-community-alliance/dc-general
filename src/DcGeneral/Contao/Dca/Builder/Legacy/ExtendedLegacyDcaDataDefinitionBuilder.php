@@ -216,6 +216,11 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 				$providerInformation
 					->setTableName($providerName);
 			}
+
+			if (isset($information['class']))
+			{
+				$providerInformation->setClassName($information['class']);
+			}
 		}
 
 		return $providerInformation;
@@ -256,13 +261,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 			if ($providerInformation instanceof ContaoDataProviderInformation)
 			{
 				// Set versioning information.
-				$providerInformation
-					->setInitializationData($dataProviderDca);
-
-				if (isset($information['class']))
-				{
-					$providerInformation->setClassName($information['class']);
-				}
+				$providerInformation->setInitializationData($dataProviderDca);
 
 				switch ($dataProviderDcaName)
 				{
