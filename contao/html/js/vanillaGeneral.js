@@ -413,6 +413,38 @@ var GeneralDom =
 		}
 
 		return baseTag[0].getAttribute('href');
+	},
+
+	/**
+	 * Remove all classes from a element.
+	 *
+	 * @param element
+	 */
+	removeAllClasses: function (element)
+	{
+		element.className = "";
+	},
+
+	/**
+	 * Remove a class.
+	 *
+	 * @param element
+	 * @param cssClass
+	 */
+	removeClass: function (element, cssClass)
+	{
+		element.className += " " + cssClass;
+	},
+
+	/**
+	 * Add a new class.
+	 *
+	 * @param element
+	 * @param cssClass
+	 */
+	addClass: function (element, cssClass)
+	{
+		element.className = element.className.replace(/(?:^|\s)cssClass(?!\S)/, '');
 	}
 
 }
