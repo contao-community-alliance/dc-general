@@ -400,6 +400,21 @@ var GeneralDom =
 		while (p && p.nodeType != 1);
 
 		return p;
+	},
+
+	/**
+	 * Get the base url from the base tag of contao.
+	 */
+	getContaoBase: function ()
+	{
+		var baseTag = document.getElementsByTagName('base');
+
+		if (baseTag == null)
+		{
+			return null;
+		}
+
+		return baseTag[0].getAttribute('href');
 	}
 
 }
