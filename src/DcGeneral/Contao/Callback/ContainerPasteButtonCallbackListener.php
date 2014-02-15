@@ -12,6 +12,7 @@
 
 namespace DcGeneral\Contao\Callback;
 
+use DcGeneral\Contao\Compatibility\DcCompat;
 use DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use DcGeneral\DC_General;
 
@@ -54,7 +55,7 @@ class ContainerPasteButtonCallbackListener extends AbstractReturningCallbackList
 	public function getArgs($event)
 	{
 		return array(
-			$this->dcGeneral,
+			new DcCompat($this->dcGeneral, $event->getModel()),
 			$event->getModel()->getPropertiesAsArray(),
 			$event->getEnvironment()->getDataDefinition()->getName(),
 			$event->getCircularReference(),

@@ -12,6 +12,7 @@
 
 namespace DcGeneral\Contao\Callback;
 
+use DcGeneral\Contao\Compatibility\DcCompat;
 use DcGeneral\DC_General;
 use DcGeneral\Event\PostDeleteModelEvent;
 
@@ -54,6 +55,6 @@ class ContainerOnDeleteCallbackListener extends AbstractCallbackListener
 	public function getArgs($event)
 	{
 		// TODO: Find a way to get tl_undo record ID here.
-		return array($this->dcGeneral, 0);
+		return array(new DcCompat($this->dcGeneral, $event->getModel()), 0);
 	}
 }

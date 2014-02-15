@@ -12,6 +12,7 @@
 
 namespace DcGeneral\Contao\Callback;
 
+use DcGeneral\Contao\Compatibility\DcCompat;
 use DcGeneral\DC_General;
 use DcGeneral\Event\PostDuplicateModelEvent;
 
@@ -53,6 +54,6 @@ class ContainerOnCopyCallbackListener extends AbstractCallbackListener
 	 */
 	public function getArgs($event)
 	{
-		return array($event->getModel()->getId(), $this->dcGeneral);
+		return array($event->getModel()->getId(), new DcCompat($this->dcGeneral, $event->getModel()));
 	}
 }

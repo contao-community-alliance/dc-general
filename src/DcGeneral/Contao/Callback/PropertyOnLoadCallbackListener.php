@@ -12,6 +12,7 @@
 
 namespace DcGeneral\Contao\Callback;
 
+use DcGeneral\Contao\Compatibility\DcCompat;
 use DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use DcGeneral\DC_General;
 
@@ -53,7 +54,7 @@ class PropertyOnLoadCallbackListener extends AbstractReturningCallbackListener
 	 */
 	public function getArgs($event)
 	{
-		return array($event->getValue(), $this->dcGeneral);
+		return array($event->getValue(), new DcCompat($this->dcGeneral, $event->getModel(), $event->getProperty()));
 	}
 
 	/**

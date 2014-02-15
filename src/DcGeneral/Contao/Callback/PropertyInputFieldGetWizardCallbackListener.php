@@ -12,6 +12,7 @@
 
 namespace DcGeneral\Contao\Callback;
 
+use DcGeneral\Contao\Compatibility\DcCompat;
 use DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use DcGeneral\DC_General;
 
@@ -53,7 +54,7 @@ class PropertyInputFieldGetWizardCallbackListener extends AbstractReturningCallb
 	 */
 	public function getArgs($event)
 	{
-		return array($event->getWidget(), $event->getProperty(), $this->dcGeneral);
+		return array($event->getWidget(), $event->getProperty(), new DcCompat($this->dcGeneral, $event->getModel(), $event->getProperty()));
 	}
 
 	/**

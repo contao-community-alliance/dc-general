@@ -12,6 +12,7 @@
 
 namespace DcGeneral\Contao\Callback;
 
+use DcGeneral\Contao\Compatibility\DcCompat;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 use DcGeneral\DC_General;
 
@@ -56,7 +57,7 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
 		return array(
 			$event->getModel()->getPropertiesAsArray(),
 			$event->getLabel(),
-			$this->dcGeneral,
+			new DcCompat($this->dcGeneral, $event->getModel()),
 			$event->getArgs()
 		);
 	}
