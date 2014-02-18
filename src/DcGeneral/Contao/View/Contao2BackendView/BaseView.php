@@ -928,7 +928,7 @@ class BaseView implements BackendViewInterface
 			}
 			else
 			{
-				$newUrlEvent = new AddToUrlEvent('id=' . $model->getId());
+				$newUrlEvent = new AddToUrlEvent('act=edit&id=' . $model->getId());
 				$environment->getEventPropagator()->propagate(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
 				$environment->getEventPropagator()->propagate(
 					ContaoEvents::CONTROLLER_REDIRECT,
