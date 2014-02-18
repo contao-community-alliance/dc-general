@@ -510,10 +510,15 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 			if ($providerInformation instanceof ContaoDataProviderInformation)
 			{
+				$initializationData = (array)$providerInformation->getInitializationData();
+
 				$providerInformation
 					->setTableName($parentTable)
-					->setInitializationData(array(
-						'source' => $parentTable
+					->setInitializationData(array_merge(
+						array(
+							'source' => $parentTable
+						),
+						$initializationData
 					));
 
 				$container->getBasicDefinition()->setRootDataProvider($parentTable);
@@ -535,10 +540,15 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if ($providerInformation instanceof ContaoDataProviderInformation)
 		{
+			$initializationData = (array)$providerInformation->getInitializationData();
+
 			$providerInformation
 				->setTableName($container->getName())
-				->setInitializationData(array(
-					'source' => $container->getName()
+				->setInitializationData(array_merge(
+					array(
+						'source' => $container->getName()
+					),
+					$initializationData
 				))
 				->isVersioningEnabled((bool)$this->getFromDca('config/enableVersioning'));
 
