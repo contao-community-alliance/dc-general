@@ -823,7 +823,7 @@ class BaseView implements BackendViewInterface
 			);
 		};
 
-		return $this->createEditMask($this->createEmptyModelWithDefaults(), null, null, null);
+		return $this->createEditMask($this->createEmptyModelWithDefaults(), null, $preFunction, $postFunction);
 	}
 
 	/**
