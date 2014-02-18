@@ -53,6 +53,30 @@ class DcCompat extends DC_General
 	}
 
 	/**
+	 * @return \DcGeneral\DC_General
+	 */
+	public function getDcGeneral()
+	{
+		return $this->dcGeneral;
+	}
+
+	/**
+	 * @return \DcGeneral\Data\ModelInterface
+	 */
+	public function getModel()
+	{
+		return $this->model;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPropertyName()
+	{
+		return $this->propertyName;
+	}
+
+	/**
 	 * {@inheritdoc}
 	 */
 	public function handlePopulateEnvironment(PopulateEnvironmentEvent $event)
