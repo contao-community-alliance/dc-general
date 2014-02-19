@@ -357,6 +357,7 @@ class ContaoWidgetManager
 		$options = $propInfo->getOptions();
 		$event   = new GetPropertyOptionsEvent($environment, $this->model);
 		$event->setPropertyName($property);
+		$event->setOptions($options);
 		$environment->getEventPropagator()->propagate(
 			$event::NAME,
 			$event,
@@ -364,7 +365,7 @@ class ContaoWidgetManager
 			$property
 		);
 
-		if ($event->getOptions())
+		if ($event->getOptions() !== $options)
 		{
 			$options = $event->getOptions();
 		}
