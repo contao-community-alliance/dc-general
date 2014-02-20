@@ -29,6 +29,7 @@ use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
+use DcGeneral\DataDefinition\Definition\View\Command;
 use DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\EnvironmentInterface;
@@ -1575,6 +1576,215 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
+	 * Create the "new" button.
+	 *
+	 * @return CommandInterface|null
+	 */
+	protected function getCreateModelCommand()
+	{
+		$environment        = $this->getEnvironment();
+		$definition         = $environment->getDataDefinition();
+		$basicDefinition    = $definition->getBasicDefinition();
+		$parentProviderName = $environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider();
+		$providerName       = $environment->getDataDefinition()->getName();
+
+		if ($basicDefinition->isClosed())
+		{
+			return null;
+		}
+
+		$pid             = $environment->getInputProvider()->getParameter('pid');
+		$mode            = $basicDefinition->getMode();
+		$config          = $this->getEnvironment()->getController()->getBaseConfig();
+		$sorting         = $config->getSorting();
+
+		$command    = new Command();
+		$parameters = $command->getParameters();
+		$extra      = $command->getExtra();
+
+		$extra['class']      = 'header_new';
+		$extra['accesskey']  = 'n';
+		$extra['attributes'] = 'onclick="Backend.getScrollOffset();"';
+
+		$command
+			->setName('button_new')
+			->setLabel($this->translate('new.0', $providerName))
+			->setDescription($this->translate('new.1', $providerName));
+
+		$this->getPanel()->initialize($config);
+
+		// Add new button.
+		if (($mode == BasicDefinitionInterface::MODE_FLAT)
+			|| (($mode == BasicDefinitionInterface::MODE_PARENTEDLIST) && !$sorting))
+		{
+			$parameters['act'] = 'create';
+			// Add new button.
+			if (strlen($parentProviderName) && $pid)
+			{
+				$parameters['pid'] = $pid;
+			}
+		}
+		elseif(($mode == BasicDefinitionInterface::MODE_PARENTEDLIST)
+			|| ($mode == BasicDefinitionInterface::MODE_HIERARCHICAL))
+		{
+			if ($environment->getClipboard()->isNotEmpty())
+			{
+				return null;
+			}
+
+			$parameters['act']  = 'paste';
+			$parameters['mode'] = 'create';
+			// Add new button.
+			if (strlen($parentProviderName) && $pid)
+			{
+				$parameters['pid'] = $pid;
+			}
+		}
+
+		return $command;
+	}
+	/**
+	 * Create the "clear clipboard" button.
+	 *
+	 * @return CommandInterface|null
+	 */
+	protected function getClearClipboardCommand()
+	{
+		if ($this->getEnvironment()->getClipboard()->isEmpty())
+		{
+			return null;
+		}
+		$command             = new Command();
+		$parameters          = $command->getParameters();
+		$extra               = $command->getExtra();
+		$extra['class']      = 'header_clipboard';
+		$extra['accesskey']  = 'x';
+		$extra['attributes'] = 'onclick="Backend.getScrollOffset();"';
+
+		$parameters['clipboard'] = '1';
+
+		$command
+			->setName('button_clipboard')
+			->setLabel($this->translate('MSC.clearClipboard'))
+			->setDescription($this->translate('MSC.clearClipboard'));
+
+		return $command;
+	}
+
+	/**
+	 * Create the "back" button.
+	 *
+	 * @return CommandInterface|null
+	 */
+	protected function getBackCommand()
+	{
+		$environment = $this->getEnvironment();
+		if (!($this->isSelectModeActive() || $environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider()))
+		{
+			return null;
+		}
+
+		/** @var GetReferrerEvent $event */
+		$event = $environment->getEventPropagator()->propagate(
+			ContaoEvents::SYSTEM_GET_REFERRER,
+			new GetReferrerEvent(true, $environment->getParentDataDefinition()->getName())
+		);
+
+		$command             = new Command();
+		$extra               = $command->getExtra();
+		$extra['class']      = 'header_back';
+		$extra['accesskey']  = 'b';
+		$extra['attributes'] = 'onclick="Backend.getScrollOffset();"';
+		$extra['href']       = $event->getReferrerUrl();
+
+		$command
+			->setName('back_button')
+			->setLabel($this->translate('MSC.backBT'))
+			->setDescription($this->translate('MSC.backBT'));
+
+		return $command;
+	}
+
+	/**
+	 * Render a single header button.
+	 *
+	 * @param CommandInterface $command
+	 *
+	 * @return string
+	 */
+	protected function generateHeaderButton(CommandInterface $command)
+	{
+		$environment = $this->getEnvironment();
+		$extra       = $command->getExtra();
+		$label       = $command->getLabel();
+
+		if (isset($extra['href']))
+		{
+			$href = $extra['href'];
+		}
+		else
+		{
+			$href = '';
+			foreach ($command->getParameters() as $key => $value)
+			{
+				$href .= '&amp;' . $key . '=' . $value;
+			}
+
+			/** @var AddToUrlEvent $event */
+			$event = $environment->getEventPropagator()->propagate(
+				ContaoEvents::BACKEND_ADD_TO_URL,
+				new AddToUrlEvent(
+					$href
+				)
+			);
+
+			$href = $event->getUrl();
+		}
+
+		if (!strlen($label))
+		{
+			$label = $command->getName();
+		}
+
+		$buttonEvent = new GetGlobalButtonEvent($this->getEnvironment());
+		$buttonEvent
+			->setAccessKey(trim($extra['accesskey']))
+			->setAttributes(' ' . ltrim($extra['attributes']))
+			->setClass($extra['class'])
+			->setKey($command->getName())
+			->setHref($href)
+			->setLabel($label)
+			->setTitle($command->getDescription());
+
+		$this->getEnvironment()->getEventPropagator()->propagate(
+			$buttonEvent::NAME,
+			$buttonEvent,
+			array(
+				$this->getEnvironment()->getDataDefinition()->getName(),
+				$command->getName()
+			)
+		);
+
+		// Allow to override the button entirely.
+		$html = $buttonEvent->getHtml();
+		if (!is_null($html))
+		{
+			return $html;
+		}
+
+		// Use the view native button building.
+		return sprintf(
+			'<a href="%s" class="%s" title="%s"%s>%s</a> ',
+			$buttonEvent->getHref(),
+			$buttonEvent->getClass(),
+			specialchars($buttonEvent->getTitle()),
+			$buttonEvent->getAttributes(),
+			$buttonEvent->getLabel()
+		);
+	}
+
+
+	/**
 	 * Generate all buttons for the header of a view.
 	 *
 	 * @param string $strButtonId The id for the surrounding html div element.
@@ -1583,35 +1793,12 @@ class BaseView implements BackendViewInterface
 	 */
 	protected function generateHeaderButtons($strButtonId)
 	{
-		$environment        = $this->getEnvironment();
-		$definition         = $environment->getDataDefinition();
-		$providerName       = $environment->getDataDefinition()->getName();
-		$parentProviderName = $environment->getDataDefinition()->getName();
-		$arrReturn          = array();
-		$globalOperations   = $this->getViewSection()->getGlobalCommands();
-		$config             = $this->getEnvironment()->getController()->getBaseConfig();
-
-		$this->getPanel()->initialize($config);
-
-		$sorting = $config->getSorting();
+		$globalOperations   = $this->getViewSection()->getGlobalCommands()->getCommands();
+		$buttons            = array();
 
 		if (!is_array($globalOperations))
 		{
 			$globalOperations = array();
-		}
-
-		// Make Urls absolute.
-		foreach ($globalOperations as $k => $v)
-		{
-			/** @var AddToUrlEvent $event */
-			$event = $environment->getEventPropagator()->propagate(
-				ContaoEvents::BACKEND_ADD_TO_URL,
-				new AddToUrlEvent(
-					$v['href']
-				)
-			);
-
-			$globalOperations[$k]['href'] = $event->getUrl();
 		}
 
 		// Special case - if select mode active, we must not display the "edit all" button.
@@ -1619,187 +1806,39 @@ class BaseView implements BackendViewInterface
 		{
 			unset($globalOperations['all']);
 		}
-		// We have the select mode.
+		// We do not have the select mode.
 		else
 		{
-			$addButton = false;
-
-			$basicDefinition = $definition->getBasicDefinition();
-			$pid             = $environment->getInputProvider()->getParameter('pid');
-			$strHref         = '';
-			$mode            = $basicDefinition->getMode();
-
-			if (($mode == BasicDefinitionInterface::MODE_FLAT)
-				|| (($mode == BasicDefinitionInterface::MODE_PARENTEDLIST) && !$sorting))
+			$command = $this->getCreateModelCommand();
+			if ($command !== null)
 			{
-				// Add new button.
-				if (strlen($parentProviderName))
-				{
-					/** @var AddToUrlEvent $event */
-					$event = $environment->getEventPropagator()->propagate(
-						ContaoEvents::BACKEND_ADD_TO_URL,
-						new AddToUrlEvent(
-							'&amp;act=create' .
-							($pid ? '&amp;pid=' . $pid : '')
-						)
-					);
-				}
-				else
-				{
-					/** @var AddToUrlEvent $event */
-					$event = $environment->getEventPropagator()->propagate(
-						ContaoEvents::BACKEND_ADD_TO_URL,
-						new AddToUrlEvent('act=create')
-					);
-				}
-
-				$strHref   = $event->getUrl();
-				$addButton = !$basicDefinition->isClosed();
-			}
-			elseif(($mode == BasicDefinitionInterface::MODE_PARENTEDLIST)
-				|| ($mode == BasicDefinitionInterface::MODE_HIERARCHICAL))
-			{
-				/** @var AddToUrlEvent $event */
-				$event = $environment->getEventPropagator()->propagate(
-					ContaoEvents::BACKEND_ADD_TO_URL,
-					new AddToUrlEvent(
-						'&amp;act=paste&amp;mode=create' .
-						($pid ? '&amp;pid=' . $pid : '')
-					)
-				);
-
-				$strHref = $event->getUrl();
-
-				$addButton = !($basicDefinition->isClosed() || $environment->getClipboard()->isNotEmpty());
+				// New button always first.
+				array_unshift($globalOperations, $command);
 			}
 
-			if ($addButton)
+			$command = $this->getClearClipboardCommand();
+			if ($command !== null)
 			{
-				$globalOperations = array_merge(
-					array(
-						'button_new'     => array
-						(
-							'class'      => 'header_new',
-							'accesskey'  => 'n',
-							'href'       => $strHref,
-							'attributes' => 'onclick="Backend.getScrollOffset();"',
-							'title'      => $this->translate('new.1', $providerName),
-							'label'      => $this->translate('new.0', $providerName)
-						)
-					),
-					$globalOperations
-				);
+				// Clear clipboard to the end.
+				$globalOperations[] = $command;
 			}
-
 		}
 
-		// Add clear clipboard button if needed.
-		if ($this->getEnvironment()->getClipboard()->isNotEmpty())
+		$command = $this->getBackCommand();
+		if ($command !== null)
 		{
-			/** @var AddToUrlEvent $event */
-			$event = $environment->getEventPropagator()->propagate(
-				ContaoEvents::BACKEND_ADD_TO_URL,
-				new AddToUrlEvent('clipboard=1')
-			);
-
-			$globalOperations = array_merge(
-				array(
-					'button_clipboard'     => array
-					(
-						'class'      => 'header_clipboard',
-						'accesskey'  => 'x',
-						'href'       => $event->getUrl(),
-						'title'      => $this->translate('MSC.clearClipboard'),
-						'label'      => $this->translate('MSC.clearClipboard')
-					)
-				),
-				$globalOperations
-			);
+			// Back button always to the end.
+			$globalOperations[] = $command;
 		}
 
-		// Add back button.
-		if ($this->isSelectModeActive() || $parentProviderName)
+
+		foreach ($globalOperations as $command)
 		{
-			/** @var GetReferrerEvent $event */
-			$event = $environment->getEventPropagator()->propagate(
-				ContaoEvents::SYSTEM_GET_REFERRER,
-				new GetReferrerEvent(true, $parentProviderName)
-			);
-
-			$globalOperations = array_merge(
-				array(
-					'back_button'    => array
-					(
-						'class'      => 'header_back',
-						'accesskey'  => 'b',
-						'href'       => $event->getReferrerUrl(),
-						'attributes' => 'onclick="Backend.getScrollOffset();"',
-						'title'      => $this->translate('MSC.backBT'),
-						'label'      => $this->translate('MSC.backBT')
-					)
-				),
-				$globalOperations
-			);
-		}
-
-		// Add global buttons.
-		foreach ($globalOperations as $k => $v)
-		{
-			$v          = is_array($v) ? $v : array($v);
-			$label      = is_array($v['label']) ? $v['label'][0] : $v['label'];
-			$title      = is_array($v['label']) ? $v['label'][1] : $v['label'];
-			$attributes = strlen($v['attributes']) ? ' ' . ltrim($v['attributes']) : '';
-			$accessKey  = strlen($v['accesskey']) ? trim($v['accesskey']) : '';
-			$href       = $v['href'];
-
-			if (!strlen($label))
-			{
-				$label = $k;
-			}
-
-			$buttonEvent = new GetGlobalButtonEvent($this->getEnvironment());
-			$buttonEvent
-				->setAccessKey($accessKey)
-				->setAttributes($attributes)
-				->setClass($v['class'])
-				->setKey($k)
-				->setHref($href)
-				->setLabel($label)
-				->setTitle($title);
-
-			$this->getEnvironment()->getEventPropagator()->propagate(
-				$buttonEvent::NAME,
-				$buttonEvent,
-				array(
-					$this->getEnvironment()->getDataDefinition()->getName(),
-					$k
-				)
-			);
-
-			// Allow to override the button entirely.
-			$html = $buttonEvent->getHtml();
-			if (!is_null($html))
-			{
-				if (!empty($html))
-				{
-					$arrReturn[$buttonEvent->getKey()] = $html;
-				}
-				continue;
-			}
-
-			// Use the view native button building.
-			$arrReturn[$k] = sprintf(
-				'<a href="%s" class="%s" title="%s"%s>%s</a> ',
-				$buttonEvent->getHref(),
-				$buttonEvent->getClass(),
-				specialchars($buttonEvent->getTitle()),
-				$buttonEvent->getAttributes(),
-				$buttonEvent->getLabel()
-			);
+			$buttons[$command->getName()] = $this->generateHeaderButton($command);
 		}
 
 		$buttonsEvent = new GetGlobalButtonsEvent($this->getEnvironment());
-		$buttonsEvent->setButtons($arrReturn);
+		$buttonsEvent->setButtons($buttons);
 
 		$this->getEnvironment()->getEventPropagator()->propagate(
 			$buttonsEvent::NAME,
