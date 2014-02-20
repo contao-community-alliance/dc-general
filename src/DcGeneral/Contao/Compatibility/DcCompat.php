@@ -109,7 +109,9 @@ class DcCompat extends DC_General
 	/**
 	 * {@inheritdoc}
 	 */
+	// @codingStandardsIgnoreStart - We know this method is very complex but we can not reduce the switch cases.
 	public function __get($name)
+	// @codingStandardsIgnoreEnd
 	{
 		switch ($name)
 		{
@@ -117,7 +119,11 @@ class DcCompat extends DC_General
 				return $this->model->getId();
 
 			case 'parentTable':
-				throw new DcGeneralRuntimeException('The magic property $dc->parentTable is not supported yet!');
+				if ($this->getEnvironment()->getParentDataDefinition())
+				{
+					return $this->getEnvironment()->getParentDataDefinition()->getName();
+				}
+				return null;
 
 			case 'childTable':
 				throw new DcGeneralRuntimeException('The magic property $dc->childTable is not supported yet!');
@@ -129,11 +135,12 @@ class DcCompat extends DC_General
 				throw new DcGeneralRuntimeException('The magic property $dc->createNewVersion is not supported yet!');
 
 			case 'table':
-				throw new DcGeneralRuntimeException('The magic property $dc->table is not supported yet!');
+				return $this->getEnvironment()->getDataProvider()->getEmptyModel()->getProviderName();
 
 			case 'value':
-				if ($this->propertyName) {
-
+				if ($this->propertyName && $this->getModel())
+				{
+					return $this->getModel()->getProperty($this->propertyName);
 				}
 				return null;
 
@@ -141,7 +148,7 @@ class DcCompat extends DC_General
 				return $this->propertyName;
 
 			case 'inputName':
-				throw new DcGeneralRuntimeException('The magic property $dc->inputName is not supported yet!');
+				return $this->propertyName;
 
 			case 'palette':
 				throw new DcGeneralRuntimeException('The magic property $dc->palette is not supported yet!');
