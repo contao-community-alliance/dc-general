@@ -1141,13 +1141,21 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
-	 * Chreate the edit mask.
+	 * Create the edit mask.
 	 *
-	 * @param $Model         The model with the current data.
+	 * @param ModelInterface $model         The model with the current data.
 	 *
-	 * @param $originalModel The data from the originoal data.
+	 * @param ModelInterface $originalModel The data from the original data.
+	 *
+	 * @param callable       $preFunction   The function to call before saving an item.
+	 *
+	 * @param callable       $postFunction  The function to call after saving an item.
 	 *
 	 * @return string
+	 *
+	 * @throws DcGeneralRuntimeException         If the data container is not editable, closed.
+	 *
+	 * @throws DcGeneralInvalidArgumentException If an unknown property is encountered in the palette.
 	 */
 	protected function createEditMask($model, $originalModel, $preFunction, $postFunction)
 	{
@@ -1165,7 +1173,6 @@ class BaseView implements BackendViewInterface
 		$propertyDefinitions     = $definition->getPropertiesDefinition();
 		$blnSubmitted            = ($inputProvider->getValue('FORM_SUBMIT') === $definition->getName());
 		$blnIsAutoSubmit         = ($inputProvider->getValue('SUBMIT_TYPE') === 'auto');
-		$blnNewEntry             = false;
 
 		$widgetManager = new ContaoWidgetManager($environment, $model);
 
@@ -1270,7 +1277,7 @@ class BaseView implements BackendViewInterface
 					)
 				);
 
-				//Save the model.
+				// Save the model.
 				$dataProvider->save($model);
 
 				// Trigger the event for post persists or create.
