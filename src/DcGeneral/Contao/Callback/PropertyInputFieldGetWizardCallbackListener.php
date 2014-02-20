@@ -54,7 +54,7 @@ class PropertyInputFieldGetWizardCallbackListener extends AbstractReturningCallb
 	 */
 	public function getArgs($event)
 	{
-		return array($event->getWidget(), $event->getProperty(), new DcCompat($this->dcGeneral, $event->getModel(), $event->getProperty()));
+		return array($event->getWidget(), $event->getProperty(), new DcCompat($event->getEnvironment(), $event->getModel(), $event->getProperty()));
 	}
 
 	/**

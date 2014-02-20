@@ -276,6 +276,8 @@ class DC_General
 	 * @param string $strTable The table name.
 	 *
 	 * @return array
+	 *
+	 * @deprecated FIXME: Move to Controller.
 	 */
 	public function getRootSetter($strTable)
 	{
@@ -297,6 +299,17 @@ class DC_General
 		return $arrReturn;
 	}
 
+	/**
+	 * Check if the given item is a root item.
+	 *
+	 * @param ModelInterface $objParentModel The model to check.
+	 *
+	 * @param string         $strTable       The name of the data definition this model could be a root item in.
+	 *
+	 * @return bool
+	 *
+	 * @deprecated FIXME: Move to Controller.
+	 */
 	public function isRootItem(ModelInterface $objParentModel, $strTable)
 	{
 		return $this->getEnvironment()->getDataDefinition($strTable)->getRootCondition()->matches($objParentModel);
@@ -316,6 +329,8 @@ class DC_General
 	 * @return void
 	 *
 	 * @throws DcGeneralRuntimeException When a property in the condition has not been found.
+	 *
+	 * @deprecated FIXME: Move to Controller.
 	 */
 	public function setSameParent(ModelInterface $objDestination, ModelInterface $objCopyFrom, $strParentTable)
 	{

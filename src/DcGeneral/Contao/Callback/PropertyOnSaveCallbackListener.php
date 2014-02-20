@@ -54,7 +54,7 @@ class PropertyOnSaveCallbackListener extends AbstractReturningCallbackListener
 	 */
 	public function getArgs($event)
 	{
-		return array($event->getValue(), new DcCompat($this->dcGeneral, $event->getModel(), $event->getProperty()));
+		return array($event->getValue(), new DcCompat($event->getEnvironment(), $event->getModel(), $event->getProperty()));
 	}
 
 	/**

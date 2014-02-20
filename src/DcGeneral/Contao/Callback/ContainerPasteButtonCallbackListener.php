@@ -55,7 +55,7 @@ class ContainerPasteButtonCallbackListener extends AbstractReturningCallbackList
 	public function getArgs($event)
 	{
 		return array(
-			new DcCompat($this->dcGeneral, $event->getModel()),
+			new DcCompat($event->getEnvironment(), $event->getModel()),
 			$event->getModel()->getPropertiesAsArray(),
 			$event->getEnvironment()->getDataDefinition()->getName(),
 			$event->getCircularReference(),

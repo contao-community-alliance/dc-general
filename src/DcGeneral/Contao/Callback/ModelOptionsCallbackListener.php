@@ -55,7 +55,7 @@ class ModelOptionsCallbackListener extends AbstractReturningCallbackListener
 	public function getArgs($event)
 	{
 		return array(
-			new DcCompat($this->dcGeneral, $event->getModel())
+			new DcCompat($event->getEnvironment(), $event->getModel())
 		);
 	}
 
