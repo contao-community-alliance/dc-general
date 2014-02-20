@@ -16,18 +16,22 @@ use ContaoCommunityAlliance\Translator\TranslatorChain;
 use DcGeneral\Contao\Callback\Callbacks;
 use DcGeneral\Controller\Ajax2X;
 use DcGeneral\Controller\Ajax3X;
+use DcGeneral\Controller\ControllerInterface;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Event\EventPropagator;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Factory\DcGeneralFactory;
 use DcGeneral\Factory\Event\PopulateEnvironmentEvent;
+use DcGeneral\View\ViewInterface;
 
 /**
  * This class is only present so Contao can instantiate a backend properly as it needs a \DataContainer descendant.
  *
  * @package DcGeneral
  */
+// @codingStandardsIgnoreStart - Class is not in camelCase as Contao does not allow us to.
 class DC_General
+// @codingStandardsIgnoreEnd
 	extends \DataContainer
 	implements DataContainerInterface
 {
@@ -39,19 +43,27 @@ class DC_General
 	protected $objEnvironment;
 
 	/**
-	 * DCA configuration
+	 * DCA configuration.
+	 *
 	 * @var array
 	 */
 	protected $arrDCA = null;
 
 	/**
-	/**
-	 * A list with all field for this dca
+	 * A list with all field for this dca.
+	 *
 	 * @var array
 	 */
 	protected $arrFields = array();
 
 	/**
+	 * Create a new instance.
+	 *
+	 * @param string $strTable          The table name.
+	 *
+	 * @param array  $arrDCA            The Dca array.
+	 *
+	 * @param bool   $blnOnloadCallback Fire the onload callback.
 	 */
 	public function __construct($strTable, array &$arrDCA = null, $blnOnloadCallback = true)
 	{
@@ -59,7 +71,7 @@ class DC_General
 
 		$strTable = $this->getTablenameCallback($strTable);
 
-		// in contao 3 the second constructor parameter is the backend module array.
+		// In contao 3 the second constructor parameter is the backend module array.
 		// Therefore we have to check if the passed argument is indeed a valid DCA.
 		if ($arrDCA != null && $arrDCA['config'])
 		{
@@ -92,7 +104,7 @@ class DC_General
 		unset($GLOBALS['objDcGeneral']);
 		$dispatcher->removeListener(PopulateEnvironmentEvent::NAME, array($this, 'handlePopulateEnvironment'));
 
-		// Switch user for FE / BE support
+		// Switch user for FE / BE support.
 		switch (TL_MODE)
 		{
 			case 'FE':
@@ -105,7 +117,7 @@ class DC_General
 				break;
 		}
 
-		// Check for forcemode
+		// Check for force mode.
 		if ($this->arrDCA['config']['forceEdit'])
 		{
 			$this->blnForceEdit = true;
@@ -116,9 +128,10 @@ class DC_General
 		$this->getEnvironment()->getClipboard()
 			->loadFrom($this->getEnvironment());
 
-		// execute AJAX request, called from Backend::getBackendModule
-		// we have to do this here, as otherwise the script will exit as it only checks for DC_Table and DC_File decendant classes. :/
-		// FIXME: dependency injection
+		// Execute AJAX request, called from Backend::getBackendModule
+		// we have to do this here, as otherwise the script will exit as it only checks for DC_Table and DC_File
+		// derived classes.
+		// FIXME: dependency injection.
 		if ($_POST && \Environment::getInstance()->isAjaxRequest)
 		{
 			$this->getViewHandler()->handleAjaxCall();
@@ -136,21 +149,32 @@ class DC_General
 		}
 	}
 
+	/**
+	 * Callback coming from the environment populator.
+	 *
+	 * This is used to get to know the environment here in the DC.
+	 * See the implementation in constructor and ExtendedLegacyDcaPopulator::populateCallback().
+	 *
+	 * @param PopulateEnvironmentEvent $event The event.
+	 *
+	 * @return void
+	 */
 	public function handlePopulateEnvironment(PopulateEnvironmentEvent $event)
 	{
 		$this->objEnvironment = $event->getEnvironment();
 	}
 
 	/**
-	 * Call the tablename callback
+	 * Call the table name callback.
 	 *
-	 * @param string $strTable
+	 * @param string $strTable The current table name.
 	 *
-	 * @return string name of current table
+	 * @return string New name of current table.
 	 */
 	protected function getTablenameCallback($strTable)
 	{
-		if (array_key_exists('tablename_callback', $GLOBALS['TL_DCA'][$strTable]['config']) && is_array($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback']))
+		if (array_key_exists('tablename_callback', $GLOBALS['TL_DCA'][$strTable]['config'])
+			&& is_array($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback']))
 		{
 			foreach ($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback'] as $callback)
 			{
@@ -167,11 +191,13 @@ class DC_General
 	}
 
 	/**
-	 * @param string $name
+	 * Magic getter.
 	 *
-	 * @return array|int|mixed|null|String
+	 * @param string $name Name of the property to retrieve.
 	 *
-	 * @throws DcGeneralRuntimeException
+	 * @return mixed
+	 *
+	 * @throws DcGeneralRuntimeException If an invalid key is requested.
 	 *
 	 * @deprecated magic access is deprecated.
 	 */
@@ -181,21 +207,39 @@ class DC_General
 		{
 			case 'table':
 				return $this->getEnvironment()->getDataDefinition()->getName();
+			default:
 		}
 
-		throw new DcGeneralRuntimeException("Unsupported getter function for '$name' in DC_General.");
+		throw new DcGeneralRuntimeException('Unsupported getter function for \'' . $name . '\' in DC_General.');
 	}
 
+	/**
+	 * Retrieve the DCA.
+	 *
+	 * @return array
+	 */
 	public function getDCA()
 	{
 		return $this->arrDCA;
 	}
 
+	/**
+	 * Retrieve the name of the data container.
+	 *
+	 * @return string
+	 */
 	public function getName()
 	{
 		return $this->getEnvironment()->getDataDefinition()->getName();
 	}
 
+	/**
+	 * Retrieve the environment.
+	 *
+	 * @return EnvironmentInterface
+	 *
+	 * @throws DcGeneralRuntimeException When no environment has been set.
+	 */
 	public function getEnvironment()
 	{
 		if (!$this->objEnvironment)
@@ -206,26 +250,37 @@ class DC_General
 		return $this->objEnvironment;
 	}
 
+	/**
+	 * Retrieve the view.
+	 *
+	 * @return ViewInterface
+	 */
 	public function getViewHandler()
 	{
 		return $this->getEnvironment()->getView();
 	}
 
+	/**
+	 * Retrieve the controller.
+	 *
+	 * @return ControllerInterface
+	 */
 	public function getControllerHandler()
 	{
 		return $this->getEnvironment()->getController();
 	}
 
 	/**
+	 * Get the definition of a root entry setter.
 	 *
-	 * Get the definition of a root entry setter
+	 * @param string $strTable The table name.
 	 *
 	 * @return array
 	 */
 	public function getRootSetter($strTable)
 	{
 		$arrReturn = array();
-		// parse the condition into valid filter rules.
+		// Parse the condition into valid filter rules.
 		$arrFilters = $this->arrDCA['dca_config']['rootEntries'][$strTable]['setOn'];
 		if ($arrFilters)
 		{
@@ -249,17 +304,24 @@ class DC_General
 
 	/**
 	 * Sets all parent condition fields in the destination to the values from the source model.
+	 *
 	 * Useful when moving an element after another in a different parent.
 	 *
-	 * @param ModelInterface $objDestination the model that shall get updated.
-	 * @param ModelInterface $objCopyFrom    the model that the values shall get retrieved from.
-	 * @param string                $strParentTable the parent table for the objects.
+	 * @param ModelInterface $objDestination The model that shall get updated.
+	 *
+	 * @param ModelInterface $objCopyFrom    The model that the values shall get retrieved from.
+	 *
+	 * @param string         $strParentTable The parent table for the objects.
+	 *
+	 * @return void
+	 *
+	 * @throws DcGeneralRuntimeException When a property in the condition has not been found.
 	 */
 	public function setSameParent(ModelInterface $objDestination, ModelInterface $objCopyFrom, $strParentTable)
 	{
 		if ($this->isRootItem($objCopyFrom, $strParentTable))
 		{
-			// copy root setter values.
+			// Copy root setter values.
 			$arrChildCondition = $this->getRootSetter($strParentTable);
 		}
 		else
@@ -283,6 +345,12 @@ class DC_General
 
 	/**
 	 * Delegate all calls directly to current view.
+	 *
+	 * @param string $name      Name of the method.
+	 *
+	 * @param array  $arguments Array of arguments.
+	 *
+	 * @return mixed
 	 */
 	public function __call($name, $arguments)
 	{
@@ -290,7 +358,11 @@ class DC_General
 	}
 
 	/**
+	 * Do not use.
+	 *
 	 * @deprecated Only here as requirement of \editable
+	 *
+	 * @return string
 	 */
 	public function copy()
 	{
@@ -298,7 +370,11 @@ class DC_General
 	}
 
 	/**
+	 * Do not use.
+	 *
 	 * @deprecated Only here as requirement of \editable
+	 *
+	 * @return string
 	 */
 	public function create()
 	{
@@ -306,7 +382,11 @@ class DC_General
 	}
 
 	/**
+	 * Do not use.
+	 *
 	 * @deprecated Only here as requirement of \editable
+	 *
+	 * @return string
 	 */
 	public function cut()
 	{
@@ -314,7 +394,11 @@ class DC_General
 	}
 
 	/**
+	 * Do not use.
+	 *
 	 * @deprecated Only here as requirement of \listable
+	 *
+	 * @return string
 	 */
 	public function delete()
 	{
@@ -322,7 +406,11 @@ class DC_General
 	}
 
 	/**
+	 * Do not use.
+	 *
 	 * @deprecated Only here as requirement of \editable
+	 *
+	 * @return string
 	 */
 	public function edit()
 	{
@@ -330,7 +418,11 @@ class DC_General
 	}
 
 	/**
+	 * Do not use.
+	 *
 	 * @deprecated Only here as requirement of \editable
+	 *
+	 * @return string
 	 */
 	public function move()
 	{
@@ -338,7 +430,11 @@ class DC_General
 	}
 
 	/**
+	 * Do not use.
+	 *
 	 * @deprecated Only here as requirement of \listable
+	 *
+	 * @return string
 	 */
 	public function show()
 	{
@@ -346,7 +442,11 @@ class DC_General
 	}
 
 	/**
+	 * Do not use.
+	 *
 	 * @deprecated Only here as requirement of \listable
+	 *
+	 * @return string
 	 */
 	public function showAll()
 	{
@@ -354,7 +454,11 @@ class DC_General
 	}
 
 	/**
+	 * Do not use.
+	 *
 	 * @deprecated Only here as requirement of \listable
+	 *
+	 * @return string
 	 */
 	public function undo()
 	{
