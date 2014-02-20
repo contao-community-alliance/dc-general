@@ -14,6 +14,7 @@ namespace DcGeneral\Contao\Compatibility;
 
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\DC_General;
+use DcGeneral\Exception\DcGeneralException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 use DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 
@@ -45,15 +46,26 @@ class DcCompat extends DC_General
 	 */
 	protected $propertyName;
 
+	/**
+	 * Create a new instance.
+	 *
+	 * @param DC_General     $dcGeneral    The Dc instance to use for delegating.
+	 *
+	 * @param ModelInterface $model        The model within scope.
+	 *
+	 * @param null           $propertyName The name of the property within scope.
+	 */
 	public function __construct(DC_General $dcGeneral, ModelInterface $model, $propertyName = null)
 	{
-		$this->dcGeneral = $dcGeneral;
-		$this->model     = $model;
+		$this->dcGeneral    = $dcGeneral;
+		$this->model        = $model;
 		$this->propertyName = $propertyName;
 	}
 
 	/**
-	 * @return \DcGeneral\DC_General
+	 * Retrieve the DC_General instance.
+	 *
+	 * @return DC_General
 	 */
 	public function getDcGeneral()
 	{
@@ -61,7 +73,9 @@ class DcCompat extends DC_General
 	}
 
 	/**
-	 * @return \DcGeneral\Data\ModelInterface
+	 * Retrieve the current model.
+	 *
+	 * @return ModelInterface
 	 */
 	public function getModel()
 	{
@@ -69,6 +83,8 @@ class DcCompat extends DC_General
 	}
 
 	/**
+	 * Retrieve the current property.
+	 *
 	 * @return string
 	 */
 	public function getPropertyName()
@@ -78,30 +94,28 @@ class DcCompat extends DC_General
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralException This method is for internal use only.
 	 */
 	public function handlePopulateEnvironment(PopulateEnvironmentEvent $event)
 	{
-		$this->dcGeneral->handlePopulateEnvironment($event);
+		throw new DcGeneralException(__CLASS__ . '::handlePopulateEnvironment() is internal use only and must not be called');
 	}
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralException This method is for internal use only.
 	 */
 	protected function getTablenameCallback($strTable)
 	{
-		return $this->dcGeneral->getTablenameCallback($strTable);
+		throw new DcGeneralException(__CLASS__ . '::getTablenameCallback() is internal use only and must not be called');
 	}
 
 	/**
 	 * {@inheritdoc}
-	 */
-	public function checkPostGet()
-	{
-		$this->dcGeneral->checkPostGet();
-	}
-
-	/**
-	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralRuntimeException The magic setter is unsupported and has been deactivated.
 	 */
 	public function __set($strKey, $varValue)
 	{
@@ -132,18 +146,15 @@ class DcCompat extends DC_General
 
 			case 'table':
 				throw new DcGeneralRuntimeException('The magic property $dc->table is not supported yet!');
-				break;
 
 			case 'value':
 				if ($this->propertyName) {
 
 				}
 				return null;
-				break;
 
 			case 'field':
 				return $this->propertyName;
-				break;
 
 			case 'inputName':
 				throw new DcGeneralRuntimeException('The magic property $dc->inputName is not supported yet!');
@@ -153,6 +164,8 @@ class DcCompat extends DC_General
 
 			case 'activeRecord':
 				return new ActiveRecord($this->model);
+
+			default:
 		}
 
 		return $this->dcGeneral->__get($name);
@@ -164,30 +177,6 @@ class DcCompat extends DC_General
 	public function getDCA()
 	{
 		return $this->dcGeneral->getDCA();
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function isSubmitted()
-	{
-		return $this->dcGeneral->isSubmitted();
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function isAutoSubmitted()
-	{
-		return $this->dcGeneral->isAutoSubmitted();
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function isVersionSubmit()
-	{
-		return $this->dcGeneral->isVersionSubmit();
 	}
 
 	/**
@@ -225,22 +214,6 @@ class DcCompat extends DC_General
 	/**
 	 * {@inheritdoc}
 	 */
-	public function getParentChildCondition($mixParent, $strDstTable)
-	{
-		return $this->dcGeneral->getParentChildCondition($mixParent, $strDstTable);
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getChildCondition(ModelInterface $objParentModel, $strDstTable)
-	{
-		return $this->dcGeneral->getChildCondition($objParentModel, $strDstTable);
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
 	public function getRootSetter($strTable)
 	{
 		return $this->dcGeneral->getRootSetter($strTable);
@@ -260,14 +233,6 @@ class DcCompat extends DC_General
 	public function setSameParent(ModelInterface $objDestination, ModelInterface $objCopyFrom, $strParentTable)
 	{
 		return $this->dcGeneral->setSameParent($objDestination, $objCopyFrom, $strParentTable);
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function preloadTinyMce()
-	{
-		return $this->dcGeneral->preloadTinyMce();
 	}
 
 	/**
