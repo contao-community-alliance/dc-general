@@ -1,1 +1,0 @@
-../../../composer/vendor/contao-community-alliance/dc-general/src/DC_General.php
