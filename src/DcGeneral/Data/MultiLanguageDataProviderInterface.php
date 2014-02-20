@@ -26,8 +26,7 @@ interface MultiLanguageDataProviderInterface extends DataProviderInterface
 	 *
 	 * @param mixed $mixID The ID of the record to retrieve.
 	 *
-	 * @todo: using Collection here is perversion. We need to change this!
-	 * @return CollectionInterface
+	 * @return LanguageInformationCollectionInterface|null
 	 */
 	public function getLanguages($mixID);
 
@@ -36,8 +35,7 @@ interface MultiLanguageDataProviderInterface extends DataProviderInterface
 	 *
 	 * @param mixed $mixID The ID of the record to retrieve.
 	 *
-	 * @todo: using Model here is perversion. We need to change this!
-	 * @return ModelInterface
+	 * @return LanguageInformationInterface|null
 	 */
 	public function getFallbackLanguage($mixID);
 

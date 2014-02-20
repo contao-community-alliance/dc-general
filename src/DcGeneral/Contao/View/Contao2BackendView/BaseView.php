@@ -740,7 +740,7 @@ class BaseView implements BackendViewInterface
 
 		if (!array_key_exists($strCurrentLanguage, $arrLanguage))
 		{
-			$strCurrentLanguage = $objDataProvider->getFallbackLanguage($mixID)->getID();
+			$strCurrentLanguage = $objDataProvider->getFallbackLanguage($mixID)->getLanguageCode();
 		}
 
 		$arrSession['ml_support'][$strProviderName][$mixID] = $strCurrentLanguage;

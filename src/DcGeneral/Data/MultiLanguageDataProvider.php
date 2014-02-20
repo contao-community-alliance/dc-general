@@ -44,34 +44,18 @@ class MultiLanguageDataProvider extends DefaultDataProvider implements MultiLang
 	 *
 	 * @param mixed $mixID The ID of the record to retrieve.
 	 *
-	 * @todo: using Collection here is perversion. We need to change this!
-	 * @return CollectionInterface
+	 * @return LanguageInformationCollectionInterface
 	 */
 	public function getLanguages($mixID)
 	{
-		$objCollection = $this->getEmptyCollection();
+		$collection = new DefaultLanguageInformationCollection();
 
-		$objModel = $this->getEmptyModel();
-		$objModel->setID('de');
-		$objModel->setProperty('name', 'Deutsch');
-		if ($this->strCurrentLanguage == 'de')
-		{
-			$objModel->setProperty('active', true);
-		}
+		// FIXME: hardcoded languages "German" and "English".
+		$collection
+			->add(new DefaultLanguageInformation('de', null))
+			->add(new DefaultLanguageInformation('en', null));
 
-		$objCollection->add($objModel);
-
-		$objModel = $this->getEmptyModel();
-		$objModel->setId('en');
-		$objModel->setProperty('name', 'English');
-		if ($this->strCurrentLanguage == 'en')
-		{
-			$objModel->setProperty('active', true);
-		}
-
-		$objCollection->add($objModel);
-
-		return $objCollection;
+		return $collection;
 	}
 
 	/**
@@ -79,16 +63,12 @@ class MultiLanguageDataProvider extends DefaultDataProvider implements MultiLang
 	 *
 	 * @param mixed $mixID The ID of the record to retrieve.
 	 *
-	 * @todo: using Model here is perversion. We need to change this!
-	 * @return ModelInterface
+	 * @return LanguageInformationInterface
 	 */
 	public function getFallbackLanguage($mixID)
 	{
-		$objModel = $this->getEmptyModel();
-		$objModel->setId('en');
-		$objModel->setProperty('name', 'English');
-
-		return $objModel;
+		// FIXME: hardcoded fallback language "English".
+		return new DefaultLanguageInformation('en', null);
 	}
 
 	/**

@@ -16,6 +16,7 @@ use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Data\DataProviderInterface;
 use DcGeneral\Data\DCGE;
+use DcGeneral\Data\LanguageInformationInterface;
 use DcGeneral\Data\ModelInterface;
 
 use DcGeneral\Data\PropertyValueBagInterface;
@@ -255,7 +256,7 @@ class DefaultController implements ControllerInterface
 	/**
 	 * Return all supported languages from the default data data provider.
 	 *
-	 * @param mixed $mixID
+	 * @param mixed $mixID The id of the item for which to retrieve the valid languages.
 	 *
 	 * @return array
 	 */
@@ -264,15 +265,10 @@ class DefaultController implements ControllerInterface
 		$environment     = $this->getEnvironment();
 		$objDataProvider = $environment->getDataProvider();
 
-		// Check if current data provider supports multi language
-		if (in_array('DcGeneral\Data\MultiLanguageDataProvider', class_implements($objDataProvider)))
+		// Check if current data provider supports multi language.
+		if (in_array('DcGeneral\Data\MultiLanguageDataProviderInterface', class_implements($objDataProvider)))
 		{
 			/** @var \DcGeneral\Data\MultiLanguageDataProviderInterface $objDataProvider */
-			$objLanguagesSupported = $objDataProvider->getLanguages($mixID);
-		}
-		else if (in_array('InterfaceGeneralDataMultiLanguage', class_implements($objDataProvider)))
-		{
-			trigger_error('deprecated use of InterfaceGeneralDataMultiLanguage - use DcGeneral\Data\MultiLanguageDataProvider instead.', E_USER_DEPRECATED);
 			$objLanguagesSupported = $objDataProvider->getLanguages($mixID);
 		}
 		else
@@ -280,17 +276,19 @@ class DefaultController implements ControllerInterface
 			$objLanguagesSupported = null;
 		}
 
-		//Check if we have some languages
+		// Check if we have some languages.
 		if ($objLanguagesSupported == null)
 		{
 			return array();
 		}
 
-		// Make a array from the collection
+		// Make an array from the collection.
 		$arrLanguage = array();
+		$translator  = $environment->getTranslator();
 		foreach ($objLanguagesSupported as $value)
 		{
-			$arrLanguage[$value->getID()] = $environment->getTranslator()->translate('LNG.' . $value->getID(), 'languages');
+			/** @var LanguageInformationInterface $value */
+			$arrLanguage[$value->getLocale()] = $translator->translate('LNG.' . $value->getLocale(), 'languages');
 		}
 
 		return $arrLanguage;
