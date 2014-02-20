@@ -15,6 +15,7 @@ namespace DcGeneral\Contao\View\Contao2BackendView;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
+use DcGeneral\Contao\Compatibility\DcCompat;
 use DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
@@ -428,7 +429,7 @@ class ContaoWidgetManager
 				$varValue,
 				$property,
 				$defName,
-				$this
+				new DcCompat($environment, $this->model, $property)
 			);
 		}
 		else
