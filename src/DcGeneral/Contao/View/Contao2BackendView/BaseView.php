@@ -855,15 +855,43 @@ class BaseView implements BackendViewInterface
 	 * NOTE: This method redirects the user to the listing and therefore the script will be ended.
 	 *
 	 * @return void
+	 *
+	 * @throws DcGeneralRuntimeException If the model to delete could not be loaded.
 	 */
 	public function delete()
 	{
+		// Check if is it allowed to delete a record.
+		if (!$this->getEnvironment()->getDataDefinition()->getBasicDefinition()->isDeletable())
+		{
+			$this->getEnvironment()->getEventPropagator()->propagate(
+				ContaoEvents::SYSTEM_LOG,
+				new LogEvent(
+					sprintf(
+						'Table "%s" is not deletable', 'DC_General - DefaultController - delete()',
+						$this->getEnvironment()->getDataDefinition()->getName()
+					),
+					__CLASS__ . '::delete()',
+					TL_ERROR
+				)
+			);
+
+			$this->getEnvironment()->getEventPropagator()->propagate(
+				ContaoEvents::CONTROLLER_REDIRECT,
+				new RedirectEvent('contao/main.php?act=error')
+			);
+		}
+
 		$environment  = $this->getEnvironment();
 		$dataProvider = $environment->getDataProvider();
 		$modelId      = $environment->getInputProvider()->getParameter('id');
 		$model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId));
 
-		// Trigger event befor the model will be deleted.
+		if (!$model->getId())
+		{
+			throw new DcGeneralRuntimeException('Could not load model with id ' . $modelId);
+		}
+
+		// Trigger event before the model will be deleted.
 		$event = new PreDeleteModelEvent($environment, $model);
 		$environment->getEventPropagator()->propagate(
 			$event::NAME,
@@ -873,7 +901,43 @@ class BaseView implements BackendViewInterface
 			)
 		);
 
+		// FIXME: See DefaultController::delete() - we need to delete the children of this item as well over all data providers.
+		/*
+		$arrDelIDs = array();
+
+		// Delete record
+		switch ($definition->getSortingMode())
+		{
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+				$arrDelIDs = array();
+				$arrDelIDs[] = $intRecordID;
+				break;
+
+			case 5:
+				$arrDelIDs = $environment->getController()->fetchMode5ChildrenOf($environment->getCurrentModel(), $blnRecurse = true);
+				$arrDelIDs[] = $intRecordID;
+				break;
+		}
+
+		// Delete all entries
+		foreach ($arrDelIDs as $intId)
+		{
+			$this->getEnvironment()->getDataProvider()->delete($intId);
+
+			// Add a log entry unless we are deleting from tl_log itself
+			if ($environment->getDataDefinition()->getName() != 'tl_log')
+			{
+				BackendBindings::log('DELETE FROM ' . $environment->getDataDefinition()->getName() . ' WHERE id=' . $intId, 'DC_General - DefaultController - delete()', TL_GENERAL);
+			}
+		}
+		 */
+
 		$dataProvider->delete($model);
+
 
 		// Trigger event after the model is deleted.
 		$event = new PostDeleteModelEvent($environment, $model);
