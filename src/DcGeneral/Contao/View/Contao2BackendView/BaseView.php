@@ -1179,11 +1179,9 @@ class BaseView implements BackendViewInterface
 		$this->checkLanguage();
 
 		$environment   = $this->getEnvironment();
-		$definition    = $environment->getDataDefinition();
 		$dataProvider  = $environment->getDataProvider();
 		$inputProvider = $environment->getInputProvider();
 		$modelId       = $inputProvider->getParameter('id');
-		$blnNewEntry   = false;
 
 		$this->checkRestoreVersion();
 
@@ -1193,8 +1191,7 @@ class BaseView implements BackendViewInterface
 		}
 		else
 		{
-			$model       = $this->createEmptyModelWithDefaults();
-			$blnNewEntry = true;
+			$model = $this->createEmptyModelWithDefaults();
 		}
 
 		// We need to keep the original data here.
@@ -1588,7 +1585,6 @@ class BaseView implements BackendViewInterface
 	{
 		$environment        = $this->getEnvironment();
 		$definition         = $environment->getDataDefinition();
-		$listingConfig      = $this->getViewSection()->getListingConfig();
 		$providerName       = $environment->getDataDefinition()->getName();
 		$parentProviderName = $environment->getDataDefinition()->getName();
 		$arrReturn          = array();
