@@ -555,49 +555,6 @@ class DC_General
 		}
 	}
 
-	/* /////////////////////////////////////////////////////////////////////////
-	 * -------------------------------------------------------------------------
-	 * Helper
-	 * -------------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////////// */
-
-	/**
-	 * Function for preloading the tiny mce
-	 *
-	 * @return type
-	 */
-	public function preloadTinyMce()
-	{
-		if (count($this->getEnvironment()->getDataDefinition()->getSubPalettes()) == 0)
-		{
-			return;
-		}
-
-		foreach (array_keys($this->arrFields) as $strField)
-		{
-			$arrConfig = $this->getFieldDefinition($strField);
-
-			if (!isset($arrConfig['eval']['rte']))
-			{
-				continue;
-			}
-
-			if (strncmp($arrConfig['eval']['rte'], 'tiny', 4) !== 0)
-			{
-				continue;
-			}
-
-			list($strFile, $strType) = explode('|', $arrConfig['eval']['rte']);
-
-			$strID = 'ctrl_' . $strField . '_' . $this->mixWidgetID;
-
-			$GLOBALS['TL_RTE'][$strFile][$strID] = array(
-				'id' => $strID,
-				'file' => $strFile,
-				'type' => $strType
-			);
-		}
-	}
 
 	/* /////////////////////////////////////////////////////////////////////////
 	 * -------------------------------------------------------------------------

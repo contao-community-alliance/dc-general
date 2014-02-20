@@ -62,6 +62,8 @@ class ContaoWidgetManager
 	{
 		$this->environment = $environment;
 		$this->model       = $model;
+
+		$this->preLoadRichTextEditor();
 	}
 
 	/**
@@ -292,6 +294,40 @@ class ContaoWidgetManager
 		}
 
 		return $strXLabel;
+	}
+
+	/**
+	 * Function for pre-loading the tiny mce.
+	 *
+	 * @return void
+	 */
+	public function preLoadRichTextEditor()
+	{
+		foreach ($this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getProperties() as $property)
+		{
+			/** @var PropertyInterface $property */
+			$extra = $property->getExtra();
+
+			if (!isset($extra['eval']['rte']))
+			{
+				continue;
+			}
+
+			if (strncmp($extra['eval']['rte'], 'tiny', 4) !== 0)
+			{
+				continue;
+			}
+
+			list($file, $type) = explode('|', $extra['eval']['rte']);
+
+			$propertyId = 'ctrl_' . $property->getName();
+
+			$GLOBALS['TL_RTE'][$file][$propertyId] = array(
+				'id' => $propertyId,
+				'file' => $file,
+				'type' => $type
+			);
+		}
 	}
 
 	/**
