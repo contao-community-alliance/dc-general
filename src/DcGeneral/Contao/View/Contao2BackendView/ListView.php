@@ -203,15 +203,7 @@ class ListView extends BaseView
 				/** @var \DcGeneral\Data\ModelInterface $objModel */
 				$objModel->setMeta(
 					DCGE::MODEL_BUTTONS,
-					$this->generateButtons(
-						$objModel,
-						$definition->getName(),
-						null, // $environment->getRootIds(),
-						false,
-						null,
-						$previous,
-						$next
-					)
+					$this->generateButtons($objModel, $previous, $next)
 				);
 			}
 		}

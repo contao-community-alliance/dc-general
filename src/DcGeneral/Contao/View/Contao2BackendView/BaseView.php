@@ -1793,6 +1793,7 @@ class BaseView implements BackendViewInterface
 	 */
 	protected function generateHeaderButtons($strButtonId)
 	{
+		/** @var CommandInterface[] $globalOperations */
 		$globalOperations   = $this->getViewSection()->getGlobalCommands()->getCommands();
 		$buttons            = array();
 
@@ -2112,23 +2113,15 @@ class BaseView implements BackendViewInterface
 	/**
 	 * Compile buttons from the table configuration array and return them as HTML.
 	 *
-	 * @param ModelInterface $objModelRow          The model for which the buttons shall be generated for.
-	 * @param string         $strTable             The name of the data definition (unused).
-	 * @param array          $arrRootIds           The root ids (unused).
-	 * @param boolean        $blnCircularReference The ids building a circular reference (unused).
-	 * @param array          $arrChildRecordIds    The ids of all child records of the model (unused).
-	 * @param ModelInterface $previous             The previous model in the collection.
-	 * @param ModelInterface $next                 The next model in the collection.
+	 * @param ModelInterface $model    The model for which the buttons shall be generated for.
+	 * @param ModelInterface $previous The previous model in the collection.
+	 * @param ModelInterface $next     The next model in the collection.
 	 * @return string
 	 */
 	protected function generateButtons(
-		ModelInterface $objModelRow,
-		$strTable,
-		$arrRootIds = array(),
-		$blnCircularReference = false,
-		$arrChildRecordIds = null,
-		$previous = null,
-		$next = null
+		ModelInterface $model,
+		ModelInterface $previous = null,
+		ModelInterface $next = null
 	)
 	{
 		$commands     = $this->getViewSection()->getModelCommands();
@@ -2138,7 +2131,7 @@ class BaseView implements BackendViewInterface
 		if ($this->getEnvironment()->getClipboard()->isNotEmpty())
 		{
 			$circularIds = $objClipboard->getCircularIds();
-			$isCircular  = in_array($objModelRow->getID(), $circularIds);
+			$isCircular  = in_array($model->getID(), $circularIds);
 		}
 		else
 		{
@@ -2151,7 +2144,7 @@ class BaseView implements BackendViewInterface
 		{
 			$arrButtons[$command->getName()] = $this->buildCommand(
 				$command,
-				$objModelRow,
+				$model,
 				$isCircular,
 				$circularIds,
 				$previous,
@@ -2168,12 +2161,12 @@ class BaseView implements BackendViewInterface
 			// Add ext. information.
 			$strAdd2UrlAfter = sprintf('act=%s&amp;after=%s&amp;',
 				$strMode,
-				$objModelRow->getID()
+				$model->getID()
 			);
 
 			$strAdd2UrlInto = sprintf('act=%s&amp;into=%s&amp;',
 				$strMode,
-				$objModelRow->getID()
+				$model->getID()
 			);
 
 			/** @var AddToUrlEvent $urlAfter */
@@ -2190,7 +2183,7 @@ class BaseView implements BackendViewInterface
 
 			$buttonEvent = new GetPasteButtonEvent($this->getEnvironment());
 			$buttonEvent
-				->setModel($objModelRow)
+				->setModel($model)
 				->setCircularReference($isCircular)
 				->setPrevious($previous)
 				->setNext($next)

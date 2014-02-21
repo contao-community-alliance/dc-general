@@ -179,15 +179,7 @@ class ParentView extends BaseView
 				$previous = ((!is_null($collection->get($i - 1))) ? $collection->get($i - 1) : null);
 				$next     = ((!is_null($collection->get($i + 1))) ? $collection->get($i + 1) : null);
 
-				$buttons = $this->generateButtons(
-					$model,
-					$definition->getName(),
-					null, // $environment->getRootIds(),
-					false,
-					null,
-					$previous,
-					$next
-				);
+				$buttons = $this->generateButtons($model, $previous, $next);
 
 				$model->setMeta(DCGE::MODEL_BUTTONS, $buttons);
 			}

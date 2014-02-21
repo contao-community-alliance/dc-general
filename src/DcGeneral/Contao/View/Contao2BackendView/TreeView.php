@@ -416,7 +416,7 @@ class TreeView extends BaseView
 	 */
 	protected function parseModel($objModel, $strToggleID)
 	{
-		$objModel->setMeta(DCGE::MODEL_BUTTONS, $this->generateButtons($objModel, $objModel->getProviderName()));
+		$objModel->setMeta(DCGE::MODEL_BUTTONS, $this->generateButtons($objModel));
 		$objModel->setMeta(DCGE::MODEL_LABEL_VALUE, $this->formatModel($objModel));
 
 		$objTemplate = $this->getTemplate('dcbe_general_treeview_entry');
