@@ -335,11 +335,13 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 				if (isset($propInfo['wizard']))
 				{
-					$callback = $propInfo['wizard'];
-					$dispatcher->addListener(
-						ManipulateWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
-						new PropertyInputFieldGetWizardCallbackListener($callback, $GLOBALS['objDcGeneral'])
-					);
+					$callbacks = $propInfo['wizard'];
+					foreach ($callbacks as $callback) {
+						$dispatcher->addListener(
+							ManipulateWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
+							new PropertyInputFieldGetWizardCallbackListener($callback, $GLOBALS['objDcGeneral'])
+						);
+					}
 				}
 			}
 		}
