@@ -2294,7 +2294,7 @@ class BaseView implements BackendViewInterface
 			return null;
 		}
 
-		$GLOBALS['TL_CSS'][] = 'system/modules/generalDriver/html/css/generalBreadcrumb.css';
+		$GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalBreadcrumb.css';
 
 		$objTemplate = $this->getTemplate('dcbe_general_breadcrumb');
 		$this->addToTemplate('elements', $arrReturn, $objTemplate);
