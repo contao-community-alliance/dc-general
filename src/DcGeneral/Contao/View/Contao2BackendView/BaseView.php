@@ -1727,7 +1727,7 @@ class BaseView implements BackendViewInterface
 			$href = '';
 			foreach ($command->getParameters() as $key => $value)
 			{
-				$href .= '&amp;' . $key . '=' . $value;
+				$href .= '&' . $key . '=' . $value;
 			}
 
 			/** @var AddToUrlEvent $event */
@@ -1941,7 +1941,7 @@ class BaseView implements BackendViewInterface
 		$strHref = '';
 		foreach ($arrParameters as $key => $value)
 		{
-			$strHref .= sprintf('&amp;%s=%s', $key, $value);
+			$strHref .= sprintf('&%s=%s', $key, $value);
 		}
 
 		/** @var AddToUrlEvent $event */
@@ -2159,12 +2159,12 @@ class BaseView implements BackendViewInterface
 			$strMode = $objClipboard->getMode();
 
 			// Add ext. information.
-			$strAdd2UrlAfter = sprintf('act=%s&amp;after=%s&amp;',
+			$add2UrlAfter = sprintf('act=%s&after=%s&',
 				$strMode,
 				$model->getID()
 			);
 
-			$strAdd2UrlInto = sprintf('act=%s&amp;into=%s&amp;',
+			$add2UrlInto = sprintf('act=%s&into=%s&',
 				$strMode,
 				$model->getID()
 			);
@@ -2172,13 +2172,13 @@ class BaseView implements BackendViewInterface
 			/** @var AddToUrlEvent $urlAfter */
 			$urlAfter = $propagator->propagate(
 				ContaoEvents::BACKEND_ADD_TO_URL,
-				new AddToUrlEvent($strAdd2UrlAfter)
+				new AddToUrlEvent($add2UrlAfter)
 			);
 
 			/** @var AddToUrlEvent $urlInto */
 			$urlInto = $propagator->propagate(
 				ContaoEvents::BACKEND_ADD_TO_URL,
-				new AddToUrlEvent($strAdd2UrlInto)
+				new AddToUrlEvent($add2UrlInto)
 			);
 
 			$buttonEvent = new GetPasteButtonEvent($this->getEnvironment());
