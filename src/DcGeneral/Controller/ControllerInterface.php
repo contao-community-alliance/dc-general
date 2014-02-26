@@ -81,4 +81,48 @@ interface ControllerInterface
 	 * @return array
 	 */
 	public function getSupportedLanguages($mixID);
+
+	/**
+	 * Check if the given model is a root model for the current data definition.
+	 *
+	 * @param ModelInterface $model The model to check.
+	 *
+	 * @return bool
+	 */
+	public function isRootModel(ModelInterface $model);
+
+	/**
+	 * Apply the root condition of the current data definition to the given model.
+	 *
+	 * @param ModelInterface $model The model to be used as root.
+	 *
+	 * @return ControllerInterface
+	 */
+	public function setRootModel(ModelInterface $model);
+
+	/**
+	 * Set a model as the parent of another model.
+	 *
+	 * @param ModelInterface $childModel  The model to become the child.
+	 *
+	 * @param ModelInterface $parentModel The model to use as parent.
+	 *
+	 * @return ControllerInterface
+	 */
+	public function setParent(ModelInterface  $childModel, ModelInterface  $parentModel);
+
+	/**
+	 * Sets all parent condition fields in the destination to the values from the source model.
+	 *
+	 * Useful when moving an element after another in a different parent.
+	 *
+	 * @param ModelInterface $receivingModel The model that shall get updated.
+	 *
+	 * @param ModelInterface $sourceModel    The model that the values shall get retrieved from.
+	 *
+	 * @param string         $parentTable    The name of the parent table for the models.
+	 *
+	 * @return ControllerInterface
+	 */
+	public function setSameParent(ModelInterface $receivingModel, ModelInterface $sourceModel, $parentTable);
 }

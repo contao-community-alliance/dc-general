@@ -1134,72 +1134,67 @@ class DefaultController implements ControllerInterface
 		return $arrFields;
 	}
 
-	protected function setParent(ModelInterface  $objChildEntry, ModelInterface  $objParentEntry, $strTable)
+	/**
+	 * {@inheritDoc}
+	 */
+	public function isRootModel(ModelInterface $model)
 	{
-		$arrChildCondition = $this->getDC()->getParentChildCondition($objParentEntry, $objChildEntry->getProviderName());
-		if (!($arrChildCondition && $arrChildCondition['setOn']))
-		{
-			throw new DcGeneralRuntimeException("Can not calculate parent.", 1);
-		}
-
-		foreach ($arrChildCondition['setOn'] as $arrCondition)
-		{
-			if ($arrCondition['from_field'])
-			{
-				$objChildEntry->setProperty($arrCondition['to_field'], $objParentEntry->getProperty($arrCondition['from_field']));
-			}
-			else if (!is_null('value', $arrCondition))
-			{
-				$objChildEntry->setProperty($arrCondition['to_field'], $arrCondition['value']);
-			}
-			else
-			{
-				throw new DcGeneralRuntimeException("Error Processing child condition, neither from_field nor value specified: " . var_export($arrCondition, true), 1);
-			}
-		}
+		return $this
+			->getEnvironment()
+			->getDataDefinition()
+			->getModelRelationshipDefinition()
+			->getRootCondition()
+			->matches($model);
 	}
 
-	protected function isRootEntry($strTable, $mixID)
+	/**
+	 * {@inheritDoc}
+	 */
+	public function setRootModel(ModelInterface $model)
 	{
-		// Get the join field
-		$arrRootCondition = $this->getDC()->getRootConditions($strTable);
+		$rootCondition = $this
+			->getEnvironment()
+			->getDataDefinition()
+			->getModelRelationshipDefinition()
+			->getRootCondition();
 
-		switch ($arrRootCondition[0]['operation'])
-		{
-			case '=':
-				return ($mixID == $arrRootCondition[0]['value']);
+		$rootCondition->applyTo($model);
 
-			case '<':
-				return ($arrRootCondition[0]['value'] < $mixID);
-
-			case '>':
-				return ($arrRootCondition[0]['value'] > $mixID);
-
-			case '!=':
-				return ($arrRootCondition[0]['value'] != $mixID);
-		}
-
-		return false;
+		return $this;
 	}
 
-	protected function setRoot(ModelInterface $objCurrentEntry, $strTable)
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws \DcGeneral\Exception\DcGeneralRuntimeException
+	 */
+	public function setParent(ModelInterface  $childModel, ModelInterface  $parentModel)
 	{
-		$arrRootSetter = $this->getDC()->getRootSetter($strTable);
-		if (!($arrRootSetter && $arrRootSetter))
-		{
-			throw new DcGeneralRuntimeException("Can not calculate parent.", 1);
-		}
+		$this
+			->getEnvironment()
+			->getDataDefinition($childModel->getProviderName())
+			->getModelRelationshipDefinition()
+			->getChildCondition($parentModel->getProviderName(), $childModel->getProviderName())
+			->applyTo($parentModel, $childModel);
+	}
 
-		foreach ($arrRootSetter as $arrCondition)
+	/**
+	 * {@inheritDoc}
+	 */
+	public function setSameParent(ModelInterface $receivingModel, ModelInterface $sourceModel, $parentTable)
+	{
+		if ($this->isRootModel($sourceModel))
 		{
-			if (($arrCondition['property'] && isset($arrCondition['value'])))
-			{
-				$objCurrentEntry->setProperty($arrCondition['property'], $arrCondition['value']);
-			}
-			else
-			{
-				throw new DcGeneralRuntimeException("Error Processing root condition, you need to specify property and value: " . var_export($arrCondition, true), 1);
-			}
+			$this->setRootModel($receivingModel);
+		}
+		else
+		{
+			$this
+				->getEnvironment()
+				->getDataDefinition()
+				->getModelRelationshipDefinition()
+				->getChildCondition($parentTable, $receivingModel->getProviderName())
+				->copyFrom($sourceModel, $receivingModel);
 		}
 	}
 
