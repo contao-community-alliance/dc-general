@@ -134,7 +134,7 @@ interface EnvironmentInterface
 	 * Retrieve the data provider for the named source.
 	 *
 	 * If a source name is given, the named data provider will get returned, if not given, the default data provider
-     * will get returned, the default is to be determined via: getEnvironment()->getDataDefinition()->getDataProvider()
+	 * will get returned, the default is to be determined via: getEnvironment()->getDataDefinition()->getDataProvider()
 	 *
 	 * @param string|null $strSource The name of the source.
 	 *
@@ -145,10 +145,10 @@ interface EnvironmentInterface
 	/**
 	 * Register a data provider to the environment.
 	 *
-	 * @param string                          $strSource The name of the source.
+	 * @param string                                $strSource    The name of the source.
 	 *
-	 * @param \DcGeneral\Data\DataProviderInterface $dataProvider The data provider instance to register under
-     * the given name.
+	 * @param \DcGeneral\Data\DataProviderInterface $dataProvider The data provider instance to register under the given
+	 *                                                            name.
 	 *
 	 * @return EnvironmentInterface
 	 */
