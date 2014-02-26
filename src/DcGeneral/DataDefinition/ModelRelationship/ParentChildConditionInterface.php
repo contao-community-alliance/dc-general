@@ -122,6 +122,17 @@ interface ParentChildConditionInterface
 	public function applyTo($objParent, $objChild);
 
 	/**
+	 * Apply a condition to a child by copying it from another child.
+	 *
+	 * @param ModelInterface $sourceModel      The sibling model.
+	 *
+	 * @param ModelInterface $destinationModel The model on which the condition shall be enforced on.
+	 *
+	 * @return void
+	 */
+	public function copyFrom($sourceModel, $destinationModel);
+
+	/**
 	 * Get the inverted condition as filter.
 	 *
 	 * This allows to look up the parent of a child model.
