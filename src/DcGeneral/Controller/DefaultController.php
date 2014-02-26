@@ -13,12 +13,12 @@
 namespace DcGeneral\Controller;
 
 use DcGeneral\Contao\BackendBindings;
+use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\ConfigInterface;
 use DcGeneral\Data\DataProviderInterface;
 use DcGeneral\Data\DCGE;
 use DcGeneral\Data\LanguageInformationInterface;
 use DcGeneral\Data\ModelInterface;
-
 use DcGeneral\Data\PropertyValueBagInterface;
 use DcGeneral\DataContainerInterface;
 use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
@@ -28,7 +28,7 @@ use DcGeneral\Exception\DcGeneralRuntimeException;
 class DefaultController implements ControllerInterface
 {
 	/**
-	 * Current DC General
+	 * Current DC General.
 	 *
 	 * @var DataContainerInterface
 	 *
@@ -44,32 +44,45 @@ class DefaultController implements ControllerInterface
 	protected $environment;
 
 	/**
-	 * A list with all current ID`s
+	 * A list with all current IDs.
+	 *
 	 * @var array
 	 */
 	protected $arrInsertIDs = array();
 
 	/**
-	 * Error msg
+	 * Error message.
 	 *
 	 * @var string
 	 */
 	protected $notImplMsg = "<div style='text-align:center; font-weight:bold; padding:40px;'>The function/view &quot;%s&quot; is not implemented.<br />Please <a target='_blank' style='text-decoration:underline' href='http://now.metamodel.me/en/sponsors/become-one#payment'>support us</a> to add this important feature!</div>";
 
 	/**
-	 * Field for the function sortCollection
+	 * Field for the function sortCollection.
 	 *
 	 * @var string $arrColSort
 	 */
 	protected $arrColSort;
 
+	/**
+	 * Throw an exception that an unknown method has been called.
+	 *
+	 * @param string $name      Method name.
+	 *
+	 * @param array  $arguments Method arguments.
+	 *
+	 * @return void
+	 *
+	 * @throws DcGeneralRuntimeException Always.
+	 */
 	public function __call($name, $arguments)
 	{
 		throw new DcGeneralRuntimeException('Error Processing Request: ' . $name, 1);
 	}
 
 	/**
-	 * Get DC General
+	 * Get DC General.
+	 *
 	 * @return DataContainerInterface;
 	 *
 	 * @deprecated
@@ -80,8 +93,11 @@ class DefaultController implements ControllerInterface
 	}
 
 	/**
-	 * Set DC General
-	 * @param DataContainerInterface $objDC
+	 * Set DC General.
+	 *
+	 * @param DataContainerInterface $objDC The DC.
+	 *
+	 * @return void
 	 *
 	 * @deprecated
 	 */
@@ -91,13 +107,18 @@ class DefaultController implements ControllerInterface
 		$this->setEnvironment($objDC->getEnvironment());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function setEnvironment(EnvironmentInterface $environment)
 	{
 		$this->environment = $environment;
+
+		return $this;
 	}
 
 	/**
-	 * @return \DcGeneral\EnvironmentInterface
+	 * {@inheritDoc}
 	 */
 	public function getEnvironment()
 	{
@@ -105,16 +126,7 @@ class DefaultController implements ControllerInterface
 	}
 
 	/**
-	 * Scan for children of a given model.
-	 *
-	 * This method is ready for mixed hierarchy and will return all children and grandchildren for the given table
-	 * (or originating table of the model, if no provider name has been given) for all levels and parent child conditions.
-	 *
-	 * @param ModelInterface $objModel        The model to assemble children from.
-	 *
-	 * @param string         $strDataProvider The name of the data provider to fetch children from.
-	 *
-	 * @return array
+	 * {@inheritDoc}
 	 */
 	public function assembleAllChildrenFrom($objModel, $strDataProvider = '')
 	{
@@ -131,7 +143,12 @@ class DefaultController implements ControllerInterface
 		}
 
 		// Check all data providers for children of the given element.
-		foreach ($this->getEnvironment()->getDataDefinition()->getChildConditions($objModel->getProviderName()) as $objChildCondition)
+		$conditions = $this
+			->getEnvironment()
+			->getDataDefinition()
+			->getModelRelationshipDefinition()
+			->getChildConditions($objModel->getProviderName());
+		foreach ($conditions as $objChildCondition)
 		{
 			$objDataProv = $this->getEnvironment()->getDataProvider($objChildCondition->getDestinationName());
 			$objConfig   = $objDataProv->getEmptyConfig();
@@ -153,23 +170,18 @@ class DefaultController implements ControllerInterface
 	}
 
 	/**
-	 * Update the current model from a post request. Additionally, trigger meta palettes, if installed.
-	 *
-	 * @param ModelInterface            $model
-	 *
-	 * @param PropertyValueBagInterface $propertyValues
-	 *
-	 * @return ControllerInterface
+	 * {@inheritDoc}
 	 */
 	public function updateModelFromPropertyBag($model, $propertyValues)
 	{
+		$environment = $this->getEnvironment();
 		if (!$propertyValues)
 		{
 			return $this;
 		}
 
-		// callback to tell visitors that we have just updated the model.
-		// $this->getEnvironment()->getCallbackHandler()->onModelBeforeUpdateCallback($model);
+		// Callback to tell visitors that we have just updated the model.
+		// $environment->getCallbackHandler()->onModelBeforeUpdateCallback($model);
 
 		foreach ($propertyValues as $property => $value)
 		{
@@ -184,17 +196,28 @@ class DefaultController implements ControllerInterface
 			}
 		}
 
-		$basicDefinition = $this->getEnvironment()->getDataDefinition()->getBasicDefinition();
+		$basicDefinition = $environment->getDataDefinition()->getBasicDefinition();
 
-		// FIXME: dependency injection.
-		if (($basicDefinition->getMode() & (BasicDefinitionInterface::MODE_PARENTEDLIST | BasicDefinitionInterface::MODE_HIERARCHICAL)) && (strlen(\Input::getInstance()->get('pid')) > 0))
+		if (($basicDefinition->getMode() & (
+				BasicDefinitionInterface::MODE_PARENTEDLIST
+				| BasicDefinitionInterface::MODE_HIERARCHICAL))
+			// FIXME: dependency injection.
+			&& (strlen(\Input::getInstance()->get('pid')) > 0)
+		)
 		{
 			$providerName       = $basicDefinition->getDataProvider();
 			$parentProviderName = $basicDefinition->getParentDataProvider();
-			$objParentDriver    = $this->getEnvironment()->getDataProvider($parentProviderName);
-			$objParentModel     = $objParentDriver->fetch($objParentDriver->getEmptyConfig()->setId(\Input::getInstance()->get('pid')));
+			$objParentDriver    = $environment->getDataProvider($parentProviderName);
+			$objParentModel     = $objParentDriver->fetch(
+				$objParentDriver
+					->getEmptyConfig()
+					->setId(\Input::getInstance()->get('pid'))
+			);
 
-			$relationship = $this->getEnvironment()->getDataDefinition()->getModelRelationshipDefinition()->getChildCondition($parentProviderName, $providerName);
+			$relationship = $environment
+				->getDataDefinition()
+				->getModelRelationshipDefinition()
+				->getChildCondition($parentProviderName, $providerName);
 
 			if ($relationship && $relationship->getSetters())
 			{
@@ -202,18 +225,22 @@ class DefaultController implements ControllerInterface
 			}
 		}
 
-		// callback to tell visitors that we have just updated the model.
-		// $this->getEnvironment()->getCallbackHandler()->onModelUpdateCallback($model);
+		// Callback to tell visitors that we have just updated the model.
+		// $environment->getCallbackHandler()->onModelUpdateCallback($model);
 
 		return $this;
 	}
 
 	/**
-	 * @param mixed $idParent
+	 * Add the filter for the item with the given id from the parent data provider to the given config.
 	 *
-	 * @param ConfigInterface $config
+	 * @param mixed           $idParent The id of the parent item.
+	 *
+	 * @param ConfigInterface $config   The config to add the filter to.
 	 *
 	 * @return \DcGeneral\Data\ConfigInterface
+	 *
+	 * @throws DcGeneralRuntimeException When the parent item is not found.
 	 */
 	protected function addParentFilter($idParent, $config)
 	{
@@ -295,7 +322,7 @@ class DefaultController implements ControllerInterface
 	}
 
 	/**
-	 * Cut and paste
+	 * Cut and paste.
 	 *
 	 * <p>
 	 * -= GET Parameter =-<br/>
@@ -317,10 +344,8 @@ class DefaultController implements ControllerInterface
 	 */
 	public function cut()
 	{
-		// Checks
 		$this->checkIsWritable();
 
-		// Get vars
 		$mixAfter  = \Input::getInstance()->get('after');
 		$mixInto   = \Input::getInstance()->get('into');
 		$intId     = \Input::getInstance()->get('id');
@@ -423,7 +448,6 @@ class DefaultController implements ControllerInterface
 
 			default:
 				return vsprintf($this->notImplMsg, 'cut - Mode ' . $this->getDC()->arrDCA['list']['sorting']['mode']);
-				break;
 		}
 
 		// Save new sorting
@@ -435,7 +459,7 @@ class DefaultController implements ControllerInterface
 	}
 
 	/**
-	 * Copy a entry and all childs
+	 * Copy an entry and all children.
 	 *
 	 * @return string error msg for an unknown mode
 	 */
@@ -633,12 +657,6 @@ class DefaultController implements ControllerInterface
 
 		return $objConfig;
 	}
-
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 * AJAX
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
 
 	/**
 	 * Loads the current model from the data provider and overrides the selector

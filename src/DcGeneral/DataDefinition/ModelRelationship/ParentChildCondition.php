@@ -197,7 +197,7 @@ class ParentChildCondition
 	/**
 	 * {@inheritdoc}
 	 *
-	 * @throws DcGeneralRuntimeException As this is currently unimplemented.
+	 * @throws DcGeneralRuntimeException For invalid setters.
 	 */
 	public function applyTo($objParent, $objChild)
 	{
@@ -239,6 +239,8 @@ class ParentChildCondition
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralRuntimeException For invalid setters.
 	 */
 	public function copyFrom($sourceModel, $destinationModel)
 	{
