@@ -12,6 +12,8 @@
 
 namespace DcGeneral\DataDefinition\ModelRelationship;
 
+use DcGeneral\Exception\DcGeneralRuntimeException;
+
 /**
  * Default implementation of a root condition.
  *
@@ -98,6 +100,8 @@ class RootCondition
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralRuntimeException When an incomplete rule is encountered in the setters.
 	 */
 	public function applyTo($objModel)
 	{
@@ -105,8 +109,23 @@ class RootCondition
 		{
 			foreach ($this->setOn as $rule)
 			{
+				if (!($rule['property'] && isset($rule['value'])))
+				{
+					throw new DcGeneralRuntimeException(
+						'Error Processing root condition, you need to specify property and value: ' . var_export($rule, true),
+						1
+					);
+				}
+
 				$objModel->setProperty($rule['property'], $rule['value']);
 			}
+		}
+		else
+		{
+			throw new DcGeneralRuntimeException(
+				'Error Processing root condition, you need to specify root condition setters.',
+				1
+			);
 		}
 
 		return $this;
