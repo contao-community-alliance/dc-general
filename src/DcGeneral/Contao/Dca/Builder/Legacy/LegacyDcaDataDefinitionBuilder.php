@@ -62,6 +62,7 @@ use DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\DefaultPropertiesDefinition;
 use DcGeneral\DataDefinition\Definition\View\Command;
 use DcGeneral\DataDefinition\Definition\View\CommandInterface;
+use DcGeneral\DataDefinition\Definition\View\CutCommand;
 use DcGeneral\DataDefinition\Definition\View\DefaultModelFormatterConfig;
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\DataDefinition\Definition\View\Panel\DefaultFilterElementInformation;
@@ -1177,7 +1178,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 *
 	 * @return void
 	 */
+	// @codingStandardsIgnoreStart - cyclomatic complexity can not be lowered any further.
 	protected function parseSingleProperty(PropertyInterface $property, array $propInfo)
+	// @codingStandardsIgnoreEnd
 	{
 		foreach ($propInfo as $key => $value)
 		{
@@ -1282,6 +1285,26 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	}
 
 	/**
+	 * Create the correct command instance for the given information.
+	 *
+	 * @param string $commandName The name of the command to create.
+	 *
+	 * @param array  $commandDca  The Dca information of the command.
+	 *
+	 * @return Command|CutCommand
+	 */
+	protected function createCommandInstance($commandName, array $commandDca)
+	{
+		switch ($commandName)
+		{
+			case 'cut':
+				return new CutCommand();
+			default:
+				return new Command();
+		}
+	}
+
+	/**
 	 * Create a command from dca.
 	 *
 	 * @param string $commandName The name of the command to parse.
@@ -1292,7 +1315,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 */
 	protected function createCommand($commandName, array $commandDca)
 	{
-		$command = new Command();
+
+		$command = $this->createCommandInstance($commandName, $commandDca);
 		$command->setName($commandName);
 
 		$parameters = $command->getParameters();

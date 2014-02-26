@@ -31,6 +31,7 @@ use DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use DcGeneral\DataDefinition\Definition\View\Command;
 use DcGeneral\DataDefinition\Definition\View\CommandInterface;
+use DcGeneral\DataDefinition\Definition\View\CutCommandInterface;
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\EnvironmentInterface;
 use DcGeneral\Event\PostCreateModelEvent;
@@ -1900,12 +1901,13 @@ class BaseView implements BackendViewInterface
 			$attributes = ltrim(sprintf($strAttributes, $objModel->getID()));
 		}
 
-		$arrParameters = (array)$objCommand->getParameters();
-
 		// Cut needs some special information.
-		if ($objCommand->getName() == 'cut')
+		if ($objCommand instanceof CutCommandInterface)
 		{
-			// Get data provider from current and parent.
+			$arrParameters = array();
+			$arrParameters['act'] = 'cut';
+
+				// Get data provider from current and parent.
 			$strParentDataProvider = $objModel->getMeta(DCGE::MODEL_PTABLE);
 			$arrParameters['cdp']  = $objModel->getProviderName();
 
@@ -1915,10 +1917,10 @@ class BaseView implements BackendViewInterface
 				$arrParameters['pdp'] = $strParentDataProvider;
 			}
 
-			// If we have a id add it, used for mode 4 and all parent -> current views.
-			if ($this->getEnvironment()->getInputProvider()->hasParameter('id'))
+			// If we have a pid add it, used for mode 4 and all parent -> current views.
+			if ($this->getEnvironment()->getInputProvider()->hasParameter('pid'))
 			{
-				$arrParameters['id'] = $this->getEnvironment()->getInputProvider()->getParameter('id');
+				$arrParameters['pid'] = $this->getEnvironment()->getInputProvider()->getParameter('pid');
 			}
 
 			// Source is the id of the element which should move.
@@ -1926,6 +1928,8 @@ class BaseView implements BackendViewInterface
 		}
 		else
 		{
+			$arrParameters = (array)$objCommand->getParameters();
+
 			// TODO: Shall we interface this option?
 			$idParam = $objCommand->getExtra()['idparam'];
 			if ($idParam)
