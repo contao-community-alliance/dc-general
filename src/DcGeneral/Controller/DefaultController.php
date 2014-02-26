@@ -1139,6 +1139,15 @@ class DefaultController implements ControllerInterface
 	 */
 	public function isRootModel(ModelInterface $model)
 	{
+		if ($this
+			->getEnvironment()
+			->getDataDefinition()
+		->getBasicDefinition()
+		->getMode() !== BasicDefinitionInterface::MODE_HIERARCHICAL)
+		{
+			return false;
+		}
+
 		return $this
 			->getEnvironment()
 			->getDataDefinition()
