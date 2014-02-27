@@ -22,6 +22,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\EditModelBeforeSaveEvent;
 use DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
+use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\MultiLanguageDataProviderInterface;
 use DcGeneral\Data\DCGE;
@@ -629,6 +630,7 @@ class BaseView implements BackendViewInterface
 		if ($objInput->getParameter('clipboard') == '1')
 		{
 			$objClipboard->clear();
+
 			$this->redirectHome();
 		}
 		// Push some entry into clipboard.
@@ -835,17 +837,13 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
-	 * @todo All
+	 * Endpoint for cut operation.
+	 *
 	 * @return string
 	 */
 	public function cut()
 	{
-		return vsprintf($this->notImplMsg, 'cut - Mode');
-	}
-
-	public function paste()
-	{
-
+		return $this->showAll();
 	}
 
 	/**
@@ -896,6 +894,59 @@ class BaseView implements BackendViewInterface
 		return $models;
 	}
 
+	/**
+	 * Invoked for cut and copy.
+	 *
+	 * This performs redirectHome() upon successful execution and throws an exception otherwise.
+	 *
+	 * @return void
+	 *
+	 * @throws DcGeneralRuntimeException When invalid parameters are encountered.
+	 */
+	public function paste()
+	{
+		$this->checkClipboard();
+
+		$environment = $this->getEnvironment();
+		$input       = $environment->getInputProvider();
+		$clipboard   = $environment->getClipboard();
+		$after       = $input->getParameter('after');
+		$into        = $input->getParameter('into');
+		$models      = $this->getModelsFromClipboard($clipboard->isCopy());
+
+		if ($clipboard->isCopy())
+		{
+			// FIXME: recursive copy is not implemented yet!
+		}
+
+		if ($after)
+		{
+			$dataProvider = $environment->getDataProvider();
+			$previous     = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($after));
+			$environment->getController()->pasteAfter($previous, $models, $this->getManualSortingProperty());
+		}
+		elseif ($into)
+		{
+			$parentProvider = $environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider();
+			$dataProvider   = $environment->getDataProvider($parentProvider);
+			$parent         = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($into));
+			$environment->getController()->pasteInto($parent, $models, $this->getManualSortingProperty());
+		}
+		else
+		{
+			throw new DcGeneralRuntimeException('Invalid parameters.');
+		}
+
+		$clipboard
+			->clear()
+			->saveTo($environment);
+
+		$this->redirectHome();
+
+		throw new DcGeneralRuntimeException('Invalid paste operation parameters.');
+	}
+
+	/**
 	 * Delete a model and redirect the user to the listing.
 	 *
 	 * NOTE: This method redirects the user to the listing and therefore the script will be ended.
