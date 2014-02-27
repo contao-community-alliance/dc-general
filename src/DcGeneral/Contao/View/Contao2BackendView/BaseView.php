@@ -858,6 +858,16 @@ class BaseView implements BackendViewInterface
 	}
 
 	/**
+	 * Get the name of the property to use for manual sorting (aka drag drop sorting).
+	 *
+	 * @return string
+	 */
+	protected function getManualSortingProperty()
+	{
+		// FIXME: provide an API method in the data definition for this.
+		return $this->getEnvironment()->getDataProvider()->fieldExists('sorting') ? 'sorting': '';
+	}
+
 	 * Delete a model and redirect the user to the listing.
 	 *
 	 * NOTE: This method redirects the user to the listing and therefore the script will be ended.
