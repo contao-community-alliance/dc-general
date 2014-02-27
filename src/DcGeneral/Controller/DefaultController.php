@@ -476,40 +476,6 @@ class DefaultController implements ControllerInterface
 	}
 
 	/**
-	 * Loads the current model from the data provider and overrides the selector
-	 *
-	 * @param type $strSelector the name of the checkbox toggling the palette.
-	 */
-	public function generateAjaxPalette($strSelector)
-	{
-		// Check
-		$this->checkIsWritable();
-		$this->checkLanguage($this->getDC());
-
-		// Check if we have fields
-		if (!$this->getEnvironment()->getDataDefinition()->hasEditableProperties())
-		{
-			$this->redirect($this->getReferer());
-		}
-
-		// Load something
-		$this->getDC()->preloadTinyMce();
-
-		$objDataProvider = $this->getEnvironment()->getDataProvider();
-
-		// Load record from data provider
-		$objDBModel = $objDataProvider->fetch($objDataProvider->getEmptyConfig()->setId($this->getDC()->getId()));
-		if ($objDBModel == null)
-		{
-			$objDBModel = $objDataProvider->getEmptyModel();
-		}
-
-		$this->getDC()->setCurrentModel($objDBModel);
-
-		// override the setting from POST now.
-		$objDBModel->setProperty($strSelector, intval($this->Input->post('state')));
-	}
-
 	/**
 	 * Calculate the new position of an element
 	 *
