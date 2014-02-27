@@ -735,37 +735,6 @@ class DefaultController implements ControllerInterface
 		}
 	}
 
-	/**
-	 * Reorder all sortings for one table.
-	 *
-	 * @param ConfigInterface $objConfig
-	 *
-	 * @return void
-	 */
-	protected function reorderSorting($objConfig)
-	{
-		$objCurrentDataProvider = $this->getEnvironment()->getDataProvider();
-
-		if ($objConfig == null)
-		{
-			$objConfig = $objCurrentDataProvider->getEmptyConfig();
-		}
-
-		// Search for the lowest sorting
-		$objConfig->setFields(array('sorting'));
-		$objConfig->setSorting(array('sorting' => DCGE::MODEL_SORTING_ASC, 'id' => DCGE::MODEL_SORTING_ASC));
-		$arrCollection = $objCurrentDataProvider->fetchAll($objConfig);
-
-		$i = 1;
-		$intCount = 256;
-
-		foreach ($arrCollection as $value)
-		{
-			$value->setProperty('sorting', $intCount * $i++);
-			$objCurrentDataProvider->save($value);
-		}
-	}
-	/**
 	 * {@inheritDoc}
 	 */
 	public function isRootModel(ModelInterface $model)
