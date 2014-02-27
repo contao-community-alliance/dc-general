@@ -1067,55 +1067,6 @@ class DefaultController implements ControllerInterface
 		}
 	}
 
-	protected function calcLabelPattern($strTable)
-	{
-		if ($strTable == $this->getDC()->getTable())
-		{
-			// easy, take from DCA.
-			return $this->getDC()->arrDCA['list']['label']['format'];
-		}
-
-		$arrChildDef = $this->getDC()->arrDCA['dca_config']['child_list'];
-		if (is_array($arrChildDef) && array_key_exists($strTable, $arrChildDef) && isset($arrChildDef[$strTable]['format']))
-		{
-			// check if defined in child conditions.
-			return $arrChildDef[$strTable]['format'];
-		}
-		else if (($strTable == 'self') && array_key_exists('self', $arrChildDef) && $arrChildDef['self']['format'])
-		{
-			return $arrChildDef['self']['format'];
-		}
-	}
-
-	/**
-	 * Get a list with all needed fields for the models.
-	 *
-	 * @param ModelInterface $objModel
-	 * @param string $strDstTable
-	 *
-	 * @return array A list with all needed values.
-	 */
-	protected function calcNeededFields(ModelInterface $objModel, $strDstTable)
-	{
-		$arrFields = $this->calcLabelFields($strDstTable);
-		$arrChildCond = $this->getDC()->getChildCondition($objModel, $strDstTable);
-		foreach ($arrChildCond as $arrCond)
-		{
-			if ($arrCond['property'])
-			{
-				$arrFields[] = $arrCond['property'];
-			}
-		}
-
-		// Add some default values, if we have this values in DB.
-		if($this->getEnvironment()->getDataProvider($strDstTable)->fieldExists('enabled'))
-		{
-			$arrFields [] = 'enabled';
-		}
-
-		return $arrFields;
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
