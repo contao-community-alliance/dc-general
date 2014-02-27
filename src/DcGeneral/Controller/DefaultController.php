@@ -28,15 +28,6 @@ use DcGeneral\Exception\DcGeneralRuntimeException;
 class DefaultController implements ControllerInterface
 {
 	/**
-	 * Current DC General.
-	 *
-	 * @var DataContainerInterface
-	 *
-	 * @deprecated
-	 */
-	protected $objDC = null;
-
-	/**
 	 * The attached environment.
 	 *
 	 * @var EnvironmentInterface
@@ -78,33 +69,6 @@ class DefaultController implements ControllerInterface
 	public function __call($name, $arguments)
 	{
 		throw new DcGeneralRuntimeException('Error Processing Request: ' . $name, 1);
-	}
-
-	/**
-	 * Get DC General.
-	 *
-	 * @return DataContainerInterface;
-	 *
-	 * @deprecated
-	 */
-	public function getDC()
-	{
-		return $this->objDC;
-	}
-
-	/**
-	 * Set DC General.
-	 *
-	 * @param DataContainerInterface $objDC The DC.
-	 *
-	 * @return void
-	 *
-	 * @deprecated
-	 */
-	public function setDC($objDC)
-	{
-		$this->objDC = $objDC;
-		$this->setEnvironment($objDC->getEnvironment());
 	}
 
 	/**
