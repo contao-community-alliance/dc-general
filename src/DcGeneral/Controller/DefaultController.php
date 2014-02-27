@@ -90,6 +90,79 @@ class DefaultController implements ControllerInterface
 	}
 
 	/**
+	 * Search the parent of the passed model.
+	 *
+	 * @param ModelInterface      $model  The model to search the parent for.
+	 *
+	 * @param CollectionInterface $models The collection to search in.
+	 *
+	 * @return ModelInterface
+	 */
+	public function searchParentOfIn(ModelInterface $model, CollectionInterface $models)
+	{
+		$environment   = $this->getEnvironment();
+		$definition    = $environment->getDataDefinition();
+		$relationships = $definition->getModelRelationshipDefinition();
+
+		foreach ($models as $candidate)
+		{
+			foreach ($relationships->getChildConditions($candidate) as $condition)
+			{
+				$provider = $environment->getDataProvider($condition->getDestinationName());
+				$config   = $provider
+					->getEmptyConfig()
+					->setFilter($condition->getFilter($candidate))
+					->setIdOnly(true);
+
+				$result = $this->searchParentOfIn($model, $provider->fetchAll($config));
+				if ($result === true)
+				{
+					return $candidate;
+				}
+				elseif ($result !== null)
+				{
+					return $result;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Search the parent model for the given model.
+	 *
+	 * @param ModelInterface $model The model for which the parent shall be retrieved.
+	 *
+	 * @return ModelInterface
+	 *
+	 * @throws DcGeneralInvalidArgumentException When a root model has been passed or not in hierarchical mode.
+	 */
+	public function searchParentOf(ModelInterface $model)
+	{
+		$environment   = $this->getEnvironment();
+		$definition    = $environment->getDataDefinition();
+		$relationships = $definition->getModelRelationshipDefinition();
+
+		if ($definition->getBasicDefinition()->getMode() === BasicDefinitionInterface::MODE_HIERARCHICAL)
+		{
+			if ($this->isRootModel($model))
+			{
+				throw new DcGeneralInvalidArgumentException('Invalid condition, root models can not have parents!');
+			}
+			// TODO: Speed up, some conditions have an inverse filter - use them!
+
+			$provider  = $environment->getDataProvider($definition->getBasicDefinition()->getRootDataProvider());
+			$condition = $relationships->getRootCondition();
+			$config    = $provider->getEmptyConfig()->setIdOnly(true)->setFilter($condition->getFilterArray());
+
+			return $this->searchParentOfIn($model, $provider->fetchAll($config));
+		}
+
+		throw new DcGeneralInvalidArgumentException('Invalid condition, not in hierarchical mode!');
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public function assembleAllChildrenFrom($objModel, $strDataProvider = '')
@@ -131,6 +204,53 @@ class DefaultController implements ControllerInterface
 		}
 
 		return $arrIds;
+	}
+
+	/**
+	 * Retrieve all siblings of a given model.
+	 *
+	 * @param ModelInterface $model           The model for which the siblings shall be retrieved from.
+	 *
+	 * @param string|null    $sortingProperty The property name to use for sorting.
+	 *
+	 * @return CollectionInterface
+	 *
+	 * @todo This might return a lot of models, we definately want to use some lazy approach rather than this.
+	 */
+	protected function assembleSiblingsFor(ModelInterface $model, $sortingProperty = null)
+	{
+		$environment   = $this->getEnvironment();
+		$definition    = $environment->getDataDefinition();
+		$provider      = $environment->getDataProvider($model->getProviderName());
+		$config        = $this->getBaseConfig();
+		$relationships = $definition->getModelRelationshipDefinition();
+
+		// Root model in hierarchical mode?
+		if ($this->isRootModel($model))
+		{
+			$condition = $relationships->getRootCondition();
+
+			if ($condition)
+			{
+				$config->setFilter($condition->getFilterArray());
+			}
+		}
+		// Are we at least in hierarchical mode?
+		elseif ($definition->getBasicDefinition()->getMode() === BasicDefinitionInterface::MODE_HIERARCHICAL)
+		{
+			$parent    = $this->searchParentOf($model);
+			$condition = $relationships->getChildCondition($parent->getProviderName(), $model->getProviderName());
+			$config->setFilter($condition->getFilter($parent));
+		}
+
+		if ($sortingProperty)
+		{
+			$config->setSorting(array((string)$sortingProperty => 'ASC'));
+		}
+
+		$siblings = $provider->fetchAll($config);
+
+		return $siblings;
 	}
 
 	/**
