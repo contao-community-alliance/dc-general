@@ -629,22 +629,23 @@ class BaseView implements BackendViewInterface
 		if ($objInput->getParameter('clipboard') == '1')
 		{
 			$objClipboard->clear();
+			$this->redirectHome();
 		}
 		// Push some entry into clipboard.
-		elseif ($objInput->getParameter('act') == 'paste')
+		else
 		{
 			$objDataProv = $this->getEnvironment()->getDataProvider();
-			$id          = $objInput->getParameter('id');
+			$id          = $objInput->getParameter('source');
 
-			if ($objInput->getParameter('mode') == 'cut')
+			if ($objInput->getParameter('act') == 'cut')
 			{
 				$arrIgnored = array($id);
-
-				$objModel = $objDataProv->fetch($objDataProv->getEmptyConfig()->setId($id));
 
 				// We have to ignore all children of this element in mode 5 (to prevent circular references).
 				if ($this->getDataDefinition()->getBasicDefinition()->getMode() == BasicDefinitionInterface::MODE_HIERARCHICAL)
 				{
+					$objModel = $objDataProv->fetch($objDataProv->getEmptyConfig()->setId($id));
+
 					$arrIgnored = $this->getEnvironment()->getController()->assembleAllChildrenFrom($objModel);
 				}
 
@@ -652,11 +653,16 @@ class BaseView implements BackendViewInterface
 					->clear()
 					->cut($id)
 					->setCircularIds($arrIgnored);
+
+				// Let the clipboard save it's values persistent.
+				$objClipboard->saveTo($this->getEnvironment());
+
+				$this->redirectHome();
 			}
-			elseif ($objInput->getParameter('mode') == 'create')
+			elseif ($objInput->getParameter('act') == 'create')
 			{
 				$arrIgnored     = array($id);
-				$objContainedId = trimsplit(',', $objInput->getParameter('childs'));
+				$objContainedId = trimsplit(',', $objInput->getParameter('children'));
 
 				$objClipboard
 					->clear()
@@ -667,16 +673,16 @@ class BaseView implements BackendViewInterface
 				{
 					$objClipboard->setContainedIds($objContainedId);
 				}
+
+				// Let the clipboard save it's values persistent.
+				$objClipboard->saveTo($this->getEnvironment());
+
+				$this->redirectHome();
 			}
 		}
-		// Check clipboard from session.
-		else
-		{
-			$objClipboard->loadFrom($this->getEnvironment());
-		}
 
-		// Let the clipboard save it's values persistent.
-		$objClipboard->saveTo($this->getEnvironment());
+		// Check clipboard from session.
+		$objClipboard->loadFrom($this->getEnvironment());
 
 		return $this;
 	}
@@ -2159,17 +2165,12 @@ class BaseView implements BackendViewInterface
 		// Add paste into/after icons.
 		if ($this->getEnvironment()->getClipboard()->isNotEmpty())
 		{
-
-			$strMode = $objClipboard->getMode();
-
 			// Add ext. information.
-			$add2UrlAfter = sprintf('act=%s&after=%s&',
-				$strMode,
+			$add2UrlAfter = sprintf('act=paste&after=%s&',
 				$model->getID()
 			);
 
-			$add2UrlInto = sprintf('act=%s&into=%s&',
-				$strMode,
+			$add2UrlInto = sprintf('act=paste&into=%s&',
 				$model->getID()
 			);
 
