@@ -477,6 +477,60 @@ class DefaultController implements ControllerInterface
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws DcGeneralRuntimeException For contraint violations.
+	 */
+	public function createClonedModel($model)
+	{
+		$clone       = clone $model;
+		$environment = $this->getEnvironment();
+		$properties  = $environment->getDataDefinition()->getPropertiesDefinition();
+
+		foreach (array_keys($clone->getPropertiesAsArray()) as $propName)
+		{
+			$property = $properties->getProperty($propName);
+
+			// If the property is not known, remove it.
+			if (!$property)
+			{
+				continue;
+			}
+
+			$extra = $property->getExtra();
+
+			// Check doNotCopy.
+			if (isset($extra['doNotCopy']) && $extra['doNotCopy'] === true)
+			{
+				$clone->setProperty($propName, null);
+				continue;
+			}
+
+			$dataProvider = $environment->getDataProvider($clone->getProviderName());
+
+			// Check fallback.
+			if (isset($extra['fallback']) && $extra['fallback'] === true)
+			{
+				$dataProvider->resetFallback($propName);
+			}
+
+			// Check uniqueness.
+			if (isset($extra['unique'])
+				&& $extra['unique'] === true
+				&& $dataProvider->isUniqueValue($propName, $clone->getProperty($propName))
+			)
+			{
+				throw new DcGeneralRuntimeException(
+					$environment->getTranslator()->translate('ERR.unique', null, array($propName)),
+					1
+				);
+			}
+		}
+
+		return $clone;
+	}
+
+	/**
+	 * {@inheritDoc}
 	 */
 	public function isRootModel(ModelInterface $model)
 	{

@@ -83,6 +83,17 @@ interface ControllerInterface
 	public function getSupportedLanguages($mixID);
 
 	/**
+	 * Create a cloned version of the passed model.
+	 *
+	 * The cloning involves clearing of unknown properties, resetting the fallback and clearing properties defined as
+	 * "doNotCopy".
+	 *
+	 * @param ModelInterface $model The model to clone.
+	 *
+	 * @return ModelInterface
+	 */
+	public function createClonedModel($model);
+
 	 * Check if the given model is a root model for the current data definition.
 	 *
 	 * @param ModelInterface $model The model to check.
