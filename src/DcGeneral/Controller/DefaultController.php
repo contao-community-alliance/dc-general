@@ -284,7 +284,8 @@ class DefaultController implements ControllerInterface
 
 		if (($basicDefinition->getMode() & (
 				BasicDefinitionInterface::MODE_PARENTEDLIST
-				| BasicDefinitionInterface::MODE_HIERARCHICAL))
+				| BasicDefinitionInterface::MODE_HIERARCHICAL)
+			)
 			// FIXME: dependency injection.
 			&& (strlen(\Input::getInstance()->get('pid')) > 0)
 		)
@@ -413,18 +414,21 @@ class DefaultController implements ControllerInterface
 	 * @param bool           $blnRecurse     Boolean flag determining if the collection shall recurse into sub levels.
 	 *
 	 * @return array
+	 *
+	 * @deprecated not used anymore?
 	 */
 	protected function fetchMode5ChildrenOf($objParentModel, $blnRecurse = true)
 	{
-		$environment      = $this->getEnvironment();
-		$definition       = $environment->getDataDefinition();
-		$objChildCondition = $definition->getChildCondition($objParentModel->getProviderName(), $definition->getName());
+		$environment       = $this->getEnvironment();
+		$definition        = $environment->getDataDefinition();
+		$relationships     = $definition->getModelRelationshipDefinition();
+		$objChildCondition = $relationships->getChildCondition($objParentModel->getProviderName(), $definition->getName());
 
-		// Build filter
+		// Build filter.
 		$objChildConfig = $environment->getDataProvider()->getEmptyConfig();
 		$objChildConfig->setFilter($objChildCondition->getFilter($objParentModel));
 
-		// Get child collection
+		// Get child collection.
 		$objChildCollection = $environment->getDataProvider()->fetchAll($objChildConfig);
 
 		$arrIDs = array();
@@ -440,6 +444,13 @@ class DefaultController implements ControllerInterface
 		return $arrIDs;
 	}
 
+	/**
+	 * Retrieve the base data provider config for the current data definition.
+	 *
+	 * This includes parent filter when in parented list mode and the additional filters from the data definition.
+	 *
+	 * @return ConfigInterface
+	 */
 	public function getBaseConfig()
 	{
 		$objConfig     = $this->getEnvironment()->getDataProvider()->getEmptyConfig();
@@ -789,12 +800,6 @@ class DefaultController implements ControllerInterface
 		}
 	}
 
-	/* /////////////////////////////////////////////////////////////////////
-	 * ---------------------------------------------------------------------
-	 * Copy modes
-	 * ---------------------------------------------------------------------
-	 * ////////////////////////////////////////////////////////////////// */
-
 	/**
 	 * @todo Make it fine
 	 *
@@ -917,8 +922,8 @@ class DefaultController implements ControllerInterface
 		if ($this
 			->getEnvironment()
 			->getDataDefinition()
-		->getBasicDefinition()
-		->getMode() !== BasicDefinitionInterface::MODE_HIERARCHICAL)
+			->getBasicDefinition()
+			->getMode() !== BasicDefinitionInterface::MODE_HIERARCHICAL)
 		{
 			return false;
 		}
