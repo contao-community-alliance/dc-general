@@ -123,6 +123,22 @@ class DefaultModel extends AbstractModel
 	/**
 	 * Update the property value in the model.
 	 *
+	 * This method is not interfaced and MUST only be used for initial values from the data provider.
+	 *
+	 * @param string $strPropertyName The property name to be set.
+	 *
+	 * @param mixed  $varValue        The value to be set.
+	 *
+	 * @return void
+	 */
+	public function setPropertyRaw($strPropertyName, $varValue)
+	{
+		$this->arrProperties[$strPropertyName] = $varValue;
+	}
+
+	/**
+	 * Update the property value in the model.
+	 *
 	 * @param string $strPropertyName The property name to be set.
 	 *
 	 * @param mixed  $varValue        The value to be set.
@@ -134,7 +150,7 @@ class DefaultModel extends AbstractModel
 		if ($varValue !== $this->getProperty($strPropertyName))
 		{
 			$this->setMeta(DCGE::MODEL_IS_CHANGED, true);
-			$this->arrProperties[$strPropertyName] = $varValue;
+			$this->setPropertyRaw($strPropertyName, $varValue);
 		}
 	}
 

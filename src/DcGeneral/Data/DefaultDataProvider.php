@@ -407,7 +407,7 @@ class DefaultDataProvider implements DataProviderInterface
 				$objModel->setID($value);
 			}
 
-			$objModel->setProperty($key, deserialize($value));
+			$objModel->setPropertyRaw($key, deserialize($value));
 		}
 
 		return $objModel;
