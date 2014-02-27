@@ -644,6 +644,28 @@ class DefaultController implements ControllerInterface
 		return $result;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public function pasteAfter(ModelInterface $previousModel, CollectionInterface $models, $sortedBy)
+	{
+		$environment = $this->getEnvironment();
+		$parentName  = $environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider();
+
+		foreach ($models as $model)
+		{
+			/** @var ModelInterface $model */
+			// FIXME: is this really the right parent data provider?
+			$this->setSameParent($model, $previousModel, $parentName);
+		}
+
+		// Enforce proper sorting now.
+		$siblings = $this->assembleSiblingsFor($previousModel, $sortedBy);
+		$newList  = $this->sortInto($models, $siblings, $sortedBy, $previousModel);
+
+		$environment->getDataProvider($previousModel->getProviderName())->saveEach($newList);
+	}
+
 	 * {@inheritDoc}
 	 */
 	public function isRootModel(ModelInterface $model)

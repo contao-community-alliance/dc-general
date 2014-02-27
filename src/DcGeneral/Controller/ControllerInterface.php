@@ -12,6 +12,7 @@
 
 namespace DcGeneral\Controller;
 
+use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\PropertyValueBagInterface;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\EnvironmentInterface;
@@ -93,6 +94,19 @@ interface ControllerInterface
 	 * @return ModelInterface
 	 */
 	public function createClonedModel($model);
+
+	/**
+	 * Paste the content of the clipboard after the given model.
+	 *
+	 * @param ModelInterface      $previousModel The model after which to paste.
+	 *
+	 * @param CollectionInterface $models        The models to be inserted.
+	 *
+	 * @param string              $sortedBy      The name of the sorting property.
+	 *
+	 * @return void
+	 */
+	public function pasteAfter(ModelInterface $previousModel, CollectionInterface $models, $sortedBy);
 
 	 * Check if the given model is a root model for the current data definition.
 	 *
