@@ -868,6 +868,34 @@ class BaseView implements BackendViewInterface
 		return $this->getEnvironment()->getDataProvider()->fieldExists('sorting') ? 'sorting': '';
 	}
 
+	/**
+	 * Retrieve model instances for all ids contained in the clipboard.
+	 *
+	 * @param bool $clone True if the models shall be copied, false otherwise.
+	 *
+	 * @return CollectionInterface
+	 */
+	protected function getModelsFromClipboard($clone = false)
+	{
+		$environment  = $this->getEnvironment();
+		$dataProvider = $environment->getDataProvider();
+		$models       = $dataProvider->getEmptyCollection();
+
+		foreach ($this->getEnvironment()->getClipboard()->getContainedIds() as $id)
+		{
+			$model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($id));
+
+			if ($clone)
+			{
+				$model = $environment->getController()->createClonedModel($model);
+			}
+
+			$models->push($model);
+		}
+
+		return $models;
+	}
+
 	 * Delete a model and redirect the user to the listing.
 	 *
 	 * NOTE: This method redirects the user to the listing and therefore the script will be ended.
