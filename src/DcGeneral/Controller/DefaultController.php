@@ -530,121 +530,6 @@ class DefaultController implements ControllerInterface
 	}
 
 	/**
-	 * Insert the list of models into the list of siblings directly after the passed model.
-	 *
-	 * @param CollectionInterface $models        The models to be inserted into the list.
-	 *
-	 * @param CollectionInterface $siblings      The collection that holds the siblings for the models.
-	 *
-	 * @param string              $sortedBy      The property the models are sorted by.
-	 *
-	 * @param ModelInterface      $previousModel The model in the sibling list, after which the models shall be inserted.
-	 *
-	 * @return CollectionInterface The collection of models to be saved to the database.
-	 */
-	protected function sortInto(CollectionInterface $models, CollectionInterface $siblings, $sortedBy, ModelInterface $previousModel = null)
-	{
-		$ids = array();
-
-		foreach ($models as $model)
-		{
-			/** @var ModelInterface $model */
-			$ids[] = $model->getId();
-		}
-
-		$result = clone $models;
-
-		// Enforce proper sorting now.
-		$sibling = null;
-		$sorting = 0;
-		// If no previous model, insert at beginning.
-		if ($previousModel === null)
-		{
-			if ($siblings->length())
-			{
-				$sibling = $siblings->shift();
-			}
-		}
-		elseif ($siblings->length())
-		{
-			// Search for "previous" sibling.
-			do
-			{
-				$sibling = $siblings->shift();
-
-				if (in_array($sibling->getId(), $ids))
-				{
-					continue;
-				}
-
-				if ($sibling)
-				{
-					$sorting = $sibling->getProperty($sortedBy);
-				}
-			}
-			while ($sibling && $sibling->getId() !== $previousModel->getId());
-
-			// Remember the "next" sibling.
-			if ($sibling)
-			{
-				$sibling = $siblings->shift();
-			}
-		}
-
-		// If no "next" sibling, simply increment the sorting as we are at the end of the list.
-		if (!$sibling)
-		{
-			foreach ($result as $model)
-			{
-				$sorting += 128;
-				/** @var ModelInterface $model */
-				$model->setProperty($sortedBy, $sorting);
-			}
-
-			return $result;
-		}
-
-		// Determine delta value: ((next sorting - current sorting) / amount of insert models).
-		$delta = (($sibling->getProperty($sortedBy) - $sorting) / $result->length());
-		// If delta too narrow, we need to make room.
-		if ($delta < 2)
-		{
-			$delta = 128;
-		}
-
-		// Loop over all models and increment sorting value.
-		foreach ($result as $model)
-		{
-			$sorting += $delta;
-			/** @var ModelInterface $model */
-			$model->setProperty($sortedBy, $sorting);
-		}
-
-		// When the sorting exceeds the sorting of the "next" sibling, we need to push the remaining siblings to the
-		// end of the list.
-		if ($sibling->getProperty($sortedBy) <= $sorting)
-		{
-			do
-			{
-				if (in_array($sibling->getId(), $ids))
-				{
-					$sibling = $siblings->shift();
-					continue;
-				}
-
-				$sorting += $delta;
-				$sibling->setProperty($sortedBy, $sorting);
-				$result->push($sibling);
-
-				$sibling = $siblings->shift();
-			}
-			while ($sibling);
-		}
-
-		return $result;
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
 	public function pasteAfter(ModelInterface $previousModel, CollectionInterface $models, $sortedBy)
@@ -660,8 +545,9 @@ class DefaultController implements ControllerInterface
 		}
 
 		// Enforce proper sorting now.
-		$siblings = $this->assembleSiblingsFor($previousModel, $sortedBy);
-		$newList  = $this->sortInto($models, $siblings, $sortedBy, $previousModel);
+		$siblings    = $this->assembleSiblingsFor($previousModel, $sortedBy);
+		$sortManager = new SortingManager($models, $siblings, $sortedBy, $previousModel);
+		$newList     = $sortManager->getResults();
 
 		$environment->getDataProvider($previousModel->getProviderName())->saveEach($newList);
 	}
