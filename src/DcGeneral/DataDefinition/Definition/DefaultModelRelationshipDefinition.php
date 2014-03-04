@@ -112,7 +112,10 @@ class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionI
 	 */
 	public function __clone()
 	{
-		$this->rootCondition = clone $this->rootCondition;
+		if ($this->rootCondition !== null)
+		{
+			$this->rootCondition = clone $this->rootCondition;
+		}
 
 		$conditions = array();
 		foreach ($this->childConditions as $condition)
