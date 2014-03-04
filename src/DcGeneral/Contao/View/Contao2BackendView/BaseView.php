@@ -815,6 +815,7 @@ class BaseView implements BackendViewInterface
 	{
 		$preFunction = function($environment, $model, $originalModel)
 		{
+			/** @var EnvironmentInterface $environment */
 			$copyEvent = new PreCreateModelEvent($environment, $model);
 			$environment->getEventPropagator()->propagate(
 				$copyEvent::NAME,
@@ -827,6 +828,7 @@ class BaseView implements BackendViewInterface
 
 		$postFunction = function($environment, $model, $originalModel)
 		{
+			/** @var EnvironmentInterface $environment */
 			$copyEvent = new PostCreateModelEvent($environment, $model);
 			$environment->getEventPropagator()->propagate(
 				$copyEvent::NAME,
