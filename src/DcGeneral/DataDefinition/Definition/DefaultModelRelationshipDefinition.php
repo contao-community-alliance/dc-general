@@ -106,4 +106,21 @@ class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionI
 
 		return $arrReturn;
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function __clone()
+	{
+		$this->rootCondition = clone $this->rootCondition;
+
+		$conditions = array();
+		foreach ($this->childConditions as $condition)
+		{
+			$bobaFett = clone $condition;
+
+			$conditions[] = $bobaFett;
+		}
+		$this->childConditions = $conditions;
+	}
 }
