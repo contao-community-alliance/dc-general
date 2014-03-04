@@ -161,15 +161,4 @@ class DcCompat extends DC_General
 
 		throw new DcGeneralRuntimeException('The magic property ' . $name . ' is not supported (yet)!');
 	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getDCA()
-	{
-		// NOTE: This is the only part from legacy DC_General we can not retrieve via Environment.
-		// It is usually passed via constructor call in DC_General but in 99.9% of all cases, this is the direct
-		// mapping of the globals DCA.
-		return $GLOBALS['TL_DCA'][$this->getEnvironment()->getParentDataDefinition()->getName()];
-	}
 }

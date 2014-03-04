@@ -187,16 +187,6 @@ class DC_General
 	}
 
 	/**
-	 * Retrieve the DCA.
-	 *
-	 * @return array
-	 */
-	public function getDCA()
-	{
-		return $this->arrDCA;
-	}
-
-	/**
 	 * Retrieve the name of the data container.
 	 *
 	 * @return string
