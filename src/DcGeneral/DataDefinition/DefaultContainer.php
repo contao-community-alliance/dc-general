@@ -273,4 +273,19 @@ class DefaultContainer implements ContainerInterface
 	{
 		return $this->getDefinition(ModelRelationshipDefinitionInterface::NAME);
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function __clone()
+	{
+		$definitions = array();
+		foreach ($this->definitions as $name => $definition)
+		{
+			$bobaFett = clone $definition;
+
+			$definitions[$name] = $bobaFett;
+		}
+		$this->definitions = $definitions;
+	}
 }
