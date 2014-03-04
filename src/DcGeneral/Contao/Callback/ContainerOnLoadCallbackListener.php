@@ -12,7 +12,8 @@
 
 namespace DcGeneral\Contao\Callback;
 
-use DcGeneral\DC_General;
+use DcGeneral\Contao\Compatibility\DcCompat;
+use DcGeneral\Factory\Event\CreateDcGeneralEvent;
 
 /**
  * Class ContainerOnLoadCallbackListener.
@@ -21,17 +22,19 @@ use DcGeneral\DC_General;
  *
  * @package DcGeneral\Contao\Callback
  */
-class ContainerOnLoadCallbackListener extends AbstractStaticCallbackListener
+class ContainerOnLoadCallbackListener extends AbstractCallbackListener
 {
 	/**
-	 * Create a new instance of the listener.
+	 * Retrieve the arguments for the callback.
 	 *
-	 * @param array|callable $callback  The callback to call when invoked.
+	 * @param CreateDcGeneralEvent $event The event being emitted.
 	 *
-	 * @param DC_General     $dcGeneral The DC_General instance to use in the callback.
+	 * @return array
 	 */
-	public function __construct($callback, DC_General $dcGeneral)
+	public function getArgs($event)
 	{
-		parent::__construct($callback, $dcGeneral);
+		return array(
+			new DcCompat($event->getDcGeneral()->getEnvironment())
+		);
 	}
 }

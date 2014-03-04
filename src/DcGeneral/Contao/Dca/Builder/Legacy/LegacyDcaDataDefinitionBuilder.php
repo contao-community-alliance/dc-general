@@ -155,82 +155,82 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 */
 	protected function parseCallbacks(ContainerInterface $container, EventDispatcherInterface $dispatcher)
 	{
-		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/onload_callback')))
+		if (is_array($callbacks = $this->getFromDca('config/onload_callback')))
 		{
 			foreach ($callbacks as $callback)
 			{
 				$dispatcher->addListener(
 					sprintf('%s[%s]', CreateDcGeneralEvent::NAME, $container->getName()),
-					new ContainerOnLoadCallbackListener($callback, $GLOBALS['objDcGeneral'])
+					new ContainerOnLoadCallbackListener($callback)
 				);
 			}
 		}
 
-		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/onsubmit_callback')))
+		if (is_array($callbacks = $this->getFromDca('config/onsubmit_callback')))
 		{
 			foreach ($callbacks as $callback)
 			{
 				$dispatcher->addListener(
 					sprintf('%s[%s]', PostPersistModelEvent::NAME, $container->getName()),
-					new ContainerOnSubmitCallbackListener($callback, $GLOBALS['objDcGeneral'])
+					new ContainerOnSubmitCallbackListener($callback)
 				);
 			}
 		}
 
-		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/ondelete_callback')))
+		if (is_array($callbacks = $this->getFromDca('config/ondelete_callback')))
 		{
 			foreach ($callbacks as $callback)
 			{
 				$dispatcher->addListener(
 					sprintf('%s[%s]', PostDeleteModelEvent::NAME, $container->getName()),
-					new ContainerOnDeleteCallbackListener($callback, $GLOBALS['objDcGeneral'])
+					new ContainerOnDeleteCallbackListener($callback)
 				);
 			}
 		}
 
-		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/oncut_callback')))
+		if (is_array($callbacks = $this->getFromDca('config/oncut_callback')))
 		{
 			foreach ($callbacks as $callback)
 			{
 				$dispatcher->addListener(
 					sprintf('%s[%s]', PostPasteModelEvent::NAME, $container->getName()),
-					new ContainerOnCutCallbackListener($callback, $GLOBALS['objDcGeneral'])
+					new ContainerOnCutCallbackListener($callback)
 				);
 			}
 		}
 
-		if (isset($GLOBALS['objDcGeneral']) && is_array($callbacks = $this->getFromDca('config/oncopy_callback')))
+		if (is_array($callbacks = $this->getFromDca('config/oncopy_callback')))
 		{
 			foreach ($callbacks as $callback)
 			{
 				$dispatcher->addListener(
 					sprintf('%s[%s]', PostDuplicateModelEvent::NAME, $container->getName()),
-					new ContainerOnCopyCallbackListener($callback, $GLOBALS['objDcGeneral'])
+					new ContainerOnCopyCallbackListener($callback)
 				);
 			}
 		}
 
-		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/sorting/header_callback'))
+		if ($callback = $this->getFromDca('list/sorting/header_callback'))
 		{
 			$dispatcher->addListener(
 				sprintf('%s[%s]', GetParentHeaderEvent::NAME, $container->getName()),
-				new ContainerHeaderCallbackListener($callback, $GLOBALS['objDcGeneral'])
+				new ContainerHeaderCallbackListener($callback)
 			);
 		}
 
-		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/sorting/paste_button_callback'))
+		if ($callback = $this->getFromDca('list/sorting/paste_button_callback'))
 		{
 			$dispatcher->addListener(
 				sprintf('%s[%s]', GetPasteRootButtonEvent::NAME, $container->getName()),
-				new ContainerPasteRootButtonCallbackListener($callback, $GLOBALS['objDcGeneral'])
+				new ContainerPasteRootButtonCallbackListener($callback)
 			);
 			$dispatcher->addListener(
 				sprintf('%s[%s]', GetPasteButtonEvent::NAME, $container->getName()),
-				new ContainerPasteButtonCallbackListener($callback, $GLOBALS['objDcGeneral'])
+				new ContainerPasteButtonCallbackListener($callback)
 			);
 		}
 
-		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/sorting/child_record_callback'))
+		if ($callback = $this->getFromDca('list/sorting/child_record_callback'))
 		{
 			$dispatcher->addListener(
 				sprintf('%s[%s]', ParentViewChildRecordEvent::NAME, $container->getName()),
@@ -238,7 +238,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			);
 		}
 
-		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/label/group_callback'))
+		if ($callback = $this->getFromDca('list/label/group_callback'))
 		{
 			$dispatcher->addListener(
 				sprintf('%s[%s]', GetGroupHeaderEvent::NAME, $container->getName()),
@@ -246,112 +246,103 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			);
 		}
 
-		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/label/label_callback'))
+		if ($callback = $this->getFromDca('list/label/label_callback'))
 		{
 			$dispatcher->addListener(
 				sprintf('%s[%s]', ModelToLabelEvent::NAME, $container->getName()),
-				new ModelLabelCallbackListener($callback, $GLOBALS['objDcGeneral'])
+				new ModelLabelCallbackListener($callback)
 			);
 		}
 
-		if (isset($GLOBALS['objDcGeneral']))
+		if (is_array($operations = $this->getFromDca('global_operations')))
 		{
-			if (is_array($operations = $this->getFromDca('global_operations')))
+			foreach ($operations as $operationName => $operationInfo)
 			{
-				foreach ($operations as $operationName => $operationInfo)
+				if (isset($operationInfo['button_callback']))
 				{
-					if (isset($operationInfo['button_callback']))
-					{
-						$callback = $operationInfo['button_callback'];
-						$dispatcher->addListener(
-							sprintf('%s[%s][%s]', GetGlobalButtonEvent::NAME, $container->getName(), $operationName),
-							new ContainerGlobalButtonCallbackListener($callback)
-						);
-					}
-				}
-			}
-		}
-
-		if (isset($GLOBALS['objDcGeneral']))
-		{
-			if (is_array($operations = $this->getFromDca('operations')))
-			{
-				foreach ($operations as $operationName => $operationInfo)
-				{
-					if (isset($operationInfo['button_callback']))
-					{
-						$callback = $operationInfo['button_callback'];
-						$dispatcher->addListener(
-							sprintf('%s[%s][%s]', GetOperationButtonEvent::NAME, $container->getName(), $operationName),
-							new ModelOperationButtonCallbackListener($callback)
-						);
-					}
-				}
-			}
-		}
-
-		if (isset($GLOBALS['objDcGeneral']))
-		{
-			foreach ($this->getFromDca('fields') as $propName => $propInfo)
-			{
-				if (isset($propInfo['load_callback']))
-				{
-					foreach ($propInfo['load_callback'] as $callback)
-					{
-						$dispatcher->addListener(
-							DecodePropertyValueForWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
-							new PropertyOnLoadCallbackListener($callback, $GLOBALS['objDcGeneral'])
-						);
-					}
-				}
-
-				if (isset($propInfo['save_callback']))
-				{
-					foreach ($propInfo['save_callback'] as $callback)
-					{
-						$dispatcher->addListener(
-							EncodePropertyValueFromWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
-							new PropertyOnSaveCallbackListener($callback, $GLOBALS['objDcGeneral'])
-						);
-					}
-				}
-
-				if (isset($propInfo['options_callback']))
-				{
-					$callback = $propInfo['options_callback'];
+					$callback = $operationInfo['button_callback'];
 					$dispatcher->addListener(
-						GetPropertyOptionsEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
-						new ModelOptionsCallbackListener($callback, $GLOBALS['objDcGeneral'])
+						sprintf('%s[%s][%s]', GetGlobalButtonEvent::NAME, $container->getName(), $operationName),
+						new ContainerGlobalButtonCallbackListener($callback)
 					);
 				}
+			}
+		}
 
-				if (isset($propInfo['input_field_callback']))
+		if (is_array($operations = $this->getFromDca('operations')))
+		{
+			foreach ($operations as $operationName => $operationInfo)
+			{
+				if (isset($operationInfo['button_callback']))
 				{
-					$callback = $propInfo['input_field_callback'];
+					$callback = $operationInfo['button_callback'];
 					$dispatcher->addListener(
-						BuildWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
-						new PropertyInputFieldCallbackListener($callback, $GLOBALS['objDcGeneral'])
+						sprintf('%s[%s][%s]', GetOperationButtonEvent::NAME, $container->getName(), $operationName),
+						new ModelOperationButtonCallbackListener($callback)
 					);
-				}
-
-				if (isset($propInfo['wizard']))
-				{
-					$callbacks = $propInfo['wizard'];
-					foreach ($callbacks as $callback) {
-						$dispatcher->addListener(
-							ManipulateWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
-							new PropertyInputFieldGetWizardCallbackListener($callback, $GLOBALS['objDcGeneral'])
-						);
-					}
 				}
 			}
 		}
 
-		if (isset($GLOBALS['objDcGeneral']) && $callback = $this->getFromDca('list/presentation/breadcrumb_callback'))
+		foreach ($this->getFromDca('fields') as $propName => $propInfo)
+		{
+			if (isset($propInfo['load_callback']))
+			{
+				foreach ($propInfo['load_callback'] as $callback)
+				{
+					$dispatcher->addListener(
+						DecodePropertyValueForWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
+						new PropertyOnLoadCallbackListener($callback)
+					);
+				}
+			}
+
+			if (isset($propInfo['save_callback']))
+			{
+				foreach ($propInfo['save_callback'] as $callback)
+				{
+					$dispatcher->addListener(
+						EncodePropertyValueFromWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
+						new PropertyOnSaveCallbackListener($callback)
+					);
+				}
+			}
+
+			if (isset($propInfo['options_callback']))
+			{
+				$callback = $propInfo['options_callback'];
+				$dispatcher->addListener(
+					GetPropertyOptionsEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
+					new ModelOptionsCallbackListener($callback)
+				);
+			}
+
+			if (isset($propInfo['input_field_callback']))
+			{
+				$callback = $propInfo['input_field_callback'];
+				$dispatcher->addListener(
+					BuildWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
+					new PropertyInputFieldCallbackListener($callback)
+				);
+			}
+
+			if (isset($propInfo['wizard']))
+			{
+				$callbacks = $propInfo['wizard'];
+				foreach ($callbacks as $callback) {
+					$dispatcher->addListener(
+						ManipulateWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
+						new PropertyInputFieldGetWizardCallbackListener($callback)
+					);
+				}
+			}
+		}
+
+		if ($callback = $this->getFromDca('list/presentation/breadcrumb_callback'))
 		{
 			$dispatcher->addListener(
 				sprintf('%s[%s]', GetBreadcrumbEvent::NAME, $container->getName()),
-				new ContainerGetBreadcrumbCallbackListener($callback, $GLOBALS['objDcGeneral'])
+				new ContainerGetBreadcrumbCallbackListener($callback)
 			);
 		}
 	}

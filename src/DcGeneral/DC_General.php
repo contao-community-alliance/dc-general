@@ -71,17 +71,12 @@ class DC_General
 		$translator->add(new LangArrayTranslator($dispatcher));
 
 		$factory = new DcGeneralFactory();
-		// We definitely want to get rid of this again when dropping all the callback handlers.
-		// See also implementation of: ExtendedLegacyDcaPopulator::populateCallback().
-		// FIXME: transporting the current instance via $GLOBALS is needed to tell the callback handler about this class.
-		$GLOBALS['objDcGeneral'] = $this;
 
 		$factory
 			->setContainerName($strTable)
 			->setEventPropagator($propagator)
 			->setTranslator($translator)
 			->createDcGeneral();
-		unset($GLOBALS['objDcGeneral']);
 		$dispatcher->removeListener(PopulateEnvironmentEvent::NAME, array($this, 'handlePopulateEnvironment'));
 
 		// Switch user for FE / BE support.

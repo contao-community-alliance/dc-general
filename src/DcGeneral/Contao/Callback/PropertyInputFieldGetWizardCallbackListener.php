@@ -14,7 +14,6 @@ namespace DcGeneral\Contao\Callback;
 
 use DcGeneral\Contao\Compatibility\DcCompat;
 use DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
-use DcGeneral\DC_General;
 
 /**
  * Class PropertyInputFieldGetWizardCallbackListener.
@@ -26,26 +25,6 @@ use DcGeneral\DC_General;
 class PropertyInputFieldGetWizardCallbackListener extends AbstractReturningCallbackListener
 {
 	/**
-	 * The DC_General instance.
-	 *
-	 * @var DC_General
-	 */
-	protected $dcGeneral;
-
-	/**
-	 * Create a new instance of the listener.
-	 *
-	 * @param array|callable $callback  The callback to call when invoked.
-	 *
-	 * @param DC_General     $dcGeneral The DC_General instance to use in the callback.
-	 */
-	public function __construct($callback, DC_General $dcGeneral)
-	{
-		parent::__construct($callback);
-		$this->dcGeneral = $dcGeneral;
-	}
-
-	/**
 	 * Retrieve the arguments for the callback.
 	 *
 	 * @param BuildWidgetEvent $event The event being emitted.
@@ -54,7 +33,11 @@ class PropertyInputFieldGetWizardCallbackListener extends AbstractReturningCallb
 	 */
 	public function getArgs($event)
 	{
-		return array($event->getWidget(), $event->getProperty(), new DcCompat($event->getEnvironment(), $event->getModel(), $event->getProperty()));
+		return array(
+			$event->getWidget(),
+			$event->getProperty(),
+			new DcCompat($event->getEnvironment(), $event->getModel(), $event->getProperty())
+		);
 	}
 
 	/**

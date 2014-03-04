@@ -12,7 +12,8 @@
 
 namespace DcGeneral\Contao\Callback;
 
-use DcGeneral\DC_General;
+use DcGeneral\Contao\Compatibility\DcCompat;
+use DcGeneral\Event\PostPersistModelEvent;
 
 /**
  * Class ContainerOnSubmitCallbackListener.
@@ -21,17 +22,19 @@ use DcGeneral\DC_General;
  *
  * @package DcGeneral\Contao\Callback
  */
-class ContainerOnSubmitCallbackListener extends AbstractStaticCallbackListener
+class ContainerOnSubmitCallbackListener extends AbstractCallbackListener
 {
 	/**
-	 * Create a new instance of the listener.
+	 * Retrieve the arguments for the callback.
 	 *
-	 * @param array|callable $callback  The callback to call when invoked.
+	 * @param PostPersistModelEvent $event The event being emitted.
 	 *
-	 * @param DC_General     $dcGeneral The DC_General instance to use in the callback.
+	 * @return array
 	 */
-	public function __construct($callback, DC_General $dcGeneral)
+	public function getArgs($event)
 	{
-		parent::__construct($callback, $dcGeneral);
+		return array(
+			new DcCompat($event->getEnvironment())
+		);
 	}
 }
