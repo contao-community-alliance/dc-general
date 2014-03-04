@@ -331,11 +331,11 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 
 		if ($this->dataContainer)
 		{
-			$dataContainer = $this->dataContainer;
+			$dataContainer = clone $this->dataContainer;
 		}
 		else
 		{
-			$dataContainer = $this->createContainer();
+			$dataContainer = clone $this->createContainer();
 		}
 
 		$environmentClass = new \ReflectionClass($this->environmentClassName);
