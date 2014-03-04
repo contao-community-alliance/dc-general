@@ -554,6 +554,8 @@ class DefaultController implements ControllerInterface
 		$environment->getDataProvider($previousModel->getProviderName())->saveEach($newList);
 	}
 
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public function isRootModel(ModelInterface $model)
