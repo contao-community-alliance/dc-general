@@ -43,13 +43,6 @@ class DC_General
 	protected $objEnvironment;
 
 	/**
-	 * DCA configuration.
-	 *
-	 * @var array
-	 */
-	protected $arrDCA = null;
-
-	/**
 	 * A list with all field for this dca.
 	 *
 	 * @var array
@@ -59,28 +52,15 @@ class DC_General
 	/**
 	 * Create a new instance.
 	 *
-	 * @param string $strTable          The table name.
+	 * @param string $strTable         The table name.
 	 *
-	 * @param array  $arrDCA            The Dca array.
-	 *
-	 * @param bool   $blnOnloadCallback Fire the onload callback.
+	 * @param array  $arrBackendModule The backend module information array.
 	 */
-	public function __construct($strTable, array &$arrDCA = null, $blnOnloadCallback = true)
+	public function __construct($strTable, array &$arrBackendModule = null)
 	{
 		parent::__construct();
 
 		$strTable = $this->getTablenameCallback($strTable);
-
-		// In contao 3 the second constructor parameter is the backend module array.
-		// Therefore we have to check if the passed argument is indeed a valid DCA.
-		if ($arrDCA != null && $arrDCA['config'])
-		{
-			$this->arrDCA = $arrDCA;
-		}
-		else
-		{
-			$this->arrDCA = &$GLOBALS['TL_DCA'][$strTable];
-		}
 
 		$dispatcher = $GLOBALS['container']['event-dispatcher'];
 		/** @var \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher */
@@ -115,13 +95,6 @@ class DC_General
 			case 'BE':
 				$this->import('BackendUser', 'User');
 				break;
-		}
-
-		// Check for force mode.
-		if ($this->arrDCA['config']['forceEdit'])
-		{
-			$this->blnForceEdit = true;
-			$this->intId        = 1;
 		}
 
 		// Load the clipboard.
