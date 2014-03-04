@@ -45,11 +45,11 @@ class DcCompat extends DC_General
 	 *
 	 * @param EnvironmentInterface $environment  The Dc instance to use for delegating.
 	 *
-	 * @param ModelInterface       $model        The model within scope.
+	 * @param ModelInterface       $model        The model within scope (optional).
 	 *
-	 * @param null                 $propertyName The name of the property within scope.
+	 * @param null                 $propertyName The name of the property within scope (optional).
 	 */
-	public function __construct(EnvironmentInterface $environment, ModelInterface $model, $propertyName = null)
+	public function __construct(EnvironmentInterface $environment, ModelInterface $model = null, $propertyName = null)
 	{
 		$this->objEnvironment = $environment;
 		$this->model          = $model;
@@ -116,7 +116,7 @@ class DcCompat extends DC_General
 		switch ($name)
 		{
 			case 'id':
-				return $this->model->getId();
+				return $this->getModel() ? $this->getModel()->getId() : null;
 
 			case 'parentTable':
 				if ($this->getEnvironment()->getParentDataDefinition())
