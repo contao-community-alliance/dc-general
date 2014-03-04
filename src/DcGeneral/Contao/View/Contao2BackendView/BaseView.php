@@ -638,10 +638,10 @@ class BaseView implements BackendViewInterface
 			$this->redirectHome();
 		}
 		// Push some entry into clipboard.
-		else
+		elseif ($id = $objInput->getParameter('source'))
 		{
-			$objDataProv = $this->getEnvironment()->getDataProvider();
-			$id          = $objInput->getParameter('source');
+			$idDetails   = IdSerializer::fromSerialized($id);
+			$objDataProv = $this->getEnvironment()->getDataProvider($idDetails->getDataProviderName());
 
 			if ($objInput->getParameter('act') == 'cut')
 			{
@@ -650,9 +650,17 @@ class BaseView implements BackendViewInterface
 				// We have to ignore all children of this element in mode 5 (to prevent circular references).
 				if ($this->getDataDefinition()->getBasicDefinition()->getMode() == BasicDefinitionInterface::MODE_HIERARCHICAL)
 				{
-					$objModel = $objDataProv->fetch($objDataProv->getEmptyConfig()->setId($id));
+					$objModel = $objDataProv->fetch($objDataProv->getEmptyConfig()->setId($idDetails->getId()));
 
-					$arrIgnored = $this->getEnvironment()->getController()->assembleAllChildrenFrom($objModel);
+					$arrIgnored = array();
+					$ignoredId  = new IdSerializer();
+					$ignoredId->setDataProviderName($objModel);
+					// FIXME: this can return ids originating from another data provider, we have to alter this to
+					// FIXME: return valid models instead of the ids or a tuple of data provider name and id.
+					foreach ($this->getEnvironment()->getController()->assembleAllChildrenFrom($objModel) as $id)
+					{
+						$arrIgnored = $ignoredId->setId($id)->getSerialized();
+					}
 				}
 
 				$objClipboard
@@ -716,7 +724,8 @@ class BaseView implements BackendViewInterface
 		$inputProvider   = $environment->getInputProvider();
 		$objDataProvider = $environment->getDataProvider();
 		$strProviderName = $environment->getDataDefinition()->getName();
-		$mixID           = $environment->getInputProvider()->getParameter('id');
+		$idDetails       = IdSerializer::fromSerialized($inputProvider->getParameter('id'));
+		$mixID           = $idDetails->getId();
 		$arrLanguage     = $environment->getController()->getSupportedLanguages($mixID);
 
 		if (!$arrLanguage)
@@ -916,8 +925,8 @@ class BaseView implements BackendViewInterface
 		$environment = $this->getEnvironment();
 		$input       = $environment->getInputProvider();
 		$clipboard   = $environment->getClipboard();
-		$after       = $input->getParameter('after');
-		$into        = $input->getParameter('into');
+		$after       = IdSerializer::fromSerialized($input->getParameter('after'));
+		$into        = IdSerializer::fromSerialized($input->getParameter('into'));
 		$models      = $this->getModelsFromClipboard($clipboard->isCopy());
 
 		if ($clipboard->isCopy())
@@ -925,17 +934,16 @@ class BaseView implements BackendViewInterface
 			// FIXME: recursive copy is not implemented yet!
 		}
 
-		if ($after)
+		if ($after->getId())
 		{
-			$dataProvider = $environment->getDataProvider();
-			$previous     = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($after));
+			$dataProvider = $environment->getDataProvider($after->getDataProviderName());
+			$previous     = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($after->getId()));
 			$environment->getController()->pasteAfter($previous, $models, $this->getManualSortingProperty());
 		}
-		elseif ($into)
+		elseif ($into->getId())
 		{
-			$parentProvider = $environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider();
-			$dataProvider   = $environment->getDataProvider($parentProvider);
-			$parent         = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($into));
+			$dataProvider = $environment->getDataProvider($into->getDataProviderName());
+			$parent       = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($into->getId()));
 			$environment->getController()->pasteInto($parent, $models, $this->getManualSortingProperty());
 		}
 		else
@@ -985,13 +993,15 @@ class BaseView implements BackendViewInterface
 		}
 
 		$environment  = $this->getEnvironment();
-		$dataProvider = $environment->getDataProvider();
-		$modelId      = $environment->getInputProvider()->getParameter('id');
-		$model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId));
+		$modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('id'));
+		$dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
+		$model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
 		if (!$model->getId())
 		{
-			throw new DcGeneralRuntimeException('Could not load model with id ' . $modelId);
+			throw new DcGeneralRuntimeException(
+				'Could not load model with id ' . $environment->getInputProvider()->getParameter('id')
+			);
 		}
 
 		// Trigger event before the model will be deleted.
@@ -1095,7 +1105,7 @@ class BaseView implements BackendViewInterface
 			}
 			else
 			{
-				$newUrlEvent = new AddToUrlEvent('act=edit&id=' . $model->getId());
+				$newUrlEvent = new AddToUrlEvent('act=edit&id=' . IdSerializer::fromModel($model)->getSerialized());
 				$environment->getEventPropagator()->propagate(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
 				$environment->getEventPropagator()->propagate(
 					ContaoEvents::CONTROLLER_REDIRECT,
@@ -1132,7 +1142,6 @@ class BaseView implements BackendViewInterface
 				ContaoEvents::CONTROLLER_REDIRECT,
 				new RedirectEvent($newUrlEvent->getUrl())
 			);
-
 		}
 		elseif ($inputProvider->hasValue('saveNback'))
 		{
@@ -1160,26 +1169,25 @@ class BaseView implements BackendViewInterface
 	{
 		$environment             = $this->getEnvironment();
 		$definition              = $environment->getDataDefinition();
-		$basicDefinition         = $definition->getBasicDefinition();
-		$dataProviderDefinition  = $definition->getDataProviderDefinition();
-		$dataProvider            = $environment->getDataProvider();
-		$dataProviderInformation = $dataProviderDefinition->getInformation($basicDefinition->getDataProvider());
 		$inputProvider           = $environment->getInputProvider();
-		$modelId                 = $inputProvider->getParameter('id');
+		$modelId                 = IdSerializer::fromSerialized($inputProvider->getParameter('id'));
+		$dataProviderDefinition  = $definition->getDataProviderDefinition();
+		$dataProvider            = $environment->getDataProvider($modelId->getDataProviderName());
+		$dataProviderInformation = $dataProviderDefinition->getInformation($modelId->getDataProviderName());
 
 		if ($dataProviderInformation->isVersioningEnabled()
 			&& ($inputProvider->getValue('FORM_SUBMIT') === 'tl_version')
 			&& ($modelVersion = $inputProvider->getValue('version')) !== null)
 		{
-			$model = $dataProvider->getVersion($modelId, $modelVersion);
+			$model = $dataProvider->getVersion($modelId->getId(), $modelVersion);
 
 			if ($model === null)
 			{
 				$message = sprintf(
 					'Could not load version %s of record ID %s from %s',
 					$modelVersion,
-					$modelId,
-					$basicDefinition->getDataProvider()
+					$modelId->getId(),
+					$modelId->getDataProviderName()
 				);
 
 				$environment->getEventPropagator()->propagate(
@@ -1191,7 +1199,7 @@ class BaseView implements BackendViewInterface
 			}
 
 			$dataProvider->save($model);
-			$dataProvider->setVersionActive($modelId, $modelVersion);
+			$dataProvider->setVersionActive($modelId->getId(), $modelVersion);
 			$environment->getEventPropagator()->propagate(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
 		}
 	}
@@ -1246,10 +1254,9 @@ class BaseView implements BackendViewInterface
 		$modelId                 = $model->getId();
 		$environment             = $this->getEnvironment();
 		$definition              = $environment->getDataDefinition();
-		$basicDefinition         = $definition->getBasicDefinition();
-		$dataProvider            = $environment->getDataProvider();
+		$dataProvider            = $environment->getDataProvider($model->getProviderName());
 		$dataProviderDefinition  = $definition->getDataProviderDefinition();
-		$dataProviderInformation = $dataProviderDefinition->getInformation($basicDefinition->getDataProvider());
+		$dataProviderInformation = $dataProviderDefinition->getInformation($model->getProviderName());
 
 		if (!$dataProviderInformation->isVersioningEnabled())
 		{
@@ -1282,15 +1289,15 @@ class BaseView implements BackendViewInterface
 		$this->checkLanguage();
 
 		$environment   = $this->getEnvironment();
-		$dataProvider  = $environment->getDataProvider();
 		$inputProvider = $environment->getInputProvider();
-		$modelId       = $inputProvider->getParameter('id');
+		$modelId       = IdSerializer::fromSerialized($inputProvider->getParameter('id'));
+		$dataProvider  = $environment->getDataProvider($modelId->getDataProviderName());
 
 		$this->checkRestoreVersion();
 
-		if (strlen($modelId))
+		if ($modelId->getId())
 		{
-			$model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId));
+			$model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 		}
 		else
 		{
@@ -1328,12 +1335,14 @@ class BaseView implements BackendViewInterface
 		$environment             = $this->getEnvironment();
 		$definition              = $environment->getDataDefinition();
 		$basicDefinition         = $definition->getBasicDefinition();
-		$dataProvider            = $environment->getDataProvider();
+		$dataProvider            = $environment->getDataProvider($model->getProviderName());
 		$dataProviderDefinition  = $definition->getDataProviderDefinition();
-		$dataProviderInformation = $dataProviderDefinition->getInformation($basicDefinition->getDataProvider());
+		var_dump($model);
+		// FIXME: WE HAVE TO GET RID OF UNNEEDED VARIABLES HERE!
+		$dataProviderInformation = $dataProviderDefinition->getInformation($model->getProviderName());
 		$inputProvider           = $environment->getInputProvider();
 		$palettesDefinition      = $definition->getPalettesDefinition();
-		$modelId                 = $inputProvider->getParameter('id');
+		$modelId                 = $model->getId();
 		$propertyDefinitions     = $definition->getPropertiesDefinition();
 		$blnSubmitted            = ($inputProvider->getValue('FORM_SUBMIT') === $definition->getName());
 		$blnIsAutoSubmit         = ($inputProvider->getValue('SUBMIT_TYPE') === 'auto');
@@ -1561,13 +1570,13 @@ class BaseView implements BackendViewInterface
 		$definition   = $environment->getDataDefinition();
 		$properties   = $definition->getPropertiesDefinition();
 		$translator   = $environment->getTranslator();
-		$dataProvider = $environment->getDataProvider();
-		$modelId      = $environment->getInputProvider()->getParameter('id');
+		$modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('id'));
+		$dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
 
 		// Select language in data provider.
 		$this->checkLanguage();
 
-		$objDBModel = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId));
+		$objDBModel = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
 		if ($objDBModel == null)
 		{
@@ -1576,7 +1585,7 @@ class BaseView implements BackendViewInterface
 				new LogEvent(
 					sprintf(
 						'Could not find ID %s in %s.', 'DC_General show()',
-						$modelId,
+						$modelId->getId(),
 						$definition->getName()
 					),
 					__CLASS__ . '::' . __FUNCTION__,
@@ -1687,18 +1696,24 @@ class BaseView implements BackendViewInterface
 		$environment        = $this->getEnvironment();
 		$definition         = $environment->getDataDefinition();
 		$basicDefinition    = $definition->getBasicDefinition();
-		$parentProviderName = $environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider();
 		$providerName       = $environment->getDataDefinition()->getName();
+		$mode               = $basicDefinition->getMode();
+		$config             = $this->getEnvironment()->getController()->getBaseConfig();
+		$sorting            = $config->getSorting();
+
+		if ($serializedPid = $environment->getInputProvider()->getParameter('pid'))
+		{
+			$pid = IdSerializer::fromSerialized($serializedPid);
+		}
+		else
+		{
+			$pid = new IdSerializer();
+		}
 
 		if ($basicDefinition->isClosed())
 		{
 			return null;
 		}
-
-		$pid             = $environment->getInputProvider()->getParameter('pid');
-		$mode            = $basicDefinition->getMode();
-		$config          = $this->getEnvironment()->getController()->getBaseConfig();
-		$sorting         = $config->getSorting();
 
 		$command    = new Command();
 		$parameters = $command->getParameters();
@@ -1721,9 +1736,9 @@ class BaseView implements BackendViewInterface
 		{
 			$parameters['act'] = 'create';
 			// Add new button.
-			if (strlen($parentProviderName) && $pid)
+			if ($pid->getDataProviderName() && $pid->getId())
 			{
-				$parameters['pid'] = $pid;
+				$parameters['pid'] = $pid->getSerialized();
 			}
 		}
 		elseif(($mode == BasicDefinitionInterface::MODE_PARENTEDLIST)
@@ -1736,10 +1751,9 @@ class BaseView implements BackendViewInterface
 
 			$parameters['act']  = 'paste';
 			$parameters['mode'] = 'create';
-			// Add new button.
-			if (strlen($parentProviderName) && $pid)
+			if ($pid->getDataProviderName() && $pid->getId())
 			{
-				$parameters['pid'] = $pid;
+				$parameters['pid'] = $pid->getSerialized();
 			}
 		}
 
@@ -2008,16 +2022,6 @@ class BaseView implements BackendViewInterface
 			$arrParameters = array();
 			$arrParameters['act'] = 'cut';
 
-				// Get data provider from current and parent.
-			$strParentDataProvider = $objModel->getMeta(DCGE::MODEL_PTABLE);
-			$arrParameters['cdp']  = $objModel->getProviderName();
-
-			// Add parent provider if exists.
-			if ($strParentDataProvider != null)
-			{
-				$arrParameters['pdp'] = $strParentDataProvider;
-			}
-
 			// If we have a pid add it, used for mode 4 and all parent -> current views.
 			if ($this->getEnvironment()->getInputProvider()->hasParameter('pid'))
 			{
@@ -2025,7 +2029,7 @@ class BaseView implements BackendViewInterface
 			}
 
 			// Source is the id of the element which should move.
-			$arrParameters['source'] = $objModel->getID();
+			$arrParameters['source'] = IdSerializer::fromModel($objModel)->getSerialized();
 		}
 		else
 		{
@@ -2035,11 +2039,11 @@ class BaseView implements BackendViewInterface
 			$idParam = $objCommand->getExtra()['idparam'];
 			if ($idParam)
 			{
-				$arrParameters[$idParam] = $objModel->getID();
+				$arrParameters[$idParam] = IdSerializer::fromModel($objModel)->getSerialized();
 			}
 			else
 			{
-				$arrParameters['id'] = $objModel->getID();
+				$arrParameters['id'] = IdSerializer::fromModel($objModel)->getSerialized();
 			}
 		}
 
@@ -2262,11 +2266,11 @@ class BaseView implements BackendViewInterface
 		{
 			// Add ext. information.
 			$add2UrlAfter = sprintf('act=paste&after=%s&',
-				$model->getID()
+				IdSerializer::fromModel($model->getID())->getSerialized()
 			);
 
 			$add2UrlInto = sprintf('act=paste&into=%s&',
-				$model->getID()
+				IdSerializer::fromModel($model->getID())->getSerialized()
 			);
 
 			/** @var AddToUrlEvent $urlAfter */

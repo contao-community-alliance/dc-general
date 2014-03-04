@@ -75,8 +75,10 @@ class ParentView extends BaseView
 	protected function loadParentModel()
 	{
 		$environment = $this->getEnvironment();
+		$pid         = $environment->getInputProvider()->getParameter('pid');
+		$pidDetails  = IdSerializer::fromSerialized($pid);
 
-		if (!($parentId = $environment->getInputProvider()->getParameter('pid')))
+		if (!$pidDetails->isValid())
 		{
 			throw new DcGeneralRuntimeException(
 				'ParentView needs a proper parent id defined, somehow none is defined?',
@@ -84,11 +86,7 @@ class ParentView extends BaseView
 			);
 		}
 
-		if (!($objParentProvider =
-			$environment->getDataProvider(
-				$environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider()
-			)
-		))
+		if (!($objParentProvider = $environment->getDataProvider($pidDetails->getDataProviderName())))
 		{
 			throw new DcGeneralRuntimeException(
 				'ParentView needs a proper parent data provider defined, somehow none is defined?',
@@ -96,7 +94,7 @@ class ParentView extends BaseView
 			);
 		}
 
-		$objParentItem = $objParentProvider->fetch($objParentProvider->getEmptyConfig()->setId($parentId));
+		$objParentItem = $objParentProvider->fetch($objParentProvider->getEmptyConfig()->setId($pidDetails->getId()));
 
 		if (!$objParentItem)
 		{
@@ -104,7 +102,7 @@ class ParentView extends BaseView
 			// We transparently create it for our filter to be able to filter to nothing.
 			// TODO: shall we rather bail with "parent not found"?
 			$objParentItem = $objParentProvider->getEmptyModel();
-			$objParentItem->setID($parentId);
+			$objParentItem->setID($pidDetails->getId());
 		}
 
 		return $objParentItem;

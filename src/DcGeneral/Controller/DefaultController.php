@@ -453,8 +453,9 @@ class DefaultController implements ControllerInterface
 	 */
 	public function getBaseConfig()
 	{
-		$objConfig     = $this->getEnvironment()->getDataProvider()->getEmptyConfig();
-		$objDefinition = $this->getEnvironment()->getDataDefinition();
+		$environment   = $this->getEnvironment();
+		$objConfig     = $environment->getDataProvider()->getEmptyConfig();
+		$objDefinition = $environment->getDataDefinition();
 		$arrAdditional = $objDefinition->getBasicDefinition()->getAdditionalFilter();
 
 		// Custom filter common for all modes.
@@ -466,10 +467,11 @@ class DefaultController implements ControllerInterface
 		// Special filter for certain modes.
 		if ($objDefinition->getBasicDefinition()->getMode() == BasicDefinitionInterface::MODE_PARENTEDLIST)
 		{
-			$this->addParentFilter(
-				$this->getEnvironment()->getInputProvider()->getParameter('pid'),
-				$objConfig
-			);
+			$pid        = $environment->getInputProvider()->getParameter('pid');
+			$pidDetails = IdSerializer::fromSerialized($pid);
+
+			// TODO: view and parent are tied together here due to input provider, we need to decouple this.
+			$this->addParentFilter($pidDetails->getId(), $objConfig);
 		}
 
 		return $objConfig;
