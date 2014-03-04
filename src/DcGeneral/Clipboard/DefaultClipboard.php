@@ -67,6 +67,8 @@ class DefaultClipboard implements ClipboardInterface
 				$this->mode = $arrClipboard[$strName]['mode'];
 			}
 		}
+
+		return $this;
 	}
 
 	/**
@@ -98,6 +100,8 @@ class DefaultClipboard implements ClipboardInterface
 		}
 
 		$objEnvironment->getInputProvider()->setPersistentValue('CLIPBOARD', $arrClipboard);
+
+		return $this;
 	}
 
 	/**

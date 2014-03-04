@@ -43,7 +43,7 @@ interface ClipboardInterface
 	 * @param \DcGeneral\EnvironmentInterface $objEnvironment The environment where the input provider will retrieve the
 	 *                                                        values from.
 	 *
-	 * @return mixed
+	 * @return ClipboardInterface
 	 */
 	public function loadFrom($objEnvironment);
 
@@ -53,7 +53,7 @@ interface ClipboardInterface
 	 * @param \DcGeneral\EnvironmentInterface $objEnvironment The environment where the input provider will store the
 	 *                                                        values to.
 	 *
-	 * @return mixed
+	 * @return ClipboardInterface
 	 */
 	public function saveTo($objEnvironment);
 
