@@ -629,7 +629,11 @@ class BaseView implements BackendViewInterface
 		// Reset Clipboard.
 		if ($objInput->getParameter('clipboard') == '1')
 		{
-			$objClipboard->clear();
+			// Check clipboard from session.
+			$objClipboard
+				->loadFrom($this->getEnvironment())
+				->clear()
+				->saveTo($this->getEnvironment());
 
 			$this->redirectHome();
 		}
