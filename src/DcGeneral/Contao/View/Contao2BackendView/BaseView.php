@@ -14,6 +14,7 @@ namespace DcGeneral\Contao\View\Contao2BackendView;
 
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\GetThemeEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
@@ -2365,9 +2366,13 @@ class BaseView implements BackendViewInterface
 		if (count($arrPanels))
 		{
 			$objTemplate = $this->getTemplate('dcbe_general_panel');
+			$themeEvent  = new GetThemeEvent();
+
+			$this->getEnvironment()->getEventPropagator()->propagate(ContaoEvents::BACKEND_GET_THEME, $themeEvent);
+
 			$this
 				->addToTemplate('action', ampersand($this->getEnvironment()->getInputProvider()->getRequestUrl(), true), $objTemplate)
-				// ->addToTemplate('theme', $this->getTheme(), $objTemplate) // FIXME: dependency injection
+				->addToTemplate('theme', $themeEvent->getTheme(), $objTemplate)
 				->addToTemplate('panel', $arrPanels, $objTemplate);
 
 			return $objTemplate->parse();
@@ -2469,7 +2474,6 @@ class BaseView implements BackendViewInterface
 			{
 				$args[$propertyName] = '-';
 			}
-
 		}
 
 		$event = new ModelToLabelEvent($this->getEnvironment(), $model);
