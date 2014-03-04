@@ -480,7 +480,7 @@ class DefaultController implements ControllerInterface
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws DcGeneralRuntimeException For contraint violations.
+	 * @throws DcGeneralRuntimeException For constraint violations.
 	 */
 	public function createClonedModel($model)
 	{
