@@ -108,6 +108,8 @@ interface ControllerInterface
 	 */
 	public function pasteAfter(ModelInterface $previousModel, CollectionInterface $models, $sortedBy);
 
+
+	/**
 	 * Check if the given model is a root model for the current data definition.
 	 *
 	 * @param ModelInterface $model The model to check.
