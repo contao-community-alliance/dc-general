@@ -1338,7 +1338,7 @@ class BaseView implements BackendViewInterface
 		$basicDefinition         = $definition->getBasicDefinition();
 		$dataProvider            = $environment->getDataProvider($model->getProviderName());
 		$dataProviderDefinition  = $definition->getDataProviderDefinition();
-		var_dump($model);
+
 		// FIXME: WE HAVE TO GET RID OF UNNEEDED VARIABLES HERE!
 		$dataProviderInformation = $dataProviderDefinition->getInformation($model->getProviderName());
 		$inputProvider           = $environment->getInputProvider();
