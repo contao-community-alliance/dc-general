@@ -335,7 +335,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 		}
 		else
 		{
-			$dataContainer = clone $this->createContainer();
+			$dataContainer = $this->createContainer();
 		}
 
 		$environmentClass = new \ReflectionClass($this->environmentClassName);
@@ -378,7 +378,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 
 		if ($definitions->hasDefinition($this->containerName))
 		{
-			return $definitions->getDefinition($this->containerName);
+			return clone $definitions->getDefinition($this->containerName);
 		}
 
 		$containerClass = new \ReflectionClass($this->containerClassName);
@@ -395,6 +395,6 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 			array($this->containerName)
 		);
 
-		return $dataContainer;
+		return clone $dataContainer;
 	}
 }
