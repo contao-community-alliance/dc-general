@@ -221,7 +221,8 @@ class ParentChildCondition
 			))
 			{
 				throw new DcGeneralRuntimeException(sprintf(
-					'Invalid relationship setter entry: %s',
+					'Invalid relationship setter entry, ensure it is an array containing only "to_field" and
+					one of "from_field", "value": %s',
 					var_export($setter, true)
 				));
 			}
@@ -264,7 +265,8 @@ class ParentChildCondition
 			))
 			{
 				throw new DcGeneralRuntimeException(sprintf(
-					'Invalid relationship setter entry: %s',
+					'Invalid relationship setter entry, ensure it is an array containing only "to_field" and
+					one of "from_field", "value": %s',
 					var_export($setter, true)
 				));
 			}
