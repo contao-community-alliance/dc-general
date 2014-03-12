@@ -72,7 +72,7 @@ class Callbacks
 		throw new DcGeneralRuntimeException(
 			sprintf(
 				'Execute callback %s failed - Exception message: %s',
-				(is_array($callback) ? implode('::', $callback) : $callback),
+				(is_array($callback) ? implode('::', $callback) : (is_string($callback) ? $callback : get_class($callback))),
 				$message
 			),
 			0
