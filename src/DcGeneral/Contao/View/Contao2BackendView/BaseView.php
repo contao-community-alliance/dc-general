@@ -2267,11 +2267,11 @@ class BaseView implements BackendViewInterface
 		{
 			// Add ext. information.
 			$add2UrlAfter = sprintf('act=paste&after=%s&',
-				IdSerializer::fromModel($model->getID())->getSerialized()
+				IdSerializer::fromModel($model)->getSerialized()
 			);
 
 			$add2UrlInto = sprintf('act=paste&into=%s&',
-				IdSerializer::fromModel($model->getID())->getSerialized()
+				IdSerializer::fromModel($model)->getSerialized()
 			);
 
 			/** @var AddToUrlEvent $urlAfter */
