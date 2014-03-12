@@ -406,44 +406,6 @@ class DefaultController implements ControllerInterface
 	}
 
 	/**
-	 * Recurse through all children in mode 5 and return their Ids.
-	 *
-	 * @param ModelInterface $objParentModel The parent model to fetch children for.
-	 *
-	 * @param bool           $blnRecurse     Boolean flag determining if the collection shall recurse into sub levels.
-	 *
-	 * @return array
-	 *
-	 * @deprecated not used anymore?
-	 */
-	protected function fetchMode5ChildrenOf($objParentModel, $blnRecurse = true)
-	{
-		$environment       = $this->getEnvironment();
-		$definition        = $environment->getDataDefinition();
-		$relationships     = $definition->getModelRelationshipDefinition();
-		$objChildCondition = $relationships->getChildCondition($objParentModel->getProviderName(), $definition->getName());
-
-		// Build filter.
-		$objChildConfig = $environment->getDataProvider()->getEmptyConfig();
-		$objChildConfig->setFilter($objChildCondition->getFilter($objParentModel));
-
-		// Get child collection.
-		$objChildCollection = $environment->getDataProvider()->fetchAll($objChildConfig);
-
-		$arrIDs = array();
-		foreach ($objChildCollection as $objChildModel)
-		{
-			/** @var ModelInterface $objChildModel */
-			$arrIDs[] = $objChildModel->getId();
-			if ($blnRecurse)
-			{
-				$arrIDs = array_merge($arrIDs, $this->fetchMode5ChildrenOf($objChildModel, true));
-			}
-		}
-		return $arrIDs;
-	}
-
-	/**
 	 * Retrieve the base data provider config for the current data definition.
 	 *
 	 * This includes parent filter when in parented list mode and the additional filters from the data definition.
