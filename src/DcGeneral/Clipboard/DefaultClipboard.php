@@ -228,7 +228,7 @@ class DefaultClipboard implements ClipboardInterface
 	 */
 	public function setCircularIds($arrIds)
 	{
-		$this->arrCircularIds = $arrIds;
+		$this->arrCircularIds = (array)$arrIds;
 
 		return $this;
 	}
