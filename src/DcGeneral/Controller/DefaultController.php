@@ -589,23 +589,6 @@ class DefaultController implements ControllerInterface
 		}
 	}
 
-	public function sortCollection(ModelInterface $a, ModelInterface $b)
-	{
-		if ($a->getProperty($this->arrColSort['field']) == $b->getProperty($this->arrColSort['field']))
-		{
-			return 0;
-		}
-
-		if (!$this->arrColSort['reverse'])
-		{
-			return ($a->getProperty($this->arrColSort['field']) < $b->getProperty($this->arrColSort['field'])) ? -1 : 1;
-		}
-		else
-		{
-			return ($a->getProperty($this->arrColSort['field']) < $b->getProperty($this->arrColSort['field'])) ? 1 : -1;
-		}
-	}
-
 	public function executePostActions()
 	{
 		if (version_compare(VERSION, '3.0', '>='))
