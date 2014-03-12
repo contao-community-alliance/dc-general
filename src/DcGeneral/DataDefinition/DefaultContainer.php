@@ -39,7 +39,7 @@ class DefaultContainer implements ContainerInterface
 	 *
 	 * @var DefinitionInterface[]
 	 */
-	protected $definitions;
+	protected $definitions = array();
 
 	/**
 	 * Create a new default container.
