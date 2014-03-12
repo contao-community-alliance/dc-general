@@ -926,8 +926,8 @@ class BaseView implements BackendViewInterface
 		$environment = $this->getEnvironment();
 		$input       = $environment->getInputProvider();
 		$clipboard   = $environment->getClipboard();
-		$after       = IdSerializer::fromSerialized($input->getParameter('after'));
-		$into        = IdSerializer::fromSerialized($input->getParameter('into'));
+		$after       = $input->getParameter('after') ? IdSerializer::fromSerialized($input->getParameter('after')) : null;
+		$into        = $input->getParameter('into') ? IdSerializer::fromSerialized($input->getParameter('into')) : null;
 		$models      = $this->getModelsFromClipboard($clipboard->isCopy());
 
 		if ($clipboard->isCopy())
@@ -935,13 +935,13 @@ class BaseView implements BackendViewInterface
 			// FIXME: recursive copy is not implemented yet!
 		}
 
-		if ($after->getId())
+		if ($after && $after->getId())
 		{
 			$dataProvider = $environment->getDataProvider($after->getDataProviderName());
 			$previous     = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($after->getId()));
 			$environment->getController()->pasteAfter($previous, $models, $this->getManualSortingProperty());
 		}
-		elseif ($into->getId())
+		elseif ($into && $into->getId())
 		{
 			$dataProvider = $environment->getDataProvider($into->getDataProviderName());
 			$parent       = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($into->getId()));
