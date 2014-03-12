@@ -12,6 +12,7 @@
 
 namespace DcGeneral\Controller;
 
+use DcGeneral\Contao\BackendBindings;
 use DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use DcGeneral\Data\CollectionInterface;
 use DcGeneral\Data\ConfigInterface;
