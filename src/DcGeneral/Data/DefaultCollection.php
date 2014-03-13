@@ -12,7 +12,6 @@
 
 namespace DcGeneral\Data;
 
-use DcGeneral\Exception\DcGeneralException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -193,6 +192,186 @@ class DefaultCollection implements CollectionInterface
 		}
 
 		$this->arrCollection = array_values($this->arrCollection);
+	}
+
+	/**
+	 * Retrieve the ids of the models.
+	 *
+	 * @return array
+	 */
+	public function getModelIds()
+	{
+		$ids = array();
+
+		foreach ($this as $model)
+		{
+			/** @var ModelInterface $model */
+			$ids[] = $model->getId();
+		}
+
+		return $ids;
+	}
+
+	/**
+	 * Remove the model with the given id from the collection.
+	 *
+	 * @param mixed $id The id of the model to remove.
+	 *
+	 * @return void
+	 */
+	public function removeById($id)
+	{
+		foreach ($this->arrCollection as $index => $model)
+		{
+			if ($id === $model->getId())
+			{
+				unset($this->arrCollection[$index]);
+			}
+		}
+	}
+
+	/**
+	 * Check whether the given model is contained in the collection.
+	 *
+	 * @param ModelInterface $model The model to search.
+	 *
+	 * @return bool
+	 */
+	public function contains($model)
+	{
+		/** @var ModelInterface $localModel */
+		foreach ($this as $localModel)
+		{
+			if ($model === $localModel)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Check whether the given model is contained in the collection.
+	 *
+	 * @param mixed $modelId The model id to search.
+	 *
+	 * @return bool
+	 */
+	public function containsById($modelId)
+	{
+		/** @var ModelInterface $localModel */
+		foreach ($this as $localModel)
+		{
+			if ($modelId === $localModel->getId())
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Intersect the given collection with this collection and return the result.
+	 *
+	 * @param CollectionInterface $collection The collection to intersect.
+	 *
+	 * @return CollectionInterface
+	 */
+	public function intersect($collection)
+	{
+		$intersection = new DefaultCollection();
+		/** @var ModelInterface $localModel */
+		foreach ($this as $localModel)
+		{
+			/** @var ModelInterface $otherModel */
+			foreach ($collection as $otherModel)
+			{
+				if (($localModel->getProviderName() == $otherModel->getProviderName())
+				&& ($localModel->getId() == $otherModel->getId()))
+				{
+					$intersection->push($localModel);
+				}
+			}
+		}
+
+		return $intersection;
+	}
+
+	/**
+	 * Compute the union of this collection and the given collection.
+	 *
+	 * @param CollectionInterface $collection The collection to intersect.
+	 *
+	 * @return CollectionInterface
+	 */
+	public function union($collection)
+	{
+		$union = clone $this;
+
+		/** @var ModelInterface $otherModel */
+		foreach ($collection->diff($this) as $otherModel)
+		{
+			$union->push($otherModel);
+		}
+
+		return $union;
+	}
+
+	/**
+	 * Computes the difference of the collection.
+	 *
+	 * @param CollectionInterface $collection The collection to compute the difference for.
+	 *
+	 * @return CollectionInterface The collection containing all the entries from this collection that are not present
+	 *                             in the given collection.
+	 */
+	public function diff($collection)
+	{
+		$diff = new DefaultCollection();
+		/** @var ModelInterface $localModel */
+		foreach ($this as $localModel)
+		{
+			/** @var ModelInterface $otherModel */
+			foreach ($collection as $otherModel)
+			{
+				if (($localModel->getProviderName() == $otherModel->getProviderName())
+					&& ($localModel->getId() == $otherModel->getId()))
+				{
+					continue;
+				}
+				$diff->push($localModel);
+			}
+		}
+
+		return $diff;
+	}
+
+	/**
+	 * Check if the given collection is an subset of the given collection.
+	 *
+	 * @param CollectionInterface $collection The collection to check.
+	 *
+	 * @return mixed
+	 */
+	public function isSubsetOf($collection)
+	{
+		/** @var ModelInterface $localModel */
+		foreach ($this as $localModel)
+		{
+			/** @var ModelInterface $otherModel */
+			foreach ($collection as $otherModel)
+			{
+				if (($localModel->getProviderName() == $otherModel->getProviderName())
+					&& ($localModel->getId() == $otherModel->getId()))
+				{
+					continue;
+				}
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**

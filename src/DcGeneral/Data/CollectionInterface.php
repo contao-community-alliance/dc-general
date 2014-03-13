@@ -114,6 +114,77 @@ interface CollectionInterface extends \IteratorAggregate
 	public function remove($mixedValue);
 
 	/**
+	 * Remove the model with the given id from the collection.
+	 *
+	 * @param mixed $id The id of the model to remove.
+	 *
+	 * @return void
+	 */
+	public function removeById($id);
+
+	/**
+	 * Check whether the given model is contained in the collection.
+	 *
+	 * @param ModelInterface $model The model to search.
+	 *
+	 * @return bool
+	 */
+	public function contains($model);
+
+	/**
+	 * Check whether the given model is contained in the collection.
+	 *
+	 * @param mixed $modelId The model id to search.
+	 *
+	 * @return bool
+	 */
+	public function containsById($modelId);
+
+	/**
+	 * Retrieve the ids of the models.
+	 *
+	 * @return array
+	 */
+	public function getModelIds();
+
+	/**
+	 * Intersect the given collection with this collection and return the result.
+	 *
+	 * @param CollectionInterface $collection The collection to intersect.
+	 *
+	 * @return CollectionInterface
+	 */
+	public function intersect($collection);
+
+	/**
+	 * Compute the union of this collection and the given collection.
+	 *
+	 * @param CollectionInterface $collection The collection to intersect.
+	 *
+	 * @return CollectionInterface
+	 */
+	public function union($collection);
+
+	/**
+	 * Computes the difference of the collection.
+	 *
+	 * @param CollectionInterface $collection The collection to compute the difference for.
+	 *
+	 * @return CollectionInterface The collection containing all the entries from this collection that are not present
+	 *                             in the given collection.
+	 */
+	public function diff($collection);
+
+	/**
+	 * Check if the given collection is an subset of the given collection.
+	 *
+	 * @param CollectionInterface $collection The collection to check.
+	 *
+	 * @return mixed
+	 */
+	public function isSubsetOf($collection);
+
+	/**
 	 * Make a reverse sorted collection of this collection.
 	 *
 	 * @return ModelInterface
