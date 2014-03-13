@@ -31,7 +31,7 @@ class Ajax3X extends Ajax
 
 	protected function loadPagetree(DataContainerInterface $objDc)
 	{
-		$arrData['strTable'] = $objDc->getTable();
+		$arrData['strTable'] = $objDc->getEnvironment()->getDataDefinition()->getName();
 		$arrData['id'] = self::getAjaxName() ?: $objDc->getId();
 		$arrData['name'] = self::getPost('name');
 
@@ -45,7 +45,7 @@ class Ajax3X extends Ajax
 
 	protected function loadFiletree(DataContainerInterface $objDc)
 	{
-		$arrData['strTable'] = $objDc->getTable();
+		$arrData['strTable'] = $objDc->getEnvironment()->getDataDefinition()->getName();
 		$arrData['id'] = self::getAjaxName() ?: $objDc->getId();
 		$arrData['name'] = self::getPost('name');
 
@@ -117,7 +117,7 @@ class Ajax3X extends Ajax
 
 			if (is_null($objModel))
 			{
-				$this->log('A record with the ID "' . $intId . '" does not exist in "' . $objDc->getTable() . '"', 'Ajax executePostActions()', TL_ERROR);
+				$this->log('A record with the ID "' . $intId . '" does not exist in "' . $objDc->getEnvironment()->getDataDefinition()->getName() . '"', 'Ajax executePostActions()', TL_ERROR);
 				header('HTTP/1.1 400 Bad Request');
 				die('Bad Request');
 			}
@@ -140,7 +140,7 @@ class Ajax3X extends Ajax
 		$arrAttribs['id'] = $strFieldName;
 		$arrAttribs['name'] = $strFieldName;
 		$arrAttribs['value'] = $varValue;
-		$arrAttribs['strTable'] = $objDc->getTable();
+		$arrAttribs['strTable'] = $objDc->getEnvironment()->getDataDefinition()->getName();
 		$arrAttribs['strField'] = $strField;
 
 		/**

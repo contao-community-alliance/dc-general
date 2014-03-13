@@ -32,7 +32,7 @@ class Ajax2X extends Ajax
 
 	protected function loadPagetree(DataContainerInterface $objDc)
 	{
-		$arrData['strTable'] = $objDc->getTable();
+		$arrData['strTable'] = $objDc->getEnvironment()->getDataDefinition()->getName();
 		$arrData['id'] = self::getAjaxName() ?: $objDc->getId();
 		$arrData['name'] = self::getPost('name');
 
@@ -46,7 +46,7 @@ class Ajax2X extends Ajax
 
 	protected function loadFiletree(DataContainerInterface $objDc)
 	{
-		$arrData['strTable'] = $objDc->getTable();
+		$arrData['strTable'] = $objDc->getEnvironment()->getDataDefinition()->getName();
 		$arrData['id'] = self::getAjaxName() ?: $objDc->getId();
 		$arrData['name'] = self::getPost('name');
 
@@ -67,10 +67,10 @@ class Ajax2X extends Ajax
 			$strTree = '';
 
 			// Set a custom path
-			if (strlen($GLOBALS['TL_DCA'][$objDc->getTable()]['fields'][self::getPost('field')]['eval']['path']))
+			if (strlen($GLOBALS['TL_DCA'][$objDc->getEnvironment()->getDataDefinition()->getName()]['fields'][self::getPost('field')]['eval']['path']))
 			{
 				$strTree = $objWidget->generateAjax(
-					$GLOBALS['TL_DCA'][$objDc->getTable()]['fields'][self::getPost('field')]['eval']['path'],
+					$GLOBALS['TL_DCA'][$objDc->getEnvironment()->getDataDefinition()->getName()]['fields'][self::getPost('field')]['eval']['path'],
 					self::getPost('field'),
 					intval(self::getPost('level'))
 				);

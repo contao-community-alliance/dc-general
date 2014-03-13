@@ -12,6 +12,7 @@
 
 namespace DcGeneral\Controller;
 
+use DcGeneral\Contao\Compatibility\DcCompat;
 use DcGeneral\DataContainerInterface;
 use DcGeneral\Exception\DcGeneralRuntimeException;
 
@@ -125,7 +126,7 @@ abstract class Ajax extends \Backend
 	protected function toggleFeatured(DataContainerInterface $objDc)
 	{
 		// TODO: this solution is really a mess, we DEFINATELY want to implement a proper functionality in the callback class to handle this.
-		$strClass = $objDc->getTable();
+		$strClass = $objDc->getEnvironment()->getDataDefinition()->getName();
 		if (class_exists($strClass, false))
 		{
 			$dca = new $strClass();
@@ -150,7 +151,7 @@ abstract class Ajax extends \Backend
 		// Check whether the field is a selector field and allowed for regular users (contao/core/#4427).
 		if (!is_array($arrDCA['palettes']['__selector__'])
 			|| !in_array($field, $arrDCA['palettes']['__selector__'])
-			|| ($arrDCA['fields'][$field]['exclude'] && !$objUser->hasAccess($objDc->getTable() . '::' . $field, 'alexf'))
+			|| ($arrDCA['fields'][$field]['exclude'] && !$objUser->hasAccess($objDc->getEnvironment()->getDataDefinition()->getName() . '::' . $field, 'alexf'))
 		)
 		{
 			$this->log(
@@ -210,6 +211,9 @@ abstract class Ajax extends \Backend
 		{
 			return;
 		}
+
+		$objDc = new DcCompat($objDc->getEnvironment());
+
 		header('Content-Type: text/html; charset=' . $GLOBALS['TL_CONFIG']['characterSet']);
 
 		switch (self::getPost('action'))
