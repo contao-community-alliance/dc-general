@@ -722,11 +722,12 @@ class BaseView implements BackendViewInterface
 	protected function checkLanguage()
 	{
 		$environment     = $this->getEnvironment();
+		$input           = $environment->getInputProvider();
 		$inputProvider   = $environment->getInputProvider();
 		$objDataProvider = $environment->getDataProvider();
 		$strProviderName = $environment->getDataDefinition()->getName();
-		$idDetails       = IdSerializer::fromSerialized($inputProvider->getParameter('id'));
-		$mixID           = $idDetails->getId();
+		$idDetails       = $input->getParameter('id') ? IdSerializer::fromSerialized($inputProvider->getParameter('id')) : null;
+		$mixID           = $idDetails ? $idDetails->getId() : null;
 		$arrLanguage     = $environment->getController()->getSupportedLanguages($mixID);
 
 		if (!$arrLanguage)
