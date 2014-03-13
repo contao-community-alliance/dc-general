@@ -14,6 +14,7 @@ namespace DcGeneral\DataDefinition\Palette;
 
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\PropertyValueBag;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * A legend group a lot of properties.
@@ -130,6 +131,26 @@ interface LegendInterface
 	 * @return PropertyInterface[]
 	 */
 	public function getProperties(ModelInterface $model = null, PropertyValueBag $input = null);
+
+	/**
+	 * Determine if a property with the name exists in this legend.
+	 *
+	 * @param string $propertyName The property name.
+	 *
+	 * @return bool
+	 */
+	public function hasProperty($propertyName);
+
+	/**
+	 * Get a property by name from this legend.
+	 *
+	 * @param string $propertyName The property name.
+	 *
+	 * @return PropertyInterface
+	 *
+	 * @throws DcGeneralRuntimeException If the this legend does not contain the property.
+	 */
+	public function getProperty($propertyName);
 
 	/**
 	 * Create a deep clone of the legend.

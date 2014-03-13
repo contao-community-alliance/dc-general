@@ -15,6 +15,7 @@ namespace DcGeneral\DataDefinition\Palette;
 use DcGeneral\Data\ModelInterface;
 use DcGeneral\Data\PropertyValueBag;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
+use DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * Default implementation of a legend.
@@ -223,6 +224,40 @@ class Legend implements LegendInterface
 		}
 
 		return array_values($this->properties);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function hasProperty($propertyName)
+	{
+		foreach ($this->properties as $property) {
+			if ($property->getName() == $propertyName) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getProperty($propertyName)
+	{
+		foreach ($this->properties as $property) {
+			if ($property->getName() == $propertyName) {
+				return $property;
+			}
+		}
+
+		throw new DcGeneralRuntimeException(
+			sprintf(
+				'The legend %s does not contain a property named %s',
+				$this->getName(),
+				$propertyName
+			)
+		);
 	}
 
 	/**
