@@ -396,6 +396,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			$config->setSwitchToEditEnabled((bool)$switchToEdit);
 		}
 
+		if (($value = $this->getFromDca('config/forceEdit')) !== null)
+		{
+			$config->setEditOnlyMode((bool) $value);
+		}
+
 		if (($value = $this->getFromDca('config/closed')) !== null)
 		{
 			$config->setClosed((bool)$value);

@@ -173,7 +173,27 @@ interface BasicDefinitionInterface extends DefinitionInterface
 	public function isClosed();
 
 	/**
+	 * If true, only the edit mode will be shown.
+	 * This is more or less the opposite to BasicDefinitionInterface::isEditable().
+	 *
+	 * @param bool $value The flag - true means that only the edit mode will shown, irrespective of the given action.
+	 *
+	 * @return BasicDefinitionInterface
+	 */
+	public function setEditOnlyMode($value);
+
+	/**
+	 * Boolean flag determining if this data container is in edit only mode.
+	 *
+	 * True means, that only the edit mode will shown, irrespective of the given action.
+	 *
+	 * @return bool
+	 */
+	public function isEditOnlyMode();
+
+	/**
 	 * Boolean flag determining if this data container is editable.
+	 * This is more or less the opposite to BasicDefinitionInterface::isEditOnlyMode().
 	 *
 	 * @param bool $value True means, the data records may be edited.
 	 *

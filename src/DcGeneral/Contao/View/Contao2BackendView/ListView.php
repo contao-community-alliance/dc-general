@@ -252,6 +252,10 @@ class ListView extends BaseView
 	 */
 	public function copy()
 	{
+		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+			return $this->edit();
+		}
+
 		$this->checkLanguage();
 
 		$environment  = $this->getEnvironment();
@@ -305,6 +309,10 @@ class ListView extends BaseView
 	 */
 	public function showAll()
 	{
+		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+			return $this->edit();
+		}
+
 		$this->checkClipboard();
 		$collection = $this->loadCollection();
 

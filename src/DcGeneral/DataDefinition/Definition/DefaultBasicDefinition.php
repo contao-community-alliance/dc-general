@@ -62,6 +62,13 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
 	protected $isClosed = false;
 
 	/**
+	 * If true, only edit mode is used.
+	 *
+	 * @var bool
+	 */
+	protected $isEditOnlyMode = false;
+
+	/**
 	 * Boolean flag determining if this data container is editable.
 	 *
 	 * @var bool
@@ -213,6 +220,22 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
 	public function isClosed()
 	{
 		return $this->isClosed;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setEditOnlyMode($value)
+	{
+		$this->isEditOnlyMode = $value;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function isEditOnlyMode()
+	{
+		return $this->isEditOnlyMode;
 	}
 
 	/**

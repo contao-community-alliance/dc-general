@@ -803,6 +803,10 @@ class BaseView implements BackendViewInterface
 	 */
 	public function copy()
 	{
+		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+			return $this->edit();
+		}
+
 		return vsprintf($this->notImplMsg, 'copy - Mode');
 	}
 
@@ -812,6 +816,10 @@ class BaseView implements BackendViewInterface
 	 */
 	public function copyAll()
 	{
+		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+			return $this->edit();
+		}
+
 		return vsprintf($this->notImplMsg, 'copyAll - Mode');
 	}
 
@@ -824,6 +832,10 @@ class BaseView implements BackendViewInterface
 	 */
 	public function create()
 	{
+		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+			return $this->edit();
+		}
+
 		$preFunction = function($environment, $model, $originalModel)
 		{
 			/** @var EnvironmentInterface $environment */
@@ -860,6 +872,10 @@ class BaseView implements BackendViewInterface
 	 */
 	public function cut()
 	{
+		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+			return $this->edit();
+		}
+
 		return $this->showAll();
 	}
 
@@ -973,6 +989,10 @@ class BaseView implements BackendViewInterface
 	 */
 	public function delete()
 	{
+		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+			return $this->edit();
+		}
+
 		// Check if is it allowed to delete a record.
 		if (!$this->getEnvironment()->getDataDefinition()->getBasicDefinition()->isDeletable())
 		{
@@ -1073,6 +1093,10 @@ class BaseView implements BackendViewInterface
 	 */
 	public function move()
 	{
+		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+			return $this->edit();
+		}
+
 		return vsprintf($this->notImplMsg, 'move - Mode');
 	}
 
@@ -1082,6 +1106,10 @@ class BaseView implements BackendViewInterface
 	 */
 	public function undo()
 	{
+		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+			return $this->edit();
+		}
+
 		return vsprintf($this->notImplMsg, 'undo - Mode');
 	}
 
@@ -1172,6 +1200,11 @@ class BaseView implements BackendViewInterface
 		$environment             = $this->getEnvironment();
 		$definition              = $environment->getDataDefinition();
 		$inputProvider           = $environment->getInputProvider();
+
+		if (!$inputProvider->hasParameter('id')) {
+			return;
+		}
+
 		$modelId                 = IdSerializer::fromSerialized($inputProvider->getParameter('id'));
 		$dataProviderDefinition  = $definition->getDataProviderDefinition();
 		$dataProvider            = $environment->getDataProvider($modelId->getDataProviderName());
@@ -1292,12 +1325,12 @@ class BaseView implements BackendViewInterface
 
 		$environment   = $this->getEnvironment();
 		$inputProvider = $environment->getInputProvider();
-		$modelId       = IdSerializer::fromSerialized($inputProvider->getParameter('id'));
-		$dataProvider  = $environment->getDataProvider($modelId->getDataProviderName());
+		$modelId       = $inputProvider->hasParameter('id') ? IdSerializer::fromSerialized($inputProvider->getParameter('id')) : null;
+		$dataProvider  = $environment->getDataProvider($modelId ? $modelId->getDataProviderName() : null);
 
 		$this->checkRestoreVersion();
 
-		if ($modelId->getId())
+		if ($modelId && $modelId->getId())
 		{
 			$model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 		}
@@ -1567,6 +1600,10 @@ class BaseView implements BackendViewInterface
 	 */
 	public function show()
 	{
+		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+			return $this->edit();
+		}
+
 		// Load check multi language.
 		$environment  = $this->getEnvironment();
 		$definition   = $environment->getDataDefinition();
@@ -1670,6 +1707,10 @@ class BaseView implements BackendViewInterface
 	 */
 	public function showAll()
 	{
+		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+			return $this->edit();
+		}
+
 		return sprintf(
 			$this->notImplMsg,
 			'showAll - Mode ' . $this->getViewSection()->getListingConfig()->getGroupingMode()

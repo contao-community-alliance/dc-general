@@ -545,6 +545,10 @@ class ParentView extends BaseView
 	 */
 	public function showAll()
 	{
+		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+			return $this->edit();
+		}
+
 		$this->checkClipboard();
 		$collection  = $this->loadCollection();
 		$parentModel = $this->loadParentModel();

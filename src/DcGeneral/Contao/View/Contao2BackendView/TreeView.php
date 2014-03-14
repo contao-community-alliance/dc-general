@@ -683,6 +683,10 @@ class TreeView extends BaseView
 	 */
 	public function showAll()
 	{
+		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+			return $this->edit();
+		}
+
 		$input = $this->getEnvironment()->getInputProvider();
 		if (($id = $input->hasParameter('ptg')) && ($providerName = $input->hasParameter('provider')))
 		{
