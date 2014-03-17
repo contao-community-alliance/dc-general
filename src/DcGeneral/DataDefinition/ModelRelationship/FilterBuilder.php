@@ -60,7 +60,8 @@ class FilterBuilder
 			);
 		}
 
-		$this->filters = $this->getBuilderFromArray(array('operation' => 'AND', 'children' => $filter), $this);
+		$this->filters      = $this->getBuilderFromArray(array('operation' => 'AND', 'children' => $filter), $this);
+		$this->isRootFilter = $isRoot;
 	}
 
 	/**
