@@ -29,7 +29,7 @@ class ParentChildCondition
 	 *
 	 * @var array
 	 */
-	protected $filter;
+	protected $filter = array();
 
 	/**
 	 * The filter rules to use for an inverse filter.
