@@ -35,7 +35,7 @@ abstract class AbstractCondition
 	 */
 	protected static function checkAndFilter($model, $filter)
 	{
-		foreach ($filter['children'] as $child)
+		foreach ($filter as $child)
 		{
 			// AND => first false means false.
 			if (!self::checkCondition($model, $child))
@@ -57,7 +57,7 @@ abstract class AbstractCondition
 	 */
 	protected static function checkOrFilter($model, $filter)
 	{
-		foreach ($filter['children'] as $child)
+		foreach ($filter as $child)
 		{
 			// OR => first true means true.
 			if (self::checkCondition($model, $child))
