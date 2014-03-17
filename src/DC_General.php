@@ -16,6 +16,6 @@
  *
  * @deprecated
  */
-class DC_General extends DcGeneral\DC_General
+class DC_General extends ContaoCommunityAlliance\DcGeneral\DC_General
 {
 }

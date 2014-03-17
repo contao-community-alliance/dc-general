@@ -13,7 +13,7 @@
 >
     <testsuites>
         <testsuite name="Contao Composer Installer Test Suite">
-            <directory>./tests/DcGeneral/</directory>
+            <directory>./tests/ContaoCommunityAlliance/DcGeneral/</directory>
         </testsuite>
     </testsuites>
 
