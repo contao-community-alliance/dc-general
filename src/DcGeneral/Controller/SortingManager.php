@@ -128,7 +128,7 @@ class SortingManager
 	public function setModels(CollectionInterface $models)
 	{
 		unset($this->results);
-		$this->models = $models;
+		$this->models = clone $models;
 
 		return $this;
 	}
