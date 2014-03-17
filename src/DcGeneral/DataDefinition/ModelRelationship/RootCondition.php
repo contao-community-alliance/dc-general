@@ -138,7 +138,13 @@ class RootCondition
 	{
 		if ($this->getFilterArray())
 		{
-			return $this->checkCondition($objModel, $this->getFilterArray());
+			return $this->checkCondition(
+				$objModel,
+				array(
+					'operation' => 'AND',
+					'children'  => $this->getFilterArray()
+				)
+			);
 		}
 
 		return true;
