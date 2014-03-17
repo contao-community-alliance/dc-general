@@ -135,6 +135,16 @@ class FilterBuilder
 	}
 
 	/**
+	 * Determine if this builder is for a root filter or not.
+	 *
+	 * @return bool
+	 */
+	public function isRootFilter()
+	{
+		return $this->isRootFilter;
+	}
+
+	/**
 	 * Check that the builder is not for a root filter.
 	 *
 	 * @return FilterBuilder
