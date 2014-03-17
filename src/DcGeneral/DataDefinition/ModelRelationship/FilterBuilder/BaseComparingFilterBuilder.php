@@ -12,6 +12,8 @@
 
 namespace DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
 
+use DcGeneral\Exception\DcGeneralInvalidArgumentException;
+
 /**
  * Handy helper class to generate and manipulate AND filter arrays.
  *
@@ -87,7 +89,21 @@ class BaseComparingFilterBuilder
 			$remote = false;
 		}
 
-		return new static($array['property'], $value, $remote);
+		if (isset($array['property']))
+		{
+			$property = $array['property'];
+		}
+		elseif (isset($array['local']))
+		{
+			$property = $array['local'];
+		}
+
+		if (!(isset($value) && isset($property)))
+		{
+			throw new DcGeneralInvalidArgumentException('Invalid filter array provided.');
+		}
+
+		return new static($property, $value, $remote);
 	}
 
 	/**
@@ -97,7 +113,7 @@ class BaseComparingFilterBuilder
 	{
 		return array(
 			'operation' => $this->operation,
-			'property'  => $this->property,
+			($this->getBuilder()->isRootFilter() ? 'property' : 'local')  => $this->property,
 			($this->isRemote ? 'remote' : 'value') => $this->value
 		);
 	}
