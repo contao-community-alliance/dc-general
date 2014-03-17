@@ -165,6 +165,11 @@ class FilterBuilderWithChildren
 	{
 		$this->index = count($this->children) ? 0 : (-1);
 
+		if ($this->index === -1)
+		{
+			return null;
+		}
+
 		return $this->current();
 	}
 
