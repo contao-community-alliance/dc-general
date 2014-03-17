@@ -72,6 +72,7 @@ use DcGeneral\DataDefinition\Definition\View\Panel\DefaultSortElementInformation
 use DcGeneral\DataDefinition\Definition\View\Panel\DefaultSubmitElementInformation;
 use DcGeneral\DataDefinition\Definition\View\Panel\SubmitElementInformationInterface;
 use DcGeneral\DataDefinition\Definition\View\PanelRowInterface;
+use DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
 use DcGeneral\DataDefinition\ModelRelationship\RootCondition;
 use DcGeneral\Event\PostDeleteModelEvent;
 use DcGeneral\Event\PostDuplicateModelEvent;
@@ -449,27 +450,22 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		{
 			if (is_array($filters) && !empty($filters))
 			{
-				$myFilters = array();
-				foreach ($filters as $filter)
-				{
-					// FIXME: this only takes array('name', 'value') into account. Add support for: array('name=?', 'value').
-					$myFilters = array('operation' => '=', 'property' => $filter[0], 'value' => $filter[1]);
-				}
 				if ($config->hasAdditionalFilter())
 				{
-					$currentFilter = $config->getAdditionalFilter();
-					$currentFilter = array_merge($currentFilter, $myFilters);
-					$filter        = array(
-						'operation' => 'AND',
-						'children'  => array($currentFilter)
-					);
+					$builder = FilterBuilder::fromArrayForRoot($config->getAdditionalFilter())->getFilter();
 				}
 				else
 				{
-					$filter = $myFilters;
+					$builder = FilterBuilder::fromArrayForRoot()->getFilter();
 				}
 
-				$config->setAdditionalFilter($config->getDataProvider(), $filter);
+				foreach ($filters as $filter)
+				{
+					// FIXME: this only takes array('name', 'value') into account. Add support for: array('name=?', 'value').
+					$builder->andPropertyEquals($filter[0], $filter[1]);
+				}
+
+				$config->setAdditionalFilter($config->getDataProvider(), $builder->getAllAsArray());
 			}
 		}
 	}
@@ -639,33 +635,21 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		{
 			$rootProvider = $this->getRootProviderName($container);
 
-			$myFilter = array('operation' => 'IN', 'property' => 'id', 'value' => $value);
-
 			if (($relationship = $definition->getRootCondition()) === null)
 			{
 				$relationship = new RootCondition();
-				$filter       = $myFilter;
+				$builder = FilterBuilder::fromArrayForRoot()->getFilter();
 			}
 			else
 			{
-				$filter = $relationship->getFilterArray();
-				if ($filter)
-				{
-					$filter = array(
-						'operation' => 'AND',
-						'children' => array($filter)
-					);
-
-					$filter['children'][] = $myFilter;
-				}
-				else{
-					$filter = $myFilter;
-				}
+				$builder = FilterBuilder::fromArrayForRoot($relationship->getFilterArray())->getFilter();
 			}
+
+			$builder->andPropertyValueIn('id', $value);
 
 			$relationship
 				->setSourceName($rootProvider)
-				->setFilterArray(array($filter));
+				->setFilterArray($builder->getAllAsArray());
 			$definition->setRootCondition($relationship);
 
 			$container->setDefinition(ModelRelationshipDefinitionInterface::NAME, $definition);

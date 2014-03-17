@@ -26,6 +26,7 @@ use DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
 use DcGeneral\DataDefinition\Definition\View\DefaultModelFormatterConfig;
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
+use DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
 use DcGeneral\DataDefinition\ModelRelationship\ParentChildCondition;
 use DcGeneral\DataDefinition\ModelRelationship\RootCondition;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
@@ -363,18 +364,13 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 			if (isset($rootCondition[$rootProvider]))
 			{
 				$rootCondition = $rootCondition[$rootProvider];
-
-				$myFilter = $rootCondition['filter'];
-				$mySetter = $rootCondition['setOn'];
+				$mySetter      = $rootCondition['setOn'];
 
 				if (($relationship = $definition->getRootCondition()) === null)
 				{
 					$relationship = new RootCondition();
 					$setter       = $mySetter;
-					$filter       = array(
-						'operation' => 'AND',
-						'children' => $myFilter
-					);
+					$builder      = FilterBuilder::fromArrayForRoot()->getFilter();
 				}
 				else
 				{
@@ -387,16 +383,14 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 					{
 						$setter = $mySetter;
 					}
-					$filter = array_merge($relationship->getFilterArray(), $myFilter);
-					$filter = array(
-						'operation' => 'AND',
-						'children' => array($filter)
-					);
+					$builder = FilterBuilder::fromArrayForRoot($relationship->getFilterArray())->getFilter();
 				}
+
+				$builder->append(FilterBuilder::fromArrayForRoot($rootCondition['filter']));
 
 				$relationship
 					->setSourceName($rootProvider)
-					->setFilterArray(array($filter))
+					->setFilterArray($builder->getAllAsArray())
 					->setSetters($setter);
 				$definition->setRootCondition($relationship);
 			}
