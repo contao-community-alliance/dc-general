@@ -28,6 +28,7 @@ use DcGeneral\DataDefinition\Definition\View\DefaultModelFormatterConfig;
 use DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
 use DcGeneral\DataDefinition\ModelRelationship\ParentChildCondition;
+use DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface;
 use DcGeneral\DataDefinition\ModelRelationship\RootCondition;
 use DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use DcGeneral\Exception\DcGeneralRuntimeException;
@@ -400,15 +401,35 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 		{
 			foreach ((array)$childConditions as $childCondition)
 			{
-				$relationship = new ParentChildCondition();
 				/** @var \DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface $relationship */
+				$relationship = $definition->getChildCondition($childCondition['from'], $childCondition['to']);
+				if (!$relationship instanceof ParentChildConditionInterface)
+				{
+					$relationship = new ParentChildCondition();
+					$relationship
+						->setSourceName($childCondition['from'])
+						->setDestinationName($childCondition['to']);
+					$definition->addChildCondition($relationship);
+					$setter  = $childCondition['setOn'];
+					$inverse = $childCondition['inverse'];
+				}
+				else
+				{
+					$setter  = array_merge_recursive($childCondition['setOn'], $relationship->getSetters());
+					$inverse = array_merge_recursive($childCondition['inverse'], $relationship->getInverseFilterArray());
+				}
+
 				$relationship
-					->setSourceName($childCondition['from'])
-					->setDestinationName($childCondition['to'])
-					->setFilterArray($childCondition['filter'])
-					->setSetters($childCondition['setOn'])
-					->setInverseFilterArray($childCondition['inverse']);
-				$definition->addChildCondition($relationship);
+					->setFilterArray(
+						FilterBuilder::fromArray($relationship->getFilterArray())
+							->getFilter()
+							->append(
+								FilterBuilder::fromArray($childCondition['filter'])
+							)
+						->getAllAsArray()
+					)
+					->setSetters($setter)
+					->setInverseFilterArray($inverse);
 			}
 		}
 	}
