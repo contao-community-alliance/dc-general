@@ -380,7 +380,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 					$builder = FilterBuilder::fromArrayForRoot($relationship->getFilterArray())->getFilter();
 				}
 
-				$builder->append(FilterBuilder::fromArrayForRoot($rootCondition['filter']));
+				$builder->append(FilterBuilder::fromArrayForRoot((array)$rootCondition['filter']));
 
 				$relationship
 					->setSourceName($rootProvider)
@@ -422,8 +422,8 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 				}
 				else
 				{
-					$setter  = array_merge_recursive($childCondition['setOn'], $relationship->getSetters());
-					$inverse = array_merge_recursive($childCondition['inverse'], $relationship->getInverseFilterArray());
+					$setter  = array_merge_recursive((array)$childCondition['setOn'], $relationship->getSetters());
+					$inverse = array_merge_recursive((array)$childCondition['inverse'], $relationship->getInverseFilterArray());
 				}
 
 				$relationship
@@ -431,7 +431,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 						FilterBuilder::fromArray($relationship->getFilterArray())
 							->getFilter()
 							->append(
-								FilterBuilder::fromArray($childCondition['filter'])
+								FilterBuilder::fromArray((array)$childCondition['filter'])
 							)
 							->getAllAsArray()
 					)
