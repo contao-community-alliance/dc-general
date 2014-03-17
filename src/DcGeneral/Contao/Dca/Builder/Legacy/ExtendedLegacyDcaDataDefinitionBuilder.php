@@ -324,28 +324,21 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 	}
 
 	/**
-	 * Parse the conditions for model relationships from the definition.
+	 * Parse the root condition.
 	 *
-	 * This includes root entry filters, parent child relationship.
+	 * @param ContainerInterface                   $container  The container where the data shall be stored.
 	 *
-	 * @param ContainerInterface $container The container where the data shall be stored.
+	 * @param ModelRelationshipDefinitionInterface $definition The relationship definition.
 	 *
 	 * @return void
 	 *
-	 * @throws DcGeneralRuntimeException If any information is missing or invalid.
+	 * @throws DcGeneralRuntimeException If no root data provider is defined.
 	 */
-	protected function parseConditions(ContainerInterface $container)
+	protected function parseRootCondition(
+		ContainerInterface $container,
+		ModelRelationshipDefinitionInterface $definition
+	)
 	{
-		if ($container->hasDefinition(ModelRelationshipDefinitionInterface::NAME))
-		{
-			$definition = $container->getDefinition(ModelRelationshipDefinitionInterface::NAME);
-		}
-		else
-		{
-			$definition = new DefaultModelRelationshipDefinition();
-			$container->setDefinition(ModelRelationshipDefinitionInterface::NAME, $definition);
-		}
-
 		if (($rootCondition = $this->getFromDca('dca_config/rootEntries')) !== null)
 		{
 			$rootProvider = $container->getBasicDefinition()->getRootDataProvider();
@@ -396,7 +389,21 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 				$definition->setRootCondition($relationship);
 			}
 		}
+	}
 
+	/**
+	 * Parse the root condition.
+	 *
+	 * @param ModelRelationshipDefinitionInterface $definition The relationship definition.
+	 *
+	 * @return void
+	 *
+	 * @throws DcGeneralRuntimeException If no root data provider is defined.
+	 */
+	protected function parseParentChildConditions(
+		ModelRelationshipDefinitionInterface $definition
+	)
+	{
 		if (($childConditions = $this->getFromDca('dca_config/childCondition')) !== null)
 		{
 			foreach ((array)$childConditions as $childCondition)
@@ -426,12 +433,40 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 							->append(
 								FilterBuilder::fromArray($childCondition['filter'])
 							)
-						->getAllAsArray()
+							->getAllAsArray()
 					)
 					->setSetters($setter)
 					->setInverseFilterArray($inverse);
 			}
 		}
+	}
+
+	/**
+	 * Parse the conditions for model relationships from the definition.
+	 *
+	 * This includes root entry filters, parent child relationship.
+	 *
+	 * @param ContainerInterface $container The container where the data shall be stored.
+	 *
+	 * @return void
+	 *
+	 * @throws DcGeneralRuntimeException If any information is missing or invalid.
+	 */
+	protected function parseConditions(ContainerInterface $container)
+	{
+		if ($container->hasDefinition(ModelRelationshipDefinitionInterface::NAME))
+		{
+			$definition = $container->getDefinition(ModelRelationshipDefinitionInterface::NAME);
+		}
+		else
+		{
+			$definition = new DefaultModelRelationshipDefinition();
+			$container->setDefinition(ModelRelationshipDefinitionInterface::NAME, $definition);
+		}
+
+		$this->parseRootCondition($container, $definition);
+
+		$this->parseParentChildConditions($definition);
 	}
 
 	/**
