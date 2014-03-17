@@ -75,6 +75,8 @@ class BaseComparingFilterBuilder
 	 * @param array $array The initialization array.
 	 *
 	 * @return mixed
+	 *
+	 * @throws DcGeneralInvalidArgumentException When an invalid array has been passed.
 	 */
 	public static function fromArray($array)
 	{
