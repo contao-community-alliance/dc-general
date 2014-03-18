@@ -1,15 +1,15 @@
-<li class="<?php echo ($this->objModel->getMeta(\DcGeneral\Data\DCGE::TREE_VIEW_LEVEL) == 0) ? 'tl_folder' : 'tl_file'; ?>" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
+<li class="<?php echo ($this->objModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::TREE_VIEW_LEVEL) == 0) ? 'tl_folder' : 'tl_file'; ?>" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
     <div class="tl_left" style="padding-left:<?php echo $this->objModel->getMeta(\DcGeneral\Data\DCGE::TREE_VIEW_LEVEL) * 20 ?>px;">
-        <?php if ($this->objModel->getMeta(\DcGeneral\Data\DCGE::TREE_VIEW_HAS_CHILDS) == true): ?>
+        <?php if ($this->objModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::TREE_VIEW_HAS_CHILDS) == true): ?>
             <a class="folding" href="<?php echo $this->toggleUrl; ?>" title="<?php echo $this->toggleTitle; ?>" onclick="<?php echo $this->toggleScript; ?>">
-                <img src="system/themes/default/images/<?php echo ($this->objModel->getMeta(\DcGeneral\Data\DCGE::TREE_VIEW_IS_OPEN)) ? 'folMinus.gif' : 'folPlus.gif'; ?>" width="18" height="18" alt="" style="margin-right:-2px;">
+                <img src="system/themes/default/images/<?php echo ($this->objModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::TREE_VIEW_IS_OPEN)) ? 'folMinus.gif' : 'folPlus.gif'; ?>" width="18" height="18" alt="" style="margin-right:-2px;">
             </a>
         <?php endif; ?>
-        <?php $arrLabels = $this->objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_LABEL_VALUE); ?>
+        <?php $arrLabels = $this->objModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::MODEL_LABEL_VALUE); ?>
         <div class="tl_pagetree_content"><?php echo $arrLabels[0]['content']; ?></div>
     </div>
     <div class="tl_right">
-        <?php echo $this->objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_BUTTONS); ?>
+        <?php echo $this->objModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::MODEL_BUTTONS); ?>
     </div>
     <div style="clear:both;"></div>
 </li>

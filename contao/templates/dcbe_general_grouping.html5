@@ -60,7 +60,7 @@
 		<?php $blnFirstRun = true; $strLastId = null; ?>
 		<?php foreach ($this->collection as $objModel): ?>
 
-			<?php $arrGroup = $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_GROUP_VALUE); ?>
+			<?php $arrGroup = $objModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::MODEL_GROUP_VALUE); ?>
 			<?php if($arrGroup != null): ?>
 
 				<?php if($blnFirstRun != true): ?>
@@ -83,8 +83,8 @@
 				<table id="table_<?php echo $this->tableName; ?>_<?php echo standardize($strLastId); ?>" class="tl_listing<?php echo ($GLOBALS['TL_DCA'][$this->strTable]['list']['label']['showColumns']) ? ' showColumns' : ''; ?>">
 			<?php endif; ?>
 
-			<tr id="table_row_<?php echo $objModel->getProperty('id'); ?>" class="<?php echo $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_EVEN_ODD_CLASS); ?>" onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);">
-				<?php $arrLabels = $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_LABEL_VALUE); ?>
+			<tr id="table_row_<?php echo $objModel->getProperty('id'); ?>" class="<?php echo $objModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::MODEL_EVEN_ODD_CLASS); ?>" onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);">
+				<?php $arrLabels = $objModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::MODEL_LABEL_VALUE); ?>
 
 				<?php foreach ($arrLabels as $arrLabel): ?>
 					<td <?php echo ((!is_null($arrLabel['colspan'])) ? 'colspan="' . $arrLabel['colspan'] . '"' : ''); ?> class="<?php echo $arrLabel['class']; ?>">
@@ -98,7 +98,7 @@
 					</td>
 				<?php else: ?>
 					<td class="tl_file_list tl_right_nowrap">
-						<?php echo $objModel->getMeta(\DcGeneral\Data\DCGE::MODEL_BUTTONS); ?>
+						<?php echo $objModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::MODEL_BUTTONS); ?>
 					</td>
 				<?php endif; ?>
 			</tr>

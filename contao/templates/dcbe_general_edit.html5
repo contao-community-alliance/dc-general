@@ -6,7 +6,7 @@
 <input type="hidden" name="FORM_SUBMIT" value="tl_version" />
 <input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>" />
 <select name="version" class="tl_select">
-<?php foreach($this->versions as $objVersion): /** @var \DcGeneral\Data\VersionModelInterface $objVersion */ ?>
+<?php foreach($this->versions as $objVersion): /** @var \ContaoCommunityAlliance\DcGeneral\Data\VersionModelInterface $objVersion */ ?>
 	<option value="<?php echo $objVersion->getId(); ?>"<?php if($objVersion->isCurrent()): ?> selected="selected"<?php endif; ?>>
 	<?php echo $GLOBALS['TL_LANG']['MSC']['version']; ?> <?php echo $objVersion->getVersion(); ?> (<?php echo $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $objVersion->getDateTime()->getTimestamp()); ?>)
 	<?php if ($objVersion->getAuthorName()): ?> &ndash; <?php echo $objVersion->getAuthorName() ?> (<?php echo $objVersion->getAuthorUsername(); ?>)
