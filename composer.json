@@ -57,7 +57,9 @@
 			"src/DC_General.php",
 			"src/ContaoCommunityAlliance/DcGeneral/DC_General.php"
 		],
-		"psr-0": {"DcGeneral": "src"}
+		"psr-0": {
+			"ContaoCommunityAlliance\\DcGeneral": "src"
+		}
 	},
 	"replace": {
 		"contao-legacy/dc_general": "*"
