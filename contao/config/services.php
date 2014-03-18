@@ -17,11 +17,11 @@
  * To override the type, set your own implementation override the value of
  * $container['dc-general.data-definition-container.factory'].
  *
- * @return \DcGeneral\DataDefinitionContainerInterface $container
+ * @return \ContaoCommunityAlliance\DcGeneral\DataDefinitionContainerInterface $container
  */
 $container['dc-general.data-definition-container.factory.default'] = $container->protect(
 	function() {
-		return new \DcGeneral\DataDefinitionContainer();
+		return new \ContaoCommunityAlliance\DcGeneral\DataDefinitionContainer();
 	}
 );
 
@@ -35,7 +35,7 @@ $container['dc-general.data-definition-container'] = $container->share(
 	function ($container) {
 		$factory = $container['dc-general.data-definition-container.factory'];
 
-		/** @var \DcGeneral\DataDefinitionContainerInterface $container */
+		/** @var \ContaoCommunityAlliance\DcGeneral\DataDefinitionContainerInterface $container */
 		$container = $factory();
 
 		return $container;
