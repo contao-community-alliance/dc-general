@@ -516,8 +516,12 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 						$initializationData
 					));
 
-				$container->getBasicDefinition()->setRootDataProvider($parentTable);
-				$container->getBasicDefinition()->setParentDataProvider($parentTable);
+				if (!$container->getBasicDefinition()->getRootDataProvider()) {
+					$container->getBasicDefinition()->setRootDataProvider($parentTable);
+				}
+				if (!$container->getBasicDefinition()->getParentDataProvider()) {
+					$container->getBasicDefinition()->setParentDataProvider($parentTable);
+				}
 			}
 		}
 
@@ -547,7 +551,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 				))
 				->isVersioningEnabled((bool)$this->getFromDca('config/enableVersioning'));
 
-			$container->getBasicDefinition()->setDataProvider($container->getName());
+			if (!$container->getBasicDefinition()->getDataProvider()) {
+				$container->getBasicDefinition()->setDataProvider($container->getName());
+			}
 		}
 	}
 
