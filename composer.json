@@ -55,7 +55,7 @@
 	"autoload": {
 		"classmap": [
 			"src/DC_General.php",
-			"src/DcGeneral/DC_General.php"
+			"src/ContaoCommunityAlliance/DcGeneral/DC_General.php"
 		],
 		"psr-0": {"DcGeneral": "src"}
 	},
