@@ -15,6 +15,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Widget\GetAttributesFromDcaEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
@@ -421,21 +422,23 @@ class ContaoWidgetManager
 			// 'reference' =>
 		);
 
-		if (version_compare(VERSION, '3.0', '>='))
-		{
-			$arrPrepared = \Widget::getAttributesFromDca(
-				$arrConfig,
-				$propInfo->getName(),
-				$varValue,
-				$property,
-				$defName,
-				new DcCompat($environment, $this->model, $property)
-			);
-		}
-		else
-		{
-			$arrPrepared = BackendBindings::prepareForWidget($arrConfig, $propInfo->getName(), $varValue, $property, $defName);
-		}
+		$event = new GetAttributesFromDcaEvent(
+			$arrConfig,
+			$propInfo->getName(),
+			$varValue,
+			$property,
+			$defName,
+			new DcCompat($environment, $this->model, $property)
+		);
+
+		$environment->getEventPropagator()->propagate(
+			ContaoEvents::WIDGET_GET_ATTRIBUTES_FROM_DCA,
+			$event,
+			$environment->getDataDefinition()->getName(),
+			$property
+		);
+
+		$arrPrepared = $event->getResult();
 
 		// Bugfix CS: ajax subpalettes are really broken.
 		// Therefore we reset to the default checkbox behaviour here and submit the entire form.
