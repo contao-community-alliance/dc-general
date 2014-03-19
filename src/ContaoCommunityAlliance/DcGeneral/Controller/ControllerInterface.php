@@ -110,6 +110,19 @@ interface ControllerInterface
 	public function pasteAfter(ModelInterface $previousModel, CollectionInterface $models, $sortedBy);
 
 	/**
+	 * Paste the content of the clipboard into the given model.
+	 *
+	 * @param ModelInterface      $parentModel The model to become the parent model of the clipboard content.
+	 *
+	 * @param CollectionInterface $models      The models to be inserted.
+	 *
+	 * @param string              $sortedBy    The name of the sorting property.
+	 *
+	 * @return void
+	 */
+	public function pasteInto(ModelInterface $parentModel, CollectionInterface $models, $sortedBy);
+
+	/**
 	 * Check if the given model is a root model for the current data definition.
 	 *
 	 * @param ModelInterface $model The model to check.

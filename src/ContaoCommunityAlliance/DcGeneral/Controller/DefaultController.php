@@ -253,6 +253,43 @@ class DefaultController implements ControllerInterface
 	}
 
 	/**
+	 * Retrieve children of a given model.
+	 *
+	 * @param ModelInterface $model           The model for which the children shall be retrieved.
+	 *
+	 * @param string|null    $sortingProperty The property name to use for sorting.
+	 *
+	 * @return CollectionInterface
+	 *
+	 * @throws DcGeneralRuntimeException When not in hierarchical mode.
+	 */
+	protected function assembleChildrenFor(ModelInterface $model, $sortingProperty = null)
+	{
+		$environment   = $this->getEnvironment();
+		$definition    = $environment->getDataDefinition();
+		$provider      = $environment->getDataProvider($model->getProviderName());
+		$config        = $this->getBaseConfig();
+		$relationships = $definition->getModelRelationshipDefinition();
+
+		if ($definition->getBasicDefinition()->getMode() !== BasicDefinitionInterface::MODE_HIERARCHICAL)
+		{
+			throw new DcGeneralRuntimeException('Unable to retrieve children in non hierarchical mode.');
+		}
+
+		$condition = $relationships->getChildCondition($model->getProviderName(), $model->getProviderName());
+		$config->setFilter($condition->getFilter($model));
+
+		if ($sortingProperty)
+		{
+			$config->setSorting(array((string)$sortingProperty => 'ASC'));
+		}
+
+		$siblings = $provider->fetchAll($config);
+
+		return $siblings;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public function updateModelFromPropertyBag($model, $propertyValues)
@@ -516,6 +553,26 @@ class DefaultController implements ControllerInterface
 		$newList     = $sortManager->getResults();
 
 		$environment->getDataProvider($previousModel->getProviderName())->saveEach($newList);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function pasteInto(ModelInterface $parentModel, CollectionInterface $models, $sortedBy)
+	{
+		$environment = $this->getEnvironment();
+
+		foreach ($models as $model)
+		{
+			$this->setParent($model, $parentModel);
+		}
+
+		// Enforce proper sorting now.
+		$siblings    = $this->assembleChildrenFor($parentModel, $sortedBy);
+		$sortManager = new SortingManager($models, $siblings, $sortedBy);
+		$newList     = $sortManager->getResults();
+
+		$environment->getDataProvider($newList->get(0)->getProviderName())->saveEach($newList);
 	}
 
 	/**
