@@ -108,7 +108,7 @@ interface CommandCollectionInterface
 	 *
 	 * @return CommandInterface
 	 *
-	 * @throws \DcGeneral\Exception\DcGeneralInvalidArgumentException If no command was found.
+	 * @throws \ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException If no command was found.
 	 */
 	public function getCommandNamed($name);
 

@@ -38,7 +38,7 @@ class PaletteTest extends TestCase
 		$this->assertNotSame($palette, $palette2);
 
 		$condition2 = $palette2->getCondition();
-		$this->assertInstanceOf('DcGeneral\DataDefinition\Palette\Condition\Palette\DefaultPaletteCondition', $condition2);
+		$this->assertInstanceOf('ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\DefaultPaletteCondition', $condition2);
 		$this->assertNotSame($condition, $condition2);
 
 		$legend2 = $palette2->getLegend('legend');
