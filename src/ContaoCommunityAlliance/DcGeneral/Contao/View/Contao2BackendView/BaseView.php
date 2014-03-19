@@ -512,7 +512,7 @@ class BaseView implements BackendViewInterface
 		}
 
 		// TODO: unknown input param s2e - I guess it means "switch to edit" but from which view used?
-		if (\Input::get('s2e'))
+		if ($this->getEnvironment()->getInputProvider()->hasParameter('s2e'))
 		{
 			$buttons['saveNedit'] = sprintf(
 				'<input type="submit" name="saveNedit" id="saveNedit" class="tl_submit" accesskey="e" value="%s" />',
