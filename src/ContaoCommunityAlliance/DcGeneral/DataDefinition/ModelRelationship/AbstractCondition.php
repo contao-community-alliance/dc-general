@@ -86,7 +86,7 @@ abstract class AbstractCondition
 			case 'AND':
 			case 'OR':
 				// FIXME: backwards compat - remove when done.
-				if (is_array($arrFilter['childs']))
+				if (isset($arrFilter['childs']) && is_array($arrFilter['childs']))
 				{
 					trigger_error('Filter array uses deprecated entry "childs", please use "children" instead.', E_USER_DEPRECATED);
 					$arrFilter['children'] = $arrFilter['childs'];
