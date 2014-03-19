@@ -25,6 +25,6 @@ if ((!$loader = includeIfExists(__DIR__.'/../vendor/autoload.php')) && (!$loader
 	exit(1);
 }
 
-$loader->add('DcGeneral', __DIR__);
+$loader->add('ContaoCommunityAlliance\\DcGeneral', __DIR__);
 
 require __DIR__.'/ContaoCommunityAlliance/DcGeneral/Test/TestCase.php';
