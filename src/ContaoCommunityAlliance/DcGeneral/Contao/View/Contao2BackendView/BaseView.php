@@ -42,6 +42,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreCreateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDeleteModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\PreEditModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PrePersistModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -840,6 +841,15 @@ class BaseView implements BackendViewInterface
 			return $this->edit();
 		}
 
+		$model = $this->createEmptyModelWithDefaults();
+
+		$event = new PreEditModelEvent($this->environment, $model);
+		$this->environment->getEventPropagator()->propagate(
+			$event::NAME,
+			$event,
+			$this->environment->getDataDefinition()->getName()
+		);
+
 		$preFunction = function($environment, $model, $originalModel)
 		{
 			/** @var EnvironmentInterface $environment */
@@ -866,7 +876,7 @@ class BaseView implements BackendViewInterface
 			);
 		};
 
-		return $this->createEditMask($this->createEmptyModelWithDefaults(), null, $preFunction, $postFunction);
+		return $this->createEditMask($model, null, $preFunction, $postFunction);
 	}
 
 	/**
@@ -1346,6 +1356,13 @@ class BaseView implements BackendViewInterface
 		{
 			$model = $this->createEmptyModelWithDefaults();
 		}
+
+		$event = new PreEditModelEvent($environment, $model);
+		$environment->getEventPropagator()->propagate(
+			$event::NAME,
+			$event,
+			$environment->getDataDefinition()->getName()
+		);
 
 		// We need to keep the original data here.
 		$originalModel = clone $model;
