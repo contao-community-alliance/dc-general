@@ -29,7 +29,7 @@ class FilterBuilderTest extends TestCase
 	{
 		$filter = array(array('operation' => '=', 'property' => 'prop', 'value' => '1'));
 
-		$builder = new FilterBuilder($filter);
+		$builder = new FilterBuilder($filter, true);
 
 		$this->assertEquals($filter, $builder->getAllAsArray());
 	}
@@ -42,7 +42,7 @@ class FilterBuilderTest extends TestCase
 			array(array('operation' => '=', 'property' => 'prop2', 'value' => '2'))
 		);
 
-		$builder = new FilterBuilder($filter);
+		$builder = new FilterBuilder($filter, true);
 
 		$builder->getFilter()->andPropertyEquals('prop2', '2');
 
