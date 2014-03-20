@@ -36,7 +36,9 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CutCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostCreateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
@@ -62,6 +64,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOp
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\BackendBindings;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Class BaseView.
@@ -70,7 +73,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\BackendBindings;
  *
  * @package DcGeneral\Contao\View\Contao2BackendView
  */
-class BaseView implements BackendViewInterface
+class BaseView implements BackendViewInterface, EventSubscriberInterface
 {
 	/**
 	 * The error message format string to use when a method is not implemented.
@@ -95,6 +98,34 @@ class BaseView implements BackendViewInterface
 	 * @var PanelContainerInterface
 	 */
 	protected $panel;
+
+	public static function getSubscribedEvents()
+	{
+		return array(
+			DcGeneralEvents::ACTION => array('handleAction', -100),
+		);
+	}
+
+	public function handleAction(ActionEvent $event)
+	{
+		if (
+			$event->getEnvironment()->getDataDefinition()->getName() !== $this->environment->getDataDefinition()->getName()
+			|| $event->getResponse() !== null
+		) {
+			return;
+		}
+
+		$action = $event->getAction();
+		$name   = $action->getName();
+
+		if (method_exists($this, $name)) {
+			$response = call_user_func_array(
+				array($this, $name),
+				$action->getArguments()
+			);
+			$event->setResponse($response);
+		}
+	}
 
 	/**
 	 * Dispatch an event to the dispatcher.
@@ -131,7 +162,12 @@ class BaseView implements BackendViewInterface
 	 */
 	public function setEnvironment(EnvironmentInterface $environment)
 	{
+		if ($this->environment) {
+			$this->environment->getEventPropagator()->removeSubscriber($this);
+		}
+
 		$this->environment = $environment;
+		$this->environment->getEventPropagator()->addSubscriber($this);
 	}
 
 	/**
