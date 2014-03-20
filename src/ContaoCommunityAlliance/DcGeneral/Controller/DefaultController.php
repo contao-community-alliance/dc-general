@@ -12,6 +12,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
+use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
@@ -20,7 +21,9 @@ use ContaoCommunityAlliance\DcGeneral\Data\LanguageInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
@@ -86,6 +89,16 @@ class DefaultController implements ControllerInterface
 	public function getEnvironment()
 	{
 		return $this->environment;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function handle(Action $action)
+	{
+		$event = new ActionEvent($this->getEnvironment(), $action);
+		$this->getEnvironment()->getEventPropagator()->propagate(DcGeneralEvents::ACTION, $event);
+		return $event->getResponse();
 	}
 
 	/**

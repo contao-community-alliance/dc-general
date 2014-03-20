@@ -12,6 +12,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
+use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
@@ -49,6 +50,15 @@ interface ControllerInterface
 	 * @return ConfigInterface
 	 */
 	public function getBaseConfig();
+
+	/**
+	 * Handle a action within this environment.
+	 *
+	 * @param Action $action
+	 *
+	 * @return string
+	 */
+	public function handle(Action $action);
 
 	/**
 	 * Scan for children of a given model.

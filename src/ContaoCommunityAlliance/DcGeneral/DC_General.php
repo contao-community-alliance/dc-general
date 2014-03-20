@@ -238,7 +238,7 @@ class DC_General
 	 */
 	public function __call($name, $arguments)
 	{
-		return $this->getEnvironment()->handle(new Action($name, $arguments));
+		return $this->getEnvironment()->getController()->handle(new Action($name, $arguments));
 	}
 
 	/**
@@ -250,7 +250,7 @@ class DC_General
 	 */
 	public function copy()
 	{
-		return $this->getEnvironment()->handle(new Action('copy'));
+		return $this->getEnvironment()->getController()->handle(new Action('copy'));
 	}
 
 	/**
@@ -262,7 +262,7 @@ class DC_General
 	 */
 	public function create()
 	{
-		return $this->getEnvironment()->handle(new Action('create'));
+		return $this->getEnvironment()->getController()->handle(new Action('create'));
 	}
 
 	/**
@@ -274,7 +274,7 @@ class DC_General
 	 */
 	public function cut()
 	{
-		return $this->getEnvironment()->handle(new Action('cut'));
+		return $this->getEnvironment()->getController()->handle(new Action('cut'));
 	}
 
 	/**
@@ -286,7 +286,7 @@ class DC_General
 	 */
 	public function delete()
 	{
-		return $this->getEnvironment()->handle(new Action('delete'));
+		return $this->getEnvironment()->getController()->handle(new Action('delete'));
 	}
 
 	/**
@@ -298,7 +298,7 @@ class DC_General
 	 */
 	public function edit()
 	{
-		return $this->getEnvironment()->handle(new Action('edit'));
+		return $this->getEnvironment()->getController()->handle(new Action('edit'));
 	}
 
 	/**
@@ -310,7 +310,7 @@ class DC_General
 	 */
 	public function move()
 	{
-		return $this->getEnvironment()->handle(new Action('move'));
+		return $this->getEnvironment()->getController()->handle(new Action('move'));
 	}
 
 	/**
@@ -322,7 +322,7 @@ class DC_General
 	 */
 	public function show()
 	{
-		return $this->getEnvironment()->handle(new Action('show'));
+		return $this->getEnvironment()->getController()->handle(new Action('show'));
 	}
 
 	/**
@@ -334,7 +334,7 @@ class DC_General
 	 */
 	public function showAll()
 	{
-		return $this->getEnvironment()->handle(new Action('showAll'));
+		return $this->getEnvironment()->getController()->handle(new Action('showAll'));
 	}
 
 	/**
@@ -346,6 +346,6 @@ class DC_General
 	 */
 	public function undo()
 	{
-		return $this->getEnvironment()->handle(new Action('undo'));
+		return $this->getEnvironment()->getController()->handle(new Action('undo'));
 	}
 }
