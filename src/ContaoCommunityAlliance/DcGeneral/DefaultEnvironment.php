@@ -15,6 +15,7 @@ namespace ContaoCommunityAlliance\DcGeneral;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\EventPropagatorInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
@@ -100,6 +101,16 @@ class DefaultEnvironment implements EnvironmentInterface
 	 * @var EventPropagatorInterface
 	 */
 	protected $eventPropagator;
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function handle(Action $action)
+	{
+		$event = new ActionEvent($this, $action);
+		$this->getEventPropagator()->propagate(DcGeneralEvents::ACTION, $event);
+		return $event->getResponse();
+	}
 
 	/**
 	 * {@inheritdoc}

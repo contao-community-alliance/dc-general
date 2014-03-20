@@ -32,6 +32,15 @@ use ContaoCommunityAlliance\Translator\TranslatorInterface;
 interface EnvironmentInterface
 {
 	/**
+	 * Handle a action within this environment.
+	 *
+	 * @param Action $action
+	 *
+	 * @return string
+	 */
+	public function handle(Action $action);
+
+	/**
 	 * Set the Controller for the current setup.
 	 *
 	 * @param ControllerInterface $objController The controller to use.

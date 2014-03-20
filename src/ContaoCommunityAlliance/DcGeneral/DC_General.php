@@ -238,7 +238,7 @@ class DC_General
 	 */
 	public function __call($name, $arguments)
 	{
-		return call_user_func_array(array($this->getViewHandler(), $name), $arguments);
+		return $this->getEnvironment()->handle(new Action($name, $arguments));
 	}
 
 	/**
@@ -250,7 +250,7 @@ class DC_General
 	 */
 	public function copy()
 	{
-		return $this->getViewHandler()->copy();
+		return $this->getEnvironment()->handle(new Action('copy'));
 	}
 
 	/**
@@ -262,7 +262,7 @@ class DC_General
 	 */
 	public function create()
 	{
-		return $this->getViewHandler()->create();
+		return $this->getEnvironment()->handle(new Action('create'));
 	}
 
 	/**
@@ -274,7 +274,7 @@ class DC_General
 	 */
 	public function cut()
 	{
-		return $this->getViewHandler()->cut();
+		return $this->getEnvironment()->handle(new Action('cut'));
 	}
 
 	/**
@@ -286,7 +286,7 @@ class DC_General
 	 */
 	public function delete()
 	{
-		return $this->getViewHandler()->delete();
+		return $this->getEnvironment()->handle(new Action('delete'));
 	}
 
 	/**
@@ -298,7 +298,7 @@ class DC_General
 	 */
 	public function edit()
 	{
-		return $this->getViewHandler()->edit();
+		return $this->getEnvironment()->handle(new Action('edit'));
 	}
 
 	/**
@@ -310,7 +310,7 @@ class DC_General
 	 */
 	public function move()
 	{
-		return $this->getViewHandler()->move();
+		return $this->getEnvironment()->handle(new Action('move'));
 	}
 
 	/**
@@ -322,7 +322,7 @@ class DC_General
 	 */
 	public function show()
 	{
-		return $this->getViewHandler()->show();
+		return $this->getEnvironment()->handle(new Action('show'));
 	}
 
 	/**
@@ -334,7 +334,7 @@ class DC_General
 	 */
 	public function showAll()
 	{
-		return $this->getViewHandler()->showAll();
+		return $this->getEnvironment()->handle(new Action('showAll'));
 	}
 
 	/**
@@ -346,6 +346,6 @@ class DC_General
 	 */
 	public function undo()
 	{
-		return $this->getViewHandler()->undo();
+		return $this->getEnvironment()->handle(new Action('undo'));
 	}
 }
