@@ -118,12 +118,25 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		$action = $event->getAction();
 		$name   = $action->getName();
 
-		if (method_exists($this, $name)) {
-			$response = call_user_func_array(
-				array($this, $name),
-				$action->getArguments()
-			);
-			$event->setResponse($response);
+		switch ($name) {
+			case 'copy':
+			case 'copyAll':
+			case 'create':
+			case 'cut':
+			case 'cutAll':
+			case 'paste':
+			case 'delete':
+			case 'move':
+			case 'undo':
+			case 'edit':
+			case 'show':
+			case 'showAll':
+				$response = call_user_func_array(
+					array($this, $name),
+					$action->getArguments()
+				);
+				$event->setResponse($response);
+				break;
 		}
 	}
 
