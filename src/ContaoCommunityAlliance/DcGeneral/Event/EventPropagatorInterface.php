@@ -12,6 +12,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Event;
 
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
 /**
  * Generic event propagator.
  *
@@ -21,7 +23,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Event;
  *
  * @package DcGeneral\Event
  */
-interface EventPropagatorInterface
+interface EventPropagatorInterface extends EventDispatcherInterface
 {
 	/**
 	 * Propagate an event to the defined event dispatcher.

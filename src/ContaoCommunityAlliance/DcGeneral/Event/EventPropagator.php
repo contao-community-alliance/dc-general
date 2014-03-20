@@ -12,6 +12,9 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Event;
 
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Event;
+
 /**
  * The generic event propagator implementation.
  *
@@ -66,7 +69,7 @@ class EventPropagator implements EventPropagatorInterface
 		// Second, try to dispatch to all globally registered subscribers.
 		if ((!$event) || $event->isPropagationStopped() === false)
 		{
-			$event = $this->dispatcher->dispatch($eventName, $event);
+			$event = $this->dispatch($eventName, $event);
 		}
 
 		return $event;
@@ -87,7 +90,7 @@ class EventPropagator implements EventPropagatorInterface
 			array_shift($suffixes);
 		}
 
-		$event = $this->dispatcher->dispatch(
+		$event = $this->dispatch(
 			sprintf(
 				'%s%s',
 				$eventName,
@@ -97,5 +100,98 @@ class EventPropagator implements EventPropagatorInterface
 		);
 
 		return $event;
+	}
+
+	/**
+	 * Dispatches an event to all registered listeners.
+	 *
+	 * @param string $eventName The name of the event to dispatch. The name of
+	 *                          the event is the name of the method that is
+	 *                          invoked on listeners.
+	 * @param Event  $event     The event to pass to the event handlers/listeners.
+	 *                          If not supplied, an empty Event instance is created.
+	 *
+	 * @return Event
+	 *
+	 * @api
+	 */
+	public function dispatch($eventName, Event $event = null)
+	{
+		return $this->dispatcher->dispatch($eventName, $event);
+	}
+
+	/**
+	 * Adds an event listener that listens on the specified events.
+	 *
+	 * @param string   $eventName The event to listen on
+	 * @param callable $listener  The listener
+	 * @param integer  $priority  The higher this value, the earlier an event
+	 *                            listener will be triggered in the chain (defaults to 0)
+	 *
+	 * @api
+	 */
+	public function addListener($eventName, $listener, $priority = 0)
+	{
+		$this->dispatcher->addListener($eventName, $listener, $priority);
+	}
+
+	/**
+	 * Adds an event subscriber.
+	 *
+	 * The subscriber is asked for all the events he is
+	 * interested in and added as a listener for these events.
+	 *
+	 * @param EventSubscriberInterface $subscriber The subscriber.
+	 *
+	 * @api
+	 */
+	public function addSubscriber(EventSubscriberInterface $subscriber)
+	{
+		$this->dispatcher->addSubscriber($subscriber);
+	}
+
+	/**
+	 * Removes an event listener from the specified events.
+	 *
+	 * @param string|array $eventName The event(s) to remove a listener from
+	 * @param callable     $listener  The listener to remove
+	 */
+	public function removeListener($eventName, $listener)
+	{
+		$this->dispatcher->removeListener($eventName, $listener);
+	}
+
+	/**
+	 * Removes an event subscriber.
+	 *
+	 * @param EventSubscriberInterface $subscriber The subscriber
+	 */
+	public function removeSubscriber(EventSubscriberInterface $subscriber)
+	{
+		$this->dispatcher->removeSubscriber($subscriber);
+	}
+
+	/**
+	 * Gets the listeners of a specific event or all listeners.
+	 *
+	 * @param string $eventName The name of the event
+	 *
+	 * @return array The event listeners for the specified event, or all event listeners by event name
+	 */
+	public function getListeners($eventName = null)
+	{
+		return $this->dispatcher->getListeners($eventName);
+	}
+
+	/**
+	 * Checks whether an event has any registered listeners.
+	 *
+	 * @param string $eventName The name of the event
+	 *
+	 * @return Boolean true if the specified event has any listeners, false otherwise
+	 */
+	public function hasListeners($eventName = null)
+	{
+		return $this->dispatcher->hasListeners($eventName);
 	}
 }
