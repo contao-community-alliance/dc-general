@@ -367,7 +367,7 @@ class ParentView extends BaseView
 				$urlEvent = $propagator->propagate(
 					ContaoEvents::BACKEND_ADD_TO_URL,
 					new AddToUrlEvent(
-						'act=paste&amp;mode=create&amp;pid=' . $parentModel->getID()
+						'act=paste&amp;mode=create&amp;pid=' . IdSerializer::fromModel($parentModel)->getSerialized()
 					)
 				);
 
@@ -405,7 +405,7 @@ class ParentView extends BaseView
 						'contao/main.php?do=%s&amp;act=edit&amp;table=%s&amp;id=%s',
 						$environment->getInputProvider()->getParameter('do'),
 						$parentName,
-						$parentModel->getID()
+						IdSerializer::fromModel($parentModel)->getSerialized()
 					),
 					specialchars($this->translate('editheader.1', $definition->getName())),
 					$imageEvent->getHtml()
@@ -417,7 +417,10 @@ class ParentView extends BaseView
 				/** @var AddToUrlEvent $urlEvent */
 				$urlEvent = $propagator->propagate(
 					ContaoEvents::BACKEND_ADD_TO_URL,
-					new AddToUrlEvent('act=' . $clipboard->getMode() . '&amp;mode=2&amp;pid=' . $parentModel->getID())
+					new AddToUrlEvent(
+						'act=' . $clipboard->getMode() .
+						'&amp;mode=2&amp;pid=' . IdSerializer::fromModel($parentModel)->getSerialized()
+					)
 				);
 
 				/** @var GenerateHtmlEvent $imageEvent */
