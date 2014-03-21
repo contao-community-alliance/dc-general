@@ -12,6 +12,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use ContaoCommunityAlliance\DcGeneral\DataContainerInterface;
 
 /**
@@ -31,33 +32,44 @@ class Ajax3X extends Ajax
 
 	protected function loadPagetree(DataContainerInterface $objDc)
 	{
-		$arrData['strTable'] = $objDc->getEnvironment()->getDataDefinition()->getName();
-		$arrData['id'] = self::getAjaxName() ?: $objDc->getId();
-		$arrData['name'] = self::getPost('name');
+		$environment = $objDc->getEnvironment();
+		$input       = $environment->getInputProvider();
+		$folder      = $input->getValue('folder');
+		$field       = $input->getParameter('field');
+		$level       = intval($input->getValue('level'));
 
-		/**
-		 * @var \PageSelector $objWidget
-		 */
-		$objWidget = new $GLOBALS['BE_FFL']['pageSelector']($arrData, $objDc);
-		echo $objWidget->generateAjax(self::getAjaxId(), self::getPost('field'), intval(self::getPost('level')));
+		$arrData['strTable'] = $objDc->getEnvironment()->getDataDefinition()->getName();
+		// $arrData['id']       = self::getAjaxName() ?: $objDc->getId();
+		$arrData['name']     = $field;
+
+		/** @var \PageSelector $objWidget */
+		$objWidget        = new $GLOBALS['BE_FFL']['pageSelector']($arrData, $objDc);
+		$objWidget->value = $this->getTreeValue($arrData['name']);
+
+		echo $objWidget->generateAjax($folder, $field, $level);
 		exit;
 	}
 
 	protected function loadFiletree(DataContainerInterface $objDc)
 	{
-		$arrData['strTable'] = $objDc->getEnvironment()->getDataDefinition()->getName();
-		$arrData['id'] = self::getAjaxName() ?: $objDc->getId();
-		$arrData['name'] = self::getPost('name');
+		$environment = $objDc->getEnvironment();
+		$input       = $environment->getInputProvider();
+		$folder      = $input->getValue('folder');
+		$field       = $input->getParameter('field');
+		$level       = intval($input->getValue('level'));
 
-		/**
-		 * @var \FileSelector $objWidget
-		 */
+		$arrData['strTable'] = $input->getParameter('table');
+		$arrData['id']       = $field;
+		$arrData['name']     = $field;
+
+		/** @var \FileSelector $objWidget */
 		$objWidget = new $GLOBALS['BE_FFL']['fileSelector']($arrData, $objDc);
 
-		// Load a particular node
-		if (self::getPost('folder', true) != '')
+		$objWidget->value = $this->getTreeValue($field);
+		// Load a particular node.
+		if ($folder != '')
 		{
-			echo $objWidget->generateAjax(self::getPost('folder', true), self::getPost('field'), intval(self::getPost('level')));
+			echo $objWidget->generateAjax($folder, $field, $level);
 		}
 		else
 		{
@@ -96,56 +108,69 @@ class Ajax3X extends Ajax
 		return $varValue;
 	}
 
+	/**
+	 * Reload the file tree.
+	 *
+	 * @param string                 $strType The type.
+	 *
+	 * @param DataContainerInterface $objDc   The data container.
+	 */
 	protected function reloadTree($strType, DataContainerInterface $objDc)
 	{
-		$intId        = self::getGet('id');
-		$strFieldName = self::getPost('name');
-		$strField     =preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $strFieldName);
+		$environment  = $objDc->getEnvironment();
+		$input        = $environment->getInputProvider();
+		$serializedId = $input->hasParameter('id') ? $input->getParameter('id') : null;
+		$fieldName    = $input->hasValue('name') ? $input->getValue('name') : null;
 
-		// Handle the keys in "edit multiple" mode
+		// Handle the keys in "edit multiple" mode.
 		if (self::getGet('act') == 'editAll')
 		{
 			// TODO: change here when implementing editAll
-			$intId = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $strField);
-			$strField = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $strField);
+			$serializedId = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $fieldName);
+			$field        = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $fieldName);
 		}
 
-		if(!is_null($intId))
+		if (!is_null($serializedId))
 		{
-			$objDataProvider = $objDc->getDataProvider();
-			$objModel        = $objDataProvider->fetch($objDataProvider->getEmptyConfig()->setId($intId));
+			$id = IdSerializer::fromSerialized($serializedId);
 
-			if (is_null($objModel))
+			$dataProvider = $objDc->getEnvironment()->getDataProvider($id->getDataProviderName());
+			$model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($id->getId()));
+
+			if (is_null($model))
 			{
-				$this->log('A record with the ID "' . $intId . '" does not exist in "' . $objDc->getEnvironment()->getDataDefinition()->getName() . '"', 'Ajax executePostActions()', TL_ERROR);
+				$this->log(
+					'A record with the ID "' . $serializedId . '" does not exist in "' .
+					$objDc->getEnvironment()->getDataDefinition()->getName() . '"',
+					'Ajax executePostActions()',
+					TL_ERROR
+				);
 				header('HTTP/1.1 400 Bad Request');
 				die('Bad Request');
 			}
 		}
 
 		$varValue = $this->getTreeValue($strType);
-		$strKey = $strType . 'Tree';
+		$strKey   = $strType . 'Tree';
 
-		// Set the new value
-		if (!is_null($objModel))
+		// Set the new value.
+		if (isset($model))
 		{
-			$objModel->setProperty($strField, $varValue);
-			$arrAttribs['activeRecord'] = $objModel;
+			$model->setProperty($fieldName, $varValue);
+			$arrAttribs['activeRecord'] = $model;
 		}
 		else
 		{
 			$arrAttribs['activeRecord'] = null;
 		}
 
-		$arrAttribs['id'] = $strFieldName;
-		$arrAttribs['name'] = $strFieldName;
-		$arrAttribs['value'] = $varValue;
+		$arrAttribs['id']       = $fieldName;
+		$arrAttribs['name']     = $fieldName;
+		$arrAttribs['value']    = $varValue;
 		$arrAttribs['strTable'] = $objDc->getEnvironment()->getDataDefinition()->getName();
-		$arrAttribs['strField'] = $strField;
+		$arrAttribs['strField'] = $fieldName;
 
-		/**
-		 * @var \Widget $objWidget
-		 */
+		/** @var \Widget $objWidget */
 		$objWidget = new $GLOBALS['BE_FFL'][$strKey]($arrAttribs);
 		echo $objWidget->generate();
 
