@@ -339,13 +339,14 @@ class DefaultController implements ControllerInterface
 			&& (strlen(\Input::getInstance()->get('pid')) > 0)
 		)
 		{
+			$parentModelId = IdSerializer::fromSerialized(\Input::getInstance()->get('pid'));
 			$providerName       = $basicDefinition->getDataProvider();
-			$parentProviderName = $basicDefinition->getParentDataProvider();
+			$parentProviderName = $parentModelId->getDataProviderName();
 			$objParentDriver    = $environment->getDataProvider($parentProviderName);
 			$objParentModel     = $objParentDriver->fetch(
 				$objParentDriver
 					->getEmptyConfig()
-					->setId(\Input::getInstance()->get('pid'))
+					->setId($parentModelId->getId())
 			);
 
 			$relationship = $environment
