@@ -14,6 +14,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Factory;
 
 use ContaoCommunityAlliance\DcGeneral\DataDefinitionContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneral;
+use ContaoCommunityAlliance\DcGeneral\Factory\Event\PreCreateDcGeneralEvent;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -282,6 +283,13 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 		{
 			throw new DcGeneralRuntimeException('Required event propagator is missing');
 		}
+
+		$event = new PreCreateDcGeneralEvent($this);
+		$this->eventPropagator->propagate(
+			$event::NAME,
+			$event,
+			array($this->containerName)
+		);
 
 		if ($this->environment)
 		{
