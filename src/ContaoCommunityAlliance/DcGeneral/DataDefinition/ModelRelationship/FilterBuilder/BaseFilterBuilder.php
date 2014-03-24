@@ -222,13 +222,15 @@ abstract class BaseFilterBuilder
 	 *
 	 * @param string $remoteProperty The name of the remote property.
 	 *
+	 * @param bool   $remoteIsValue  True if the passed remote value is a value, false if it is a property name.
+	 *
 	 * @return PropertyEqualsFilterBuilder The newly created filter.
 	 */
-	public function andRemotePropertyEquals($property, $remoteProperty)
+	public function andRemotePropertyEquals($property, $remoteProperty, $remoteIsValue = false)
 	{
 		$this->getBuilder()->checkNotRoot();
 
-		return $this->andEncapsulate(new PropertyEqualsFilterBuilder($property, $remoteProperty, true));
+		return $this->andEncapsulate(new PropertyEqualsFilterBuilder($property, $remoteProperty, true, !$remoteIsValue));
 	}
 
 	/**
@@ -252,13 +254,15 @@ abstract class BaseFilterBuilder
 	 *
 	 * @param string $remoteProperty The name of the remote property.
 	 *
+	 * @param bool   $remoteIsValue  True if the passed remote value is a value, false if it is a property name.
+	 *
 	 * @return PropertyGreaterThanFilterBuilder The newly created filter.
 	 */
-	public function andRemotePropertyGreaterThan($property, $remoteProperty)
+	public function andRemotePropertyGreaterThan($property, $remoteProperty, $remoteIsValue = false)
 	{
 		$this->getBuilder()->checkNotRoot();
 
-		return $this->andEncapsulate(new PropertyGreaterThanFilterBuilder($property, $remoteProperty, true));
+		return $this->andEncapsulate(new PropertyGreaterThanFilterBuilder($property, $remoteProperty, true, !$remoteIsValue));
 	}
 
 	/**
@@ -282,13 +286,15 @@ abstract class BaseFilterBuilder
 	 *
 	 * @param string $remoteProperty The name of the remote property.
 	 *
+	 * @param bool   $remoteIsValue  True if the passed remote value is a value, false if it is a property name.
+	 *
 	 * @return PropertyLessThanFilterBuilder The newly created filter.
 	 */
-	public function andRemotePropertyLessThan($property, $remoteProperty)
+	public function andRemotePropertyLessThan($property, $remoteProperty, $remoteIsValue = false)
 	{
 		$this->getBuilder()->checkNotRoot();
 
-		return $this->andEncapsulate(new PropertyLessThanFilterBuilder($property, $remoteProperty, true));
+		return $this->andEncapsulate(new PropertyLessThanFilterBuilder($property, $remoteProperty, true, !$remoteIsValue));
 	}
 
 	/**

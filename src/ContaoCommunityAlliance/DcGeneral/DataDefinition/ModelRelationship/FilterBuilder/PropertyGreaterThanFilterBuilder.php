@@ -25,16 +25,19 @@ class PropertyGreaterThanFilterBuilder
 	/**
 	 * Create a new instance.
 	 *
-	 * @param string $property The property name to be compared.
+	 * @param string $property     The property name to be compared.
 	 *
-	 * @param mixed  $value    The value to be compared against.
+	 * @param mixed  $value        The value to be compared against.
 	 *
-	 * @param bool   $isRemote Flag determining if the passed value is a remote property name (only valid if filter is
-	 *                         for parent child relationship and not for root elements).
+	 * @param bool   $isRemote     Flag determining if the passed value is a remote property name (only valid if filter is
+	 *                             for parent child relationship and not for root elements).
+	 *
+	 * @param bool   $isRemoteProp Flag determining if the passed value is a property or literal value (only valid when
+	 *                             $isRemote is true).
 	 */
-	public function __construct($property, $value, $isRemote = false)
+	public function __construct($property, $value, $isRemote = false, $isRemoteProp = true)
 	{
 		$this->operation = '>';
-		parent::__construct($property, $value, $isRemote);
+		parent::__construct($property, $value, $isRemote, $isRemoteProp);
 	}
 }
