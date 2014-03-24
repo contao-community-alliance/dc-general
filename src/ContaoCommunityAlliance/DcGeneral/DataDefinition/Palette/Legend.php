@@ -214,7 +214,7 @@ class Legend implements LegendInterface
 			{
 				$condition = $property->getVisibleCondition();
 
-				if (!$condition || $condition->match($model, $input))
+				if (!$condition || $condition->match($model, $input, $property, $this))
 				{
 					$selectedProperties[] = $property;
 				}

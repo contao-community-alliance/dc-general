@@ -15,6 +15,8 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Pro
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\AbstractConditionChain;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -28,8 +30,12 @@ class PropertyConditionChain extends AbstractConditionChain implements PropertyC
 	 * @throws DcGeneralRuntimeException When an condition that does not implement PropertyConditionInterface
 	 *                                   is encountered.
 	 */
-	public function match(ModelInterface $model = null, PropertyValueBag $input = null)
-	{
+	public function match(
+		ModelInterface $model = null,
+		PropertyValueBag $input = null,
+		PropertyInterface $property = null,
+		LegendInterface $legend = null
+	) {
 		if ($this->conjunction == static::AND_CONJUNCTION)
 		{
 			foreach ($this->conditions as $condition)

@@ -14,6 +14,8 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Pro
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 
 /**
  * Condition checking that the value of a property is the same as a passed value.
@@ -129,8 +131,12 @@ class PropertyValueCondition implements PropertyConditionInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function match(ModelInterface $model = null, PropertyValueBag $input = null)
-	{
+	public function match(
+		ModelInterface $model = null,
+		PropertyValueBag $input = null,
+		PropertyInterface $property = null,
+		LegendInterface $legend = null
+	) {
 		if ($input && $input->hasPropertyValue($this->propertyName))
 		{
 			$value = $input->getPropertyValue($this->propertyName);

@@ -86,11 +86,14 @@ class Palette implements PaletteInterface
 	{
 		$properties = array();
 
-		foreach ($this->getProperties($model, $input) as $property)
+		foreach ($this->getLegends() as $legend)
 		{
-			if ($property->isVisible($model, $input))
+			foreach ($legend->getProperties($model, $input) as $property)
 			{
-				$properties[] = $property;
+				if ($property->isVisible($model, $input, $legend))
+				{
+					$properties[] = $property;
+				}
 			}
 		}
 
@@ -104,11 +107,14 @@ class Palette implements PaletteInterface
 	{
 		$properties = array();
 
-		foreach ($this->getProperties($model, $input) as $property)
+		foreach ($this->getLegends() as $legend)
 		{
-			if ($property->isEditable($model, $input))
+			foreach ($legend->getProperties($model, $input) as $property)
 			{
-				$properties[] = $property;
+				if ($property->isEditable($model, $input, $legend))
+				{
+					$properties[] = $property;
+				}
 			}
 		}
 

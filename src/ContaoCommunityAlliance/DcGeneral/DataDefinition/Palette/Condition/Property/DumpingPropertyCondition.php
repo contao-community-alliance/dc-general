@@ -14,6 +14,8 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Pro
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 
 /**
  * Only for debugging purpose. Call the match() method on the wrapped condition and
@@ -34,9 +36,13 @@ class DumpingPropertyCondition implements PropertyConditionInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function match(ModelInterface $model = null, PropertyValueBag $input = null)
-	{
-		$result = $this->propertyCondition->match($model, $input);
+	public function match(
+		ModelInterface $model = null,
+		PropertyValueBag $input = null,
+		PropertyInterface $property = null,
+		LegendInterface $legend = null
+	) {
+		$result = $this->propertyCondition->match($model, $input, $property, $legend);
 
 		echo '<pre>$condition: </pre>';
 		var_dump($this->propertyCondition);

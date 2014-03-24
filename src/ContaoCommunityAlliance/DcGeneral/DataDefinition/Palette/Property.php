@@ -73,11 +73,11 @@ class Property implements PropertyInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function isVisible(ModelInterface $model = null, PropertyValueBag $input = null)
+	public function isVisible(ModelInterface $model = null, PropertyValueBag $input = null, LegendInterface $legend = null)
 	{
 		if ($this->visibleCondition)
 		{
-			return $this->visibleCondition->match($model, $input);
+			return $this->visibleCondition->match($model, $input, $this, $legend);
 		}
 
 		return true;
@@ -86,11 +86,11 @@ class Property implements PropertyInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function isEditable(ModelInterface $model = null, PropertyValueBag $input = null)
+	public function isEditable(ModelInterface $model = null, PropertyValueBag $input = null, LegendInterface $legend = null)
 	{
 		if ($this->editableCondition)
 		{
-			return $this->editableCondition->match($model, $input);
+			return $this->editableCondition->match($model, $input, $this, $legend);
 		}
 
 		return true;

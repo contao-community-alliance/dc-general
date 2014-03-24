@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -42,32 +43,44 @@ interface PropertyInterface
 	/**
 	 * Check the conditions, if this property is visible.
 	 *
-	 * @param ModelInterface|null $model If given, sub palettes will be evaluated depending on the model.
-	 *                                   If no model is given, all properties will be returned, including sub palette
-	 *                                   properties.
+	 * @param ModelInterface|null $model  If given, sub palettes will be evaluated depending on the model.
+	 *                                    If no model is given, all properties will be returned, including sub palette
+	 *                                    properties.
 	 *
-	 * @param PropertyValueBag    $input If given, sub palettes will be evaluated depending on the input data.
-	 *                                   If no model and no input data is given, all properties will be returned,
-	 *                                   including sub palette properties.
+	 * @param PropertyValueBag    $input  If given, sub palettes will be evaluated depending on the input data.
+	 *                                    If no model and no input data is given, all properties will be returned,
+	 *                                    including sub palette properties.
+	 *
+	 * @param LegendInterface     $legend The legend the property is assigned to.
 	 *
 	 * @return bool
 	 */
-	public function isVisible(ModelInterface $model = null, PropertyValueBag $input = null);
+	public function isVisible(
+		ModelInterface $model = null,
+		PropertyValueBag $input = null,
+		LegendInterface $legend = null
+	);
 
 	/**
 	 * Check the conditions, if this property is editable.
 	 *
-	 * @param ModelInterface|null $model If given, sub palettes will be evaluated depending on the model.
-	 *                                   If no model is given, all properties will be returned, including sub palette
-	 *                                   properties.
+	 * @param ModelInterface|null $model  If given, sub palettes will be evaluated depending on the model.
+	 *                                    If no model is given, all properties will be returned, including sub palette
+	 *                                    properties.
 	 *
-	 * @param PropertyValueBag    $input If given, sub palettes will be evaluated depending on the input data.
-	 *                                   If no model and no input data is given, all properties will be returned,
-	 *                                   including sub palette properties.
+	 * @param PropertyValueBag    $input  If given, sub palettes will be evaluated depending on the input data.
+	 *                                    If no model and no input data is given, all properties will be returned,
+	 *                                    including sub palette properties.
+	 *
+	 * @param LegendInterface     $legend The legend the property is assigned to.
 	 *
 	 * @return bool
 	 */
-	public function isEditable(ModelInterface $model = null, PropertyValueBag $input = null);
+	public function isEditable(
+		ModelInterface $model = null,
+		PropertyValueBag $input = null,
+		LegendInterface $legend = null
+	);
 
 	/**
 	 * Set the visible condition for this property.

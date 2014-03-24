@@ -14,6 +14,8 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Pro
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 
 /**
  * Negate a condition.
@@ -63,9 +65,13 @@ class NotCondition implements PropertyConditionInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function match(ModelInterface $model = null, PropertyValueBag $input = null)
-	{
-		return !$this->condition->match($model, $input);
+	public function match(
+		ModelInterface $model = null,
+		PropertyValueBag $input = null,
+		PropertyInterface $property = null,
+		LegendInterface $legend = null
+	) {
+		return !$this->condition->match($model, $input, $property, $legend);
 	}
 
 	/**
