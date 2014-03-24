@@ -124,6 +124,28 @@ class Palette implements PaletteInterface
 	/**
 	 * {@inheritdoc}
 	 */
+	public function getProperty($propertyName)
+	{
+		foreach ($this->getLegends() as $legend)
+		{
+			if ($legend->hasProperty($propertyName))
+			{
+				return $legend->getProperty($propertyName);
+			}
+		}
+
+		throw new DcGeneralRuntimeException(
+			sprintf(
+				'The palette %s does not contain a property named %s',
+				$this->getName(),
+				$propertyName
+			)
+		);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
 	public function clearLegends()
 	{
 		$this->legends = array();

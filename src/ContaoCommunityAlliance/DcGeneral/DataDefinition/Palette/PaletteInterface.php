@@ -77,6 +77,17 @@ interface PaletteInterface
 	public function getEditableProperties(ModelInterface $model = null, PropertyValueBag $input = null);
 
 	/**
+	 * Get a property by name from this palette.
+	 *
+	 * @param string $propertyName The property name.
+	 *
+	 * @return PropertyInterface
+	 *
+	 * @throws DcGeneralRuntimeException If the this palette does not contain the property.
+	 */
+	public function getProperty($propertyName);
+
+	/**
 	 * Clear all legends from this palette.
 	 *
 	 * @return PaletteInterface
