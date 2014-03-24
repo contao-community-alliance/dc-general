@@ -285,7 +285,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			}
 		}
 
-		foreach ($this->getFromDca('fields') as $propName => $propInfo)
+		foreach ((array)$this->getFromDca('fields') as $propName => $propInfo)
 		{
 			if (isset($propInfo['load_callback']))
 			{
@@ -1254,7 +1254,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			$container->setPropertiesDefinition($definition);
 		}
 
-		foreach ($this->getFromDca('fields') as $propName => $propInfo)
+		foreach ((array)$this->getFromDca('fields') as $propName => $propInfo)
 		{
 			if ($definition->hasProperty($propName))
 			{
