@@ -12,6 +12,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship;
 
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
@@ -316,40 +317,74 @@ class ParentChildCondition
 	}
 
 	/**
+	 * Prepare a filter rule to be checked via checkCondition().
+	 *
+	 * @param array          $rule   The rule to prepare.
+	 *
+	 * @param ModelInterface $child  The child to be checked.
+	 *
+	 * @param ModelInterface $parent The child to be checked.
+	 *
+	 * @return array.
+	 */
+	protected function prepareRule($rule, $child, $parent)
+	{
+		$applied = array(
+			'operation'   => $rule['operation'],
+		);
+
+		if (in_array($rule['operation'], array('AND', 'OR')))
+		{
+			$children = array();
+
+			foreach ($rule['children'] as $childRule)
+			{
+				$children[] = $this->prepareRule($childRule, $child, $parent);
+			}
+
+			$applied['children'] = $children;
+
+			return $applied;
+		}
+
+		// Local is child property name.
+		if (isset($rule['local']))
+		{
+			$applied['property'] = $child->getProperty($rule['local']);
+		}
+
+		// Remote is parent property name.
+		if (isset($rule['remote']))
+		{
+			$applied['value'] = $parent->getProperty($rule['remote']);
+		}
+
+		if (isset($rule['remote_value']))
+		{
+			$applied['value'] = $rule['remote_value'];
+		}
+
+		if (isset($rule['value']))
+		{
+			$applied['value'] = $rule['value'];
+		}
+
+		return $applied;
+	}
+
+	/**
 	 * {@inheritdoc}
 	 */
 	public function matches($objParent, $objChild)
 	{
-		$filter = array();
-		foreach ($this->getFilterArray() as $arrRule)
-		{
-			$arrApplied = array(
-				'operation'   => $arrRule['operation'],
-			);
-
-			if (isset($arrRule['local']))
-			{
-				$arrApplied['property'] = $objChild->getProperty($arrRule['local']);
-			}
-
-			if (isset($arrRule['remote']))
-			{
-				$arrApplied['value'] = $arrRule['remote'];
-			}
-
-			if (isset($arrRule['remote_value']))
-			{
-				$arrApplied['value'] = $arrRule['remote_value'];
-			}
-
-			if (isset($arrRule['value']))
-			{
-				$arrApplied['value'] = $arrRule['value'];
-			}
-
-			$filter[] = $arrApplied;
-		}
-
+		$filter = $this->prepareRule(
+			array(
+				'operation' => 'AND',
+				'children' => $this->getFilterArray()
+			),
+			$objChild,
+			$objParent
+		);
 		return $this->checkCondition($objParent, $filter);
 	}
 }
