@@ -154,7 +154,7 @@ class FilterBuilder
 	 */
 	public function checkNotRoot()
 	{
-		if (!$this->isRootFilter)
+		if ($this->isRootFilter)
 		{
 			throw new DcGeneralInvalidArgumentException(
 				'ERROR: Filter builder is for an root filter.'
