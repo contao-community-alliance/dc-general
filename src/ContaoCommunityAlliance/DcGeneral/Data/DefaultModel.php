@@ -236,7 +236,7 @@ class DefaultModel extends AbstractModel
 	 */
 	public function readFromPropertyValueBag(PropertyValueBagInterface $valueBag)
 	{
-		foreach ($this as $name => $value)
+		foreach (array_keys($this->arrProperties) as $name)
 		{
 			if (!$valueBag->hasPropertyValue($name))
 			{
@@ -248,7 +248,7 @@ class DefaultModel extends AbstractModel
 				throw new DcGeneralInvalidArgumentException('The value for property ' . $name . ' is invalid.');
 			}
 
-			$this->setProperty($name, $valueBag->getPropertyValue($value));
+			$this->setProperty($name, $valueBag->getPropertyValue($name));
 		}
 
 		return $this;
@@ -259,14 +259,14 @@ class DefaultModel extends AbstractModel
 	 */
 	public function writeToPropertyValueBag(PropertyValueBagInterface $valueBag)
 	{
-		foreach ($this as $name => $value)
+		foreach (array_keys($this->arrProperties) as $name)
 		{
 			if (!$valueBag->hasPropertyValue($name))
 			{
 				continue;
 			}
 
-			$valueBag->setPropertyValue($name, $this->getProperty($value));
+			$valueBag->setPropertyValue($name, $this->getProperty($name));
 		}
 
 		return $this;
