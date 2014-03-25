@@ -310,17 +310,17 @@ class ContaoWidgetManager
 			/** @var PropertyInterface $property */
 			$extra = $property->getExtra();
 
-			if (!isset($extra['eval']['rte']))
+			if (!isset($extra['rte']))
 			{
 				continue;
 			}
 
-			if (strncmp($extra['eval']['rte'], 'tiny', 4) !== 0)
+			if (strncmp($extra['rte'], 'tiny', 4) !== 0)
 			{
 				continue;
 			}
 
-			list($file, $type) = explode('|', $extra['eval']['rte']);
+			list($file, $type) = explode('|', $extra['rte']);
 
 			$propertyId = 'ctrl_' . $property->getName();
 
