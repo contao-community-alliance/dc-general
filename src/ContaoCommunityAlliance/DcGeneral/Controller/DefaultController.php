@@ -118,13 +118,18 @@ class DefaultController implements ControllerInterface
 
 		foreach ($models as $candidate)
 		{
-			foreach ($relationships->getChildConditions($candidate) as $condition)
+			/** @var ModelInterface $candidate */
+			foreach ($relationships->getChildConditions($candidate->getProviderName()) as $condition)
 			{
+				if ($condition->matches($candidate, $model))
+				{
+					return $candidate;
+				}
+
 				$provider = $environment->getDataProvider($condition->getDestinationName());
 				$config   = $provider
 					->getEmptyConfig()
-					->setFilter($condition->getFilter($candidate))
-					->setIdOnly(true);
+					->setFilter($condition->getFilter($candidate));
 
 				$result = $this->searchParentOfIn($model, $provider->fetchAll($config));
 				if ($result === true)
@@ -162,11 +167,11 @@ class DefaultController implements ControllerInterface
 			{
 				throw new DcGeneralInvalidArgumentException('Invalid condition, root models can not have parents!');
 			}
-			// TODO: Speed up, some conditions have an inverse filter - use them!
-
+			// To speed up, some conditions have an inverse filter - we should use them!
+			// Start from the root data provider and walk through the whole tree.
 			$provider  = $environment->getDataProvider($definition->getBasicDefinition()->getRootDataProvider());
 			$condition = $relationships->getRootCondition();
-			$config    = $provider->getEmptyConfig()->setIdOnly(true)->setFilter($condition->getFilterArray());
+			$config    = $provider->getEmptyConfig()->setFilter($condition->getFilterArray());
 
 			return $this->searchParentOfIn($model, $provider->fetchAll($config));
 		}
@@ -250,7 +255,13 @@ class DefaultController implements ControllerInterface
 		// Are we at least in hierarchical mode?
 		elseif ($definition->getBasicDefinition()->getMode() === BasicDefinitionInterface::MODE_HIERARCHICAL)
 		{
-			$parent    = $this->searchParentOf($model);
+			$parent = $this->searchParentOf($model);
+
+			if (!$parent instanceof ModelInterface)
+			{
+				throw new DcGeneralRuntimeException('Parent could not be found, are the parent child conditions correct?');
+			}
+
 			$condition = $relationships->getChildCondition($parent->getProviderName(), $model->getProviderName());
 			$config->setFilter($condition->getFilter($parent));
 		}
