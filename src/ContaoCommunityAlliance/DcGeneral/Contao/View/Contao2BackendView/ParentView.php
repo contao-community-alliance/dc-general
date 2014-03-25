@@ -27,6 +27,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Paren
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 
 /**
  * Class ParentView.
@@ -336,8 +337,6 @@ class ParentView extends BaseView
 		$definition       = $environment->getDataDefinition();
 		$clipboard        = $environment->getClipboard();
 		$basicDefinition  = $definition->getBasicDefinition();
-		$parentDefinition = $environment->getParentDataDefinition();
-		$parentName       = $basicDefinition->getParentDataProvider();
 
 		$headerButtons = array();
 		if ($this->isSelectModeActive())
@@ -388,29 +387,7 @@ class ParentView extends BaseView
 				);
 			}
 
-			if ($parentDefinition && $parentDefinition->getBasicDefinition()->isEditable())
-			{
-				/** @var GenerateHtmlEvent $imageEvent */
-				$imageEvent = $propagator->propagate(
-					ContaoEvents::IMAGE_GET_HTML,
-					new GenerateHtmlEvent(
-						'edit.gif',
-						$this->translate('editheader.0', $definition->getName())
-					)
-				);
-
-				$headerButtons['editHeader'] = sprintf(
-					'<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
-					sprintf(
-						'contao/main.php?do=%s&amp;act=edit&amp;table=%s&amp;id=%s',
-						$environment->getInputProvider()->getParameter('do'),
-						$parentName,
-						IdSerializer::fromModel($parentModel)->getSerialized()
-					),
-					specialchars($this->translate('editheader.1', $definition->getName())),
-					$imageEvent->getHtml()
-				);
-			}
+			$headerButtons['editHeader'] = $this->getHeaderEditButtons($parentModel);
 
 			if ($sorting && $clipboard->isNotEmpty())
 			{
@@ -443,6 +420,83 @@ class ParentView extends BaseView
 		}
 
 		return implode(' ', $headerButtons);
+	}
+
+	/**
+	 * Retrieve a list of html buttons to use in the top panel (submit area).
+	 *
+	 * @param ModelInterface $parentModel The parent model.
+	 *
+	 * @return array
+	 */
+	protected function getHeaderEditButtons($parentModel)
+	{
+		$environment      = $this->getEnvironment();
+		$parentDefinition = $environment->getParentDataDefinition();
+
+		if ($parentDefinition && $parentDefinition->getBasicDefinition()->isEditable())
+		{
+			$definition      = $environment->getDataDefinition();
+			$basicDefinition = $definition->getBasicDefinition();
+			$parentName      = $basicDefinition->getParentDataProvider();
+			$propagator      = $environment->getEventPropagator();
+
+			$query = array(
+				'do' => $environment->getInputProvider()->getParameter('do'),
+				'act' => 'edit',
+				'table' => $parentName,
+				'id' => IdSerializer::fromModel($parentModel)->getSerialized(),
+			);
+
+			$factory = DcGeneralFactory::deriveFromEnvironment($this->environment);
+			$factory->setContainerName($parentDefinition->getName());
+
+			$parentContainer = $factory->createContainer();
+			if ($parentContainer->getBasicDefinition()->getParentDataProvider()) {
+				$container = $this->environment->getDataDefinition();
+
+				$relationship = $container->getModelRelationshipDefinition()->getChildCondition(
+					$parentContainer->getBasicDefinition()->getParentDataProvider(),
+					$parentContainer->getName()
+				);
+
+				if ($relationship) {
+					$filter = $relationship->getInverseFilterFor($parentModel);
+
+					$parentsParentProvider = $this->environment->getDataProvider($parentContainer->getBasicDefinition()->getParentDataProvider());
+
+					$config = $parentsParentProvider->getEmptyConfig();
+					$config->setFilter($filter);
+
+					$parents = $parentsParentProvider->fetchAll($config);
+
+					if ($parents->length() == 1) {
+						$query['pid'] = IdSerializer::fromModel($parents->get(0))->getSerialized();
+					}
+					else if ($parents->length() > 1) {
+						return null;
+					}
+				}
+			}
+
+			/** @var GenerateHtmlEvent $imageEvent */
+			$imageEvent = $propagator->propagate(
+				ContaoEvents::IMAGE_GET_HTML,
+				new GenerateHtmlEvent(
+					'edit.gif',
+					$this->translate('editheader.0', $definition->getName())
+				)
+			);
+
+			return sprintf(
+				'<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
+				'contao/main.php?' . http_build_query($query),
+				specialchars($this->translate('editheader.1', $definition->getName())),
+				$imageEvent->getHtml()
+			);
+		}
+
+		return null;
 	}
 
 
