@@ -200,7 +200,7 @@ class DefaultClipboard implements ClipboardInterface
 	{
 		$this->mode = self::MODE_CREATE;
 
-		$this->setContainedIds($parentId);
+		$this->setContainedIds(array($parentId));
 
 		return $this;
 	}
