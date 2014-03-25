@@ -647,6 +647,8 @@ EOF;
 			// native data as in the model.
 			// Therefore we do not need to decode them but MUST encode them.
 			$widget->value = $propertyValues->getPropertyValue($property);
+			// TODO: we need to either override the POST data so \Widget::validate() get's it or call the (protected)
+			// \Widget::validator($value) on our own.
 			$widget->validate();
 
 			if ($widget->hasErrors())
