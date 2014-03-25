@@ -69,6 +69,25 @@ abstract class AbstractCondition
 	}
 
 	/**
+	 * Extract a condition value depending if it is a remote value or property.
+	 *
+	 * @param array          $condition The condition array.
+	 *
+	 * @param ModelInterface $parent    The parent model.
+	 *
+	 * @return mixed
+	 */
+	protected static function getConditionValue($condition, $parent)
+	{
+		if (isset($condition['remote_value']))
+		{
+			return $condition['remote_value'];
+		}
+
+		return $parent->getProperty($condition['property']);
+	}
+
+	/**
 	 * Check if the passed filter rules apply to the given model.
 	 *
 	 * @param ModelInterface $objParentModel The model to check the condition against.
@@ -81,38 +100,35 @@ abstract class AbstractCondition
 	 */
 	public static function checkCondition(ModelInterface $objParentModel, $arrFilter)
 	{
+		// FIXME: backwards compat - remove when done.
+		if (isset($arrFilter['childs']) && is_array($arrFilter['childs']))
+		{
+			trigger_error('Filter array uses deprecated entry "childs", please use "children" instead.', E_USER_DEPRECATED);
+			$arrFilter['children'] = $arrFilter['childs'];
+		}
+
 		switch ($arrFilter['operation'])
 		{
 			case 'AND':
-			case 'OR':
-				// FIXME: backwards compat - remove when done.
-				if (isset($arrFilter['childs']) && is_array($arrFilter['childs']))
-				{
-					trigger_error('Filter array uses deprecated entry "childs", please use "children" instead.', E_USER_DEPRECATED);
-					$arrFilter['children'] = $arrFilter['childs'];
-				}
+				return self::checkAndFilter($objParentModel, $arrFilter['children']);
 
-				if ($arrFilter['operation'] == 'AND')
-				{
-					return self::checkAndFilter($objParentModel, $arrFilter['children']);
-				}
-				else
-				{
-					return self::checkOrFilter($objParentModel, $arrFilter['children']);
-				}
-				break;
+			case 'OR':
+				return self::checkOrFilter($objParentModel, $arrFilter['children']);
 
 			case '=':
-				return ($objParentModel->getProperty($arrFilter['property']) == $arrFilter['value']);
+				return (self::getConditionValue($arrFilter, $objParentModel) == $arrFilter['value']);
 
 			case '>':
-				return ($objParentModel->getProperty($arrFilter['property']) > $arrFilter['value']);
+				return (self::getConditionValue($arrFilter, $objParentModel) > $arrFilter['value']);
 
 			case '<':
-				return ($objParentModel->getProperty($arrFilter['property']) < $arrFilter['value']);
+				return (self::getConditionValue($arrFilter, $objParentModel) < $arrFilter['value']);
 
 			case 'IN':
 				return in_array($objParentModel->getProperty($arrFilter['property']), $arrFilter['value']);
+
+			case 'LIKE':
+				throw new DcGeneralRuntimeException('LIKE unsupported as of now.');
 
 			default:
 		}

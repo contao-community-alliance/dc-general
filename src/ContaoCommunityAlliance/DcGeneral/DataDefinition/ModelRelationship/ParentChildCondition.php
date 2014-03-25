@@ -319,15 +319,13 @@ class ParentChildCondition
 	/**
 	 * Prepare a filter rule to be checked via checkCondition().
 	 *
-	 * @param array          $rule   The rule to prepare.
+	 * @param array          $rule  The rule to prepare.
 	 *
-	 * @param ModelInterface $child  The child to be checked.
-	 *
-	 * @param ModelInterface $parent The child to be checked.
+	 * @param ModelInterface $child The child to be checked.
 	 *
 	 * @return array.
 	 */
-	protected function prepareRule($rule, $child, $parent)
+	protected function prepareRule($rule, $child)
 	{
 		$applied = array(
 			'operation'   => $rule['operation'],
@@ -339,7 +337,7 @@ class ParentChildCondition
 
 			foreach ($rule['children'] as $childRule)
 			{
-				$children[] = $this->prepareRule($childRule, $child, $parent);
+				$children[] = $this->prepareRule($childRule, $child);
 			}
 
 			$applied['children'] = $children;
@@ -350,23 +348,21 @@ class ParentChildCondition
 		// Local is child property name.
 		if (isset($rule['local']))
 		{
-			$applied['property'] = $child->getProperty($rule['local']);
+			$applied['value'] = $child->getProperty($rule['local']);
+		}
+		elseif (isset($rule['value']))
+		{
+			$applied['value'] = $rule['value'];
 		}
 
 		// Remote is parent property name.
 		if (isset($rule['remote']))
 		{
-			$applied['value'] = $parent->getProperty($rule['remote']);
+			$applied['property'] = $rule['remote'];
 		}
-
-		if (isset($rule['remote_value']))
+		elseif (isset($rule['remote_value']))
 		{
-			$applied['value'] = $rule['remote_value'];
-		}
-
-		if (isset($rule['value']))
-		{
-			$applied['value'] = $rule['value'];
+			$applied['remote_value'] = $rule['remote_value'];
 		}
 
 		return $applied;
@@ -382,8 +378,7 @@ class ParentChildCondition
 				'operation' => 'AND',
 				'children' => $this->getFilterArray()
 			),
-			$objChild,
-			$objParent
+			$objChild
 		);
 		return $this->checkCondition($objParent, $filter);
 	}
