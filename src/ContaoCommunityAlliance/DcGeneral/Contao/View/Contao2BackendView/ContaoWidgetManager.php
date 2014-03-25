@@ -341,7 +341,7 @@ class ContaoWidgetManager
 	 *
 	 * @throws DcGeneralInvalidArgumentException If an undefined property name has been passed.
 	 */
-	public function getWidget($property)
+	public function getWidget($property, PropertyValueBag $inputValues = null)
 	{
 		$environment         = $this->getEnvironment();
 		$defName             = $environment->getDataDefinition()->getName();
@@ -392,8 +392,16 @@ class ContaoWidgetManager
 		// Widgets should parse the configuration by themselves, depending on what they need.
 		$propExtra['required'] = ($varValue == '') && $propExtra['mandatory'];
 
+		if ($inputValues) {
+			$model = clone $this->model;
+			$model->readFromPropertyValueBag($inputValues);
+		}
+		else {
+			$model = $this->model;
+		}
+
 		$options = $propInfo->getOptions();
-		$event   = new GetPropertyOptionsEvent($environment, $this->model);
+		$event   = new GetPropertyOptionsEvent($environment, $model);
 		$event->setPropertyName($property);
 		$event->setOptions($options);
 		$environment->getEventPropagator()->propagate(
@@ -623,7 +631,7 @@ class ContaoWidgetManager
 	{
 		foreach (array_keys($propertyValues->getArrayCopy()) as $property)
 		{
-			$widget = $this->getWidget($property);
+			$widget = $this->getWidget($property, $propertyValues);
 			// NOTE: the passed input values are RAW DATA from the input provider - aka widget known values and not
 			// native data as in the model.
 			// Therefore we do not need to decode them but MUST encode them.
