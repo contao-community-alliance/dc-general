@@ -1338,7 +1338,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		foreach ($properties as $property)
 		{
 			$propName = $property->getName();
-			$model->setProperty($propName, $property->getDefaultValue());
+
+			if ($property->getDefaultValue() !== null) {
+				$model->setProperty($propName, $property->getDefaultValue());
+			}
 		}
 
 		return $model;
