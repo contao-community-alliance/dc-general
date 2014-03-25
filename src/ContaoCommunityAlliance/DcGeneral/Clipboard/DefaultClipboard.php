@@ -26,14 +26,14 @@ class DefaultClipboard implements ClipboardInterface
 	 *
 	 * @var array
 	 */
-	protected $arrIds;
+	protected $arrIds = array();
 
 	/**
 	 * The ids that will create a circular reference and therefore shall get ignored for pasting.
 	 *
 	 * @var array
 	 */
-	protected $arrCircularIds;
+	protected $arrCircularIds = array();
 
 	/**
 	 * The current mode the clipboard is in.
