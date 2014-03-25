@@ -16,6 +16,7 @@ use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\LoadDataContainerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LoadLanguageFileEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
@@ -224,6 +225,7 @@ class ParentView extends BaseView
 	protected function renderFormattedHeaderFields($parentModel)
 	{
 		$environment       = $this->getEnvironment();
+		$propagator        = $this->getEnvironment()->getEventPropagator();
 		$definition        = $environment->getDataDefinition();
 		$viewDefinition    = $this->getViewSection();
 		$listingDefinition = $viewDefinition->getListingConfig();
@@ -259,17 +261,12 @@ class ParentView extends BaseView
 				{
 					$value = strlen($value) ? $this->translate('yes', 'MSC') : $this->translate('no', 'MSC');
 				}
-				elseif ($value && $evaluation['rgxp'] == 'date')
+				elseif ($value && in_array($evaluation['rgxp'], array('date', 'time', 'datim')))
 				{
-					$value = BackendBindings::parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $value);
-				}
-				elseif ($value && $evaluation['rgxp'] == 'time')
-				{
-					$value = BackendBindings::parseDate($GLOBALS['TL_CONFIG']['timeFormat'], $value);
-				}
-				elseif ($value && $evaluation['rgxp'] == 'datim')
-				{
-					$value = BackendBindings::parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $value);
+					$event = new ParseDateEvent($value, $GLOBALS['TL_CONFIG'][$evaluation['rgxp'] . 'Format']);
+					$propagator->propagate(ContaoEvents::DATE_PARSE, $event);
+
+					$value = $event->getResult();
 				}
 				elseif (is_array($reference[$value]))
 				{
@@ -298,7 +295,7 @@ class ParentView extends BaseView
 		$event = new GetParentHeaderEvent($environment);
 		$event->setAdditional($add);
 
-		$this->getEnvironment()->getEventPropagator()->propagate(
+		$propagator->propagate(
 			$event::NAME,
 			$event,
 			$this->getEnvironment()->getDataDefinition()->getName()

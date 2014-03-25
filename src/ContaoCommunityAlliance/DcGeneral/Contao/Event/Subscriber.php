@@ -12,7 +12,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Event;
 
-use ContaoCommunityAlliance\DcGeneral\Contao\BackendBindings;
+use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\View\Event\RenderReadablePropertyValueEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
@@ -131,12 +132,18 @@ class Subscriber
 		// Date format.
 		elseif ($extra['rgxp'] == 'date')
 		{
-			$event->setRendered(BackendBindings::parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $value));
+			$dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['dateFormat']);
+			$event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
+
+			$event->setRendered($dateEvent->getResult());
 		}
 		// Time format.
 		elseif ($extra['rgxp'] == 'time')
 		{
-			$event->setRendered(BackendBindings::parseDate($GLOBALS['TL_CONFIG']['timeFormat'], $value));
+			$dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['timeFormat']);
+			$event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
+
+			$event->setRendered($dateEvent->getResult());
 		}
 		// Date and time format.
 		elseif ($extra['rgxp'] == 'datim' ||
@@ -148,8 +155,12 @@ class Subscriber
 					ListingConfigInterface::GROUP_YEAR)
 			) ||
 			$property->getName() == 'tstamp'
-		) {
-			$event->setRendered(BackendBindings::parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $value));
+		)
+		{
+			$dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['timeFormat']);
+			$event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
+
+			$event->setRendered($dateEvent->getResult());
 		}
 		elseif ($property->getWidgetType() == 'checkbox' && !$extra['multiple'])
 		{
@@ -177,7 +188,10 @@ class Subscriber
 		}
 		elseif ($value instanceof \DateTime)
 		{
-			$event->setRendered(BackendBindings::parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $value->getTimestamp()));
+			$dateEvent = new ParseDateEvent($value->getTimestamp(), $GLOBALS['TL_CONFIG']['datimFormat']);
+			$event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
+
+			$event->setRendered($dateEvent->getResult());
 		}
 	}
 }

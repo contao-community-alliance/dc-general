@@ -17,6 +17,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\GetThemeEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\ResizeImageEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
@@ -401,8 +402,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	 */
 	public function formatCurrentValue($field, $model, $groupMode, $groupLength)
 	{
-		$value    = $model->getProperty($field);
-		$property = $this->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
+		$value      = $model->getProperty($field);
+		$property   = $this->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
+		$propagator = $this->getEnvironment()->getEventPropagator();
 
 		// No property? Get out!
 		if (!$property)
@@ -436,7 +438,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 					break;
 
 				case ListingConfigInterface::GROUP_DAY:
-					$remoteNew = ($value != '') ? BackendBindings::parseDate($GLOBALS['TL_CONFIG']['dateFormat'], $value) : '-';
+					$event = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['dateFormat']);
+					$propagator->propagate(ContaoEvents::DATE_PARSE, $event);
+
+					$remoteNew = ($value != '') ? $event->getResult() : '-';
 					break;
 
 				case ListingConfigInterface::GROUP_MONTH:
@@ -491,7 +496,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 		$event = new GetGroupHeaderEvent($this->getEnvironment(), $model, $field, $remoteNew, $groupMode);
 
-		$this->getEnvironment()->getEventPropagator()->propagate(
+		$propagator->propagate(
 			$event::NAME,
 			$event,
 			array($this->getEnvironment()->getDataDefinition()->getName())
