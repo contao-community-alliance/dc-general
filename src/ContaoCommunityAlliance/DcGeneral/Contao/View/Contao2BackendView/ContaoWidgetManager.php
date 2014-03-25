@@ -621,7 +621,18 @@ class ContaoWidgetManager
 			'strHelp'       => $this->generateHelpText($property)
 		));
 
-		return $objTemplateFoo->parse();
+		$buffer = $objTemplateFoo->parse();
+
+		if (isset($propExtra['rte']) && strncmp($propExtra['rte'], 'tiny', 4) === 0)
+		{
+			$propertyId   = 'ctrl_' . $property;
+
+			$buffer .= <<<EOF
+<script>tinyMCE.execCommand('mceAddControl', false, '{$propertyId}');$('{$propertyId}').erase('required');</script>
+EOF;
+		}
+
+		return $buffer;
 	}
 
 	/**
