@@ -45,7 +45,7 @@ class PropertyConditionChain extends AbstractConditionChain implements PropertyC
 					throw new DcGeneralRuntimeException('Invalid condition in chain: '. get_class($condition));
 				}
 
-				if (!$condition->match($model, $input))
+				if (!$condition->match($model, $input, $property, $legend))
 				{
 					return false;
 				}
@@ -61,7 +61,7 @@ class PropertyConditionChain extends AbstractConditionChain implements PropertyC
 				throw new DcGeneralRuntimeException('Invalid condition in chain: '. get_class($condition));
 			}
 
-			if ($condition->match($model, $input))
+			if ($condition->match($model, $input, $property, $legend))
 			{
 				return true;
 			}
