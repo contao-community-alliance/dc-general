@@ -394,7 +394,7 @@ class ContaoWidgetManager
 
 		if ($inputValues) {
 			$model = clone $this->model;
-			$model->readFromPropertyValueBag($inputValues);
+			$this->environment->getController()->updateModelFromPropertyBag($model, $inputValues);
 		}
 		else {
 			$model = $this->model;
