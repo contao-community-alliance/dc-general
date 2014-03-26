@@ -260,12 +260,11 @@ class ListView extends BaseView
 
 		$environment  = $this->getEnvironment();
 		$dataProvider = $environment->getDataProvider();
-		$modelId      = $environment->getInputProvider()->getParameter('id');
-		$model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId));
+		$modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('id'));
 
-		if (strlen($modelId))
+		if ($modelId)
 		{
-			$model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId));
+			$model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 		}
 		else
 		{
