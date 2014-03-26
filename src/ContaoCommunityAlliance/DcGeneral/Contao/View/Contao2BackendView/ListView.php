@@ -288,7 +288,7 @@ class ListView extends BaseView
 
 		$postFunction = function($environment, $model, $originalModel)
 		{
-			$copyEvent = new PostDuplicateModelEvent($environment, $model);
+			$copyEvent = new PostDuplicateModelEvent($environment, $model, $originalModel);
 			$environment->getEventPropagator()->propagate(
 				$copyEvent::NAME,
 				$copyEvent,
