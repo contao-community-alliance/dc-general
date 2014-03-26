@@ -12,6 +12,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Event;
 
+use ContaoCommunityAlliance\DcGeneral\Contao\Twig\DcGeneralExtension;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
@@ -37,6 +38,8 @@ class Subscriber
 			ResolveWidgetErrorMessageEvent::NAME => array('resolveWidgetErrorMessage', -1),
 
 			RenderReadablePropertyValueEvent::NAME => 'renderReadablePropertyValue',
+
+			'contao-twig.init' => 'initTwig',
 		);
 	}
 
@@ -193,5 +196,18 @@ class Subscriber
 
 			$event->setRendered($dateEvent->getResult());
 		}
+	}
+
+	/**
+	 * Add custom twig extension.
+	 *
+	 * @param \ContaoTwigInitializeEvent $event
+	 */
+	public function initTwig(\ContaoTwigInitializeEvent $event)
+	{
+		$contaoTwig  = $event->getContaoTwig();
+		$environment = $contaoTwig->getEnvironment();
+
+		$environment->addExtension(new DcGeneralExtension());
 	}
 }
