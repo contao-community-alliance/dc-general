@@ -1918,10 +1918,18 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		}
 
 		/** @var GetReferrerEvent $event */
-		$event = $environment->getEventPropagator()->propagate(
-			ContaoEvents::SYSTEM_GET_REFERRER,
-			new GetReferrerEvent(true, $environment->getParentDataDefinition()->getName())
-		);
+		if ($environment->getParentDataDefinition()) {
+			$event = $environment->getEventPropagator()->propagate(
+				ContaoEvents::SYSTEM_GET_REFERRER,
+				new GetReferrerEvent(true, $environment->getParentDataDefinition()->getName())
+			);
+		}
+		else {
+			$event = $environment->getEventPropagator()->propagate(
+				ContaoEvents::SYSTEM_GET_REFERRER,
+				new GetReferrerEvent(true, $environment->getDataDefinition()->getName())
+			);
+		}
 
 		$command             = new Command();
 		$extra               = $command->getExtra();
