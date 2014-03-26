@@ -1200,19 +1200,12 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 		if ($inputProvider->hasValue('save'))
 		{
-			if ($inputProvider->getParameter('id'))
-			{
-				$environment->getEventPropagator()->propagate(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
-			}
-			else
-			{
-				$newUrlEvent = new AddToUrlEvent('act=edit&id=' . IdSerializer::fromModel($model)->getSerialized());
-				$environment->getEventPropagator()->propagate(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
-				$environment->getEventPropagator()->propagate(
-					ContaoEvents::CONTROLLER_REDIRECT,
-					new RedirectEvent($newUrlEvent->getUrl())
-				);
-			}
+			$newUrlEvent = new AddToUrlEvent('act=edit&id=' . IdSerializer::fromModel($model)->getSerialized());
+			$environment->getEventPropagator()->propagate(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
+			$environment->getEventPropagator()->propagate(
+				ContaoEvents::CONTROLLER_REDIRECT,
+				new RedirectEvent($newUrlEvent->getUrl())
+			);
 		}
 		elseif ($inputProvider->hasValue('saveNclose'))
 		{
