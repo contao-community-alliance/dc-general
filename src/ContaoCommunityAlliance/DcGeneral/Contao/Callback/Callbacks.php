@@ -113,7 +113,7 @@ class Callbacks
 			// Create a new instance.
 			$constructor = $class->getConstructor();
 
-			if ($constructor->isPublic()) {
+			if (!$constructor || $constructor->isPublic()) {
 				$callback[0] = $class->newInstance();
 			}
 
