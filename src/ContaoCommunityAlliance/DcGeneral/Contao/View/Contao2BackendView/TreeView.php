@@ -20,6 +20,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -190,10 +191,9 @@ class TreeView extends BaseView
 			);
 		}
 
-		if (!($objParentProvider =
-			$environment->getDataProvider(
-				$environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider()
-			)
+		$pid = IdSerializer::fromSerialized($parentId);
+
+		if (!($objParentProvider = $environment->getDataProvider($pid->getDataProviderName())
 		))
 		{
 			throw new DcGeneralRuntimeException(
@@ -202,7 +202,7 @@ class TreeView extends BaseView
 			);
 		}
 
-		$objParentItem = $objParentProvider->fetch($objParentProvider->getEmptyConfig()->setId($parentId));
+		$objParentItem = $environment->getController()->fetchModelFromProvider($pid);
 
 		if (!$objParentItem)
 		{
