@@ -660,7 +660,13 @@ EOF;
 			}
 			else
 			{
-				$propertyValues->setPropertyValue($property, $this->encodeValue($property, $widget->value));
+				try {
+					$propertyValues->setPropertyValue($property, $this->encodeValue($property, $widget->value));
+				}
+				catch (\Exception $e) {
+					$widget->addError($e->getMessage());
+					$propertyValues->markPropertyValueAsInvalid($property, $e->getMessage());
+				}
 			}
 		}
 	}
