@@ -13,6 +13,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
 use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
@@ -105,6 +106,18 @@ interface ControllerInterface
 	 * @return ModelInterface
 	 */
 	public function createClonedModel($model);
+
+	/**
+	 * Fetch a certain model from its provider.
+	 *
+	 * @param string|IdSerializer $id           This is either the id of the model or a serialized id.
+	 *
+	 * @param string|null         $providerName The name of the provider, if this is empty, the id will be deserialized and
+	 *                                          the provider name will get extracted from there.
+	 *
+	 * @return mixed
+	 */
+	public function fetchModelFromProvider($id, $providerName = null);
 
 	/**
 	 * Paste the content of the clipboard after the given model.

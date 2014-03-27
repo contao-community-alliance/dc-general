@@ -560,6 +560,30 @@ class DefaultController implements ControllerInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function fetchModelFromProvider($id, $providerName = null)
+	{
+		if ($providerName === null)
+		{
+			if (is_string($id))
+			{
+				$id = IdSerializer::fromSerialized($id);
+			}
+		}
+		else
+		{
+			$id = IdSerializer::fromValues($providerName, $id);
+		}
+
+		$dataProvider = $this->getEnvironment()->getDataProvider($id->getDataProviderName());
+		$item         = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($id->getId()));
+
+		return $item;
+	}
+
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function pasteAfter(ModelInterface $previousModel, CollectionInterface $models, $sortedBy)
 	{
 		$environment = $this->getEnvironment();
