@@ -908,13 +908,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 		$model = $this->createEmptyModelWithDefaults();
 
-		$event = new PreEditModelEvent($this->environment, $model);
-		$this->environment->getEventPropagator()->propagate(
-			$event::NAME,
-			$event,
-			$this->environment->getDataDefinition()->getName()
-		);
-
 		$preFunction = function($environment, $model, $originalModel)
 		{
 			/** @var EnvironmentInterface $environment */
@@ -1418,13 +1411,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$model = $this->createEmptyModelWithDefaults();
 		}
 
-		$event = new PreEditModelEvent($environment, $model);
-		$environment->getEventPropagator()->propagate(
-			$event::NAME,
-			$event,
-			$environment->getDataDefinition()->getName()
-		);
-
 		// We need to keep the original data here.
 		$originalModel = clone $model;
 		$originalModel->setId($model->getId());
@@ -1469,6 +1455,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		$blnIsAutoSubmit         = ($inputProvider->getValue('SUBMIT_TYPE') === 'auto');
 
 		$widgetManager = new ContaoWidgetManager($environment, $model);
+
+		$event = new PreEditModelEvent($this->environment, $model);
+		$environment->getEventPropagator()->propagate(
+			$event::NAME,
+			$event,
+			$definition->getName()
+		);
 
 		// Check if table is editable.
 		if (!$basicDefinition->isEditable())
