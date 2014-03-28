@@ -657,22 +657,80 @@ class TreeView extends BaseView
 	 */
 	public function enforceModelRelationship($model)
 	{
-		$definition = $this->getEnvironment()->getDataDefinition();
-		$basic      = $definition->getBasicDefinition();
-		// No op in this base class but implemented in subclasses to enforce parent<->child relationship.
-		$parent = $this->loadParentModel();
+		$environment = $this->getEnvironment();
+		$definition  = $environment->getDataDefinition();
+		$basic       = $definition->getBasicDefinition();
+		$input       = $environment->getInputProvider();
+		$controller  = $environment->getController();
 
-		$condition = $definition
-			->getModelRelationshipDefinition()
-			->getChildCondition(
-				$basic->getParentDataProvider(),
-				$basic->getDataProvider()
-			);
-
-		if ($condition)
+		if ($input->hasParameter('into'))
 		{
-			$condition->applyTo($parent, $model);
+			$into   = IdSerializer::fromSerialized($input->getParameter('into'));
+			$parent = $controller->fetchModelFromProvider($into);
+			$controller->setParent($model, $parent);
 		}
+		elseif ($input->hasParameter('after'))
+		{
+			$after   = IdSerializer::fromSerialized($input->getParameter('after'));
+			$sibling = $controller->fetchModelFromProvider($after);
+			$parent  = $controller->searchParentOf($sibling);
+			$controller->setParent($model, $parent);
+		}
+		else
+		{
+			// Currently deactivated, we have no way to tell the correct parent provider here as tree views might be
+			// parented as well (mode 4 + mode 5&6).
+			return;
+
+			if ($input->hasParameter('pid'))
+			{
+				$pid = IdSerializer::fromSerialized($input->getParameter('pid'));
+			}
+
+			// No op in this base class but implemented in subclasses to enforce parent<->child relationship.
+			$parent    = $this->loadParentModel();
+			$condition = $definition
+				->getModelRelationshipDefinition()
+				->getChildCondition(
+					$basic->getParentDataProvider(),
+					$basic->getDataProvider()
+				);
+
+			if ($condition)
+			{
+				$condition->applyTo($parent, $model);
+			}
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function paste()
+	{
+		$environment = $this->getEnvironment();
+		$input       = $environment->getInputProvider();
+		$clipboard   = $environment->getClipboard();
+
+		// Push an empty model into the clipboard.
+		if ($input->getParameter('mode') === 'create')
+		{
+			$clipboard->create(null);
+		}
+
+		// If destination is known, perform normal paste.
+		if ($input->hasParameter('after') || $input->hasParameter('into'))
+		{
+			if ($clipboard->isCreate())
+			{
+				return parent::create();
+			}
+
+			parent::paste();
+		}
+
+		// Show the target selection tree otherwise.
+		return $this->showAll();
 	}
 
 	/**
