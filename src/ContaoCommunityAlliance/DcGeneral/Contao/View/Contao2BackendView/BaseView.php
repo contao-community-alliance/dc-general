@@ -438,6 +438,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 					break;
 
 				case ListingConfigInterface::GROUP_DAY:
+					if ($value instanceof \DateTime) {
+						$value = $value->getTimestamp();
+					}
+
 					$event = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['dateFormat']);
 					$propagator->propagate(ContaoEvents::DATE_PARSE, $event);
 
@@ -445,6 +449,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 					break;
 
 				case ListingConfigInterface::GROUP_MONTH:
+					if ($value instanceof \DateTime) {
+						$value = $value->getTimestamp();
+					}
+
 					$remoteNew = ($value != '') ? date('Y-m', $value) : '-';
 					$intMonth  = ($value != '') ? (date('m', $value) - 1) : '-';
 
@@ -455,6 +463,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 					break;
 
 				case ListingConfigInterface::GROUP_YEAR:
+					if ($value instanceof \DateTime) {
+						$value = $value->getTimestamp();
+					}
+
 					$remoteNew = ($value != '') ? date('Y', $value) : '-';
 					break;
 
