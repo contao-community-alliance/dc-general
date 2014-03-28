@@ -62,6 +62,26 @@ interface ControllerInterface
 	public function handle(Action $action);
 
 	/**
+	 * Search the parent of the passed model.
+	 *
+	 * @param ModelInterface      $model  The model to search the parent for.
+	 *
+	 * @param CollectionInterface $models The collection to search in.
+	 *
+	 * @return ModelInterface
+	 */
+	public function searchParentOfIn(ModelInterface $model, CollectionInterface $models);
+
+	/**
+	 * Search the parent model for the given model.
+	 *
+	 * @param ModelInterface $model The model for which the parent shall be retrieved.
+	 *
+	 * @return ModelInterface
+	 */
+	public function searchParentOf(ModelInterface $model);
+
+	/**
 	 * Scan for children of a given model.
 	 *
 	 * This method is ready for mixed hierarchy and will return all children and grandchildren for the given table

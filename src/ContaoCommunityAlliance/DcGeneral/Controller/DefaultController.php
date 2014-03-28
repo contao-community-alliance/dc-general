@@ -102,13 +102,7 @@ class DefaultController implements ControllerInterface
 	}
 
 	/**
-	 * Search the parent of the passed model.
-	 *
-	 * @param ModelInterface      $model  The model to search the parent for.
-	 *
-	 * @param CollectionInterface $models The collection to search in.
-	 *
-	 * @return ModelInterface
+	 * {@inheritDoc}
 	 */
 	public function searchParentOfIn(ModelInterface $model, CollectionInterface $models)
 	{
@@ -147,11 +141,7 @@ class DefaultController implements ControllerInterface
 	}
 
 	/**
-	 * Search the parent model for the given model.
-	 *
-	 * @param ModelInterface $model The model for which the parent shall be retrieved.
-	 *
-	 * @return ModelInterface
+	 * {@inheritDoc}
 	 *
 	 * @throws DcGeneralInvalidArgumentException When a root model has been passed or not in hierarchical mode.
 	 */
