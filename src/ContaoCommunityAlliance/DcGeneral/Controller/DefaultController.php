@@ -97,7 +97,11 @@ class DefaultController implements ControllerInterface
 	public function handle(Action $action)
 	{
 		$event = new ActionEvent($this->getEnvironment(), $action);
-		$this->getEnvironment()->getEventPropagator()->propagate(DcGeneralEvents::ACTION, $event);
+		$this->getEnvironment()->getEventPropagator()->propagate(
+			DcGeneralEvents::ACTION,
+			$event,
+			$this->getEnvironment()->getDataDefinition()->getName()
+		);
 		return $event->getResponse();
 	}
 
