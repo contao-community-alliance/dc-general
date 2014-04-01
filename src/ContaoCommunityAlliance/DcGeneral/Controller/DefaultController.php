@@ -688,18 +688,4 @@ class DefaultController implements ControllerInterface
 				->copyFrom($sourceModel, $receivingModel);
 		}
 	}
-
-	public function executePostActions()
-	{
-		if (version_compare(VERSION, '3.0', '>='))
-		{
-			$objHandler = new Ajax3X();
-		}
-		else
-		{
-			$objHandler = new Ajax2X();
-		}
-		$objHandler->executePostActions($this->getDC());
-	}
-
 }

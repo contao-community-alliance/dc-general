@@ -22,7 +22,10 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\ResizeImageEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
+use ContaoCommunityAlliance\DcGeneral\Controller\Ajax2X;
+use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
@@ -854,14 +857,25 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	}
 
 	/**
-	 * TODO: Handle an ajax call, this method is currently not implemented.
+	 * Handle an ajax call by passing it to the relevant handler class.
 	 *
-	 * @return string
+	 * The handler class might(!) exit the script.
+	 *
+	 * @return void
 	 */
 	public function handleAjaxCall()
 	{
-		$action = $this->getEnvironment()->getInputProvider()->getValue('action');
-		return vsprintf($this->notImplMsg, 'handleAjaxCall()');
+		/** @var \ContaoCommunityAlliance\DcGeneral\Controller\Ajax $handler */
+		// Fallback to Contao for ajax requests we do not know.
+		if (version_compare(VERSION, '3.0', '>='))
+		{
+			$handler = new Ajax3X();
+		}
+		else
+		{
+			$handler = new Ajax2X();
+		}
+		$handler->executePostActions(new DcCompat($this->getEnvironment()));
 	}
 
 	/**

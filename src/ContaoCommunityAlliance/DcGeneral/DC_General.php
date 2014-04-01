@@ -14,8 +14,6 @@ namespace ContaoCommunityAlliance\DcGeneral;
 use ContaoCommunityAlliance\Translator\Contao\LangArrayTranslator;
 use ContaoCommunityAlliance\Translator\TranslatorChain;
 use ContaoCommunityAlliance\DcGeneral\Contao\Callback\Callbacks;
-use ContaoCommunityAlliance\DcGeneral\Controller\Ajax2X;
-use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\EventPropagator;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -102,17 +100,6 @@ class DC_General
 		if ($_POST && \Environment::getInstance()->isAjaxRequest)
 		{
 			$this->getViewHandler()->handleAjaxCall();
-
-			// Fallback to Contao for ajax requests we do not know.
-			if (version_compare(VERSION, '3.0', '>='))
-			{
-				$objHandler = new Ajax3X();
-			}
-			else
-			{
-				$objHandler = new Ajax2X();
-			}
-			$objHandler->executePostActions($this);
 		}
 	}
 
