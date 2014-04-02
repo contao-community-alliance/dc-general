@@ -126,60 +126,6 @@ abstract class Ajax
 
 	abstract protected function reloadFiletree(DataContainerInterface $objDc);
 
-	protected function toggleFeatured(DataContainerInterface $objDc)
-	{
-		// TODO: this solution is really a mess, we DEFINATELY want to implement a proper functionality in the callback class to handle this.
-		$strClass = $objDc->getEnvironment()->getDataDefinition()->getName();
-		if (class_exists($strClass, false))
-		{
-			$dca = new $strClass();
-
-			if (method_exists($dca, 'toggleFeatured'))
-			{
-				$dca->toggleFeatured(self::getPost('id'), ((self::getPost('state') == 1) ? true : false));
-			}
-		}
-		exit;
-	}
-
-	protected function toggleSubpalette(DataContainerInterface $objDc)
-	{
-		/**
-		 * @var \BackendUser $objUser
-		 */
-		$objUser = \BackendUser::getInstance();
-		$arrDCA  = $objDc->getDCA();
-		$field   = self::getPost('field');
-
-		// Check whether the field is a selector field and allowed for regular users (contao/core/#4427).
-		if (!is_array($arrDCA['palettes']['__selector__'])
-			|| !in_array($field, $arrDCA['palettes']['__selector__'])
-			|| ($arrDCA['fields'][$field]['exclude'] && !$objUser->hasAccess($objDc->getEnvironment()->getDataDefinition()->getName() . '::' . $field, 'alexf'))
-		)
-		{
-			$this->log(
-				'Field "' . $field . '" is not an allowed selector field (possible SQL injection attempt)',
-				'Ajax executePostActions()',
-				TL_ERROR
-			);
-			header('HTTP/1.1 400 Bad Request');
-			die('Bad Request');
-		}
-
-		if (self::getPost('load'))
-		{
-			if (self::getGet('act') == 'editAll')
-			{
-				throw new DcGeneralRuntimeException("Ajax editAll unimplemented, I do not know what to do.", 1);
-				echo $objDc->editAll(self::getAjaxId(), self::getPost('id'));
-			}
-			else{
-				echo $objDc->generateAjaxPalette(self::getPost('field'));
-			}
-		}
-		exit;
-	}
-
 	protected function callHooks($strAction, DataContainerInterface $objDc)
 	{
 		if (isset($GLOBALS['TL_HOOKS']['executePostActions']) && is_array($GLOBALS['TL_HOOKS']['executePostActions']))
@@ -221,7 +167,13 @@ abstract class Ajax
 
 		switch (self::getPost('action'))
 		{
-			// Load nodes of the page structure tree. Compatible between 2.X and 3.X
+			case 'toggleFeatured':
+				// This is impossible to handle generically in DcGeneral.
+			case 'toggleSubpalette':
+				// DcGeneral handles sub palettes differently.
+				return;
+
+			// Load nodes of the page structure tree. Compatible between 2.X and 3.X.
 			case 'loadStructure':
 				$this->loadStructure($objDc);
 				break;
@@ -247,16 +199,6 @@ abstract class Ajax
 				break;
 			case 'reloadFiletree':
 				$this->reloadFiletree($objDc);
-				break;
-
-			// Feature/unfeature an element
-			case 'toggleFeatured':
-				$this->toggleFeatured($objDc);
-				break;
-
-			// Toggle subpalettes
-			case 'toggleSubpalette':
-				$this->toggleSubpalette($objDc);
 				break;
 
 			// HOOK: pass unknown actions to callback functions
