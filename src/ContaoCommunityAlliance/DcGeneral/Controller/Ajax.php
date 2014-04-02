@@ -126,27 +126,6 @@ abstract class Ajax
 
 	abstract protected function reloadFiletree(DataContainerInterface $objDc);
 
-	protected function callHooks($strAction, DataContainerInterface $objDc)
-	{
-		if (isset($GLOBALS['TL_HOOKS']['executePostActions']) && is_array($GLOBALS['TL_HOOKS']['executePostActions']))
-		{
-			foreach ($GLOBALS['TL_HOOKS']['executePostActions'] as $callback)
-			{
-				if (in_array('getInstance', get_class_methods($callback[0])))
-				{
-					$objHook = call_user_func(array($callback[0], 'getInstance'));
-				}
-				else
-				{
-					$objHook = new $callback[0]();
-				}
-
-				$objHook->$callback[1]($strAction, $objDc);
-			}
-		}
-		exit;
-	}
-
 	/**
 	 *
 	 * @param String $strAction
@@ -165,7 +144,8 @@ abstract class Ajax
 
 		header('Content-Type: text/html; charset=' . $GLOBALS['TL_CONFIG']['characterSet']);
 
-		switch (self::getPost('action'))
+		$action = $objDc->getEnvironment()->getInputProvider()->getValue('action');
+		switch ($action)
 		{
 			case 'toggleFeatured':
 				// This is impossible to handle generically in DcGeneral.
@@ -201,10 +181,12 @@ abstract class Ajax
 				$this->reloadFiletree($objDc);
 				break;
 
-			// HOOK: pass unknown actions to callback functions
+			// Pass unknown actions to original Contao handler.
 			default:
-				$this->callHooks(self::getPost('action'), $objDc);
-				 break;
+				$ajax = new \Ajax($action);
+				$ajax->executePreActions();
+				$ajax->executePostActions($objDc);
+				break;
 		}
 	}
 }
