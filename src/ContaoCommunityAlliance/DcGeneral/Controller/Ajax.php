@@ -118,8 +118,22 @@ abstract class Ajax
 		exit;
 	}
 
+	/**
+	 * Load the page tree.
+	 *
+	 * @param DataContainerInterface $objDc The data container.
+	 *
+	 * @return mixed
+	 */
 	abstract protected function loadPagetree(DataContainerInterface $objDc);
 
+	/**
+	 * Load the file tree.
+	 *
+	 * @param DataContainerInterface $objDc The data container.
+	 *
+	 * @return mixed
+	 */
 	abstract protected function loadFiletree(DataContainerInterface $objDc);
 
 	abstract protected function reloadPagetree(DataContainerInterface $objDc);
@@ -127,21 +141,14 @@ abstract class Ajax
 	abstract protected function reloadFiletree(DataContainerInterface $objDc);
 
 	/**
+	 * Handle the post actions from DcGeneral.
 	 *
-	 * @param String $strAction
-	 * @param DataContainerInterface $objDc
+	 * @param DataContainerInterface $objDc The data container.
+	 *
 	 * @return void
 	 */
 	public function executePostActions(DataContainerInterface $objDc)
 	{
-		// Check DC for a right data provider
-		if (!$objDc instanceof DataContainerInterface)
-		{
-			return;
-		}
-
-		$objDc = new DcCompat($objDc->getEnvironment());
-
 		header('Content-Type: text/html; charset=' . $GLOBALS['TL_CONFIG']['characterSet']);
 
 		$action = $objDc->getEnvironment()->getInputProvider()->getValue('action');
@@ -158,22 +165,22 @@ abstract class Ajax
 				$this->loadStructure($objDc);
 				break;
 
-			// Load nodes of the file manager tree
+			// Load nodes of the file manager tree.
 			case 'loadFileManager':
 				$this->loadFileManager($objDc);
 				break;
 
-			// Load nodes of the page tree
+			// Load nodes of the page tree.
 			case 'loadPagetree':
 				$this->loadPagetree($objDc);
 				break;
 
-				// Load nodes of the file tree
+				// Load nodes of the file tree.
 			case 'loadFiletree':
 				$this->loadFiletree($objDc);
 				break;
 
-			// Reload the page/file picker
+			// Reload the page/file picker.
 			case 'reloadPagetree':
 				$this->reloadPagetree($objDc);
 				break;
@@ -185,7 +192,7 @@ abstract class Ajax
 			default:
 				$ajax = new \Ajax($action);
 				$ajax->executePreActions();
-				$ajax->executePostActions($objDc);
+				$ajax->executePostActions(new DcCompat($objDc->getEnvironment()));
 				break;
 		}
 	}

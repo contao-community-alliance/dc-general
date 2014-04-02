@@ -26,11 +26,7 @@ use ContaoCommunityAlliance\DcGeneral\DataContainerInterface;
 class Ajax3X extends Ajax
 {
 	/**
-	 * Load the page tree.
-	 *
-	 * @param DataContainerInterface $objDc The data container.
-	 *
-	 * @return void
+	 * {@inheritDoc}
 	 */
 	protected function loadPagetree(DataContainerInterface $objDc)
 	{
@@ -66,6 +62,9 @@ class Ajax3X extends Ajax
 		exit;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	protected function loadFiletree(DataContainerInterface $objDc)
 	{
 		$environment = $objDc->getEnvironment();
