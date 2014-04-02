@@ -25,23 +25,44 @@ use ContaoCommunityAlliance\DcGeneral\DataContainerInterface;
  */
 class Ajax3X extends Ajax
 {
+	/**
+	 * Load the page tree.
+	 *
+	 * @param DataContainerInterface $objDc The data container.
+	 *
+	 * @return void
+	 */
 	protected function loadPagetree(DataContainerInterface $objDc)
 	{
 		$environment = $objDc->getEnvironment();
 		$input       = $environment->getInputProvider();
-		$folder      = $input->getValue('folder');
-		$field       = $input->getParameter('field');
+		$field       = $input->getValue('field');
+		$name        = $input->getValue('name');
 		$level       = intval($input->getValue('level'));
+		$id          = $input->getValue('id');
 
-		$arrData['strTable'] = $objDc->getEnvironment()->getDataDefinition()->getName();
-		// $arrData['id']       = self::getAjaxName() ?: $objDc->getId();
-		$arrData['name']     = $field;
+		$ajaxId   = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $id);
+		$ajaxKey  = str_replace('_' . $ajaxId, '', $id);
+		$ajaxName = null;
+		if ($input->getValue('act') == 'editAll')
+		{
+			$ajaxKey  = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $ajaxKey);
+			$ajaxName = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $name);
+		}
+
+		$nodes          = $input->getPersistentValue($ajaxKey);
+		$nodes[$ajaxId] = intval($input->getValue('state'));
+		$input->setPersistentValue($ajaxKey, $nodes);
+
+		$arrData['strTable'] = $environment->getDataDefinition()->getName();
+		$arrData['id']       = $ajaxName ?: $id;
+		$arrData['name']     = $name;
 
 		/** @var \PageSelector $objWidget */
 		$objWidget        = new $GLOBALS['BE_FFL']['pageSelector']($arrData, $objDc);
-		$objWidget->value = $this->getTreeValue($arrData['name']);
+		$objWidget->value = $this->getTreeValue('page', $input->getValue('value'));
 
-		echo $objWidget->generateAjax($folder, $field, $level);
+		echo $objWidget->generateAjax($ajaxId, $field, $level);
 		exit;
 	}
 
@@ -60,7 +81,7 @@ class Ajax3X extends Ajax
 		/** @var \FileSelector $objWidget */
 		$objWidget = new $GLOBALS['BE_FFL']['fileSelector']($arrData, $objDc);
 
-		$objWidget->value = $this->getTreeValue($field);
+		$objWidget->value = $this->getTreeValue($field, $input->getValue('value'));
 		// Load a particular node.
 		if ($folder != '')
 		{
@@ -73,9 +94,8 @@ class Ajax3X extends Ajax
 		exit;
 	}
 
-	protected function getTreeValue($strType)
+	protected function getTreeValue($strType, $varValue)
 	{
-		$varValue = self::getPost('value');
 		// Convert the selected values
 		if ($varValue != '')
 		{
@@ -145,7 +165,7 @@ class Ajax3X extends Ajax
 			}
 		}
 
-		$varValue = $this->getTreeValue($strType);
+		$varValue = $this->getTreeValue($strType, $input->getValue('value'));
 		$strKey   = $strType . 'Tree';
 
 		// Set the new value.
