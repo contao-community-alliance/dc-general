@@ -26,8 +26,11 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  * @copyright  The MetaModels team.
  * @license    LGPL.
  */
-abstract class Ajax extends \Backend
+abstract class Ajax
 {
+	/**
+	 * Create a new instance.
+	 */
 	public function __construct()
 	{
 		// DO NOT! call parent::__construct(); as otherwise we will end up having references in this class.

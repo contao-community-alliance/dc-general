@@ -25,11 +25,6 @@ use ContaoCommunityAlliance\DcGeneral\DataContainerInterface;
  */
 class Ajax3X extends Ajax
 {
-	public function __construct()
-	{
-		parent::__construct();
-	}
-
 	protected function loadPagetree(DataContainerInterface $objDc)
 	{
 		$environment = $objDc->getEnvironment();

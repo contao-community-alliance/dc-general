@@ -25,11 +25,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class Ajax2X extends Ajax
 {
-	public function __construct()
-	{
-		parent::__construct();
-	}
-
 	protected function loadPagetree(DataContainerInterface $objDc)
 	{
 		$arrData['strTable'] = $objDc->getEnvironment()->getDataDefinition()->getName();
