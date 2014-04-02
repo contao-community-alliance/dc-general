@@ -94,19 +94,30 @@ class Ajax3X extends Ajax
 		exit;
 	}
 
+	/**
+	 * Retrieve the value as serialized array.
+	 *
+	 * If the type is "file", the file names will automatically be added to the Dbafs and converted to file id.
+	 *
+	 * @param string $strType  Either "page" or "file".
+	 *
+	 * @param string $varValue The value as comma separated list.
+	 *
+	 * @return string The values as serialized array.
+	 */
 	protected function getTreeValue($strType, $varValue)
 	{
-		// Convert the selected values
+		// Convert the selected values.
 		if ($varValue != '')
 		{
 			$varValue = trimsplit("\t", $varValue);
 
-			// Automatically add resources to the DBAFS
+			// Automatically add resources to the DBAFS.
 			if ($strType == 'file')
 			{
-				foreach ($varValue as $k=>$v)
+				foreach ($varValue as $k => $v)
 				{
-					if(version_compare(VERSION, '3.2', '<'))
+					if (version_compare(VERSION, '3.2', '<'))
 					{
 						$varValue[$k] = \Dbafs::addResource($v)->id;
 					}
