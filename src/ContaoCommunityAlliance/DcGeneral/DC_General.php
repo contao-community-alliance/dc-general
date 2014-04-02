@@ -48,8 +48,6 @@ class DC_General
 	 */
 	public function __construct($strTable, array &$arrBackendModule = null)
 	{
-		parent::__construct();
-
 		$strTable = $this->getTablenameCallback($strTable);
 
 		$dispatcher = $GLOBALS['container']['event-dispatcher'];
@@ -89,8 +87,9 @@ class DC_General
 		// Execute AJAX request, called from Backend::getBackendModule
 		// we have to do this here, as otherwise the script will exit as it only checks for DC_Table and DC_File
 		// derived classes.
-		// FIXME: dependency injection.
-		if ($_POST && \Environment::getInstance()->isAjaxRequest)
+		// @codingStandardsIgnoreStart - The access to $_POST is sane here.
+		if ($_POST && (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'))
+		// @codingStandardsIgnoreEnd
 		{
 			$this->getViewHandler()->handleAjaxCall();
 		}
