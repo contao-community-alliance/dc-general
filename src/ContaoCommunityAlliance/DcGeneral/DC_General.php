@@ -40,13 +40,6 @@ class DC_General
 	protected $objEnvironment;
 
 	/**
-	 * A list with all field for this dca.
-	 *
-	 * @var array
-	 */
-	protected $arrFields = array();
-
-	/**
 	 * Create a new instance.
 	 *
 	 * @param string $strTable         The table name.
