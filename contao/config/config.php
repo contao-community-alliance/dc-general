@@ -73,3 +73,8 @@ $GLOBALS['TL_EVENTS'][\ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateE
 	'ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\HardCodedPopulator::process',
 	\ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\HardCodedPopulator::PRIORITY
 );
+
+$GLOBALS['TL_EVENTS'][\ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent::NAME][] = array(
+	'ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\PickerCompatPopulator::process',
+	\ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\PickerCompatPopulator::PRIORITY
+);
