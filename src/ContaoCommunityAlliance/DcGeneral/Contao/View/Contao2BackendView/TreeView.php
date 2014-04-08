@@ -632,8 +632,7 @@ class TreeView extends BaseView
 		);
 
 		// Build template.
-		// FIXME: dependency injection or rather template factory?
-		$objTemplate                   = new \BackendTemplate('dcbe_general_treeview');
+		$objTemplate                   = $this->getTemplate('dcbe_general_treeview');
 		$objTemplate->treeClass        = 'tl_' . $treeClass;
 		$objTemplate->tableName        = $definition->getName();
 		$objTemplate->strLabelIcon     = $imageEvent->getHtml();
