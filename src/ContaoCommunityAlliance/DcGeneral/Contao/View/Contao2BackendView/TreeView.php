@@ -560,6 +560,8 @@ class TreeView extends BaseView
 	{
 		$definition  = $this->getDataDefinition();
 		$listing     = $this->getViewSection()->getListingConfig();
+		$environment = $this->getEnvironment();
+		$propagator  = $environment->getEventPropagator();
 
 		// Init some Vars
 		switch (6 /*$definition->getSortingMode()*/)
@@ -572,8 +574,7 @@ class TreeView extends BaseView
 				$treeClass = 'tree';
 		}
 
-		// Label + Icon
-		// FIXME: we need the tree root element label here.
+		// Label + Icon.
 		if (strlen($listing->getRootLabel()) == 0)
 		{
 			$strLabelText = 'DC General Tree BackendView Ultimate';
@@ -593,11 +594,11 @@ class TreeView extends BaseView
 		}
 
 		// Root paste into.
-		if ($this->getEnvironment()->getClipboard()->isNotEmpty())
+		if ($environment->getClipboard()->isNotEmpty())
 		{
-			$objClipboard = $this->getEnvironment()->getClipboard();
+			$objClipboard = $environment->getClipboard();
 			/** @var AddToUrlEvent $urlEvent */
-			$urlEvent = $this->getEnvironment()->getEventPropagator()->propagate(
+			$urlEvent = $propagator->propagate(
 				ContaoEvents::BACKEND_ADD_TO_URL,
 				new AddToUrlEvent(sprintf('act=%s&amp;into=0&amp;children=%s',
 					$objClipboard->getMode(),
@@ -611,10 +612,10 @@ class TreeView extends BaseView
 				->setHref($urlEvent->getUrl())
 				->setPasteDisabled(false);
 
-			$this->getEnvironment()->getEventPropagator()->propagate(
+			$propagator->propagate(
 				$buttonEvent::NAME,
 				$buttonEvent,
-				$this->getEnvironment()->getDataDefinition()->getName()
+				$definition->getName()
 			);
 
 			$strRootPasteInto = $this->renderPasteRootButton($buttonEvent);
@@ -625,7 +626,7 @@ class TreeView extends BaseView
 		}
 
 		/** @var GenerateHtmlEvent $imageEvent */
-		$imageEvent = $this->getEnvironment()->getEventPropagator()->propagate(
+		$imageEvent = $propagator->propagate(
 			ContaoEvents::IMAGE_GET_HTML,
 			new GenerateHtmlEvent($strLabelIcon)
 		);
