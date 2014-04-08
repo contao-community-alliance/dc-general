@@ -179,6 +179,22 @@ interface ListingConfigInterface
 	public function getRootIcon();
 
 	/**
+	 * Set the root label.
+	 *
+	 * @param string $value The new label.
+	 *
+	 * @return ListingConfigInterface
+	 */
+	public function setRootLabel($value);
+
+	/**
+	 * Get the root label.
+	 *
+	 * @return string
+	 */
+	public function getRootLabel();
+
+	/**
 	 * Set the css classes that should be added to the items container.
 	 *
 	 * @param string $value The CSS class to use.

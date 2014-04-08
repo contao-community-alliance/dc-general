@@ -711,6 +711,16 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		$listing = $view->getListingConfig();
 		$listDca = $this->getFromDca('list');
 
+		if (($listing->getRootLabel() === null) && ($label = $this->getFromDca('config/label')) !== null)
+		{
+			$listing->setRootLabel($label);
+		}
+
+		if (($listing->getRootIcon() === null) && ($icon = $this->getFromDca('config/icon')) !== null)
+		{
+			$listing->setRootIcon($icon);
+		}
+
 		// Cancel if no list configuration found.
 		if (!$listDca)
 		{

@@ -558,7 +558,8 @@ class TreeView extends BaseView
 	 */
 	protected function viewTree($collection)
 	{
-		$definition = $this->getDataDefinition();
+		$definition  = $this->getDataDefinition();
+		$listing     = $this->getViewSection()->getListingConfig();
 
 		// Init some Vars
 		switch (6 /*$definition->getSortingMode()*/)
@@ -573,23 +574,22 @@ class TreeView extends BaseView
 
 		// Label + Icon
 		// FIXME: we need the tree root element label here.
-		if (true || strlen($this->getViewSection()->getListingConfig()->getLabel()) == 0)
+		if (strlen($listing->getRootLabel()) == 0)
 		{
 			$strLabelText = 'DC General Tree BackendView Ultimate';
 		}
 		else
 		{
-			$strLabelText = $definition->getLabel();
+			$strLabelText = $listing->getRootLabel();
 		}
 
-		// FIXME: we need the tree root element icon here.
-		if (true || strlen($definition->getIcon()) == 0)
+		if (strlen($listing->getRootIcon()) == 0)
 		{
 			$strLabelIcon = 'pagemounts.gif';
 		}
 		else
 		{
-			$strLabelIcon = $definition->getIcon();
+			$strLabelIcon = $listing->getRootIcon();
 		}
 
 		// Root paste into.

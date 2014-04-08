@@ -66,6 +66,13 @@ class DefaultListingConfig implements ListingConfigInterface
 	protected $rootIcon;
 
 	/**
+	 * The root label.
+	 *
+	 * @var string
+	 */
+	protected $rootLabel;
+
+	/**
 	 * The CSS class to apply to each item in the listing.
 	 *
 	 * @var string
@@ -192,6 +199,24 @@ class DefaultListingConfig implements ListingConfigInterface
 	public function getRootIcon()
 	{
 		return $this->rootIcon;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setRootLabel($value)
+	{
+		$this->rootLabel = $value;
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getRootLabel()
+	{
+		return $this->rootLabel;
 	}
 
 	/**
