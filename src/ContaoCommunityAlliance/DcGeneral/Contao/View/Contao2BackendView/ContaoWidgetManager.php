@@ -428,7 +428,6 @@ class ContaoWidgetManager
 			'options' => $options,
 			'eval' => $propExtra,
 			// TODO: populate these.
-			// 'options_callback' => null,
 			// 'foreignKey' => null
 			// 'reference' =>
 		);
@@ -640,7 +639,7 @@ class ContaoWidgetManager
 
 		if (isset($propExtra['rte']) && strncmp($propExtra['rte'], 'tiny', 4) === 0)
 		{
-			$propertyId   = 'ctrl_' . $property;
+			$propertyId = 'ctrl_' . $property;
 
 			$buffer .= <<<EOF
 <script>tinyMCE.execCommand('mceAddControl', false, '{$propertyId}');$('{$propertyId}').erase('required');</script>
