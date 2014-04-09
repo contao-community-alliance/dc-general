@@ -335,11 +335,13 @@ class ContaoWidgetManager
 	/**
 	 * Retrieve the instance of a widget for the given property.
 	 *
-	 * @param string $property Name of the property for which the widget shall be retrieved.
+	 * @param string           $property    Name of the property for which the widget shall be retrieved.
 	 *
-	 * @return \Contao\Widget
+	 * @param PropertyValueBag $inputValues The input values to use (optional).
 	 *
-	 * @throws DcGeneralInvalidArgumentException If an undefined property name has been passed.
+	 * @throws DcGeneralInvalidArgumentException When an unknown property has been passed.
+	 *
+	 * @return \Widget
 	 */
 	public function getWidget($property, PropertyValueBag $inputValues = null)
 	{
@@ -392,7 +394,8 @@ class ContaoWidgetManager
 		// Widgets should parse the configuration by themselves, depending on what they need.
 		$propExtra['required'] = ($varValue == '') && $propExtra['mandatory'];
 
-		if ($inputValues) {
+		if ($inputValues)
+		{
 			$model = clone $this->model;
 			$this->environment->getController()->updateModelFromPropertyBag($model, $inputValues);
 		}
@@ -569,22 +572,24 @@ class ContaoWidgetManager
 	/**
 	 * Render the widget for the named property.
 	 *
-	 * @param string $property     The name of the property for which the widget shall be rendered.
+	 * @param string           $property     The name of the property for which the widget shall be rendered.
 	 *
-	 * @param bool   $ignoreErrors Flag if the error property of the widget shall get cleared prior rendering.
+	 * @param bool             $ignoreErrors Flag if the error property of the widget shall get cleared prior rendering.
+	 *
+	 * @param PropertyValueBag $inputValues  The input values to use (optional).
 	 *
 	 * @return string
 	 *
 	 * @throws DcGeneralRuntimeException For unknown properties.
 	 */
-	public function renderWidget($property, $ignoreErrors = false)
+	public function renderWidget($property, $ignoreErrors = false, PropertyValueBag $inputValues = null)
 	{
 		$environment         = $this->getEnvironment();
 		$definition          = $environment->getDataDefinition();
 		$propertyDefinitions = $definition->getPropertiesDefinition();
 		$propInfo            = $propertyDefinitions->getProperty($property);
 		$propExtra           = $propInfo->getExtra();
-		$widget              = $this->getWidget($property);
+		$widget              = $this->getWidget($property, $inputValues);
 
 		/** @var \Contao\Widget $widget */
 		if (!$widget)
@@ -601,6 +606,16 @@ class ContaoWidgetManager
 			$reflection = new \ReflectionProperty(get_class($widget), 'strClass');
 			$reflection->setAccessible(true);
 			$reflection->setValue($widget, str_replace('error', '', $reflection->getValue($widget)));
+		}
+		else
+		{
+			if ($inputValues && $inputValues->isPropertyValueInvalid($property))
+			{
+				foreach ($inputValues->getPropertyValueErrors($property) as $error)
+				{
+					$widget->addError($error);
+				}
+			}
 		}
 
 		$strDatePicker = '';

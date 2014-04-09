@@ -1549,7 +1549,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 					$errors = array_merge($errors, $propertyValues->getPropertyValueErrors($property->getName()));
 				}
 
-				$fields[] = $widgetManager->renderWidget($property->getName(), $blnIsAutoSubmit);
+				$fields[] = $widgetManager->renderWidget($property->getName(), $blnIsAutoSubmit, $propertyValues);
 			}
 
 			$arrFieldSet['label']   = $legendName;
