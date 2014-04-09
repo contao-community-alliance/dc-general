@@ -34,8 +34,6 @@ class DefaultDataProvider implements DataProviderInterface
 	 * The Database instance.
 	 *
 	 * @var \Database
-	 *
-	 * @todo: Use DI container for database instance.
 	 */
 	protected $objDatabase = null;
 
@@ -58,6 +56,16 @@ class DefaultDataProvider implements DataProviderInterface
 		if (!isset($arrConfig['source']))
 		{
 			throw new DcGeneralRuntimeException('Missing table name.');
+		}
+
+		if (isset($arrConfig['database']))
+		{
+			if (!($arrConfig['database'] instanceof \Database))
+			{
+				throw new DcGeneralRuntimeException('Invalid database.');
+			}
+
+			$this->objDatabase = $arrConfig['database'];
 		}
 
 		$this->strSource = $arrConfig['source'];
