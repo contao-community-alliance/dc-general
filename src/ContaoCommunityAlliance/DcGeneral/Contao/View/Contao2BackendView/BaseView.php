@@ -1828,18 +1828,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	}
 
 	/**
-	 * Generates a sub palette for the given selector (field name).
-	 *
-	 * @param string $strSelector The name of the selector field.
-	 *
-	 * @return string
-	 */
-	public function generateAjaxPalette($strSelector)
-	{
-		return vsprintf($this->notImplMsg, 'generateAjaxPalette');
-	}
-
-	/**
 	 * Create the "new" button.
 	 *
 	 * @return CommandInterface|null
