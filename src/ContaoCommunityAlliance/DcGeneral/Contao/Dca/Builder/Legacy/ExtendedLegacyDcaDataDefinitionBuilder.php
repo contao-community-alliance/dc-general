@@ -270,7 +270,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 					$initializationData
 				));
 
-				switch ((string) $dataProviderDcaName)
+				switch ((string)$dataProviderDcaName)
 				{
 					case 'default':
 						$providerInformation->setVersioningEnabled(
