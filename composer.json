@@ -68,7 +68,6 @@
 		"contao": {
 			"symlinks": {
 				"contao": "system/modules/dc-general",
-				"src/DC_General.php": "system/modules/dc-general/DC_General.php",
 				"contao-2.11-compat/DC_General.php": "system/drivers/DC_General.php"
 			}
 		},
