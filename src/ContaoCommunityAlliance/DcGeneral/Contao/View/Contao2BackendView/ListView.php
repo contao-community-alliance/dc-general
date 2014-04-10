@@ -19,6 +19,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2Ba
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * Class ListView.
@@ -244,15 +245,17 @@ class ListView extends BaseView
 		return $objTemplate->parse();
 	}
 
-
 	/**
 	 * Copy mode - this redirects to edit.
+	 *
+	 * @throws DcGeneralRuntimeException If no model id has been given.
 	 *
 	 * @return string
 	 */
 	public function copy()
 	{
-		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
+		{
 			return $this->edit();
 		}
 
@@ -308,7 +311,8 @@ class ListView extends BaseView
 	 */
 	public function showAll()
 	{
-		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
+		{
 			return $this->edit();
 		}
 
