@@ -357,6 +357,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 */
 	protected function parseBasicMode(BasicDefinitionInterface $config)
 	{
+		if ($config->getMode() !== null)
+		{
+			return;
+		}
+
 		switch ($this->getFromDca('list/sorting/mode'))
 		{
 			case 0:
