@@ -104,63 +104,6 @@ class DefaultLimitElement
 	}
 
 	/**
-	 * Add a parent filter.
-	 *
-	 * @param mixed $idParent
-	 *
-	 * @param ConfigInterface $objConfig
-	 *
-	 * @return ConfigInterface
-	 */
-	protected function addParentFilter($idParent, $objConfig)
-	{
-
-		$objCurrentDataProvider = $this
-			->getPanel()
-			->getContainer()
-			->getDataContainer()
-			->getDataProvider();
-
-		$objParentDataProvider = $this
-			->getPanel()
-			->getContainer()
-			->getDataContainer()
-			->getDataProvider('parent');
-
-		if ($objParentDataProvider)
-		{
-			$objParent = $objParentDataProvider->fetch($objParentDataProvider->getEmptyConfig()->setId($idParent));
-
-			$objCondition = $this->getDataContainer()->getEnvironment()->getDataDefinition()->getChildCondition(
-				$objParentDataProvider->getEmptyModel()->getProviderName(),
-				$objCurrentDataProvider->getEmptyModel()->getProviderName()
-			);
-
-			if ($objCondition)
-			{
-				$arrBaseFilter = $objConfig->getFilter();
-				$arrFilter     = $objCondition->getFilter($objParent);
-
-				if ($arrBaseFilter)
-				{
-					$arrFilter = array_merge($arrBaseFilter, $arrFilter);
-				}
-
-				$objConfig->setFilter(
-					array(
-						array(
-							'operation' => 'AND',
-							'children'    => $arrFilter,
-						)
-					)
-				);
-			}
-		}
-
-		return $objConfig;
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
 	public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
