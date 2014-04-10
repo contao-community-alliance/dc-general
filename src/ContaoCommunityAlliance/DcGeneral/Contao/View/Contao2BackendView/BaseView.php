@@ -2143,7 +2143,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$label = $objCommand->getName();
 		}
 
-		$opDesc = $objCommand->getDescription();
+		$label = $this->translate($label, $this->getEnvironment()->getDataDefinition()->getName());
+		$opDesc  = $this->translate($objCommand->getDescription(), $this->getEnvironment()->getDataDefinition()->getName());
 		if (strlen($opDesc))
 		{
 			$title = sprintf($opDesc, $objModel->getID());
@@ -2307,9 +2308,19 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			)
 		);
 
+		$opDesc  = $this->translate('pasteinto.1', $this->getEnvironment()->getDataDefinition()->getName());
+		if (strlen($opDesc))
+		{
+			$title = sprintf($opDesc, $event->getModel()->getId());
+		}
+		else
+		{
+			$title = sprintf('%s id %s', $strLabel, $event->getModel()->getId());
+		}
+
 		return sprintf(' <a href="%s" title="%s" %s>%s</a>',
 				$event->getHrefInto(),
-				specialchars($strLabel),
+				specialchars($title),
 				'onclick="Backend.getScrollOffset()"',
 				$imageEvent->getHtml()
 			);
@@ -2355,9 +2366,19 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			)
 		);
 
+		$opDesc  = $this->translate('pasteafter.1', $this->getEnvironment()->getDataDefinition()->getName());
+		if (strlen($opDesc))
+		{
+			$title = sprintf($opDesc, $event->getModel()->getId());
+		}
+		else
+		{
+			$title = sprintf('%s id %s', $strLabel, $event->getModel()->getId());
+		}
+
 		return sprintf(' <a href="%s" title="%s" %s>%s</a>',
 			$event->getHrefAfter(),
-			specialchars($strLabel),
+			specialchars($title),
 			'onclick="Backend.getScrollOffset()"',
 			$imageEvent->getHtml()
 		);
