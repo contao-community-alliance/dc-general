@@ -14,13 +14,17 @@ namespace ContaoCommunityAlliance\DcGeneral\View;
 
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 
-// TODO: we need to flesh this out some more out and add real interface methods. Currently this interface is rather useless.
+/**
+ * The interface for a view.
+ *
+ * @package ContaoCommunityAlliance\DcGeneral\View
+ */
 interface ViewInterface
 {
 	/**
 	 * Set the environment.
 	 *
-	 * @param EnvironmentInterface $environment
+	 * @param EnvironmentInterface $environment The environment.
 	 *
 	 * @return ViewInterface
 	 */
@@ -40,24 +44,76 @@ interface ViewInterface
 	 */
 	public function handleAjaxCall();
 
+	/**
+	 * Invoked for cut and copy - inserts the content of the clipboard at the given position.
+	 *
+	 * @return void
+	 */
 	public function paste();
 
+	/**
+	 * Endpoint for copying a model (including child models).
+	 *
+	 * @return string
+	 */
 	public function copy();
 
+	/**
+	 * Endpoint for copying multiple models (including child models).
+	 *
+	 * @return string
+	 */
 	public function copyAll();
 
+	/**
+	 * Endpoint for create operation.
+	 *
+	 * @return string
+	 */
 	public function create();
 
+	/**
+	 * Endpoint for cutting a model (including child models).
+	 *
+	 * @return string
+	 */
 	public function cut();
 
+	/**
+	 * Endpoint for cutting multiple models (including child models).
+	 *
+	 * @return string
+	 */
 	public function cutAll();
 
+	/**
+	 * Delete a model and redirect the user to the listing.
+	 *
+	 * NOTE: This method redirects the user to the listing and therefore the script will be ended.
+	 *
+	 * @return void
+	 */
 	public function delete();
 
+	/**
+	 * Endpoint for edit operation.
+	 *
+	 * @return string
+	 */
 	public function edit();
 
+	/**
+	 * Endpoint for move operation.
+	 *
+	 * @return string
+	 */
 	public function move();
 
+	/**
+	 * Endpoint for show operation.
+	 *
+	 * @return string
+	 */
 	public function show();
 
 	/**
@@ -69,7 +125,10 @@ interface ViewInterface
 	 */
 	public function showAll();
 
+	/**
+	 * Endpoint for undo operation.
+	 *
+	 * @return string
+	 */
 	public function undo();
-
-	public function generateAjaxPalette($strSelector);
 }

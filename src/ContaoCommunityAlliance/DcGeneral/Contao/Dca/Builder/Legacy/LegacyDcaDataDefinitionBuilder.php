@@ -330,7 +330,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			if (isset($propInfo['wizard']))
 			{
 				$callbacks = $propInfo['wizard'];
-				foreach ($callbacks as $callback) {
+				foreach ($callbacks as $callback)
+				{
 					$dispatcher->addListener(
 						ManipulateWidgetEvent::NAME . sprintf('[%s][%s]', $container->getName(), $propName),
 						new PropertyInputFieldGetWizardCallbackListener($callback)
@@ -404,7 +405,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if (($value = $this->getFromDca('config/forceEdit')) !== null)
 		{
-			$config->setEditOnlyMode((bool) $value);
+			$config->setEditOnlyMode((bool)$value);
 		}
 
 		if (($value = $this->getFromDca('config/closed')) !== null)
@@ -521,10 +522,12 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 						$initializationData
 					));
 
-				if (!$container->getBasicDefinition()->getRootDataProvider()) {
+				if (!$container->getBasicDefinition()->getRootDataProvider())
+				{
 					$container->getBasicDefinition()->setRootDataProvider($parentTable);
 				}
-				if (!$container->getBasicDefinition()->getParentDataProvider()) {
+				if (!$container->getBasicDefinition()->getParentDataProvider())
+				{
 					$container->getBasicDefinition()->setParentDataProvider($parentTable);
 				}
 			}
@@ -556,7 +559,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 				))
 				->isVersioningEnabled((bool)$this->getFromDca('config/enableVersioning'));
 
-			if (!$container->getBasicDefinition()->getDataProvider()) {
+			if (!$container->getBasicDefinition()->getDataProvider())
+			{
 				$container->getBasicDefinition()->setDataProvider($container->getName());
 			}
 		}
@@ -649,7 +653,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			if (($relationship = $definition->getRootCondition()) === null)
 			{
 				$relationship = new RootCondition();
-				$builder = FilterBuilder::fromArrayForRoot()->getFilter();
+				$builder      = FilterBuilder::fromArrayForRoot()->getFilter();
 			}
 			else
 			{
@@ -1181,7 +1185,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 */
 	// @codingStandardsIgnoreStart - cyclomatic complexity can not be lowered any further.
 	protected function parseSingleProperty(PropertyInterface $property, array $propInfo)
-	// @codingStandardsIgnoreEnd
 	{
 		foreach ($propInfo as $key => $value)
 		{
@@ -1249,6 +1252,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			}
 		}
 	}
+	// @codingStandardsIgnoreEnd
 
 	/**
 	 * Parse the defined properties and populate the definition.
@@ -1301,8 +1305,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			case 'cut':
 				return new CutCommand();
 			default:
-				return new Command();
 		}
+		return new Command();
 	}
 
 	/**

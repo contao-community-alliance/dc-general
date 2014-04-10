@@ -113,11 +113,12 @@ class Callbacks
 			// Create a new instance.
 			$constructor = $class->getConstructor();
 
-			if (!$constructor || $constructor->isPublic()) {
+			if (!$constructor || $constructor->isPublic())
+			{
 				$callback[0] = $class->newInstance();
 			}
 
-			// Graceful fallback, to prevent access violation to non-public \Backend::__construct()
+			// Graceful fallback, to prevent access violation to non-public \Backend::__construct().
 			else {
 				$callback[0] = $class->newInstanceWithoutConstructor();
 				$constructor->setAccessible(true);

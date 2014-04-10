@@ -71,7 +71,8 @@ class BooleanCondition implements PropertyConditionInterface
 		PropertyValueBag $input = null,
 		PropertyInterface $property = null,
 		LegendInterface $legend = null
-	) {
+	)
+	{
 		return $this->value;
 	}
 

@@ -123,7 +123,6 @@ class ParentView extends BaseView
 	protected function renderEntries($collection, $groupingInformation)
 	{
 		$environment = $this->getEnvironment();
-		$definition  = $environment->getDataDefinition();
 		$view        = $this->getViewSection();
 		$listing     = $view->getListingConfig();
 		$remoteCur   = null;
@@ -330,10 +329,10 @@ class ParentView extends BaseView
 	 */
 	protected function getHeaderButtons($parentModel)
 	{
-		$environment      = $this->getEnvironment();
-		$definition       = $environment->getDataDefinition();
-		$clipboard        = $environment->getClipboard();
-		$basicDefinition  = $definition->getBasicDefinition();
+		$environment     = $this->getEnvironment();
+		$definition      = $environment->getDataDefinition();
+		$clipboard       = $environment->getClipboard();
+		$basicDefinition = $definition->getBasicDefinition();
 
 		$headerButtons = array();
 		if ($this->isSelectModeActive())
@@ -449,7 +448,8 @@ class ParentView extends BaseView
 			$factory->setContainerName($parentDefinition->getName());
 
 			$parentContainer = $factory->createContainer();
-			if ($parentContainer->getBasicDefinition()->getParentDataProvider()) {
+			if ($parentContainer->getBasicDefinition()->getParentDataProvider())
+			{
 				$container = $this->environment->getDataDefinition();
 
 				$relationship = $container->getModelRelationshipDefinition()->getChildCondition(
@@ -457,20 +457,24 @@ class ParentView extends BaseView
 					$parentContainer->getName()
 				);
 
-				if ($relationship) {
+				if ($relationship)
+				{
 					$filter = $relationship->getInverseFilterFor($parentModel);
 
-					$parentsParentProvider = $this->environment->getDataProvider($parentContainer->getBasicDefinition()->getParentDataProvider());
+					$parentsParentProvider =
+						$this->environment->getDataProvider($parentContainer->getBasicDefinition()->getParentDataProvider());
 
 					$config = $parentsParentProvider->getEmptyConfig();
 					$config->setFilter($filter);
 
 					$parents = $parentsParentProvider->fetchAll($config);
 
-					if ($parents->length() == 1) {
+					if ($parents->length() == 1)
+					{
 						$query['pid'] = IdSerializer::fromModel($parents->get(0))->getSerialized();
 					}
-					else if ($parents->length() > 1) {
+					elseif ($parents->length() > 1)
+					{
 						return null;
 					}
 				}
@@ -512,7 +516,6 @@ class ParentView extends BaseView
 		$parentProvider      = $definition->getBasicDefinition()->getParentDataProvider();
 		$groupingInformation = $this->getGroupingMode();
 		$propagator          = $this->getEnvironment()->getEventPropagator();
-
 
 		// Skip if we have no parent or parent collection.
 		if (!$parentModel)
@@ -599,7 +602,8 @@ class ParentView extends BaseView
 	 */
 	public function showAll()
 	{
-		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
+		{
 			return $this->edit();
 		}
 

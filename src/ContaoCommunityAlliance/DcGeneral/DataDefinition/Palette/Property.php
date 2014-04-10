@@ -86,7 +86,11 @@ class Property implements PropertyInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function isEditable(ModelInterface $model = null, PropertyValueBag $input = null, LegendInterface $legend = null)
+	public function isEditable(
+		ModelInterface $model = null,
+		PropertyValueBag $input = null,
+		LegendInterface $legend = null
+	)
 	{
 		if ($this->editableCondition)
 		{

@@ -103,7 +103,8 @@ class PropertyTrueCondition implements PropertyConditionInterface
 		PropertyValueBag $input = null,
 		PropertyInterface $property = null,
 		LegendInterface $legend = null
-	) {
+	)
+	{
 		if ($input && $input->hasPropertyValue($this->propertyName))
 		{
 			$value = $input->getPropertyValue($this->propertyName);

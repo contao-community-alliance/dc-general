@@ -231,8 +231,10 @@ class Legend implements LegendInterface
 	 */
 	public function hasProperty($propertyName)
 	{
-		foreach ($this->properties as $property) {
-			if ($property->getName() == $propertyName) {
+		foreach ($this->properties as $property)
+		{
+			if ($property->getName() == $propertyName)
+			{
 				return true;
 			}
 		}
@@ -242,11 +244,15 @@ class Legend implements LegendInterface
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralRuntimeException When the legend does not contain the desired property.
 	 */
 	public function getProperty($propertyName)
 	{
-		foreach ($this->properties as $property) {
-			if ($property->getName() == $propertyName) {
+		foreach ($this->properties as $property)
+		{
+			if ($property->getName() == $propertyName)
+			{
 				return $property;
 			}
 		}

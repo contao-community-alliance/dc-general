@@ -123,12 +123,16 @@ class EventPropagator implements EventPropagatorInterface
 	/**
 	 * Adds an event listener that listens on the specified events.
 	 *
-	 * @param string   $eventName The event to listen on
-	 * @param callable $listener  The listener
-	 * @param integer  $priority  The higher this value, the earlier an event
-	 *                            listener will be triggered in the chain (defaults to 0)
+	 * @param string   $eventName The event to listen on.
+	 *
+	 * @param callable $listener  The listener.
+	 *
+	 * @param integer  $priority  The higher this value, the earlier an event listener will be triggered in the chain
+	 *                            (defaults to 0).
 	 *
 	 * @api
+	 *
+	 * @return void
 	 */
 	public function addListener($eventName, $listener, $priority = 0)
 	{
@@ -144,6 +148,8 @@ class EventPropagator implements EventPropagatorInterface
 	 * @param EventSubscriberInterface $subscriber The subscriber.
 	 *
 	 * @api
+	 *
+	 * @return void
 	 */
 	public function addSubscriber(EventSubscriberInterface $subscriber)
 	{
@@ -153,8 +159,11 @@ class EventPropagator implements EventPropagatorInterface
 	/**
 	 * Removes an event listener from the specified events.
 	 *
-	 * @param string|array $eventName The event(s) to remove a listener from
-	 * @param callable     $listener  The listener to remove
+	 * @param string|array $eventName The event(s) to remove a listener from.
+	 *
+	 * @param callable     $listener  The listener to remove.
+	 *
+	 * @return void
 	 */
 	public function removeListener($eventName, $listener)
 	{
@@ -164,7 +173,9 @@ class EventPropagator implements EventPropagatorInterface
 	/**
 	 * Removes an event subscriber.
 	 *
-	 * @param EventSubscriberInterface $subscriber The subscriber
+	 * @param EventSubscriberInterface $subscriber The subscriber.
+	 *
+	 * @return void
 	 */
 	public function removeSubscriber(EventSubscriberInterface $subscriber)
 	{
@@ -174,7 +185,7 @@ class EventPropagator implements EventPropagatorInterface
 	/**
 	 * Gets the listeners of a specific event or all listeners.
 	 *
-	 * @param string $eventName The name of the event
+	 * @param string $eventName The name of the event.
 	 *
 	 * @return array The event listeners for the specified event, or all event listeners by event name
 	 */
@@ -186,7 +197,7 @@ class EventPropagator implements EventPropagatorInterface
 	/**
 	 * Checks whether an event has any registered listeners.
 	 *
-	 * @param string $eventName The name of the event
+	 * @param string $eventName The name of the event.
 	 *
 	 * @return Boolean true if the specified event has any listeners, false otherwise
 	 */

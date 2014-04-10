@@ -32,25 +32,15 @@ class ActionEvent extends AbstractActionAwareEvent
 	protected $response;
 
 	/**
-	 * Create a new instance.
-	 *
-	 * @param EnvironmentInterface $environment The environment in use.
-	 * @param string               $action      The action name.
-	 * @param array $arguments A set of action arguments.
-	 */
-	public function __construct(EnvironmentInterface $environment, Action $action)
-	{
-		parent::__construct($environment, $action);
-	}
-
-	/**
 	 * Set the action response.
 	 *
-	 * @param string $response
+	 * @param string $response The response.
+	 *
+	 * @return ActionEvent
 	 */
 	public function setResponse($response)
 	{
-		$this->response = $response !== null ? (string) $response : null;
+		$this->response = $response !== null ? (string)$response : null;
 		return $this;
 	}
 

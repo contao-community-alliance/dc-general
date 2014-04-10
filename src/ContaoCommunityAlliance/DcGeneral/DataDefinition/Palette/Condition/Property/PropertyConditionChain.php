@@ -35,7 +35,8 @@ class PropertyConditionChain extends AbstractConditionChain implements PropertyC
 		PropertyValueBag $input = null,
 		PropertyInterface $property = null,
 		LegendInterface $legend = null
-	) {
+	)
+	{
 		if ($this->conjunction == static::AND_CONJUNCTION)
 		{
 			foreach ($this->conditions as $condition)

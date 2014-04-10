@@ -15,8 +15,6 @@ namespace ContaoCommunityAlliance\DcGeneral\Event;
 /**
  * This event is emitted before a model is created.
  *
- * TODO: how is this event possible? How to pass a model before it is created?
- *
  * @package DcGeneral\Event
  */
 class PreCreateModelEvent extends AbstractModelAwareEvent

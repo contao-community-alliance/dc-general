@@ -174,6 +174,7 @@ interface BasicDefinitionInterface extends DefinitionInterface
 
 	/**
 	 * If true, only the edit mode will be shown.
+	 *
 	 * This is more or less the opposite to BasicDefinitionInterface::isEditable().
 	 *
 	 * @param bool $value The flag - true means that only the edit mode will shown, irrespective of the given action.
@@ -193,6 +194,7 @@ interface BasicDefinitionInterface extends DefinitionInterface
 
 	/**
 	 * Boolean flag determining if this data container is editable.
+	 *
 	 * This is more or less the opposite to BasicDefinitionInterface::isEditOnlyMode().
 	 *
 	 * @param bool $value True means, the data records may be edited.

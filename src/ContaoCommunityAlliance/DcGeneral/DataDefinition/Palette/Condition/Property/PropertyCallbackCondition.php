@@ -32,7 +32,7 @@ class PropertyCallbackCondition implements PropertyConditionInterface
 	/**
 	 * Create a new instance.
 	 *
-	 * @param \Closure $callback
+	 * @param \Closure $callback The callback to execute.
 	 */
 	public function __construct($callback)
 	{
@@ -47,7 +47,8 @@ class PropertyCallbackCondition implements PropertyConditionInterface
 		PropertyValueBag $input = null,
 		PropertyInterface $property = null,
 		LegendInterface $legend = null
-	) {
+	)
+	{
 		return call_user_func($this->callback, $model, $input, $property, $legend);
 	}
 

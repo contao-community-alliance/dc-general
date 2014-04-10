@@ -102,6 +102,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	 */
 	protected $panel;
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public static function getSubscribedEvents()
 	{
 		return array(
@@ -111,17 +114,18 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 	public function handleAction(ActionEvent $event)
 	{
-		if (
-			$event->getEnvironment()->getDataDefinition()->getName() !== $this->environment->getDataDefinition()->getName()
+		if ($event->getEnvironment()->getDataDefinition()->getName() !== $this->environment->getDataDefinition()->getName()
 			|| $event->getResponse() !== null
-		) {
+		)
+		{
 			return;
 		}
 
 		$action = $event->getAction();
 		$name   = $action->getName();
 
-		switch ($name) {
+		switch ($name)
+		{
 			case 'copy':
 			case 'copyAll':
 			case 'create':
@@ -140,6 +144,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 				);
 				$event->setResponse($response);
 				break;
+			default:
 		}
 	}
 
@@ -178,7 +183,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	 */
 	public function setEnvironment(EnvironmentInterface $environment)
 	{
-		if ($this->environment) {
+		if ($this->environment)
+		{
 			$this->environment->getEventPropagator()->removeSubscriber($this);
 		}
 
@@ -441,7 +447,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 					break;
 
 				case ListingConfigInterface::GROUP_DAY:
-					if ($value instanceof \DateTime) {
+					if ($value instanceof \DateTime)
+					{
 						$value = $value->getTimestamp();
 					}
 
@@ -452,7 +459,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 					break;
 
 				case ListingConfigInterface::GROUP_MONTH:
-					if ($value instanceof \DateTime) {
+					if ($value instanceof \DateTime)
+					{
 						$value = $value->getTimestamp();
 					}
 
@@ -466,7 +474,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 					break;
 
 				case ListingConfigInterface::GROUP_YEAR:
-					if ($value instanceof \DateTime) {
+					if ($value instanceof \DateTime)
+					{
 						$value = $value->getTimestamp();
 					}
 
@@ -796,7 +805,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		$inputProvider   = $environment->getInputProvider();
 		$objDataProvider = $environment->getDataProvider();
 		$strProviderName = $environment->getDataDefinition()->getName();
-		$idDetails       = $input->getParameter('id') ? IdSerializer::fromSerialized($inputProvider->getParameter('id')) : null;
+		$idDetails       = $input->getParameter('id')
+			? IdSerializer::fromSerialized($inputProvider->getParameter('id'))
+			: null;
 		$mixID           = $idDetails ? $idDetails->getId() : null;
 		$arrLanguage     = $environment->getController()->getSupportedLanguages($mixID);
 
@@ -1070,7 +1081,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	 *
 	 * NOTE: This method redirects the user to the listing and therefore the script will be ended.
 	 *
-	 * @return void|string
+	 * @return string
 	 *
 	 * @throws DcGeneralRuntimeException If the model to delete could not be loaded.
 	 */
@@ -1173,6 +1184,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		);
 
 		$this->redirectHome();
+
+		return null;
 	}
 
 	/**

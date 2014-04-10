@@ -13,7 +13,8 @@
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event;
 
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition as PalettePropertyValueCondition;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition
+	as PalettePropertyValueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyValueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
@@ -53,7 +54,7 @@ class CreateConditionEvent extends BuilderEvent
 	/**
 	 * Set the condition.
 	 *
-	 * @param PalettePropertyValueCondition|PropertyValueCondition $condition The condition to use.
+	 * @param PaletteConditionInterface|PropertyConditionInterface $condition The condition to use.
 	 *
 	 * @return CreateConditionEvent
 	 *

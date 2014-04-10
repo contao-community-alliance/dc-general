@@ -35,7 +35,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetLe
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPaletteClassNameEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPaletteCollectionClassNameEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPaletteConditionChainClassNameEvent;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPalettePropertyValueConditionClassNameEvent;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\
+	SetPalettePropertyValueConditionClassNameEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPropertyClassNameEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPropertyConditionChainClassNameEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPropertyValueConditionClassNameEvent;

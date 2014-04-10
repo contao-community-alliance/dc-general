@@ -44,7 +44,7 @@ class DcGeneralExtension extends \Twig_Extension
 	/**
 	 * Serialize a model and return its ID.
 	 *
-	 * @param ModelInterface $model
+	 * @param ModelInterface $model The model.
 	 *
 	 * @return string
 	 */

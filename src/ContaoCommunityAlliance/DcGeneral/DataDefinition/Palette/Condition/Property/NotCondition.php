@@ -70,7 +70,8 @@ class NotCondition implements PropertyConditionInterface
 		PropertyValueBag $input = null,
 		PropertyInterface $property = null,
 		LegendInterface $legend = null
-	) {
+	)
+	{
 		return !$this->condition->match($model, $input, $property, $legend);
 	}
 

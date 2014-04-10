@@ -201,7 +201,9 @@ class Subscriber
 	/**
 	 * Add custom twig extension.
 	 *
-	 * @param \ContaoTwigInitializeEvent $event
+	 * @param \ContaoTwigInitializeEvent $event The event.
+	 *
+	 * @return void
 	 */
 	public function initTwig(\ContaoTwigInitializeEvent $event)
 	{

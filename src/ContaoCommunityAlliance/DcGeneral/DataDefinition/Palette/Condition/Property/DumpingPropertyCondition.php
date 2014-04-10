@@ -24,11 +24,18 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 class DumpingPropertyCondition implements PropertyConditionInterface
 {
 	/**
+	 * The condition to dump.
+	 *
 	 * @var PropertyConditionInterface
 	 */
 	protected $propertyCondition;
 
-	function __construct($propertyCondition)
+	/**
+	 * Create a new instance.
+	 *
+	 * @param PropertyConditionInterface $propertyCondition The condition to debug.
+	 */
+	public function __construct($propertyCondition)
 	{
 		$this->propertyCondition = $propertyCondition;
 	}
@@ -41,9 +48,11 @@ class DumpingPropertyCondition implements PropertyConditionInterface
 		PropertyValueBag $input = null,
 		PropertyInterface $property = null,
 		LegendInterface $legend = null
-	) {
+	)
+	{
 		$result = $this->propertyCondition->match($model, $input, $property, $legend);
 
+		// @codingStandardsIgnoreStart - We explicitely allow var_dump() here for debugging purposes.
 		echo '<pre>$condition: </pre>';
 		var_dump($this->propertyCondition);
 		echo '<pre>$model: </pre>';
@@ -55,6 +64,7 @@ class DumpingPropertyCondition implements PropertyConditionInterface
 		echo '<pre>';
 		debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		echo '</pre>';
+		// @codingStandardsIgnoreEnd
 
 		return $result;
 	}

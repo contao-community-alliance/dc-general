@@ -35,6 +35,7 @@ abstract class AbstractActionAwareEvent extends AbstractEnvironmentAwareEvent
 	 * Create a new instance.
 	 *
 	 * @param EnvironmentInterface $environment The environment in use.
+	 *
 	 * @param Action               $action      The action.
 	 */
 	public function __construct(EnvironmentInterface $environment, Action $action)

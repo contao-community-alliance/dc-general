@@ -32,11 +32,11 @@ class PropertyVisibleCondition implements PropertyConditionInterface
 	/**
 	 * Create a new instance.
 	 *
-	 * @param string $propertyName  The name of the property.
+	 * @param string $propertyName The name of the property.
 	 */
 	public function __construct($propertyName = '')
 	{
-		$this->propertyName  = (string)$propertyName;
+		$this->propertyName = (string)$propertyName;
 	}
 
 	/**
@@ -70,15 +70,19 @@ class PropertyVisibleCondition implements PropertyConditionInterface
 		PropertyValueBag $input = null,
 		PropertyInterface $property = null,
 		LegendInterface $legend = null
-	) {
-		if (!$legend) {
+	)
+	{
+		if (!$legend)
+		{
 			return false;
 		}
 
-		if ($legend->getPalette()) {
+		if ($legend->getPalette())
+		{
 			$property = $legend->getPalette()->getProperty($this->propertyName);
 		}
-		else {
+		else
+		{
 			$property = $legend->getProperty($this->propertyName);
 		}
 

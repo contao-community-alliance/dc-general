@@ -40,7 +40,11 @@ class PostPersistModelEvent extends AbstractModelAwareEvent
 	 *
 	 * @param ModelInterface|null  $originalModel The original state of the model (persistent in the data provider).
 	 */
-	public function __construct(EnvironmentInterface $environment, ModelInterface $model, ModelInterface $originalModel = null)
+	public function __construct(
+		EnvironmentInterface $environment,
+		ModelInterface $model,
+		ModelInterface $originalModel = null
+	)
 	{
 		parent::__construct($environment, $model);
 
@@ -48,10 +52,11 @@ class PostPersistModelEvent extends AbstractModelAwareEvent
 	}
 
 	/**
-     * Return the original state of the model.
-     * May be null on create.
-     *
-     * @return ModelInterface|null
+	 * Return the original state of the model.
+	 *
+	 * May be null on create.
+	 *
+	 * @return ModelInterface|null
 	 */
 	public function getOriginalModel()
 	{

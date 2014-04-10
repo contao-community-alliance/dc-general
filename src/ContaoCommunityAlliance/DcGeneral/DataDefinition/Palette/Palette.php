@@ -123,6 +123,8 @@ class Palette implements PaletteInterface
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralRuntimeException When the palette does not contain the desired property.
 	 */
 	public function getProperty($propertyName)
 	{

@@ -55,7 +55,7 @@ interface ControllerInterface
 	/**
 	 * Handle a action within this environment.
 	 *
-	 * @param Action $action
+	 * @param Action $action The action to be executed.
 	 *
 	 * @return string
 	 */
