@@ -3,28 +3,81 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "faac8e5d9c169286fa11072fe3117e88",
+    "hash": "84f2379c53d9526b423081a49158ccc6",
     "packages": [
         {
-            "name": "contao-community-alliance/composer-plugin",
+            "name": "contao-community-alliance/backports-initialize-system",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/contao-community-alliance/composer-plugin.git",
-                "reference": "61f535fb513812aeb416b372034b62d6c7f2d75e"
+                "url": "https://github.com/contao-community-alliance/backports-initialize-system.git",
+                "reference": "07d3a70728db2fdf74cfd16d0b2c4b5b0223111b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/composer-plugin/zipball/61f535fb513812aeb416b372034b62d6c7f2d75e",
-                "reference": "61f535fb513812aeb416b372034b62d6c7f2d75e",
+                "url": "https://api.github.com/repos/contao-community-alliance/backports-initialize-system/zipball/07d3a70728db2fdf74cfd16d0b2c4b5b0223111b",
+                "reference": "07d3a70728db2fdf74cfd16d0b2c4b5b0223111b",
                 "shasum": ""
             },
             "require": {
-                "composer-plugin-api": "1.0.0",
-                "contao/core": ">=2.11,<3.3"
+                "contao-community-alliance/composer-installer": "*",
+                "contao/core": ">=2.11-dev,<4-dev",
+                "php": ">=5.3"
+            },
+            "type": "contao-module",
+            "extra": {
+                "contao": {
+                    "sources": {
+                        "module": "system/modules/backports-initialize-system"
+                    }
+                },
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "ContaoCommunityAlliance\\Contao\\Backports": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Tristan Lins",
+                    "email": "tristan.lins@bit3.de",
+                    "homepage": "http://bit3.de",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Backport of the initializeSystem Hook for Contao Open Source CMS.",
+            "keywords": [
+                "backports",
+                "contao"
+            ],
+            "time": "2014-02-12 16:41:52"
+        },
+        {
+            "name": "contao-community-alliance/composer-plugin",
+            "version": "dev-develop",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/contao-community-alliance/composer-plugin.git",
+                "reference": "dce7d56ff2753a4be89127883d384891c40651d9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/contao-community-alliance/composer-plugin/zipball/dce7d56ff2753a4be89127883d384891c40651d9",
+                "reference": "dce7d56ff2753a4be89127883d384891c40651d9",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "1.0.0"
             },
             "conflict": {
-                "contao-community-alliance/composer": "<0.7.10",
+                "contao-community-alliance/composer": "<0.9-dev",
                 "contao/core": "3.0.*"
             },
             "replace": {
@@ -34,7 +87,7 @@
                 "bit3/php-coding-standard": "*",
                 "composer/composer": "dev-master",
                 "pdepend/pdepend": "1.1.*",
-                "phpunit/phpunit": "~3.7.10"
+                "phpunit/phpunit": ">=3.7.10,<4-dev"
             },
             "type": "composer-plugin",
             "extra": {
@@ -53,7 +106,7 @@
                 "LGPL-3.0+"
             ],
             "description": "Composer plugin that provide contao integration and installer.",
-            "time": "2013-12-04 11:15:00"
+            "time": "2014-04-08 02:36:46"
         },
         {
             "name": "contao-community-alliance/dependency-container",
@@ -61,15 +114,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/dependency-container.git",
-                "reference": "07290eb0665850b6cd14ac5a5034586ec039ccc3"
+                "reference": "c840eb12fea1ee7abc808a30ab2decc7ac4658ef"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/dependency-container/zipball/07290eb0665850b6cd14ac5a5034586ec039ccc3",
-                "reference": "07290eb0665850b6cd14ac5a5034586ec039ccc3",
+                "url": "https://api.github.com/repos/contao-community-alliance/dependency-container/zipball/c840eb12fea1ee7abc808a30ab2decc7ac4658ef",
+                "reference": "c840eb12fea1ee7abc808a30ab2decc7ac4658ef",
                 "shasum": ""
             },
             "require": {
+                "contao-community-alliance/backports-initialize-system": "~1.0",
                 "contao-community-alliance/composer-installer": "*",
                 "contao/core": ">=2.11,<3.3",
                 "php": ">=5.3",
@@ -107,7 +161,7 @@
                 {
                     "name": "Tristan Lins",
                     "email": "tristan.lins@bit3.de",
-                    "homepage": "http://bit3.de/",
+                    "homepage": "http://bit3.de",
                     "role": "Developer"
                 }
             ],
@@ -120,7 +174,7 @@
                 "di",
                 "injection"
             ],
-            "time": "2014-02-05 22:08:08"
+            "time": "2014-03-19 13:06:00"
         },
         {
             "name": "contao-community-alliance/event-dispatcher",
@@ -128,12 +182,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/event-dispatcher.git",
-                "reference": "cbb565efa18b163a6fd70f3d12efd30ae927bae3"
+                "reference": "055f59bfc0b2bc1d0f4961d99305751b8c4d09fd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/event-dispatcher/zipball/cbb565efa18b163a6fd70f3d12efd30ae927bae3",
-                "reference": "cbb565efa18b163a6fd70f3d12efd30ae927bae3",
+                "url": "https://api.github.com/repos/contao-community-alliance/event-dispatcher/zipball/055f59bfc0b2bc1d0f4961d99305751b8c4d09fd",
+                "reference": "055f59bfc0b2bc1d0f4961d99305751b8c4d09fd",
                 "shasum": ""
             },
             "require": {
@@ -171,7 +225,7 @@
                 {
                     "name": "Tristan Lins",
                     "email": "tristan.lins@bit3.de",
-                    "homepage": "http://bit3.de/",
+                    "homepage": "http://bit3.de",
                     "role": "Developer"
                 }
             ],
@@ -181,26 +235,26 @@
                 "contao",
                 "event"
             ],
-            "time": "2014-02-05 22:08:03"
+            "time": "2014-03-19 13:00:33"
         },
         {
             "name": "contao-community-alliance/events-contao-bindings",
-            "version": "dev-master",
+            "version": "dev-contao-2.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/events-contao-bindings.git",
-                "reference": "79d71dd96d5ad13023bd095dc947f74457e7c594"
+                "reference": "be1b8a7b8ca8188cb6dd3ac0c6b3c25e414573d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/events-contao-bindings/zipball/79d71dd96d5ad13023bd095dc947f74457e7c594",
-                "reference": "79d71dd96d5ad13023bd095dc947f74457e7c594",
+                "url": "https://api.github.com/repos/contao-community-alliance/events-contao-bindings/zipball/be1b8a7b8ca8188cb6dd3ac0c6b3c25e414573d5",
+                "reference": "be1b8a7b8ca8188cb6dd3ac0c6b3c25e414573d5",
                 "shasum": ""
             },
             "require": {
                 "contao-community-alliance/composer-installer": "*",
                 "contao-community-alliance/event-dispatcher": "~1.0",
-                "contao/core": "~3.2",
+                "contao/core": "~2.11",
                 "php": ">=5.3"
             },
             "conflict": {
@@ -213,7 +267,7 @@
             "type": "contao-module",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.2.x-dev"
+                    "dev-contao-2.11": "2.11.x-dev"
                 },
                 "contao": {
                     "sources": {
@@ -250,7 +304,7 @@
                 "contao",
                 "translation"
             ],
-            "time": "2014-01-14 03:47:01"
+            "time": "2014-03-28 11:38:37"
         },
         {
             "name": "contao-community-alliance/translator",
@@ -258,18 +312,18 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/translator.git",
-                "reference": "f6702dd679490a691498e0b7365e61d880389e33"
+                "reference": "0a789df9b402d3d00a1ce9a117c914de065a9ac1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/translator/zipball/f6702dd679490a691498e0b7365e61d880389e33",
-                "reference": "f6702dd679490a691498e0b7365e61d880389e33",
+                "url": "https://api.github.com/repos/contao-community-alliance/translator/zipball/0a789df9b402d3d00a1ce9a117c914de065a9ac1",
+                "reference": "0a789df9b402d3d00a1ce9a117c914de065a9ac1",
                 "shasum": ""
             },
             "require": {
                 "contao-community-alliance/composer-installer": "*",
                 "contao-community-alliance/event-dispatcher": "~1.0",
-                "contao-community-alliance/events-contao-bindings": "~3.2@dev",
+                "contao-community-alliance/events-contao-bindings": "*@dev",
                 "php": ">=5.3"
             },
             "require-dev": {
@@ -311,29 +365,31 @@
                 "contao",
                 "translation"
             ],
-            "time": "2014-02-05 22:32:23"
+            "time": "2014-04-08 01:46:46"
         },
         {
             "name": "contao/core",
-            "version": "3.2.5",
+            "version": "2.11.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/composerized-contao-core.git",
-                "reference": "4f2791f8bc9003808f650168f96ff154d1445216"
+                "reference": "b533c0a0c624d1037cc66fe210660964a714bccb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/composerized-contao-core/zipball/4f2791f8bc9003808f650168f96ff154d1445216",
-                "reference": "4f2791f8bc9003808f650168f96ff154d1445216",
+                "url": "https://api.github.com/repos/contao-community-alliance/composerized-contao-core/zipball/b533c0a0c624d1037cc66fe210660964a714bccb",
+                "reference": "b533c0a0c624d1037cc66fe210660964a714bccb",
                 "shasum": ""
             },
             "require": {
+                "contao-community-alliance/composer-plugin": "*",
                 "php": ">=5.3.2"
             },
             "type": "library",
             "autoload": {
                 "classmap": [
-                    "system/modules"
+                    "system/modules",
+                    "system/libraries"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -354,7 +410,7 @@
                 "contao",
                 "core"
             ],
-            "time": "2014-02-04 01:00:39"
+            "time": "2014-04-08 01:10:38"
         },
         {
             "name": "pimple/pimple",
@@ -391,7 +447,9 @@
             "authors": [
                 {
                     "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
+                    "email": "fabien@symfony.com",
+                    "homepage": "http://fabien.potencier.org",
+                    "role": "Lead Developer"
                 }
             ],
             "description": "Pimple is a simple Dependency Injection Container for PHP 5.3",
@@ -409,12 +467,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/EventDispatcher.git",
-                "reference": "a11954795d9947cbb6ab1446707c59dc1739759c"
+                "reference": "15645237c6ff70e74a28e8836362d82492765055"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/a11954795d9947cbb6ab1446707c59dc1739759c",
-                "reference": "a11954795d9947cbb6ab1446707c59dc1739759c",
+                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/15645237c6ff70e74a28e8836362d82492765055",
+                "reference": "15645237c6ff70e74a28e8836362d82492765055",
                 "shasum": ""
             },
             "require": {
@@ -445,7 +503,9 @@
             "authors": [
                 {
                     "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
+                    "email": "fabien@symfony.com",
+                    "homepage": "http://fabien.potencier.org",
+                    "role": "Lead Developer"
                 },
                 {
                     "name": "Symfony Community",
@@ -454,7 +514,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "http://symfony.com",
-            "time": "2014-01-07 13:19:25"
+            "time": "2014-02-11 10:29:24"
         }
     ],
     "packages-dev": [
@@ -495,8 +555,8 @@
                 {
                     "name": "Christian Schiffler",
                     "email": "c.schiffler@cyberspectrum.de",
-                    "homepage": "http://www.cyberspectrum.de",
-                    "role": "Developer"
+                    "homepage": "http://cyberspectrum.de",
+                    "role": "lead"
                 },
                 {
                     "name": "Stefan Heimes",
@@ -581,42 +641,40 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "dev-master",
+            "version": "1.2.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "2feaf8b65ff948ab38bab81d0ae8a85e9ef780a2"
+                "reference": "6ef2bf3a1c47eca07ea95f0d8a902a6340390b34"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/2feaf8b65ff948ab38bab81d0ae8a85e9ef780a2",
-                "reference": "2feaf8b65ff948ab38bab81d0ae8a85e9ef780a2",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/6ef2bf3a1c47eca07ea95f0d8a902a6340390b34",
+                "reference": "6ef2bf3a1c47eca07ea95f0d8a902a6340390b34",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3",
-                "phpunit/php-file-iterator": ">=1.3.0",
-                "phpunit/php-text-template": ">=1.2.0",
-                "phpunit/php-token-stream": ">=1.1.3",
-                "sebastian/version": ">=1.0.0"
+                "phpunit/php-file-iterator": ">=1.3.0@stable",
+                "phpunit/php-text-template": ">=1.2.0@stable",
+                "phpunit/php-token-stream": ">=1.1.3@stable"
             },
             "require-dev": {
-                "ext-xdebug": ">=2.1.4",
-                "phpunit/phpunit": "3.9.*@dev"
+                "phpunit/phpunit": "3.7.*@dev"
             },
             "suggest": {
                 "ext-dom": "*",
-                "ext-xdebug": ">=2.2.1"
+                "ext-xdebug": ">=2.0.5"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.4.x-dev"
+                    "dev-master": "1.2.x-dev"
                 }
             },
             "autoload": {
                 "classmap": [
-                    "src/"
+                    "PHP/"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -640,11 +698,11 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2014-02-03 07:43:59"
+            "time": "2014-03-28 10:53:45"
         },
         {
             "name": "phpunit/php-file-iterator",
-            "version": "dev-master",
+            "version": "1.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-file-iterator.git",
@@ -689,7 +747,7 @@
         },
         {
             "name": "phpunit/php-text-template",
-            "version": "dev-master",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-text-template.git",
@@ -733,7 +791,7 @@
         },
         {
             "name": "phpunit/php-timer",
-            "version": "dev-master",
+            "version": "1.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-timer.git",
@@ -781,12 +839,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-token-stream.git",
-                "reference": "292f4d5772dad5a12775be69f4a8dd663b20f103"
+                "reference": "ad4e1e23ae01b483c16f600ff1bebec184588e32"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-token-stream/zipball/292f4d5772dad5a12775be69f4a8dd663b20f103",
-                "reference": "292f4d5772dad5a12775be69f4a8dd663b20f103",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-token-stream/zipball/ad4e1e23ae01b483c16f600ff1bebec184588e32",
+                "reference": "ad4e1e23ae01b483c16f600ff1bebec184588e32",
                 "shasum": ""
             },
             "require": {
@@ -823,20 +881,20 @@
             "keywords": [
                 "tokenizer"
             ],
-            "time": "2013-10-21 14:03:39"
+            "time": "2014-03-03 05:10:30"
         },
         {
             "name": "phpunit/phpunit",
-            "version": "dev-master",
+            "version": "3.7.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "3e7c728f68faa8bb3de93f24ddfe891c27dd65fe"
+                "reference": "248d6ce95e6ca7f0e3135252c0b984bbe1f52f19"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/3e7c728f68faa8bb3de93f24ddfe891c27dd65fe",
-                "reference": "3e7c728f68faa8bb3de93f24ddfe891c27dd65fe",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/248d6ce95e6ca7f0e3135252c0b984bbe1f52f19",
+                "reference": "248d6ce95e6ca7f0e3135252c0b984bbe1f52f19",
                 "shasum": ""
             },
             "require": {
@@ -845,34 +903,34 @@
                 "ext-reflection": "*",
                 "ext-spl": "*",
                 "php": ">=5.3.3",
-                "phpunit/php-code-coverage": "1.4.*@dev",
-                "phpunit/php-file-iterator": ">=1.3.1",
-                "phpunit/php-text-template": ">=1.1.1",
-                "phpunit/php-timer": ">=1.0.2",
-                "phpunit/phpunit-mock-objects": "1.4.*@dev",
-                "sebastian/diff": ">=1.1.0",
-                "sebastian/exporter": ">=1.0.0",
-                "sebastian/version": ">=1.0.0",
+                "phpunit/php-code-coverage": "~1.2",
+                "phpunit/php-file-iterator": "~1.3",
+                "phpunit/php-text-template": "~1.1",
+                "phpunit/php-timer": "~1.0",
+                "phpunit/phpunit-mock-objects": "~1.2",
                 "symfony/yaml": "~2.0"
+            },
+            "require-dev": {
+                "pear-pear.php.net/pear": "1.9.4"
             },
             "suggest": {
                 "ext-json": "*",
                 "ext-simplexml": "*",
                 "ext-tokenizer": "*",
-                "phpunit/php-invoker": ">=1.1.0"
+                "phpunit/php-invoker": "~1.1"
             },
             "bin": [
-                "phpunit"
+                "composer/bin/phpunit"
             ],
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.9.x-dev"
+                    "dev-master": "3.7.x-dev"
                 }
             },
             "autoload": {
                 "classmap": [
-                    "src/"
+                    "PHPUnit/"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -897,28 +955,28 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2014-02-02 09:06:55"
+            "time": "2014-03-28 11:04:36"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
-            "version": "dev-master",
+            "version": "1.2.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit-mock-objects.git",
-                "reference": "04936ec2261b150a758d92c4159e0d98c34d8b75"
+                "reference": "c39c4511c3b007539eb170c32cbc2af49a07351a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/04936ec2261b150a758d92c4159e0d98c34d8b75",
-                "reference": "04936ec2261b150a758d92c4159e0d98c34d8b75",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/c39c4511c3b007539eb170c32cbc2af49a07351a",
+                "reference": "c39c4511c3b007539eb170c32cbc2af49a07351a",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3",
-                "phpunit/php-text-template": ">=1.1.1"
+                "phpunit/php-text-template": ">=1.1.1@stable"
             },
             "require-dev": {
-                "phpunit/phpunit": "3.9.*@dev"
+                "phpunit/phpunit": "3.7.*@dev"
             },
             "suggest": {
                 "ext-soap": "*"
@@ -926,12 +984,12 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.4.x-dev"
+                    "dev-master": "1.2.x-dev"
                 }
             },
             "autoload": {
                 "classmap": [
-                    "src/"
+                    "PHPUnit/"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -954,158 +1012,7 @@
                 "mock",
                 "xunit"
             ],
-            "time": "2014-02-06 17:04:58"
-        },
-        {
-            "name": "sebastian/diff",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/sebastianbergmann/diff.git",
-                "reference": "1e091702a5a38e6b4c1ba9ca816e3dd343df2e2d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/diff/zipball/1e091702a5a38e6b4c1ba9ca816e3dd343df2e2d",
-                "reference": "1e091702a5a38e6b4c1ba9ca816e3dd343df2e2d",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.3"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.1-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Sebastian Bergmann",
-                    "email": "sebastian@phpunit.de",
-                    "role": "lead"
-                },
-                {
-                    "name": "Kore Nordmann",
-                    "email": "mail@kore-nordmann.de"
-                }
-            ],
-            "description": "Diff implementation",
-            "homepage": "http://www.github.com/sebastianbergmann/diff",
-            "keywords": [
-                "diff"
-            ],
-            "time": "2013-08-03 16:46:33"
-        },
-        {
-            "name": "sebastian/exporter",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/sebastianbergmann/exporter.git",
-                "reference": "4898c246602e98f13b76402b4743a288447ad313"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/exporter/zipball/4898c246602e98f13b76402b4743a288447ad313",
-                "reference": "4898c246602e98f13b76402b4743a288447ad313",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.3"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "3.8.*@dev"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Sebastian Bergmann",
-                    "email": "sebastian@phpunit.de",
-                    "role": "lead"
-                },
-                {
-                    "name": "Jeff Welch",
-                    "email": "whatthejeff@gmail.com"
-                },
-                {
-                    "name": "Volker Dusch",
-                    "email": "github@wallbash.com"
-                },
-                {
-                    "name": "Adam Harvey",
-                    "email": "aharvey@php.net"
-                },
-                {
-                    "name": "Bernhard Schussek",
-                    "email": "bschussek@2bepublished.at"
-                }
-            ],
-            "description": "Provides the functionality to export PHP variables for visualization",
-            "homepage": "http://www.github.com/sebastianbergmann/exporter",
-            "keywords": [
-                "export",
-                "exporter"
-            ],
-            "time": "2014-02-04 20:44:57"
-        },
-        {
-            "name": "sebastian/version",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/sebastianbergmann/version.git",
-                "reference": "b5ed060223916b485002b02605e20ba04a741f03"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/version/zipball/b5ed060223916b485002b02605e20ba04a741f03",
-                "reference": "b5ed060223916b485002b02605e20ba04a741f03",
-                "shasum": ""
-            },
-            "type": "library",
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Sebastian Bergmann",
-                    "email": "sebastian@phpunit.de",
-                    "role": "lead"
-                }
-            ],
-            "description": "Library that helps with managing the version number of Git-hosted PHP projects",
-            "homepage": "https://github.com/sebastianbergmann/version",
-            "time": "2013-07-31 05:26:57"
+            "time": "2014-02-16 12:43:56"
         },
         {
             "name": "squizlabs/php_codesniffer",
@@ -1113,12 +1020,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "c09f15dba17ddc656cb580dbad25177ee3eb0c94"
+                "reference": "339b91cd73c9930c792d54092dc6e1cd376b7a8d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/c09f15dba17ddc656cb580dbad25177ee3eb0c94",
-                "reference": "c09f15dba17ddc656cb580dbad25177ee3eb0c94",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/339b91cd73c9930c792d54092dc6e1cd376b7a8d",
+                "reference": "339b91cd73c9930c792d54092dc6e1cd376b7a8d",
                 "shasum": ""
             },
             "require": {
@@ -1132,6 +1039,11 @@
                 "scripts/phpcs"
             ],
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-phpcs-fixer": "2.0.x-dev"
+                }
+            },
             "autoload": {
                 "classmap": [
                     "CodeSniffer.php",
@@ -1175,7 +1087,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2014-02-05 21:27:07"
+            "time": "2014-04-02 00:29:17"
         },
         {
             "name": "symfony/yaml",
@@ -1184,12 +1096,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "9921872611710df49cf035c259e5a461ea2d0f8c"
+                "reference": "cee3067d680232674c6505d91db9d3d635a9a8f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/9921872611710df49cf035c259e5a461ea2d0f8c",
-                "reference": "9921872611710df49cf035c259e5a461ea2d0f8c",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/cee3067d680232674c6505d91db9d3d635a9a8f4",
+                "reference": "cee3067d680232674c6505d91db9d3d635a9a8f4",
                 "shasum": ""
             },
             "require": {
@@ -1213,7 +1125,9 @@
             "authors": [
                 {
                     "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
+                    "email": "fabien@symfony.com",
+                    "homepage": "http://fabien.potencier.org",
+                    "role": "Lead Developer"
                 },
                 {
                     "name": "Symfony Community",
@@ -1222,7 +1136,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
-            "time": "2014-01-07 13:29:57"
+            "time": "2014-03-26 11:51:10"
         }
     ],
     "aliases": [
