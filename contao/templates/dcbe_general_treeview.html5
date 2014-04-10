@@ -1,7 +1,7 @@
 <?php
 
 // Add tree view stylesheet
-$GLOBALS['TL_CSS'][] = 'system/modules/generalDriver/html/css/generalDriver.css';
+$GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalDriver.css';
 
 ?>
 
