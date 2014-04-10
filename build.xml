@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="Example" default="test">
+<project name="dc-general" default="test">
 	<target name="phpunit">
 		<exec dir="${basedir}" executable="vendor/bin/phpunit" failonerror="false" />
 	</target>
@@ -10,11 +10,5 @@
 		</exec>
 	</target>
 
-	<target name="phpmd">
-		<exec dir="${basedir}" executable="vendor/bin/phpmd" failonerror="true">
-			<arg line="${basedir}/src text ${basedir}/vendor/metamodels/php-coding-standard/MetaModels/ruleset.xml"/>
-		</exec>
-	</target>
-
-	<target name="test" depends="phpunit,phpcs,phpmd"/>
+	<target name="test" depends="phpunit,phpcs"/>
 </project>
