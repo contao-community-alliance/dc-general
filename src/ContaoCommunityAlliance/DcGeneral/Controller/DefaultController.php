@@ -578,6 +578,22 @@ class DefaultController implements ControllerInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function pasteTop(CollectionInterface $models, $sortedBy)
+	{
+		$environment = $this->getEnvironment();
+
+		// Enforce proper sorting now.
+		$siblings    = $this->assembleSiblingsFor($models->get(0), $sortedBy);
+		$sortManager = new SortingManager($models, $siblings, $sortedBy, null);
+		$newList     = $sortManager->getResults();
+
+		$environment->getDataProvider($models->get(0)->getProviderName())->saveEach($newList);
+	}
+
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function pasteAfter(ModelInterface $previousModel, CollectionInterface $models, $sortedBy)
 	{
 		$environment = $this->getEnvironment();

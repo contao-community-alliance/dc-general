@@ -140,6 +140,17 @@ interface ControllerInterface
 	public function fetchModelFromProvider($id, $providerName = null);
 
 	/**
+	 * Paste the content of the clipboard onto the top.
+	 *
+	 * @param CollectionInterface $models        The models to be inserted.
+	 *
+	 * @param string              $sortedBy      The name of the sorting property.
+	 *
+	 * @return void
+	 */
+	public function pasteTop(CollectionInterface $models, $sortedBy);
+
+	/**
 	 * Paste the content of the clipboard after the given model.
 	 *
 	 * @param ModelInterface      $previousModel The model after which to paste.
