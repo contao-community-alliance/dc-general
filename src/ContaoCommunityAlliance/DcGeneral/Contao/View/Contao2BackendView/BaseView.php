@@ -1088,6 +1088,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$parent       = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($into->getId()));
 			$environment->getController()->pasteInto($parent, $models, $this->getManualSortingProperty());
 		}
+		else if ($after == '0') {
+			$environment->getController()->pasteTop($models, $this->getManualSortingProperty());
+		}
 		else
 		{
 			throw new DcGeneralRuntimeException('Invalid parameters.');
