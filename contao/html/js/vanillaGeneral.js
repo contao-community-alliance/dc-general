@@ -45,7 +45,7 @@ document.onmousemove = function (ev)
 			currenttable.dragObject.style.backgroundColor = "#eee";
 			// If we're over a row then move the dragged row to there so that the user sees the
 			// effect dynamically
-			var currentRow = currenttable.findDropTargetRow(y);
+			var currentRow = currenttable.findDropTargetRow(ev);
 			if (currentRow)
 			{
 				if (movingDown && currenttable.dragObject != currentRow)
@@ -243,31 +243,26 @@ function GeneralTableDnD()
 	}
 
 	/** We're only worried about the y position really, because we can only move rows up and down */
-	this.findDropTargetRow = function (y)
+	this.findDropTargetRow = function (ev)
 	{
-		var rows = this.table.tBodies[0].rows;
-		for (var i = 0; i < rows.length; i++)
-		{
-			var row = rows[i];
-			// John Tarr added to ignore rows that I've added the NoDnD attribute to (Header rows)
-			var nodrop = row.getAttribute("NoDrop");
-			if (nodrop == null || nodrop == "undefined")
-			{  //There is no NoDnD attribute on rows I want to drag
-				var rowY = this.getPosition(row).y;
-				var rowHeight = parseInt(row.offsetHeight) / 2;
-				if (row.offsetHeight == 0)
-				{
-					rowY = this.getPosition(row.firstChild).y;
-					rowHeight = parseInt(row.firstChild.offsetHeight) / 2;
-				}
-				// Because we always have to insert before, we need to offset the height a bit
-				if ((y > rowY - rowHeight) && (y < (rowY + rowHeight)))
-				{
-					// that's the row we're over
-					return row;
-				}
+		var element = getEventSource(ev);
+
+		while (element && element.tagName != 'TR') {
+			element = element.parentNode;
+		}
+
+		if (element) {
+			var table = element.parentNode;
+
+			while (table && table.tagName != 'TABLE') {
+				table = table.parentNode;
+			}
+
+			if (table && table == this.table) {
+				return element;
 			}
 		}
+
 		return null;
 	}
 }
