@@ -225,21 +225,27 @@ function GeneralTableDnD()
 			return;
 		}
 		var self = this; // Keep the context of the TableDnd inside the function
-		item.onmousedown = function (ev)
-		{
-			// Need to check to see if we are an input or not, if we are an input, then
-			// return true to allow normal processing
-			var target = getEventSource(ev);
-			if (target.tagName == 'INPUT' || target.tagName == 'SELECT')
+
+		var drags = item.getElementsByClassName('drag');
+
+		if (drags.length) {
+			item.dragElement = drags[0];
+			item.dragElement.onmousedown = function (ev)
 			{
-				return true;
+				// Need to check to see if we are an input or not, if we are an input, then
+				// return true to allow normal processing
+				var target = getEventSource(ev);
+				if (target.tagName == 'INPUT' || target.tagName == 'SELECT')
+				{
+					return true;
+				}
+				currenttable = self;
+				self.dragObject = item;
+				self.mouseOffset = self.getMouseOffset(item, ev);
+				return false;
 			}
-			currenttable = self;
-			self.dragObject = this;
-			self.mouseOffset = self.getMouseOffset(this, ev);
-			return false;
+			item.dragElement.style.cursor = "move";
 		}
-		item.style.cursor = "move";
 	}
 
 	/** We're only worried about the y position really, because we can only move rows up and down */

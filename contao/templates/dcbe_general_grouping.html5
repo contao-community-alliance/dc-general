@@ -104,6 +104,7 @@
 				<?php else: ?>
 					<td class="tl_file_list tl_right_nowrap">
 						<?php echo $objModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::MODEL_BUTTONS); ?>
+						<?php if ($this->sortable): echo $this->generateImage('system/modules/dc-general/html/images/drag.gif', '&udarr;', 'class="drag"'); endif; ?>
 					</td>
 				<?php endif; ?>
 			</tr>
