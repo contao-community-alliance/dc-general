@@ -159,7 +159,7 @@ function GeneralTableDnD()
 		req += '&after=' + insertAfter
 		req += '&isAjax=1'
 
-		var href = GeneralEnvironment.getDom().getContaoBase();
+		// var href = GeneralEnvironment.getDom().getContaoBase();
 		GeneralEnvironment.getAjax().sendGet(href + req, false, null);
 	}
 
