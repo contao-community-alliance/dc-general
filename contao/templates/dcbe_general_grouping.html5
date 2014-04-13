@@ -65,11 +65,13 @@
 
 				<?php if($blnFirstRun != true): ?>
 					</table>
+					<?php if ($this->sortable): ?>
 					<script>
 						var table = document.getElementById('table_<?php echo $this->tableName; ?>_<?php echo standardize($strLastId); ?>');
 						var SortableTableDnD = new GeneralTableDnD();
 						SortableTableDnD.init(table);
 					</script>
+					<?php endif; ?>
 				<?php else:
 					$blnFirstRun = false;
 				endif; ?>
@@ -106,11 +108,13 @@
 		<?php endforeach; ?>
 
 		</table>
+		<?php if ($this->sortable): ?>
 		<script>
 			var table = document.getElementById('table_<?php echo $this->tableName; ?>_<?php echo standardize($strLastId); ?>');
 			var SortableTableDnD = new GeneralTableDnD();
 			SortableTableDnD.init(table);
 		</script>
+		<?php endif; ?>
 
 	</div>
 

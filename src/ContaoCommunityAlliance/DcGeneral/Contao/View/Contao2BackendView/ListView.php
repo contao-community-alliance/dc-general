@@ -233,7 +233,8 @@ class ListView extends BaseView
 			// Set dataprovider from current and parent.
 			->addToTemplate('pdp', '', $objTemplate)
 			->addToTemplate('cdp', $definition->getName(), $objTemplate)
-			->addToTemplate('selectButtons', $this->getSelectButtons(), $objTemplate);
+			->addToTemplate('selectButtons', $this->getSelectButtons(), $objTemplate)
+			->addToTemplate('sortable', (bool) $this->getManualSortingProperty(), $objTemplate);
 
 		// Add breadcrumb, if we have one.
 		$strBreadcrumb = $this->breadcrumb();

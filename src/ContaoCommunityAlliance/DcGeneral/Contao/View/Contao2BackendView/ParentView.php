@@ -559,7 +559,8 @@ class ParentView extends BaseView
 			->addToTemplate('pdp', (string)$parentProvider, $objTemplate)
 			->addToTemplate('cdp', $definition->getName(), $objTemplate)
 			->addToTemplate('selectButtons', $this->getSelectButtons(), $objTemplate)
-			->addToTemplate('headerButtons', $this->getHeaderButtons($parentModel), $objTemplate);
+			->addToTemplate('headerButtons', $this->getHeaderButtons($parentModel), $objTemplate)
+			->addToTemplate('sortable', (bool) $this->getManualSortingProperty(), $objTemplate);
 
 		$this->renderEntries($collection, $groupingInformation);
 
