@@ -13,6 +13,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
 use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
@@ -21,6 +22,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\LanguageInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -263,6 +265,31 @@ class DefaultController implements ControllerInterface
 		if ($sortingProperty)
 		{
 			$config->setSorting(array((string)$sortingProperty => 'ASC'));
+		}
+
+		// Handle grouping
+		/** @var Contao2BackendViewDefinitionInterface $backendViewDefinition */
+		// TODO öhm, okay, dnk how to handle this without highjacking the view :-\
+		$backendViewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+		if ($backendViewDefinition && $backendViewDefinition instanceof Contao2BackendViewDefinitionInterface) {
+			$listingConfig = $backendViewDefinition->getListingConfig();
+			$sortingProperties = array_keys($listingConfig->getDefaultSortingFields());
+			$sortingPropertyIndex = array_search($sortingProperty, $sortingProperties);
+
+			if ($sortingPropertyIndex !== false && $sortingPropertyIndex > 0) {
+				$sortingProperties = array_slice($sortingProperties, 0, $sortingPropertyIndex);
+				$filters = $config->getFilter();
+
+				foreach ($sortingProperties as $propertyName) {
+					$filters[] = array(
+						'operation' => '=',
+						'property'  => $propertyName,
+						'value'     => $model->getProperty($propertyName),
+					);
+				}
+
+				$config->setFilter($filters);
+			}
 		}
 
 		$siblings = $provider->fetchAll($config);
