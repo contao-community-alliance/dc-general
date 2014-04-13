@@ -85,7 +85,10 @@
 				<table id="table_<?php echo $this->tableName; ?>_<?php echo standardize($strLastId); ?>" class="tl_listing<?php echo ($GLOBALS['TL_DCA'][$this->strTable]['list']['label']['showColumns']) ? ' showColumns' : ''; ?>">
 			<?php endif; ?>
 
-			<tr id="table_row_<?php echo $objModel->getProperty('id'); ?>" class="<?php echo $objModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::MODEL_EVEN_ODD_CLASS); ?>" onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);">
+			<tr id="table_row_<?php echo $objModel->getProperty('id'); ?>"
+				 class="<?php echo $objModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::MODEL_EVEN_ODD_CLASS); ?>"
+				 onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);"
+				 data-model-id="<?= \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer::fromModel($objModel)->getSerialized() ?>">
 				<?php $arrLabels = $objModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::MODEL_LABEL_VALUE); ?>
 
 				<?php foreach ($arrLabels as $arrLabel): ?>

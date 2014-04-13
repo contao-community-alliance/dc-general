@@ -137,7 +137,7 @@ function GeneralTableDnD()
 	 */
 	this.onDrop = function (table, droppedRow)
 	{
-		var id = droppedRow.id.replace(/table_row_/, '');
+		var id = droppedRow.getAttribute('data-model-id');
 		var insertAfter = null;
 		var prevElement = GeneralEnvironment.getDom().getPreviousSibling(droppedRow);
 
@@ -148,7 +148,7 @@ function GeneralTableDnD()
 		}
 		else
 		{
-			insertAfter = prevElement.id.replace(/table_row_/, '');
+			insertAfter = prevElement.getAttribute('data-model-id');
 		}
 
 		// Build url.
