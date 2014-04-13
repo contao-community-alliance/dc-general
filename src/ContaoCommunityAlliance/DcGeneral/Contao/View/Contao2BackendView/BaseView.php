@@ -1010,7 +1010,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 		foreach ($this->getEnvironment()->getClipboard()->getContainedIds() as $id)
 		{
-			$model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($id));
+			$id = IdSerializer::fromSerialized($id);
+			$model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($id->getId()));
 
 			if ($clone)
 			{
