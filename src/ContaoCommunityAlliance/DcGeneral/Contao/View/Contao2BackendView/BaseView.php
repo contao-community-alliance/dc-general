@@ -1040,13 +1040,40 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		$environment = $this->getEnvironment();
 		$input       = $environment->getInputProvider();
 		$clipboard   = $environment->getClipboard();
-		$after       = $input->getParameter('after') ? IdSerializer::fromSerialized($input->getParameter('after')) : null;
-		$into        = $input->getParameter('into') ? IdSerializer::fromSerialized($input->getParameter('into')) : null;
-		$models      = $this->getModelsFromClipboard($clipboard->isCopy());
+		$source      = $input->getParameter('source')
+			? IdSerializer::fromSerialized($input->getParameter('source'))
+			: null;
+		$after       = $input->getParameter('after')
+			? IdSerializer::fromSerialized($input->getParameter('after'))
+			: $input->getParameter('after');
+		$into        = $input->getParameter('into')
+			? IdSerializer::fromSerialized($input->getParameter('into'))
+			: null;
 
-		if ($clipboard->isCopy())
-		{
-			// FIXME: recursive copy is not implemented yet!
+		if ($source) {
+			$dataProvider = $environment->getDataProvider($source->getDataProviderName());
+
+			$filterConfig = $dataProvider->getEmptyConfig();
+
+			$filterConfig->setFilter(
+				array(
+					array(
+						'operation' => '=',
+						'property'  => 'id',
+						'value'     => $source->getId()
+					)
+				)
+			);
+
+			$models = $dataProvider->fetchAll($filterConfig);
+		}
+		else {
+			$models = $this->getModelsFromClipboard($clipboard->isCopy());
+
+			if ($clipboard->isCopy())
+			{
+				// FIXME: recursive copy is not implemented yet!
+			}
 		}
 
 		if ($after && $after->getId())
@@ -1066,9 +1093,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			throw new DcGeneralRuntimeException('Invalid parameters.');
 		}
 
-		$clipboard
-			->clear()
-			->saveTo($environment);
+		if (!$source) {
+			$clipboard
+				->clear()
+				->saveTo($environment);
+		}
 
 		$this->redirectHome();
 
