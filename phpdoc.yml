@@ -1,4 +1,4 @@
 src-branch: develop
-src-path: /src/DcGeneral
+src-path: /src
 docs-repository: contao-community-alliance/dc-general-docs
 docs-path: /api
