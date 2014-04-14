@@ -35,12 +35,15 @@
 
 					<?php foreach ($this->collection as $objModelRow): ?>
 						<?php if ($this->mode): ?>
-							<?php $arrGroup  = $objModelRow->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::MODEL_GROUP_VALUE); ?>
+							<?php
+								/** @var \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface $objModelRow */
+								$arrGroup  = $objModelRow->getMeta($objModelRow::GROUP_VALUE);
+							?>
 							<tr><td colspan="2" class="<?php echo $arrGroup['class']; ?>"><?php echo $arrGroup['value']; ?></td></tr>
 						<?php endif; ?>
 
-						<tr class="<?php echo $objModelRow->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::MODEL_EVEN_ODD_CLASS); ?>" onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);">
-							<?php $arrLabels = $objModelRow->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::MODEL_LABEL_VALUE); ?>
+						<tr class="<?php echo $objModelRow->getMeta($objModelRow::CSS_ROW_CLASS); ?>" onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);">
+							<?php $arrLabels = $objModelRow->getMeta($objModelRow::LABEL_VALUE); ?>
 
 							<?php foreach ($arrLabels as $arrLabel): ?>
 								<td <?php echo ((!is_null($arrLabel['colspan'])) ? 'colspan="' . $arrLabel['colspan'] . '"' : ''); ?> class="<?php echo $arrLabel['class']; ?>">
@@ -50,11 +53,11 @@
 
 							<?php if ($this->select): ?>
 								<td class="tl_file_list tl_right_nowrap">
-									<input type="checkbox" name="IDS[]" id="ids_<?php echo $objModelRow->getProperty('id'); ?>" class="tl_tree_checkbox" value="<?php echo $objModelRow->getProperty('id'); ?>">
+									<input type="checkbox" name="IDS[]" id="ids_<?php echo $objModelRow->getId(); ?>" class="tl_tree_checkbox" value="<?php echo $objModelRow->getId(); ?>">
 								</td>
 							<?php else: ?>
 								<td class="tl_file_list tl_right_nowrap">
-									<?php echo $objModelRow->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::MODEL_BUTTONS); ?>
+									<?php echo $objModelRow->getMeta($objModelRow::OPERATION_BUTTONS); ?>
 								</td>
 							<?php endif; ?>
 						</tr>
