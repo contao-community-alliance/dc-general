@@ -218,6 +218,7 @@ class DC_General
 	public function __call($name, $arguments)
 	{
 		return $this->getEnvironment()->getController()->handle(new Action($name, $arguments));
+	}
 
 	protected function callAction()
 	{
