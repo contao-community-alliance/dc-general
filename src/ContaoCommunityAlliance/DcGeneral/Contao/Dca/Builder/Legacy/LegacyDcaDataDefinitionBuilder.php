@@ -270,7 +270,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			}
 		}
 
-		if (is_array($operations = $this->getFromDca('operations')))
+		if (is_array($operations = $this->getFromDca('list/operations')))
 		{
 			foreach ($operations as $operationName => $operationInfo)
 			{
