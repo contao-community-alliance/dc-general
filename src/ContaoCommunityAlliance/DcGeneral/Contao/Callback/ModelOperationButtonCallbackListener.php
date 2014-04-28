@@ -35,7 +35,7 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
 		$attributes = $event->getAttributes();
 
 		return array(
-			$event->getModel(),
+			$event->getModel()->getPropertiesAsArray(),
 			$event->getHref(),
 			$event->getLabel(),
 			$event->getTitle(),
