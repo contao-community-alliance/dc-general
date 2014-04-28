@@ -97,6 +97,13 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
 	protected $switchToEditEnabled;
 
 	/**
+	 * The ids of the root entries.
+	 *
+	 * @var mixed[]
+	 */
+	protected $rootEntries = array();
+
+	/**
 	 * {@inheritdoc}
 	 */
 	public function setMode($mode)
@@ -309,5 +316,23 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
 	public function isSwitchToEditEnabled()
 	{
 		return $this->switchToEditEnabled;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setRootEntries($entries)
+	{
+		$this->rootEntries = $entries;
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getRootEntries()
+	{
+		return $this->rootEntries;
 	}
 }

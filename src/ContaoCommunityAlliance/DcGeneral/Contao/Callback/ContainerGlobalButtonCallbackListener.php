@@ -39,7 +39,7 @@ class ContainerGlobalButtonCallbackListener extends AbstractReturningCallbackLis
 			$event->getClass(),
 			$event->getAttributes(),
 			$event->getEnvironment()->getDataDefinition()->getName(),
-			$event->getEnvironment()->getRootIds()
+			$event->getEnvironment()->getDataDefinition()->getBasicDefinition()->getRootEntries()
 		);
 	}
 

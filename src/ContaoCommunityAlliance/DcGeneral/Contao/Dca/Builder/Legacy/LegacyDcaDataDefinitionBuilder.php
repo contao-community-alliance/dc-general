@@ -575,7 +575,12 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 */
 	protected function parseRootEntries(ContainerInterface $container)
 	{
-		// FIXME: to be implemented.
+		if (is_array($root = $this->getFromDca('list/sorting/root')))
+		{
+			$entries = $container->getBasicDefinition()->getRootEntries();
+
+			$container->getBasicDefinition()->setRootEntries(array_merge($entries, $root));
+		}
 	}
 
 	/**

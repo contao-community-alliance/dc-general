@@ -42,7 +42,7 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
 			isset($attributes['icon']) ? $attributes['icon'] : null,
 			$event->getAttributes(),
 			$event->getEnvironment()->getDataDefinition()->getName(),
-			$event->getEnvironment()->getRootIds(),
+			$event->getEnvironment()->getDataDefinition()->getBasicDefinition()->getRootEntries(),
 			$event->getChildRecordIds(),
 			$event->getCircularReference(),
 			$event->getPrevious()->getId(),

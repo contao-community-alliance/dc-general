@@ -268,4 +268,22 @@ interface BasicDefinitionInterface extends DefinitionInterface
 	 * @return bool
 	 */
 	public function isSwitchToEditEnabled();
+
+	/**
+	 * Set the ids of the root elements (only valid when in hierarchical mode).
+	 *
+	 * The here specified elements will filter the root condition.
+	 *
+	 * @param mixed[] $entries The ids of the items to be used as root elements.
+	 *
+	 * @return BasicDefinitionInterface
+	 */
+	public function setRootEntries($entries);
+
+	/**
+	 * Get the ids of the root elements (only valid when in hierarchical mode).
+	 *
+	 * @return mixed[]
+	 */
+	public function getRootEntries();
 }
