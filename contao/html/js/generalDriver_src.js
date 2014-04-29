@@ -146,5 +146,102 @@ var BackendGeneral =
 			}).get();
 
 		}.bind(cdp).bind(pdp));
+	},
+
+	/**
+	 * Toggle the visibility of an element
+	 *
+	 * @param {object} el    The DOM element
+	 *
+	 * @returns {boolean}
+	 */
+	toggleVisibility: function(el) {
+		el.blur();
+
+		var img = null,
+			image = $(el).getFirst('img'),
+			publish = (image.src.indexOf('invisible') != -1),
+			div = el.getParent('div'),
+			next;
+
+		new Request.Contao({
+			'url':$(el).href,
+			'followRedirects':false,
+			'onSuccess': function() {
+
+				// Find the icon depending on the view (tree view, list view, parent view)
+				if (div.hasClass('tl_right')) {
+					img = div.getPrevious('div').getElement('img');
+				} else if (div.hasClass('tl_listing_container')) {
+					img = el.getParent('td').getPrevious('td').getFirst('div.list_icon');
+					if (img == null) { // Comments
+						img = el.getParent('td').getPrevious('td').getElement('div.cte_type');
+					}
+					if (img == null) { // showColumns
+						img = el.getParent('tr').getFirst('td').getElement('div.list_icon_new');
+					}
+				} else if ((next = div.getNext('div')) && next.hasClass('cte_type')) {
+					img = next;
+				}
+
+				// Change the icon
+				if (img != null) {
+					// Tree view
+					if (img.nodeName.toLowerCase() == 'img') {
+						if (img.getParent('ul.tl_listing').hasClass('tl_tree_xtnd')) {
+							if (publish) {
+								img.src = img.src.replace(/_\.(gif|png|jpe?g)/, '.$1');
+							} else {
+								img.src = img.src.replace(/\.(gif|png|jpe?g)/, '_.$1');
+							}
+						} else {
+							if (img.src.match(/folPlus|folMinus/)) {
+								if (img.getParent('a').getNext('a')) {
+									img = img.getParent('a').getNext('a').getFirst('img');
+								} else {
+									img = new Element('img'); // no icons used (see #2286)
+								}
+							}
+							var index;
+							if (publish) {
+								index = img.src.replace(/.*_([0-9])\.(gif|png|jpe?g)/, '$1');
+								img.src = img.src.replace(/_[0-9]\.(gif|png|jpe?g)/, ((index.toInt() == 1) ? '' : '_' + (index.toInt() - 1)) + '.$1');
+							} else {
+								index = img.src.replace(/.*_([0-9])\.(gif|png|jpe?g)/, '$1');
+								img.src = img.src.replace(/(_[0-9])?\.(gif|png|jpe?g)/, ((index == img.src) ? '_1' : '_' + (index.toInt() + 1)) + '.$2');
+							}
+						}
+					}
+					// Parent view
+					else if (img.hasClass('cte_type')) {
+						if (publish) {
+							img.addClass('published');
+							img.removeClass('unpublished');
+						} else {
+							img.addClass('unpublished');
+							img.removeClass('published');
+						}
+					}
+					// List view
+					else {
+						if (publish) {
+							img.setStyle('background-image', img.getStyle('background-image').replace(/_\.(gif|png|jpe?g)/, '.$1'));
+						} else {
+							img.setStyle('background-image', img.getStyle('background-image').replace(/\.(gif|png|jpe?g)/, '_.$1'));
+						}
+					}
+				}
+
+				// Send request
+				if (publish) {
+					image.src = image.src.replace('invisible.gif', 'visible.gif');
+				} else {
+					image.src = image.src.replace('visible.gif', 'invisible.gif');
+				}
+			}
+		}).get({'state': (publish ? 1 : 0)});
+
+		return false;
 	}
+
 };

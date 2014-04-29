@@ -72,6 +72,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\Defau
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\DefaultSubmitElementInformation;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\SubmitElementInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelRowInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommand;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootCondition;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
@@ -1301,14 +1302,30 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 *
 	 * @param array  $commandDca  The Dca information of the command.
 	 *
-	 * @return Command|CutCommand
+	 * @return Command|CutCommand|ToggleCommand
 	 */
-	protected function createCommandInstance($commandName, array $commandDca)
+	protected function createCommandInstance($commandName, array &$commandDca)
 	{
 		switch ($commandName)
 		{
 			case 'cut':
 				return new CutCommand();
+
+			case 'toggle':
+				$command = new ToggleCommand();
+
+				if (isset($commandDca['togglePropery']))
+				{
+					$command->setToggleProperty($commandDca['togglePropery']);
+					unset($commandDca['togglePropery']);
+				}
+				else
+				{
+					// Implicit fallback to "published" as in Contao core.
+					$command->setToggleProperty('published');
+				}
+
+				return $command;
 			default:
 		}
 		return new Command();
@@ -1378,10 +1395,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		}
 
 		// Callback is transformed into event in parseCallbacks().
-		if (isset($commandDca['button_callback']))
-		{
-			unset($commandDca['button_callback']);
-		}
+		unset($commandDca['button_callback']);
 
 		if (count($commandDca))
 		{

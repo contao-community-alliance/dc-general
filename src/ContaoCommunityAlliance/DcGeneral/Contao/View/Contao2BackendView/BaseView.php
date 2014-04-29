@@ -39,6 +39,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CutCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -138,12 +139,14 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			case 'edit':
 			case 'show':
 			case 'showAll':
+			case 'toggle':
 				$response = call_user_func_array(
 					array($this, $name),
 					$action->getArguments()
 				);
 				$event->setResponse($response);
 				break;
+
 			default:
 		}
 	}
@@ -1861,6 +1864,40 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	}
 
 	/**
+	 * Handle the "toggle" action.
+	 *
+	 * @return string
+	 */
+	public function toggle()
+	{
+		$environment = $this->getEnvironment();
+		$input       = $environment->getInputProvider();
+
+		if ($input->hasParameter('id'))
+		{
+			$serializedId = IdSerializer::fromSerialized($input->getParameter('id'));
+		}
+
+		if (!(isset($serializedId) && $serializedId->getDataProviderName() == $environment->getDataDefinition()->getName()))
+		{
+			return '';
+		}
+
+		/** @var ToggleCommandInterface $operation */
+		$operation    = $this->getViewSection()->getModelCommands()->getCommandNamed('toggle');
+		$dataProvider = $environment->getDataProvider();
+		$newState     = $input->getParameter('state') == 1 ? '1' : '';
+
+		$model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($serializedId->getId()));
+
+		$model->setProperty($operation->getToggleProperty(), $newState);
+
+		$dataProvider->save($model);
+
+		return $this->showAll();
+	}
+
+	/**
 	 * Create the "new" button.
 	 *
 	 * @return CommandInterface|null
@@ -2194,11 +2231,23 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$title = sprintf('%s id %s', $label, $objModel->getID());
 		}
 
-		$strAttributes = $objCommand->getExtra()['attributes'];
+		$extra         = (array)$objCommand->getExtra();
+		$strAttributes = $extra['attributes'];
 		$attributes    = '';
+
+		// Toggle has to trigger the javascript.
+		if ($objCommand instanceof ToggleCommandInterface)
+		{
+			$attributes = 'onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this);"';
+			if ($objModel->getProperty($objCommand->getToggleProperty()) !== '1')
+			{
+				$extra['icon'] = $extra['icon_disabled'] ?: 'invisible.gif';
+			}
+		}
+
 		if (strlen($strAttributes))
 		{
-			$attributes = ltrim(sprintf($strAttributes, $objModel->getID()));
+			$attributes .= ltrim(sprintf($strAttributes, $objModel->getID()));
 		}
 
 		// Cut needs some special information.
@@ -2221,7 +2270,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$arrParameters = (array)$objCommand->getParameters();
 
 			// TODO: Shall we interface this option?
-			$idParam = $objCommand->getExtra()['idparam'];
+			$idParam = $extra['idparam'];
 			if ($idParam)
 			{
 				$arrParameters[$idParam] = IdSerializer::fromModel($objModel)->getSerialized();
@@ -2274,8 +2323,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			return trim($buttonEvent->getHtml());
 		}
 
-		$extra = $objCommand->getExtra();
-		$icon  = $extra['icon'];
+		$icon = $extra['icon'];
 
 		if ($objCommand->isDisabled())
 		{
