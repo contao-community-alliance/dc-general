@@ -220,11 +220,15 @@ class DC_General
 		return $this->getEnvironment()->getController()->handle(new Action($name, $arguments));
 	}
 
+	/**
+	 * Call the desired user action with an implicit fallback to the "showAll" action when none has been requested.
+	 *
+	 * @return string
+	 */
 	protected function callAction()
 	{
 		$environment = $this->getEnvironment();
 		$act         = $environment->getInputProvider()->getParameter('act');
-		// TODO is showAll the right default fallback???
 		$action      = new Action($act ? $act : 'showAll');
 		return $environment->getController()->handle($action);
 	}
