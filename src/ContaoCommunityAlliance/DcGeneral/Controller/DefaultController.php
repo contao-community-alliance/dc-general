@@ -102,7 +102,11 @@ class DefaultController implements ControllerInterface
 		$this->getEnvironment()->getEventPropagator()->propagate(
 			DcGeneralEvents::ACTION,
 			$event,
-			$this->getEnvironment()->getDataDefinition()->getName()
+			array
+			(
+				$this->getEnvironment()->getDataDefinition()->getName(),
+				$action->getName()
+			)
 		);
 		return $event->getResponse();
 	}
