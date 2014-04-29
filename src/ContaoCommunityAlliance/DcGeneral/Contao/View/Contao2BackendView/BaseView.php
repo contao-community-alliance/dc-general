@@ -2249,7 +2249,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		// Toggle has to trigger the javascript.
 		if ($objCommand instanceof ToggleCommandInterface)
 		{
-			$arrParameters['act'] = 'toggle';
+			$arrParameters['act'] = $objCommand->getName();
 
 			$attributes = 'onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this);"';
 			if ($objModel->getProperty($objCommand->getToggleProperty()) !== '1')
@@ -2267,7 +2267,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		if ($objCommand instanceof CutCommandInterface)
 		{
 			$arrParameters        = array();
-			$arrParameters['act'] = 'cut';
+			$arrParameters['act'] = $objCommand->getName();
 
 			// If we have a pid add it, used for mode 4 and all parent -> current views.
 			if ($this->getEnvironment()->getInputProvider()->hasParameter('pid'))
