@@ -2241,6 +2241,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$title = sprintf('%s id %s', $label, $objModel->getID());
 		}
 
+		$arrParameters = (array)$objCommand->getParameters();
 		$extra         = (array)$objCommand->getExtra();
 		$strAttributes = $extra['attributes'];
 		$attributes    = '';
@@ -2248,6 +2249,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		// Toggle has to trigger the javascript.
 		if ($objCommand instanceof ToggleCommandInterface)
 		{
+			$arrParameters['act'] = 'toggle';
+
 			$attributes = 'onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this);"';
 			if ($objModel->getProperty($objCommand->getToggleProperty()) !== '1')
 			{
@@ -2277,8 +2280,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		}
 		else
 		{
-			$arrParameters = (array)$objCommand->getParameters();
-
 			// TODO: Shall we interface this option?
 			$idParam = $extra['idparam'];
 			if ($idParam)
