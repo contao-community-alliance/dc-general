@@ -1314,10 +1314,10 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			case 'toggle':
 				$command = new ToggleCommand();
 
-				if (isset($commandDca['togglePropery']))
+				if (isset($commandDca['toggleProperty']))
 				{
-					$command->setToggleProperty($commandDca['togglePropery']);
-					unset($commandDca['togglePropery']);
+					$command->setToggleProperty($commandDca['toggleProperty']);
+					unset($commandDca['toggleProperty']);
 				}
 				else
 				{
