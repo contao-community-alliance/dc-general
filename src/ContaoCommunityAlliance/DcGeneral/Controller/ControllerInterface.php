@@ -142,9 +142,9 @@ interface ControllerInterface
 	/**
 	 * Paste the content of the clipboard onto the top.
 	 *
-	 * @param CollectionInterface $models        The models to be inserted.
+	 * @param CollectionInterface $models   The models to be inserted.
 	 *
-	 * @param string              $sortedBy      The name of the sorting property.
+	 * @param string              $sortedBy The name of the sorting property.
 	 *
 	 * @return void
 	 */

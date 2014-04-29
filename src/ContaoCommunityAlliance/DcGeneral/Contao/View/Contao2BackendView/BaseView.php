@@ -113,6 +113,14 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		);
 	}
 
+	/**
+	 * Handle the given action.
+	 *
+	 * @param ActionEvent $event The event.
+	 *
+	 * @return void
+	 */
+	// @codingStandardsIgnoreStart - Even if the cyclomatic complexity is high due to the switch, it is dead simple.
 	public function handleAction(ActionEvent $event)
 	{
 		if ($event->getEnvironment()->getDataDefinition()->getName() !== $this->environment->getDataDefinition()->getName()
@@ -150,6 +158,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			default:
 		}
 	}
+	// @codingStandardsIgnoreEnd
 
 	/**
 	 * Dispatch an event to the dispatcher.
@@ -1013,7 +1022,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 		foreach ($this->getEnvironment()->getClipboard()->getContainedIds() as $id)
 		{
-			$id = IdSerializer::fromSerialized($id);
+			$id    = IdSerializer::fromSerialized($id);
 			$model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($id->getId()));
 
 			if ($clone)
@@ -1091,7 +1100,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$parent       = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($into->getId()));
 			$environment->getController()->pasteInto($parent, $models, $this->getManualSortingProperty());
 		}
-		else if ($after == '0') {
+		elseif ($after == '0')
+		{
 			$environment->getController()->pasteTop($models, $this->getManualSortingProperty());
 		}
 		else
