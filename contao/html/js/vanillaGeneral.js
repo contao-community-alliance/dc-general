@@ -61,7 +61,7 @@ document.onmousemove = function (ev)
 
 		return false;
 	}
-}
+};
 
 // Similarly for the mouseup
 document.onmouseup = function (ev)
@@ -77,7 +77,7 @@ document.onmouseup = function (ev)
 		currenttable.onDrop(currenttable.table, droppedRow);
 		currenttable = null; // let go of the table too
 	}
-}
+};
 
 /**
  * get the source element from an event in a way that works for IE and Firefox and Safari
@@ -125,7 +125,7 @@ function GeneralTableDnD()
 				this.makeDraggable(rows[i]);
 			}
 		}
-	}
+	};
 
 	/**
 	 * This function is called when you drop a row, so redefine it in your code
@@ -156,12 +156,12 @@ function GeneralTableDnD()
 		var req = window.location.search;
 		req += '&act=paste';
 		req += '&source=' + id;
-		req += '&after=' + insertAfter
-		req += '&isAjax=1'
+		req += '&after=' + insertAfter;
+		req += '&isAjax=1';
 
 		// var href = GeneralEnvironment.getDom().getContaoBase();
 		GeneralEnvironment.getAjax().sendGet(href + req, false, null);
-	}
+	};
 
 	/** Get the position of an element by going up the DOM tree and adding up all the offsets */
 	this.getPosition = function (e)
@@ -191,7 +191,7 @@ function GeneralTableDnD()
 		top += e.offsetTop;
 
 		return {x: left, y: top};
-	}
+	};
 
 	/** Get the mouse coordinates from the event (allowing for browser differences) */
 	this.mouseCoords = function (ev)
@@ -204,7 +204,7 @@ function GeneralTableDnD()
 			x: ev.clientX + document.body.scrollLeft - document.body.clientLeft,
 			y: ev.clientY + document.body.scrollTop - document.body.clientTop
 		};
-	}
+	};
 
 	/** Given a target element and a mouse event, get the mouse offset from that element.
 	 To do this we need the element's position and the mouse position */
@@ -215,7 +215,7 @@ function GeneralTableDnD()
 		var docPos = this.getPosition(target);
 		var mousePos = this.mouseCoords(ev);
 		return {x: mousePos.x - docPos.x, y: mousePos.y - docPos.y};
-	}
+	};
 
 	/** Take an item and add an onmousedown method so that we can make it draggable */
 	this.makeDraggable = function (item)
@@ -243,10 +243,10 @@ function GeneralTableDnD()
 				self.dragObject = item;
 				self.mouseOffset = self.getMouseOffset(item, ev);
 				return false;
-			}
+			};
 			item.dragElement.style.cursor = "move";
 		}
-	}
+	};
 
 	/** We're only worried about the y position really, because we can only move rows up and down */
 	this.findDropTargetRow = function (ev)
@@ -319,7 +319,7 @@ var GeneralLogger =
 			}
 		}
 	}
-}
+};
 
 
 /**
@@ -362,7 +362,7 @@ var GeneralAjaxCaller =
 		xmlhttp.open("POST", strAdress, !!!blnasync);
 
 		// Add the data to the request.
-		for (key in arrData)
+		for (var key in arrData)
 		{
 			xmlhttp.setRequestHeader(key, arrData[key]);
 		}
@@ -396,7 +396,7 @@ var GeneralAjaxCaller =
 		xmlhttp.open("GET", strAdress, !!!blnasync);
 		xmlhttp.send();
 	}
-}
+};
 
 /**
  * General class with dom mainpulation.
@@ -471,7 +471,7 @@ var GeneralDom =
 		element.className = element.className.replace(/(?:^|\s)cssClass(?!\S)/, '');
 	}
 
-}
+};
 
 //*************************************************************************
 // Env
@@ -513,7 +513,7 @@ var GeneralEnvironment =
 	{
 		return this.instanceDom;
 	}
-}
+};
 
 // Init the env.
 GeneralEnvironment.setLogger(GeneralLogger);
