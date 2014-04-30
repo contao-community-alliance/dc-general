@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "84f2379c53d9526b423081a49158ccc6",
+    "hash": "07e8a2e325cae4d5c61aba97cdc53dd5",
     "packages": [
         {
             "name": "contao-community-alliance/backports-initialize-system",
@@ -11,12 +11,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/backports-initialize-system.git",
-                "reference": "07d3a70728db2fdf74cfd16d0b2c4b5b0223111b"
+                "reference": "9e7b82e737d3622cfb6ac95cb931dacbb5afef70"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/backports-initialize-system/zipball/07d3a70728db2fdf74cfd16d0b2c4b5b0223111b",
-                "reference": "07d3a70728db2fdf74cfd16d0b2c4b5b0223111b",
+                "url": "https://api.github.com/repos/contao-community-alliance/backports-initialize-system/zipball/9e7b82e737d3622cfb6ac95cb931dacbb5afef70",
+                "reference": "9e7b82e737d3622cfb6ac95cb931dacbb5afef70",
                 "shasum": ""
             },
             "require": {
@@ -53,11 +53,12 @@
                 }
             ],
             "description": "Backport of the initializeSystem Hook for Contao Open Source CMS.",
+            "homepage": "http://c-c-a.org/",
             "keywords": [
                 "backports",
                 "contao"
             ],
-            "time": "2014-02-12 16:41:52"
+            "time": "2014-04-29 18:26:57"
         },
         {
             "name": "contao-community-alliance/composer-plugin",
@@ -65,12 +66,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/composer-plugin.git",
-                "reference": "dce7d56ff2753a4be89127883d384891c40651d9"
+                "reference": "a9f2b37a0ce5693edff4b6d94f5fbd96cf2d57a4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/composer-plugin/zipball/dce7d56ff2753a4be89127883d384891c40651d9",
-                "reference": "dce7d56ff2753a4be89127883d384891c40651d9",
+                "url": "https://api.github.com/repos/contao-community-alliance/composer-plugin/zipball/a9f2b37a0ce5693edff4b6d94f5fbd96cf2d57a4",
+                "reference": "a9f2b37a0ce5693edff4b6d94f5fbd96cf2d57a4",
                 "shasum": ""
             },
             "require": {
@@ -106,7 +107,7 @@
                 "LGPL-3.0+"
             ],
             "description": "Composer plugin that provide contao integration and installer.",
-            "time": "2014-04-08 02:36:46"
+            "time": "2014-04-16 02:31:15"
         },
         {
             "name": "contao-community-alliance/dependency-container",
@@ -239,22 +240,22 @@
         },
         {
             "name": "contao-community-alliance/events-contao-bindings",
-            "version": "dev-contao-2.11",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/events-contao-bindings.git",
-                "reference": "be1b8a7b8ca8188cb6dd3ac0c6b3c25e414573d5"
+                "reference": "e88d966f2d81338e760d809b103dc87546ea9d88"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/events-contao-bindings/zipball/be1b8a7b8ca8188cb6dd3ac0c6b3c25e414573d5",
-                "reference": "be1b8a7b8ca8188cb6dd3ac0c6b3c25e414573d5",
+                "url": "https://api.github.com/repos/contao-community-alliance/events-contao-bindings/zipball/e88d966f2d81338e760d809b103dc87546ea9d88",
+                "reference": "e88d966f2d81338e760d809b103dc87546ea9d88",
                 "shasum": ""
             },
             "require": {
                 "contao-community-alliance/composer-installer": "*",
                 "contao-community-alliance/event-dispatcher": "~1.0",
-                "contao/core": "~2.11",
+                "contao/core": "~3.2",
                 "php": ">=5.3"
             },
             "conflict": {
@@ -267,7 +268,7 @@
             "type": "contao-module",
             "extra": {
                 "branch-alias": {
-                    "dev-contao-2.11": "2.11.x-dev"
+                    "dev-master": "3.2.x-dev"
                 },
                 "contao": {
                     "sources": {
@@ -304,7 +305,7 @@
                 "contao",
                 "translation"
             ],
-            "time": "2014-03-28 11:38:37"
+            "time": "2014-03-28 09:40:32"
         },
         {
             "name": "contao-community-alliance/translator",
@@ -369,16 +370,16 @@
         },
         {
             "name": "contao/core",
-            "version": "2.11.17",
+            "version": "3.2.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/composerized-contao-core.git",
-                "reference": "b533c0a0c624d1037cc66fe210660964a714bccb"
+                "reference": "2fc914adb428d86e77e5f942dc28b16d6dfa3754"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/composerized-contao-core/zipball/b533c0a0c624d1037cc66fe210660964a714bccb",
-                "reference": "b533c0a0c624d1037cc66fe210660964a714bccb",
+                "url": "https://api.github.com/repos/contao-community-alliance/composerized-contao-core/zipball/2fc914adb428d86e77e5f942dc28b16d6dfa3754",
+                "reference": "2fc914adb428d86e77e5f942dc28b16d6dfa3754",
                 "shasum": ""
             },
             "require": {
@@ -388,8 +389,7 @@
             "type": "library",
             "autoload": {
                 "classmap": [
-                    "system/modules",
-                    "system/libraries"
+                    "system/modules"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -410,7 +410,7 @@
                 "contao",
                 "core"
             ],
-            "time": "2014-04-08 01:10:38"
+            "time": "2014-04-08 01:11:20"
         },
         {
             "name": "pimple/pimple",
@@ -418,12 +418,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fabpot/Pimple.git",
-                "reference": "2019c145fe393923f3441b23f29bbdfaa5c58c4d"
+                "reference": "bc2fc12cdf1f29bcad9e650d493a54a8fd1f3d85"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fabpot/Pimple/zipball/2019c145fe393923f3441b23f29bbdfaa5c58c4d",
-                "reference": "2019c145fe393923f3441b23f29bbdfaa5c58c4d",
+                "url": "https://api.github.com/repos/fabpot/Pimple/zipball/bc2fc12cdf1f29bcad9e650d493a54a8fd1f3d85",
+                "reference": "bc2fc12cdf1f29bcad9e650d493a54a8fd1f3d85",
                 "shasum": ""
             },
             "require": {
@@ -458,7 +458,7 @@
                 "container",
                 "dependency injection"
             ],
-            "time": "2013-11-22 08:30:29"
+            "time": "2014-04-20 07:24:09"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -467,12 +467,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/EventDispatcher.git",
-                "reference": "15645237c6ff70e74a28e8836362d82492765055"
+                "reference": "cb7cd38c081507d10997553c4c522956a4d2afab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/15645237c6ff70e74a28e8836362d82492765055",
-                "reference": "15645237c6ff70e74a28e8836362d82492765055",
+                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/cb7cd38c081507d10997553c4c522956a4d2afab",
+                "reference": "cb7cd38c081507d10997553c4c522956a4d2afab",
                 "shasum": ""
             },
             "require": {
@@ -514,7 +514,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "http://symfony.com",
-            "time": "2014-02-11 10:29:24"
+            "time": "2014-04-16 10:30:19"
         }
     ],
     "packages-dev": [
@@ -889,16 +889,18 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "248d6ce95e6ca7f0e3135252c0b984bbe1f52f19"
+                "reference": "1735d588c9f35bd8686cae0208d8adde77b45365"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/248d6ce95e6ca7f0e3135252c0b984bbe1f52f19",
-                "reference": "248d6ce95e6ca7f0e3135252c0b984bbe1f52f19",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/1735d588c9f35bd8686cae0208d8adde77b45365",
+                "reference": "1735d588c9f35bd8686cae0208d8adde77b45365",
                 "shasum": ""
             },
             "require": {
+                "ext-ctype": "*",
                 "ext-dom": "*",
+                "ext-json": "*",
                 "ext-pcre": "*",
                 "ext-reflection": "*",
                 "ext-spl": "*",
@@ -914,9 +916,6 @@
                 "pear-pear.php.net/pear": "1.9.4"
             },
             "suggest": {
-                "ext-json": "*",
-                "ext-simplexml": "*",
-                "ext-tokenizer": "*",
                 "phpunit/php-invoker": "~1.1"
             },
             "bin": [
@@ -955,7 +954,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2014-03-28 11:04:36"
+            "time": "2014-04-29 07:24:10"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -1020,12 +1019,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "339b91cd73c9930c792d54092dc6e1cd376b7a8d"
+                "reference": "34903295738c66ad8ea87c04ad6eaa1477700868"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/339b91cd73c9930c792d54092dc6e1cd376b7a8d",
-                "reference": "339b91cd73c9930c792d54092dc6e1cd376b7a8d",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/34903295738c66ad8ea87c04ad6eaa1477700868",
+                "reference": "34903295738c66ad8ea87c04ad6eaa1477700868",
                 "shasum": ""
             },
             "require": {
@@ -1087,7 +1086,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2014-04-02 00:29:17"
+            "time": "2014-04-30 00:29:26"
         },
         {
             "name": "symfony/yaml",
@@ -1096,12 +1095,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "cee3067d680232674c6505d91db9d3d635a9a8f4"
+                "reference": "e9525fc511a51e7bfa214c6c420515c580fda35a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/cee3067d680232674c6505d91db9d3d635a9a8f4",
-                "reference": "cee3067d680232674c6505d91db9d3d635a9a8f4",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/e9525fc511a51e7bfa214c6c420515c580fda35a",
+                "reference": "e9525fc511a51e7bfa214c6c420515c580fda35a",
                 "shasum": ""
             },
             "require": {
@@ -1136,7 +1135,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
-            "time": "2014-03-26 11:51:10"
+            "time": "2014-04-18 20:40:13"
         }
     ],
     "aliases": [
