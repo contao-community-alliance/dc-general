@@ -81,13 +81,4 @@ interface PanelRowInterface extends \IteratorAggregate
 	 * @return ElementInformationInterface
 	 */
 	public function getElement($indexOrName);
-
-	/**
-	 * Retrieve an external iterator.
-	 *
-	 * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
-	 *
-	 * @return ElementInformationInterface[]
-	 */
-	public function getIterator();
 }

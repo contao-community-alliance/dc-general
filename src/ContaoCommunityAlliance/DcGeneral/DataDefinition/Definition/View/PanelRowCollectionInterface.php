@@ -70,13 +70,4 @@ interface PanelRowCollectionInterface extends \IteratorAggregate
 	 * @return PanelRowInterface
 	 */
 	public function getRow($index);
-
-	/**
-	 * Retrieve an external iterator.
-	 *
-	 * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
-	 *
-	 * @return PanelRowInterface[]
-	 */
-	public function getIterator();
 }
