@@ -632,7 +632,8 @@ class ContaoWidgetManager
 			'strDatepicker' => $strDatePicker,
 			// TODO: need 'update' value - (\Input::get('act') == 'overrideAll' && ($arrData['inputType'] == 'checkbox' || $arrData['inputType'] == 'checkboxWizard') && $arrData['eval']['multiple'])
 			'blnUpdate'     => false, // $blnUpdate,
-			'strHelp'       => $this->generateHelpText($property)
+			'strHelp'       => $this->generateHelpText($property),
+            'strId'         => $widget->id
 		));
 
 		$buffer = $objTemplateFoo->parse();
