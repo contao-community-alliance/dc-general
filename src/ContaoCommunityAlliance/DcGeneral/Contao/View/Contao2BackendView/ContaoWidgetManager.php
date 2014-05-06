@@ -528,7 +528,7 @@ class ContaoWidgetManager
 				$time = '';
 		}
 
-		if (version_compare(DATEPICKER, '2.1', '>'))
+		if ((version_compare(DATEPICKER, '2.1', '>') && version_compare(VERSION, '3.1', '<')) || (version_compare(DATEPICKER, '2.0', '>') && version_compare(VERSION, '3.1', '>=')))
 		{
 			return 'new Picker.Date($$("#ctrl_' . $objWidget->id . '"), {
 				draggable:false,
