@@ -136,6 +136,22 @@ class FilterBuilder
 	}
 
 	/**
+	 * Encapsulate the root with an Or condition and return the OR condition.
+	 */
+	public function encapsulateOr()
+	{
+		$root = $this->filters;
+
+		$this->filters = new AndFilterBuilder();
+		$this->filters->setBuilder($this);
+
+		$or = new OrFilterBuilder(array($root));
+		$this->filters->add($or);
+
+		return $or;
+	}
+
+	/**
 	 * Determine if this builder is for a root filter or not.
 	 *
 	 * @return bool
