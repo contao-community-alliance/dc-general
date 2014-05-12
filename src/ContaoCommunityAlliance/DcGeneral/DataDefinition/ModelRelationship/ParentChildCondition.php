@@ -151,6 +151,52 @@ class ParentChildCondition
 	}
 
 	/**
+	 * Apply the filter values for a given model to the given rule.
+	 *
+	 * @param array          $filter The filter rule to which the values shall get applied.
+	 *
+	 * @param ModelInterface $model  The model to fetch the values from.
+	 *
+	 * @return array
+	 */
+	public function parseFilter($filter, $model)
+	{
+		$arrApplied = array(
+			'operation'   => $filter['operation'],
+		);
+
+		if (isset($filter['local']))
+		{
+			$arrApplied['property'] = $filter['local'];
+		}
+
+		if (isset($filter['remote']))
+		{
+			$arrApplied['value'] = $model->getProperty($filter['remote']);
+		}
+
+		if (isset($filter['remote_value']))
+		{
+			$arrApplied['value'] = $filter['remote_value'];
+		}
+
+		if (isset($filter['value']))
+		{
+			$arrApplied['value'] = $filter['value'];
+		}
+
+		if (isset($filter['children']))
+		{
+			foreach ($filter['children'] as $child)
+			{
+				$arrApplied['children'][] = $this->parseFilter($child, $model);
+			}
+		}
+
+		return $arrApplied;
+	}
+
+	/**
 	 * {@inheritdoc}
 	 *
 	 * @throws DcGeneralInvalidArgumentException when an empty parent model is given.
@@ -163,33 +209,10 @@ class ParentChildCondition
 		}
 
 		$arrResult = array();
-		foreach ($this->getFilterArray() as $arrRule)
+		foreach ($this->getFilterArray() as $child)
 		{
-			$arrApplied = array(
-				'operation'   => $arrRule['operation'],
-			);
 
-			if (isset($arrRule['local']))
-			{
-				$arrApplied['property'] = $arrRule['local'];
-			}
-
-			if (isset($arrRule['remote']))
-			{
-				$arrApplied['value'] = $objParent->getProperty($arrRule['remote']);
-			}
-
-			if (isset($arrRule['remote_value']))
-			{
-				$arrApplied['value'] = $arrRule['remote_value'];
-			}
-
-			if (isset($arrRule['value']))
-			{
-				$arrApplied['value'] = $arrRule['value'];
-			}
-
-			$arrResult[] = $arrApplied;
+			$arrResult[] = $this->parseFilter($child, $objParent);
 		}
 
 		return $arrResult;
