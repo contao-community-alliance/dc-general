@@ -234,6 +234,20 @@ abstract class BaseFilterBuilder
 	}
 
 	/**
+	 * Ensure that the given property also equals the given value.
+	 *
+	 * @param string $property The property name.
+	 *
+	 * @param mixed  $value    The property value.
+	 *
+	 * @return PropertyEqualsFilterBuilder The newly created filter.
+	 */
+	public function orPropertyEquals($property, $value)
+	{
+		return $this->orEncapsulate(new PropertyEqualsFilterBuilder($property, $value));
+	}
+
+	/**
 	 * Ensure that the given property also equals the given remote property.
 	 *
 	 * @param string $property       The name of the property.
