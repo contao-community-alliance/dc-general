@@ -34,7 +34,7 @@ class FilterBuilder
 	 *
 	 * @var AndFilterBuilder
 	 */
-	protected $filter;
+	protected $filters;
 	/**
 	 * Flag determining if the current filter is a root filter or parent child filter.
 	 *
