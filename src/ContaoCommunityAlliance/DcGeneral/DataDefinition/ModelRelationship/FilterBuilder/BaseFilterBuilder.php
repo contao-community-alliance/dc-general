@@ -122,9 +122,18 @@ abstract class BaseFilterBuilder
 			return $this;
 		}
 
-		if ($parent instanceof AndFilterBuilder)
+		if ($parent instanceof AndFilterBuilder && !($this instanceof FilterBuilderWithChildren))
 		{
 			return $parent;
+		}
+
+		if ($this instanceof FilterBuilderWithChildren)
+		{
+			/** @var FilterBuilderWithChildren $this */
+			$and = new AndFilterBuilder();
+			$this->add($and);
+
+			return $and;
 		}
 
 		$and    = new AndFilterBuilder();
@@ -149,18 +158,27 @@ abstract class BaseFilterBuilder
 			return $this;
 		}
 
-		if ($parent instanceof OrFilterBuilder)
+		if ($parent instanceof OrFilterBuilder && !($this instanceof FilterBuilderWithChildren))
 		{
 			return $parent;
 		}
 
-		$and    = new OrFilterBuilder();
+		if ($this instanceof FilterBuilderWithChildren)
+		{
+			/** @var FilterBuilderWithChildren $this */
+			$or = new OrFilterBuilder();
+			$this->add($or);
+
+			return $or;
+		}
+
+		$or     = new OrFilterBuilder();
 		$parent = $this->getParent();
-		$parent->add($and);
+		$parent->add($or);
 
-		$and->add($this);
+		$or->add($this);
 
-		return $and;
+		return $or;
 	}
 
 	/**
