@@ -600,8 +600,9 @@ class TreeView extends BaseView
 			/** @var AddToUrlEvent $urlEvent */
 			$urlEvent = $propagator->propagate(
 				ContaoEvents::BACKEND_ADD_TO_URL,
-				new AddToUrlEvent(sprintf('act=%s&amp;into=0&amp;children=%s',
+				new AddToUrlEvent(sprintf('act=%s&amp;into=%s::0&amp;children=%s',
 					$objClipboard->getMode(),
+					$definition->getName(),
 					$objClipboard->getContainedIds(),
 					implode(',', $objClipboard->getCircularIds())
 				))
@@ -666,8 +667,17 @@ class TreeView extends BaseView
 		if ($input->hasParameter('into'))
 		{
 			$into   = IdSerializer::fromSerialized($input->getParameter('into'));
-			$parent = $controller->fetchModelFromProvider($into);
-			$controller->setParent($model, $parent);
+
+			// If we have a null, it means insert into the tree root.
+			if($into->getId() == 0)
+			{
+				$controller->setRootModel($model);
+			}
+			else
+			{
+				$parent = $controller->fetchModelFromProvider($into);
+				$controller->setParent($model, $parent);
+			}
 		}
 		elseif ($input->hasParameter('after'))
 		{
