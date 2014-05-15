@@ -32,14 +32,14 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
 	 */
 	public function getArgs($event)
 	{
-		$attributes = $event->getAttributes();
+		$extra = $event->getCommand()->getExtra();
 
 		return array(
 			$event->getModel()->getPropertiesAsArray(),
 			$event->getHref(),
 			$event->getLabel(),
 			$event->getTitle(),
-			isset($attributes['icon']) ? $attributes['icon'] : null,
+			isset($extra['icon']) ? $extra['icon'] : null,
 			$event->getAttributes(),
 			$event->getEnvironment()->getDataDefinition()->getName(),
 			$event->getEnvironment()->getDataDefinition()->getBasicDefinition()->getRootEntries(),
