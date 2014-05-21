@@ -379,6 +379,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			return null;
 		}
 
+		// TODO what happend when $firstSorting is suffixed with ASC or DESC?
 		$property = $properties->getProperty($firstSorting);
 
 		if (count($sortingFields) == 0)
@@ -2782,6 +2783,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 				{
 					$arrLabel[] = array(
 						'colspan' => 1,
+						// TODO what happend when $firstSorting is suffixed with ASC or DESC?
 						'class' => 'tl_file_list col_' . $j . (($propertyName == $firstSorting) ? ' ordered_by' : ''),
 						'content' => (($args[$propertyName] != '') ? $args[$propertyName] : '-')
 					);
