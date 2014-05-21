@@ -2256,8 +2256,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$attributes = 'onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this);"';
 			if (
 				$objCommand->isInverse()
-					? $objModel->getProperty($objCommand->getToggleProperty()) === '1'
-					: $objModel->getProperty($objCommand->getToggleProperty()) !== '1'
+					? $objModel->getProperty($objCommand->getToggleProperty())
+					: !$objModel->getProperty($objCommand->getToggleProperty())
 			) {
 				$extra['icon'] = $extra['icon_disabled'] ?: 'invisible.gif';
 			}
