@@ -74,6 +74,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\Submi
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelRowInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommand;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootCondition;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
@@ -496,6 +497,15 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			$container->setDataProviderDefinition($config);
 		}
 
+		// If mode is 5, we need to define tree view.
+		if ($this->getFromDca('list/sorting/mode') === 5)
+		{
+			if (!$container->getBasicDefinition()->getRootDataProvider())
+			{
+				$container->getBasicDefinition()->setRootDataProvider($container->getName());
+			}
+		}
+
 		if (($parentTable = $this->getFromDca('config/ptable')) !== null)
 		{
 			// Check config if it already exists, if not, add it.
@@ -630,6 +640,63 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			$definition = new DefaultModelRelationshipDefinition();
 		}
 
+		// If mode is 5, we need to define tree view.
+		if ($this->getFromDca('list/sorting/mode') === 5)
+		{
+			$rootProvider = $this->getRootProviderName($container);
+
+			if (($relationship = $definition->getRootCondition()) === null)
+			{
+				$relationship = new RootCondition();
+				$relationship
+					->setSourceName($rootProvider);
+				$definition->setRootCondition($relationship);
+
+				$builder = FilterBuilder::fromArrayForRoot()->getFilter();
+			}
+			else
+			{
+				$builder = FilterBuilder::fromArrayForRoot($relationship->getFilterArray())->getFilter();
+			}
+
+			$relationship
+				->setSetters(array_merge_recursive(
+					array(array('property' => 'pid', 'value' => '0'))),
+					$relationship->getSetters()
+				);
+
+			$builder->andPropertyEquals('pid', '0');
+
+			$relationship
+				->setFilterArray($builder->getAllAsArray());
+
+			if (($relationship = $definition->getChildCondition($rootProvider, $rootProvider)) === null)
+			{
+				$relationship = new ParentChildCondition();
+				$relationship
+					->setSourceName($rootProvider);
+				$definition->addChildCondition($relationship);
+
+				$builder = FilterBuilder::fromArray()->getFilter();
+			}
+			else
+			{
+				$builder = FilterBuilder::fromArray($relationship->getFilterArray())->getFilter();
+			}
+
+			$relationship
+				->setSetters(array_merge_recursive(
+					array(array('to_field' => 'pid', 'from_field' => 'id'))),
+					$relationship->getSetters()
+				);
+
+			$builder->andRemotePropertyEquals('pid', 'id');
+			$relationship
+				->setFilterArray($builder->getAllAsArray());
+
+			$container->setDefinition(ModelRelationshipDefinitionInterface::NAME, $definition);
+		}
+
 		// If ptable defined and no root setter we need to add (Contao default id=>pid mapping).
 		if (($value = $this->getFromDca('config/ptable')) !== null)
 		{
@@ -640,38 +707,18 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 				$relationship = new RootCondition();
 				$relationship
 					->setSourceName($rootProvider);
+
 				$definition->setRootCondition($relationship);
 			}
+
 			if (!$relationship->getSetters())
 			{
 				$relationship
-					->setSetters(array(array('property' => 'pid', 'value' => '0')));
+					->setSetters(array_merge_recursive(
+						array(array('property' => 'pid', 'value' => '0'))),
+						$relationship->getSetters()
+					);
 			}
-
-			$container->setDefinition(ModelRelationshipDefinitionInterface::NAME, $definition);
-		}
-
-		// If root id defined, add condition to root filter for id=?.
-		if ($value = $this->getFromDca('list/sorting/root'))
-		{
-			$rootProvider = $this->getRootProviderName($container);
-
-			if (($relationship = $definition->getRootCondition()) === null)
-			{
-				$relationship = new RootCondition();
-				$builder      = FilterBuilder::fromArrayForRoot()->getFilter();
-			}
-			else
-			{
-				$builder = FilterBuilder::fromArrayForRoot($relationship->getFilterArray())->getFilter();
-			}
-
-			$builder->andPropertyValueIn('id', $value);
-
-			$relationship
-				->setSourceName($rootProvider)
-				->setFilterArray($builder->getAllAsArray());
-			$definition->setRootCondition($relationship);
 
 			$container->setDefinition(ModelRelationshipDefinitionInterface::NAME, $definition);
 		}
