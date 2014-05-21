@@ -683,8 +683,15 @@ class TreeView extends BaseView
 		{
 			$after   = IdSerializer::fromSerialized($input->getParameter('after'));
 			$sibling = $controller->fetchModelFromProvider($after);
-			$parent  = $controller->searchParentOf($sibling);
-			$controller->setParent($model, $parent);
+			if ($controller->isRootModel($sibling))
+			{
+				$controller->setRootModel($model);
+			}
+			else
+			{
+				$parent = $controller->searchParentOf($sibling);
+				$controller->setParent($model, $parent);
+			}
 		}
 		else
 		{
