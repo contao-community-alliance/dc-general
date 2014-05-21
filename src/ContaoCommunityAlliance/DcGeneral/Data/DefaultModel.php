@@ -149,7 +149,7 @@ class DefaultModel extends AbstractModel
 	{
 		if ($varValue !== $this->getProperty($strPropertyName))
 		{
-			$this->setMeta(DCGE::MODEL_IS_CHANGED, true);
+			$this->setMeta(static::IS_CHANGED, true);
 			$this->setPropertyRaw($strPropertyName, $varValue);
 		}
 	}
