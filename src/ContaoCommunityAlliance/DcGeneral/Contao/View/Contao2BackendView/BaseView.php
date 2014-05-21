@@ -1620,7 +1620,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 		if ((!$blnIsAutoSubmit) && $blnSubmitted && empty($errors))
 		{
-			if ($model->getMeta(DCGE::MODEL_IS_CHANGED))
+			if ($model->getMeta($model::IS_CHANGED))
 			{
 				// Trigger the event for post persists or create.
 				if ($preFunction != null)
