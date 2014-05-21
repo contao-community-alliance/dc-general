@@ -1325,6 +1325,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 					$command->setToggleProperty('published');
 				}
 
+				if (isset($commandDca['toggleInverse'])) {
+					$command->setInverse($commandDca['toggleInverse']);
+					unset($commandDca['toggleInverse']);
+				}
+
 				return $command;
 			default:
 		}

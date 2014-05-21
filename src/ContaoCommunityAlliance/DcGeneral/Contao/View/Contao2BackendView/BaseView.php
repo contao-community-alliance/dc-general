@@ -1896,7 +1896,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		/** @var ToggleCommandInterface $operation */
 		$operation    = $this->getViewSection()->getModelCommands()->getCommandNamed('toggle');
 		$dataProvider = $environment->getDataProvider();
-		$newState     = $input->getParameter('state') == 1 ? '1' : '';
+		$newState     = $operation->isInverse()
+			? $input->getParameter('state') == 1 ? '' : '1'
+			: $input->getParameter('state') == 1 ? '1' : '';
 
 		$model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($serializedId->getId()));
 
@@ -2252,8 +2254,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$arrParameters['act'] = $objCommand->getName();
 
 			$attributes = 'onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this);"';
-			if ($objModel->getProperty($objCommand->getToggleProperty()) !== '1')
-			{
+			if (
+				$objCommand->isInverse()
+					? $objModel->getProperty($objCommand->getToggleProperty()) === '1'
+					: $objModel->getProperty($objCommand->getToggleProperty()) !== '1'
+			) {
 				$extra['icon'] = $extra['icon_disabled'] ?: 'invisible.gif';
 			}
 		}

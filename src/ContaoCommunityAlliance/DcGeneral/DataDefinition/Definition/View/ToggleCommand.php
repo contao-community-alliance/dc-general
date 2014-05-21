@@ -30,6 +30,14 @@ class ToggleCommand
 	protected $property;
 
 	/**
+	 * The toggle command is an inverse command.
+	 * That means, the toggle does not toggle not-published <-> published, but not-disabled <-> disabled.
+	 *
+	 * @var bool
+	 */
+	protected $inverse = false;
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public function setToggleProperty($property)
@@ -45,5 +53,22 @@ class ToggleCommand
 	public function getToggleProperty()
 	{
 		return $this->property;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function setInverse($inverse)
+	{
+		$this->inverse = (bool) $inverse;
+		return $this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function isInverse()
+	{
+		return $this->inverse;
 	}
 }

@@ -35,4 +35,20 @@ interface ToggleCommandInterface extends CommandInterface
 	 * @return string
 	 */
 	public function getToggleProperty();
+
+	/**
+	 * Set the inverse state of this toggle command.
+	 *
+	 * @param bool $inverse The inverse state.
+	 *
+	 * @return ToggleCommandInterface
+	 */
+	public function setInverse($inverse);
+
+	/**
+	 * Determine the inverse state.
+	 *
+	 * @return bool
+	 */
+	public function isInverse();
 }
