@@ -144,7 +144,7 @@ class IdSerializer
 			return $instance->setId($chunks[1]);
 		}
 
-		return $instance->setId(base64_decode($chunks[1]));
+		return $instance->setId(json_decode(base64_decode($chunks[1]), true));
 	}
 
 	/**
@@ -159,7 +159,7 @@ class IdSerializer
 			return sprintf('%s::%s', $this->dataProviderName, $this->id);
 		}
 
-		return sprintf('%s::%s', $this->dataProviderName, base64_encode($this->id));
+		return sprintf('%s::%s', $this->dataProviderName, base64_encode(json_encode($this->id)));
 	}
 
 	/**
