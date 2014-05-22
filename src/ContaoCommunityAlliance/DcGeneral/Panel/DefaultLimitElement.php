@@ -111,12 +111,12 @@ class DefaultLimitElement
 		if (is_null($objElement))
 		{
 			$objTempConfig = $this->getOtherConfig($objConfig);
-			$mixTotal = $this
+			$arrTotal      = $this
 				->getEnvironment()
 				->getDataProvider()
 				->fetchAll($objTempConfig->setIdOnly(true));
 
-			$this->intTotal = is_array($mixTotal) ? count($mixTotal) : (is_object($mixTotal) ? $mixTotal->length() : 0);
+			$this->intTotal = $arrTotal ? count($arrTotal) : 0;
 			$offset         = 0;
 			// TODO: we need to determine the perPage some better way.
 			$amount = $GLOBALS['TL_CONFIG']['resultsPerPage'];
