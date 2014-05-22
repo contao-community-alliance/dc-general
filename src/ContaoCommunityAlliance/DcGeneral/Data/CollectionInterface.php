@@ -19,7 +19,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  *
  * This represents an iterable collection of Model elements.
  */
-interface CollectionInterface extends \IteratorAggregate, \Countable
+interface CollectionInterface extends \IteratorAggregate, \ArrayAccess, \Countable
 {
 	/**
 	 * Get length of this collection.

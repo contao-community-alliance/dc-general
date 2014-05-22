@@ -50,6 +50,38 @@ class DefaultCollection implements CollectionInterface
 	}
 
 	/**
+	 * {@inheritdoc}
+	 */
+	public function offsetExists($offset)
+	{
+		return array_key_exists($offset, $this->arrCollection);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function offsetGet($offset)
+	{
+		return $this->get($offset);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function offsetSet($offset, $value)
+	{
+		$this->arrCollection[$offset] = $value;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function offsetUnset($offset)
+	{
+		unset($this->arrCollection[$offset]);
+	}
+
+	/**
 	 * Get the model at a specific index.
 	 *
 	 * @param int $intIndex The index of the model to retrieve.
