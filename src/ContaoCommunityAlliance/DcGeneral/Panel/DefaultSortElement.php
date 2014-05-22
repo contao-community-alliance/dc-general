@@ -123,7 +123,7 @@ class DefaultSortElement
 	 */
 	protected function flagToDirection($intFlag)
 	{
-		return ($intFlag % 2) ? 'DESC' : 'ASC';
+		return ($intFlag % 2) ? 'ASC' : 'DESC';
 	}
 
 	/**
