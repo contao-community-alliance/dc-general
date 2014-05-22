@@ -42,6 +42,14 @@ class DefaultCollection implements CollectionInterface
 	}
 
 	/**
+	 * {@inheritdoc}
+	 */
+	public function count()
+	{
+		return $this->length();
+	}
+
+	/**
 	 * Get the model at a specific index.
 	 *
 	 * @param int $intIndex The index of the model to retrieve.
