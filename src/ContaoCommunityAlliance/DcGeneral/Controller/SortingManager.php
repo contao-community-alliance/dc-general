@@ -341,6 +341,7 @@ class SortingManager
 		{
 			do
 			{
+				// Skip models about to be pasted.
 				if (in_array($this->marker->getId(), $ids))
 				{
 					$this->marker = $this->siblingsCopy->shift();
@@ -351,9 +352,9 @@ class SortingManager
 				$this->marker->setProperty($this->getSortingProperty(), $this->position);
 				$this->results->push($this->marker);
 
-				$sibling = $this->siblingsCopy->shift();
+				$this->marker = $this->siblingsCopy->shift();
 			}
-			while ($sibling);
+			while ($this->marker);
 		}
 	}
 }
