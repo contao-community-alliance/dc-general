@@ -17,12 +17,6 @@ namespace ContaoCommunityAlliance\DcGeneral;
  *
  * @package DcGeneral
  */
-interface DataContainerInterface extends \editable, \listable
+interface DataContainerInterface extends \editable, \listable, EnvironmentAwareInterface
 {
-	/**
-	 * Return the Environment for the DC.
-	 *
-	 * @return EnvironmentInterface
-	 */
-	public function getEnvironment();
 }
