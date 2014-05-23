@@ -161,36 +161,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	// @codingStandardsIgnoreEnd
 
 	/**
-	 * Dispatch an event to the dispatcher.
-	 *
-	 * The event will first get triggered with the name of the active data provider within square brackets appended
-	 * and plain afterwards.
-	 *
-	 * Example:
-	 *   Event name: "some-event"
-	 *   DP name:    "tl_table"
-	 *
-	 *   1. dispatch: "some-event[tl_table]"
-	 *   2. dispatch: "some-event"
-	 *
-	 * @param string                                   $eventName The name of the event to dispatch.
-	 *
-	 * @param \Symfony\Component\EventDispatcher\Event $event     The event to dispatch.
-	 *
-	 * @return void
-	 *
-	 * @deprecated Use $this->getEnvironment()->getEventPropagator()->propagate() instead.
-	 */
-	protected function dispatchEvent($eventName, $event)
-	{
-		$this->getEnvironment()->getEventPropagator()->propagate(
-			$event::NAME,
-			$event,
-			array($this->getEnvironment()->getDataDefinition()->getName())
-		);
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
 	public function setEnvironment(EnvironmentInterface $environment)
