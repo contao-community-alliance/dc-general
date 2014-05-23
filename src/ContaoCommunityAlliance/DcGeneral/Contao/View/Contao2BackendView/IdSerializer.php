@@ -130,6 +130,9 @@ class IdSerializer
 	{
 		$instance = new IdSerializer();
 
+		$serialized = rawurldecode($serialized);
+		$serialized = html_entity_decode($serialized, ENT_QUOTES, 'UTF-8');
+
 		$chunks = explode('::', $serialized);
 
 		if (count($chunks) !== 2)
@@ -144,7 +147,10 @@ class IdSerializer
 			return $instance->setId($chunks[1]);
 		}
 
-		return $instance->setId(json_decode(base64_decode($chunks[1]), true));
+		$decodedSource = base64_decode($chunks[1]);
+		$decodedJson   = json_decode($decodedSource, true);
+
+		return $instance->setId($decodedJson ?: $decodedSource);
 	}
 
 	/**
