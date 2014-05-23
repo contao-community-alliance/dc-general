@@ -1032,7 +1032,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			? IdSerializer::fromSerialized($input->getParameter('into'))
 			: null;
 
-		if ($source) {
+		if ($source)
+		{
 			$dataProvider = $environment->getDataProvider($source->getDataProviderName());
 
 			$filterConfig = $dataProvider->getEmptyConfig();
@@ -1079,7 +1080,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			throw new DcGeneralRuntimeException('Invalid parameters.');
 		}
 
-		if (!$source) {
+		if (!$source)
+		{
 			$clipboard
 				->clear()
 				->saveTo($environment);
