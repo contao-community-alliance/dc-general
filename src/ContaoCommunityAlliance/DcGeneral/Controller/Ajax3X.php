@@ -202,11 +202,17 @@ class Ajax3X extends Ajax
 		exit;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	protected function reloadPagetree(DataContainerInterface $objDc)
 	{
 		$this->reloadTree('page', $objDc);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	protected function reloadFiletree(DataContainerInterface $objDc)
 	{
 		$this->reloadTree('file', $objDc);

@@ -90,9 +90,9 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
 		{
 			throw new DcGeneralInvalidArgumentException('Property ' . $name . ' is not registered.');
 		}
-		
+
 		unset($this->properties[$name]);
-		
+
 		return $this;
 	}
 

@@ -1214,7 +1214,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		}
 
 		// TODO: move unimplemented.
-
 		return vsprintf($this->notImplMsg, 'move - Mode');
 	}
 
@@ -1229,7 +1228,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		}
 
 		// TODO: undo unimplemented.
-
 		return vsprintf($this->notImplMsg, 'undo - Mode');
 	}
 
@@ -2226,11 +2224,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$arrParameters['act'] = $objCommand->getName();
 
 			$attributes = 'onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this);"';
-			if (
-				$objCommand->isInverse()
+			if ($objCommand->isInverse()
 					? $objModel->getProperty($objCommand->getToggleProperty())
 					: !$objModel->getProperty($objCommand->getToggleProperty())
-			) {
+			)
+			{
 				$extra['icon'] = $extra['icon_disabled'] ?: 'invisible.gif';
 			}
 		}

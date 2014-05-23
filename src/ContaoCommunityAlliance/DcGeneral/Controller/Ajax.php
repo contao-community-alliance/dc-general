@@ -39,51 +39,64 @@ abstract class Ajax
 	/**
 	 * Compat wrapper for contao 2.X and 3.X - delegates to the relevant input handler.
 	 *
-	 * @param      $key
-	 * @param bool $blnDecodeEntities
-	 * @param bool $blnKeepUnused
+	 * @param string $key               The key to retrieve.
+	 *
+	 * @param bool   $blnDecodeEntities Decode the entities.
+	 *
+	 * @param bool   $blnKeepUnused     If the key shall be kept marked as unused.
 	 *
 	 * @return mixed
 	 */
-	protected static function getGet($key, $blnDecodeEntities=false, $blnKeepUnused=false)
+	protected static function getGet($key, $blnDecodeEntities = false, $blnKeepUnused = false)
 	{
 		// TODO: use dependency injection here.
 		if (version_compare(VERSION, '3.0', '>='))
 		{
 			return \Input::get($key, $blnDecodeEntities, $blnKeepUnused);
 		}
-		else
-		{
-			return \Input::getInstance()->get($key, $blnDecodeEntities, $blnKeepUnused);
-		}
+
+		return \Input::getInstance()->get($key, $blnDecodeEntities, $blnKeepUnused);
 	}
 
 	/**
 	 * Compat wrapper for contao 2.X and 3.X - delegates to the relevant input handler.
 	 *
-	 * @param      $key
-	 * @param bool $blnDecodeEntities
+	 * @param string $key               The key to retrieve.
+	 *
+	 * @param bool   $blnDecodeEntities Decode the entities.
 	 *
 	 * @return mixed
 	 */
-	protected static function getPost($key, $blnDecodeEntities=false)
+	protected static function getPost($key, $blnDecodeEntities = false)
 	{
 		// TODO: use dependency injection here.
 		if (version_compare(VERSION, '3.0', '>='))
 		{
 			return \Input::post($key, $blnDecodeEntities);
 		}
-		else
-		{
-			return \Input::getInstance()->post($key, $blnDecodeEntities);
-		}
+
+		return \Input::getInstance()->post($key, $blnDecodeEntities);
 	}
 
+	/**
+	 * Retrieve the ajax id.
+	 *
+	 * @return string
+	 *
+	 * @deprecated
+	 */
 	protected static function getAjaxId()
 	{
 		return preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', self::getPost('id'));
 	}
 
+	/**
+	 * Retrieve the ajax id.
+	 *
+	 * @return string
+	 *
+	 * @deprecated
+	 */
 	protected static function getAjaxKey()
 	{
 		$strAjaxKey = str_replace('_' . self::getAjaxId(), '', self::getPost('id'));
@@ -96,6 +109,13 @@ abstract class Ajax
 		return $strAjaxKey;
 	}
 
+	/**
+	 * Retrieve the ajax name.
+	 *
+	 * @return string
+	 *
+	 * @deprecated
+	 */
 	protected static function getAjaxName()
 	{
 		if (self::getGet('act') == 'editAll')
@@ -106,14 +126,34 @@ abstract class Ajax
 		return self::getPost('name');
 	}
 
+	/**
+	 * Load a tree structure.
+	 *
+	 * This method exits the script!
+	 *
+	 * @param DataContainerInterface $objDc The data container.
+	 *
+	 * @return void
+	 */
 	protected function loadStructure(DataContainerInterface $objDc)
 	{
+		// Method ajaxTreeView is in TreeView.php - watch out!
 		echo $objDc->ajaxTreeView($this->getAjaxId(), intval(self::getPost('level')));
 		exit;
 	}
 
+	/**
+	 * Load a file manager tree structure.
+	 *
+	 * This method exits the script!
+	 *
+	 * @param DataContainerInterface $objDc The data container.
+	 *
+	 * @return void
+	 */
 	protected function loadFileManager(DataContainerInterface $objDc)
 	{
+		// Method ajaxTreeView is in TreeView.php - watch out!
 		echo $objDc->ajaxTreeView(self::getPost('folder', true), intval(self::getPost('level')));
 		exit;
 	}
@@ -136,8 +176,26 @@ abstract class Ajax
 	 */
 	abstract protected function loadFiletree(DataContainerInterface $objDc);
 
+	/**
+	 * Reload a page tree.
+	 *
+	 * This method exits the script.
+	 *
+	 * @param DataContainerInterface $objDc The data container.
+	 *
+	 * @return void
+	 */
 	abstract protected function reloadPagetree(DataContainerInterface $objDc);
 
+	/**
+	 * Reload a file tree.
+	 *
+	 * This method exits the script.
+	 *
+	 * @param DataContainerInterface $objDc The data container.
+	 *
+	 * @return void
+	 */
 	abstract protected function reloadFiletree(DataContainerInterface $objDc);
 
 	/**
@@ -147,7 +205,7 @@ abstract class Ajax
 	 *
 	 * @return void
 	 */
-	public function executePostActions(DataContainerInterface $objDc)
+	public function executePostActions($objDc)
 	{
 		header('Content-Type: text/html; charset=' . $GLOBALS['TL_CONFIG']['characterSet']);
 

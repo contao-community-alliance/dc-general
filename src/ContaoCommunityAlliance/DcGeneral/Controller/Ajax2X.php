@@ -25,32 +25,55 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class Ajax2X extends Ajax
 {
+	/**
+	 * {@inheritDoc}
+	 */
 	protected function loadPagetree(DataContainerInterface $objDc)
 	{
-		$arrData['strTable'] = $objDc->getEnvironment()->getDataDefinition()->getName();
-		$arrData['id'] = self::getAjaxName() ?: $objDc->getId();
-		$arrData['name'] = self::getPost('name');
+		$environment = $objDc->getEnvironment();
+		$input       = $environment->getInputProvider();
+		$field       = $input->getValue('field');
+		$name        = $input->getValue('name');
+		$level       = intval($input->getValue('level'));
+		$id          = $input->getValue('id');
 
-		/**
-		 * @var \PageSelector $objWidget
-		 */
+		$ajaxId   = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $id);
+		$ajaxKey  = str_replace('_' . $ajaxId, '', $id);
+		$ajaxName = null;
+		if ($input->getValue('act') == 'editAll')
+		{
+			$ajaxKey  = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $ajaxKey);
+			$ajaxName = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $name);
+		}
+
+		$nodes          = $input->getPersistentValue($ajaxKey);
+		$nodes[$ajaxId] = intval($input->getValue('state'));
+		$input->setPersistentValue($ajaxKey, $nodes);
+
+		$arrData['strTable'] = $environment->getDataDefinition()->getName();
+		$arrData['id']       = $ajaxName ?: $id;
+		$arrData['name']     = $name;
+
+		/** @var \PageSelector $objWidget */
 		$objWidget = new $GLOBALS['BE_FFL']['pageTree']($arrData, $objDc);
-		echo $objWidget->generateAjax(self::getAjaxId(), self::getPost('field'), intval(self::getPost('level')));
+		echo $objWidget->generateAjax($ajaxId, $field, $level);
 		exit;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	protected function loadFiletree(DataContainerInterface $objDc)
 	{
-		$arrData['strTable'] = $objDc->getEnvironment()->getDataDefinition()->getName();
-		$arrData['id'] = self::getAjaxName() ?: $objDc->getId();
-		$arrData['name'] = self::getPost('name');
+		$table               = $objDc->getEnvironment()->getDataDefinition()->getName();
+		$arrData['strTable'] = $table;
+		$arrData['id']       = self::getAjaxName() ?: $objDc->getId();
+		$arrData['name']     = self::getPost('name');
 
-		/**
-		 * @var \FileTree $objWidget
-		 */
+		/** @var \FileTree $objWidget */
 		$objWidget = new $GLOBALS['BE_FFL']['fileTree']($arrData, $objDc);
 
-		// Load a particular node
+		// Load a particular node.
 		if (self::getPost('folder', true) != '')
 		{
 			echo $objWidget->generateAjax(self::getPost('folder', true), self::getPost('field'), intval(self::getPost('level')));
@@ -58,20 +81,21 @@ class Ajax2X extends Ajax
 		else
 		{
 			// Reload the whole tree.
-			$this->import('BackendUser', 'User');
+			$user    = \BackendUser::getInstance();
 			$strTree = '';
+			$path    = $GLOBALS['TL_DCA'][$table]['fields'][self::getPost('field')]['eval']['path'];
 
-			// Set a custom path
-			if (strlen($GLOBALS['TL_DCA'][$objDc->getEnvironment()->getDataDefinition()->getName()]['fields'][self::getPost('field')]['eval']['path']))
+			// Set a custom path.
+			if (strlen($GLOBALS['TL_DCA'][$table]['fields'][self::getPost('field')]['eval']['path']))
 			{
 				$strTree = $objWidget->generateAjax(
-					$GLOBALS['TL_DCA'][$objDc->getEnvironment()->getDataDefinition()->getName()]['fields'][self::getPost('field')]['eval']['path'],
+					$GLOBALS['TL_DCA'][$table]['fields'][self::getPost('field')]['eval']['path'],
 					self::getPost('field'),
 					intval(self::getPost('level'))
 				);
 			}
-			// Start from root
-			elseif ($this->User->isAdmin)
+			// Start from root.
+			elseif ($user->isAdmin)
 			{
 				$strTree = $objWidget->generateAjax(
 					$GLOBALS['TL_CONFIG']['uploadPath'],
@@ -79,7 +103,7 @@ class Ajax2X extends Ajax
 					intval(self::getPost('level'))
 				);
 			}
-			// Set filemounts
+			// Set file mounts.
 			else
 			{
 				foreach ($this->eliminateNestedPaths($this->User->filemounts) as $node)
@@ -98,11 +122,21 @@ class Ajax2X extends Ajax
 		exit;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws DcGeneralRuntimeException as it is only present in Contao 3.X.
+	 */
 	protected function reloadPagetree(DataContainerInterface $objDc)
 	{
 		throw new DcGeneralRuntimeException('Contao 3.X only.');
 	}
 
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws DcGeneralRuntimeException as it is only present in Contao 3.X.
+	 */
 	protected function reloadFiletree(DataContainerInterface $objDc)
 	{
 		throw new DcGeneralRuntimeException('Contao 3.X only.');

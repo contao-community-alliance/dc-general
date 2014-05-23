@@ -469,7 +469,8 @@ class TreeView extends BaseView
 		}
 
 		$toggleScript = sprintf(
-			'Backend.getScrollOffset(); return BackendGeneral.loadSubTree(this, {\'toggler\':\'%s\', \'id\':\'%s\', \'providerName\':\'%s\', \'level\':\'%s\', \'mode\':\'%s\'});',
+			'Backend.getScrollOffset(); return BackendGeneral.loadSubTree(this, ' .
+			'{\'toggler\':\'%s\', \'id\':\'%s\', \'providerName\':\'%s\', \'level\':\'%s\', \'mode\':\'%s\'});',
 			$strToggleID,
 			$objModel->getId(),
 			$objModel->getProviderName(),
@@ -499,9 +500,11 @@ class TreeView extends BaseView
 	}
 
 	/**
+	 * Render the tree view and return it as string.
+	 *
 	 * @param CollectionInterface $objCollection The collection to iterate over.
 	 *
-	 * @param string                              $treeClass     The class to use for the tree.
+	 * @param string              $treeClass     The class to use for the tree.
 	 *
 	 * @return string
 	 */
@@ -517,7 +520,7 @@ class TreeView extends BaseView
 
 			$arrHtml[] = $this->parseModel($objModel, $strToggleID);
 
-			if ($objModel->getMeta(DCGE::TREE_VIEW_HAS_CHILDS) && $objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN))
+			if ($objModel->getMeta($objModel::HAS_CHILDREN) && $objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN))
 			{
 				$objTemplate = $this->getTemplate('dcbe_general_treeview_child');
 				$strSubHtml  = '';
@@ -705,10 +708,10 @@ class TreeView extends BaseView
 
 		if ($input->hasParameter('into'))
 		{
-			$into   = IdSerializer::fromSerialized($input->getParameter('into'));
+			$into = IdSerializer::fromSerialized($input->getParameter('into'));
 
 			// If we have a null, it means insert into the tree root.
-			if($into->getId() == 0)
+			if ($into->getId() == 0)
 			{
 				$controller->setRootModel($model);
 			}
