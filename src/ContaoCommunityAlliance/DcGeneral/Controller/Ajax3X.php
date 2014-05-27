@@ -139,6 +139,8 @@ class Ajax3X extends Ajax
 	 * @param string                 $strType The type.
 	 *
 	 * @param DataContainerInterface $objDc   The data container.
+	 *
+	 * @return void
 	 */
 	protected function reloadTree($strType, DataContainerInterface $objDc)
 	{
@@ -150,7 +152,7 @@ class Ajax3X extends Ajax
 		// Handle the keys in "edit multiple" mode.
 		if (self::getGet('act') == 'editAll')
 		{
-			// TODO: change here when implementing editAll
+			// TODO: change here when implementing editAll.
 			$serializedId = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $fieldName);
 			$field        = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $fieldName);
 		}
