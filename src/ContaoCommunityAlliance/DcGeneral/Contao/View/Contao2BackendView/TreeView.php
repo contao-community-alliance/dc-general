@@ -735,30 +735,12 @@ class TreeView extends BaseView
 				$controller->setParent($model, $parent);
 			}
 		}
-		else
+
+		// Also enforce the parent condition of the parent provider (if any).
+		if ($input->hasParameter('pid'))
 		{
-			// Currently deactivated, we have no way to tell the correct parent provider here as tree views might be
-			// parented as well (mode 4 + mode 5&6).
-			return;
-
-			if ($input->hasParameter('pid'))
-			{
-				$pid = IdSerializer::fromSerialized($input->getParameter('pid'));
-			}
-
-			// No op in this base class but implemented in subclasses to enforce parent<->child relationship.
-			$parent    = $this->loadParentModel();
-			$condition = $definition
-				->getModelRelationshipDefinition()
-				->getChildCondition(
-					$basic->getParentDataProvider(),
-					$basic->getDataProvider()
-				);
-
-			if ($condition)
-			{
-				$condition->applyTo($parent, $model);
-			}
+			$parent = $controller->fetchModelFromProvider($input->getParameter('pid'));
+			$controller->setParent($model, $parent);
 		}
 	}
 
