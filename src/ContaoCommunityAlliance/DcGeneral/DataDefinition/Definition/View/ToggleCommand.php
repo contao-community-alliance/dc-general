@@ -31,6 +31,7 @@ class ToggleCommand
 
 	/**
 	 * The toggle command is an inverse command.
+	 *
 	 * That means, the toggle does not toggle not-published <-> published, but not-disabled <-> disabled.
 	 *
 	 * @var bool
@@ -60,7 +61,7 @@ class ToggleCommand
 	 */
 	public function setInverse($inverse)
 	{
-		$this->inverse = (bool) $inverse;
+		$this->inverse = (bool)$inverse;
 		return $this;
 	}
 

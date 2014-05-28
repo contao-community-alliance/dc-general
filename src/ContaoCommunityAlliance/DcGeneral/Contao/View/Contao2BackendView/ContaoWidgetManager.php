@@ -397,6 +397,7 @@ class ContaoWidgetManager
 		if ($inputValues)
 		{
 			$model = clone $this->model;
+			$model->setId($this->model->getId());
 			$this->environment->getController()->updateModelFromPropertyBag($model, $inputValues);
 		}
 		else {
@@ -528,7 +529,7 @@ class ContaoWidgetManager
 				$time = '';
 		}
 
-		if (version_compare(DATEPICKER, '2.1', '>'))
+		if ((version_compare(DATEPICKER, '2.1', '>') && version_compare(VERSION, '3.1', '<')) || (version_compare(DATEPICKER, '2.0', '>') && version_compare(VERSION, '3.1', '>=')))
 		{
 			return 'new Picker.Date($$("#ctrl_' . $objWidget->id . '"), {
 				draggable:false,
@@ -632,7 +633,8 @@ class ContaoWidgetManager
 			'strDatepicker' => $strDatePicker,
 			// TODO: need 'update' value - (\Input::get('act') == 'overrideAll' && ($arrData['inputType'] == 'checkbox' || $arrData['inputType'] == 'checkboxWizard') && $arrData['eval']['multiple'])
 			'blnUpdate'     => false, // $blnUpdate,
-			'strHelp'       => $this->generateHelpText($property)
+			'strHelp'       => $this->generateHelpText($property),
+			'strId'         => $widget->id
 		));
 
 		$buffer = $objTemplateFoo->parse();

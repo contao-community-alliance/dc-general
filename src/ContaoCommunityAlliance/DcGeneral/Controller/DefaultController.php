@@ -29,6 +29,11 @@ use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
+/**
+ * This class serves as main controller class in dc general.
+ *
+ * It holds various methods for data manipulation and retrieval that is non view related.
+ */
 class DefaultController implements ControllerInterface
 {
 	/**
@@ -50,7 +55,14 @@ class DefaultController implements ControllerInterface
 	 *
 	 * @var string
 	 */
-	protected $notImplMsg = "<div style='text-align:center; font-weight:bold; padding:40px;'>The function/view &quot;%s&quot; is not implemented.<br />Please <a target='_blank' style='text-decoration:underline' href='http://now.metamodel.me/en/sponsors/become-one#payment'>support us</a> to add this important feature!</div>";
+	protected $notImplMsg =
+		'<divstyle="text-align:center; font-weight:bold; padding:40px;">
+		The function/view &quot;%s&quot; is not implemented.<br />Please
+		<a
+			target="_blank"
+			style="text-decoration:underline"
+			href="https://github.com/contao-community-alliance/dc-general/issues">support us</a>
+		to add this important feature!</div>';
 
 	/**
 	 * Field for the function sortCollection.
@@ -232,6 +244,8 @@ class DefaultController implements ControllerInterface
 	 *
 	 * @return CollectionInterface
 	 *
+	 * @throws DcGeneralRuntimeException When no parent model can be located.
+	 *
 	 * @todo This might return a lot of models, we definately want to use some lazy approach rather than this.
 	 */
 	protected function assembleSiblingsFor(ModelInterface $model, $sortingProperty = null)
@@ -271,20 +285,23 @@ class DefaultController implements ControllerInterface
 			$config->setSorting(array((string)$sortingProperty => 'ASC'));
 		}
 
-		// Handle grouping
+		// Handle grouping.
 		/** @var Contao2BackendViewDefinitionInterface $backendViewDefinition */
-		// TODO öhm, okay, dnk how to handle this without highjacking the view :-\
+		// TODO TL dnk how to handle this without highjacking the view.
 		$backendViewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-		if ($backendViewDefinition && $backendViewDefinition instanceof Contao2BackendViewDefinitionInterface) {
-			$listingConfig = $backendViewDefinition->getListingConfig();
-			$sortingProperties = array_keys($listingConfig->getDefaultSortingFields());
+		if ($backendViewDefinition && $backendViewDefinition instanceof Contao2BackendViewDefinitionInterface)
+		{
+			$listingConfig        = $backendViewDefinition->getListingConfig();
+			$sortingProperties    = array_keys($listingConfig->getDefaultSortingFields());
 			$sortingPropertyIndex = array_search($sortingProperty, $sortingProperties);
 
-			if ($sortingPropertyIndex !== false && $sortingPropertyIndex > 0) {
+			if ($sortingPropertyIndex !== false && $sortingPropertyIndex > 0)
+			{
 				$sortingProperties = array_slice($sortingProperties, 0, $sortingPropertyIndex);
-				$filters = $config->getFilter();
+				$filters           = $config->getFilter();
 
-				foreach ($sortingProperties as $propertyName) {
+				foreach ($sortingProperties as $propertyName)
+				{
 					$filters[] = array(
 						'operation' => '=',
 						'property'  => $propertyName,

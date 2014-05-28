@@ -137,6 +137,8 @@ class FilterBuilder
 
 	/**
 	 * Encapsulate the root with an Or condition and return the OR condition.
+	 *
+	 * @return OrFilterBuilder
 	 */
 	public function encapsulateOr()
 	{

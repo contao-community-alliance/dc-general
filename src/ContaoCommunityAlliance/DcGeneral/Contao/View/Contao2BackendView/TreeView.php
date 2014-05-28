@@ -17,6 +17,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
@@ -134,7 +135,6 @@ class TreeView extends BaseView
 
 		return false;
 	}
-
 
 	/**
 	 * Load the collection of child items and the parent item for the currently selected parent item.
@@ -327,6 +327,43 @@ class TreeView extends BaseView
 	}
 
 	/**
+	 * Add the parent filtering to the given data config if any defined.
+	 *
+	 * @param ConfigInterface $config The data config.
+	 *
+	 * @return void
+	 */
+	protected function addParentFilter($config)
+	{
+		$environment     = $this->getEnvironment();
+		$definition      = $environment->getDataDefinition();
+		$basicDefinition = $definition->getBasicDefinition();
+		$relationships   = $definition->getModelRelationshipDefinition();
+
+		if (!$basicDefinition->getParentDataProvider())
+		{
+			return;
+		}
+
+		// Apply parent filtering, do this only for root elements.
+		if ($objParentCondition = $relationships->getChildCondition(
+			$basicDefinition->getParentDataProvider(),
+			$basicDefinition->getRootDataProvider()
+		))
+		{
+			$arrBaseFilter = $config->getFilter();
+			$arrFilter     = $objParentCondition->getFilter($this->loadParentModel());
+
+			if ($arrBaseFilter)
+			{
+				$arrFilter = array_merge($arrBaseFilter, $arrFilter);
+			}
+
+			$config->setFilter($arrFilter);
+		}
+	}
+
+	/**
 	 * Recursively retrieve a collection of all complete node hierarchy.
 	 *
 	 * @param array  $rootId       The ids of the root node.
@@ -341,17 +378,16 @@ class TreeView extends BaseView
 	{
 		$environment      = $this->getEnvironment();
 		$definition       = $environment->getDataDefinition();
-		$dataDriver       = $environment->getDataProvider($providerName);
-		$objTableTreeData = $dataDriver->getEmptyCollection();
+		$dataProvider     = $environment->getDataProvider($providerName);
+		$objTableTreeData = $dataProvider->getEmptyCollection();
 		$objRootConfig    = $environment->getController()->getBaseConfig();
 		$relationships    = $definition->getModelRelationshipDefinition();
 
 		$this->getPanel()->initialize($objRootConfig);
-		//$objRootConfig->setFields($this->calcLabelFields($definition->getBasicDefinition()->getDataProvider()));
 
 		if (!$rootId)
 		{
-			$objRootCondition = $definition->getModelRelationshipDefinition()->getRootCondition();
+			$objRootCondition = $relationships->getRootCondition();
 
 			if ($objRootCondition)
 			{
@@ -365,8 +401,11 @@ class TreeView extends BaseView
 
 				$objRootConfig->setFilter($arrFilter);
 			}
+
+			$this->addParentFilter($objRootConfig);
+
 			// Fetch all root elements.
-			$objRootCollection = $dataDriver->fetchAll($objRootConfig);
+			$objRootCollection = $dataProvider->fetchAll($objRootConfig);
 
 			if ($objRootCollection->length() > 0)
 			{
@@ -389,7 +428,7 @@ class TreeView extends BaseView
 
 		$objRootConfig->setId($rootId);
 		// Fetch root element.
-		$objRootModel = $dataDriver->fetch($objRootConfig);
+		$objRootModel = $dataProvider->fetch($objRootConfig);
 
 		$mySubTables = array();
 		foreach ($relationships->getChildConditions($objRootModel->getProviderName()) as $condition)
@@ -398,7 +437,7 @@ class TreeView extends BaseView
 		}
 
 		$this->treeWalkModel($objRootModel, $intLevel, $mySubTables);
-		$objRootCollection = $dataDriver->getEmptyCollection();
+		$objRootCollection = $dataProvider->getEmptyCollection();
 		$objRootCollection->push($objRootModel);
 
 		return $objRootCollection;
@@ -430,7 +469,8 @@ class TreeView extends BaseView
 		}
 
 		$toggleScript = sprintf(
-			'Backend.getScrollOffset(); return BackendGeneral.loadSubTree(this, {\'toggler\':\'%s\', \'id\':\'%s\', \'providerName\':\'%s\', \'level\':\'%s\', \'mode\':\'%s\'});',
+			'Backend.getScrollOffset(); return BackendGeneral.loadSubTree(this, ' .
+			'{\'toggler\':\'%s\', \'id\':\'%s\', \'providerName\':\'%s\', \'level\':\'%s\', \'mode\':\'%s\'});',
 			$strToggleID,
 			$objModel->getId(),
 			$objModel->getProviderName(),
@@ -460,9 +500,11 @@ class TreeView extends BaseView
 	}
 
 	/**
+	 * Render the tree view and return it as string.
+	 *
 	 * @param CollectionInterface $objCollection The collection to iterate over.
 	 *
-	 * @param string                              $treeClass     The class to use for the tree.
+	 * @param string              $treeClass     The class to use for the tree.
 	 *
 	 * @return string
 	 */
@@ -478,7 +520,7 @@ class TreeView extends BaseView
 
 			$arrHtml[] = $this->parseModel($objModel, $strToggleID);
 
-			if ($objModel->getMeta(DCGE::TREE_VIEW_HAS_CHILDS) && $objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN))
+			if ($objModel->getMeta($objModel::HAS_CHILDREN) && $objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN))
 			{
 				$objTemplate = $this->getTemplate('dcbe_general_treeview_child');
 				$strSubHtml  = '';
@@ -666,10 +708,10 @@ class TreeView extends BaseView
 
 		if ($input->hasParameter('into'))
 		{
-			$into   = IdSerializer::fromSerialized($input->getParameter('into'));
+			$into = IdSerializer::fromSerialized($input->getParameter('into'));
 
 			// If we have a null, it means insert into the tree root.
-			if($into->getId() == 0)
+			if ($into->getId() == 0)
 			{
 				$controller->setRootModel($model);
 			}

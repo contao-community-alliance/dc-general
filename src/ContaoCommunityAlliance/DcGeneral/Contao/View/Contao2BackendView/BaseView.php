@@ -161,36 +161,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	// @codingStandardsIgnoreEnd
 
 	/**
-	 * Dispatch an event to the dispatcher.
-	 *
-	 * The event will first get triggered with the name of the active data provider within square brackets appended
-	 * and plain afterwards.
-	 *
-	 * Example:
-	 *   Event name: "some-event"
-	 *   DP name:    "tl_table"
-	 *
-	 *   1. dispatch: "some-event[tl_table]"
-	 *   2. dispatch: "some-event"
-	 *
-	 * @param string                                   $eventName The name of the event to dispatch.
-	 *
-	 * @param \Symfony\Component\EventDispatcher\Event $event     The event to dispatch.
-	 *
-	 * @return void
-	 *
-	 * @deprecated Use $this->getEnvironment()->getEventPropagator()->propagate() instead.
-	 */
-	protected function dispatchEvent($eventName, $event)
-	{
-		$this->getEnvironment()->getEventPropagator()->propagate(
-			$event::NAME,
-			$event,
-			array($this->getEnvironment()->getDataDefinition()->getName())
-		);
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
 	public function setEnvironment(EnvironmentInterface $environment)
@@ -1062,7 +1032,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			? IdSerializer::fromSerialized($input->getParameter('into'))
 			: null;
 
-		if ($source) {
+		if ($source)
+		{
 			$dataProvider = $environment->getDataProvider($source->getDataProviderName());
 
 			$filterConfig = $dataProvider->getEmptyConfig();
@@ -1109,7 +1080,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			throw new DcGeneralRuntimeException('Invalid parameters.');
 		}
 
-		if (!$source) {
+		if (!$source)
+		{
 			$clipboard
 				->clear()
 				->saveTo($environment);
@@ -1242,7 +1214,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		}
 
 		// TODO: move unimplemented.
-
 		return vsprintf($this->notImplMsg, 'move - Mode');
 	}
 
@@ -1257,7 +1228,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		}
 
 		// TODO: undo unimplemented.
-
 		return vsprintf($this->notImplMsg, 'undo - Mode');
 	}
 
@@ -2254,11 +2224,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$arrParameters['act'] = $objCommand->getName();
 
 			$attributes = 'onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this);"';
-			if (
-				$objCommand->isInverse()
+			if ($objCommand->isInverse()
 					? $objModel->getProperty($objCommand->getToggleProperty())
 					: !$objModel->getProperty($objCommand->getToggleProperty())
-			) {
+			)
+			{
 				$extra['icon'] = $extra['icon_disabled'] ?: 'invisible.gif';
 			}
 		}

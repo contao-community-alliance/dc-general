@@ -12,6 +12,9 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Data;
 
+/**
+ * This interface describes a versioned model.
+ */
 interface VersionModelInterface extends ModelInterface
 {
 	/**
