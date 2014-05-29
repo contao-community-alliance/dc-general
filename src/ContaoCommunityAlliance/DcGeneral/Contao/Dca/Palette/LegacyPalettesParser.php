@@ -285,7 +285,8 @@ class LegacyPalettesParser
 					$orCondition->addCondition(
 						new PalettePropertyValueCondition(
 							$selectorFieldName,
-							$paletteSelectorPart
+							$paletteSelectorPart,
+							true
 						)
 					);
 				}
