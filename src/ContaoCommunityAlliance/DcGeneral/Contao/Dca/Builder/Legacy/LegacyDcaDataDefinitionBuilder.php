@@ -43,7 +43,10 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PalettesDefiniti
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefaultPropertiesDefinition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CopyCommand;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CopyCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CutCommand;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CutCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\DefaultModelFormatterConfig;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\DefaultFilterElementInformation;
@@ -54,6 +57,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\Defau
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\SubmitElementInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelRowInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommand;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootCondition;
@@ -1377,7 +1381,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 *
 	 * @param array  $commandDca  The Dca information of the command.
 	 *
-	 * @return Command|CutCommand|ToggleCommand
+	 * @return CommandInterface|CutCommandInterface|CopyCommandInterface|ToggleCommandInterface
 	 */
 	protected function createCommandInstance($commandName, array &$commandDca)
 	{
@@ -1385,6 +1389,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		{
 			case 'cut':
 				return new CutCommand();
+
+			case 'copy':
+				return new CopyCommand();
 
 			case 'toggle':
 				$command = new ToggleCommand();

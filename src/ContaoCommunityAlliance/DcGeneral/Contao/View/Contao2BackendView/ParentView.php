@@ -619,4 +619,19 @@ class ParentView extends BaseView
 
 		return implode("\n", $arrReturn);
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function copy()
+	{
+
+		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
+		{
+			return $this->edit();
+		}
+
+		$this->checkClipboard('copy');
+		$this->redirectHome();
+	}
 }
