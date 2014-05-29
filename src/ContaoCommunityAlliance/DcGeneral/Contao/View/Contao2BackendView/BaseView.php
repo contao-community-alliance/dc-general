@@ -37,6 +37,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionI
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CopyCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CutCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
@@ -683,7 +684,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	 *
 	 * @return BaseView
 	 */
-	public function checkClipboard()
+	public function checkClipboard($action = null)
 	{
 		$objInput     = $this->getEnvironment()->getInputProvider();
 		$objClipboard = $this->getEnvironment()->getClipboard();
@@ -705,7 +706,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$idDetails   = IdSerializer::fromSerialized($id);
 			$objDataProv = $this->getEnvironment()->getDataProvider($idDetails->getDataProviderName());
 
-			if ($objInput->getParameter('act') == 'cut')
+			if ($action && $action == 'cut' || $objInput->getParameter('act') == 'cut')
 			{
 				$arrIgnored = array($id);
 
@@ -735,7 +736,27 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 				$this->redirectHome();
 			}
-			elseif ($objInput->getParameter('act') == 'create')
+			elseif ($action && $action == 'copy' || $objInput->getParameter('act') == 'copy')
+			{
+				$arrIgnored     = array($id);
+				$objContainedId = trimsplit(',', $objInput->getParameter('children'));
+
+				$objClipboard
+					->clear()
+					->copy($id)
+					->setCircularIds($arrIgnored);
+
+				if (is_array($objContainedId) && !empty($objContainedId))
+				{
+					$objClipboard->setContainedIds($objContainedId);
+				}
+
+				// Let the clipboard save it's values persistent.
+				$objClipboard->saveTo($this->getEnvironment());
+
+				$this->redirectHome();
+			}
+			elseif ($action && $action == 'create' || $objInput->getParameter('act') == 'create')
 			{
 				$arrIgnored     = array($id);
 				$objContainedId = trimsplit(',', $objInput->getParameter('children'));
@@ -2253,6 +2274,23 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			// Source is the id of the element which should move.
 			$arrParameters['source'] = IdSerializer::fromModel($objModel)->getSerialized();
 		}
+
+		// The copy operation
+		else if ($objCommand instanceof CopyCommandInterface)
+		{
+			$arrParameters        = array();
+			$arrParameters['act'] = $objCommand->getName();
+
+			// If we have a pid add it, used for mode 4 and all parent -> current views.
+			if ($this->getEnvironment()->getInputProvider()->hasParameter('pid'))
+			{
+				$arrParameters['pid'] = $this->getEnvironment()->getInputProvider()->getParameter('pid');
+			}
+
+			// Source is the id of the element which should move.
+			$arrParameters['source'] = IdSerializer::fromModel($objModel)->getSerialized();
+		}
+
 		else
 		{
 			// TODO: Shall we interface this option?

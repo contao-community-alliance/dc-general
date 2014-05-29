@@ -68,7 +68,7 @@ class NoOpDataProvider implements DataProviderInterface
 	 */
 	public function fetch(ConfigInterface $objConfig)
 	{
-		return new DefaultModel();
+		return $this->getEmptyModel();
 	}
 
 	/**
