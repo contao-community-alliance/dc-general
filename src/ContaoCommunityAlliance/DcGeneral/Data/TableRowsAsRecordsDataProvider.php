@@ -141,7 +141,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
 		$objModel = $this->getEmptyModel();
 		if ($objResult->numRows)
 		{
-			$objModel->setProperty('rows', $objResult->fetchAllAssoc());
+			$objModel->setPropertyRaw('rows', $objResult->fetchAllAssoc());
 		}
 
 		$objModel->setID($objConfig->getId());
