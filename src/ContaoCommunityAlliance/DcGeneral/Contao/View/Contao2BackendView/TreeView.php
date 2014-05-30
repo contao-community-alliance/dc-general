@@ -872,4 +872,19 @@ class TreeView extends BaseView
 
 		return $strHtml;
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function copy()
+	{
+
+		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
+		{
+			return $this->edit();
+		}
+
+		$this->checkClipboard('copy');
+		$this->redirectHome();
+	}
 }
