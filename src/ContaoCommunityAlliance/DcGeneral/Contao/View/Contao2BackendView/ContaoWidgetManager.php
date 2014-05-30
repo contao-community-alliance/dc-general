@@ -609,7 +609,7 @@ class ContaoWidgetManager
 		}
 		else
 		{
-			if ($inputValues && $inputValues->isPropertyValueInvalid($property))
+			if ($inputValues && $inputValues->hasPropertyValue($property) && $inputValues->isPropertyValueInvalid($property))
 			{
 				foreach ($inputValues->getPropertyValueErrors($property) as $error)
 				{
