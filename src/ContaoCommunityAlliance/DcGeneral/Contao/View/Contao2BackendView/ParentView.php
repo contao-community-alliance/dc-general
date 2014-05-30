@@ -27,6 +27,9 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPa
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 
@@ -631,7 +634,55 @@ class ParentView extends BaseView
 			return $this->edit();
 		}
 
-		$this->checkClipboard('copy');
-		$this->redirectHome();
+		// TODO sorting is still hardcoded :-(
+		if ($this->environment->getDataProvider()->fieldExists('sorting')) {
+			$this->checkClipboard('copy');
+			$this->redirectHome();
+		}
+
+		$this->checkLanguage();
+
+		$environment  = $this->getEnvironment();
+		$dataProvider = $environment->getDataProvider();
+		$modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('source'));
+
+		if ($modelId)
+		{
+			$model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+		}
+		else
+		{
+			throw new DcGeneralRuntimeException('Missing model id.');
+		}
+
+		// We need to keep the original data here.
+		$copyModel = $environment->getController()->createClonedModel($model);
+		$copyModel->setId(null);
+
+		$preFunction = function(EnvironmentInterface $environment, $model, $originalModel)
+		{
+			$copyEvent = new PreDuplicateModelEvent($environment, $model);
+			$environment->getEventPropagator()->propagate(
+				$copyEvent::NAME,
+				$copyEvent,
+				array(
+					$environment->getDataDefinition()->getName(),
+				)
+			);
+		};
+
+		$postFunction = function(EnvironmentInterface $environment, $model, $originalModel)
+		{
+			$copyEvent = new PostDuplicateModelEvent($environment, $model, $originalModel);
+			$environment->getEventPropagator()->propagate(
+				$copyEvent::NAME,
+				$copyEvent,
+				array(
+					$environment->getDataDefinition()->getName(),
+				)
+			);
+		};
+
+		return $this->createEditMask($copyModel, $model, $preFunction, $postFunction);
 	}
 }
