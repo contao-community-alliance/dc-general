@@ -552,7 +552,9 @@ class DefaultController implements ControllerInterface
 	 */
 	public function createClonedModel($model)
 	{
-		$clone       = clone $model;
+		$clone = clone $model;
+		$clone->setId(null);
+
 		$environment = $this->getEnvironment();
 		$properties  = $environment->getDataDefinition()->getPropertiesDefinition();
 
