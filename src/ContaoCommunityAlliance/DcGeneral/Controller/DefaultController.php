@@ -586,15 +586,20 @@ class DefaultController implements ControllerInterface
 			}
 
 			// Check uniqueness.
-			if (isset($extra['unique'])
+			if (
+				isset($extra['unique'])
 				&& $extra['unique'] === true
-				&& $dataProvider->isUniqueValue($propName, $clone->getProperty($propName))
+				&& !$dataProvider->isUniqueValue($propName, $clone->getProperty($propName))
 			)
 			{
+				// implicit "do not copy" unique values, they cannot be unique anymore ;-)
+				$clone->setProperty($propName, null);
+				/*
 				throw new DcGeneralRuntimeException(
 					$environment->getTranslator()->translate('ERR.unique', null, array($propName)),
 					1
 				);
+				*/
 			}
 		}
 
