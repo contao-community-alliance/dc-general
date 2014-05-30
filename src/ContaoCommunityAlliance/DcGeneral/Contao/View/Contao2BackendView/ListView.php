@@ -276,7 +276,7 @@ class ListView extends BaseView
 		}
 
 		// We need to keep the original data here.
-		$copyModel = clone $model;
+		$copyModel = $environment->getController()->createClonedModel($model);
 
 		$preFunction = function($environment, $model, $originalModel)
 		{
