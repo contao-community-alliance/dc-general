@@ -2115,7 +2115,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 		// Use the view native button building.
 		return sprintf(
-			'<a href="%s" class="%s" title="%s"%s>%s</a> ',
+			'<a href="%s" class="%s" title="%s"%s>%s</a>',
 			$buttonEvent->getHref(),
 			$buttonEvent->getClass(),
 			specialchars($buttonEvent->getTitle()),
@@ -2123,7 +2123,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$buttonEvent->getLabel()
 		);
 	}
-
 
 	/**
 	 * Generate all buttons for the header of a view.
@@ -2187,7 +2186,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			array($this->getEnvironment()->getDataDefinition()->getName())
 		);
 
-		return '<div id="' . $strButtonId . '">' . implode(' &nbsp; :: &nbsp; ', $buttonsEvent->getButtons()) . '</div>';
+		return '<div id="' . $strButtonId . '">' . implode('::', $buttonsEvent->getButtons()) . '</div>';
 	}
 
 	/**
