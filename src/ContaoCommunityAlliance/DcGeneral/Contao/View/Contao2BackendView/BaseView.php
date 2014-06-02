@@ -1013,12 +1013,19 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 		foreach ($this->getEnvironment()->getClipboard()->getContainedIds() as $id)
 		{
-			$id    = IdSerializer::fromSerialized($id);
-			$model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($id->getId()));
-
-			if ($clone)
+			if ($id === null)
 			{
-				$model = $environment->getController()->createClonedModel($model);
+				$model = $this->createEmptyModelWithDefaults();
+			}
+			else
+			{
+				$id    = IdSerializer::fromSerialized($id);
+				$model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($id->getId()));
+
+				if ($clone)
+				{
+					$model = $environment->getController()->createClonedModel($model);
+				}
 			}
 
 			$models->push($model);
@@ -2571,7 +2578,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 				->setHrefInto($urlInto->getUrl())
 				// Check if the id is in the ignore list.
 				->setPasteAfterDisabled($objClipboard->isCut() && $isCircular)
-				->setPasteIntoDisabled($objClipboard->isCut() && $isCircular);
+				->setPasteIntoDisabled($objClipboard->isCut() && $isCircular)
+				->setContainedModels($this->getModelsFromClipboard());
 
 			$this->getEnvironment()->getEventPropagator()->propagate(
 				$buttonEvent::NAME,

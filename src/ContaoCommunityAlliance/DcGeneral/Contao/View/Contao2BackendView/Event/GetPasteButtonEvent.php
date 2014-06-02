@@ -12,6 +12,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event;
 
+use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 
 /**
@@ -95,6 +96,13 @@ class GetPasteButtonEvent
 	 * @var bool
 	 */
 	protected $pasteAfterDisabled;
+
+	/**
+	 * The models currently in the clipboard.
+	 *
+	 * @var CollectionInterface
+	 */
+	protected $containedModels;
 
 	/**
 	 * Set determinator if there exists a circular reference.
@@ -339,5 +347,29 @@ class GetPasteButtonEvent
 	public function isPasteIntoDisabled()
 	{
 		return $this->pasteIntoDisabled;
+	}
+
+	/**
+	 * Retrieve the collection of contained models.
+	 *
+	 * @return CollectionInterface
+	 */
+	public function getContainedModels()
+	{
+		return $this->containedModels;
+	}
+
+	/**
+	 * Set the collection of contained models.
+	 *
+	 * @param CollectionInterface $containedModels The collection of contained models.
+	 *
+	 * @return GetPasteButtonEvent
+	 */
+	public function setContainedModels($containedModels)
+	{
+		$this->containedModels = $containedModels;
+
+		return $this;
 	}
 }
