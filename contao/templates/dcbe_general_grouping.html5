@@ -54,7 +54,6 @@
 					<?php endforeach; ?>
 				</table>
 			</div>
-			<br/>
 		<?php endif; ?>
 
 		<?php $blnFirstRun = true; $strLastId = null; ?>

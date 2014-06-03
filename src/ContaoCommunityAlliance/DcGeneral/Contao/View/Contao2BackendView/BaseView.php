@@ -124,6 +124,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	// @codingStandardsIgnoreStart - Even if the cyclomatic complexity is high due to the switch, it is dead simple.
 	public function handleAction(ActionEvent $event)
 	{
+		$GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalDriver.css';
+
 		if ($event->getEnvironment()->getDataDefinition()->getName() !== $this->environment->getDataDefinition()->getName()
 			|| $event->getResponse() !== null
 		)

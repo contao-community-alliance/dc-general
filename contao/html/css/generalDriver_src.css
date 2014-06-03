@@ -1,53 +1,13 @@
 /**
  * General styles
  *
- * @copyright  The MetaModels team.
- * @author     Andreas Isaak <info@andreas-isaak.de>
+ * @copyright  Contao Community Alliance.
+ * @author     Andreas Isaak <please.andi@metamodel.me>
  * @package    Backend
  */
 
 @media screen, projection {
 
-  .tl_listing .tl_left {
-    margin-left:0;
-    text-indent:0;
-    overflow:hidden;
-  }
 
-  .tl_pagetree_content {
-    width:94%;
-  }
-
-  .tl_pagetree_content li {
-    padding:0;
-  }
-
-  .tl_left > .tl_pagetree_content {
-    margin-left:20px;
-  }
-
-  .tl_pagetree_content, 
-  .tl_left > a {
-    float:left;
-  }
-
-  .tl_left > a {
-    margin-right:5px;
-    margin-top:-1px;
-  }
-
-  a.folding + .tl_pagetree_content {
-    margin-left:0;
-  }
-
-  .tl_folder, 
-  .tl_file, 
-  .tl_file_list {
-    padding:5px 0;
-  }
-
-  .tl_file .tl_pagetree_content {
-    margin-top:1px;
-  }
 
 }
