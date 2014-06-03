@@ -2131,6 +2131,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$buttonEvent->getLabel()
 		);
 	}
+
 	/**
 	 * Generate all buttons for the header of a view.
 	 *
