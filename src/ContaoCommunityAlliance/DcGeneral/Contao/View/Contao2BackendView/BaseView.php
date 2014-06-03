@@ -1574,6 +1574,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		}
 
 		$arrFieldSets = array();
+		$blnFirst = true;
 		foreach ($palette->getLegends() as $legend)
 		{
 			$legendName = $environment->getTranslator()->translate($legend->getName() . '_legend', $definition->getName());
@@ -1611,10 +1612,12 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			}
 
 			$arrFieldSet['label']   = $legendName;
-			$arrFieldSet['class']   = 'tl_box';
+			$arrFieldSet['class']   = ($blnFirst) ? 'tl_tbox' : 'tl_box';
 			$arrFieldSet['palette'] = implode('', $fields);
 			$arrFieldSet['legend']  = $legend->getName();
 			$arrFieldSets[]         = $arrFieldSet;
+
+			$blnFirst = false;
 		}
 
 		if ((!$blnIsAutoSubmit) && $blnSubmitted && empty($errors))
@@ -1676,6 +1679,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 				$strHeadline = sprintf($this->translate('MSC.editRecord'), '');
 			}
 		}
+
+		var_dump($arrFieldSets);
+		die();
 
 		$objTemplate = $this->getTemplate('dcbe_general_edit');
 		$objTemplate->setData(array(
