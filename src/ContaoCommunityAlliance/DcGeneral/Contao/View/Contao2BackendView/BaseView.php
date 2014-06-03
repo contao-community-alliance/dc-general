@@ -2194,7 +2194,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			array($this->getEnvironment()->getDataDefinition()->getName())
 		);
 
-		return '<div id="' . $strButtonId . '">' . implode('::', $buttonsEvent->getButtons()) . '</div>';
+		return '<div id="' . $strButtonId . '">' . implode('', $buttonsEvent->getButtons()) . '</div>';
 	}
 
 	/**
