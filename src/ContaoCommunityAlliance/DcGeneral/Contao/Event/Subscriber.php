@@ -173,21 +173,16 @@ class Subscriber
 		{
 			$event->setRendered(nl2br_html5(specialchars($value)));
 		}
-		// TODO: refactor - reference handling is not yet supported.
-		/**
-		else if (is_array($arrFieldConfig['reference']))
+		elseif (isset($extra['reference']) && is_array($extra['reference']))
 		{
-			return isset($arrFieldConfig['reference'][$mixModelField]) ?
-				((is_array($arrFieldConfig['reference'][$mixModelField])) ?
-					$arrFieldConfig['reference'][$mixModelField][0] :
-					$arrFieldConfig['reference'][$mixModelField]) :
-				$mixModelField;
-		}
-		 */
-		elseif (array_is_assoc($property->getOptions()))
-		{
-			$options = $property->getOptions();
-			$event->setRendered($options[$value]);
+			if (isset($extra['reference'][$value]))
+			{
+				$event->setRendered(
+					is_array($extra['reference'][$value])
+					? $extra['reference'][$value][0]
+					: $extra['reference'][$value]
+				);
+			}
 		}
 		elseif ($value instanceof \DateTime)
 		{

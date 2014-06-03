@@ -398,6 +398,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		$value      = $model->getProperty($field);
 		$property   = $this->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
 		$propagator = $this->getEnvironment()->getEventPropagator();
+		$propExtra  = $property->getExtra();
 
 		// No property? Get out!
 		if (!$property)
@@ -474,11 +475,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			{
 				$remoteNew = ($value != '') ? $field : '';
 			}
-			// TODO: refactor reference is yet undefined.
-			elseif (false && is_array($property->get('reference')))
+			elseif (isset($propExtra['reference']))
 			{
-				$reference = $property->get('reference');
-				$remoteNew = $reference[$value];
+				$remoteNew = $propExtra['reference'][$value];
 			}
 			elseif (array_is_assoc($property->getOptions()))
 			{
@@ -2130,7 +2129,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$buttonEvent->getLabel()
 		);
 	}
-
 	/**
 	 * Generate all buttons for the header of a view.
 	 *

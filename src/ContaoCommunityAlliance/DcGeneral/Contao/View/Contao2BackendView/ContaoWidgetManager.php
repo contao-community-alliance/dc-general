@@ -420,6 +420,7 @@ class ContaoWidgetManager
 			$options = $event->getOptions();
 		}
 
+
 		$arrConfig = array(
 			'inputType' => $propInfo->getWidgetType(),
 			'label' => array(
@@ -430,8 +431,13 @@ class ContaoWidgetManager
 			'eval' => $propExtra,
 			// TODO: populate these.
 			// 'foreignKey' => null
-			// 'reference' =>
 		);
+
+
+		if (isset($propExtra['reference']))
+		{
+			$arrConfig['reference'] = $propExtra['reference'];
+		}
 
 		$event = new GetAttributesFromDcaEvent(
 			$arrConfig,

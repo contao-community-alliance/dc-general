@@ -251,8 +251,7 @@ class ParentView extends BaseView
 			if ($property && (($v != 'tstamp')/* || $property->get('foreignKey')*/))
 			{
 				$evaluation = $property->getExtra();
-				// FIXME: reference is not implemented yet.
-				// $reference  = $property->get('reference');
+				$reference  = isset($evaluation['reference']) ? $evaluation['reference'] : null;
 				$options    = $property->getOptions();
 
 				if (is_array($value))

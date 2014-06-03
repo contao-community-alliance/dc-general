@@ -1330,7 +1330,17 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 					break;
 
 				case 'eval':
-					$property->setExtra($value);
+					$property->setExtra(array_merge(
+						(array)$property->getExtra(),
+						(array)$value)
+					);
+					break;
+
+				case 'reference':
+					$property->setExtra(array_merge(
+						(array)$property->getExtra(),
+						array('reference' => &$propInfo['reference']))
+					);
 					break;
 
 				default:
