@@ -15,7 +15,12 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\Event;
 use ContaoCommunityAlliance\DcGeneral\Contao\Twig\DcGeneralExtension;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\View\Event\RenderReadablePropertyValueEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -76,6 +81,70 @@ class Subscriber
 	}
 
 	/**
+	 * Fetch the options for a certain property.
+	 *
+	 * @param EnvironmentInterface $environment The environment.
+	 *
+	 * @param ModelInterface       $model       The model.
+	 *
+	 * @param PropertyInterface    $property    The property.
+	 *
+	 * @return array
+	 */
+	protected function getOptions($environment, $model, $property)
+	{
+		$options = $property->getOptions();
+		$event   = new GetPropertyOptionsEvent($environment, $model);
+		$event->setPropertyName($property->getName());
+		$event->setOptions($options);
+		$environment->getEventPropagator()->propagate(
+			$event::NAME,
+			$event,
+			$environment->getDataDefinition()->getName(),
+			$property->getName()
+		);
+
+		if ($event->getOptions() !== $options)
+		{
+			$options = $event->getOptions();
+		}
+
+		return $options;
+	}
+
+	/**
+	 * Decode a value from native data of the data provider to the widget via event.
+	 *
+	 * @param EnvironmentInterface $environment The environment.
+	 *
+	 * @param ModelInterface       $model       The model.
+	 *
+	 * @param string               $property    The property.
+	 *
+	 * @param mixed                $value       The value of the property.
+	 *
+	 * @return mixed
+	 */
+	public function decodeValue($environment, $model, $property, $value)
+	{
+		$event = new DecodePropertyValueForWidgetEvent($environment, $model);
+		$event
+			->setProperty($property)
+			->setValue($value);
+
+		$environment->getEventPropagator()->propagate(
+			$event::NAME,
+			$event,
+			array(
+				$environment->getDataDefinition()->getName(),
+				$property
+			)
+		);
+
+		return $event->getValue();
+	}
+
+	/**
 	 * Render a property value to readable text.
 	 *
 	 * @param RenderReadablePropertyValueEvent $event The event being processed.
@@ -90,7 +159,12 @@ class Subscriber
 		}
 
 		$property = $event->getProperty();
-		$value    = $event->getValue();
+		$value    = $this->decodeValue(
+			$event->getEnvironment(),
+			$event->getModel(),
+			$event->getProperty()->getName(),
+			$event->getValue()
+		);
 
 		$extra = $property->getExtra();
 
@@ -133,23 +207,26 @@ class Subscriber
 			$event->setRendered(implode(', ', $value));
 		}
 		// Date format.
-		elseif ($extra['rgxp'] == 'date')
+		elseif (isset($extra['rgxp']))
 		{
-			$dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['dateFormat']);
-			$event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
+			if ($extra['rgxp'] == 'date')
+			{
+				$dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['dateFormat']);
+				$event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
 
-			$event->setRendered($dateEvent->getResult());
-		}
-		// Time format.
-		elseif ($extra['rgxp'] == 'time')
-		{
-			$dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['timeFormat']);
-			$event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
+				$event->setRendered($dateEvent->getResult());
+			}
+			// Time format.
+			elseif ($extra['rgxp'] == 'time')
+			{
+				$dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['timeFormat']);
+				$event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
 
-			$event->setRendered($dateEvent->getResult());
+				$event->setRendered($dateEvent->getResult());
+			}
 		}
 		// Date and time format.
-		elseif ($extra['rgxp'] == 'datim' ||
+		elseif (isset($extra['rgxp']) && $extra['rgxp'] == 'datim' ||
 			in_array(
 				$property->getGroupingMode(),
 				array(
@@ -190,6 +267,18 @@ class Subscriber
 			$event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
 
 			$event->setRendered($dateEvent->getResult());
+		}
+		else
+		{
+			$options = $property->getOptions();
+			if (!$options)
+			{
+				$options = $this->getOptions($event->getEnvironment(), $event->getModel(), $event->getProperty());
+			}
+			if (array_is_assoc($options))
+			{
+				$event->setRendered($options[$value]);
+			}
 		}
 	}
 
