@@ -165,7 +165,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			$eventName .= sprintf('[%s]', $suffix);
 		}
 
-		foreach ((array) $callbacks as $callback)
+		foreach ((array)$callbacks as $callback)
 		{
 			$dispatcher->addListener(
 				$eventName,
