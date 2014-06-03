@@ -1680,9 +1680,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			}
 		}
 
-		var_dump($arrFieldSets);
-		die();
-
 		$objTemplate = $this->getTemplate('dcbe_general_edit');
 		$objTemplate->setData(array(
 				'fieldsets' => $arrFieldSets,
