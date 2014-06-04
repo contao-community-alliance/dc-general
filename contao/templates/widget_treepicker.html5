@@ -1,0 +1,28 @@
+<input type="hidden" name="<?php echo $this->name ?>" id="ctrl_<?php echo $this->id ?>" value="<?php echo implode(',', array_keys($this->values)); ?>">
+<?php if ($this->hasOrder): ?>
+	<input type="hidden" name="<?php echo $this->orderName; ?>" id="ctrl_<?php echo $this->orderId ?>" value="<?php echo $this->orderValue ?>">
+<?php endif; ?>
+
+<div class="selector_container">
+	<?php if ($this->hasOrder && count($this->values)): ?>
+		<p class="sort_hint">
+			<?php echo $this->dragItemsHint; ?>
+		</p>
+	<?php endif; ?>
+
+	<ul id="sort_<?php echo $this->id ?>"<?php if ($this->hasOrder): ?> class="sortable"<?php endif; ?>>
+		<?php foreach ($this->values as $k=>$v): ?>
+			<li data-id="<?php echo $k; ?>"><?php echo $v; ?></li>
+		<?php endforeach; ?>
+	</ul>
+	<p><a
+			href="<?php echo $this->popupUrl; ?>"
+			class="tl_submit"
+			onclick="Backend.getScrollOffset();GeneralTreePicker.openModal({'width':765,'title':'<?php echo $this->title; ?>','url':this.href,'id':'<?php echo $this->id ?>'});return false">
+			<?php echo $this->changeSelection; ?>
+	</a>
+	</p>
+<?php if ($this->hasOrder): ?>
+	<script>Backend.makeMultiSrcSortable("sort_<?php echo $this->id ?>", "ctrl_<?php echo $this->orderId ?>")</script>
+<?php endif; ?>
+</div>

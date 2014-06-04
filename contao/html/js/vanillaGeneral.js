@@ -273,6 +273,86 @@ function GeneralTableDnD()
 	}
 }
 
+/**
+ * Class GeneralTreePicker
+ *
+ * Provide methods to handle tree picker.
+ * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ */
+var GeneralTreePicker =
+{
+	/**
+	 * Open a tree selector in a modal window
+	 *
+	 * @param {object} options An optional options object
+	 */
+	openModal: function(options) {
+		var opt = options || {},
+			max = (window.getSize().y-180).toInt();
+		if (!opt.height || opt.height > max) opt.height = max;
+		var M = new SimpleModal({
+			'width': opt.width,
+			'btn_ok': Contao.lang.close,
+			'draggable': false,
+			'overlayOpacity': .5,
+			'onShow': function() { document.body.setStyle('overflow', 'hidden'); },
+			'onHide': function() { document.body.setStyle('overflow', 'auto'); }
+		});
+		M.addButton(Contao.lang.close, 'btn', function() {
+			this.hide();
+		});
+		M.addButton(Contao.lang.apply, 'btn primary', function() {
+			var val = [],
+				frm = null,
+				frms = window.frames;
+			for (i=0; i<frms.length; i++) {
+				if (frms[i].name == 'simple-modal-iframe') {
+					frm = frms[i];
+					break;
+				}
+			}
+			if (frm === null) {
+				alert('Could not find the SimpleModal frame');
+				return;
+			}
+			if (frm.document.location.href.indexOf('contao/main.php') != -1) {
+				alert(Contao.lang.picker);
+				return; // see #5704
+			}
+			var inp = frm.document.getElementById('tl_listing').getElementsByTagName('input');
+			for (var i=0; i<inp.length; i++) {
+				if (!inp[i].checked || inp[i].id.match(/^check_all_/)) continue;
+				if (!inp[i].id.match(/^reset_/)) val.push(inp[i].get('value'));
+			}
+			if (opt.tag) {
+				$(opt.tag).value = val.join(',');
+				opt.self.set('href', opt.self.get('href').replace(/&value=[^&]*/, '&value='+val.join(',')));
+			} else {
+				var element = $('ctrl_'+opt.id);
+				element.value = val.join("\t");
+
+				// TODO: rewrite using GeneralEnvironment.getAjax().sendPost();
+				new Request.Contao({
+					field: element,
+					evalScripts: false,
+					onRequest: AjaxRequest.displayBox(Contao.lang.loading + ' …'),
+					onSuccess: function(txt, json) {
+						$('ctrl_'+opt.id).getParent('div').set('html', json.content);
+						json.javascript && Browser.exec(json.javascript);
+						AjaxRequest.hideBox();
+						window.fireEvent('ajax_change');
+					}
+				}).post({'action':'reloadGeneralTreePicker', 'name':opt.id, 'value':element.value, 'REQUEST_TOKEN':Contao.request_token});
+			}
+			this.hide();
+		});
+		M.show({
+			'title': opt.title,
+			'contents': '<iframe src="' + opt.url + '" name="simple-modal-iframe" width="100%" height="' + opt.height + '" frameborder="0"></iframe>',
+			'model': 'modal'
+		});
+	}
+};
 
 //*************************************************************************
 // Functions

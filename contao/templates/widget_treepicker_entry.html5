@@ -1,0 +1,49 @@
+<? /** @var \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface $model */ $model = $this->objModel; ?>
+<li
+	class="<?php echo ($model->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::TREE_VIEW_LEVEL) == 0) ? 'tl_folder' : 'tl_file'; ?>"
+	onmouseover="Theme.hoverDiv(this,1)"
+	onmouseout="Theme.hoverDiv(this,0)"
+	onclick="Theme.toggleSelect(this)">
+	<div
+		class="tl_left"
+		style="padding-left:<?php echo $model->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::TREE_VIEW_LEVEL) * 20 ?>px;">
+		<?php if ($model->getMeta($model::HAS_CHILDREN) == true): ?>
+			<a
+				class="folding"
+				href="<?php echo $this->toggleUrl; ?>"
+				title="<?php echo $this->toggleTitle; ?>"
+				onclick="<?php echo $this->toggleScript; ?>">
+				<img src="system/themes/default/images/<?php echo ($model->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::TREE_VIEW_IS_OPEN)) ? 'folMinus.gif' : 'folPlus.gif'; ?>"
+				     width="18"
+				     height="18"
+				     alt=""
+				     style="margin-right:-2px;">
+			</a>
+		<?php endif; ?>
+		<?php $arrLabels = $model->getMeta($model::LABEL_VALUE); ?>
+		<?php echo $arrLabels[0]['content']; ?>
+	</div>
+	<div class="tl_right">
+		<?php /*if($this->minLevel && !$this->itemTable): */ ?>
+			<?php if ($this->fieldType == 'radio'): ?>
+				<input type="radio"
+					name="<?php echo $this->name ?>"
+					id="ctrl_<?php echo $this->id ?>_<?php echo $model->getId(); ?>"
+					class="tl_tree_radio"
+					value="<?php echo specialchars($model->getId()); ?>"
+					<?php echo $this->active; ?>
+					onfocus="Backend.getScrollOffset();" />
+			<?php elseif ($this->fieldType == 'checkbox'): ?>
+				<input
+					type="checkbox"
+					name="<?php echo $this->name ?>[]"
+					id="ctrl_<?php echo $this->id ?>_<?php echo $model->getId(); ?>"
+					class="tl_checkbox"
+					value="<?php echo specialchars($model->getId()); ?>"
+					onfocus="Backend.getScrollOffset();"'.$this->optionChecked($objNodes->id, $this->varValue)
+					onclick="Backend.toggleCheckboxGroup(this, '<?php echo $this->name ?>')" />
+			<?php endif; ?>
+		<?php /* endif; */ ?>
+	</div>
+	<div style="clear:both;"></div>
+</li>

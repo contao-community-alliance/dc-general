@@ -18,6 +18,12 @@ if (TL_MODE == 'BE')
 	$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/dc-general/html/js/vanillaGeneral.js';
 }
 
+$GLOBALS['BE_FFL']['DcGeneralTreePicker'] =
+	'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker';
+
+$GLOBALS['TL_HOOKS']['executePostActions'][] =
+	array('ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker', 'updateAjax');
+
 // For the moment, we add our auto loader at the end for non composerized Contao 2.X compatibility.
 if (version_compare(VERSION, '3.0', '<') && !class_exists('ContaoCommunityAlliance\Contao\Composer\ClassLoader', false))
 {

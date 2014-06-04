@@ -12,3 +12,4 @@
 
 $GLOBALS['TL_LANG']['MSC']['language']     = 'Language';
 $GLOBALS['TL_LANG']['MSC']['showSelected'] = 'Switch language';
+$GLOBALS['TL_LANG']['MSC']['treePicker']   = 'Table: %s';
