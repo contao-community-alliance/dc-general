@@ -804,6 +804,15 @@ class TreeView extends BaseView
 				$arrReturn['panel'] = $this->panel();
 			}
 		*/
+
+		// A list with ignored panels.
+		$arrIgnoredPanels = array
+		(
+			'\ContaoCommunityAlliance\DcGeneral\Panel\LimitElementInterface',
+			'\ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface'
+		);
+
+		$arrReturn['panel']   = $this->panel($arrIgnoredPanels);
 		$arrReturn['buttons'] = $this->generateHeaderButtons('tl_buttons_a');
 		$arrReturn['body']    = $this->viewTree($collection);
 
