@@ -56,6 +56,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Panel\FilterElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\LimitElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\Panel\PanelElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SearchElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SubmitElementInterface;
@@ -2605,11 +2606,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	/**
 	 * Render the panel.
 	 *
-	 * @return string
+	 * @param array $ignoredPanels A list with ignored elements. [Optional]
 	 *
-	 * @throws DcGeneralRuntimeException When no panel has been defined.
+	 * @throws \ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException
+	 *
+	 * @return string
 	 */
-	protected function panel()
+	protected function panel($ignoredPanels = array())
 	{
 		if ($this->getPanel() === null)
 		{
@@ -2622,6 +2625,12 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$arrPanel = array();
 			foreach ($objPanel as $objElement)
 			{
+				// If the current class in the list of ignored panels go to the next one.
+				if(!empty($ignoredPanels) && $this->isIgnoredPanel($objElement, $ignoredPanels))
+				{
+					continue;
+				}
+
 				$objElementTemplate = null;
 				if ($objElement instanceof FilterElementInterface)
 				{
@@ -2670,6 +2679,28 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		}
 
 		return '';
+	}
+
+	/**
+	 * Check if the current element is in the ignored list.
+	 *
+	 * @param PanelElementInterface $objElement    A panel Element.
+	 *
+	 * @param array                 $ignoredPanels A list with ignored elements.
+	 *
+	 * @return boolean True => Element is on the ignored list. | False => Nope not in the list.
+	 */
+	protected function isIgnoredPanel(PanelElementInterface $objElement, $ignoredPanels)
+	{
+		foreach((array) $ignoredPanels as $class)
+		{
+			if($objElement instanceof $class)
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
