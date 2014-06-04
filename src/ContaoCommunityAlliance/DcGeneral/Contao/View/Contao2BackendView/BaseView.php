@@ -2126,7 +2126,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 		// Use the view native button building.
 		return sprintf(
-			'<a href="%s" class="%s" title="%s"%s>%s</a>',
+			'<a href="%s" class="%s" title="%s"%s>%s</a> ',
 			$buttonEvent->getHref(),
 			$buttonEvent->getClass(),
 			specialchars($buttonEvent->getTitle()),

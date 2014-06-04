@@ -8,6 +8,13 @@
 
 @media screen, projection {
 
+  div table.tl_listing {
+    margin-top:0 !important;
+    margin-bottom:0 !important;
+  }
 
+  .tl_folder_tlist {
+    border-top:0;
+  }
 
 }
