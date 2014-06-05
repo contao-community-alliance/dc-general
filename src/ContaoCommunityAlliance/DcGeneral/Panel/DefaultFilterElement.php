@@ -186,7 +186,7 @@ class DefaultFilterElement
 			->getEnvironment()
 			->getDataDefinition()
 			->getPropertiesDefinition()
-			->getProperty($this->getPropertyName())->getName();
+			->getProperty($this->getPropertyName())->getLabel();
 
 		$arrOptions = array(
 			array(
