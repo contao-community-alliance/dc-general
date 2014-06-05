@@ -158,7 +158,7 @@ class DefaultFilterElement
 		// Finally load the filter options.
 		if (is_null($objElement))
 		{
-			$objTempConfig = $this->getOtherConfig($objConfig);
+			$objTempConfig = $this->getOtherConfig();
 			$objTempConfig->setFields(array($this->getPropertyName()));
 
 			$objFilterOptions = $this

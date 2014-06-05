@@ -110,7 +110,7 @@ class DefaultLimitElement
 	{
 		if (is_null($objElement))
 		{
-			$objTempConfig = $this->getOtherConfig($objConfig);
+			$objTempConfig = $this->getOtherConfig();
 			$arrTotal      = $this
 				->getEnvironment()
 				->getDataProvider()
