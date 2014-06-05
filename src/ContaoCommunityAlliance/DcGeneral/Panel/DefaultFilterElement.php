@@ -132,7 +132,7 @@ class DefaultFilterElement
 			$this->setValue($value);
 		}
 
-		if ($this->getPropertyName() && $this->getValue())
+		if ($this->getPropertyName() && $this->getValue() && ($objElement !== $this))
 		{
 			$arrCurrent = $objConfig->getFilter();
 			if (!is_array($arrCurrent))
