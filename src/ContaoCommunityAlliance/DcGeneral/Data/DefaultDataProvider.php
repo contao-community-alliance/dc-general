@@ -98,6 +98,14 @@ class DefaultDataProvider implements DataProviderInterface
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public function getEmptyFilterOptionCollection()
+	{
+		return new DefaultFilterOptionCollection();
+	}
+
+	/**
 	 * Build the field list.
 	 *
 	 * Returns all values from $objConfig->getFields() as comma separated list.

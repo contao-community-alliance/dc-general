@@ -56,6 +56,13 @@ interface DataProviderInterface
 	public function getEmptyCollection();
 
 	/**
+	 * Fetch an empty single filter option collection (new model list).
+	 *
+	 * @return FilterOptionCollectionInterface
+	 */
+	public function getEmptyFilterOptionCollection();
+
+	/**
 	 * Fetch a single or first record by id or filter.
 	 *
 	 * If the model shall be retrieved by id, use $objConfig->setId() to populate the config with an Id.

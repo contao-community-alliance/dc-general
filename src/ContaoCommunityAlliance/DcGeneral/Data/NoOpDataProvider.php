@@ -66,6 +66,14 @@ class NoOpDataProvider implements DataProviderInterface
 	/**
 	 * {@inheritdoc}
 	 */
+	public function getEmptyFilterOptionCollection()
+	{
+		return new DefaultFilterOptionCollection();
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
 	public function fetch(ConfigInterface $objConfig)
 	{
 		return $this->getEmptyModel();
