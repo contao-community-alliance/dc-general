@@ -1,26 +1,27 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
     ],
-    "hash": "07e8a2e325cae4d5c61aba97cdc53dd5",
+    "hash": "d16a4add8e710e1fd5bdefb95d7dad20",
     "packages": [
         {
             "name": "contao-community-alliance/backports-initialize-system",
-            "version": "dev-master",
+            "version": "dev-develop",
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/backports-initialize-system.git",
-                "reference": "9e7b82e737d3622cfb6ac95cb931dacbb5afef70"
+                "reference": "0d0515b56075260dfcb3f17d53db16c0bab4948e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/backports-initialize-system/zipball/9e7b82e737d3622cfb6ac95cb931dacbb5afef70",
-                "reference": "9e7b82e737d3622cfb6ac95cb931dacbb5afef70",
+                "url": "https://api.github.com/repos/contao-community-alliance/backports-initialize-system/zipball/0d0515b56075260dfcb3f17d53db16c0bab4948e",
+                "reference": "0d0515b56075260dfcb3f17d53db16c0bab4948e",
                 "shasum": ""
             },
             "require": {
-                "contao-community-alliance/composer-installer": "*",
+                "contao-community-alliance/composer-plugin": "~2.0",
                 "contao/core": ">=2.11-dev,<4-dev",
                 "php": ">=5.3"
             },
@@ -32,7 +33,8 @@
                     }
                 },
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.0.x-dev",
+                    "dev-develop": "1.1.x-dev"
                 }
             },
             "autoload": {
@@ -58,7 +60,7 @@
                 "backports",
                 "contao"
             ],
-            "time": "2014-04-29 18:26:57"
+            "time": "2014-06-05 11:58:46"
         },
         {
             "name": "contao-community-alliance/composer-plugin",
@@ -66,12 +68,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/composer-plugin.git",
-                "reference": "a9f2b37a0ce5693edff4b6d94f5fbd96cf2d57a4"
+                "reference": "fcac6d0fe0512d9a5dbc78d0e00dd349091b57ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/composer-plugin/zipball/a9f2b37a0ce5693edff4b6d94f5fbd96cf2d57a4",
-                "reference": "a9f2b37a0ce5693edff4b6d94f5fbd96cf2d57a4",
+                "url": "https://api.github.com/repos/contao-community-alliance/composer-plugin/zipball/fcac6d0fe0512d9a5dbc78d0e00dd349091b57ae",
+                "reference": "fcac6d0fe0512d9a5dbc78d0e00dd349091b57ae",
                 "shasum": ""
             },
             "require": {
@@ -94,7 +96,8 @@
             "extra": {
                 "class": "ContaoCommunityAlliance\\Composer\\Plugin\\Plugin",
                 "branch-alias": {
-                    "dev-develop": "2.0.x-dev"
+                    "dev-master": "2.1.x-dev",
+                    "dev-develop": "2.2.x-dev"
                 }
             },
             "autoload": {
@@ -107,7 +110,8 @@
                 "LGPL-3.0+"
             ],
             "description": "Composer plugin that provide contao integration and installer.",
-            "time": "2014-04-16 02:31:15"
+            "homepage": "http://c-c-a.org/",
+            "time": "2014-06-05 08:38:44"
         },
         {
             "name": "contao-community-alliance/dependency-container",
@@ -115,20 +119,20 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/dependency-container.git",
-                "reference": "c840eb12fea1ee7abc808a30ab2decc7ac4658ef"
+                "reference": "7fa301f4f2d67f8d508b6e3a02645c0daa9d1994"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/dependency-container/zipball/c840eb12fea1ee7abc808a30ab2decc7ac4658ef",
-                "reference": "c840eb12fea1ee7abc808a30ab2decc7ac4658ef",
+                "url": "https://api.github.com/repos/contao-community-alliance/dependency-container/zipball/7fa301f4f2d67f8d508b6e3a02645c0daa9d1994",
+                "reference": "7fa301f4f2d67f8d508b6e3a02645c0daa9d1994",
                 "shasum": ""
             },
             "require": {
                 "contao-community-alliance/backports-initialize-system": "~1.0",
-                "contao-community-alliance/composer-installer": "*",
-                "contao/core": ">=2.11,<3.3",
+                "contao-community-alliance/composer-plugin": "~2.0",
+                "contao/core": ">=2.11,<3.4",
                 "php": ">=5.3",
-                "pimple/pimple": "~1"
+                "pimple/pimple": "~1.0"
             },
             "replace": {
                 "bit3/contao-dependency-container": "self.version",
@@ -145,8 +149,8 @@
                     }
                 },
                 "branch-alias": {
-                    "dev-master": "1.4.x-dev",
-                    "dev-develop": "1.5.x-dev"
+                    "dev-master": "1.5.x-dev",
+                    "dev-develop": "1.6.x-dev"
                 }
             },
             "autoload": {
@@ -175,7 +179,7 @@
                 "di",
                 "injection"
             ],
-            "time": "2014-03-19 13:06:00"
+            "time": "2014-06-05 08:30:58"
         },
         {
             "name": "contao-community-alliance/event-dispatcher",
@@ -183,20 +187,20 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/event-dispatcher.git",
-                "reference": "055f59bfc0b2bc1d0f4961d99305751b8c4d09fd"
+                "reference": "61fabc1a71a1f802fdc93811c63f0400d2f4112b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/event-dispatcher/zipball/055f59bfc0b2bc1d0f4961d99305751b8c4d09fd",
-                "reference": "055f59bfc0b2bc1d0f4961d99305751b8c4d09fd",
+                "url": "https://api.github.com/repos/contao-community-alliance/event-dispatcher/zipball/61fabc1a71a1f802fdc93811c63f0400d2f4112b",
+                "reference": "61fabc1a71a1f802fdc93811c63f0400d2f4112b",
                 "shasum": ""
             },
             "require": {
-                "contao-community-alliance/composer-installer": "*",
+                "contao-community-alliance/composer-plugin": "~2.0",
                 "contao-community-alliance/dependency-container": "~1.4",
-                "contao/core": ">=2.11,<3.3",
+                "contao/core": ">=2.11,<3.4",
                 "php": ">=5.3",
-                "symfony/event-dispatcher": "2.3.*"
+                "symfony/event-dispatcher": "~2.3"
             },
             "replace": {
                 "bit3/contao-event-dispatcher": "self.version"
@@ -209,8 +213,8 @@
                     }
                 },
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev",
-                    "dev-develop": "1.1.x-dev"
+                    "dev-master": "1.2.x-dev",
+                    "dev-develop": "1.3.x-dev"
                 }
             },
             "autoload": {
@@ -236,7 +240,7 @@
                 "contao",
                 "event"
             ],
-            "time": "2014-03-19 13:00:33"
+            "time": "2014-06-05 08:36:18"
         },
         {
             "name": "contao-community-alliance/events-contao-bindings",
@@ -244,16 +248,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/events-contao-bindings.git",
-                "reference": "e88d966f2d81338e760d809b103dc87546ea9d88"
+                "reference": "79da979be1ec0521fb41ea62c0a4400e5eba2dff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/events-contao-bindings/zipball/e88d966f2d81338e760d809b103dc87546ea9d88",
-                "reference": "e88d966f2d81338e760d809b103dc87546ea9d88",
+                "url": "https://api.github.com/repos/contao-community-alliance/events-contao-bindings/zipball/79da979be1ec0521fb41ea62c0a4400e5eba2dff",
+                "reference": "79da979be1ec0521fb41ea62c0a4400e5eba2dff",
                 "shasum": ""
             },
             "require": {
-                "contao-community-alliance/composer-installer": "*",
+                "contao-community-alliance/composer-plugin": "~2.0",
                 "contao-community-alliance/event-dispatcher": "~1.0",
                 "contao/core": "~3.2",
                 "php": ">=5.3"
@@ -289,7 +293,7 @@
                 {
                     "name": "Tristan Lins",
                     "email": "tristan.lins@bit3.de",
-                    "homepage": "http://bit3.de/",
+                    "homepage": "http://bit3.de",
                     "role": "Developer"
                 },
                 {
@@ -305,36 +309,36 @@
                 "contao",
                 "translation"
             ],
-            "time": "2014-03-28 09:40:32"
+            "time": "2014-06-05 08:43:20"
         },
         {
             "name": "contao-community-alliance/translator",
-            "version": "dev-master",
+            "version": "dev-develop",
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/translator.git",
-                "reference": "0a789df9b402d3d00a1ce9a117c914de065a9ac1"
+                "reference": "02feca702bc20cfd45f9e239fa8a1349d56c1a1f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/translator/zipball/0a789df9b402d3d00a1ce9a117c914de065a9ac1",
-                "reference": "0a789df9b402d3d00a1ce9a117c914de065a9ac1",
+                "url": "https://api.github.com/repos/contao-community-alliance/translator/zipball/02feca702bc20cfd45f9e239fa8a1349d56c1a1f",
+                "reference": "02feca702bc20cfd45f9e239fa8a1349d56c1a1f",
                 "shasum": ""
             },
             "require": {
-                "contao-community-alliance/composer-installer": "*",
                 "contao-community-alliance/event-dispatcher": "~1.0",
-                "contao-community-alliance/events-contao-bindings": "*@dev",
+                "contao-community-alliance/events-contao-bindings": ">=2.0,<4-dev",
                 "php": ">=5.3"
             },
             "require-dev": {
                 "metamodels/php-coding-standard": "dev-master",
                 "phpunit/phpunit": ">=3.7.10,<4-dev"
             },
-            "type": "contao-module",
+            "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.0.x-dev",
+                    "dev-develop": "1.1.x-dev"
                 }
             },
             "autoload": {
@@ -366,20 +370,20 @@
                 "contao",
                 "translation"
             ],
-            "time": "2014-04-08 01:46:46"
+            "time": "2014-06-05 08:57:37"
         },
         {
             "name": "contao/core",
-            "version": "3.2.9",
+            "version": "3.2.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/composerized-contao-core.git",
-                "reference": "2fc914adb428d86e77e5f942dc28b16d6dfa3754"
+                "reference": "f8df1f3a3d3878db6feb6ed716c4710385cbaeb1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/composerized-contao-core/zipball/2fc914adb428d86e77e5f942dc28b16d6dfa3754",
-                "reference": "2fc914adb428d86e77e5f942dc28b16d6dfa3754",
+                "url": "https://api.github.com/repos/contao-community-alliance/composerized-contao-core/zipball/f8df1f3a3d3878db6feb6ed716c4710385cbaeb1",
+                "reference": "f8df1f3a3d3878db6feb6ed716c4710385cbaeb1",
                 "shasum": ""
             },
             "require": {
@@ -410,7 +414,7 @@
                 "contao",
                 "core"
             ],
-            "time": "2014-04-08 01:11:20"
+            "time": "2014-05-21 12:00:38"
         },
         {
             "name": "pimple/pimple",
@@ -462,24 +466,27 @@
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "2.3.x-dev",
+            "version": "dev-master",
             "target-dir": "Symfony/Component/EventDispatcher",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/EventDispatcher.git",
-                "reference": "cb7cd38c081507d10997553c4c522956a4d2afab"
+                "reference": "7a4f4b42886f8c2e35acb1071f157a0b8eb1bd39"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/cb7cd38c081507d10997553c4c522956a4d2afab",
-                "reference": "cb7cd38c081507d10997553c4c522956a4d2afab",
+                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/7a4f4b42886f8c2e35acb1071f157a0b8eb1bd39",
+                "reference": "7a4f4b42886f8c2e35acb1071f157a0b8eb1bd39",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3"
             },
             "require-dev": {
-                "symfony/dependency-injection": "~2.0"
+                "psr/log": "~1.0",
+                "symfony/config": "~2.0",
+                "symfony/dependency-injection": "~2.0",
+                "symfony/stopwatch": "~2.2"
             },
             "suggest": {
                 "symfony/dependency-injection": "",
@@ -488,7 +495,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.3-dev"
+                    "dev-master": "2.6-dev"
                 }
             },
             "autoload": {
@@ -514,7 +521,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "http://symfony.com",
-            "time": "2014-04-16 10:30:19"
+            "time": "2014-05-23 14:36:49"
         }
     ],
     "packages-dev": [
@@ -524,12 +531,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/MetaModels/php-coding-standard.git",
-                "reference": "d79ef7cc19d6af48cafd85b8c9c7cab92e9aa599"
+                "reference": "d31fe99594c30db5497f93b59f9e649396e96488"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/MetaModels/php-coding-standard/zipball/d79ef7cc19d6af48cafd85b8c9c7cab92e9aa599",
-                "reference": "d79ef7cc19d6af48cafd85b8c9c7cab92e9aa599",
+                "url": "https://api.github.com/repos/MetaModels/php-coding-standard/zipball/d31fe99594c30db5497f93b59f9e649396e96488",
+                "reference": "d31fe99594c30db5497f93b59f9e649396e96488",
                 "shasum": ""
             },
             "require": {
@@ -574,7 +581,7 @@
                 "metamodels",
                 "standard"
             ],
-            "time": "2013-12-23 17:11:04"
+            "time": "2014-04-30 19:32:20"
         },
         {
             "name": "pdepend/pdepend",
@@ -645,12 +652,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "6ef2bf3a1c47eca07ea95f0d8a902a6340390b34"
+                "reference": "61fed79803b6c75d461b909dfac05bbef5cd4f46"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/6ef2bf3a1c47eca07ea95f0d8a902a6340390b34",
-                "reference": "6ef2bf3a1c47eca07ea95f0d8a902a6340390b34",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/61fed79803b6c75d461b909dfac05bbef5cd4f46",
+                "reference": "61fed79803b6c75d461b909dfac05bbef5cd4f46",
                 "shasum": ""
             },
             "require": {
@@ -698,7 +705,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2014-03-28 10:53:45"
+            "time": "2014-05-19 01:58:57"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -839,12 +846,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-token-stream.git",
-                "reference": "ad4e1e23ae01b483c16f600ff1bebec184588e32"
+                "reference": "955c24b708f8bfd6a05f303217a8dac3a443d531"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-token-stream/zipball/ad4e1e23ae01b483c16f600ff1bebec184588e32",
-                "reference": "ad4e1e23ae01b483c16f600ff1bebec184588e32",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-token-stream/zipball/955c24b708f8bfd6a05f303217a8dac3a443d531",
+                "reference": "955c24b708f8bfd6a05f303217a8dac3a443d531",
                 "shasum": ""
             },
             "require": {
@@ -881,7 +888,7 @@
             "keywords": [
                 "tokenizer"
             ],
-            "time": "2014-03-03 05:10:30"
+            "time": "2014-05-12 05:34:42"
         },
         {
             "name": "phpunit/phpunit",
@@ -889,12 +896,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "1735d588c9f35bd8686cae0208d8adde77b45365"
+                "reference": "ae6cefd7cc84586a5ef27e04bae11ee940ec63dc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/1735d588c9f35bd8686cae0208d8adde77b45365",
-                "reference": "1735d588c9f35bd8686cae0208d8adde77b45365",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/ae6cefd7cc84586a5ef27e04bae11ee940ec63dc",
+                "reference": "ae6cefd7cc84586a5ef27e04bae11ee940ec63dc",
                 "shasum": ""
             },
             "require": {
@@ -954,7 +961,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2014-04-29 07:24:10"
+            "time": "2014-04-30 12:24:19"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -1019,12 +1026,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "34903295738c66ad8ea87c04ad6eaa1477700868"
+                "reference": "f9ee30f5460e21811b72e6e07f1b8ceba704c6cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/34903295738c66ad8ea87c04ad6eaa1477700868",
-                "reference": "34903295738c66ad8ea87c04ad6eaa1477700868",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/f9ee30f5460e21811b72e6e07f1b8ceba704c6cf",
+                "reference": "f9ee30f5460e21811b72e6e07f1b8ceba704c6cf",
                 "shasum": ""
             },
             "require": {
@@ -1086,7 +1093,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2014-04-30 00:29:26"
+            "time": "2014-05-22 01:56:27"
         },
         {
             "name": "symfony/yaml",
@@ -1095,12 +1102,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "e9525fc511a51e7bfa214c6c420515c580fda35a"
+                "reference": "b01d366060f33e18fd98b0008c41a01b0d25c95c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/e9525fc511a51e7bfa214c6c420515c580fda35a",
-                "reference": "e9525fc511a51e7bfa214c6c420515c580fda35a",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/b01d366060f33e18fd98b0008c41a01b0d25c95c",
+                "reference": "b01d366060f33e18fd98b0008c41a01b0d25c95c",
                 "shasum": ""
             },
             "require": {
@@ -1109,7 +1116,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.5-dev"
+                    "dev-master": "2.6-dev"
                 }
             },
             "autoload": {
@@ -1135,17 +1142,16 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
-            "time": "2014-04-18 20:40:13"
+            "time": "2014-06-04 06:43:44"
         }
     ],
     "aliases": [
 
     ],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "contao-community-alliance/event-dispatcher": 20,
-        "contao-community-alliance/translator": 20
-    },
+    "stability-flags": [
+
+    ],
     "platform": {
         "php": ">=5.3"
     },
