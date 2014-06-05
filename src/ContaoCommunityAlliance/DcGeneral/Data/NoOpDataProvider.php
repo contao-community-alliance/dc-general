@@ -84,7 +84,7 @@ class NoOpDataProvider implements DataProviderInterface
 	 */
 	public function fetchAll(ConfigInterface $objConfig)
 	{
-		return new DefaultCollection();
+		return $this->getEmptyCollection();
 	}
 
 	/**
