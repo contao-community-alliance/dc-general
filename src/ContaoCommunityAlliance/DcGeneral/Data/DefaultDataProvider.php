@@ -543,12 +543,10 @@ class DefaultDataProvider implements DataProviderInterface
 			))
 			->executeUncached($arrParams);
 
-		$objCollection = $this->getEmptyCollection();
+		$objCollection = $this->getEmptyFilterOptionCollection();
 		while ($objValues->next())
 		{
-			$objNewModel = $this->getEmptyModel();
-			$objNewModel->setProperty($strProperty, $objValues->$strProperty);
-			$objCollection->add($objNewModel);
+			$objCollection->add($objValues->$strProperty, $objValues->$strProperty);
 		}
 
 		return $objCollection;

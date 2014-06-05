@@ -98,7 +98,7 @@ interface DataProviderInterface
 	 *
 	 * @param ConfigInterface $objConfig The filter config options.
 	 *
-	 * @return CollectionInterface
+	 * @return FilterOptionCollectionInterface
 	 */
 	public function getFilterOptions(ConfigInterface $objConfig);
 

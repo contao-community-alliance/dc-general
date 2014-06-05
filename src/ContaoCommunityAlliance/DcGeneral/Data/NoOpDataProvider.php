@@ -92,7 +92,7 @@ class NoOpDataProvider implements DataProviderInterface
 	 */
 	public function getFilterOptions(ConfigInterface $objConfig)
 	{
-		return new DefaultCollection();
+		return $this->getEmptyFilterOptionCollection();
 	}
 
 	/**
