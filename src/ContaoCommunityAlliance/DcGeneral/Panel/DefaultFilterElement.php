@@ -168,18 +168,11 @@ class DefaultFilterElement
 
 			$arrOptions = array();
 			/** @var ModelInterface $objOption */
-			foreach ($objFilterOptions as $objOption)
+			foreach ($objFilterOptions as $filterKey => $filterValue)
 			{
-				$optionKey = $optionValue = $objOption->getProperty($this->getPropertyName());
-
-				if ($optionValue instanceof \DateTime)
-				{
-					$optionKey   = $optionValue->getTimestamp();
-					$optionValue = $optionValue->format($GLOBALS['TL_CONFIG']['dateFormat']);
-				}
-
-				$arrOptions[$optionKey] = $optionValue;
+				$arrOptions[$filterKey] = $filterValue;
 			}
+
 			$this->arrfilterOptions = $arrOptions;
 		}
 	}
