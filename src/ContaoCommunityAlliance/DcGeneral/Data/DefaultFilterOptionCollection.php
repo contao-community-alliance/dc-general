@@ -23,7 +23,7 @@ class DefaultFilterOptionCollection
 	/**
 	 * The language information stored in this collection.
 	 *
-	 * @var LanguageInformationInterface[]
+	 * @var array
 	 */
 	protected $filterValues = array();
 
