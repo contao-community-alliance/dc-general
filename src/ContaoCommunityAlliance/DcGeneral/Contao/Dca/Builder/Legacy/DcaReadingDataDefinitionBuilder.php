@@ -35,20 +35,14 @@ abstract class DcaReadingDataDefinitionBuilder extends AbstractEventDrivenDataDe
 	 */
 	public function loadDca($dcaName, EventDispatcherInterface $dispatcher)
 	{
-		$this->dca         = null;
-		$previousDca       = isset($GLOBALS['TL_DCA']) ? $GLOBALS['TL_DCA'] : null;
-		$GLOBALS['TL_DCA'] = array();
-
-		$event = new LoadDataContainerEvent($dcaName, true);
+		$this->dca = null;
+		$event     = new LoadDataContainerEvent($dcaName, false);
 		$dispatcher->dispatch(ContaoEvents::CONTROLLER_LOAD_DATA_CONTAINER, $event);
 
 		if (isset($GLOBALS['TL_DCA'][$dcaName]))
 		{
 			$this->dca = $GLOBALS['TL_DCA'][$dcaName];
 		}
-
-		$GLOBALS['TL_DCA'] = $previousDca;
-		unset($GLOBALS['loadDataContainer'][$dcaName]);
 
 		$event = new LoadLanguageFileEvent($dcaName);
 		$dispatcher->dispatch(ContaoEvents::SYSTEM_LOAD_LANGUAGE_FILE, $event);
