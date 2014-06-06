@@ -706,7 +706,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			{
 				$relationship = new ParentChildCondition();
 				$relationship
-					->setSourceName($rootProvider);
+					->setSourceName($rootProvider)
+					->setDestinationName($rootProvider);
 				$definition->addChildCondition($relationship);
 
 				$builder = FilterBuilder::fromArray()->getFilter();
