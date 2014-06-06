@@ -186,13 +186,6 @@ class DefaultDataProvider implements DataProviderInterface
 	 */
 	protected function getAndOrFilter($operation, &$params)
 	{
-		// FIXME: backwards compat - remove when done.
-		if (is_array($operation['childs']))
-		{
-			trigger_error('Filter array uses deprecated entry "childs", please use "children" instead.', E_USER_DEPRECATED);
-			$operation['children'] = $operation['childs'];
-		}
-
 		$children = $operation['children'];
 
 		if (!$children)
