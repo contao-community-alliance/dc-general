@@ -38,11 +38,42 @@ class DefaultDataProvider implements DataProviderInterface
 	protected $objDatabase = null;
 
 	/**
+	 * The property that shall get populated with the current timestamp when saving data.
+	 *
+	 * @var string
+	 */
+	protected $timeStampProperty = false;
+
+	/**
 	 * Create a new instance of the data provider.
 	 */
 	public function __construct()
 	{
 		$this->objDatabase = \Database::getInstance();
+	}
+
+	/**
+	 * Get the property name that shall get updated with the current time stamp when saving to the database.
+	 *
+	 * @return string|null
+	 */
+	public function getTimeStampProperty()
+	{
+		return $this->timeStampProperty;
+	}
+
+	/**
+	 * Set the property name that shall get updated with the current time stamp when saving to the database.
+	 *
+	 * @param boolean $timeStampField The property name or empty to clear.
+	 *
+	 * @return DefaultDataProvider
+	 */
+	public function setTimeStampProperty($timeStampField = null)
+	{
+		$this->timeStampProperty = $timeStampField;
+
+		return $this;
 	}
 
 	/**
@@ -69,6 +100,15 @@ class DefaultDataProvider implements DataProviderInterface
 		}
 
 		$this->strSource = $arrConfig['source'];
+
+		if (isset($arrConfig['timeStampProperty']))
+		{
+			$this->setTimeStampProperty($arrConfig['timeStampProperty']);
+		}
+		elseif ($this->objDatabase->fieldExists('tstamp', $this->strSource))
+		{
+			$this->setTimeStampProperty('tstamp');
+		}
 	}
 
 	/**
@@ -624,6 +664,11 @@ class DefaultDataProvider implements DataProviderInterface
 			{
 				$arrSet[$key] = $value;
 			}
+		}
+
+		if ($this->timeStampProperty)
+		{
+			$arrSet[$this->getTimeStampProperty()] = time();
 		}
 
 		if ($objItem->getID() == null || $objItem->getID() == '')
