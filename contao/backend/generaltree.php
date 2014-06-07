@@ -113,10 +113,24 @@ class TreeSelect
 			->setEventPropagator($propagator)
 			->createDcGeneral();
 
+		$information = (array)$GLOBALS['TL_DCA'][$strTable]['fields'][$strField];
+
+		// Merge with the information from the data container.
+		$property = $this
+			->itemContainer
+			->getEnvironment()
+			->getDataDefinition()
+			->getPropertiesDefinition()
+			->getProperty($strField);
+		$extra    = $property->getExtra();
+
+		$information['eval']['sourceName'] = $extra['sourceName'];
+		$information['eval']['fieldType']  = $extra['fieldType'];
+
 		/** @var \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker $objTreeSelector */
 		$objTreeSelector = new $GLOBALS['BE_FFL']['DcGeneralTreePicker'](
 			\Widget::getAttributesFromDca(
-				$GLOBALS['TL_DCA'][$strTable]['fields'][$strField],
+				$information,
 				$strField,
 				array_filter(explode(',', \Input::get('value'))),
 				$strField,
