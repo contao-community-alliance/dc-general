@@ -344,15 +344,21 @@ class TreePicker
 	public function renderItemsPlain()
 	{
 		$values = array();
+		$value  = $this->varValue;
 
-		if (is_array($this->varValue) && !empty($this->varValue))
+		if ($this->fieldType == 'radio' && !empty($value))
+		{
+			$value = array($value);
+		}
+
+		if (is_array($value) && !empty($value))
 		{
 			$environment = $this->getEnvironment();
 			$dataDriver  = $environment->getDataProvider();
 			$config      = $environment->getController()->getBaseConfig();
 			$filter      = FilterBuilder::fromArrayForRoot()
 				->getFilter()
-				->andPropertyValueIn('id', $this->varValue)
+				->andPropertyValueIn('id', $value)
 				->getAllAsArray();
 
 			$config->setFilter($filter);
