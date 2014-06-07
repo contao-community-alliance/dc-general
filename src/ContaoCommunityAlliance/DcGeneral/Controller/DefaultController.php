@@ -292,7 +292,7 @@ class DefaultController implements ControllerInterface
 		if ($backendViewDefinition && $backendViewDefinition instanceof Contao2BackendViewDefinitionInterface)
 		{
 			$listingConfig        = $backendViewDefinition->getListingConfig();
-			$sortingProperties    = array_keys($listingConfig->getDefaultSortingFields());
+			$sortingProperties    = array_keys((array)$listingConfig->getDefaultSortingFields());
 			$sortingPropertyIndex = array_search($sortingProperty, $sortingProperties);
 
 			if ($sortingPropertyIndex !== false && $sortingPropertyIndex > 0)
