@@ -719,12 +719,12 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 					$arrIgnored = array();
 					$ignoredId  = new IdSerializer();
-					$ignoredId->setDataProviderName($objModel);
+					$ignoredId->setDataProviderName($objModel->getProviderName());
 					// FIXME: this can return ids originating from another data provider, we have to alter this to
 					// FIXME: return valid models instead of the ids or a tuple of data provider name and id.
-					foreach ($this->getEnvironment()->getController()->assembleAllChildrenFrom($objModel) as $id)
+					foreach ($this->getEnvironment()->getController()->assembleAllChildrenFrom($objModel) as $childId)
 					{
-						$arrIgnored = $ignoredId->setId($id)->getSerialized();
+						$arrIgnored[] = $ignoredId->setId($childId)->getSerialized();
 					}
 				}
 
