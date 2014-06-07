@@ -295,7 +295,7 @@ class SortingManager
 	 */
 	protected function calculate()
 	{
-		if (isset($this->results))
+		if (isset($this->results) || $this->models->length() == 0)
 		{
 			return;
 		}
