@@ -2234,7 +2234,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$label = $objCommand->getName();
 		}
 
-		$label  = $this->translate($label, $this->getEnvironment()->getDataDefinition()->getName());
+		$label = $this->translate($label, $this->getEnvironment()->getDataDefinition()->getName());
+
+		if (is_array($label))
+		{
+			$label = $label[0];
+		}
+
 		$opDesc = $this->translate($objCommand->getDescription(), $this->getEnvironment()->getDataDefinition()->getName());
 		if (strlen($opDesc))
 		{
