@@ -648,9 +648,15 @@ class DefaultController implements ControllerInterface
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws \RuntimeException When no models have been passed.
 	 */
 	public function pasteAfter(ModelInterface $previousModel, CollectionInterface $models, $sortedBy)
 	{
+		if ($models->length() == 0)
+		{
+			throw new \RuntimeException('No models passed to pasteAfter().');
+		}
 		$environment = $this->getEnvironment();
 		$parentName  = $environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider();
 
