@@ -442,7 +442,7 @@ class TreePicker
 			\Input::get('do'),
 			$this->strTable,
 			$this->strField,
-			$this->activeRecord->id,
+			$environment->getInputProvider()->getParameter('id'),
 			implode(',', array_keys($template->values)),
 			REQUEST_TOKEN
 		);
