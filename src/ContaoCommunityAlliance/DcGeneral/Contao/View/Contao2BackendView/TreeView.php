@@ -382,6 +382,12 @@ class TreeView extends BaseView
 		$objTableTreeData = $dataProvider->getEmptyCollection();
 		$objRootConfig    = $environment->getController()->getBaseConfig();
 		$relationships    = $definition->getModelRelationshipDefinition();
+		$backendView      = $this->getViewSection();
+
+		/** @var Contao2BackendViewDefinitionInterface $backendView */
+		$listingConfig = $backendView->getListingConfig();
+		// Initialize sorting.
+		$objRootConfig->setSorting($listingConfig->getDefaultSortingFields());
 
 		$this->getPanel()->initialize($objRootConfig);
 
