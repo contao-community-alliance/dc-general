@@ -1100,7 +1100,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$parent       = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($into->getId()));
 			$environment->getController()->pasteInto($parent, $models, $this->getManualSortingProperty());
 		}
-		elseif ($after == '0')
+		elseif (($after && $after->getId() == '0') || ($into && $into->getId() == '0'))
 		{
 			$environment->getController()->pasteTop($models, $this->getManualSortingProperty());
 		}
