@@ -658,13 +658,17 @@ class DefaultController implements ControllerInterface
 			throw new \RuntimeException('No models passed to pasteAfter().');
 		}
 		$environment = $this->getEnvironment();
-		$parentName  = $environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider();
+		$parentModel = null;
+
+		if (!$this->isRootModel($previousModel))
+		{
+			$parentModel = $this->searchParentOf($previousModel);
+		}
 
 		foreach ($models as $model)
 		{
 			/** @var ModelInterface $model */
-			// FIXME: is this really the right parent data provider?
-			$this->setSameParent($model, $previousModel, $parentName);
+			$this->setSameParent($model, $previousModel, $parentModel ? $parentModel->getProviderName() : null);
 		}
 
 		// Enforce proper sorting now.
