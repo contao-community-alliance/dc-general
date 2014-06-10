@@ -885,6 +885,21 @@ class TreeView extends BaseView
 	/**
 	 * {@inheritdoc}
 	 */
+	public function cut()
+	{
+
+		if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
+		{
+			return $this->edit();
+		}
+
+		$this->checkClipboard('cut');
+		$this->redirectHome();
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
 	public function copy()
 	{
 
