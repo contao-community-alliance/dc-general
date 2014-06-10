@@ -642,8 +642,7 @@ class TreeView extends BaseView
 			/** @var AddToUrlEvent $urlEvent */
 			$urlEvent = $propagator->propagate(
 				ContaoEvents::BACKEND_ADD_TO_URL,
-				new AddToUrlEvent(sprintf('act=%s&amp;into=%s::0&amp;children=%s',
-					$objClipboard->getMode(),
+				new AddToUrlEvent(sprintf('act=paste&amp;into=%s::0&amp;children=%s',
 					$definition->getName(),
 					$objClipboard->getContainedIds(),
 					implode(',', $objClipboard->getCircularIds())
