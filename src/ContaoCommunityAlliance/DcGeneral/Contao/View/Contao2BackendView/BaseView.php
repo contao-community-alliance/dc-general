@@ -717,7 +717,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 				{
 					$objModel = $objDataProv->fetch($objDataProv->getEmptyConfig()->setId($idDetails->getId()));
 
-					$arrIgnored = array();
 					$ignoredId  = new IdSerializer();
 					$ignoredId->setDataProviderName($objModel->getProviderName());
 					// FIXME: this can return ids originating from another data provider, we have to alter this to
