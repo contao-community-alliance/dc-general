@@ -24,29 +24,6 @@ $GLOBALS['BE_FFL']['DcGeneralTreePicker'] =
 $GLOBALS['TL_HOOKS']['executePostActions'][] =
 	array('ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker', 'updateAjax');
 
-// For the moment, we add our auto loader at the end for non composerized Contao 2.X compatibility.
-if (version_compare(VERSION, '3.0', '<') && !class_exists('ContaoCommunityAlliance\Contao\Composer\ClassLoader', false))
-{
-	$baseDir = dirname(__DIR__) .
-		DIRECTORY_SEPARATOR . 'ContaoCommunityAlliance' .
-		DIRECTORY_SEPARATOR . 'DcGeneral' .
-		DIRECTORY_SEPARATOR . 'Contao' .
-		DIRECTORY_SEPARATOR . 'Compatibility' .
-		DIRECTORY_SEPARATOR;
-	// Fake the Contao 3 class loading.
-	require_once  $baseDir . 'ClassLoader.php';
-	if (!class_exists('ClassLoader', false))
-	{
-		class_alias('ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\ClassLoader', 'ClassLoader');
-	}
-	require_once $baseDir . 'TemplateLoader.php';
-	if (!class_exists('TemplateLoader', false))
-	{
-		class_alias('ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\TemplateLoader', 'TemplateLoader');
-	}
-	ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\ClassLoader::scanAndRegister();
-}
-
 // Attach ourselves to the DIC.
 $GLOBALS['TL_EVENT_SUBSCRIBERS'][] = 'ContaoCommunityAlliance\DcGeneral\Contao\Event\Subscriber';
 
