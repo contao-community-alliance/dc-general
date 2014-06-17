@@ -172,8 +172,9 @@ class DefaultController implements ControllerInterface
 		$environment   = $this->getEnvironment();
 		$definition    = $environment->getDataDefinition();
 		$relationships = $definition->getModelRelationshipDefinition();
+		$mode          = $definition->getBasicDefinition()->getMode();
 
-		if ($definition->getBasicDefinition()->getMode() === BasicDefinitionInterface::MODE_HIERARCHICAL)
+		if ($mode === BasicDefinitionInterface::MODE_HIERARCHICAL)
 		{
 			if ($this->isRootModel($model))
 			{
@@ -186,6 +187,26 @@ class DefaultController implements ControllerInterface
 			$config    = $provider->getEmptyConfig()->setFilter($condition->getFilterArray());
 
 			return $this->searchParentOfIn($model, $provider->fetchAll($config));
+		}
+		elseif ($mode === BasicDefinitionInterface::MODE_PARENTEDLIST)
+		{
+			$provider  = $environment->getDataProvider($definition->getBasicDefinition()->getParentDataProvider());
+			$condition = $relationships->getChildCondition(
+				$definition->getBasicDefinition()->getParentDataProvider(),
+				$definition->getBasicDefinition()->getDataProvider()
+			);
+			$config    = $provider->getEmptyConfig();
+			// This is pretty expensive, we fetch all models from the parent provider here.
+			// This can be much faster by using the inverse condition if present.
+			foreach ($provider->fetchAll($config) as $candidate)
+			{
+				if ($condition->matches($candidate, $model))
+				{
+					return $candidate;
+				}
+			}
+
+			return null;
 		}
 
 		throw new DcGeneralInvalidArgumentException('Invalid condition, not in hierarchical mode!');
