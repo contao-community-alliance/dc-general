@@ -20,9 +20,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LoadLanguageFileEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\BackendBindings;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
@@ -160,7 +158,7 @@ class ParentView extends BaseView
 				{
 					$eoCount = -1;
 
-					$model->setMeta(DCGE::MODEL_GROUP_VALUE, array(
+					$model->setMeta($model::GROUP_VALUE, array(
 						'class' => $groupClass,
 						'value' => $remoteNew
 					));
@@ -172,7 +170,7 @@ class ParentView extends BaseView
 
 			if ($listing->getItemCssClass())
 			{
-				$model->setMeta(DCGE::MODEL_CLASS, $listing->getItemCssClass());
+				$model->setMeta($model::CSS_CLASS, $listing->getItemCssClass());
 			}
 
 			// Regular buttons.
@@ -183,7 +181,7 @@ class ParentView extends BaseView
 
 				$buttons = $this->generateButtons($model, $previous, $next);
 
-				$model->setMeta(DCGE::MODEL_BUTTONS, $buttons);
+				$model->setMeta($model::OPERATION_BUTTONS, $buttons);
 			}
 
 			$event = new ParentViewChildRecordEvent($this->getEnvironment(), $model);
@@ -197,7 +195,7 @@ class ParentView extends BaseView
 				)
 			);
 
-			$model->setMeta(DCGE::MODEL_EVEN_ODD_CLASS, (((++$eoCount) % 2 == 0) ? 'even' : 'odd'));
+			$model->setMeta($model::CSS_ROW_CLASS, (((++$eoCount) % 2 == 0) ? 'even' : 'odd'));
 
 			if ($event->getHtml() !== null)
 			{
@@ -208,11 +206,11 @@ class ParentView extends BaseView
 						'content' => $event->getHtml()
 					)
 				);
-				$model->setMeta(DCGE::MODEL_LABEL_VALUE, $information);
+				$model->setMeta($model::LABEL_VALUE, $information);
 			}
 			else
 			{
-				$model->setMeta(DCGE::MODEL_LABEL_VALUE, $this->formatModel($model));
+				$model->setMeta($model::LABEL_VALUE, $this->formatModel($model));
 			}
 		}
 	}
@@ -624,6 +622,8 @@ class ParentView extends BaseView
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralRuntimeException When no source id is provided by the input provider.
 	 */
 	public function copy()
 	{
