@@ -17,12 +17,10 @@ use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2Ba
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
 use ContaoCommunityAlliance\DcGeneral\Data\LanguageInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -381,21 +379,19 @@ class DefaultController implements ControllerInterface
 	 */
 	public function updateModelFromPropertyBag($model, $propertyValues)
 	{
-		$environment = $this->getEnvironment();
 		if (!$propertyValues)
 		{
 			return $this;
 		}
-
-		// Callback to tell visitors that we have just updated the model.
-		// $environment->getCallbackHandler()->onModelBeforeUpdateCallback($model);
+		$environment = $this->getEnvironment();
+		$input       = $environment->getInputProvider();
 
 		foreach ($propertyValues as $property => $value)
 		{
 			try
 			{
 				$model->setProperty($property, $value);
-				$model->setMeta(DCGE::MODEL_IS_CHANGED, true);
+				$model->setMeta($model::IS_CHANGED, true);
 			}
 			catch (\Exception $exception)
 			{
@@ -409,11 +405,10 @@ class DefaultController implements ControllerInterface
 				BasicDefinitionInterface::MODE_PARENTEDLIST
 				| BasicDefinitionInterface::MODE_HIERARCHICAL)
 			)
-			// FIXME: dependency injection.
-			&& (strlen(\Input::getInstance()->get('pid')) > 0)
+			&& ($input->hasParameter('pid'))
 		)
 		{
-			$parentModelId = IdSerializer::fromSerialized(\Input::getInstance()->get('pid'));
+			$parentModelId      = IdSerializer::fromSerialized($input->getParameter('pid'));
 			$providerName       = $basicDefinition->getDataProvider();
 			$parentProviderName = $parentModelId->getDataProviderName();
 			$objParentDriver    = $environment->getDataProvider($parentProviderName);
@@ -433,9 +428,6 @@ class DefaultController implements ControllerInterface
 				$relationship->applyTo($objParentModel, $model);
 			}
 		}
-
-		// Callback to tell visitors that we have just updated the model.
-		// $environment->getCallbackHandler()->onModelUpdateCallback($model);
 
 		return $this;
 	}
@@ -559,7 +551,6 @@ class DefaultController implements ControllerInterface
 			$pid        = $environment->getInputProvider()->getParameter('pid');
 			$pidDetails = IdSerializer::fromSerialized($pid);
 
-			// TODO: view and parent are tied together here due to input provider, we need to decouple this.
 			$this->addParentFilter($pidDetails->getId(), $objConfig);
 		}
 
@@ -607,20 +598,13 @@ class DefaultController implements ControllerInterface
 			}
 
 			// Check uniqueness.
-			if (
-				isset($extra['unique'])
+			if (isset($extra['unique'])
 				&& $extra['unique'] === true
 				&& !$dataProvider->isUniqueValue($propName, $clone->getProperty($propName))
 			)
 			{
-				// implicit "do not copy" unique values, they cannot be unique anymore ;-)
+				// Implicit "do not copy" unique values, they cannot be unique anymore.
 				$clone->setProperty($propName, null);
-				/*
-				throw new DcGeneralRuntimeException(
-					$environment->getTranslator()->translate('ERR.unique', null, array($propName)),
-					1
-				);
-				*/
 			}
 		}
 
