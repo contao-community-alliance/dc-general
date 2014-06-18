@@ -67,8 +67,8 @@ class ListView extends BaseView
 				$objConfig = $objParentDataProvider->getEmptyConfig()->setFilter($arrFilter);
 				$objParent = $objParentDataProvider->fetch($objConfig);
 
-				// TODO: wouldn't it be wiser to link the model instance instead of the id of the parenting model?
-				$objModel->setMeta(DCGE::MODEL_PID, $objParent->getId());
+				$objModel->setMeta($objModel::PARENT_ID, $objParent->getId());
+				$objModel->setMeta($objModel::PARENT_PROVIDER_NAME, $objParent->getProviderName());
 			}
 		}
 
