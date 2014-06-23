@@ -1,4 +1,4 @@
-<? /** @var \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface $model */ $model = $this->objModel; ?>
+<?php /** @var \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface $model */ $model = $this->objModel; ?>
 <li
 	class="<?php echo ($model->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::TREE_VIEW_LEVEL) == 0) ? 'tl_folder' : 'tl_file'; ?>"
 	onmouseover="Theme.hoverDiv(this,1)"
