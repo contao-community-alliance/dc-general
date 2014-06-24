@@ -46,10 +46,14 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostCreateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\PostPasteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreCreateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDeleteModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreEditModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\PrePasteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PrePersistModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -1025,7 +1029,31 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 				if ($clone)
 				{
-					$model = $environment->getController()->createClonedModel($model);
+					// Trigger the pre duplicate event.
+					$duplicateEvent = new PreDuplicateModelEvent($environment, $model);
+					$environment->getEventPropagator()->propagate(
+						$duplicateEvent::NAME,
+						$duplicateEvent,
+						array(
+							$environment->getDataDefinition()->getName(),
+						)
+					);
+
+					// Make a duplicate.
+					$newModel = $environment->getController()->createClonedModel($model);
+
+					// And trigger the post event for it.
+					$duplicateEvent = new PostDuplicateModelEvent($environment,$newModel, $model);
+					$environment->getEventPropagator()->propagate(
+						$duplicateEvent::NAME,
+						$duplicateEvent,
+						array(
+							$environment->getDataDefinition()->getName(),
+						)
+					);
+
+					// Set the new model as the old one.
+					$model = $newModel;
 				}
 			}
 
@@ -1079,13 +1107,25 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 			$models = $dataProvider->fetchAll($filterConfig);
 		}
-		else {
+		else
+		{
 			$models = $this->getModelsFromClipboard($clipboard->isCopy());
 
 			if ($clipboard->isCopy())
 			{
 				// FIXME: recursive copy is not implemented yet!
 			}
+		}
+
+		// Trigger for each model the pre persist event.
+		foreach($models as $model)
+		{
+			$event = new PrePasteModelEvent($environment, $model);
+			$environment->getEventPropagator()->propagate(
+				$event::NAME,
+				$event,
+				$environment->getDataDefinition()->getName()
+			);
 		}
 
 		if ($after && $after->getId())
@@ -1107,6 +1147,17 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		else
 		{
 			throw new DcGeneralRuntimeException('Invalid parameters.');
+		}
+
+		// Trigger for each model the past persist event.
+		foreach($models as $model)
+		{
+			$event = new PostPasteModelEvent($environment, $model);
+			$environment->getEventPropagator()->propagate(
+				$event::NAME,
+				$event,
+				$environment->getDataDefinition()->getName()
+			);
 		}
 
 		if (!$source)
