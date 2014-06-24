@@ -22,7 +22,7 @@
     padding:0;
   }
 
-  .tl_left > .tl_pagetree_content {
+  .parent .tl_left > .tl_pagetree_content {
     margin-left:20px;
   }
 
@@ -34,10 +34,6 @@
   .tl_left > a {
     margin-right:5px;
     margin-top:-1px;
-  }
-
-  a.folding + .tl_pagetree_content {
-    margin-left:0;
   }
 
   .tl_folder, 
