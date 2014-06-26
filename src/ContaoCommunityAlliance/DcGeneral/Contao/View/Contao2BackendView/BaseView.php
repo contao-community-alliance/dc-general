@@ -2343,7 +2343,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		}
 
 		// The copy operation
-		else if ($objCommand instanceof CopyCommandInterface)
+		elseif ($objCommand instanceof CopyCommandInterface)
 		{
 			$arrParameters        = array();
 			$arrParameters['act'] = $objCommand->getName();
