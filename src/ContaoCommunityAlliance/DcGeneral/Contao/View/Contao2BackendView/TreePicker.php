@@ -346,7 +346,7 @@ class TreePicker
 		$values = array();
 		$value  = $this->varValue;
 
-		if ($this->fieldType == 'radio' && !empty($value))
+		if ($this->fieldType == 'radio' && !empty($value) && !is_array($value))
 		{
 			$value = array($value);
 		}
