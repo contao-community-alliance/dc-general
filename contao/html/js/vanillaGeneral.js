@@ -144,7 +144,11 @@ function GeneralTableDnD()
 		// Check if we have a prev element or the top.
 		if (prevElement == null)
 		{
-			insertAfter = 0;
+			var topId = id.split('::');
+			if(topId !== null)
+			{
+				insertAfter = topId[0] + '::0';
+			}
 		}
 		else
 		{
