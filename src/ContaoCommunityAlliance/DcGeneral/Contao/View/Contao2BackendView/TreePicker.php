@@ -212,8 +212,19 @@ class TreePicker
 		}
 
 		$this->setUp($dc);
+		$value = $this->dataContainer->getEnvironment()->getInputProvider()->getValue('value');
 
-		$this->value = explode(',', $this->dataContainer->getEnvironment()->getInputProvider()->getValue('value'));
+		// ToDo: THIS IS TOTALLY CRAP.
+		if ($this->fieldType == 'checkbox' && stripos($value, '	') !== false)
+		{
+			$delimiter = '	';
+		}
+		else
+		{
+			$delimiter = ',';
+		}
+
+		$this->value = explode($delimiter, $value);
 
 		echo '<h3><label>' . $this->label . '</label></h3><div>' . $this->generate() . '</div>';
 		exit;
