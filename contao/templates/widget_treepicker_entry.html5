@@ -40,8 +40,8 @@
 					id="ctrl_<?php echo $this->id ?>_<?php echo $model->getId(); ?>"
 					class="tl_checkbox"
 					value="<?php echo specialchars($model->getId()); ?>"
-					onfocus="Backend.getScrollOffset();"'.$this->optionChecked($objNodes->id, $this->varValue)
-					onclick="Backend.toggleCheckboxGroup(this, '<?php echo $this->name ?>')" />
+					<?php echo ($this->optionChecked($model->getId(), $this->varValue)) ? 'checked=checked' : ''; ?>
+					onfocus="Backend.getScrollOffset();" />
 			<?php endif; ?>
 		<?php /* endif; */ ?>
 	</div>
