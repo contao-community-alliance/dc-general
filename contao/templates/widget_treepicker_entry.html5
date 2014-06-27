@@ -2,8 +2,7 @@
 <li
 	class="<?php echo ($model->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::TREE_VIEW_LEVEL) == 0) ? 'tl_folder' : 'tl_file'; ?>"
 	onmouseover="Theme.hoverDiv(this,1)"
-	onmouseout="Theme.hoverDiv(this,0)"
-	onclick="Theme.toggleSelect(this)">
+	onmouseout="Theme.hoverDiv(this,0)">
 	<div
 		class="tl_left"
 		style="padding-left:<?php echo $model->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::TREE_VIEW_LEVEL) * 20 ?>px;">
