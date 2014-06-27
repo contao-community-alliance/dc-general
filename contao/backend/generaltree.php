@@ -50,6 +50,12 @@ class TreeSelect
 	 */
 	protected $objAjax;
 
+	/**
+	 * The DcGeneral Object.
+	 *
+	 * @var DcGeneral
+	 */
+	protected $itemContainer;
 
 	/**
 	 * Initialize the controller.
