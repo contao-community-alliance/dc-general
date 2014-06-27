@@ -40,7 +40,7 @@
 					id="ctrl_<?php echo $this->id ?>_<?php echo $model->getId(); ?>"
 					class="tl_checkbox"
 					value="<?php echo specialchars($model->getId()); ?>"
-					<?php echo ($this->optionChecked($model->getId(), $this->varValue)) ? 'checked=checked' : ''; ?>
+					<?php echo $this->active; ?>
 					onfocus="Backend.getScrollOffset();" />
 			<?php endif; ?>
 		<?php /* endif; */ ?>
