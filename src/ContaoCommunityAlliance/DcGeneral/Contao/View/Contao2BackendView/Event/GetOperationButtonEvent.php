@@ -77,7 +77,7 @@ class GetOperationButtonEvent
 	protected $href;
 
 	/**
-	 * Disabled state of the button
+	 * Disabled state of the button.
 	 *
 	 * @var bool
 	 */
@@ -267,6 +267,8 @@ class GetOperationButtonEvent
 	public function setDisabled($disabled = true)
 	{
 		$this->disabled = $disabled;
+
+		return $this;
 	}
 
 	/**
