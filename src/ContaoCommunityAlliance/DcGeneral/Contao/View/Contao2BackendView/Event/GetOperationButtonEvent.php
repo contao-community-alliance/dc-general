@@ -77,6 +77,13 @@ class GetOperationButtonEvent
 	protected $href;
 
 	/**
+	 * Disabled state of the button.
+	 *
+	 * @var bool
+	 */
+	protected $disabled;
+
+	/**
 	 * Set the attached command.
 	 *
 	 * @param CommandInterface $objCommand The command.
@@ -248,5 +255,29 @@ class GetOperationButtonEvent
 	public function getModel()
 	{
 		return $this->model;
+	}
+
+	/**
+	 * Set the button enabled or disabled (true means disabled).
+	 *
+	 * @param boolean $disabled The flag.
+	 *
+	 * @return $this
+	 */
+	public function setDisabled($disabled = true)
+	{
+		$this->disabled = $disabled;
+
+		return $this;
+	}
+
+	/**
+	 * Determine if the command is disabled.
+	 *
+	 * @return boolean
+	 */
+	public function isDisabled()
+	{
+		return $this->disabled;
 	}
 }

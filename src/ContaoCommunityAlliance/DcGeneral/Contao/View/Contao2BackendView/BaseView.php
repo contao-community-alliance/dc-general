@@ -2397,7 +2397,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			->setChildRecordIds($arrChildRecordIds)
 			->setCircularReference($blnCircularReference)
 			->setPrevious($previous)
-			->setNext($next);
+			->setNext($next)
+			->setDisabled($objCommand->isDisabled());
 
 		$propagator->propagate(
 			$buttonEvent::NAME,
@@ -2416,7 +2417,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 		$icon = $extra['icon'];
 
-		if ($objCommand->isDisabled())
+		if ($buttonEvent->isDisabled())
 		{
 			/** @var GenerateHtmlEvent $event */
 			$event = $propagator->propagate(
