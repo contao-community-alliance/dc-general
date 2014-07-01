@@ -170,7 +170,7 @@ class DefaultFilterElement
 			/** @var ModelInterface $objOption */
 			foreach ($objFilterOptions as $filterKey => $filterValue)
 			{
-				$arrOptions[$filterKey] = $filterValue;
+				$arrOptions[(string)$filterKey] = $filterValue;
 			}
 
 			$this->arrfilterOptions = $arrOptions;
