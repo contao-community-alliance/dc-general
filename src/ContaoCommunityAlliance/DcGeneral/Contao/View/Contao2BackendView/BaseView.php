@@ -1625,7 +1625,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		}
 
 		$arrFieldSets = array();
-		$blnFirst = true;
+		$blnFirst     = true;
 		foreach ($palette->getLegends() as $legend)
 		{
 			$legendName = $environment->getTranslator()->translate($legend->getName() . '_legend', $definition->getName());
