@@ -2025,7 +2025,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		$providerName    = $environment->getDataDefinition()->getName();
 		$mode            = $basicDefinition->getMode();
 		$config          = $this->getEnvironment()->getController()->getBaseConfig();
-		$sorting         = $config->getSorting();
+		$sorting         = $this->getManualSortingProperty();
 
 		if ($serializedPid = $environment->getInputProvider()->getParameter('pid'))
 		{
