@@ -29,7 +29,6 @@ use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
@@ -73,7 +72,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGr
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\BackendBindings;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -688,6 +686,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	 * act       string Action to perform, either paste, cut or create.
 	 * id        mixed  The Id of the item to copy. In mode cut this is the id of the item to be moved.
 	 *
+	 * @param null|string $action The action to be executed or null.
+	 *
 	 * @return BaseView
 	 */
 	public function checkClipboard($action = null)
@@ -719,10 +719,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 				// We have to ignore all children of this element in mode 5 (to prevent circular references).
 				if ($this->getDataDefinition()->getBasicDefinition()->getMode() == BasicDefinitionInterface::MODE_HIERARCHICAL)
 				{
-					$objModel = $objDataProv->fetch($objDataProv->getEmptyConfig()->setId($idDetails->getId()));
+					$objModel  = $objDataProv->fetch($objDataProv->getEmptyConfig()->setId($idDetails->getId()));
+					$ignoredId = IdSerializer::fromValues($objModel->getProviderName(), 0);
 
-					$ignoredId  = new IdSerializer();
-					$ignoredId->setDataProviderName($objModel->getProviderName());
 					// FIXME: this can return ids originating from another data provider, we have to alter this to
 					// FIXME: return valid models instead of the ids or a tuple of data provider name and id.
 					foreach ($this->getEnvironment()->getController()->assembleAllChildrenFrom($objModel) as $childId)
@@ -1023,7 +1022,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 				$model = $this->createEmptyModelWithDefaults();
 				$models->push($model);
 			}
-			else if (is_string($id))
+			elseif (is_string($id))
 			{
 				$id           = IdSerializer::fromSerialized($id);
 				$dataProvider = $environment->getDataProvider($id->getDataProviderName());
@@ -1046,7 +1045,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 						$newModel = $environment->getController()->createClonedModel($model);
 
 						// And trigger the post event for it.
-						$duplicateEvent = new PostDuplicateModelEvent($environment,$newModel, $model);
+						$duplicateEvent = new PostDuplicateModelEvent($environment, $newModel, $model);
 						$environment->getEventPropagator()->propagate(
 							$duplicateEvent::NAME,
 							$duplicateEvent,
@@ -1134,7 +1133,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		}
 
 		// Trigger for each model the pre persist event.
-		foreach($models as $model)
+		foreach ($models as $model)
 		{
 			$event = new PrePasteModelEvent($environment, $model);
 			$environment->getEventPropagator()->propagate(
@@ -1166,7 +1165,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		}
 
 		// Trigger for each model the past persist event.
-		foreach($models as $model)
+		foreach ($models as $model)
 		{
 			$event = new PostPasteModelEvent($environment, $model);
 			$environment->getEventPropagator()->propagate(
@@ -1708,13 +1707,15 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 					)
 				);
 
-				if (!$model->getId() && $this->getManualSortingProperty()) {
+				if (!$model->getId() && $this->getManualSortingProperty())
+				{
 					$models = $dataProvider->getEmptyCollection();
 					$models->push($model);
 
 					$controller = $environment->getController();
 
-					if ($inputProvider->hasParameter('after')) {
+					if ($inputProvider->hasParameter('after'))
+					{
 						$after = IdSerializer::fromSerialized($inputProvider->getParameter('after'));
 
 						$previousDataProvider = $environment->getDataProvider($after->getDataProviderName());
@@ -1724,7 +1725,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 						$controller->pasteAfter($previousModel, $models, $this->getManualSortingProperty());
 					}
-					else if ($inputProvider->hasParameter('into')) {
+					elseif ($inputProvider->hasParameter('into'))
+					{
 						$into = IdSerializer::fromSerialized($inputProvider->getParameter('into'));
 
 						$parentDataProvider = $environment->getDataProvider($into->getDataProviderName());
@@ -1734,13 +1736,15 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 						$controller->pasteInto($parentModel, $models, $this->getManualSortingProperty());
 					}
-					else {
+					else
+					{
 						$controller->pasteTop($models, $this->getManualSortingProperty());
 					}
 
 					$environment->getClipboard()->clear()->saveTo($environment);
 				}
-				else {
+				else
+				{
 					// Save the model.
 					$dataProvider->save($model);
 				}
@@ -2077,9 +2081,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 				return null;
 			}
 
-			$after = new IdSerializer();
-			$after->setDataProviderName($definition->getName());
-			$after->setId(0);
+			$after = IdSerializer::fromValues($definition->getName(), 0);
 
 			$parameters['act']   = 'paste';
 			$parameters['mode']  = 'create';
@@ -2399,7 +2401,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$arrParameters['source'] = IdSerializer::fromModel($objModel)->getSerialized();
 		}
 
-		// The copy operation
+		// The copy operation.
 		elseif ($objCommand instanceof CopyCommandInterface)
 		{
 			$arrParameters        = array();
@@ -2663,11 +2665,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			);
 		}
 
-		if (
-			$this->getManualSortingProperty() &&
+		if ($this->getManualSortingProperty() &&
 			$objClipboard->isEmpty() &&
 			$this->getDataDefinition()->getBasicDefinition()->getMode() != BasicDefinitionInterface::MODE_HIERARCHICAL
-		) {
+		)
+		{
 			/** @var AddToUrlEvent $urlEvent */
 			$urlEvent = $propagator->propagate(
 				ContaoEvents::BACKEND_ADD_TO_URL,
@@ -2752,9 +2754,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	/**
 	 * Render the panel.
 	 *
-	 * @param array $ignoredPanels A list with ignored elements. [Optional]
+	 * @param array $ignoredPanels A list with ignored elements [Optional].
 	 *
-	 * @throws \ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException
+	 * @throws DcGeneralRuntimeException When no information of panels can be obtained from the data container.
 	 *
 	 * @return string
 	 */
@@ -2772,7 +2774,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			foreach ($objPanel as $objElement)
 			{
 				// If the current class in the list of ignored panels go to the next one.
-				if(!empty($ignoredPanels) && $this->isIgnoredPanel($objElement, $ignoredPanels))
+				if (!empty($ignoredPanels) && $this->isIgnoredPanel($objElement, $ignoredPanels))
 				{
 					continue;
 				}
@@ -2838,9 +2840,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	 */
 	protected function isIgnoredPanel(PanelElementInterface $objElement, $ignoredPanels)
 	{
-		foreach((array) $ignoredPanels as $class)
+		foreach ((array)$ignoredPanels as $class)
 		{
-			if($objElement instanceof $class)
+			if ($objElement instanceof $class)
 			{
 				return true;
 			}
