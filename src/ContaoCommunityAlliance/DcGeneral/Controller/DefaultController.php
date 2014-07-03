@@ -545,6 +545,13 @@ class DefaultController implements ControllerInterface
 			$objConfig->setFilter($arrAdditional);
 		}
 
+		if (!$objConfig->getSorting())
+		{
+			/** @var Contao2BackendViewDefinitionInterface $viewDefinition */
+			$viewDefinition = $objDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+			$objConfig->setSorting($viewDefinition->getListingConfig()->getDefaultSortingFields());
+		}
+
 		// Special filter for certain modes.
 		if ($objDefinition->getBasicDefinition()->getMode() == BasicDefinitionInterface::MODE_PARENTEDLIST)
 		{

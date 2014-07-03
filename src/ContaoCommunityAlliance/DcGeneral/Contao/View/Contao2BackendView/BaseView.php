@@ -1021,43 +1021,47 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			if ($id === null)
 			{
 				$model = $this->createEmptyModelWithDefaults();
+				$models->push($model);
 			}
-			else
+			else if (is_string($id))
 			{
-				$id    = IdSerializer::fromSerialized($id);
-				$model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($id->getId()));
+				$id           = IdSerializer::fromSerialized($id);
+				$dataProvider = $environment->getDataProvider($id->getDataProviderName());
+				$model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($id->getId()));
 
-				if ($clone)
-				{
-					// Trigger the pre duplicate event.
-					$duplicateEvent = new PreDuplicateModelEvent($environment, $model);
-					$environment->getEventPropagator()->propagate(
-						$duplicateEvent::NAME,
-						$duplicateEvent,
-						array(
-							$environment->getDataDefinition()->getName(),
-						)
-					);
+				if ($model) {
+					if ($clone)
+					{
+						// Trigger the pre duplicate event.
+						$duplicateEvent = new PreDuplicateModelEvent($environment, $model);
+						$environment->getEventPropagator()->propagate(
+							$duplicateEvent::NAME,
+							$duplicateEvent,
+							array(
+								$environment->getDataDefinition()->getName(),
+							)
+						);
 
-					// Make a duplicate.
-					$newModel = $environment->getController()->createClonedModel($model);
+						// Make a duplicate.
+						$newModel = $environment->getController()->createClonedModel($model);
 
-					// And trigger the post event for it.
-					$duplicateEvent = new PostDuplicateModelEvent($environment,$newModel, $model);
-					$environment->getEventPropagator()->propagate(
-						$duplicateEvent::NAME,
-						$duplicateEvent,
-						array(
-							$environment->getDataDefinition()->getName(),
-						)
-					);
+						// And trigger the post event for it.
+						$duplicateEvent = new PostDuplicateModelEvent($environment,$newModel, $model);
+						$environment->getEventPropagator()->propagate(
+							$duplicateEvent::NAME,
+							$duplicateEvent,
+							array(
+								$environment->getDataDefinition()->getName(),
+							)
+						);
 
-					// Set the new model as the old one.
-					$model = $newModel;
+						// Set the new model as the old one.
+						$model = $newModel;
+					}
+
+					$models->push($model);
 				}
 			}
-
-			$models->push($model);
 		}
 
 		return $models;
@@ -1088,6 +1092,18 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		$into        = $input->getParameter('into')
 			? IdSerializer::fromSerialized($input->getParameter('into'))
 			: null;
+
+		if ($input->getParameter('mode') == 'create')
+		{
+			$dataProvider = $environment->getDataProvider();
+
+			$models = $dataProvider->getEmptyCollection();
+			$models->push($dataProvider->getEmptyModel());
+
+			$clipboard->create($input->getParameter('pid'))->saveTo($environment);
+
+			$this->redirectHome();
+		}
 
 		if ($source)
 		{
@@ -1690,8 +1706,42 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 					)
 				);
 
-				// Save the model.
-				$dataProvider->save($model);
+				if ($this->getManualSortingProperty()) {
+					$models = $dataProvider->getEmptyCollection();
+					$models->push($model);
+
+					$controller = $environment->getController();
+
+					if ($inputProvider->hasParameter('after')) {
+						$after = IdSerializer::fromSerialized($inputProvider->getParameter('after'));
+
+						$previousDataProvider = $environment->getDataProvider($after->getDataProviderName());
+						$previousFetchConfig  = $previousDataProvider->getEmptyConfig();
+						$previousFetchConfig->setId($after->getId());
+						$previousModel = $previousDataProvider->fetch($previousFetchConfig);
+
+						$controller->pasteAfter($previousModel, $models, $this->getManualSortingProperty());
+					}
+					else if ($inputProvider->hasParameter('into')) {
+						$into = IdSerializer::fromSerialized($inputProvider->getParameter('into'));
+
+						$parentDataProvider = $environment->getDataProvider($into->getDataProviderName());
+						$parentFetchConfig  = $parentDataProvider->getEmptyConfig();
+						$parentFetchConfig->setId($into->getId());
+						$parentModel = $parentDataProvider->fetch($parentFetchConfig);
+
+						$controller->pasteInto($parentModel, $models, $this->getManualSortingProperty());
+					}
+					else {
+						$controller->pasteTop($models, $this->getManualSortingProperty());
+					}
+
+					$environment->getClipboard()->clear()->saveTo($environment);
+				}
+				else {
+					// Save the model.
+					$dataProvider->save($model);
+				}
 
 				// Trigger the event for post persists or create.
 				if ($postFunction != null)
@@ -2025,8 +2075,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 				return null;
 			}
 
-			$parameters['act']  = 'paste';
-			$parameters['mode'] = 'create';
+			$after = new IdSerializer();
+			$after->setDataProviderName($definition->getName());
+			$after->setId(0);
+
+			$parameters['act']   = 'paste';
+			$parameters['mode']  = 'create';
+			$parameters['after'] = $after->getSerialized();
 			if ($pid->getDataProviderName() && $pid->getId())
 			{
 				$parameters['pid'] = $pid->getSerialized();
@@ -2606,15 +2661,47 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			);
 		}
 
+		if (
+			$this->getManualSortingProperty() &&
+			$objClipboard->isEmpty() &&
+			$this->getDataDefinition()->getBasicDefinition()->getMode() != BasicDefinitionInterface::MODE_HIERARCHICAL
+		) {
+			/** @var AddToUrlEvent $urlEvent */
+			$urlEvent = $propagator->propagate(
+				ContaoEvents::BACKEND_ADD_TO_URL,
+				new AddToUrlEvent(
+					'act=create&amp;after=' . IdSerializer::fromModel($model)->getSerialized()
+				)
+			);
+
+			/** @var GenerateHtmlEvent $imageEvent */
+			$imageEvent = $propagator->propagate(
+				ContaoEvents::IMAGE_GET_HTML,
+				new GenerateHtmlEvent(
+					'new.gif',
+					$this->translate('pastenew.0', $this->getDataDefinition()->getName())
+				)
+			);
+
+			$arrButtons['pasteNew'] = sprintf(
+				'<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
+				$urlEvent->getUrl(),
+				specialchars($this->translate('pastenew.1', $this->getDataDefinition()->getName())),
+				$imageEvent->getHtml()
+			);
+		}
+
 		// Add paste into/after icons.
-		if ($this->getEnvironment()->getClipboard()->isNotEmpty())
+		if ($objClipboard->isNotEmpty())
 		{
 			// Add ext. information.
-			$add2UrlAfter = sprintf('act=paste&after=%s&',
+			$add2UrlAfter = sprintf('act=%s&after=%s&',
+				$objClipboard->getMode(),
 				IdSerializer::fromModel($model)->getSerialized()
 			);
 
-			$add2UrlInto = sprintf('act=paste&into=%s&',
+			$add2UrlInto = sprintf('act=%s&into=%s&',
+				$objClipboard->getMode(),
 				IdSerializer::fromModel($model)->getSerialized()
 			);
 
