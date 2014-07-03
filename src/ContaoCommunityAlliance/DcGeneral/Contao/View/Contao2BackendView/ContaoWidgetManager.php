@@ -324,11 +324,36 @@ class ContaoWidgetManager
 
 			$propertyId = 'ctrl_' . $property->getName();
 
-			$GLOBALS['TL_RTE'][$file][$propertyId] = array(
-				'id' => $propertyId,
-				'file' => $file,
-				'type' => $type
-			);
+			if (version_compare(VERSION, '3.3', '<')) {
+				$GLOBALS['TL_RTE'][$file][$propertyId] = array(
+					'id'   => $propertyId,
+					'file' => $file,
+					'type' => $type
+				);
+			}
+			else {
+				if (!file_exists(TL_ROOT . '/system/config/' . $file . '.php'))
+				{
+					throw new \Exception(sprintf('Cannot find editor configuration file "%s.php"', $file));
+				}
+
+				// Backwards compatibility
+				$language = substr($GLOBALS['TL_LANGUAGE'], 0, 2);
+
+				if (!file_exists(TL_ROOT . '/assets/tinymce/langs/' . $language . '.js'))
+				{
+					$language = 'en';
+				}
+
+				$selector = $propertyId;
+
+				ob_start();
+				include TL_ROOT . '/system/config/' . $file . '.php';
+				$updateMode = ob_get_contents();
+				ob_end_clean();
+
+				$GLOBALS['TL_MOOTOOLS'][] = $updateMode;
+			}
 		}
 	}
 

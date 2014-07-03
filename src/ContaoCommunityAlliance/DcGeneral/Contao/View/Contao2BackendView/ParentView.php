@@ -354,15 +354,19 @@ class ParentView extends BaseView
 			$this->getPanel()->initialize($objConfig);
 			$sorting = $objConfig->getSorting();
 
-			if ($sorting
+			$headerButtons['editHeader'] = $this->getHeaderEditButtons($parentModel);
+
+			if (
+				$sorting
+				&& $clipboard->isEmpty()
 				&& !$basicDefinition->isClosed()
-				&& $basicDefinition->isCreatable())
-			{
+				&& $basicDefinition->isCreatable()
+			) {
 				/** @var AddToUrlEvent $urlEvent */
 				$urlEvent = $propagator->propagate(
 					ContaoEvents::BACKEND_ADD_TO_URL,
 					new AddToUrlEvent(
-						'act=paste&amp;mode=create&amp;pid=' . IdSerializer::fromModel($parentModel)->getSerialized()
+						'act=create&amp;pid=' . IdSerializer::fromModel($parentModel)->getSerialized()
 					)
 				);
 
@@ -382,8 +386,6 @@ class ParentView extends BaseView
 					$imageEvent->getHtml()
 				);
 			}
-
-			$headerButtons['editHeader'] = $this->getHeaderEditButtons($parentModel);
 
 			if ($sorting && $clipboard->isNotEmpty())
 			{
