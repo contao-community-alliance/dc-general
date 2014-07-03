@@ -1377,7 +1377,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$_SESSION['TL_CONFIRM'] = '';
 			// @codingStandardsIgnoreEnd
 
-			$newUrlEvent = new AddToUrlEvent('act=create&id=');
+			$after = IdSerializer::fromModel($model);
+
+			$newUrlEvent = new AddToUrlEvent('act=create&id=&after=' . $after->getSerialized());
 			$environment->getEventPropagator()->propagate(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
 			$environment->getEventPropagator()->propagate(
 				ContaoEvents::CONTROLLER_REDIRECT,
