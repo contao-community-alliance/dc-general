@@ -1706,7 +1706,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 					)
 				);
 
-				if ($this->getManualSortingProperty()) {
+				if (!$model->getId() && $this->getManualSortingProperty()) {
 					$models = $dataProvider->getEmptyCollection();
 					$models->push($model);
 
