@@ -66,7 +66,7 @@ abstract class DcaReadingDataDefinitionBuilder extends AbstractEventDrivenDataDe
 
 		while (($chunk = array_shift($chunks)) !== null)
 		{
-			if (!array_key_exists($chunk, $dca))
+			if (!(is_array($dca) && array_key_exists($chunk, $dca)))
 			{
 				return null;
 			}
