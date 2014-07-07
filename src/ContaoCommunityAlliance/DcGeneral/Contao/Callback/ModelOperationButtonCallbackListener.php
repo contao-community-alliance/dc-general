@@ -13,6 +13,8 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Callback;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 
 /**
  * Class ModelOperationButtonCallbackListener.
@@ -36,7 +38,7 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
 
 		return array(
 			$event->getModel()->getPropertiesAsArray(),
-			$event->getHref(),
+			$this->buildHref($event->getCommand()),
 			$event->getLabel(),
 			$event->getTitle(),
 			isset($attributes['icon']) ? $attributes['icon'] : null,
@@ -69,4 +71,30 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
 		$event->setHtml($value);
 		$event->stopPropagation();
 	}
+
+	/**
+	 * Build reduced href required by legacy callbacks.
+	 *
+	 * @param CommandInterface $command
+	 * @return string
+	 */
+	protected function buildHref(CommandInterface $command)
+	{
+		$arrParameters = $command->getParameters();
+		$strHref       = '';
+
+		foreach($arrParameters as $key=>$value)
+		{
+			$strHref .= sprintf('&%s=%s', $key, $value);
+		}
+
+		// add action as well, only if no module key is given
+		if(!isset($arrParameters['key']))
+		{
+			$strHref .= sprintf('&%s=%s', 'act', $command->getName());
+		}
+
+		return $strHref;
+	}
+
 }
