@@ -1723,7 +1723,14 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 						$previousFetchConfig->setId($after->getId());
 						$previousModel = $previousDataProvider->fetch($previousFetchConfig);
 
-						$controller->pasteAfter($previousModel, $models, $this->getManualSortingProperty());
+						if ($previousModel)
+						{
+							$controller->pasteAfter($previousModel, $models, $this->getManualSortingProperty());
+						}
+						else
+						{
+							$controller->pasteTop($models, $this->getManualSortingProperty());
+						}
 					}
 					elseif ($inputProvider->hasParameter('into'))
 					{
@@ -2083,9 +2090,14 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 			$after = IdSerializer::fromValues($definition->getName(), 0);
 
-			$parameters['act']   = 'paste';
-			$parameters['mode']  = 'create';
-			$parameters['after'] = $after->getSerialized();
+			$parameters['act']  = 'paste';
+			$parameters['mode'] = 'create';
+
+			if ($mode == BasicDefinitionInterface::MODE_PARENTEDLIST)
+			{
+				$parameters['after'] = $after->getSerialized();
+			}
+
 			if ($pid->getDataProviderName() && $pid->getId())
 			{
 				$parameters['pid'] = $pid->getSerialized();
