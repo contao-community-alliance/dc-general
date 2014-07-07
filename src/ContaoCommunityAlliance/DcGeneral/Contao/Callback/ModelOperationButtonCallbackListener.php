@@ -87,12 +87,6 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
 			$strHref .= sprintf('&%s=%s', $key, $value);
 		}
 
-		// add action as well, only if no module key is given
-		if(!isset($arrParameters['key']))
-		{
-			$strHref .= sprintf('&%s=%s', 'act', $command->getName());
-		}
-
 		return $strHref;
 	}
 
