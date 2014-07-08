@@ -78,10 +78,11 @@ interface CommandCollectionInterface
 	 * Add an command to this collection.
 	 *
 	 * @param CommandInterface $command The command to add.
+	 * @param CommandInterface $before The command before the passed command shall be inserted (optional).
 	 *
 	 * @return CommandCollectionInterface
 	 */
-	public function addCommand(CommandInterface $command);
+	public function addCommand(CommandInterface $command, CommandInterface $before=null);
 
 	/**
 	 * Remove an command from this collection.

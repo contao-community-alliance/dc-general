@@ -107,11 +107,22 @@ class CommandCollection implements CommandCollectionInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function addCommand(CommandInterface $command)
+	public function addCommand(CommandInterface $command, CommandInterface $before=null)
 	{
 		$hash = spl_object_hash($command);
 
-		$this->commands[$hash] = $command;
+		if ($before && $this->hasCommand($before))
+		{
+			$position = array_search(spl_object_hash($before), array_keys($this->commands));
+
+			$this->commands = array_slice($this->commands, 0, $position, true)
+				+ array($hash => $command)
+				+ array_slice($this->commands, $position, null, true);
+		}
+		else
+		{
+			$this->commands[$hash] = $command;
+		}
 
 		return $this;
 	}
