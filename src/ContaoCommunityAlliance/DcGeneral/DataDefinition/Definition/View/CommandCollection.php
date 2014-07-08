@@ -55,11 +55,11 @@ class CommandCollection implements CommandCollectionInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function addCommands(array $commands)
+	public function addCommands(array $commands, CommandInterface $before=null)
 	{
 		foreach ($commands as $command)
 		{
-			$this->addCommand($command);
+			$this->addCommand($command, $before);
 		}
 
 		return $this;
