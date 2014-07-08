@@ -208,13 +208,17 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 		else
 		{
 			// Determine the name.
-			if (isset($information['source']))
-			{
-				$providerName = $information['source'];
-			}
-			elseif($name && !$this->isSpecialName($name))
+			if ($name && !$this->isSpecialName($name))
 			{
 				$providerName = $name;
+			}
+			elseif ($name === 'default')
+			{
+				$providerName = $container->getName();
+			}
+			elseif (isset($information['source']))
+			{
+				$providerName = $information['source'];
 			}
 			else
 			{
