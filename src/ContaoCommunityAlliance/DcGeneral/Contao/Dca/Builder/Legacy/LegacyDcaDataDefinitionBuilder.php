@@ -576,35 +576,41 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			}
 		}
 
+		$providerName = $container->getBasicDefinition()->getDataProvider() ?: $container->getName();
+
 		// Check config if it already exists, if not, add it.
-		if (!$config->hasInformation($container->getName()))
+		if (!$config->hasInformation($providerName))
 		{
 			$providerInformation = new ContaoDataProviderInformation();
-			$providerInformation->setName($container->getName());
+			$providerInformation->setName($providerName);
 			$config->addInformation($providerInformation);
 		}
 		else
 		{
-			$providerInformation = $config->getInformation($container->getName());
+			$providerInformation = $config->getInformation($providerName);
 		}
 
 		if ($providerInformation instanceof ContaoDataProviderInformation)
 		{
 			$initializationData = (array)$providerInformation->getInitializationData();
 
+			if (!isset($initializationData['source']))
+			{
+				$providerInformation
+					->setTableName($providerName)
+					->setInitializationData(array_merge(
+						array(
+							'source' => $providerName
+						),
+						$initializationData
+					));
+			}
 			$providerInformation
-				->setTableName($container->getName())
-				->setInitializationData(array_merge(
-					array(
-						'source' => $container->getName()
-					),
-					$initializationData
-				))
 				->isVersioningEnabled((bool)$this->getFromDca('config/enableVersioning'));
 
 			if (!$container->getBasicDefinition()->getDataProvider())
 			{
-				$container->getBasicDefinition()->setDataProvider($container->getName());
+				$container->getBasicDefinition()->setDataProvider($providerName);
 			}
 		}
 	}
