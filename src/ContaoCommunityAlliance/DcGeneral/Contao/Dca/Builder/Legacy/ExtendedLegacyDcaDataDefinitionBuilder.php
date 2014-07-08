@@ -168,6 +168,18 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 	}
 
 	/**
+	 * Test if a data provider name is a special name.
+	 *
+	 * @param string $name The name to test.
+	 *
+	 * @return bool
+	 */
+	protected function isSpecialName($name)
+	{
+		return in_array($name, array('default', 'root', 'parent'));
+	}
+
+	/**
 	 * Parse a single data provider information and prepare the definition object for it.
 	 *
 	 * @param ContainerInterface              $container   The container where the data shall be stored.
@@ -176,12 +188,15 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 	 *
 	 * @param array                           $information The information for the data provider to be parsed.
 	 *
+	 * @param string|null                     $name        The name of the data provider to be used within the container.
+	 *
 	 * @return ContaoDataProviderInformation|null
 	 */
 	protected function parseSingleDataProvider(
 		ContainerInterface $container,
 		DataProviderDefinitionInterface $providers,
-		array $information
+		array $information,
+		$name
 	)
 	{
 		if (isset($information['factory']))
@@ -196,6 +211,10 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 			if (isset($information['source']))
 			{
 				$providerName = $information['source'];
+			}
+			elseif($name && !$this->isSpecialName($name))
+			{
+				$providerName = $name;
 			}
 			else
 			{
@@ -259,7 +278,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
 		foreach ($dataProvidersDca as $dataProviderDcaName => $dataProviderDca)
 		{
-			$providerInformation = $this->parseSingleDataProvider($container, $config, $dataProviderDca);
+			$providerInformation = $this->parseSingleDataProvider($container, $config, $dataProviderDca, $dataProviderDcaName);
 
 			if ($providerInformation instanceof ContaoDataProviderInformation)
 			{
