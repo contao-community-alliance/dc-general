@@ -286,12 +286,10 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
 			if ($providerInformation instanceof ContaoDataProviderInformation)
 			{
+				$baseInitializationData = array(
+					'name' => $dataProviderDcaName,
+				);
 				$initializationData = (array)$providerInformation->getInitializationData();
-
-				$providerInformation->setInitializationData(array_merge(
-					$dataProviderDca,
-					$initializationData
-				));
 
 				switch ((string)$dataProviderDcaName)
 				{
@@ -301,18 +299,27 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 						);
 
 						$container->getBasicDefinition()->setDataProvider($providerInformation->getName());
+						$baseInitializationData['name'] = $providerInformation->getName();
 						break;
 
 					case 'root':
 						$container->getBasicDefinition()->setRootDataProvider($providerInformation->getName());
+						$baseInitializationData['name'] = $providerInformation->getName();
 						break;
 
 					case 'parent':
 						$container->getBasicDefinition()->setParentDataProvider($providerInformation->getName());
+						$baseInitializationData['name'] = $providerInformation->getName();
 						break;
 
 					default:
 				}
+
+				$providerInformation->setInitializationData(array_merge(
+					$baseInitializationData,
+					$dataProviderDca,
+					$initializationData
+				));
 			}
 		}
 	}

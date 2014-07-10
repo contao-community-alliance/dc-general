@@ -560,7 +560,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 					->setTableName($parentTable)
 					->setInitializationData(array_merge(
 						array(
-							'source' => $parentTable
+							'source' => $parentTable,
+							'name'   => $parentTable,
 						),
 						$initializationData
 					));
@@ -600,7 +601,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 					->setTableName($providerName)
 					->setInitializationData(array_merge(
 						array(
-							'source' => $providerName
+							'source' => $providerName,
+							'name'   => $providerName,
 						),
 						$initializationData
 					));
