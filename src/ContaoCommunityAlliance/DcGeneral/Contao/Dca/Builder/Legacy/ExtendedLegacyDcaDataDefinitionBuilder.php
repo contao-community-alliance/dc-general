@@ -239,8 +239,16 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
 			if (!$providerInformation->getTableName())
 			{
-				$providerInformation
-					->setTableName($providerName);
+				if (isset($information['source']))
+				{
+					$providerInformation
+						->setTableName($information['source']);
+				}
+				else
+				{
+					$providerInformation
+						->setTableName($providerName);
+				}
 			}
 
 			if (isset($information['class']))
