@@ -57,7 +57,7 @@ class CommandCollection implements CommandCollectionInterface
 	 *
 	 * @throws DcGeneralInvalidArgumentException When the command passed as $before can not be found.
 	 */
-	public function addCommands(array $commands, CommandInterface $before=null)
+	public function addCommands(array $commands, CommandInterface $before = null)
 	{
 		foreach ($commands as $command)
 		{
@@ -111,7 +111,7 @@ class CommandCollection implements CommandCollectionInterface
 	 *
 	 * @throws DcGeneralInvalidArgumentException When the command passed as $before can not be found.
 	 */
-	public function addCommand(CommandInterface $command, CommandInterface $before=null)
+	public function addCommand(CommandInterface $command, CommandInterface $before = null)
 	{
 		$hash = spl_object_hash($command);
 
@@ -119,7 +119,7 @@ class CommandCollection implements CommandCollectionInterface
 		{
 			$beforeHash = spl_object_hash($before);
 
-			if(isset($this->commands[$beforeHash]))
+			if (isset($this->commands[$beforeHash]))
 			{
 				$hashes   = array_keys($this->commands);
 				$position = array_search($beforeHash, $hashes);
