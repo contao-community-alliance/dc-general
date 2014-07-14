@@ -1741,7 +1741,14 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 						$parentFetchConfig->setId($into->getId());
 						$parentModel = $parentDataProvider->fetch($parentFetchConfig);
 
-						$controller->pasteInto($parentModel, $models, $this->getManualSortingProperty());
+						if ($parentModel)
+						{
+							$controller->pasteInto($parentModel, $models, $this->getManualSortingProperty());
+						}
+						else
+						{
+							$controller->pasteTop($models, $this->getManualSortingProperty());
+						}
 					}
 					else
 					{
