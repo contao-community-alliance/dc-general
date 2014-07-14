@@ -21,7 +21,6 @@ use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -706,8 +705,6 @@ class TreeView extends BaseView
 	public function enforceModelRelationship($model)
 	{
 		$environment = $this->getEnvironment();
-		$definition  = $environment->getDataDefinition();
-		$basic       = $definition->getBasicDefinition();
 		$input       = $environment->getInputProvider();
 		$controller  = $environment->getController();
 
