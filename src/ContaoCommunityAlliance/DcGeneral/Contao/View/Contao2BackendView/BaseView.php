@@ -163,6 +163,16 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 			default:
 		}
+
+		if ($this->getViewSection()->getModelCommands()->hasCommandNamed($name))
+		{
+			$command = $this->getViewSection()->getModelCommands()->getCommandNamed($name);
+
+			if ($command instanceof ToggleCommandInterface)
+			{
+				$this->toggle($name);
+			}
+		}
 	}
 	// @codingStandardsIgnoreEnd
 
@@ -1999,9 +2009,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	/**
 	 * Handle the "toggle" action.
 	 *
+	 * @param string $name The command name (default: toggle).
+	 *
 	 * @return string
 	 */
-	public function toggle()
+	public function toggle($name = 'toggle')
 	{
 		$environment = $this->getEnvironment();
 		$input       = $environment->getInputProvider();
@@ -2017,7 +2029,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		}
 
 		/** @var ToggleCommandInterface $operation */
-		$operation    = $this->getViewSection()->getModelCommands()->getCommandNamed('toggle');
+		$operation    = $this->getViewSection()->getModelCommands()->getCommandNamed($name);
 		$dataProvider = $environment->getDataProvider();
 		$newState     = $operation->isInverse()
 			? $input->getParameter('state') == 1 ? '' : '1'
