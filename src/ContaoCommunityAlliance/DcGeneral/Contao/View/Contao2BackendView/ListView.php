@@ -13,7 +13,6 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
@@ -45,7 +44,6 @@ class ListView extends BaseView
 		$listingConfig = $backendView->getListingConfig();
 
 		$objCurrentDataProvider = $environment->getDataProvider();
-		$objParentDataProvider  = $environment->getDataProvider($definition->getBasicDefinition()->getParentDataProvider());
 		$objConfig              = $environment->getController()->getBaseConfig();
 
 		// Initialize sorting.
@@ -143,7 +141,7 @@ class ListView extends BaseView
 				{
 					$eoCount = -1;
 
-					$objModelRow->setMeta(DCGE::MODEL_GROUP_VALUE, array(
+					$objModelRow->setMeta($objModelRow::GROUP_VALUE, array(
 						'class' => $groupClass,
 						'value' => $remoteNew
 					));
@@ -153,9 +151,9 @@ class ListView extends BaseView
 				}
 			}
 
-			$objModelRow->setMeta(DCGE::MODEL_EVEN_ODD_CLASS, (((++$eoCount) % 2 == 0) ? 'even' : 'odd'));
+			$objModelRow->setMeta($objModelRow::CSS_ROW_CLASS, (((++$eoCount) % 2 == 0) ? 'even' : 'odd'));
 
-			$objModelRow->setMeta(DCGE::MODEL_LABEL_VALUE, $this->formatModel($objModelRow));
+			$objModelRow->setMeta($objModelRow::LABEL_VALUE, $this->formatModel($objModelRow));
 		}
 	}
 
@@ -186,7 +184,7 @@ class ListView extends BaseView
 				$next     = ((!is_null($collection->get($i + 1))) ? $collection->get($i + 1) : null);
 				/** @var ModelInterface $objModel */
 				$objModel->setMeta(
-					DCGE::MODEL_BUTTONS,
+					$objModel::OPERATION_BUTTONS,
 					$this->generateButtons($objModel, $previous, $next)
 				);
 			}
