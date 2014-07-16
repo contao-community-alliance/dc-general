@@ -168,6 +168,18 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 	}
 
 	/**
+	 * Test if a data provider name is a special name.
+	 *
+	 * @param string $name The name to test.
+	 *
+	 * @return bool
+	 */
+	protected function isSpecialName($name)
+	{
+		return in_array($name, array('default', 'root', 'parent'));
+	}
+
+	/**
 	 * Parse a single data provider information and prepare the definition object for it.
 	 *
 	 * @param ContainerInterface              $container   The container where the data shall be stored.
@@ -176,12 +188,15 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 	 *
 	 * @param array                           $information The information for the data provider to be parsed.
 	 *
+	 * @param string|null                     $name        The name of the data provider to be used within the container.
+	 *
 	 * @return ContaoDataProviderInformation|null
 	 */
 	protected function parseSingleDataProvider(
 		ContainerInterface $container,
 		DataProviderDefinitionInterface $providers,
-		array $information
+		array $information,
+		$name
 	)
 	{
 		if (isset($information['factory']))
@@ -193,7 +208,15 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 		else
 		{
 			// Determine the name.
-			if (isset($information['source']))
+			if ($name && !$this->isSpecialName($name))
+			{
+				$providerName = $name;
+			}
+			elseif ($name === 'default')
+			{
+				$providerName = $container->getName();
+			}
+			elseif (isset($information['source']))
 			{
 				$providerName = $information['source'];
 			}
@@ -216,8 +239,16 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
 			if (!$providerInformation->getTableName())
 			{
-				$providerInformation
-					->setTableName($providerName);
+				if (isset($information['source']))
+				{
+					$providerInformation
+						->setTableName($information['source']);
+				}
+				else
+				{
+					$providerInformation
+						->setTableName($providerName);
+				}
 			}
 
 			if (isset($information['class']))
@@ -259,16 +290,14 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
 		foreach ($dataProvidersDca as $dataProviderDcaName => $dataProviderDca)
 		{
-			$providerInformation = $this->parseSingleDataProvider($container, $config, $dataProviderDca);
+			$providerInformation = $this->parseSingleDataProvider($container, $config, $dataProviderDca, $dataProviderDcaName);
 
 			if ($providerInformation instanceof ContaoDataProviderInformation)
 			{
+				$baseInitializationData = array(
+					'name' => $dataProviderDcaName,
+				);
 				$initializationData = (array)$providerInformation->getInitializationData();
-
-				$providerInformation->setInitializationData(array_merge(
-					$dataProviderDca,
-					$initializationData
-				));
 
 				switch ((string)$dataProviderDcaName)
 				{
@@ -278,18 +307,27 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 						);
 
 						$container->getBasicDefinition()->setDataProvider($providerInformation->getName());
+						$baseInitializationData['name'] = $providerInformation->getName();
 						break;
 
 					case 'root':
 						$container->getBasicDefinition()->setRootDataProvider($providerInformation->getName());
+						$baseInitializationData['name'] = $providerInformation->getName();
 						break;
 
 					case 'parent':
 						$container->getBasicDefinition()->setParentDataProvider($providerInformation->getName());
+						$baseInitializationData['name'] = $providerInformation->getName();
 						break;
 
 					default:
 				}
+
+				$providerInformation->setInitializationData(array_merge(
+					$baseInitializationData,
+					$dataProviderDca,
+					$initializationData
+				));
 			}
 		}
 	}

@@ -33,6 +33,6 @@ class ContainerOnCopyCallbackListener extends AbstractCallbackListener
 	 */
 	public function getArgs($event)
 	{
-		return array($event->getModel()->getId(), new DcCompat($event->getEnvironment(), $event->getModel()));
+		return array($event->getModel()->getId(), new DcCompat($event->getEnvironment(), $event->getSourceModel()));
 	}
 }

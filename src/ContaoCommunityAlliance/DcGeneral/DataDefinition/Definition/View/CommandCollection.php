@@ -54,12 +54,14 @@ class CommandCollection implements CommandCollectionInterface
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException When the command passed as $before can not be found.
 	 */
-	public function addCommands(array $commands)
+	public function addCommands(array $commands, CommandInterface $before = null)
 	{
 		foreach ($commands as $command)
 		{
-			$this->addCommand($command);
+			$this->addCommand($command, $before);
 		}
 
 		return $this;
@@ -106,12 +108,43 @@ class CommandCollection implements CommandCollectionInterface
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException When the command passed as $before can not be found.
 	 */
-	public function addCommand(CommandInterface $command)
+	public function addCommand(CommandInterface $command, CommandInterface $before = null)
 	{
 		$hash = spl_object_hash($command);
 
-		$this->commands[$hash] = $command;
+		if ($before)
+		{
+			$beforeHash = spl_object_hash($before);
+
+			if (isset($this->commands[$beforeHash]))
+			{
+				$hashes   = array_keys($this->commands);
+				$position = array_search($beforeHash, $hashes);
+
+				$this->commands = array_merge(
+					array_slice($this->commands, 0, $position),
+					array($hash => $command),
+					array_slice($this->commands, $position)
+				);
+			}
+			else
+			{
+				throw new DcGeneralInvalidArgumentException(
+					sprintf(
+						'Command %s not contained command collection - can not add %s after it.',
+						$before->getName(),
+						$command->getName()
+					)
+				);
+			}
+		}
+		else
+		{
+			$this->commands[$hash] = $command;
+		}
 
 		return $this;
 	}

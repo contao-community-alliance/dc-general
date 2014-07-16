@@ -42,10 +42,11 @@ interface CommandCollectionInterface
 	 * Add commands to this collection.
 	 *
 	 * @param CommandInterface[]|array $commands The commands that shall be added to the collection.
+	 * @param CommandInterface $before The command before the passed commands shall be inserted (optional).
 	 *
 	 * @return CommandCollectionInterface
 	 */
-	public function addCommands(array $commands);
+	public function addCommands(array $commands, CommandInterface $before=null);
 
 	/**
 	 * Remove commands from this collection.
@@ -78,10 +79,11 @@ interface CommandCollectionInterface
 	 * Add an command to this collection.
 	 *
 	 * @param CommandInterface $command The command to add.
+	 * @param CommandInterface $before The command before the passed command shall be inserted (optional).
 	 *
 	 * @return CommandCollectionInterface
 	 */
-	public function addCommand(CommandInterface $command);
+	public function addCommand(CommandInterface $command, CommandInterface $before=null);
 
 	/**
 	 * Remove an command from this collection.

@@ -163,6 +163,16 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 			default:
 		}
+
+		if ($this->getViewSection()->getModelCommands()->hasCommandNamed($name))
+		{
+			$command = $this->getViewSection()->getModelCommands()->getCommandNamed($name);
+
+			if ($command instanceof ToggleCommandInterface)
+			{
+				$this->toggle($name);
+			}
+		}
 	}
 	// @codingStandardsIgnoreEnd
 
@@ -1723,7 +1733,14 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 						$previousFetchConfig->setId($after->getId());
 						$previousModel = $previousDataProvider->fetch($previousFetchConfig);
 
-						$controller->pasteAfter($previousModel, $models, $this->getManualSortingProperty());
+						if ($previousModel)
+						{
+							$controller->pasteAfter($previousModel, $models, $this->getManualSortingProperty());
+						}
+						else
+						{
+							$controller->pasteTop($models, $this->getManualSortingProperty());
+						}
 					}
 					elseif ($inputProvider->hasParameter('into'))
 					{
@@ -1734,7 +1751,14 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 						$parentFetchConfig->setId($into->getId());
 						$parentModel = $parentDataProvider->fetch($parentFetchConfig);
 
-						$controller->pasteInto($parentModel, $models, $this->getManualSortingProperty());
+						if ($parentModel)
+						{
+							$controller->pasteInto($parentModel, $models, $this->getManualSortingProperty());
+						}
+						else
+						{
+							$controller->pasteTop($models, $this->getManualSortingProperty());
+						}
 					}
 					else
 					{
@@ -1985,9 +2009,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	/**
 	 * Handle the "toggle" action.
 	 *
+	 * @param string $name The command name (default: toggle).
+	 *
 	 * @return string
 	 */
-	public function toggle()
+	public function toggle($name = 'toggle')
 	{
 		$environment = $this->getEnvironment();
 		$input       = $environment->getInputProvider();
@@ -2003,7 +2029,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		}
 
 		/** @var ToggleCommandInterface $operation */
-		$operation    = $this->getViewSection()->getModelCommands()->getCommandNamed('toggle');
+		$operation    = $this->getViewSection()->getModelCommands()->getCommandNamed($name);
 		$dataProvider = $environment->getDataProvider();
 		$newState     = $operation->isInverse()
 			? $input->getParameter('state') == 1 ? '' : '1'
@@ -2083,9 +2109,14 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 			$after = IdSerializer::fromValues($definition->getName(), 0);
 
-			$parameters['act']   = 'paste';
-			$parameters['mode']  = 'create';
-			$parameters['after'] = $after->getSerialized();
+			$parameters['act']  = 'paste';
+			$parameters['mode'] = 'create';
+
+			if ($mode == BasicDefinitionInterface::MODE_PARENTEDLIST)
+			{
+				$parameters['after'] = $after->getSerialized();
+			}
+
 			if ($pid->getDataProviderName() && $pid->getId())
 			{
 				$parameters['pid'] = $pid->getSerialized();
