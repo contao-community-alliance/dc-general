@@ -494,7 +494,7 @@ class ContaoWidgetManager
 			$arrPrepared['onclick'] = $arrConfig['eval']['submitOnChange'] ? "Backend.autoSubmit('".$defName."')" : '';
 		}
 
-		$objWidget = new $strClass($arrPrepared);
+		$objWidget = new $strClass($arrPrepared, new DcCompat($environment, $this->model, $property));
 		// OH: what is this? source: DataContainer 232.
 		$objWidget->currentRecord = $this->model->getId();
 

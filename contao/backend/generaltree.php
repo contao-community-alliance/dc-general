@@ -142,7 +142,8 @@ class TreeSelect
 				$strField,
 				$strTable,
 				new DcCompat($this->itemContainer->getEnvironment())
-			)
+			),
+			new DcCompat($this->itemContainer->getEnvironment())
 		);
 		// AJAX request.
 		if (isset($ajax))
@@ -150,7 +151,6 @@ class TreeSelect
 			$objTreeSelector->generateAjax();
 			$ajax->executePostActions(new DcCompat($this->itemContainer->getEnvironment()));
 		}
-
 
 		$template->main        = $objTreeSelector->generatePopup();
 		$template->theme       = \Backend::getTheme();
