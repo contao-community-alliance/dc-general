@@ -302,6 +302,8 @@ class ContaoWidgetManager
 	 * Function for pre-loading the tiny mce.
 	 *
 	 * @return void
+	 *
+	 * @throws \Exception When the rich text editor config file can not be found.
 	 */
 	public function preLoadRichTextEditor()
 	{
@@ -324,7 +326,8 @@ class ContaoWidgetManager
 
 			$propertyId = 'ctrl_' . $property->getName();
 
-			if (version_compare(VERSION, '3.3', '<')) {
+			if (version_compare(VERSION, '3.3', '<'))
+			{
 				$GLOBALS['TL_RTE'][$file][$propertyId] = array(
 					'id'   => $propertyId,
 					'file' => $file,
@@ -337,7 +340,7 @@ class ContaoWidgetManager
 					throw new \Exception(sprintf('Cannot find editor configuration file "%s.php"', $file));
 				}
 
-				// Backwards compatibility
+				// Backwards compatibility.
 				$language = substr($GLOBALS['TL_LANGUAGE'], 0, 2);
 
 				if (!file_exists(TL_ROOT . '/assets/tinymce/langs/' . $language . '.js'))
@@ -348,7 +351,9 @@ class ContaoWidgetManager
 				$selector = $propertyId;
 
 				ob_start();
+				// @codingStandardsIgnoreStart
 				include TL_ROOT . '/system/config/' . $file . '.php';
+				// @codingStandardsIgnoreEnd
 				$updateMode = ob_get_contents();
 				ob_end_clean();
 
@@ -444,7 +449,6 @@ class ContaoWidgetManager
 		{
 			$options = $event->getOptions();
 		}
-
 
 		$arrConfig = array(
 			'inputType' => $propInfo->getWidgetType(),
@@ -560,7 +564,8 @@ class ContaoWidgetManager
 				$time = '';
 		}
 
-		if ((version_compare(DATEPICKER, '2.1', '>') && version_compare(VERSION, '3.1', '<')) || (version_compare(DATEPICKER, '2.0', '>') && version_compare(VERSION, '3.1', '>=')))
+		if ((version_compare(DATEPICKER, '2.1', '>') && version_compare(VERSION, '3.1', '<'))
+			|| (version_compare(DATEPICKER, '2.0', '>') && version_compare(VERSION, '3.1', '>=')))
 		{
 			return 'new Picker.Date($$("#ctrl_' . $objWidget->id . '"), {
 				draggable:false,
