@@ -55,23 +55,6 @@ class ListView extends BaseView
 
 		$objCollection = $objCurrentDataProvider->fetchAll($objConfig);
 
-		// If we want to group the elements, do so now.
-		if (isset($objCondition)
-			&& ($this->getViewSection()->getListingConfig()->getGroupingMode() == ListingConfigInterface::GROUP_CHAR)
-		)
-		{
-			foreach ($objCollection as $objModel)
-			{
-				/** @var ModelInterface $objModel */
-				$arrFilter = $objCondition->getInverseFilter($objModel);
-				$objConfig = $objParentDataProvider->getEmptyConfig()->setFilter($arrFilter);
-				$objParent = $objParentDataProvider->fetch($objConfig);
-
-				$objModel->setMeta($objModel::PARENT_ID, $objParent->getId());
-				$objModel->setMeta($objModel::PARENT_PROVIDER_NAME, $objParent->getProviderName());
-			}
-		}
-
 		return $objCollection;
 	}
 
