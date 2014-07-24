@@ -556,7 +556,6 @@ class ParentView extends BaseView
 			->addToTemplate('select', $this->isSelectModeActive(), $objTemplate)
 			->addToTemplate('action', ampersand(\Environment::getInstance()->request, true), $objTemplate)
 			->addToTemplate('header', $this->renderFormattedHeaderFields($parentModel), $objTemplate)
-			->addToTemplate('hasSorting', ($groupingInformation['property'] == 'sorting'), $objTemplate)
 			->addToTemplate('mode', ($groupingInformation ? $groupingInformation['mode'] : null), $objTemplate)
 			->addToTemplate('pdp', (string)$parentProvider, $objTemplate)
 			->addToTemplate('cdp', $definition->getName(), $objTemplate)

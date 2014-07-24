@@ -7,7 +7,7 @@
 	<input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>">
 <?php endif; ?>
 
-<div class="tl_listing_container list_view table_<?php echo $this->tableName; ?>">
+<div class="tl_listing_container parent_view_grouping table_<?php echo $this->tableName; ?>">
 
 	<?php if (strlen($this->breadcrumb)) echo $this->breadcrumb; ?>
 
@@ -18,13 +18,11 @@
 			</label>
 			<input type="checkbox" id="tl_select_trigger" onclick="Backend.toggleCheckboxes(this)" class="tl_tree_checkbox">
 		</div>
-	<?php elseif ($this->clipboard): ?>
-		<a href="<?php echo $this->pasteAfter['href']; ?>" title="<?php echo $this->pasteAfter['title']; ?>"><?php echo $this->pasteAfter['content']; ?></a>
 	<?php endif; ?>
 
 	<?php if($this->tableHead): ?>
 		<table class="tl_listing<?php echo ($GLOBALS['TL_DCA'][$this->strTable]['list']['label']['showColumns']) ? ' showColumns' : ''; ?>">
-			<?php if (count($this->tableHead > 0)): ?>
+			<?php if (count($this->tableHead) > 0): ?>
 				<tr>
 					<?php foreach ($this->tableHead as $arrTableHead): ?>
 						<th class="<?php echo $arrTableHead['class']; ?>"><?php echo $arrTableHead['content']; ?></th>
