@@ -657,7 +657,6 @@ class DefaultController implements ControllerInterface
 		$environment->getDataProvider($models->get(0)->getProviderName())->saveEach($newList);
 	}
 
-
 	/**
 	 * {@inheritDoc}
 	 *
@@ -670,17 +669,24 @@ class DefaultController implements ControllerInterface
 			throw new \RuntimeException('No models passed to pasteAfter().');
 		}
 		$environment = $this->getEnvironment();
-		$parentModel = null;
 
-		if (!$this->isRootModel($previousModel))
+		if ($environment
+				->getDataDefinition()
+				->getBasicDefinition()
+				->getMode() === BasicDefinitionInterface::MODE_HIERARCHICAL)
 		{
-			$parentModel = $this->searchParentOf($previousModel);
-		}
+			$parentModel = null;
 
-		foreach ($models as $model)
-		{
-			/** @var ModelInterface $model */
-			$this->setSameParent($model, $previousModel, $parentModel ? $parentModel->getProviderName() : null);
+			if (!$this->isRootModel($previousModel))
+			{
+				$parentModel = $this->searchParentOf($previousModel);
+			}
+
+			foreach ($models as $model)
+			{
+				/** @var ModelInterface $model */
+				$this->setSameParent($model, $previousModel, $parentModel ? $parentModel->getProviderName() : null);
+			}
 		}
 
 		// Enforce proper sorting now.
