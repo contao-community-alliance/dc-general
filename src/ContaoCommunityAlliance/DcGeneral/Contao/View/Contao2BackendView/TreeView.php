@@ -157,6 +157,12 @@ class TreeView extends BaseView
 		{
 			$objTreeData = $dataDriver->getEmptyCollection();
 			$objModel    = $objCollection->get(0);
+
+			if (!$objModel->getMeta($objModel::HAS_CHILDREN))
+			{
+				return $objTreeData;
+			}
+
 			foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection)
 			{
 				foreach ($objCollection as $objSubModel)
@@ -164,6 +170,7 @@ class TreeView extends BaseView
 					$objTreeData->push($objSubModel);
 				}
 			}
+
 			return $objTreeData;
 		}
 
