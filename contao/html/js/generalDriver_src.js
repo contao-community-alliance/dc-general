@@ -104,12 +104,20 @@ var BackendGeneral =
 	 *
 	 * @returns {boolean}
 	 */
-	toggleVisibility: function(el) {
+	toggleVisibility: function(el, icon, icon_disabled) {
 		el.blur();
+
+        if(!icon) {
+            icon = 'visible.gif';
+        }
+
+        if(!icon_disabled) {
+            icon_disabled = 'invisible.gif';
+        }
 
 		var img = null,
 			image = $(el).getFirst('img'),
-			publish = (image.src.indexOf('invisible') != -1),
+			publish = (image.src.indexOf(icon_disabled) != -1),
 			div = el.getParent('div'),
 			next;
 
@@ -183,9 +191,9 @@ var BackendGeneral =
 
 				// Send request
 				if (publish) {
-					image.src = image.src.replace('invisible.gif', 'visible.gif');
+					image.src = image.src.replace(icon_disabled, icon);
 				} else {
-					image.src = image.src.replace('visible.gif', 'invisible.gif');
+					image.src = image.src.replace(icon, icon_disabled);
 				}
 			}
 		}).get({'state': (publish ? 1 : 0)});

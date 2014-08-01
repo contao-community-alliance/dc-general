@@ -2401,7 +2401,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		{
 			$arrParameters['act'] = $objCommand->getName();
 
-			$attributes = 'onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this);"';
+			$attributes = 'onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this, \'' . $extra['icon'] . '\', \'' . $extra['icon_disabled'] . '\');"';
 			if ($objCommand->isInverse()
 					? $objModel->getProperty($objCommand->getToggleProperty())
 					: !$objModel->getProperty($objCommand->getToggleProperty())
