@@ -1,11 +1,4 @@
 <?php echo $this->getMessages(); ?>
-
-<?php if ($this->collection->length() < 1): ?>
-
-	<p class="tl_empty"><?php echo $GLOBALS['TL_LANG']['MSC']['noResult']; ?></p>
-
-<?php else: ?>
-
 	<?php if ($this->select): ?>
 		<form action="<?php echo $this->action; ?>" id="tl_select" class="tl_form" method="post">
 			<div class="tl_formbody">
@@ -42,6 +35,9 @@
 
 				</div>
 
+				<?php if ($this->collection->length() < 1): ?>
+					<p class="tl_empty"><?php echo $GLOBALS['TL_LANG']['MSC']['noResult']; ?></p>
+				<?php else: ?>
 				<table id="table_<?php echo $this->tableName; ?>"  class="tl_listing<?php echo ($GLOBALS['TL_DCA'][$this->strTable]['list']['label']['showColumns']) ? ' showColumns' : ''; ?>">
 					<tbody>
 					<?php if (count($this->tableHead) > 0): ?>
@@ -87,6 +83,7 @@
 						SortableTableDnD.init(table);
 					</script>
 				<?php endif; ?>
+				<?php endif; ?>
 			</div>
 
 		<?php if ($this->select): ?>
@@ -98,4 +95,3 @@
 			</div>
 		</form>
 	<?php endif; ?>
-<?php endif; ?>
