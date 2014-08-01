@@ -356,12 +356,12 @@ class ParentView extends BaseView
 
 			$headerButtons['editHeader'] = $this->getHeaderEditButtons($parentModel);
 
-			if (
-				$sorting
+			if ($sorting
 				&& $clipboard->isEmpty()
 				&& !$basicDefinition->isClosed()
 				&& $basicDefinition->isCreatable()
-			) {
+			)
+			{
 				/** @var AddToUrlEvent $urlEvent */
 				$urlEvent = $propagator->propagate(
 					ContaoEvents::BACKEND_ADD_TO_URL,
