@@ -867,6 +867,10 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 				{
 					$fields[$matches[1]] = isset($matches[2]) ? $matches[2] : 'ASC';
 				}
+				else if (preg_match('~^(\w+) => (.+)$~', $field, $matches))
+				{
+					$fields[$matches[1]] = $matches[2];
+				}
 				else
 				{
 					throw new DcGeneralRuntimeException('Custom SQL in sorting fields are currently unsupported');
