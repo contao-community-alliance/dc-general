@@ -107,13 +107,13 @@ var BackendGeneral =
 	toggleVisibility: function(el, icon, icon_disabled) {
 		el.blur();
 
-        if(!icon) {
-            icon = 'visible.gif';
-        }
+		if(!icon) {
+			icon = 'visible.gif';
+		}
 
-        if(!icon_disabled) {
-            icon_disabled = 'invisible.gif';
-        }
+		if(!icon_disabled) {
+			icon_disabled = 'invisible.gif';
+		}
 
 		var img = null,
 			image = $(el).getFirst('img'),
