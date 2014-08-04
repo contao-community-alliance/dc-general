@@ -949,6 +949,24 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 		$model = $this->createEmptyModelWithDefaults();
 
+		$input = $this->environment->getInputProvider();
+		if ($input->hasParameter('after'))
+		{
+			$after          = IdSerializer::fromSerialized($input->getParameter('after'));
+			$dataProvider   = $this->environment->getDataProvider($after->getDataProviderName());
+			$previous       = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($after->getId()));
+			$dataDefinition = $this->environment->getDataDefinition();
+
+			/** @var Contao2BackendViewDefinitionInterface $view */
+			$view = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+			foreach (array_keys($view->getListingConfig()->getDefaultSortingFields()) as $propertyName) {
+				if ($propertyName != 'sorting') {
+					$propertyValue = $previous->getProperty($propertyName);
+					$model->setProperty($propertyName, $propertyValue);
+				}
+			}
+		}
+
 		$preFunction = function($environment, $model, $originalModel)
 		{
 			/** @var EnvironmentInterface $environment */
