@@ -43,6 +43,12 @@ class DefaultClipboard implements ClipboardInterface
 	protected $mode;
 
 	/**
+	 * The id of the parent element for create mode.
+	 * @var
+	 */
+	protected $parentId;
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public function loadFrom($objEnvironment)
@@ -200,7 +206,8 @@ class DefaultClipboard implements ClipboardInterface
 	{
 		$this->mode = self::MODE_CREATE;
 
-		$this->setContainedIds(array($parentId));
+		$this->setContainedIds(array(null));
+		$this->parentId = $parentId;
 
 		return $this;
 	}
@@ -247,5 +254,13 @@ class DefaultClipboard implements ClipboardInterface
 	public function getMode()
 	{
 		return $this->mode;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getParent()
+	{
+		return $this->isCreate() ? $this->parentId : null;
 	}
 }
