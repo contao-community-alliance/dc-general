@@ -634,8 +634,8 @@ class ParentView extends BaseView
 			return $this->edit();
 		}
 
-		// TODO sorting is still hardcoded :-(
-		if ($this->environment->getDataProvider()->fieldExists('sorting')) {
+		if ($this->environment->getDataProvider()->fieldExists($this->getManualSortingProperty()))
+		{
 			$this->checkClipboard('copy');
 			$this->redirectHome();
 		}
