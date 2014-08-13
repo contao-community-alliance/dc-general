@@ -60,6 +60,7 @@ use ContaoCommunityAlliance\DcGeneral\Panel\FilterElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\LimitElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelElementInterface;
+use ContaoCommunityAlliance\DcGeneral\Panel\PanelInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SearchElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SubmitElementInterface;
@@ -352,11 +353,15 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		$sortingFields = array_keys((array)$listingConfig->getDefaultSortingFields());
 		$firstSorting  = reset($sortingFields);
 
-		$panel = $this->getPanel()->getPanel('sorting');
-		if ($panel)
+		foreach ($this->getPanel() as $panel)
 		{
-			/** @var SortElementInterface $panel */
-			$firstSorting = $panel->getSelected();
+			/** @var PanelInterface $panel */
+			$sort = $panel->getElement('sort');
+			if ($sort)
+			{
+				/** @var SortElementInterface $sort */
+				$firstSorting = $sort->getSelected();
+			}
 		}
 
 		// Get the current value of first sorting.
@@ -368,16 +373,17 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		// TODO what happend when $firstSorting is suffixed with ASC or DESC?
 		$property = $properties->getProperty($firstSorting);
 
-		if (count($sortingFields) == 0)
-		{
-			$groupMode   = ListingConfigInterface::GROUP_NONE;
-			$groupLength = 0;
-		}
 		// Use the information from the property, if given.
-		elseif ($property->getGroupingMode() != '')
+		if ($property->getGroupingMode() != '')
 		{
 			$groupMode   = $property->getGroupingMode();
 			$groupLength = $property->getGroupingLength();
+		}
+		// No sorting? No grouping!
+		elseif (count($sortingFields) == 0)
+		{
+			$groupMode   = ListingConfigInterface::GROUP_NONE;
+			$groupLength = 0;
 		}
 		// Use the global as fallback.
 		else

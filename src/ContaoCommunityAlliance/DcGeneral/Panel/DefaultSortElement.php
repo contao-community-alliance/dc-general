@@ -211,7 +211,7 @@ class DefaultSortElement
 			$current[$this->getSelected()] = $this->flagToDirection($this->getFlag());
 		}
 
-		$objConfig->setSorting($current);
+		$objConfig->setSorting(array_reverse($current, true));
 	}
 
 	/**
