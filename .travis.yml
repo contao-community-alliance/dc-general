@@ -17,6 +17,6 @@ install:
 
 script: ant -keep-going
 
-matrix:
-  allow_failures:
-    - env: CONTAO_VERSION=~3.3
+#matrix:
+#  allow_failures:
+#    - env: CONTAO_VERSION=~3.3.0
