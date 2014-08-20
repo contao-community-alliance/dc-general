@@ -24,59 +24,79 @@ interface ListingConfigInterface
 	/**
 	 * Do not group.
 	 */
-	const GROUP_NONE = 'none';
+	const GROUP_NONE = GroupAndSortingInformationInterface::GROUP_NONE;
 
 	/**
 	 * Group by characters, the max char count depend on the mode length
 	 * (which is 1 by default for char grouping).
+	 *
+	 * @deprecated
 	 */
-	const GROUP_CHAR = 'char';
+	const GROUP_CHAR = GroupAndSortingInformationInterface::GROUP_CHAR;
 
 	/**
 	 * Group by digits, the max digit count depend on the mode length
 	 * (which is infinity by default for digit grouping)..
+	 *
+	 * @deprecated
 	 */
-	const GROUP_DIGIT = 'digit';
+	const GROUP_DIGIT = GroupAndSortingInformationInterface::GROUP_DIGIT;
 
 	/**
 	 * Sort by day from datetime property.
+	 *
+	 * @deprecated
 	 */
-	const GROUP_DAY = 'day';
+	const GROUP_DAY = GroupAndSortingInformationInterface::GROUP_DAY;
 
 	/**
 	 * Sort by week day from datetime property.
+	 *
+	 * @deprecated
 	 */
-	const GROUP_WEEKDAY = 'weekday';
+	const GROUP_WEEKDAY = GroupAndSortingInformationInterface::GROUP_WEEKDAY;
 
 	/**
 	 * Sort by week of the year from datetime property.
+	 *
+	 * @deprecated
 	 */
-	const GROUP_WEEK = 'week';
+	const GROUP_WEEK = GroupAndSortingInformationInterface::GROUP_WEEK;
 
 	/**
 	 * Sort by month from datetime property.
+	 *
+	 * @deprecated
 	 */
-	const GROUP_MONTH = 'month';
+	const GROUP_MONTH = GroupAndSortingInformationInterface::GROUP_MONTH;
 
 	/**
 	 * Sort by year from datetime property.
+	 *
+	 * @deprecated
 	 */
-	const GROUP_YEAR = 'year';
+	const GROUP_YEAR = GroupAndSortingInformationInterface::GROUP_YEAR;
 
 	/**
 	 * Sort ascending.
+	 *
+	 * @deprecated
 	 */
-	const SORT_ASC = 'asc';
+	const SORT_ASC = GroupAndSortingInformationInterface::SORT_ASC;
 
 	/**
 	 * Sort descending.
+	 *
+	 * @deprecated
 	 */
-	const SORT_DESC = 'desc';
+	const SORT_DESC = GroupAndSortingInformationInterface::SORT_DESC;
 
 	/**
 	 * Shuffle all records instead of sorting.
+	 *
+	 * @deprecated
 	 */
-	const SORT_RANDOM = 'random';
+	const SORT_RANDOM = GroupAndSortingInformationInterface::SORT_RANDOM;
 
 	/**
 	 * Set the grouping mode.
@@ -84,6 +104,8 @@ interface ListingConfigInterface
 	 * @param string $value The new mode.
 	 *
 	 * @return ListingConfigInterface
+	 *
+	 * @deprecated
 	 */
 	public function setGroupingMode($value);
 
@@ -91,6 +113,8 @@ interface ListingConfigInterface
 	 * Return the grouping mode.
 	 *
 	 * @return string
+	 *
+	 * @deprecated
 	 */
 	public function getGroupingMode();
 
@@ -100,6 +124,8 @@ interface ListingConfigInterface
 	 * @param int $value The new value.
 	 *
 	 * @return ListingConfigInterface
+	 *
+	 * @deprecated
 	 */
 	public function setGroupingLength($value);
 
@@ -109,6 +135,8 @@ interface ListingConfigInterface
 	 * It defines how many chars or digits should be respected when group mode is GROUP_CHAR.
 	 *
 	 * @return int
+	 *
+	 * @deprecated
 	 */
 	public function getGroupingLength();
 
@@ -118,6 +146,8 @@ interface ListingConfigInterface
 	 * @param string $value The new value.
 	 *
 	 * @return ListingConfigInterface
+	 *
+	 * @deprecated
 	 */
 	public function setSortingMode($value);
 
@@ -127,6 +157,8 @@ interface ListingConfigInterface
 	 * This sorting is applied after grouping and could also be called "in-group sorting".
 	 *
 	 * @return string
+	 *
+	 * @deprecated
 	 */
 	public function getSortingMode();
 
@@ -136,6 +168,8 @@ interface ListingConfigInterface
 	 * @param array $value The sorting fields to use.
 	 *
 	 * @return ListingConfigInterface
+	 *
+	 * @deprecated
 	 */
 	public function setDefaultSortingFields($value);
 
@@ -143,8 +177,26 @@ interface ListingConfigInterface
 	 * Get the default sorting fields which are used if the user does not define a sorting.
 	 *
 	 * @return array
+	 *
+	 * @deprecated
 	 */
 	public function getDefaultSortingFields();
+
+	/**
+	 * Set the grouping and sorting definitions.
+	 *
+	 * @param GroupAndSortingDefinitionCollectionInterface $definition
+	 *
+	 * @return ListingConfigInterface
+	 */
+	public function setGroupAndSortingDefinition($definition);
+
+	/**
+	 * Retrieve the grouping and sorting definitions.
+	 *
+	 * @return GroupAndSortingDefinitionCollectionInterface
+	 */
+	public function getGroupAndSortingDefinition();
 
 	/**
 	 * Set the list of parent's model property names.
