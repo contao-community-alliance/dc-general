@@ -19,7 +19,6 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
-use ContaoCommunityAlliance\Contao\Bindings\Events\Image\ResizeImageEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
