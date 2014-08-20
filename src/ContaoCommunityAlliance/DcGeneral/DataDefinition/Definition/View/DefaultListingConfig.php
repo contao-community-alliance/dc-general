@@ -80,6 +80,11 @@ class DefaultListingConfig implements ListingConfigInterface
 		$this->groupAndSorting = new DefaultGroupAndSortingDefinitionCollection();
 	}
 
+	/**
+	 * Create a default group and sorting definition if none is present so far.
+	 *
+	 * @return GroupAndSortingDefinitionInterface
+	 */
 	protected function getOrCreateDefaultGroupAndSortingDefinition()
 	{
 		$definitions = $this->getGroupAndSortingDefinition();
