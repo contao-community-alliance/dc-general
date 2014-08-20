@@ -157,6 +157,8 @@ interface BasicDefinitionInterface extends DefinitionInterface
 	 * @return BasicDefinitionInterface
 	 *
 	 * @todo isn't this a candidate for deprecation? See BasicDefinitionInterface::setCreatable().
+	 *
+	 * @deprecated Use setEditable, setDeletable or setCreatable instead.
 	 */
 	public function setClosed($value);
 
@@ -169,6 +171,8 @@ interface BasicDefinitionInterface extends DefinitionInterface
 	 * @return bool
 	 *
 	 * @todo isn't this a candidate for deprecation? See BasicDefinitionInterface::isCreatable().
+	 *
+	 * @deprecated Use isEditable, isDeletable or isCreatable instead.
 	 */
 	public function isClosed();
 
@@ -210,7 +214,7 @@ interface BasicDefinitionInterface extends DefinitionInterface
 	 *
 	 * @return bool
 	 */
-	public function isEditable();
+    public function isEditable();
 
 	/**
 	 * Set boolean flag determining if this data container is deletable.
