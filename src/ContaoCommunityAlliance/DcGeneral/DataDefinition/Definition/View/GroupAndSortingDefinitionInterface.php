@@ -64,7 +64,7 @@ interface GroupAndSortingDefinitionInterface extends \IteratorAggregate
 	 *
 	 * @param string $name The name.
 	 *
-	 * @return mixed
+	 * @return GroupAndSortingDefinitionInterface
 	 */
 	public function setName($name);
 

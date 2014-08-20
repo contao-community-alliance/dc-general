@@ -85,9 +85,7 @@ class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInter
 	}
 
 	/**
-	 * Retrieve the name of the definition.
-	 *
-	 * @return string
+	 * {@inheritDoc}
 	 */
 	public function getName()
 	{
@@ -95,15 +93,13 @@ class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInter
 	}
 
 	/**
-	 * Set the name of the definition.
-	 *
-	 * @param string $name The name.
-	 *
-	 * @return mixed
+	 * {@inheritDoc}
 	 */
 	public function setName($name)
 	{
 		$this->name = $name;
+
+		return $this;
 	}
 
 	/**
