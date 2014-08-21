@@ -78,6 +78,8 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException When the offset does not exist.
 	 */
 	public function get($index = -1)
 	{
@@ -96,6 +98,8 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException When the information is neither a proper instance nor an integer.
 	 */
 	public function markDefault($information)
 	{
@@ -122,6 +126,8 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws DcGeneralInvalidArgumentException When no default has been defined.
 	 */
 	public function getDefault()
 	{
