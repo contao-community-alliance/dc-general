@@ -294,10 +294,10 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
 			if ($providerInformation instanceof ContaoDataProviderInformation)
 			{
+				$initializationData     = (array)$providerInformation->getInitializationData();
 				$baseInitializationData = array(
 					'name' => $dataProviderDcaName,
 				);
-				$initializationData = (array)$providerInformation->getInitializationData();
 
 				switch ((string)$dataProviderDcaName)
 				{
