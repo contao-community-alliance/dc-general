@@ -2030,7 +2030,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 		return sprintf(
 			$this->notImplMsg,
-			'showAll - Mode ' . $this->getViewSection()->getListingConfig()->getGroupingMode()
+			'showAll - Mode ' . $this->environment->getDataDefinition()->getBasicDefinition()->getMode()
 		);
 	}
 
