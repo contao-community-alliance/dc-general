@@ -49,7 +49,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 	 */
 	public function build(ContainerInterface $container, BuildDataDefinitionEvent $event)
 	{
-		if (!$this->loadDca($container->getName(), $event->getDispatcher()))
+		if (!$this->loadDca($container->getName(), $this->getDispatcher()))
 		{
 			return;
 		}
@@ -92,7 +92,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 	{
 		if (($providers = $this->getFromDca('dca_config/data_provider')) !== null)
 		{
-			$event->getDispatcher()->addListener(
+			$this->getDispatcher()->addListener(
 				sprintf('%s[%s]', PopulateEnvironmentEvent::NAME, $container->getName()),
 				function (PopulateEnvironmentEvent $event) {
 					$environment = $event->getEnvironment();

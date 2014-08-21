@@ -87,12 +87,12 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 */
 	public function build(ContainerInterface $container, BuildDataDefinitionEvent $event)
 	{
-		if (!$this->loadDca($container->getName(), $event->getDispatcher()))
+		if (!$this->loadDca($container->getName(), $this->getDispatcher()))
 		{
 			return;
 		}
 
-		$this->parseCallbacks($container, $event->getDispatcher());
+		$this->parseCallbacks($container, $this->getDispatcher());
 		$this->parseBasicDefinition($container);
 		$this->parseDataProvider($container);
 		$this->parseRootEntries($container);
@@ -119,7 +119,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	{
 		if ($this->getFromDca('config/ptable'))
 		{
-			$event->getDispatcher()->addListener(
+			$this->getDispatcher()->addListener(
 				sprintf('%s[%s]', PopulateEnvironmentEvent::NAME, $container->getName()),
 				function (PopulateEnvironmentEvent $event) {
 					$environment      = $event->getEnvironment();
