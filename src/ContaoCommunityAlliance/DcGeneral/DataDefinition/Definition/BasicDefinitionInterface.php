@@ -210,7 +210,7 @@ interface BasicDefinitionInterface extends DefinitionInterface
 	 *
 	 * @return bool
 	 */
-    public function isEditable();
+	public function isEditable();
 
 	/**
 	 * Set boolean flag determining if this data container is deletable.
