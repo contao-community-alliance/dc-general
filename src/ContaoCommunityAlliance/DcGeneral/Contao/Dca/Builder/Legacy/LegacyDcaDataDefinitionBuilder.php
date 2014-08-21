@@ -446,7 +446,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if (($value = $this->getFromDca('config/closed')) !== null)
 		{
-			$config->setClosed((bool)$value);
+			$config
+				->setEditable(!$value)
+				->setCreatable(!$value);
 		}
 
 		if (($value = $this->getFromDca('config/notEditable')) !== null)
