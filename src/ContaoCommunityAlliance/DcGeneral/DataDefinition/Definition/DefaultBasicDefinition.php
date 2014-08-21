@@ -209,8 +209,8 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
 	 */
 	public function setClosed($value)
 	{
-		$this->isEditable = $value;
-		$this->isCreatable = $value;
+		$this->isEditable  = !$value;
+		$this->isCreatable = !$value;
 
 		return $this;
 	}
@@ -220,7 +220,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
 	 */
 	public function isClosed()
 	{
-		return ($this->isEditable && $this->isCreatable);
+		return !($this->isEditable || $this->isCreatable);
 	}
 
 	/**
