@@ -113,7 +113,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
 			throw new DcGeneralInvalidArgumentException('Invalid argument.');
 		}
 
-		$this->default  = $information;
+		$this->default = $information;
 	}
 
 	/**
