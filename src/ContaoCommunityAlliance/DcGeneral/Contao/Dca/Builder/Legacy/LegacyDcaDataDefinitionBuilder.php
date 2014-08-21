@@ -840,7 +840,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	/**
 	 * Parse the sorting and grouping information for all properties.
 	 *
-	 * @param Contao2BackendViewDefinitionInterface $view      The view information for the backend view.
+	 * @param Contao2BackendViewDefinitionInterface $view The view information for the backend view.
 	 *
 	 * @return void
 	 */
@@ -872,7 +872,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			return;
 		}
 
-		$definition = $definitions->add()->setName($propName);
+		$definition  = $definitions->add()->setName($propName);
 		$information = $definition->add();
 		$information->setProperty($propName);
 		if (isset($propInfo['length']))
