@@ -23,6 +23,8 @@ interface ListingConfigInterface
 {
 	/**
 	 * Do not group.
+	 *
+	 * @deprecated
 	 */
 	const GROUP_NONE = GroupAndSortingInformationInterface::GROUP_NONE;
 

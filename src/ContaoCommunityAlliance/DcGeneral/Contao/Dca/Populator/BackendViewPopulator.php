@@ -170,12 +170,6 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
 				elseif ($element instanceof SortElementInformationInterface)
 				{
 					$panelElement = new DefaultSortElement();
-
-					foreach ($element->getPropertyNames() as $propName)
-					{
-						$panelElement->addProperty($propName, $element->getPropertyFlag($propName));
-					}
-
 					$panelRow->addElement($element->getName(), $panelElement);
 				}
 				elseif ($element instanceof SubmitElementInformationInterface)

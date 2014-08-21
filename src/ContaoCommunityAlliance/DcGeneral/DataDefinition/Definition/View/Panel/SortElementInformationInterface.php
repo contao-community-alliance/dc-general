@@ -23,66 +23,92 @@ interface SortElementInformationInterface extends ElementInformationInterface
 {
 	/**
 	 * Do not sort.
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	const SORTING_FLAG_NONE = 0;
 
 	/**
 	 * Sort by initial letter ascending.
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	const SORTING_FLAG_FIRST_LETTER_ASCENDING = 1;
 
 	/**
 	 * Sort by initial letter descending.
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	const SORTING_FLAG_FIRST_LETTER_DESCENDING = 2;
 
 	/**
 	 * Sort by initial two letters ascending.
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	const SORTING_FLAG_TWO_LETTERS_ASCENDING = 3;
 
 	/**
 	 * Sort by initial two letters descending.
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	const SORTING_FLAG_TWO_LETTERS_DESCENDING = 4;
 
 	/**
 	 * Sort by day ascending.
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	const SORTING_FLAG_DATE_DAY_ASCENDING = 5;
 
 	/**
 	 * Sort by day descending.
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	const SORTING_FLAG_DATE_DAY_DESCENDING = 6;
 
 	/**
 	 * Sort by month ascending.
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	const SORTING_FLAG_DATE_MONTH_ASCENDING = 7;
 
 	/**
 	 * Sort by month descending.
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	const SORTING_FLAG_DATE_MONTH_DESCENDING = 8;
 
 	/**
 	 * Sort by year ascending.
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	const SORTING_FLAG_DATE_YEAR_ASCENDING = 9;
 
 	/**
 	 * Sort by year descending.
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	const SORTING_FLAG_DATE_YEAR_DESCENDING = 10;
 
 	/**
 	 * Sort ascending.
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	const SORTING_FLAG_ASCENDING = 11;
 
 	/**
 	 * Sort descending.
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	const SORTING_FLAG_DESCENDING = 12;
 
@@ -92,6 +118,8 @@ interface SortElementInformationInterface extends ElementInformationInterface
 	 * @param int $flag The flag to use.
 	 *
 	 * @return SortElementInformationInterface
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	public function setDefaultFlag($flag);
 
@@ -99,6 +127,8 @@ interface SortElementInformationInterface extends ElementInformationInterface
 	 * Get the default flag to use when no flag has been defined for a certain property.
 	 *
 	 * @return int
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	public function getDefaultFlag();
 
@@ -110,6 +140,8 @@ interface SortElementInformationInterface extends ElementInformationInterface
 	 * @param int    $flag         If the default of 0 is passed, the default flag will get used.
 	 *
 	 * @return SortElementInformationInterface
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	public function addProperty($propertyName, $flag = 0);
 
@@ -119,6 +151,8 @@ interface SortElementInformationInterface extends ElementInformationInterface
 	 * @param string $propertyName The name of the property.
 	 *
 	 * @return SortElementInformationInterface
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	public function hasProperty($propertyName);
 
@@ -128,6 +162,8 @@ interface SortElementInformationInterface extends ElementInformationInterface
 	 * @param string $propertyName The name of the property.
 	 *
 	 * @return SortElementInformationInterface
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	public function removeProperty($propertyName);
 
@@ -135,6 +171,8 @@ interface SortElementInformationInterface extends ElementInformationInterface
 	 * Retrieve the list of properties to allow search on.
 	 *
 	 * @return string[]
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	public function getPropertyNames();
 
@@ -147,6 +185,8 @@ interface SortElementInformationInterface extends ElementInformationInterface
 	 * @param string $propertyName The name of the property.
 	 *
 	 * @return int
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	public function getPropertyFlag($propertyName);
 }

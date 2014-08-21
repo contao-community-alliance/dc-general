@@ -37,6 +37,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CopyCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CutCommandInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
@@ -338,19 +340,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	 */
 	protected function getGroupingMode()
 	{
-		/** @var Contao2BackendViewDefinitionInterface $viewDefinition */
-		$viewDefinition = $this->getViewSection();
-		$listingConfig  = $viewDefinition->getListingConfig();
-
-		if ($listingConfig->getSortingMode() === ListingConfigInterface::SORT_RANDOM)
-		{
-			return null;
-		}
-
-		$definition    = $this->getEnvironment()->getDataDefinition();
-		$properties    = $definition->getPropertiesDefinition();
-		$sortingFields = array_keys((array)$listingConfig->getDefaultSortingFields());
-		$firstSorting  = reset($sortingFields);
+		$sorting = null;
 
 		foreach ($this->getPanel() as $panel)
 		{
@@ -359,43 +349,48 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			if ($sort)
 			{
 				/** @var SortElementInterface $sort */
-				$firstSorting = $sort->getSelected();
+				$sorting = $sort->getSelectedDefinition();
+				break;
 			}
 		}
 
-		// Get the current value of first sorting.
-		if (!$firstSorting)
+		if (!$sorting)
+		{
+			$definition = $this->getViewSection()->getListingConfig()->getGroupAndSortingDefinition();
+			if ($definition->hasDefault())
+			{
+				$sorting = $definition->getDefault();
+			}
+		}
+
+		// If no sorting defined, exit.
+		if ((!$sorting)
+			|| (!$sorting->getCount())
+			|| $sorting->get(0)->getSortingMode() === GroupAndSortingInformationInterface::SORT_RANDOM)
 		{
 			return null;
 		}
-
-		// TODO what happend when $firstSorting is suffixed with ASC or DESC?
-		$property = $properties->getProperty($firstSorting);
+		$firstSorting = $sorting->get(0);
 
 		// Use the information from the property, if given.
-		if ($property->getGroupingMode() != '')
+		if ($firstSorting->getGroupingMode() != '')
 		{
-			$groupMode   = $property->getGroupingMode();
-			$groupLength = $property->getGroupingLength();
+			$groupMode   = $firstSorting->getGroupingMode();
+			$groupLength = $firstSorting->getGroupingLength();
 		}
 		// No sorting? No grouping!
-		elseif (count($sortingFields) == 0)
-		{
-			$groupMode   = ListingConfigInterface::GROUP_NONE;
-			$groupLength = 0;
-		}
-		// Use the global as fallback.
 		else
 		{
-			$groupMode   = $listingConfig->getGroupingMode();
-			$groupLength = $listingConfig->getGroupingLength();
+			$groupMode   = GroupAndSortingInformationInterface::GROUP_NONE;
+			$groupLength = 0;
 		}
 
 		return array
 		(
 			'mode'     => $groupMode,
 			'length'   => $groupLength,
-			'property' => $firstSorting
+			'property' => $firstSorting->getProperty(),
+			'sorting'  => $sorting
 		);
 	}
 
@@ -442,15 +437,15 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 				$remoteNew = $objParentModel->getProperty('value');
 			}
 		}
-		elseif ($groupMode != ListingConfigInterface::GROUP_NONE)
+		elseif ($groupMode != GroupAndSortingInformationInterface::GROUP_NONE)
 		{
 			switch ($groupMode)
 			{
-				case ListingConfigInterface::GROUP_CHAR:
+				case GroupAndSortingInformationInterface::GROUP_CHAR:
 					$remoteNew = ($value != '') ? ucfirst(utf8_substr($value, 0, $groupLength)) : '-';
 					break;
 
-				case ListingConfigInterface::GROUP_DAY:
+				case GroupAndSortingInformationInterface::GROUP_DAY:
 					if ($value instanceof \DateTime)
 					{
 						$value = $value->getTimestamp();
@@ -462,7 +457,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 					$remoteNew = ($value != '') ? $event->getResult() : '-';
 					break;
 
-				case ListingConfigInterface::GROUP_MONTH:
+				case GroupAndSortingInformationInterface::GROUP_MONTH:
 					if ($value instanceof \DateTime)
 					{
 						$value = $value->getTimestamp();
@@ -477,7 +472,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 					}
 					break;
 
-				case ListingConfigInterface::GROUP_YEAR:
+				case GroupAndSortingInformationInterface::GROUP_YEAR:
 					if ($value instanceof \DateTime)
 					{
 						$value = $value->getTimestamp();
@@ -3004,8 +2999,23 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		$listing      = $this->getViewSection()->getListingConfig();
 		$properties   = $this->getDataDefinition()->getPropertiesDefinition();
 		$formatter    = $listing->getLabelFormatter($model->getProviderName());
-		$sorting      = array_keys((array)$listing->getDefaultSortingFields());
-		$firstSorting = reset($sorting);
+		$sorting           = $this->getGroupingMode();
+		$sortingDefinition = $sorting['sorting'];
+		$firstSorting = '';
+
+		if ($sortingDefinition)
+		{
+			/** @var GroupAndSortingDefinitionInterface $sortingDefinition */
+			foreach ($sortingDefinition as $information)
+			{
+				/** @var GroupAndSortingInformationInterface $information */
+				if ($information->getProperty())
+				{
+					$firstSorting = reset($sorting);
+					break;
+				}
+			}
+		}
 
 		$args = array();
 		foreach ($formatter->getPropertyNames() as $propertyName)
@@ -3056,7 +3066,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 				{
 					$arrLabel[] = array(
 						'colspan' => 1,
-						// TODO what happend when $firstSorting is suffixed with ASC or DESC?
 						'class' => 'tl_file_list col_' . $j . (($propertyName == $firstSorting) ? ' ordered_by' : ''),
 						'content' => (($args[$propertyName] != '') ? $args[$propertyName] : '-')
 					);
