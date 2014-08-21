@@ -577,7 +577,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$this->getButtonLabel('saveNclose')
 		);
 
-		if (!($this->isPopup() || $basicDefinition->isClosed()) && $basicDefinition->isCreatable())
+		if (!$this->isPopup() && $basicDefinition->isCreatable())
 		{
 			$buttons['saveNcreate'] = sprintf(
 				'<input type="submit" name="saveNcreate" id="saveNcreate" class="tl_submit" accesskey="n" value="%s" />',
