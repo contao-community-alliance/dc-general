@@ -1653,7 +1653,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		}
 
 		// Check if table is closed but we are adding a new item.
-		if ((!$modelId) && $basicDefinition->isClosed())
+		if (empty($modelId) && !$basicDefinition->isCreatable())
 		{
 			$message = 'DataContainer ' . $definition->getName() . ' is closed';
 			$environment->getEventPropagator()->propagate(
@@ -2096,7 +2096,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$pid = new IdSerializer();
 		}
 
-		if ($basicDefinition->isClosed())
+		if (!$basicDefinition->isCreatable())
 		{
 			return null;
 		}

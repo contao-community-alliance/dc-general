@@ -363,7 +363,6 @@ class ParentView extends BaseView
 
 			if ($sorting
 				&& $clipboard->isEmpty()
-				&& !$basicDefinition->isClosed()
 				&& $basicDefinition->isCreatable()
 			)
 			{
