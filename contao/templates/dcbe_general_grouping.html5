@@ -76,7 +76,7 @@
 				<div class="tl_content_header <?php echo $arrGroup['class']; ?>"><?php echo $arrGroup['value']; ?></div>
 			<?php endif; ?>
 
-			<table id="table_<?php echo $this->tableName; ?>_<?php echo standardize($strLastId); ?>" class="tl_listing<?php echo ($GLOBALS['TL_DCA'][$this->strTable]['list']['label']['showColumns']) ? ' showColumns' : ''; ?>">
+			<table id="table_<?php echo $this->tableName; ?>_<?php echo standardize($strLastId); ?>" class="tl_listing<?php echo $this->showColumns ? ' showColumns' : ''; ?>">
 		<?php endif; ?>
 
 		<tr id="table_row_<?php echo $objModel->getId(); ?>"

@@ -241,7 +241,8 @@ class ListView extends BaseView
 			->addToTemplate('pdp', '', $objTemplate)
 			->addToTemplate('cdp', $definition->getName(), $objTemplate)
 			->addToTemplate('selectButtons', $this->getSelectButtons(), $objTemplate)
-			->addToTemplate('sortable', (bool)$this->getManualSortingProperty(), $objTemplate);
+			->addToTemplate('sortable', (bool)$this->getManualSortingProperty(), $objTemplate)
+			->addToTemplate('showColumns', $this->getViewSection()->getListingConfig()->getShowColumns(), $objTemplate);
 
 		// Add breadcrumb, if we have one.
 		$strBreadcrumb = $this->breadcrumb();
