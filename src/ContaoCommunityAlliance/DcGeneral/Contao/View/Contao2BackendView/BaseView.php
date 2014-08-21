@@ -967,7 +967,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			}
 		}
 
-		$preFunction = function($environment, $model, $originalModel)
+		$preFunction = function($environment, $model)
 		{
 			/** @var EnvironmentInterface $environment */
 			$copyEvent = new PreCreateModelEvent($environment, $model);
@@ -980,7 +980,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			);
 		};
 
-		$postFunction = function($environment, $model, $originalModel)
+		$postFunction = function($environment, $model)
 		{
 			/** @var EnvironmentInterface $environment */
 			$copyEvent = new PostCreateModelEvent($environment, $model);

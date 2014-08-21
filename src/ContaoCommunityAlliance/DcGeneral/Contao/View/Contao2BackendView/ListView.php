@@ -285,8 +285,9 @@ class ListView extends BaseView
 		// We need to keep the original data here.
 		$copyModel = $environment->getController()->createClonedModel($model);
 
-		$preFunction = function($environment, $model, $originalModel)
+		$preFunction = function($environment, $model)
 		{
+			/** @var EnvironmentInterface $environment */
 			$copyEvent = new PreDuplicateModelEvent($environment, $model);
 			$environment->getEventPropagator()->propagate(
 				$copyEvent::NAME,
@@ -299,6 +300,7 @@ class ListView extends BaseView
 
 		$postFunction = function($environment, $model, $originalModel)
 		{
+			/** @var EnvironmentInterface $environment */
 			$copyEvent = new PostDuplicateModelEvent($environment, $model, $originalModel);
 			$environment->getEventPropagator()->propagate(
 				$copyEvent::NAME,

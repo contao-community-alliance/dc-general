@@ -104,6 +104,3 @@ class DefaultPanelRowCollection implements PanelRowCollectionInterface
 		return new \ArrayIterator($this->rows);
 	}
 }
-
-
-
