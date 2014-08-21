@@ -1045,8 +1045,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 * @param PanelRowInterface $row The row to which the element shall get added to.
 	 *
 	 * @return void
-	 *
-	 * @deprecated not needed anymore.
 	 */
 	protected function parsePanelSort(PanelRowInterface $row)
 	{
