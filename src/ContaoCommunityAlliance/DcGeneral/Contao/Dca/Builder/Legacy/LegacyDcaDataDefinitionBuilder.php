@@ -934,38 +934,35 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			$definition = $definitions->getDefault();
 		}
 
-		if (isset($sortingDca['fields']))
+		foreach ($sortingDca['fields'] as $field)
 		{
-			foreach ($sortingDca['fields'] as $field)
+			$propertyInformation = $definition->add();
+
+			if (isset($sortingDca['flag']))
 			{
-				$propertyInformation = $definition->add();
+				$this->evalFlag($propertyInformation, $sortingDca['flag']);
+			}
 
-				if (isset($sortingDca['flag']))
-				{
-					$this->evalFlag($propertyInformation, $sortingDca['flag']);
-				}
+			if (preg_match('~^(\w+)(?: (ASC|DESC))?$~', $field, $matches))
+			{
+				$propertyInformation
+					->setProperty($matches[1])
+					->setSortingMode(isset($matches[2]) ? $matches[2] : 'ASC');
+			}
+			elseif (preg_match('~^(\w+) => (.+)$~', $field, $matches))
+			{
+				$propertyInformation
+					->setProperty($matches[1])
+					->setSortingMode($matches[2]);
+			}
+			else
+			{
+				throw new DcGeneralRuntimeException('Custom SQL in sorting fields are currently unsupported');
+			}
 
-				if (preg_match('~^(\w+)(?: (ASC|DESC))?$~', $field, $matches))
-				{
-					$propertyInformation
-						->setProperty($matches[1])
-						->setSortingMode(isset($matches[2]) ? $matches[2] : 'ASC');
-				}
-				else if (preg_match('~^(\w+) => (.+)$~', $field, $matches))
-				{
-					$propertyInformation
-						->setProperty($matches[1])
-						->setSortingMode($matches[2]);
-				}
-				else
-				{
-					throw new DcGeneralRuntimeException('Custom SQL in sorting fields are currently unsupported');
-				}
-
-				if (isset($sortingDca['disableGrouping']) && $sortingDca['disableGrouping'])
-				{
-					$propertyInformation->setGroupingMode(ListingConfigInterface::GROUP_NONE);
-				}
+			if (isset($sortingDca['disableGrouping']) && $sortingDca['disableGrouping'])
+			{
+				$propertyInformation->setGroupingMode(ListingConfigInterface::GROUP_NONE);
 			}
 		}
 	}
