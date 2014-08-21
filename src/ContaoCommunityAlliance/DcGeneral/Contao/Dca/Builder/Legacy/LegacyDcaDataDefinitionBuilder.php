@@ -900,6 +900,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 */
 	protected function parseListSorting(ListingConfigInterface $listing, array $listDca)
 	{
+		$sortingDca = isset($listDca['sorting']) ? $listDca['sorting'] : array();
+
 		if (isset($sortingDca['headerFields']))
 		{
 			$listing->setHeaderPropertyNames((array)$sortingDca['headerFields']);
@@ -931,8 +933,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		{
 			$definition = $definitions->getDefault();
 		}
-
-		$sortingDca = isset($listDca['sorting']) ? $listDca['sorting'] : array();
 
 		if (isset($sortingDca['fields']))
 		{
