@@ -109,13 +109,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 * This method will register an event to the populate environment event in which the parent data provider container
 	 * will get loaded.
 	 *
-	 * @param ContainerInterface       $container The container where the data shall be stored.
-	 *
-	 * @param BuildDataDefinitionEvent $event     The event being emitted.
+	 * @param ContainerInterface $container The container where the data shall be stored.
 	 *
 	 * @return void
 	 */
-	protected function loadAdditionalDefinitions(ContainerInterface $container, BuildDataDefinitionEvent $event)
+	protected function loadAdditionalDefinitions(ContainerInterface $container)
 	{
 		if ($this->getFromDca('config/ptable'))
 		{

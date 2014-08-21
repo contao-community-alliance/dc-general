@@ -82,13 +82,11 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 	/**
 	 * Load all additional definitions, like naming of parent data provider etc.
 	 *
-	 * @param ContainerInterface       $container The container where the data shall be stored.
-	 *
-	 * @param BuildDataDefinitionEvent $event     The event being emitted.
+	 * @param ContainerInterface $container The container where the data shall be stored.
 	 *
 	 * @return void
 	 */
-	protected function loadAdditionalDefinitions(ContainerInterface $container, BuildDataDefinitionEvent $event)
+	protected function loadAdditionalDefinitions(ContainerInterface $container)
 	{
 		if (($providers = $this->getFromDca('dca_config/data_provider')) !== null)
 		{
