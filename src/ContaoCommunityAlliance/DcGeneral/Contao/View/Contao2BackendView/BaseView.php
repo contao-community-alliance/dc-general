@@ -2421,7 +2421,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 		$arrParameters = (array)$objCommand->getParameters();
 		$extra         = (array)$objCommand->getExtra();
-		$strAttributes = $extra['attributes'];
+		$strAttributes = isset($extra['attributes']) ? $extra['attributes'] : null;
 		$attributes    = '';
 
 		// Toggle has to trigger the javascript.
@@ -2479,7 +2479,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		else
 		{
 			// TODO: Shall we interface this option?
-			$idParam = $extra['idparam'];
+			$idParam = isset($extra['idparam']) ? $extra['idparam'] : null;
 			if ($idParam)
 			{
 				$arrParameters[$idParam] = IdSerializer::fromModel($objModel)->getSerialized();
