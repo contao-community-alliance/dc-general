@@ -412,8 +412,8 @@ class ContaoWidgetManager
 		}
 
 		// FIXME TEMPORARY WORKAROUND! To be fixed in the core: Controller::prepareForWidget(..).
-		if (in_array($propExtra['rgxp'], array('date', 'time', 'datim'))
-			&& !$propExtra['mandatory']
+		if ((isset($propExtra['rgxp']) && in_array($propExtra['rgxp'], array('date', 'time', 'datim')))
+			&& empty($propExtra['mandatory'])
 			&& is_numeric($varValue) && $varValue == 0)
 		{
 			$varValue = '';
@@ -422,7 +422,7 @@ class ContaoWidgetManager
 		// OH: why not $required = $mandatory always? source: DataContainer 226.
 		// OH: the whole prepareForWidget(..) thing is an only mess
 		// Widgets should parse the configuration by themselves, depending on what they need.
-		$propExtra['required'] = ($varValue == '') && $propExtra['mandatory'];
+		$propExtra['required'] = ($varValue == '') && !empty($propExtra['mandatory']);
 
 		if ($inputValues)
 		{
@@ -490,6 +490,7 @@ class ContaoWidgetManager
 		// Therefore we reset to the default checkbox behaviour here and submit the entire form.
 		// This way, the javascript needed by the widget (wizards) will be correctly evaluated.
 		if ($arrConfig['inputType'] == 'checkbox'
+			&& isset($GLOBALS['TL_DCA'][$defName]['subpalettes'])
 			&& is_array($GLOBALS['TL_DCA'][$defName]['subpalettes'])
 			&& in_array($property, array_keys($GLOBALS['TL_DCA'][$defName]['subpalettes']))
 			&& $arrConfig['eval']['submitOnChange']
@@ -663,7 +664,7 @@ class ContaoWidgetManager
 		$objTemplateFoo = new ContaoBackendViewTemplate('dcbe_general_field');
 		$objTemplateFoo->setData(array(
 			'strName'       => $property,
-			'strClass'      => $propExtra['tl_class'],
+			'strClass'      => isset($propExtra['tl_class']) ? $propExtra['tl_class'] : null,
 			'widget'        => $widget->parse(),
 			'hasErrors'     => $widget->hasErrors(),
 			'strDatepicker' => $strDatePicker,
