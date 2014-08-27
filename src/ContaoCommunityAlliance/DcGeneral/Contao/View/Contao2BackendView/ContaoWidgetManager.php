@@ -693,24 +693,26 @@ EOF;
 	 */
 	public function processInput(PropertyValueBag $propertyValues)
 	{
-		// remember current POST data and clear it
-		$post = $_POST;
+		// @codingStandardsIgnoreStart - Remember current POST data and clear it.
+		$post  = $_POST;
 		$_POST = array();
+		// @codingStandardsIgnoreEnd
 		\Input::resetCache();
 
-		// set all POST data, these get used within the Widget::validate() method.
+		// Set all POST data, these get used within the Widget::validate() method.
 		foreach ($propertyValues as $property => $propertyValue)
 		{
+			// @codingStandardsIgnoreStart - Operating on $_POST is safe context here.
 			$_POST[$property] = $propertyValue;
+			// @codingStandardsIgnoreEnd
 		}
 
-		// now get and validate the widgets
+		// Now get and validate the widgets.
 		foreach (array_keys($propertyValues->getArrayCopy()) as $property)
 		{
 			// NOTE: the passed input values are RAW DATA from the input provider - aka widget known values and not
 			// native data as in the model.
 			// Therefore we do not need to decode them but MUST encode them.
-
 			$widget = $this->getWidget($property, $propertyValues);
 			$widget->validate();
 
@@ -733,8 +735,9 @@ EOF;
 			}
 		}
 
-		// restore the POST data array
+		// @codingStandardsIgnoreStart - Restore the POST data array.
 		$_POST = $post;
+		// @codingStandardsIgnoreEnd
 		\Input::resetCache();
 	}
 

@@ -187,7 +187,7 @@ interface ListingConfigInterface
 	/**
 	 * Set the grouping and sorting definitions.
 	 *
-	 * @param GroupAndSortingDefinitionCollectionInterface $definition
+	 * @param GroupAndSortingDefinitionCollectionInterface $definition The definition to use.
 	 *
 	 * @return ListingConfigInterface
 	 */

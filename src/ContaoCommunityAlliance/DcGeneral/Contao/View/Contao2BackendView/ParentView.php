@@ -23,7 +23,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPa
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
@@ -545,7 +544,7 @@ class ParentView extends BaseView
 		}
 
 		// Add template.
-		if ($groupingInformation['mode'] != ListingConfigInterface::GROUP_NONE)
+		if ($groupingInformation['mode'] != GroupAndSortingInformationInterface::GROUP_NONE)
 		{
 			$objTemplate = $this->getTemplate('dcbe_general_grouping');
 		}

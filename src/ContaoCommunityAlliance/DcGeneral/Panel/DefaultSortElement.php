@@ -29,6 +29,8 @@ class DefaultSortElement
 	implements SortElementInterface
 {
 	/**
+	 * The selected definition.
+	 *
 	 * @var GroupAndSortingDefinitionInterface
 	 */
 	protected $selected;
@@ -37,6 +39,8 @@ class DefaultSortElement
 	 * The default flag to use.
 	 *
 	 * @var int
+	 *
+	 * @deprecated Not in use anymore.
 	 */
 	public $intDefaultFlag;
 
@@ -65,6 +69,8 @@ class DefaultSortElement
 	}
 
 	/**
+	 * Search a definition by it's name.
+	 *
 	 * @param string $name The name.
 	 *
 	 * @return GroupAndSortingDefinitionInterface|null
