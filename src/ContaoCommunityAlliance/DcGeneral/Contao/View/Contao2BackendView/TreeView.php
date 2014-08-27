@@ -302,8 +302,8 @@ class TreeView extends BaseView
 				foreach ($objChildCollection as $objChildModel)
 				{
 					// Let the child know about it's parent.
-					$objModel->setMeta(DCGE::MODEL_PID, $objModel->getID());
-					$objModel->setMeta(DCGE::MODEL_PTABLE, $objModel->getProviderName());
+					$objModel->setMeta($objModel::PARENT_ID, $objModel->getID());
+					$objModel->setMeta($objModel::PARENT_PROVIDER_NAME, $objModel->getProviderName());
 
 					$mySubTables = array();
 					foreach ($relationships->getChildConditions($objModel->getProviderName()) as $condition)
@@ -329,7 +329,7 @@ class TreeView extends BaseView
 			$objModel->setMeta(DCGE::TREE_VIEW_CHILD_COLLECTION, $arrChildCollections);
 		}
 
-		$objModel->setMeta(DCGE::TREE_VIEW_HAS_CHILDS, $blnHasChild);
+		$objModel->setMeta($objModel::HAS_CHILDREN, $blnHasChild);
 	}
 
 	/**
@@ -466,8 +466,8 @@ class TreeView extends BaseView
 	 */
 	protected function parseModel($objModel, $strToggleID)
 	{
-		$objModel->setMeta(DCGE::MODEL_BUTTONS, $this->generateButtons($objModel));
-		$objModel->setMeta(DCGE::MODEL_LABEL_VALUE, $this->formatModel($objModel));
+		$objModel->setMeta($objModel::OPERATION_BUTTONS, $this->generateButtons($objModel));
+		$objModel->setMeta($objModel::LABEL_VALUE, $this->formatModel($objModel));
 
 		$objTemplate = $this->getTemplate('dcbe_general_treeview_entry');
 
