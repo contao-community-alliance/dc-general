@@ -2269,7 +2269,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 		$buttonEvent = new GetGlobalButtonEvent($this->getEnvironment());
 		$buttonEvent
-			->setAccessKey(trim($extra['accesskey']))
+			->setAccessKey(isset($extra['accesskey']) ? trim($extra['accesskey']) : null)
 			->setAttributes(' ' . ltrim($extra['attributes']))
 			->setClass($extra['class'])
 			->setKey($command->getName())
