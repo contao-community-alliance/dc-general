@@ -199,6 +199,11 @@ class DefaultSortElement
 				$name = $properties->getProperty($name)->getLabel();
 			}
 
+			if (empty($name))
+			{
+				$name = $information->getName();
+			}
+
 			$arrOptions[] = array(
 				'value'      => specialchars($information->getName()),
 				'attributes' => ($this->getSelected() == $information->getName()) ? ' selected="selected"' : '',
