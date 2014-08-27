@@ -75,7 +75,7 @@ interface GroupAndSortingInformationInterface
 	const SORT_RANDOM = 'random';
 
 	/**
-	 * Set the name of the property
+	 * Set the name of the property.
 	 *
 	 * @param string $property The property name.
 	 *
