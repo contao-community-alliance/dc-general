@@ -369,29 +369,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	 */
 	protected function getGroupingMode()
 	{
-		$sorting = null;
-
-		foreach ($this->getPanel() as $panel)
-		{
-			/** @var PanelInterface $panel */
-			$sort = $panel->getElement('sort');
-			if ($sort)
-			{
-				/** @var SortElementInterface $sort */
-				$sorting = $sort->getSelectedDefinition();
-				break;
-			}
-		}
-
-		if (!$sorting)
-		{
-			$definition = $this->getViewSection()->getListingConfig()->getGroupAndSortingDefinition();
-			if ($definition->hasDefault())
-			{
-				$sorting = $definition->getDefault();
-			}
-		}
-
+		$sorting = $this->getCurrentSorting();
 		// If no sorting defined, exit.
 		if ((!$sorting)
 			|| (!$sorting->getCount())
