@@ -496,7 +496,7 @@ class ParentView extends BaseView
 
 			return sprintf(
 				'<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
-				'contao/main.php?' . http_build_query($query),
+				'contao/main.php?' . str_replace('%3A', ':', http_build_query($query)),
 				specialchars($this->translate('editheader.1', $definition->getName())),
 				$imageEvent->getHtml()
 			);
