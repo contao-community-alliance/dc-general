@@ -332,6 +332,35 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	}
 
 	/**
+	 * Retrieve the currently active
+	 *
+	 *  @return GroupAndSortingDefinitionInterface
+	 */
+	protected function getCurrentSorting()
+	{
+		$sorting = null;
+
+		foreach ($this->getPanel() as $panel)
+		{
+			/** @var PanelInterface $panel */
+			$sort = $panel->getElement('sort');
+			if ($sort)
+			{
+				/** @var SortElementInterface $sort */
+				return $sort->getSelectedDefinition();
+			}
+		}
+
+		$definition = $this->getViewSection()->getListingConfig()->getGroupAndSortingDefinition();
+		if ($definition->hasDefault())
+		{
+			return $definition->getDefault();
+		}
+
+		return null;
+	}
+
+	/**
 	 * Retrieve the currently active grouping mode.
 	 *
 	 * @return array|null
