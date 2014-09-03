@@ -71,17 +71,19 @@ class ContaoWidgetManager
 	/**
 	 * Encode a value from the widget to native data of the data provider via event.
 	 *
-	 * @param string $property The property.
+	 * @param string           $property       The property.
 	 *
-	 * @param mixed  $value    The value of the property.
+	 * @param mixed            $value          The value of the property.
+	 *
+	 * @param PropertyValueBag $propertyValues The property value bag the property value originates from.
 	 *
 	 * @return mixed
 	 */
-	public function encodeValue($property, $value)
+	public function encodeValue($property, $value, PropertyValueBag $propertyValues)
 	{
 		$environment = $this->getEnvironment();
 
-		$event = new EncodePropertyValueFromWidgetEvent($environment, $this->model);
+		$event = new EncodePropertyValueFromWidgetEvent($environment, $this->model, $propertyValues);
 		$event
 			->setProperty($property)
 			->setValue($value);
@@ -726,7 +728,7 @@ EOF;
 			else
 			{
 				try {
-					$propertyValues->setPropertyValue($property, $this->encodeValue($property, $widget->value));
+					$propertyValues->setPropertyValue($property, $this->encodeValue($property, $widget->value, $propertyValues));
 				}
 				catch (\Exception $e) {
 					$widget->addError($e->getMessage());
