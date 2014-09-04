@@ -12,7 +12,10 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event;
 
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
+use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 
 /**
  * Class EncodePropertyValueFromWidgetEvent.
@@ -44,23 +47,23 @@ class EncodePropertyValueFromWidgetEvent
 	/**
 	 * The property value bag where values are to be retrieved from.
 	 *
-	 * @var PropertyValueBag
+	 * @var PropertyValueBagInterface
 	 */
 	protected $propertyValues;
 
 	/**
 	 * Create a new model aware event.
 	 *
-	 * @param EnvironmentInterface $environment    The environment.
+	 * @param EnvironmentInterface      $environment    The environment.
 	 *
-	 * @param ModelInterface       $model          The model attached to the event.
+	 * @param ModelInterface            $model          The model attached to the event.
 	 *
-	 * @param PropertyValueBag     $propertyValues The property value bag the property value originates from.
+	 * @param PropertyValueBagInterface $propertyValues The property value bag the property value originates from.
 	 */
 	public function __construct(
 		EnvironmentInterface $environment,
 		ModelInterface $model,
-		PropertyValueBag $propertyValues
+		PropertyValueBagInterface $propertyValues
 	)
 	{
 		parent::__construct($environment, $model);
@@ -70,7 +73,7 @@ class EncodePropertyValueFromWidgetEvent
 	/**
 	 * Retrieve the property value bag where values are stored.
 	 *
-	 * @return PropertyValueBag
+	 * @return PropertyValueBagInterface
 	 */
 	public function getPropertyValueBag()
 	{
