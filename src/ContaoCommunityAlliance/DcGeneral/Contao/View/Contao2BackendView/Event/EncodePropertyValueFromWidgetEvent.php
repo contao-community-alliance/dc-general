@@ -85,7 +85,7 @@ class EncodePropertyValueFromWidgetEvent
 	 *
 	 * @param string $property The name of the property.
 	 *
-	 * @return DecodePropertyValueForWidgetEvent
+	 * @return EncodePropertyValueFromWidgetEvent
 	 */
 	public function setProperty($property)
 	{
@@ -109,7 +109,7 @@ class EncodePropertyValueFromWidgetEvent
 	 *
 	 * @param mixed $value The new value.
 	 *
-	 * @return DecodePropertyValueForWidgetEvent
+	 * @return EncodePropertyValueFromWidgetEvent
 	 */
 	public function setValue($value)
 	{
