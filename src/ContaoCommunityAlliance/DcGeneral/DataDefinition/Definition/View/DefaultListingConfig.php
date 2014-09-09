@@ -226,7 +226,7 @@ class DefaultListingConfig implements ListingConfigInterface
 			$propertyInformation = $definition->add();
 			$propertyInformation
 				->setProperty($property)
-				->setSortingMode(strtolower($direction));
+				->setSortingMode($direction);
 		}
 
 		return $this;
