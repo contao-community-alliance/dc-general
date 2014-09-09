@@ -922,6 +922,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			return;
 		}
 
+		$fieldsDca = $this->getFromDca('fields');
+
 		$definitions = $listing->getGroupAndSortingDefinition();
 
 		if (!$definitions->hasDefault())
@@ -952,6 +954,13 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			else
 			{
 				throw new DcGeneralRuntimeException('Custom SQL in sorting fields are currently unsupported');
+			}
+
+			if (isset($fieldsDca[$propertyInformation->getProperty()])) {
+				if (isset($fieldsDca[$propertyInformation->getProperty()]['flag'])) {
+					$this->evalFlagGrouping($propertyInformation, $fieldsDca[$propertyInformation->getProperty()]['flag']);
+					$this->evalFlagGroupingLength($propertyInformation, $fieldsDca[$propertyInformation->getProperty()]['flag']);
+				}
 			}
 
 			if (isset($sortingDca['disableGrouping']) && $sortingDca['disableGrouping'])
