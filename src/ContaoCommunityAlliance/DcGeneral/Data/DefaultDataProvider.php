@@ -382,7 +382,7 @@ class DefaultDataProvider implements DataProviderInterface
 		{
 			foreach ($arrSorting as $strField => $strOrder)
 			{
-				if ($strOrder && !in_array($strOrder, array(DCGE::MODEL_SORTING_ASC, DCGE::MODEL_SORTING_DESC)))
+				if ($strOrder && !in_array(strtoupper($strOrder), array(DCGE::MODEL_SORTING_ASC, DCGE::MODEL_SORTING_DESC)))
 				{
 					$strField = $strOrder;
 					$strOrder = DCGE::MODEL_SORTING_ASC;

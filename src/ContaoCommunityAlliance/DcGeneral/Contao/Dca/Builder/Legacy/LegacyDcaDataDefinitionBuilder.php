@@ -922,6 +922,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			return;
 		}
 
+		$fieldsDca = $this->getFromDca('fields');
+
 		$definitions = $listing->getGroupAndSortingDefinition();
 
 		if (!$definitions->hasDefault())
@@ -936,33 +938,39 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		foreach ($sortingDca['fields'] as $field)
 		{
-			$propertyInformation = $definition->add();
+			$groupAndSortingInformation = $definition->add();
 
 			if (isset($sortingDca['flag']))
 			{
-				$this->evalFlag($propertyInformation, $sortingDca['flag']);
+				$this->evalFlag($groupAndSortingInformation, $sortingDca['flag']);
 			}
 
-			if (preg_match('~^(\w+)(?: (ASC|DESC))?$~', $field, $matches))
+			if (preg_match('~^(\w+)(?: (.+))?$~', $field, $matches))
 			{
-				$propertyInformation
+				$groupAndSortingInformation
 					->setProperty($matches[1])
-					->setSortingMode(isset($matches[2]) ? $matches[2] : 'ASC');
-			}
-			elseif (preg_match('~^(\w+) => (.+)$~', $field, $matches))
-			{
-				$propertyInformation
-					->setProperty($matches[1])
-					->setSortingMode($matches[2]);
+					->setSortingMode(
+						isset($matches[2])
+						? $matches[2]
+						: GroupAndSortingInformationInterface::SORT_ASC
+					);
 			}
 			else
 			{
 				throw new DcGeneralRuntimeException('Custom SQL in sorting fields are currently unsupported');
 			}
 
+			if (isset($fieldsDca[$groupAndSortingInformation->getProperty()])) {
+				if (isset($fieldsDca[$groupAndSortingInformation->getProperty()]['flag'])) {
+					$flag = $fieldsDca[$groupAndSortingInformation->getProperty()]['flag'];
+					$this->evalFlagGrouping($groupAndSortingInformation, $flag);
+					$this->evalFlagGroupingLength($groupAndSortingInformation, $flag);
+				}
+			}
+
 			if (isset($sortingDca['disableGrouping']) && $sortingDca['disableGrouping'])
 			{
-				$propertyInformation->setGroupingMode(ListingConfigInterface::GROUP_NONE);
+				$groupAndSortingInformation->setGroupingMode(GroupAndSortingInformationInterface::GROUP_NONE);
 			}
 		}
 	}
