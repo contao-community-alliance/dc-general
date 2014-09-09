@@ -136,7 +136,7 @@ class PropertyValueBag implements PropertyValueBagInterface
 	public function isPropertyValueInvalid($property)
 	{
 		$this->requirePropertyValue($property);
-		return (bool)$this->errors[$property];
+		return isset($this->errors[$property]) && (bool)$this->errors[$property];
 	}
 
 	/**
