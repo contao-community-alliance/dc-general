@@ -176,7 +176,7 @@ class DefaultSortElement
 			foreach ($this->getSelectedDefinition() as $information)
 			{
 				/** @var GroupAndSortingInformationInterface $information */
-				$current[$information->getProperty()] = strtoupper($information->getSortingMode());
+				$current[$information->getProperty()] = $information->getSortingMode();
 			}
 		}
 

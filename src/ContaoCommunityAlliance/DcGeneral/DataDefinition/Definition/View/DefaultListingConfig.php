@@ -250,7 +250,7 @@ class DefaultListingConfig implements ListingConfigInterface
 			/** @var GroupAndSortingInformationInterface $propertyInformation */
 			if ($propertyInformation->getProperty())
 			{
-				$properties[$propertyInformation->getProperty()] = strtoupper($propertyInformation->getSortingMode());
+				$properties[$propertyInformation->getProperty()] = $propertyInformation->getSortingMode();
 			}
 		}
 
