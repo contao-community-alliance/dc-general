@@ -943,17 +943,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 				$this->evalFlag($propertyInformation, $sortingDca['flag']);
 			}
 
-			if (preg_match('~^(\w+)(?: (ASC|DESC))?$~', $field, $matches))
+			if (preg_match('~^(\w+)(?: (.+))?$~', $field, $matches))
 			{
 				$propertyInformation
 					->setProperty($matches[1])
-					->setSortingMode(isset($matches[2]) ? $matches[2] : 'ASC');
-			}
-			elseif (preg_match('~^(\w+) => (.+)$~', $field, $matches))
-			{
-				$propertyInformation
-					->setProperty($matches[1])
-					->setSortingMode($matches[2]);
+					->setSortingMode(isset($matches[2]) ? $matches[2] : GroupAndSortingInformationInterface::SORT_ASC);
 			}
 			else
 			{
