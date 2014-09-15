@@ -725,7 +725,7 @@ EOF;
 					$propertyValues->markPropertyValueAsInvalid($property, $error);
 				}
 			}
-			else
+			elseif ($widget->submitInput())
 			{
 				try {
 					$propertyValues->setPropertyValue($property, $this->encodeValue($property, $widget->value, $propertyValues));
