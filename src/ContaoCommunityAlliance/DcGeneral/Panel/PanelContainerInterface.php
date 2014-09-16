@@ -22,7 +22,7 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  *
  * @package DcGeneral\Panel
  */
-interface PanelContainerInterface extends \IteratorAggregate
+interface PanelContainerInterface extends \IteratorAggregate, \Countable
 {
 	/**
 	 * Get the environment in use.

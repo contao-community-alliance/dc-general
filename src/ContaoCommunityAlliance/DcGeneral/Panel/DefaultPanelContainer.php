@@ -100,4 +100,12 @@ class DefaultPanelContainer
 	{
 		return new \ArrayIterator($this->arrPanels);
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function count()
+	{
+		return count($this->arrPanels);
+	}
 }
