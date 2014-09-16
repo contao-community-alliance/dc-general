@@ -2849,11 +2849,14 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		foreach ($this->getPanel() as $objPanel)
 		{
 			$arrPanel = array();
+			$i        = 0;
+			$max      = count($objPanel);
 			foreach ($objPanel as $objElement)
 			{
 				// If the current class in the list of ignored panels go to the next one.
 				if (!empty($ignoredPanels) && $this->isIgnoredPanel($objElement, $ignoredPanels))
 				{
+					$max--;
 					continue;
 				}
 
@@ -2878,6 +2881,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 				{
 					$objElementTemplate = $this->getTemplate('dcbe_general_panel_submit');
 				}
+
+				$rowClass = ($i % 2 ? 'odd' : 'even') . ($i == 0 ? ' first' : '') . ($i == $max ? ' last' : '');
+				$this->addToTemplate('rowClass', $rowClass, $objElementTemplate);
+				$i++;
 				$objElement->render($objElementTemplate);
 
 				$arrPanel[] = $objElementTemplate->parse();
