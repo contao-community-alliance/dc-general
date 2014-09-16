@@ -22,7 +22,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
  * @package DcGeneral\Panel
  */
 interface PanelInterface
-	extends \IteratorAggregate
+	extends \IteratorAggregate, \Countable
 {
 	/**
 	 * Get the parenting container.
