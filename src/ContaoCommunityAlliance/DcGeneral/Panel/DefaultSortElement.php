@@ -161,7 +161,17 @@ class DefaultSortElement
 
 			}
 
-			$this->setSelected($this->getPersistent());
+			$persistent = $this->getPersistent();
+			if (!$persistent)
+			{
+				if ($this->getGroupAndSortingDefinition()->hasDefault())
+				{
+					$persistent = $this->getGroupAndSortingDefinition()->getDefault()->getName();
+				}
+				$this->setPersistent($value);
+			}
+
+			$this->setSelected($persistent);
 		}
 
 		$current = $objConfig->getSorting();
