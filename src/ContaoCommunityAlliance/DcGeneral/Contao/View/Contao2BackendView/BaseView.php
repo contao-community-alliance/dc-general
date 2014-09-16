@@ -2850,7 +2850,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		{
 			$arrPanel = array();
 			$i        = 0;
-			$max      = count($objPanel);
+			$max      = count($objPanel) - 1;
 			foreach ($objPanel as $objElement)
 			{
 				// If the current class in the list of ignored panels go to the next one.
