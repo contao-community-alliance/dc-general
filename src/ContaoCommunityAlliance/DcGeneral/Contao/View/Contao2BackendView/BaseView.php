@@ -417,8 +417,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	 */
 	public function formatCurrentValue($field, $model, $groupMode, $groupLength)
 	{
-		$value      = $model->getProperty($field);
 		$property   = $this->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
+		$value      = $this->getReadableFieldValue($property, $model, $model->getProperty($field));
 		$propagator = $this->getEnvironment()->getEventPropagator();
 		$propExtra  = $property->getExtra();
 
