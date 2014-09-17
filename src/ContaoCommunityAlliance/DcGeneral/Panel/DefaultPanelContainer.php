@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -20,9 +21,9 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  *
  * @package DcGeneral\Panel
  */
-class DefaultPanelContainer
-    implements PanelContainerInterface
+class DefaultPanelContainer implements PanelContainerInterface
 {
+
     /**
      * The environment in use.
      *
@@ -44,6 +45,7 @@ class DefaultPanelContainer
     {
         return $this->objEnvironment;
     }
+
     /**
      * {@inheritdoc}
      */
@@ -79,8 +81,7 @@ class DefaultPanelContainer
     {
         /** @var PanelInterface $objPanel */
 
-        foreach ($this as $objPanel)
-        {
+        foreach ($this as $objPanel) {
             $objPanel->initialize($objConfig, $objElement);
         }
     }

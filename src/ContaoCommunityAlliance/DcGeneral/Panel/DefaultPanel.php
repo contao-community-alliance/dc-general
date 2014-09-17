@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -19,9 +20,9 @@ use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
  *
  * @package DcGeneral\Panel
  */
-class DefaultPanel
-    implements PanelInterface
+class DefaultPanel implements PanelInterface
 {
+
     /**
      * The panel container this panel is contained within.
      *
@@ -87,8 +88,7 @@ class DefaultPanel
     public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
     {
         /** @var PanelElementInterface $objThisElement */
-        foreach ($this as $objThisElement)
-        {
+        foreach ($this as $objThisElement) {
             $objThisElement->initialize($objConfig, $objElement);
         }
     }
@@ -108,5 +108,4 @@ class DefaultPanel
     {
         return count($this->arrElements);
     }
-
 }

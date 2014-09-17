@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    DcGeneral
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,8 +22,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  *
  * @package DcGeneral\DataDefinition\ModelRelationship\FilterBuilder
  */
-class OrFilterBuilder
-    extends FilterBuilderWithChildren
+class OrFilterBuilder extends FilterBuilderWithChildren
 {
     /**
      * Create a new instance.

@@ -2,6 +2,7 @@
 
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @copyright  The MetaModels team.
@@ -49,18 +50,15 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
     {
         parent::setBaseConfig($arrConfig);
 
-        if (!$arrConfig['group_column'])
-        {
+        if (!$arrConfig['group_column']) {
             throw new DcGeneralException(
                 'ContaoCommunityAlliance\DcGeneral\Data\TableRowsAsRecordsDriver needs a grouping column.',
                 1
             );
-
         }
         $this->strGroupCol = $arrConfig['group_column'];
 
-        if ($arrConfig['sort_column'])
-        {
+        if ($arrConfig['sort_column']) {
             $this->strSortCol = $arrConfig['sort_column'];
         }
     }
@@ -80,12 +78,14 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      */
     protected function youShouldNotCallMe($strMethod)
     {
-        throw new DcGeneralException(sprintf(
-            'Error, %s not available, as the data provider is intended for edit mode only.',
-            $strMethod
-        ), 1);
+        throw new DcGeneralException(
+            sprintf(
+                'Error, %s not available, as the data provider is intended for edit mode only.',
+                $strMethod
+            ),
+            1
+        );
     }
-
 
     /**
      * Unsupported in this data provider, throws an Exception.
@@ -114,8 +114,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      */
     public function fetch(ConfigInterface $objConfig)
     {
-        if (!$objConfig->getId())
-        {
+        if (!$objConfig->getId()) {
             throw new DcGeneralException(
                 'Error, no id passed, TableRowsAsRecordsDriver is only intended for edit mode.',
                 1
@@ -129,8 +128,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
             $this->strGroupCol
         );
 
-        if ($this->strSortCol)
-        {
+        if ($this->strSortCol) {
             $strQuery .= ' ORDER BY ' . $this->strSortCol;
         }
 
@@ -139,8 +137,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
             ->execute($objConfig->getId());
 
         $objModel = $this->getEmptyModel();
-        if ($objResult->numRows)
-        {
+        if ($objResult->numRows) {
             $objModel->setPropertyRaw('rows', $objResult->fetchAllAssoc());
         }
 
@@ -225,19 +222,18 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @return ModelInterface The passed Model.
      *
-     * @throws DcGeneralException When the passed model does not contain a property named "rows", an Exception is thrown.
+     * @throws DcGeneralException When the passed model does not contain a property named "rows", an Exception is
+     *                            thrown.
      */
     public function save(ModelInterface $objItem, $recursive = false)
     {
         $arrData = $objItem->getProperty('rows');
-        if (!($objItem->getID() && $arrData))
-        {
+        if (!($objItem->getID() && $arrData)) {
             throw new DcGeneralException('invalid input data in model.', 1);
         }
 
         $arrKeep = array();
-        foreach ($arrData as $arrRow)
-        {
+        foreach ($arrData as $arrRow) {
             // TODO: add an option to restrict this to some allowed fields?
             $arrSQL = $arrRow;
 
@@ -246,14 +242,12 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
 
             // Work around the fact that multicolumnwizard does not clear any hidden fields when copying a dataset.
             // therefore we do consider any dupe as new dataset and save it accordingly.
-            if (in_array($intId, $arrKeep))
-            {
+            if (in_array($intId, $arrKeep)) {
                 $intId = 0;
                 unset($arrSQL['id']);
             }
 
-            if ($intId > 0)
-            {
+            if ($intId > 0) {
                 $this->objDatabase
                     ->prepare(sprintf('UPDATE %s %%s WHERE id=? AND %s=?', $this->strSource, $this->strGroupCol))
                     ->set($arrSQL)
@@ -271,12 +265,14 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
         }
         // House keeping, kill the rest.
         $this->objDatabase
-            ->prepare(sprintf(
-                'DELETE FROM  %s WHERE %s=? AND id NOT IN (%s)',
-                $this->strSource,
-                $this->strGroupCol,
-                implode(',', $arrKeep)
-            ))
+            ->prepare(
+                sprintf(
+                    'DELETE FROM  %s WHERE %s=? AND id NOT IN (%s)',
+                    $this->strSource,
+                    $this->strGroupCol,
+                    implode(',', $arrKeep)
+                )
+            )
             ->execute($objItem->getId());
         return $objItem;
     }

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -19,6 +20,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class PropertyValueBag implements PropertyValueBagInterface
 {
+
     /**
      * All properties and its values in this bag.
      *
@@ -42,16 +44,14 @@ class PropertyValueBag implements PropertyValueBagInterface
      */
     public function __construct($properties = null)
     {
-        if (is_array($properties) || $properties instanceof \Traversable)
-        {
-            foreach ($properties as $property => $value)
-            {
+        if (is_array($properties) || $properties instanceof \Traversable) {
+            foreach ($properties as $property => $value) {
                 $this->setPropertyValue($property, $value);
             }
-        }
-        elseif ($properties !== null)
-        {
-            throw new DcGeneralInvalidArgumentException('The parameter $properties does not contain any properties nor values');
+        } elseif ($properties !== null) {
+            throw new DcGeneralInvalidArgumentException(
+                'The parameter $properties does not contain any properties nor values'
+            );
         }
     }
 
@@ -68,8 +68,7 @@ class PropertyValueBag implements PropertyValueBagInterface
      */
     protected function requirePropertyValue($property)
     {
-        if (!$this->hasPropertyValue($property))
-        {
+        if (!$this->hasPropertyValue($property)) {
             throw new DcGeneralInvalidArgumentException('The property ' . $property . ' does not exists');
         }
     }
@@ -155,13 +154,11 @@ class PropertyValueBag implements PropertyValueBagInterface
     {
         $this->requirePropertyValue($property);
 
-        if (!isset($this->errors[$property]) || !$append)
-        {
+        if (!isset($this->errors[$property]) || !$append) {
             $this->errors[$property] = array();
         }
 
-        foreach ((array)$error as $singleError)
-        {
+        foreach ((array)$error as $singleError) {
             $this->errors[$property][] = $singleError;
         }
 

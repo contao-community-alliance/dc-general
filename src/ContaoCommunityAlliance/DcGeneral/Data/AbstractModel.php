@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,6 +22,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
  */
 abstract class AbstractModel implements ModelInterface
 {
+
     /**
      * A list with all meta information.
      *
@@ -33,8 +35,7 @@ abstract class AbstractModel implements ModelInterface
      */
     public function getMeta($strMetaName)
     {
-        if (isset($this->arrMetaInformation[$strMetaName]))
-        {
+        if (isset($this->arrMetaInformation[$strMetaName])) {
             return $this->arrMetaInformation[$strMetaName];
         }
 

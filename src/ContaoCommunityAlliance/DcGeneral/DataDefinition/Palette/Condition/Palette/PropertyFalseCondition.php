@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -20,6 +21,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
  */
 class PropertyFalseCondition extends AbstractWeightAwarePaletteCondition
 {
+
     /**
      * The property name.
      *
@@ -102,21 +104,15 @@ class PropertyFalseCondition extends AbstractWeightAwarePaletteCondition
      */
     public function getMatchCount(ModelInterface $model = null, PropertyValueBag $input = null)
     {
-        if (!$this->propertyName)
-        {
+        if (!$this->propertyName) {
             return false;
         }
 
-        if ($input && $input->hasPropertyValue($this->propertyName))
-        {
+        if ($input && $input->hasPropertyValue($this->propertyName)) {
             $value = $input->getPropertyValue($this->propertyName);
-        }
-        elseif ($model)
-        {
+        } elseif ($model) {
             $value = $model->getProperty($this->propertyName);
-        }
-        else
-        {
+        } else {
             return false;
         }
 

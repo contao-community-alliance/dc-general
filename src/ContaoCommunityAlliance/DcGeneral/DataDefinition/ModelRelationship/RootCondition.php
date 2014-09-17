@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -19,10 +20,9 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  *
  * @package DcGeneral\DataDefinition\ModelRelationship
  */
-class RootCondition
-    extends AbstractCondition
-    implements RootConditionInterface
+class RootCondition extends AbstractCondition implements RootConditionInterface
 {
+
     /**
      * The filter rules to use.
      *
@@ -105,23 +105,21 @@ class RootCondition
      */
     public function applyTo($objModel)
     {
-        if ($this->setOn)
-        {
-            foreach ($this->setOn as $rule)
-            {
-                if (!($rule['property'] && isset($rule['value'])))
-                {
+        if ($this->setOn) {
+            foreach ($this->setOn as $rule) {
+                if (!($rule['property'] && isset($rule['value']))) {
                     throw new DcGeneralRuntimeException(
-                        'Error Processing root condition, you need to specify property and value: ' . var_export($rule, true),
+                        'Error Processing root condition, you need to specify property and value: ' . var_export(
+                            $rule,
+                            true
+                        ),
                         1
                     );
                 }
 
                 $objModel->setProperty($rule['property'], $rule['value']);
             }
-        }
-        else
-        {
+        } else {
             throw new DcGeneralRuntimeException(
                 'Error Processing root condition, you need to specify root condition setters.',
                 1
@@ -136,8 +134,7 @@ class RootCondition
      */
     public function matches($objModel)
     {
-        if ($this->getFilterArray())
-        {
+        if ($this->getFilterArray()) {
             return $this->checkCondition(
                 $objModel,
                 array(

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    DcGeneral
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -29,12 +30,14 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class FilterBuilder
 {
+
     /**
      * The current filter root (always an AND builder).
      *
      * @var AndFilterBuilder
      */
     protected $filters;
+
     /**
      * Flag determining if the current filter is a root filter or parent child filter.
      *
@@ -53,8 +56,7 @@ class FilterBuilder
      */
     public function __construct($filter = array(), $isRoot = false)
     {
-        if (!is_array($filter))
-        {
+        if (!is_array($filter)) {
             throw new DcGeneralInvalidArgumentException(
                 'FilterBuilder needs a valid filter array ' . gettype($filter) . 'given'
             );
@@ -77,8 +79,7 @@ class FilterBuilder
      */
     public static function getBuilderFromArray($filter, $builder)
     {
-        switch ($filter['operation'])
-        {
+        switch ($filter['operation']) {
             case 'AND':
                 return AndFilterBuilder::fromArray($filter, $builder);
             case 'OR':
@@ -172,8 +173,7 @@ class FilterBuilder
      */
     public function checkNotRoot()
     {
-        if ($this->isRootFilter)
-        {
+        if ($this->isRootFilter) {
             throw new DcGeneralInvalidArgumentException(
                 'ERROR: Filter builder is for an root filter.'
             );
@@ -217,8 +217,7 @@ class FilterBuilder
      */
     public function checkValidOperation($operation)
     {
-        if (!$this->isValidOperation($operation))
-        {
+        if (!$this->isValidOperation($operation)) {
             throw new DcGeneralInvalidArgumentException(
                 'Invalid operation ' . $operation . ' it must be one of: AND, OR, =, >, <, IN, LIKE'
             );

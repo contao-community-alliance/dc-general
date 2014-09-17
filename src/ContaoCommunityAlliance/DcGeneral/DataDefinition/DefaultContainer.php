@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -27,6 +28,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DefaultContainer implements ContainerInterface
 {
+
     /**
      * The name of the container.
      *
@@ -96,11 +98,11 @@ class DefaultContainer implements ContainerInterface
      */
     public function addDefinitions(array $definitions)
     {
-        foreach ($definitions as $name => $definition)
-        {
-            if (!($definition instanceof DefinitionInterface))
-            {
-                throw new DcGeneralInvalidArgumentException('Definition ' . $name . ' does not implement DefinitionInterface.');
+        foreach ($definitions as $name => $definition) {
+            if (!($definition instanceof DefinitionInterface)) {
+                throw new DcGeneralInvalidArgumentException(
+                    'Definition ' . $name . ' does not implement DefinitionInterface.'
+                );
             }
 
             $this->setDefinition($name, $definition);
@@ -136,8 +138,7 @@ class DefaultContainer implements ContainerInterface
      */
     public function getDefinition($definitionName)
     {
-        if (!$this->hasDefinition($definitionName))
-        {
+        if (!$this->hasDefinition($definitionName)) {
             throw new DcGeneralInvalidArgumentException(
                 'Definition ' . $definitionName . ' is not registered in the configuration.'
             );
@@ -280,8 +281,7 @@ class DefaultContainer implements ContainerInterface
     public function __clone()
     {
         $definitions = array();
-        foreach ($this->definitions as $name => $definition)
-        {
+        foreach ($this->definitions as $name => $definition) {
             $bobaFett = clone $definition;
 
             $definitions[$name] = $bobaFett;

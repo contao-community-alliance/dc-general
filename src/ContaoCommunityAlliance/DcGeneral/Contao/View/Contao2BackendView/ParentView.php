@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -55,11 +56,9 @@ class ParentView extends BaseView
         $this->getPanel()->initialize($objChildConfig);
 
         // Initialize sorting if not present yet.
-        if (!$objChildConfig->getSorting() && $listingConfig->getGroupAndSortingDefinition()->hasDefault())
-        {
+        if (!$objChildConfig->getSorting() && $listingConfig->getGroupAndSortingDefinition()->hasDefault()) {
             $newSorting = array();
-            foreach ($listingConfig->getGroupAndSortingDefinition()->getDefault() as $information)
-            {
+            foreach ($listingConfig->getGroupAndSortingDefinition()->getDefault() as $information) {
                 /** @var GroupAndSortingInformationInterface $information */
                 $newSorting[$information->getProperty()] = strtoupper($information->getSortingMode());
             }
@@ -85,16 +84,14 @@ class ParentView extends BaseView
         $pid         = $environment->getInputProvider()->getParameter('pid');
         $pidDetails  = IdSerializer::fromSerialized($pid);
 
-        if (!$pidDetails->isValid())
-        {
+        if (!$pidDetails->isValid()) {
             throw new DcGeneralRuntimeException(
                 'ParentView needs a proper parent id defined, somehow none is defined?',
                 1
             );
         }
 
-        if (!($objParentProvider = $environment->getDataProvider($pidDetails->getDataProviderName())))
-        {
+        if (!($objParentProvider = $environment->getDataProvider($pidDetails->getDataProviderName()))) {
             throw new DcGeneralRuntimeException(
                 'ParentView needs a proper parent data provider defined, somehow none is defined?',
                 1
@@ -103,8 +100,7 @@ class ParentView extends BaseView
 
         $objParentItem = $objParentProvider->fetch($objParentProvider->getEmptyConfig()->setId($pidDetails->getId()));
 
-        if (!$objParentItem)
-        {
+        if (!$objParentItem) {
             // No parent item found, might have been deleted.
             // We transparently create it for our filter to be able to filter to nothing.
             // TODO: shall we rather bail with "parent not found"?
@@ -121,7 +117,7 @@ class ParentView extends BaseView
      * @param CollectionInterface $collection          The collection to render.
      *
      * @param array               $groupingInformation The grouping information as retrieved via
-     *                            BaseView::getGroupingMode().
+     *                                                 BaseView::getGroupingMode().
      *
      * @return void
      */
@@ -139,14 +135,12 @@ class ParentView extends BaseView
 
         // Run each model.
         $i = 0;
-        foreach ($collection as $model)
-        {
+        foreach ($collection as $model) {
             /** @var ModelInterface $model */
             $i++;
 
             // Add the group header.
-            if ($groupingInformation)
-            {
+            if ($groupingInformation) {
                 $remoteNew = $this->formatCurrentValue(
                     $groupingInformation['property'],
                     $model,
@@ -158,28 +152,28 @@ class ParentView extends BaseView
                 if (!$listing->getShowColumns()
                     && ($groupingInformation['mode'] !== GroupAndSortingInformationInterface::GROUP_NONE)
                     && (($remoteNew != $remoteCur) || ($remoteCur === null))
-                )
-                {
+                ) {
                     $eoCount = -1;
 
-                    $model->setMeta($model::GROUP_VALUE, array(
-                        'class' => $groupClass,
-                        'value' => $remoteNew
-                    ));
+                    $model->setMeta(
+                        $model::GROUP_VALUE,
+                        array(
+                            'class' => $groupClass,
+                            'value' => $remoteNew
+                        )
+                    );
 
                     $groupClass = 'tl_folder_list';
                     $remoteCur  = $remoteNew;
                 }
             }
 
-            if ($listing->getItemCssClass())
-            {
+            if ($listing->getItemCssClass()) {
                 $model->setMeta($model::CSS_CLASS, $listing->getItemCssClass());
             }
 
             // Regular buttons.
-            if (!$this->isSelectModeActive())
-            {
+            if (!$this->isSelectModeActive()) {
                 $previous = ((!is_null($collection->get($i - 1))) ? $collection->get($i - 1) : null);
                 $next     = ((!is_null($collection->get($i + 1))) ? $collection->get($i + 1) : null);
 
@@ -201,8 +195,7 @@ class ParentView extends BaseView
 
             $model->setMeta($model::CSS_ROW_CLASS, (((++$eoCount) % 2 == 0) ? 'even' : 'odd'));
 
-            if ($event->getHtml() !== null)
-            {
+            if ($event->getHtml() !== null) {
                 $information = array(
                     array(
                         'colspan' => 1,
@@ -211,9 +204,7 @@ class ParentView extends BaseView
                     )
                 );
                 $model->setMeta($model::LABEL_VALUE, $information);
-            }
-            else
-            {
+            } else {
                 $model->setMeta($model::LABEL_VALUE, $this->formatModel($model));
             }
         }
@@ -238,56 +229,41 @@ class ParentView extends BaseView
         $parentName        = $definition->getBasicDefinition()->getParentDataProvider();
         $add               = array();
 
-        foreach ($headerFields as $v)
-        {
+        foreach ($headerFields as $v) {
             $value = deserialize($parentModel->getProperty($v));
 
-            if ($v == 'tstamp')
-            {
+            if ($v == 'tstamp') {
                 $value = date($GLOBALS['TL_CONFIG']['datimFormat'], $value);
             }
 
             $property = $parentDefinition->getPropertiesDefinition()->getProperty($v);
 
             // FIXME: foreignKey is not implemented yet.
-            if ($property && (($v != 'tstamp')/* || $property->get('foreignKey')*/))
-            {
+            if ($property && (($v != 'tstamp')/* || $property->get('foreignKey')*/)) {
                 $evaluation = $property->getExtra();
                 $reference  = isset($evaluation['reference']) ? $evaluation['reference'] : null;
                 $options    = $property->getOptions();
 
-                if (is_array($value))
-                {
+                if (is_array($value)) {
                     $value = implode(', ', $value);
-                }
-                elseif ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple'])
-                {
+                } elseif ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple']) {
                     $value = strlen($value) ? $this->translate('yes', 'MSC') : $this->translate('no', 'MSC');
-                }
-                elseif ($value && in_array($evaluation['rgxp'], array('date', 'time', 'datim')))
-                {
+                } elseif ($value && in_array($evaluation['rgxp'], array('date', 'time', 'datim'))) {
                     $event = new ParseDateEvent($value, $GLOBALS['TL_CONFIG'][$evaluation['rgxp'] . 'Format']);
                     $propagator->propagate(ContaoEvents::DATE_PARSE, $event);
 
                     $value = $event->getResult();
-                }
-                elseif (is_array($reference[$value]))
-                {
+                } elseif (is_array($reference[$value])) {
                     $value = $reference[$value][0];
-                }
-                elseif (isset($reference[$value]))
-                {
+                } elseif (isset($reference[$value])) {
                     $value = $reference[$value];
-                }
-                elseif ($evaluation['isAssociative'] || array_is_assoc($options))
-                {
+                } elseif ($evaluation['isAssociative'] || array_is_assoc($options)) {
                     $value = $options[$value];
                 }
             }
 
             // Add the sorting field.
-            if ($value != '')
-            {
+            if ($value != '') {
                 $lang = $this->translate(sprintf('%s.0', $v), $parentName);
                 $key  = $lang ? $lang : $v;
 
@@ -304,17 +280,14 @@ class ParentView extends BaseView
             $this->getEnvironment()->getDataDefinition()->getName()
         );
 
-        if (!$event->getAdditional() !== null)
-        {
+        if (!$event->getAdditional() !== null) {
             $add = $event->getAdditional();
         }
 
         // Set header data.
         $arrHeader = array();
-        foreach ($add as $k => $v)
-        {
-            if (is_array($v))
-            {
+        foreach ($add as $k => $v) {
+            if (is_array($v)) {
                 $v = $v[0];
             }
 
@@ -339,8 +312,7 @@ class ParentView extends BaseView
         $basicDefinition = $definition->getBasicDefinition();
 
         $headerButtons = array();
-        if ($this->isSelectModeActive())
-        {
+        if ($this->isSelectModeActive()) {
             $headerButtons['selectAll'] = sprintf(
                 '<label for="tl_select_trigger" class="tl_select_label">%s</label>
                 <input type="checkbox"
@@ -349,9 +321,7 @@ class ParentView extends BaseView
                     class="tl_tree_checkbox" />',
                 $this->translate('selectAll', 'MSC')
             );
-        }
-        else
-        {
+        } else {
             $propagator = $environment->getEventPropagator();
 
             $objConfig = $this->getEnvironment()->getController()->getBaseConfig();
@@ -363,8 +333,7 @@ class ParentView extends BaseView
             if ($sorting
                 && $clipboard->isEmpty()
                 && $basicDefinition->isCreatable()
-            )
-            {
+            ) {
                 /** @var AddToUrlEvent $urlEvent */
                 $urlEvent = $propagator->propagate(
                     ContaoEvents::BACKEND_ADD_TO_URL,
@@ -390,8 +359,7 @@ class ParentView extends BaseView
                 );
             }
 
-            if ($sorting && $clipboard->isNotEmpty())
-            {
+            if ($sorting && $clipboard->isNotEmpty()) {
                 /** @var AddToUrlEvent $urlEvent */
                 $urlEvent = $propagator->propagate(
                     ContaoEvents::BACKEND_ADD_TO_URL,
@@ -435,26 +403,24 @@ class ParentView extends BaseView
         $environment      = $this->getEnvironment();
         $parentDefinition = $environment->getParentDataDefinition();
 
-        if ($parentDefinition && $parentDefinition->getBasicDefinition()->isEditable())
-        {
+        if ($parentDefinition && $parentDefinition->getBasicDefinition()->isEditable()) {
             $definition      = $environment->getDataDefinition();
             $basicDefinition = $definition->getBasicDefinition();
             $parentName      = $basicDefinition->getParentDataProvider();
             $propagator      = $environment->getEventPropagator();
 
             $query = array(
-                'do' => $environment->getInputProvider()->getParameter('do'),
-                'act' => 'edit',
+                'do'    => $environment->getInputProvider()->getParameter('do'),
+                'act'   => 'edit',
                 'table' => $parentName,
-                'id' => IdSerializer::fromModel($parentModel)->getSerialized(),
+                'id'    => IdSerializer::fromModel($parentModel)->getSerialized(),
             );
 
             $factory = DcGeneralFactory::deriveFromEnvironment($this->environment);
             $factory->setContainerName($parentDefinition->getName());
 
             $parentContainer = $factory->createContainer();
-            if ($parentContainer->getBasicDefinition()->getParentDataProvider())
-            {
+            if ($parentContainer->getBasicDefinition()->getParentDataProvider()) {
                 $container = $this->environment->getDataDefinition();
 
                 $relationship = $container->getModelRelationshipDefinition()->getChildCondition(
@@ -462,24 +428,22 @@ class ParentView extends BaseView
                     $parentContainer->getName()
                 );
 
-                if ($relationship)
-                {
+                if ($relationship) {
                     $filter = $relationship->getInverseFilterFor($parentModel);
 
                     $parentsParentProvider =
-                        $this->environment->getDataProvider($parentContainer->getBasicDefinition()->getParentDataProvider());
+                        $this->environment->getDataProvider(
+                            $parentContainer->getBasicDefinition()->getParentDataProvider()
+                        );
 
                     $config = $parentsParentProvider->getEmptyConfig();
                     $config->setFilter($filter);
 
                     $parents = $parentsParentProvider->fetchAll($config);
 
-                    if ($parents->length() == 1)
-                    {
+                    if ($parents->length() == 1) {
                         $query['pid'] = IdSerializer::fromModel($parents->get(0))->getSerialized();
-                    }
-                    elseif ($parents->length() > 1)
-                    {
+                    } elseif ($parents->length() > 1) {
                         return null;
                     }
                 }
@@ -505,7 +469,6 @@ class ParentView extends BaseView
         return null;
     }
 
-
     /**
      * Show parent view mode 4.
      *
@@ -523,8 +486,7 @@ class ParentView extends BaseView
         $propagator          = $this->getEnvironment()->getEventPropagator();
 
         // Skip if we have no parent or parent collection.
-        if (!$parentModel)
-        {
+        if (!$parentModel) {
             $propagator->propagate(
                 ContaoEvents::SYSTEM_LOG,
                 new LogEvent(
@@ -544,17 +506,14 @@ class ParentView extends BaseView
         }
 
         // Add template.
-        if ($groupingInformation['mode'] != GroupAndSortingInformationInterface::GROUP_NONE)
-        {
+        if ($groupingInformation['mode'] != GroupAndSortingInformationInterface::GROUP_NONE) {
             $objTemplate = $this->getTemplate('dcbe_general_grouping');
-        }
-        else
-        {
+        } else {
             $objTemplate = $this->getTemplate('dcbe_general_parentView');
         }
 
         $this
-            ->addToTemplate('tableName', strlen($definition->getName())? $definition->getName() : 'none', $objTemplate)
+            ->addToTemplate('tableName', strlen($definition->getName()) ? $definition->getName() : 'none', $objTemplate)
             ->addToTemplate('collection', $collection, $objTemplate)
             ->addToTemplate('select', $this->isSelectModeActive(), $objTemplate)
             ->addToTemplate('action', ampersand(\Environment::getInstance()->request, true), $objTemplate)
@@ -571,8 +530,7 @@ class ParentView extends BaseView
 
         // Add breadcrumb, if we have one.
         $strBreadcrumb = $this->breadcrumb();
-        if ($strBreadcrumb != null)
-        {
+        if ($strBreadcrumb != null) {
             $this->addToTemplate('breadcrumb', $strBreadcrumb, $objTemplate);
         }
 
@@ -595,8 +553,7 @@ class ParentView extends BaseView
                 $basic->getDataProvider()
             );
 
-        if ($condition)
-        {
+        if ($condition) {
             $condition->applyTo($parent, $model);
         }
     }
@@ -608,8 +565,7 @@ class ParentView extends BaseView
      */
     public function showAll()
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
-        {
+        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit();
         }
 
@@ -633,13 +589,11 @@ class ParentView extends BaseView
     public function copy()
     {
 
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
-        {
+        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit();
         }
 
-        if ($this->environment->getDataProvider()->fieldExists($this->getManualSortingProperty()))
-        {
+        if ($this->environment->getDataProvider()->fieldExists($this->getManualSortingProperty())) {
             $this->checkClipboard('copy');
             $this->redirectHome();
         }
@@ -650,12 +604,9 @@ class ParentView extends BaseView
         $dataProvider = $environment->getDataProvider();
         $modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('source'));
 
-        if ($modelId)
-        {
+        if ($modelId) {
             $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-        }
-        else
-        {
+        } else {
             throw new DcGeneralRuntimeException('Missing model id.');
         }
 
@@ -663,8 +614,7 @@ class ParentView extends BaseView
         $copyModel = $environment->getController()->createClonedModel($model);
         $copyModel->setId(null);
 
-        $preFunction = function(EnvironmentInterface $environment, $model, $originalModel)
-        {
+        $preFunction = function (EnvironmentInterface $environment, $model) {
             $copyEvent = new PreDuplicateModelEvent($environment, $model);
             $environment->getEventPropagator()->propagate(
                 $copyEvent::NAME,
@@ -675,8 +625,7 @@ class ParentView extends BaseView
             );
         };
 
-        $postFunction = function(EnvironmentInterface $environment, $model, $originalModel)
-        {
+        $postFunction = function (EnvironmentInterface $environment, $model, $originalModel) {
             $copyEvent = new PostDuplicateModelEvent($environment, $model, $originalModel);
             $environment->getEventPropagator()->propagate(
                 $copyEvent::NAME,

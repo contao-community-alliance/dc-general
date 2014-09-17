@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -52,7 +53,6 @@ interface PaletteInterface
      * @return PropertyInterface[]
      */
     public function getProperties(ModelInterface $model = null, PropertyValueBag $input = null);
-
 
     /**
      * Get all properties from all legends in this palette that are visible.

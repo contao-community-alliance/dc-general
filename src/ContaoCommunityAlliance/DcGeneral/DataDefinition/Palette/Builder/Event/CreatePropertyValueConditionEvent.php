@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -59,8 +60,8 @@ class CreatePropertyValueConditionEvent extends BuilderEvent
     public function setPropertyValueCondition($propertyValueCondition)
     {
         if (!($propertyValueCondition instanceof PalettePropertyValueCondition)
-            && (!$propertyValueCondition instanceof PropertyValueCondition))
-        {
+            && (!$propertyValueCondition instanceof PropertyValueCondition)
+        ) {
             throw new DcGeneralInvalidArgumentException();
         }
 

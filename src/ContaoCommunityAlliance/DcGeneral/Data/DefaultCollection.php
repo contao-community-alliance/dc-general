@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -24,6 +25,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class DefaultCollection implements CollectionInterface
 {
+
     /**
      * The list of contained models.
      *
@@ -90,8 +92,7 @@ class DefaultCollection implements CollectionInterface
      */
     public function get($intIndex)
     {
-        if (array_key_exists($intIndex, $this->arrCollection))
-        {
+        if (array_key_exists($intIndex, $this->arrCollection)) {
             return $this->arrCollection[$intIndex];
         }
 
@@ -125,13 +126,11 @@ class DefaultCollection implements CollectionInterface
      */
     public function push(ModelInterface $objModel)
     {
-        if (!$objModel)
-        {
+        if (!$objModel) {
             throw new DcGeneralRuntimeException('push() - no model passed', 1);
         }
 
-        if ($objModel->hasProperties())
-        {
+        if ($objModel->hasProperties()) {
             array_push($this->arrCollection, $objModel);
         }
     }
@@ -145,8 +144,7 @@ class DefaultCollection implements CollectionInterface
      */
     public function pop()
     {
-        if (count($this->arrCollection) != 0)
-        {
+        if (count($this->arrCollection) != 0) {
             return array_pop($this->arrCollection);
         }
 
@@ -162,8 +160,7 @@ class DefaultCollection implements CollectionInterface
      */
     public function unshift(ModelInterface $objModel)
     {
-        if ($objModel->hasProperties())
-        {
+        if ($objModel->hasProperties()) {
             array_unshift($this->arrCollection, $objModel);
         }
     }
@@ -177,8 +174,7 @@ class DefaultCollection implements CollectionInterface
      */
     public function shift()
     {
-        if (count($this->arrCollection) != 0)
-        {
+        if (count($this->arrCollection) != 0) {
             return array_shift($this->arrCollection);
         }
 
@@ -199,8 +195,7 @@ class DefaultCollection implements CollectionInterface
      */
     public function insert($intIndex, ModelInterface $objModel)
     {
-        if ($objModel->hasProperties())
-        {
+        if ($objModel->hasProperties()) {
             array_insert($this->arrCollection, $intIndex, array($objModel));
         }
     }
@@ -216,18 +211,13 @@ class DefaultCollection implements CollectionInterface
      */
     public function remove($mixedValue)
     {
-        if (is_object($mixedValue))
-        {
-            foreach ($this->arrCollection as $intIndex => $objModel)
-            {
-                if ($mixedValue === $objModel)
-                {
+        if (is_object($mixedValue)) {
+            foreach ($this->arrCollection as $intIndex => $objModel) {
+                if ($mixedValue === $objModel) {
                     unset($this->arrCollection[$intIndex]);
                 }
             }
-        }
-        else
-        {
+        } else {
             unset($this->arrCollection[$mixedValue]);
         }
 
@@ -243,8 +233,7 @@ class DefaultCollection implements CollectionInterface
     {
         $ids = array();
 
-        foreach ($this as $model)
-        {
+        foreach ($this as $model) {
             /** @var ModelInterface $model */
             $ids[] = $model->getId();
         }
@@ -261,10 +250,8 @@ class DefaultCollection implements CollectionInterface
      */
     public function removeById($id)
     {
-        foreach ($this->arrCollection as $index => $model)
-        {
-            if ($id === $model->getId())
-            {
+        foreach ($this->arrCollection as $index => $model) {
+            if ($id === $model->getId()) {
                 unset($this->arrCollection[$index]);
             }
         }
@@ -280,10 +267,8 @@ class DefaultCollection implements CollectionInterface
     public function contains($model)
     {
         /** @var ModelInterface $localModel */
-        foreach ($this as $localModel)
-        {
-            if ($model === $localModel)
-            {
+        foreach ($this as $localModel) {
+            if ($model === $localModel) {
                 return true;
             }
         }
@@ -301,10 +286,8 @@ class DefaultCollection implements CollectionInterface
     public function containsById($modelId)
     {
         /** @var ModelInterface $localModel */
-        foreach ($this as $localModel)
-        {
-            if ($modelId === $localModel->getId())
-            {
+        foreach ($this as $localModel) {
+            if ($modelId === $localModel->getId()) {
                 return true;
             }
         }
@@ -323,14 +306,12 @@ class DefaultCollection implements CollectionInterface
     {
         $intersection = new DefaultCollection();
         /** @var ModelInterface $localModel */
-        foreach ($this as $localModel)
-        {
+        foreach ($this as $localModel) {
             /** @var ModelInterface $otherModel */
-            foreach ($collection as $otherModel)
-            {
+            foreach ($collection as $otherModel) {
                 if (($localModel->getProviderName() == $otherModel->getProviderName())
-                && ($localModel->getId() == $otherModel->getId()))
-                {
+                    && ($localModel->getId() == $otherModel->getId())
+                ) {
                     $intersection->push($localModel);
                 }
             }
@@ -351,8 +332,7 @@ class DefaultCollection implements CollectionInterface
         $union = clone $this;
 
         /** @var ModelInterface $otherModel */
-        foreach ($collection->diff($this) as $otherModel)
-        {
+        foreach ($collection->diff($this) as $otherModel) {
             $union->push($otherModel);
         }
 
@@ -371,14 +351,12 @@ class DefaultCollection implements CollectionInterface
     {
         $diff = new DefaultCollection();
         /** @var ModelInterface $localModel */
-        foreach ($this as $localModel)
-        {
+        foreach ($this as $localModel) {
             /** @var ModelInterface $otherModel */
-            foreach ($collection as $otherModel)
-            {
+            foreach ($collection as $otherModel) {
                 if (($localModel->getProviderName() == $otherModel->getProviderName())
-                    && ($localModel->getId() == $otherModel->getId()))
-                {
+                    && ($localModel->getId() == $otherModel->getId())
+                ) {
                     continue;
                 }
                 $diff->push($localModel);
@@ -398,14 +376,12 @@ class DefaultCollection implements CollectionInterface
     public function isSubsetOf($collection)
     {
         /** @var ModelInterface $localModel */
-        foreach ($this as $localModel)
-        {
+        foreach ($this as $localModel) {
             /** @var ModelInterface $otherModel */
-            foreach ($collection as $otherModel)
-            {
+            foreach ($collection as $otherModel) {
                 if (($localModel->getProviderName() == $otherModel->getProviderName())
-                    && ($localModel->getId() == $otherModel->getId()))
-                {
+                    && ($localModel->getId() == $otherModel->getId())
+                ) {
                     continue;
                 }
                 return false;

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    DcGeneral
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -23,12 +24,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  *
  * @package DcGeneral\DataDefinition\ModelRelationship\FilterBuilder
  */
-class FilterBuilderWithChildren
-    extends
-        BaseFilterBuilder
-    implements
-        \Iterator,
-        \ArrayAccess
+class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, \ArrayAccess
 {
     /**
      * The operation string.
@@ -60,8 +56,7 @@ class FilterBuilderWithChildren
      */
     public function __construct($children = array())
     {
-        if (!is_array($children))
-        {
+        if (!is_array($children)) {
             throw new DcGeneralInvalidArgumentException(
                 __CLASS__ . ' needs a valid child filter array ' . gettype($children) . 'given'
             );
@@ -69,8 +64,7 @@ class FilterBuilderWithChildren
 
         $this->children = array();
 
-        foreach ($children as $child)
-        {
+        foreach ($children as $child) {
             $this->add($child);
         }
         $this->index = -1;
@@ -83,8 +77,7 @@ class FilterBuilderWithChildren
     {
         $children       = $this->children;
         $this->children = array();
-        foreach ($children as $child)
-        {
+        foreach ($children as $child) {
             $bobaFett = clone $child;
             $bobaFett->setParent($this);
         }
@@ -99,13 +92,11 @@ class FilterBuilderWithChildren
      */
     public function current()
     {
-        if ($this->index == -1)
-        {
+        if ($this->index == -1) {
             return $this->first();
         }
 
-        if (!$this->valid())
-        {
+        if (!$this->valid()) {
             throw new DcGeneralRuntimeException('FilterBuilder position is invalid.');
         }
 
@@ -165,8 +156,7 @@ class FilterBuilderWithChildren
     {
         $this->index = count($this->children) ? 0 : (-1);
 
-        if ($this->index === -1)
-        {
+        if ($this->index === -1) {
             return null;
         }
 
@@ -234,8 +224,7 @@ class FilterBuilderWithChildren
     {
         parent::setBuilder($builder);
 
-        foreach ($this->children as $child)
-        {
+        foreach ($this->children as $child) {
             $child->setBuilder($builder);
         }
 
@@ -251,10 +240,8 @@ class FilterBuilderWithChildren
      */
     public function indexOf($filter)
     {
-        foreach ($this->children as $i => $child)
-        {
-            if ($child === $filter)
-            {
+        foreach ($this->children as $i => $child) {
+            if ($child === $filter) {
                 return $i;
             }
         }
@@ -273,8 +260,7 @@ class FilterBuilderWithChildren
     {
         $index = $this->indexOf($filter);
 
-        if ($index === -1)
-        {
+        if ($index === -1) {
             $this->children[] = $filter;
             $filter
                 ->setBuilder($this->builder)
@@ -295,8 +281,7 @@ class FilterBuilderWithChildren
     {
         $index = $this->indexOf($filter);
 
-        if ($index > -1)
-        {
+        if ($index > -1) {
             $this->offsetUnset($index);
         }
 
@@ -315,8 +300,7 @@ class FilterBuilderWithChildren
     public static function fromArray($array, $builder)
     {
         $children = array();
-        foreach ($array['children'] as $child)
-        {
+        foreach ($array['children'] as $child) {
             $children[] = FilterBuilder::getBuilderFromArray($child, $builder);
         }
 
@@ -332,8 +316,7 @@ class FilterBuilderWithChildren
     public function get()
     {
         $children = array();
-        foreach ($this->children as $child)
-        {
+        foreach ($this->children as $child) {
             /** @var BaseFilterBuilder $child */
             $children[] = $child->get();
         }
@@ -341,7 +324,7 @@ class FilterBuilderWithChildren
         return array
         (
             'operation' => $this->operation,
-            'children' => $children
+            'children'  => $children
         );
     }
 
@@ -354,8 +337,7 @@ class FilterBuilderWithChildren
      */
     public function append($filters)
     {
-        if ($filters instanceof FilterBuilder)
-        {
+        if ($filters instanceof FilterBuilder) {
             $filters = $filters->getFilter();
         }
 

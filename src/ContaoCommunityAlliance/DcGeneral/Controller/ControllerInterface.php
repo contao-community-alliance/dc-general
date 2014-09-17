@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -85,7 +86,8 @@ interface ControllerInterface
      * Scan for children of a given model.
      *
      * This method is ready for mixed hierarchy and will return all children and grandchildren for the given table
-     * (or originating table of the model, if no provider name has been given) for all levels and parent child conditions.
+     * (or originating table of the model, if no provider name has been given) for all levels and parent child
+     * conditions.
      *
      * @param ModelInterface $objModel        The model to assemble children from.
      *
@@ -132,8 +134,8 @@ interface ControllerInterface
      *
      * @param string|IdSerializer $id           This is either the id of the model or a serialized id.
      *
-     * @param string|null         $providerName The name of the provider, if this is empty, the id will be deserialized and
-     *                                          the provider name will get extracted from there.
+     * @param string|null         $providerName The name of the provider, if this is empty, the id will be deserialized
+     *                                          and the provider name will get extracted from there.
      *
      * @return mixed
      */
@@ -203,7 +205,7 @@ interface ControllerInterface
      *
      * @return ControllerInterface
      */
-    public function setParent(ModelInterface  $childModel, ModelInterface  $parentModel);
+    public function setParent(ModelInterface $childModel, ModelInterface $parentModel);
 
     /**
      * Sets all parent condition fields in the destination to the values from the source model.

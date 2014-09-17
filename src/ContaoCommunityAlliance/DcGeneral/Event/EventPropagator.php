@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -44,8 +45,7 @@ class EventPropagator implements EventPropagatorInterface
      */
     public function propagate($eventName, $event = null, $suffixes = array())
     {
-        if (!is_array($suffixes))
-        {
+        if (!is_array($suffixes)) {
             $suffixes = func_get_args();
 
             // Skip $eventName.
@@ -54,21 +54,18 @@ class EventPropagator implements EventPropagatorInterface
             array_shift($suffixes);
         }
 
-        while ($suffixes)
-        {
+        while ($suffixes) {
             // First, try to dispatch to all DCA registered subscribers.
             $event = $this->propagateExact($eventName, $event, $suffixes);
             array_pop($suffixes);
 
-            if ($event->isPropagationStopped() === true)
-            {
+            if ($event->isPropagationStopped() === true) {
                 return $event;
             }
         }
 
         // Second, try to dispatch to all globally registered subscribers.
-        if ((!$event) || $event->isPropagationStopped() === false)
-        {
+        if ((!$event) || $event->isPropagationStopped() === false) {
             $event = $this->dispatch($eventName, $event);
         }
 
@@ -80,8 +77,7 @@ class EventPropagator implements EventPropagatorInterface
      */
     public function propagateExact($eventName, $event = null, $suffixes = array())
     {
-        if (!is_array($suffixes))
-        {
+        if (!is_array($suffixes)) {
             $suffixes = func_get_args();
 
             // Skip $eventName.

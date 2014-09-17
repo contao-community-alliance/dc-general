@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -23,6 +24,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class Palette implements PaletteInterface
 {
+
     /**
      * The name of this palette.
      *
@@ -71,8 +73,7 @@ class Palette implements PaletteInterface
     {
         $properties = array();
 
-        foreach ($this->legends as $legend)
-        {
+        foreach ($this->legends as $legend) {
             $properties = array_merge($properties, $legend->getProperties($model, $input));
         }
 
@@ -86,12 +87,9 @@ class Palette implements PaletteInterface
     {
         $properties = array();
 
-        foreach ($this->getLegends() as $legend)
-        {
-            foreach ($legend->getProperties($model, $input) as $property)
-            {
-                if ($property->isVisible($model, $input, $legend))
-                {
+        foreach ($this->getLegends() as $legend) {
+            foreach ($legend->getProperties($model, $input) as $property) {
+                if ($property->isVisible($model, $input, $legend)) {
                     $properties[] = $property;
                 }
             }
@@ -107,12 +105,9 @@ class Palette implements PaletteInterface
     {
         $properties = array();
 
-        foreach ($this->getLegends() as $legend)
-        {
-            foreach ($legend->getProperties($model, $input) as $property)
-            {
-                if ($property->isEditable($model, $input, $legend))
-                {
+        foreach ($this->getLegends() as $legend) {
+            foreach ($legend->getProperties($model, $input) as $property) {
+                if ($property->isEditable($model, $input, $legend)) {
                     $properties[] = $property;
                 }
             }
@@ -128,10 +123,8 @@ class Palette implements PaletteInterface
      */
     public function getProperty($propertyName)
     {
-        foreach ($this->getLegends() as $legend)
-        {
-            if ($legend->hasProperty($propertyName))
-            {
+        foreach ($this->getLegends() as $legend) {
+            if ($legend->hasProperty($propertyName)) {
                 return $legend->getProperty($propertyName);
             }
         }
@@ -171,8 +164,7 @@ class Palette implements PaletteInterface
      */
     public function addLegends(array $legends, LegendInterface $before = null)
     {
-        foreach ($legends as $legend)
-        {
+        foreach ($legends as $legend) {
             $this->addLegend($legend, $before);
         }
 
@@ -184,10 +176,8 @@ class Palette implements PaletteInterface
      */
     public function hasLegend($name)
     {
-        foreach ($this->legends as $legend)
-        {
-            if ($legend->getName() == $name)
-            {
+        foreach ($this->legends as $legend) {
+            if ($legend->getName() == $name) {
                 return true;
             }
         }
@@ -213,12 +203,10 @@ class Palette implements PaletteInterface
     {
         $hash = spl_object_hash($legend);
 
-        if ($before)
-        {
+        if ($before) {
             $beforeHash = spl_object_hash($before);
 
-            if (isset($this->legends[$beforeHash]))
-            {
+            if (isset($this->legends[$beforeHash])) {
                 $hashes   = array_keys($this->legends);
                 $position = array_search($beforeHash, $hashes);
 
@@ -227,9 +215,7 @@ class Palette implements PaletteInterface
                     array($hash => $legend),
                     array_slice($this->legends, $position)
                 );
-            }
-            else
-            {
+            } else {
                 throw new DcGeneralInvalidArgumentException(
                     sprintf(
                         'Legend %s not contained in palette - can not add %s after it.',
@@ -238,9 +224,7 @@ class Palette implements PaletteInterface
                     )
                 );
             }
-        }
-        else
-        {
+        } else {
             $this->legends[$hash] = $legend;
         }
 
@@ -266,10 +250,8 @@ class Palette implements PaletteInterface
      */
     public function getLegend($name)
     {
-        foreach ($this->legends as $legend)
-        {
-            if ($legend->getName() == $name)
-            {
+        foreach ($this->legends as $legend) {
+            if ($legend->getName() == $name) {
                 return $legend;
             }
         }
@@ -310,16 +292,14 @@ class Palette implements PaletteInterface
     {
         /** @var Legend[] $legends */
         $legends = array();
-        foreach ($this->legends as $legend)
-        {
+        foreach ($this->legends as $legend) {
             $bobaFett = clone $legend;
 
             $legends[spl_object_hash($bobaFett)] = $bobaFett->setPalette($this);
         }
         $this->legends = $legends;
 
-        if ($this->condition !== null)
-        {
+        if ($this->condition !== null) {
             $this->condition = clone $this->condition;
         }
     }

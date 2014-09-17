@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    DcGeneral
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -19,8 +20,7 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\Fil
  *
  * @package DcGeneral\DataDefinition\ModelRelationship\FilterBuilder
  */
-class PropertyLessThanFilterBuilder
-    extends BaseComparingFilterBuilder
+class PropertyLessThanFilterBuilder extends BaseComparingFilterBuilder
 {
     /**
      * Create a new instance.

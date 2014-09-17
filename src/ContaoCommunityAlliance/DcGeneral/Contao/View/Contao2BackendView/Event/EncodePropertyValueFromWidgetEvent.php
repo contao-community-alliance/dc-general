@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -25,8 +26,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
  *
  * @package DcGeneral\Contao\View\Contao2BackendView\Event
  */
-class EncodePropertyValueFromWidgetEvent
-    extends AbstractModelAwareEvent
+class EncodePropertyValueFromWidgetEvent extends AbstractModelAwareEvent
 {
     const NAME = 'dc-general.view.contao2backend.encode-property-value-from-widget';
 
@@ -64,8 +64,7 @@ class EncodePropertyValueFromWidgetEvent
         EnvironmentInterface $environment,
         ModelInterface $model,
         PropertyValueBagInterface $propertyValues
-    )
-    {
+    ) {
         parent::__construct($environment, $model);
         $this->propertyValues = $propertyValues;
     }

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,6 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
  */
 class PropertyCallbackCondition implements PropertyConditionInterface
 {
+
     /**
      * The callback.
      *
@@ -47,8 +49,7 @@ class PropertyCallbackCondition implements PropertyConditionInterface
         PropertyValueBag $input = null,
         PropertyInterface $property = null,
         LegendInterface $legend = null
-    )
-    {
+    ) {
         return call_user_func($this->callback, $model, $input, $property, $legend);
     }
 

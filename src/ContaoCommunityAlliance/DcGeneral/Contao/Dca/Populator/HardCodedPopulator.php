@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -43,8 +44,7 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
     public function populateController(EnvironmentInterface $environment)
     {
         // Already populated, get out then.
-        if ($environment->getController())
-        {
+        if ($environment->getController()) {
             return;
         }
 
@@ -59,13 +59,11 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
      */
     public function populate(EnvironmentInterface $environment)
     {
-        if (!$environment->getInputProvider())
-        {
+        if (!$environment->getInputProvider()) {
             $environment->setInputProvider(new InputProvider());
         }
 
-        if (!$environment->getClipboard())
-        {
+        if (!$environment->getClipboard()) {
             $environment->setClipboard(new DefaultClipboard());
         }
 

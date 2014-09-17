@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -44,7 +45,8 @@ class DefaultClipboard implements ClipboardInterface
 
     /**
      * The id of the parent element for create mode.
-     * @var
+     *
+     * @var string
      */
     protected $parentId;
 
@@ -56,20 +58,16 @@ class DefaultClipboard implements ClipboardInterface
         $strName      = $objEnvironment->getDataDefinition()->getName();
         $arrClipboard = $objEnvironment->getInputProvider()->getPersistentValue('CLIPBOARD');
 
-        if (isset($arrClipboard[$strName]))
-        {
-            if (isset($arrClipboard[$strName]['ignoredIDs']))
-            {
+        if (isset($arrClipboard[$strName])) {
+            if (isset($arrClipboard[$strName]['ignoredIDs'])) {
                 $this->setCircularIds($arrClipboard[$strName]['ignoredIDs']);
             }
 
-            if (isset($arrClipboard[$strName]['ids']))
-            {
+            if (isset($arrClipboard[$strName]['ids'])) {
                 $this->setContainedIds($arrClipboard[$strName]['ids']);
             }
 
-            if (isset($arrClipboard[$strName]['mode']))
-            {
+            if (isset($arrClipboard[$strName]['mode'])) {
                 $this->mode = $arrClipboard[$strName]['mode'];
             }
         }
@@ -85,20 +83,15 @@ class DefaultClipboard implements ClipboardInterface
         $strName      = $objEnvironment->getDataDefinition()->getName();
         $arrClipboard = $objEnvironment->getInputProvider()->getPersistentValue('CLIPBOARD');
 
-        if ($this->isEmpty())
-        {
+        if ($this->isEmpty()) {
             unset($arrClipboard[$strName]);
-        }
-        else
-        {
+        } else {
             $arrClipboard[$strName] = array();
-            if ($this->getCircularIds())
-            {
+            if ($this->getCircularIds()) {
                 $arrClipboard[$strName]['ignoredIDs'] = $this->getCircularIds();
             }
 
-            if ($this->isNotEmpty())
-            {
+            if ($this->isNotEmpty()) {
                 $arrClipboard[$strName]['ids'] = $this->getContainedIds();
             }
 
@@ -168,12 +161,9 @@ class DefaultClipboard implements ClipboardInterface
     {
         $this->mode = self::MODE_COPY;
 
-        if (is_array($ids) || is_null($ids))
-        {
+        if (is_array($ids) || is_null($ids)) {
             $this->setContainedIds($ids);
-        }
-        else
-        {
+        } else {
             $this->setContainedIds(array($ids));
         }
 
@@ -187,12 +177,9 @@ class DefaultClipboard implements ClipboardInterface
     {
         $this->mode = self::MODE_CUT;
 
-        if (is_array($ids) || is_null($ids))
-        {
+        if (is_array($ids) || is_null($ids)) {
             $this->setContainedIds($ids);
-        }
-        else
-        {
+        } else {
             $this->setContainedIds(array($ids));
         }
 

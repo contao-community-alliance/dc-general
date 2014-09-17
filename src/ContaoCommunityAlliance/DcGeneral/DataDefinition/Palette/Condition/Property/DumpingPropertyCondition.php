@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -23,6 +24,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
  */
 class DumpingPropertyCondition implements PropertyConditionInterface
 {
+
     /**
      * The condition to dump.
      *
@@ -48,8 +50,7 @@ class DumpingPropertyCondition implements PropertyConditionInterface
         PropertyValueBag $input = null,
         PropertyInterface $property = null,
         LegendInterface $legend = null
-    )
-    {
+    ) {
         $result = $this->propertyCondition->match($model, $input, $property, $legend);
 
         // @codingStandardsIgnoreStart - We explicitely allow var_dump() here for debugging purposes.

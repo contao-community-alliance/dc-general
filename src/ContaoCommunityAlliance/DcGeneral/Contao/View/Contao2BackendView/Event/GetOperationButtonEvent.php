@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,8 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInte
  *
  * @package DcGeneral\Contao\View\Contao2BackendView\Event
  */
-class GetOperationButtonEvent
-    extends BaseButtonEvent
+class GetOperationButtonEvent extends BaseButtonEvent
 {
     const NAME = 'dc-general.view.contao2backend.get-operation-button';
 

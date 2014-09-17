@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -34,6 +35,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class DefaultController implements ControllerInterface
 {
+
     /**
      * The attached environment.
      *
@@ -130,13 +132,10 @@ class DefaultController implements ControllerInterface
         $definition    = $environment->getDataDefinition();
         $relationships = $definition->getModelRelationshipDefinition();
 
-        foreach ($models as $candidate)
-        {
+        foreach ($models as $candidate) {
             /** @var ModelInterface $candidate */
-            foreach ($relationships->getChildConditions($candidate->getProviderName()) as $condition)
-            {
-                if ($condition->matches($candidate, $model))
-                {
+            foreach ($relationships->getChildConditions($candidate->getProviderName()) as $condition) {
+                if ($condition->matches($candidate, $model)) {
                     return $candidate;
                 }
 
@@ -146,12 +145,9 @@ class DefaultController implements ControllerInterface
                     ->setFilter($condition->getFilter($candidate));
 
                 $result = $this->searchParentOfIn($model, $provider->fetchAll($config));
-                if ($result === true)
-                {
+                if ($result === true) {
                     return $candidate;
-                }
-                elseif ($result !== null)
-                {
+                } elseif ($result !== null) {
                     return $result;
                 }
             }
@@ -172,10 +168,8 @@ class DefaultController implements ControllerInterface
         $relationships = $definition->getModelRelationshipDefinition();
         $mode          = $definition->getBasicDefinition()->getMode();
 
-        if ($mode === BasicDefinitionInterface::MODE_HIERARCHICAL)
-        {
-            if ($this->isRootModel($model))
-            {
+        if ($mode === BasicDefinitionInterface::MODE_HIERARCHICAL) {
+            if ($this->isRootModel($model)) {
                 throw new DcGeneralInvalidArgumentException('Invalid condition, root models can not have parents!');
             }
             // To speed up, some conditions have an inverse filter - we should use them!
@@ -185,9 +179,7 @@ class DefaultController implements ControllerInterface
             $config    = $provider->getEmptyConfig()->setFilter($condition->getFilterArray());
 
             return $this->searchParentOfIn($model, $provider->fetchAll($config));
-        }
-        elseif ($mode === BasicDefinitionInterface::MODE_PARENTEDLIST)
-        {
+        } elseif ($mode === BasicDefinitionInterface::MODE_PARENTEDLIST) {
             $provider  = $environment->getDataProvider($definition->getBasicDefinition()->getParentDataProvider());
             $condition = $relationships->getChildCondition(
                 $definition->getBasicDefinition()->getParentDataProvider(),
@@ -196,10 +188,8 @@ class DefaultController implements ControllerInterface
             $config    = $provider->getEmptyConfig();
             // This is pretty expensive, we fetch all models from the parent provider here.
             // This can be much faster by using the inverse condition if present.
-            foreach ($provider->fetchAll($config) as $candidate)
-            {
-                if ($condition->matches($candidate, $model))
-                {
+            foreach ($provider->fetchAll($config) as $candidate) {
+                if ($condition->matches($candidate, $model)) {
                     return $candidate;
                 }
             }
@@ -215,15 +205,13 @@ class DefaultController implements ControllerInterface
      */
     public function assembleAllChildrenFrom($objModel, $strDataProvider = '')
     {
-        if ($strDataProvider == '')
-        {
+        if ($strDataProvider == '') {
             $strDataProvider = $objModel->getProviderName();
         }
 
         $arrIds = array();
 
-        if ($strDataProvider == $objModel->getProviderName())
-        {
+        if ($strDataProvider == $objModel->getProviderName()) {
             $arrIds = array($objModel->getId());
         }
 
@@ -233,17 +221,14 @@ class DefaultController implements ControllerInterface
             ->getDataDefinition()
             ->getModelRelationshipDefinition()
             ->getChildConditions($objModel->getProviderName());
-        foreach ($conditions as $objChildCondition)
-        {
+        foreach ($conditions as $objChildCondition) {
             $objDataProv = $this->getEnvironment()->getDataProvider($objChildCondition->getDestinationName());
             $objConfig   = $objDataProv->getEmptyConfig();
             $objConfig->setFilter($objChildCondition->getFilter($objModel));
 
-            foreach ($objDataProv->fetchAll($objConfig) as $objChild)
-            {
+            foreach ($objDataProv->fetchAll($objConfig) as $objChild) {
                 /** @var ModelInterface $objChild */
-                if ($strDataProvider == $objChild->getProviderName())
-                {
+                if ($strDataProvider == $objChild->getProviderName()) {
                     $arrIds[] = $objChild->getId();
                 }
 
@@ -276,31 +261,27 @@ class DefaultController implements ControllerInterface
         $relationships = $definition->getModelRelationshipDefinition();
 
         // Root model in hierarchical mode?
-        if ($this->isRootModel($model))
-        {
+        if ($this->isRootModel($model)) {
             $condition = $relationships->getRootCondition();
 
-            if ($condition)
-            {
+            if ($condition) {
                 $config->setFilter($condition->getFilterArray());
             }
-        }
-        // Are we at least in hierarchical mode?
-        elseif ($definition->getBasicDefinition()->getMode() === BasicDefinitionInterface::MODE_HIERARCHICAL)
-        {
+        } elseif ($definition->getBasicDefinition()->getMode() === BasicDefinitionInterface::MODE_HIERARCHICAL) {
+            // Are we at least in hierarchical mode?
             $parent = $this->searchParentOf($model);
 
-            if (!$parent instanceof ModelInterface)
-            {
-                throw new DcGeneralRuntimeException('Parent could not be found, are the parent child conditions correct?');
+            if (!$parent instanceof ModelInterface) {
+                throw new DcGeneralRuntimeException(
+                    'Parent could not be found, are the parent child conditions correct?'
+                );
             }
 
             $condition = $relationships->getChildCondition($parent->getProviderName(), $model->getProviderName());
             $config->setFilter($condition->getFilter($parent));
         }
 
-        if ($sortingProperty)
-        {
+        if ($sortingProperty) {
             $config->setSorting(array((string)$sortingProperty => 'ASC'));
         }
 
@@ -308,19 +289,16 @@ class DefaultController implements ControllerInterface
         /** @var Contao2BackendViewDefinitionInterface $backendViewDefinition */
         // TODO TL dnk how to handle this without highjacking the view.
         $backendViewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-        if ($backendViewDefinition && $backendViewDefinition instanceof Contao2BackendViewDefinitionInterface)
-        {
+        if ($backendViewDefinition && $backendViewDefinition instanceof Contao2BackendViewDefinitionInterface) {
             $listingConfig        = $backendViewDefinition->getListingConfig();
             $sortingProperties    = array_keys((array)$listingConfig->getDefaultSortingFields());
             $sortingPropertyIndex = array_search($sortingProperty, $sortingProperties);
 
-            if ($sortingPropertyIndex !== false && $sortingPropertyIndex > 0)
-            {
+            if ($sortingPropertyIndex !== false && $sortingPropertyIndex > 0) {
                 $sortingProperties = array_slice($sortingProperties, 0, $sortingPropertyIndex);
                 $filters           = $config->getFilter();
 
-                foreach ($sortingProperties as $propertyName)
-                {
+                foreach ($sortingProperties as $propertyName) {
                     $filters[] = array(
                         'operation' => '=',
                         'property'  => $propertyName,
@@ -356,16 +334,14 @@ class DefaultController implements ControllerInterface
         $config        = $this->getBaseConfig();
         $relationships = $definition->getModelRelationshipDefinition();
 
-        if ($definition->getBasicDefinition()->getMode() !== BasicDefinitionInterface::MODE_HIERARCHICAL)
-        {
+        if ($definition->getBasicDefinition()->getMode() !== BasicDefinitionInterface::MODE_HIERARCHICAL) {
             throw new DcGeneralRuntimeException('Unable to retrieve children in non hierarchical mode.');
         }
 
         $condition = $relationships->getChildCondition($model->getProviderName(), $model->getProviderName());
         $config->setFilter($condition->getFilter($model));
 
-        if ($sortingProperty)
-        {
+        if ($sortingProperty) {
             $config->setSorting(array((string)$sortingProperty => 'ASC'));
         }
 
@@ -379,22 +355,17 @@ class DefaultController implements ControllerInterface
      */
     public function updateModelFromPropertyBag($model, $propertyValues)
     {
-        if (!$propertyValues)
-        {
+        if (!$propertyValues) {
             return $this;
         }
         $environment = $this->getEnvironment();
         $input       = $environment->getInputProvider();
 
-        foreach ($propertyValues as $property => $value)
-        {
-            try
-            {
+        foreach ($propertyValues as $property => $value) {
+            try {
                 $model->setProperty($property, $value);
                 $model->setMeta($model::IS_CHANGED, true);
-            }
-            catch (\Exception $exception)
-            {
+            } catch (\Exception $exception) {
                 $propertyValues->markPropertyValueAsInvalid($property, $exception->getMessage());
             }
         }
@@ -402,12 +373,11 @@ class DefaultController implements ControllerInterface
         $basicDefinition = $environment->getDataDefinition()->getBasicDefinition();
 
         if (($basicDefinition->getMode() & (
-                BasicDefinitionInterface::MODE_PARENTEDLIST
-                | BasicDefinitionInterface::MODE_HIERARCHICAL)
+                    BasicDefinitionInterface::MODE_PARENTEDLIST
+                    | BasicDefinitionInterface::MODE_HIERARCHICAL)
             )
             && ($input->hasParameter('pid'))
-        )
-        {
+        ) {
             $parentModelId      = IdSerializer::fromSerialized($input->getParameter('pid'));
             $providerName       = $basicDefinition->getDataProvider();
             $parentProviderName = $parentModelId->getDataProviderName();
@@ -423,8 +393,7 @@ class DefaultController implements ControllerInterface
                 ->getModelRelationshipDefinition()
                 ->getChildCondition($parentProviderName, $providerName);
 
-            if ($relationship && $relationship->getSetters())
-            {
+            if ($relationship && $relationship->getSetters()) {
                 $relationship->applyTo($objParentModel, $model);
             }
         }
@@ -451,30 +420,35 @@ class DefaultController implements ControllerInterface
         $parentProviderName = $definition->getBasicDefinition()->getParentDataProvider();
         $parentProvider     = $environment->getDataProvider($parentProviderName);
 
-        if ($parentProvider)
-        {
+        if ($parentProvider) {
             $objParent = $parentProvider->fetch($parentProvider->getEmptyConfig()->setId($idParent));
-            if (!$objParent)
-            {
-                throw new DcGeneralRuntimeException('Parent item ' . $idParent . ' not found in ' . $parentProviderName);
+            if (!$objParent) {
+                throw new DcGeneralRuntimeException(
+                    'Parent item ' . $idParent . ' not found in ' . $parentProviderName
+                );
             }
 
-            $condition = $definition->getModelRelationshipDefinition()->getChildCondition($parentProviderName, $providerName);
+            $condition = $definition->getModelRelationshipDefinition()->getChildCondition(
+                $parentProviderName,
+                $providerName
+            );
 
-            if ($condition)
-            {
+            if ($condition) {
                 $arrBaseFilter = $config->getFilter();
                 $arrFilter     = $condition->getFilter($objParent);
 
-                if ($arrBaseFilter)
-                {
+                if ($arrBaseFilter) {
                     $arrFilter = array_merge($arrBaseFilter, $arrFilter);
                 }
 
-                $config->setFilter(array(array(
-                    'operation' => 'AND',
-                    'children'    => $arrFilter,
-                )));
+                $config->setFilter(
+                    array(
+                        array(
+                            'operation' => 'AND',
+                            'children'  => $arrFilter,
+                        )
+                    )
+                );
             }
         }
 
@@ -496,28 +470,24 @@ class DefaultController implements ControllerInterface
         // Check if current data provider supports multi language.
         if (in_array(
             'ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface',
-            class_implements($objDataProvider))
+            class_implements($objDataProvider)
         )
-        {
+        ) {
             /** @var MultiLanguageDataProviderInterface $objDataProvider */
             $objLanguagesSupported = $objDataProvider->getLanguages($mixID);
-        }
-        else
-        {
+        } else {
             $objLanguagesSupported = null;
         }
 
         // Check if we have some languages.
-        if ($objLanguagesSupported == null)
-        {
+        if ($objLanguagesSupported == null) {
             return array();
         }
 
         // Make an array from the collection.
         $arrLanguage = array();
         $translator  = $environment->getTranslator();
-        foreach ($objLanguagesSupported as $value)
-        {
+        foreach ($objLanguagesSupported as $value) {
             /** @var LanguageInformationInterface $value */
             $arrLanguage[$value->getLocale()] = $translator->translate('LNG.' . $value->getLocale(), 'languages');
         }
@@ -540,21 +510,18 @@ class DefaultController implements ControllerInterface
         $arrAdditional = $objDefinition->getBasicDefinition()->getAdditionalFilter();
 
         // Custom filter common for all modes.
-        if ($arrAdditional)
-        {
+        if ($arrAdditional) {
             $objConfig->setFilter($arrAdditional);
         }
 
-        if (!$objConfig->getSorting())
-        {
+        if (!$objConfig->getSorting()) {
             /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
             $viewDefinition = $objDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
             $objConfig->setSorting($viewDefinition->getListingConfig()->getDefaultSortingFields());
         }
 
         // Special filter for certain modes.
-        if ($objDefinition->getBasicDefinition()->getMode() == BasicDefinitionInterface::MODE_PARENTEDLIST)
-        {
+        if ($objDefinition->getBasicDefinition()->getMode() == BasicDefinitionInterface::MODE_PARENTEDLIST) {
             $pid        = $environment->getInputProvider()->getParameter('pid');
             $pidDetails = IdSerializer::fromSerialized($pid);
 
@@ -577,21 +544,18 @@ class DefaultController implements ControllerInterface
         $environment = $this->getEnvironment();
         $properties  = $environment->getDataDefinition()->getPropertiesDefinition();
 
-        foreach (array_keys($clone->getPropertiesAsArray()) as $propName)
-        {
+        foreach (array_keys($clone->getPropertiesAsArray()) as $propName) {
             $property = $properties->getProperty($propName);
 
             // If the property is not known, remove it.
-            if (!$property)
-            {
+            if (!$property) {
                 continue;
             }
 
             $extra = $property->getExtra();
 
             // Check doNotCopy.
-            if (isset($extra['doNotCopy']) && $extra['doNotCopy'] === true)
-            {
+            if (isset($extra['doNotCopy']) && $extra['doNotCopy'] === true) {
                 $clone->setProperty($propName, null);
                 continue;
             }
@@ -599,8 +563,7 @@ class DefaultController implements ControllerInterface
             $dataProvider = $environment->getDataProvider($clone->getProviderName());
 
             // Check fallback.
-            if (isset($extra['fallback']) && $extra['fallback'] === true)
-            {
+            if (isset($extra['fallback']) && $extra['fallback'] === true) {
                 $dataProvider->resetFallback($propName);
             }
 
@@ -608,8 +571,7 @@ class DefaultController implements ControllerInterface
             if (isset($extra['unique'])
                 && $extra['unique'] === true
                 && !$dataProvider->isUniqueValue($propName, $clone->getProperty($propName))
-            )
-            {
+            ) {
                 // Implicit "do not copy" unique values, they cannot be unique anymore.
                 $clone->setProperty($propName, null);
             }
@@ -623,15 +585,11 @@ class DefaultController implements ControllerInterface
      */
     public function fetchModelFromProvider($id, $providerName = null)
     {
-        if ($providerName === null)
-        {
-            if (is_string($id))
-            {
+        if ($providerName === null) {
+            if (is_string($id)) {
                 $id = IdSerializer::fromSerialized($id);
             }
-        }
-        else
-        {
+        } else {
             $id = IdSerializer::fromValues($providerName, $id);
         }
 
@@ -640,7 +598,6 @@ class DefaultController implements ControllerInterface
 
         return $item;
     }
-
 
     /**
      * {@inheritDoc}
@@ -664,32 +621,30 @@ class DefaultController implements ControllerInterface
      */
     public function pasteAfter(ModelInterface $previousModel, CollectionInterface $models, $sortedBy)
     {
-        if ($models->length() == 0)
-        {
+        if ($models->length() == 0) {
             throw new \RuntimeException('No models passed to pasteAfter().');
         }
         $environment = $this->getEnvironment();
 
-        if (in_array($environment
+        if (in_array(
+            $environment
                 ->getDataDefinition()
                 ->getBasicDefinition()
-                ->getMode(), array
-                    (
-                        BasicDefinitionInterface::MODE_HIERARCHICAL,
-                        BasicDefinitionInterface::MODE_PARENTEDLIST
-                    )
-        ))
-        {
+                ->getMode(),
+            array
+            (
+                BasicDefinitionInterface::MODE_HIERARCHICAL,
+                BasicDefinitionInterface::MODE_PARENTEDLIST
+            )
+        )) {
             $parentModel = null;
             $parentModel = null;
 
-            if (!$this->isRootModel($previousModel))
-            {
+            if (!$this->isRootModel($previousModel)) {
                 $parentModel = $this->searchParentOf($previousModel);
             }
 
-            foreach ($models as $model)
-            {
+            foreach ($models as $model) {
                 /** @var ModelInterface $model */
                 $this->setSameParent($model, $previousModel, $parentModel ? $parentModel->getProviderName() : null);
             }
@@ -710,8 +665,7 @@ class DefaultController implements ControllerInterface
     {
         $environment = $this->getEnvironment();
 
-        foreach ($models as $model)
-        {
+        foreach ($models as $model) {
             $this->setParent($model, $parentModel);
         }
 
@@ -729,11 +683,11 @@ class DefaultController implements ControllerInterface
     public function isRootModel(ModelInterface $model)
     {
         if ($this
-            ->getEnvironment()
-            ->getDataDefinition()
-            ->getBasicDefinition()
-            ->getMode() !== BasicDefinitionInterface::MODE_HIERARCHICAL)
-        {
+                ->getEnvironment()
+                ->getDataDefinition()
+                ->getBasicDefinition()
+                ->getMode() !== BasicDefinitionInterface::MODE_HIERARCHICAL
+        ) {
             return false;
         }
 
@@ -764,7 +718,7 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritDoc}
      */
-    public function setParent(ModelInterface  $childModel, ModelInterface  $parentModel)
+    public function setParent(ModelInterface $childModel, ModelInterface $parentModel)
     {
         $this
             ->getEnvironment()
@@ -779,12 +733,9 @@ class DefaultController implements ControllerInterface
      */
     public function setSameParent(ModelInterface $receivingModel, ModelInterface $sourceModel, $parentTable)
     {
-        if ($this->isRootModel($sourceModel))
-        {
+        if ($this->isRootModel($sourceModel)) {
             $this->setRootModel($receivingModel);
-        }
-        else
-        {
+        } else {
             $this
                 ->getEnvironment()
                 ->getDataDefinition()

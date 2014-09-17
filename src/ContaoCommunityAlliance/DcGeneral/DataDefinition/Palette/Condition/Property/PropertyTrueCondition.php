@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,6 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
  */
 class PropertyTrueCondition implements PropertyConditionInterface
 {
+
     /**
      * The property name.
      *
@@ -103,18 +105,12 @@ class PropertyTrueCondition implements PropertyConditionInterface
         PropertyValueBag $input = null,
         PropertyInterface $property = null,
         LegendInterface $legend = null
-    )
-    {
-        if ($input && $input->hasPropertyValue($this->propertyName))
-        {
+    ) {
+        if ($input && $input->hasPropertyValue($this->propertyName)) {
             $value = $input->getPropertyValue($this->propertyName);
-        }
-        elseif ($model)
-        {
+        } elseif ($model) {
             $value = $model->getProperty($this->propertyName);
-        }
-        else
-        {
+        } else {
             return false;
         }
 

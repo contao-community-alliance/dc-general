@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,10 +22,9 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  *
  * @package DcGeneral\Event
  */
-abstract class AbstractModelCommandEvent
-    extends AbstractCommandEvent
-    implements ModelCommandEventInterface
+abstract class AbstractModelCommandEvent extends AbstractCommandEvent implements ModelCommandEventInterface
 {
+
     /**
      * The attached model.
      *

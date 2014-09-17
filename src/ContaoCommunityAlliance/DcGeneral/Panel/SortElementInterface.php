@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -19,8 +20,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSor
  *
  * @package DcGeneral\Panel
  */
-interface SortElementInterface
-    extends PanelElementInterface
+interface SortElementInterface extends PanelElementInterface
 {
     /**
      * Set the default flag to use when no flag has been defined for a certain property.

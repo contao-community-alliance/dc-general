@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -59,20 +60,20 @@ class Callbacks
             $callback = static::evaluateCallback($callback);
 
             return call_user_func_array($callback, $args);
-        }
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
             $message = $e->getMessage();
         }
 
-        if (is_array($callback) && is_object($callback[0]))
-        {
+        if (is_array($callback) && is_object($callback[0])) {
             $callback[0] = get_class($callback[0]);
         }
 
         throw new DcGeneralRuntimeException(
             sprintf(
                 'Execute callback %s failed - Exception message: %s',
-                (is_array($callback) ? implode('::', $callback) : (is_string($callback) ? $callback : get_class($callback))),
+                (is_array($callback) ? implode('::', $callback) : (is_string($callback) ? $callback : get_class(
+                    $callback
+                ))),
                 $message
             ),
             0
@@ -88,23 +89,19 @@ class Callbacks
      */
     protected static function evaluateCallback($callback)
     {
-        if (is_array($callback) && count($callback) == 2 && is_string($callback[0]) && is_string($callback[1]))
-        {
+        if (is_array($callback) && count($callback) == 2 && is_string($callback[0]) && is_string($callback[1])) {
             $class = new \ReflectionClass($callback[0]);
 
             // Ff the method is static, do not create an instance.
-            if ($class->hasMethod($callback[1]) && $class->getMethod($callback[1])->isStatic())
-            {
+            if ($class->hasMethod($callback[1]) && $class->getMethod($callback[1])->isStatic()) {
                 return $callback;
             }
 
             // Fetch singleton instance.
-            if ($class->hasMethod('getInstance'))
-            {
+            if ($class->hasMethod('getInstance')) {
                 $getInstanceMethod = $class->getMethod('getInstance');
 
-                if ($getInstanceMethod->isStatic())
-                {
+                if ($getInstanceMethod->isStatic()) {
                     $callback[0] = $getInstanceMethod->invoke(null);
                     return $callback;
                 }
@@ -113,13 +110,10 @@ class Callbacks
             // Create a new instance.
             $constructor = $class->getConstructor();
 
-            if (!$constructor || $constructor->isPublic())
-            {
+            if (!$constructor || $constructor->isPublic()) {
                 $callback[0] = $class->newInstance();
-            }
-
-            // Graceful fallback, to prevent access violation to non-public \Backend::__construct().
-            else {
+            } else {
+                // Graceful fallback, to prevent access violation to non-public \Backend::__construct().
                 $callback[0] = $class->newInstanceWithoutConstructor();
                 $constructor->setAccessible(true);
                 $constructor->invoke($callback[0]);

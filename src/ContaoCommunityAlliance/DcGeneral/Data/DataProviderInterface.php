@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -247,5 +248,5 @@ interface DataProviderInterface
      *
      * @return boolean True - If both models are same, false if not.
      */
-    public function sameModels($objModel1 , $objModel2);
+    public function sameModels($objModel1, $objModel2);
 }

@@ -18,9 +18,7 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
  *
  * @package DcGeneral\DataDefinition\Definition\View
  */
-class ToggleCommand
-    extends Command
-    implements ToggleCommandInterface
+class ToggleCommand extends Command implements ToggleCommandInterface
 {
     /**
      * The property name to toggle.

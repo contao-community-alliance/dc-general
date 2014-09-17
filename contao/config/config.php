@@ -2,6 +2,7 @@
 
 /**
  * PHP version 5
+ *
  * @package    dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @copyright  Contao Community Alliance.
@@ -12,8 +13,7 @@
 /**
  * JS
  */
-if (TL_MODE == 'BE')
-{
+if (TL_MODE == 'BE') {
     $GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/dc-general/html/js/generalDriver_src.js';
     $GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/dc-general/html/js/vanillaGeneral.js';
 }

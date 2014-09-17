@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -32,6 +33,7 @@ class DC_General
     extends \DataContainer
     implements DataContainerInterface
 {
+
     /**
      * The environment attached to this DC.
      *
@@ -68,8 +70,7 @@ class DC_General
         $dispatcher->removeListener(PopulateEnvironmentEvent::NAME, array($this, 'handlePopulateEnvironment'));
 
         // Switch user for FE / BE support.
-        switch (TL_MODE)
-        {
+        switch (TL_MODE) {
             case 'FE':
                 $this->import('FrontendUser', 'User');
                 break;
@@ -88,8 +89,7 @@ class DC_General
         // we have to do this here, as otherwise the script will exit as it only checks for DC_Table and DC_File
         // derived classes.
         // @codingStandardsIgnoreStart - The access to $_POST is sane here.
-        if ($_POST && (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'))
-        // @codingStandardsIgnoreEnd
+        if ($_POST && (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')) // @codingStandardsIgnoreEnd
         {
             $this->getViewHandler()->handleAjaxCall();
         }
@@ -120,14 +120,12 @@ class DC_General
     protected function getTablenameCallback($strTable)
     {
         if (array_key_exists('tablename_callback', $GLOBALS['TL_DCA'][$strTable]['config'])
-            && is_array($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback']))
-        {
-            foreach ($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback'] as $callback)
-            {
+            && is_array($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback'])
+        ) {
+            foreach ($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback'] as $callback) {
                 $strCurrentTable = Callbacks::call($callback, $strTable, $this);
 
-                if ($strCurrentTable != null)
-                {
+                if ($strCurrentTable != null) {
                     $strTable = $strCurrentTable;
                 }
             }
@@ -149,8 +147,7 @@ class DC_General
      */
     public function __get($name)
     {
-        switch ($name)
-        {
+        switch ($name) {
             case 'table':
                 return $this->getEnvironment()->getDataDefinition()->getName();
             default:
@@ -178,8 +175,7 @@ class DC_General
      */
     public function getEnvironment()
     {
-        if (!$this->objEnvironment)
-        {
+        if (!$this->objEnvironment) {
             throw new DcGeneralRuntimeException('No Environment set.');
         }
 

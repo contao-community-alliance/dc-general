@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,6 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
 {
+
     /**
      * The property definitions contained.
      *
@@ -53,15 +55,13 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
      */
     public function addProperty($property)
     {
-        if (!($property instanceof PropertyInterface))
-        {
+        if (!($property instanceof PropertyInterface)) {
             throw new DcGeneralInvalidArgumentException('Passed value is not an instance of PropertyInterface.');
         }
 
         $name = $property->getName();
 
-        if ($this->hasProperty($name))
-        {
+        if ($this->hasProperty($name)) {
             throw new DcGeneralInvalidArgumentException('Property ' . $name . ' is already registered.');
         }
 
@@ -77,17 +77,13 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
      */
     public function removeProperty($property)
     {
-        if ($property instanceof PropertyInterface)
-        {
+        if ($property instanceof PropertyInterface) {
             $name = $property->getName();
-        }
-        else
-        {
+        } else {
             $name = $property;
         }
 
-        if (!$this->hasProperty($name))
-        {
+        if (!$this->hasProperty($name)) {
             throw new DcGeneralInvalidArgumentException('Property ' . $name . ' is not registered.');
         }
 
@@ -111,8 +107,7 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
      */
     public function getProperty($name)
     {
-        if (!$this->hasProperty($name))
-        {
+        if (!$this->hasProperty($name)) {
             throw new DcGeneralInvalidArgumentException('Property ' . $name . ' is not registered.');
         }
 

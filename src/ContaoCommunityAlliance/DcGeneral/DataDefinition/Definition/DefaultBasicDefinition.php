@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -19,6 +20,7 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition;
  */
 class DefaultBasicDefinition implements BasicDefinitionInterface
 {
+
     /**
      * The mode.
      *
@@ -183,8 +185,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
      */
     public function hasAdditionalFilter($dataProvider = null)
     {
-        if ($dataProvider === null)
-        {
+        if ($dataProvider === null) {
             $dataProvider = $this->getDataProvider();
         }
 
@@ -196,8 +197,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
      */
     public function getAdditionalFilter($dataProvider = null)
     {
-        if ($dataProvider === null)
-        {
+        if ($dataProvider === null) {
             $dataProvider = $this->getDataProvider();
         }
 
@@ -292,7 +292,6 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     {
         return $this->isCreatable;
     }
-
 
     /**
      * {@inheritdoc}

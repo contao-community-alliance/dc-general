@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @copyright  The MetaModels team.
@@ -21,13 +22,11 @@ define('TL_MODE', 'BE');
 // Search the initialize.php.
 $dir = dirname($_SERVER['SCRIPT_FILENAME']);
 
-while ($dir != '.' && $dir != '/' && !is_file($dir . '/system/initialize.php'))
-{
+while ($dir != '.' && $dir != '/' && !is_file($dir . '/system/initialize.php')) {
     $dir = dirname($dir);
 }
 
-if (!is_file($dir . '/system/initialize.php'))
-{
+if (!is_file($dir . '/system/initialize.php')) {
     echo 'Could not find initialize.php, where is Contao?';
     exit;
 }
@@ -43,6 +42,7 @@ require_once $dir . '/system/initialize.php';
 class TreeSelect
 // @codingStandardsIgnoreEnd
 {
+
     /**
      * Current ajax object.
      *
@@ -92,8 +92,7 @@ class TreeSelect
 
         // Ajax request.
         // @codingStandardsIgnoreStart - We need POST access here.
-        if ($_POST && \Environment::get('isAjaxRequest'))
-        // @codingStandardsIgnoreEnd
+        if ($_POST && \Environment::get('isAjaxRequest')) // @codingStandardsIgnoreEnd
         {
             $ajax = new \Ajax(\Input::post('action'));
             $ajax->executePreActions();
@@ -146,8 +145,7 @@ class TreeSelect
             new DcCompat($this->itemContainer->getEnvironment())
         );
         // AJAX request.
-        if (isset($ajax))
-        {
+        if (isset($ajax)) {
             $objTreeSelector->generateAjax();
             $ajax->executePostActions(new DcCompat($this->itemContainer->getEnvironment()));
         }
@@ -167,8 +165,7 @@ class TreeSelect
         $template->managerHref = '';
 
         // Add the manager link.
-        if ($objTreeSelector->managerHref)
-        {
+        if ($objTreeSelector->managerHref) {
             $template->managerHref = 'contao/main.php?' . ampersand($objTreeSelector->managerHref) . '&amp;popup=1';
         }
 

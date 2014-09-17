@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -62,8 +63,7 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
      */
     public function update($event, $value)
     {
-        if (is_null($value))
-        {
+        if (is_null($value)) {
             return;
         }
 
@@ -74,7 +74,8 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
     /**
      * Build reduced href required by legacy callbacks.
      *
-     * @param CommandInterface $command
+     * @param CommandInterface $command The command for which the href shall get built.
+     *
      * @return string
      */
     protected function buildHref(CommandInterface $command)
@@ -82,12 +83,10 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
         $arrParameters = (array)$command->getParameters();
         $strHref       = '';
 
-        foreach($arrParameters as $key=>$value)
-        {
+        foreach ($arrParameters as $key => $value) {
             $strHref .= sprintf('&%s=%s', $key, $value);
         }
 
         return $strHref;
     }
-
 }

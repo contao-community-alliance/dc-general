@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -17,11 +18,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 /**
  * A generic bag containing properties and their values.
  */
-interface PropertyValueBagInterface
-    extends
-    \IteratorAggregate,
-    \Countable,
-    \ArrayAccess
+interface PropertyValueBagInterface extends \IteratorAggregate, \Countable, \ArrayAccess
 {
     /**
      * Check if a property exists in this bag.

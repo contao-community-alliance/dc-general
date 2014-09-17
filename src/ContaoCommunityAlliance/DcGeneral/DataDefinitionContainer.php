@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,9 +23,9 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  *
  * @package DcGeneral
  */
-class DataDefinitionContainer
-    implements DataDefinitionContainerInterface
+class DataDefinitionContainer implements DataDefinitionContainerInterface
 {
+
     /**
      * The definitions stored in the container.
      *
@@ -37,12 +38,9 @@ class DataDefinitionContainer
      */
     public function setDefinition($name, $definition)
     {
-        if ($definition)
-        {
+        if ($definition) {
             $this->definitions[$name] = $definition;
-        }
-        else
-        {
+        } else {
             unset($this->definitions[$name]);
         }
 
@@ -64,8 +62,7 @@ class DataDefinitionContainer
      */
     public function getDefinition($name)
     {
-        if (!$this->hasDefinition($name))
-        {
+        if (!$this->hasDefinition($name)) {
             throw new DcGeneralInvalidArgumentException('Data definition ' . $name . ' is not contained.');
         }
 

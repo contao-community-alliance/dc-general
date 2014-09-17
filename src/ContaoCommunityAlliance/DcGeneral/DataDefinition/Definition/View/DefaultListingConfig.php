@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -23,6 +24,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DefaultListingConfig implements ListingConfigInterface
 {
+
     /**
      * The grouping and sorting definitions.
      *
@@ -89,8 +91,7 @@ class DefaultListingConfig implements ListingConfigInterface
     {
         $definitions = $this->getGroupAndSortingDefinition();
 
-        if (!$definitions->hasDefault())
-        {
+        if (!$definitions->hasDefault()) {
             $definitions->markDefault($definitions->add());
         }
 
@@ -104,8 +105,7 @@ class DefaultListingConfig implements ListingConfigInterface
     {
         $definition = $this->getOrCreateDefaultGroupAndSortingDefinition();
 
-        if ($definition->getCount() == 0)
-        {
+        if ($definition->getCount() == 0) {
             $definition->add();
         }
 
@@ -121,15 +121,13 @@ class DefaultListingConfig implements ListingConfigInterface
     {
         $definitions = $this->getGroupAndSortingDefinition();
 
-        if (!$definitions->hasDefault())
-        {
+        if (!$definitions->hasDefault()) {
             return GroupAndSortingInformationInterface::GROUP_NONE;
         }
 
         $definition = $definitions->getDefault();
 
-        if ($definition->getCount() == 0)
-        {
+        if ($definition->getCount() == 0) {
             return GroupAndSortingInformationInterface::GROUP_NONE;
         }
 
@@ -143,8 +141,7 @@ class DefaultListingConfig implements ListingConfigInterface
     {
         $definition = $this->getOrCreateDefaultGroupAndSortingDefinition();
 
-        if ($definition->getCount() == 0)
-        {
+        if ($definition->getCount() == 0) {
             $definition->add();
         }
 
@@ -160,15 +157,13 @@ class DefaultListingConfig implements ListingConfigInterface
     {
         $definitions = $this->getGroupAndSortingDefinition();
 
-        if (!$definitions->hasDefault())
-        {
+        if (!$definitions->hasDefault()) {
             return 0;
         }
 
         $definition = $definitions->getDefault();
 
-        if ($definition->getCount() == 0)
-        {
+        if ($definition->getCount() == 0) {
             return 0;
         }
 
@@ -182,8 +177,7 @@ class DefaultListingConfig implements ListingConfigInterface
     {
         $definition = $this->getOrCreateDefaultGroupAndSortingDefinition();
 
-        if ($definition->getCount() == 0)
-        {
+        if ($definition->getCount() == 0) {
             $definition->add();
         }
 
@@ -199,15 +193,13 @@ class DefaultListingConfig implements ListingConfigInterface
     {
         $definitions = $this->getGroupAndSortingDefinition();
 
-        if (!$definitions->hasDefault())
-        {
+        if (!$definitions->hasDefault()) {
             return GroupAndSortingInformationInterface::SORT_RANDOM;
         }
 
         $definition = $definitions->getDefault();
 
-        if ($definition->getCount() == 0)
-        {
+        if ($definition->getCount() == 0) {
             return GroupAndSortingInformationInterface::SORT_RANDOM;
         }
 
@@ -221,8 +213,7 @@ class DefaultListingConfig implements ListingConfigInterface
     {
         $definition = $this->getOrCreateDefaultGroupAndSortingDefinition();
 
-        foreach ($value as $property => $direction)
-        {
+        foreach ($value as $property => $direction) {
             $propertyInformation = $definition->add();
             $propertyInformation
                 ->setProperty($property)
@@ -239,17 +230,14 @@ class DefaultListingConfig implements ListingConfigInterface
     {
         $definitions = $this->getGroupAndSortingDefinition();
 
-        if (!$definitions->hasDefault())
-        {
+        if (!$definitions->hasDefault()) {
             return array();
         }
 
         $properties = array();
-        foreach ($this->getGroupAndSortingDefinition()->getDefault() as $propertyInformation)
-        {
+        foreach ($this->getGroupAndSortingDefinition()->getDefault() as $propertyInformation) {
             /** @var GroupAndSortingInformationInterface $propertyInformation */
-            if ($propertyInformation->getProperty())
-            {
+            if ($propertyInformation->getProperty()) {
                 $properties[$propertyInformation->getProperty()] = $propertyInformation->getSortingMode();
             }
         }
@@ -372,8 +360,7 @@ class DefaultListingConfig implements ListingConfigInterface
      */
     public function getLabelFormatter($providerName)
     {
-        if (!isset($this->itemFormatter[$providerName]))
-        {
+        if (!isset($this->itemFormatter[$providerName])) {
             throw new DcGeneralInvalidArgumentException(
                 'Formatter configuration for data provider ' . $providerName . ' is not registered.'
             );

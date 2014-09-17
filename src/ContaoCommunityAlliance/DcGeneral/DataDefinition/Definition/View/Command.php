@@ -22,6 +22,7 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
  */
 class Command implements CommandInterface
 {
+
     /**
      * Name of the command.
      *

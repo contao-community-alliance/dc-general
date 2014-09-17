@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,6 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
  */
 class PropertyVisibleCondition implements PropertyConditionInterface
 {
+
     /**
      * The property name.
      *
@@ -70,19 +72,14 @@ class PropertyVisibleCondition implements PropertyConditionInterface
         PropertyValueBag $input = null,
         PropertyInterface $property = null,
         LegendInterface $legend = null
-    )
-    {
-        if (!$legend)
-        {
+    ) {
+        if (!$legend) {
             return false;
         }
 
-        if ($legend->getPalette())
-        {
+        if ($legend->getPalette()) {
             $property = $legend->getPalette()->getProperty($this->propertyName);
-        }
-        else
-        {
+        } else {
             $property = $legend->getProperty($this->propertyName);
         }
 

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -24,8 +25,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
  *
  * @package DcGeneral\Contao\View\Contao2BackendView\Event
  */
-class BuildWidgetEvent
-    extends AbstractModelAwareEvent
+class BuildWidgetEvent extends AbstractModelAwareEvent
 {
     /**
      * The name of the event.

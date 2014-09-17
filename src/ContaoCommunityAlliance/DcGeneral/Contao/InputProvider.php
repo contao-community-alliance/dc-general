@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -65,8 +66,7 @@ class InputProvider implements InputProviderInterface
      */
     public function getValue($strKey, $blnRaw = false)
     {
-        if ($blnRaw)
-        {
+        if ($blnRaw) {
             return \Input::getInstance()->postRaw($strKey);
         }
 

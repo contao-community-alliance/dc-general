@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,6 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootCondi
  */
 class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionInterface
 {
+
     /**
      * The root condition relationship.
      *
@@ -71,10 +73,8 @@ class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionI
      */
     public function getChildCondition($srcProvider, $dstProvider)
     {
-        foreach ($this->getChildConditions($srcProvider) as $condition)
-        {
-            if ($condition->getDestinationName() == $dstProvider)
-            {
+        foreach ($this->getChildConditions($srcProvider) as $condition) {
+            if ($condition->getDestinationName() == $dstProvider) {
                 return $condition;
             }
         }
@@ -88,16 +88,13 @@ class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionI
     public function getChildConditions($srcProvider = '')
     {
 
-        if (!$this->childConditions)
-        {
+        if (!$this->childConditions) {
             return array();
         }
 
         $arrReturn = array();
-        foreach ($this->childConditions as $condition)
-        {
-            if ($condition->getSourceName() != $srcProvider)
-            {
+        foreach ($this->childConditions as $condition) {
+            if ($condition->getSourceName() != $srcProvider) {
                 continue;
             }
 
@@ -112,14 +109,12 @@ class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionI
      */
     public function __clone()
     {
-        if ($this->rootCondition !== null)
-        {
+        if ($this->rootCondition !== null) {
             $this->rootCondition = clone $this->rootCondition;
         }
 
         $conditions = array();
-        foreach ($this->childConditions as $condition)
-        {
+        foreach ($this->childConditions as $condition) {
             $bobaFett = clone $condition;
 
             $conditions[] = $bobaFett;

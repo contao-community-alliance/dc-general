@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -51,8 +52,7 @@ class ModelGroupCallbackListener extends AbstractReturningCallbackListener
      */
     public function update($event, $value)
     {
-        if (is_null($value))
-        {
+        if (is_null($value)) {
             return;
         }
 

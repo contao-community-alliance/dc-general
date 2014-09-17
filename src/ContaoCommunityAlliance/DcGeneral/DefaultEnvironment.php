@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -31,6 +32,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
  */
 class DefaultEnvironment implements EnvironmentInterface
 {
+
     /**
      * The controller.
      *
@@ -214,8 +216,7 @@ class DefaultEnvironment implements EnvironmentInterface
      */
     public function hasDataProvider($strSource = null)
     {
-        if ($strSource === null)
-        {
+        if ($strSource === null) {
             $strSource = $this->getDataDefinition()->getBasicDefinition()->getDataProvider();
         }
 
@@ -229,13 +230,11 @@ class DefaultEnvironment implements EnvironmentInterface
      */
     public function getDataProvider($strSource = null)
     {
-        if ($strSource === null)
-        {
+        if ($strSource === null) {
             $strSource = $this->getDataDefinition()->getBasicDefinition()->getDataProvider();
         }
 
-        if (isset($this->arrDataProvider[$strSource]))
-        {
+        if (isset($this->arrDataProvider[$strSource])) {
             return $this->arrDataProvider[$strSource];
         }
 
@@ -260,8 +259,7 @@ class DefaultEnvironment implements EnvironmentInterface
      */
     public function removeDataProvider($strSource)
     {
-        if (isset($this->arrDataProvider[$strSource]))
-        {
+        if (isset($this->arrDataProvider[$strSource])) {
             unset($this->arrDataProvider[$strSource]);
         }
 
@@ -350,8 +348,7 @@ class DefaultEnvironment implements EnvironmentInterface
             E_USER_DEPRECATED
         );
 
-        if (!(($view = $this->getView()) instanceof BaseView))
-        {
+        if (!(($view = $this->getView()) instanceof BaseView)) {
             throw new DcGeneralInvalidArgumentException(
                 __CLASS__ . '::setPanelContainer() got an invalid view instance passed.'
             );
@@ -378,8 +375,7 @@ class DefaultEnvironment implements EnvironmentInterface
             E_USER_DEPRECATED
         );
 
-        if (!(($view = $this->getView()) instanceof BaseView))
-        {
+        if (!(($view = $this->getView()) instanceof BaseView)) {
             throw new DcGeneralInvalidArgumentException(
                 __CLASS__ . '::setPanelContainer() got an invalid view instance passed.'
             );
@@ -402,12 +398,9 @@ class DefaultEnvironment implements EnvironmentInterface
      */
     public function setClipboard($objClipboard)
     {
-        if (is_null($objClipboard))
-        {
+        if (is_null($objClipboard)) {
             unset($this->objClipboard);
-        }
-        else
-        {
+        } else {
             $this->objClipboard = $objClipboard;
         }
 

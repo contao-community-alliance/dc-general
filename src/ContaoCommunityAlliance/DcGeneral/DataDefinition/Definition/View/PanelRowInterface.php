@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -60,7 +61,8 @@ interface PanelRowInterface extends \IteratorAggregate
      *
      * Throws an exception when an invalid value has been passed.
      *
-     * @param ElementInformationInterface|string $instanceOrName The element instance or the name of an element to check.
+     * @param ElementInformationInterface|string $instanceOrName The element instance or the name of an element to
+     *                                                           check.
      *
      * @return bool
      */

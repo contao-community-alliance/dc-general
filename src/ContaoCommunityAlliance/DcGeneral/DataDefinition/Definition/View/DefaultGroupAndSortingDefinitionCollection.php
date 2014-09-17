@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -19,6 +20,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefinitionCollectionInterface
 {
+
     /**
      * The information stored.
      *
@@ -41,12 +43,9 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
         $information = new DefaultGroupAndSortingDefinition();
         $information->setName('Information ' . ($this->getCount() + 1));
 
-        if (($index < 0) || ($this->getCount() <= $index))
-        {
+        if (($index < 0) || ($this->getCount() <= $index)) {
             $this->information[] = $information;
-        }
-        else
-        {
+        } else {
             array_splice($this->information, $index, 0, array($information));
         }
 
@@ -58,8 +57,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
      */
     public function delete($index)
     {
-        if ($index == $this->default)
-        {
+        if ($index == $this->default) {
             $this->default = -1;
         }
         unset($this->information[$index]);
@@ -83,13 +81,11 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
      */
     public function get($index = -1)
     {
-        if ($index == -1)
-        {
+        if ($index == -1) {
             return $this->getDefault();
         }
 
-        if (!isset($this->information[$index]))
-        {
+        if (!isset($this->information[$index])) {
             throw new DcGeneralInvalidArgumentException('Offset ' . $index . ' does not exist.');
         }
 
@@ -103,13 +99,11 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
      */
     public function markDefault($information)
     {
-        if ($information instanceof GroupAndSortingDefinitionInterface)
-        {
+        if ($information instanceof GroupAndSortingDefinitionInterface) {
             $information = array_search($information, $this->information);
         }
 
-        if (!is_int($information))
-        {
+        if (!is_int($information)) {
             throw new DcGeneralInvalidArgumentException('Invalid argument.');
         }
 
@@ -132,8 +126,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
     public function getDefault()
     {
         $index = $this->getDefaultIndex();
-        if ($index == -1)
-        {
+        if ($index == -1) {
             throw new DcGeneralInvalidArgumentException('No default sorting and grouping information defined.');
         }
 

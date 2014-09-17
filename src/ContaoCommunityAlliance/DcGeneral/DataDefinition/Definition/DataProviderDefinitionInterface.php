@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -19,11 +20,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\DataProviderInformationInte
  *
  * @package DcGeneral\DataDefinition\Definition
  */
-interface DataProviderDefinitionInterface
-    extends DefinitionInterface,
-    \IteratorAggregate,
-    \Countable,
-    \ArrayAccess
+interface DataProviderDefinitionInterface extends DefinitionInterface, \IteratorAggregate, \Countable, \ArrayAccess
 {
     const NAME = 'dataProvider';
 

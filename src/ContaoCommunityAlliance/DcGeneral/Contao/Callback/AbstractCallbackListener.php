@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,6 +22,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\Callback;
  */
 abstract class AbstractCallbackListener
 {
+
     /**
      * The callback to use.
      *
@@ -66,8 +68,7 @@ abstract class AbstractCallbackListener
      */
     public function __invoke($event)
     {
-        if ($this->getCallback())
-        {
+        if ($this->getCallback()) {
             Callbacks::callArgs($this->getCallback(), $this->getArgs($event));
         }
     }

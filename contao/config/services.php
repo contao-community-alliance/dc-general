@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -20,13 +21,12 @@
  * @return \ContaoCommunityAlliance\DcGeneral\DataDefinitionContainerInterface $container
  */
 $container['dc-general.data-definition-container.factory.default'] = $container->protect(
-    function() {
+    function () {
         return new \ContaoCommunityAlliance\DcGeneral\DataDefinitionContainer();
     }
 );
 
-if (!isset($container['dc-general.data-definition-container.factory']))
-{
+if (!isset($container['dc-general.data-definition-container.factory'])) {
     $container['dc-general.data-definition-container.factory'] =
         $container->raw('dc-general.data-definition-container.factory.default');
 }

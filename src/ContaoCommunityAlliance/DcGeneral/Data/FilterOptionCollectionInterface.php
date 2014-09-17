@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -15,8 +16,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
 /**
  * This represents an iterable collection of Model elements.
  */
-interface FilterOptionCollectionInterface
-    extends \IteratorAggregate, \Countable
+interface FilterOptionCollectionInterface extends \IteratorAggregate, \Countable
 {
     /**
      * Append a key => value pair.

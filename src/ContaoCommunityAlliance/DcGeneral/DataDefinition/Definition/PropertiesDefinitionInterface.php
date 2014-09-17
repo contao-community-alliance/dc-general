@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -28,14 +29,14 @@ interface PropertiesDefinitionInterface extends DefinitionInterface, \IteratorAg
 
     /**
      * Get all properties.
-     * 
+     *
      * @return PropertyInterface[]|array
      */
     public function getProperties();
 
     /**
      * Get all property names.
-     * 
+     *
      * @return string[]|array
      */
     public function getPropertyNames();
@@ -60,9 +61,9 @@ interface PropertiesDefinitionInterface extends DefinitionInterface, \IteratorAg
 
     /**
      * Check if a property exists.
-     * 
+     *
      * @param string $name The name of the property.
-     * 
+     *
      * @return bool
      */
     public function hasProperty($name);

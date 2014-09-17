@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -40,8 +41,7 @@ class Ajax2X extends Ajax
         $ajaxId   = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $id);
         $ajaxKey  = str_replace('_' . $ajaxId, '', $id);
         $ajaxName = null;
-        if ($input->getValue('act') == 'editAll')
-        {
+        if ($input->getValue('act') == 'editAll') {
             $ajaxKey  = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $ajaxKey);
             $ajaxName = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $name);
         }
@@ -74,40 +74,35 @@ class Ajax2X extends Ajax
         $objWidget = new $GLOBALS['BE_FFL']['fileTree']($arrData, $objDc);
 
         // Load a particular node.
-        if (self::getPost('folder', true) != '')
-        {
-            echo $objWidget->generateAjax(self::getPost('folder', true), self::getPost('field'), intval(self::getPost('level')));
-        }
-        else
-        {
+        if (self::getPost('folder', true) != '') {
+            echo $objWidget->generateAjax(
+                self::getPost('folder', true),
+                self::getPost('field'),
+                intval(self::getPost('level'))
+            );
+        } else {
             // Reload the whole tree.
             $user    = \BackendUser::getInstance();
             $strTree = '';
             $path    = $GLOBALS['TL_DCA'][$table]['fields'][self::getPost('field')]['eval']['path'];
 
             // Set a custom path.
-            if (strlen($GLOBALS['TL_DCA'][$table]['fields'][self::getPost('field')]['eval']['path']))
-            {
+            if (strlen($GLOBALS['TL_DCA'][$table]['fields'][self::getPost('field')]['eval']['path'])) {
                 $strTree = $objWidget->generateAjax(
                     $GLOBALS['TL_DCA'][$table]['fields'][self::getPost('field')]['eval']['path'],
                     self::getPost('field'),
                     intval(self::getPost('level'))
                 );
-            }
-            // Start from root.
-            elseif ($user->isAdmin)
-            {
+            } elseif ($user->isAdmin) {
+                // Start from root.
                 $strTree = $objWidget->generateAjax(
                     $GLOBALS['TL_CONFIG']['uploadPath'],
                     self::getPost('field'),
                     intval(self::getPost('level'))
                 );
-            }
-            // Set file mounts.
-            else
-            {
-                foreach ($this->eliminateNestedPaths($this->User->filemounts) as $node)
-                {
+            } else {
+                // Set file mounts.
+                foreach ($this->eliminateNestedPaths($this->User->filemounts) as $node) {
                     $strTree .= $objWidget->generateAjax(
                         $node,
                         self::getPost('field'),

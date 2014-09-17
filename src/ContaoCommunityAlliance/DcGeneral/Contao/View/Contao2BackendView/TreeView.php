@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -54,18 +55,15 @@ class TreeView extends BaseView
 
         $openElements = $inputProvider->getPersistentValue($this->getToggleId());
 
-        if (!is_array($openElements))
-        {
+        if (!is_array($openElements)) {
             $openElements = array();
             $inputProvider->setPersistentValue($this->getToggleId(), $openElements);
         }
 
         // Check if the open/close all is active.
-        if ($inputProvider->getParameter('ptg') == 'all')
-        {
+        if ($inputProvider->getParameter('ptg') == 'all') {
             $openElements = array();
-            if (!array_key_exists('all', $openElements))
-            {
+            if (!array_key_exists('all', $openElements)) {
                 $openElements        = array();
                 $openElements['all'] = 1;
             }
@@ -73,7 +71,10 @@ class TreeView extends BaseView
             // Save in session and reload.
             $inputProvider->setPersistentValue($this->getToggleId(), $openElements);
 
-            $this->getEnvironment()->getEventPropagator()->propagate(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
+            $this->getEnvironment()->getEventPropagator()->propagate(
+                ContaoEvents::CONTROLLER_RELOAD,
+                new ReloadEvent()
+            );
         }
 
         return $openElements;
@@ -93,17 +94,13 @@ class TreeView extends BaseView
         $inputProvider = $this->getEnvironment()->getInputProvider();
         $openElements  = $this->getOpenElements();
 
-        if (!isset($openElements[$providerName]))
-        {
+        if (!isset($openElements[$providerName])) {
             $openElements[$providerName] = array();
         }
 
-        if (!isset($openElements[$providerName][$id]))
-        {
+        if (!isset($openElements[$providerName][$id])) {
             $openElements[$providerName][$id] = 1;
-        }
-        else
-        {
+        } else {
             $openElements[$providerName][$id] = !$openElements[$providerName][$id];
         }
 
@@ -121,15 +118,13 @@ class TreeView extends BaseView
     {
         $openModels = $this->getOpenElements();
 
-        if (isset($openModels['all']) && ($openModels['all'] == 1))
-        {
+        if (isset($openModels['all']) && ($openModels['all'] == 1)) {
             return true;
         }
 
         if (isset($openModels[$model->getProviderName()][$model->getID()])
             && ($openModels[$model->getProviderName()][$model->getID()])
-        )
-        {
+        ) {
             return true;
         }
 
@@ -154,20 +149,16 @@ class TreeView extends BaseView
 
         $objCollection = $this->getTreeCollectionRecursive($rootId, $intLevel, $providerName);
 
-        if ($rootId)
-        {
+        if ($rootId) {
             $objTreeData = $dataDriver->getEmptyCollection();
             $objModel    = $objCollection->get(0);
 
-            if (!$objModel->getMeta($objModel::HAS_CHILDREN))
-            {
+            if (!$objModel->getMeta($objModel::HAS_CHILDREN)) {
                 return $objTreeData;
             }
 
-            foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection)
-            {
-                foreach ($objCollection as $objSubModel)
-                {
+            foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection) {
+                foreach ($objCollection as $objSubModel) {
                     $objTreeData->push($objSubModel);
                 }
             }
@@ -190,8 +181,7 @@ class TreeView extends BaseView
     {
         $environment = $this->getEnvironment();
 
-        if (!($parentId = $environment->getInputProvider()->getParameter('pid')))
-        {
+        if (!($parentId = $environment->getInputProvider()->getParameter('pid'))) {
             throw new DcGeneralRuntimeException(
                 'TreeView needs a proper parent id defined, somehow none is defined?',
                 1
@@ -201,8 +191,8 @@ class TreeView extends BaseView
         $pid = IdSerializer::fromSerialized($parentId);
 
         if (!($objParentProvider = $environment->getDataProvider($pid->getDataProviderName())
-        ))
-        {
+        )
+        ) {
             throw new DcGeneralRuntimeException(
                 'TreeView needs a proper parent data provider defined, somehow none is defined?',
                 1
@@ -211,8 +201,7 @@ class TreeView extends BaseView
 
         $objParentItem = $environment->getController()->fetchModelFromProvider($pid);
 
-        if (!$objParentItem)
-        {
+        if (!$objParentItem) {
             // No parent item found, might have been deleted.
             // We transparently create it for our filter to be able to filter to nothing.
             // TODO: shall we rather bail with "parent not found"?
@@ -269,22 +258,18 @@ class TreeView extends BaseView
         $this->determineModelState($objModel, $intLevel);
 
         $arrChildCollections = array();
-        foreach ($arrSubTables as $strSubTable)
-        {
+        foreach ($arrSubTables as $strSubTable) {
             // Evaluate the child filter for this item.
             $arrChildFilter = $relationships->getChildCondition($objModel->getProviderName(), $strSubTable);
 
             // If we do not know how to render this table within here, continue with the next one.
-            if (!$arrChildFilter)
-            {
+            if (!$arrChildFilter) {
                 continue;
             }
 
             // Create a new Config and fetch the children from the child provider.
             $objChildConfig = $this->getEnvironment()->getDataProvider($strSubTable)->getEmptyConfig();
             $objChildConfig->setFilter($arrChildFilter->getFilter($objModel));
-
-            // $objChildConfig->setFields($this->calcLabelFields($strSubTable));
 
             // TODO: hardcoded sorting... NOT GOOD!
             $objChildConfig->setSorting(array('sorting' => 'ASC'));
@@ -294,21 +279,16 @@ class TreeView extends BaseView
             $blnHasChild = ($objChildCollection->length() > 0);
 
             // Speed up - we may exit if we have at least one child but the parenting model is collapsed.
-            if ($blnHasChild && !$objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN))
-            {
+            if ($blnHasChild && !$objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN)) {
                 break;
-            }
-            elseif ($blnHasChild)
-            {
-                foreach ($objChildCollection as $objChildModel)
-                {
+            } elseif ($blnHasChild) {
+                foreach ($objChildCollection as $objChildModel) {
                     // Let the child know about it's parent.
                     $objModel->setMeta($objModel::PARENT_ID, $objModel->getID());
                     $objModel->setMeta($objModel::PARENT_PROVIDER_NAME, $objModel->getProviderName());
 
                     $mySubTables = array();
-                    foreach ($relationships->getChildConditions($objModel->getProviderName()) as $condition)
-                    {
+                    foreach ($relationships->getChildConditions($objModel->getProviderName()) as $condition) {
                         $mySubTables[] = $condition->getDestinationName();
                     }
 
@@ -317,16 +297,14 @@ class TreeView extends BaseView
                 $arrChildCollections[] = $objChildCollection;
 
                 // Speed up, if collapsed, one item is enough to break as we have some children.
-                if (!$objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN))
-                {
+                if (!$objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN)) {
                     break;
                 }
             }
         }
 
         // If expanded, store children.
-        if ($objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN) && count($arrChildCollections) != 0)
-        {
+        if ($objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN) && count($arrChildCollections) != 0) {
             $objModel->setMeta(DCGE::TREE_VIEW_CHILD_COLLECTION, $arrChildCollections);
         }
 
@@ -347,8 +325,7 @@ class TreeView extends BaseView
         $basicDefinition = $definition->getBasicDefinition();
         $relationships   = $definition->getModelRelationshipDefinition();
 
-        if (!$basicDefinition->getParentDataProvider())
-        {
+        if (!$basicDefinition->getParentDataProvider()) {
             return;
         }
 
@@ -356,13 +333,12 @@ class TreeView extends BaseView
         if ($objParentCondition = $relationships->getChildCondition(
             $basicDefinition->getParentDataProvider(),
             $basicDefinition->getRootDataProvider()
-        ))
-        {
+        )
+        ) {
             $arrBaseFilter = $config->getFilter();
             $arrFilter     = $objParentCondition->getFilter($this->loadParentModel());
 
-            if ($arrBaseFilter)
-            {
+            if ($arrBaseFilter) {
                 $arrFilter = array_merge($arrBaseFilter, $arrFilter);
             }
 
@@ -398,17 +374,14 @@ class TreeView extends BaseView
 
         $this->getPanel()->initialize($objRootConfig);
 
-        if (!$rootId)
-        {
+        if (!$rootId) {
             $objRootCondition = $relationships->getRootCondition();
 
-            if ($objRootCondition)
-            {
+            if ($objRootCondition) {
                 $arrBaseFilter = $objRootConfig->getFilter();
                 $arrFilter     = $objRootCondition->getFilterArray();
 
-                if ($arrBaseFilter)
-                {
+                if ($arrBaseFilter) {
                     $arrFilter = array_merge($arrBaseFilter, $arrFilter);
                 }
 
@@ -420,16 +393,15 @@ class TreeView extends BaseView
             // Fetch all root elements.
             $objRootCollection = $dataProvider->fetchAll($objRootConfig);
 
-            if ($objRootCollection->length() > 0)
-            {
+            if ($objRootCollection->length() > 0) {
                 $mySubTables = array();
-                foreach ($relationships->getChildConditions($objRootCollection->get(0)->getProviderName()) as $condition)
-                {
+                foreach ($relationships->getChildConditions(
+                    $objRootCollection->get(0)->getProviderName()
+                ) as $condition) {
                     $mySubTables[] = $condition->getDestinationName();
                 }
 
-                foreach ($objRootCollection as $objRootModel)
-                {
+                foreach ($objRootCollection as $objRootModel) {
                     /** @var ModelInterface $objRootModel */
                     $objTableTreeData->push($objRootModel);
                     $this->treeWalkModel($objRootModel, $intLevel, $mySubTables);
@@ -444,8 +416,7 @@ class TreeView extends BaseView
         $objRootModel = $dataProvider->fetch($objRootConfig);
 
         $mySubTables = array();
-        foreach ($relationships->getChildConditions($objRootModel->getProviderName()) as $condition)
-        {
+        foreach ($relationships->getChildConditions($objRootModel->getProviderName()) as $condition) {
             $mySubTables[] = $condition->getDestinationName();
         }
 
@@ -472,12 +443,9 @@ class TreeView extends BaseView
 
         $objTemplate = $this->getTemplate('dcbe_general_treeview_entry');
 
-        if ($objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN))
-        {
+        if ($objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN)) {
             $toggleTitle = $this->getEnvironment()->getTranslator()->translate('collapseNode', 'MSC');
-        }
-        else
-        {
+        } else {
             $toggleTitle = $this->getEnvironment()->getTranslator()->translate('expandNode', 'MSC');
         }
 
@@ -492,7 +460,9 @@ class TreeView extends BaseView
             6
         );
 
-        $toggleUrlEvent = new AddToUrlEvent('ptg=' . $objModel->getId() . '&amp;provider=' . $objModel->getProviderName());
+        $toggleUrlEvent = new AddToUrlEvent(
+            'ptg=' . $objModel->getId() . '&amp;provider=' . $objModel->getProviderName()
+        );
         $this->getEnvironment()->getEventPropagator()->propagate(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
 
         $this
@@ -525,21 +495,18 @@ class TreeView extends BaseView
     {
         $arrHtml = array();
 
-        foreach ($objCollection as $objModel)
-        {
+        foreach ($objCollection as $objModel) {
             /** @var ModelInterface $objModel */
 
             $strToggleID = $objModel->getProviderName() . '_' . $treeClass . '_' . $objModel->getID();
 
             $arrHtml[] = $this->parseModel($objModel, $strToggleID);
 
-            if ($objModel->getMeta($objModel::HAS_CHILDREN) && $objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN))
-            {
+            if ($objModel->getMeta($objModel::HAS_CHILDREN) && $objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN)) {
                 $objTemplate = $this->getTemplate('dcbe_general_treeview_child');
                 $strSubHtml  = '';
 
-                foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection)
-                {
+                foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection) {
                     $strSubHtml .= $this->generateTreeView($objCollection, $treeClass);
                 }
 
@@ -565,14 +532,12 @@ class TreeView extends BaseView
      */
     public static function renderPasteRootButton(GetPasteRootButtonEvent $event)
     {
-        if (!is_null($event->getHtml()))
-        {
+        if (!is_null($event->getHtml())) {
             return $event->getHtml();
         }
 
         $strLabel = $GLOBALS['TL_LANG'][$event->getEnvironment()->getDataDefinition()->getName()]['pasteinto'][0];
-        if ($event->isPasteDisabled())
-        {
+        if ($event->isPasteDisabled()) {
             /** @var GenerateHtmlEvent $imageEvent */
             $imageEvent = $event->getEnvironment()->getEventPropagator()->propagate(
                 ContaoEvents::IMAGE_GET_HTML,
@@ -596,7 +561,8 @@ class TreeView extends BaseView
             )
         );
 
-        return sprintf(' <a href="%s" title="%s" %s>%s</a>',
+        return sprintf(
+            ' <a href="%s" title="%s" %s>%s</a>',
             $event->getHref(),
             specialchars($strLabel),
             'onclick="Backend.getScrollOffset()"',
@@ -619,8 +585,7 @@ class TreeView extends BaseView
         $propagator  = $environment->getEventPropagator();
 
         // Init some Vars
-        switch (6 /*$definition->getSortingMode()*/)
-        {
+        switch (6 /*$definition->getSortingMode()*/) {
             case 6:
                 $treeClass = 'tree_xtnd';
                 break;
@@ -630,36 +595,32 @@ class TreeView extends BaseView
         }
 
         // Label + Icon.
-        if (strlen($listing->getRootLabel()) == 0)
-        {
+        if (strlen($listing->getRootLabel()) == 0) {
             $strLabelText = 'DC General Tree BackendView Ultimate';
-        }
-        else
-        {
+        } else {
             $strLabelText = $listing->getRootLabel();
         }
 
-        if (strlen($listing->getRootIcon()) == 0)
-        {
+        if (strlen($listing->getRootIcon()) == 0) {
             $strLabelIcon = 'pagemounts.gif';
-        }
-        else
-        {
+        } else {
             $strLabelIcon = $listing->getRootIcon();
         }
 
         // Root paste into.
-        if ($environment->getClipboard()->isNotEmpty())
-        {
+        if ($environment->getClipboard()->isNotEmpty()) {
             $objClipboard = $environment->getClipboard();
             /** @var AddToUrlEvent $urlEvent */
             $urlEvent = $propagator->propagate(
                 ContaoEvents::BACKEND_ADD_TO_URL,
-                new AddToUrlEvent(sprintf('act=paste&amp;into=%s::0&amp;children=%s',
-                    $definition->getName(),
-                    $objClipboard->getContainedIds(),
-                    implode(',', $objClipboard->getCircularIds())
-                ))
+                new AddToUrlEvent(
+                    sprintf(
+                        'act=paste&amp;into=%s::0&amp;children=%s',
+                        $definition->getName(),
+                        $objClipboard->getContainedIds(),
+                        implode(',', $objClipboard->getCircularIds())
+                    )
+                )
             );
 
             $buttonEvent = new GetPasteRootButtonEvent($this->getEnvironment());
@@ -674,9 +635,7 @@ class TreeView extends BaseView
             );
 
             $strRootPasteInto = $this->renderPasteRootButton($buttonEvent);
-        }
-        else
-        {
+        } else {
             $strRootPasteInto = '';
         }
 
@@ -699,8 +658,7 @@ class TreeView extends BaseView
 
         // Add breadcrumb, if we have one.
         $strBreadcrumb = $this->breadcrumb();
-        if ($strBreadcrumb != null)
-        {
+        if ($strBreadcrumb != null) {
             $objTemplate->breadcrumb = $strBreadcrumb;
         }
 
@@ -716,40 +674,30 @@ class TreeView extends BaseView
         $input       = $environment->getInputProvider();
         $controller  = $environment->getController();
 
-        if ($input->hasParameter('into'))
-        {
+        if ($input->hasParameter('into')) {
             $into = IdSerializer::fromSerialized($input->getParameter('into'));
 
             // If we have a null, it means insert into the tree root.
-            if ($into->getId() == 0)
-            {
+            if ($into->getId() == 0) {
                 $controller->setRootModel($model);
-            }
-            else
-            {
+            } else {
                 $parent = $controller->fetchModelFromProvider($into);
                 $controller->setParent($model, $parent);
             }
-        }
-        elseif ($input->hasParameter('after'))
-        {
+        } elseif ($input->hasParameter('after')) {
             $after   = IdSerializer::fromSerialized($input->getParameter('after'));
             $sibling = $controller->fetchModelFromProvider($after);
 
-            if (!$sibling || $controller->isRootModel($sibling))
-            {
+            if (!$sibling || $controller->isRootModel($sibling)) {
                 $controller->setRootModel($model);
-            }
-            else
-            {
+            } else {
                 $parent = $controller->searchParentOf($sibling);
                 $controller->setParent($model, $parent);
             }
         }
 
         // Also enforce the parent condition of the parent provider (if any).
-        if ($input->hasParameter('pid'))
-        {
+        if ($input->hasParameter('pid')) {
             $parent = $controller->fetchModelFromProvider($input->getParameter('pid'));
             $controller->setParent($model, $parent);
         }
@@ -765,16 +713,13 @@ class TreeView extends BaseView
         $clipboard   = $environment->getClipboard();
 
         // Push an empty model into the clipboard.
-        if ($input->getParameter('mode') === 'create')
-        {
+        if ($input->getParameter('mode') === 'create') {
             $clipboard->create(null);
         }
 
         // If destination is known, perform normal paste.
-        if ($input->hasParameter('after') || $input->hasParameter('into'))
-        {
-            if ($clipboard->isCreate())
-            {
+        if ($input->hasParameter('after') || $input->hasParameter('into')) {
+            if ($clipboard->isCreate()) {
                 return parent::create();
             }
 
@@ -792,14 +737,12 @@ class TreeView extends BaseView
      */
     public function showAll()
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
-        {
+        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit();
         }
 
         $input = $this->getEnvironment()->getInputProvider();
-        if (($id = $input->hasParameter('ptg')) && ($providerName = $input->hasParameter('provider')))
-        {
+        if (($id = $input->hasParameter('ptg')) && ($providerName = $input->hasParameter('provider'))) {
             $this->toggleModel($providerName, $id);
             $this->redirectHome();
         }
@@ -839,8 +782,7 @@ class TreeView extends BaseView
     {
         $input = $this->getEnvironment()->getInputProvider();
 
-        switch ($input->getValue('action'))
-        {
+        switch ($input->getValue('action')) {
             case 'DcGeneralLoadSubTree':
                 header('Content-Type: text/html; charset=' . $GLOBALS['TL_CONFIG']['characterSet']);
                 echo $this->ajaxTreeView(
@@ -875,8 +817,7 @@ class TreeView extends BaseView
         $collection = $this->loadCollection($id, $level, $providerName);
 
         $treeClass = '';
-        switch (6 /*$definition->getSortingMode()*/)
-        {
+        switch (6 /*$definition->getSortingMode()*/) {
             case 5:
                 $treeClass = 'tree';
                 break;
@@ -899,8 +840,7 @@ class TreeView extends BaseView
     public function cut()
     {
 
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
-        {
+        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit();
         }
 
@@ -914,8 +854,7 @@ class TreeView extends BaseView
     public function copy()
     {
 
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
-        {
+        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit();
         }
 

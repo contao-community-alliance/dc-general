@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,10 +22,9 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  *
  * @package DcGeneral\DataDefinition\ModelRelationship
  */
-class ParentChildCondition
-    extends AbstractCondition
-    implements ParentChildConditionInterface
+class ParentChildCondition extends AbstractCondition implements ParentChildConditionInterface
 {
+
     /**
      * The filter rules.
      *
@@ -162,33 +162,27 @@ class ParentChildCondition
     public function parseFilter($filter, $model)
     {
         $arrApplied = array(
-            'operation'   => $filter['operation'],
+            'operation' => $filter['operation'],
         );
 
-        if (isset($filter['local']))
-        {
+        if (isset($filter['local'])) {
             $arrApplied['property'] = $filter['local'];
         }
 
-        if (isset($filter['remote']))
-        {
+        if (isset($filter['remote'])) {
             $arrApplied['value'] = $model->getProperty($filter['remote']);
         }
 
-        if (isset($filter['remote_value']))
-        {
+        if (isset($filter['remote_value'])) {
             $arrApplied['value'] = $filter['remote_value'];
         }
 
-        if (isset($filter['value']))
-        {
+        if (isset($filter['value'])) {
             $arrApplied['value'] = $filter['value'];
         }
 
-        if (isset($filter['children']))
-        {
-            foreach ($filter['children'] as $child)
-            {
+        if (isset($filter['children'])) {
+            foreach ($filter['children'] as $child) {
                 $arrApplied['children'][] = $this->parseFilter($child, $model);
             }
         }
@@ -203,14 +197,12 @@ class ParentChildCondition
      */
     public function getFilter($objParent)
     {
-        if (!$objParent)
-        {
+        if (!$objParent) {
             throw new DcGeneralInvalidArgumentException('No parent model passed.');
         }
 
         $arrResult = array();
-        foreach ($this->getFilterArray() as $child)
-        {
+        foreach ($this->getFilterArray() as $child) {
 
             $arrResult[] = $this->parseFilter($child, $objParent);
         }
@@ -227,36 +219,35 @@ class ParentChildCondition
     {
         $setters = $this->getSetters();
 
-        if (empty($setters) || !is_array($setters))
-        {
-            throw new DcGeneralRuntimeException(sprintf(
-                'No relationship setter defined from %s to %s.',
-                $this->getSourceName(),
-                $this->getDestinationName()
-            ));
+        if (empty($setters) || !is_array($setters)) {
+            throw new DcGeneralRuntimeException(
+                sprintf(
+                    'No relationship setter defined from %s to %s.',
+                    $this->getSourceName(),
+                    $this->getDestinationName()
+                )
+            );
         }
 
-        foreach ($setters as $setter)
-        {
+        foreach ($setters as $setter) {
             if (!(is_array($setter)
                 && (count($setter) == 2)
                 && isset($setter['to_field'])
                 && (isset($setter['from_field']) || isset($setter['value']))
-            ))
-            {
-                throw new DcGeneralRuntimeException(sprintf(
-                    'Invalid relationship setter entry, ensure it is an array containing only "to_field" and
+            )
+            ) {
+                throw new DcGeneralRuntimeException(
+                    sprintf(
+                        'Invalid relationship setter entry, ensure it is an array containing only "to_field" and
                     one of "from_field", "value": %s',
-                    var_export($setter, true)
-                ));
+                        var_export($setter, true)
+                    )
+                );
             }
 
-            if (isset($setter['from_field']))
-            {
+            if (isset($setter['from_field'])) {
                 $objChild->setProperty($setter['to_field'], $objParent->getProperty($setter['from_field']));
-            }
-            else
-            {
+            } else {
                 $objChild->setProperty($setter['to_field'], $setter['value']);
             }
         }
@@ -271,36 +262,35 @@ class ParentChildCondition
     {
         $setters = $this->getSetters();
 
-        if (empty($setters) || !is_array($setters))
-        {
-            throw new DcGeneralRuntimeException(sprintf(
-                'No relationship setter defined from %s to %s.',
-                $this->getSourceName(),
-                $this->getDestinationName()
-            ));
+        if (empty($setters) || !is_array($setters)) {
+            throw new DcGeneralRuntimeException(
+                sprintf(
+                    'No relationship setter defined from %s to %s.',
+                    $this->getSourceName(),
+                    $this->getDestinationName()
+                )
+            );
         }
 
-        foreach ($setters as $setter)
-        {
+        foreach ($setters as $setter) {
             if (!(is_array($setter)
                 && (count($setter) == 2)
                 && isset($setter['to_field'])
                 && (isset($setter['from_field']) || isset($setter['value']))
-            ))
-            {
-                throw new DcGeneralRuntimeException(sprintf(
-                    'Invalid relationship setter entry, ensure it is an array containing only "to_field" and
+            )
+            ) {
+                throw new DcGeneralRuntimeException(
+                    sprintf(
+                        'Invalid relationship setter entry, ensure it is an array containing only "to_field" and
                     one of "from_field", "value": %s',
-                    var_export($setter, true)
-                ));
+                        var_export($setter, true)
+                    )
+                );
             }
 
-            if (isset($setter['from_field']))
-            {
+            if (isset($setter['from_field'])) {
                 $destinationModel->setProperty($setter['to_field'], $sourceModel->getProperty($setter['to_field']));
-            }
-            else
-            {
+            } else {
                 $destinationModel->setProperty($setter['to_field'], $setter['value']);
             }
         }
@@ -312,24 +302,20 @@ class ParentChildCondition
     public function getInverseFilterFor($objChild)
     {
         $arrResult = array();
-        foreach ($this->getInverseFilterArray() as $arrRule)
-        {
+        foreach ($this->getInverseFilterArray() as $arrRule) {
             $arrApplied = array(
-                'operation'   => $arrRule['operation'],
+                'operation' => $arrRule['operation'],
             );
 
-            if (isset($arrRule['remote']))
-            {
+            if (isset($arrRule['remote'])) {
                 $arrApplied['property'] = $arrRule['remote'];
             }
 
-            if (isset($arrRule['local']))
-            {
+            if (isset($arrRule['local'])) {
                 $arrApplied['value'] = $objChild->getProperty($arrRule['local']);
             }
 
-            if (isset($arrRule['value']))
-            {
+            if (isset($arrRule['value'])) {
                 $arrApplied['value'] = $arrRule['value'];
             }
 
@@ -351,15 +337,13 @@ class ParentChildCondition
     protected function prepareRule($rule, $child)
     {
         $applied = array(
-            'operation'   => $rule['operation'],
+            'operation' => $rule['operation'],
         );
 
-        if (in_array($rule['operation'], array('AND', 'OR')))
-        {
+        if (in_array($rule['operation'], array('AND', 'OR'))) {
             $children = array();
 
-            foreach ($rule['children'] as $childRule)
-            {
+            foreach ($rule['children'] as $childRule) {
                 $children[] = $this->prepareRule($childRule, $child);
             }
 
@@ -369,22 +353,16 @@ class ParentChildCondition
         }
 
         // Local is child property name.
-        if (isset($rule['local']))
-        {
+        if (isset($rule['local'])) {
             $applied['value'] = $child->getProperty($rule['local']);
-        }
-        elseif (isset($rule['value']))
-        {
+        } elseif (isset($rule['value'])) {
             $applied['value'] = $rule['value'];
         }
 
         // Remote is parent property name.
-        if (isset($rule['remote']))
-        {
+        if (isset($rule['remote'])) {
             $applied['property'] = $rule['remote'];
-        }
-        elseif (isset($rule['remote_value']))
-        {
+        } elseif (isset($rule['remote_value'])) {
             $applied['remote_value'] = $rule['remote_value'];
         }
 
@@ -399,14 +377,10 @@ class ParentChildCondition
         $filter = $this->prepareRule(
             array(
                 'operation' => 'AND',
-                'children' => $this->getFilterArray()
+                'children'  => $this->getFilterArray()
             ),
             $objChild
         );
         return $this->checkCondition($objParent, $filter);
     }
 }
-
-
-
-

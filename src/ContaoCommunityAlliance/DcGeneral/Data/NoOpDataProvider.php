@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -52,9 +53,9 @@ class NoOpDataProvider implements DataProviderInterface
     {
         $model = new DefaultModel();
         $model->setProviderName(
-            isset($this->arrBaseConfig['name'])
+            (isset($this->arrBaseConfig['name'])
                 ? $this->arrBaseConfig['name']
-                : $this->arrBaseConfig['source']
+                : $this->arrBaseConfig['source'])
         );
         return $model;
     }
@@ -119,8 +120,7 @@ class NoOpDataProvider implements DataProviderInterface
      */
     public function saveEach(CollectionInterface $objItems)
     {
-        foreach ($objItems as $objItem)
-        {
+        foreach ($objItems as $objItem) {
             $this->save($objItem);
         }
     }
@@ -196,20 +196,18 @@ class NoOpDataProvider implements DataProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function sameModels($objModel1 , $objModel2)
+    public function sameModels($objModel1, $objModel2)
     {
         $arrProperties1 = $objModel1->getPropertiesAsArray();
         $arrProperties2 = $objModel2->getPropertiesAsArray();
 
         $arrKeys = array_merge(array_keys($arrProperties1), array_keys($arrProperties2));
         $arrKeys = array_unique($arrKeys);
-        foreach ($arrKeys as $strKey)
-        {
+        foreach ($arrKeys as $strKey) {
             if (!array_key_exists($strKey, $arrProperties1) ||
                 !array_key_exists($strKey, $arrProperties2) ||
                 $arrProperties1[$strKey] != $arrProperties2[$strKey]
-            )
-            {
+            ) {
                 return false;
             }
         }

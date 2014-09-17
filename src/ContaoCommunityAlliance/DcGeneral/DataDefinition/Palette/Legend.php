@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,6 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class Legend implements LegendInterface
 {
+
     /**
      * The palette this legend belongs to.
      *
@@ -65,8 +67,7 @@ class Legend implements LegendInterface
      */
     public function setPalette(PaletteInterface $palette = null)
     {
-        if ($this->palette)
-        {
+        if ($this->palette) {
             $this->palette->removeLegend($this);
         }
 
@@ -141,8 +142,7 @@ class Legend implements LegendInterface
      */
     public function addProperties(array $properties, PropertyInterface $before = null)
     {
-        foreach ($properties as $property)
-        {
+        foreach ($properties as $property) {
             $this->addProperty($property, $before);
         }
         return $this;
@@ -157,12 +157,10 @@ class Legend implements LegendInterface
     {
         $hash = spl_object_hash($property);
 
-        if ($before)
-        {
+        if ($before) {
             $beforeHash = spl_object_hash($before);
 
-            if (isset($this->properties[$beforeHash]))
-            {
+            if (isset($this->properties[$beforeHash])) {
                 $hashes   = array_keys($this->properties);
                 $position = array_search($beforeHash, $hashes);
 
@@ -171,9 +169,7 @@ class Legend implements LegendInterface
                     array($hash => $property),
                     array_slice($this->properties, $position)
                 );
-            }
-            else
-            {
+            } else {
                 throw new DcGeneralInvalidArgumentException(
                     sprintf(
                         'Property %s not contained in legend - can not add %s after it.',
@@ -182,9 +178,7 @@ class Legend implements LegendInterface
                     )
                 );
             }
-        }
-        else
-        {
+        } else {
             $this->properties[$hash] = $property;
         }
 
@@ -206,16 +200,13 @@ class Legend implements LegendInterface
      */
     public function getProperties(ModelInterface $model = null, PropertyValueBag $input = null)
     {
-        if ($model || $input)
-        {
+        if ($model || $input) {
             $selectedProperties = array();
 
-            foreach ($this->properties as $property)
-            {
+            foreach ($this->properties as $property) {
                 $condition = $property->getVisibleCondition();
 
-                if (!$condition || $condition->match($model, $input, $property, $this))
-                {
+                if (!$condition || $condition->match($model, $input, $property, $this)) {
                     $selectedProperties[] = $property;
                 }
             }
@@ -231,10 +222,8 @@ class Legend implements LegendInterface
      */
     public function hasProperty($propertyName)
     {
-        foreach ($this->properties as $property)
-        {
-            if ($property->getName() == $propertyName)
-            {
+        foreach ($this->properties as $property) {
+            if ($property->getName() == $propertyName) {
                 return true;
             }
         }
@@ -249,10 +238,8 @@ class Legend implements LegendInterface
      */
     public function getProperty($propertyName)
     {
-        foreach ($this->properties as $property)
-        {
-            if ($property->getName() == $propertyName)
-            {
+        foreach ($this->properties as $property) {
+            if ($property->getName() == $propertyName) {
                 return $property;
             }
         }
@@ -274,8 +261,7 @@ class Legend implements LegendInterface
         $this->palette = null;
 
         $properties = array();
-        foreach ($this->properties as $property)
-        {
+        foreach ($this->properties as $property) {
             $bobaFett = clone $property;
 
             $properties[spl_object_hash($bobaFett)] = $bobaFett;

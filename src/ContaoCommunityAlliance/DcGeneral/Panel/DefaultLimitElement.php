@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -20,10 +21,9 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
  *
  * @package DcGeneral\Panel
  */
-class DefaultLimitElement
-    extends AbstractElement
-    implements LimitElementInterface
+class DefaultLimitElement extends AbstractElement implements LimitElementInterface
 {
+
     /**
      * The current offset.
      *
@@ -53,13 +53,11 @@ class DefaultLimitElement
     protected function getPersistent()
     {
         $arrValue = array();
-        if ($this->getInputProvider()->hasPersistentValue('limit'))
-        {
+        if ($this->getInputProvider()->hasPersistentValue('limit')) {
             $arrValue = $this->getInputProvider()->getPersistentValue('limit');
         }
 
-        if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue))
-        {
+        if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
             return $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
         }
 
@@ -80,23 +78,18 @@ class DefaultLimitElement
         $arrValue       = array();
         $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
-        if ($this->getInputProvider()->hasPersistentValue('limit'))
-        {
+        if ($this->getInputProvider()->hasPersistentValue('limit')) {
             $arrValue = $this->getInputProvider()->getPersistentValue('limit');
         }
 
-        if ($intOffset)
-        {
-            if (!is_array($arrValue[$definitionName]))
-            {
+        if ($intOffset) {
+            if (!is_array($arrValue[$definitionName])) {
                 $arrValue[$definitionName] = array();
             }
 
             $arrValue[$definitionName]['offset'] = $intOffset;
             $arrValue[$definitionName]['amount'] = $intAmount;
-        }
-        else
-        {
+        } else {
             unset($arrValue[$definitionName]);
         }
 
@@ -108,8 +101,7 @@ class DefaultLimitElement
      */
     public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
     {
-        if (is_null($objElement))
-        {
+        if (is_null($objElement)) {
             $objTempConfig = $this->getOtherConfig();
             $arrTotal      = $this
                 ->getEnvironment()
@@ -122,8 +114,7 @@ class DefaultLimitElement
             $amount = $GLOBALS['TL_CONFIG']['resultsPerPage'];
 
             $input = $this->getInputProvider();
-            if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue('tl_limit'))
-            {
+            if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue('tl_limit')) {
                 $limit  = explode(',', $input->getValue('tl_limit'));
                 $offset = $limit[0];
                 $amount = $limit[1];
@@ -132,21 +123,18 @@ class DefaultLimitElement
             }
 
             $persistent = $this->getPersistent();
-            if ($persistent)
-            {
+            if ($persistent) {
                 $offset = $persistent['offset'];
                 $amount = $persistent['amount'];
 
                 // Hotfix the offset - we also might want to store it persistent.
                 // Another way would be to always stick on the "last" page when we hit the upper limit.
-                if ($offset > $this->intTotal)
-                {
+                if ($offset > $this->intTotal) {
                     $offset = 0;
                 }
             }
 
-            if (!is_null($offset))
-            {
+            if (!is_null($offset)) {
                 $this->setOffset($offset);
                 $this->setAmount($amount);
             }
@@ -173,14 +161,12 @@ class DefaultLimitElement
 
         $optionsTotal = ceil(($this->intTotal / $GLOBALS['TL_CONFIG']['resultsPerPage']));
 
-        for ($i = 0; $i < $optionsTotal; $i++)
-        {
+        for ($i = 0; $i < $optionsTotal; $i++) {
             $first      = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']);
             $thisLimit  = $first . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
             $upperLimit = ($first + $GLOBALS['TL_CONFIG']['resultsPerPage']);
 
-            if ($upperLimit > $this->intTotal)
-            {
+            if ($upperLimit > $this->intTotal) {
                 $upperLimit = $this->intTotal;
             }
 
@@ -192,13 +178,12 @@ class DefaultLimitElement
             );
         }
 
-        if ($this->intTotal > $GLOBALS['TL_CONFIG']['resultsPerPage'])
-        {
+        if ($this->intTotal > $GLOBALS['TL_CONFIG']['resultsPerPage']) {
             $arrOptions[] = array
             (
                 'value'      => 'all',
                 'attributes' =>
-                        (($this->getOffset() == 0) && ($this->getAmount() == $this->intTotal))
+                    (($this->getOffset() == 0) && ($this->getAmount() == $this->intTotal))
                         ? ' selected="selected"'
                         : '',
                 'content'    => $GLOBALS['TL_LANG']['MSC']['filterAll']

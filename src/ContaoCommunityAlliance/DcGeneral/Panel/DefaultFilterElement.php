@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,10 +22,9 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
  *
  * @package DcGeneral\Panel
  */
-class DefaultFilterElement
-    extends AbstractElement
-    implements FilterElementInterface
+class DefaultFilterElement extends AbstractElement implements FilterElementInterface
 {
+
     /**
      * Name of the property this filter reacts on.
      *
@@ -54,17 +54,14 @@ class DefaultFilterElement
     protected function getPersistent()
     {
         $arrValue = array();
-        if ($this->getInputProvider()->hasPersistentValue('filter'))
-        {
+        if ($this->getInputProvider()->hasPersistentValue('filter')) {
             $arrValue = $this->getInputProvider()->getPersistentValue('filter');
         }
 
-        if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue))
-        {
+        if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
             $arrValue = $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
 
-            if (array_key_exists($this->getPropertyName(), $arrValue))
-            {
+            if (array_key_exists($this->getPropertyName(), $arrValue)) {
                 return $arrValue[$this->getPropertyName()];
             }
         }
@@ -84,22 +81,17 @@ class DefaultFilterElement
         $arrValue       = array();
         $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
-        if ($this->getInputProvider()->hasPersistentValue('filter'))
-        {
+        if ($this->getInputProvider()->hasPersistentValue('filter')) {
             $arrValue = $this->getInputProvider()->getPersistentValue('filter');
         }
 
-        if (!is_array($arrValue[$definitionName]))
-        {
+        if (!is_array($arrValue[$definitionName])) {
             $arrValue[$this->getEnvironment()->getDataDefinition()->getName()] = array();
         }
 
-        if ((!is_null($arrValue)) && ($strValue != 'tl_' . $this->getPropertyName()))
-        {
+        if ((!is_null($arrValue)) && ($strValue != 'tl_' . $this->getPropertyName())) {
             $arrValue[$definitionName][$this->getPropertyName()] = $strValue;
-        }
-        else
-        {
+        } else {
             unset($arrValue[$definitionName][$this->getPropertyName()]);
         }
 
@@ -114,50 +106,48 @@ class DefaultFilterElement
         $input = $this->getInputProvider();
         $value = null;
 
-        if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue($this->getPropertyName()))
-        {
+        if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue($this->getPropertyName())) {
             $value = $input->getValue($this->getPropertyName());
 
             $this->setPersistent($value);
         }
 
-        if ($input->hasPersistentValue('filter'))
-        {
+        if ($input->hasPersistentValue('filter')) {
             $persistent = $this->getPersistent();
             $value      = $persistent;
         }
 
-        if (!is_null($value))
-        {
+        if (!is_null($value)) {
             $this->setValue($value);
         }
 
-        if ($this->getPropertyName() && $this->getValue() && ($objElement !== $this))
-        {
+        if ($this->getPropertyName() && $this->getValue() && ($objElement !== $this)) {
             $arrCurrent = $objConfig->getFilter();
-            if (!is_array($arrCurrent))
-            {
+            if (!is_array($arrCurrent)) {
                 $arrCurrent = array();
             }
 
-            $objConfig->setFilter(array_merge_recursive(
-                $arrCurrent,
-                array(
+            $objConfig->setFilter(
+                array_merge_recursive(
+                    $arrCurrent,
                     array(
-                        'operation' => 'AND',
-                        'children' => array(array(
-                            'operation' => '=',
-                            'property' => $this->getPropertyName(),
-                            'value' => $this->getValue()
-                        ))
+                        array(
+                            'operation' => 'AND',
+                            'children'  => array(
+                                array(
+                                    'operation' => '=',
+                                    'property'  => $this->getPropertyName(),
+                                    'value'     => $this->getValue()
+                                )
+                            )
+                        )
                     )
                 )
-            ));
+            );
         }
 
         // Finally load the filter options.
-        if (is_null($objElement))
-        {
+        if (is_null($objElement)) {
             $objTempConfig = $this->getOtherConfig();
             $objTempConfig->setFields(array($this->getPropertyName()));
 
@@ -168,8 +158,7 @@ class DefaultFilterElement
 
             $arrOptions = array();
             /** @var ModelInterface $objOption */
-            foreach ($objFilterOptions as $filterKey => $filterValue)
-            {
+            foreach ($objFilterOptions as $filterKey => $filterValue) {
                 $arrOptions[(string)$filterKey] = $filterValue;
             }
 
@@ -199,8 +188,7 @@ class DefaultFilterElement
             )
         );
 
-        foreach ($this->arrfilterOptions as $key => $value)
-        {
+        foreach ($this->arrfilterOptions as $key => $value) {
             $arrOptions[] = array
             (
                 'value'      => $key,

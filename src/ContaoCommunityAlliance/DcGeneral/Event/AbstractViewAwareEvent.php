@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -20,9 +21,7 @@ use Symfony\Component\EventDispatcher\Event;
  *
  * @package DcGeneral\Event
  */
-class AbstractViewAwareEvent
-    extends AbstractEnvironmentAwareEvent
-    implements ViewAwareInterface
+class AbstractViewAwareEvent extends AbstractEnvironmentAwareEvent implements ViewAwareInterface
 {
     /**
      * {@inheritdoc}

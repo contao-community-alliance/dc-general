@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -35,11 +36,9 @@ abstract class AbstractCondition
      */
     protected static function checkAndFilter($model, $filter)
     {
-        foreach ($filter as $child)
-        {
+        foreach ($filter as $child) {
             // AND => first false means false.
-            if (!self::checkCondition($model, $child))
-            {
+            if (!self::checkCondition($model, $child)) {
                 return false;
             }
         }
@@ -57,11 +56,9 @@ abstract class AbstractCondition
      */
     protected static function checkOrFilter($model, $filter)
     {
-        foreach ($filter as $child)
-        {
+        foreach ($filter as $child) {
             // OR => first true means true.
-            if (self::checkCondition($model, $child))
-            {
+            if (self::checkCondition($model, $child)) {
                 return true;
             }
         }
@@ -79,8 +76,7 @@ abstract class AbstractCondition
      */
     protected static function getConditionValue($condition, $parent)
     {
-        if (isset($condition['remote_value']))
-        {
+        if (isset($condition['remote_value'])) {
             return $condition['remote_value'];
         }
 
@@ -100,15 +96,7 @@ abstract class AbstractCondition
      */
     public static function checkCondition(ModelInterface $objParentModel, $arrFilter)
     {
-        // FIXME: backwards compat - remove when done.
-        if (isset($arrFilter['childs']) && is_array($arrFilter['childs']))
-        {
-            trigger_error('Filter array uses deprecated entry "childs", please use "children" instead.', E_USER_DEPRECATED);
-            $arrFilter['children'] = $arrFilter['childs'];
-        }
-
-        switch ($arrFilter['operation'])
-        {
+        switch ($arrFilter['operation']) {
             case 'AND':
                 return self::checkAndFilter($objParentModel, $arrFilter['children']);
 

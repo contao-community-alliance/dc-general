@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,8 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
  *
  * @package DcGeneral\Contao\View\Contao2BackendView\Event
  */
-class ResolveWidgetErrorMessageEvent
-    extends AbstractEnvironmentAwareEvent
+class ResolveWidgetErrorMessageEvent extends AbstractEnvironmentAwareEvent
 {
     const NAME = 'dc-general.view.widget.resolve-error-message';
 

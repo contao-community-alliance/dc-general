@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    DcGeneral
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,8 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  *
  * @package DcGeneral\DataDefinition\ModelRelationship\FilterBuilder
  */
-class AndFilterBuilder
-    extends FilterBuilderWithChildren
+class AndFilterBuilder extends FilterBuilderWithChildren
 {
     /**
      * Create a new instance.
@@ -48,15 +48,12 @@ class AndFilterBuilder
      */
     public function append($filters)
     {
-        if ($filters instanceof FilterBuilder)
-        {
+        if ($filters instanceof FilterBuilder) {
             $filters = $filters->getFilter();
         }
 
-        if ($filters instanceof AndFilterBuilder)
-        {
-            foreach ((clone $filters) as $filter)
-            {
+        if ($filters instanceof AndFilterBuilder) {
+            foreach ((clone $filters) as $filter) {
                 $this->add(clone $filter);
             }
 

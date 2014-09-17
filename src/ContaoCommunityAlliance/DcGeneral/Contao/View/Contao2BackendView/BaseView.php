@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -85,6 +86,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class BaseView implements BackendViewInterface, EventSubscriberInterface
 {
+
     /**
      * The error message format string to use when a method is not implemented.
      *
@@ -131,18 +133,17 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalDriver.css';
 
-        if ($event->getEnvironment()->getDataDefinition()->getName() !== $this->environment->getDataDefinition()->getName()
+        if ($event->getEnvironment()->getDataDefinition()->getName() !== $this->environment->getDataDefinition(
+            )->getName()
             || $event->getResponse() !== null
-        )
-        {
+        ) {
             return;
         }
 
         $action = $event->getAction();
         $name   = $action->getName();
 
-        switch ($name)
-        {
+        switch ($name) {
             case 'copy':
             case 'copyAll':
             case 'create':
@@ -166,12 +167,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             default:
         }
 
-        if ($this->getViewSection()->getModelCommands()->hasCommandNamed($name))
-        {
+        if ($this->getViewSection()->getModelCommands()->hasCommandNamed($name)) {
             $command = $this->getViewSection()->getModelCommands()->getCommandNamed($name);
 
-            if ($command instanceof ToggleCommandInterface)
-            {
+            if ($command instanceof ToggleCommandInterface) {
                 $this->toggle($name);
             }
         }
@@ -183,8 +182,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function setEnvironment(EnvironmentInterface $environment)
     {
-        if ($this->environment)
-        {
+        if ($this->environment) {
             $this->environment->getEventPropagator()->removeSubscriber($this);
         }
 
@@ -280,32 +278,32 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $environment = $this->getEnvironment();
         $input       = $environment->getInputProvider();
 
-        if ($input->hasParameter('table') && $input->hasParameter('pid'))
-        {
-            if ($input->hasParameter('pid'))
-            {
-                $event = new RedirectEvent(sprintf(
+        if ($input->hasParameter('table') && $input->hasParameter('pid')) {
+            if ($input->hasParameter('pid')) {
+                $event = new RedirectEvent(
+                    sprintf(
                         'contao/main.php?do=%s&table=%s&pid=%s',
                         $input->getParameter('do'),
                         $input->getParameter('table'),
                         $input->getParameter('pid')
-                ));
+                    )
+                );
+            } else {
+                $event = new RedirectEvent(
+                    sprintf(
+                        'contao/main.php?do=%s&table=%s',
+                        $input->getParameter('do'),
+                        $input->getParameter('table')
+                    )
+                );
             }
-            else
-            {
-                $event = new RedirectEvent(sprintf(
-                    'contao/main.php?do=%s&table=%s',
-                    $input->getParameter('do'),
-                    $input->getParameter('table')
-                ));
-            }
-        }
-        else
-        {
-            $event = new RedirectEvent(sprintf(
-                'contao/main.php?do=%s',
-                $input->getParameter('do')
-            ));
+        } else {
+            $event = new RedirectEvent(
+                sprintf(
+                    'contao/main.php?do=%s',
+                    $input->getParameter('do')
+                )
+            );
         }
 
         $environment->getEventPropagator()->propagate(ContaoEvents::CONTROLLER_REDIRECT, $event);
@@ -332,28 +330,25 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Retrieve the currently active
+     * Retrieve the currently active sorting.
      *
-     *  @return GroupAndSortingDefinitionInterface
+     * @return GroupAndSortingDefinitionInterface
      */
     protected function getCurrentSorting()
     {
         $sorting = null;
 
-        foreach ($this->getPanel() as $panel)
-        {
+        foreach ($this->getPanel() as $panel) {
             /** @var PanelInterface $panel */
             $sort = $panel->getElement('sort');
-            if ($sort)
-            {
+            if ($sort) {
                 /** @var SortElementInterface $sort */
                 return $sort->getSelectedDefinition();
             }
         }
 
         $definition = $this->getViewSection()->getListingConfig()->getGroupAndSortingDefinition();
-        if ($definition->hasDefault())
-        {
+        if ($definition->hasDefault()) {
             return $definition->getDefault();
         }
 
@@ -373,21 +368,18 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         // If no sorting defined, exit.
         if ((!$sorting)
             || (!$sorting->getCount())
-            || $sorting->get(0)->getSortingMode() === GroupAndSortingInformationInterface::SORT_RANDOM)
-        {
+            || $sorting->get(0)->getSortingMode() === GroupAndSortingInformationInterface::SORT_RANDOM
+        ) {
             return null;
         }
         $firstSorting = $sorting->get(0);
 
         // Use the information from the property, if given.
-        if ($firstSorting->getGroupingMode() != '')
-        {
+        if ($firstSorting->getGroupingMode() != '') {
             $groupMode   = $firstSorting->getGroupingMode();
             $groupLength = $firstSorting->getGroupingLength();
-        }
-        // No sorting? No grouping!
-        else
-        {
+        } else {
+            // No sorting? No grouping!
             $groupMode   = GroupAndSortingInformationInterface::GROUP_NONE;
             $groupLength = 0;
         }
@@ -423,38 +415,28 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $propExtra  = $property->getExtra();
 
         // No property? Get out!
-        if (!$property)
-        {
+        if (!$property) {
             return '-';
         }
 
         $evaluation = $property->getExtra();
         $remoteNew  = '';
 
-        if ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple'])
-        {
+        if ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple']) {
             $remoteNew = ($value != '') ? ucfirst($this->translate('MSC.yes')) : ucfirst($this->translate('MSC.no'));
-        }
-        // TODO: refactor foreignKey is yet undefined.
-        elseif (false && $property->getForeignKey())
-        {
-            // TODO: case handling.
-            if ($objParentModel->hasProperties())
-            {
+        } elseif (false && $property->getForeignKey()) {
+            // TODO: refactor foreignKey is yet undefined.
+            if ($objParentModel->hasProperties()) {
                 $remoteNew = $objParentModel->getProperty('value');
             }
-        }
-        elseif ($groupMode != GroupAndSortingInformationInterface::GROUP_NONE)
-        {
-            switch ($groupMode)
-            {
+        } elseif ($groupMode != GroupAndSortingInformationInterface::GROUP_NONE) {
+            switch ($groupMode) {
                 case GroupAndSortingInformationInterface::GROUP_CHAR:
                     $remoteNew = ($value != '') ? ucfirst(utf8_substr($value, 0, $groupLength)) : '-';
                     break;
 
                 case GroupAndSortingInformationInterface::GROUP_DAY:
-                    if ($value instanceof \DateTime)
-                    {
+                    if ($value instanceof \DateTime) {
                         $value = $value->getTimestamp();
                     }
 
@@ -465,23 +447,20 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                     break;
 
                 case GroupAndSortingInformationInterface::GROUP_MONTH:
-                    if ($value instanceof \DateTime)
-                    {
+                    if ($value instanceof \DateTime) {
                         $value = $value->getTimestamp();
                     }
 
                     $remoteNew = ($value != '') ? date('Y-m', $value) : '-';
                     $intMonth  = ($value != '') ? (date('m', $value) - 1) : '-';
 
-                    if ($month = $this->translate('MONTHS' . $intMonth))
-                    {
+                    if ($month = $this->translate('MONTHS' . $intMonth)) {
                         $remoteNew = ($value != '') ? $month . ' ' . date('Y', $value) : '-';
                     }
                     break;
 
                 case GroupAndSortingInformationInterface::GROUP_YEAR:
-                    if ($value instanceof \DateTime)
-                    {
+                    if ($value instanceof \DateTime) {
                         $value = $value->getTimestamp();
                     }
 
@@ -490,34 +469,23 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
                 default:
             }
-        }
-        else
-        {
-            if ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple'])
-            {
+        } else {
+            if ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple']) {
                 $remoteNew = ($value != '') ? $field : '';
-            }
-            elseif (isset($propExtra['reference']))
-            {
+            } elseif (isset($propExtra['reference'])) {
                 $remoteNew = $propExtra['reference'][$value];
-            }
-            elseif (array_is_assoc($property->getOptions()))
-            {
+            } elseif (array_is_assoc($property->getOptions())) {
                 $options   = $property->getOptions();
                 $remoteNew = $options[$value];
-            }
-            else
-            {
+            } else {
                 $remoteNew = $value;
             }
 
-            if (is_array($remoteNew))
-            {
+            if (is_array($remoteNew)) {
                 $remoteNew = $remoteNew[0];
             }
 
-            if (empty($remoteNew))
-            {
+            if (empty($remoteNew)) {
                 $remoteNew = '-';
             }
         }
@@ -550,12 +518,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     protected function getButtonLabel($strButton)
     {
         $definition = $this->getEnvironment()->getDataDefinition();
-        if (($label = $this->translate($strButton, $definition->getName())) !== $strButton)
-        {
+        if (($label = $this->translate($strButton, $definition->getName())) !== $strButton) {
             return $label;
-        }
-        elseif (($label = $this->translate('MSC.' . $strButton)) !== $strButton)
-        {
+        } elseif (($label = $this->translate('MSC.' . $strButton)) !== $strButton) {
             return $label;
         }
 
@@ -584,29 +549,26 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $this->getButtonLabel('saveNclose')
         );
 
-        if (!$this->isPopup() && $basicDefinition->isCreatable())
-        {
+        if (!$this->isPopup() && $basicDefinition->isCreatable()) {
             $buttons['saveNcreate'] = sprintf(
-                '<input type="submit" name="saveNcreate" id="saveNcreate" class="tl_submit" accesskey="n" value="%s" />',
+                '<input type="submit" name="saveNcreate" id="saveNcreate" class="tl_submit" accesskey="n" ' .
+                ' value="%s" />',
                 $this->getButtonLabel('saveNcreate')
             );
         }
 
         // TODO: unknown input param s2e - I guess it means "switch to edit" but from which view used?
-        if ($this->getEnvironment()->getInputProvider()->hasParameter('s2e'))
-        {
+        if ($this->getEnvironment()->getInputProvider()->hasParameter('s2e')) {
             $buttons['saveNedit'] = sprintf(
                 '<input type="submit" name="saveNedit" id="saveNedit" class="tl_submit" accesskey="e" value="%s" />',
                 $this->getButtonLabel('saveNedit')
             );
-        }
-        elseif(!$this->isPopup()
+        } elseif (!$this->isPopup()
             && (($basicDefinition->getMode() == BasicDefinitionInterface::MODE_PARENTEDLIST)
                 || strlen($basicDefinition->getParentDataProvider())
                 || $basicDefinition->isSwitchToEditEnabled()
             )
-        )
-        {
+        ) {
             $buttons['saveNback'] = sprintf(
                 '<input type="submit" name="saveNback" id="saveNback" class="tl_submit" accesskey="g" value="%s" />',
                 $this->getButtonLabel('saveNback')
@@ -636,40 +598,36 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $basicDefinition = $definition->getBasicDefinition();
         $buttons         = array();
 
-        if ($basicDefinition->isDeletable())
-        {
+        if ($basicDefinition->isDeletable()) {
             $buttons['delete'] = sprintf(
-                '<input
-                type="submit"
-                name="delete"
-                id="delete"
-                class="tl_submit"
-                accesskey="d"
-                onclick="return confirm(\'%s\')"
-                value="%s" />',
+                '<input' .
+                'type="submit"' .
+                'name="delete"' .
+                'id="delete"' .
+                'class="tl_submit"' .
+                'accesskey="d"' .
+                'onclick="return confirm(\'%s\')"' .
+                'value="%s" />',
                 $GLOBALS['TL_LANG']['MSC']['delAllConfirm'],
                 specialchars($this->translate('MSC.deleteSelected'))
             );
         }
 
-        if ($basicDefinition->isEditable())
-        {
+        if ($basicDefinition->isEditable()) {
             $buttons['cut'] = sprintf(
                 '<input type="submit" name="cut" id="cut" class="tl_submit" accesskey="x" value="%s">',
                 specialchars($this->translate('MSC.moveSelected'))
             );
         }
 
-        if ($basicDefinition->isCreatable())
-        {
+        if ($basicDefinition->isCreatable()) {
             $buttons['copy'] = sprintf(
                 '<input type="submit" name="copy" id="copy" class="tl_submit" accesskey="c" value="%s">',
                 specialchars($this->translate('MSC.copySelected'))
             );
         }
 
-        if ($basicDefinition->isEditable())
-        {
+        if ($basicDefinition->isEditable()) {
             $buttons['override'] = sprintf(
                 '<input type="submit" name="override" id="override" class="tl_submit" accesskey="v" value="%s">',
                 specialchars($this->translate('MSC.overrideSelected'))
@@ -713,8 +671,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $objClipboard = $this->getEnvironment()->getClipboard();
 
         // Reset Clipboard.
-        if ($objInput->getParameter('clipboard') == '1')
-        {
+        if ($objInput->getParameter('clipboard') == '1') {
             // Check clipboard from session.
             $objClipboard
                 ->loadFrom($this->getEnvironment())
@@ -722,27 +679,24 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 ->saveTo($this->getEnvironment());
 
             $this->redirectHome();
-        }
-        // Push some entry into clipboard.
-        elseif ($id = $objInput->getParameter('source'))
-        {
+        } elseif ($id = $objInput->getParameter('source')) {
+            // Push some entry into clipboard.
             $idDetails   = IdSerializer::fromSerialized($id);
             $objDataProv = $this->getEnvironment()->getDataProvider($idDetails->getDataProviderName());
 
-            if ($action && $action == 'cut' || $objInput->getParameter('act') == 'cut')
-            {
+            if ($action && $action == 'cut' || $objInput->getParameter('act') == 'cut') {
                 $arrIgnored = array($id);
 
                 // We have to ignore all children of this element in mode 5 (to prevent circular references).
-                if ($this->getDataDefinition()->getBasicDefinition()->getMode() == BasicDefinitionInterface::MODE_HIERARCHICAL)
-                {
+                if ($this->getDataDefinition()->getBasicDefinition()->getMode() ==
+                    BasicDefinitionInterface::MODE_HIERARCHICAL
+                ) {
                     $objModel  = $objDataProv->fetch($objDataProv->getEmptyConfig()->setId($idDetails->getId()));
                     $ignoredId = IdSerializer::fromValues($objModel->getProviderName(), 0);
 
                     // FIXME: this can return ids originating from another data provider, we have to alter this to
-                    // FIXME: return valid models instead of the ids or a tuple of data provider name and id.
-                    foreach ($this->getEnvironment()->getController()->assembleAllChildrenFrom($objModel) as $childId)
-                    {
+                    //        return valid models instead of the ids or a tuple of data provider name and id.
+                    foreach ($this->getEnvironment()->getController()->assembleAllChildrenFrom($objModel) as $childId) {
                         $arrIgnored[] = $ignoredId->setId($childId)->getSerialized();
                     }
                 }
@@ -756,9 +710,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 $objClipboard->saveTo($this->getEnvironment());
 
                 $this->redirectHome();
-            }
-            elseif ($action && $action == 'copy' || $objInput->getParameter('act') == 'copy')
-            {
+            } elseif ($action && $action == 'copy' || $objInput->getParameter('act') == 'copy') {
                 $arrIgnored     = array($id);
                 $objContainedId = trimsplit(',', $objInput->getParameter('children'));
 
@@ -767,8 +719,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                     ->copy($id)
                     ->setCircularIds($arrIgnored);
 
-                if (is_array($objContainedId) && !empty($objContainedId))
-                {
+                if (is_array($objContainedId) && !empty($objContainedId)) {
                     $objClipboard->setContainedIds($objContainedId);
                 }
 
@@ -776,9 +727,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 $objClipboard->saveTo($this->getEnvironment());
 
                 $this->redirectHome();
-            }
-            elseif ($action && $action == 'create' || $objInput->getParameter('act') == 'create')
-            {
+            } elseif ($action && $action == 'create' || $objInput->getParameter('act') == 'create') {
                 $arrIgnored     = array($id);
                 $objContainedId = trimsplit(',', $objInput->getParameter('children'));
 
@@ -787,8 +736,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                     ->create($id)
                     ->setCircularIds($arrIgnored);
 
-                if (is_array($objContainedId) && !empty($objContainedId))
-                {
+                if (is_array($objContainedId) && !empty($objContainedId)) {
                     $objClipboard->setContainedIds($objContainedId);
                 }
 
@@ -834,41 +782,34 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $mixID           = $idDetails ? $idDetails->getId() : null;
         $arrLanguage     = $environment->getController()->getSupportedLanguages($mixID);
 
-        if (!$arrLanguage)
-        {
+        if (!$arrLanguage) {
             return;
         }
 
         // Load language from Session.
         $arrSession = $inputProvider->getPersistentValue('dc_general');
-        if (!is_array($arrSession))
-        {
+        if (!is_array($arrSession)) {
             $arrSession = array();
         }
         /** @var MultiLanguageDataProviderInterface $objDataProvider */
 
         // Try to get the language from session.
-        if (isset($arrSession['ml_support'][$strProviderName][$mixID]))
-        {
+        if (isset($arrSession['ml_support'][$strProviderName][$mixID])) {
             $strCurrentLanguage = $arrSession['ml_support'][$strProviderName][$mixID];
-        }
-        else
-        {
+        } else {
             $strCurrentLanguage = $GLOBALS['TL_LANGUAGE'];
         }
 
         // Get/Check the new language.
         if ((strlen($inputProvider->getValue('language')) != 0)
-            && ($inputProvider->getValue('FORM_SUBMIT') == 'language_switch'))
-        {
-            if (array_key_exists($inputProvider->getValue('language'), $arrLanguage))
-            {
+            && ($inputProvider->getValue('FORM_SUBMIT') == 'language_switch')
+        ) {
+            if (array_key_exists($inputProvider->getValue('language'), $arrLanguage)) {
                 $strCurrentLanguage = $inputProvider->getValue('language');
             }
         }
 
-        if (!array_key_exists($strCurrentLanguage, $arrLanguage))
-        {
+        if (!array_key_exists($strCurrentLanguage, $arrLanguage)) {
             $strCurrentLanguage = $objDataProvider->getFallbackLanguage($mixID)->getLanguageCode();
         }
 
@@ -901,12 +842,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         /** @var \ContaoCommunityAlliance\DcGeneral\Controller\Ajax $handler */
         // Fallback to Contao for ajax requests we do not know.
-        if (version_compare(VERSION, '3.0', '>='))
-        {
+        if (version_compare(VERSION, '3.0', '>=')) {
             $handler = new Ajax3X();
-        }
-        else
-        {
+        } else {
             $handler = new Ajax2X();
         }
         $handler->executePostActions(new DcCompat($this->getEnvironment()));
@@ -917,8 +855,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function copy()
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
-        {
+        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit();
         }
 
@@ -932,8 +869,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function copyAll()
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
-        {
+        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit();
         }
 
@@ -949,16 +885,14 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function create()
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
-        {
+        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit();
         }
 
         $model = $this->createEmptyModelWithDefaults();
 
         $input = $this->environment->getInputProvider();
-        if ($input->hasParameter('after'))
-        {
+        if ($input->hasParameter('after')) {
             $after          = IdSerializer::fromSerialized($input->getParameter('after'));
             $dataProvider   = $this->environment->getDataProvider($after->getDataProviderName());
             $previous       = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($after->getId()));
@@ -974,8 +908,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             }
         }
 
-        $preFunction = function($environment, $model)
-        {
+        $preFunction = function ($environment, $model) {
             /** @var EnvironmentInterface $environment */
             $copyEvent = new PreCreateModelEvent($environment, $model);
             $environment->getEventPropagator()->propagate(
@@ -987,8 +920,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             );
         };
 
-        $postFunction = function($environment, $model)
-        {
+        $postFunction = function ($environment, $model) {
             /** @var EnvironmentInterface $environment */
             $copyEvent = new PostCreateModelEvent($environment, $model);
             $environment->getEventPropagator()->propagate(
@@ -1008,8 +940,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function cut()
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
-        {
+        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit();
         }
 
@@ -1034,7 +965,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     protected function getManualSortingProperty()
     {
         // FIXME: provide an API method in the data definition for this.
-        return $this->getEnvironment()->getDataProvider()->fieldExists('sorting') ? 'sorting': '';
+        return $this->getEnvironment()->getDataProvider()->fieldExists('sorting') ? 'sorting' : '';
     }
 
     /**
@@ -1051,31 +982,24 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $models       = $dataProvider->getEmptyCollection();
         $clipboard    = $this->getEnvironment()->getClipboard();
 
-        foreach ($clipboard->getContainedIds() as $id)
-        {
-            if ($id === null)
-            {
+        foreach ($clipboard->getContainedIds() as $id) {
+            if ($id === null) {
                 $model = $this->createEmptyModelWithDefaults();
                 $models->push($model);
 
-                if ($parentId = $clipboard->getParent())
-                {
+                if ($parentId = $clipboard->getParent()) {
                     $id           = IdSerializer::fromSerialized($parentId);
                     $dataProvider = $environment->getDataProvider($id->getDataProviderName());
                     $parentModel  = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($id->getId()));
                     $environment->getController()->setParent($model, $parentModel);
                 }
-            }
-            elseif (is_string($id))
-            {
+            } elseif (is_string($id)) {
                 $id           = IdSerializer::fromSerialized($id);
                 $dataProvider = $environment->getDataProvider($id->getDataProviderName());
                 $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($id->getId()));
 
-                if ($model)
-                {
-                    if ($clone)
-                    {
+                if ($model) {
+                    if ($clone) {
                         // Trigger the pre duplicate event.
                         $duplicateEvent = new PreDuplicateModelEvent($environment, $model);
                         $environment->getEventPropagator()->propagate(
@@ -1137,8 +1061,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             ? IdSerializer::fromSerialized($input->getParameter('into'))
             : null;
 
-        if ($input->getParameter('mode') == 'create')
-        {
+        if ($input->getParameter('mode') == 'create') {
             $dataProvider = $environment->getDataProvider();
 
             $models = $dataProvider->getEmptyCollection();
@@ -1149,8 +1072,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $this->redirectHome();
         }
 
-        if ($source)
-        {
+        if ($source) {
             $dataProvider = $environment->getDataProvider($source->getDataProviderName());
 
             $filterConfig = $dataProvider->getEmptyConfig();
@@ -1166,20 +1088,16 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             );
 
             $models = $dataProvider->fetchAll($filterConfig);
-        }
-        else
-        {
+        } else {
             $models = $this->getModelsFromClipboard($clipboard->isCopy());
 
-            if ($clipboard->isCopy())
-            {
+            if ($clipboard->isCopy()) {
                 // FIXME: recursive copy is not implemented yet!
             }
         }
 
         // Trigger for each model the pre persist event.
-        foreach ($models as $model)
-        {
+        foreach ($models as $model) {
             $event = new PrePasteModelEvent($environment, $model);
             $environment->getEventPropagator()->propagate(
                 $event::NAME,
@@ -1188,30 +1106,22 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             );
         }
 
-        if ($after && $after->getId())
-        {
+        if ($after && $after->getId()) {
             $dataProvider = $environment->getDataProvider($after->getDataProviderName());
             $previous     = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($after->getId()));
             $environment->getController()->pasteAfter($previous, $models, $this->getManualSortingProperty());
-        }
-        elseif ($into && $into->getId())
-        {
+        } elseif ($into && $into->getId()) {
             $dataProvider = $environment->getDataProvider($into->getDataProviderName());
             $parent       = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($into->getId()));
             $environment->getController()->pasteInto($parent, $models, $this->getManualSortingProperty());
-        }
-        elseif (($after && $after->getId() == '0') || ($into && $into->getId() == '0'))
-        {
+        } elseif (($after && $after->getId() == '0') || ($into && $into->getId() == '0')) {
             $environment->getController()->pasteTop($models, $this->getManualSortingProperty());
-        }
-        else
-        {
+        } else {
             throw new DcGeneralRuntimeException('Invalid parameters.');
         }
 
         // Trigger for each model the past persist event.
-        foreach ($models as $model)
-        {
+        foreach ($models as $model) {
             $event = new PostPasteModelEvent($environment, $model);
             $environment->getEventPropagator()->propagate(
                 $event::NAME,
@@ -1220,8 +1130,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             );
         }
 
-        if (!$source)
-        {
+        if (!$source) {
             $clipboard
                 ->clear()
                 ->saveTo($environment);
@@ -1243,19 +1152,18 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function delete()
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
-        {
+        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit();
         }
 
         // Check if is it allowed to delete a record.
-        if (!$this->getEnvironment()->getDataDefinition()->getBasicDefinition()->isDeletable())
-        {
+        if (!$this->getEnvironment()->getDataDefinition()->getBasicDefinition()->isDeletable()) {
             $this->getEnvironment()->getEventPropagator()->propagate(
                 ContaoEvents::SYSTEM_LOG,
                 new LogEvent(
                     sprintf(
-                        'Table "%s" is not deletable', 'DC_General - DefaultController - delete()',
+                        'Table "%s" is not deletable',
+                        'DC_General - DefaultController - delete()',
                         $this->getEnvironment()->getDataDefinition()->getName()
                     ),
                     __CLASS__ . '::delete()',
@@ -1274,8 +1182,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
         $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
-        if (!$model->getId())
-        {
+        if (!$model->getId()) {
             throw new DcGeneralRuntimeException(
                 'Could not load model with id ' . $environment->getInputProvider()->getParameter('id')
             );
@@ -1348,8 +1255,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function move()
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
-        {
+        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit();
         }
 
@@ -1362,8 +1268,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function undo()
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
-        {
+        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit();
         }
 
@@ -1385,17 +1290,14 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $environment   = $this->getEnvironment();
         $inputProvider = $environment->getInputProvider();
 
-        if ($inputProvider->hasValue('save'))
-        {
+        if ($inputProvider->hasValue('save')) {
             $newUrlEvent = new AddToUrlEvent('act=edit&id=' . IdSerializer::fromModel($model)->getSerialized());
             $environment->getEventPropagator()->propagate(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
             $environment->getEventPropagator()->propagate(
                 ContaoEvents::CONTROLLER_REDIRECT,
                 new RedirectEvent($newUrlEvent->getUrl())
             );
-        }
-        elseif ($inputProvider->hasValue('saveNclose'))
-        {
+        } elseif ($inputProvider->hasValue('saveNclose')) {
             setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
             // @codingStandardsIgnoreStart - we have to clear the messages - direct access to $_SESSION is ok.
@@ -1410,9 +1312,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 ContaoEvents::CONTROLLER_REDIRECT,
                 new RedirectEvent($newUrlEvent->getReferrerUrl())
             );
-        }
-        elseif ($inputProvider->hasValue('saveNcreate'))
-        {
+        } elseif ($inputProvider->hasValue('saveNcreate')) {
             setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
             // @codingStandardsIgnoreStart - we have to clear the messages - direct access to $_SESSION is ok.
@@ -1429,9 +1329,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 ContaoEvents::CONTROLLER_REDIRECT,
                 new RedirectEvent($newUrlEvent->getUrl())
             );
-        }
-        elseif ($inputProvider->hasValue('saveNback'))
-        {
+        } elseif ($inputProvider->hasValue('saveNback')) {
             echo vsprintf($this->notImplMsg, 'Save and go back');
             exit;
         }
@@ -1453,8 +1351,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $definition    = $environment->getDataDefinition();
         $inputProvider = $environment->getInputProvider();
 
-        if (!$inputProvider->hasParameter('id'))
-        {
+        if (!$inputProvider->hasParameter('id')) {
             return;
         }
 
@@ -1465,12 +1362,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         if ($dataProviderInformation->isVersioningEnabled()
             && ($inputProvider->getValue('FORM_SUBMIT') === 'tl_version')
-            && ($modelVersion = $inputProvider->getValue('version')) !== null)
-        {
+            && ($modelVersion = $inputProvider->getValue('version')) !== null
+        ) {
             $model = $dataProvider->getVersion($modelId->getId(), $modelVersion);
 
-            if ($model === null)
-            {
+            if ($model === null) {
                 $message = sprintf(
                     'Could not load version %s of record ID %s from %s',
                     $modelVersion,
@@ -1521,12 +1417,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $properties         = $propertyDefinition->getProperties();
         $model              = $dataProvider->getEmptyModel();
 
-        foreach ($properties as $property)
-        {
+        foreach ($properties as $property) {
             $propName = $property->getName();
 
-            if ($property->getDefaultValue() !== null)
-            {
+            if ($property->getDefaultValue() !== null) {
                 $model->setProperty($propName, $property->getDefaultValue());
             }
         }
@@ -1550,8 +1444,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $dataProviderDefinition  = $definition->getDataProviderDefinition();
         $dataProviderInformation = $dataProviderDefinition->getInformation($model->getProviderName());
 
-        if (!$dataProviderInformation->isVersioningEnabled())
-        {
+        if (!$dataProviderInformation->isVersioningEnabled()) {
             return;
         }
 
@@ -1559,8 +1452,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $currentVersion = $dataProvider->getActiveVersion($modelId);
         if (!$currentVersion
             || !$dataProvider->sameModels($model, $dataProvider->getVersion($modelId, $currentVersion))
-        )
-        {
+        ) {
             $user = \BackendUser::getInstance();
 
             $dataProvider->saveVersion($model, $user->username);
@@ -1589,12 +1481,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $this->checkRestoreVersion();
 
-        if ($modelId && $modelId->getId())
-        {
+        if ($modelId && $modelId->getId()) {
             $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-        }
-        else
-        {
+        } else {
             $model = $this->createEmptyModelWithDefaults();
         }
 
@@ -1649,8 +1538,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         );
 
         // Check if table is editable.
-        if (!$basicDefinition->isEditable())
-        {
+        if (!$basicDefinition->isEditable()) {
             $message = 'DataContainer ' . $definition->getName() . ' is not editable';
             $environment->getEventPropagator()->propagate(
                 ContaoEvents::SYSTEM_LOG,
@@ -1660,8 +1548,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         // Check if table is closed but we are adding a new item.
-        if (empty($modelId) && !$basicDefinition->isCreatable())
-        {
+        if (empty($modelId) && !$basicDefinition->isCreatable()) {
             $message = 'DataContainer ' . $definition->getName() . ' is closed';
             $environment->getEventPropagator()->propagate(
                 ContaoEvents::SYSTEM_LOG,
@@ -1677,8 +1564,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $propertyValues = $this->processInput($widgetManager);
         $errors         = array();
-        if ($blnSubmitted && $propertyValues)
-        {
+        if ($blnSubmitted && $propertyValues) {
             // Pass 2: Determine the real palette we want to work on if we have some data submitted.
             $palette = $palettesDefinition->findPalette($model, $propertyValues);
 
@@ -1688,21 +1574,20 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $arrFieldSets = array();
         $blnFirst     = true;
-        foreach ($palette->getLegends() as $legend)
-        {
-            $legendName = $environment->getTranslator()->translate($legend->getName() . '_legend', $definition->getName());
+        foreach ($palette->getLegends() as $legend) {
+            $legendName = $environment->getTranslator()->translate(
+                $legend->getName() . '_legend',
+                $definition->getName()
+            );
             $fields     = array();
             $properties = $legend->getProperties($model, $propertyValues);
 
-            if (!$properties)
-            {
+            if (!$properties) {
                 continue;
             }
 
-            foreach ($properties as $property)
-            {
-                if (!$propertyDefinitions->hasProperty($property->getName()))
-                {
+            foreach ($properties as $property) {
+                if (!$propertyDefinitions->hasProperty($property->getName())) {
                     throw new DcGeneralInvalidArgumentException(
                         sprintf(
                             'Property %s is mentioned in palette but not defined in propertyDefinition.',
@@ -1716,8 +1601,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                     && $propertyValues
                     && $propertyValues->hasPropertyValue($property->getName())
                     && $propertyValues->isPropertyValueInvalid($property->getName())
-                )
-                {
+                ) {
                     $errors = array_merge($errors, $propertyValues->getPropertyValueErrors($property->getName()));
                 }
 
@@ -1733,13 +1617,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $blnFirst = false;
         }
 
-        if ((!$blnIsAutoSubmit) && $blnSubmitted && empty($errors))
-        {
-            if ($model->getMeta($model::IS_CHANGED))
-            {
+        if ((!$blnIsAutoSubmit) && $blnSubmitted && empty($errors)) {
+            if ($model->getMeta($model::IS_CHANGED)) {
                 // Trigger the event for post persists or create.
-                if ($preFunction != null)
-                {
+                if ($preFunction != null) {
                     $preFunction($environment, $model, $originalModel);
                 }
 
@@ -1752,15 +1633,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                     )
                 );
 
-                if (!$model->getId() && $this->getManualSortingProperty())
-                {
+                if (!$model->getId() && $this->getManualSortingProperty()) {
                     $models = $dataProvider->getEmptyCollection();
                     $models->push($model);
 
                     $controller = $environment->getController();
 
-                    if ($inputProvider->hasParameter('after'))
-                    {
+                    if ($inputProvider->hasParameter('after')) {
                         $after = IdSerializer::fromSerialized($inputProvider->getParameter('after'));
 
                         $previousDataProvider = $environment->getDataProvider($after->getDataProviderName());
@@ -1768,17 +1647,12 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                         $previousFetchConfig->setId($after->getId());
                         $previousModel = $previousDataProvider->fetch($previousFetchConfig);
 
-                        if ($previousModel)
-                        {
+                        if ($previousModel) {
                             $controller->pasteAfter($previousModel, $models, $this->getManualSortingProperty());
-                        }
-                        else
-                        {
+                        } else {
                             $controller->pasteTop($models, $this->getManualSortingProperty());
                         }
-                    }
-                    elseif ($inputProvider->hasParameter('into'))
-                    {
+                    } elseif ($inputProvider->hasParameter('into')) {
                         $into = IdSerializer::fromSerialized($inputProvider->getParameter('into'));
 
                         $parentDataProvider = $environment->getDataProvider($into->getDataProviderName());
@@ -1786,31 +1660,23 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                         $parentFetchConfig->setId($into->getId());
                         $parentModel = $parentDataProvider->fetch($parentFetchConfig);
 
-                        if ($parentModel)
-                        {
+                        if ($parentModel) {
                             $controller->pasteInto($parentModel, $models, $this->getManualSortingProperty());
-                        }
-                        else
-                        {
+                        } else {
                             $controller->pasteTop($models, $this->getManualSortingProperty());
                         }
-                    }
-                    else
-                    {
+                    } else {
                         $controller->pasteTop($models, $this->getManualSortingProperty());
                     }
 
                     $environment->getClipboard()->clear()->saveTo($environment);
-                }
-                else
-                {
+                } else {
                     // Save the model.
                     $dataProvider->save($model);
                 }
 
                 // Trigger the event for post persists or create.
-                if ($postFunction != null)
-                {
+                if ($postFunction != null) {
                     $postFunction($environment, $model, $originalModel);
                 }
 
@@ -1829,37 +1695,35 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $this->handleSubmit($model);
         }
 
-        if ($model->getId())
-        {
+        if ($model->getId()) {
             $strHeadline = sprintf($this->translate('editRecord', $definition->getName()), 'ID ' . $model->getId());
-            if ($strHeadline === 'editRecord')
-            {
+            if ($strHeadline === 'editRecord') {
                 $strHeadline = sprintf($this->translate('MSC.editRecord'), 'ID ' . $model->getId());
             }
-        }
-        else
-        {
+        } else {
             $strHeadline = sprintf($this->translate('newRecord', $definition->getName()), 'ID ' . $model->getId());
-            if ($strHeadline === 'newRecord')
-            {
+            if ($strHeadline === 'newRecord') {
                 $strHeadline = sprintf($this->translate('MSC.editRecord'), '');
             }
         }
 
         $objTemplate = $this->getTemplate('dcbe_general_edit');
-        $objTemplate->setData(array(
-                'fieldsets' => $arrFieldSets,
-                'versions' => $dataProviderInformation->isVersioningEnabled() ? $dataProvider->getVersions($model->getId()) : null,
+        $objTemplate->setData(
+            array(
+                'fieldsets'   => $arrFieldSets,
+                'versions'    => $dataProviderInformation->isVersioningEnabled() ? $dataProvider->getVersions(
+                    $model->getId()
+                ) : null,
                 'subHeadline' => $strHeadline,
-                'table' => $definition->getName(),
-                'enctype' => 'multipart/form-data',
-                'error' => $errors,
+                'table'       => $definition->getName(),
+                'enctype'     => 'multipart/form-data',
+                'error'       => $errors,
                 'editButtons' => $this->getEditButtons(),
-                'noReload' => (bool)$errors
-            ));
+                'noReload'    => (bool)$errors
+            )
+        );
 
-        if ($this->isMultiLanguage($model->getId()))
-        {
+        if ($this->isMultiLanguage($model->getId())) {
             /** @var MultiLanguageDataProviderInterface $dataProvider */
             $langsNative = array();
             // @codingStandardsIgnoreStart - We have to include it multiple times.
@@ -1867,12 +1731,14 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             // @codingStandardsIgnoreEnd
 
             $this
-                ->addToTemplate('languages', $environment->getController()->getSupportedLanguages($model->getId()), $objTemplate)
+                ->addToTemplate(
+                    'languages',
+                    $environment->getController()->getSupportedLanguages($model->getId()),
+                    $objTemplate
+                )
                 ->addToTemplate('language', $dataProvider->getCurrentLanguage(), $objTemplate)
                 ->addToTemplate('languageHeadline', $langsNative[$dataProvider->getCurrentLanguage()], $objTemplate);
-        }
-        else
-        {
+        } else {
             $this
                 ->addToTemplate('languages', null, $objTemplate)
                 ->addToTemplate('languageHeadline', '', $objTemplate);
@@ -1895,18 +1761,15 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $label = $environment->getTranslator()->translate($property->getLabel(), $definition->getName());
 
-        if (!$label)
-        {
+        if (!$label) {
             $label = $environment->getTranslator()->translate('MSC.' . $property->getName());
         }
 
-        if (is_array($label))
-        {
+        if (is_array($label)) {
             $label = $label[0];
         }
 
-        if (!$label)
-        {
+        if (!$label) {
             $label = $property->getName();
         }
 
@@ -1922,8 +1785,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function show()
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
-        {
+        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit();
         }
 
@@ -1940,13 +1802,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $objDBModel = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
-        if ($objDBModel == null)
-        {
+        if ($objDBModel == null) {
             $environment->getEventPropagator()->propagate(
                 ContaoEvents::SYSTEM_LOG,
                 new LogEvent(
                     sprintf(
-                        'Could not find ID %s in %s.', 'DC_General show()',
+                        'Could not find ID %s in %s.',
+                        'DC_General show()',
                         $modelId->getId(),
                         $definition->getName()
                     ),
@@ -1967,12 +1829,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $palette = $definition->getPalettesDefinition()->findPalette($objDBModel);
 
         // Show only allowed fields.
-        foreach ($palette->getVisibleProperties($objDBModel) as $paletteProperty)
-        {
+        foreach ($palette->getVisibleProperties($objDBModel) as $paletteProperty) {
             $property = $properties->getProperty($paletteProperty->getName());
 
-            if (!$property)
-            {
+            if (!$property) {
                 throw new DcGeneralRuntimeException('Unable to retrieve property ' . $paletteProperty->getName());
             }
 
@@ -1991,8 +1851,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             array($objDBModel->getId() ? 'ID ' . $objDBModel->getId() : '')
         );
 
-        if ($headline == 'MSC.showRecord')
-        {
+        if ($headline == 'MSC.showRecord') {
             $headline = $translator->translate(
                 'MSC.showRecord',
                 null,
@@ -2006,17 +1865,18 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             ->addToTemplate('arrFields', $values, $template)
             ->addToTemplate('arrLabels', $labels, $template);
 
-        if ($this->isMultiLanguage($objDBModel->getId()))
-        {
+        if ($this->isMultiLanguage($objDBModel->getId())) {
             /** @var MultiLanguageDataProviderInterface $dataProvider */
             $this
-                ->addToTemplate('languages', $environment->getController()->getSupportedLanguages($objDBModel->getId()), $template)
+                ->addToTemplate(
+                    'languages',
+                    $environment->getController()->getSupportedLanguages($objDBModel->getId()),
+                    $template
+                )
                 ->addToTemplate('currentLanguage', $dataProvider->getCurrentLanguage(), $template)
                 ->addToTemplate('languageSubmit', specialchars($translator->translate('MSC.showSelected')), $template)
                 ->addToTemplate('backBT', specialchars($translator->translate('MSC.backBT')), $template);
-        }
-        else
-        {
+        } else {
             $this->addToTemplate('language', null, $template);
         }
 
@@ -2030,8 +1890,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function showAll()
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
-        {
+        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit();
         }
 
@@ -2053,13 +1912,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $environment = $this->getEnvironment();
         $input       = $environment->getInputProvider();
 
-        if ($input->hasParameter('id'))
-        {
+        if ($input->hasParameter('id')) {
             $serializedId = IdSerializer::fromSerialized($input->getParameter('id'));
         }
 
-        if (!(isset($serializedId) && $serializedId->getDataProviderName() == $environment->getDataDefinition()->getName()))
-        {
+        if (!(isset($serializedId)
+            && $serializedId->getDataProviderName() == $environment->getDataDefinition()->getName())
+        ) {
             return '';
         }
 
@@ -2094,17 +1953,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $config          = $this->getEnvironment()->getController()->getBaseConfig();
         $sorting         = $this->getManualSortingProperty();
 
-        if ($serializedPid = $environment->getInputProvider()->getParameter('pid'))
-        {
+        if ($serializedPid = $environment->getInputProvider()->getParameter('pid')) {
             $pid = IdSerializer::fromSerialized($serializedPid);
-        }
-        else
-        {
+        } else {
             $pid = new IdSerializer();
         }
 
-        if (!$basicDefinition->isCreatable())
-        {
+        if (!$basicDefinition->isCreatable()) {
             return null;
         }
 
@@ -2125,20 +1980,17 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         // Add new button.
         if (($mode == BasicDefinitionInterface::MODE_FLAT)
-            || (($mode == BasicDefinitionInterface::MODE_PARENTEDLIST) && !$sorting))
-        {
+            || (($mode == BasicDefinitionInterface::MODE_PARENTEDLIST) && !$sorting)
+        ) {
             $parameters['act'] = 'create';
             // Add new button.
-            if ($pid->getDataProviderName() && $pid->getId())
-            {
+            if ($pid->getDataProviderName() && $pid->getId()) {
                 $parameters['pid'] = $pid->getSerialized();
             }
-        }
-        elseif(($mode == BasicDefinitionInterface::MODE_PARENTEDLIST)
-            || ($mode == BasicDefinitionInterface::MODE_HIERARCHICAL))
-        {
-            if ($environment->getClipboard()->isNotEmpty())
-            {
+        } elseif (($mode == BasicDefinitionInterface::MODE_PARENTEDLIST)
+            || ($mode == BasicDefinitionInterface::MODE_HIERARCHICAL)
+        ) {
+            if ($environment->getClipboard()->isNotEmpty()) {
                 return null;
             }
 
@@ -2147,19 +1999,18 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $parameters['act']  = 'paste';
             $parameters['mode'] = 'create';
 
-            if ($mode == BasicDefinitionInterface::MODE_PARENTEDLIST)
-            {
+            if ($mode == BasicDefinitionInterface::MODE_PARENTEDLIST) {
                 $parameters['after'] = $after->getSerialized();
             }
 
-            if ($pid->getDataProviderName() && $pid->getId())
-            {
+            if ($pid->getDataProviderName() && $pid->getId()) {
                 $parameters['pid'] = $pid->getSerialized();
             }
         }
 
         return $command;
     }
+
     /**
      * Create the "clear clipboard" button.
      *
@@ -2167,8 +2018,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     protected function getClearClipboardCommand()
     {
-        if ($this->getEnvironment()->getClipboard()->isEmpty())
-        {
+        if ($this->getEnvironment()->getClipboard()->isEmpty()) {
             return null;
         }
         $command             = new Command();
@@ -2198,20 +2048,17 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $environment = $this->getEnvironment();
         if (!($this->isSelectModeActive()
             || $environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider())
-        )
-        {
+        ) {
             return null;
         }
 
         /** @var GetReferrerEvent $event */
-        if ($environment->getParentDataDefinition())
-        {
+        if ($environment->getParentDataDefinition()) {
             $event = $environment->getEventPropagator()->propagate(
                 ContaoEvents::SYSTEM_GET_REFERRER,
                 new GetReferrerEvent(true, $environment->getParentDataDefinition()->getName())
             );
-        }
-        else {
+        } else {
             $event = $environment->getEventPropagator()->propagate(
                 ContaoEvents::SYSTEM_GET_REFERRER,
                 new GetReferrerEvent(true, $environment->getDataDefinition()->getName())
@@ -2246,15 +2093,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $extra       = $command->getExtra();
         $label       = $command->getLabel();
 
-        if (isset($extra['href']))
-        {
+        if (isset($extra['href'])) {
             $href = $extra['href'];
-        }
-        else
-        {
+        } else {
             $href = '';
-            foreach ($command->getParameters() as $key => $value)
-            {
+            foreach ($command->getParameters() as $key => $value) {
                 $href .= '&' . $key . '=' . $value;
             }
 
@@ -2269,8 +2112,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $href = $event->getUrl();
         }
 
-        if (!strlen($label))
-        {
+        if (!strlen($label)) {
             $label = $command->getName();
         }
 
@@ -2295,8 +2137,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         // Allow to override the button entirely.
         $html = $buttonEvent->getHtml();
-        if (!is_null($html))
-        {
+        if (!is_null($html)) {
             return $html;
         }
 
@@ -2324,43 +2165,35 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $globalOperations = $this->getViewSection()->getGlobalCommands()->getCommands();
         $buttons          = array();
 
-        if (!is_array($globalOperations))
-        {
+        if (!is_array($globalOperations)) {
             $globalOperations = array();
         }
 
-        // Special case - if select mode active, we must not display the "edit all" button.
-        if ($this->isSelectModeActive())
-        {
+        if ($this->isSelectModeActive()) {
+            // Special case - if select mode active, we must not display the "edit all" button.
             unset($globalOperations['all']);
-        }
-        // We do not have the select mode.
-        else
-        {
+        } else {
+            // We do not have the select mode.
             $command = $this->getCreateModelCommand();
-            if ($command !== null)
-            {
+            if ($command !== null) {
                 // New button always first.
                 array_unshift($globalOperations, $command);
             }
 
             $command = $this->getClearClipboardCommand();
-            if ($command !== null)
-            {
+            if ($command !== null) {
                 // Clear clipboard to the end.
                 $globalOperations[] = $command;
             }
         }
 
         $command = $this->getBackCommand();
-        if ($command !== null)
-        {
+        if ($command !== null) {
             // Back button always to the end.
             $globalOperations[] = $command;
         }
 
-        foreach ($globalOperations as $command)
-        {
+        foreach ($globalOperations as $command) {
             $buttons[$command->getName()] = $this->generateHeaderButton($command);
         }
 
@@ -2400,29 +2233,25 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         // Set basic information.
         $opLabel = $objCommand->getLabel();
-        if (strlen($opLabel))
-        {
+        if (strlen($opLabel)) {
             $label = $opLabel;
-        }
-        else
-        {
+        } else {
             $label = $objCommand->getName();
         }
 
         $label = $this->translate($label, $this->getEnvironment()->getDataDefinition()->getName());
 
-        if (is_array($label))
-        {
+        if (is_array($label)) {
             $label = $label[0];
         }
 
-        $opDesc = $this->translate($objCommand->getDescription(), $this->getEnvironment()->getDataDefinition()->getName());
-        if (strlen($opDesc))
-        {
+        $opDesc = $this->translate(
+            $objCommand->getDescription(),
+            $this->getEnvironment()->getDataDefinition()->getName()
+        );
+        if (strlen($opDesc)) {
             $title = sprintf($opDesc, $objModel->getID());
-        }
-        else
-        {
+        } else {
             $title = sprintf('%s id %s', $label, $objModel->getID());
         }
 
@@ -2432,74 +2261,63 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $attributes    = '';
 
         // Toggle has to trigger the javascript.
-        if ($objCommand instanceof ToggleCommandInterface)
-        {
+        if ($objCommand instanceof ToggleCommandInterface) {
             $arrParameters['act'] = $objCommand->getName();
 
-            $attributes = 'onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this, \'' . $extra['icon'] . '\', \'' . $extra['icon_disabled'] . '\');"';
+            $attributes = sprintf(
+                'onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this, \'%s\', \'%s\');"',
+                $extra['icon'],
+                $extra['icon_disabled']
+            );
+
             if ($objCommand->isInverse()
-                    ? $objModel->getProperty($objCommand->getToggleProperty())
-                    : !$objModel->getProperty($objCommand->getToggleProperty())
-            )
-            {
+                ? $objModel->getProperty($objCommand->getToggleProperty())
+                : !$objModel->getProperty($objCommand->getToggleProperty())
+            ) {
                 $extra['icon'] = $extra['icon_disabled'] ?: 'invisible.gif';
             }
         }
 
-        if (strlen($strAttributes))
-        {
+        if (strlen($strAttributes)) {
             $attributes .= ltrim(sprintf($strAttributes, $objModel->getID()));
         }
 
         // Cut needs some special information.
-        if ($objCommand instanceof CutCommandInterface)
-        {
+        if ($objCommand instanceof CutCommandInterface) {
             $arrParameters        = array();
             $arrParameters['act'] = $objCommand->getName();
 
             // If we have a pid add it, used for mode 4 and all parent -> current views.
-            if ($this->getEnvironment()->getInputProvider()->hasParameter('pid'))
-            {
+            if ($this->getEnvironment()->getInputProvider()->hasParameter('pid')) {
                 $arrParameters['pid'] = $this->getEnvironment()->getInputProvider()->getParameter('pid');
             }
 
             // Source is the id of the element which should move.
             $arrParameters['source'] = IdSerializer::fromModel($objModel)->getSerialized();
-        }
-
-        // The copy operation.
-        elseif ($objCommand instanceof CopyCommandInterface)
-        {
+        } elseif ($objCommand instanceof CopyCommandInterface) {
+            // The copy operation.
             $arrParameters        = array();
             $arrParameters['act'] = $objCommand->getName();
 
             // If we have a pid add it, used for mode 4 and all parent -> current views.
-            if ($this->getEnvironment()->getInputProvider()->hasParameter('pid'))
-            {
+            if ($this->getEnvironment()->getInputProvider()->hasParameter('pid')) {
                 $arrParameters['pid'] = $this->getEnvironment()->getInputProvider()->getParameter('pid');
             }
 
             // Source is the id of the element which should move.
             $arrParameters['source'] = IdSerializer::fromModel($objModel)->getSerialized();
-        }
-
-        else
-        {
+        } else {
             // TODO: Shall we interface this option?
             $idParam = isset($extra['idparam']) ? $extra['idparam'] : null;
-            if ($idParam)
-            {
+            if ($idParam) {
                 $arrParameters[$idParam] = IdSerializer::fromModel($objModel)->getSerialized();
-            }
-            else
-            {
+            } else {
                 $arrParameters['id'] = IdSerializer::fromModel($objModel)->getSerialized();
             }
         }
 
         $strHref = '';
-        foreach ($arrParameters as $key => $value)
-        {
+        foreach ($arrParameters as $key => $value) {
             $strHref .= sprintf('&%s=%s', $key, $value);
         }
 
@@ -2535,15 +2353,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         );
 
         // If the event created a button, use it.
-        if (!is_null($buttonEvent->getHtml()))
-        {
+        if (!is_null($buttonEvent->getHtml())) {
             return trim($buttonEvent->getHtml());
         }
 
         $icon = $extra['icon'];
 
-        if ($buttonEvent->isDisabled())
-        {
+        if ($buttonEvent->isDisabled()) {
             /** @var GenerateHtmlEvent $event */
             $event = $propagator->propagate(
                 ContaoEvents::IMAGE_GET_HTML,
@@ -2565,7 +2381,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             )
         );
 
-        return sprintf(' <a href="%s" title="%s" %s>%s</a>',
+        return sprintf(
+            ' <a href="%s" title="%s" %s>%s</a>',
             $buttonEvent->getHref(),
             specialchars($buttonEvent->getTitle()),
             $buttonEvent->getAttributes(),
@@ -2582,14 +2399,12 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function renderPasteIntoButton(GetPasteButtonEvent $event)
     {
-        if (!is_null($event->getHtmlPasteInto()))
-        {
+        if (!is_null($event->getHtmlPasteInto())) {
             return $event->getHtmlPasteInto();
         }
 
         $strLabel = $this->translate('pasteinto.0', $event->getModel()->getProviderName());
-        if ($event->isPasteIntoDisabled())
-        {
+        if ($event->isPasteIntoDisabled()) {
             /** @var GenerateHtmlEvent $imageEvent */
             $imageEvent = $this->getEnvironment()->getEventPropagator()->propagate(
                 ContaoEvents::IMAGE_GET_HTML,
@@ -2614,21 +2429,19 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         );
 
         $opDesc = $this->translate('pasteinto.1', $this->getEnvironment()->getDataDefinition()->getName());
-        if (strlen($opDesc))
-        {
+        if (strlen($opDesc)) {
             $title = sprintf($opDesc, $event->getModel()->getId());
-        }
-        else
-        {
+        } else {
             $title = sprintf('%s id %s', $strLabel, $event->getModel()->getId());
         }
 
-        return sprintf(' <a href="%s" title="%s" %s>%s</a>',
-                $event->getHrefInto(),
-                specialchars($title),
-                'onclick="Backend.getScrollOffset()"',
-                $imageEvent->getHtml()
-            );
+        return sprintf(
+            ' <a href="%s" title="%s" %s>%s</a>',
+            $event->getHrefInto(),
+            specialchars($title),
+            'onclick="Backend.getScrollOffset()"',
+            $imageEvent->getHtml()
+        );
     }
 
     /**
@@ -2640,14 +2453,12 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function renderPasteAfterButton(GetPasteButtonEvent $event)
     {
-        if (!is_null($event->getHtmlPasteAfter()))
-        {
+        if (!is_null($event->getHtmlPasteAfter())) {
             return $event->getHtmlPasteAfter();
         }
 
         $strLabel = $this->translate('pasteafter.0', $event->getModel()->getProviderName());
-        if ($event->isPasteAfterDisabled())
-        {
+        if ($event->isPasteAfterDisabled()) {
             /** @var GenerateHtmlEvent $imageEvent */
             $imageEvent = $this->getEnvironment()->getEventPropagator()->propagate(
                 ContaoEvents::IMAGE_GET_HTML,
@@ -2672,16 +2483,14 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         );
 
         $opDesc = $this->translate('pasteafter.1', $this->getEnvironment()->getDataDefinition()->getName());
-        if (strlen($opDesc))
-        {
+        if (strlen($opDesc)) {
             $title = sprintf($opDesc, $event->getModel()->getId());
-        }
-        else
-        {
+        } else {
             $title = sprintf('%s id %s', $strLabel, $event->getModel()->getId());
         }
 
-        return sprintf(' <a href="%s" title="%s" %s>%s</a>',
+        return sprintf(
+            ' <a href="%s" title="%s" %s>%s</a>',
             $event->getHrefAfter(),
             specialchars($title),
             'onclick="Backend.getScrollOffset()"',
@@ -2695,32 +2504,28 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * @param ModelInterface $model    The model for which the buttons shall be generated for.
      * @param ModelInterface $previous The previous model in the collection.
      * @param ModelInterface $next     The next model in the collection.
+     *
      * @return string
      */
     protected function generateButtons(
         ModelInterface $model,
         ModelInterface $previous = null,
         ModelInterface $next = null
-    )
-    {
+    ) {
         $commands     = $this->getViewSection()->getModelCommands();
         $objClipboard = $this->getEnvironment()->getClipboard();
         $propagator   = $this->getEnvironment()->getEventPropagator();
 
-        if ($this->getEnvironment()->getClipboard()->isNotEmpty())
-        {
+        if ($this->getEnvironment()->getClipboard()->isNotEmpty()) {
             $circularIds = $objClipboard->getCircularIds();
             $isCircular  = in_array(IdSerializer::fromModel($model)->getSerialized(), $circularIds);
-        }
-        else
-        {
+        } else {
             $circularIds = array();
             $isCircular  = false;
         }
 
         $arrButtons = array();
-        foreach ($commands->getCommands() as $command)
-        {
+        foreach ($commands->getCommands() as $command) {
             $arrButtons[$command->getName()] = $this->buildCommand(
                 $command,
                 $model,
@@ -2734,8 +2539,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         if ($this->getManualSortingProperty() &&
             $objClipboard->isEmpty() &&
             $this->getDataDefinition()->getBasicDefinition()->getMode() != BasicDefinitionInterface::MODE_HIERARCHICAL
-        )
-        {
+        ) {
             /** @var AddToUrlEvent $urlEvent */
             $urlEvent = $propagator->propagate(
                 ContaoEvents::BACKEND_ADD_TO_URL,
@@ -2762,27 +2566,27 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         // Add paste into/after icons.
-        if ($objClipboard->isNotEmpty())
-        {
-            if ($objClipboard->isCreate())
-            {
+        if ($objClipboard->isNotEmpty()) {
+            if ($objClipboard->isCreate()) {
                 // Add ext. information.
-                $add2UrlAfter = sprintf('act=create&after=%s&',
+                $add2UrlAfter = sprintf(
+                    'act=create&after=%s&',
                     IdSerializer::fromModel($model)->getSerialized()
                 );
 
-                $add2UrlInto = sprintf('act=create&into=%s&',
+                $add2UrlInto = sprintf(
+                    'act=create&into=%s&',
                     IdSerializer::fromModel($model)->getSerialized()
                 );
-            }
-            else
-            {
+            } else {
                 // Add ext. information.
-                $add2UrlAfter = sprintf('act=paste&after=%s&',
+                $add2UrlAfter = sprintf(
+                    'act=paste&after=%s&',
                     IdSerializer::fromModel($model)->getSerialized()
                 );
 
-                $add2UrlInto = sprintf('act=paste&into=%s&',
+                $add2UrlInto = sprintf(
+                    'act=paste&into=%s&',
                     IdSerializer::fromModel($model)->getSerialized()
                 );
             }
@@ -2819,11 +2623,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             );
 
             $arrButtons['pasteafter'] = $this->renderPasteAfterButton($buttonEvent);
-            if ($this->getDataDefinition()->getBasicDefinition()->getMode() == BasicDefinitionInterface::MODE_HIERARCHICAL)
-            {
+            if ($this->getDataDefinition()->getBasicDefinition()->getMode()
+                == BasicDefinitionInterface::MODE_HIERARCHICAL) {
                 $arrButtons['pasteinto'] = $this->renderPasteIntoButton($buttonEvent);
             }
-
         }
 
         return implode(' ', $arrButtons);
@@ -2840,45 +2643,32 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     protected function panel($ignoredPanels = array())
     {
-        if ($this->getPanel() === null)
-        {
+        if ($this->getPanel() === null) {
             throw new DcGeneralRuntimeException('No panel information stored in data container.');
         }
 
         $arrPanels = array();
-        foreach ($this->getPanel() as $objPanel)
-        {
+        foreach ($this->getPanel() as $objPanel) {
             $arrPanel = array();
             $i        = 0;
-            $max      = count($objPanel) - 1;
-            foreach ($objPanel as $objElement)
-            {
+            $max      = (count($objPanel) - 1);
+            foreach ($objPanel as $objElement) {
                 // If the current class in the list of ignored panels go to the next one.
-                if (!empty($ignoredPanels) && $this->isIgnoredPanel($objElement, $ignoredPanels))
-                {
+                if (!empty($ignoredPanels) && $this->isIgnoredPanel($objElement, $ignoredPanels)) {
                     $max--;
                     continue;
                 }
 
                 $objElementTemplate = null;
-                if ($objElement instanceof FilterElementInterface)
-                {
+                if ($objElement instanceof FilterElementInterface) {
                     $objElementTemplate = $this->getTemplate('dcbe_general_panel_filter');
-                }
-                elseif ($objElement instanceof LimitElementInterface)
-                {
+                } elseif ($objElement instanceof LimitElementInterface) {
                     $objElementTemplate = $this->getTemplate('dcbe_general_panel_limit');
-                }
-                elseif ($objElement instanceof SearchElementInterface)
-                {
+                } elseif ($objElement instanceof SearchElementInterface) {
                     $objElementTemplate = $this->getTemplate('dcbe_general_panel_search');
-                }
-                elseif ($objElement instanceof SortElementInterface)
-                {
+                } elseif ($objElement instanceof SortElementInterface) {
                     $objElementTemplate = $this->getTemplate('dcbe_general_panel_sort');
-                }
-                elseif ($objElement instanceof SubmitElementInterface)
-                {
+                } elseif ($objElement instanceof SubmitElementInterface) {
                     $objElementTemplate = $this->getTemplate('dcbe_general_panel_submit');
                 }
 
@@ -2892,8 +2682,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $arrPanels[] = $arrPanel;
         }
 
-        if (count($arrPanels))
-        {
+        if (count($arrPanels)) {
             $objTemplate = $this->getTemplate('dcbe_general_panel');
             $themeEvent  = new GetThemeEvent();
 
@@ -2925,10 +2714,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     protected function isIgnoredPanel(PanelElementInterface $objElement, $ignoredPanels)
     {
-        foreach ((array)$ignoredPanels as $class)
-        {
-            if ($objElement instanceof $class)
-            {
+        foreach ((array)$ignoredPanels as $class) {
+            if ($objElement instanceof $class) {
                 return true;
             }
         }
@@ -2953,8 +2740,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $arrReturn = $event->getElements();
 
-        if (!is_array($arrReturn) || count($arrReturn) == 0)
-        {
+        if (!is_array($arrReturn) || count($arrReturn) == 0) {
             return null;
         }
 
@@ -2977,16 +2763,14 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $input = $this->getEnvironment()->getInputProvider();
 
-        if ($input->getValue('FORM_SUBMIT') == $this->getEnvironment()->getDataDefinition()->getName())
-        {
+        if ($input->getValue('FORM_SUBMIT') == $this->getEnvironment()->getDataDefinition()->getName()) {
             $propertyValues = new PropertyValueBag();
-            $propertyNames  = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getPropertyNames();
+            $propertyNames  = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getPropertyNames(
+            );
 
             // Process input and update changed properties.
-            foreach ($propertyNames as $propertyName)
-            {
-                if ($input->hasValue($propertyName))
-                {
+            foreach ($propertyNames as $propertyName) {
+                if ($input->hasValue($propertyName)) {
                     $propertyValue = $input->getValue($propertyName, true);
                     $propertyValues->setPropertyValue($propertyName, $propertyValue);
                 }
@@ -3010,21 +2794,18 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function formatModel(ModelInterface $model)
     {
-        $listing      = $this->getViewSection()->getListingConfig();
-        $properties   = $this->getDataDefinition()->getPropertiesDefinition();
-        $formatter    = $listing->getLabelFormatter($model->getProviderName());
+        $listing           = $this->getViewSection()->getListingConfig();
+        $properties        = $this->getDataDefinition()->getPropertiesDefinition();
+        $formatter         = $listing->getLabelFormatter($model->getProviderName());
         $sorting           = $this->getGroupingMode();
         $sortingDefinition = $sorting['sorting'];
-        $firstSorting = '';
+        $firstSorting      = '';
 
-        if ($sortingDefinition)
-        {
+        if ($sortingDefinition) {
             /** @var GroupAndSortingDefinitionInterface $sortingDefinition */
-            foreach ($sortingDefinition as $information)
-            {
+            foreach ($sortingDefinition as $information) {
                 /** @var GroupAndSortingInformationInterface $information */
-                if ($information->getProperty())
-                {
+                if ($information->getProperty()) {
                     $firstSorting = reset($sorting);
                     break;
                 }
@@ -3032,16 +2813,16 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         $args = array();
-        foreach ($formatter->getPropertyNames() as $propertyName)
-        {
-            if ($properties->hasProperty($propertyName))
-            {
+        foreach ($formatter->getPropertyNames() as $propertyName) {
+            if ($properties->hasProperty($propertyName)) {
                 $property = $properties->getProperty($propertyName);
 
-                $args[$propertyName] = (string)$this->getReadableFieldValue($property, $model, $model->getProperty($propertyName));
-            }
-            else
-            {
+                $args[$propertyName] = (string)$this->getReadableFieldValue(
+                    $property,
+                    $model,
+                    $model->getProperty($propertyName)
+                );
+            } else {
                 $args[$propertyName] = '-';
             }
         }
@@ -3061,44 +2842,33 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $arrLabel = array();
 
         // Add columns.
-        if ($listing->getShowColumns())
-        {
+        if ($listing->getShowColumns()) {
             $fields = $formatter->getPropertyNames();
             $args   = $event->getArgs();
 
-            if (!is_array($args))
-            {
+            if (!is_array($args)) {
                 $arrLabel[] = array(
                     'colspan' => count($fields),
-                    'class' => 'tl_file_list col_1',
+                    'class'   => 'tl_file_list col_1',
                     'content' => $args
                 );
-            }
-            else
-            {
-                foreach ($fields as $j => $propertyName)
-                {
+            } else {
+                foreach ($fields as $j => $propertyName) {
                     $arrLabel[] = array(
                         'colspan' => 1,
-                        'class' => 'tl_file_list col_' . $j . (($propertyName == $firstSorting) ? ' ordered_by' : ''),
+                        'class'   => 'tl_file_list col_' . $j . (($propertyName == $firstSorting) ? ' ordered_by' : ''),
                         'content' => (($args[$propertyName] != '') ? $args[$propertyName] : '-')
                     );
                 }
             }
-        }
-        else
-        {
-            if (!is_array($event->getArgs()))
-            {
+        } else {
+            if (!is_array($event->getArgs())) {
                 $string = $event->getArgs();
-            }
-            else
-            {
+            } else {
                 $string = vsprintf($event->getLabel(), $event->getArgs());
             }
 
-            if ($formatter->getMaxLength() !== null && strlen($string) > $formatter->getMaxLength())
-            {
+            if ($formatter->getMaxLength() !== null && strlen($string) > $formatter->getMaxLength()) {
                 $string = substr($string, 0, $formatter->getMaxLength());
             }
 
@@ -3135,8 +2905,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             )
         );
 
-        if ($event->getRendered() !== null)
-        {
+        if ($event->getRendered() !== null) {
             return $event->getRendered();
         }
 

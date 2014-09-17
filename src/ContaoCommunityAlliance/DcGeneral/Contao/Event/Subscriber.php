@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -30,8 +31,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @package DcGeneral\Event
  */
-class Subscriber
-    implements EventSubscriberInterface
+class Subscriber implements EventSubscriberInterface
 {
     /**
      * {@inheritDoc}
@@ -40,11 +40,9 @@ class Subscriber
     {
         return array
         (
-            ResolveWidgetErrorMessageEvent::NAME => array('resolveWidgetErrorMessage', -1),
-
+            ResolveWidgetErrorMessageEvent::NAME   => array('resolveWidgetErrorMessage', -1),
             RenderReadablePropertyValueEvent::NAME => 'renderReadablePropertyValue',
-
-            'contao-twig.init' => 'initTwig',
+            'contao-twig.init'                     => 'initTwig',
         );
     }
 
@@ -59,23 +57,15 @@ class Subscriber
     {
         $error = $event->getError();
 
-        if ($error instanceof \Exception)
-        {
+        if ($error instanceof \Exception) {
             $event->setError($error->getMessage());
-        }
-        elseif (is_object($error))
-        {
-            if (method_exists($error, '__toString'))
-            {
+        } elseif (is_object($error)) {
+            if (method_exists($error, '__toString')) {
                 $event->setError((string)$error);
-            }
-            else
-            {
+            } else {
                 $event->setError(sprintf('[%s]', get_class($error)));
             }
-        }
-        elseif (!is_string($error))
-        {
+        } elseif (!is_string($error)) {
             $event->setError(sprintf('[%s]', gettype($error)));
         }
     }
@@ -104,8 +94,7 @@ class Subscriber
             $property->getName()
         );
 
-        if ($event->getOptions() !== $options)
-        {
+        if ($event->getOptions() !== $options) {
             $options = $event->getOptions();
         }
 
@@ -153,8 +142,7 @@ class Subscriber
      */
     public function renderReadablePropertyValue(RenderReadablePropertyValueEvent $event)
     {
-        if ($event->getRendered() !== null)
-        {
+        if ($event->getRendered() !== null) {
             return;
         }
 
@@ -193,90 +181,68 @@ class Subscriber
         // Decode array
         else
          */
-        if (is_array($value))
-        {
-            foreach ($value as $kk => $vv)
-            {
-                if (is_array($vv))
-                {
+        if (is_array($value)) {
+            foreach ($value as $kk => $vv) {
+                if (is_array($vv)) {
                     $vals       = array_values($vv);
                     $value[$kk] = $vals[0] . ' (' . $vals[1] . ')';
                 }
             }
 
             $event->setRendered(implode(', ', $value));
-        }
-        // Date format.
-        elseif (isset($extra['rgxp']))
-        {
-            if ($extra['rgxp'] == 'date')
-            {
+        } elseif (isset($extra['rgxp'])) {
+            // Date format.
+            if ($extra['rgxp'] == 'date') {
                 $dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['dateFormat']);
                 $event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
 
                 $event->setRendered($dateEvent->getResult());
-            }
-            // Time format.
-            elseif ($extra['rgxp'] == 'time')
-            {
+            } elseif ($extra['rgxp'] == 'time') {
+                // Time format.
                 $dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['timeFormat']);
                 $event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
 
                 $event->setRendered($dateEvent->getResult());
             }
-        }
-        // Date and time format.
-        elseif (isset($extra['rgxp']) && $extra['rgxp'] == 'datim' ||
+        } elseif (isset($extra['rgxp']) && $extra['rgxp'] == 'datim' ||
             in_array(
                 $property->getGroupingMode(),
                 array(
                     ListingConfigInterface::GROUP_DAY,
                     ListingConfigInterface::GROUP_MONTH,
-                    ListingConfigInterface::GROUP_YEAR)
+                    ListingConfigInterface::GROUP_YEAR
+                )
             ) ||
             $property->getName() == 'tstamp'
-        )
-        {
+        ) {
+            // Date and time format.
             $dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['timeFormat']);
             $event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
 
             $event->setRendered($dateEvent->getResult());
-        }
-        elseif ($property->getWidgetType() == 'checkbox' && !$extra['multiple'])
-        {
+        } elseif ($property->getWidgetType() == 'checkbox' && !$extra['multiple']) {
             $event->setRendered(strlen($value) ? $GLOBALS['TL_LANG']['MSC']['yes'] : $GLOBALS['TL_LANG']['MSC']['no']);
-        }
-        elseif ($property->getWidgetType() == 'textarea' && ($extra['allowHtml'] || $extra['preserveTags']))
-        {
+        } elseif ($property->getWidgetType() == 'textarea' && ($extra['allowHtml'] || $extra['preserveTags'])) {
             $event->setRendered(nl2br_html5(specialchars($value)));
-        }
-        elseif (isset($extra['reference']) && is_array($extra['reference']))
-        {
-            if (isset($extra['reference'][$value]))
-            {
+        } elseif (isset($extra['reference']) && is_array($extra['reference'])) {
+            if (isset($extra['reference'][$value])) {
                 $event->setRendered(
-                    is_array($extra['reference'][$value])
-                    ? $extra['reference'][$value][0]
-                    : $extra['reference'][$value]
+                    (is_array($extra['reference'][$value])
+                        ? $extra['reference'][$value][0]
+                        : $extra['reference'][$value])
                 );
             }
-        }
-        elseif ($value instanceof \DateTime)
-        {
+        } elseif ($value instanceof \DateTime) {
             $dateEvent = new ParseDateEvent($value->getTimestamp(), $GLOBALS['TL_CONFIG']['datimFormat']);
             $event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
 
             $event->setRendered($dateEvent->getResult());
-        }
-        else
-        {
+        } else {
             $options = $property->getOptions();
-            if (!$options)
-            {
+            if (!$options) {
                 $options = $this->getOptions($event->getEnvironment(), $event->getModel(), $event->getProperty());
             }
-            if (array_is_assoc($options))
-            {
+            if (array_is_assoc($options)) {
                 $event->setRendered($options[$value]);
             }
         }

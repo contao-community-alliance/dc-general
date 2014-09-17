@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -24,9 +25,7 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
  *
  * @package DcGeneral\Panel
  */
-class DefaultSortElement
-    extends AbstractElement
-    implements SortElementInterface
+class DefaultSortElement extends AbstractElement implements SortElementInterface
 {
     /**
      * The selected definition.
@@ -77,11 +76,9 @@ class DefaultSortElement
      */
     protected function searchDefinitionByName($name)
     {
-        foreach ($this->getGroupAndSortingDefinition() as $definition)
-        {
+        foreach ($this->getGroupAndSortingDefinition() as $definition) {
             /** @var GroupAndSortingDefinitionInterface $definition */
-            if ($definition->getName() == $name)
-            {
+            if ($definition->getName() == $name) {
                 return $definition;
             }
         }
@@ -97,13 +94,11 @@ class DefaultSortElement
     protected function getPersistent()
     {
         $arrValue = array();
-        if ($this->getInputProvider()->hasPersistentValue('sorting'))
-        {
+        if ($this->getInputProvider()->hasPersistentValue('sorting')) {
             $arrValue = $this->getInputProvider()->getPersistentValue('sorting');
         }
 
-        if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue))
-        {
+        if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
             return $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
         }
 
@@ -122,21 +117,16 @@ class DefaultSortElement
         $arrValue       = array();
         $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
-        if ($this->getInputProvider()->hasPersistentValue('sorting'))
-        {
+        if ($this->getInputProvider()->hasPersistentValue('sorting')) {
             $arrValue = $this->getInputProvider()->getPersistentValue('sorting');
         }
 
-        if ($strProperty)
-        {
-            if (!is_array($arrValue[$definitionName]))
-            {
+        if ($strProperty) {
+            if (!is_array($arrValue[$definitionName])) {
                 $arrValue[$definitionName] = array();
             }
             $arrValue[$definitionName] = $strProperty;
-        }
-        else
-        {
+        } else {
             unset($arrValue[$definitionName]);
         }
 
@@ -148,24 +138,19 @@ class DefaultSortElement
      */
     public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
     {
-        if (is_null($objElement))
-        {
+        if (is_null($objElement)) {
             $input = $this->getInputProvider();
             $value = null;
 
-            if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue('tl_sort'))
-            {
+            if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue('tl_sort')) {
                 $value = $input->getValue('tl_sort');
 
                 $this->setPersistent($value);
-
             }
 
             $persistent = $this->getPersistent();
-            if (!$persistent)
-            {
-                if ($this->getGroupAndSortingDefinition()->hasDefault())
-                {
+            if (!$persistent) {
+                if ($this->getGroupAndSortingDefinition()->hasDefault()) {
                     $persistent = $this->getGroupAndSortingDefinition()->getDefault()->getName();
                 }
                 $this->setPersistent($value);
@@ -176,15 +161,12 @@ class DefaultSortElement
 
         $current = $objConfig->getSorting();
 
-        if (!is_array($current))
-        {
+        if (!is_array($current)) {
             $current = array();
         }
 
-        if ($this->getSelectedDefinition())
-        {
-            foreach ($this->getSelectedDefinition() as $information)
-            {
+        if ($this->getSelectedDefinition()) {
+            foreach ($this->getSelectedDefinition() as $information) {
                 /** @var GroupAndSortingInformationInterface $information */
                 $current[$information->getProperty()] = $information->getSortingMode();
             }
@@ -199,18 +181,15 @@ class DefaultSortElement
     public function render(ViewTemplateInterface $objTemplate)
     {
         $arrOptions = array();
-        foreach ($this->getGroupAndSortingDefinition() as $information)
-        {
+        foreach ($this->getGroupAndSortingDefinition() as $information) {
             /** @var GroupAndSortingDefinitionInterface $information */
             $name       = $information->getName();
             $properties = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition();
-            if ($properties->hasProperty($name))
-            {
+            if ($properties->hasProperty($name)) {
                 $name = $properties->getProperty($name)->getLabel();
             }
 
-            if (empty($name))
-            {
+            if (empty($name)) {
                 $name = $information->getName();
             }
 
@@ -269,8 +248,7 @@ class DefaultSortElement
     public function getPropertyNames()
     {
         $names = array();
-        foreach ($this->getGroupAndSortingDefinition() as $definition)
-        {
+        foreach ($this->getGroupAndSortingDefinition() as $definition) {
             /** @var GroupAndSortingDefinitionInterface $definition */
             $names[] = $definition->getName();
         }

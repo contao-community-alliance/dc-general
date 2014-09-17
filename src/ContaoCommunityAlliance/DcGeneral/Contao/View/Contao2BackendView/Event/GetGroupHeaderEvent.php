@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -24,8 +25,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConf
  *
  * @package DcGeneral\Contao\View\Contao2BackendView\Event
  */
-class GetGroupHeaderEvent
-    extends AbstractModelAwareEvent
+class GetGroupHeaderEvent extends AbstractModelAwareEvent
 {
     const NAME = 'dc-general.view.contao2backend.get-group-header';
 
@@ -71,8 +71,7 @@ class GetGroupHeaderEvent
         $propertyName,
         $propertyValue,
         $groupingMode
-    )
-    {
+    ) {
         parent::__construct($environment, $model);
 
         $this->groupField   = $propertyName;

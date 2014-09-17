@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,8 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
  *
  * @package DcGeneral\Contao\View\Contao2BackendView\Event
  */
-class GetPasteButtonEvent
-    extends BaseButtonEvent
+class GetPasteButtonEvent extends BaseButtonEvent
 {
     const NAME = 'dc-general.view.contao2backend.get-paste-button';
 
@@ -147,6 +147,7 @@ class GetPasteButtonEvent
 
         return $this;
     }
+
     /**
      * Get the href for the paste after button.
      *

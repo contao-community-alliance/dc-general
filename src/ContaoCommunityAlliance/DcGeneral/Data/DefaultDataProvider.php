@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -84,15 +85,12 @@ class DefaultDataProvider implements DataProviderInterface
     public function setBaseConfig(array $arrConfig)
     {
         // Check configuration.
-        if (!isset($arrConfig['source']))
-        {
+        if (!isset($arrConfig['source'])) {
             throw new DcGeneralRuntimeException('Missing table name.');
         }
 
-        if (isset($arrConfig['database']))
-        {
-            if (!($arrConfig['database'] instanceof \Database))
-            {
+        if (isset($arrConfig['database'])) {
+            if (!($arrConfig['database'] instanceof \Database)) {
                 throw new DcGeneralRuntimeException('Invalid database.');
             }
 
@@ -101,12 +99,9 @@ class DefaultDataProvider implements DataProviderInterface
 
         $this->strSource = $arrConfig['source'];
 
-        if (isset($arrConfig['timeStampProperty']))
-        {
+        if (isset($arrConfig['timeStampProperty'])) {
             $this->setTimeStampProperty($arrConfig['timeStampProperty']);
-        }
-        elseif ($this->objDatabase->fieldExists('tstamp', $this->strSource))
-        {
+        } elseif ($this->objDatabase->fieldExists('tstamp', $this->strSource)) {
             $this->setTimeStampProperty('tstamp');
         }
     }
@@ -158,16 +153,12 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $strFields = '*';
 
-        if ($objConfig->getIdOnly())
-        {
+        if ($objConfig->getIdOnly()) {
             $strFields = 'id';
-        }
-        elseif (!is_null($objConfig->getFields()))
-        {
+        } elseif (!is_null($objConfig->getFields())) {
             $strFields = implode(', ', $objConfig->getFields());
 
-            if (!stristr($strFields, 'DISTINCT'))
-            {
+            if (!stristr($strFields, 'DISTINCT')) {
                 $strFields = 'id, ' . $strFields;
             }
         }
@@ -188,14 +179,12 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $children = $operation['children'];
 
-        if (!$children)
-        {
+        if (!$children) {
             return '';
         }
 
         $combine = array();
-        foreach ($children as $child)
-        {
+        foreach ($children as $child) {
 
             $combine[] = $this->calculateSubfilter($child, $params);
         }
@@ -291,13 +280,11 @@ class DefaultDataProvider implements DataProviderInterface
      */
     protected function calculateSubfilter($arrFilter, array &$arrParams)
     {
-        if (!is_array($arrFilter))
-        {
+        if (!is_array($arrFilter)) {
             throw new DcGeneralRuntimeException('Error Processing sub filter: ' . var_export($arrFilter, true), 1);
         }
 
-        switch ($arrFilter['operation'])
-        {
+        switch ($arrFilter['operation']) {
             case 'AND':
             case 'OR':
                 return $this->getAndOrFilter($arrFilter, $arrParams);
@@ -357,8 +344,9 @@ class DefaultDataProvider implements DataProviderInterface
         $strReturn = $this->calculateSubfilter(
             array(
                 'operation' => 'AND',
-                'children' => $objConfig->getFilter()
-            ), $arrParams
+                'children'  => $objConfig->getFilter()
+            ),
+            $arrParams
         );
 
         // Combine filter syntax.
@@ -378,18 +366,20 @@ class DefaultDataProvider implements DataProviderInterface
         $strReturn  = '';
         $arrFields  = array();
 
-        if (!is_null($arrSorting) && is_array($arrSorting) && count($arrSorting) > 0)
-        {
-            foreach ($arrSorting as $strField => $strOrder)
-            {
-                if ($strOrder && !in_array(strtoupper($strOrder), array(DCGE::MODEL_SORTING_ASC, DCGE::MODEL_SORTING_DESC)))
-                {
+        if (!is_null($arrSorting) && is_array($arrSorting) && count($arrSorting) > 0) {
+            foreach ($arrSorting as $strField => $strOrder) {
+                if ($strOrder
+                    && !in_array(
+                        strtoupper($strOrder),
+                        array(DCGE::MODEL_SORTING_ASC, DCGE::MODEL_SORTING_DESC)
+                    )
+                ) {
                     $strField = $strOrder;
                     $strOrder = DCGE::MODEL_SORTING_ASC;
-                }
-                else if (!$strOrder)
-                {
-                    $strOrder = DCGE::MODEL_SORTING_ASC;
+                } else {
+                    if (!$strOrder) {
+                        $strOrder = DCGE::MODEL_SORTING_ASC;
+                    }
                 }
 
                 $arrFields[] = $strField . ' ' . $strOrder;
@@ -409,16 +399,11 @@ class DefaultDataProvider implements DataProviderInterface
     public function delete($item)
     {
         $id = null;
-        if (is_numeric($item) || is_string($item))
-        {
+        if (is_numeric($item) || is_string($item)) {
             $id = $item;
-        }
-        elseif (is_object($item) && $item instanceof ModelInterface && strlen($item->getID()) != 0)
-        {
+        } elseif (is_object($item) && $item instanceof ModelInterface && strlen($item->getID()) != 0) {
             $id = $item->getID();
-        }
-        else
-        {
+        } else {
             throw new DcGeneralRuntimeException("ID missing or given object not of type 'ModelInterface'.");
         }
 
@@ -454,10 +439,8 @@ class DefaultDataProvider implements DataProviderInterface
         $objModel = $this->getEmptyModel();
 
         /** @var \Contao\Database\Result $dbResult */
-        foreach ($dbResult->row() as $key => $value)
-        {
-            if ($key == 'id')
-            {
+        foreach ($dbResult->row() as $key => $value) {
+            if ($key == 'id') {
                 $objModel->setID($value);
             }
 
@@ -472,8 +455,7 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function fetch(ConfigInterface $objConfig)
     {
-        if ($objConfig->getId() != null)
-        {
+        if ($objConfig->getId() != null) {
             $strQuery = sprintf(
                 'SELECT %s  FROM %s WHERE id = ?',
                 $this->buildFieldQuery($objConfig),
@@ -483,10 +465,9 @@ class DefaultDataProvider implements DataProviderInterface
             $dbResult = $this->objDatabase
                 ->prepare($strQuery)
                 ->execute($objConfig->getId());
-        }
-        else
-        {
+        } else {
             $arrParams = array();
+
             // Build SQL.
             $query  = sprintf(
                 'SELECT %s FROM %s',
@@ -503,8 +484,7 @@ class DefaultDataProvider implements DataProviderInterface
                 ->executeUncached($arrParams);
         }
 
-        if ($dbResult->numRows == 0)
-        {
+        if ($dbResult->numRows == 0) {
             return null;
         }
 
@@ -529,27 +509,23 @@ class DefaultDataProvider implements DataProviderInterface
         // Execute db query.
         $objDatabaseQuery = $this->objDatabase->prepare($query);
 
-        if ($objConfig->getAmount() != 0)
-        {
+        if ($objConfig->getAmount() != 0) {
             $objDatabaseQuery->limit($objConfig->getAmount(), $objConfig->getStart());
         }
 
         $dbResult = $objDatabaseQuery->executeUncached($arrParams);
 
-        if ($objConfig->getIdOnly())
-        {
+        if ($objConfig->getIdOnly()) {
             return $dbResult->fetchEach('id');
         }
 
         $objCollection = $this->getEmptyCollection();
 
-        if ($dbResult->numRows == 0)
-        {
+        if ($dbResult->numRows == 0) {
             return $objCollection;
         }
 
-        while ($dbResult->next())
-        {
+        while ($dbResult->next()) {
             $objCollection->add($this->createModelFromDatabaseResult($dbResult));
         }
 
@@ -566,24 +542,25 @@ class DefaultDataProvider implements DataProviderInterface
         $arrProperties = $objConfig->getFields();
         $strProperty   = $arrProperties[0];
 
-        if (count($arrProperties) <> 1)
-        {
+        if (count($arrProperties) <> 1) {
             throw new DcGeneralRuntimeException('objConfig must contain exactly one property to be retrieved.');
         }
 
         $arrParams = array();
 
         $objValues = $this->objDatabase
-            ->prepare(sprintf('SELECT DISTINCT(%s) FROM %s %s',
-                $strProperty,
-                $this->strSource,
-                $this->buildWhereQuery($objConfig, $arrParams)
-            ))
+            ->prepare(
+                sprintf(
+                    'SELECT DISTINCT(%s) FROM %s %s',
+                    $strProperty,
+                    $this->strSource,
+                    $this->buildWhereQuery($objConfig, $arrParams)
+                )
+            )
             ->executeUncached($arrParams);
 
         $objCollection = $this->getEmptyFilterOptionCollection();
-        while ($objValues->next())
-        {
+        while ($objValues->next()) {
             $objCollection->add($objValues->$strProperty, $objValues->$strProperty);
         }
 
@@ -619,13 +596,11 @@ class DefaultDataProvider implements DataProviderInterface
             ->prepare('SELECT * FROM ' . $this->strSource . ' WHERE ' . $strField . ' = ? ')
             ->executeUncached($varNew);
 
-        if ($objUnique->numRows == 0)
-        {
+        if ($objUnique->numRows == 0) {
             return true;
         }
 
-        if (($objUnique->numRows == 1) && ($objUnique->id == $intId))
-        {
+        if (($objUnique->numRows == 1) && ($objUnique->id == $intId)) {
             return true;
         }
 
@@ -647,42 +622,32 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $arrSet = array();
 
-        foreach ($objItem as $key => $value)
-        {
-            if ($key == 'id')
-            {
+        foreach ($objItem as $key => $value) {
+            if ($key == 'id') {
                 continue;
             }
 
-            if (is_array($value))
-            {
+            if (is_array($value)) {
                 $arrSet[$key] = serialize($value);
-            }
-            else
-            {
+            } else {
                 $arrSet[$key] = $value;
             }
         }
 
-        if ($this->timeStampProperty)
-        {
+        if ($this->timeStampProperty) {
             $arrSet[$this->getTimeStampProperty()] = time();
         }
 
-        if ($objItem->getID() == null || $objItem->getID() == '')
-        {
+        if ($objItem->getID() == null || $objItem->getID() == '') {
             $objInsert = $this->objDatabase
                 ->prepare(sprintf('INSERT INTO %s %%s', $this->strSource))
                 ->set($arrSet)
                 ->execute();
 
-            if (strlen($objInsert->insertId) != 0)
-            {
+            if (strlen($objInsert->insertId) != 0) {
                 $objItem->setID($objInsert->insertId);
             }
-        }
-        else
-        {
+        } else {
             $this->objDatabase
                 ->prepare(sprintf('UPDATE %s %%s WHERE id=?', $this->strSource))
                 ->set($arrSet)
@@ -697,8 +662,7 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function saveEach(CollectionInterface $objItems)
     {
-        foreach ($objItems as $value)
-        {
+        foreach ($objItems as $value) {
             $this->save($value);
         }
     }
@@ -720,24 +684,20 @@ class DefaultDataProvider implements DataProviderInterface
             ->prepare('SELECT * FROM tl_version WHERE pid=? AND version=? AND fromTable=?')
             ->execute($mixID, $mixVersion, $this->strSource);
 
-        if ($objVersion->numRows == 0)
-        {
+        if ($objVersion->numRows == 0) {
             return null;
         }
 
         $arrData = deserialize($objVersion->data);
 
-        if (!is_array($arrData) || count($arrData) == 0)
-        {
+        if (!is_array($arrData) || count($arrData) == 0) {
             return null;
         }
 
         $objModel = $this->getEmptyModel();
         $objModel->setID($mixID);
-        foreach ($arrData as $key => $value)
-        {
-            if ($key == 'id')
-            {
+        foreach ($arrData as $key => $value) {
+            if ($key == 'id') {
                 continue;
             }
 
@@ -760,12 +720,9 @@ class DefaultDataProvider implements DataProviderInterface
     public function getVersions($mixID, $blnOnlyActive = false)
     {
         $sql = 'SELECT tstamp, version, username, active FROM tl_version WHERE fromTable = ? AND pid = ?';
-        if ($blnOnlyActive)
-        {
+        if ($blnOnlyActive) {
             $sql .= ' AND active = 1';
-        }
-        else
-        {
+        } else {
             $sql .= ' ORDER BY version DESC';
         }
 
@@ -774,22 +731,18 @@ class DefaultDataProvider implements DataProviderInterface
             ->execute($this->strSource, $mixID)
             ->fetchAllAssoc();
 
-        if (count($arrVersion) == 0)
-        {
+        if (count($arrVersion) == 0) {
             return null;
         }
 
         $objCollection = $this->getEmptyCollection();
 
-        foreach ($arrVersion as $versionValue)
-        {
+        foreach ($arrVersion as $versionValue) {
             $objReturn = $this->getEmptyModel();
             $objReturn->setID($mixID);
 
-            foreach ($versionValue as $key => $value)
-            {
-                if ($key == 'id')
-                {
+            foreach ($versionValue as $key => $value) {
+                if ($key == 'id') {
                     continue;
                 }
 
@@ -870,8 +823,7 @@ class DefaultDataProvider implements DataProviderInterface
             ->prepare('SELECT version FROM tl_version WHERE pid = ? AND fromTable = ? AND active = 1')
             ->execute($mixID, $this->strSource);
 
-        if ($objVersionID->numRows == 0)
-        {
+        if ($objVersionID->numRows == 0) {
             return null;
         }
 
@@ -889,27 +841,20 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function sameModels($objModel1, $objModel2)
     {
-        foreach ($objModel1 as $key => $value)
-        {
-            if ($key == 'id')
-            {
+        foreach ($objModel1 as $key => $value) {
+            if ($key == 'id') {
                 continue;
             }
 
-            if (is_array($value))
-            {
-                if (!is_array($objModel2->getProperty($key)))
-                {
+            if (is_array($value)) {
+                if (!is_array($objModel2->getProperty($key))) {
                     return false;
                 }
 
-                if (serialize($value) != serialize($objModel2->getProperty($key)))
-                {
+                if (serialize($value) != serialize($objModel2->getProperty($key))) {
                     return false;
                 }
-            }
-            elseif ($value != $objModel2->getProperty($key))
-            {
+            } elseif ($value != $objModel2->getProperty($key)) {
                 return false;
             }
         }
@@ -939,15 +884,13 @@ class DefaultDataProvider implements DataProviderInterface
             ->fetchAllAssoc();
 
         // Check if we have a result.
-        if (count($arrResult) == 0)
-        {
+        if (count($arrResult) == 0) {
             return;
         }
 
         // Save information in array.
         $arrSave = array();
-        foreach ($arrResult as $value)
-        {
+        foreach ($arrResult as $value) {
             $arrSave[$strTable][] = $value;
         }
 
@@ -956,7 +899,9 @@ class DefaultDataProvider implements DataProviderInterface
 
         // Write into undo.
         $this->objDatabase
-            ->prepare('INSERT INTO tl_undo (pid, tstamp, fromTable, query, affectedRows, data) VALUES (?, ?, ?, ?, ?, ?)')
+            ->prepare(
+                'INSERT INTO tl_undo (pid, tstamp, fromTable, query, affectedRows, data) VALUES (?, ?, ?, ?, ?, ?)'
+            )
             ->execute(
                 $objUser->id,
                 time(),

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -42,16 +43,14 @@ class ExtendedLegacyDcaPopulator extends AbstractEventDrivenEnvironmentPopulator
     protected function populateView(EnvironmentInterface $environment)
     {
         // Already populated, get out then.
-        if ($environment->getView())
-        {
+        if ($environment->getView()) {
             return;
         }
 
         $definition = $environment->getDataDefinition();
 
         // If we encounter an extended definition, that one may override.
-        if (!$definition->hasDefinition(ExtendedDca::NAME))
-        {
+        if (!$definition->hasDefinition(ExtendedDca::NAME)) {
             return;
         }
 
@@ -59,8 +58,7 @@ class ExtendedLegacyDcaPopulator extends AbstractEventDrivenEnvironmentPopulator
         $extendedDefinition = $definition->getDefinition(ExtendedDca::NAME);
         $class              = $extendedDefinition->getViewClass();
 
-        if (!$class)
-        {
+        if (!$class) {
             return;
         }
 
@@ -85,16 +83,14 @@ class ExtendedLegacyDcaPopulator extends AbstractEventDrivenEnvironmentPopulator
     public function populateController(EnvironmentInterface $environment)
     {
         // Already populated, get out then.
-        if ($environment->getController())
-        {
+        if ($environment->getController()) {
             return;
         }
 
         $definition = $environment->getDataDefinition();
 
         // If we encounter an extended definition, that one may override.
-        if (!$definition->hasDefinition(ExtendedDca::NAME))
-        {
+        if (!$definition->hasDefinition(ExtendedDca::NAME)) {
             return;
         }
 
@@ -102,8 +98,7 @@ class ExtendedLegacyDcaPopulator extends AbstractEventDrivenEnvironmentPopulator
         $extendedDefinition = $definition->getDefinition(ExtendedDca::NAME);
         $class              = $extendedDefinition->getControllerClass();
 
-        if (!$class)
-        {
+        if (!$class) {
             return;
         }
 

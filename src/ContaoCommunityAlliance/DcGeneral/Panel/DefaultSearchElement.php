@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -20,9 +21,7 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
  *
  * @package DcGeneral\Panel
  */
-class DefaultSearchElement
-    extends AbstractElement
-    implements SearchElementInterface
+class DefaultSearchElement extends AbstractElement implements SearchElementInterface
 {
     /**
      * The properties to be allowed to be searched on.
@@ -53,13 +52,11 @@ class DefaultSearchElement
     protected function getPersistent()
     {
         $arrValue = array();
-        if ($this->getInputProvider()->hasPersistentValue('search'))
-        {
+        if ($this->getInputProvider()->hasPersistentValue('search')) {
             $arrValue = $this->getInputProvider()->getPersistentValue('search');
         }
 
-        if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue))
-        {
+        if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
             return $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
         }
 
@@ -80,30 +77,22 @@ class DefaultSearchElement
         $arrValue       = array();
         $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
-        if ($this->getInputProvider()->hasPersistentValue('search'))
-        {
+        if ($this->getInputProvider()->hasPersistentValue('search')) {
             $arrValue = $this->getInputProvider()->getPersistentValue('search');
         }
 
-        if (!empty($strValue))
-        {
-            if (!is_array($arrValue[$definitionName]))
-            {
+        if (!empty($strValue)) {
+            if (!is_array($arrValue[$definitionName])) {
                 $arrValue[$definitionName] = array();
             }
 
-            if ($strValue)
-            {
+            if ($strValue) {
                 $arrValue[$definitionName]['field'] = $strProperty;
                 $arrValue[$definitionName]['value'] = $strValue;
-            }
-            else
-            {
+            } else {
                 unset($arrValue[$definitionName]);
             }
-        }
-        else
-        {
+        } else {
             unset($arrValue[$definitionName]);
         }
 
@@ -119,18 +108,14 @@ class DefaultSearchElement
         $value = null;
         $field = null;
 
-        if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue('tl_field'))
-        {
+        if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue('tl_field')) {
             $field = $input->getValue('tl_field');
             $value = $input->getValue('tl_value');
 
             $this->setPersistent($field, $value);
-        }
-        elseif ($input->hasPersistentValue('search'))
-        {
+        } elseif ($input->hasPersistentValue('search')) {
             $persistent = $this->getPersistent();
-            if ($persistent)
-            {
+            if ($persistent) {
                 $field = $persistent['field'];
                 $value = $persistent['value'];
             }
@@ -139,30 +124,32 @@ class DefaultSearchElement
         $this->setSelectedProperty($field);
         $this->setValue($value);
 
-        if (!($this->getSelectedProperty() && $this->getValue()))
-        {
+        if (!($this->getSelectedProperty() && $this->getValue())) {
             return;
         }
 
         $arrCurrent = $objConfig->getFilter();
-        if (!is_array($arrCurrent))
-        {
+        if (!is_array($arrCurrent)) {
             $arrCurrent = array();
         }
 
-        $objConfig->setFilter(array_merge_recursive(
-            $arrCurrent,
-            array(
+        $objConfig->setFilter(
+            array_merge_recursive(
+                $arrCurrent,
                 array(
-                    'operation' => 'AND',
-                    'children' => array(array(
-                        'operation' => 'LIKE',
-                        'property' => $this->getSelectedProperty(),
-                        'value' => sprintf('*%s*', $this->getValue())
-                    ))
+                    array(
+                        'operation' => 'AND',
+                        'children'  => array(
+                            array(
+                                'operation' => 'LIKE',
+                                'property'  => $this->getSelectedProperty(),
+                                'value'     => sprintf('*%s*', $this->getValue())
+                            )
+                        )
+                    )
                 )
             )
-        ));
+        );
     }
 
     /**
@@ -172,8 +159,7 @@ class DefaultSearchElement
     {
         $arrOptions = array();
 
-        foreach ($this->getPropertyNames() as $field)
-        {
+        foreach ($this->getPropertyNames() as $field) {
             $arrLabel     = $this
                 ->getEnvironment()
                 ->getDataDefinition()

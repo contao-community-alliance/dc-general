@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -23,6 +24,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class IdSerializer
 {
+
     /**
      * The data provider name.
      *
@@ -135,15 +137,13 @@ class IdSerializer
 
         $chunks = explode('::', $serialized);
 
-        if (count($chunks) !== 2)
-        {
+        if (count($chunks) !== 2) {
             throw new DcGeneralRuntimeException('Unparsable encoded id value: ' . var_export($serialized, true));
         }
 
         $instance->setDataProviderName($chunks[0]);
 
-        if (is_numeric($chunks[1]))
-        {
+        if (is_numeric($chunks[1])) {
             return $instance->setId($chunks[1]);
         }
 
@@ -160,8 +160,7 @@ class IdSerializer
      */
     public function getSerialized()
     {
-        if (is_numeric($this->id))
-        {
+        if (is_numeric($this->id)) {
             return sprintf('%s::%s', $this->dataProviderName, $this->id);
         }
 

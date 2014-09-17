@@ -52,13 +52,10 @@ class LegacyPalettesParser
      */
     public function parse(array $palettes, array $subpalettes = array(), PaletteCollectionInterface $collection = null)
     {
-        if (isset($palettes['__selector__']))
-        {
+        if (isset($palettes['__selector__'])) {
             $selectorFieldNames = $palettes['__selector__'];
             unset($palettes['__selector__']);
-        }
-        else
-        {
+        } else {
             $selectorFieldNames = array();
         }
 
@@ -92,30 +89,24 @@ class LegacyPalettesParser
         array $subPaletteProperties = array(),
         array $selectorFieldNames = array(),
         PaletteCollectionInterface $collection = null
-    )
-    {
-        if (!$collection)
-        {
+    ) {
+        if (!$collection) {
             $collection = new PaletteCollection();
         }
 
-        if (isset($palettes['__selector__']))
-        {
+        if (isset($palettes['__selector__'])) {
             $selectorFieldNames = array_merge($selectorFieldNames, $palettes['__selector__']);
             $selectorFieldNames = array_unique($selectorFieldNames);
             unset($palettes['__selector__']);
         }
 
-        foreach ($palettes as $selector => $fields)
-        {
+        foreach ($palettes as $selector => $fields) {
             // Fields list must be a string.
-            if (!is_string($fields))
-            {
+            if (!is_string($fields)) {
                 continue;
             }
 
-            if ($collection->hasPaletteByName($selector))
-            {
+            if ($collection->hasPaletteByName($selector)) {
                 $palette = $collection->getPaletteByName($selector);
                 $this->parsePalette(
                     $selector,
@@ -124,8 +115,7 @@ class LegacyPalettesParser
                     $selectorFieldNames,
                     $palette
                 );
-            }
-            else {
+            } else {
                 $palette = $this->parsePalette(
                     $selector,
                     $fields,
@@ -161,10 +151,8 @@ class LegacyPalettesParser
         array $subPaletteProperties = array(),
         array $selectorFieldNames = array(),
         PaletteInterface $palette = null
-    )
-    {
-        if (!$palette)
-        {
+    ) {
+        if (!$palette) {
             $palette = new Palette();
             $palette->setName($paletteSelector);
         }
@@ -179,34 +167,24 @@ class LegacyPalettesParser
 
         $legend = null;
 
-        foreach ($fields as $field)
-        {
+        foreach ($fields as $field) {
             // TODO what about :hide? this is currently not supported by LegendInterface.
-            if (preg_match('~^\{(.*?)(_legend)?(:hide)?\}$~', $field, $matches))
-            {
+            if (preg_match('~^\{(.*?)(_legend)?(:hide)?\}$~', $field, $matches)) {
                 $name = $matches[1];
-                if ($palette->hasLegend($name))
-                {
+                if ($palette->hasLegend($name)) {
                     $legend = $palette->getLegend($name);
-                }
-                else
-                {
+                } else {
                     $legend = new Legend($matches[1]);
                     $palette->addLegend($legend);
                 }
-            }
-            else {
+            } else {
                 // Fallback for incomplete palettes without legend,
                 // Create an empty legend.
-                if (!$legend)
-                {
+                if (!$legend) {
                     $name = 'unnamed';
-                    if ($palette->hasLegend($name))
-                    {
+                    if ($palette->hasLegend($name)) {
                         $legend = $palette->getLegend($name);
-                    }
-                    else
-                    {
+                    } else {
                         $legend = new Legend($matches[1]);
                         $palette->addLegend($legend);
                     }
@@ -217,10 +195,8 @@ class LegacyPalettesParser
                 $legend->addProperty($property);
 
                 // Add sub palette fields to the legend.
-                if (isset($subPaletteProperties[$field]))
-                {
-                    foreach ($subPaletteProperties[$field] as $property)
-                    {
+                if (isset($subPaletteProperties[$field])) {
+                    foreach ($subPaletteProperties[$field] as $property) {
                         $legend->addProperty(clone $property);
                     }
                 }
@@ -241,16 +217,13 @@ class LegacyPalettesParser
      */
     public function createPaletteCondition($paletteSelector, array $selectorFieldNames)
     {
-        if ($paletteSelector == 'default')
-        {
+        if ($paletteSelector == 'default') {
             return new DefaultPaletteCondition();
         }
 
         // Legacy fallback, try to split on $selectors with optimistic suggestion of values.
-        if (strpos($paletteSelector, '|') === false)
-        {
-            foreach ($selectorFieldNames as $selectorFieldName)
-            {
+        if (strpos($paletteSelector, '|') === false) {
+            foreach ($selectorFieldNames as $selectorFieldName) {
                 $paletteSelector = str_replace(
                     $selectorFieldName,
                     '|' . $selectorFieldName . '|',
@@ -266,22 +239,17 @@ class LegacyPalettesParser
 
         $condition = new PaletteConditionChain();
 
-        foreach ($paletteSelectorParts as $paletteSelectorPart)
-        {
+        foreach ($paletteSelectorParts as $paletteSelectorPart) {
             // The part is a property name (checkbox like selector).
-            if (in_array($paletteSelectorPart, $selectorFieldNames))
-            {
+            if (in_array($paletteSelectorPart, $selectorFieldNames)) {
                 $condition->addCondition(
                     new PalettePropertyTrueCondition($paletteSelectorPart)
                 );
-            }
-            // The part is a value (but which?) (select box like selector).
-            else
-            {
+            } else {
+                // The part is a value (but which?) (select box like selector).
                 $orCondition = new PaletteConditionChain(array(), PaletteConditionChain::OR_CONJUNCTION);
 
-                foreach ($selectorFieldNames as $selectorFieldName)
-                {
+                foreach ($selectorFieldNames as $selectorFieldName) {
                     $orCondition->addCondition(
                         new PalettePropertyValueCondition(
                             $selectorFieldName,
@@ -311,11 +279,9 @@ class LegacyPalettesParser
     {
         $properties = array();
 
-        foreach ($subpalettes as $subPaletteSelector => $childFields)
-        {
+        foreach ($subpalettes as $subPaletteSelector => $childFields) {
             // Child fields list must be a string.
-            if (!is_string($childFields))
-            {
+            if (!is_string($childFields)) {
                 continue;
             }
 
@@ -351,8 +317,7 @@ class LegacyPalettesParser
 
         $properties = array();
 
-        foreach ($childFields as $childField)
-        {
+        foreach ($childFields as $childField) {
             $property = new Property($childField);
             $property->setVisibleCondition(clone $condition);
             $properties[] = $property;
@@ -384,10 +349,8 @@ class LegacyPalettesParser
         $selectorValues     = explode('_', $subPaletteSelector);
         $selectorFieldName  = array_shift($selectorValues);
         $selectorValueCount = count($selectorValues);
-        while ($selectorValueCount)
-        {
-            if (in_array($selectorFieldName, $selectorFieldNames))
-            {
+        while ($selectorValueCount) {
+            if (in_array($selectorFieldName, $selectorFieldNames)) {
                 break;
             }
             $selectorFieldName .= '_' . array_shift($selectorValues);
@@ -423,15 +386,12 @@ class LegacyPalettesParser
         $selectorFieldName  = array_shift($selectorValues);
         $selectorValueCount = count($selectorValues);
 
-        while ($selectorValueCount)
-        {
-            if (empty($selectorValues))
-            {
+        while ($selectorValueCount) {
+            if (empty($selectorValues)) {
                 break;
             }
 
-            if (in_array($selectorFieldName, $selectorFieldNames))
-            {
+            if (in_array($selectorFieldName, $selectorFieldNames)) {
                 $condition = new PropertyValueCondition($selectorFieldName, implode('_', $selectorValues));
                 break;
             }
@@ -439,8 +399,7 @@ class LegacyPalettesParser
         }
 
         // If case 1 was not successful, try implicitly case 2 must apply.
-        if (!$condition)
-        {
+        if (!$condition) {
             $condition = new PropertyTrueCondition($subPaletteSelector);
         }
 

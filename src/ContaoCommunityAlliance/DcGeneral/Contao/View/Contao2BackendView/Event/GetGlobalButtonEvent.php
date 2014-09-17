@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,8 +22,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event
  *
  * @package DcGeneral\Contao\View\Contao2BackendView\Event
  */
-class GetGlobalButtonEvent
-    extends BaseButtonEvent
+class GetGlobalButtonEvent extends BaseButtonEvent
 {
     const NAME = 'dc-general.view.contao2backend.get-global-button';
 

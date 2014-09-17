@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -37,8 +38,7 @@ abstract class AbstractReturningCallbackListener extends AbstractCallbackListene
      */
     public function __invoke($event)
     {
-        if ($this->getCallback())
-        {
+        if ($this->getCallback()) {
             $this->update(
                 $event,
                 Callbacks::callArgs($this->getCallback(), $this->getArgs($event))

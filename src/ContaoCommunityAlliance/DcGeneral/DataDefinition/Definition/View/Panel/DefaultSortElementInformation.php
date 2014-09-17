@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,6 +22,7 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel
  */
 class DefaultSortElementInformation implements SortElementInformationInterface
 {
+
     /**
      * The names of the properties to be sortable.
      *
@@ -124,8 +126,7 @@ class DefaultSortElementInformation implements SortElementInformationInterface
     {
         $flag = $this->getDefaultFlag();
 
-        if ($this->hasProperty($propertyName) && $this->properties[$propertyName])
-        {
+        if ($this->hasProperty($propertyName) && $this->properties[$propertyName]) {
             $flag = $this->properties[$propertyName];
         }
 

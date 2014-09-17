@@ -27,6 +27,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConf
  */
 class Contao2BackendViewDefinition implements Contao2BackendViewDefinitionInterface
 {
+
     /**
      * The listing configuration for this backend view.
      *
@@ -100,6 +101,3 @@ class Contao2BackendViewDefinition implements Contao2BackendViewDefinitionInterf
         return $this->panelLayout;
     }
 }
-
-
-

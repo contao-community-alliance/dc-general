@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -26,6 +27,7 @@ use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
  */
 class DcCompat extends DC_General
 {
+
     /**
      * The current model.
      *
@@ -83,7 +85,9 @@ class DcCompat extends DC_General
      */
     public function handlePopulateEnvironment(PopulateEnvironmentEvent $event)
     {
-        throw new DcGeneralException(__CLASS__ . '::handlePopulateEnvironment() is internal use only and must not be called');
+        throw new DcGeneralException(
+            __CLASS__ . '::handlePopulateEnvironment() is internal use only and must not be called'
+        );
     }
 
     /**
@@ -93,7 +97,9 @@ class DcCompat extends DC_General
      */
     protected function getTablenameCallback($strTable)
     {
-        throw new DcGeneralException(__CLASS__ . '::getTablenameCallback() is internal use only and must not be called');
+        throw new DcGeneralException(
+            __CLASS__ . '::getTablenameCallback() is internal use only and must not be called'
+        );
     }
 
     /**
@@ -112,14 +118,12 @@ class DcCompat extends DC_General
     // @codingStandardsIgnoreStart - We know this method is very complex but we can not reduce the switch cases.
     public function __get($name)
     {
-        switch ($name)
-        {
+        switch ($name) {
             case 'id':
                 return $this->getModel() ? $this->getModel()->getId() : null;
 
             case 'parentTable':
-                if ($this->getEnvironment()->getParentDataDefinition())
-                {
+                if ($this->getEnvironment()->getParentDataDefinition()) {
                     return $this->getEnvironment()->getParentDataDefinition()->getName();
                 }
                 return null;
@@ -137,8 +141,7 @@ class DcCompat extends DC_General
                 return $this->getEnvironment()->getDataProvider()->getEmptyModel()->getProviderName();
 
             case 'value':
-                if ($this->propertyName && $this->getModel())
-                {
+                if ($this->propertyName && $this->getModel()) {
                     return $this->getModel()->getProperty($this->propertyName);
                 }
                 return null;

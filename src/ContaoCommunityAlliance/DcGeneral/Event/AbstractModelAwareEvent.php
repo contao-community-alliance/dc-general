@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,10 +22,9 @@ use ContaoCommunityAlliance\DcGeneral\ModelAwareInterface;
  *
  * @package DcGeneral\Event
  */
-class AbstractModelAwareEvent
-    extends AbstractEnvironmentAwareEvent
-    implements ModelAwareInterface
+class AbstractModelAwareEvent extends AbstractEnvironmentAwareEvent implements ModelAwareInterface
 {
+
     /**
      * The model attached to the event.
      *

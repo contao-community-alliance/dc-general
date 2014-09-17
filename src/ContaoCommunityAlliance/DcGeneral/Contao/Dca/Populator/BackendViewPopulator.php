@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -60,22 +61,19 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
     protected function populateView(EnvironmentInterface $environment)
     {
         // Already populated or not in Backend? Get out then.
-        if ($environment->getView() || (TL_MODE != 'BE'))
-        {
+        if ($environment->getView() || (TL_MODE != 'BE')) {
             return;
         }
 
         $definition = $environment->getDataDefinition();
 
-        if (!$definition->hasBasicDefinition())
-        {
+        if (!$definition->hasBasicDefinition()) {
             return;
         }
 
         $definition = $definition->getBasicDefinition();
 
-        switch ($definition->getMode())
-        {
+        switch ($definition->getMode()) {
             case BasicDefinitionInterface::MODE_FLAT:
                 $view = new ListView();
                 break;
@@ -105,15 +103,13 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
     protected function populatePanel(EnvironmentInterface $environment)
     {
         // Already populated or not in Backend? Get out then.
-        if (!(($environment->getView() instanceof BaseView) && (TL_MODE == 'BE')))
-        {
+        if (!(($environment->getView() instanceof BaseView) && (TL_MODE == 'BE'))) {
             return;
         }
 
         $definition = $environment->getDataDefinition();
 
-        if (!$definition->hasDefinition(Contao2BackendViewDefinitionInterface::NAME))
-        {
+        if (!$definition->hasDefinition(Contao2BackendViewDefinitionInterface::NAME)) {
             return;
         }
 
@@ -121,8 +117,7 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
         $view = $environment->getView();
 
         // Already populated.
-        if ($view->getPanel())
-        {
+        if ($view->getPanel()) {
             return;
         }
 
@@ -130,54 +125,41 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
         $panel->setEnvironment($environment);
         $view->setPanel($panel);
 
-        /** @var Contao2BackendViewDefinitionInterface $backendViewDefinition  */
+        /** @var Contao2BackendViewDefinitionInterface $backendViewDefinition */
         $backendViewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
 
         /** @var PanelLayoutInterface $panelLayout */
         $panelLayout = $backendViewDefinition->getPanelLayout();
 
-        foreach ($panelLayout->getRows() as $panelKey => $row)
-        {
+        foreach ($panelLayout->getRows() as $panelKey => $row) {
             // We need a new panel.
             $panelRow = new DefaultPanel();
 
             $panel->addPanel($panelKey, $panelRow);
 
-            foreach ($row as $element)
-            {
-                if ($element instanceof FilterElementInformationInterface)
-                {
+            foreach ($row as $element) {
+                if ($element instanceof FilterElementInformationInterface) {
                     $panelElement = new DefaultFilterElement();
                     $panelElement->setPropertyName($element->getPropertyName());
                     $panelRow->addElement($element->getName(), $panelElement);
-                }
-                elseif ($element instanceof LimitElementInformationInterface)
-                {
+                } elseif ($element instanceof LimitElementInformationInterface) {
                     $panelElement = new DefaultLimitElement();
                     $panelRow->addElement($element->getName(), $panelElement);
-                }
-                elseif ($element instanceof SearchElementInformationInterface)
-                {
+                } elseif ($element instanceof SearchElementInformationInterface) {
                     $panelElement = new DefaultSearchElement();
 
-                    foreach ($element->getPropertyNames() as $propName)
-                    {
+                    foreach ($element->getPropertyNames() as $propName) {
                         $panelElement->addProperty($propName);
                     }
 
                     $panelRow->addElement($element->getName(), $panelElement);
-                }
-                elseif ($element instanceof SortElementInformationInterface)
-                {
+                } elseif ($element instanceof SortElementInformationInterface) {
                     $panelElement = new DefaultSortElement();
                     $panelRow->addElement($element->getName(), $panelElement);
-                }
-                elseif ($element instanceof SubmitElementInformationInterface)
-                {
+                } elseif ($element instanceof SubmitElementInformationInterface) {
                     $panelElement = new DefaultSubmitElement();
                     $panelRow->addElement($element->getName(), $panelElement);
                 }
-
             }
         }
     }

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -33,7 +34,10 @@ class PropertyOnSaveCallbackListener extends AbstractReturningCallbackListener
      */
     public function getArgs($event)
     {
-        return array($event->getValue(), new DcCompat($event->getEnvironment(), $event->getModel(), $event->getProperty()));
+        return array(
+            $event->getValue(),
+            new DcCompat($event->getEnvironment(), $event->getModel(), $event->getProperty())
+        );
     }
 
     /**

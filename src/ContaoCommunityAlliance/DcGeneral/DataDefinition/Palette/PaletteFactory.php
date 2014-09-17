@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -53,20 +54,16 @@ class PaletteFactory
      */
     public static function fillPaletteCollection(PaletteCollection $collection, array $palettes)
     {
-        foreach ($palettes as $palette)
-        {
-            if ($palette instanceof PaletteInterface)
-            {
+        foreach ($palettes as $palette) {
+            if ($palette instanceof PaletteInterface) {
                 $collection->addPalette($palette);
-            }
-            elseif (is_array($palette))
-            {
+            } elseif (is_array($palette)) {
                 static::fillPaletteCollection($collection, $palette);
-            }
-            else
-            {
+            } else {
                 $type = is_object($palette) ? get_class($palette) : gettype($palette);
-                throw new DcGeneralInvalidArgumentException('Palette [' . $type . '] does not implement PaletteInterface');
+                throw new DcGeneralInvalidArgumentException(
+                    'Palette [' . $type . '] does not implement PaletteInterface'
+                );
             }
         }
     }
@@ -88,8 +85,7 @@ class PaletteFactory
 
         $args = func_get_args();
 
-        if (is_string($args[0]))
-        {
+        if (is_string($args[0])) {
             $name = array_shift($args);
             $palette->setName($name);
         }
@@ -112,19 +108,16 @@ class PaletteFactory
      */
     public static function fillPalette(PaletteInterface $palette, array $legends)
     {
-        foreach ($legends as $legend)
-        {
-            if ($legend instanceof LegendInterface)
-            {
+        foreach ($legends as $legend) {
+            if ($legend instanceof LegendInterface) {
                 $palette->addLegend($legend);
-            }
-            elseif (is_array($legend))
-            {
+            } elseif (is_array($legend)) {
                 static::fillPalette($palette, $legend);
-            }
-            else {
+            } else {
                 $type = is_object($legend) ? get_class($legend) : gettype($legend);
-                throw new DcGeneralInvalidArgumentException('Legend [' . $type . '] does not implement LegendInterface');
+                throw new DcGeneralInvalidArgumentException(
+                    'Legend [' . $type . '] does not implement LegendInterface'
+                );
             }
         }
     }
@@ -167,20 +160,16 @@ class PaletteFactory
      */
     public static function fillLegend(LegendInterface $legend, array $properties)
     {
-        foreach ($properties as $property)
-        {
-            if ($property instanceof PropertyInterface)
-            {
+        foreach ($properties as $property) {
+            if ($property instanceof PropertyInterface) {
                 $legend->addProperty($property);
-            }
-            elseif (is_array($property))
-            {
+            } elseif (is_array($property)) {
                 static::fillLegend($legend, $property);
-            }
-            else
-            {
+            } else {
                 $type = is_object($property) ? get_class($property) : gettype($property);
-                throw new DcGeneralInvalidArgumentException('Property [' . $type . '] does not implement PropertyInterface');
+                throw new DcGeneralInvalidArgumentException(
+                    'Property [' . $type . '] does not implement PropertyInterface'
+                );
             }
         }
     }

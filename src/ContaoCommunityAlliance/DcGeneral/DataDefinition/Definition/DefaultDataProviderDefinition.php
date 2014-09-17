@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,6 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
 {
+
     /**
      * The data provider information stored in the definition.
      *
@@ -37,15 +39,13 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
      */
     public function addInformation($information)
     {
-        if (!($information instanceof DataProviderInformationInterface))
-        {
+        if (!($information instanceof DataProviderInformationInterface)) {
             throw new DcGeneralInvalidArgumentException('Invalid value passed.');
         }
 
         $name = $information->getName();
 
-        if ($this->hasInformation($name))
-        {
+        if ($this->hasInformation($name)) {
             throw new DcGeneralInvalidArgumentException('Data provider name ' . $name . ' already registered.');
         }
 
@@ -68,13 +68,11 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
      */
     protected function makeName($information)
     {
-        if ($information instanceof DataProviderInformationInterface)
-        {
+        if ($information instanceof DataProviderInformationInterface) {
             $information = $information->getName();
         }
 
-        if (!is_string($information))
-        {
+        if (!is_string($information)) {
             throw new DcGeneralInvalidArgumentException('Invalid value passed.');
         }
 

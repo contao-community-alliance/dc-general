@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -19,6 +20,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInterface
 {
+
     /**
      * The information stored.
      *
@@ -40,12 +42,9 @@ class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInter
     {
         $information = new DefaultGroupAndSortingInformation();
 
-        if (($index < 0) || ($this->getCount() <= $index))
-        {
+        if (($index < 0) || ($this->getCount() <= $index)) {
             $this->information[] = $information;
-        }
-        else
-        {
+        } else {
             array_splice($this->information, $index, 0, array($information));
         }
 
@@ -73,11 +72,12 @@ class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInter
 
     /**
      * {@inheritDoc}
+     *
+     * @throws DcGeneralInvalidArgumentException when the given offset does not exist.
      */
     public function get($index)
     {
-        if (!isset($this->information[$index]))
-        {
+        if (!isset($this->information[$index])) {
             throw new DcGeneralInvalidArgumentException('Offset ' . $index . ' does not exist.');
         }
 

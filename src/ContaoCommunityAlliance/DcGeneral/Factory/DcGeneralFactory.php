@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -274,13 +275,11 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      */
     public function createDcGeneral()
     {
-        if (empty($this->containerName) && !$this->dataContainer)
-        {
+        if (empty($this->containerName) && !$this->dataContainer) {
             throw new DcGeneralRuntimeException('Required container name or container is missing');
         }
 
-        if (empty($this->eventPropagator))
-        {
+        if (empty($this->eventPropagator)) {
             throw new DcGeneralRuntimeException('Required event propagator is missing');
         }
 
@@ -291,12 +290,9 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
             array($this->containerName)
         );
 
-        if ($this->environment)
-        {
+        if ($this->environment) {
             $environment = $this->environment;
-        }
-        else
-        {
+        } else {
             $environment = $this->createEnvironment();
         }
 
@@ -324,27 +320,21 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      */
     public function createEnvironment()
     {
-        if (empty($this->containerName) && !$this->dataContainer)
-        {
+        if (empty($this->containerName) && !$this->dataContainer) {
             throw new DcGeneralRuntimeException('Required container name or container is missing');
         }
 
-        if (empty($this->eventPropagator))
-        {
+        if (empty($this->eventPropagator)) {
             throw new DcGeneralRuntimeException('Required event propagator is missing');
         }
 
-        if (empty($this->translator))
-        {
+        if (empty($this->translator)) {
             throw new DcGeneralRuntimeException('Required translator is missing');
         }
 
-        if ($this->dataContainer)
-        {
+        if ($this->dataContainer) {
             $dataContainer = clone $this->dataContainer;
-        }
-        else
-        {
+        } else {
             $dataContainer = $this->createContainer();
         }
 
@@ -373,21 +363,18 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      */
     public function createContainer()
     {
-        if (empty($this->containerName))
-        {
+        if (empty($this->containerName)) {
             throw new DcGeneralRuntimeException('Required container name is missing');
         }
 
-        if (empty($this->eventPropagator))
-        {
+        if (empty($this->eventPropagator)) {
             throw new DcGeneralRuntimeException('Required event propagator is missing');
         }
 
         /** @var DataDefinitionContainerInterface $definitions */
         $definitions = $GLOBALS['container']['dc-general.data-definition-container'];
 
-        if ($definitions->hasDefinition($this->containerName))
-        {
+        if ($definitions->hasDefinition($this->containerName)) {
             return clone $definitions->getDefinition($this->containerName);
         }
 

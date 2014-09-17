@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -17,8 +18,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Panel;
  *
  * @package DcGeneral\Panel
  */
-interface SearchElementInterface
-    extends PanelElementInterface
+interface SearchElementInterface extends PanelElementInterface
 {
     /**
      * Add a property that can be searched.

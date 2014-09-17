@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    DcGeneral
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,6 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
  */
 class SortingManager
 {
+
     /**
      * The collection containing the models to be inserted.
      *
@@ -95,25 +97,20 @@ class SortingManager
         CollectionInterface $siblings = null,
         $sortedBy = null,
         ModelInterface $previousModel = null
-    )
-    {
-        if ($models)
-        {
+    ) {
+        if ($models) {
             $this->setModels($models);
         }
 
-        if ($siblings)
-        {
+        if ($siblings) {
             $this->setSiblings($siblings);
         }
 
-        if ($sortedBy)
-        {
+        if ($sortedBy) {
             $this->setSortingProperty($sortedBy);
         }
 
-        if ($previousModel)
-        {
+        if ($previousModel) {
             $this->setPreviousModel($previousModel);
         }
     }
@@ -230,8 +227,7 @@ class SortingManager
     {
         $ids = array();
 
-        foreach ($this->models as $model)
-        {
+        foreach ($this->models as $model) {
             /** @var ModelInterface $model */
             $ids[] = $model->getId();
         }
@@ -251,38 +247,30 @@ class SortingManager
         $this->position = 0;
         $ids            = $this->getModelIds();
         // If no previous model, insert at beginning.
-        if ($this->previousModel === null)
-        {
-            if ($this->siblingsCopy->length())
-            {
+        if ($this->previousModel === null) {
+            if ($this->siblingsCopy->length()) {
                 $this->marker = $this->siblingsCopy->shift();
             }
 
             return;
         }
 
-        if ($this->siblingsCopy->length())
-        {
+        if ($this->siblingsCopy->length()) {
             // Search for "previous" sibling.
-            do
-            {
+            do {
                 $this->marker = $this->siblingsCopy->shift();
 
-                if (in_array($this->marker->getId(), $ids))
-                {
+                if (in_array($this->marker->getId(), $ids)) {
                     continue;
                 }
 
-                if ($this->marker)
-                {
+                if ($this->marker) {
                     $this->position = $this->marker->getProperty($this->getSortingProperty());
                 }
-            }
-            while ($this->marker && $this->marker->getId() !== $this->getPreviousModel()->getId());
+            } while ($this->marker && $this->marker->getId() !== $this->getPreviousModel()->getId());
 
             // Remember the "next" sibling.
-            if ($this->marker)
-            {
+            if ($this->marker) {
                 $this->marker = $this->siblingsCopy->shift();
             }
         }
@@ -295,8 +283,7 @@ class SortingManager
      */
     protected function calculate()
     {
-        if (isset($this->results) || $this->models->length() == 0)
-        {
+        if (isset($this->results) || $this->models->length() == 0) {
             return;
         }
 
@@ -307,10 +294,8 @@ class SortingManager
         $this->scanToDesiredPosition();
 
         // If no "next" sibling, simply increment the sorting as we are at the end of the list.
-        if (!$this->marker)
-        {
-            foreach ($this->results as $model)
-            {
+        if (!$this->marker) {
+            foreach ($this->results as $model) {
                 $this->position += 128;
                 /** @var ModelInterface $model */
                 $model->setProperty($this->getSortingProperty(), $this->position);
@@ -320,16 +305,17 @@ class SortingManager
         }
 
         // Determine delta value: ((next sorting - current sorting) / amount of insert models).
-        $delta = (($this->marker->getProperty($this->getSortingProperty()) - $this->position) / $this->results->length());
+        $delta = (
+            ($this->marker->getProperty($this->getSortingProperty()) - $this->position)
+            / $this->results->length()
+        );
         // If delta too narrow, we need to make room.
-        if ($delta < 2)
-        {
+        if ($delta < 2) {
             $delta = 128;
         }
 
         // Loop over all models and increment sorting value.
-        foreach ($this->results as $model)
-        {
+        foreach ($this->results as $model) {
             $this->position += $delta;
             /** @var ModelInterface $model */
             $model->setProperty($this->getSortingProperty(), $this->position);
@@ -337,13 +323,10 @@ class SortingManager
 
         // When the sorting exceeds the sorting of the "next" sibling, we need to push the remaining siblings to the
         // end of the list.
-        if ($this->marker->getProperty($this->getSortingProperty()) <= $this->position)
-        {
-            do
-            {
+        if ($this->marker->getProperty($this->getSortingProperty()) <= $this->position) {
+            do {
                 // Skip models about to be pasted.
-                if (in_array($this->marker->getId(), $ids))
-                {
+                if (in_array($this->marker->getId(), $ids)) {
                     $this->marker = $this->siblingsCopy->shift();
                     continue;
                 }
@@ -353,8 +336,7 @@ class SortingManager
                 $this->results->push($this->marker);
 
                 $this->marker = $this->siblingsCopy->shift();
-            }
-            while ($this->marker);
+            } while ($this->marker);
         }
     }
 }

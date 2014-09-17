@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    DcGeneral
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -19,9 +20,9 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\Fil
  *
  * @package DcGeneral\DataDefinition\ModelRelationship\FilterBuilder
  */
-class PropertyValueInFilterBuilder
-    extends BaseFilterBuilder
+class PropertyValueInFilterBuilder extends BaseFilterBuilder
 {
+
     /**
      * The property to be checked.
      *

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -50,11 +51,9 @@ class ListView extends BaseView
         $this->getPanel()->initialize($objConfig);
 
         // Initialize sorting if not present yet.
-        if (!$objConfig->getSorting() && $listingConfig->getGroupAndSortingDefinition()->hasDefault())
-        {
+        if (!$objConfig->getSorting() && $listingConfig->getGroupAndSortingDefinition()->hasDefault()) {
             $newSorting = array();
-            foreach ($listingConfig->getGroupAndSortingDefinition()->getDefault() as $information)
-            {
+            foreach ($listingConfig->getGroupAndSortingDefinition()->getDefault() as $information) {
                 /** @var GroupAndSortingInformationInterface $information */
                 $newSorting[$information->getProperty()] = strtoupper($information->getSortingMode());
             }
@@ -82,31 +81,23 @@ class ListView extends BaseView
         $sortingDefinition = $sorting['sorting'];
         $sortingColumns    = array();
 
-        if ($sortingDefinition)
-        {
+        if ($sortingDefinition) {
             /** @var GroupAndSortingDefinitionInterface $sortingDefinition */
-            foreach ($sortingDefinition as $information)
-            {
+            foreach ($sortingDefinition as $information) {
                 /** @var GroupAndSortingInformationInterface $information */
-                if ($information->getProperty())
-                {
+                if ($information->getProperty()) {
                     $sortingColumns[] = $information->getProperty();
                 }
             }
         }
 
         // Generate the table header if the "show columns" option is active.
-        if ($listingDefinition->getShowColumns())
-        {
-            foreach ($properties->getPropertyNames() as $f)
-            {
+        if ($listingDefinition->getShowColumns()) {
+            foreach ($properties->getPropertyNames() as $f) {
                 $property = $properties->getProperty($f);
-                if ($property)
-                {
+                if ($property) {
                     $label = $property->getLabel();
-                }
-                else
-                {
+                } else {
                     $label = $f;
                 }
 
@@ -143,13 +134,11 @@ class ListView extends BaseView
         $groupClass     = 'tl_folder_tlist';
         $eoCount        = -1;
 
-        foreach ($collection as $objModelRow)
-        {
+        foreach ($collection as $objModelRow) {
             /** @var ModelInterface $objModelRow */
 
             // Build the sorting groups.
-            if ($groupingInformation)
-            {
+            if ($groupingInformation) {
                 $remoteNew = $this->formatCurrentValue(
                     $groupingInformation['property'],
                     $objModelRow,
@@ -161,14 +150,16 @@ class ListView extends BaseView
                 if (!$listingConfig->getShowColumns()
                     && ($groupingInformation['mode'] !== GroupAndSortingInformationInterface::GROUP_NONE)
                     && (($remoteNew != $remoteCur) || ($remoteCur === null))
-                )
-                {
+                ) {
                     $eoCount = -1;
 
-                    $objModelRow->setMeta($objModelRow::GROUP_VALUE, array(
-                        'class' => $groupClass,
-                        'value' => $remoteNew
-                    ));
+                    $objModelRow->setMeta(
+                        $objModelRow::GROUP_VALUE,
+                        array(
+                            'class' => $groupClass,
+                            'value' => $remoteNew
+                        )
+                    );
 
                     $groupClass = 'tl_folder_list';
                     $remoteCur  = $remoteNew;
@@ -199,11 +190,9 @@ class ListView extends BaseView
         $this->setListViewLabel($collection, $groupingInformation);
 
         // Generate buttons.
-        foreach ($collection as $i => $objModel)
-        {
+        foreach ($collection as $i => $objModel) {
             // Regular buttons - only if not in select mode!
-            if (!$this->isSelectModeActive())
-            {
+            if (!$this->isSelectModeActive()) {
                 $previous = ((!is_null($collection->get($i - 1))) ? $collection->get($i - 1) : null);
                 $next     = ((!is_null($collection->get($i + 1))) ? $collection->get($i + 1) : null);
                 /** @var ModelInterface $objModel */
@@ -217,16 +206,11 @@ class ListView extends BaseView
         // Add template.
         if (isset($groupingInformation['mode'])
             && ($groupingInformation['mode'] != GroupAndSortingInformationInterface::GROUP_NONE)
-        )
-        {
+        ) {
             $objTemplate = $this->getTemplate('dcbe_general_grouping');
-        }
-        elseif (isset($groupingInformation['property']) && ($groupingInformation['property'] != ''))
-        {
+        } elseif (isset($groupingInformation['property']) && ($groupingInformation['property'] != '')) {
             $objTemplate = $this->getTemplate('dcbe_general_listView_sorting');
-        }
-        else
-        {
+        } else {
             $objTemplate = $this->getTemplate('dcbe_general_listView');
         }
 
@@ -246,8 +230,7 @@ class ListView extends BaseView
 
         // Add breadcrumb, if we have one.
         $strBreadcrumb = $this->breadcrumb();
-        if ($strBreadcrumb != null)
-        {
+        if ($strBreadcrumb != null) {
             $this->addToTemplate('breadcrumb', $strBreadcrumb, $objTemplate);
         }
 
@@ -263,8 +246,7 @@ class ListView extends BaseView
      */
     public function copy()
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
-        {
+        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit();
         }
 
@@ -274,20 +256,16 @@ class ListView extends BaseView
         $dataProvider = $environment->getDataProvider();
         $modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('source'));
 
-        if ($modelId)
-        {
+        if ($modelId) {
             $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-        }
-        else
-        {
+        } else {
             throw new DcGeneralRuntimeException('Missing model id.');
         }
 
         // We need to keep the original data here.
         $copyModel = $environment->getController()->createClonedModel($model);
 
-        $preFunction = function($environment, $model)
-        {
+        $preFunction = function ($environment, $model) {
             /** @var EnvironmentInterface $environment */
             $copyEvent = new PreDuplicateModelEvent($environment, $model);
             $environment->getEventPropagator()->propagate(
@@ -299,8 +277,7 @@ class ListView extends BaseView
             );
         };
 
-        $postFunction = function($environment, $model, $originalModel)
-        {
+        $postFunction = function ($environment, $model, $originalModel) {
             /** @var EnvironmentInterface $environment */
             $copyEvent = new PostDuplicateModelEvent($environment, $model, $originalModel);
             $environment->getEventPropagator()->propagate(
@@ -322,8 +299,7 @@ class ListView extends BaseView
      */
     public function showAll()
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode())
-        {
+        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit();
         }
 

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -153,8 +154,7 @@ interface EnvironmentInterface
      *
      * @param string                $strSource    The name of the source.
      *
-     * @param DataProviderInterface $dataProvider The data provider instance to register under the given
-     *                                                            name.
+     * @param DataProviderInterface $dataProvider The data provider instance to register under the given name.
      *
      * @return EnvironmentInterface
      */

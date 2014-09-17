@@ -23,6 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  */
 class Action
 {
+
     /**
      * The action name.
      *

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -23,6 +24,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\
  */
 class Property implements PropertyInterface
 {
+
     /**
      * The name of the property.
      *
@@ -73,10 +75,12 @@ class Property implements PropertyInterface
     /**
      * {@inheritdoc}
      */
-    public function isVisible(ModelInterface $model = null, PropertyValueBag $input = null, LegendInterface $legend = null)
-    {
-        if ($this->visibleCondition)
-        {
+    public function isVisible(
+        ModelInterface $model = null,
+        PropertyValueBag $input = null,
+        LegendInterface $legend = null
+    ) {
+        if ($this->visibleCondition) {
             return $this->visibleCondition->match($model, $input, $this, $legend);
         }
 
@@ -90,10 +94,8 @@ class Property implements PropertyInterface
         ModelInterface $model = null,
         PropertyValueBag $input = null,
         LegendInterface $legend = null
-    )
-    {
-        if ($this->editableCondition)
-        {
+    ) {
+        if ($this->editableCondition) {
             return $this->editableCondition->match($model, $input, $this, $legend);
         }
 
@@ -141,12 +143,10 @@ class Property implements PropertyInterface
      */
     public function __clone()
     {
-        if ($this->visibleCondition !== null)
-        {
+        if ($this->visibleCondition !== null) {
             $this->visibleCondition = clone $this->visibleCondition;
         }
-        if ($this->editableCondition !== null)
-        {
+        if ($this->editableCondition !== null) {
             $this->editableCondition = clone $this->editableCondition;
         }
     }

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -95,7 +96,8 @@ class ContaoDataProviderInformation extends DataProviderInformation
     /**
      * Set the data to use for initialization of the data provider.
      *
-     * The nature of this data is subject to the concrete implementation of the data provider defined as the class to use.
+     * The nature of this data is subject to the concrete implementation of the data provider defined as the class to
+     * use.
      *
      * @param mixed $initializationData The initialization data the data provider class expects.
      *

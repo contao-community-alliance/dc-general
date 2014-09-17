@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,6 +22,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DefaultPanelRowCollection implements PanelRowCollectionInterface
 {
+
     /**
      * The panel rows.
      *
@@ -34,8 +36,7 @@ class DefaultPanelRowCollection implements PanelRowCollectionInterface
     public function getRows()
     {
         $names = array();
-        foreach ($this as $row)
-        {
+        foreach ($this as $row) {
             /** @var PanelRowInterface $row */
             $names[] = $row->getElements();
         }
@@ -50,12 +51,9 @@ class DefaultPanelRowCollection implements PanelRowCollectionInterface
     {
         $row = new DefaultPanelRow();
 
-        if (($index < 0) || ($this->getRowCount() <= $index))
-        {
+        if (($index < 0) || ($this->getRowCount() <= $index)) {
             $this->rows[] = $row;
-        }
-        else
-        {
+        } else {
             array_splice($this->rows, $index, 0, array($row));
         }
 
@@ -88,8 +86,7 @@ class DefaultPanelRowCollection implements PanelRowCollectionInterface
      */
     public function getRow($index)
     {
-        if (!isset($this->rows[$index]))
-        {
+        if (!isset($this->rows[$index])) {
             throw new DcGeneralInvalidArgumentException('Row ' . $index . ' does not exist.');
         }
 

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -23,6 +24,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 abstract class DcaReadingDataDefinitionBuilder extends AbstractEventDrivenDataDefinitionBuilder
 {
+
     /**
      * Buffer for the DCA.
      *
@@ -39,8 +41,7 @@ abstract class DcaReadingDataDefinitionBuilder extends AbstractEventDrivenDataDe
         $event     = new LoadDataContainerEvent($dcaName, false);
         $dispatcher->dispatch(ContaoEvents::CONTROLLER_LOAD_DATA_CONTAINER, $event);
 
-        if (isset($GLOBALS['TL_DCA'][$dcaName]))
-        {
+        if (isset($GLOBALS['TL_DCA'][$dcaName])) {
             $this->dca = $GLOBALS['TL_DCA'][$dcaName];
         }
 
@@ -64,10 +65,8 @@ abstract class DcaReadingDataDefinitionBuilder extends AbstractEventDrivenDataDe
         $chunks = explode('/', trim($path, '/'));
         $dca    = $this->dca;
 
-        while (($chunk = array_shift($chunks)) !== null)
-        {
-            if (!(is_array($dca) && array_key_exists($chunk, $dca)))
-            {
+        while (($chunk = array_shift($chunks)) !== null) {
+            if (!(is_array($dca) && array_key_exists($chunk, $dca))) {
                 return null;
             }
 

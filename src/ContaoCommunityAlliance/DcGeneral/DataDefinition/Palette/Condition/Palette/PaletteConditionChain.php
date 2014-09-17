@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -32,21 +33,16 @@ class PaletteConditionChain extends AbstractConditionChain implements PaletteCon
     {
         $totalCount = false;
 
-        foreach ($this->conditions as $condition)
-        {
-            if (!($condition instanceof PaletteConditionInterface))
-            {
-                throw new DcGeneralRuntimeException('Invalid condition in chain: '. get_class($condition));
+        foreach ($this->conditions as $condition) {
+            if (!($condition instanceof PaletteConditionInterface)) {
+                throw new DcGeneralRuntimeException('Invalid condition in chain: ' . get_class($condition));
             }
 
             $conditionCount = $condition->getMatchCount($model, $input);
 
-            if ($conditionCount !== false)
-            {
+            if ($conditionCount !== false) {
                 $totalCount += $conditionCount;
-            }
-            elseif ($this->conjunction == static::AND_CONJUNCTION)
-            {
+            } elseif ($this->conjunction == static::AND_CONJUNCTION) {
                 return false;
             }
         }

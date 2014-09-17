@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -72,8 +73,7 @@ class AddConditionEvent extends BuilderEvent
      */
     public function setCondition($condition)
     {
-        if ((!$condition instanceof PaletteConditionInterface) && (!$condition instanceof PropertyConditionInterface))
-        {
+        if ((!$condition instanceof PaletteConditionInterface) && (!$condition instanceof PropertyConditionInterface)) {
             throw new DcGeneralInvalidArgumentException();
         }
 
@@ -102,8 +102,7 @@ class AddConditionEvent extends BuilderEvent
      */
     public function setTarget($target)
     {
-        if ((!$target instanceof PaletteInterface) && (!$target instanceof PropertyInterface))
-        {
+        if ((!$target instanceof PaletteInterface) && (!$target instanceof PropertyInterface)) {
             throw new DcGeneralInvalidArgumentException();
         }
 

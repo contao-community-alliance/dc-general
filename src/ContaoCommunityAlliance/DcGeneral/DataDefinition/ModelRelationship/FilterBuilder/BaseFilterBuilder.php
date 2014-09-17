@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    DcGeneral
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -23,6 +24,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBui
  */
 abstract class BaseFilterBuilder
 {
+
     /**
      * The filter builder holding the scope.
      *
@@ -70,8 +72,7 @@ abstract class BaseFilterBuilder
      */
     public function setParent(FilterBuilderWithChildren $parent)
     {
-        if ($this->parent && $this->parent !== $parent)
-        {
+        if ($this->parent && $this->parent !== $parent) {
             $this->parent->remove($this);
         }
 
@@ -117,18 +118,15 @@ abstract class BaseFilterBuilder
     {
         $parent = $this->getParent();
 
-        if ($this instanceof AndFilterBuilder)
-        {
+        if ($this instanceof AndFilterBuilder) {
             return $this;
         }
 
-        if ($parent instanceof AndFilterBuilder && !($this instanceof FilterBuilderWithChildren))
-        {
+        if ($parent instanceof AndFilterBuilder && !($this instanceof FilterBuilderWithChildren)) {
             return $parent;
         }
 
-        if ($this instanceof FilterBuilderWithChildren)
-        {
+        if ($this instanceof FilterBuilderWithChildren) {
             /** @var FilterBuilderWithChildren $this */
             $and = new AndFilterBuilder();
             $this->add($and);
@@ -153,18 +151,15 @@ abstract class BaseFilterBuilder
     {
         $parent = $this->getParent();
 
-        if ($this instanceof OrFilterBuilder)
-        {
+        if ($this instanceof OrFilterBuilder) {
             return $this;
         }
 
-        if ($parent instanceof OrFilterBuilder && !($this instanceof FilterBuilderWithChildren))
-        {
+        if ($parent instanceof OrFilterBuilder && !($this instanceof FilterBuilderWithChildren)) {
             return $parent;
         }
 
-        if ($this instanceof FilterBuilderWithChildren)
-        {
+        if ($this instanceof FilterBuilderWithChildren) {
             /** @var FilterBuilderWithChildren $this */
             $or = new OrFilterBuilder();
             $this->add($or);
@@ -262,7 +257,9 @@ abstract class BaseFilterBuilder
     {
         $this->getBuilder()->checkNotRoot();
 
-        return $this->andEncapsulate(new PropertyEqualsFilterBuilder($property, $remoteProperty, true, !$remoteIsValue));
+        return $this->andEncapsulate(
+            new PropertyEqualsFilterBuilder($property, $remoteProperty, true, !$remoteIsValue)
+        );
     }
 
     /**
@@ -294,7 +291,9 @@ abstract class BaseFilterBuilder
     {
         $this->getBuilder()->checkNotRoot();
 
-        return $this->andEncapsulate(new PropertyGreaterThanFilterBuilder($property, $remoteProperty, true, !$remoteIsValue));
+        return $this->andEncapsulate(
+            new PropertyGreaterThanFilterBuilder($property, $remoteProperty, true, !$remoteIsValue)
+        );
     }
 
     /**
@@ -326,7 +325,9 @@ abstract class BaseFilterBuilder
     {
         $this->getBuilder()->checkNotRoot();
 
-        return $this->andEncapsulate(new PropertyLessThanFilterBuilder($property, $remoteProperty, true, !$remoteIsValue));
+        return $this->andEncapsulate(
+            new PropertyLessThanFilterBuilder($property, $remoteProperty, true, !$remoteIsValue)
+        );
     }
 
     /**

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -17,9 +18,9 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
  *
  * @package DcGeneral\Data
  */
-class DefaultLanguageInformation
-    implements LanguageInformationInterface
+class DefaultLanguageInformation implements LanguageInformationInterface
 {
+
     /**
      * The ISO 639 language code.
      *
@@ -68,8 +69,7 @@ class DefaultLanguageInformation
      */
     public function getLocale()
     {
-        if ($this->getCountryCode())
-        {
+        if ($this->getCountryCode()) {
             return $this->getLanguageCode() . '_' . $this->getCountryCode();
         }
 

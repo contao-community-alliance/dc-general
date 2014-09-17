@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -50,8 +51,7 @@ abstract class Ajax
     protected static function getGet($key, $blnDecodeEntities = false, $blnKeepUnused = false)
     {
         // TODO: use dependency injection here.
-        if (version_compare(VERSION, '3.0', '>='))
-        {
+        if (version_compare(VERSION, '3.0', '>=')) {
             return \Input::get($key, $blnDecodeEntities, $blnKeepUnused);
         }
 
@@ -70,8 +70,7 @@ abstract class Ajax
     protected static function getPost($key, $blnDecodeEntities = false)
     {
         // TODO: use dependency injection here.
-        if (version_compare(VERSION, '3.0', '>='))
-        {
+        if (version_compare(VERSION, '3.0', '>=')) {
             return \Input::post($key, $blnDecodeEntities);
         }
 
@@ -101,8 +100,7 @@ abstract class Ajax
     {
         $strAjaxKey = str_replace('_' . self::getAjaxId(), '', self::getPost('id'));
 
-        if (self::getGet('act') == 'editAll')
-        {
+        if (self::getGet('act') == 'editAll') {
             $strAjaxKey = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $strAjaxKey);
         }
 
@@ -118,8 +116,7 @@ abstract class Ajax
      */
     protected static function getAjaxName()
     {
-        if (self::getGet('act') == 'editAll')
-        {
+        if (self::getGet('act') == 'editAll') {
             return preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', self::getPost('name'));
         }
 
@@ -210,8 +207,7 @@ abstract class Ajax
         header('Content-Type: text/html; charset=' . $GLOBALS['TL_CONFIG']['characterSet']);
 
         $action = $objDc->getEnvironment()->getInputProvider()->getValue('action');
-        switch ($action)
-        {
+        switch ($action) {
             case 'toggleFeatured':
                 // This is impossible to handle generically in DcGeneral.
             case 'toggleSubpalette':
@@ -233,7 +229,7 @@ abstract class Ajax
                 $this->loadPagetree($objDc);
                 break;
 
-                // Load nodes of the file tree.
+            // Load nodes of the file tree.
             case 'loadFiletree':
                 $this->loadFiletree($objDc);
                 break;

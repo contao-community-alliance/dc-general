@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -23,6 +24,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DefaultModel extends AbstractModel
 {
+
     /**
      * A list with all properties.
      *
@@ -75,13 +77,11 @@ class DefaultModel extends AbstractModel
      */
     public function getProperty($strPropertyName)
     {
-        if ($strPropertyName == 'id')
-        {
+        if ($strPropertyName == 'id') {
             return $this->getID();
         }
 
-        if (array_key_exists($strPropertyName, $this->arrProperties))
-        {
+        if (array_key_exists($strPropertyName, $this->arrProperties)) {
             return $this->arrProperties[$strPropertyName];
         }
 
@@ -114,8 +114,7 @@ class DefaultModel extends AbstractModel
      */
     public function setID($mixID)
     {
-        if ($this->mixID == null)
-        {
+        if ($this->mixID == null) {
             $this->mixID = $mixID;
         }
     }
@@ -147,8 +146,7 @@ class DefaultModel extends AbstractModel
      */
     public function setProperty($strPropertyName, $varValue)
     {
-        if ($varValue !== $this->getProperty($strPropertyName))
-        {
+        if ($varValue !== $this->getProperty($strPropertyName)) {
             $this->setMeta(static::IS_CHANGED, true);
             $this->setPropertyRaw($strPropertyName, $varValue);
         }
@@ -163,15 +161,12 @@ class DefaultModel extends AbstractModel
      */
     public function setPropertiesAsArray($arrProperties)
     {
-        if (is_array($arrProperties))
-        {
-            if (array_key_exists('id', $arrProperties))
-            {
+        if (is_array($arrProperties)) {
+            if (array_key_exists('id', $arrProperties)) {
                 unset($arrProperties['id']);
             }
 
-            foreach ($arrProperties as $strPropertyName => $varValue)
-            {
+            foreach ($arrProperties as $strPropertyName => $varValue) {
                 $this->setProperty($strPropertyName, $varValue);
             }
         }
@@ -184,8 +179,7 @@ class DefaultModel extends AbstractModel
      */
     public function hasProperties()
     {
-        if (count($this->arrProperties) != 0)
-        {
+        if (count($this->arrProperties) != 0) {
             return true;
         }
 
@@ -236,15 +230,12 @@ class DefaultModel extends AbstractModel
      */
     public function readFromPropertyValueBag(PropertyValueBagInterface $valueBag)
     {
-        foreach (array_keys($this->arrProperties) as $name)
-        {
-            if (!$valueBag->hasPropertyValue($name))
-            {
+        foreach (array_keys($this->arrProperties) as $name) {
+            if (!$valueBag->hasPropertyValue($name)) {
                 continue;
             }
 
-            if ($valueBag->isPropertyValueInvalid($name))
-            {
+            if ($valueBag->isPropertyValueInvalid($name)) {
                 throw new DcGeneralInvalidArgumentException('The value for property ' . $name . ' is invalid.');
             }
 
@@ -259,10 +250,8 @@ class DefaultModel extends AbstractModel
      */
     public function writeToPropertyValueBag(PropertyValueBagInterface $valueBag)
     {
-        foreach (array_keys($this->arrProperties) as $name)
-        {
-            if (!$valueBag->hasPropertyValue($name))
-            {
+        foreach (array_keys($this->arrProperties) as $name) {
+            if (!$valueBag->hasPropertyValue($name)) {
                 continue;
             }
 

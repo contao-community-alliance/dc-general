@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,9 +22,7 @@ use Symfony\Component\EventDispatcher\Event;
  *
  * @package DcGeneral\Event
  */
-abstract class AbstractEnvironmentAwareEvent
-    extends Event
-    implements EnvironmentAwareInterface
+abstract class AbstractEnvironmentAwareEvent extends Event implements EnvironmentAwareInterface
 {
     /**
      * The environment attached to this event.
@@ -34,7 +33,7 @@ abstract class AbstractEnvironmentAwareEvent
 
     /**
      * Create a new environment aware event.
-     * 
+     *
      * @param EnvironmentInterface $environment The environment to attach.
      */
     public function __construct(EnvironmentInterface $environment)

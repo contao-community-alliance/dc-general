@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -122,7 +123,7 @@ interface ClipboardInterface
     /**
      * Set the clipboard to create mode for a child of the given parent data set.
      *
-     * @param mixed $parentId The id of the parent data set.
+     * @param string $parentId The id of the parent data set.
      *
      * @return ClipboardInterface
      */

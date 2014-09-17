@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,6 +22,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 abstract class AbstractConditionChain implements ConditionChainInterface
 {
+
     /**
      * The list of conditions.
      *
@@ -72,8 +74,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      */
     public function addConditions(array $conditions)
     {
-        foreach ($conditions as $condition)
-        {
+        foreach ($conditions as $condition) {
             $this->addCondition($condition);
         }
         return $this;
@@ -115,10 +116,10 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      */
     public function setConjunction($conjunction)
     {
-        if ($conjunction != static::AND_CONJUNCTION && $conjunction != static::OR_CONJUNCTION)
-        {
+        if ($conjunction != static::AND_CONJUNCTION && $conjunction != static::OR_CONJUNCTION) {
             throw new DcGeneralInvalidArgumentException(
-                'Conjunction must be ConditionChainInterface::AND_CONJUNCTION or ConditionChainInterface::OR_CONJUNCTION'
+                'Conjunction must be ConditionChainInterface::AND_CONJUNCTION ' .
+                'or ConditionChainInterface::OR_CONJUNCTION'
             );
         }
 
@@ -141,8 +142,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
     public function __clone()
     {
         $conditions = array();
-        foreach ($this->conditions as $condition)
-        {
+        foreach ($this->conditions as $condition) {
             $bobaFett = clone $condition;
 
             $conditions[spl_object_hash($bobaFett)] = $bobaFett;

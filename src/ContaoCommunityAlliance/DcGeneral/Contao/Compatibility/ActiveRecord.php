@@ -22,6 +22,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
  */
 class ActiveRecord
 {
+
     /**
      * The underlying model.
      *

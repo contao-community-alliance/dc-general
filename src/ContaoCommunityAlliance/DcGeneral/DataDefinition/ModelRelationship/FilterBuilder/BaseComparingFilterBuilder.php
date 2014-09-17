@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    DcGeneral
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,9 +23,9 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  *
  * @package DcGeneral\DataDefinition\ModelRelationship\FilterBuilder
  */
-class BaseComparingFilterBuilder
-    extends BaseFilterBuilder
+class BaseComparingFilterBuilder extends BaseFilterBuilder
 {
+
     /**
      * The operation string.
      *
@@ -74,8 +75,8 @@ class BaseComparingFilterBuilder
      *
      * @param mixed  $value        The value to be compared against.
      *
-     * @param bool   $isRemote     Flag determining if the passed value is a remote property name (only valid if filter is
-     *                             for parent child relationship and not for root elements).
+     * @param bool   $isRemote     Flag determining if the passed value is a remote property name (only valid if filter
+     *                             is for parent child relationship and not for root elements).
      *
      * @param bool   $isRemoteProp Flag determining if the passed value is a property or literal value (only valid when
      *                             $isRemote is true).
@@ -86,8 +87,7 @@ class BaseComparingFilterBuilder
             ->setIsRemote($isRemote)
             ->setProperty($property)
             ->setValue($value);
-        if ($this->isRemote())
-        {
+        if ($this->isRemote()) {
             $this->setIsRemoteProperty($isRemoteProp);
         }
     }
@@ -106,26 +106,19 @@ class BaseComparingFilterBuilder
         $isRemote     = isset($array['remote']) || isset($array['remote_value']);
         $isRemoteProp = $isRemote && !isset($array['remote_value']);
 
-        if ($isRemote)
-        {
-            if ($isRemoteProp)
-            {
+        if ($isRemote) {
+            if ($isRemoteProp) {
                 $value = $array['remote'];
-            }
-            else
-            {
+            } else {
                 $value = $array['remote_value'];
             }
             $property = $array['local'];
-        }
-        else
-        {
+        } else {
             $value    = $array['value'];
             $property = $array['property'];
         }
 
-        if (!(isset($value) && isset($property)))
-        {
+        if (!(isset($value) && isset($property))) {
             throw new DcGeneralInvalidArgumentException('Invalid filter array provided  ' . var_export($array, true));
         }
 
@@ -141,20 +134,14 @@ class BaseComparingFilterBuilder
             'operation' => $this->operation,
         );
 
-        if ($this->isRemote())
-        {
+        if ($this->isRemote()) {
             $result['local'] = $this->getProperty();
-            if ($this->isRemoteProperty())
-            {
+            if ($this->isRemoteProperty()) {
                 $result['remote'] = $this->value;
-            }
-            else
-            {
+            } else {
                 $result['remote_value'] = $this->value;
             }
-        }
-        else
-        {
+        } else {
             $result['value']    = $this->value;
             $result['property'] = $this->getProperty();
         }
@@ -195,8 +182,7 @@ class BaseComparingFilterBuilder
      */
     public function isRemoteProperty()
     {
-        if (!$this->isRemote())
-        {
+        if (!$this->isRemote()) {
             throw new DcGeneralRuntimeException('Property value is not flagged for remote usage.');
         }
 
@@ -214,8 +200,7 @@ class BaseComparingFilterBuilder
      */
     public function setIsRemoteProperty($isRemoteProp)
     {
-        if (!$this->isRemote())
-        {
+        if (!$this->isRemote()) {
             throw new DcGeneralRuntimeException('Property value is not flagged for remote usage.');
         }
 

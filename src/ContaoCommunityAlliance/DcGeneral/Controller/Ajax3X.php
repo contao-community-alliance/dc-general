@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -40,8 +41,7 @@ class Ajax3X extends Ajax
         $ajaxId   = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $id);
         $ajaxKey  = str_replace('_' . $ajaxId, '', $id);
         $ajaxName = null;
-        if ($input->getValue('act') == 'editAll')
-        {
+        if ($input->getValue('act') == 'editAll') {
             $ajaxKey  = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $ajaxKey);
             $ajaxName = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $name);
         }
@@ -82,12 +82,9 @@ class Ajax3X extends Ajax
 
         $objWidget->value = $this->getTreeValue($field, $input->getValue('value'));
         // Load a particular node.
-        if ($folder != '')
-        {
+        if ($folder != '') {
             echo $objWidget->generateAjax($folder, $field, $level);
-        }
-        else
-        {
+        } else {
             echo $objWidget->generate();
         }
         exit;
@@ -107,21 +104,15 @@ class Ajax3X extends Ajax
     protected function getTreeValue($strType, $varValue)
     {
         // Convert the selected values.
-        if ($varValue != '')
-        {
+        if ($varValue != '') {
             $varValue = trimsplit("\t", $varValue);
 
             // Automatically add resources to the DBAFS.
-            if ($strType == 'file')
-            {
-                foreach ($varValue as $k => $v)
-                {
-                    if (version_compare(VERSION, '3.2', '<'))
-                    {
+            if ($strType == 'file') {
+                foreach ($varValue as $k => $v) {
+                    if (version_compare(VERSION, '3.2', '<')) {
                         $varValue[$k] = \Dbafs::addResource($v)->id;
-                    }
-                    else
-                    {
+                    } else {
                         $varValue[$k] = \Dbafs::addResource($v)->uuid;
                     }
                 }
@@ -150,22 +141,19 @@ class Ajax3X extends Ajax
         $fieldName    = $input->hasValue('name') ? $input->getValue('name') : null;
 
         // Handle the keys in "edit multiple" mode.
-        if (self::getGet('act') == 'editAll')
-        {
+        if (self::getGet('act') == 'editAll') {
             // TODO: change here when implementing editAll.
             $serializedId = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $fieldName);
             $field        = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $fieldName);
         }
 
-        if (!is_null($serializedId))
-        {
+        if (!is_null($serializedId)) {
             $id = IdSerializer::fromSerialized($serializedId);
 
             $dataProvider = $objDc->getEnvironment()->getDataProvider($id->getDataProviderName());
             $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($id->getId()));
 
-            if (is_null($model))
-            {
+            if (is_null($model)) {
                 $this->log(
                     'A record with the ID "' . $serializedId . '" does not exist in "' .
                     $objDc->getEnvironment()->getDataDefinition()->getName() . '"',
@@ -181,13 +169,10 @@ class Ajax3X extends Ajax
         $strKey   = $strType . 'Tree';
 
         // Set the new value.
-        if (isset($model))
-        {
+        if (isset($model)) {
             $model->setProperty($fieldName, $varValue);
             $arrAttribs['activeRecord'] = $model;
-        }
-        else
-        {
+        } else {
             $arrAttribs['activeRecord'] = null;
         }
 

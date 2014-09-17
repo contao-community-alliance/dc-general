@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,9 +22,9 @@ use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
  *
  * @package DcGeneral\Panel
  */
-abstract class AbstractElement
-    implements PanelElementInterface
+abstract class AbstractElement implements PanelElementInterface
 {
+
     /**
      * The panel this element is contained within.
      *
@@ -85,8 +86,7 @@ abstract class AbstractElement
      */
     protected function getOtherConfig()
     {
-        if (!isset($this->objOtherConfig))
-        {
+        if (!isset($this->objOtherConfig)) {
             $this->objOtherConfig = $this
                 ->getEnvironment()
                 ->getController()

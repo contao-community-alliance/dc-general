@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -35,19 +36,14 @@ class PropertyConditionChain extends AbstractConditionChain implements PropertyC
         PropertyValueBag $input = null,
         PropertyInterface $property = null,
         LegendInterface $legend = null
-    )
-    {
-        if ($this->conjunction == static::AND_CONJUNCTION)
-        {
-            foreach ($this->conditions as $condition)
-            {
-                if (!($condition instanceof PropertyConditionInterface))
-                {
-                    throw new DcGeneralRuntimeException('Invalid condition in chain: '. get_class($condition));
+    ) {
+        if ($this->conjunction == static::AND_CONJUNCTION) {
+            foreach ($this->conditions as $condition) {
+                if (!($condition instanceof PropertyConditionInterface)) {
+                    throw new DcGeneralRuntimeException('Invalid condition in chain: ' . get_class($condition));
                 }
 
-                if (!$condition->match($model, $input, $property, $legend))
-                {
+                if (!$condition->match($model, $input, $property, $legend)) {
                     return false;
                 }
             }
@@ -55,15 +51,12 @@ class PropertyConditionChain extends AbstractConditionChain implements PropertyC
             return true;
         }
 
-        foreach ($this->conditions as $condition)
-        {
-            if (!($condition instanceof PropertyConditionInterface))
-            {
-                throw new DcGeneralRuntimeException('Invalid condition in chain: '. get_class($condition));
+        foreach ($this->conditions as $condition) {
+            if (!($condition instanceof PropertyConditionInterface)) {
+                throw new DcGeneralRuntimeException('Invalid condition in chain: ' . get_class($condition));
             }
 
-            if ($condition->match($model, $input, $property, $legend))
-            {
+            if ($condition->match($model, $input, $property, $legend)) {
                 return true;
             }
         }

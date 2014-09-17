@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,8 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
  *
  * @package DcGeneral\Contao\View\Contao2BackendView\Event
  */
-class ModelToLabelEvent
-    extends AbstractModelAwareEvent
+class ModelToLabelEvent extends AbstractModelAwareEvent
 {
     const NAME = 'dc-general.view.contao2backend.model-to-label';
 
