@@ -24,20 +24,20 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
  */
 interface BackendViewInterface extends ViewInterface
 {
-	/**
-	 * Set the panel container.
-	 *
-	 * @param PanelContainerInterface $panelContainer The panel container.
-	 *
-	 * @return BackendViewInterface
-	 */
-	public function setPanel($panelContainer);
+    /**
+     * Set the panel container.
+     *
+     * @param PanelContainerInterface $panelContainer The panel container.
+     *
+     * @return BackendViewInterface
+     */
+    public function setPanel($panelContainer);
 
-	/**
-	 * Retrieve the panel container from the view.
-	 *
-	 * @return PanelContainerInterface
-	 */
-	public function getPanel();
+    /**
+     * Retrieve the panel container from the view.
+     *
+     * @return PanelContainerInterface
+     */
+    public function getPanel();
 }
 

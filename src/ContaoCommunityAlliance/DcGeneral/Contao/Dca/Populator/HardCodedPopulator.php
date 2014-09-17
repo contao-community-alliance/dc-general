@@ -29,46 +29,46 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
  */
 class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
 {
-	const PRIORITY = 1000;
+    const PRIORITY = 1000;
 
-	/**
-	 * Create a controller instance in the environment if none has been defined yet.
-	 *
-	 * @param EnvironmentInterface $environment The environment to populate.
-	 *
-	 * @return void
-	 *
-	 * @internal
-	 */
-	public function populateController(EnvironmentInterface $environment)
-	{
-		// Already populated, get out then.
-		if ($environment->getController())
-		{
-			return;
-		}
+    /**
+     * Create a controller instance in the environment if none has been defined yet.
+     *
+     * @param EnvironmentInterface $environment The environment to populate.
+     *
+     * @return void
+     *
+     * @internal
+     */
+    public function populateController(EnvironmentInterface $environment)
+    {
+        // Already populated, get out then.
+        if ($environment->getController())
+        {
+            return;
+        }
 
-		$controller = new DefaultController();
+        $controller = new DefaultController();
 
-		$controller->setEnvironment($environment);
-		$environment->setController($controller);
-	}
+        $controller->setEnvironment($environment);
+        $environment->setController($controller);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function populate(EnvironmentInterface $environment)
-	{
-		if (!$environment->getInputProvider())
-		{
-			$environment->setInputProvider(new InputProvider());
-		}
+    /**
+     * {@inheritDoc}
+     */
+    public function populate(EnvironmentInterface $environment)
+    {
+        if (!$environment->getInputProvider())
+        {
+            $environment->setInputProvider(new InputProvider());
+        }
 
-		if (!$environment->getClipboard())
-		{
-			$environment->setClipboard(new DefaultClipboard());
-		}
+        if (!$environment->getClipboard())
+        {
+            $environment->setClipboard(new DefaultClipboard());
+        }
 
-		$this->populateController($environment);
-	}
+        $this->populateController($environment);
+    }
 }

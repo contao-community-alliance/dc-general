@@ -19,26 +19,26 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
  */
 class DefaultPanelLayout implements PanelLayoutInterface
 {
-	/**
-	 * The rows of the layout.
-	 *
-	 * @var PanelRowCollectionInterface
-	 */
-	protected $rows;
+    /**
+     * The rows of the layout.
+     *
+     * @var PanelRowCollectionInterface
+     */
+    protected $rows;
 
-	/**
-	 * Create a new instance.
-	 */
-	public function __construct()
-	{
-		$this->rows = new DefaultPanelRowCollection();
-	}
+    /**
+     * Create a new instance.
+     */
+    public function __construct()
+    {
+        $this->rows = new DefaultPanelRowCollection();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getRows()
-	{
-		return $this->rows;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function getRows()
+    {
+        return $this->rows;
+    }
 }

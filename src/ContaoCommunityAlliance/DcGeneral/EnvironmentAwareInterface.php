@@ -19,10 +19,10 @@ namespace ContaoCommunityAlliance\DcGeneral;
  */
 interface EnvironmentAwareInterface
 {
-	/**
-	 * Retrieve the environment.
-	 *
-	 * @return EnvironmentInterface
-	 */
-	public function getEnvironment();
+    /**
+     * Retrieve the environment.
+     *
+     * @return EnvironmentInterface
+     */
+    public function getEnvironment();
 }

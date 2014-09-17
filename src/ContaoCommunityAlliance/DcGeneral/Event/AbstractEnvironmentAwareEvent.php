@@ -22,31 +22,31 @@ use Symfony\Component\EventDispatcher\Event;
  * @package DcGeneral\Event
  */
 abstract class AbstractEnvironmentAwareEvent
-	extends Event
-	implements EnvironmentAwareInterface
+    extends Event
+    implements EnvironmentAwareInterface
 {
-	/**
-	 * The environment attached to this event.
-	 *
-	 * @var EnvironmentInterface
-	 */
-	protected $environment;
+    /**
+     * The environment attached to this event.
+     *
+     * @var EnvironmentInterface
+     */
+    protected $environment;
 
-	/**
-	 * Create a new environment aware event.
-	 * 
-	 * @param EnvironmentInterface $environment The environment to attach.
-	 */
-	public function __construct(EnvironmentInterface $environment)
-	{
-		$this->environment = $environment;
-	}
+    /**
+     * Create a new environment aware event.
+     * 
+     * @param EnvironmentInterface $environment The environment to attach.
+     */
+    public function __construct(EnvironmentInterface $environment)
+    {
+        $this->environment = $environment;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getEnvironment()
-	{
-		return $this->environment;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getEnvironment()
+    {
+        return $this->environment;
+    }
 }

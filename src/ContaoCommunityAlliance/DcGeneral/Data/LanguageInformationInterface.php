@@ -19,28 +19,28 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
  */
 interface LanguageInformationInterface
 {
-	/**
-	 * Retrieve the ISO 639 language code.
-	 *
-	 * @return string
-	 */
-	public function getLanguageCode();
+    /**
+     * Retrieve the ISO 639 language code.
+     *
+     * @return string
+     */
+    public function getLanguageCode();
 
-	/**
-	 * Retrieve the ISO 3166 country code.
-	 *
-	 * @return string
-	 */
-	public function getCountryCode();
+    /**
+     * Retrieve the ISO 3166 country code.
+     *
+     * @return string
+     */
+    public function getCountryCode();
 
-	/**
-	 * Retrieve the RFC 3066 locale string.
-	 *
-	 * This string is combined as language-code + "_" + country-code.
-	 *
-	 * If no country code has been set, the language code only will get returned.
-	 *
-	 * @return mixed
-	 */
-	public function getLocale();
+    /**
+     * Retrieve the RFC 3066 locale string.
+     *
+     * This string is combined as language-code + "_" + country-code.
+     *
+     * If no country code has been set, the language code only will get returned.
+     *
+     * @return mixed
+     */
+    public function getLocale();
 }

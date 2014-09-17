@@ -19,5 +19,5 @@ namespace ContaoCommunityAlliance\DcGeneral\Event;
  */
 class PostPasteModelEvent extends AbstractModelAwareEvent
 {
-	const NAME = 'dc-general.model.post-paste';
+    const NAME = 'dc-general.model.post-paste';
 }

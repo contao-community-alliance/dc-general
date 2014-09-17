@@ -19,5 +19,5 @@ namespace ContaoCommunityAlliance\DcGeneral\Event;
  */
 class PreEditModelEvent extends AbstractModelAwareEvent
 {
-	const NAME = 'dc-general.model.pre-edit-model';
+    const NAME = 'dc-general.model.pre-edit-model';
 }

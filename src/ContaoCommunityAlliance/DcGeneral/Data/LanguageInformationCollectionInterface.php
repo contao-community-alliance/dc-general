@@ -16,14 +16,14 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
  * This represents an iterable collection of Model elements.
  */
 interface LanguageInformationCollectionInterface
-	extends \IteratorAggregate, \Countable
+    extends \IteratorAggregate, \Countable
 {
-	/**
-	 * Append a language to this collection.
-	 *
-	 * @param LanguageInformationInterface $language The language information to add.
-	 *
-	 * @return LanguageInformationCollectionInterface
-	 */
-	public function add(LanguageInformationInterface $language);
+    /**
+     * Append a language to this collection.
+     *
+     * @param LanguageInformationInterface $language The language information to add.
+     *
+     * @return LanguageInformationCollectionInterface
+     */
+    public function add(LanguageInformationInterface $language);
 }

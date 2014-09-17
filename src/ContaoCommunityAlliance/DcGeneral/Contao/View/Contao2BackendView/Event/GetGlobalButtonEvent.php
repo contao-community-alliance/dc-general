@@ -22,100 +22,100 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event
  * @package DcGeneral\Contao\View\Contao2BackendView\Event
  */
 class GetGlobalButtonEvent
-	extends BaseButtonEvent
+    extends BaseButtonEvent
 {
-	const NAME = 'dc-general.view.contao2backend.get-global-button';
+    const NAME = 'dc-general.view.contao2backend.get-global-button';
 
-	/**
-	 * The hotkey for the button.
-	 *
-	 * @var string
-	 */
-	protected $accessKey;
+    /**
+     * The hotkey for the button.
+     *
+     * @var string
+     */
+    protected $accessKey;
 
-	/**
-	 * The css class to use.
-	 *
-	 * @var string
-	 */
-	protected $class;
+    /**
+     * The css class to use.
+     *
+     * @var string
+     */
+    protected $class;
 
-	/**
-	 * The href to use.
-	 *
-	 * @var string
-	 */
-	protected $href;
+    /**
+     * The href to use.
+     *
+     * @var string
+     */
+    protected $href;
 
-	/**
-	 * Set the hotkey for the button.
-	 *
-	 * @param string $accessKey The hotkey for the button.
-	 *
-	 * @return $this
-	 */
-	public function setAccessKey($accessKey)
-	{
-		$this->accessKey = $accessKey;
+    /**
+     * Set the hotkey for the button.
+     *
+     * @param string $accessKey The hotkey for the button.
+     *
+     * @return $this
+     */
+    public function setAccessKey($accessKey)
+    {
+        $this->accessKey = $accessKey;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Get the hotkey for the button.
-	 *
-	 * @return string
-	 */
-	public function getAccessKey()
-	{
-		return $this->accessKey;
-	}
+    /**
+     * Get the hotkey for the button.
+     *
+     * @return string
+     */
+    public function getAccessKey()
+    {
+        return $this->accessKey;
+    }
 
-	/**
-	 * Set the css class for this button.
-	 *
-	 * @param string $class The css class.
-	 *
-	 * @return $this
-	 */
-	public function setClass($class)
-	{
-		$this->class = $class;
+    /**
+     * Set the css class for this button.
+     *
+     * @param string $class The css class.
+     *
+     * @return $this
+     */
+    public function setClass($class)
+    {
+        $this->class = $class;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Get the css class for this button.
-	 *
-	 * @return string
-	 */
-	public function getClass()
-	{
-		return $this->class;
-	}
+    /**
+     * Get the css class for this button.
+     *
+     * @return string
+     */
+    public function getClass()
+    {
+        return $this->class;
+    }
 
-	/**
-	 * Set the href for this button.
-	 *
-	 * @param string $href The href.
-	 *
-	 * @return $this
-	 */
-	public function setHref($href)
-	{
-		$this->href = $href;
+    /**
+     * Set the href for this button.
+     *
+     * @param string $href The href.
+     *
+     * @return $this
+     */
+    public function setHref($href)
+    {
+        $this->href = $href;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Get the href for this button.
-	 *
-	 * @return string
-	 */
-	public function getHref()
-	{
-		return $this->href;
-	}
+    /**
+     * Get the href for this button.
+     *
+     * @return string
+     */
+    public function getHref()
+    {
+        return $this->href;
+    }
 }

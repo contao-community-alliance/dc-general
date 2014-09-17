@@ -23,31 +23,31 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelLayout
  */
 interface ViewDefinitionInterface extends DefinitionInterface
 {
-	/**
-	 * Retrieve the listing configuration.
-	 *
-	 * @return ListingConfigInterface
-	 */
-	public function getListingConfig();
+    /**
+     * Retrieve the listing configuration.
+     *
+     * @return ListingConfigInterface
+     */
+    public function getListingConfig();
 
-	/**
-	 * Retrieve the global commands.
-	 *
-	 * @return CommandCollectionInterface
-	 */
-	public function getGlobalCommands();
+    /**
+     * Retrieve the global commands.
+     *
+     * @return CommandCollectionInterface
+     */
+    public function getGlobalCommands();
 
-	/**
-	 * Retrieve the model command colletion.
-	 *
-	 * @return CommandCollectionInterface
-	 */
-	public function getModelCommands();
+    /**
+     * Retrieve the model command colletion.
+     *
+     * @return CommandCollectionInterface
+     */
+    public function getModelCommands();
 
-	/**
-	 * Retrieve the panel layout.
-	 *
-	 * @return PanelLayoutInterface
-	 */
-	public function getPanelLayout();
+    /**
+     * Retrieve the panel layout.
+     *
+     * @return PanelLayoutInterface
+     */
+    public function getPanelLayout();
 }

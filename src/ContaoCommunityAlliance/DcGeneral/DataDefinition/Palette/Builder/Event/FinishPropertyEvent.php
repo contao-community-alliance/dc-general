@@ -22,48 +22,48 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
  */
 class FinishPropertyEvent extends BuilderEvent
 {
-	const NAME = 'dc-general.data-definition.palette.builder.finish-property';
+    const NAME = 'dc-general.data-definition.palette.builder.finish-property';
 
-	/**
-	 * The property.
-	 *
-	 * @var PropertyInterface
-	 */
-	protected $property;
+    /**
+     * The property.
+     *
+     * @var PropertyInterface
+     */
+    protected $property;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param PropertyInterface $property       The property.
-	 *
-	 * @param PaletteBuilder    $paletteBuilder The palette builder in use.
-	 */
-	public function __construct(PropertyInterface $property, PaletteBuilder $paletteBuilder)
-	{
-		$this->setProperty($property);
-		parent::__construct($paletteBuilder);
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param PropertyInterface $property       The property.
+     *
+     * @param PaletteBuilder    $paletteBuilder The palette builder in use.
+     */
+    public function __construct(PropertyInterface $property, PaletteBuilder $paletteBuilder)
+    {
+        $this->setProperty($property);
+        parent::__construct($paletteBuilder);
+    }
 
-	/**
-	 * Set the property.
-	 *
-	 * @param PropertyInterface $property The property.
-	 *
-	 * @return FinishPropertyEvent
-	 */
-	public function setProperty(PropertyInterface $property)
-	{
-		$this->property = $property;
-		return $this;
-	}
+    /**
+     * Set the property.
+     *
+     * @param PropertyInterface $property The property.
+     *
+     * @return FinishPropertyEvent
+     */
+    public function setProperty(PropertyInterface $property)
+    {
+        $this->property = $property;
+        return $this;
+    }
 
-	/**
-	 * Retrieve the property.
-	 *
-	 * @return PropertyInterface
-	 */
-	public function getProperty()
-	{
-		return $this->property;
-	}
+    /**
+     * Retrieve the property.
+     *
+     * @return PropertyInterface
+     */
+    public function getProperty()
+    {
+        return $this->property;
+    }
 }

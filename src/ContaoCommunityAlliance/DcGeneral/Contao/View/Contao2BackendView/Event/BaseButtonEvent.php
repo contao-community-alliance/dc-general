@@ -22,167 +22,167 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
  * @package DcGeneral\Contao\View\Contao2BackendView\Event
  */
 class BaseButtonEvent
-	extends AbstractEnvironmentAwareEvent
+    extends AbstractEnvironmentAwareEvent
 {
-	/**
-	 * The name of the event.
-	 */
-	const NAME = 'dc-general.view.contao2backend.button';
+    /**
+     * The name of the event.
+     */
+    const NAME = 'dc-general.view.contao2backend.button';
 
-	/**
-	 * The html attributes to use for the button.
-	 *
-	 * @var string
-	 */
-	protected $attributes;
+    /**
+     * The html attributes to use for the button.
+     *
+     * @var string
+     */
+    protected $attributes;
 
-	/**
-	 * The Html code to use for this button.
-	 *
-	 * @var string
-	 */
-	protected $html;
+    /**
+     * The Html code to use for this button.
+     *
+     * @var string
+     */
+    protected $html;
 
-	/**
-	 * The key/name of the button.
-	 *
-	 * @var string
-	 */
-	protected $key;
+    /**
+     * The key/name of the button.
+     *
+     * @var string
+     */
+    protected $key;
 
-	/**
-	 * The label to use for the button.
-	 *
-	 * @var string
-	 */
-	protected $label;
+    /**
+     * The label to use for the button.
+     *
+     * @var string
+     */
+    protected $label;
 
-	/**
-	 * The title to use for the button.
-	 *
-	 * @var string
-	 */
-	protected $title;
+    /**
+     * The title to use for the button.
+     *
+     * @var string
+     */
+    protected $title;
 
-	/**
-	 * Set the HTML attributes for the button.
-	 *
-	 * This might be a string like: 'onclick="foo" style="float:left;"' etc.
-	 *
-	 * @param string $attributes The attributes to be used.
-	 *
-	 * @return $this
-	 */
-	public function setAttributes($attributes)
-	{
-		$this->attributes = $attributes;
+    /**
+     * Set the HTML attributes for the button.
+     *
+     * This might be a string like: 'onclick="foo" style="float:left;"' etc.
+     *
+     * @param string $attributes The attributes to be used.
+     *
+     * @return $this
+     */
+    public function setAttributes($attributes)
+    {
+        $this->attributes = $attributes;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Get the HTML attributes for the button.
-	 *
-	 * @return string
-	 */
-	public function getAttributes()
-	{
-		return $this->attributes;
-	}
+    /**
+     * Get the HTML attributes for the button.
+     *
+     * @return string
+     */
+    public function getAttributes()
+    {
+        return $this->attributes;
+    }
 
-	/**
-	 * Set the HTML code for the button.
-	 *
-	 * @param string $html The HTML code.
-	 *
-	 * @return $this
-	 */
-	public function setHtml($html)
-	{
-		$this->html = $html;
+    /**
+     * Set the HTML code for the button.
+     *
+     * @param string $html The HTML code.
+     *
+     * @return $this
+     */
+    public function setHtml($html)
+    {
+        $this->html = $html;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Get the HTML code for the button.
-	 *
-	 * @return string
-	 */
-	public function getHtml()
-	{
-		return $this->html;
-	}
+    /**
+     * Get the HTML code for the button.
+     *
+     * @return string
+     */
+    public function getHtml()
+    {
+        return $this->html;
+    }
 
-	/**
-	 * Set the key/name for the button.
-	 *
-	 * @param string $key The key/name to use.
-	 *
-	 * @return $this
-	 */
-	public function setKey($key)
-	{
-		$this->key = $key;
+    /**
+     * Set the key/name for the button.
+     *
+     * @param string $key The key/name to use.
+     *
+     * @return $this
+     */
+    public function setKey($key)
+    {
+        $this->key = $key;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Get the action key/name for the button.
-	 *
-	 * @return string
-	 */
-	public function getKey()
-	{
-		return $this->key;
-	}
+    /**
+     * Get the action key/name for the button.
+     *
+     * @return string
+     */
+    public function getKey()
+    {
+        return $this->key;
+    }
 
-	/**
-	 * Set the button label text.
-	 *
-	 * @param string $label The label text to use.
-	 *
-	 * @return $this
-	 */
-	public function setLabel($label)
-	{
-		$this->label = $label;
+    /**
+     * Set the button label text.
+     *
+     * @param string $label The label text to use.
+     *
+     * @return $this
+     */
+    public function setLabel($label)
+    {
+        $this->label = $label;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Get the button label text.
-	 *
-	 * @return string
-	 */
-	public function getLabel()
-	{
-		return $this->label;
-	}
+    /**
+     * Get the button label text.
+     *
+     * @return string
+     */
+    public function getLabel()
+    {
+        return $this->label;
+    }
 
-	/**
-	 * Set the button title.
-	 *
-	 * @param string $title The title text.
-	 *
-	 * @return $this
-	 */
-	public function setTitle($title)
-	{
-		$this->title = $title;
+    /**
+     * Set the button title.
+     *
+     * @param string $title The title text.
+     *
+     * @return $this
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Get the button title.
-	 *
-	 * @return string
-	 */
-	public function getTitle()
-	{
-		return $this->title;
-	}
+    /**
+     * Get the button title.
+     *
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
 }

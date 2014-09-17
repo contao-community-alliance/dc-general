@@ -17,79 +17,79 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition;
  */
 interface ConditionChainInterface extends ConditionInterface
 {
-	/**
-	 * All conditions must match.
-	 */
-	const AND_CONJUNCTION = 'AND';
+    /**
+     * All conditions must match.
+     */
+    const AND_CONJUNCTION = 'AND';
 
-	/**
-	 * Only one condition must match.
-	 */
-	const OR_CONJUNCTION = 'OR';
+    /**
+     * Only one condition must match.
+     */
+    const OR_CONJUNCTION = 'OR';
 
-	/**
-	 * Clear the chain.
-	 *
-	 * @return ConditionChainInterface
-	 */
-	public function clearConditions();
+    /**
+     * Clear the chain.
+     *
+     * @return ConditionChainInterface
+     */
+    public function clearConditions();
 
-	/**
-	 * Set the conditions in this chain.
-	 *
-	 * @param array|ConditionInterface[] $conditions The conditions.
-	 *
-	 * @return ConditionChainInterface
-	 */
-	public function setConditions(array $conditions);
+    /**
+     * Set the conditions in this chain.
+     *
+     * @param array|ConditionInterface[] $conditions The conditions.
+     *
+     * @return ConditionChainInterface
+     */
+    public function setConditions(array $conditions);
 
-	/**
-	 * Add multiple conditions to this chain.
-	 *
-	 * @param array|ConditionInterface[] $conditions The conditions.
-	 *
-	 * @return ConditionChainInterface
-	 */
-	public function addConditions(array $conditions);
+    /**
+     * Add multiple conditions to this chain.
+     *
+     * @param array|ConditionInterface[] $conditions The conditions.
+     *
+     * @return ConditionChainInterface
+     */
+    public function addConditions(array $conditions);
 
-	/**
-	 * Add a condition to this chain.
-	 *
-	 * @param ConditionInterface $condition The condition.
-	 *
-	 * @return ConditionChainInterface
-	 */
-	public function addCondition(ConditionInterface $condition);
+    /**
+     * Add a condition to this chain.
+     *
+     * @param ConditionInterface $condition The condition.
+     *
+     * @return ConditionChainInterface
+     */
+    public function addCondition(ConditionInterface $condition);
 
-	/**
-	 * Remove a condition from this chain.
-	 *
-	 * @param ConditionInterface $condition The condition.
-	 *
-	 * @return ConditionChainInterface
-	 */
-	public function removeCondition(ConditionInterface $condition);
+    /**
+     * Remove a condition from this chain.
+     *
+     * @param ConditionInterface $condition The condition.
+     *
+     * @return ConditionChainInterface
+     */
+    public function removeCondition(ConditionInterface $condition);
 
-	/**
-	 * Retrieve the conditions contained in the chain.
-	 *
-	 * @return ConditionInterface[]
-	 */
-	public function getConditions();
+    /**
+     * Retrieve the conditions contained in the chain.
+     *
+     * @return ConditionInterface[]
+     */
+    public function getConditions();
 
-	/**
-	 * Set the conjunction.
-	 *
-	 * @param string $conjunction The conjunction.
-	 *
-	 * @return ConditionChainInterface
-	 */
-	public function setConjunction($conjunction);
+    /**
+     * Set the conjunction.
+     *
+     * @param string $conjunction The conjunction.
+     *
+     * @return ConditionChainInterface
+     */
+    public function setConjunction($conjunction);
 
-	/**
-	 * Retrieve the conjunction.
-	 *
-	 * @return string
-	 */
-	public function getConjunction();
+    /**
+     * Retrieve the conjunction.
+     *
+     * @return string
+     */
+    public function getConjunction();
 }

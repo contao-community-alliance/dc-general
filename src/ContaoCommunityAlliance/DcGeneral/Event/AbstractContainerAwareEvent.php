@@ -24,31 +24,31 @@ use Symfony\Component\EventDispatcher\Event;
  * @package DcGeneral\Event
  */
 abstract class AbstractContainerAwareEvent
-	extends Event
-	implements ContainerAwareInterface
+    extends Event
+    implements ContainerAwareInterface
 {
-	/**
-	 * The container in use.
-	 *
-	 * @var ContainerInterface
-	 */
-	protected $container;
+    /**
+     * The container in use.
+     *
+     * @var ContainerInterface
+     */
+    protected $container;
 
-	/**
-	 * Create a new container aware event.
-	 * 
-	 * @param ContainerInterface $container The container in use.
-	 */
-	public function __construct(ContainerInterface $container)
-	{
-		$this->container = $container;
-	}
+    /**
+     * Create a new container aware event.
+     * 
+     * @param ContainerInterface $container The container in use.
+     */
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getContainer()
-	{
-		return $this->container;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getContainer()
+    {
+        return $this->container;
+    }
 }

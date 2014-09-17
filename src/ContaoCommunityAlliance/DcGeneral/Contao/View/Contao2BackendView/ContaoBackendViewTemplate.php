@@ -20,7 +20,7 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
  * @package DcGeneral\View
  */
 class ContaoBackendViewTemplate
-	extends \BackendTemplate
-	implements ViewTemplateInterface
+    extends \BackendTemplate
+    implements ViewTemplateInterface
 {
 }

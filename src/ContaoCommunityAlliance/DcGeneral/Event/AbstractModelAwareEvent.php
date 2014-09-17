@@ -22,34 +22,34 @@ use ContaoCommunityAlliance\DcGeneral\ModelAwareInterface;
  * @package DcGeneral\Event
  */
 class AbstractModelAwareEvent
-	extends AbstractEnvironmentAwareEvent
-	implements ModelAwareInterface
+    extends AbstractEnvironmentAwareEvent
+    implements ModelAwareInterface
 {
-	/**
-	 * The model attached to the event.
-	 *
-	 * @var ModelInterface
-	 */
-	protected $model;
+    /**
+     * The model attached to the event.
+     *
+     * @var ModelInterface
+     */
+    protected $model;
 
-	/**
-	 * Create a new model aware event.
-	 *
-	 * @param EnvironmentInterface $environment The environment.
-	 *
-	 * @param ModelInterface       $model       The model attached to the event.
-	 */
-	public function __construct(EnvironmentInterface $environment, ModelInterface $model)
-	{
-		parent::__construct($environment);
-		$this->model = $model;
-	}
+    /**
+     * Create a new model aware event.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @param ModelInterface       $model       The model attached to the event.
+     */
+    public function __construct(EnvironmentInterface $environment, ModelInterface $model)
+    {
+        parent::__construct($environment);
+        $this->model = $model;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getModel()
-	{
-		return $this->model;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getModel()
+    {
+        return $this->model;
+    }
 }

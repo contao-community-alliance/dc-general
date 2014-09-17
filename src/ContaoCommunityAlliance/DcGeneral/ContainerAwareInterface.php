@@ -21,10 +21,10 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
  */
 interface ContainerAwareInterface
 {
-	/**
-	 * Retrieve the data definition container.
-	 *
-	 * @return ContainerInterface
-	 */
-	public function getContainer();
+    /**
+     * Retrieve the data definition container.
+     *
+     * @return ContainerInterface
+     */
+    public function getContainer();
 }

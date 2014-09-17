@@ -23,304 +23,304 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class Palette implements PaletteInterface
 {
-	/**
-	 * The name of this palette.
-	 *
-	 * @var string
-	 *
-	 * @deprecated Only for backwards compatibility, we will remove palette names in the future!
-	 */
-	protected $name = null;
+    /**
+     * The name of this palette.
+     *
+     * @var string
+     *
+     * @deprecated Only for backwards compatibility, we will remove palette names in the future!
+     */
+    protected $name = null;
 
-	/**
-	 * List of all legends in this palette.
-	 *
-	 * @var array|LegendInterface[]
-	 */
-	protected $legends = array();
+    /**
+     * List of all legends in this palette.
+     *
+     * @var array|LegendInterface[]
+     */
+    protected $legends = array();
 
-	/**
-	 * The condition bound to this palette.
-	 *
-	 * @var PaletteConditionInterface|null
-	 */
-	protected $condition = null;
+    /**
+     * The condition bound to this palette.
+     *
+     * @var PaletteConditionInterface|null
+     */
+    protected $condition = null;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setName($name)
-	{
-		$this->name = (string)$name;
+    /**
+     * {@inheritdoc}
+     */
+    public function setName($name)
+    {
+        $this->name = (string)$name;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getName()
-	{
-		return $this->name;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getProperties(ModelInterface $model = null, PropertyValueBag $input = null)
-	{
-		$properties = array();
+    /**
+     * {@inheritdoc}
+     */
+    public function getProperties(ModelInterface $model = null, PropertyValueBag $input = null)
+    {
+        $properties = array();
 
-		foreach ($this->legends as $legend)
-		{
-			$properties = array_merge($properties, $legend->getProperties($model, $input));
-		}
+        foreach ($this->legends as $legend)
+        {
+            $properties = array_merge($properties, $legend->getProperties($model, $input));
+        }
 
-		return $properties;
-	}
+        return $properties;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getVisibleProperties(ModelInterface $model = null, PropertyValueBag $input = null)
-	{
-		$properties = array();
+    /**
+     * {@inheritdoc}
+     */
+    public function getVisibleProperties(ModelInterface $model = null, PropertyValueBag $input = null)
+    {
+        $properties = array();
 
-		foreach ($this->getLegends() as $legend)
-		{
-			foreach ($legend->getProperties($model, $input) as $property)
-			{
-				if ($property->isVisible($model, $input, $legend))
-				{
-					$properties[] = $property;
-				}
-			}
-		}
+        foreach ($this->getLegends() as $legend)
+        {
+            foreach ($legend->getProperties($model, $input) as $property)
+            {
+                if ($property->isVisible($model, $input, $legend))
+                {
+                    $properties[] = $property;
+                }
+            }
+        }
 
-		return $properties;
-	}
+        return $properties;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getEditableProperties(ModelInterface $model = null, PropertyValueBag $input = null)
-	{
-		$properties = array();
+    /**
+     * {@inheritdoc}
+     */
+    public function getEditableProperties(ModelInterface $model = null, PropertyValueBag $input = null)
+    {
+        $properties = array();
 
-		foreach ($this->getLegends() as $legend)
-		{
-			foreach ($legend->getProperties($model, $input) as $property)
-			{
-				if ($property->isEditable($model, $input, $legend))
-				{
-					$properties[] = $property;
-				}
-			}
-		}
+        foreach ($this->getLegends() as $legend)
+        {
+            foreach ($legend->getProperties($model, $input) as $property)
+            {
+                if ($property->isEditable($model, $input, $legend))
+                {
+                    $properties[] = $property;
+                }
+            }
+        }
 
-		return $properties;
-	}
+        return $properties;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 *
-	 * @throws DcGeneralRuntimeException When the palette does not contain the desired property.
-	 */
-	public function getProperty($propertyName)
-	{
-		foreach ($this->getLegends() as $legend)
-		{
-			if ($legend->hasProperty($propertyName))
-			{
-				return $legend->getProperty($propertyName);
-			}
-		}
+    /**
+     * {@inheritdoc}
+     *
+     * @throws DcGeneralRuntimeException When the palette does not contain the desired property.
+     */
+    public function getProperty($propertyName)
+    {
+        foreach ($this->getLegends() as $legend)
+        {
+            if ($legend->hasProperty($propertyName))
+            {
+                return $legend->getProperty($propertyName);
+            }
+        }
 
-		throw new DcGeneralRuntimeException(
-			sprintf(
-				'The palette %s does not contain a property named %s',
-				$this->getName(),
-				$propertyName
-			)
-		);
-	}
+        throw new DcGeneralRuntimeException(
+            sprintf(
+                'The palette %s does not contain a property named %s',
+                $this->getName(),
+                $propertyName
+            )
+        );
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function clearLegends()
-	{
-		$this->legends = array();
+    /**
+     * {@inheritdoc}
+     */
+    public function clearLegends()
+    {
+        $this->legends = array();
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setLegends(array $legends)
-	{
-		$this->clearLegends();
-		$this->addLegends($legends);
+    /**
+     * {@inheritdoc}
+     */
+    public function setLegends(array $legends)
+    {
+        $this->clearLegends();
+        $this->addLegends($legends);
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function addLegends(array $legends, LegendInterface $before = null)
-	{
-		foreach ($legends as $legend)
-		{
-			$this->addLegend($legend, $before);
-		}
+    /**
+     * {@inheritdoc}
+     */
+    public function addLegends(array $legends, LegendInterface $before = null)
+    {
+        foreach ($legends as $legend)
+        {
+            $this->addLegend($legend, $before);
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function hasLegend($name)
-	{
-		foreach ($this->legends as $legend)
-		{
-			if ($legend->getName() == $name)
-			{
-				return true;
-			}
-		}
+    /**
+     * {@inheritdoc}
+     */
+    public function hasLegend($name)
+    {
+        foreach ($this->legends as $legend)
+        {
+            if ($legend->getName() == $name)
+            {
+                return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function containsLegend(LegendInterface $legend)
-	{
-		$hash = spl_object_hash($legend);
-		return isset($this->legends[$hash]);
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function containsLegend(LegendInterface $legend)
+    {
+        $hash = spl_object_hash($legend);
+        return isset($this->legends[$hash]);
+    }
 
-	/**
-	 * {@inheritdoc}
-	 *
-	 * @throws DcGeneralInvalidArgumentException when the legend passed as $before can not be found.
-	 */
-	public function addLegend(LegendInterface $legend, LegendInterface $before = null)
-	{
-		$hash = spl_object_hash($legend);
+    /**
+     * {@inheritdoc}
+     *
+     * @throws DcGeneralInvalidArgumentException when the legend passed as $before can not be found.
+     */
+    public function addLegend(LegendInterface $legend, LegendInterface $before = null)
+    {
+        $hash = spl_object_hash($legend);
 
-		if ($before)
-		{
-			$beforeHash = spl_object_hash($before);
+        if ($before)
+        {
+            $beforeHash = spl_object_hash($before);
 
-			if (isset($this->legends[$beforeHash]))
-			{
-				$hashes   = array_keys($this->legends);
-				$position = array_search($beforeHash, $hashes);
+            if (isset($this->legends[$beforeHash]))
+            {
+                $hashes   = array_keys($this->legends);
+                $position = array_search($beforeHash, $hashes);
 
-				$this->legends = array_merge(
-					array_slice($this->legends, 0, $position),
-					array($hash => $legend),
-					array_slice($this->legends, $position)
-				);
-			}
-			else
-			{
-				throw new DcGeneralInvalidArgumentException(
-					sprintf(
-						'Legend %s not contained in palette - can not add %s after it.',
-						$before->getName(),
-						$legend->getName()
-					)
-				);
-			}
-		}
-		else
-		{
-			$this->legends[$hash] = $legend;
-		}
+                $this->legends = array_merge(
+                    array_slice($this->legends, 0, $position),
+                    array($hash => $legend),
+                    array_slice($this->legends, $position)
+                );
+            }
+            else
+            {
+                throw new DcGeneralInvalidArgumentException(
+                    sprintf(
+                        'Legend %s not contained in palette - can not add %s after it.',
+                        $before->getName(),
+                        $legend->getName()
+                    )
+                );
+            }
+        }
+        else
+        {
+            $this->legends[$hash] = $legend;
+        }
 
-		$legend->setPalette($this);
-		return $this;
-	}
+        $legend->setPalette($this);
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function removeLegend(LegendInterface $legend)
-	{
-		$hash = spl_object_hash($legend);
-		unset($this->legends[$hash]);
+    /**
+     * {@inheritdoc}
+     */
+    public function removeLegend(LegendInterface $legend)
+    {
+        $hash = spl_object_hash($legend);
+        unset($this->legends[$hash]);
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 *
-	 * @throws DcGeneralRuntimeException When the legend does not exist.
-	 */
-	public function getLegend($name)
-	{
-		foreach ($this->legends as $legend)
-		{
-			if ($legend->getName() == $name)
-			{
-				return $legend;
-			}
-		}
+    /**
+     * {@inheritdoc}
+     *
+     * @throws DcGeneralRuntimeException When the legend does not exist.
+     */
+    public function getLegend($name)
+    {
+        foreach ($this->legends as $legend)
+        {
+            if ($legend->getName() == $name)
+            {
+                return $legend;
+            }
+        }
 
-		throw new DcGeneralRuntimeException('Legend "' . $name . '" does not exists');
-	}
+        throw new DcGeneralRuntimeException('Legend "' . $name . '" does not exists');
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getLegends()
-	{
-		return array_values($this->legends);
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getLegends()
+    {
+        return array_values($this->legends);
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setCondition(PaletteConditionInterface $condition = null)
-	{
-		$this->condition = $condition;
+    /**
+     * {@inheritdoc}
+     */
+    public function setCondition(PaletteConditionInterface $condition = null)
+    {
+        $this->condition = $condition;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getCondition()
-	{
-		return $this->condition;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getCondition()
+    {
+        return $this->condition;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function __clone()
-	{
-		/** @var Legend[] $legends */
-		$legends = array();
-		foreach ($this->legends as $legend)
-		{
-			$bobaFett = clone $legend;
+    /**
+     * {@inheritdoc}
+     */
+    public function __clone()
+    {
+        /** @var Legend[] $legends */
+        $legends = array();
+        foreach ($this->legends as $legend)
+        {
+            $bobaFett = clone $legend;
 
-			$legends[spl_object_hash($bobaFett)] = $bobaFett->setPalette($this);
-		}
-		$this->legends = $legends;
+            $legends[spl_object_hash($bobaFett)] = $bobaFett->setPalette($this);
+        }
+        $this->legends = $legends;
 
-		if ($this->condition !== null)
-		{
-			$this->condition = clone $this->condition;
-		}
-	}
+        if ($this->condition !== null)
+        {
+            $this->condition = clone $this->condition;
+        }
+    }
 }

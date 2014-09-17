@@ -21,11 +21,11 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel
  */
 class DefaultLimitElementInformation implements LimitElementInformationInterface
 {
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getName()
-	{
-		return 'limit';
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function getName()
+    {
+        return 'limit';
+    }
 }

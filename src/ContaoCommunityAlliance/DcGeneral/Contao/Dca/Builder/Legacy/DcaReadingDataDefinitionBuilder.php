@@ -23,57 +23,57 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 abstract class DcaReadingDataDefinitionBuilder extends AbstractEventDrivenDataDefinitionBuilder
 {
-	/**
-	 * Buffer for the DCA.
-	 *
-	 * @var array
-	 */
-	protected $dca;
+    /**
+     * Buffer for the DCA.
+     *
+     * @var array
+     */
+    protected $dca;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function loadDca($dcaName, EventDispatcherInterface $dispatcher)
-	{
-		$this->dca = null;
-		$event     = new LoadDataContainerEvent($dcaName, false);
-		$dispatcher->dispatch(ContaoEvents::CONTROLLER_LOAD_DATA_CONTAINER, $event);
+    /**
+     * {@inheritdoc}
+     */
+    public function loadDca($dcaName, EventDispatcherInterface $dispatcher)
+    {
+        $this->dca = null;
+        $event     = new LoadDataContainerEvent($dcaName, false);
+        $dispatcher->dispatch(ContaoEvents::CONTROLLER_LOAD_DATA_CONTAINER, $event);
 
-		if (isset($GLOBALS['TL_DCA'][$dcaName]))
-		{
-			$this->dca = $GLOBALS['TL_DCA'][$dcaName];
-		}
+        if (isset($GLOBALS['TL_DCA'][$dcaName]))
+        {
+            $this->dca = $GLOBALS['TL_DCA'][$dcaName];
+        }
 
-		$event = new LoadLanguageFileEvent($dcaName);
-		$dispatcher->dispatch(ContaoEvents::SYSTEM_LOAD_LANGUAGE_FILE, $event);
+        $event = new LoadLanguageFileEvent($dcaName);
+        $dispatcher->dispatch(ContaoEvents::SYSTEM_LOAD_LANGUAGE_FILE, $event);
 
-		return $this->dca !== null;
-	}
+        return $this->dca !== null;
+    }
 
-	/**
-	 * Read the specified sub path from the dca.
-	 *
-	 * @param string $path The path from the Dca to read.
-	 *
-	 * @return mixed
-	 *
-	 * @internal
-	 */
-	protected function getFromDca($path)
-	{
-		$chunks = explode('/', trim($path, '/'));
-		$dca    = $this->dca;
+    /**
+     * Read the specified sub path from the dca.
+     *
+     * @param string $path The path from the Dca to read.
+     *
+     * @return mixed
+     *
+     * @internal
+     */
+    protected function getFromDca($path)
+    {
+        $chunks = explode('/', trim($path, '/'));
+        $dca    = $this->dca;
 
-		while (($chunk = array_shift($chunks)) !== null)
-		{
-			if (!(is_array($dca) && array_key_exists($chunk, $dca)))
-			{
-				return null;
-			}
+        while (($chunk = array_shift($chunks)) !== null)
+        {
+            if (!(is_array($dca) && array_key_exists($chunk, $dca)))
+            {
+                return null;
+            }
 
-			$dca = $dca[$chunk];
-		}
+            $dca = $dca[$chunk];
+        }
 
-		return $dca;
-	}
+        return $dca;
+    }
 }

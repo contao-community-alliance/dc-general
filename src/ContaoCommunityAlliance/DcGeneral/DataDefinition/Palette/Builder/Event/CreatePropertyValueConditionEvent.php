@@ -13,7 +13,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event;
 
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition
-	as PalettePropertyValueCondition;
+    as PalettePropertyValueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyValueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
@@ -25,56 +25,56 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class CreatePropertyValueConditionEvent extends BuilderEvent
 {
-	const NAME = 'dc-general.data-definition.palette.builder.create-property-value-condition';
+    const NAME = 'dc-general.data-definition.palette.builder.create-property-value-condition';
 
-	/**
-	 * The property value condition.
-	 *
-	 * @var PalettePropertyValueCondition|PropertyValueCondition
-	 */
-	protected $propertyValueCondition;
+    /**
+     * The property value condition.
+     *
+     * @var PalettePropertyValueCondition|PropertyValueCondition
+     */
+    protected $propertyValueCondition;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param PalettePropertyValueCondition|PropertyValueCondition $propertyValueCondition The condition.
-	 *
-	 * @param PaletteBuilder                                       $paletteBuilder         The palette builder in use.
-	 */
-	public function __construct($propertyValueCondition, PaletteBuilder $paletteBuilder)
-	{
-		$this->setPropertyValueCondition($propertyValueCondition);
-		parent::__construct($paletteBuilder);
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param PalettePropertyValueCondition|PropertyValueCondition $propertyValueCondition The condition.
+     *
+     * @param PaletteBuilder                                       $paletteBuilder         The palette builder in use.
+     */
+    public function __construct($propertyValueCondition, PaletteBuilder $paletteBuilder)
+    {
+        $this->setPropertyValueCondition($propertyValueCondition);
+        parent::__construct($paletteBuilder);
+    }
 
-	/**
-	 * Set the property value condition.
-	 *
-	 * @param PalettePropertyValueCondition|PropertyValueCondition $propertyValueCondition The property value condition.
-	 *
-	 * @return CreatePropertyValueConditionEvent
-	 *
-	 * @throws DcGeneralInvalidArgumentException When an invalid condition has been passed.
-	 */
-	public function setPropertyValueCondition($propertyValueCondition)
-	{
-		if (!($propertyValueCondition instanceof PalettePropertyValueCondition)
-			&& (!$propertyValueCondition instanceof PropertyValueCondition))
-		{
-			throw new DcGeneralInvalidArgumentException();
-		}
+    /**
+     * Set the property value condition.
+     *
+     * @param PalettePropertyValueCondition|PropertyValueCondition $propertyValueCondition The property value condition.
+     *
+     * @return CreatePropertyValueConditionEvent
+     *
+     * @throws DcGeneralInvalidArgumentException When an invalid condition has been passed.
+     */
+    public function setPropertyValueCondition($propertyValueCondition)
+    {
+        if (!($propertyValueCondition instanceof PalettePropertyValueCondition)
+            && (!$propertyValueCondition instanceof PropertyValueCondition))
+        {
+            throw new DcGeneralInvalidArgumentException();
+        }
 
-		$this->propertyValueCondition = $propertyValueCondition;
-		return $this;
-	}
+        $this->propertyValueCondition = $propertyValueCondition;
+        return $this;
+    }
 
-	/**
-	 * Retrieve the property value condition.
-	 *
-	 * @return PalettePropertyValueCondition|PropertyValueCondition
-	 */
-	public function getPropertyValueCondition()
-	{
-		return $this->propertyValueCondition;
-	}
+    /**
+     * Retrieve the property value condition.
+     *
+     * @return PalettePropertyValueCondition|PropertyValueCondition
+     */
+    public function getPropertyValueCondition()
+    {
+        return $this->propertyValueCondition;
+    }
 }

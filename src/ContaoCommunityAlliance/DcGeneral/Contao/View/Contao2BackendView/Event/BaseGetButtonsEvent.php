@@ -23,41 +23,41 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
  * @package DcGeneral\Contao\View\Contao2BackendView\Event
  */
 class BaseGetButtonsEvent
-	extends AbstractEnvironmentAwareEvent
+    extends AbstractEnvironmentAwareEvent
 {
-	/**
-	 * The name of the event.
-	 */
-	const NAME = 'dc-general.view.contao2backend.get-buttons';
+    /**
+     * The name of the event.
+     */
+    const NAME = 'dc-general.view.contao2backend.get-buttons';
 
-	/**
-	 * The list of buttons.
-	 *
-	 * @var string[]
-	 */
-	protected $buttons;
+    /**
+     * The list of buttons.
+     *
+     * @var string[]
+     */
+    protected $buttons;
 
-	/**
-	 * Set the list of buttons.
-	 *
-	 * @param string[] $buttons The buttons to be returned.
-	 *
-	 * @return $this
-	 */
-	public function setButtons($buttons)
-	{
-		$this->buttons = $buttons;
+    /**
+     * Set the list of buttons.
+     *
+     * @param string[] $buttons The buttons to be returned.
+     *
+     * @return $this
+     */
+    public function setButtons($buttons)
+    {
+        $this->buttons = $buttons;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Get the list of buttons.
-	 *
-	 * @return string[]
-	 */
-	public function getButtons()
-	{
-		return $this->buttons;
-	}
+    /**
+     * Get the list of buttons.
+     *
+     * @return string[]
+     */
+    public function getButtons()
+    {
+        return $this->buttons;
+    }
 }

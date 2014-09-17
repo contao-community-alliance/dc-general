@@ -25,45 +25,45 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 interface EventPropagatorInterface extends EventDispatcherInterface
 {
-	/**
-	 * Propagate an event to the defined event dispatcher.
-	 *
-	 * The given suffixes will get appended to the event name and the resulting event name will get fired.
-	 *
-	 * For each round of firing, the last element from the suffixes get's dropped and the event fired again.
-	 *
-	 * The loop stops as soon as the passed event has isPropagationStopped() === true
-	 *
-	 * Example:
-	 *   Eventname: dc-general.some.event
-	 *   Suffixes:  array('param1', 'param2')
-	 * Resulting Events:
-	 *   1. dc-general.some.event[param1][param2]
-	 *   2. dc-general.some.event[param1]
-	 *   3. dc-general.some.event
-	 *
-	 * @param string                                   $eventName The event name of the event to propagate.
-	 *
-	 * @param \Symfony\Component\EventDispatcher\Event $event     The Event to propagate (optional).
-	 *
-	 * @param string[]                                 $suffixes  Suffixes to attach to the event.
-	 *
-	 * @return \Symfony\Component\EventDispatcher\Event
-	 */
-	public function propagate($eventName, $event = null, $suffixes = array());
+    /**
+     * Propagate an event to the defined event dispatcher.
+     *
+     * The given suffixes will get appended to the event name and the resulting event name will get fired.
+     *
+     * For each round of firing, the last element from the suffixes get's dropped and the event fired again.
+     *
+     * The loop stops as soon as the passed event has isPropagationStopped() === true
+     *
+     * Example:
+     *   Eventname: dc-general.some.event
+     *   Suffixes:  array('param1', 'param2')
+     * Resulting Events:
+     *   1. dc-general.some.event[param1][param2]
+     *   2. dc-general.some.event[param1]
+     *   3. dc-general.some.event
+     *
+     * @param string                                   $eventName The event name of the event to propagate.
+     *
+     * @param \Symfony\Component\EventDispatcher\Event $event     The Event to propagate (optional).
+     *
+     * @param string[]                                 $suffixes  Suffixes to attach to the event.
+     *
+     * @return \Symfony\Component\EventDispatcher\Event
+     */
+    public function propagate($eventName, $event = null, $suffixes = array());
 
-	/**
-	 * Propagate an event to the defined event dispatcher.
-	 *
-	 * The given suffixes will get appended to the event name and the resulting event name will get fired.
-	 *
-	 * @param string                                   $eventName The event name of the event to propagate.
-	 *
-	 * @param \Symfony\Component\EventDispatcher\Event $event     The Event to propagate.
-	 *
-	 * @param string[]                                 $suffixes  Suffixes to attach to the event.
-	 *
-	 * @return \Symfony\Component\EventDispatcher\Event
-	 */
-	public function propagateExact($eventName, $event, $suffixes = array());
+    /**
+     * Propagate an event to the defined event dispatcher.
+     *
+     * The given suffixes will get appended to the event name and the resulting event name will get fired.
+     *
+     * @param string                                   $eventName The event name of the event to propagate.
+     *
+     * @param \Symfony\Component\EventDispatcher\Event $event     The Event to propagate.
+     *
+     * @param string[]                                 $suffixes  Suffixes to attach to the event.
+     *
+     * @return \Symfony\Component\EventDispatcher\Event
+     */
+    public function propagateExact($eventName, $event, $suffixes = array());
 }

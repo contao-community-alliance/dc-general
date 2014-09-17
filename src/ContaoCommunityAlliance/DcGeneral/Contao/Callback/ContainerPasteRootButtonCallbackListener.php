@@ -24,43 +24,43 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPa
  */
 class ContainerPasteRootButtonCallbackListener extends AbstractReturningCallbackListener
 {
-	/**
-	 * Retrieve the arguments for the callback.
-	 *
-	 * @param GetPasteRootButtonEvent $event The event being emitted.
-	 *
-	 * @return array
-	 */
-	public function getArgs($event)
-	{
-		return array(
-			new DcCompat($event->getEnvironment()),
-			$event->getEnvironment()->getDataProvider()->getEmptyModel()->getPropertiesAsArray(),
-			$event->getEnvironment()->getDataDefinition()->getName(),
-			false,
-			$event->getEnvironment()->getClipboard()->getContainedIds(),
-			null,
-			null
-		);
-	}
+    /**
+     * Retrieve the arguments for the callback.
+     *
+     * @param GetPasteRootButtonEvent $event The event being emitted.
+     *
+     * @return array
+     */
+    public function getArgs($event)
+    {
+        return array(
+            new DcCompat($event->getEnvironment()),
+            $event->getEnvironment()->getDataProvider()->getEmptyModel()->getPropertiesAsArray(),
+            $event->getEnvironment()->getDataDefinition()->getName(),
+            false,
+            $event->getEnvironment()->getClipboard()->getContainedIds(),
+            null,
+            null
+        );
+    }
 
-	/**
-	 * Set the HTML code for the button.
-	 *
-	 * @param GetPasteRootButtonEvent $event The event being emitted.
-	 *
-	 * @param string                  $value The value returned by the callback.
-	 *
-	 * @return void
-	 */
-	public function update($event, $value)
-	{
-		if (is_null($value))
-		{
-			return;
-		}
+    /**
+     * Set the HTML code for the button.
+     *
+     * @param GetPasteRootButtonEvent $event The event being emitted.
+     *
+     * @param string                  $value The value returned by the callback.
+     *
+     * @return void
+     */
+    public function update($event, $value)
+    {
+        if (is_null($value))
+        {
+            return;
+        }
 
-		$event->setHtml($value);
-		$event->stopPropagation();
-	}
+        $event->setHtml($value);
+        $event->stopPropagation();
+    }
 }

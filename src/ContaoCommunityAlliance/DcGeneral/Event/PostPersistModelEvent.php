@@ -22,44 +22,44 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  */
 class PostPersistModelEvent extends AbstractModelAwareEvent
 {
-	const NAME = 'dc-general.model.post-persist';
+    const NAME = 'dc-general.model.post-persist';
 
-	/**
-	 * The original model attached to the event.
-	 *
-	 * @var ModelInterface|null
-	 */
-	protected $originalModel;
+    /**
+     * The original model attached to the event.
+     *
+     * @var ModelInterface|null
+     */
+    protected $originalModel;
 
-	/**
-	 * Create a new model aware event.
-	 *
-	 * @param EnvironmentInterface $environment   The environment.
-	 *
-	 * @param ModelInterface       $model         The model attached to the event.
-	 *
-	 * @param ModelInterface|null  $originalModel The original state of the model (persistent in the data provider).
-	 */
-	public function __construct(
-		EnvironmentInterface $environment,
-		ModelInterface $model,
-		ModelInterface $originalModel = null
-	)
-	{
-		parent::__construct($environment, $model);
+    /**
+     * Create a new model aware event.
+     *
+     * @param EnvironmentInterface $environment   The environment.
+     *
+     * @param ModelInterface       $model         The model attached to the event.
+     *
+     * @param ModelInterface|null  $originalModel The original state of the model (persistent in the data provider).
+     */
+    public function __construct(
+        EnvironmentInterface $environment,
+        ModelInterface $model,
+        ModelInterface $originalModel = null
+    )
+    {
+        parent::__construct($environment, $model);
 
-		$this->originalModel = $originalModel;
-	}
+        $this->originalModel = $originalModel;
+    }
 
-	/**
-	 * Return the original state of the model.
-	 *
-	 * May be null on create.
-	 *
-	 * @return ModelInterface|null
-	 */
-	public function getOriginalModel()
-	{
-		return $this->originalModel;
-	}
+    /**
+     * Return the original state of the model.
+     *
+     * May be null on create.
+     *
+     * @return ModelInterface|null
+     */
+    public function getOriginalModel()
+    {
+        return $this->originalModel;
+    }
 }

@@ -18,16 +18,16 @@ namespace ContaoCommunityAlliance\DcGeneral;
  */
 class DcGeneralEvents
 {
-	/**
-	 * The ACTION event occurs when an action must be handled.
-	 *
-	 * This event allows to handle DC actions. The event listener method
-	 * receives a ContaoCommunityAlliance\DcGeneral\Event\ActionEvent
-	 * instance.
-	 *
-	 * @var string
-	 *
-	 * @api
-	 */
-	const ACTION = 'dc-general.action';
+    /**
+     * The ACTION event occurs when an action must be handled.
+     *
+     * This event allows to handle DC actions. The event listener method
+     * receives a ContaoCommunityAlliance\DcGeneral\Event\ActionEvent
+     * instance.
+     *
+     * @var string
+     *
+     * @api
+     */
+    const ACTION = 'dc-general.action';
 }

@@ -24,26 +24,26 @@ use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
  */
 abstract class AbstractEventDrivenEnvironmentPopulator implements EnvironmentPopulatorInterface
 {
-	/**
-	 * Priority of the listener.
-	 * Just here vor sanity, must be overwritten by implementation.
-	 */
-	const PRIORITY = null;
+    /**
+     * Priority of the listener.
+     * Just here vor sanity, must be overwritten by implementation.
+     */
+    const PRIORITY = null;
 
-	/**
-	 * Creates an instance of itself and processes the event.
-	 *
-	 * The attached environment {@link ContaoCommunityAlliance\DcGeneral\EnvironmentInterface} will be populated
-	 * with the information from the builder's data source.
-	 *
-	 * @param PopulateEnvironmentEvent $event The event to process.
-	 *
-	 * @return void
-	 */
-	public static function process(PopulateEnvironmentEvent $event)
-	{
-		$builder = new static();
-		/** @var $builder EnvironmentPopulatorInterface */
-		$builder->populate($event->getEnvironment());
-	}
+    /**
+     * Creates an instance of itself and processes the event.
+     *
+     * The attached environment {@link ContaoCommunityAlliance\DcGeneral\EnvironmentInterface} will be populated
+     * with the information from the builder's data source.
+     *
+     * @param PopulateEnvironmentEvent $event The event to process.
+     *
+     * @return void
+     */
+    public static function process(PopulateEnvironmentEvent $event)
+    {
+        $builder = new static();
+        /** @var $builder EnvironmentPopulatorInterface */
+        $builder->populate($event->getEnvironment());
+    }
 }

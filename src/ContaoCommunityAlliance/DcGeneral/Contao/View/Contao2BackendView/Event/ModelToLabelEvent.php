@@ -23,106 +23,106 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
  * @package DcGeneral\Contao\View\Contao2BackendView\Event
  */
 class ModelToLabelEvent
-	extends AbstractModelAwareEvent
+    extends AbstractModelAwareEvent
 {
-	const NAME = 'dc-general.view.contao2backend.model-to-label';
+    const NAME = 'dc-general.view.contao2backend.model-to-label';
 
-	/**
-	 * The label for the model.
-	 *
-	 * This is a format string to use in vsprintf().
-	 *
-	 * @var string
-	 */
-	protected $label;
+    /**
+     * The label for the model.
+     *
+     * This is a format string to use in vsprintf().
+     *
+     * @var string
+     */
+    protected $label;
 
-	/**
-	 * The label information instance.
-	 *
-	 * @var ModelFormatterConfigInterface
-	 */
-	protected $listLabel;
+    /**
+     * The label information instance.
+     *
+     * @var ModelFormatterConfigInterface
+     */
+    protected $listLabel;
 
-	/**
-	 * The arguments to use when building the label from the format string.
-	 *
-	 * @var array
-	 */
-	protected $args;
+    /**
+     * The arguments to use when building the label from the format string.
+     *
+     * @var array
+     */
+    protected $args;
 
-	/**
-	 * Set the arguments to use when generating the final string representation using the format string.
-	 *
-	 * @param array $args The arguments.
-	 *
-	 * @return ModelToLabelEvent
-	 */
-	public function setArgs($args)
-	{
-		$this->args = $args;
+    /**
+     * Set the arguments to use when generating the final string representation using the format string.
+     *
+     * @param array $args The arguments.
+     *
+     * @return ModelToLabelEvent
+     */
+    public function setArgs($args)
+    {
+        $this->args = $args;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Retrieve the arguments to use when generating the final string representation using the format string.
-	 *
-	 * @return array
-	 */
-	public function getArgs()
-	{
-		return $this->args;
-	}
+    /**
+     * Retrieve the arguments to use when generating the final string representation using the format string.
+     *
+     * @return array
+     */
+    public function getArgs()
+    {
+        return $this->args;
+    }
 
-	/**
-	 * Set the label for the model.
-	 *
-	 * This is a format string to use in vsprintf().
-	 *
-	 * @param string $label The label string.
-	 *
-	 * @return ModelToLabelEvent
-	 */
-	public function setLabel($label)
-	{
-		$this->label = $label;
+    /**
+     * Set the label for the model.
+     *
+     * This is a format string to use in vsprintf().
+     *
+     * @param string $label The label string.
+     *
+     * @return ModelToLabelEvent
+     */
+    public function setLabel($label)
+    {
+        $this->label = $label;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Get the label for the model.
-	 *
-	 * This is a format string to use in vsprintf().
-	 *
-	 * @return string
-	 */
-	public function getLabel()
-	{
-		return $this->label;
-	}
+    /**
+     * Get the label for the model.
+     *
+     * This is a format string to use in vsprintf().
+     *
+     * @return string
+     */
+    public function getLabel()
+    {
+        return $this->label;
+    }
 
-	/**
-	 * Set the label information instance.
-	 *
-	 * @param ModelFormatterConfigInterface $listLabel The label information instance.
-	 *
-	 * @return ModelToLabelEvent
-	 */
-	public function setFormatter($listLabel)
-	{
-		$this->listLabel = $listLabel;
+    /**
+     * Set the label information instance.
+     *
+     * @param ModelFormatterConfigInterface $listLabel The label information instance.
+     *
+     * @return ModelToLabelEvent
+     */
+    public function setFormatter($listLabel)
+    {
+        $this->listLabel = $listLabel;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Retrieve the label information instance.
-	 *
-	 * @return ModelFormatterConfigInterface
-	 */
-	public function getFormatter()
-	{
-		return $this->listLabel;
-	}
+    /**
+     * Retrieve the label information instance.
+     *
+     * @return ModelFormatterConfigInterface
+     */
+    public function getFormatter()
+    {
+        return $this->listLabel;
+    }
 }

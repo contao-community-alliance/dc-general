@@ -21,14 +21,14 @@ use Symfony\Component\EventDispatcher\Event;
  * @package DcGeneral\Event
  */
 class AbstractViewAwareEvent
-	extends AbstractEnvironmentAwareEvent
-	implements ViewAwareInterface
+    extends AbstractEnvironmentAwareEvent
+    implements ViewAwareInterface
 {
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getView()
-	{
-		return $this->getEnvironment()->getView();
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getView()
+    {
+        return $this->getEnvironment()->getView();
+    }
 }

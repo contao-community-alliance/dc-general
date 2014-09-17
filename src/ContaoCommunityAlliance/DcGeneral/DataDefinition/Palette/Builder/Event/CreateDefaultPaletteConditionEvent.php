@@ -22,49 +22,49 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuil
  */
 class CreateDefaultPaletteConditionEvent extends BuilderEvent
 {
-	const NAME = 'dc-general.data-definition.palette.builder.create-default-palette-condition';
+    const NAME = 'dc-general.data-definition.palette.builder.create-default-palette-condition';
 
-	/**
-	 * The default palette condition.
-	 *
-	 * @var DefaultPaletteCondition
-	 */
-	protected $defaultPaletteCondition;
+    /**
+     * The default palette condition.
+     *
+     * @var DefaultPaletteCondition
+     */
+    protected $defaultPaletteCondition;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param DefaultPaletteCondition $defaultPaletteCondition The condition that has been created.
-	 *
-	 * @param PaletteBuilder          $paletteBuilder          The palette builder creating the condition.
-	 */
-	public function __construct(DefaultPaletteCondition $defaultPaletteCondition, PaletteBuilder $paletteBuilder)
-	{
-		$this->setDefaultPaletteCondition($defaultPaletteCondition);
-		parent::__construct($paletteBuilder);
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param DefaultPaletteCondition $defaultPaletteCondition The condition that has been created.
+     *
+     * @param PaletteBuilder          $paletteBuilder          The palette builder creating the condition.
+     */
+    public function __construct(DefaultPaletteCondition $defaultPaletteCondition, PaletteBuilder $paletteBuilder)
+    {
+        $this->setDefaultPaletteCondition($defaultPaletteCondition);
+        parent::__construct($paletteBuilder);
+    }
 
-	/**
-	 * Set the condition.
-	 *
-	 * @param DefaultPaletteCondition $defaultPaletteCondition The condition.
-	 *
-	 * @return CreateDefaultPaletteConditionEvent
-	 */
-	public function setDefaultPaletteCondition(DefaultPaletteCondition $defaultPaletteCondition)
-	{
-		$this->defaultPaletteCondition = $defaultPaletteCondition;
+    /**
+     * Set the condition.
+     *
+     * @param DefaultPaletteCondition $defaultPaletteCondition The condition.
+     *
+     * @return CreateDefaultPaletteConditionEvent
+     */
+    public function setDefaultPaletteCondition(DefaultPaletteCondition $defaultPaletteCondition)
+    {
+        $this->defaultPaletteCondition = $defaultPaletteCondition;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Retrieve the condition.
-	 *
-	 * @return DefaultPaletteCondition
-	 */
-	public function getDefaultPaletteCondition()
-	{
-		return $this->defaultPaletteCondition;
-	}
+    /**
+     * Retrieve the condition.
+     *
+     * @return DefaultPaletteCondition
+     */
+    public function getDefaultPaletteCondition()
+    {
+        return $this->defaultPaletteCondition;
+    }
 }

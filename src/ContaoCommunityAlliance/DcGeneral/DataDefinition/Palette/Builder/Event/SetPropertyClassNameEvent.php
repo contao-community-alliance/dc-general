@@ -21,49 +21,49 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuil
  */
 class SetPropertyClassNameEvent extends BuilderEvent
 {
-	const NAME = 'dc-general.data-definition.palette.builder.set-property-class-name';
+    const NAME = 'dc-general.data-definition.palette.builder.set-property-class-name';
 
-	/**
-	 * The class name.
-	 *
-	 * @var string
-	 */
-	protected $propertyClassName;
+    /**
+     * The class name.
+     *
+     * @var string
+     */
+    protected $propertyClassName;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param string         $propertyClassName The class name.
-	 *
-	 * @param PaletteBuilder $paletteBuilder    The palette builder in use.
-	 */
-	public function __construct($propertyClassName, PaletteBuilder $paletteBuilder)
-	{
-		$this->setPropertyClassName($propertyClassName);
-		parent::__construct($paletteBuilder);
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param string         $propertyClassName The class name.
+     *
+     * @param PaletteBuilder $paletteBuilder    The palette builder in use.
+     */
+    public function __construct($propertyClassName, PaletteBuilder $paletteBuilder)
+    {
+        $this->setPropertyClassName($propertyClassName);
+        parent::__construct($paletteBuilder);
+    }
 
-	/**
-	 * Set the class name.
-	 *
-	 * @param string $propertyClassName The class name.
-	 *
-	 * @return SetPropertyClassNameEvent
-	 */
-	public function setPropertyClassName($propertyClassName)
-	{
-		$this->propertyClassName = (string)$propertyClassName;
+    /**
+     * Set the class name.
+     *
+     * @param string $propertyClassName The class name.
+     *
+     * @return SetPropertyClassNameEvent
+     */
+    public function setPropertyClassName($propertyClassName)
+    {
+        $this->propertyClassName = (string)$propertyClassName;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Retrieve the class name.
-	 *
-	 * @return string
-	 */
-	public function getPropertyClassName()
-	{
-		return $this->propertyClassName;
-	}
+    /**
+     * Retrieve the class name.
+     *
+     * @return string
+     */
+    public function getPropertyClassName()
+    {
+        return $this->propertyClassName;
+    }
 }

@@ -22,64 +22,64 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
  */
 class NotCondition implements PropertyConditionInterface
 {
-	/**
-	 * The condition to negate.
-	 *
-	 * @var PropertyConditionInterface
-	 */
-	protected $condition;
+    /**
+     * The condition to negate.
+     *
+     * @var PropertyConditionInterface
+     */
+    protected $condition;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param PropertyConditionInterface $condition The condition to negate.
-	 */
-	public function __construct(PropertyConditionInterface $condition)
-	{
-		$this->condition = $condition;
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param PropertyConditionInterface $condition The condition to negate.
+     */
+    public function __construct(PropertyConditionInterface $condition)
+    {
+        $this->condition = $condition;
+    }
 
-	/**
-	 * Set the condition to negate.
-	 *
-	 * @param PropertyConditionInterface $condition The condition.
-	 *
-	 * @return NotCondition
-	 */
-	public function setCondition(PropertyConditionInterface $condition)
-	{
-		$this->condition = $condition;
-		return $this;
-	}
+    /**
+     * Set the condition to negate.
+     *
+     * @param PropertyConditionInterface $condition The condition.
+     *
+     * @return NotCondition
+     */
+    public function setCondition(PropertyConditionInterface $condition)
+    {
+        $this->condition = $condition;
+        return $this;
+    }
 
-	/**
-	 * Retrieve the condition to negate.
-	 *
-	 * @return PropertyConditionInterface
-	 */
-	public function getCondition()
-	{
-		return $this->condition;
-	}
+    /**
+     * Retrieve the condition to negate.
+     *
+     * @return PropertyConditionInterface
+     */
+    public function getCondition()
+    {
+        return $this->condition;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function match(
-		ModelInterface $model = null,
-		PropertyValueBag $input = null,
-		PropertyInterface $property = null,
-		LegendInterface $legend = null
-	)
-	{
-		return !$this->condition->match($model, $input, $property, $legend);
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function match(
+        ModelInterface $model = null,
+        PropertyValueBag $input = null,
+        PropertyInterface $property = null,
+        LegendInterface $legend = null
+    )
+    {
+        return !$this->condition->match($model, $input, $property, $legend);
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function __clone()
-	{
-		$this->condition = clone $this->condition;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function __clone()
+    {
+        $this->condition = clone $this->condition;
+    }
 }

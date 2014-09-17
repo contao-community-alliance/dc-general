@@ -22,52 +22,52 @@ use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
  * @package DcGeneral\Panel
  */
 interface PanelInterface
-	extends \IteratorAggregate, \Countable
+    extends \IteratorAggregate, \Countable
 {
-	/**
-	 * Get the parenting container.
-	 *
-	 * @return PanelContainerInterface
-	 */
-	public function getContainer();
+    /**
+     * Get the parenting container.
+     *
+     * @return PanelContainerInterface
+     */
+    public function getContainer();
 
-	/**
-	 * Set the parenting container.
-	 *
-	 * @param PanelContainerInterface $objContainer The Container to be used as parent.
-	 *
-	 * @return PanelInterface
-	 */
-	public function setContainer(PanelContainerInterface $objContainer);
+    /**
+     * Set the parenting container.
+     *
+     * @param PanelContainerInterface $objContainer The Container to be used as parent.
+     *
+     * @return PanelInterface
+     */
+    public function setContainer(PanelContainerInterface $objContainer);
 
-	/**
-	 * Add an element to the panel.
-	 *
-	 * @param string                $strKey     Name of the panel.
-	 *
-	 * @param PanelElementInterface $objElement The element instance to add.
-	 *
-	 * @return mixed
-	 */
-	public function addElement($strKey, $objElement);
+    /**
+     * Add an element to the panel.
+     *
+     * @param string                $strKey     Name of the panel.
+     *
+     * @param PanelElementInterface $objElement The element instance to add.
+     *
+     * @return mixed
+     */
+    public function addElement($strKey, $objElement);
 
-	/**
-	 * Retrieve an element with the given name.
-	 *
-	 * @param string $strKey The name of the element.
-	 *
-	 * @return PanelElementInterface
-	 */
-	public function getElement($strKey);
+    /**
+     * Retrieve an element with the given name.
+     *
+     * @param string $strKey The name of the element.
+     *
+     * @return PanelElementInterface
+     */
+    public function getElement($strKey);
 
-	/**
-	 * Initialize the passed config via all contained elements.
-	 *
-	 * @param ConfigInterface       $objConfig  The config to which the initialization shall be applied to.
-	 *
-	 * @param PanelElementInterface $objElement The element to be initialized (if any).
-	 *
-	 * @return void
-	 */
-	public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null);
+    /**
+     * Initialize the passed config via all contained elements.
+     *
+     * @param ConfigInterface       $objConfig  The config to which the initialization shall be applied to.
+     *
+     * @param PanelElementInterface $objElement The element to be initialized (if any).
+     *
+     * @return void
+     */
+    public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null);
 }

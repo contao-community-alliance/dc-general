@@ -19,53 +19,53 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition;
  */
 class DataProviderInformation implements DataProviderInformationInterface
 {
-	/**
-	 * The name of the data provider information.
-	 *
-	 * @var string
-	 */
-	protected $name;
+    /**
+     * The name of the data provider information.
+     *
+     * @var string
+     */
+    protected $name;
 
-	/**
-	 * Flag determining if versioning is enabled for this provider or not.
-	 *
-	 * @var bool
-	 */
-	protected $versioningEnabled;
+    /**
+     * Flag determining if versioning is enabled for this provider or not.
+     *
+     * @var bool
+     */
+    protected $versioningEnabled;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setName($name)
-	{
-		$this->name = $name;
+    /**
+     * {@inheritdoc}
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getName()
-	{
-		return $this->name;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setVersioningEnabled($versioningEnabled)
-	{
-		$this->versioningEnabled = $versioningEnabled;
+    /**
+     * {@inheritdoc}
+     */
+    public function setVersioningEnabled($versioningEnabled)
+    {
+        $this->versioningEnabled = $versioningEnabled;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function isVersioningEnabled()
-	{
-		return $this->versioningEnabled;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function isVersioningEnabled()
+    {
+        return $this->versioningEnabled;
+    }
 }

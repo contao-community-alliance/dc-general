@@ -23,57 +23,57 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
  */
 class DumpingPropertyCondition implements PropertyConditionInterface
 {
-	/**
-	 * The condition to dump.
-	 *
-	 * @var PropertyConditionInterface
-	 */
-	protected $propertyCondition;
+    /**
+     * The condition to dump.
+     *
+     * @var PropertyConditionInterface
+     */
+    protected $propertyCondition;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param PropertyConditionInterface $propertyCondition The condition to debug.
-	 */
-	public function __construct($propertyCondition)
-	{
-		$this->propertyCondition = $propertyCondition;
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param PropertyConditionInterface $propertyCondition The condition to debug.
+     */
+    public function __construct($propertyCondition)
+    {
+        $this->propertyCondition = $propertyCondition;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function match(
-		ModelInterface $model = null,
-		PropertyValueBag $input = null,
-		PropertyInterface $property = null,
-		LegendInterface $legend = null
-	)
-	{
-		$result = $this->propertyCondition->match($model, $input, $property, $legend);
+    /**
+     * {@inheritdoc}
+     */
+    public function match(
+        ModelInterface $model = null,
+        PropertyValueBag $input = null,
+        PropertyInterface $property = null,
+        LegendInterface $legend = null
+    )
+    {
+        $result = $this->propertyCondition->match($model, $input, $property, $legend);
 
-		// @codingStandardsIgnoreStart - We explicitely allow var_dump() here for debugging purposes.
-		echo '<pre>$condition: </pre>';
-		var_dump($this->propertyCondition);
-		echo '<pre>$model: </pre>';
-		var_dump($model);
-		echo '<pre>$input: </pre>';
-		var_dump($input);
-		echo '<pre>$condition->match() result: </pre>';
-		var_dump($result);
-		echo '<pre>';
-		debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-		echo '</pre>';
-		// @codingStandardsIgnoreEnd
+        // @codingStandardsIgnoreStart - We explicitely allow var_dump() here for debugging purposes.
+        echo '<pre>$condition: </pre>';
+        var_dump($this->propertyCondition);
+        echo '<pre>$model: </pre>';
+        var_dump($model);
+        echo '<pre>$input: </pre>';
+        var_dump($input);
+        echo '<pre>$condition->match() result: </pre>';
+        var_dump($result);
+        echo '<pre>';
+        debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        echo '</pre>';
+        // @codingStandardsIgnoreEnd
 
-		return $result;
-	}
+        return $result;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function __clone()
-	{
-		$this->propertyCondition = clone $this->propertyCondition;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function __clone()
+    {
+        $this->propertyCondition = clone $this->propertyCondition;
+    }
 }

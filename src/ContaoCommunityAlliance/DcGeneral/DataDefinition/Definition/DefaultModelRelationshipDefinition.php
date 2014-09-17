@@ -22,108 +22,108 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootCondi
  */
 class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionInterface
 {
-	/**
-	 * The root condition relationship.
-	 *
-	 * @var RootConditionInterface
-	 */
-	protected $rootCondition;
+    /**
+     * The root condition relationship.
+     *
+     * @var RootConditionInterface
+     */
+    protected $rootCondition;
 
-	/**
-	 * A collection of parent child conditions.
-	 *
-	 * @var ParentChildConditionInterface[]
-	 */
-	protected $childConditions = array();
+    /**
+     * A collection of parent child conditions.
+     *
+     * @var ParentChildConditionInterface[]
+     */
+    protected $childConditions = array();
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setRootCondition($condition)
-	{
-		$this->rootCondition = $condition;
+    /**
+     * {@inheritdoc}
+     */
+    public function setRootCondition($condition)
+    {
+        $this->rootCondition = $condition;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getRootCondition()
-	{
-		return $this->rootCondition;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getRootCondition()
+    {
+        return $this->rootCondition;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function addChildCondition($condition)
-	{
-		$hash = spl_object_hash($condition);
+    /**
+     * {@inheritdoc}
+     */
+    public function addChildCondition($condition)
+    {
+        $hash = spl_object_hash($condition);
 
-		$this->childConditions[$hash] = $condition;
+        $this->childConditions[$hash] = $condition;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getChildCondition($srcProvider, $dstProvider)
-	{
-		foreach ($this->getChildConditions($srcProvider) as $condition)
-		{
-			if ($condition->getDestinationName() == $dstProvider)
-			{
-				return $condition;
-			}
-		}
+    /**
+     * {@inheritdoc}
+     */
+    public function getChildCondition($srcProvider, $dstProvider)
+    {
+        foreach ($this->getChildConditions($srcProvider) as $condition)
+        {
+            if ($condition->getDestinationName() == $dstProvider)
+            {
+                return $condition;
+            }
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getChildConditions($srcProvider = '')
-	{
+    /**
+     * {@inheritdoc}
+     */
+    public function getChildConditions($srcProvider = '')
+    {
 
-		if (!$this->childConditions)
-		{
-			return array();
-		}
+        if (!$this->childConditions)
+        {
+            return array();
+        }
 
-		$arrReturn = array();
-		foreach ($this->childConditions as $condition)
-		{
-			if ($condition->getSourceName() != $srcProvider)
-			{
-				continue;
-			}
+        $arrReturn = array();
+        foreach ($this->childConditions as $condition)
+        {
+            if ($condition->getSourceName() != $srcProvider)
+            {
+                continue;
+            }
 
-			$arrReturn[] = $condition;
-		}
+            $arrReturn[] = $condition;
+        }
 
-		return $arrReturn;
-	}
+        return $arrReturn;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function __clone()
-	{
-		if ($this->rootCondition !== null)
-		{
-			$this->rootCondition = clone $this->rootCondition;
-		}
+    /**
+     * {@inheritdoc}
+     */
+    public function __clone()
+    {
+        if ($this->rootCondition !== null)
+        {
+            $this->rootCondition = clone $this->rootCondition;
+        }
 
-		$conditions = array();
-		foreach ($this->childConditions as $condition)
-		{
-			$bobaFett = clone $condition;
+        $conditions = array();
+        foreach ($this->childConditions as $condition)
+        {
+            $bobaFett = clone $condition;
 
-			$conditions[] = $bobaFett;
-		}
-		$this->childConditions = $conditions;
-	}
+            $conditions[] = $bobaFett;
+        }
+        $this->childConditions = $conditions;
+    }
 }

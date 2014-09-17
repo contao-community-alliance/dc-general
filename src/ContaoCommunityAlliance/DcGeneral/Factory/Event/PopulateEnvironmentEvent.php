@@ -21,5 +21,5 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
  */
 class PopulateEnvironmentEvent extends AbstractEnvironmentAwareEvent
 {
-	const NAME = 'dc-general.factory.populate-environment';
+    const NAME = 'dc-general.factory.populate-environment';
 }

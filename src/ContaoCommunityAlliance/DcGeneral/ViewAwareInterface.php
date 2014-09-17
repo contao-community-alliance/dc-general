@@ -21,10 +21,10 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
  */
 interface ViewAwareInterface
 {
-	/**
-	 * Return the view.
-	 *
-	 * @return ViewInterface
-	 */
-	public function getView();
+    /**
+     * Return the view.
+     *
+     * @return ViewInterface
+     */
+    public function getView();
 }

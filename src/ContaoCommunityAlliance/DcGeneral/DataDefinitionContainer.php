@@ -23,52 +23,52 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  * @package DcGeneral
  */
 class DataDefinitionContainer
-	implements DataDefinitionContainerInterface
+    implements DataDefinitionContainerInterface
 {
-	/**
-	 * The definitions stored in the container.
-	 *
-	 * @var ContainerInterface[]
-	 */
-	protected $definitions;
+    /**
+     * The definitions stored in the container.
+     *
+     * @var ContainerInterface[]
+     */
+    protected $definitions;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function setDefinition($name, $definition)
-	{
-		if ($definition)
-		{
-			$this->definitions[$name] = $definition;
-		}
-		else
-		{
-			unset($this->definitions[$name]);
-		}
+    /**
+     * {@inheritDoc}
+     */
+    public function setDefinition($name, $definition)
+    {
+        if ($definition)
+        {
+            $this->definitions[$name] = $definition;
+        }
+        else
+        {
+            unset($this->definitions[$name]);
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function hasDefinition($name)
-	{
-		return isset($this->definitions[$name]);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function hasDefinition($name)
+    {
+        return isset($this->definitions[$name]);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @throws DcGeneralInvalidArgumentException When a definition is requested that is not contained.
-	 */
-	public function getDefinition($name)
-	{
-		if (!$this->hasDefinition($name))
-		{
-			throw new DcGeneralInvalidArgumentException('Data definition ' . $name . ' is not contained.');
-		}
+    /**
+     * {@inheritDoc}
+     *
+     * @throws DcGeneralInvalidArgumentException When a definition is requested that is not contained.
+     */
+    public function getDefinition($name)
+    {
+        if (!$this->hasDefinition($name))
+        {
+            throw new DcGeneralInvalidArgumentException('Data definition ' . $name . ' is not contained.');
+        }
 
-		return $this->definitions[$name];
-	}
+        return $this->definitions[$name];
+    }
 }

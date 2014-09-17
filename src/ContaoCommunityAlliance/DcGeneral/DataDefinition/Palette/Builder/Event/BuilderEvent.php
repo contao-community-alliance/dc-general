@@ -22,32 +22,32 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractContainerAwareEvent;
  */
 abstract class BuilderEvent extends AbstractContainerAwareEvent
 {
-	/**
-	 * The palette builder in use.
-	 *
-	 * @var PaletteBuilder
-	 */
-	protected $paletteBuilder;
+    /**
+     * The palette builder in use.
+     *
+     * @var PaletteBuilder
+     */
+    protected $paletteBuilder;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param PaletteBuilder $paletteBuilder The palette builder in use.
-	 */
-	public function __construct(PaletteBuilder $paletteBuilder)
-	{
-		parent::__construct($this->paletteBuilder->getContainer());
+    /**
+     * Create a new instance.
+     *
+     * @param PaletteBuilder $paletteBuilder The palette builder in use.
+     */
+    public function __construct(PaletteBuilder $paletteBuilder)
+    {
+        parent::__construct($this->paletteBuilder->getContainer());
 
-		$this->paletteBuilder = $paletteBuilder;
-	}
+        $this->paletteBuilder = $paletteBuilder;
+    }
 
-	/**
-	 * Retrieve the palette builder.
-	 *
-	 * @return PaletteBuilder
-	 */
-	public function getPaletteBuilder()
-	{
-		return $this->paletteBuilder;
-	}
+    /**
+     * Retrieve the palette builder.
+     *
+     * @return PaletteBuilder
+     */
+    public function getPaletteBuilder()
+    {
+        return $this->paletteBuilder;
+    }
 }

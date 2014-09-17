@@ -23,50 +23,50 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
  * @package DcGeneral\Contao\View\Contao2BackendView\Event
  */
 class ResolveWidgetErrorMessageEvent
-	extends AbstractEnvironmentAwareEvent
+    extends AbstractEnvironmentAwareEvent
 {
-	const NAME = 'dc-general.view.widget.resolve-error-message';
+    const NAME = 'dc-general.view.widget.resolve-error-message';
 
-	/**
-	 * The error message.
-	 *
-	 * @var mixed
-	 */
-	protected $error;
+    /**
+     * The error message.
+     *
+     * @var mixed
+     */
+    protected $error;
 
-	/**
-	 * Create a new instance of the event.
-	 *
-	 * @param EnvironmentInterface $environment The environment in use.
-	 *
-	 * @param string               $error       The error message.
-	 */
-	public function __construct(EnvironmentInterface $environment, $error)
-	{
-		parent::__construct($environment);
-		$this->error = $error;
-	}
+    /**
+     * Create a new instance of the event.
+     *
+     * @param EnvironmentInterface $environment The environment in use.
+     *
+     * @param string               $error       The error message.
+     */
+    public function __construct(EnvironmentInterface $environment, $error)
+    {
+        parent::__construct($environment);
+        $this->error = $error;
+    }
 
-	/**
-	 * Set the error message.
-	 *
-	 * @param mixed $error The error message.
-	 *
-	 * @return ResolveWidgetErrorMessageEvent
-	 */
-	public function setError($error)
-	{
-		$this->error = $error;
-		return $this;
-	}
+    /**
+     * Set the error message.
+     *
+     * @param mixed $error The error message.
+     *
+     * @return ResolveWidgetErrorMessageEvent
+     */
+    public function setError($error)
+    {
+        $this->error = $error;
+        return $this;
+    }
 
-	/**
-	 * Retrieve the error message.
-	 *
-	 * @return mixed
-	 */
-	public function getError()
-	{
-		return $this->error;
-	}
+    /**
+     * Retrieve the error message.
+     *
+     * @return mixed
+     */
+    public function getError()
+    {
+        return $this->error;
+    }
 }

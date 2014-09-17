@@ -17,30 +17,30 @@ namespace ContaoCommunityAlliance\DcGeneral;
  * @package DcGeneral
  */
 class DcGeneral
-	implements EnvironmentAwareInterface
+    implements EnvironmentAwareInterface
 {
-	/**
-	 * The environment instance.
-	 *
-	 * @var EnvironmentInterface
-	 */
-	protected $environment;
+    /**
+     * The environment instance.
+     *
+     * @var EnvironmentInterface
+     */
+    protected $environment;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param EnvironmentInterface $environment The environment.
-	 */
-	public function __construct(EnvironmentInterface $environment)
-	{
-		$this->environment = $environment;
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     */
+    public function __construct(EnvironmentInterface $environment)
+    {
+        $this->environment = $environment;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getEnvironment()
-	{
-		return $this->environment;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function getEnvironment()
+    {
+        return $this->environment;
+    }
 }

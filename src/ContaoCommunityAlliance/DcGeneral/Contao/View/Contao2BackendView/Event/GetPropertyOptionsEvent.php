@@ -22,95 +22,95 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
  * @package DcGeneral\Contao\View\Contao2BackendView\Event
  */
 class GetPropertyOptionsEvent
-	extends AbstractModelAwareEvent
+    extends AbstractModelAwareEvent
 {
-	const NAME = 'dc-general.view.contao2backend.get-property-options';
+    const NAME = 'dc-general.view.contao2backend.get-property-options';
 
-	/**
-	 * The name of the property to retrieve the options for.
-	 *
-	 * @var string
-	 */
-	protected $propertyName;
+    /**
+     * The name of the property to retrieve the options for.
+     *
+     * @var string
+     */
+    protected $propertyName;
 
-	/**
-	 * The options for the properties.
-	 *
-	 * @var array
-	 */
-	protected $options;
+    /**
+     * The options for the properties.
+     *
+     * @var array
+     */
+    protected $options;
 
-	/**
-	 * Set the property name to retrieve the options for.
-	 *
-	 * @param string $propertyName The name of the property.
-	 *
-	 * @return $this
-	 *
-	 * @deprecated this method has been renamed to setPropertyName.
-	 */
-	public function setFieldName($propertyName)
-	{
-		return $this->setPropertyName($propertyName);
-	}
+    /**
+     * Set the property name to retrieve the options for.
+     *
+     * @param string $propertyName The name of the property.
+     *
+     * @return $this
+     *
+     * @deprecated this method has been renamed to setPropertyName.
+     */
+    public function setFieldName($propertyName)
+    {
+        return $this->setPropertyName($propertyName);
+    }
 
-	/**
-	 * Get the property name to retrieve the options for.
-	 *
-	 * @return string
-	 *
-	 * @deprecated this method has been renamed to getPropertyName.
-	 */
-	public function getFieldName()
-	{
-		return $this->getPropertyName();
-	}
+    /**
+     * Get the property name to retrieve the options for.
+     *
+     * @return string
+     *
+     * @deprecated this method has been renamed to getPropertyName.
+     */
+    public function getFieldName()
+    {
+        return $this->getPropertyName();
+    }
 
-	/**
-	 * Set the property name to retrieve the options for.
-	 *
-	 * @param string $propertyName The name of the property.
-	 *
-	 * @return $this
-	 */
-	public function setPropertyName($propertyName)
-	{
-		$this->propertyName = $propertyName;
+    /**
+     * Set the property name to retrieve the options for.
+     *
+     * @param string $propertyName The name of the property.
+     *
+     * @return $this
+     */
+    public function setPropertyName($propertyName)
+    {
+        $this->propertyName = $propertyName;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Get the property name to retrieve the options for.
-	 *
-	 * @return string
-	 */
-	public function getPropertyName()
-	{
-		return $this->propertyName;
-	}
+    /**
+     * Get the property name to retrieve the options for.
+     *
+     * @return string
+     */
+    public function getPropertyName()
+    {
+        return $this->propertyName;
+    }
 
-	/**
-	 * Set the options for the property in the event.
-	 *
-	 * @param array $options The options.
-	 *
-	 * @return $this
-	 */
-	public function setOptions($options)
-	{
-		$this->options = $options;
+    /**
+     * Set the options for the property in the event.
+     *
+     * @param array $options The options.
+     *
+     * @return $this
+     */
+    public function setOptions($options)
+    {
+        $this->options = $options;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Retrieve the options for the property from the event.
-	 *
-	 * @return array
-	 */
-	public function getOptions()
-	{
-		return $this->options;
-	}
+    /**
+     * Retrieve the options for the property from the event.
+     *
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->options;
+    }
 }

@@ -22,19 +22,19 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  * @package DcGeneral\DataDefinition\ModelRelationship\FilterBuilder
  */
 class OrFilterBuilder
-	extends FilterBuilderWithChildren
+    extends FilterBuilderWithChildren
 {
-	/**
-	 * Create a new instance.
-	 *
-	 * @param array $children The initial children to absorb.
-	 *
-	 * @throws DcGeneralInvalidArgumentException When invalid children have been passed.
-	 */
-	public function __construct($children = array())
-	{
-		parent::__construct($children);
+    /**
+     * Create a new instance.
+     *
+     * @param array $children The initial children to absorb.
+     *
+     * @throws DcGeneralInvalidArgumentException When invalid children have been passed.
+     */
+    public function __construct($children = array())
+    {
+        parent::__construct($children);
 
-		$this->operation = 'OR';
-	}
+        $this->operation = 'OR';
+    }
 }

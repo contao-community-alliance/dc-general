@@ -22,32 +22,32 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class PreCreateDcGeneralEvent extends Event
 {
-	const NAME = 'dc-general.factory.pre-create-dc-general';
+    const NAME = 'dc-general.factory.pre-create-dc-general';
 
-	/**
-	 * The factory calling.
-	 *
-	 * @var DcGeneralFactoryInterface
-	 */
-	protected $factory;
+    /**
+     * The factory calling.
+     *
+     * @var DcGeneralFactoryInterface
+     */
+    protected $factory;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param DcGeneralFactoryInterface $factory The factory.
-	 */
-	public function __construct(DcGeneralFactoryInterface $factory)
-	{
-		$this->factory = $factory;
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param DcGeneralFactoryInterface $factory The factory.
+     */
+    public function __construct(DcGeneralFactoryInterface $factory)
+    {
+        $this->factory = $factory;
+    }
 
-	/**
-	 * Retrieve the factory.
-	 *
-	 * @return DcGeneralFactoryInterface
-	 */
-	public function getFactory()
-	{
-		return $this->factory;
-	}
+    /**
+     * Retrieve the factory.
+     *
+     * @return DcGeneralFactoryInterface
+     */
+    public function getFactory()
+    {
+        return $this->factory;
+    }
 }

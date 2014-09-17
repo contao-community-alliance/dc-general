@@ -22,46 +22,46 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
  */
 class ActiveRecord
 {
-	/**
-	 * The underlying model.
-	 *
-	 * @var ModelInterface
-	 */
-	protected $model;
+    /**
+     * The underlying model.
+     *
+     * @var ModelInterface
+     */
+    protected $model;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param ModelInterface $model The model.
-	 */
-	public function __construct(ModelInterface $model)
-	{
-		$this->model = $model;
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param ModelInterface $model The model.
+     */
+    public function __construct(ModelInterface $model)
+    {
+        $this->model = $model;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function __get($name)
-	{
-		return $this->model->getProperty($name);
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function __get($name)
+    {
+        return $this->model->getProperty($name);
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function __set($name, $value)
-	{
-		$this->model->setProperty($name, $value);
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function __set($name, $value)
+    {
+        $this->model->setProperty($name, $value);
+    }
 
-	/**
-	 * Return the underlying model.
-	 *
-	 * @return ModelInterface
-	 */
-	public function getModel()
-	{
-		return $this->model;
-	}
+    /**
+     * Return the underlying model.
+     *
+     * @return ModelInterface
+     */
+    public function getModel()
+    {
+        return $this->model;
+    }
 }

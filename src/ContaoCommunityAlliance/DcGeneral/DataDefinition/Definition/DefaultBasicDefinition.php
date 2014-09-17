@@ -19,314 +19,314 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition;
  */
 class DefaultBasicDefinition implements BasicDefinitionInterface
 {
-	/**
-	 * The mode.
-	 *
-	 * @var int
-	 */
-	protected $mode;
+    /**
+     * The mode.
+     *
+     * @var int
+     */
+    protected $mode;
 
-	/**
-	 * The name of the data provider of the root elements.
-	 *
-	 * @var string
-	 */
-	protected $rootProviderName;
+    /**
+     * The name of the data provider of the root elements.
+     *
+     * @var string
+     */
+    protected $rootProviderName;
 
-	/**
-	 * The name of the data provider of the parent element.
-	 *
-	 * @var string
-	 */
-	protected $parentProviderName;
+    /**
+     * The name of the data provider of the parent element.
+     *
+     * @var string
+     */
+    protected $parentProviderName;
 
-	/**
-	 * The name of the data provider of the elements being processed.
-	 *
-	 * @var string
-	 */
-	protected $providerName;
+    /**
+     * The name of the data provider of the elements being processed.
+     *
+     * @var string
+     */
+    protected $providerName;
 
-	/**
-	 * Array of filter rules.
-	 *
-	 * @var array
-	 */
-	protected $additionalFilter;
+    /**
+     * Array of filter rules.
+     *
+     * @var array
+     */
+    protected $additionalFilter;
 
-	/**
-	 * If true, only edit mode is used.
-	 *
-	 * @var bool
-	 */
-	protected $isEditOnlyMode = false;
+    /**
+     * If true, only edit mode is used.
+     *
+     * @var bool
+     */
+    protected $isEditOnlyMode = false;
 
-	/**
-	 * Boolean flag determining if this data container is editable.
-	 *
-	 * @var bool
-	 */
-	protected $isEditable = true;
+    /**
+     * Boolean flag determining if this data container is editable.
+     *
+     * @var bool
+     */
+    protected $isEditable = true;
 
-	/**
-	 * Boolean flag determining if this data container is deletable.
-	 *
-	 * @var bool
-	 */
-	protected $isDeletable = true;
+    /**
+     * Boolean flag determining if this data container is deletable.
+     *
+     * @var bool
+     */
+    protected $isDeletable = true;
 
-	/**
-	 * Determines if new entries may be created within this data container.
-	 *
-	 * @var bool
-	 */
-	protected $isCreatable = true;
+    /**
+     * Determines if new entries may be created within this data container.
+     *
+     * @var bool
+     */
+    protected $isCreatable = true;
 
-	/**
-	 * Determines if the view shall switch automatically into edit mode.
-	 *
-	 * @var bool
-	 */
-	protected $switchToEditEnabled;
+    /**
+     * Determines if the view shall switch automatically into edit mode.
+     *
+     * @var bool
+     */
+    protected $switchToEditEnabled;
 
-	/**
-	 * The ids of the root entries.
-	 *
-	 * @var mixed[]
-	 */
-	protected $rootEntries = array();
+    /**
+     * The ids of the root entries.
+     *
+     * @var mixed[]
+     */
+    protected $rootEntries = array();
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setMode($mode)
-	{
-		$this->mode = $mode;
+    /**
+     * {@inheritdoc}
+     */
+    public function setMode($mode)
+    {
+        $this->mode = $mode;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getMode()
-	{
-		return $this->mode;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getMode()
+    {
+        return $this->mode;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setRootDataProvider($providerName)
-	{
-		$this->rootProviderName = $providerName;
+    /**
+     * {@inheritdoc}
+     */
+    public function setRootDataProvider($providerName)
+    {
+        $this->rootProviderName = $providerName;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getRootDataProvider()
-	{
-		return $this->rootProviderName;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getRootDataProvider()
+    {
+        return $this->rootProviderName;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setParentDataProvider($providerName)
-	{
-		$this->parentProviderName = $providerName;
+    /**
+     * {@inheritdoc}
+     */
+    public function setParentDataProvider($providerName)
+    {
+        $this->parentProviderName = $providerName;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getParentDataProvider()
-	{
-		return $this->parentProviderName;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getParentDataProvider()
+    {
+        return $this->parentProviderName;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setDataProvider($providerName)
-	{
-		$this->providerName = $providerName;
+    /**
+     * {@inheritdoc}
+     */
+    public function setDataProvider($providerName)
+    {
+        $this->providerName = $providerName;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getDataProvider()
-	{
-		return $this->providerName;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getDataProvider()
+    {
+        return $this->providerName;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setAdditionalFilter($dataProvider, $filter)
-	{
-		$this->additionalFilter[$dataProvider] = $filter;
+    /**
+     * {@inheritdoc}
+     */
+    public function setAdditionalFilter($dataProvider, $filter)
+    {
+        $this->additionalFilter[$dataProvider] = $filter;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function hasAdditionalFilter($dataProvider = null)
-	{
-		if ($dataProvider === null)
-		{
-			$dataProvider = $this->getDataProvider();
-		}
+    /**
+     * {@inheritdoc}
+     */
+    public function hasAdditionalFilter($dataProvider = null)
+    {
+        if ($dataProvider === null)
+        {
+            $dataProvider = $this->getDataProvider();
+        }
 
-		return isset($this->additionalFilter[$dataProvider]);
-	}
+        return isset($this->additionalFilter[$dataProvider]);
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getAdditionalFilter($dataProvider = null)
-	{
-		if ($dataProvider === null)
-		{
-			$dataProvider = $this->getDataProvider();
-		}
+    /**
+     * {@inheritdoc}
+     */
+    public function getAdditionalFilter($dataProvider = null)
+    {
+        if ($dataProvider === null)
+        {
+            $dataProvider = $this->getDataProvider();
+        }
 
-		return $this->additionalFilter[$dataProvider];
-	}
+        return $this->additionalFilter[$dataProvider];
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setClosed($value)
-	{
-		$this->isEditable  = !$value;
-		$this->isCreatable = !$value;
+    /**
+     * {@inheritdoc}
+     */
+    public function setClosed($value)
+    {
+        $this->isEditable  = !$value;
+        $this->isCreatable = !$value;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function isClosed()
-	{
-		return !($this->isEditable || $this->isCreatable);
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function isClosed()
+    {
+        return !($this->isEditable || $this->isCreatable);
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setEditOnlyMode($value)
-	{
-		$this->isEditOnlyMode = $value;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setEditOnlyMode($value)
+    {
+        $this->isEditOnlyMode = $value;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function isEditOnlyMode()
-	{
-		return $this->isEditOnlyMode;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function isEditOnlyMode()
+    {
+        return $this->isEditOnlyMode;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setEditable($value)
-	{
-		$this->isEditable = $value;
+    /**
+     * {@inheritdoc}
+     */
+    public function setEditable($value)
+    {
+        $this->isEditable = $value;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function isEditable()
-	{
-		return $this->isEditable;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function isEditable()
+    {
+        return $this->isEditable;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setDeletable($value)
-	{
-		$this->isDeletable = $value;
+    /**
+     * {@inheritdoc}
+     */
+    public function setDeletable($value)
+    {
+        $this->isDeletable = $value;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function isDeletable()
-	{
-		return $this->isDeletable;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function isDeletable()
+    {
+        return $this->isDeletable;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setCreatable($value)
-	{
-		$this->isCreatable = $value;
+    /**
+     * {@inheritdoc}
+     */
+    public function setCreatable($value)
+    {
+        $this->isCreatable = $value;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function isCreatable()
-	{
-		return $this->isCreatable;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function isCreatable()
+    {
+        return $this->isCreatable;
+    }
 
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setSwitchToEditEnabled($switchToEditEnabled)
-	{
-		$this->switchToEditEnabled = $switchToEditEnabled;
+    /**
+     * {@inheritdoc}
+     */
+    public function setSwitchToEditEnabled($switchToEditEnabled)
+    {
+        $this->switchToEditEnabled = $switchToEditEnabled;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function isSwitchToEditEnabled()
-	{
-		return $this->switchToEditEnabled;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function isSwitchToEditEnabled()
+    {
+        return $this->switchToEditEnabled;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setRootEntries($entries)
-	{
-		$this->rootEntries = $entries;
+    /**
+     * {@inheritdoc}
+     */
+    public function setRootEntries($entries)
+    {
+        $this->rootEntries = $entries;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getRootEntries()
-	{
-		return $this->rootEntries;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getRootEntries()
+    {
+        return $this->rootEntries;
+    }
 }

@@ -24,70 +24,70 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInte
  */
 class ModelOperationButtonCallbackListener extends AbstractReturningCallbackListener
 {
-	/**
-	 * Retrieve the arguments for the callback.
-	 *
-	 * @param GetOperationButtonEvent $event The event being emitted.
-	 *
-	 * @return array
-	 */
-	public function getArgs($event)
-	{
-		$extra = $event->getCommand()->getExtra();
+    /**
+     * Retrieve the arguments for the callback.
+     *
+     * @param GetOperationButtonEvent $event The event being emitted.
+     *
+     * @return array
+     */
+    public function getArgs($event)
+    {
+        $extra = $event->getCommand()->getExtra();
 
-		return array(
-			$event->getModel()->getPropertiesAsArray(),
-			$this->buildHref($event->getCommand()),
-			$event->getLabel(),
-			$event->getTitle(),
-			isset($extra['icon']) ? $extra['icon'] : null,
-			$event->getAttributes(),
-			$event->getEnvironment()->getDataDefinition()->getName(),
-			$event->getEnvironment()->getDataDefinition()->getBasicDefinition()->getRootEntries(),
-			$event->getChildRecordIds(),
-			$event->getCircularReference(),
-			$event->getPrevious() ? $event->getPrevious()->getId() : null,
-			$event->getNext() ? $event->getNext()->getId() : null
-		);
-	}
+        return array(
+            $event->getModel()->getPropertiesAsArray(),
+            $this->buildHref($event->getCommand()),
+            $event->getLabel(),
+            $event->getTitle(),
+            isset($extra['icon']) ? $extra['icon'] : null,
+            $event->getAttributes(),
+            $event->getEnvironment()->getDataDefinition()->getName(),
+            $event->getEnvironment()->getDataDefinition()->getBasicDefinition()->getRootEntries(),
+            $event->getChildRecordIds(),
+            $event->getCircularReference(),
+            $event->getPrevious() ? $event->getPrevious()->getId() : null,
+            $event->getNext() ? $event->getNext()->getId() : null
+        );
+    }
 
-	/**
-	 * Set the value in the event.
-	 *
-	 * @param GetOperationButtonEvent $event The event being emitted.
-	 *
-	 * @param string                  $value The value returned by the callback.
-	 *
-	 * @return void
-	 */
-	public function update($event, $value)
-	{
-		if (is_null($value))
-		{
-			return;
-		}
+    /**
+     * Set the value in the event.
+     *
+     * @param GetOperationButtonEvent $event The event being emitted.
+     *
+     * @param string                  $value The value returned by the callback.
+     *
+     * @return void
+     */
+    public function update($event, $value)
+    {
+        if (is_null($value))
+        {
+            return;
+        }
 
-		$event->setHtml($value);
-		$event->stopPropagation();
-	}
+        $event->setHtml($value);
+        $event->stopPropagation();
+    }
 
-	/**
-	 * Build reduced href required by legacy callbacks.
-	 *
-	 * @param CommandInterface $command
-	 * @return string
-	 */
-	protected function buildHref(CommandInterface $command)
-	{
-		$arrParameters = (array)$command->getParameters();
-		$strHref       = '';
+    /**
+     * Build reduced href required by legacy callbacks.
+     *
+     * @param CommandInterface $command
+     * @return string
+     */
+    protected function buildHref(CommandInterface $command)
+    {
+        $arrParameters = (array)$command->getParameters();
+        $strHref       = '';
 
-		foreach($arrParameters as $key=>$value)
-		{
-			$strHref .= sprintf('&%s=%s', $key, $value);
-		}
+        foreach($arrParameters as $key=>$value)
+        {
+            $strHref .= sprintf('&%s=%s', $key, $value);
+        }
 
-		return $strHref;
-	}
+        return $strHref;
+    }
 
 }

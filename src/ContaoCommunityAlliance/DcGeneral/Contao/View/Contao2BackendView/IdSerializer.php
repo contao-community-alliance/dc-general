@@ -23,158 +23,158 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class IdSerializer
 {
-	/**
-	 * The data provider name.
-	 *
-	 * @var string
-	 */
-	protected $dataProviderName;
+    /**
+     * The data provider name.
+     *
+     * @var string
+     */
+    protected $dataProviderName;
 
-	/**
-	 * The id of the model.
-	 *
-	 * @var mixed
-	 */
-	protected $id;
+    /**
+     * The id of the model.
+     *
+     * @var mixed
+     */
+    protected $id;
 
-	/**
-	 * Set the data provider name.
-	 *
-	 * @param string $dataProviderName The name.
-	 *
-	 * @return IdSerializer
-	 */
-	public function setDataProviderName($dataProviderName)
-	{
-		$this->dataProviderName = $dataProviderName;
+    /**
+     * Set the data provider name.
+     *
+     * @param string $dataProviderName The name.
+     *
+     * @return IdSerializer
+     */
+    public function setDataProviderName($dataProviderName)
+    {
+        $this->dataProviderName = $dataProviderName;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Retrieve the data provider name.
-	 *
-	 * @return string
-	 */
-	public function getDataProviderName()
-	{
-		return $this->dataProviderName;
-	}
+    /**
+     * Retrieve the data provider name.
+     *
+     * @return string
+     */
+    public function getDataProviderName()
+    {
+        return $this->dataProviderName;
+    }
 
-	/**
-	 * Set the model Id.
-	 *
-	 * @param mixed $id The id.
-	 *
-	 * @return IdSerializer
-	 */
-	public function setId($id)
-	{
-		$this->id = $id;
+    /**
+     * Set the model Id.
+     *
+     * @param mixed $id The id.
+     *
+     * @return IdSerializer
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Retrieve the id.
-	 *
-	 * @return mixed
-	 */
-	public function getId()
-	{
-		return $this->id;
-	}
+    /**
+     * Retrieve the id.
+     *
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 
-	/**
-	 * Create an instance from the passed values.
-	 *
-	 * @param string $dataProviderName The data provider name.
-	 *
-	 * @param mixed  $id               The id.
-	 *
-	 * @return IdSerializer
-	 */
-	public static function fromValues($dataProviderName, $id)
-	{
-		$instance = new IdSerializer();
+    /**
+     * Create an instance from the passed values.
+     *
+     * @param string $dataProviderName The data provider name.
+     *
+     * @param mixed  $id               The id.
+     *
+     * @return IdSerializer
+     */
+    public static function fromValues($dataProviderName, $id)
+    {
+        $instance = new IdSerializer();
 
-		$instance
-			->setId($id)
-			->setDataProviderName($dataProviderName);
+        $instance
+            ->setId($id)
+            ->setDataProviderName($dataProviderName);
 
-		return $instance;
-	}
+        return $instance;
+    }
 
-	/**
-	 * Create an instance from a model.
-	 *
-	 * @param ModelInterface $model The model.
-	 *
-	 * @return IdSerializer
-	 */
-	public static function fromModel(ModelInterface $model)
-	{
-		return self::fromValues($model->getProviderName(), $model->getId());
-	}
+    /**
+     * Create an instance from a model.
+     *
+     * @param ModelInterface $model The model.
+     *
+     * @return IdSerializer
+     */
+    public static function fromModel(ModelInterface $model)
+    {
+        return self::fromValues($model->getProviderName(), $model->getId());
+    }
 
-	/**
-	 * Create an instance from an serialized id.
-	 *
-	 * @param string $serialized The id.
-	 *
-	 * @return IdSerializer
-	 *
-	 * @throws DcGeneralRuntimeException When invalid data is encountered.
-	 */
-	public static function fromSerialized($serialized)
-	{
-		$instance = new IdSerializer();
+    /**
+     * Create an instance from an serialized id.
+     *
+     * @param string $serialized The id.
+     *
+     * @return IdSerializer
+     *
+     * @throws DcGeneralRuntimeException When invalid data is encountered.
+     */
+    public static function fromSerialized($serialized)
+    {
+        $instance = new IdSerializer();
 
-		$serialized = rawurldecode($serialized);
-		$serialized = html_entity_decode($serialized, ENT_QUOTES, 'UTF-8');
+        $serialized = rawurldecode($serialized);
+        $serialized = html_entity_decode($serialized, ENT_QUOTES, 'UTF-8');
 
-		$chunks = explode('::', $serialized);
+        $chunks = explode('::', $serialized);
 
-		if (count($chunks) !== 2)
-		{
-			throw new DcGeneralRuntimeException('Unparsable encoded id value: ' . var_export($serialized, true));
-		}
+        if (count($chunks) !== 2)
+        {
+            throw new DcGeneralRuntimeException('Unparsable encoded id value: ' . var_export($serialized, true));
+        }
 
-		$instance->setDataProviderName($chunks[0]);
+        $instance->setDataProviderName($chunks[0]);
 
-		if (is_numeric($chunks[1]))
-		{
-			return $instance->setId($chunks[1]);
-		}
+        if (is_numeric($chunks[1]))
+        {
+            return $instance->setId($chunks[1]);
+        }
 
-		$decodedSource = base64_decode($chunks[1]);
-		$decodedJson   = json_decode($decodedSource, true);
+        $decodedSource = base64_decode($chunks[1]);
+        $decodedJson   = json_decode($decodedSource, true);
 
-		return $instance->setId($decodedJson ?: $decodedSource);
-	}
+        return $instance->setId($decodedJson ?: $decodedSource);
+    }
 
-	/**
-	 * Serialize the id.
-	 *
-	 * @return string
-	 */
-	public function getSerialized()
-	{
-		if (is_numeric($this->id))
-		{
-			return sprintf('%s::%s', $this->dataProviderName, $this->id);
-		}
+    /**
+     * Serialize the id.
+     *
+     * @return string
+     */
+    public function getSerialized()
+    {
+        if (is_numeric($this->id))
+        {
+            return sprintf('%s::%s', $this->dataProviderName, $this->id);
+        }
 
-		return sprintf('%s::%s', $this->dataProviderName, base64_encode(json_encode($this->id)));
-	}
+        return sprintf('%s::%s', $this->dataProviderName, base64_encode(json_encode($this->id)));
+    }
 
-	/**
-	 * Determine if both, data provider name and id are set and non empty.
-	 *
-	 * @return bool
-	 */
-	public function isValid()
-	{
-		return !(empty($this->id) || empty($this->dataProviderName));
-	}
+    /**
+     * Determine if both, data provider name and id are set and non empty.
+     *
+     * @return bool
+     */
+    public function isValid()
+    {
+        return !(empty($this->id) || empty($this->dataProviderName));
+    }
 }

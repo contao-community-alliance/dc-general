@@ -21,20 +21,20 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
  * @package DcGeneral\Panel
  */
 class DefaultSubmitElement
-	extends AbstractElement
-	implements SubmitElementInterface
+    extends AbstractElement
+    implements SubmitElementInterface
 {
-	/**
-	 * {@inheritdoc}
-	 */
-	public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
-	{
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
+    {
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function render(ViewTemplateInterface $objTemplate)
-	{
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function render(ViewTemplateInterface $objTemplate)
+    {
+    }
 }

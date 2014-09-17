@@ -22,58 +22,58 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentPopulator\AbstractEventDrivenEn
  * @package ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator
  */
 class PickerCompatPopulator
-	extends AbstractEventDrivenEnvironmentPopulator
+    extends AbstractEventDrivenEnvironmentPopulator
 {
-	const PRIORITY = -10000;
+    const PRIORITY = -10000;
 
-	/**
-	 * Create a controller instance in the environment if none has been defined yet.
-	 *
-	 * @param EnvironmentInterface $environment The environment to populate.
-	 *
-	 * @return void
-	 *
-	 * @internal
-	 */
-	public function populate(EnvironmentInterface $environment)
-	{
-		$this->populateFilePickers($environment);
-	}
+    /**
+     * Create a controller instance in the environment if none has been defined yet.
+     *
+     * @param EnvironmentInterface $environment The environment to populate.
+     *
+     * @return void
+     *
+     * @internal
+     */
+    public function populate(EnvironmentInterface $environment)
+    {
+        $this->populateFilePickers($environment);
+    }
 
-	/**
-	 * Populate the file picker $GLOBALS['TL_DCA'] to make the contao/file.php happy as it uses hard coded array access..
-	 *
-	 * @param EnvironmentInterface $environment The environment.
-	 *
-	 * @return void
-	 */
-	protected function populateFilePickers(EnvironmentInterface $environment)
-	{
-		$definition = $environment->getDataDefinition();
-		$name       = $definition->getName();
-		if (!isset($GLOBALS['TL_DCA']))
-		{
-			$GLOBALS['TL_DCA'] = array();
-		}
+    /**
+     * Populate the file picker $GLOBALS['TL_DCA'] to make the contao/file.php happy as it uses hard coded array access..
+     *
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return void
+     */
+    protected function populateFilePickers(EnvironmentInterface $environment)
+    {
+        $definition = $environment->getDataDefinition();
+        $name       = $definition->getName();
+        if (!isset($GLOBALS['TL_DCA']))
+        {
+            $GLOBALS['TL_DCA'] = array();
+        }
 
-		if (!isset($GLOBALS['TL_DCA'][$name]))
-		{
-			$GLOBALS['TL_DCA'][$name] = array();
-		}
+        if (!isset($GLOBALS['TL_DCA'][$name]))
+        {
+            $GLOBALS['TL_DCA'][$name] = array();
+        }
 
-		if (!isset($GLOBALS['TL_DCA'][$name]['fields']))
-		{
-			$GLOBALS['TL_DCA'][$name]['fields'] = array();
-		}
+        if (!isset($GLOBALS['TL_DCA'][$name]['fields']))
+        {
+            $GLOBALS['TL_DCA'][$name]['fields'] = array();
+        }
 
-		$dca = &$GLOBALS['TL_DCA'][$name]['fields'];
+        $dca = &$GLOBALS['TL_DCA'][$name]['fields'];
 
-		foreach ($environment->getDataDefinition()->getPropertiesDefinition()->getProperties() as $property)
-		{
-			if ($property->getWidgetType() == 'fileTree')
-			{
-				$dca[$property->getName()]['eval'] = $property->getExtra();
-			}
-		}
-	}
+        foreach ($environment->getDataDefinition()->getPropertiesDefinition()->getProperties() as $property)
+        {
+            if ($property->getWidgetType() == 'fileTree')
+            {
+                $dca[$property->getName()]['eval'] = $property->getExtra();
+            }
+        }
+    }
 }

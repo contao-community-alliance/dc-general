@@ -18,61 +18,61 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
  * @package DcGeneral\Data
  */
 class DefaultLanguageInformation
-	implements LanguageInformationInterface
+    implements LanguageInformationInterface
 {
-	/**
-	 * The ISO 639 language code.
-	 *
-	 * @var string
-	 */
-	protected $language;
+    /**
+     * The ISO 639 language code.
+     *
+     * @var string
+     */
+    protected $language;
 
-	/**
-	 * The ISO 3166 country code.
-	 *
-	 * @var string
-	 */
-	protected $country;
+    /**
+     * The ISO 3166 country code.
+     *
+     * @var string
+     */
+    protected $country;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param string      $language The ISO 639 language code.
-	 *
-	 * @param null|string $country  The ISO 3166 country code.
-	 */
-	public function __construct($language, $country = null)
-	{
-		$this->language = $language;
-		$this->country  = $country;
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param string      $language The ISO 639 language code.
+     *
+     * @param null|string $country  The ISO 3166 country code.
+     */
+    public function __construct($language, $country = null)
+    {
+        $this->language = $language;
+        $this->country  = $country;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getLanguageCode()
-	{
-		return $this->language;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function getLanguageCode()
+    {
+        return $this->language;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getCountryCode()
-	{
-		return $this->country;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function getCountryCode()
+    {
+        return $this->country;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getLocale()
-	{
-		if ($this->getCountryCode())
-		{
-			return $this->getLanguageCode() . '_' . $this->getCountryCode();
-		}
+    /**
+     * {@inheritDoc}
+     */
+    public function getLocale()
+    {
+        if ($this->getCountryCode())
+        {
+            return $this->getLanguageCode() . '_' . $this->getCountryCode();
+        }
 
-		return $this->getLanguageCode();
-	}
+        return $this->getLanguageCode();
+    }
 }

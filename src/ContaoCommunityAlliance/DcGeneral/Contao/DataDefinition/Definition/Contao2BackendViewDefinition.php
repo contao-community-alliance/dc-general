@@ -27,78 +27,78 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConf
  */
 class Contao2BackendViewDefinition implements Contao2BackendViewDefinitionInterface
 {
-	/**
-	 * The listing configuration for this backend view.
-	 *
-	 * @var ListingConfigInterface
-	 */
-	protected $listingConfig;
+    /**
+     * The listing configuration for this backend view.
+     *
+     * @var ListingConfigInterface
+     */
+    protected $listingConfig;
 
-	/**
-	 * The collection of global commands for this backend view.
-	 *
-	 * @var CommandCollectionInterface
-	 */
-	protected $globalCommands;
+    /**
+     * The collection of global commands for this backend view.
+     *
+     * @var CommandCollectionInterface
+     */
+    protected $globalCommands;
 
-	/**
-	 * The collection of commands invokable on a model for this backend view.
-	 *
-	 * @var CommandCollectionInterface
-	 */
-	protected $modelCommands;
+    /**
+     * The collection of commands invokable on a model for this backend view.
+     *
+     * @var CommandCollectionInterface
+     */
+    protected $modelCommands;
 
-	/**
-	 * The current panel layout.
-	 *
-	 * @var PanelLayoutInterface
-	 */
-	protected $panelLayout;
+    /**
+     * The current panel layout.
+     *
+     * @var PanelLayoutInterface
+     */
+    protected $panelLayout;
 
-	/**
-	 * Create a new instance of the Contao2BackendViewDefinition.
-	 *
-	 * The sections will get initialized with instances of the default implementation.
-	 */
-	public function __construct()
-	{
-		$this->listingConfig  = new DefaultListingConfig();
-		$this->globalCommands = new CommandCollection();
-		$this->modelCommands  = new CommandCollection();
-		$this->panelLayout    = new DefaultPanelLayout();
-	}
+    /**
+     * Create a new instance of the Contao2BackendViewDefinition.
+     *
+     * The sections will get initialized with instances of the default implementation.
+     */
+    public function __construct()
+    {
+        $this->listingConfig  = new DefaultListingConfig();
+        $this->globalCommands = new CommandCollection();
+        $this->modelCommands  = new CommandCollection();
+        $this->panelLayout    = new DefaultPanelLayout();
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getListingConfig()
-	{
-		return $this->listingConfig;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getListingConfig()
+    {
+        return $this->listingConfig;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getGlobalCommands()
-	{
-		return $this->globalCommands;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getGlobalCommands()
+    {
+        return $this->globalCommands;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getModelCommands()
-	{
-		return $this->modelCommands;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getModelCommands()
+    {
+        return $this->modelCommands;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getPanelLayout()
-	{
-		return $this->panelLayout;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getPanelLayout()
+    {
+        return $this->panelLayout;
+    }
 }
 
 

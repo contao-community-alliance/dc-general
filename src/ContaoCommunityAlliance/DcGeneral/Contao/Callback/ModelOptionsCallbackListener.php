@@ -24,37 +24,37 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPr
  */
 class ModelOptionsCallbackListener extends AbstractReturningCallbackListener
 {
-	/**
-	 * Retrieve the arguments for the callback.
-	 *
-	 * @param GetPropertyOptionsEvent $event The event being emitted.
-	 *
-	 * @return array
-	 */
-	public function getArgs($event)
-	{
-		return array(
-			new DcCompat($event->getEnvironment(), $event->getModel())
-		);
-	}
+    /**
+     * Retrieve the arguments for the callback.
+     *
+     * @param GetPropertyOptionsEvent $event The event being emitted.
+     *
+     * @return array
+     */
+    public function getArgs($event)
+    {
+        return array(
+            new DcCompat($event->getEnvironment(), $event->getModel())
+        );
+    }
 
-	/**
-	 * Update the options list in the event.
-	 *
-	 * @param GetPropertyOptionsEvent $event The event being emitted.
-	 *
-	 * @param array                   $value The options array.
-	 *
-	 * @return void
-	 */
-	public function update($event, $value)
-	{
-		if (is_null($value))
-		{
-			return;
-		}
+    /**
+     * Update the options list in the event.
+     *
+     * @param GetPropertyOptionsEvent $event The event being emitted.
+     *
+     * @param array                   $value The options array.
+     *
+     * @return void
+     */
+    public function update($event, $value)
+    {
+        if (is_null($value))
+        {
+            return;
+        }
 
-		$event->setOptions($value);
-		$event->stopPropagation();
-	}
+        $event->setOptions($value);
+        $event->stopPropagation();
+    }
 }

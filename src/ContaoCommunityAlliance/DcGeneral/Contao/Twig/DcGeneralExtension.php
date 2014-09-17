@@ -23,34 +23,34 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  */
 class DcGeneralExtension extends \Twig_Extension
 {
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getName()
-	{
-		return 'dc-general';
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return 'dc-general';
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getFilters()
-	{
-		return array(
-			new \Twig_SimpleFilter('serializeModelId', array($this, 'serializeModelId')),
-		);
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getFilters()
+    {
+        return array(
+            new \Twig_SimpleFilter('serializeModelId', array($this, 'serializeModelId')),
+        );
+    }
 
-	/**
-	 * Serialize a model and return its ID.
-	 *
-	 * @param ModelInterface $model The model.
-	 *
-	 * @return string
-	 */
-	public function serializeModelId(ModelInterface $model)
-	{
-		$serializer = IdSerializer::fromModel($model);
-		return $serializer->getSerialized();
-	}
+    /**
+     * Serialize a model and return its ID.
+     *
+     * @param ModelInterface $model The model.
+     *
+     * @return string
+     */
+    public function serializeModelId(ModelInterface $model)
+    {
+        $serializer = IdSerializer::fromModel($model);
+        return $serializer->getSerialized();
+    }
 }

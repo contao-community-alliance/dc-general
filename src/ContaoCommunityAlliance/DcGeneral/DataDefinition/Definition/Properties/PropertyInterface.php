@@ -21,263 +21,263 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties
  */
 interface PropertyInterface
 {
-	/**
-	 * Return the name of the property.
-	 *
-	 * @return string
-	 */
-	public function getName();
+    /**
+     * Return the name of the property.
+     *
+     * @return string
+     */
+    public function getName();
 
-	/**
-	 * Set the label language key.
-	 *
-	 * @param string $value The label value.
-	 *
-	 * @return PropertyInterface
-	 */
-	public function setLabel($value);
+    /**
+     * Set the label language key.
+     *
+     * @param string $value The label value.
+     *
+     * @return PropertyInterface
+     */
+    public function setLabel($value);
 
-	/**
-	 * Return the label of the property.
-	 *
-	 * @return string
-	 */
-	public function getLabel();
+    /**
+     * Return the label of the property.
+     *
+     * @return string
+     */
+    public function getLabel();
 
-	/**
-	 * Set the description language key.
-	 *
-	 * @param string $value The description text.
-	 *
-	 * @return PropertyInterface
-	 */
-	public function setDescription($value);
+    /**
+     * Set the description language key.
+     *
+     * @param string $value The description text.
+     *
+     * @return PropertyInterface
+     */
+    public function setDescription($value);
 
-	/**
-	 * Return the description of the property.
-	 *
-	 * @return string
-	 */
-	public function getDescription();
+    /**
+     * Return the description of the property.
+     *
+     * @return string
+     */
+    public function getDescription();
 
-	/**
-	 * Set the default value of the property.
-	 *
-	 * @param mixed $value The default value.
-	 *
-	 * @return PropertyInterface
-	 */
-	public function setDefaultValue($value);
+    /**
+     * Set the default value of the property.
+     *
+     * @param mixed $value The default value.
+     *
+     * @return PropertyInterface
+     */
+    public function setDefaultValue($value);
 
-	/**
-	 * Return the default value of the property.
-	 *
-	 * @return mixed
-	 */
-	public function getDefaultValue();
+    /**
+     * Return the default value of the property.
+     *
+     * @return mixed
+     */
+    public function getDefaultValue();
 
-	/**
-	 * Set if the property is excluded from access.
-	 *
-	 * @param bool $value The flag.
-	 *
-	 * @return PropertyInterface
-	 */
-	public function setExcluded($value);
+    /**
+     * Set if the property is excluded from access.
+     *
+     * @param bool $value The flag.
+     *
+     * @return PropertyInterface
+     */
+    public function setExcluded($value);
 
-	/**
-	 * Determinator if this property is excluded from access.
-	 *
-	 * @return bool
-	 */
-	public function isExcluded();
+    /**
+     * Determinator if this property is excluded from access.
+     *
+     * @return bool
+     */
+    public function isExcluded();
 
-	/**
-	 * Set the search determinator.
-	 *
-	 * @param bool $value The flag.
-	 *
-	 * @return PropertyInterface
-	 */
-	public function setSearchable($value);
+    /**
+     * Set the search determinator.
+     *
+     * @param bool $value The flag.
+     *
+     * @return PropertyInterface
+     */
+    public function setSearchable($value);
 
-	/**
-	 * Determinator if search is enabled on this property.
-	 *
-	 * @return bool
-	 */
-	public function isSearchable();
+    /**
+     * Determinator if search is enabled on this property.
+     *
+     * @return bool
+     */
+    public function isSearchable();
 
-	/**
-	 * Set the sorting determinator.
-	 *
-	 * @param bool $value The flag.
-	 *
-	 * @return PropertyInterface
-	 */
-	public function setSortable($value);
+    /**
+     * Set the sorting determinator.
+     *
+     * @param bool $value The flag.
+     *
+     * @return PropertyInterface
+     */
+    public function setSortable($value);
 
-	/**
-	 * Determinator if sorting may be performed on this property.
-	 *
-	 * @return bool
-	 */
-	public function isSortable();
+    /**
+     * Determinator if sorting may be performed on this property.
+     *
+     * @return bool
+     */
+    public function isSortable();
 
-	/**
-	 * Set filtering determinator.
-	 *
-	 * @param bool $value The flag.
-	 *
-	 * @return PropertyInterface
-	 */
-	public function setFilterable($value);
+    /**
+     * Set filtering determinator.
+     *
+     * @param bool $value The flag.
+     *
+     * @return PropertyInterface
+     */
+    public function setFilterable($value);
 
-	/**
-	 * Determinator if filtering may be performed on this property.
-	 *
-	 * @return bool
-	 */
-	public function isFilterable();
+    /**
+     * Determinator if filtering may be performed on this property.
+     *
+     * @return bool
+     */
+    public function isFilterable();
 
-	/**
-	 * Set the grouping mode.
-	 *
-	 * See ListingConfigInterface::GROUP_* flags.
-	 *
-	 * @param string $value The grouping mode to apply.
-	 *
-	 * @return PropertyInterface
-	 *
-	 * @deprecated Not supported any more.
-	 */
-	public function setGroupingMode($value);
+    /**
+     * Set the grouping mode.
+     *
+     * See ListingConfigInterface::GROUP_* flags.
+     *
+     * @param string $value The grouping mode to apply.
+     *
+     * @return PropertyInterface
+     *
+     * @deprecated Not supported any more.
+     */
+    public function setGroupingMode($value);
 
-	/**
-	 * Return the grouping mode.
-	 *
-	 * @return string
-	 *
-	 * @deprecated Not supported any more.
-	 */
-	public function getGroupingMode();
+    /**
+     * Return the grouping mode.
+     *
+     * @return string
+     *
+     * @deprecated Not supported any more.
+     */
+    public function getGroupingMode();
 
-	/**
-	 * Set the grouping length is used for char or digit grouping.
-	 *
-	 * This defines how many chars or digits should be respected when grouping.
-	 *
-	 * @param int $value The prefix length.
-	 *
-	 * @return PropertyInterface
-	 *
-	 * @deprecated Not supported any more.
-	 */
-	public function setGroupingLength($value);
+    /**
+     * Set the grouping length is used for char or digit grouping.
+     *
+     * This defines how many chars or digits should be respected when grouping.
+     *
+     * @param int $value The prefix length.
+     *
+     * @return PropertyInterface
+     *
+     * @deprecated Not supported any more.
+     */
+    public function setGroupingLength($value);
 
-	/**
-	 * Get the grouping length is used for char or digit grouping.
-	 *
-	 * The grouping length is used for char or digit grouping and define how many chars or digits should be respected
-	 * when grouping.
-	 *
-	 * @return int
-	 *
-	 * @deprecated Not supported any more.
-	 */
-	public function getGroupingLength();
+    /**
+     * Get the grouping length is used for char or digit grouping.
+     *
+     * The grouping length is used for char or digit grouping and define how many chars or digits should be respected
+     * when grouping.
+     *
+     * @return int
+     *
+     * @deprecated Not supported any more.
+     */
+    public function getGroupingLength();
 
-	/**
-	 * Set the the list sorting mode.
-	 *
-	 * See ListingConfigInterface::SORT_* flags.
-	 *
-	 * @param string $value The sorting mode to apply.
-	 *
-	 * @return PropertyInterface
-	 *
-	 * @deprecated Not supported any more.
-	 */
-	public function setSortingMode($value);
+    /**
+     * Set the the list sorting mode.
+     *
+     * See ListingConfigInterface::SORT_* flags.
+     *
+     * @param string $value The sorting mode to apply.
+     *
+     * @return PropertyInterface
+     *
+     * @deprecated Not supported any more.
+     */
+    public function setSortingMode($value);
 
-	/**
-	 * Return the list sorting mode.
-	 *
-	 * This sorting is applied after grouping and could also be called "in-group sorting".
-	 *
-	 * See ListingConfigInterface::SORT_* flags.
-	 *
-	 * @return string
-	 *
-	 * @deprecated Not supported any more.
-	 */
-	public function getSortingMode();
+    /**
+     * Return the list sorting mode.
+     *
+     * This sorting is applied after grouping and could also be called "in-group sorting".
+     *
+     * See ListingConfigInterface::SORT_* flags.
+     *
+     * @return string
+     *
+     * @deprecated Not supported any more.
+     */
+    public function getSortingMode();
 
-	/**
-	 * Set the widget type name.
-	 *
-	 * @param string $value The type name of the widget.
-	 *
-	 * @return PropertyInterface
-	 *
-	 * @todo this is view related, should be moved there?
-	 */
-	public function setWidgetType($value);
+    /**
+     * Set the widget type name.
+     *
+     * @param string $value The type name of the widget.
+     *
+     * @return PropertyInterface
+     *
+     * @todo this is view related, should be moved there?
+     */
+    public function setWidgetType($value);
 
-	/**
-	 * Return the widget type name.
-	 *
-	 * @return string
-	 *
-	 * @todo this is view related, should be moved there?
-	 */
-	public function getWidgetType();
+    /**
+     * Return the widget type name.
+     *
+     * @return string
+     *
+     * @todo this is view related, should be moved there?
+     */
+    public function getWidgetType();
 
-	/**
-	 * Set the valid values of this property.
-	 *
-	 * @param array $value The options.
-	 *
-	 * @return PropertyInterface
-	 */
-	public function setOptions($value);
+    /**
+     * Set the valid values of this property.
+     *
+     * @param array $value The options.
+     *
+     * @return PropertyInterface
+     */
+    public function setOptions($value);
 
-	/**
-	 * Return the valid values of this property.
-	 *
-	 * @return array|null
-	 */
-	public function getOptions();
+    /**
+     * Return the valid values of this property.
+     *
+     * @return array|null
+     */
+    public function getOptions();
 
-	/**
-	 * Set the explanation language string.
-	 *
-	 * @param string $value The explanation text.
-	 *
-	 * @return PropertyInterface
-	 */
-	public function setExplanation($value);
+    /**
+     * Set the explanation language string.
+     *
+     * @param string $value The explanation text.
+     *
+     * @return PropertyInterface
+     */
+    public function setExplanation($value);
 
-	/**
-	 * Return the explanation of the property.
-	 *
-	 * @return string
-	 */
-	public function getExplanation();
+    /**
+     * Return the explanation of the property.
+     *
+     * @return string
+     */
+    public function getExplanation();
 
-	/**
-	 * Set the extra data of the property.
-	 *
-	 * @param array $value The extra data for this property.
-	 *
-	 * @return PropertyInterface
-	 */
-	public function setExtra($value);
+    /**
+     * Set the extra data of the property.
+     *
+     * @param array $value The extra data for this property.
+     *
+     * @return PropertyInterface
+     */
+    public function setExtra($value);
 
-	/**
-	 * Fetch the extra data of the property.
-	 *
-	 * @return array
-	 */
-	public function getExtra();
+    /**
+     * Fetch the extra data of the property.
+     *
+     * @return array
+     */
+    public function getExtra();
 }

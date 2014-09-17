@@ -24,15 +24,15 @@ use ContaoCommunityAlliance\DcGeneral\Event\PostPasteModelEvent;
  */
 class ContainerOnCutCallbackListener extends AbstractCallbackListener
 {
-	/**
-	 * Retrieve the arguments for the callback.
-	 *
-	 * @param PostPasteModelEvent $event The event being emitted.
-	 *
-	 * @return array
-	 */
-	public function getArgs($event)
-	{
-		return array($event->getModel()->getId(), new DcCompat($event->getEnvironment(), $event->getModel()));
-	}
+    /**
+     * Retrieve the arguments for the callback.
+     *
+     * @param PostPasteModelEvent $event The event being emitted.
+     *
+     * @return array
+     */
+    public function getArgs($event)
+    {
+        return array($event->getModel()->getId(), new DcCompat($event->getEnvironment(), $event->getModel()));
+    }
 }

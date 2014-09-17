@@ -22,64 +22,64 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
  */
 class BooleanCondition implements PropertyConditionInterface
 {
-	/**
-	 * The boolean value to return.
-	 *
-	 * @var bool
-	 */
-	protected $value;
+    /**
+     * The boolean value to return.
+     *
+     * @var bool
+     */
+    protected $value;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param bool $value The value to use.
-	 */
-	public function __construct($value)
-	{
-		$this->value = (bool)$value;
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param bool $value The value to use.
+     */
+    public function __construct($value)
+    {
+        $this->value = (bool)$value;
+    }
 
-	/**
-	 * Set the value.
-	 *
-	 * @param bool $value The value to use.
-	 *
-	 * @return BooleanCondition
-	 */
-	public function setValue($value)
-	{
-		$this->value = (bool)$value;
+    /**
+     * Set the value.
+     *
+     * @param bool $value The value to use.
+     *
+     * @return BooleanCondition
+     */
+    public function setValue($value)
+    {
+        $this->value = (bool)$value;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Retrieve the value.
-	 *
-	 * @return bool
-	 */
-	public function getValue()
-	{
-		return $this->value;
-	}
+    /**
+     * Retrieve the value.
+     *
+     * @return bool
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function match(
-		ModelInterface $model = null,
-		PropertyValueBag $input = null,
-		PropertyInterface $property = null,
-		LegendInterface $legend = null
-	)
-	{
-		return $this->value;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function match(
+        ModelInterface $model = null,
+        PropertyValueBag $input = null,
+        PropertyInterface $property = null,
+        LegendInterface $legend = null
+    )
+    {
+        return $this->value;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function __clone()
-	{
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function __clone()
+    {
+    }
 }

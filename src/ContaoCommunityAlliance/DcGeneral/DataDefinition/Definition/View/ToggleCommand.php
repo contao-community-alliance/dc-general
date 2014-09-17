@@ -19,57 +19,57 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
  * @package DcGeneral\DataDefinition\Definition\View
  */
 class ToggleCommand
-	extends Command
-	implements ToggleCommandInterface
+    extends Command
+    implements ToggleCommandInterface
 {
-	/**
-	 * The property name to toggle.
-	 *
-	 * @var string
-	 */
-	protected $property;
+    /**
+     * The property name to toggle.
+     *
+     * @var string
+     */
+    protected $property;
 
-	/**
-	 * The toggle command is an inverse command.
-	 *
-	 * That means, the toggle does not toggle not-published <-> published, but not-disabled <-> disabled.
-	 *
-	 * @var bool
-	 */
-	protected $inverse = false;
+    /**
+     * The toggle command is an inverse command.
+     *
+     * That means, the toggle does not toggle not-published <-> published, but not-disabled <-> disabled.
+     *
+     * @var bool
+     */
+    protected $inverse = false;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function setToggleProperty($property)
-	{
-		$this->property = $property;
+    /**
+     * {@inheritDoc}
+     */
+    public function setToggleProperty($property)
+    {
+        $this->property = $property;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getToggleProperty()
-	{
-		return $this->property;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function getToggleProperty()
+    {
+        return $this->property;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function setInverse($inverse)
-	{
-		$this->inverse = (bool)$inverse;
-		return $this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function setInverse($inverse)
+    {
+        $this->inverse = (bool)$inverse;
+        return $this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function isInverse()
-	{
-		return $this->inverse;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function isInverse()
+    {
+        return $this->inverse;
+    }
 }

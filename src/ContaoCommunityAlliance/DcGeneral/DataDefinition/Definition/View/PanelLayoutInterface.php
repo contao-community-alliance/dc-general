@@ -19,10 +19,10 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
  */
 interface PanelLayoutInterface
 {
-	/**
-	 * Return rows of panel elements.
-	 *
-	 * @return PanelRowCollectionInterface
-	 */
-	public function getRows();
+    /**
+     * Return rows of panel elements.
+     *
+     * @return PanelRowCollectionInterface
+     */
+    public function getRows();
 }

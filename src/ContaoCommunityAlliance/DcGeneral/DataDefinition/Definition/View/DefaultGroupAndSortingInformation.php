@@ -18,103 +18,103 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
 class DefaultGroupAndSortingInformation implements GroupAndSortingInformationInterface
 {
 
-	/**
-	 * The property to use.
-	 *
-	 * @var string
-	 */
-	protected $property;
+    /**
+     * The property to use.
+     *
+     * @var string
+     */
+    protected $property;
 
-	/**
-	 * The sorting method to use.
-	 *
-	 * @var string
-	 */
-	protected $sorting = GroupAndSortingInformationInterface::SORT_ASC;
+    /**
+     * The sorting method to use.
+     *
+     * @var string
+     */
+    protected $sorting = GroupAndSortingInformationInterface::SORT_ASC;
 
-	/**
-	 * The grouping to be applied.
-	 *
-	 * @var string
-	 */
-	protected $grouping = GroupAndSortingInformationInterface::GROUP_NONE;
+    /**
+     * The grouping to be applied.
+     *
+     * @var string
+     */
+    protected $grouping = GroupAndSortingInformationInterface::GROUP_NONE;
 
-	/**
-	 * The grouping length (used when grouping mode is char).
-	 *
-	 * @var int
-	 */
-	protected $groupingLength = 0;
+    /**
+     * The grouping length (used when grouping mode is char).
+     *
+     * @var int
+     */
+    protected $groupingLength = 0;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function setProperty($property)
-	{
-		$this->property = $property;
+    /**
+     * {@inheritDoc}
+     */
+    public function setProperty($property)
+    {
+        $this->property = $property;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getProperty()
-	{
-		return $this->property;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function getProperty()
+    {
+        return $this->property;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function setGroupingMode($value)
-	{
-		$this->grouping = $value;
+    /**
+     * {@inheritDoc}
+     */
+    public function setGroupingMode($value)
+    {
+        $this->grouping = $value;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getGroupingMode()
-	{
-		return $this->grouping;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function getGroupingMode()
+    {
+        return $this->grouping;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function setGroupingLength($value)
-	{
-		$this->groupingLength = $value;
+    /**
+     * {@inheritDoc}
+     */
+    public function setGroupingLength($value)
+    {
+        $this->groupingLength = $value;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getGroupingLength()
-	{
-		return $this->groupingLength;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function getGroupingLength()
+    {
+        return $this->groupingLength;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function setSortingMode($value)
-	{
-		$this->sorting = $value;
+    /**
+     * {@inheritDoc}
+     */
+    public function setSortingMode($value)
+    {
+        $this->sorting = $value;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getSortingMode()
-	{
-		return $this->sorting;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function getSortingMode()
+    {
+        return $this->sorting;
+    }
 }

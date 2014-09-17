@@ -24,17 +24,17 @@ use ContaoCommunityAlliance\DcGeneral\Factory\Event\CreateDcGeneralEvent;
  */
 class ContainerOnLoadCallbackListener extends AbstractCallbackListener
 {
-	/**
-	 * Retrieve the arguments for the callback.
-	 *
-	 * @param CreateDcGeneralEvent $event The event being emitted.
-	 *
-	 * @return array
-	 */
-	public function getArgs($event)
-	{
-		return array(
-			new DcCompat($event->getDcGeneral()->getEnvironment())
-		);
-	}
+    /**
+     * Retrieve the arguments for the callback.
+     *
+     * @param CreateDcGeneralEvent $event The event being emitted.
+     *
+     * @return array
+     */
+    public function getArgs($event)
+    {
+        return array(
+            new DcCompat($event->getDcGeneral()->getEnvironment())
+        );
+    }
 }

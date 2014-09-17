@@ -21,37 +21,37 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
  */
 interface MultiLanguageDataProviderInterface extends DataProviderInterface
 {
-	/**
-	 * Get all available languages of a certain record.
-	 *
-	 * @param mixed $mixID The ID of the record to retrieve.
-	 *
-	 * @return LanguageInformationCollectionInterface|null
-	 */
-	public function getLanguages($mixID);
+    /**
+     * Get all available languages of a certain record.
+     *
+     * @param mixed $mixID The ID of the record to retrieve.
+     *
+     * @return LanguageInformationCollectionInterface|null
+     */
+    public function getLanguages($mixID);
 
-	/**
-	 * Get the fallback language of a certain record.
-	 *
-	 * @param mixed $mixID The ID of the record to retrieve.
-	 *
-	 * @return LanguageInformationInterface|null
-	 */
-	public function getFallbackLanguage($mixID);
+    /**
+     * Get the fallback language of a certain record.
+     *
+     * @param mixed $mixID The ID of the record to retrieve.
+     *
+     * @return LanguageInformationInterface|null
+     */
+    public function getFallbackLanguage($mixID);
 
-	/**
-	 * Set the current working language for the whole data provider.
-	 *
-	 * @param string $strLanguage The new language, use short tag "2 chars like de, fr etc.".
-	 *
-	 * @return DataProviderInterface
-	 */
-	public function setCurrentLanguage($strLanguage);
+    /**
+     * Set the current working language for the whole data provider.
+     *
+     * @param string $strLanguage The new language, use short tag "2 chars like de, fr etc.".
+     *
+     * @return DataProviderInterface
+     */
+    public function setCurrentLanguage($strLanguage);
 
-	/**
-	 * Get the current working language.
-	 *
-	 * @return string Short tag for the current working language like de or fr etc.
-	 */
-	public function getCurrentLanguage();
+    /**
+     * Get the current working language.
+     *
+     * @return string Short tag for the current working language like de or fr etc.
+     */
+    public function getCurrentLanguage();
 }

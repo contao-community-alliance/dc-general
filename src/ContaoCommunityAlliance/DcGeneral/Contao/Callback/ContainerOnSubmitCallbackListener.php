@@ -24,17 +24,17 @@ use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
  */
 class ContainerOnSubmitCallbackListener extends AbstractCallbackListener
 {
-	/**
-	 * Retrieve the arguments for the callback.
-	 *
-	 * @param PostPersistModelEvent $event The event being emitted.
-	 *
-	 * @return array
-	 */
-	public function getArgs($event)
-	{
-		return array(
-			new DcCompat($event->getEnvironment())
-		);
-	}
+    /**
+     * Retrieve the arguments for the callback.
+     *
+     * @param PostPersistModelEvent $event The event being emitted.
+     *
+     * @return array
+     */
+    public function getArgs($event)
+    {
+        return array(
+            new DcCompat($event->getEnvironment())
+        );
+    }
 }

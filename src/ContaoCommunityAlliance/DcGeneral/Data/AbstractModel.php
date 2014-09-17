@@ -21,31 +21,31 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
  */
 abstract class AbstractModel implements ModelInterface
 {
-	/**
-	 * A list with all meta information.
-	 *
-	 * @var array
-	 */
-	protected $arrMetaInformation = array();
+    /**
+     * A list with all meta information.
+     *
+     * @var array
+     */
+    protected $arrMetaInformation = array();
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getMeta($strMetaName)
-	{
-		if (isset($this->arrMetaInformation[$strMetaName]))
-		{
-			return $this->arrMetaInformation[$strMetaName];
-		}
+    /**
+     * {@inheritdoc}
+     */
+    public function getMeta($strMetaName)
+    {
+        if (isset($this->arrMetaInformation[$strMetaName]))
+        {
+            return $this->arrMetaInformation[$strMetaName];
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setMeta($strMetaName, $varValue)
-	{
-		$this->arrMetaInformation[$strMetaName] = $varValue;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setMeta($strMetaName, $varValue)
+    {
+        $this->arrMetaInformation[$strMetaName] = $varValue;
+    }
 }

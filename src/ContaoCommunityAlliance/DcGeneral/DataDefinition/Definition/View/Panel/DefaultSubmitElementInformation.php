@@ -21,11 +21,11 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel
  */
 class DefaultSubmitElementInformation implements SubmitElementInformationInterface
 {
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getName()
-	{
-		return 'submit';
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function getName()
+    {
+        return 'submit';
+    }
 }

@@ -21,10 +21,10 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
  */
 interface ModelAwareInterface
 {
-	/**
-	 * Retrieve the attached model.
-	 *
-	 * @return ModelInterface
-	 */
-	public function getModel();
+    /**
+     * Retrieve the attached model.
+     *
+     * @return ModelInterface
+     */
+    public function getModel();
 }

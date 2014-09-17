@@ -24,63 +24,63 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefinitionInterf
  */
 class ExtendedDca implements DefinitionInterface
 {
-	const NAME = 'extended-dca';
+    const NAME = 'extended-dca';
 
-	/**
-	 * Controller class to use.
-	 *
-	 * @var string
-	 */
-	protected $controllerClass;
+    /**
+     * Controller class to use.
+     *
+     * @var string
+     */
+    protected $controllerClass;
 
-	/**
-	 * View class to use.
-	 *
-	 * @var string
-	 */
-	protected $viewClass;
+    /**
+     * View class to use.
+     *
+     * @var string
+     */
+    protected $viewClass;
 
-	/**
-	 * Set the class name of the controller class.
-	 *
-	 * @param string $controllerClass The class name.
-	 *
-	 * @return void
-	 */
-	public function setControllerClass($controllerClass)
-	{
-		$this->controllerClass = $controllerClass;
-	}
+    /**
+     * Set the class name of the controller class.
+     *
+     * @param string $controllerClass The class name.
+     *
+     * @return void
+     */
+    public function setControllerClass($controllerClass)
+    {
+        $this->controllerClass = $controllerClass;
+    }
 
-	/**
-	 * Get the class name of the controller class.
-	 *
-	 * @return string
-	 */
-	public function getControllerClass()
-	{
-		return $this->controllerClass;
-	}
+    /**
+     * Get the class name of the controller class.
+     *
+     * @return string
+     */
+    public function getControllerClass()
+    {
+        return $this->controllerClass;
+    }
 
-	/**
-	 * Set the class name of the view class.
-	 *
-	 * @param string $viewClass The class name.
-	 *
-	 * @return void
-	 */
-	public function setViewClass($viewClass)
-	{
-		$this->viewClass = $viewClass;
-	}
+    /**
+     * Set the class name of the view class.
+     *
+     * @param string $viewClass The class name.
+     *
+     * @return void
+     */
+    public function setViewClass($viewClass)
+    {
+        $this->viewClass = $viewClass;
+    }
 
-	/**
-	 * Get the class name of the view class.
-	 *
-	 * @return string
-	 */
-	public function getViewClass()
-	{
-		return $this->viewClass;
-	}
+    /**
+     * Get the class name of the view class.
+     *
+     * @return string
+     */
+    public function getViewClass()
+    {
+        return $this->viewClass;
+    }
 }

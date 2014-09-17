@@ -23,8 +23,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteCollectionIn
  */
 interface PalettesDefinitionInterface extends DefinitionInterface, PaletteCollectionInterface
 {
-	/**
-	 * The name of the definition.
-	 */
-	const NAME = 'palettes';
+    /**
+     * The name of the definition.
+     */
+    const NAME = 'palettes';
 }

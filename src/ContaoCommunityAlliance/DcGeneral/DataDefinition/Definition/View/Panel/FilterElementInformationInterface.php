@@ -21,19 +21,19 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel
  */
 interface FilterElementInformationInterface extends ElementInformationInterface
 {
-	/**
-	 * Set the name of the property to filter on.
-	 *
-	 * @param string $propertyName The property to filter on.
-	 *
-	 * @return FilterElementInformationInterface
-	 */
-	public function setPropertyName($propertyName);
+    /**
+     * Set the name of the property to filter on.
+     *
+     * @param string $propertyName The property to filter on.
+     *
+     * @return FilterElementInformationInterface
+     */
+    public function setPropertyName($propertyName);
 
-	/**
-	 * Retrieve the name of the property to filter on.
-	 *
-	 * @return string
-	 */
-	public function getPropertyName();
+    /**
+     * Retrieve the name of the property to filter on.
+     *
+     * @return string
+     */
+    public function getPropertyName();
 }

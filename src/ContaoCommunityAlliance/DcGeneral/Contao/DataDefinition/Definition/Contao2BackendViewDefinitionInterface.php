@@ -21,8 +21,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ViewDefinitionIn
  */
 interface Contao2BackendViewDefinitionInterface extends ViewDefinitionInterface
 {
-	/**
-	 * The name of the definition.
-	 */
-	const NAME = 'view.contao2backend';
+    /**
+     * The name of the definition.
+     */
+    const NAME = 'view.contao2backend';
 }

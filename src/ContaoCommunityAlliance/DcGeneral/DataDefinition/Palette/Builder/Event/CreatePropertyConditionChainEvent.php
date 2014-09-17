@@ -22,48 +22,48 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuil
  */
 class CreatePropertyConditionChainEvent extends BuilderEvent
 {
-	const NAME = 'dc-general.data-definition.palette.builder.create-property-condition-chain';
+    const NAME = 'dc-general.data-definition.palette.builder.create-property-condition-chain';
 
-	/**
-	 * The property condition chain.
-	 *
-	 * @var PropertyConditionChain
-	 */
-	protected $propertyConditionChain;
+    /**
+     * The property condition chain.
+     *
+     * @var PropertyConditionChain
+     */
+    protected $propertyConditionChain;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param PropertyConditionChain $propertyConditionChain The property condition chain that has been created.
-	 *
-	 * @param PaletteBuilder         $paletteBuilder         The palette builder in use.
-	 */
-	public function __construct(PropertyConditionChain $propertyConditionChain, PaletteBuilder $paletteBuilder)
-	{
-		$this->setPropertyConditionChain($propertyConditionChain);
-		parent::__construct($paletteBuilder);
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param PropertyConditionChain $propertyConditionChain The property condition chain that has been created.
+     *
+     * @param PaletteBuilder         $paletteBuilder         The palette builder in use.
+     */
+    public function __construct(PropertyConditionChain $propertyConditionChain, PaletteBuilder $paletteBuilder)
+    {
+        $this->setPropertyConditionChain($propertyConditionChain);
+        parent::__construct($paletteBuilder);
+    }
 
-	/**
-	 * Set the property condition chain.
-	 *
-	 * @param PropertyConditionChain $propertyConditionChain The property condition chain.
-	 *
-	 * @return CreatePropertyConditionChainEvent
-	 */
-	public function setPropertyConditionChain(PropertyConditionChain $propertyConditionChain)
-	{
-		$this->propertyConditionChain = $propertyConditionChain;
-		return $this;
-	}
+    /**
+     * Set the property condition chain.
+     *
+     * @param PropertyConditionChain $propertyConditionChain The property condition chain.
+     *
+     * @return CreatePropertyConditionChainEvent
+     */
+    public function setPropertyConditionChain(PropertyConditionChain $propertyConditionChain)
+    {
+        $this->propertyConditionChain = $propertyConditionChain;
+        return $this;
+    }
 
-	/**
-	 * Retrieve the property condition chain.
-	 *
-	 * @return PropertyConditionChain
-	 */
-	public function getPropertyConditionChain()
-	{
-		return $this->propertyConditionChain;
-	}
+    /**
+     * Retrieve the property condition chain.
+     *
+     * @return PropertyConditionChain
+     */
+    public function getPropertyConditionChain()
+    {
+        return $this->propertyConditionChain;
+    }
 }

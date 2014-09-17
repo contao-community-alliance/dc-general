@@ -18,42 +18,42 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
  * @package DcGeneral\Data
  */
 class DefaultFilterOptionCollection
-	implements FilterOptionCollectionInterface
+    implements FilterOptionCollectionInterface
 {
-	/**
-	 * The language information stored in this collection.
-	 *
-	 * @var array
-	 */
-	protected $filterValues = array();
+    /**
+     * The language information stored in this collection.
+     *
+     * @var array
+     */
+    protected $filterValues = array();
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function add($filterKey, $filterValue)
-	{
-		$this->filterValues[$filterKey] = $filterValue;
+    /**
+     * {@inheritDoc}
+     */
+    public function add($filterKey, $filterValue)
+    {
+        $this->filterValues[$filterKey] = $filterValue;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Get a iterator for this collection.
-	 *
-	 * @return \IteratorAggregate
-	 */
-	public function getIterator()
-	{
-		return new \ArrayIterator($this->filterValues);
-	}
+    /**
+     * Get a iterator for this collection.
+     *
+     * @return \IteratorAggregate
+     */
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->filterValues);
+    }
 
-	/**
-	 * Count the contained language information.
-	 *
-	 * @return int
-	 */
-	public function count()
-	{
-		return count($this->filterValues);
-	}
+    /**
+     * Count the contained language information.
+     *
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->filterValues);
+    }
 }

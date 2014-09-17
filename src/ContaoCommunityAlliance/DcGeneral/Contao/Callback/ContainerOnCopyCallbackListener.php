@@ -24,15 +24,15 @@ use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
  */
 class ContainerOnCopyCallbackListener extends AbstractCallbackListener
 {
-	/**
-	 * Retrieve the arguments for the callback.
-	 *
-	 * @param PostDuplicateModelEvent $event The event being emitted.
-	 *
-	 * @return array
-	 */
-	public function getArgs($event)
-	{
-		return array($event->getModel()->getId(), new DcCompat($event->getEnvironment(), $event->getSourceModel()));
-	}
+    /**
+     * Retrieve the arguments for the callback.
+     *
+     * @param PostDuplicateModelEvent $event The event being emitted.
+     *
+     * @return array
+     */
+    public function getArgs($event)
+    {
+        return array($event->getModel()->getId(), new DcCompat($event->getEnvironment(), $event->getSourceModel()));
+    }
 }

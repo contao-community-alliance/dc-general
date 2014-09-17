@@ -24,33 +24,33 @@ use Symfony\Component\EventDispatcher\Event;
  */
 abstract class AbstractStaticCallbackListener extends AbstractCallbackListener
 {
-	/**
-	 * Arguments for the callback.
-	 *
-	 * @var array
-	 */
-	protected $args;
+    /**
+     * Arguments for the callback.
+     *
+     * @var array
+     */
+    protected $args;
 
-	/**
-	 * {@inheritdoc}
-	 *
-	 * @param mixed $_ [optional] A variable list of arguments to be passed to the callback.
-	 */
-	public function __construct($callback, $_ = null)
-	{
-		parent::__construct($callback);
+    /**
+     * {@inheritdoc}
+     *
+     * @param mixed $_ [optional] A variable list of arguments to be passed to the callback.
+     */
+    public function __construct($callback, $_ = null)
+    {
+        parent::__construct($callback);
 
-		$args = func_get_args();
-		array_shift($args);
+        $args = func_get_args();
+        array_shift($args);
 
-		$this->args = $args;
-	}
+        $this->args = $args;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getArgs($event)
-	{
-		return $this->args;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getArgs($event)
+    {
+        return $this->args;
+    }
 }

@@ -22,40 +22,40 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
  */
 class PropertyCallbackCondition implements PropertyConditionInterface
 {
-	/**
-	 * The callback.
-	 *
-	 * @var \Closure
-	 */
-	protected $callback;
+    /**
+     * The callback.
+     *
+     * @var \Closure
+     */
+    protected $callback;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param \Closure $callback The callback to execute.
-	 */
-	public function __construct($callback)
-	{
-		$this->callback = $callback;
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param \Closure $callback The callback to execute.
+     */
+    public function __construct($callback)
+    {
+        $this->callback = $callback;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function match(
-		ModelInterface $model = null,
-		PropertyValueBag $input = null,
-		PropertyInterface $property = null,
-		LegendInterface $legend = null
-	)
-	{
-		return call_user_func($this->callback, $model, $input, $property, $legend);
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function match(
+        ModelInterface $model = null,
+        PropertyValueBag $input = null,
+        PropertyInterface $property = null,
+        LegendInterface $legend = null
+    )
+    {
+        return call_user_func($this->callback, $model, $input, $property, $legend);
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function __clone()
-	{
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function __clone()
+    {
+    }
 }

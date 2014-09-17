@@ -20,96 +20,96 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\Fil
  * @package DcGeneral\DataDefinition\ModelRelationship\FilterBuilder
  */
 class PropertyValueInFilterBuilder
-	extends BaseFilterBuilder
+    extends BaseFilterBuilder
 {
-	/**
-	 * The property to be checked.
-	 *
-	 * @var string
-	 */
-	protected $property;
+    /**
+     * The property to be checked.
+     *
+     * @var string
+     */
+    protected $property;
 
-	/**
-	 * The value to compare against.
-	 *
-	 * @var mixed
-	 */
-	protected $values;
+    /**
+     * The value to compare against.
+     *
+     * @var mixed
+     */
+    protected $values;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param string $property The property name to be compared.
-	 *
-	 * @param mixed  $values   The value to be compared against.
-	 */
-	public function __construct($property, $values)
-	{
-		$this->operation = 'IN';
-		$this
-			->setProperty($property)
-			->setValues($values);
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param string $property The property name to be compared.
+     *
+     * @param mixed  $values   The value to be compared against.
+     */
+    public function __construct($property, $values)
+    {
+        $this->operation = 'IN';
+        $this
+            ->setProperty($property)
+            ->setValues($values);
+    }
 
-	/**
-	 * Serialize the filter into an array.
-	 *
-	 * @return array
-	 */
-	public function get()
-	{
-		return array(
-			'property'  => $this->getProperty(),
-			'operation' => 'IN',
-			'values'    => $this->getValues()
-		);
-	}
+    /**
+     * Serialize the filter into an array.
+     *
+     * @return array
+     */
+    public function get()
+    {
+        return array(
+            'property'  => $this->getProperty(),
+            'operation' => 'IN',
+            'values'    => $this->getValues()
+        );
+    }
 
-	/**
-	 * Set the property name.
-	 *
-	 * @param string $property The property name.
-	 *
-	 * @return PropertyValueInFilterBuilder
-	 */
-	public function setProperty($property)
-	{
-		$this->property = $property;
+    /**
+     * Set the property name.
+     *
+     * @param string $property The property name.
+     *
+     * @return PropertyValueInFilterBuilder
+     */
+    public function setProperty($property)
+    {
+        $this->property = $property;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Retrieve the property name.
-	 *
-	 * @return string
-	 */
-	public function getProperty()
-	{
-		return $this->property;
-	}
+    /**
+     * Retrieve the property name.
+     *
+     * @return string
+     */
+    public function getProperty()
+    {
+        return $this->property;
+    }
 
-	/**
-	 * Set the value to filter for.
-	 *
-	 * @param mixed $values The value.
-	 *
-	 * @return PropertyValueInFilterBuilder
-	 */
-	public function setValues($values)
-	{
-		$this->values = $values;
+    /**
+     * Set the value to filter for.
+     *
+     * @param mixed $values The value.
+     *
+     * @return PropertyValueInFilterBuilder
+     */
+    public function setValues($values)
+    {
+        $this->values = $values;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Retrieve the value to filter for.
-	 *
-	 * @return mixed
-	 */
-	public function getValues()
-	{
-		return $this->values;
-	}
+    /**
+     * Retrieve the value to filter for.
+     *
+     * @return mixed
+     */
+    public function getValues()
+    {
+        return $this->values;
+    }
 }

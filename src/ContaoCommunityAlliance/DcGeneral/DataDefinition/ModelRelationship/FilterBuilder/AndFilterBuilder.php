@@ -23,48 +23,48 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  * @package DcGeneral\DataDefinition\ModelRelationship\FilterBuilder
  */
 class AndFilterBuilder
-	extends FilterBuilderWithChildren
+    extends FilterBuilderWithChildren
 {
-	/**
-	 * Create a new instance.
-	 *
-	 * @param array $children The initial children to absorb.
-	 *
-	 * @throws DcGeneralInvalidArgumentException When invalid children have been passed.
-	 */
-	public function __construct($children = array())
-	{
-		parent::__construct($children);
+    /**
+     * Create a new instance.
+     *
+     * @param array $children The initial children to absorb.
+     *
+     * @throws DcGeneralInvalidArgumentException When invalid children have been passed.
+     */
+    public function __construct($children = array())
+    {
+        parent::__construct($children);
 
-		$this->operation = 'AND';
-	}
+        $this->operation = 'AND';
+    }
 
-	/**
-	 * Absorb the given filter builder or filter builder collection.
-	 *
-	 * @param FilterBuilder|FilterBuilderWithChildren $filters The input.
-	 *
-	 * @return FilterBuilderWithChildren
-	 */
-	public function append($filters)
-	{
-		if ($filters instanceof FilterBuilder)
-		{
-			$filters = $filters->getFilter();
-		}
+    /**
+     * Absorb the given filter builder or filter builder collection.
+     *
+     * @param FilterBuilder|FilterBuilderWithChildren $filters The input.
+     *
+     * @return FilterBuilderWithChildren
+     */
+    public function append($filters)
+    {
+        if ($filters instanceof FilterBuilder)
+        {
+            $filters = $filters->getFilter();
+        }
 
-		if ($filters instanceof AndFilterBuilder)
-		{
-			foreach ((clone $filters) as $filter)
-			{
-				$this->add(clone $filter);
-			}
+        if ($filters instanceof AndFilterBuilder)
+        {
+            foreach ((clone $filters) as $filter)
+            {
+                $this->add(clone $filter);
+            }
 
-			return $this;
-		}
+            return $this;
+        }
 
-		$this->andEncapsulate(clone $filters);
+        $this->andEncapsulate(clone $filters);
 
-		return $this;
-	}
+        return $this;
+    }
 }

@@ -21,49 +21,49 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuil
  */
 class SetPaletteCollectionClassNameEvent extends BuilderEvent
 {
-	const NAME = 'dc-general.data-definition.palette.builder.set-palette-collection-class-name';
+    const NAME = 'dc-general.data-definition.palette.builder.set-palette-collection-class-name';
 
-	/**
-	 * The palette collection class name.
-	 *
-	 * @var string
-	 */
-	protected $paletteCollectionClassName;
+    /**
+     * The palette collection class name.
+     *
+     * @var string
+     */
+    protected $paletteCollectionClassName;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param string         $paletteCollectionClassName The class name.
-	 *
-	 * @param PaletteBuilder $paletteBuilder             The palette builder.
-	 */
-	public function __construct($paletteCollectionClassName, PaletteBuilder $paletteBuilder)
-	{
-		$this->setPaletteCollectionClassName($paletteCollectionClassName);
-		parent::__construct($paletteBuilder);
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param string         $paletteCollectionClassName The class name.
+     *
+     * @param PaletteBuilder $paletteBuilder             The palette builder.
+     */
+    public function __construct($paletteCollectionClassName, PaletteBuilder $paletteBuilder)
+    {
+        $this->setPaletteCollectionClassName($paletteCollectionClassName);
+        parent::__construct($paletteBuilder);
+    }
 
-	/**
-	 * Set the class name.
-	 *
-	 * @param string $paletteCollectionClassName The class name.
-	 *
-	 * @return SetPaletteCollectionClassNameEvent
-	 */
-	public function setPaletteCollectionClassName($paletteCollectionClassName)
-	{
-		$this->paletteCollectionClassName = (string)$paletteCollectionClassName;
+    /**
+     * Set the class name.
+     *
+     * @param string $paletteCollectionClassName The class name.
+     *
+     * @return SetPaletteCollectionClassNameEvent
+     */
+    public function setPaletteCollectionClassName($paletteCollectionClassName)
+    {
+        $this->paletteCollectionClassName = (string)$paletteCollectionClassName;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Retrieve the class name.
-	 *
-	 * @return string
-	 */
-	public function getPaletteCollectionClassName()
-	{
-		return $this->paletteCollectionClassName;
-	}
+    /**
+     * Retrieve the class name.
+     *
+     * @return string
+     */
+    public function getPaletteCollectionClassName()
+    {
+        return $this->paletteCollectionClassName;
+    }
 }

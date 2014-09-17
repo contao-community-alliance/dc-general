@@ -24,50 +24,50 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class PropertyConditionChain extends AbstractConditionChain implements PropertyConditionInterface
 {
-	/**
-	 * {@inheritdoc}
-	 *
-	 * @throws DcGeneralRuntimeException When an condition that does not implement PropertyConditionInterface
-	 *                                   is encountered.
-	 */
-	public function match(
-		ModelInterface $model = null,
-		PropertyValueBag $input = null,
-		PropertyInterface $property = null,
-		LegendInterface $legend = null
-	)
-	{
-		if ($this->conjunction == static::AND_CONJUNCTION)
-		{
-			foreach ($this->conditions as $condition)
-			{
-				if (!($condition instanceof PropertyConditionInterface))
-				{
-					throw new DcGeneralRuntimeException('Invalid condition in chain: '. get_class($condition));
-				}
+    /**
+     * {@inheritdoc}
+     *
+     * @throws DcGeneralRuntimeException When an condition that does not implement PropertyConditionInterface
+     *                                   is encountered.
+     */
+    public function match(
+        ModelInterface $model = null,
+        PropertyValueBag $input = null,
+        PropertyInterface $property = null,
+        LegendInterface $legend = null
+    )
+    {
+        if ($this->conjunction == static::AND_CONJUNCTION)
+        {
+            foreach ($this->conditions as $condition)
+            {
+                if (!($condition instanceof PropertyConditionInterface))
+                {
+                    throw new DcGeneralRuntimeException('Invalid condition in chain: '. get_class($condition));
+                }
 
-				if (!$condition->match($model, $input, $property, $legend))
-				{
-					return false;
-				}
-			}
+                if (!$condition->match($model, $input, $property, $legend))
+                {
+                    return false;
+                }
+            }
 
-			return true;
-		}
+            return true;
+        }
 
-		foreach ($this->conditions as $condition)
-		{
-			if (!($condition instanceof PropertyConditionInterface))
-			{
-				throw new DcGeneralRuntimeException('Invalid condition in chain: '. get_class($condition));
-			}
+        foreach ($this->conditions as $condition)
+        {
+            if (!($condition instanceof PropertyConditionInterface))
+            {
+                throw new DcGeneralRuntimeException('Invalid condition in chain: '. get_class($condition));
+            }
 
-			if ($condition->match($model, $input, $property, $legend))
-			{
-				return true;
-			}
-		}
+            if ($condition->match($model, $input, $property, $legend))
+            {
+                return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

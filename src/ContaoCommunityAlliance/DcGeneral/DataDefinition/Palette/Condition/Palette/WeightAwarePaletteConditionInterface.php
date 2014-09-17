@@ -19,19 +19,19 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Pal
  */
 interface WeightAwarePaletteConditionInterface extends PaletteConditionInterface
 {
-	/**
-	 * Set the weight of this condition.
-	 *
-	 * @param int $weight The weight of this condition.
-	 *
-	 * @return WeightAwarePaletteConditionInterface
-	 */
-	public function setWeight($weight);
+    /**
+     * Set the weight of this condition.
+     *
+     * @param int $weight The weight of this condition.
+     *
+     * @return WeightAwarePaletteConditionInterface
+     */
+    public function setWeight($weight);
 
-	/**
-	 * Get the weight of this condition.
-	 *
-	 * @return int
-	 */
-	public function getWeight();
+    /**
+     * Get the weight of this condition.
+     *
+     * @return int
+     */
+    public function getWeight();
 }

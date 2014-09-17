@@ -24,33 +24,33 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Build
  */
 class PropertyInputFieldGetWizardCallbackListener extends AbstractReturningCallbackListener
 {
-	/**
-	 * Retrieve the arguments for the callback.
-	 *
-	 * @param BuildWidgetEvent $event The event being emitted.
-	 *
-	 * @return array
-	 */
-	public function getArgs($event)
-	{
-		return array(
-			$event->getWidget(),
-			$event->getProperty(),
-			new DcCompat($event->getEnvironment(), $event->getModel(), $event->getProperty())
-		);
-	}
+    /**
+     * Retrieve the arguments for the callback.
+     *
+     * @param BuildWidgetEvent $event The event being emitted.
+     *
+     * @return array
+     */
+    public function getArgs($event)
+    {
+        return array(
+            $event->getWidget(),
+            $event->getProperty(),
+            new DcCompat($event->getEnvironment(), $event->getModel(), $event->getProperty())
+        );
+    }
 
-	/**
-	 * Update the wizard HTML string in the widget.
-	 *
-	 * @param BuildWidgetEvent $event The event being emitted.
-	 *
-	 * @param string           $value The HTML for the wizard of the widget.
-	 *
-	 * @return void
-	 */
-	public function update($event, $value)
-	{
-		$event->getWidget()->wizard = $value;
-	}
+    /**
+     * Update the wizard HTML string in the widget.
+     *
+     * @param BuildWidgetEvent $event The event being emitted.
+     *
+     * @param string           $value The HTML for the wizard of the widget.
+     *
+     * @return void
+     */
+    public function update($event, $value)
+    {
+        $event->getWidget()->wizard = $value;
+    }
 }
