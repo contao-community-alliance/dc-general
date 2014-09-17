@@ -307,6 +307,8 @@ interface ListingConfigInterface
      * Get if the listing shall be in table columns.
      *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.BooleanGetMethodName)
      */
     public function getShowColumns();
 }

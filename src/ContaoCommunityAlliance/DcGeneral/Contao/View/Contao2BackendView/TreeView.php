@@ -85,11 +85,11 @@ class TreeView extends BaseView
      *
      * @param string $providerName The data provider name.
      *
-     * @param mixed  $id           The id of the model.
+     * @param mixed  $modelId      The id of the model.
      *
      * @return void
      */
-    protected function toggleModel($providerName, $id)
+    protected function toggleModel($providerName, $modelId)
     {
         $inputProvider = $this->getEnvironment()->getInputProvider();
         $openElements  = $this->getOpenElements();
@@ -98,10 +98,10 @@ class TreeView extends BaseView
             $openElements[$providerName] = array();
         }
 
-        if (!isset($openElements[$providerName][$id])) {
-            $openElements[$providerName][$id] = 1;
+        if (!isset($openElements[$providerName][$modelId])) {
+            $openElements[$providerName][$modelId] = 1;
         } else {
-            $openElements[$providerName][$id] = !$openElements[$providerName][$id];
+            $openElements[$providerName][$modelId] = !$openElements[$providerName][$modelId];
         }
 
         $inputProvider->setPersistentValue($this->getToggleId(), $openElements);
@@ -221,7 +221,7 @@ class TreeView extends BaseView
      */
     protected function calcLabelFields($strTable)
     {
-        return $config = $this->getViewSection()->getListingConfig()->getLabelFormatter($strTable)->getPropertyNames();
+        return $this->getViewSection()->getListingConfig()->getLabelFormatter($strTable)->getPropertyNames();
     }
 
     /**
@@ -742,8 +742,8 @@ class TreeView extends BaseView
         }
 
         $input = $this->getEnvironment()->getInputProvider();
-        if (($id = $input->hasParameter('ptg')) && ($providerName = $input->hasParameter('provider'))) {
-            $this->toggleModel($providerName, $id);
+        if (($modelId = $input->hasParameter('ptg')) && ($providerName = $input->hasParameter('provider'))) {
+            $this->toggleModel($providerName, $modelId);
             $this->redirectHome();
         }
 
@@ -802,7 +802,7 @@ class TreeView extends BaseView
     /**
      * Handle ajax rendering of a sub tree.
      *
-     * @param string $id           Id of the root node.
+     * @param string $rootId       Id of the root node.
      *
      * @param string $providerName Name of the data provider where the model is contained within.
      *
@@ -810,11 +810,11 @@ class TreeView extends BaseView
      *
      * @return string
      */
-    public function ajaxTreeView($id, $providerName, $level)
+    public function ajaxTreeView($rootId, $providerName, $level)
     {
-        $this->toggleModel($providerName, $id);
+        $this->toggleModel($providerName, $rootId);
 
-        $collection = $this->loadCollection($id, $level, $providerName);
+        $collection = $this->loadCollection($rootId, $level, $providerName);
 
         $treeClass = '';
         switch (6 /*$definition->getSortingMode()*/) {

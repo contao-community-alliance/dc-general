@@ -40,7 +40,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class ContaoWidgetManager
 {
-
     /**
      * The environment in use.
      *
@@ -338,8 +337,6 @@ class ContaoWidgetManager
                 if (!file_exists(TL_ROOT . '/assets/tinymce/langs/' . $language . '.js')) {
                     $language = 'en';
                 }
-
-                $selector = $propertyId;
 
                 ob_start();
                 // @codingStandardsIgnoreStart

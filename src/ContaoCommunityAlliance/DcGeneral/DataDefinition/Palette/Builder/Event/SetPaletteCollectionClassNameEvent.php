@@ -29,31 +29,31 @@ class SetPaletteCollectionClassNameEvent extends BuilderEvent
      *
      * @var string
      */
-    protected $paletteCollectionClassName;
+    protected $className;
 
     /**
      * Create a new instance.
      *
-     * @param string         $paletteCollectionClassName The class name.
+     * @param string         $className      The class name.
      *
-     * @param PaletteBuilder $paletteBuilder             The palette builder.
+     * @param PaletteBuilder $paletteBuilder The palette builder.
      */
-    public function __construct($paletteCollectionClassName, PaletteBuilder $paletteBuilder)
+    public function __construct($className, PaletteBuilder $paletteBuilder)
     {
-        $this->setPaletteCollectionClassName($paletteCollectionClassName);
+        $this->setPaletteCollectionClassName($className);
         parent::__construct($paletteBuilder);
     }
 
     /**
      * Set the class name.
      *
-     * @param string $paletteCollectionClassName The class name.
+     * @param string $className The class name.
      *
      * @return SetPaletteCollectionClassNameEvent
      */
-    public function setPaletteCollectionClassName($paletteCollectionClassName)
+    public function setPaletteCollectionClassName($className)
     {
-        $this->paletteCollectionClassName = (string)$paletteCollectionClassName;
+        $this->className = (string)$className;
 
         return $this;
     }
@@ -65,6 +65,6 @@ class SetPaletteCollectionClassNameEvent extends BuilderEvent
      */
     public function getPaletteCollectionClassName()
     {
-        return $this->paletteCollectionClassName;
+        return $this->className;
     }
 }

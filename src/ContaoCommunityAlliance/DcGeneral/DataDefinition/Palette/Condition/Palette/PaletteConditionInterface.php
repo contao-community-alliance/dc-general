@@ -31,7 +31,7 @@ interface PaletteConditionInterface extends ConditionInterface
      *
      * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
      *
-     * @return bool
+     * @return int
      */
     public function getMatchCount(ModelInterface $model = null, PropertyValueBag $input = null);
 

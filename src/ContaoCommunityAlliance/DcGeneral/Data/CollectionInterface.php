@@ -117,11 +117,11 @@ interface CollectionInterface extends \IteratorAggregate, \ArrayAccess, \Countab
     /**
      * Remove the model with the given id from the collection.
      *
-     * @param mixed $id The id of the model to remove.
+     * @param mixed $modelId The id of the model to remove.
      *
      * @return void
      */
-    public function removeById($id);
+    public function removeById($modelId);
 
     /**
      * Check whether the given model is contained in the collection.

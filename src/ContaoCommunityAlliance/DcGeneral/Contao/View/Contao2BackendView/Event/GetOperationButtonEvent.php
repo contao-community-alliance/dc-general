@@ -155,8 +155,25 @@ class GetOperationButtonEvent extends BaseButtonEvent
      * current model. A circular reference is of relevance when performing a cut and paste operation for example.
      *
      * @return boolean
+     *
+     * @deprecated Use isCircularReference().
+     *
+     * @SuppressWarnings(PHPMD.BooleanGetMethodName)
      */
     public function getCircularReference()
+    {
+        return $this->isCircularReference();
+    }
+
+    /**
+     * Get determinator if there exists a circular reference.
+     *
+     * This flag determines if there exists a circular reference between the item currently in the clipboard and the
+     * current model. A circular reference is of relevance when performing a cut and paste operation for example.
+     *
+     * @return boolean
+     */
+    public function isCircularReference()
     {
         return $this->circularReference;
     }

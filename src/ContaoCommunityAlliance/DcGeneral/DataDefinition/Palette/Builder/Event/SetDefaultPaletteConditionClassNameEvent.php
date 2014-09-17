@@ -29,31 +29,31 @@ class SetDefaultPaletteConditionClassNameEvent extends BuilderEvent
      *
      * @var string
      */
-    protected $defaultPaletteConditionClassName;
+    protected $className;
 
     /**
      * Create a new instance.
      *
-     * @param string         $defaultPaletteConditionClassName The class name.
+     * @param string         $className      The class name.
      *
-     * @param PaletteBuilder $paletteBuilder                   The palette builder in use.
+     * @param PaletteBuilder $paletteBuilder The palette builder in use.
      */
-    public function __construct($defaultPaletteConditionClassName, PaletteBuilder $paletteBuilder)
+    public function __construct($className, PaletteBuilder $paletteBuilder)
     {
-        $this->setDefaultPaletteConditionClassName($defaultPaletteConditionClassName);
+        $this->setDefaultPaletteConditionClassName($className);
         parent::__construct($paletteBuilder);
     }
 
     /**
      * Set the class name.
      *
-     * @param string $defaultPaletteConditionClassName The class name.
+     * @param string $className The class name.
      *
      * @return SetDefaultPaletteConditionClassNameEvent
      */
-    public function setDefaultPaletteConditionClassName($defaultPaletteConditionClassName)
+    public function setDefaultPaletteConditionClassName($className)
     {
-        $this->defaultPaletteConditionClassName = (string)$defaultPaletteConditionClassName;
+        $this->className = (string)$className;
         return $this;
     }
 
@@ -64,6 +64,6 @@ class SetDefaultPaletteConditionClassNameEvent extends BuilderEvent
      */
     public function getDefaultPaletteConditionClassName()
     {
-        return $this->defaultPaletteConditionClassName;
+        return $this->className;
     }
 }

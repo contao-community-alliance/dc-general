@@ -124,6 +124,8 @@ class PropertyValueCondition implements PropertyConditionInterface
      * Retrieve the flag if the comparison shall be strict (type safe).
      *
      * @return boolean
+     *
+     * @SuppressWarnings(PHPMD.BooleanGetMethodName)
      */
     public function getStrict()
     {

@@ -44,26 +44,26 @@ class DataProviderPopulator extends AbstractEventDrivenEnvironmentPopulator
     {
         $definition = $environment->getDataDefinition();
 
-        foreach ($definition->getDataProviderDefinition() as $dataProviderInformation) {
-            if ($dataProviderInformation instanceof ContaoDataProviderInformation) {
-                if ($environment->hasDataProvider($dataProviderInformation->getName())) {
+        foreach ($definition->getDataProviderDefinition() as $information) {
+            if ($information instanceof ContaoDataProviderInformation) {
+                if ($environment->hasDataProvider($information->getName())) {
                     throw new DcGeneralRuntimeException(
                         sprintf(
                             'Data provider %s already added to environment.',
-                            $dataProviderInformation->getName()
+                            $information->getName()
                         )
                     );
                 }
 
-                $providerClass = new \ReflectionClass($dataProviderInformation->getClassName());
+                $providerClass = new \ReflectionClass($information->getClassName());
 
                 /** @var DataProviderInterface $dataProvider */
                 $dataProvider = $providerClass->newInstance();
-                if ($initializationData = $dataProviderInformation->getInitializationData()) {
+                if ($initializationData = $information->getInitializationData()) {
                     $dataProvider->setBaseConfig($initializationData);
                 }
 
-                $environment->addDataProvider($dataProviderInformation->getName(), $dataProvider);
+                $environment->addDataProvider($information->getName(), $dataProvider);
             }
         }
     }

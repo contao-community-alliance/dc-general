@@ -44,23 +44,22 @@ class ListView extends BaseView
 
         /** @var Contao2BackendViewDefinitionInterface $backendView */
         $listingConfig = $backendView->getListingConfig();
+        $dataProvider  = $environment->getDataProvider();
+        $dataConfig    = $environment->getController()->getBaseConfig();
 
-        $objCurrentDataProvider = $environment->getDataProvider();
-        $objConfig              = $environment->getController()->getBaseConfig();
-
-        $this->getPanel()->initialize($objConfig);
+        $this->getPanel()->initialize($dataConfig);
 
         // Initialize sorting if not present yet.
-        if (!$objConfig->getSorting() && $listingConfig->getGroupAndSortingDefinition()->hasDefault()) {
+        if (!$dataConfig->getSorting() && $listingConfig->getGroupAndSortingDefinition()->hasDefault()) {
             $newSorting = array();
             foreach ($listingConfig->getGroupAndSortingDefinition()->getDefault() as $information) {
                 /** @var GroupAndSortingInformationInterface $information */
                 $newSorting[$information->getProperty()] = strtoupper($information->getSortingMode());
             }
-            $objConfig->setSorting($newSorting);
+            $dataConfig->setSorting($newSorting);
         }
 
-        $objCollection = $objCurrentDataProvider->fetchAll($objConfig);
+        $objCollection = $dataProvider->fetchAll($dataConfig);
 
         return $objCollection;
     }

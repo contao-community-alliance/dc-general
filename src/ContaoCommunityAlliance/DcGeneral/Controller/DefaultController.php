@@ -76,11 +76,13 @@ class DefaultController implements ControllerInterface
      *
      * @param string $name      Method name.
      *
-     * @param array  $arguments Method arguments.
+     * @param array  $arguments The method arguments.
      *
      * @return void
      *
      * @throws DcGeneralRuntimeException Always.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function __call($name, $arguments)
     {
@@ -286,11 +288,11 @@ class DefaultController implements ControllerInterface
         }
 
         // Handle grouping.
-        /** @var Contao2BackendViewDefinitionInterface $backendViewDefinition */
+        /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
         // TODO TL dnk how to handle this without highjacking the view.
-        $backendViewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-        if ($backendViewDefinition && $backendViewDefinition instanceof Contao2BackendViewDefinitionInterface) {
-            $listingConfig        = $backendViewDefinition->getListingConfig();
+        $viewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        if ($viewDefinition && $viewDefinition instanceof Contao2BackendViewDefinitionInterface) {
+            $listingConfig        = $viewDefinition->getListingConfig();
             $sortingProperties    = array_keys((array)$listingConfig->getDefaultSortingFields());
             $sortingPropertyIndex = array_search($sortingProperty, $sortingProperties);
 
@@ -474,20 +476,20 @@ class DefaultController implements ControllerInterface
         )
         ) {
             /** @var MultiLanguageDataProviderInterface $objDataProvider */
-            $objLanguagesSupported = $objDataProvider->getLanguages($mixID);
+            $supportedLanguages = $objDataProvider->getLanguages($mixID);
         } else {
-            $objLanguagesSupported = null;
+            $supportedLanguages = null;
         }
 
         // Check if we have some languages.
-        if ($objLanguagesSupported == null) {
+        if ($supportedLanguages == null) {
             return array();
         }
 
         // Make an array from the collection.
         $arrLanguage = array();
         $translator  = $environment->getTranslator();
-        foreach ($objLanguagesSupported as $value) {
+        foreach ($supportedLanguages as $value) {
             /** @var LanguageInformationInterface $value */
             $arrLanguage[$value->getLocale()] = $translator->translate('LNG.' . $value->getLocale(), 'languages');
         }
@@ -583,18 +585,18 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritDoc}
      */
-    public function fetchModelFromProvider($id, $providerName = null)
+    public function fetchModelFromProvider($modelId, $providerName = null)
     {
         if ($providerName === null) {
-            if (is_string($id)) {
-                $id = IdSerializer::fromSerialized($id);
+            if (is_string($modelId)) {
+                $modelId = IdSerializer::fromSerialized($modelId);
             }
         } else {
-            $id = IdSerializer::fromValues($providerName, $id);
+            $modelId = IdSerializer::fromValues($providerName, $modelId);
         }
 
-        $dataProvider = $this->getEnvironment()->getDataProvider($id->getDataProviderName());
-        $item         = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($id->getId()));
+        $dataProvider = $this->getEnvironment()->getDataProvider($modelId->getDataProviderName());
+        $item         = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
         return $item;
     }

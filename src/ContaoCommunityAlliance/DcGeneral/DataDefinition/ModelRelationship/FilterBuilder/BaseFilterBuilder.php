@@ -161,19 +161,19 @@ abstract class BaseFilterBuilder
 
         if ($this instanceof FilterBuilderWithChildren) {
             /** @var FilterBuilderWithChildren $this */
-            $or = new OrFilterBuilder();
-            $this->add($or);
+            $orFilter = new OrFilterBuilder();
+            $this->add($orFilter);
 
-            return $or;
+            return $orFilter;
         }
 
-        $or     = new OrFilterBuilder();
-        $parent = $this->getParent();
-        $parent->add($or);
+        $orFilter = new OrFilterBuilder();
+        $parent   = $this->getParent();
+        $parent->add($orFilter);
 
-        $or->add($this);
+        $orFilter->add($this);
 
-        return $or;
+        return $orFilter;
     }
 
     /**
@@ -208,6 +208,8 @@ abstract class BaseFilterBuilder
      * Move one level up in the filter hierarchy.
      *
      * @return FilterBuilderWithChildren
+     *
+     * @SuppressWarnings(PHPMD.ShortMethodName)
      */
     public function up()
     {

@@ -37,6 +37,9 @@ abstract class AbstractStaticCallbackListener extends AbstractCallbackListener
      * {@inheritdoc}
      *
      * @param mixed $_ [optional] A variable list of arguments to be passed to the callback.
+     *
+     * @SuppressWarnings(PHPMD.ShortVariable)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function __construct($callback, $_ = null)
     {
@@ -50,6 +53,8 @@ abstract class AbstractStaticCallbackListener extends AbstractCallbackListener
 
     /**
      * {@inheritdoc}
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getArgs($event)
     {

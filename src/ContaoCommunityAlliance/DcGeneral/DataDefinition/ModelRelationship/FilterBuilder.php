@@ -148,10 +148,10 @@ class FilterBuilder
         $this->filters = new AndFilterBuilder();
         $this->filters->setBuilder($this);
 
-        $or = new OrFilterBuilder(array($root));
-        $this->filters->add($or);
+        $orFilter = new OrFilterBuilder(array($root));
+        $this->filters->add($orFilter);
 
-        return $or;
+        return $orFilter;
     }
 
     /**

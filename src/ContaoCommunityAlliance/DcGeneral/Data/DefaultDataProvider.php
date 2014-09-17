@@ -398,11 +398,11 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function delete($item)
     {
-        $id = null;
+        $modelId = null;
         if (is_numeric($item) || is_string($item)) {
-            $id = $item;
+            $modelId = $item;
         } elseif (is_object($item) && $item instanceof ModelInterface && strlen($item->getID()) != 0) {
-            $id = $item->getID();
+            $modelId = $item->getID();
         } else {
             throw new DcGeneralRuntimeException("ID missing or given object not of type 'ModelInterface'.");
         }
@@ -412,19 +412,19 @@ class DefaultDataProvider implements DataProviderInterface
             sprintf(
                 'DELETE FROM %1$s WHERE id = %2$s',
                 $this->strSource,
-                $id
+                $modelId
             ),
             sprintf(
                 'SELECT * FROM %1$s WHERE id = %2$s',
                 $this->strSource,
-                $id
+                $modelId
             ),
             $this->strSource
         );
 
         $this->objDatabase
             ->prepare(sprintf('DELETE FROM %s WHERE id=?', $this->strSource))
-            ->execute($id);
+            ->execute($modelId);
     }
 
     /**

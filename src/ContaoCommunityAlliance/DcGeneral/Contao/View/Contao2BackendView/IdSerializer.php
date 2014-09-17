@@ -37,7 +37,7 @@ class IdSerializer
      *
      * @var mixed
      */
-    protected $id;
+    protected $modelId;
 
     /**
      * Set the data provider name.
@@ -66,13 +66,13 @@ class IdSerializer
     /**
      * Set the model Id.
      *
-     * @param mixed $id The id.
+     * @param mixed $modelId The id.
      *
      * @return IdSerializer
      */
-    public function setId($id)
+    public function setId($modelId)
     {
-        $this->id = $id;
+        $this->modelId = $modelId;
 
         return $this;
     }
@@ -84,7 +84,7 @@ class IdSerializer
      */
     public function getId()
     {
-        return $this->id;
+        return $this->modelId;
     }
 
     /**
@@ -92,16 +92,16 @@ class IdSerializer
      *
      * @param string $dataProviderName The data provider name.
      *
-     * @param mixed  $id               The id.
+     * @param mixed  $modelId          The id.
      *
      * @return IdSerializer
      */
-    public static function fromValues($dataProviderName, $id)
+    public static function fromValues($dataProviderName, $modelId)
     {
         $instance = new IdSerializer();
 
         $instance
-            ->setId($id)
+            ->setId($modelId)
             ->setDataProviderName($dataProviderName);
 
         return $instance;
@@ -160,11 +160,11 @@ class IdSerializer
      */
     public function getSerialized()
     {
-        if (is_numeric($this->id)) {
-            return sprintf('%s::%s', $this->dataProviderName, $this->id);
+        if (is_numeric($this->modelId)) {
+            return sprintf('%s::%s', $this->dataProviderName, $this->modelId);
         }
 
-        return sprintf('%s::%s', $this->dataProviderName, base64_encode(json_encode($this->id)));
+        return sprintf('%s::%s', $this->dataProviderName, base64_encode(json_encode($this->modelId)));
     }
 
     /**
@@ -174,6 +174,6 @@ class IdSerializer
      */
     public function isValid()
     {
-        return !(empty($this->id) || empty($this->dataProviderName));
+        return !(empty($this->modelId) || empty($this->dataProviderName));
     }
 }

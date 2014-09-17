@@ -30,31 +30,31 @@ class CreateDefaultPaletteConditionEvent extends BuilderEvent
      *
      * @var DefaultPaletteCondition
      */
-    protected $defaultPaletteCondition;
+    protected $paletteCondition;
 
     /**
      * Create a new instance.
      *
-     * @param DefaultPaletteCondition $defaultPaletteCondition The condition that has been created.
+     * @param DefaultPaletteCondition $paletteCondition The condition that has been created.
      *
-     * @param PaletteBuilder          $paletteBuilder          The palette builder creating the condition.
+     * @param PaletteBuilder          $paletteBuilder   The palette builder creating the condition.
      */
-    public function __construct(DefaultPaletteCondition $defaultPaletteCondition, PaletteBuilder $paletteBuilder)
+    public function __construct(DefaultPaletteCondition $paletteCondition, PaletteBuilder $paletteBuilder)
     {
-        $this->setDefaultPaletteCondition($defaultPaletteCondition);
+        $this->setDefaultPaletteCondition($paletteCondition);
         parent::__construct($paletteBuilder);
     }
 
     /**
      * Set the condition.
      *
-     * @param DefaultPaletteCondition $defaultPaletteCondition The condition.
+     * @param DefaultPaletteCondition $paletteCondition The condition.
      *
      * @return CreateDefaultPaletteConditionEvent
      */
-    public function setDefaultPaletteCondition(DefaultPaletteCondition $defaultPaletteCondition)
+    public function setDefaultPaletteCondition(DefaultPaletteCondition $paletteCondition)
     {
-        $this->defaultPaletteCondition = $defaultPaletteCondition;
+        $this->paletteCondition = $paletteCondition;
 
         return $this;
     }
@@ -66,6 +66,6 @@ class CreateDefaultPaletteConditionEvent extends BuilderEvent
      */
     public function getDefaultPaletteCondition()
     {
-        return $this->defaultPaletteCondition;
+        return $this->paletteCondition;
     }
 }

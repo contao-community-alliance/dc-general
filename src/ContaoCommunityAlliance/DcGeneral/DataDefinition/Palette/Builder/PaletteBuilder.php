@@ -58,6 +58,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * The palette builder is used to build palette collections, palettes, legends, properties and conditions.
+ *
+ * @SuppressWarnings(PHPMD.LongVariable)
  */
 class PaletteBuilder
 {
@@ -827,6 +829,9 @@ class PaletteBuilder
      * @param PropertyInterface $_        Any more subsequent properties to be used.
      *
      * @return PaletteBuilder
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.ShortVariable)
      */
     public function useProperty($property, $_ = null)
     {
@@ -859,6 +864,9 @@ class PaletteBuilder
      * @param PropertyInterface $_            Any more subsequent property names to be used.
      *
      * @return PaletteBuilder
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.ShortVariable)
      */
     public function createProperty($propertyName, $_ = null)
     {

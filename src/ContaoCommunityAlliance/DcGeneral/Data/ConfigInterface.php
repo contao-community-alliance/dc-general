@@ -68,6 +68,8 @@ interface ConfigInterface
      * Return flag if only ids should be returned.
      *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.BooleanGetMethodName)
      */
     public function getIdOnly();
 

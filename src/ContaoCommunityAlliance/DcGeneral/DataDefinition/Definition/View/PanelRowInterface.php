@@ -53,6 +53,8 @@ interface PanelRowInterface extends \IteratorAggregate
      * @param int|string|ElementInformationInterface $indexOrNameOrInstance Element name or numeric index in the row.
      *
      * @return PanelRowInterface
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     public function deleteElement($indexOrNameOrInstance);
 

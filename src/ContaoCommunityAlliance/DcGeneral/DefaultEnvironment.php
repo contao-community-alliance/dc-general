@@ -29,10 +29,11 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
  * Default implementation of an environment.
  *
  * @package DcGeneral
+ *
+ * @SuppressWarnings(PHPMD.LongVariable)
  */
 class DefaultEnvironment implements EnvironmentInterface
 {
-
     /**
      * The controller.
      *

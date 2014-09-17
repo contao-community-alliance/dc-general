@@ -48,24 +48,24 @@ class ParentView extends BaseView
      */
     public function loadCollection()
     {
-        $environment            = $this->getEnvironment();
-        $objCurrentDataProvider = $environment->getDataProvider();
-        $objChildConfig         = $environment->getController()->getBaseConfig();
-        $listingConfig          = $this->getViewSection()->getListingConfig();
+        $environment   = $this->getEnvironment();
+        $dataProvider  = $environment->getDataProvider();
+        $childConfig   = $environment->getController()->getBaseConfig();
+        $listingConfig = $this->getViewSection()->getListingConfig();
 
-        $this->getPanel()->initialize($objChildConfig);
+        $this->getPanel()->initialize($childConfig);
 
         // Initialize sorting if not present yet.
-        if (!$objChildConfig->getSorting() && $listingConfig->getGroupAndSortingDefinition()->hasDefault()) {
+        if (!$childConfig->getSorting() && $listingConfig->getGroupAndSortingDefinition()->hasDefault()) {
             $newSorting = array();
             foreach ($listingConfig->getGroupAndSortingDefinition()->getDefault() as $information) {
                 /** @var GroupAndSortingInformationInterface $information */
                 $newSorting[$information->getProperty()] = strtoupper($information->getSortingMode());
             }
-            $objChildConfig->setSorting($newSorting);
+            $childConfig->setSorting($newSorting);
         }
 
-        $objChildCollection = $objCurrentDataProvider->fetchAll($objChildConfig);
+        $objChildCollection = $dataProvider->fetchAll($childConfig);
 
         return $objChildCollection;
     }
@@ -134,10 +134,10 @@ class ParentView extends BaseView
         $this->getPanel()->initialize($objConfig);
 
         // Run each model.
-        $i = 0;
+        $index = 0;
         foreach ($collection as $model) {
             /** @var ModelInterface $model */
-            $i++;
+            $index++;
 
             // Add the group header.
             if ($groupingInformation) {
@@ -174,8 +174,8 @@ class ParentView extends BaseView
 
             // Regular buttons.
             if (!$this->isSelectModeActive()) {
-                $previous = ((!is_null($collection->get($i - 1))) ? $collection->get($i - 1) : null);
-                $next     = ((!is_null($collection->get($i + 1))) ? $collection->get($i + 1) : null);
+                $previous = ((!is_null($collection->get($index - 1))) ? $collection->get($index - 1) : null);
+                $next     = ((!is_null($collection->get($index + 1))) ? $collection->get($index + 1) : null);
 
                 $buttons = $this->generateButtons($model, $previous, $next);
 
@@ -431,15 +431,15 @@ class ParentView extends BaseView
                 if ($relationship) {
                     $filter = $relationship->getInverseFilterFor($parentModel);
 
-                    $parentsParentProvider =
+                    $grandParentProvider =
                         $this->environment->getDataProvider(
                             $parentContainer->getBasicDefinition()->getParentDataProvider()
                         );
 
-                    $config = $parentsParentProvider->getEmptyConfig();
+                    $config = $grandParentProvider->getEmptyConfig();
                     $config->setFilter($filter);
 
-                    $parents = $parentsParentProvider->fetchAll($config);
+                    $parents = $grandParentProvider->fetchAll($config);
 
                     if ($parents->length() == 1) {
                         $query['pid'] = IdSerializer::fromModel($parents->get(0))->getSerialized();

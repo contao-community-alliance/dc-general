@@ -87,7 +87,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
      */
     protected function loadAdditionalDefinitions(ContainerInterface $container)
     {
-        if (($providers = $this->getFromDca('dca_config/data_provider')) !== null) {
+        if ($this->getFromDca('dca_config/data_provider') !== null) {
             $this->getDispatcher()->addListener(
                 sprintf('%s[%s]', PopulateEnvironmentEvent::NAME, $container->getName()),
                 function (PopulateEnvironmentEvent $event) {
@@ -243,6 +243,8 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
      * @param ContainerInterface $container The container where the data shall be stored.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     protected function parseDataProvider(ContainerInterface $container)
     {

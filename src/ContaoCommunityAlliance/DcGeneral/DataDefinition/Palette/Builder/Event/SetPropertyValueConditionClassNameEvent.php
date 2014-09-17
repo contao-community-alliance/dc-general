@@ -29,31 +29,31 @@ class SetPropertyValueConditionClassNameEvent extends BuilderEvent
      *
      * @var string
      */
-    protected $propertyValueConditionClassName;
+    protected $className;
 
     /**
      * Create a new instance.
      *
-     * @param string         $propertyValueConditionClassName The class name.
+     * @param string         $className      The class name.
      *
-     * @param PaletteBuilder $paletteBuilder                  The palette builder in use.
+     * @param PaletteBuilder $paletteBuilder The palette builder in use.
      */
-    public function __construct($propertyValueConditionClassName, PaletteBuilder $paletteBuilder)
+    public function __construct($className, PaletteBuilder $paletteBuilder)
     {
-        $this->setPropertyValueConditionClassName($propertyValueConditionClassName);
+        $this->setPropertyValueConditionClassName($className);
         parent::__construct($paletteBuilder);
     }
 
     /**
      * Set the class name.
      *
-     * @param string $propertyValueConditionClassName The class name.
+     * @param string $className The class name.
      *
      * @return SetPropertyValueConditionClassNameEvent
      */
-    public function setPropertyValueConditionClassName($propertyValueConditionClassName)
+    public function setPropertyValueConditionClassName($className)
     {
-        $this->propertyValueConditionClassName = (string)$propertyValueConditionClassName;
+        $this->className = (string)$className;
         return $this;
     }
 
@@ -64,6 +64,6 @@ class SetPropertyValueConditionClassNameEvent extends BuilderEvent
      */
     public function getPropertyValueConditionClassName()
     {
-        return $this->propertyValueConditionClassName;
+        return $this->className;
     }
 }

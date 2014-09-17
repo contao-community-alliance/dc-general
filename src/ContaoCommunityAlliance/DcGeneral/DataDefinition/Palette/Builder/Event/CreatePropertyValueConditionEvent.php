@@ -33,39 +33,39 @@ class CreatePropertyValueConditionEvent extends BuilderEvent
      *
      * @var PalettePropertyValueCondition|PropertyValueCondition
      */
-    protected $propertyValueCondition;
+    protected $condition;
 
     /**
      * Create a new instance.
      *
-     * @param PalettePropertyValueCondition|PropertyValueCondition $propertyValueCondition The condition.
+     * @param PalettePropertyValueCondition|PropertyValueCondition $condition      The condition.
      *
-     * @param PaletteBuilder                                       $paletteBuilder         The palette builder in use.
+     * @param PaletteBuilder                                       $paletteBuilder The palette builder in use.
      */
-    public function __construct($propertyValueCondition, PaletteBuilder $paletteBuilder)
+    public function __construct($condition, PaletteBuilder $paletteBuilder)
     {
-        $this->setPropertyValueCondition($propertyValueCondition);
+        $this->setPropertyValueCondition($condition);
         parent::__construct($paletteBuilder);
     }
 
     /**
      * Set the property value condition.
      *
-     * @param PalettePropertyValueCondition|PropertyValueCondition $propertyValueCondition The property value condition.
+     * @param PalettePropertyValueCondition|PropertyValueCondition $condition The property value condition.
      *
      * @return CreatePropertyValueConditionEvent
      *
      * @throws DcGeneralInvalidArgumentException When an invalid condition has been passed.
      */
-    public function setPropertyValueCondition($propertyValueCondition)
+    public function setPropertyValueCondition($condition)
     {
-        if (!($propertyValueCondition instanceof PalettePropertyValueCondition)
-            && (!$propertyValueCondition instanceof PropertyValueCondition)
+        if (!($condition instanceof PalettePropertyValueCondition)
+            && (!$condition instanceof PropertyValueCondition)
         ) {
             throw new DcGeneralInvalidArgumentException();
         }
 
-        $this->propertyValueCondition = $propertyValueCondition;
+        $this->condition = $condition;
         return $this;
     }
 
@@ -76,6 +76,6 @@ class CreatePropertyValueConditionEvent extends BuilderEvent
      */
     public function getPropertyValueCondition()
     {
-        return $this->propertyValueCondition;
+        return $this->condition;
     }
 }

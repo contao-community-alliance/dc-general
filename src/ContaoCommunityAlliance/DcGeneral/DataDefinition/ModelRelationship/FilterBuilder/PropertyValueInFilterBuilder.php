@@ -22,7 +22,6 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\Fil
  */
 class PropertyValueInFilterBuilder extends BaseFilterBuilder
 {
-
     /**
      * The property to be checked.
      *
@@ -50,6 +49,27 @@ class PropertyValueInFilterBuilder extends BaseFilterBuilder
         $this
             ->setProperty($property)
             ->setValues($values);
+    }
+
+    /**
+     * Initialize an instance with the values from the given array.
+     *
+     * @param array $array The initialization array.
+     *
+     * @return mixed
+     *
+     * @throws DcGeneralInvalidArgumentException When an invalid array has been passed.
+     */
+    public static function fromArray($array)
+    {
+        $values   = $array['value'];
+        $property = $array['property'];
+
+        if (!(isset($values) && isset($property))) {
+            throw new DcGeneralInvalidArgumentException('Invalid filter array provided  ' . var_export($array, true));
+        }
+
+        return new static($property, $values);
     }
 
     /**

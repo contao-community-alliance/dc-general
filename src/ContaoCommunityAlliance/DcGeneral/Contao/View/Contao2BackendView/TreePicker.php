@@ -137,29 +137,29 @@ class TreePicker extends \Widget
     /**
      * Create a new instance.
      *
-     * @param array      $attributes The custom attributes.
+     * @param array      $attributes    The custom attributes.
      *
-     * @param DC_General $dc         The data container.
+     * @param DC_General $dataContainer The data container.
      *
      * @internal param $array
      */
-    public function __construct($attributes = array(), DC_General $dc = null)
+    public function __construct($attributes = array(), DC_General $dataContainer = null)
     {
         parent::__construct($attributes);
 
-        $this->setUp($dc);
+        $this->setUp($dataContainer);
     }
 
     /**
      * Setup all local values and create the dc instance for the referenced data source.
      *
-     * @param DC_General $dc The data container to use.
+     * @param DC_General $dataContainer The data container to use.
      *
      * @return void
      */
-    protected function setUp(DC_General $dc = null)
+    protected function setUp(DC_General $dataContainer = null)
     {
-        $this->dataContainer = $dc ?: $this->objDca;
+        $this->dataContainer = $dataContainer ?: $this->objDca;
 
         if (!$this->dataContainer) {
             return;
@@ -196,19 +196,19 @@ class TreePicker extends \Widget
     /**
      * Update the value via ajax and redraw the widget.
      *
-     * @param string     $ajaxAction Not used in here.
+     * @param string     $ajaxAction    Not used in here.
      *
-     * @param DC_General $dc         The data container to use.
+     * @param DC_General $dataContainer The data container to use.
      *
      * @return string
      */
-    public function updateAjax($ajaxAction, $dc)
+    public function updateAjax($ajaxAction, $dataContainer)
     {
         if ($ajaxAction !== 'reloadGeneralTreePicker') {
             return '';
         }
 
-        $this->setUp($dc);
+        $this->setUp($dataContainer);
         $value = $this->dataContainer->getEnvironment()->getInputProvider()->getValue('value');
 
         // ToDo: THIS IS TOTALLY CRAP.
@@ -366,7 +366,6 @@ class TreePicker extends \Widget
                 foreach ($collection as $model) {
                     $formatted   = $this->formatModel($model, false);
                     $id          = $model->getId();
-                    $set[]       = $id;
                     $values[$id] = $formatted[0]['content'];
                 }
             }
@@ -512,9 +511,9 @@ class TreePicker extends \Widget
             && $input->getValue('action') === 'DcGeneralLoadSubTree'
         ) {
             $provider = $input->getValue('providerName');
-            $id       = $input->getValue('id');
-            $this->toggleModel($provider, $id);
-            $collection = $this->loadCollection($id, (intval($input->getValue('level')) + 1));
+            $rootId   = $input->getValue('id');
+            $this->toggleModel($provider, $rootId);
+            $collection = $this->loadCollection($rootId, (intval($input->getValue('level')) + 1));
             echo $this->generateTreeView($collection, 'tree');
             exit;
         }
@@ -591,11 +590,11 @@ class TreePicker extends \Widget
      *
      * @param string $providerName The data provider name.
      *
-     * @param mixed  $id           The id of the model.
+     * @param mixed  $modelId      The id of the model.
      *
      * @return void
      */
-    protected function toggleModel($providerName, $id)
+    protected function toggleModel($providerName, $modelId)
     {
         $inputProvider = $this->getEnvironment()->getInputProvider();
         $openElements  = $this->getOpenElements();
@@ -604,10 +603,10 @@ class TreePicker extends \Widget
             $openElements[$providerName] = array();
         }
 
-        if (!isset($openElements[$providerName][$id])) {
-            $openElements[$providerName][$id] = 1;
+        if (!isset($openElements[$providerName][$modelId])) {
+            $openElements[$providerName][$modelId] = 1;
         } else {
-            $openElements[$providerName][$id] = !$openElements[$providerName][$id];
+            $openElements[$providerName][$modelId] = !$openElements[$providerName][$modelId];
         }
 
         $inputProvider->setPersistentValue($this->getToggleId(), $openElements);
@@ -623,14 +622,14 @@ class TreePicker extends \Widget
     protected function isModelOpen($model)
     {
         $providerName = $model->getProviderName();
-        $id           = $model->getId();
+        $modelId      = $model->getId();
         $openElements = $this->getOpenElements();
 
         if (!isset($openElements[$providerName])) {
             $openElements[$providerName] = array();
         }
 
-        return isset($openElements[$providerName][$id]) && $openElements[$providerName][$id];
+        return isset($openElements[$providerName][$modelId]) && $openElements[$providerName][$modelId];
     }
 
     /**

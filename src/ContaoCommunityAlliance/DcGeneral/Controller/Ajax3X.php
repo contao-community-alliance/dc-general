@@ -36,10 +36,10 @@ class Ajax3X extends Ajax
         $field       = $input->getValue('field');
         $name        = $input->getValue('name');
         $level       = intval($input->getValue('level'));
-        $id          = $input->getValue('id');
+        $rootId      = $input->getValue('id');
 
-        $ajaxId   = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $id);
-        $ajaxKey  = str_replace('_' . $ajaxId, '', $id);
+        $ajaxId   = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $rootId);
+        $ajaxKey  = str_replace('_' . $ajaxId, '', $rootId);
         $ajaxName = null;
         if ($input->getValue('act') == 'editAll') {
             $ajaxKey  = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $ajaxKey);
@@ -51,7 +51,7 @@ class Ajax3X extends Ajax
         $input->setPersistentValue($ajaxKey, $nodes);
 
         $arrData['strTable'] = $environment->getDataDefinition()->getName();
-        $arrData['id']       = $ajaxName ?: $id;
+        $arrData['id']       = $ajaxName ?: $rootId;
         $arrData['name']     = $name;
 
         /** @var \PageSelector $objWidget */
@@ -144,14 +144,13 @@ class Ajax3X extends Ajax
         if (self::getGet('act') == 'editAll') {
             // TODO: change here when implementing editAll.
             $serializedId = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $fieldName);
-            $field        = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $fieldName);
+            // $field        = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $fieldName);
         }
 
         if (!is_null($serializedId)) {
-            $id = IdSerializer::fromSerialized($serializedId);
-
-            $dataProvider = $objDc->getEnvironment()->getDataProvider($id->getDataProviderName());
-            $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($id->getId()));
+            $modelId      = IdSerializer::fromSerialized($serializedId);
+            $dataProvider = $objDc->getEnvironment()->getDataProvider($modelId->getDataProviderName());
+            $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
             if (is_null($model)) {
                 $this->log(

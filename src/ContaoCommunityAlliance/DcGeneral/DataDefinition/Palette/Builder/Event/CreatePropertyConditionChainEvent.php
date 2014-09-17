@@ -30,31 +30,31 @@ class CreatePropertyConditionChainEvent extends BuilderEvent
      *
      * @var PropertyConditionChain
      */
-    protected $propertyConditionChain;
+    protected $conditionChain;
 
     /**
      * Create a new instance.
      *
-     * @param PropertyConditionChain $propertyConditionChain The property condition chain that has been created.
+     * @param PropertyConditionChain $conditionChain The property condition chain that has been created.
      *
-     * @param PaletteBuilder         $paletteBuilder         The palette builder in use.
+     * @param PaletteBuilder         $paletteBuilder The palette builder in use.
      */
-    public function __construct(PropertyConditionChain $propertyConditionChain, PaletteBuilder $paletteBuilder)
+    public function __construct(PropertyConditionChain $conditionChain, PaletteBuilder $paletteBuilder)
     {
-        $this->setPropertyConditionChain($propertyConditionChain);
+        $this->setPropertyConditionChain($conditionChain);
         parent::__construct($paletteBuilder);
     }
 
     /**
      * Set the property condition chain.
      *
-     * @param PropertyConditionChain $propertyConditionChain The property condition chain.
+     * @param PropertyConditionChain $conditionChain The property condition chain.
      *
      * @return CreatePropertyConditionChainEvent
      */
-    public function setPropertyConditionChain(PropertyConditionChain $propertyConditionChain)
+    public function setPropertyConditionChain(PropertyConditionChain $conditionChain)
     {
-        $this->propertyConditionChain = $propertyConditionChain;
+        $this->conditionChain = $conditionChain;
         return $this;
     }
 
@@ -65,6 +65,6 @@ class CreatePropertyConditionChainEvent extends BuilderEvent
      */
     public function getPropertyConditionChain()
     {
-        return $this->propertyConditionChain;
+        return $this->conditionChain;
     }
 }

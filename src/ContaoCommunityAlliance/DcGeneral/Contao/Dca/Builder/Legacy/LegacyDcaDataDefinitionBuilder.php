@@ -688,7 +688,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         }
 
         // If ptable defined and no root setter we need to add (Contao default id=>pid mapping).
-        if (($value = $this->getFromDca('config/ptable')) !== null) {
+        if ($this->getFromDca('config/ptable') !== null) {
             $rootProvider = $this->getRootProviderName($container);
 
             if (($relationship = $definition->getRootCondition()) === null) {
@@ -866,14 +866,14 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         }
 
         foreach ($sortingDca['fields'] as $field) {
-            $groupAndSortingInformation = $definition->add();
+            $groupAndSorting = $definition->add();
 
             if (isset($sortingDca['flag'])) {
-                $this->evalFlag($groupAndSortingInformation, $sortingDca['flag']);
+                $this->evalFlag($groupAndSorting, $sortingDca['flag']);
             }
 
             if (preg_match('~^(\w+)(?: (.+))?$~', $field, $matches)) {
-                $groupAndSortingInformation
+                $groupAndSorting
                     ->setProperty($matches[1])
                     ->setSortingMode(
                         (isset($matches[2])
@@ -884,16 +884,16 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 throw new DcGeneralRuntimeException('Custom SQL in sorting fields are currently unsupported');
             }
 
-            if (isset($fieldsDca[$groupAndSortingInformation->getProperty()])) {
-                if (isset($fieldsDca[$groupAndSortingInformation->getProperty()]['flag'])) {
-                    $flag = $fieldsDca[$groupAndSortingInformation->getProperty()]['flag'];
-                    $this->evalFlagGrouping($groupAndSortingInformation, $flag);
-                    $this->evalFlagGroupingLength($groupAndSortingInformation, $flag);
+            if (isset($fieldsDca[$groupAndSorting->getProperty()])) {
+                if (isset($fieldsDca[$groupAndSorting->getProperty()]['flag'])) {
+                    $flag = $fieldsDca[$groupAndSorting->getProperty()]['flag'];
+                    $this->evalFlagGrouping($groupAndSorting, $flag);
+                    $this->evalFlagGroupingLength($groupAndSorting, $flag);
                 }
             }
 
             if (isset($sortingDca['disableGrouping']) && $sortingDca['disableGrouping']) {
-                $groupAndSortingInformation->setGroupingMode(GroupAndSortingInformationInterface::GROUP_NONE);
+                $groupAndSorting->setGroupingMode(GroupAndSortingInformationInterface::GROUP_NONE);
             }
         }
     }
@@ -1140,7 +1140,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
         $collection = $view->getGlobalCommands();
 
-        foreach ($operationsDca as $operationName => $operationDca) {
+        foreach (array_keys($operationsDca) as $operationName) {
             $command = $this->createCommand($operationName, $operationsDca[$operationName]);
             $collection->addCommand($command);
         }
@@ -1164,7 +1164,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $collection = $view->getModelCommands();
 
         foreach ($operationsDca as $operationName => $operationDca) {
-            $command = $this->createCommand($operationName, $operationsDca[$operationName]);
+            $command = $this->createCommand($operationName, $operationDca);
             $collection->addCommand($command);
         }
     }
@@ -1175,6 +1175,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * @param ContainerInterface $container The container where the data shall be stored.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     protected function parsePalettes(ContainerInterface $container)
     {

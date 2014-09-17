@@ -65,6 +65,8 @@ class DefaultPanelRow implements PanelRowInterface
 
     /**
      * {@inheritDoc}
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     public function deleteElement($indexOrNameOrInstance)
     {

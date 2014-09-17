@@ -188,11 +188,11 @@ interface ContainerInterface
     /**
      * Convenience method to set the data provider definition.
      *
-     * @param DataProviderDefinitionInterface $dataProviderDefinition The data provider definition to use.
+     * @param DataProviderDefinitionInterface $definition The data provider definition to use.
      *
      * @return ContainerInterface
      */
-    public function setDataProviderDefinition(DataProviderDefinitionInterface $dataProviderDefinition);
+    public function setDataProviderDefinition(DataProviderDefinitionInterface $definition);
 
     /**
      * Convenience method to retrieve the data provider definition.

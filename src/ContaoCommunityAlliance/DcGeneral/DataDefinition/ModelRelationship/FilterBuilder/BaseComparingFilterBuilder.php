@@ -25,7 +25,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class BaseComparingFilterBuilder extends BaseFilterBuilder
 {
-
     /**
      * The operation string.
      *

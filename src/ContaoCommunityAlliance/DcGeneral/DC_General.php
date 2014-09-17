@@ -44,11 +44,9 @@ class DC_General
     /**
      * Create a new instance.
      *
-     * @param string $strTable         The table name.
-     *
-     * @param array  $arrBackendModule The backend module information array.
+     * @param string $strTable The table name.
      */
-    public function __construct($strTable, array &$arrBackendModule = null)
+    public function __construct($strTable)
     {
         $strTable = $this->getTablenameCallback($strTable);
 

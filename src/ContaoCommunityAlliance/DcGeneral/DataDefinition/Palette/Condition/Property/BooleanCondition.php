@@ -23,7 +23,6 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
  */
 class BooleanCondition implements PropertyConditionInterface
 {
-
     /**
      * The boolean value to return.
      *
@@ -59,6 +58,8 @@ class BooleanCondition implements PropertyConditionInterface
      * Retrieve the value.
      *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.BooleanGetMethodName)
      */
     public function getValue()
     {

@@ -36,10 +36,10 @@ class Ajax2X extends Ajax
         $field       = $input->getValue('field');
         $name        = $input->getValue('name');
         $level       = intval($input->getValue('level'));
-        $id          = $input->getValue('id');
+        $rootId      = $input->getValue('id');
 
-        $ajaxId   = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $id);
-        $ajaxKey  = str_replace('_' . $ajaxId, '', $id);
+        $ajaxId   = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $rootId);
+        $ajaxKey  = str_replace('_' . $ajaxId, '', $rootId);
         $ajaxName = null;
         if ($input->getValue('act') == 'editAll') {
             $ajaxKey  = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $ajaxKey);
@@ -51,7 +51,7 @@ class Ajax2X extends Ajax
         $input->setPersistentValue($ajaxKey, $nodes);
 
         $arrData['strTable'] = $environment->getDataDefinition()->getName();
-        $arrData['id']       = $ajaxName ?: $id;
+        $arrData['id']       = $ajaxName ?: $rootId;
         $arrData['name']     = $name;
 
         /** @var \PageSelector $objWidget */
@@ -87,9 +87,9 @@ class Ajax2X extends Ajax
             $path    = $GLOBALS['TL_DCA'][$table]['fields'][self::getPost('field')]['eval']['path'];
 
             // Set a custom path.
-            if (strlen($GLOBALS['TL_DCA'][$table]['fields'][self::getPost('field')]['eval']['path'])) {
+            if (strlen($path)) {
                 $strTree = $objWidget->generateAjax(
-                    $GLOBALS['TL_DCA'][$table]['fields'][self::getPost('field')]['eval']['path'],
+                    $path,
                     self::getPost('field'),
                     intval(self::getPost('level'))
                 );

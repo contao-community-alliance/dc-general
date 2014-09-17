@@ -32,6 +32,9 @@ class Callbacks
      * @param mixed          $_        List of arguments to pass to the callback [optional].
      *
      * @return mixed
+     *
+     * @SuppressWarnings(PHPMD.ShortVariable)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public static function call($callback, $_ = null)
     {

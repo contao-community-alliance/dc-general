@@ -164,6 +164,8 @@ class DefaultConfig implements ConfigInterface
      * Return flag if only ids should be returned.
      *
      * @return boolean
+     *
+     * @SuppressWarnings(PHPMD.BooleanGetMethodName)
      */
     public function getIdOnly()
     {

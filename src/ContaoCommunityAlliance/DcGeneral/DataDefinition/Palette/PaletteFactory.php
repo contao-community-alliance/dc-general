@@ -31,6 +31,9 @@ class PaletteFactory
      * @param PaletteInterface       $_        A list of palettes. Can be multiple arrays and arrays of arrays.
      *
      * @return PaletteCollectionInterface
+     *
+     * @SuppressWarnings(PHPMD.ShortVariable)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public static function createPaletteCollection($palettes, $_ = null)
     {
@@ -78,6 +81,9 @@ class PaletteFactory
      * @param array  $_      A list of legends. Can be multiple arrays and arrays of arrays.
      *
      * @return PaletteInterface
+     *
+     * @SuppressWarnings(PHPMD.ShortVariable)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public static function createPalette($name = null, $legend = null, $_ = null)
     {
@@ -132,6 +138,9 @@ class PaletteFactory
      * @param PropertyInterface       $_        A list of properties. Can be multiple arrays and arrays of arrays.
      *
      * @return LegendInterface
+     *
+     * @SuppressWarnings(PHPMD.ShortVariable)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public static function createLegend($name, $property = null, $_ = null)
     {

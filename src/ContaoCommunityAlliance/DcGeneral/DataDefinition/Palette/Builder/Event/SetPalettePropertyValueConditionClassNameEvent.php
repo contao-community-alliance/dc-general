@@ -29,31 +29,31 @@ class SetPalettePropertyValueConditionClassNameEvent extends BuilderEvent
      *
      * @var string
      */
-    protected $palettePropertyValueConditionClassName;
+    protected $className;
 
     /**
      * Create a new instance.
      *
-     * @param string         $palettePropertyValueConditionClassName The class name.
+     * @param string         $className      The class name.
      *
-     * @param PaletteBuilder $paletteBuilder                         The palette builder in use.
+     * @param PaletteBuilder $paletteBuilder The palette builder in use.
      */
-    public function __construct($palettePropertyValueConditionClassName, PaletteBuilder $paletteBuilder)
+    public function __construct($className, PaletteBuilder $paletteBuilder)
     {
-        $this->setPalettePropertyValueConditionClassName($palettePropertyValueConditionClassName);
+        $this->setPalettePropertyValueConditionClassName($className);
         parent::__construct($paletteBuilder);
     }
 
     /**
      * Set the class name.
      *
-     * @param string $palettePropertyValueConditionClassName The class name.
+     * @param string $className The class name.
      *
      * @return SetPalettePropertyValueConditionClassNameEvent
      */
-    public function setPalettePropertyValueConditionClassName($palettePropertyValueConditionClassName)
+    public function setPalettePropertyValueConditionClassName($className)
     {
-        $this->palettePropertyValueConditionClassName = (string)$palettePropertyValueConditionClassName;
+        $this->className = (string)$className;
 
         return $this;
     }
@@ -65,6 +65,6 @@ class SetPalettePropertyValueConditionClassNameEvent extends BuilderEvent
      */
     public function getPalettePropertyValueConditionClassName()
     {
-        return $this->palettePropertyValueConditionClassName;
+        return $this->className;
     }
 }

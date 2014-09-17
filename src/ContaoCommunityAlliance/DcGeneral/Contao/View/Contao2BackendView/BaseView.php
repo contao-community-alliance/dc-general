@@ -86,7 +86,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class BaseView implements BackendViewInterface, EventSubscriberInterface
 {
-
     /**
      * The error message format string to use when a method is not implemented.
      *
@@ -336,8 +335,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     protected function getCurrentSorting()
     {
-        $sorting = null;
-
         foreach ($this->getPanel() as $panel) {
             /** @var PanelInterface $panel */
             $sort = $panel->getElement('sort');
@@ -664,6 +661,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * @param null|string $action The action to be executed or null.
      *
      * @return BaseView
+     *
+     * @SuppressWarnings(PHPMD.ShortVariable)
      */
     public function checkClipboard($action = null)
     {
@@ -1344,6 +1343,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * @return void
      *
      * @throws DcGeneralRuntimeException When the requested version could not be located in the database.
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     protected function checkRestoreVersion()
     {
@@ -1396,6 +1397,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * @param ModelInterface $model The model to be updated.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function enforceModelRelationship($model)
     {
@@ -1434,6 +1437,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * @param ModelInterface $model The model to update.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     protected function storeVersion(ModelInterface $model)
     {
@@ -1510,6 +1515,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * @throws DcGeneralRuntimeException         If the data container is not editable, closed.
      *
      * @throws DcGeneralInvalidArgumentException If an unknown property is encountered in the palette.
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     protected function createEditMask($model, $originalModel, $preFunction, $postFunction)
     {

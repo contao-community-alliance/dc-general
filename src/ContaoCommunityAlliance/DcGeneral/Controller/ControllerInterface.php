@@ -132,14 +132,14 @@ interface ControllerInterface
     /**
      * Fetch a certain model from its provider.
      *
-     * @param string|IdSerializer $id           This is either the id of the model or a serialized id.
+     * @param string|IdSerializer $modelId      This is either the id of the model or a serialized id.
      *
      * @param string|null         $providerName The name of the provider, if this is empty, the id will be deserialized
      *                                          and the provider name will get extracted from there.
      *
      * @return mixed
      */
-    public function fetchModelFromProvider($id, $providerName = null);
+    public function fetchModelFromProvider($modelId, $providerName = null);
 
     /**
      * Paste the content of the clipboard onto the top.
