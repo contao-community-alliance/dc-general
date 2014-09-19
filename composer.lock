@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "e8853afcedd85123dbefd74c555f0f01",
+    "hash": "62cf375b8bf2700a48a689c01817ea07",
     "packages": [
         {
             "name": "contao-community-alliance/backports-initialize-system",
@@ -780,12 +780,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/swiftmailer/swiftmailer.git",
-                "reference": "8a2bcc6045e92acfbfea252cb6b444bc8c3f171e"
+                "reference": "68675899c002fc95e24194dd84bbc9c813b79fae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/swiftmailer/swiftmailer/zipball/8a2bcc6045e92acfbfea252cb6b444bc8c3f171e",
-                "reference": "8a2bcc6045e92acfbfea252cb6b444bc8c3f171e",
+                "url": "https://api.github.com/repos/swiftmailer/swiftmailer/zipball/68675899c002fc95e24194dd84bbc9c813b79fae",
+                "reference": "68675899c002fc95e24194dd84bbc9c813b79fae",
                 "shasum": ""
             },
             "require": {
@@ -824,7 +824,7 @@
                 "mail",
                 "mailer"
             ],
-            "time": "2014-08-27 09:29:44"
+            "time": "2014-09-19 05:52:55"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -1033,12 +1033,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/build-system-repository-git.git",
-                "reference": "8265151494225ff67ee737ccb3cdbba2d009cb86"
+                "reference": "afd064c4504c0b823c2e9d85e3c46401222ecb9e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/build-system-repository-git/zipball/8265151494225ff67ee737ccb3cdbba2d009cb86",
-                "reference": "8265151494225ff67ee737ccb3cdbba2d009cb86",
+                "url": "https://api.github.com/repos/contao-community-alliance/build-system-repository-git/zipball/afd064c4504c0b823c2e9d85e3c46401222ecb9e",
+                "reference": "afd064c4504c0b823c2e9d85e3c46401222ecb9e",
                 "shasum": ""
             },
             "require": {
@@ -1067,7 +1067,7 @@
                 "MIT"
             ],
             "description": "GIT repository for CCABS.",
-            "time": "2014-09-08 03:12:59"
+            "time": "2014-09-19 12:53:11"
         },
         {
             "name": "contao-community-alliance/build-system-tool-branch-alias-validation",
@@ -1129,6 +1129,48 @@
             "time": "2014-09-16 17:11:38"
         },
         {
+            "name": "contao-community-alliance/coding-standard",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/contao-community-alliance/coding-standard.git",
+                "reference": "7b9fa864df61568382bb9113a2cc30351bc07cc9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/contao-community-alliance/coding-standard/zipball/7b9fa864df61568382bb9113a2cc30351bc07cc9",
+                "reference": "7b9fa864df61568382bb9113a2cc30351bc07cc9",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3"
+            },
+            "suggest": {
+                "contao-community-alliance/build-system": "The Contao Community Alliance Build System (CCABS)"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Christian Schiffler",
+                    "email": "c.schiffler@cyberspectrum.de",
+                    "homepage": "http://www.cyberspectrum.de",
+                    "role": "Developer"
+                }
+            ],
+            "description": "contao community alliance coding standard",
+            "homepage": "http://c-c-a.org/",
+            "time": "2014-09-18 06:52:08"
+        },
+        {
             "name": "pdepend/pdepend",
             "version": "2.0.2",
             "source": {
@@ -1169,24 +1211,27 @@
         },
         {
             "name": "phploc/phploc",
-            "version": "2.0.5",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phploc.git",
-                "reference": "d177c22e2a08e448f7bdfa762045f7bd086834d7"
+                "reference": "ca70e70ae96cb268b8200af2716af366cf3dc1d1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phploc/zipball/d177c22e2a08e448f7bdfa762045f7bd086834d7",
-                "reference": "d177c22e2a08e448f7bdfa762045f7bd086834d7",
+                "url": "https://api.github.com/repos/sebastianbergmann/phploc/zipball/ca70e70ae96cb268b8200af2716af366cf3dc1d1",
+                "reference": "ca70e70ae96cb268b8200af2716af366cf3dc1d1",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3",
-                "sebastian/finder-facade": ">=1.1.0",
-                "sebastian/git": ">=1.0.0",
-                "sebastian/version": ">=1.0.3",
-                "symfony/console": ">=2.2.0"
+                "sebastian/finder-facade": "~1.1",
+                "sebastian/git": "~2.0",
+                "sebastian/version": "~1.0.3",
+                "symfony/console": "~2.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4"
             },
             "bin": [
                 "phploc"
@@ -1194,7 +1239,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.0-dev"
+                    "dev-master": "2.1-dev"
                 }
             },
             "autoload": {
@@ -1215,7 +1260,7 @@
             ],
             "description": "A tool for quickly measuring the size of a PHP project.",
             "homepage": "https://github.com/sebastianbergmann/phploc",
-            "time": "2014-04-27 06:47:27"
+            "time": "2014-06-17 04:31:24"
         },
         {
             "name": "phpmd/phpmd",
@@ -1811,16 +1856,16 @@
         },
         {
             "name": "sebastian/version",
-            "version": "dev-master",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/version.git",
-                "reference": "06e66244ff39fc40d3328bd0243f42b2adf4a7b6"
+                "reference": "b6e1f0cf6b9e1ec409a0d3e2f2a5fb0998e36b43"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/version/zipball/06e66244ff39fc40d3328bd0243f42b2adf4a7b6",
-                "reference": "06e66244ff39fc40d3328bd0243f42b2adf4a7b6",
+                "url": "https://api.github.com/repos/sebastianbergmann/version/zipball/b6e1f0cf6b9e1ec409a0d3e2f2a5fb0998e36b43",
+                "reference": "b6e1f0cf6b9e1ec409a0d3e2f2a5fb0998e36b43",
                 "shasum": ""
             },
             "type": "library",
@@ -1842,7 +1887,7 @@
             ],
             "description": "Library that helps with managing the version number of Git-hosted PHP projects",
             "homepage": "https://github.com/sebastianbergmann/version",
-            "time": "2014-05-14 04:53:35"
+            "time": "2014-03-07 15:35:33"
         },
         {
             "name": "squizlabs/php_codesniffer",
@@ -1974,12 +2019,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Console.git",
-                "reference": "a5d09c3e39e50efdc24aebdf9f4d6712259cc129"
+                "reference": "0f682ba7bd8102ed9374d247ca9c13236c2f1008"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Console/zipball/a5d09c3e39e50efdc24aebdf9f4d6712259cc129",
-                "reference": "a5d09c3e39e50efdc24aebdf9f4d6712259cc129",
+                "url": "https://api.github.com/repos/symfony/Console/zipball/0f682ba7bd8102ed9374d247ca9c13236c2f1008",
+                "reference": "0f682ba7bd8102ed9374d247ca9c13236c2f1008",
                 "shasum": ""
             },
             "require": {
@@ -2022,7 +2067,7 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "http://symfony.com",
-            "time": "2014-08-31 04:11:39"
+            "time": "2014-09-17 09:54:14"
         },
         {
             "name": "symfony/dependency-injection",
@@ -2031,12 +2076,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/DependencyInjection.git",
-                "reference": "bd34ff017e782396ea3927fc458e50c2d497d244"
+                "reference": "4b0767f5a72f4dd8b62edaed8ecee38722c5a452"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/DependencyInjection/zipball/bd34ff017e782396ea3927fc458e50c2d497d244",
-                "reference": "bd34ff017e782396ea3927fc458e50c2d497d244",
+                "url": "https://api.github.com/repos/symfony/DependencyInjection/zipball/4b0767f5a72f4dd8b62edaed8ecee38722c5a452",
+                "reference": "4b0767f5a72f4dd8b62edaed8ecee38722c5a452",
                 "shasum": ""
             },
             "require": {
@@ -2079,7 +2124,7 @@
             ],
             "description": "Symfony DependencyInjection Component",
             "homepage": "http://symfony.com",
-            "time": "2014-08-31 03:28:38"
+            "time": "2014-09-17 09:54:14"
         },
         {
             "name": "symfony/filesystem",
@@ -2182,12 +2227,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Process.git",
-                "reference": "8f1f4e4329d3dc9fe08a7106417168145301e49f"
+                "reference": "24aaa0ac728c19170ba4c12663e4cde098c7bac1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Process/zipball/8f1f4e4329d3dc9fe08a7106417168145301e49f",
-                "reference": "8f1f4e4329d3dc9fe08a7106417168145301e49f",
+                "url": "https://api.github.com/repos/symfony/Process/zipball/24aaa0ac728c19170ba4c12663e4cde098c7bac1",
+                "reference": "24aaa0ac728c19170ba4c12663e4cde098c7bac1",
                 "shasum": ""
             },
             "require": {
@@ -2220,7 +2265,7 @@
             ],
             "description": "Symfony Process Component",
             "homepage": "http://symfony.com",
-            "time": "2014-08-31 03:28:38"
+            "time": "2014-09-17 09:54:14"
         },
         {
             "name": "symfony/yaml",
@@ -2229,12 +2274,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "b5922e0afc21531b84ddef806e66ba4f84f770b0"
+                "reference": "9f94dc5d8d7b49a9cb789853278af2b07a0aa4fd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/b5922e0afc21531b84ddef806e66ba4f84f770b0",
-                "reference": "b5922e0afc21531b84ddef806e66ba4f84f770b0",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/9f94dc5d8d7b49a9cb789853278af2b07a0aa4fd",
+                "reference": "9f94dc5d8d7b49a9cb789853278af2b07a0aa4fd",
                 "shasum": ""
             },
             "require": {
@@ -2267,7 +2312,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
-            "time": "2014-08-31 03:28:38"
+            "time": "2014-09-17 09:54:14"
         },
         {
             "name": "theseer/fdomdocument",
@@ -2315,12 +2360,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/zetacomponents/Base.git",
-                "reference": "b8be6716307bf861090626e7191587881dc1e7f5"
+                "reference": "f20df24e8de3e48b6b69b2503f917e457281e687"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zetacomponents/Base/zipball/b8be6716307bf861090626e7191587881dc1e7f5",
-                "reference": "b8be6716307bf861090626e7191587881dc1e7f5",
+                "url": "https://api.github.com/repos/zetacomponents/Base/zipball/f20df24e8de3e48b6b69b2503f917e457281e687",
+                "reference": "f20df24e8de3e48b6b69b2503f917e457281e687",
                 "shasum": ""
             },
             "require-dev": {
@@ -2370,7 +2415,7 @@
             ],
             "description": "The Base package provides the basic infrastructure that all packages rely on. Therefore every component relies on this package.",
             "homepage": "https://github.com/zetacomponents",
-            "time": "2014-09-12 13:25:02"
+            "time": "2014-09-19 03:28:34"
         },
         {
             "name": "zetacomponents/console-tools",
