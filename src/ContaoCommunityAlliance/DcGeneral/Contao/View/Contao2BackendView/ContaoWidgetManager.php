@@ -339,9 +339,7 @@ class ContaoWidgetManager
                 }
 
                 ob_start();
-                // @codingStandardsIgnoreStart
                 include TL_ROOT . '/system/config/' . $file . '.php';
-                // @codingStandardsIgnoreEnd
                 $updateMode = ob_get_contents();
                 ob_end_clean();
 
@@ -688,9 +686,7 @@ EOF;
 
         // Set all POST data, these get used within the Widget::validate() method.
         foreach ($propertyValues as $property => $propertyValue) {
-            // @codingStandardsIgnoreStart - Operating on $_POST is safe context here.
             $_POST[$property] = $propertyValue;
-            // @codingStandardsIgnoreEnd
         }
 
         // Now get and validate the widgets.

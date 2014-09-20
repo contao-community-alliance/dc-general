@@ -127,7 +127,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * @return void
      */
-    // @codingStandardsIgnoreStart - Even if the cyclomatic complexity is high due to the switch, it is dead simple.
     public function handleAction(ActionEvent $event)
     {
         $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalDriver.css';
@@ -174,7 +173,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             }
         }
     }
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritDoc}
@@ -1314,11 +1312,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         } elseif ($inputProvider->hasValue('saveNcreate')) {
             setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
-            // @codingStandardsIgnoreStart - we have to clear the messages - direct access to $_SESSION is ok.
             $_SESSION['TL_INFO']    = '';
             $_SESSION['TL_ERROR']   = '';
             $_SESSION['TL_CONFIRM'] = '';
-            // @codingStandardsIgnoreEnd
 
             $after = IdSerializer::fromModel($model);
 

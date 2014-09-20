@@ -38,11 +38,8 @@ require_once $dir . '/system/initialize.php';
  *
  * Back end tree picker.
  */
-// @codingStandardsIgnoreStart
 class TreeSelect
-// @codingStandardsIgnoreEnd
 {
-
     /**
      * Current ajax object.
      *

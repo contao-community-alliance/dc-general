@@ -115,7 +115,6 @@ class DcCompat extends DC_General
     /**
      * {@inheritdoc}
      */
-    // @codingStandardsIgnoreStart - We know this method is very complex but we can not reduce the switch cases.
     public function __get($name)
     {
         switch ($name) {
@@ -163,5 +162,4 @@ class DcCompat extends DC_General
 
         throw new DcGeneralRuntimeException('The magic property ' . $name . ' is not supported (yet)!');
     }
-    // @codingStandardsIgnoreEnd
 }

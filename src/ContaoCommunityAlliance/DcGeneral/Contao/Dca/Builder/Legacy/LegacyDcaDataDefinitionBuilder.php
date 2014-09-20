@@ -1241,7 +1241,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      *
      * @return void
      */
-    // @codingStandardsIgnoreStart - cyclomatic complexity can not be lowered any further.
     protected function parseSingleProperty(PropertyInterface $property, array $propInfo)
     {
         foreach ($propInfo as $key => $value) {
@@ -1320,7 +1319,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
         }
     }
-    // @codingStandardsIgnoreEnd
 
     /**
      * Parse the defined properties and populate the definition.
