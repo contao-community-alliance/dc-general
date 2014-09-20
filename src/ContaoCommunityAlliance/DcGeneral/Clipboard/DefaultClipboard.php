@@ -161,7 +161,7 @@ class DefaultClipboard implements ClipboardInterface
     {
         $this->mode = self::MODE_COPY;
 
-        if (is_array($ids) || is_null($ids)) {
+        if (is_array($ids) || ($ids === null)) {
             $this->setContainedIds($ids);
         } else {
             $this->setContainedIds(array($ids));
@@ -177,7 +177,7 @@ class DefaultClipboard implements ClipboardInterface
     {
         $this->mode = self::MODE_CUT;
 
-        if (is_array($ids) || is_null($ids)) {
+        if (is_array($ids) || ($ids === null)) {
             $this->setContainedIds($ids);
         } else {
             $this->setContainedIds(array($ids));

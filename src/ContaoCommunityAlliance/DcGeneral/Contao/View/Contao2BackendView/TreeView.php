@@ -532,7 +532,7 @@ class TreeView extends BaseView
      */
     public static function renderPasteRootButton(GetPasteRootButtonEvent $event)
     {
-        if (!is_null($event->getHtml())) {
+        if ($event->getHtml() !== null) {
             return $event->getHtml();
         }
         $environment = $event->getEnvironment();

@@ -192,8 +192,8 @@ class ListView extends BaseView
         foreach ($collection as $i => $objModel) {
             // Regular buttons - only if not in select mode!
             if (!$this->isSelectModeActive()) {
-                $previous = ((!is_null($collection->get($i - 1))) ? $collection->get($i - 1) : null);
-                $next     = ((!is_null($collection->get($i + 1))) ? $collection->get($i + 1) : null);
+                $previous = (($collection->get($i - 1) !== null) ? $collection->get($i - 1) : null);
+                $next     = (($collection->get($i + 1) !== null) ? $collection->get($i + 1) : null);
                 /** @var ModelInterface $objModel */
                 $objModel->setMeta(
                     $objModel::OPERATION_BUTTONS,

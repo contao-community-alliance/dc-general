@@ -138,7 +138,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
      */
     public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
     {
-        if (is_null($objElement)) {
+        if ($objElement === null) {
             $input = $this->getInputProvider();
             $value = null;
 

@@ -153,12 +153,12 @@ class Ajax3X extends Ajax
             // $field        = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $fieldName);
         }
 
-        if (!is_null($serializedId)) {
+        if ($serializedId !== null) {
             $modelId      = IdSerializer::fromSerialized($serializedId);
             $dataProvider = $objDc->getEnvironment()->getDataProvider($modelId->getDataProviderName());
             $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
-            if (is_null($model)) {
+            if ($model === null) {
                 $this->log(
                     'A record with the ID "' . $serializedId . '" does not exist in "' .
                     $objDc->getEnvironment()->getDataDefinition()->getName() . '"',

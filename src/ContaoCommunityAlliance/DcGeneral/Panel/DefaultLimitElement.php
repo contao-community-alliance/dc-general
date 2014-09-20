@@ -23,7 +23,6 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
  */
 class DefaultLimitElement extends AbstractElement implements LimitElementInterface
 {
-
     /**
      * The current offset.
      *
@@ -104,7 +103,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      */
     public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
     {
-        if (is_null($objElement)) {
+        if ($objElement === null) {
             $objTempConfig = $this->getOtherConfig();
             $arrTotal      = $this
                 ->getEnvironment()
@@ -137,7 +136,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
                 }
             }
 
-            if (!is_null($offset)) {
+            if ($offset !== null) {
                 $this->setOffset($offset);
                 $this->setAmount($amount);
             }

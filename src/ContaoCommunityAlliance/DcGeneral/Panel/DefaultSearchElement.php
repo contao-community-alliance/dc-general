@@ -174,7 +174,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
             );
         }
 
-        $objTemplate->class   = 'tl_select' . (!is_null($this->getValue()) ? ' active' : '');
+        $objTemplate->class   = 'tl_select' . (($this->getValue() !== null) ? ' active' : '');
         $objTemplate->options = $arrOptions;
         $objTemplate->value   = $this->getValue();
 

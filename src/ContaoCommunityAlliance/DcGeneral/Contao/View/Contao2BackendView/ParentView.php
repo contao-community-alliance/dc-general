@@ -174,8 +174,8 @@ class ParentView extends BaseView
 
             // Regular buttons.
             if (!$this->isSelectModeActive()) {
-                $previous = ((!is_null($collection->get($index - 1))) ? $collection->get($index - 1) : null);
-                $next     = ((!is_null($collection->get($index + 1))) ? $collection->get($index + 1) : null);
+                $previous = (($collection->get($index - 1) !== null) ? $collection->get($index - 1) : null);
+                $next     = (($collection->get($index + 1) !== null) ? $collection->get($index + 1) : null);
 
                 $buttons = $this->generateButtons($model, $previous, $next);
 

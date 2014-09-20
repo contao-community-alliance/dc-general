@@ -155,7 +155,7 @@ class DefaultDataProvider implements DataProviderInterface
 
         if ($objConfig->getIdOnly()) {
             $strFields = 'id';
-        } elseif (!is_null($objConfig->getFields())) {
+        } elseif ($objConfig->getFields() !== null) {
             $strFields = implode(', ', $objConfig->getFields());
 
             if (!stristr($strFields, 'DISTINCT')) {
@@ -366,7 +366,7 @@ class DefaultDataProvider implements DataProviderInterface
         $strReturn  = '';
         $arrFields  = array();
 
-        if (!is_null($arrSorting) && is_array($arrSorting) && count($arrSorting) > 0) {
+        if (($arrSorting !== null) && is_array($arrSorting) && count($arrSorting) > 0) {
             foreach ($arrSorting as $strField => $strOrder) {
                 if ($strOrder
                     && !in_array(

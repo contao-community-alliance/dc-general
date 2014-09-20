@@ -2151,7 +2151,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         // Allow to override the button entirely.
         $html = $buttonEvent->getHtml();
-        if (!is_null($html)) {
+        if ($html !== null) {
             return $html;
         }
 
@@ -2367,7 +2367,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         );
 
         // If the event created a button, use it.
-        if (!is_null($buttonEvent->getHtml())) {
+        if ($buttonEvent->getHtml() !== null) {
             return trim($buttonEvent->getHtml());
         }
 
@@ -2413,7 +2413,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function renderPasteIntoButton(GetPasteButtonEvent $event)
     {
-        if (!is_null($event->getHtmlPasteInto())) {
+        if ($event->getHtmlPasteInto() !== null) {
             return $event->getHtmlPasteInto();
         }
 
@@ -2467,7 +2467,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function renderPasteAfterButton(GetPasteButtonEvent $event)
     {
-        if (!is_null($event->getHtmlPasteAfter())) {
+        if ($event->getHtmlPasteAfter() !== null) {
             return $event->getHtmlPasteAfter();
         }
 

@@ -55,7 +55,7 @@ class ContainerGlobalButtonCallbackListener extends AbstractReturningCallbackLis
      */
     public function update($event, $value)
     {
-        if (is_null($value)) {
+        if ($value === null) {
             return;
         }
 

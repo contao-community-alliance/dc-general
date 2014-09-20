@@ -399,7 +399,7 @@ class DefaultEnvironment implements EnvironmentInterface
      */
     public function setClipboard($objClipboard)
     {
-        if (is_null($objClipboard)) {
+        if ($objClipboard === null) {
             unset($this->objClipboard);
         } else {
             $this->objClipboard = $objClipboard;

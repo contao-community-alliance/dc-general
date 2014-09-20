@@ -49,7 +49,7 @@ class ModelChildRecordCallbackListener extends AbstractReturningCallbackListener
      */
     public function update($event, $value)
     {
-        if (is_null($value)) {
+        if ($value === null) {
             return;
         }
 
