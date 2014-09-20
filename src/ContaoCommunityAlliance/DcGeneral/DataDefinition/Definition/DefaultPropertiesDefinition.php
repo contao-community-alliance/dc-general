@@ -17,7 +17,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\Prope
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 /**
- * Interface BasicDefinitionInterface
+ * This is the reference implementation for PropertiesDefinitionInterface.
  *
  * @package DcGeneral\DataDefinition\Definition
  */

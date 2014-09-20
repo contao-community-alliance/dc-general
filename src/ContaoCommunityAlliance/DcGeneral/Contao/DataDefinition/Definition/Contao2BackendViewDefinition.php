@@ -21,7 +21,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelLayout
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 
 /**
- * Interface BasicDefinitionInterface
+ * Reference implementation for BasicDefinitionInterface.
  *
  * @package DcGeneral\DataDefinition\Definition
  */

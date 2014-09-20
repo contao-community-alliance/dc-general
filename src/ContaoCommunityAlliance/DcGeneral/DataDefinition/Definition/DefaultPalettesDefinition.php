@@ -16,7 +16,7 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteCollection;
 
 /**
- * Class DefaultPalettesDefinition
+ * This is the reference implementation for PalettesDefinitionInterface.
  *
  * @package DcGeneral\DataDefinition\Definition
  */

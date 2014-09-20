@@ -16,13 +16,10 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\Compatibility;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 
 /**
- * Class ActiveRecord
- *
  * Small compatibility layer for the $dc->activeRecord property.
  */
 class ActiveRecord
 {
-
     /**
      * The underlying model.
      *

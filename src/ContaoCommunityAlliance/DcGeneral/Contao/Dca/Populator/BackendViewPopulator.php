@@ -38,8 +38,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ParentView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreeView;
 
 /**
- * Class BackendViewPopulator
- *
  * This class is the default fallback populator in the Contao Backend to instantiate a BackendView.
  *
  * @package DcGeneral\Contao\Dca\Populator

@@ -34,7 +34,7 @@ if (!is_file($dir . '/system/initialize.php')) {
 require_once $dir . '/system/initialize.php';
 
 /**
- * Class TreePicker
+ * Class TreePicker.
  *
  * Back end tree picker.
  */

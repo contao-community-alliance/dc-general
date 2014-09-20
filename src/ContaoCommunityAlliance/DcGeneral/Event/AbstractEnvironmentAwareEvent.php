@@ -18,7 +18,7 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * Abstract base class for environment aware events
+ * Abstract base class for environment aware events.
  *
  * @package DcGeneral\Event
  */

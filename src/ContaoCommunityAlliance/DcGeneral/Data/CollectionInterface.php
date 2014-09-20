@@ -16,9 +16,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
- * Interface InterfaceGeneralCollection
- *
- * This represents an iterable collection of Model elements.
+ * This interface represents an iterable collection of Model elements.
  */
 interface CollectionInterface extends \IteratorAggregate, \ArrayAccess, \Countable
 {

@@ -16,7 +16,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Panel;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 
 /**
- * this interface describes a panel.
+ * This interface describes a panel.
  *
  * A panel is a row of a panel container.
  *

@@ -14,7 +14,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Data;
 
 /**
- * This interface describes
+ * This interface describes a language information consisting of language code(ISO 639) and country code(ISO 3166).
  *
  * @package DcGeneral\Data
  */
