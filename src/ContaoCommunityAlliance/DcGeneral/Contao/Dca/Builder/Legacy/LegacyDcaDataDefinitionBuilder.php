@@ -1240,6 +1240,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * @param array             $propInfo The property information.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function parseSingleProperty(PropertyInterface $property, array $propInfo)
     {

@@ -21,8 +21,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 
 /**
- * Class DcCompat
- *
  * Small compatibility layer for callbacks, that expect a "full featured" DC instance.
  */
 class DcCompat extends DC_General
@@ -114,6 +112,10 @@ class DcCompat extends DC_General
 
     /**
      * {@inheritdoc}
+     *
+     * @throws DcGeneralRuntimeException When an unknown key is encountered.
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function __get($name)
     {

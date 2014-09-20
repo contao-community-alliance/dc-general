@@ -34,6 +34,9 @@ abstract class DcaReadingDataDefinitionBuilder extends AbstractEventDrivenDataDe
 
     /**
      * {@inheritdoc}
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public function loadDca($dcaName, EventDispatcherInterface $dispatcher)
     {

@@ -34,6 +34,7 @@ class PaletteFactory
      *
      * @SuppressWarnings(PHPMD.ShortVariable)
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.CamelCaseParameterName)
      */
     public static function createPaletteCollection($palettes, $_ = null)
     {
@@ -84,6 +85,7 @@ class PaletteFactory
      *
      * @SuppressWarnings(PHPMD.ShortVariable)
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.CamelCaseParameterName)
      */
     public static function createPalette($name = null, $legend = null, $_ = null)
     {
@@ -141,6 +143,7 @@ class PaletteFactory
      *
      * @SuppressWarnings(PHPMD.ShortVariable)
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.CamelCaseParameterName)
      */
     public static function createLegend($name, $property = null, $_ = null)
     {

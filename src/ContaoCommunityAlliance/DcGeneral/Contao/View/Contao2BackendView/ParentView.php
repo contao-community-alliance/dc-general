@@ -216,6 +216,9 @@ class ParentView extends BaseView
      * @param ModelInterface $parentModel The parent model.
      *
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     protected function renderFormattedHeaderFields($parentModel)
     {

@@ -49,6 +49,9 @@ class PickerCompatPopulator extends AbstractEventDrivenEnvironmentPopulator
      * @param EnvironmentInterface $environment The environment.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     protected function populateFilePickers(EnvironmentInterface $environment)
     {

@@ -126,13 +126,17 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * @param ActionEvent $event The event.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public function handleAction(ActionEvent $event)
     {
         $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalDriver.css';
 
-        if ($event->getEnvironment()->getDataDefinition()->getName() !== $this->environment->getDataDefinition(
-            )->getName()
+        if ($event->getEnvironment()->getDataDefinition()->getName()
+            !== $this->environment->getDataDefinition()->getName()
             || $event->getResponse() !== null
         ) {
             return;
@@ -401,6 +405,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *                                    ListingConfigInterface::GROUP_CHAR).
      *
      * @return string
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public function formatCurrentValue($field, $model, $groupMode, $groupLength)
     {
@@ -766,6 +773,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * Check if the data provider is multi language and prepare the data provider with the selected language.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     protected function checkLanguage()
     {
@@ -1281,6 +1291,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * @param ModelInterface $model The model that has been submitted.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     protected function handleSubmit(ModelInterface $model)
     {
@@ -1729,9 +1742,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         if ($this->isMultiLanguage($model->getId())) {
             /** @var MultiLanguageDataProviderInterface $dataProvider */
             $langsNative = array();
-            // @codingStandardsIgnoreStart - We have to include it multiple times.
             require TL_ROOT . '/system/config/languages.php';
-            // @codingStandardsIgnoreEnd
 
             $this
                 ->addToTemplate(
@@ -2730,6 +2741,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * Get the breadcrumb navigation via event.
      *
      * @return string
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     protected function breadcrumb()
     {

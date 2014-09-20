@@ -832,6 +832,7 @@ class PaletteBuilder
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @SuppressWarnings(PHPMD.ShortVariable)
+     * @SuppressWarnings(PHPMD.CamelCaseParameterName)
      */
     public function useProperty($property, $_ = null)
     {
@@ -867,6 +868,7 @@ class PaletteBuilder
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @SuppressWarnings(PHPMD.ShortVariable)
+     * @SuppressWarnings(PHPMD.CamelCaseParameterName)
      */
     public function createProperty($propertyName, $_ = null)
     {
@@ -1288,6 +1290,9 @@ class PaletteBuilder
      * @return void
      *
      * @internal
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     protected function dispatchEvent(BuilderEvent $event)
     {

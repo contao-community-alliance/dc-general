@@ -300,6 +300,9 @@ class ContaoWidgetManager
      * @return void
      *
      * @throws \Exception When the rich text editor config file can not be found.
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public function preLoadRichTextEditor()
     {
@@ -358,6 +361,9 @@ class ContaoWidgetManager
      * @throws DcGeneralInvalidArgumentException When an unknown property has been passed.
      *
      * @return \Widget
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public function getWidget($property, PropertyValueBag $inputValues = null)
     {
@@ -505,6 +511,9 @@ class ContaoWidgetManager
      * @param \Contao\Widget $objWidget The widget instance to generate the date picker string for.
      *
      * @return string
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     protected function buildDatePicker($objWidget)
     {
@@ -573,6 +582,9 @@ class ContaoWidgetManager
      * @param string $property The name of the property.
      *
      * @return string
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     protected function generateHelpText($property)
     {
@@ -675,6 +687,9 @@ EOF;
 
     /**
      * {@inheritDoc}
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public function processInput(PropertyValueBag $propertyValues)
     {
@@ -714,9 +729,7 @@ EOF;
             }
         }
 
-        // @codingStandardsIgnoreStart - Restore the POST data array.
         $_POST = $post;
-        // @codingStandardsIgnoreEnd
         \Input::resetCache();
     }
 

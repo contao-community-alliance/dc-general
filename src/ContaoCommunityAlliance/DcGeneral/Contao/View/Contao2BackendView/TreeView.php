@@ -777,6 +777,9 @@ class TreeView extends BaseView
      * Handle an ajax call.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public function handleAjaxCall()
     {

@@ -28,6 +28,9 @@ class Ajax2X extends Ajax
 {
     /**
      * {@inheritDoc}
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     protected function loadPagetree(DataContainerInterface $objDc)
     {
@@ -62,6 +65,9 @@ class Ajax2X extends Ajax
 
     /**
      * {@inheritDoc}
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     protected function loadFiletree(DataContainerInterface $objDc)
     {
@@ -121,6 +127,8 @@ class Ajax2X extends Ajax
      * {@inheritDoc}
      *
      * @throws DcGeneralRuntimeException as it is only present in Contao 3.X.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function reloadPagetree(DataContainerInterface $objDc)
     {
@@ -131,6 +139,8 @@ class Ajax2X extends Ajax
      * {@inheritDoc}
      *
      * @throws DcGeneralRuntimeException as it is only present in Contao 3.X.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function reloadFiletree(DataContainerInterface $objDc)
     {

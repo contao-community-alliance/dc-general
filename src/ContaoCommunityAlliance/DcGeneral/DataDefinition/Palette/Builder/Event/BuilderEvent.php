@@ -20,10 +20,11 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractContainerAwareEvent;
  * This event is the base class for all palette builder events.
  *
  * @package DcGeneral\DataDefinition\Palette\Builder\Event
+ *
+ * @SuppressWarnings(PHPMD.NumberOfChildren)
  */
 abstract class BuilderEvent extends AbstractContainerAwareEvent
 {
-
     /**
      * The palette builder in use.
      *

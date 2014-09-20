@@ -98,6 +98,9 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 
     /**
      * {@inheritDoc}
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
     {
@@ -146,6 +149,9 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 
     /**
      * {@inheritDoc}
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public function render(ViewTemplateInterface $objTemplate)
     {

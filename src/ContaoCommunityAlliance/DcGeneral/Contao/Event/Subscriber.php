@@ -139,6 +139,9 @@ class Subscriber implements EventSubscriberInterface
      * @param RenderReadablePropertyValueEvent $event The event being processed.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public function renderReadablePropertyValue(RenderReadablePropertyValueEvent $event)
     {

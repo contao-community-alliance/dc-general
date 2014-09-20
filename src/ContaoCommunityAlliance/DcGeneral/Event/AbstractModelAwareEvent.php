@@ -21,10 +21,11 @@ use ContaoCommunityAlliance\DcGeneral\ModelAwareInterface;
  * Abstract base class for an event that need an environment and a model.
  *
  * @package DcGeneral\Event
+ *
+ * @SuppressWarnings(PHPMD.NumberOfChildren)
  */
 class AbstractModelAwareEvent extends AbstractEnvironmentAwareEvent implements ModelAwareInterface
 {
-
     /**
      * The model attached to the event.
      *

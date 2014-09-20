@@ -35,6 +35,7 @@ class Callbacks
      *
      * @SuppressWarnings(PHPMD.ShortVariable)
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.CamelCaseParameterName)
      */
     public static function call($callback, $_ = null)
     {

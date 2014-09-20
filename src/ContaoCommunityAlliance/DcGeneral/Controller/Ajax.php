@@ -15,7 +15,6 @@ namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\DataContainerInterface;
-use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * Class Ajax - General purpose Ajax handler for "executePostActions" as we can not use the default Contao
@@ -201,6 +200,9 @@ abstract class Ajax
      * @param DataContainerInterface $objDc The data container.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public function executePostActions($objDc)
     {

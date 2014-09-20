@@ -28,6 +28,9 @@ class Ajax3X extends Ajax
 {
     /**
      * {@inheritDoc}
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     protected function loadPagetree(DataContainerInterface $objDc)
     {
@@ -64,6 +67,9 @@ class Ajax3X extends Ajax
 
     /**
      * {@inheritDoc}
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     protected function loadFiletree(DataContainerInterface $objDc)
     {

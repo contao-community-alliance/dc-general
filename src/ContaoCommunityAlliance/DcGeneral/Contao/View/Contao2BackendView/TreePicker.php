@@ -40,7 +40,6 @@ use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
  */
 class TreePicker extends \Widget
 {
-
     /**
      * Submit user input.
      *
@@ -400,6 +399,9 @@ class TreePicker extends \Widget
      * Generate the widget and return it as string.
      *
      * @return string
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public function generate()
     {

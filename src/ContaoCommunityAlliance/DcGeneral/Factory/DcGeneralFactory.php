@@ -360,6 +360,9 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      * {@inheritdoc}
      *
      * @throws DcGeneralRuntimeException When no container name or no event propagator is given.
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public function createContainer()
     {

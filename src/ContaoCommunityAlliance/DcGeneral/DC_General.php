@@ -26,12 +26,11 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
  * This class is only present so Contao can instantiate a backend properly as it needs a \DataContainer descendant.
  *
  * @package DcGeneral
+ * @SuppressWarnings(PHPMD.CamelCaseClassName)
  */
 // @codingStandardsIgnoreStart - Class is not in camelCase as Contao does not allow us to.
-class DC_General
+class DC_General extends \DataContainer implements DataContainerInterface
 // @codingStandardsIgnoreEnd
-    extends \DataContainer
-    implements DataContainerInterface
 {
 
     /**
@@ -45,6 +44,9 @@ class DC_General
      * Create a new instance.
      *
      * @param string $strTable The table name.
+     *
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     public function __construct($strTable)
     {
@@ -114,6 +116,9 @@ class DC_General
      * @param string $strTable The current table name.
      *
      * @return string New name of current table.
+     *
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     protected function getTablenameCallback($strTable)
     {

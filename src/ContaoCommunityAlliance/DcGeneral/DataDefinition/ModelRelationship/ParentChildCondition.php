@@ -24,7 +24,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class ParentChildCondition extends AbstractCondition implements ParentChildConditionInterface
 {
-
     /**
      * The filter rules.
      *

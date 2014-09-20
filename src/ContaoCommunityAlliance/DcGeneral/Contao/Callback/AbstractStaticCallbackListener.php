@@ -13,8 +13,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Callback;
 
-use Symfony\Component\EventDispatcher\Event;
-
 /**
  * Class AbstractStaticCallbackListener.
  *
@@ -40,6 +38,7 @@ abstract class AbstractStaticCallbackListener extends AbstractCallbackListener
      *
      * @SuppressWarnings(PHPMD.ShortVariable)
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.CamelCaseParameterName)
      */
     public function __construct($callback, $_ = null)
     {
