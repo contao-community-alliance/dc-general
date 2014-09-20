@@ -138,6 +138,9 @@ class Ajax3X extends Ajax
      * @param DataContainerInterface $objDc   The data container.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     protected function reloadTree($strType, DataContainerInterface $objDc)
     {

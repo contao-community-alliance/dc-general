@@ -451,6 +451,9 @@ class TreePicker extends \Widget
      * Generate when being called from within a popup.
      *
      * @return string
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public function generatePopup()
     {
