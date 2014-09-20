@@ -14,11 +14,11 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition;
 
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandCollection;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandCollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\DefaultListingConfig;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\DefaultPanelLayout;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandCollectionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelLayoutInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelLayoutInterface;
 
 /**
  * Reference implementation for BasicDefinitionInterface.

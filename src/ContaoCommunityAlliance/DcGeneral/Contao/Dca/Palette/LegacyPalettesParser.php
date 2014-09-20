@@ -16,10 +16,10 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\Dca\Palette;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\DefaultPaletteCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionChain;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition
-    as PalettePropertyValueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyTrueCondition
     as PalettePropertyTrueCondition;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition
+    as PalettePropertyValueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyTrueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyValueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Legend;

@@ -15,8 +15,6 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\Twig;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
-use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 
 /**
  * Extension for twig template engine.

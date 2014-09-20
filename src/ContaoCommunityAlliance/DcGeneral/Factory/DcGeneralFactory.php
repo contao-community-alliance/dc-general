@@ -13,17 +13,17 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Factory;
 
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinitionContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneral;
-use ContaoCommunityAlliance\DcGeneral\Factory\Event\PreCreateDcGeneralEvent;
-use ContaoCommunityAlliance\Translator\TranslatorInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\EventPropagatorInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\CreateDcGeneralEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
+use ContaoCommunityAlliance\DcGeneral\Factory\Event\PreCreateDcGeneralEvent;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
 
 /**
  * Factory to create a DcGeneral instance.

@@ -13,10 +13,10 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event;
 
-use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
-use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
 
 /**
  * Class GetGroupHeaderEvent.

@@ -13,10 +13,10 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition;
 
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DataProviderDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
 

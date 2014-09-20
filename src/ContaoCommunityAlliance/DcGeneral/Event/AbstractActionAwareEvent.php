@@ -14,7 +14,6 @@
 namespace ContaoCommunityAlliance\DcGeneral\Event;
 
 use ContaoCommunityAlliance\DcGeneral\Action;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 
 /**

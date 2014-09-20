@@ -15,10 +15,10 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator;
 
 use ContaoCommunityAlliance\DcGeneral\Clipboard\DefaultClipboard;
 use ContaoCommunityAlliance\DcGeneral\Contao\InputProvider;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 use ContaoCommunityAlliance\DcGeneral\Controller\DefaultController;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentPopulator\AbstractEventDrivenEnvironmentPopulator;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 /**
  * Class HardCodedPopulator.

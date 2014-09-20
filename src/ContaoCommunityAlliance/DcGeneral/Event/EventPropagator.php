@@ -13,8 +13,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Event;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\EventDispatcher\Event;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * The generic event propagator implementation.

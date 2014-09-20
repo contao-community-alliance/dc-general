@@ -13,8 +13,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event;
 
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
 
 /**
  * This event gets emitted when a legend is created.

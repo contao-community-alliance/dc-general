@@ -14,6 +14,11 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BackendViewInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ListView;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ParentView;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreeView;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\FilterElementInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\LimitElementInformationInterface;
@@ -31,11 +36,6 @@ use ContaoCommunityAlliance\DcGeneral\Panel\DefaultPanelContainer;
 use ContaoCommunityAlliance\DcGeneral\Panel\DefaultSearchElement;
 use ContaoCommunityAlliance\DcGeneral\Panel\DefaultSortElement;
 use ContaoCommunityAlliance\DcGeneral\Panel\DefaultSubmitElement;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BackendViewInterface;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ListView;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ParentView;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreeView;
 
 /**
  * This class is the default fallback populator in the Contao Backend to instantiate a BackendView.

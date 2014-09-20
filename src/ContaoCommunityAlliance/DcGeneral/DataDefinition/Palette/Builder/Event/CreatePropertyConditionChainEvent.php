@@ -13,8 +13,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event;
 
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionChain;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionChain;
 
 /**
  * This event gets emitted when a property condition chain is created.

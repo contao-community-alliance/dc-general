@@ -12,8 +12,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral;
 
-use ContaoCommunityAlliance\Translator\Contao\LangArrayTranslator;
-use ContaoCommunityAlliance\Translator\TranslatorChain;
 use ContaoCommunityAlliance\DcGeneral\Contao\Callback\Callbacks;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\EventPropagator;
@@ -21,6 +19,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
+use ContaoCommunityAlliance\Translator\Contao\LangArrayTranslator;
+use ContaoCommunityAlliance\Translator\TranslatorChain;
 
 /**
  * This class is only present so Contao can instantiate a backend properly as it needs a \DataContainer descendant.

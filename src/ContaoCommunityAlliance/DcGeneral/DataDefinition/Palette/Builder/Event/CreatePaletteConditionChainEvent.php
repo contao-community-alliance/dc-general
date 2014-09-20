@@ -13,8 +13,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event;
 
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionChain;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionChain;
 
 /**
  * This event gets emitted when a palette condition chain is created.

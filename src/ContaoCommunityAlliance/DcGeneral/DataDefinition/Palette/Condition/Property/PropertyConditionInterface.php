@@ -16,7 +16,6 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Pro
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ConditionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Legend;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 

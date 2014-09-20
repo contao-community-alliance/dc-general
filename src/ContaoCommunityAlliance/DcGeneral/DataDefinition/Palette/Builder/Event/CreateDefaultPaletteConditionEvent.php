@@ -13,8 +13,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event;
 
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\DefaultPaletteCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\DefaultPaletteCondition;
 
 /**
  * This event gets emitted when a condition for the default palette is created.

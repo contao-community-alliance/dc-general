@@ -14,16 +14,16 @@
 namespace ContaoCommunityAlliance\DcGeneral;
 
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
+use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\EventPropagatorInterface;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
-use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
-use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
-use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 
 /**
  * Default implementation of an environment.

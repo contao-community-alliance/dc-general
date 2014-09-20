@@ -14,7 +14,6 @@
 namespace ContaoCommunityAlliance\DcGeneral\Event;
 
 use ContaoCommunityAlliance\DcGeneral\ViewAwareInterface;
-use Symfony\Component\EventDispatcher\Event;
 
 /**
  * Abstract event class referencing an environment and a view.

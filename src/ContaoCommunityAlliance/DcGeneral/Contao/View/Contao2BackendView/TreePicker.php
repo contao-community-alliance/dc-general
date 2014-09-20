@@ -13,7 +13,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
-use \BackendTemplate;
+use BackendTemplate;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
@@ -27,10 +27,10 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\DefaultMode
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ModelFormatterConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
-use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
-use \FrontendTemplate;
 use ContaoCommunityAlliance\DcGeneral\DC_General;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
+use FrontendTemplate;
 
 /**
  * Provide methods to handle input field "tableTree".

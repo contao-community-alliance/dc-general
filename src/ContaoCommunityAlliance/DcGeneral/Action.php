@@ -13,9 +13,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral;
 
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
-use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
-
 /**
  * This class is the base foundation for a command event.
  *
