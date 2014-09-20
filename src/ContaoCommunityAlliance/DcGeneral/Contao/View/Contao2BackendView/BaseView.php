@@ -473,7 +473,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 					$remoteNew = ($value != '') ? date('Y-m', $value) : '-';
 					$intMonth  = ($value != '') ? (date('m', $value) - 1) : '-';
 
-					if ($month = $this->translate('MONTHS' . $intMonth))
+					if ($month = $this->translate('MONTHS.' . $intMonth))
 					{
 						$remoteNew = ($value != '') ? $month . ' ' . date('Y', $value) : '-';
 					}
