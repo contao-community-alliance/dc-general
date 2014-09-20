@@ -535,8 +535,11 @@ class TreeView extends BaseView
         if (!is_null($event->getHtml())) {
             return $event->getHtml();
         }
-
-        $strLabel = $GLOBALS['TL_LANG'][$event->getEnvironment()->getDataDefinition()->getName()]['pasteinto'][0];
+        $environment = $event->getEnvironment();
+        $strLabel    = $environment->getTranslator()->translate(
+            'pasteinto.0',
+            $environment->getDataDefinition()->getName()
+        );
         if ($event->isPasteDisabled()) {
             /** @var GenerateHtmlEvent $imageEvent */
             $imageEvent = $event->getEnvironment()->getEventPropagator()->propagate(

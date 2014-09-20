@@ -610,7 +610,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 'accesskey="d"' .
                 'onclick="return confirm(\'%s\')"' .
                 'value="%s" />',
-                $GLOBALS['TL_LANG']['MSC']['delAllConfirm'],
+                specialchars($this->translate('MSC.delAllConfirm')),
                 specialchars($this->translate('MSC.deleteSelected'))
             );
         }
