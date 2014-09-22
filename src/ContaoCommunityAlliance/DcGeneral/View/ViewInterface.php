@@ -13,6 +13,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\View;
 
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 
 /**
