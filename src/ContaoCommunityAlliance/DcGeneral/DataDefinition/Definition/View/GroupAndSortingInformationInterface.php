@@ -142,4 +142,20 @@ interface GroupAndSortingInformationInterface
      * @return string
      */
     public function getSortingMode();
+
+    /**
+     * Set or reset the flag determining that this information is intended for manual sorting.
+     *
+     * @param bool $value The value for the flag.
+     *
+     * @return GroupAndSortingInformationInterface
+     */
+    public function setManualSorting($value = true);
+
+    /**
+     * Retrieve the flag if this information is intended for manual sorting.
+     *
+     * @return bool
+     */
+    public function isManualSorting();
 }

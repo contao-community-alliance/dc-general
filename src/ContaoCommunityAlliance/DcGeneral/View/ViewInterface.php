@@ -132,4 +132,13 @@ interface ViewInterface
      * @return string
      */
     public function undo();
+
+    /**
+     * Get the name of the defined property to use for manual sorting (aka drag drop sorting) if any is defined.
+     *
+     * This method evaluates the panel if the currently selected property is marked for manual sorting.
+     *
+     * @return string|null
+     */
+    public function getManualSortingProperty();
 }

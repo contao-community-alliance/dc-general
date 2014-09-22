@@ -596,7 +596,9 @@ class ParentView extends BaseView
             return $this->edit();
         }
 
-        if ($this->environment->getDataProvider()->fieldExists($this->getManualSortingProperty())) {
+        if ($this->getManualSortingProperty()
+            && $this->environment->getDataProvider()->fieldExists($this->getManualSortingProperty())
+        ) {
             $this->checkClipboard('copy');
             $this->redirectHome();
         }

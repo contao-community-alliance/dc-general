@@ -965,14 +965,41 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Get the name of the property to use for manual sorting (aka drag drop sorting).
-     *
-     * @return string
+     * {@inheritDoc}
      */
-    protected function getManualSortingProperty()
+    public function getManualSortingProperty()
     {
-        // FIXME: provide an API method in the data definition for this.
-        return $this->getEnvironment()->getDataProvider()->fieldExists('sorting') ? 'sorting' : '';
+        $definition = null;
+        foreach ($this->view->getPanel() as $panel) {
+            /** @var PanelInterface $panel */
+            $sort = $panel->getElement('sort');
+            if ($sort) {
+                /** @var SortElementInterface $sort */
+                $definition = $sort->getSelectedDefinition();
+            }
+        }
+
+        if ($definition === null) {
+            $definition = $this
+                ->getViewSection()
+                ->getListingConfig()
+                ->getGroupAndSortingDefinition();
+
+            if ($definition->hasDefault()) {
+                $definition = $definition->getDefault();
+            }
+        }
+
+        if ($definition) {
+            foreach ($definition as $information) {
+                /** @var GroupAndSortingInformationInterface $information */
+                if ($information->isManualSorting()) {
+                    return $information->getProperty();
+                }
+            }
+        }
+
+        return null;
     }
 
     /**

@@ -880,6 +880,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                             ? $matches[2]
                             : GroupAndSortingInformationInterface::SORT_ASC)
                     );
+
+                // Special case for field named "sorting" in Contao.
+                if ($field === 'sorting') {
+                    $groupAndSorting->setManualSorting();
+                }
             } else {
                 throw new DcGeneralRuntimeException('Custom SQL in sorting fields are currently unsupported');
             }

@@ -48,6 +48,13 @@ class DefaultGroupAndSortingInformation implements GroupAndSortingInformationInt
     protected $groupingLength = 0;
 
     /**
+     * Flag determining if this information is for manual sorting.
+     *
+     * @var bool
+     */
+    protected $manualSorting;
+
+    /**
      * {@inheritDoc}
      */
     public function setProperty($property)
@@ -117,5 +124,23 @@ class DefaultGroupAndSortingInformation implements GroupAndSortingInformationInt
     public function getSortingMode()
     {
         return $this->sorting;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setManualSorting($value = true)
+    {
+        $this->manualSorting = $value;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function isManualSorting()
+    {
+        return $this->manualSorting;
     }
 }
