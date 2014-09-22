@@ -20,4 +20,34 @@ namespace ContaoCommunityAlliance\DcGeneral\View;
  */
 interface ViewTemplateInterface
 {
+    /**
+     * Set the template data from an array.
+     *
+     * @param array $data The data array.
+     *
+     * @return ViewTemplateInterface
+     */
+    public function setData($data);
+
+    /**
+     * Return the template data as array.
+     *
+     * @return array The data array
+     */
+    public function getData();
+
+
+    /**
+     * Parse the template file and return it as string.
+     *
+     * @return string The template markup
+     */
+    public function parse();
+
+    /**
+     * Parse the template file and print it to the screen.
+     *
+     * @return void
+     */
+    public function output();
 }

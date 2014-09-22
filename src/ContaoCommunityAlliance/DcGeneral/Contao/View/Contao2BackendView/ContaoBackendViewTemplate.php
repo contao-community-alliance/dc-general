@@ -22,4 +22,13 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
  */
 class ContaoBackendViewTemplate extends \BackendTemplate implements ViewTemplateInterface
 {
+    /**
+     * {@inheritDoc}
+     */
+    public function setData($data)
+    {
+        parent::setData($data);
+
+        return $this;
+    }
 }
