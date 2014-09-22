@@ -25,6 +25,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\AbstractHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ShowHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
@@ -680,56 +681,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * @return void
      *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     * @deprecated Use AbstractHandler::checkLanguage instead.
      */
     protected function checkLanguage()
     {
-        $environment     = $this->getEnvironment();
-        $inputProvider   = $environment->getInputProvider();
-        $objDataProvider = $environment->getDataProvider();
-        $strProviderName = $environment->getDataDefinition()->getName();
-        $idDetails       = $inputProvider->getParameter('id')
-            ? IdSerializer::fromSerialized($inputProvider->getParameter('id'))
-            : null;
-        $mixID           = $idDetails ? $idDetails->getId() : null;
-        $arrLanguage     = $environment->getController()->getSupportedLanguages($mixID);
-
-        if (!$arrLanguage) {
-            return;
-        }
-
-        // Load language from Session.
-        $arrSession = $inputProvider->getPersistentValue('dc_general');
-        if (!is_array($arrSession)) {
-            $arrSession = array();
-        }
-        /** @var MultiLanguageDataProviderInterface $objDataProvider */
-
-        // Try to get the language from session.
-        if (isset($arrSession['ml_support'][$strProviderName][$mixID])) {
-            $strCurrentLanguage = $arrSession['ml_support'][$strProviderName][$mixID];
-        } else {
-            $strCurrentLanguage = $GLOBALS['TL_LANGUAGE'];
-        }
-
-        // Get/Check the new language.
-        if ((strlen($inputProvider->getValue('language')) != 0)
-            && ($inputProvider->getValue('FORM_SUBMIT') == 'language_switch')
-        ) {
-            if (array_key_exists($inputProvider->getValue('language'), $arrLanguage)) {
-                $strCurrentLanguage = $inputProvider->getValue('language');
-            }
-        }
-
-        if (!array_key_exists($strCurrentLanguage, $arrLanguage)) {
-            $strCurrentLanguage = $objDataProvider->getFallbackLanguage($mixID)->getLanguageCode();
-        }
-
-        $arrSession['ml_support'][$strProviderName][$mixID] = $strCurrentLanguage;
-        $inputProvider->setPersistentValue('dc_general', $arrSession);
-
-        $objDataProvider->setCurrentLanguage($strCurrentLanguage);
+        AbstractHandler::checkLanguage($this->getEnvironment());
     }
 
     /**
