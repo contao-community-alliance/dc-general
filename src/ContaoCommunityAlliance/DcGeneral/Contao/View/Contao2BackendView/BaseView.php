@@ -25,7 +25,6 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetEditModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
@@ -38,7 +37,6 @@ use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
@@ -57,13 +55,10 @@ use ContaoCommunityAlliance\DcGeneral\Event\PostCreateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPasteModelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreCreateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PreEditModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PrePasteModelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PrePersistModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Panel\FilterElementInterface;
@@ -311,16 +306,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Determines if this view is opened in a popup frame.
-     *
-     * @return bool
-     */
-    protected function isPopup()
-    {
-        return \Input::getInstance()->get('popup');
-    }
-
-    /**
      * Determine if the select mode is currently active or not.
      *
      * @return bool
@@ -506,91 +491,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Get the label for a button from the translator.
-     *
-     * The fallback is as follows:
-     * 1. Try to translate the button via the data definition name as translation section.
-     * 2. Try to translate the button name with the prefix 'MSC.'.
-     * 3. Return the input value as nothing worked out.
-     *
-     * @param string $strButton The non translated label for the button.
-     *
-     * @return string
-     */
-    protected function getButtonLabel($strButton)
-    {
-        $definition = $this->getEnvironment()->getDataDefinition();
-        if (($label = $this->translate($strButton, $definition->getName())) !== $strButton) {
-            return $label;
-        } elseif (($label = $this->translate('MSC.' . $strButton)) !== $strButton) {
-            return $label;
-        }
-
-        // Fallback, just return the key as is it.
-        return $strButton;
-    }
-
-    /**
-     * Retrieve a list of html buttons to use in the bottom panel (submit area).
-     *
-     * @return array
-     */
-    protected function getEditButtons()
-    {
-        $buttons         = array();
-        $definition      = $this->getEnvironment()->getDataDefinition();
-        $basicDefinition = $definition->getBasicDefinition();
-
-        $buttons['save'] = sprintf(
-            '<input type="submit" name="save" id="save" class="tl_submit" accesskey="s" value="%s" />',
-            $this->getButtonLabel('save')
-        );
-
-        $buttons['saveNclose'] = sprintf(
-            '<input type="submit" name="saveNclose" id="saveNclose" class="tl_submit" accesskey="c" value="%s" />',
-            $this->getButtonLabel('saveNclose')
-        );
-
-        if (!$this->isPopup() && $basicDefinition->isCreatable()) {
-            $buttons['saveNcreate'] = sprintf(
-                '<input type="submit" name="saveNcreate" id="saveNcreate" class="tl_submit" accesskey="n" ' .
-                ' value="%s" />',
-                $this->getButtonLabel('saveNcreate')
-            );
-        }
-
-        // TODO: unknown input param s2e - I guess it means "switch to edit" but from which view used?
-        if ($this->getEnvironment()->getInputProvider()->hasParameter('s2e')) {
-            $buttons['saveNedit'] = sprintf(
-                '<input type="submit" name="saveNedit" id="saveNedit" class="tl_submit" accesskey="e" value="%s" />',
-                $this->getButtonLabel('saveNedit')
-            );
-        } elseif (!$this->isPopup()
-            && (($basicDefinition->getMode() == BasicDefinitionInterface::MODE_PARENTEDLIST)
-                || strlen($basicDefinition->getParentDataProvider())
-                || $basicDefinition->isSwitchToEditEnabled()
-            )
-        ) {
-            $buttons['saveNback'] = sprintf(
-                '<input type="submit" name="saveNback" id="saveNback" class="tl_submit" accesskey="g" value="%s" />',
-                $this->getButtonLabel('saveNback')
-            );
-        }
-
-        $event = new GetEditModeButtonsEvent($this->getEnvironment());
-        $event->setButtons($buttons);
-
-        $this->getEnvironment()->getEventPropagator()->propagate(
-            $event::NAME,
-            $event,
-            array($definition->getName())
-        );
-
-        return $event->getButtons();
-    }
-
-    /**
-     * Retrieve a list of html buttons to use in the bottom panel (submit area).
+     * Retrieve a list of html buttons to use in the bottom panel (submit area) when in select mode.
      *
      * @return array
      */
@@ -1311,66 +1212,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Handle the submit and determine which button has been triggered.
-     *
-     * This method will redirect the client.
-     *
-     * @param ModelInterface $model The model that has been submitted.
-     *
-     * @return void
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
-     */
-    protected function handleSubmit(ModelInterface $model)
-    {
-        $environment   = $this->getEnvironment();
-        $inputProvider = $environment->getInputProvider();
-
-        if ($inputProvider->hasValue('save')) {
-            $newUrlEvent = new AddToUrlEvent('act=edit&id=' . IdSerializer::fromModel($model)->getSerialized());
-            $environment->getEventPropagator()->propagate(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
-            $environment->getEventPropagator()->propagate(
-                ContaoEvents::CONTROLLER_REDIRECT,
-                new RedirectEvent($newUrlEvent->getUrl())
-            );
-        } elseif ($inputProvider->hasValue('saveNclose')) {
-            setcookie('BE_PAGE_OFFSET', 0, 0, '/');
-
-            // @codingStandardsIgnoreStart - we have to clear the messages - direct access to $_SESSION is ok.
-            $_SESSION['TL_INFO']    = '';
-            $_SESSION['TL_ERROR']   = '';
-            $_SESSION['TL_CONFIRM'] = '';
-            // @codingStandardsIgnoreEnd
-
-            $newUrlEvent = new GetReferrerEvent();
-            $environment->getEventPropagator()->propagate(ContaoEvents::SYSTEM_GET_REFERRER, $newUrlEvent);
-            $environment->getEventPropagator()->propagate(
-                ContaoEvents::CONTROLLER_REDIRECT,
-                new RedirectEvent($newUrlEvent->getReferrerUrl())
-            );
-        } elseif ($inputProvider->hasValue('saveNcreate')) {
-            setcookie('BE_PAGE_OFFSET', 0, 0, '/');
-
-            $_SESSION['TL_INFO']    = '';
-            $_SESSION['TL_ERROR']   = '';
-            $_SESSION['TL_CONFIRM'] = '';
-
-            $after = IdSerializer::fromModel($model);
-
-            $newUrlEvent = new AddToUrlEvent('act=create&id=&after=' . $after->getSerialized());
-            $environment->getEventPropagator()->propagate(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
-            $environment->getEventPropagator()->propagate(
-                ContaoEvents::CONTROLLER_REDIRECT,
-                new RedirectEvent($newUrlEvent->getUrl())
-            );
-        } elseif ($inputProvider->hasValue('saveNback')) {
-            echo vsprintf($this->notImplMsg, 'Save and go back');
-            exit;
-        }
-    }
-
-    /**
      * Check the submitted data if we want to restore a previous version of a model.
      *
      * If so, the model will get loaded and marked as active version in the data provider and the client will perform a
@@ -1460,39 +1301,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Update the versioning information in the data provider for a given model (if necessary).
-     *
-     * @param ModelInterface $model The model to update.
-     *
-     * @return void
-     *
-     * @SuppressWarnings(PHPMD.LongVariable)
-     */
-    protected function storeVersion(ModelInterface $model)
-    {
-        $modelId                 = $model->getId();
-        $environment             = $this->getEnvironment();
-        $definition              = $environment->getDataDefinition();
-        $dataProvider            = $environment->getDataProvider($model->getProviderName());
-        $dataProviderDefinition  = $definition->getDataProviderDefinition();
-        $dataProviderInformation = $dataProviderDefinition->getInformation($model->getProviderName());
-
-        if (!$dataProviderInformation->isVersioningEnabled()) {
-            return;
-        }
-
-        // Compare version and current record.
-        $currentVersion = $dataProvider->getActiveVersion($modelId);
-        if (!$currentVersion
-            || !$dataProvider->sameModels($model, $dataProvider->getVersion($modelId, $currentVersion))
-        ) {
-            $user = \BackendUser::getInstance();
-
-            $dataProvider->saveVersion($model, $user->username);
-        }
-    }
-
-    /**
      * Generate the view for edit.
      *
      * @return string
@@ -1528,54 +1336,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Ensure the view is editable and throw an Exception if not.
-     *
-     * @param ModelInterface $model The model to be edited.
-     *
-     * @return void
-     *
-     * @throws DcGeneralRuntimeException When the definition is not editable.
-     */
-    protected function checkEditable($model)
-    {
-        $environment = $this->getEnvironment();
-        $definition  = $environment->getDataDefinition();
-
-        // Check if table is editable.
-        if (!($model->getId() || $definition->getBasicDefinition()->isEditable())) {
-            $message = 'DataContainer ' . $definition->getName() . ' is not editable';
-            $environment->getEventPropagator()->propagate(
-                ContaoEvents::SYSTEM_LOG,
-                new LogEvent($message, TL_ERROR, 'DC_General - edit()')
-            );
-            throw new DcGeneralRuntimeException($message);
-        }
-    }
-
-    /**
-     * Ensure the view is editable and throw an Exception if not.
-     *
-     * @param ModelInterface $model The model to be edited, if this is given, we are not in create mode.
-     *
-     * @return void
-     *
-     * @throws DcGeneralRuntimeException When the definition is not editable.
-     */
-    protected function checkCreatable($model)
-    {
-        $environment = $this->getEnvironment();
-        $definition  = $environment->getDataDefinition();
-
-        // Check if table is closed but we are adding a new item.
-        if ($model->getId() && !$definition->getBasicDefinition()->isCreatable()) {
-            $message = 'DataContainer ' . $definition->getName() . ' is closed';
-            $environment->getEventPropagator()->propagate(
-                ContaoEvents::SYSTEM_LOG,
-                new LogEvent($message, TL_ERROR, 'DC_General - edit()')
-            );
-            throw new DcGeneralRuntimeException($message);
-        }
-    }
      * Create the edit mask.
      *
      * @param ModelInterface $model         The model with the current data.
@@ -1598,215 +1358,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $this->checkLanguage();
 
-        $environment             = $this->getEnvironment();
-        $definition              = $environment->getDataDefinition();
-        $dataProvider            = $environment->getDataProvider($model->getProviderName());
-        $dataProviderDefinition  = $definition->getDataProviderDefinition();
-        $dataProviderInformation = $dataProviderDefinition->getInformation($model->getProviderName());
-        $inputProvider           = $environment->getInputProvider();
-        $palettesDefinition      = $definition->getPalettesDefinition();
-        $propertyDefinitions     = $definition->getPropertiesDefinition();
-        $blnSubmitted            = ($inputProvider->getValue('FORM_SUBMIT') === $definition->getName());
-        $blnIsAutoSubmit         = ($inputProvider->getValue('SUBMIT_TYPE') === 'auto');
-
-        $widgetManager = new ContaoWidgetManager($environment, $model);
-
-        $this->checkEditable($model);
-        $this->checkCreatable($model);
-
-        $event = new PreEditModelEvent($this->environment, $model);
-        $environment->getEventPropagator()->propagate(
-            $event::NAME,
-            $event,
-            $definition->getName()
-        );
-
-        $this->enforceModelRelationship($model);
-
-        // Pass 1: Get the palette for the values stored in the model.
-        $palette = $palettesDefinition->findPalette($model);
-
-        $propertyValues = $this->processInput($widgetManager);
-        $errors         = array();
-        if ($blnSubmitted && $propertyValues) {
-            // Pass 2: Determine the real palette we want to work on if we have some data submitted.
-            $palette = $palettesDefinition->findPalette($model, $propertyValues);
-
-            // Update the model - the model might add some more errors to the propertyValueBag via exceptions.
-            $this->getEnvironment()->getController()->updateModelFromPropertyBag($model, $propertyValues);
-        }
-
-        $arrFieldSets = array();
-        $blnFirst     = true;
-        foreach ($palette->getLegends() as $legend) {
-            $legendName = $environment->getTranslator()->translate(
-                $legend->getName() . '_legend',
-                $definition->getName()
-            );
-            $fields     = array();
-            $properties = $legend->getProperties($model, $propertyValues);
-
-            if (!$properties) {
-                continue;
-            }
-
-            foreach ($properties as $property) {
-                if (!$propertyDefinitions->hasProperty($property->getName())) {
-                    throw new DcGeneralInvalidArgumentException(
-                        sprintf(
-                            'Property %s is mentioned in palette but not defined in propertyDefinition.',
-                            $property->getName()
-                        )
-                    );
-                }
-
-                // If this property is invalid, fetch the error.
-                if ((!$blnIsAutoSubmit)
-                    && $propertyValues
-                    && $propertyValues->hasPropertyValue($property->getName())
-                    && $propertyValues->isPropertyValueInvalid($property->getName())
-                ) {
-                    $errors = array_merge($errors, $propertyValues->getPropertyValueErrors($property->getName()));
-                }
-
-                $fields[] = $widgetManager->renderWidget($property->getName(), $blnIsAutoSubmit, $propertyValues);
-            }
-
-            $arrFieldSet['label']   = $legendName;
-            $arrFieldSet['class']   = ($blnFirst) ? 'tl_tbox' : 'tl_box';
-            $arrFieldSet['palette'] = implode('', $fields);
-            $arrFieldSet['legend']  = $legend->getName();
-            $arrFieldSets[]         = $arrFieldSet;
-
-            $blnFirst = false;
-        }
-
-        if ((!$blnIsAutoSubmit) && $blnSubmitted && empty($errors)) {
-            if ($model->getMeta($model::IS_CHANGED)) {
-                // Trigger the event for post persists or create.
-                if ($preFunction != null) {
-                    $preFunction($environment, $model, $originalModel);
-                }
-
-                $event = new PrePersistModelEvent($environment, $model, $originalModel);
-                $environment->getEventPropagator()->propagate(
-                    $event::NAME,
-                    $event,
-                    array(
-                        $this->getEnvironment()->getDataDefinition()->getName(),
-                    )
-                );
-
-                if (!$model->getId() && $this->getManualSortingProperty()) {
-                    $models = $dataProvider->getEmptyCollection();
-                    $models->push($model);
-
-                    $controller = $environment->getController();
-
-                    if ($inputProvider->hasParameter('after')) {
-                        $after = IdSerializer::fromSerialized($inputProvider->getParameter('after'));
-
-                        $previousDataProvider = $environment->getDataProvider($after->getDataProviderName());
-                        $previousFetchConfig  = $previousDataProvider->getEmptyConfig();
-                        $previousFetchConfig->setId($after->getId());
-                        $previousModel = $previousDataProvider->fetch($previousFetchConfig);
-
-                        if ($previousModel) {
-                            $controller->pasteAfter($previousModel, $models, $this->getManualSortingProperty());
-                        } else {
-                            $controller->pasteTop($models, $this->getManualSortingProperty());
-                        }
-                    } elseif ($inputProvider->hasParameter('into')) {
-                        $into = IdSerializer::fromSerialized($inputProvider->getParameter('into'));
-
-                        $parentDataProvider = $environment->getDataProvider($into->getDataProviderName());
-                        $parentFetchConfig  = $parentDataProvider->getEmptyConfig();
-                        $parentFetchConfig->setId($into->getId());
-                        $parentModel = $parentDataProvider->fetch($parentFetchConfig);
-
-                        if ($parentModel) {
-                            $controller->pasteInto($parentModel, $models, $this->getManualSortingProperty());
-                        } else {
-                            $controller->pasteTop($models, $this->getManualSortingProperty());
-                        }
-                    } else {
-                        $controller->pasteTop($models, $this->getManualSortingProperty());
-                    }
-
-                    $environment->getClipboard()->clear()->saveTo($environment);
-                } else {
-                    // Save the model.
-                    $dataProvider->save($model);
-                }
-
-                // Trigger the event for post persists or create.
-                if ($postFunction != null) {
-                    $postFunction($environment, $model, $originalModel);
-                }
-
-                $event = new PostPersistModelEvent($environment, $model, $originalModel);
-                $environment->getEventPropagator()->propagate(
-                    $event::NAME,
-                    $event,
-                    array(
-                        $this->getEnvironment()->getDataDefinition()->getName(),
-                    )
-                );
-
-                $this->storeVersion($model);
-            }
-
-            $this->handleSubmit($model);
-        }
-
-        if ($model->getId()) {
-            $strHeadline = sprintf($this->translate('editRecord', $definition->getName()), 'ID ' . $model->getId());
-            if ($strHeadline === 'editRecord') {
-                $strHeadline = sprintf($this->translate('MSC.editRecord'), 'ID ' . $model->getId());
-            }
-        } else {
-            $strHeadline = sprintf($this->translate('newRecord', $definition->getName()), 'ID ' . $model->getId());
-            if ($strHeadline === 'newRecord') {
-                $strHeadline = sprintf($this->translate('MSC.editRecord'), '');
-            }
-        }
-
-        $objTemplate = $this->getTemplate('dcbe_general_edit');
-        $objTemplate->setData(
-            array(
-                'fieldsets'   => $arrFieldSets,
-                'versions'    => $dataProviderInformation->isVersioningEnabled() ? $dataProvider->getVersions(
-                    $model->getId()
-                ) : null,
-                'subHeadline' => $strHeadline,
-                'table'       => $definition->getName(),
-                'enctype'     => 'multipart/form-data',
-                'error'       => $errors,
-                'editButtons' => $this->getEditButtons(),
-                'noReload'    => (bool)$errors
-            )
-        );
-
-        if ($this->isMultiLanguage($model->getId())) {
-            /** @var MultiLanguageDataProviderInterface $dataProvider */
-            $langsNative = array();
-            require TL_ROOT . '/system/config/languages.php';
-
-            $this
-                ->addToTemplate(
-                    'languages',
-                    $environment->getController()->getSupportedLanguages($model->getId()),
-                    $objTemplate
-                )
-                ->addToTemplate('language', $dataProvider->getCurrentLanguage(), $objTemplate)
-                ->addToTemplate('languageHeadline', $langsNative[$dataProvider->getCurrentLanguage()], $objTemplate);
-        } else {
-            $this
-                ->addToTemplate('languages', null, $objTemplate)
-                ->addToTemplate('languageHeadline', '', $objTemplate);
-        }
-
-        return $objTemplate->parse();
+        $editMask = new EditMask($this, $model, $originalModel, $preFunction, $postFunction);
+        return $editMask->execute();
     }
 
     /**
@@ -2815,37 +2368,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $this->addToTemplate('elements', $arrReturn, $objTemplate);
 
         return $objTemplate->parse();
-    }
-
-    /**
-     * Process input and return all modified properties or null if there is no input.
-     *
-     * @param ContaoWidgetManager $widgetManager The widget manager in use.
-     *
-     * @return null|PropertyValueBag
-     */
-    public function processInput($widgetManager)
-    {
-        $input = $this->getEnvironment()->getInputProvider();
-
-        if ($input->getValue('FORM_SUBMIT') == $this->getEnvironment()->getDataDefinition()->getName()) {
-            $propertyValues = new PropertyValueBag();
-            $propertyNames  = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getPropertyNames(
-            );
-
-            // Process input and update changed properties.
-            foreach ($propertyNames as $propertyName) {
-                if ($input->hasValue($propertyName)) {
-                    $propertyValue = $input->getValue($propertyName, true);
-                    $propertyValues->setPropertyValue($propertyName, $propertyValue);
-                }
-            }
-            $widgetManager->processInput($propertyValues);
-
-            return $propertyValues;
-        }
-
-        return null;
     }
 
     /**
