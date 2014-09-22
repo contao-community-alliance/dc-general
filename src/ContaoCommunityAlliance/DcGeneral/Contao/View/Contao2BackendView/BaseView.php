@@ -1268,6 +1268,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
     /**
      * {@inheritDoc}
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function enforceModelRelationship($model)
     {
