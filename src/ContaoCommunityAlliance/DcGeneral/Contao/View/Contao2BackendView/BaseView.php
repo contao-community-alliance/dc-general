@@ -871,7 +871,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     public function getManualSortingProperty()
     {
         $definition = null;
-        foreach ($this->view->getPanel() as $panel) {
+        foreach ($this->getPanel() as $panel) {
             /** @var PanelInterface $panel */
             $sort = $panel->getElement('sort');
             if ($sort) {
