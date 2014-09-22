@@ -134,6 +134,17 @@ interface ViewInterface
     public function undo();
 
     /**
+     * Abstract method to be overridden in the certain child classes.
+     *
+     * This method will update the parent relationship between a model and the parent item.
+     *
+     * @param ModelInterface $model The model to be updated.
+     *
+     * @return void
+     */
+    public function enforceModelRelationship($model);
+
+    /**
      * Get the name of the defined property to use for manual sorting (aka drag drop sorting) if any is defined.
      *
      * This method evaluates the panel if the currently selected property is marked for manual sorting.

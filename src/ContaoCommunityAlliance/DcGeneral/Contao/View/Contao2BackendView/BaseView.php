@@ -1426,15 +1426,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Abstract method to be overridden in the certain child classes.
-     *
-     * This method will update the parent relationship between a model and the parent item.
-     *
-     * @param ModelInterface $model The model to be updated.
-     *
-     * @return void
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * {@inheritDoc}
      */
     public function enforceModelRelationship($model)
     {
