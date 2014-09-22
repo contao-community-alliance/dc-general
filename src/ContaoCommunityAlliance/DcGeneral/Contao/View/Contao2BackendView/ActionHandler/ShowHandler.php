@@ -175,15 +175,13 @@ class ShowHandler extends AbstractHandler
     /**
      * Get the headline for the template.
      *
-     * @param EnvironmentInterface $environment The environment.
-     *
-     * @param ModelInterface       $model       The model.
+     * @param ModelInterface $model The model.
      *
      * @return string
      */
-    protected function getHeadline($environment, $model)
+    protected function getHeadline($model)
     {
-        $translator = $environment->getTranslator();
+        $translator = $this->getEnvironment()->getTranslator();
         $headline   = $translator->translate(
             'MSC.showRecord',
             $model->getProviderName(),
@@ -225,7 +223,7 @@ class ShowHandler extends AbstractHandler
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
         $model        = $this->getModel($environment);
         $data         = $this->convertModel($model, $environment);
-        $headline     = $this->getHeadline($translator, $model);
+        $headline     = $this->getHeadline($model);
         $template     = new ContaoBackendViewTemplate('dcbe_general_show');
 
         $template->set('headline', $headline)
