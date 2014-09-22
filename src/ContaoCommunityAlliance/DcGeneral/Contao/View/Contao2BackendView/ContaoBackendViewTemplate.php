@@ -31,4 +31,22 @@ class ContaoBackendViewTemplate extends \BackendTemplate implements ViewTemplate
 
         return $this;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function set($name, $value)
+    {
+        $this->$name = $value;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function get($name)
+    {
+        return $this->$name;
+    }
 }

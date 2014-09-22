@@ -36,6 +36,25 @@ interface ViewTemplateInterface
      */
     public function getData();
 
+    /**
+     * Add the value to the template.
+     *
+     * @param string $name  Name of the value.
+     *
+     * @param mixed  $value The value to add to the template.
+     *
+     * @return ViewTemplateInterface
+     */
+    public function set($name, $value);
+
+    /**
+     * Retrieve a value from the template.
+     *
+     * @param string $name The name of the value to retrieve.
+     *
+     * @return mixed
+     */
+    public function get($name);
 
     /**
      * Parse the template file and return it as string.
