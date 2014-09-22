@@ -312,7 +312,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     protected function isSelectModeActive()
     {
-        return \Input::getInstance()->get('act') == 'select';
+        return $this->getEnvironment()->getInputProvider()->getParameter('act') == 'select';
     }
 
     /**
