@@ -22,8 +22,10 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
+use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ShowHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonsEvent;
@@ -151,7 +153,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             case 'move':
             case 'undo':
             case 'edit':
-            case 'show':
             case 'showAll':
             case 'toggle':
                 $response = call_user_func_array(
@@ -159,6 +160,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                     $action->getArguments()
                 );
                 $event->setResponse($response);
+                break;
+            case 'show':
+                $handler = new ShowHandler();
+                $handler->handleEvent($event);
                 break;
 
             default:
@@ -1399,105 +1404,24 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * @return string
      *
      * @throws DcGeneralRuntimeException When an unknown property is mentioned in the palette.
+     *
+     * @deprecated
      */
     public function show()
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
-        }
-
-        // Load check multi language.
-        $environment  = $this->getEnvironment();
-        $definition   = $environment->getDataDefinition();
-        $properties   = $definition->getPropertiesDefinition();
-        $translator   = $environment->getTranslator();
-        $modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('id'));
-        $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
-
-        // Select language in data provider.
-        $this->checkLanguage();
-
-        $objDBModel = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-
-        if ($objDBModel == null) {
-            $environment->getEventPropagator()->propagate(
-                ContaoEvents::SYSTEM_LOG,
-                new LogEvent(
-                    sprintf(
-                        'Could not find ID %s in %s.',
-                        'DC_General show()',
-                        $modelId->getId(),
-                        $definition->getName()
-                    ),
-                    __CLASS__ . '::' . __FUNCTION__,
-                    TL_ERROR
-                )
-            );
-
-            $environment->getEventPropagator()->propagate(
-                ContaoEvents::CONTROLLER_REDIRECT,
-                new RedirectEvent('contao/main.php?act=error')
-            );
-        }
-
-        $values = array();
-        $labels = array();
-
-        $palette = $definition->getPalettesDefinition()->findPalette($objDBModel);
-
-        // Show only allowed fields.
-        foreach ($palette->getVisibleProperties($objDBModel) as $paletteProperty) {
-            $property = $properties->getProperty($paletteProperty->getName());
-
-            if (!$property) {
-                throw new DcGeneralRuntimeException('Unable to retrieve property ' . $paletteProperty->getName());
-            }
-
-            // Make it human readable.
-            $values[$paletteProperty->getName()] = $this->getReadableFieldValue(
-                $property,
-                $objDBModel,
-                $objDBModel->getProperty($paletteProperty->getName())
-            );
-            $labels[$paletteProperty->getName()] = $this->getLabelForShow($property);
-        }
-
-        $headline = $translator->translate(
-            'MSC.showRecord',
-            $definition->getName(),
-            array($objDBModel->getId() ? 'ID ' . $objDBModel->getId() : '')
+        $action = new Action('show');
+        $event  = new ActionEvent($this->getEnvironment(), $action);
+        $this->getEnvironment()->getEventPropagator()->propagate(
+            DcGeneralEvents::ACTION,
+            $event,
+            array
+            (
+                $this->getEnvironment()->getDataDefinition()->getName(),
+                $action->getName()
+            )
         );
 
-        if ($headline == 'MSC.showRecord') {
-            $headline = $translator->translate(
-                'MSC.showRecord',
-                null,
-                array($objDBModel->getId() ? 'ID ' . $objDBModel->getId() : '')
-            );
-        }
-
-        $template = $this->getTemplate('dcbe_general_show');
-        $this
-            ->addToTemplate('headline', $headline, $template)
-            ->addToTemplate('arrFields', $values, $template)
-            ->addToTemplate('arrLabels', $labels, $template);
-
-        if ($this->isMultiLanguage($objDBModel->getId())) {
-            /** @var MultiLanguageDataProviderInterface $dataProvider */
-            $this
-                ->addToTemplate(
-                    'languages',
-                    $environment->getController()->getSupportedLanguages($objDBModel->getId()),
-                    $template
-                )
-                ->addToTemplate('currentLanguage', $dataProvider->getCurrentLanguage(), $template)
-                ->addToTemplate('languageSubmit', specialchars($translator->translate('MSC.showSelected')), $template)
-                ->addToTemplate('backBT', specialchars($translator->translate('MSC.backBT')), $template);
-        } else {
-            $this->addToTemplate('language', null, $template);
-        }
-
-        return $template->parse();
+        return $event->getResponse();
     }
 
     /**
