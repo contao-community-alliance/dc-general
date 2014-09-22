@@ -658,7 +658,7 @@ class EditMask
         $this->checkEditable($this->model);
         $this->checkCreatable($this->model);
 
-        $event = new PreEditModelEvent($this->view, $this->model);
+        $event = new PreEditModelEvent($environment, $this->model);
         $environment->getEventPropagator()->propagate(
             $event::NAME,
             $event,
