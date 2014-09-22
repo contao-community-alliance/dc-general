@@ -1509,6 +1509,54 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
+     * Ensure the view is editable and throw an Exception if not.
+     *
+     * @param ModelInterface $model The model to be edited.
+     *
+     * @return void
+     *
+     * @throws DcGeneralRuntimeException When the definition is not editable.
+     */
+    protected function checkEditable($model)
+    {
+        $environment = $this->getEnvironment();
+        $definition  = $environment->getDataDefinition();
+
+        // Check if table is editable.
+        if (!($model->getId() || $definition->getBasicDefinition()->isEditable())) {
+            $message = 'DataContainer ' . $definition->getName() . ' is not editable';
+            $environment->getEventPropagator()->propagate(
+                ContaoEvents::SYSTEM_LOG,
+                new LogEvent($message, TL_ERROR, 'DC_General - edit()')
+            );
+            throw new DcGeneralRuntimeException($message);
+        }
+    }
+
+    /**
+     * Ensure the view is editable and throw an Exception if not.
+     *
+     * @param ModelInterface $model The model to be edited, if this is given, we are not in create mode.
+     *
+     * @return void
+     *
+     * @throws DcGeneralRuntimeException When the definition is not editable.
+     */
+    protected function checkCreatable($model)
+    {
+        $environment = $this->getEnvironment();
+        $definition  = $environment->getDataDefinition();
+
+        // Check if table is closed but we are adding a new item.
+        if ($model->getId() && !$definition->getBasicDefinition()->isCreatable()) {
+            $message = 'DataContainer ' . $definition->getName() . ' is closed';
+            $environment->getEventPropagator()->propagate(
+                ContaoEvents::SYSTEM_LOG,
+                new LogEvent($message, TL_ERROR, 'DC_General - edit()')
+            );
+            throw new DcGeneralRuntimeException($message);
+        }
+    }
      * Create the edit mask.
      *
      * @param ModelInterface $model         The model with the current data.
@@ -1533,18 +1581,19 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $environment             = $this->getEnvironment();
         $definition              = $environment->getDataDefinition();
-        $basicDefinition         = $definition->getBasicDefinition();
         $dataProvider            = $environment->getDataProvider($model->getProviderName());
         $dataProviderDefinition  = $definition->getDataProviderDefinition();
         $dataProviderInformation = $dataProviderDefinition->getInformation($model->getProviderName());
         $inputProvider           = $environment->getInputProvider();
         $palettesDefinition      = $definition->getPalettesDefinition();
-        $modelId                 = $model->getId();
         $propertyDefinitions     = $definition->getPropertiesDefinition();
         $blnSubmitted            = ($inputProvider->getValue('FORM_SUBMIT') === $definition->getName());
         $blnIsAutoSubmit         = ($inputProvider->getValue('SUBMIT_TYPE') === 'auto');
 
         $widgetManager = new ContaoWidgetManager($environment, $model);
+
+        $this->checkEditable($model);
+        $this->checkCreatable($model);
 
         $event = new PreEditModelEvent($this->environment, $model);
         $environment->getEventPropagator()->propagate(
@@ -1552,26 +1601,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $event,
             $definition->getName()
         );
-
-        // Check if table is editable.
-        if (!$basicDefinition->isEditable()) {
-            $message = 'DataContainer ' . $definition->getName() . ' is not editable';
-            $environment->getEventPropagator()->propagate(
-                ContaoEvents::SYSTEM_LOG,
-                new LogEvent($message, TL_ERROR, 'DC_General - edit()')
-            );
-            throw new DcGeneralRuntimeException($message);
-        }
-
-        // Check if table is closed but we are adding a new item.
-        if (empty($modelId) && !$basicDefinition->isCreatable()) {
-            $message = 'DataContainer ' . $definition->getName() . ' is closed';
-            $environment->getEventPropagator()->propagate(
-                ContaoEvents::SYSTEM_LOG,
-                new LogEvent($message, TL_ERROR, 'DC_General - edit()')
-            );
-            throw new DcGeneralRuntimeException($message);
-        }
 
         $this->enforceModelRelationship($model);
 
