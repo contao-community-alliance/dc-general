@@ -563,7 +563,7 @@ class EditMask
             return $headline;
         }
 
-        return $translator->translate('MSC.editRecord', null, '');
+        return $translator->translate('MSC.editRecord', null, array(''));
     }
 
     /**
