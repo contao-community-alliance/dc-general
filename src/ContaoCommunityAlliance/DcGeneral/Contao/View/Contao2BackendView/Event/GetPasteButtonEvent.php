@@ -32,7 +32,7 @@ class GetPasteButtonEvent extends BaseButtonEvent
      *
      * @var bool
      */
-    protected $blnCircularReference;
+    protected $circularReference;
 
     /**
      * The href information to use for the paste after button.
@@ -110,13 +110,13 @@ class GetPasteButtonEvent extends BaseButtonEvent
      * This flag determines if there exists a circular reference between the item currently in the clipboard and the
      * current model. A circular reference is of relevance when performing a cut and paste operation for example.
      *
-     * @param boolean $blnCircularReference The flag.
+     * @param boolean $circularReference The flag.
      *
      * @return $this
      */
-    public function setCircularReference($blnCircularReference)
+    public function setCircularReference($circularReference)
     {
-        $this->blnCircularReference = $blnCircularReference;
+        $this->circularReference = (bool)$circularReference;
 
         return $this;
     }
