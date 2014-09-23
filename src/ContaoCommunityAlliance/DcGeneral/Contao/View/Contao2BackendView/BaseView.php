@@ -2140,85 +2140,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     protected function panel($ignoredPanels = array())
     {
-        if ($this->getPanel() === null) {
-            throw new DcGeneralRuntimeException('No panel information stored in data container.');
-        }
-
-        $environment    = $this->getEnvironment();
-        $propagator     = $environment->getEventPropagator();
-        $definitionName = $environment->getDataDefinition()->getName();
-
-        $arrPanels = array();
-        foreach ($this->getPanel() as $objPanel) {
-            $arrPanel = array();
-            $i        = 0;
-            $max      = (count($objPanel) - 1);
-            foreach ($objPanel as $objElement) {
-                /** @var PanelElementInterface $objElement */
-                // If the current class in the list of ignored panels go to the next one.
-                if (!empty($ignoredPanels) && $this->isIgnoredPanel($objElement, $ignoredPanels)) {
-                    $max--;
-                    continue;
-                }
-
-                $event = new GetPanelElementTemplateEvent($environment, $objElement);
-                $propagator->propagate($event::NAME, $event, array($definitionName));
-
-                $objElementTemplate = $event->getTemplate();
-
-                if ($objElementTemplate === null) {
-                    continue;
-                }
-
-                $rowClass = ($i % 2 ? 'odd' : 'even') . ($i == 0 ? ' first' : '') . ($i == $max ? ' last' : '');
-                $this->addToTemplate('rowClass', $rowClass, $objElementTemplate);
-                $i++;
-                $objElement->render($objElementTemplate);
-
-                $arrPanel[] = $objElementTemplate->parse();
-            }
-            $arrPanels[] = $arrPanel;
-        }
-
-        if (count($arrPanels)) {
-            $objTemplate = $this->getTemplate('dcbe_general_panel');
-            $themeEvent  = new GetThemeEvent();
-
-            $propagator->propagate(ContaoEvents::BACKEND_GET_THEME, $themeEvent);
-
-            $this
-                ->addToTemplate(
-                    'action',
-                    ampersand($environment->getInputProvider()->getRequestUrl(), true),
-                    $objTemplate
-                )
-                ->addToTemplate('theme', $themeEvent->getTheme(), $objTemplate)
-                ->addToTemplate('panel', $arrPanels, $objTemplate);
-
-            return $objTemplate->parse();
-        }
-
-        return '';
-    }
-
-    /**
-     * Check if the current element is in the ignored list.
-     *
-     * @param PanelElementInterface $objElement    A panel Element.
-     *
-     * @param array                 $ignoredPanels A list with ignored elements.
-     *
-     * @return boolean True => Element is on the ignored list. | False => Nope not in the list.
-     */
-    protected function isIgnoredPanel(PanelElementInterface $objElement, $ignoredPanels)
-    {
-        foreach ((array)$ignoredPanels as $class) {
-            if ($objElement instanceof $class) {
-                return true;
-            }
-        }
-
-        return false;
+        $renderer = new PanelRenderer($this);
+        return $renderer->render($ignoredPanels);
     }
 
     /**
