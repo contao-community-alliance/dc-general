@@ -2184,12 +2184,12 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $objTemplate = $this->getTemplate('dcbe_general_panel');
             $themeEvent  = new GetThemeEvent();
 
-            $this->getEnvironment()->getEventPropagator()->propagate(ContaoEvents::BACKEND_GET_THEME, $themeEvent);
+            $propagator->propagate(ContaoEvents::BACKEND_GET_THEME, $themeEvent);
 
             $this
                 ->addToTemplate(
                     'action',
-                    ampersand($this->getEnvironment()->getInputProvider()->getRequestUrl(), true),
+                    ampersand($environment->getInputProvider()->getRequestUrl(), true),
                     $objTemplate
                 )
                 ->addToTemplate('theme', $themeEvent->getTheme(), $objTemplate)
