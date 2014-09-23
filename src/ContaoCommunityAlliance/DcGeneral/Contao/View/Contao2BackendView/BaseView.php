@@ -32,6 +32,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGl
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPanelElementTemplateEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
@@ -2143,29 +2144,30 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             throw new DcGeneralRuntimeException('No panel information stored in data container.');
         }
 
+        $environment    = $this->getEnvironment();
+        $propagator     = $environment->getEventPropagator();
+        $definitionName = $environment->getDataDefinition()->getName();
+
         $arrPanels = array();
         foreach ($this->getPanel() as $objPanel) {
             $arrPanel = array();
             $i        = 0;
             $max      = (count($objPanel) - 1);
             foreach ($objPanel as $objElement) {
+                /** @var PanelElementInterface $objElement */
                 // If the current class in the list of ignored panels go to the next one.
                 if (!empty($ignoredPanels) && $this->isIgnoredPanel($objElement, $ignoredPanels)) {
                     $max--;
                     continue;
                 }
 
-                $objElementTemplate = null;
-                if ($objElement instanceof FilterElementInterface) {
-                    $objElementTemplate = $this->getTemplate('dcbe_general_panel_filter');
-                } elseif ($objElement instanceof LimitElementInterface) {
-                    $objElementTemplate = $this->getTemplate('dcbe_general_panel_limit');
-                } elseif ($objElement instanceof SearchElementInterface) {
-                    $objElementTemplate = $this->getTemplate('dcbe_general_panel_search');
-                } elseif ($objElement instanceof SortElementInterface) {
-                    $objElementTemplate = $this->getTemplate('dcbe_general_panel_sort');
-                } elseif ($objElement instanceof SubmitElementInterface) {
-                    $objElementTemplate = $this->getTemplate('dcbe_general_panel_submit');
+                $event = new GetPanelElementTemplateEvent($environment, $objElement);
+                $propagator->propagate($event::NAME, $event, array($definitionName));
+
+                $objElementTemplate = $event->getTemplate();
+
+                if ($objElementTemplate === null) {
+                    continue;
                 }
 
                 $rowClass = ($i % 2 ? 'odd' : 'even') . ($i == 0 ? ' first' : '') . ($i == $max ? ' last' : '');

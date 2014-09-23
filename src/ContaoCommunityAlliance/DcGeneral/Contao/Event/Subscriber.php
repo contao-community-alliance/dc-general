@@ -16,13 +16,20 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\Event;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\Twig\DcGeneralExtension;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPanelElementTemplateEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Panel\FilterElementInterface;
+use ContaoCommunityAlliance\DcGeneral\Panel\LimitElementInterface;
+use ContaoCommunityAlliance\DcGeneral\Panel\SearchElementInterface;
+use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
+use ContaoCommunityAlliance\DcGeneral\Panel\SubmitElementInterface;
 use ContaoCommunityAlliance\DcGeneral\View\Event\RenderReadablePropertyValueEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -40,10 +47,39 @@ class Subscriber implements EventSubscriberInterface
     {
         return array
         (
+            GetPanelElementTemplateEvent::NAME     => array('getPanelElementTemplate', -1),
             ResolveWidgetErrorMessageEvent::NAME   => array('resolveWidgetErrorMessage', -1),
             RenderReadablePropertyValueEvent::NAME => 'renderReadablePropertyValue',
             'contao-twig.init'                     => 'initTwig',
         );
+    }
+
+    /**
+     * Create a template instance for the default panel elements if none has been created yet.
+     *
+     * @param GetPanelElementTemplateEvent $event The event.
+     *
+     * @return void
+     */
+    public static function getPanelElementTemplate(GetPanelElementTemplateEvent $event)
+    {
+        if ($event->getTemplate()) {
+            return;
+        }
+
+        $element = $event->getElement();
+
+        if ($element instanceof FilterElementInterface) {
+            $event->setTemplate(new ContaoBackendViewTemplate('dcbe_general_panel_filter'));
+        } elseif ($element instanceof LimitElementInterface) {
+            $event->setTemplate(new ContaoBackendViewTemplate('dcbe_general_panel_limit'));
+        } elseif ($element instanceof SearchElementInterface) {
+            $event->setTemplate(new ContaoBackendViewTemplate('dcbe_general_panel_search'));
+        } elseif ($element instanceof SortElementInterface) {
+            $event->setTemplate(new ContaoBackendViewTemplate('dcbe_general_panel_sort'));
+        } elseif ($element instanceof SubmitElementInterface) {
+            $event->setTemplate(new ContaoBackendViewTemplate('dcbe_general_panel_submit'));
+        }
     }
 
     /**
