@@ -156,7 +156,7 @@ class PanelRenderer
             $index++;
         }
 
-        return implode('', $parsedElements);
+        return $parsedElements;
     }
 
     /**
