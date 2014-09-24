@@ -842,13 +842,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         if ($definition === null) {
-            $definition = $this
+            $collection = $this
                 ->getViewSection()
                 ->getListingConfig()
                 ->getGroupAndSortingDefinition();
 
-            if ($definition->hasDefault()) {
-                $definition = $definition->getDefault();
+            if ($collection->hasDefault()) {
+                $definition = $collection->getDefault();
             }
         }
 
