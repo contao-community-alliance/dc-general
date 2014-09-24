@@ -24,7 +24,7 @@ class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInter
     /**
      * The information stored.
      *
-     * @var GroupAndSortingDefinitionInterface[]
+     * @var GroupAndSortingInformationInterface[]
      */
     protected $information = array();
 

@@ -854,7 +854,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         if ($definition) {
             foreach ($definition as $information) {
-                /** @var GroupAndSortingInformationInterface $information */
                 if ($information->isManualSorting()) {
                     return $information->getProperty();
                 }
