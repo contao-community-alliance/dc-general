@@ -208,16 +208,7 @@ class TreePicker extends \Widget
         }
 
         $this->setUp($dataContainer);
-        $value = $this->dataContainer->getEnvironment()->getInputProvider()->getValue('value');
-
-        // ToDo: THIS IS TOTALLY CRAP.
-        if ($this->fieldType == 'checkbox' && stripos($value, ' ') !== false) {
-            $delimiter = '  ';
-        } else {
-            $delimiter = ',';
-        }
-
-        $this->value = explode($delimiter, $value);
+        $this->value = $this->dataContainer->getEnvironment()->getInputProvider()->getValue('value');
 
         echo '<h3><label>' . $this->label . '</label></h3><div>' . $this->generate() . '</div>';
         exit;
@@ -275,6 +266,23 @@ class TreePicker extends \Widget
 
             case 'orderField':
                 $this->orderField = $varValue;
+                break;
+
+            case 'value':
+                switch ($this->fieldType) {
+                    case 'radio':
+                        if (!empty($varValue) && !is_array($varValue)) {
+                            $varValue = array($varValue);
+                        }
+                        break;
+                    case 'checkbox':
+                        if (!empty($varValue) && !is_array($varValue)) {
+                            $varValue = trimsplit("\t", $varValue);
+                        }
+                        break;
+                }
+
+                $this->varValue = $varValue;
                 break;
 
             default:
@@ -346,10 +354,6 @@ class TreePicker extends \Widget
         $values = array();
         $value  = $this->varValue;
 
-        if ($this->fieldType == 'radio' && !empty($value) && !is_array($value)) {
-            $value = array($value);
-        }
-
         if (is_array($value) && !empty($value)) {
             $environment = $this->getEnvironment();
             $dataDriver  = $environment->getDataProvider();
@@ -360,6 +364,7 @@ class TreePicker extends \Widget
                 ->getAllAsArray();
 
             $config->setFilter($filter);
+
             $collection = $dataDriver->fetchAll($config);
             if ($collection->length() > 0) {
                 foreach ($collection as $model) {
