@@ -14,7 +14,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
-use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\AddToUrlEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
