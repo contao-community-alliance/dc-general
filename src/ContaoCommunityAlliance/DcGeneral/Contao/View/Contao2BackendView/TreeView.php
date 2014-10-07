@@ -252,15 +252,21 @@ class TreeView extends BaseView
      */
     protected function treeWalkModel(ModelInterface $objModel, $intLevel, $arrSubTables = array())
     {
-        $relationships = $this->getEnvironment()->getDataDefinition()->getModelRelationshipDefinition();
+        $environment   = $this->getEnvironment();
+        $relationships = $environment->getDataDefinition()->getModelRelationshipDefinition();
         $blnHasChild   = false;
 
         $this->determineModelState($objModel, $intLevel);
 
+        $providerName = $objModel->getProviderName();
+        $mySubTables  = array();
+        foreach ($relationships->getChildConditions($providerName) as $condition) {
+            $mySubTables[] = $condition->getDestinationName();
+        }
         $arrChildCollections = array();
         foreach ($arrSubTables as $strSubTable) {
             // Evaluate the child filter for this item.
-            $arrChildFilter = $relationships->getChildCondition($objModel->getProviderName(), $strSubTable);
+            $arrChildFilter = $relationships->getChildCondition($providerName, $strSubTable);
 
             // If we do not know how to render this table within here, continue with the next one.
             if (!$arrChildFilter) {
@@ -268,13 +274,13 @@ class TreeView extends BaseView
             }
 
             // Create a new Config and fetch the children from the child provider.
-            $objChildConfig = $this->getEnvironment()->getDataProvider($strSubTable)->getEmptyConfig();
+            $dataProvider   = $environment->getDataProvider($strSubTable);
+            $objChildConfig = $dataProvider->getEmptyConfig();
             $objChildConfig->setFilter($arrChildFilter->getFilter($objModel));
 
             // TODO: hardcoded sorting... NOT GOOD!
             $objChildConfig->setSorting(array('sorting' => 'ASC'));
-
-            $objChildCollection = $this->getEnvironment()->getDataProvider($strSubTable)->fetchAll($objChildConfig);
+            $objChildCollection = $dataProvider->fetchAll($objChildConfig);
 
             $blnHasChild = ($objChildCollection->length() > 0);
 
@@ -285,12 +291,7 @@ class TreeView extends BaseView
                 foreach ($objChildCollection as $objChildModel) {
                     // Let the child know about it's parent.
                     $objModel->setMeta($objModel::PARENT_ID, $objModel->getID());
-                    $objModel->setMeta($objModel::PARENT_PROVIDER_NAME, $objModel->getProviderName());
-
-                    $mySubTables = array();
-                    foreach ($relationships->getChildConditions($objModel->getProviderName()) as $condition) {
-                        $mySubTables[] = $condition->getDestinationName();
-                    }
+                    $objModel->setMeta($objModel::PARENT_PROVIDER_NAME, $providerName);
 
                     $this->treeWalkModel($objChildModel, ($intLevel + 1), $mySubTables);
                 }
