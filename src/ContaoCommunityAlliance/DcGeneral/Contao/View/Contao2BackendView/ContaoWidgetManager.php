@@ -321,11 +321,11 @@ class ContaoWidgetManager
 
             list($file, $type) = explode('|', $extra['rte']);
 
-            $propertyId = 'ctrl_' . $property->getName();
+            $selector = 'ctrl_' . $property->getName();
 
             if (version_compare(VERSION, '3.3', '<')) {
-                $GLOBALS['TL_RTE'][$file][$propertyId] = array(
-                    'id'   => $propertyId,
+                $GLOBALS['TL_RTE'][$file][$selector] = array(
+                    'id'   => $selector,
                     'file' => $file,
                     'type' => $type
                 );
@@ -337,6 +337,7 @@ class ContaoWidgetManager
                 // Backwards compatibility.
                 $language = substr($GLOBALS['TL_LANGUAGE'], 0, 2);
 
+                // Keep $language and $selector here, they are used in the included template file! See #76.
                 if (!file_exists(TL_ROOT . '/assets/tinymce/langs/' . $language . '.js')) {
                     $language = 'en';
                 }
