@@ -656,7 +656,7 @@ class ContaoWidgetManager
         $objTemplateFoo->setData(
             array(
                 'strName'       => $property,
-                'strClass'      => isset($propExtra['tl_class']) ? $propExtra['tl_class'] : null,
+                'strClass'      => $widget->tl_class,
                 'widget'        => $widget->parse(),
                 'hasErrors'     => $widget->hasErrors(),
                 'strDatepicker' => $strDatePicker,
