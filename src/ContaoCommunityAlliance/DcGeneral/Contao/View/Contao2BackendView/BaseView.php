@@ -1718,17 +1718,25 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     protected function buildCommand($objCommand, $objModel, $blnCircularReference, $arrChildRecordIds, $previous, $next)
     {
-        $propagator = $this->getEnvironment()->getEventPropagator();
+        $environment        = $this->getEnvironment();
+        $inputProvider      = $environment->getInputProvider();
+        $propagator         = $environment->getEventPropagator();
+        $dataDefinitionName = $environment->getDataDefinition()->getName();
+        $commandName        = $objCommand->getName();
+        $parameters         = (array)$objCommand->getParameters();
+        $extra              = (array)$objCommand->getExtra();
+        $extraAttributes    = !empty($extra['attributes']) ? $extra['attributes'] : null;
+        $attributes         = '';
 
         // Set basic information.
         $opLabel = $objCommand->getLabel();
         if (strlen($opLabel)) {
             $label = $opLabel;
         } else {
-            $label = $objCommand->getName();
+            $label = $commandName;
         }
 
-        $label = $this->translate($label, $this->getEnvironment()->getDataDefinition()->getName());
+        $label = $this->translate($label, $dataDefinitionName);
 
         if (is_array($label)) {
             $label = $label[0];
@@ -1736,22 +1744,18 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $opDesc = $this->translate(
             $objCommand->getDescription(),
-            $this->getEnvironment()->getDataDefinition()->getName()
+            $dataDefinitionName
         );
+
         if (strlen($opDesc)) {
             $title = sprintf($opDesc, $objModel->getID());
         } else {
             $title = sprintf('%s id %s', $label, $objModel->getID());
         }
 
-        $arrParameters = (array)$objCommand->getParameters();
-        $extra         = (array)$objCommand->getExtra();
-        $strAttributes = isset($extra['attributes']) ? $extra['attributes'] : null;
-        $attributes    = '';
-
         // Toggle has to trigger the javascript.
         if ($objCommand instanceof ToggleCommandInterface) {
-            $arrParameters['act'] = $objCommand->getName();
+            $parameters['act'] = $commandName;
 
             $attributes = sprintf(
                 'onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this, \'%s\', \'%s\');"',
@@ -1767,46 +1771,48 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             }
         }
 
-        if (strlen($strAttributes)) {
-            $attributes .= ltrim(sprintf($strAttributes, $objModel->getID()));
+        if ($extraAttributes) {
+            $attributes .= ltrim(sprintf($extraAttributes, $objModel->getID()));
         }
+
+        $serializedModelId = IdSerializer::fromModel($objModel)->getSerialized();
 
         // Cut needs some special information.
         if ($objCommand instanceof CutCommandInterface) {
-            $arrParameters        = array();
-            $arrParameters['act'] = $objCommand->getName();
+            $parameters        = array();
+            $parameters['act'] = $commandName;
 
             // If we have a pid add it, used for mode 4 and all parent -> current views.
-            if ($this->getEnvironment()->getInputProvider()->hasParameter('pid')) {
-                $arrParameters['pid'] = $this->getEnvironment()->getInputProvider()->getParameter('pid');
+            if ($inputProvider->hasParameter('pid')) {
+                $parameters['pid'] = $inputProvider->getParameter('pid');
             }
 
             // Source is the id of the element which should move.
-            $arrParameters['source'] = IdSerializer::fromModel($objModel)->getSerialized();
+            $parameters['source'] = $serializedModelId;
         } elseif ($objCommand instanceof CopyCommandInterface) {
             // The copy operation.
-            $arrParameters        = array();
-            $arrParameters['act'] = $objCommand->getName();
+            $parameters        = array();
+            $parameters['act'] = $commandName;
 
             // If we have a pid add it, used for mode 4 and all parent -> current views.
-            if ($this->getEnvironment()->getInputProvider()->hasParameter('pid')) {
-                $arrParameters['pid'] = $this->getEnvironment()->getInputProvider()->getParameter('pid');
+            if ($inputProvider->hasParameter('pid')) {
+                $parameters['pid'] = $inputProvider->getParameter('pid');
             }
 
             // Source is the id of the element which should move.
-            $arrParameters['source'] = IdSerializer::fromModel($objModel)->getSerialized();
+            $parameters['source'] = $serializedModelId;
         } else {
             // TODO: Shall we interface this option?
             $idParam = isset($extra['idparam']) ? $extra['idparam'] : null;
             if ($idParam) {
-                $arrParameters[$idParam] = IdSerializer::fromModel($objModel)->getSerialized();
+                $parameters[$idParam] = $serializedModelId;
             } else {
-                $arrParameters['id'] = IdSerializer::fromModel($objModel)->getSerialized();
+                $parameters['id'] = $serializedModelId;
             }
         }
 
         $strHref = '';
-        foreach ($arrParameters as $key => $value) {
+        foreach ($parameters as $key => $value) {
             $strHref .= sprintf('&%s=%s', $key, $value);
         }
 
@@ -1836,8 +1842,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $buttonEvent::NAME,
             $buttonEvent,
             array(
-                $this->getEnvironment()->getDataDefinition()->getName(),
-                $objCommand->getName()
+                $dataDefinitionName,
+                $commandName
             )
         );
 
