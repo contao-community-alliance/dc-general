@@ -200,6 +200,9 @@ class TreePicker extends \Widget
      * @param DC_General $dataContainer The data container to use.
      *
      * @return string
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public function updateAjax($ajaxAction, $dataContainer)
     {
