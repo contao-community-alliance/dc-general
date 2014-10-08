@@ -418,7 +418,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         } elseif ($groupMode != GroupAndSortingInformationInterface::GROUP_NONE) {
             switch ($groupMode) {
                 case GroupAndSortingInformationInterface::GROUP_CHAR:
-                    $remoteNew = ($value != '') ? ucfirst(utf8_substr($value, 0, $groupLength)) : '-';
+                    $remoteNew = ($value != '') ? ucfirst(utf8_substr($value, 0, $groupLength ?: null)) : '-';
                     break;
 
                 case GroupAndSortingInformationInterface::GROUP_DAY:
