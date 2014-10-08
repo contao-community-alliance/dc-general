@@ -208,9 +208,23 @@ class TreePicker extends \Widget
         }
 
         $this->setUp($dataContainer);
-        $this->value = $this->dataContainer->getEnvironment()->getInputProvider()->getValue('value');
+        $environment = $this->dataContainer->getEnvironment();
+        $this->value = $environment->getInputProvider()->getValue('value');
 
-        echo '<h3><label>' . $this->label . '</label></h3><div>' . $this->generate() . '</div>';
+        $result = '<input type="hidden" value="' . $this->strName . '" name="FORM_INPUTS[]">' .
+            '<h3><label>' . $this->label . '</label></h3>' . $this->generate();
+
+        $label = $environment
+            ->getDataDefinition()
+            ->getPropertiesDefinition()
+            ->getProperty($this->strName)
+            ->getDescription();
+
+        if ($GLOBALS['TL_CONFIG']['showHelp'] && strlen($label)) {
+            $result .= '<p class="tl_help tl_tip">' . $label . '</p>';
+        }
+
+        echo $result;
         exit;
     }
 
