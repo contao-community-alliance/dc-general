@@ -9,7 +9,7 @@
  * @filesource
  */
 
-use ContaoCommunityAlliance\DcGeneral\Contao\View\TreeSelect;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreeSelect;
 
 define('TL_MODE', 'BE');
 
