@@ -267,25 +267,21 @@ class ListView extends BaseView
         $preFunction = function ($environment, $model) {
             /** @var EnvironmentInterface $environment */
             $copyEvent = new PreDuplicateModelEvent($environment, $model);
-            $environment->getEventPropagator()->propagate(
-                $copyEvent::NAME,
-                $copyEvent,
-                array(
-                    $environment->getDataDefinition()->getName(),
-                )
+            $environment->getEventDispatcher()->dispatch(
+                sprintf('%s[%s]', $copyEvent::NAME, $environment->getDataDefinition()->getName()),
+                $copyEvent
             );
+            $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
         };
 
         $postFunction = function ($environment, $model, $originalModel) {
             /** @var EnvironmentInterface $environment */
             $copyEvent = new PostDuplicateModelEvent($environment, $model, $originalModel);
-            $environment->getEventPropagator()->propagate(
-                $copyEvent::NAME,
-                $copyEvent,
-                array(
-                    $environment->getDataDefinition()->getName(),
-                )
+            $environment->getEventDispatcher()->dispatch(
+                sprintf('%s[%s]', $copyEvent::NAME, $environment->getDataDefinition()->getName()),
+                $copyEvent
             );
+            $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
         };
 
         return $this->createEditMask($copyModel, $model, $preFunction, $postFunction);

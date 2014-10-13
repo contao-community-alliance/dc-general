@@ -71,10 +71,7 @@ class TreeView extends BaseView
             // Save in session and reload.
             $inputProvider->setPersistentValue($this->getToggleId(), $openElements);
 
-            $this->getEnvironment()->getEventPropagator()->propagate(
-                ContaoEvents::CONTROLLER_RELOAD,
-                new ReloadEvent()
-            );
+            $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
         }
 
         return $openElements;
@@ -464,7 +461,7 @@ class TreeView extends BaseView
         $toggleUrlEvent = new AddToUrlEvent(
             'ptg=' . $objModel->getId() . '&amp;provider=' . $objModel->getProviderName()
         );
-        $this->getEnvironment()->getEventPropagator()->propagate(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
+        $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
 
         $this
             ->addToTemplate('environment', $this->getEnvironment(), $objTemplate)
@@ -543,7 +540,7 @@ class TreeView extends BaseView
         );
         if ($event->isPasteDisabled()) {
             /** @var GenerateHtmlEvent $imageEvent */
-            $imageEvent = $event->getEnvironment()->getEventPropagator()->propagate(
+            $imageEvent = $event->getEnvironment()->getEventDispatcher()->dispatch(
                 ContaoEvents::IMAGE_GET_HTML,
                 new GenerateHtmlEvent(
                     'pasteinto_.gif',
@@ -556,7 +553,7 @@ class TreeView extends BaseView
         }
 
         /** @var GenerateHtmlEvent $imageEvent */
-        $imageEvent = $event->getEnvironment()->getEventPropagator()->propagate(
+        $imageEvent = $event->getEnvironment()->getEventDispatcher()->dispatch(
             ContaoEvents::IMAGE_GET_HTML,
             new GenerateHtmlEvent(
                 'pasteinto.gif',
@@ -586,7 +583,7 @@ class TreeView extends BaseView
         $definition  = $this->getDataDefinition();
         $listing     = $this->getViewSection()->getListingConfig();
         $environment = $this->getEnvironment();
-        $propagator  = $environment->getEventPropagator();
+        $dispatcher  = $environment->getEventDispatcher();
 
         // Init some Vars
         switch (6 /*$definition->getSortingMode()*/) {
@@ -615,7 +612,7 @@ class TreeView extends BaseView
         if ($environment->getClipboard()->isNotEmpty()) {
             $objClipboard = $environment->getClipboard();
             /** @var AddToUrlEvent $urlEvent */
-            $urlEvent = $propagator->propagate(
+            $urlEvent = $dispatcher->dispatch(
                 ContaoEvents::BACKEND_ADD_TO_URL,
                 new AddToUrlEvent(
                     sprintf(
@@ -632,11 +629,8 @@ class TreeView extends BaseView
                 ->setHref($urlEvent->getUrl())
                 ->setPasteDisabled(false);
 
-            $propagator->propagate(
-                $buttonEvent::NAME,
-                $buttonEvent,
-                $definition->getName()
-            );
+            $dispatcher->dispatch(sprintf('%s[%s]', $buttonEvent::NAME, $definition->getName()), $buttonEvent);
+            $dispatcher->dispatch($buttonEvent::NAME, $buttonEvent);
 
             $strRootPasteInto = $this->renderPasteRootButton($buttonEvent);
         } else {
@@ -644,10 +638,7 @@ class TreeView extends BaseView
         }
 
         /** @var GenerateHtmlEvent $imageEvent */
-        $imageEvent = $propagator->propagate(
-            ContaoEvents::IMAGE_GET_HTML,
-            new GenerateHtmlEvent($strLabelIcon)
-        );
+        $imageEvent = $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, new GenerateHtmlEvent($strLabelIcon));
 
         // Build template.
         $objTemplate                   = $this->getTemplate('dcbe_general_treeview');

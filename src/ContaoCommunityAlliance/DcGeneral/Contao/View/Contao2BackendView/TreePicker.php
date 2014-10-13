@@ -188,7 +188,7 @@ class TreePicker extends \Widget
         $this->itemContainer = $factory
             ->setContainerName($this->sourceName)
             ->setTranslator($environment->getTranslator())
-            ->setEventPropagator($environment->getEventPropagator())
+            ->setEventDispatcher($environment->getEventDispatcher())
             ->createDcGeneral();
     }
 
@@ -436,7 +436,7 @@ class TreePicker extends \Widget
             : new FrontendTemplate('widget_treepicker');
 
         $icon = new GenerateHtmlEvent($this->titleIcon);
-        $environment->getEventPropagator()->propagate(ContaoEvents::IMAGE_GET_HTML, $icon);
+        $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $icon);
 
         $template->id    = $this->strId;
         $template->name  = $this->strName;
@@ -488,7 +488,7 @@ class TreePicker extends \Widget
             : new FrontendTemplate('widget_treepicker_popup');
 
         $icon = new GenerateHtmlEvent($this->titleIcon);
-        $environment->getEventPropagator()->propagate(ContaoEvents::IMAGE_GET_HTML, $icon);
+        $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $icon);
 
         $template->id    = $this->strId;
         $template->name  = $this->strName;
@@ -603,10 +603,7 @@ class TreePicker extends \Widget
             // Save in session and reload.
             $inputProvider->setPersistentValue($this->getToggleId(), $openElements);
 
-            $this->getEnvironment()->getEventPropagator()->propagate(
-                ContaoEvents::CONTROLLER_RELOAD,
-                new ReloadEvent()
-            );
+            $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
         }
 
         return $openElements;
@@ -927,11 +924,11 @@ class TreePicker extends \Widget
             ->setLabel($formatter->getFormat())
             ->setFormatter($formatter);
 
-        $this->getEnvironment()->getEventPropagator()->propagate(
-            $event::NAME,
-            $event,
-            array($this->getEnvironment()->getDataDefinition()->getName())
+        $this->getEnvironment()->getEventDispatcher()->dispatch(
+            sprintf('%s[%s]', $event::NAME, $definition->getName()),
+            $event
         );
+        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
 
         $arrLabel = array();
 
@@ -1011,7 +1008,7 @@ class TreePicker extends \Widget
         $toggleUrlEvent = new AddToUrlEvent(
             'ptg=' . $objModel->getId() . '&amp;provider=' . $objModel->getProviderName()
         );
-        $this->getEnvironment()->getEventPropagator()->propagate(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
+        $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
 
         $objTemplate->id           = $this->strId;
         $objTemplate->name         = $this->strName;

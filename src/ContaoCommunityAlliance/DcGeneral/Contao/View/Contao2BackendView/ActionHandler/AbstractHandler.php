@@ -105,7 +105,7 @@ abstract class AbstractHandler
             $inputProvider->setPersistentValue('dc_general', $session);
         }
 
-        $environment->getEventPropagator()->propagate(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
+        $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
     }
 
     /**

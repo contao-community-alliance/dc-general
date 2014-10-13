@@ -178,11 +178,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     public function setEnvironment(EnvironmentInterface $environment)
     {
         if ($this->environment) {
-            $this->environment->getEventPropagator()->removeSubscriber($this);
+            $this->environment->getEventDispatcher()->removeSubscriber($this);
         }
 
         $this->environment = $environment;
-        $this->environment->getEventPropagator()->addSubscriber($this);
+        $this->environment->getEventDispatcher()->addSubscriber($this);
     }
 
     /**
@@ -301,7 +301,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             );
         }
 
-        $environment->getEventPropagator()->propagate(ContaoEvents::CONTROLLER_REDIRECT, $event);
+        $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_REDIRECT, $event);
     }
 
     /**
@@ -397,7 +397,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $property   = $this->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
         $value      = $this->getReadableFieldValue($property, $model, $model->getProperty($field));
-        $propagator = $this->getEnvironment()->getEventPropagator();
+        $dispatcher = $this->getEnvironment()->getEventDispatcher();
         $propExtra  = $property->getExtra();
 
         // No property? Get out!
@@ -427,7 +427,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                     }
 
                     $event = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['dateFormat']);
-                    $propagator->propagate(ContaoEvents::DATE_PARSE, $event);
+                    $dispatcher->dispatch(ContaoEvents::DATE_PARSE, $event);
 
                     $remoteNew = ($value != '') ? $event->getResult() : '-';
                     break;
@@ -477,12 +477,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         $event = new GetGroupHeaderEvent($this->getEnvironment(), $model, $field, $remoteNew, $groupMode);
-
-        $propagator->propagate(
-            $event::NAME,
-            $event,
-            array($this->getEnvironment()->getDataDefinition()->getName())
+        $dispatcher->dispatch(
+            sprintf('%s[%s]', $event::NAME, $this->getEnvironment()->getDataDefinition()->getName()),
+            $event
         );
+        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
 
         $remoteNew = $event->getValue();
 
@@ -544,11 +543,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $event = new GetSelectModeButtonsEvent($this->getEnvironment());
         $event->setButtons($buttons);
 
-        $this->getEnvironment()->getEventPropagator()->propagate(
-            $event::NAME,
-            $event,
-            array($this->getEnvironment()->getDataDefinition()->getName())
-        );
+        $dispatcher = $this->getEnvironment()->getEventDispatcher();
+        $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $definition->getName()), $event);
+        $dispatcher->dispatch($event::NAME, $event);
 
         return $event->getButtons();
     }
@@ -773,25 +770,21 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $preFunction = function ($environment, $model) {
             /** @var EnvironmentInterface $environment */
             $copyEvent = new PreCreateModelEvent($environment, $model);
-            $environment->getEventPropagator()->propagate(
-                $copyEvent::NAME,
-                $copyEvent,
-                array(
-                    $environment->getDataDefinition()->getName(),
-                )
+            $environment->getEventDispatcher()->dispatch(
+                sprintf('%s[%s]', $copyEvent::NAME, $environment->getDataDefinition()->getName()),
+                $copyEvent
             );
+            $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
         };
 
         $postFunction = function ($environment, $model) {
             /** @var EnvironmentInterface $environment */
             $copyEvent = new PostCreateModelEvent($environment, $model);
-            $environment->getEventPropagator()->propagate(
-                $copyEvent::NAME,
-                $copyEvent,
-                array(
-                    $environment->getDataDefinition()->getName(),
-                )
+            $environment->getEventDispatcher()->dispatch(
+                sprintf('%s[%s]', $copyEvent::NAME, $environment->getDataDefinition()->getName()),
+                $copyEvent
             );
+            $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
         };
 
         return $this->createEditMask($model, null, $preFunction, $postFunction);
@@ -890,26 +883,23 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                     if ($clone) {
                         // Trigger the pre duplicate event.
                         $duplicateEvent = new PreDuplicateModelEvent($environment, $model);
-                        $environment->getEventPropagator()->propagate(
-                            $duplicateEvent::NAME,
-                            $duplicateEvent,
-                            array(
-                                $environment->getDataDefinition()->getName(),
-                            )
+
+                        $environment->getEventDispatcher()->dispatch(
+                            sprintf('%s[%s]', $duplicateEvent::NAME, $environment->getDataDefinition()->getName()),
+                            $duplicateEvent
                         );
+                        $environment->getEventDispatcher()->dispatch($duplicateEvent::NAME, $duplicateEvent);
 
                         // Make a duplicate.
                         $newModel = $environment->getController()->createClonedModel($model);
 
                         // And trigger the post event for it.
                         $duplicateEvent = new PostDuplicateModelEvent($environment, $newModel, $model);
-                        $environment->getEventPropagator()->propagate(
-                            $duplicateEvent::NAME,
-                            $duplicateEvent,
-                            array(
-                                $environment->getDataDefinition()->getName(),
-                            )
+                        $environment->getEventDispatcher()->dispatch(
+                            sprintf('%s[%s]', $duplicateEvent::NAME, $environment->getDataDefinition()->getName()),
+                            $duplicateEvent
                         );
+                        $environment->getEventDispatcher()->dispatch($duplicateEvent::NAME, $duplicateEvent);
 
                         // Set the new model as the old one.
                         $model = $newModel;
@@ -987,11 +977,12 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         // Trigger for each model the pre persist event.
         foreach ($models as $model) {
             $event = new PrePasteModelEvent($environment, $model);
-            $environment->getEventPropagator()->propagate(
-                $event::NAME,
-                $event,
-                $environment->getDataDefinition()->getName()
+
+            $environment->getEventDispatcher()->dispatch(
+                sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
+                $event
             );
+            $environment->getEventDispatcher()->dispatch($event::NAME, $event);
         }
 
         if ($after && $after->getId()) {
@@ -1011,11 +1002,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         // Trigger for each model the past persist event.
         foreach ($models as $model) {
             $event = new PostPasteModelEvent($environment, $model);
-            $environment->getEventPropagator()->propagate(
-                $event::NAME,
-                $event,
-                $environment->getDataDefinition()->getName()
+            $environment->getEventDispatcher()->dispatch(
+                sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
+                $event
             );
+            $environment->getEventDispatcher()->dispatch($event::NAME, $event);
         }
 
         if (!$source) {
@@ -1046,7 +1037,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         // Check if is it allowed to delete a record.
         if (!$this->getEnvironment()->getDataDefinition()->getBasicDefinition()->isDeletable()) {
-            $this->getEnvironment()->getEventPropagator()->propagate(
+            $this->getEnvironment()->getEventDispatcher()->dispatch(
                 ContaoEvents::SYSTEM_LOG,
                 new LogEvent(
                     sprintf(
@@ -1059,7 +1050,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 )
             );
 
-            $this->getEnvironment()->getEventPropagator()->propagate(
+            $this->getEnvironment()->getEventDispatcher()->dispatch(
                 ContaoEvents::CONTROLLER_REDIRECT,
                 new RedirectEvent('contao/main.php?act=error')
             );
@@ -1078,13 +1069,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         // Trigger event before the model will be deleted.
         $event = new PreDeleteModelEvent($environment, $model);
-        $environment->getEventPropagator()->propagate(
-            $event::NAME,
-            $event,
-            array(
-                $this->getEnvironment()->getDataDefinition()->getName(),
-            )
+        $environment->getEventDispatcher()->dispatch(
+            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
+            $event
         );
+        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
         // FIXME: See DefaultController::delete() - we need to delete the children of this item as well over all data providers.
         /*
@@ -1125,13 +1114,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         // Trigger event after the model is deleted.
         $event = new PostDeleteModelEvent($environment, $model);
-        $environment->getEventPropagator()->propagate(
-            $event::NAME,
-            $event,
-            array(
-                $this->getEnvironment()->getDataDefinition()->getName(),
-            )
+        $environment->getEventDispatcher()->dispatch(
+            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
+            $event
         );
+        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
         $this->redirectHome();
 
@@ -1205,7 +1192,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                     $modelId->getDataProviderName()
                 );
 
-                $environment->getEventPropagator()->propagate(
+                $environment->getEventDispatcher()->dispatch(
                     ContaoEvents::SYSTEM_LOG,
                     new LogEvent($message, TL_ERROR, 'DC_General - checkRestoreVersion()')
                 );
@@ -1215,7 +1202,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
             $dataProvider->save($model);
             $dataProvider->setVersionActive($modelId->getId(), $modelVersion);
-            $environment->getEventPropagator()->propagate(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
+            $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
         }
     }
 
@@ -1359,15 +1346,23 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $action = new Action('show');
         $event  = new ActionEvent($this->getEnvironment(), $action);
-        $this->getEnvironment()->getEventPropagator()->propagate(
-            DcGeneralEvents::ACTION,
-            $event,
-            array
-            (
-                $this->getEnvironment()->getDataDefinition()->getName(),
+
+        $environment = $this->getEnvironment();
+        $dispatcher  = $environment->getEventDispatcher();
+        $dispatcher->dispatch(
+            sprintf(
+                '%s[%s][%s]',
+                DcGeneralEvents::ACTION,
+                $environment->getDataDefinition()->getName(),
                 $action->getName()
-            )
+            ),
+            $event
         );
+        $dispatcher->dispatch(
+            sprintf('%s[%s]', DcGeneralEvents::ACTION, $environment->getDataDefinition()->getName()),
+            $event
+        );
+        $dispatcher->dispatch(DcGeneralEvents::ACTION, $event);
 
         return $event->getResponse();
     }
@@ -1543,12 +1538,12 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         /** @var GetReferrerEvent $event */
         if ($environment->getParentDataDefinition()) {
-            $event = $environment->getEventPropagator()->propagate(
+            $event = $environment->getEventDispatcher()->dispatch(
                 ContaoEvents::SYSTEM_GET_REFERRER,
                 new GetReferrerEvent(true, $environment->getParentDataDefinition()->getName())
             );
         } else {
-            $event = $environment->getEventPropagator()->propagate(
+            $event = $environment->getEventDispatcher()->dispatch(
                 ContaoEvents::SYSTEM_GET_REFERRER,
                 new GetReferrerEvent(true, $environment->getDataDefinition()->getName())
             );
@@ -1581,6 +1576,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $environment = $this->getEnvironment();
         $extra       = $command->getExtra();
         $label       = $command->getLabel();
+        $dispatcher  = $environment->getEventDispatcher();
 
         if (isset($extra['href'])) {
             $href = $extra['href'];
@@ -1591,7 +1587,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             }
 
             /** @var AddToUrlEvent $event */
-            $event = $environment->getEventPropagator()->propagate(
+            $event = $dispatcher->dispatch(
                 ContaoEvents::BACKEND_ADD_TO_URL,
                 new AddToUrlEvent(
                     $href
@@ -1615,14 +1611,20 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             ->setLabel($label)
             ->setTitle($command->getDescription());
 
-        $this->getEnvironment()->getEventPropagator()->propagate(
-            $buttonEvent::NAME,
-            $buttonEvent,
-            array(
-                $this->getEnvironment()->getDataDefinition()->getName(),
+        $dispatcher->dispatch(
+            sprintf(
+                '%s[%s][%s]',
+                $buttonEvent::NAME,
+                $environment->getDataDefinition()->getName(),
                 $command->getName()
-            )
+            ),
+            $buttonEvent
         );
+        $dispatcher->dispatch(
+            sprintf('%s[%s]', $buttonEvent::NAME, $environment->getDataDefinition()->getName()),
+            $buttonEvent
+        );
+        $environment->getEventDispatcher()->dispatch($buttonEvent::NAME, $buttonEvent);
 
         // Allow to override the button entirely.
         $html = $buttonEvent->getHtml();
@@ -1689,11 +1691,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $buttonsEvent = new GetGlobalButtonsEvent($this->getEnvironment());
         $buttonsEvent->setButtons($buttons);
 
-        $this->getEnvironment()->getEventPropagator()->propagate(
-            $buttonsEvent::NAME,
-            $buttonsEvent,
-            array($this->getEnvironment()->getDataDefinition()->getName())
+        $this->getEnvironment()->getEventDispatcher()->dispatch(
+            sprintf('%s[%s]', $buttonsEvent::NAME, $this->getEnvironment()->getDataDefinition()->getName()),
+            $buttonsEvent
         );
+        $this->getEnvironment()->getEventDispatcher()->dispatch($buttonsEvent::NAME, $buttonsEvent);
 
         return '<div id="' . $strButtonId . '">' . implode('', $buttonsEvent->getButtons()) . '</div>';
     }
@@ -1720,7 +1722,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $environment        = $this->getEnvironment();
         $inputProvider      = $environment->getInputProvider();
-        $propagator         = $environment->getEventPropagator();
+        $dispatcher         = $environment->getEventDispatcher();
         $dataDefinitionName = $environment->getDataDefinition()->getName();
         $commandName        = $objCommand->getName();
         $parameters         = (array)$objCommand->getParameters();
@@ -1817,11 +1819,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         /** @var AddToUrlEvent $event */
-        $event = $propagator->propagate(
-            ContaoEvents::BACKEND_ADD_TO_URL,
-            new AddToUrlEvent($strHref)
-        );
-
+        $event   = $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, new AddToUrlEvent($strHref));
         $strHref = $event->getUrl();
 
         $buttonEvent = new GetOperationButtonEvent($this->getEnvironment());
@@ -1838,14 +1836,15 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             ->setNext($next)
             ->setDisabled($objCommand->isDisabled());
 
-        $propagator->propagate(
-            $buttonEvent::NAME,
-            $buttonEvent,
-            array(
-                $dataDefinitionName,
-                $commandName
-            )
+        $dispatcher->dispatch(
+            sprintf('%s[%s][%s]', $buttonEvent::NAME, $dataDefinitionName, $commandName),
+            $buttonEvent
         );
+        $dispatcher->dispatch(
+            sprintf('%s[%s]', $buttonEvent::NAME, $dataDefinitionName, $commandName),
+            $buttonEvent
+        );
+        $dispatcher->dispatch($buttonEvent::NAME, $buttonEvent);
 
         // If the event created a button, use it.
         if ($buttonEvent->getHtml() !== null) {
@@ -1856,7 +1855,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         if ($buttonEvent->isDisabled()) {
             /** @var GenerateHtmlEvent $event */
-            $event = $propagator->propagate(
+            $event = $dispatcher->dispatch(
                 ContaoEvents::IMAGE_GET_HTML,
                 new GenerateHtmlEvent(
                     substr_replace($icon, '_1', strrpos($icon, '.'), 0),
@@ -1868,7 +1867,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         /** @var GenerateHtmlEvent $event */
-        $event = $propagator->propagate(
+        $event = $dispatcher->dispatch(
             ContaoEvents::IMAGE_GET_HTML,
             new GenerateHtmlEvent(
                 $icon,
@@ -1901,7 +1900,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $strLabel = $this->translate('pasteinto.0', $event->getModel()->getProviderName());
         if ($event->isPasteIntoDisabled()) {
             /** @var GenerateHtmlEvent $imageEvent */
-            $imageEvent = $this->getEnvironment()->getEventPropagator()->propagate(
+            $imageEvent = $this->getEnvironment()->getEventDispatcher()->dispatch(
                 ContaoEvents::IMAGE_GET_HTML,
                 new GenerateHtmlEvent(
                     'pasteinto_.gif',
@@ -1914,7 +1913,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         /** @var GenerateHtmlEvent $imageEvent */
-        $imageEvent = $this->getEnvironment()->getEventPropagator()->propagate(
+        $imageEvent = $this->getEnvironment()->getEventDispatcher()->dispatch(
             ContaoEvents::IMAGE_GET_HTML,
             new GenerateHtmlEvent(
                 'pasteinto.gif',
@@ -1955,7 +1954,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $strLabel = $this->translate('pasteafter.0', $event->getModel()->getProviderName());
         if ($event->isPasteAfterDisabled()) {
             /** @var GenerateHtmlEvent $imageEvent */
-            $imageEvent = $this->getEnvironment()->getEventPropagator()->propagate(
+            $imageEvent = $this->getEnvironment()->getEventDispatcher()->dispatch(
                 ContaoEvents::IMAGE_GET_HTML,
                 new GenerateHtmlEvent(
                     'pasteafter_.gif',
@@ -1968,7 +1967,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         /** @var GenerateHtmlEvent $imageEvent */
-        $imageEvent = $this->getEnvironment()->getEventPropagator()->propagate(
+        $imageEvent = $this->getEnvironment()->getEventDispatcher()->dispatch(
             ContaoEvents::IMAGE_GET_HTML,
             new GenerateHtmlEvent(
                 'pasteafter.gif',
@@ -2009,7 +2008,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     ) {
         $commands     = $this->getViewSection()->getModelCommands();
         $objClipboard = $this->getEnvironment()->getClipboard();
-        $propagator   = $this->getEnvironment()->getEventPropagator();
+        $dispatcher   = $this->getEnvironment()->getEventDispatcher();
 
         if ($this->getEnvironment()->getClipboard()->isNotEmpty()) {
             $circularIds = $objClipboard->getCircularIds();
@@ -2036,7 +2035,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $this->getDataDefinition()->getBasicDefinition()->getMode() != BasicDefinitionInterface::MODE_HIERARCHICAL
         ) {
             /** @var AddToUrlEvent $urlEvent */
-            $urlEvent = $propagator->propagate(
+            $urlEvent = $dispatcher->dispatch(
                 ContaoEvents::BACKEND_ADD_TO_URL,
                 new AddToUrlEvent(
                     'act=create&amp;after=' . IdSerializer::fromModel($model)->getSerialized()
@@ -2044,7 +2043,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             );
 
             /** @var GenerateHtmlEvent $imageEvent */
-            $imageEvent = $propagator->propagate(
+            $imageEvent = $dispatcher->dispatch(
                 ContaoEvents::IMAGE_GET_HTML,
                 new GenerateHtmlEvent(
                     'new.gif',
@@ -2087,13 +2086,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             }
 
             /** @var AddToUrlEvent $urlAfter */
-            $urlAfter = $propagator->propagate(
+            $urlAfter = $dispatcher->dispatch(
                 ContaoEvents::BACKEND_ADD_TO_URL,
                 new AddToUrlEvent($add2UrlAfter)
             );
 
             /** @var AddToUrlEvent $urlInto */
-            $urlInto = $propagator->propagate(
+            $urlInto = $dispatcher->dispatch(
                 ContaoEvents::BACKEND_ADD_TO_URL,
                 new AddToUrlEvent($add2UrlInto)
             );
@@ -2111,11 +2110,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 ->setPasteIntoDisabled($objClipboard->isCut() && $isCircular)
                 ->setContainedModels($this->getModelsFromClipboard());
 
-            $this->getEnvironment()->getEventPropagator()->propagate(
-                $buttonEvent::NAME,
-                $buttonEvent,
-                array($this->getEnvironment()->getDataDefinition()->getName())
+            $this->getEnvironment()->getEventDispatcher()->dispatch(
+                sprintf('%s[%s]', $buttonEvent::NAME, $this->getEnvironment()->getDataDefinition()->getName()),
+                $buttonEvent
             );
+            $this->getEnvironment()->getEventDispatcher()->dispatch($buttonEvent::NAME, $buttonEvent);
 
             $arrButtons['pasteafter'] = $this->renderPasteAfterButton($buttonEvent);
             if ($this->getDataDefinition()->getBasicDefinition()->getMode()
@@ -2154,11 +2153,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $event = new GetBreadcrumbEvent($this->getEnvironment());
 
-        $this->getEnvironment()->getEventPropagator()->propagate(
-            $event::NAME,
-            $event,
-            array($this->getEnvironment()->getDataDefinition()->getName())
+        $dispatcher = $this->getEnvironment()->getEventDispatcher();
+        // Backwards compatibility.
+        $dispatcher->dispatch(
+            sprintf('%s[%s]', $event::NAME, $this->getEnvironment()->getDataDefinition()->getName()),
+            $event
         );
+        $dispatcher->dispatch(sprintf('%s', $event::NAME), $event);
 
         $arrReturn = $event->getElements();
 
@@ -2224,11 +2225,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             ->setLabel($formatter->getFormat())
             ->setFormatter($formatter);
 
-        $this->getEnvironment()->getEventPropagator()->propagate(
-            $event::NAME,
-            $event,
-            array($this->getEnvironment()->getDataDefinition()->getName())
+        $this->getEnvironment()->getEventDispatcher()->dispatch(
+            sprintf('%s[%s]', $event::NAME, $this->getEnvironment()->getDataDefinition()->getName()),
+            $event
         );
+        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
 
         $arrLabel = array();
 
@@ -2287,14 +2288,15 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     public function getReadableFieldValue(PropertyInterface $property, ModelInterface $model, $value)
     {
         $event = new RenderReadablePropertyValueEvent($this->getEnvironment(), $model, $property, $value);
-        $this->getEnvironment()->getEventPropagator()->propagate(
-            $event::NAME,
-            $event,
-            array(
-                $this->getEnvironment()->getDataDefinition()->getName(),
-                $property->getName()
-            )
+
+        $environment = $this->getEnvironment();
+        $dispatcher  = $environment->getEventDispatcher();
+        $dispatcher->dispatch(
+            sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $property->getName()),
+            $event
         );
+        $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()), $event);
+        $dispatcher->dispatch($event::NAME, $event);
 
         if ($event->getRendered() !== null) {
             return $event->getRendered();

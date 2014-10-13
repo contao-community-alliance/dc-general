@@ -89,14 +89,15 @@ class ContaoWidgetManager
             ->setProperty($property)
             ->setValue($value);
 
-        $environment->getEventPropagator()->propagate(
-            $event::NAME,
-            $event,
-            array(
-                $environment->getDataDefinition()->getName(),
-                $property
-            )
+        $environment->getEventDispatcher()->dispatch(
+            sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $property),
+            $event
         );
+        $environment->getEventDispatcher()->dispatch(
+            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
+            $event
+        );
+        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
         return $event->getValue();
     }
@@ -119,14 +120,15 @@ class ContaoWidgetManager
             ->setProperty($property)
             ->setValue($value);
 
-        $environment->getEventPropagator()->propagate(
-            $event::NAME,
-            $event,
-            array(
-                $environment->getDataDefinition()->getName(),
-                $property
-            )
+        $environment->getEventDispatcher()->dispatch(
+            sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $property),
+            $event
         );
+        $environment->getEventDispatcher()->dispatch(
+            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
+            $event
+        );
+        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
         return $event->getValue();
     }
@@ -163,6 +165,7 @@ class ContaoWidgetManager
     {
         $strXLabel   = '';
         $environment = $this->getEnvironment();
+        $dispatcher  = $environment->getEventDispatcher();
         $defName     = $environment->getDataDefinition()->getName();
         $translator  = $environment->getTranslator();
 
@@ -178,7 +181,7 @@ class ContaoWidgetManager
                 )
             );
 
-            $environment->getEventPropagator()->propagate(ContaoEvents::IMAGE_GET_HTML, $event);
+            $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $event);
 
             $strXLabel .= ' ' . $event->getHtml();
         }
@@ -191,7 +194,7 @@ class ContaoWidgetManager
                 'style="vertical-align:text-bottom;"'
             );
 
-            $environment->getEventPropagator()->propagate(ContaoEvents::IMAGE_GET_HTML, $event);
+            $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $event);
 
             $strXLabel .= sprintf(
                 ' <a href="contao/help.php?table=%s&amp;field=%s" ' .
@@ -214,7 +217,7 @@ class ContaoWidgetManager
                     'style="vertical-align:text-bottom;"'
                 );
 
-                $environment->getEventPropagator()->propagate(ContaoEvents::IMAGE_GET_HTML, $event);
+                $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $event);
 
                 $strXLabel .= sprintf(
                     ' <a href="contao/files.php" ' .
@@ -256,11 +259,11 @@ class ContaoWidgetManager
                 )
             );
 
-            $environment->getEventPropagator()->propagate(ContaoEvents::BACKEND_ADD_TO_URL, $urlEvent);
+            $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $urlEvent);
 
-            $environment->getEventPropagator()->propagate(ContaoEvents::IMAGE_GET_HTML, $importTableEvent);
-            $environment->getEventPropagator()->propagate(ContaoEvents::IMAGE_GET_HTML, $shrinkEvent);
-            $environment->getEventPropagator()->propagate(ContaoEvents::IMAGE_GET_HTML, $expandEvent);
+            $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $importTableEvent);
+            $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $shrinkEvent);
+            $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $expandEvent);
 
             $strXLabel .= sprintf(
                 ' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a> %s%s',
@@ -280,8 +283,8 @@ class ContaoWidgetManager
                 'style="vertical-align:text-bottom;"'
             );
 
-            $environment->getEventPropagator()->propagate(ContaoEvents::BACKEND_ADD_TO_URL, $urlEvent);
-            $environment->getEventPropagator()->propagate(ContaoEvents::IMAGE_GET_HTML, $importListEvent);
+            $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $urlEvent);
+            $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $importListEvent);
 
             $strXLabel .= sprintf(
                 ' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a>',
@@ -369,6 +372,7 @@ class ContaoWidgetManager
     public function getWidget($property, PropertyValueBag $inputValues = null)
     {
         $environment         = $this->getEnvironment();
+        $dispatcher          = $environment->getEventDispatcher();
         $defName             = $environment->getDataDefinition()->getName();
         $propertyDefinitions = $environment->getDataDefinition()->getPropertiesDefinition();
 
@@ -380,14 +384,13 @@ class ContaoWidgetManager
 
         $event = new BuildWidgetEvent($environment, $this->model, $propertyDefinitions->getProperty($property));
 
-        $environment->getEventPropagator()->propagate(
-            $event::NAME,
-            $event,
-            array(
-                $defName,
-                $property
-            )
+
+        $dispatcher->dispatch(
+            sprintf('%s[%s][%s]', $event::NAME, $defName, $property),
+            $event
         );
+        $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $defName), $event);
+        $dispatcher->dispatch($event::NAME, $event);
 
         if ($event->getWidget()) {
             return $event->getWidget();
@@ -428,12 +431,13 @@ class ContaoWidgetManager
         $event   = new GetPropertyOptionsEvent($environment, $model);
         $event->setPropertyName($property);
         $event->setOptions($options);
-        $environment->getEventPropagator()->propagate(
-            $event::NAME,
-            $event,
-            $environment->getDataDefinition()->getName(),
-            $property
+
+        $dispatcher->dispatch(
+            sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $property),
+            $event
         );
+        $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()), $event);
+        $dispatcher->dispatch($event::NAME, $event);
 
         if ($event->getOptions() !== $options) {
             $options = $event->getOptions();
@@ -464,12 +468,24 @@ class ContaoWidgetManager
             new DcCompat($environment, $this->model, $property)
         );
 
-        $environment->getEventPropagator()->propagate(
-            ContaoEvents::WIDGET_GET_ATTRIBUTES_FROM_DCA,
-            $event,
-            $environment->getDataDefinition()->getName(),
-            $property
+        $dispatcher->dispatch(
+            sprintf(
+                '%s[%s][%s]',
+                ContaoEvents::WIDGET_GET_ATTRIBUTES_FROM_DCA,
+                $defName,
+                $property
+            ),
+            $event
         );
+        $dispatcher->dispatch(
+            sprintf(
+                '%s[%s]',
+                ContaoEvents::WIDGET_GET_ATTRIBUTES_FROM_DCA,
+                $defName
+            ),
+            $event
+        );
+        $dispatcher->dispatch(ContaoEvents::WIDGET_GET_ATTRIBUTES_FROM_DCA, $event);
 
         $arrPrepared = $event->getResult();
 
@@ -494,14 +510,9 @@ class ContaoWidgetManager
         $objWidget->wizard .= $xLabel;
 
         $event = new ManipulateWidgetEvent($environment, $this->model, $propInfo, $objWidget);
-        $environment->getEventPropagator()->propagate(
-            $event::NAME,
-            $event,
-            array(
-                $defName,
-                $property
-            )
-        );
+        $dispatcher->dispatch(sprintf('%s[%s][%s]', $event::NAME, $defName, $property), $event);
+        $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $defName), $event);
+        $dispatcher->dispatch($event::NAME, $event);
 
         return $objWidget;
     }
@@ -743,22 +754,17 @@ EOF;
         $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
         if ($propertyErrors) {
-            $propagator = $this->getEnvironment()->getEventPropagator();
+            $dispatcher = $this->getEnvironment()->getEventDispatcher();
 
             foreach ($propertyErrors as $property => $errors) {
                 $widget = $this->getWidget($property);
 
                 foreach ($errors as $error) {
                     $event = new ResolveWidgetErrorMessageEvent($this->getEnvironment(), $error);
-                    $propagator->propagate(
-                        $event::NAME,
-                        $event,
-                        array(
-                            $definitionName,
-                            $property
-                        )
-                    );
 
+                    $dispatcher->dispatch(sprintf('%s[%s][%s]', $event::NAME, $definitionName, $property), $event);
+                    $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $definitionName), $event);
+                    $dispatcher->dispatch($event::NAME, $event);
                     $widget->addError($event->getError());
                 }
             }

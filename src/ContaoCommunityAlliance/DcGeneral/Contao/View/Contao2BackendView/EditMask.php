@@ -153,7 +153,7 @@ class EditMask
         // Check if table is editable.
         if (!($model->getId() || $definition->getBasicDefinition()->isEditable())) {
             $message = 'DataContainer ' . $definition->getName() . ' is not editable';
-            $environment->getEventPropagator()->propagate(
+            $environment->getEventDispatcher()->dispatch(
                 ContaoEvents::SYSTEM_LOG,
                 new LogEvent($message, TL_ERROR, 'DC_General - edit()')
             );
@@ -178,7 +178,7 @@ class EditMask
         // Check if table is closed but we are adding a new item.
         if ($model->getId() && !$definition->getBasicDefinition()->isCreatable()) {
             $message = 'DataContainer ' . $definition->getName() . ' is closed';
-            $environment->getEventPropagator()->propagate(
+            $environment->getEventDispatcher()->dispatch(
                 ContaoEvents::SYSTEM_LOG,
                 new LogEvent($message, TL_ERROR, 'DC_General - edit()')
             );
@@ -255,13 +255,11 @@ class EditMask
         }
 
         $event = new PrePersistModelEvent($this->getEnvironment(), $this->model, $this->originalModel);
-        $this->getEnvironment()->getEventPropagator()->propagate(
-            $event::NAME,
-            $event,
-            array(
-                $this->getDataDefinition()->getName(),
-            )
+        $this->getEnvironment()->getEventDispatcher()->dispatch(
+            sprintf('%s[%s]', $event::NAME, $this->getDataDefinition()->getName()),
+            $event
         );
+        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
     }
 
     /**
@@ -279,13 +277,11 @@ class EditMask
         }
 
         $event = new PostPersistModelEvent($this->getEnvironment(), $this->model, $this->originalModel);
-        $this->getEnvironment()->getEventPropagator()->propagate(
-            $event::NAME,
-            $event,
-            array(
-                $this->getDataDefinition()->getName(),
-            )
+        $this->getEnvironment()->getEventDispatcher()->dispatch(
+            sprintf('%s[%s]', $event::NAME, $this->getDataDefinition()->getName()),
+            $event
         );
+        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
     }
 
     /**
@@ -364,11 +360,11 @@ class EditMask
         $event = new GetEditModeButtonsEvent($this->getEnvironment());
         $event->setButtons($buttons);
 
-        $this->getEnvironment()->getEventPropagator()->propagate(
-            $event::NAME,
-            $event,
-            array($definition->getName())
+        $this->getEnvironment()->getEventDispatcher()->dispatch(
+            sprintf('%s[%s]', $event::NAME, $definition->getName()),
+            $event
         );
+        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
 
         return $event->getButtons();
     }
@@ -494,15 +490,13 @@ class EditMask
     protected function handleSubmit(ModelInterface $model)
     {
         $environment   = $this->getEnvironment();
+        $dispatcher    = $environment->getEventDispatcher();
         $inputProvider = $environment->getInputProvider();
 
         if ($inputProvider->hasValue('save')) {
             $newUrlEvent = new AddToUrlEvent('act=edit&id=' . IdSerializer::fromModel($model)->getSerialized());
-            $environment->getEventPropagator()->propagate(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
-            $environment->getEventPropagator()->propagate(
-                ContaoEvents::CONTROLLER_REDIRECT,
-                new RedirectEvent($newUrlEvent->getUrl())
-            );
+            $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
+            $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getUrl()));
         } elseif ($inputProvider->hasValue('saveNclose')) {
             setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
@@ -513,11 +507,8 @@ class EditMask
             // @codingStandardsIgnoreEnd
 
             $newUrlEvent = new GetReferrerEvent();
-            $environment->getEventPropagator()->propagate(ContaoEvents::SYSTEM_GET_REFERRER, $newUrlEvent);
-            $environment->getEventPropagator()->propagate(
-                ContaoEvents::CONTROLLER_REDIRECT,
-                new RedirectEvent($newUrlEvent->getReferrerUrl())
-            );
+            $dispatcher->dispatch(ContaoEvents::SYSTEM_GET_REFERRER, $newUrlEvent);
+            $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getReferrerUrl()));
         } elseif ($inputProvider->hasValue('saveNcreate')) {
             setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
@@ -528,11 +519,8 @@ class EditMask
             $after = IdSerializer::fromModel($model);
 
             $newUrlEvent = new AddToUrlEvent('act=create&id=&after=' . $after->getSerialized());
-            $environment->getEventPropagator()->propagate(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
-            $environment->getEventPropagator()->propagate(
-                ContaoEvents::CONTROLLER_REDIRECT,
-                new RedirectEvent($newUrlEvent->getUrl())
-            );
+            $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
+            $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getUrl()));
         } elseif ($inputProvider->hasValue('saveNback')) {
             echo vsprintf($this->notImplMsg, 'Save and go back');
             exit;
@@ -659,11 +647,8 @@ class EditMask
         $this->checkCreatable($this->model);
 
         $event = new PreEditModelEvent($environment, $this->model);
-        $environment->getEventPropagator()->propagate(
-            $event::NAME,
-            $event,
-            $definition->getName()
-        );
+        $environment->getEventDispatcher()->dispatch(sprintf('%s[%s]', $event::NAME, $definition->getName()), $event);
+        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
         $this->view->enforceModelRelationship($this->model);
 

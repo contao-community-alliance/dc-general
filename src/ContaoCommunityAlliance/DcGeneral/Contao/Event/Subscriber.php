@@ -123,12 +123,18 @@ class Subscriber implements EventSubscriberInterface
         $event   = new GetPropertyOptionsEvent($environment, $model);
         $event->setPropertyName($property->getName());
         $event->setOptions($options);
-        $environment->getEventPropagator()->propagate(
-            $event::NAME,
-            $event,
-            $environment->getDataDefinition()->getName(),
-            $property->getName()
+
+        $dispatcher = $environment->getEventDispatcher();
+        // Backwards compatibility.
+        $dispatcher->dispatch(
+            sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $property->getName()),
+            $event
         );
+        $dispatcher->dispatch(
+            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
+            $event
+        );
+        $dispatcher->dispatch(sprintf('%s', $event::NAME), $event);
 
         if ($event->getOptions() !== $options) {
             $options = $event->getOptions();
@@ -157,14 +163,17 @@ class Subscriber implements EventSubscriberInterface
             ->setProperty($property)
             ->setValue($value);
 
-        $environment->getEventPropagator()->propagate(
-            $event::NAME,
-            $event,
-            array(
-                $environment->getDataDefinition()->getName(),
-                $property
-            )
+        $dispatcher = $environment->getEventDispatcher();
+        // Backwards compatibility.
+        $dispatcher->dispatch(
+            sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $property),
+            $event
         );
+        $dispatcher->dispatch(
+            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
+            $event
+        );
+        $dispatcher->dispatch(sprintf('%s', $event::NAME), $event);
 
         return $event->getValue();
     }

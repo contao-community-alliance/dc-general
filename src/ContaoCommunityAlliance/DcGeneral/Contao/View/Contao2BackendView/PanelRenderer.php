@@ -67,11 +67,11 @@ class PanelRenderer
     protected function renderPanelElement($element, $cssClass)
     {
         $environment    = $this->getEnvironment();
-        $propagator     = $environment->getEventPropagator();
+        $dispatcher     = $environment->getEventDispatcher();
         $definitionName = $environment->getDataDefinition()->getName();
 
         $event = new GetPanelElementTemplateEvent($environment, $element);
-        $propagator->propagate($event::NAME, $event, array($definitionName));
+        $dispatcher->dispatch($event::NAME, $event, array($definitionName));
 
         $template = $event->getTemplate();
 
@@ -177,7 +177,7 @@ class PanelRenderer
         }
 
         $environment = $this->getEnvironment();
-        $propagator  = $environment->getEventPropagator();
+        $dispatcher  = $environment->getEventDispatcher();
 
         $panels = array();
         foreach ($this->view->getPanel() as $panel) {
@@ -188,7 +188,7 @@ class PanelRenderer
             $template   = new ContaoBackendViewTemplate('dcbe_general_panel');
             $themeEvent = new GetThemeEvent();
 
-            $propagator->propagate(ContaoEvents::BACKEND_GET_THEME, $themeEvent);
+            $dispatcher->dispatch(ContaoEvents::BACKEND_GET_THEME, $themeEvent);
 
             $template
                 ->set('action', ampersand($environment->getInputProvider()->getRequestUrl(), true))

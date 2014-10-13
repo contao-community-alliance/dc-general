@@ -49,7 +49,7 @@ class ShowHandler extends AbstractHandler
             return $objDBModel;
         }
 
-        $environment->getEventPropagator()->propagate(
+        $environment->getEventDispatcher()->dispatch(
             ContaoEvents::SYSTEM_LOG,
             new LogEvent(
                 sprintf(
@@ -63,7 +63,7 @@ class ShowHandler extends AbstractHandler
             )
         );
 
-        $environment->getEventPropagator()->propagate(
+        $environment->getEventDispatcher()->dispatch(
             ContaoEvents::CONTROLLER_REDIRECT,
             new RedirectEvent('contao/main.php?act=error')
         );
@@ -114,14 +114,17 @@ class ShowHandler extends AbstractHandler
     public function getReadableFieldValue(PropertyInterface $property, ModelInterface $model, $value)
     {
         $event = new RenderReadablePropertyValueEvent($this->getEnvironment(), $model, $property, $value);
-        $this->getEnvironment()->getEventPropagator()->propagate(
-            $event::NAME,
-            $event,
-            array(
-                $this->getEnvironment()->getDataDefinition()->getName(),
-                $property->getName()
-            )
+
+        $environment = $this->getEnvironment();
+        $environment->getEventDispatcher()->dispatch(
+            sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $property->getName()),
+            $event
         );
+        $environment->getEventDispatcher()->dispatch(
+            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
+            $event
+        );
+        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
         if ($event->getRendered() !== null) {
             return $event->getRendered();

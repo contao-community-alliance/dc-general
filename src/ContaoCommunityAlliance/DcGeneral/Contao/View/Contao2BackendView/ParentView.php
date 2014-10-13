@@ -184,14 +184,15 @@ class ParentView extends BaseView
 
             $event = new ParentViewChildRecordEvent($this->getEnvironment(), $model);
 
-            $this->getEnvironment()->getEventPropagator()->propagate(
-                $event::NAME,
-                $event,
-                array(
-                    $this->getEnvironment()->getDataDefinition()->getName(),
-                    $model->getId()
-                )
+            $environment->getEventDispatcher()->dispatch(
+                sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $model->getId()),
+                $event
             );
+            $environment->getEventDispatcher()->dispatch(
+                sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
+                $event
+            );
+            $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
             $model->setMeta($model::CSS_ROW_CLASS, (((++$eoCount) % 2 == 0) ? 'even' : 'odd'));
 
@@ -223,7 +224,7 @@ class ParentView extends BaseView
     protected function renderFormattedHeaderFields($parentModel)
     {
         $environment       = $this->getEnvironment();
-        $propagator        = $this->getEnvironment()->getEventPropagator();
+        $dispatcher        = $this->getEnvironment()->getEventDispatcher();
         $definition        = $environment->getDataDefinition();
         $viewDefinition    = $this->getViewSection();
         $listingDefinition = $viewDefinition->getListingConfig();
@@ -253,7 +254,7 @@ class ParentView extends BaseView
                     $value = strlen($value) ? $this->translate('yes', 'MSC') : $this->translate('no', 'MSC');
                 } elseif ($value && in_array($evaluation['rgxp'], array('date', 'time', 'datim'))) {
                     $event = new ParseDateEvent($value, $GLOBALS['TL_CONFIG'][$evaluation['rgxp'] . 'Format']);
-                    $propagator->propagate(ContaoEvents::DATE_PARSE, $event);
+                    $dispatcher->dispatch(ContaoEvents::DATE_PARSE, $event);
 
                     $value = $event->getResult();
                 } elseif (is_array($reference[$value])) {
@@ -277,11 +278,11 @@ class ParentView extends BaseView
         $event = new GetParentHeaderEvent($environment);
         $event->setAdditional($add);
 
-        $propagator->propagate(
-            $event::NAME,
-            $event,
-            $this->getEnvironment()->getDataDefinition()->getName()
+        $dispatcher->dispatch(
+            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
+            $event
         );
+        $dispatcher->dispatch($event::NAME, $event);
 
         if (!$event->getAdditional() !== null) {
             $add = $event->getAdditional();
@@ -325,7 +326,7 @@ class ParentView extends BaseView
                 $this->translate('selectAll', 'MSC')
             );
         } else {
-            $propagator = $environment->getEventPropagator();
+            $dispatcher = $environment->getEventDispatcher();
 
             $objConfig = $this->getEnvironment()->getController()->getBaseConfig();
             $this->getPanel()->initialize($objConfig);
@@ -338,7 +339,7 @@ class ParentView extends BaseView
                 && $basicDefinition->isCreatable()
             ) {
                 /** @var AddToUrlEvent $urlEvent */
-                $urlEvent = $propagator->propagate(
+                $urlEvent = $dispatcher->dispatch(
                     ContaoEvents::BACKEND_ADD_TO_URL,
                     new AddToUrlEvent(
                         'act=create&amp;pid=' . IdSerializer::fromModel($parentModel)->getSerialized()
@@ -346,7 +347,7 @@ class ParentView extends BaseView
                 );
 
                 /** @var GenerateHtmlEvent $imageEvent */
-                $imageEvent = $propagator->propagate(
+                $imageEvent = $dispatcher->dispatch(
                     ContaoEvents::IMAGE_GET_HTML,
                     new GenerateHtmlEvent(
                         'new.gif',
@@ -364,7 +365,7 @@ class ParentView extends BaseView
 
             if ($sorting && $clipboard->isNotEmpty()) {
                 /** @var AddToUrlEvent $urlEvent */
-                $urlEvent = $propagator->propagate(
+                $urlEvent = $dispatcher->dispatch(
                     ContaoEvents::BACKEND_ADD_TO_URL,
                     new AddToUrlEvent(
                         'act=' . $clipboard->getMode() .
@@ -373,7 +374,7 @@ class ParentView extends BaseView
                 );
 
                 /** @var GenerateHtmlEvent $imageEvent */
-                $imageEvent = $propagator->propagate(
+                $imageEvent = $dispatcher->dispatch(
                     ContaoEvents::IMAGE_GET_HTML,
                     new GenerateHtmlEvent(
                         'pasteafter.gif',
@@ -410,7 +411,7 @@ class ParentView extends BaseView
             $definition      = $environment->getDataDefinition();
             $basicDefinition = $definition->getBasicDefinition();
             $parentName      = $basicDefinition->getParentDataProvider();
-            $propagator      = $environment->getEventPropagator();
+            $dispatcher      = $environment->getEventDispatcher();
 
             $query = array(
                 'do'    => $environment->getInputProvider()->getParameter('do'),
@@ -453,7 +454,7 @@ class ParentView extends BaseView
             }
 
             /** @var GenerateHtmlEvent $imageEvent */
-            $imageEvent = $propagator->propagate(
+            $imageEvent = $dispatcher->dispatch(
                 ContaoEvents::IMAGE_GET_HTML,
                 new GenerateHtmlEvent(
                     'edit.gif',
@@ -486,11 +487,11 @@ class ParentView extends BaseView
         $definition          = $this->getEnvironment()->getDataDefinition();
         $parentProvider      = $definition->getBasicDefinition()->getParentDataProvider();
         $groupingInformation = $this->getGroupingMode();
-        $propagator          = $this->getEnvironment()->getEventPropagator();
+        $dispatcher          = $this->getEnvironment()->getEventDispatcher();
 
         // Skip if we have no parent or parent collection.
         if (!$parentModel) {
-            $propagator->propagate(
+            $dispatcher->dispatch(
                 ContaoEvents::SYSTEM_LOG,
                 new LogEvent(
                     sprintf(
@@ -502,7 +503,7 @@ class ParentView extends BaseView
                 )
             );
 
-            $propagator->propagate(
+            $dispatcher->dispatch(
                 ContaoEvents::CONTROLLER_REDIRECT,
                 new RedirectEvent('contao/main.php?act=error')
             );
@@ -621,24 +622,20 @@ class ParentView extends BaseView
 
         $preFunction = function (EnvironmentInterface $environment, $model) {
             $copyEvent = new PreDuplicateModelEvent($environment, $model);
-            $environment->getEventPropagator()->propagate(
-                $copyEvent::NAME,
-                $copyEvent,
-                array(
-                    $environment->getDataDefinition()->getName(),
-                )
+            $environment->getEventDispatcher()->dispatch(
+                sprintf('%s[%s]', $copyEvent::NAME, $environment->getDataDefinition()->getName()),
+                $copyEvent
             );
+            $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
         };
 
         $postFunction = function (EnvironmentInterface $environment, $model, $originalModel) {
             $copyEvent = new PostDuplicateModelEvent($environment, $model, $originalModel);
-            $environment->getEventPropagator()->propagate(
-                $copyEvent::NAME,
-                $copyEvent,
-                array(
-                    $environment->getDataDefinition()->getName(),
-                )
+            $environment->getEventDispatcher()->dispatch(
+                sprintf('%s[%s]', $copyEvent::NAME, $environment->getDataDefinition()->getName()),
+                $copyEvent
             );
+            $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
         };
 
         return $this->createEditMask($copyModel, $model, $preFunction, $postFunction);
