@@ -23,6 +23,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * When propagating an event, one can pass an array of suffixes that will get appended to the event name in a loop.
  *
  * @package DcGeneral\Event
+ *
+ * @deprecated Event propagation turned out to be not very effective. Use plain event dispatching and check in the
+ *             listener if you want to handle the event.
  */
 interface EventPropagatorInterface extends EventDispatcherInterface
 {
@@ -50,6 +53,9 @@ interface EventPropagatorInterface extends EventDispatcherInterface
      * @param string[]                                 $suffixes  Suffixes to attach to the event.
      *
      * @return \Symfony\Component\EventDispatcher\Event
+     *
+     * @deprecated Event propagation turned out to be not very effective. Use plain event dispatching and check in the
+     *             listener if you want to handle the event.
      */
     public function propagate($eventName, $event = null, $suffixes = array());
 
@@ -65,6 +71,9 @@ interface EventPropagatorInterface extends EventDispatcherInterface
      * @param string[]                                 $suffixes  Suffixes to attach to the event.
      *
      * @return \Symfony\Component\EventDispatcher\Event
+     *
+     * @deprecated Event propagation turned out to be not very effective. Use plain event dispatching and check in the
+     *             listener if you want to handle the event.
      */
     public function propagateExact($eventName, $event, $suffixes = array());
 }

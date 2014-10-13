@@ -20,6 +20,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * The generic event propagator implementation.
  *
  * @package DcGeneral\Event
+ *
+ * @deprecated Event propagation turned out to be not very effective. Use plain event dispatching and check in the
+ *             listener if you want to handle the event.
  */
 class EventPropagator implements EventPropagatorInterface
 {

@@ -18,12 +18,14 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\EventPropagator;
 use ContaoCommunityAlliance\DcGeneral\Event\EventPropagatorInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Default implementation of an environment.
@@ -103,6 +105,13 @@ class DefaultEnvironment implements EnvironmentInterface
      * @var EventPropagatorInterface
      */
     protected $eventPropagator;
+
+    /**
+     * The event propagator in use.
+     *
+     * @var EventDispatcherInterface
+     */
+    protected $eventDispatcher;
 
     /**
      * {@inheritdoc}
@@ -428,17 +437,51 @@ class DefaultEnvironment implements EnvironmentInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Event propagation turned out to be not very effective. Use plain event dispatching and check in the
+     *             listener if you want to handle the event.
      */
     public function setEventPropagator($propagator)
     {
         $this->eventPropagator = $propagator;
+        $this->setEventDispatcher($propagator);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @deprecated Event propagation turned out to be not very effective. Use plain event dispatching and check in the
+     *             listener if you want to handle the event.
+     */
+    public function getEventPropagator()
+    {
+        return $this->eventPropagator;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getEventPropagator()
+    public function setEventDispatcher($dispatcher)
     {
-        return $this->eventPropagator;
+        // Backwards compatibility.
+        if ($dispatcher && !($dispatcher instanceof EventPropagatorInterface)) {
+            $this->setEventPropagator(new EventPropagator($dispatcher));
+
+            return $this;
+        }
+
+        $this->eventDispatcher = $dispatcher;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getEventDispatcher()
+    {
+        return $this->eventDispatcher;
     }
 }

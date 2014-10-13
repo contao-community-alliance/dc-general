@@ -17,6 +17,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinitionContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneral;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\EventPropagator;
 use ContaoCommunityAlliance\DcGeneral\Event\EventPropagatorInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
@@ -24,6 +25,7 @@ use ContaoCommunityAlliance\DcGeneral\Factory\Event\CreateDcGeneralEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PreCreateDcGeneralEvent;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Factory to create a DcGeneral instance.
@@ -45,7 +47,8 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     public static function deriveEmptyFromEnvironment(EnvironmentInterface $environment)
     {
         $factory = new DcGeneralFactory();
-        $factory->setEventPropagator($environment->getEventPropagator());
+        $factory->setEventDispatcher($environment->getEventDispatcher());
+        $factory->setEventDispatcher($environment->getEventDispatcher());
         $factory->setTranslator($environment->getTranslator());
         $factory->setEnvironmentClassName(get_class($environment));
         $factory->setContainerClassName(get_class($environment->getDataDefinition()));
@@ -102,6 +105,13 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      * @var EventPropagatorInterface
      */
     protected $eventPropagator = null;
+
+    /**
+     * The event dispatcher to use.
+     *
+     * @var EventDispatcherInterface
+     */
+    protected $eventDispatcher = null;
 
     /**
      * The translator that shall be used.
@@ -198,10 +208,42 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Event propagation turned out to be not very effective. Use plain event dispatching and check in the
+     *             listener if you want to handle the event.
      */
     public function setEventPropagator(EventPropagatorInterface $eventPropagator)
     {
         $this->eventPropagator = $eventPropagator;
+        $this->setEventDispatcher($eventPropagator);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @deprecated Event propagation turned out to be not very effective. Use plain event dispatching and check in the
+     *             listener if you want to handle the event.
+     */
+    public function getEventPropagator()
+    {
+        return $this->eventPropagator;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setEventDispatcher($dispatcher)
+    {
+        // Backwards compatibility.
+        if ($dispatcher && !($dispatcher instanceof EventPropagatorInterface)) {
+            $this->setEventPropagator(new EventPropagator($dispatcher));
+
+            return $this;
+        }
+
+        $this->eventDispatcher = $dispatcher;
 
         return $this;
     }
@@ -209,9 +251,9 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getEventPropagator()
+    public function getEventDispatcher()
     {
-        return $this->eventPropagator;
+        return $this->eventDispatcher;
     }
 
     /**
@@ -284,11 +326,9 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
         }
 
         $event = new PreCreateDcGeneralEvent($this);
-        $this->eventPropagator->propagate(
-            $event::NAME,
-            $event,
-            array($this->containerName)
-        );
+        // Backwards compatibility.
+        $this->getEventDispatcher()->dispatch(sprintf('%s[%s]', $event::NAME, $this->containerName), $event);
+        $this->getEventDispatcher()->dispatch($event::NAME, $event);
 
         if ($this->environment) {
             $environment = $this->environment;
@@ -303,11 +343,9 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
         $dcGeneral = $dcGeneralClass->newInstance($environment);
 
         $event = new CreateDcGeneralEvent($dcGeneral);
-        $this->eventPropagator->propagate(
-            $event::NAME,
-            $event,
-            array($this->containerName)
-        );
+        // Backwards compatibility.
+        $this->getEventDispatcher()->dispatch(sprintf('%s[%s]', $event::NAME, $this->containerName), $event);
+        $this->getEventDispatcher()->dispatch($event::NAME, $event);
 
         return $dcGeneral;
     }
@@ -343,15 +381,13 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
         /** @var EnvironmentInterface $environment */
         $environment = $environmentClass->newInstance();
         $environment->setDataDefinition($dataContainer);
-        $environment->setEventPropagator($this->eventPropagator);
+        $environment->setEventDispatcher($this->eventDispatcher);
         $environment->setTranslator($this->translator);
 
         $event = new PopulateEnvironmentEvent($environment);
-        $this->eventPropagator->propagate(
-            $event::NAME,
-            $event,
-            array($this->containerName)
-        );
+        // Backwards compatibility.
+        $this->getEventDispatcher()->dispatch(sprintf('%s[%s]', $event::NAME, $this->containerName), $event);
+        $this->getEventDispatcher()->dispatch($event::NAME, $event);
 
         return $environment;
     }
@@ -370,8 +406,8 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
             throw new DcGeneralRuntimeException('Required container name is missing');
         }
 
-        if (empty($this->eventPropagator)) {
-            throw new DcGeneralRuntimeException('Required event propagator is missing');
+        if (empty($this->eventDispatcher)) {
+            throw new DcGeneralRuntimeException('Required event dispatcher is missing');
         }
 
         /** @var DataDefinitionContainerInterface $definitions */
@@ -389,11 +425,9 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
         $definitions->setDefinition($this->containerName, $dataContainer);
 
         $event = new BuildDataDefinitionEvent($dataContainer);
-        $this->eventPropagator->propagate(
-            $event::NAME,
-            $event,
-            array($this->containerName)
-        );
+        // Backwards compatibility.
+        $this->getEventDispatcher()->dispatch(sprintf('%s[%s]', $event::NAME, $this->containerName), $event);
+        $this->getEventDispatcher()->dispatch($event::NAME, $event);
 
         return clone $dataContainer;
     }

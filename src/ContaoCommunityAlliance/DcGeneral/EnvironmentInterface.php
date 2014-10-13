@@ -20,6 +20,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\EventPropagatorInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Interface EnvironmentInterface.
@@ -207,14 +208,35 @@ interface EnvironmentInterface
      * @param EventPropagatorInterface $propagator The event propagator to use.
      *
      * @return EnvironmentInterface
+     *
+     * @deprecated Event propagation turned out to be not very effective. Use plain event dispatching and check in the
+     *             listener if you want to handle the event.
      */
-
     public function setEventPropagator($propagator);
 
     /**
      * Retrieve the event propagator to use.
      *
      * @return EventPropagatorInterface
+     *
+     * @deprecated Event propagation turned out to be not very effective. Use plain event dispatching and check in the
+     *             listener if you want to handle the event.
      */
     public function getEventPropagator();
+
+    /**
+     * Set the event dispatcher to use.
+     *
+     * @param EventDispatcherInterface $dispatcher The event dispatcher.
+     *
+     * @return EnvironmentInterface
+     */
+    public function setEventDispatcher($dispatcher);
+
+    /**
+     * Get the event dispatcher to use.
+     *
+     * @return EventDispatcherInterface
+     */
+    public function getEventDispatcher();
 }

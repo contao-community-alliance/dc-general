@@ -17,6 +17,7 @@ use ContaoCommunityAlliance\DcGeneral\DcGeneral;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\EventPropagatorInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * This interface describes a DcGeneral factory.
@@ -97,6 +98,9 @@ interface DcGeneralFactoryInterface
      * @param EventPropagatorInterface $eventPropagator The event propagator.
      *
      * @return DcGeneralFactoryInterface
+     *
+     * @deprecated Event propagation turned out to be not very effective. Use plain event dispatching and check in the
+     *             listener if you want to handle the event.
      */
     public function setEventPropagator(EventPropagatorInterface $eventPropagator);
 
@@ -104,8 +108,27 @@ interface DcGeneralFactoryInterface
      * Retrieve the event propagator.
      *
      * @return EventPropagatorInterface
+     *
+     * @deprecated Event propagation turned out to be not very effective. Use plain event dispatching and check in the
+     *             listener if you want to handle the event.
      */
     public function getEventPropagator();
+
+    /**
+     * Set the event dispatcher to use.
+     *
+     * @param EventDispatcherInterface $dispatcher The event dispatcher.
+     *
+     * @return DcGeneralFactoryInterface
+     */
+    public function setEventDispatcher($dispatcher);
+
+    /**
+     * Get the event dispatcher to use.
+     *
+     * @return EventDispatcherInterface
+     */
+    public function getEventDispatcher();
 
     /**
      * Set the translator to use.
