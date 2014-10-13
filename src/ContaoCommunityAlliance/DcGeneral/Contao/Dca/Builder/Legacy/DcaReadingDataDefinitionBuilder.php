@@ -60,8 +60,6 @@ abstract class DcaReadingDataDefinitionBuilder extends AbstractEventDrivenDataDe
      * @param string $path The path from the Dca to read.
      *
      * @return mixed
-     *
-     * @internal
      */
     protected function getFromDca($path)
     {
