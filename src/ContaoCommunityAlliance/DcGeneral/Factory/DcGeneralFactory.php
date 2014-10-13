@@ -237,10 +237,12 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     public function setEventDispatcher($dispatcher)
     {
         // Backwards compatibility.
-        if ($dispatcher && !($dispatcher instanceof EventPropagatorInterface)) {
-            $this->setEventPropagator(new EventPropagator($dispatcher));
-
-            return $this;
+        if ($dispatcher) {
+            if (!($dispatcher instanceof EventPropagatorInterface)) {
+                $this->setEventPropagator(new EventPropagator($dispatcher));
+            } else {
+                $this->eventPropagator = $dispatcher;
+            }
         }
 
         $this->eventDispatcher = $dispatcher;
@@ -321,8 +323,8 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
             throw new DcGeneralRuntimeException('Required container name or container is missing');
         }
 
-        if (empty($this->eventPropagator)) {
-            throw new DcGeneralRuntimeException('Required event propagator is missing');
+        if (empty($this->eventDispatcher)) {
+            throw new DcGeneralRuntimeException('Required event dispatcher is missing');
         }
 
         $event = new PreCreateDcGeneralEvent($this);
@@ -362,8 +364,8 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
             throw new DcGeneralRuntimeException('Required container name or container is missing');
         }
 
-        if (empty($this->eventPropagator)) {
-            throw new DcGeneralRuntimeException('Required event propagator is missing');
+        if (empty($this->eventDispatcher)) {
+            throw new DcGeneralRuntimeException('Required event dispatcher is missing');
         }
 
         if (empty($this->translator)) {

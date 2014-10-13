@@ -466,10 +466,12 @@ class DefaultEnvironment implements EnvironmentInterface
     public function setEventDispatcher($dispatcher)
     {
         // Backwards compatibility.
-        if ($dispatcher && !($dispatcher instanceof EventPropagatorInterface)) {
-            $this->setEventPropagator(new EventPropagator($dispatcher));
-
-            return $this;
+        if ($dispatcher) {
+            if (!($dispatcher instanceof EventPropagatorInterface)) {
+                $this->setEventPropagator(new EventPropagator($dispatcher));
+            } else {
+                $this->eventPropagator = $dispatcher;
+            }
         }
 
         $this->eventDispatcher = $dispatcher;
