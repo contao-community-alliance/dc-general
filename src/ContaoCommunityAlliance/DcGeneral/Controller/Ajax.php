@@ -135,7 +135,8 @@ abstract class Ajax
     {
         // Method ajaxTreeView is in TreeView.php - watch out!
         echo $objDc->ajaxTreeView($this->getAjaxId(), intval(self::getPost('level')));
-        exit;
+
+        $this->exitScript();
     }
 
     /**
@@ -151,7 +152,8 @@ abstract class Ajax
     {
         // Method ajaxTreeView is in TreeView.php - watch out!
         echo $objDc->ajaxTreeView(self::getPost('folder', true), intval(self::getPost('level')));
-        exit;
+
+        $this->exitScript();
     }
 
     /**
@@ -251,5 +253,19 @@ abstract class Ajax
                 $ajax->executePostActions(new DcCompat($objDc->getEnvironment()));
                 break;
         }
+    }
+
+    /**
+     * Convenience method to exit the script.
+     *
+     * Will get called from subclasses to have a central endpoint to exit the script.
+     *
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.ExitExpression) - The whole purpose of the method is the exit expression.
+     */
+    protected function exitScript()
+    {
+        exit;
     }
 }

@@ -60,7 +60,8 @@ class Ajax2X extends Ajax
         /** @var \PageSelector $objWidget */
         $objWidget = new $GLOBALS['BE_FFL']['pageTree']($arrData, $objDc);
         echo $objWidget->generateAjax($ajaxId, $field, $level);
-        exit;
+
+        $this->exitScript();
     }
 
     /**
@@ -120,7 +121,8 @@ class Ajax2X extends Ajax
 
             echo $strTree;
         }
-        exit;
+
+        $this->exitScript();
     }
 
     /**

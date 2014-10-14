@@ -62,7 +62,8 @@ class Ajax3X extends Ajax
         $objWidget->value = $this->getTreeValue('page', $input->getValue('value'));
 
         echo $objWidget->generateAjax($ajaxId, $field, $level);
-        exit;
+
+        $this->exitScript();
     }
 
     /**
@@ -93,7 +94,8 @@ class Ajax3X extends Ajax
         } else {
             echo $objWidget->generate();
         }
-        exit;
+
+        $this->exitScript();
     }
 
     /**
@@ -169,7 +171,8 @@ class Ajax3X extends Ajax
                     TL_ERROR
                 );
                 header('HTTP/1.1 400 Bad Request');
-                die('Bad Request');
+                echo 'Bad Request';
+                $this->exitScript();
             }
         }
 
@@ -194,7 +197,7 @@ class Ajax3X extends Ajax
         $objWidget = new $GLOBALS['BE_FFL'][$strKey]($arrAttribs);
         echo $objWidget->generate();
 
-        exit;
+        $this->exitScript();
     }
 
     /**
