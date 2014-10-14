@@ -13,7 +13,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
-use ContaoCommunityAlliance\DcGeneral\DataContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -32,9 +31,9 @@ class Ajax2X extends Ajax
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    protected function loadPagetree(DataContainerInterface $objDc)
+    protected function loadPagetree()
     {
-        $environment = $objDc->getEnvironment();
+        $environment = $this->getEnvironment();
         $input       = $environment->getInputProvider();
         $field       = $input->getValue('field');
         $name        = $input->getValue('name');
@@ -58,7 +57,7 @@ class Ajax2X extends Ajax
         $arrData['name']     = $name;
 
         /** @var \PageSelector $objWidget */
-        $objWidget = new $GLOBALS['BE_FFL']['pageTree']($arrData, $objDc);
+        $objWidget = new $GLOBALS['BE_FFL']['pageTree']($arrData, $this->getDataContainer());
         echo $objWidget->generateAjax($ajaxId, $field, $level);
 
         $this->exitScript();
@@ -70,50 +69,50 @@ class Ajax2X extends Ajax
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    protected function loadFiletree(DataContainerInterface $objDc)
+    protected function loadFiletree()
     {
-        $table               = $objDc->getEnvironment()->getDataDefinition()->getName();
+        $table               = $this->getEnvironment()->getDataDefinition()->getName();
         $arrData['strTable'] = $table;
-        $arrData['id']       = self::getAjaxName() ?: $objDc->getId();
-        $arrData['name']     = self::getPost('name');
+        $arrData['id']       = $this->getAjaxName() ?: $this->getDataContainer()->getId();
+        $arrData['name']     = $this->getPost('name');
 
         /** @var \FileTree $objWidget */
-        $objWidget = new $GLOBALS['BE_FFL']['fileTree']($arrData, $objDc);
+        $objWidget = new $GLOBALS['BE_FFL']['fileTree']($arrData, $this->getDataContainer());
 
         // Load a particular node.
-        if (self::getPost('folder', true) != '') {
+        if ($this->getPost('folder', true) != '') {
             echo $objWidget->generateAjax(
-                self::getPost('folder', true),
-                self::getPost('field'),
-                intval(self::getPost('level'))
+                $this->getPost('folder', true),
+                $this->getPost('field'),
+                intval($this->getPost('level'))
             );
         } else {
             // Reload the whole tree.
             $user    = \BackendUser::getInstance();
             $strTree = '';
-            $path    = $GLOBALS['TL_DCA'][$table]['fields'][self::getPost('field')]['eval']['path'];
+            $path    = $GLOBALS['TL_DCA'][$table]['fields'][$this->getPost('field')]['eval']['path'];
 
             // Set a custom path.
             if (strlen($path)) {
                 $strTree = $objWidget->generateAjax(
                     $path,
-                    self::getPost('field'),
-                    intval(self::getPost('level'))
+                    $this->getPost('field'),
+                    intval($this->getPost('level'))
                 );
             } elseif ($user->isAdmin) {
                 // Start from root.
                 $strTree = $objWidget->generateAjax(
                     $GLOBALS['TL_CONFIG']['uploadPath'],
-                    self::getPost('field'),
-                    intval(self::getPost('level'))
+                    $this->getPost('field'),
+                    intval($this->getPost('level'))
                 );
             } else {
                 // Set file mounts.
                 foreach ($this->eliminateNestedPaths($this->User->filemounts) as $node) {
                     $strTree .= $objWidget->generateAjax(
                         $node,
-                        self::getPost('field'),
-                        intval(self::getPost('level')),
+                        $this->getPost('field'),
+                        intval($this->getPost('level')),
                         true
                     );
                 }
@@ -129,10 +128,8 @@ class Ajax2X extends Ajax
      * {@inheritDoc}
      *
      * @throws DcGeneralRuntimeException as it is only present in Contao 3.X.
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    protected function reloadPagetree(DataContainerInterface $objDc)
+    protected function reloadPagetree()
     {
         throw new DcGeneralRuntimeException('Contao 3.X only.');
     }
@@ -141,10 +138,8 @@ class Ajax2X extends Ajax
      * {@inheritDoc}
      *
      * @throws DcGeneralRuntimeException as it is only present in Contao 3.X.
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    protected function reloadFiletree(DataContainerInterface $objDc)
+    protected function reloadFiletree()
     {
         throw new DcGeneralRuntimeException('Contao 3.X only.');
     }

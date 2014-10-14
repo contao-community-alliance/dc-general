@@ -14,7 +14,6 @@
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
-use ContaoCommunityAlliance\DcGeneral\DataContainerInterface;
 
 /**
  * Class GeneralAjax - General purpose Ajax handler for "executePostActions" in Contao 3.X as we can not use the default
@@ -32,9 +31,9 @@ class Ajax3X extends Ajax
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    protected function loadPagetree(DataContainerInterface $objDc)
+    protected function loadPagetree()
     {
-        $environment = $objDc->getEnvironment();
+        $environment = $this->getEnvironment();
         $input       = $environment->getInputProvider();
         $field       = $input->getValue('field');
         $name        = $input->getValue('name');
@@ -58,7 +57,7 @@ class Ajax3X extends Ajax
         $arrData['name']     = $name;
 
         /** @var \PageSelector $objWidget */
-        $objWidget        = new $GLOBALS['BE_FFL']['pageSelector']($arrData, $objDc);
+        $objWidget        = new $GLOBALS['BE_FFL']['pageSelector']($arrData, $this->getDataContainer());
         $objWidget->value = $this->getTreeValue('page', $input->getValue('value'));
 
         echo $objWidget->generateAjax($ajaxId, $field, $level);
@@ -72,9 +71,9 @@ class Ajax3X extends Ajax
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    protected function loadFiletree(DataContainerInterface $objDc)
+    protected function loadFiletree()
     {
-        $environment = $objDc->getEnvironment();
+        $environment = $this->getEnvironment();
         $input       = $environment->getInputProvider();
         $folder      = $input->getValue('folder');
         $field       = $input->getParameter('field');
@@ -85,7 +84,7 @@ class Ajax3X extends Ajax
         $arrData['name']     = $field;
 
         /** @var \FileSelector $objWidget */
-        $objWidget = new $GLOBALS['BE_FFL']['fileSelector']($arrData, $objDc);
+        $objWidget = new $GLOBALS['BE_FFL']['fileSelector']($arrData, $this->getDataContainer());
 
         $objWidget->value = $this->getTreeValue($field, $input->getValue('value'));
         // Load a particular node.
@@ -135,24 +134,22 @@ class Ajax3X extends Ajax
     /**
      * Reload the file tree.
      *
-     * @param string                 $strType The type.
-     *
-     * @param DataContainerInterface $objDc   The data container.
+     * @param string $strType The type.
      *
      * @return void
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    protected function reloadTree($strType, DataContainerInterface $objDc)
+    protected function reloadTree($strType)
     {
-        $environment  = $objDc->getEnvironment();
+        $environment  = $this->getEnvironment();
         $input        = $environment->getInputProvider();
         $serializedId = $input->hasParameter('id') ? $input->getParameter('id') : null;
         $fieldName    = $input->hasValue('name') ? $input->getValue('name') : null;
 
         // Handle the keys in "edit multiple" mode.
-        if (self::getGet('act') == 'editAll') {
+        if ($this->getGet('act') == 'editAll') {
             // TODO: change here when implementing editAll.
             $serializedId = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $fieldName);
             // $field        = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $fieldName);
@@ -160,13 +157,13 @@ class Ajax3X extends Ajax
 
         if ($serializedId !== null) {
             $modelId      = IdSerializer::fromSerialized($serializedId);
-            $dataProvider = $objDc->getEnvironment()->getDataProvider($modelId->getDataProviderName());
+            $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
             $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
             if ($model === null) {
                 $this->log(
                     'A record with the ID "' . $serializedId . '" does not exist in "' .
-                    $objDc->getEnvironment()->getDataDefinition()->getName() . '"',
+                    $environment->getDataDefinition()->getName() . '"',
                     'Ajax executePostActions()',
                     TL_ERROR
                 );
@@ -190,7 +187,7 @@ class Ajax3X extends Ajax
         $arrAttribs['id']       = $fieldName;
         $arrAttribs['name']     = $fieldName;
         $arrAttribs['value']    = $varValue;
-        $arrAttribs['strTable'] = $objDc->getEnvironment()->getDataDefinition()->getName();
+        $arrAttribs['strTable'] = $environment->getDataDefinition()->getName();
         $arrAttribs['strField'] = $fieldName;
 
         /** @var \Widget $objWidget */
@@ -203,16 +200,16 @@ class Ajax3X extends Ajax
     /**
      * {@inheritDoc}
      */
-    protected function reloadPagetree(DataContainerInterface $objDc)
+    protected function reloadPagetree()
     {
-        $this->reloadTree('page', $objDc);
+        $this->reloadTree('page');
     }
 
     /**
      * {@inheritDoc}
      */
-    protected function reloadFiletree(DataContainerInterface $objDc)
+    protected function reloadFiletree()
     {
-        $this->reloadTree('file', $objDc);
+        $this->reloadTree('file');
     }
 }

@@ -15,6 +15,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\DataContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentAwareInterface;
 
 /**
  * Class Ajax - General purpose Ajax handler for "executePostActions" as we can not use the default Contao
@@ -26,8 +27,15 @@ use ContaoCommunityAlliance\DcGeneral\DataContainerInterface;
  * @copyright  The MetaModels team.
  * @license    LGPL.
  */
-abstract class Ajax
+abstract class Ajax implements EnvironmentAwareInterface
 {
+    /**
+     * The data container calling us.
+     *
+     * @var DataContainerInterface
+     */
+    protected $objDc;
+
     /**
      * Create a new instance.
      */
@@ -37,24 +45,21 @@ abstract class Ajax
     }
 
     /**
-     * Compat wrapper for contao 2.X and 3.X - delegates to the relevant input handler.
+     * Get the data container.
      *
-     * @param string $key               The key to retrieve.
-     *
-     * @param bool   $blnDecodeEntities Decode the entities.
-     *
-     * @param bool   $blnKeepUnused     If the key shall be kept marked as unused.
-     *
-     * @return mixed
+     * @return DataContainerInterface.
      */
-    protected static function getGet($key, $blnDecodeEntities = false, $blnKeepUnused = false)
+    protected function getDataContainer()
     {
-        // TODO: use dependency injection here.
-        if (version_compare(VERSION, '3.0', '>=')) {
-            return \Input::get($key, $blnDecodeEntities, $blnKeepUnused);
-        }
+        return $this->objDc;
+    }
 
-        return \Input::getInstance()->get($key, $blnDecodeEntities, $blnKeepUnused);
+    /**
+     * {@inheritdoc}
+     */
+    public function getEnvironment()
+    {
+        return $this->getDataContainer()->getEnvironment();
     }
 
     /**
@@ -66,14 +71,23 @@ abstract class Ajax
      *
      * @return mixed
      */
-    protected static function getPost($key, $blnDecodeEntities = false)
+    protected function getGet($key, $blnDecodeEntities = false)
     {
-        // TODO: use dependency injection here.
-        if (version_compare(VERSION, '3.0', '>=')) {
-            return \Input::post($key, $blnDecodeEntities);
-        }
+        return $this->getEnvironment()->getInputProvider()->getParameter($key, $blnDecodeEntities);
+    }
 
-        return \Input::getInstance()->post($key, $blnDecodeEntities);
+    /**
+     * Compatibility wrapper for contao 2.X and 3.X - delegates to the relevant input handler.
+     *
+     * @param string $key               The key to retrieve.
+     *
+     * @param bool   $blnDecodeEntities Decode the entities.
+     *
+     * @return mixed
+     */
+    protected function getPost($key, $blnDecodeEntities = false)
+    {
+        return $this->getEnvironment()->getInputProvider()->getValue($key, $blnDecodeEntities);
     }
 
     /**
@@ -83,9 +97,9 @@ abstract class Ajax
      *
      * @deprecated
      */
-    protected static function getAjaxId()
+    protected function getAjaxId()
     {
-        return preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', self::getPost('id'));
+        return preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $this->getPost('id'));
     }
 
     /**
@@ -95,11 +109,11 @@ abstract class Ajax
      *
      * @deprecated
      */
-    protected static function getAjaxKey()
+    protected function getAjaxKey()
     {
-        $strAjaxKey = str_replace('_' . self::getAjaxId(), '', self::getPost('id'));
+        $strAjaxKey = str_replace('_' . $this->getAjaxId(), '', $this->getPost('id'));
 
-        if (self::getGet('act') == 'editAll') {
+        if ($this->getGet('act') == 'editAll') {
             $strAjaxKey = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $strAjaxKey);
         }
 
@@ -113,13 +127,13 @@ abstract class Ajax
      *
      * @deprecated
      */
-    protected static function getAjaxName()
+    protected function getAjaxName()
     {
-        if (self::getGet('act') == 'editAll') {
-            return preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', self::getPost('name'));
+        if ($this->getGet('act') == 'editAll') {
+            return preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $this->getPost('name'));
         }
 
-        return self::getPost('name');
+        return $this->getPost('name');
     }
 
     /**
@@ -127,14 +141,12 @@ abstract class Ajax
      *
      * This method exits the script!
      *
-     * @param DataContainerInterface $objDc The data container.
-     *
      * @return void
      */
-    protected function loadStructure(DataContainerInterface $objDc)
+    protected function loadStructure()
     {
         // Method ajaxTreeView is in TreeView.php - watch out!
-        echo $objDc->ajaxTreeView($this->getAjaxId(), intval(self::getPost('level')));
+        echo $this->getDataContainer()->ajaxTreeView($this->getAjaxId(), intval($this->getPost('level')));
 
         $this->exitScript();
     }
@@ -144,14 +156,12 @@ abstract class Ajax
      *
      * This method exits the script!
      *
-     * @param DataContainerInterface $objDc The data container.
-     *
      * @return void
      */
-    protected function loadFileManager(DataContainerInterface $objDc)
+    protected function loadFileManager()
     {
         // Method ajaxTreeView is in TreeView.php - watch out!
-        echo $objDc->ajaxTreeView(self::getPost('folder', true), intval(self::getPost('level')));
+        echo $this->getDataContainer()->ajaxTreeView($this->getPost('folder', true), intval($this->getPost('level')));
 
         $this->exitScript();
     }
@@ -159,42 +169,34 @@ abstract class Ajax
     /**
      * Load the page tree.
      *
-     * @param DataContainerInterface $objDc The data container.
-     *
      * @return mixed
      */
-    abstract protected function loadPagetree(DataContainerInterface $objDc);
+    abstract protected function loadPagetree();
 
     /**
      * Load the file tree.
      *
-     * @param DataContainerInterface $objDc The data container.
-     *
      * @return mixed
      */
-    abstract protected function loadFiletree(DataContainerInterface $objDc);
+    abstract protected function loadFiletree();
 
     /**
      * Reload a page tree.
      *
      * This method exits the script.
      *
-     * @param DataContainerInterface $objDc The data container.
-     *
      * @return void
      */
-    abstract protected function reloadPagetree(DataContainerInterface $objDc);
+    abstract protected function reloadPagetree();
 
     /**
      * Reload a file tree.
      *
      * This method exits the script.
      *
-     * @param DataContainerInterface $objDc The data container.
-     *
      * @return void
      */
-    abstract protected function reloadFiletree(DataContainerInterface $objDc);
+    abstract protected function reloadFiletree();
 
     /**
      * Handle the post actions from DcGeneral.
@@ -206,11 +208,13 @@ abstract class Ajax
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    public function executePostActions($objDc)
+    public function executePostActions(DataContainerInterface $objDc)
     {
         header('Content-Type: text/html; charset=' . $GLOBALS['TL_CONFIG']['characterSet']);
 
-        $action = $objDc->getEnvironment()->getInputProvider()->getValue('action');
+        $this->objDc = $objDc;
+
+        $action = $this->getEnvironment()->getInputProvider()->getValue('action');
         switch ($action) {
             case 'toggleFeatured':
                 // This is impossible to handle generically in DcGeneral.
@@ -250,7 +254,7 @@ abstract class Ajax
             default:
                 $ajax = new \Ajax($action);
                 $ajax->executePreActions();
-                $ajax->executePostActions(new DcCompat($objDc->getEnvironment()));
+                $ajax->executePostActions(new DcCompat($this->getEnvironment()));
                 break;
         }
     }
