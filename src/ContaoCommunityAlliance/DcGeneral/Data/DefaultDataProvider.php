@@ -46,6 +46,13 @@ class DefaultDataProvider implements DataProviderInterface
     protected $timeStampProperty = false;
 
     /**
+     * The id generator to use (if any).
+     *
+     * @var IdGeneratorInterface
+     */
+    protected $idGenerator = null;
+
+    /**
      * Create a new instance of the data provider.
      */
     public function __construct()
@@ -73,6 +80,48 @@ class DefaultDataProvider implements DataProviderInterface
     public function setTimeStampProperty($timeStampField = null)
     {
         $this->timeStampProperty = $timeStampField;
+
+        return $this;
+    }
+
+    /**
+     * Set the id generator to use.
+     *
+     * @param IdGeneratorInterface $idGenerator The id generator.
+     *
+     * @return DefaultDataProvider
+     */
+    public function setIdGenerator($idGenerator)
+    {
+        $this->idGenerator = $idGenerator;
+
+        return $this;
+    }
+
+    /**
+     * Retrieve the id generator.
+     *
+     * @return IdGeneratorInterface
+     */
+    public function getIdGenerator()
+    {
+        return $this->idGenerator;
+    }
+
+    /**
+     * Create an instance of the default database driven uuid generator.
+     *
+     * @return DefaultDataProvider
+     *
+     * @throws \RuntimeException When already an id generator has been set on the instance.
+     */
+    public function enableDefaultUuidGenerator()
+    {
+        if ($this->idGenerator) {
+            throw new \RuntimeException('Error: already an id generator set on database provider.');
+        }
+
+        $this->setIdGenerator(new DatabaseUuidIdGenerator($this->objDatabase));
 
         return $this;
     }
@@ -638,13 +687,17 @@ class DefaultDataProvider implements DataProviderInterface
             $arrSet[$this->getTimeStampProperty()] = time();
         }
 
-        if ($objItem->getID() == null || $objItem->getID() == '') {
+        if ($objItem->getID() === null || $objItem->getID() === '') {
+            if ($this->getIdGenerator()) {
+                $objItem->setID($this->getIdGenerator()->generate());
+                $arrSet['id'] = $objItem->getID();
+            }
             $objInsert = $this->objDatabase
                 ->prepare(sprintf('INSERT INTO %s %%s', $this->strSource))
                 ->set($arrSet)
                 ->execute();
 
-            if (strlen($objInsert->insertId) != 0) {
+            if (($objItem->getID() === null || $objItem->getID() === '') && (strlen($objInsert->insertId) != 0)) {
                 $objItem->setID($objInsert->insertId);
             }
         } else {
