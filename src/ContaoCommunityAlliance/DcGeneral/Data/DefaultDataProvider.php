@@ -665,46 +665,86 @@ class DefaultDataProvider implements DataProviderInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Convert a model into a property array to be used in insert and update queries.
+     *
+     * @param ModelInterface $model The model to convert into an property array.
+     *
+     * @return array
      */
-    public function save(ModelInterface $objItem)
+    protected function convertModelToDataPropertyArray(ModelInterface $model)
     {
-        $arrSet = array();
+        $data = array();
 
-        foreach ($objItem as $key => $value) {
+        foreach ($model as $key => $value) {
             if ($key == 'id') {
                 continue;
             }
 
             if (is_array($value)) {
-                $arrSet[$key] = serialize($value);
+                $data[$key] = serialize($value);
             } else {
-                $arrSet[$key] = $value;
+                $data[$key] = $value;
             }
         }
 
         if ($this->timeStampProperty) {
-            $arrSet[$this->getTimeStampProperty()] = time();
+            $data[$this->getTimeStampProperty()] = time();
         }
 
-        if ($objItem->getID() === null || $objItem->getID() === '') {
-            if ($this->getIdGenerator()) {
-                $objItem->setID($this->getIdGenerator()->generate());
-                $arrSet['id'] = $objItem->getID();
-            }
-            $objInsert = $this->objDatabase
-                ->prepare(sprintf('INSERT INTO %s %%s', $this->strSource))
-                ->set($arrSet)
-                ->execute();
+        return $data;
+    }
 
-            if (($objItem->getID() === null || $objItem->getID() === '') && (strlen($objInsert->insertId) != 0)) {
-                $objItem->setID($objInsert->insertId);
-            }
+    /**
+     * Insert the model into the database.
+     *
+     * @param ModelInterface $model The model to insert into the database.
+     *
+     * @return void
+     */
+    protected function insertModelIntoDatabase(ModelInterface $model)
+    {
+        $data = $this->convertModelToDataPropertyArray($model);
+        if ($this->getIdGenerator()) {
+            $model->setID($this->getIdGenerator()->generate());
+            $data['id'] = $model->getID();
+        }
+
+        $insertResult = $this->objDatabase
+            ->prepare(sprintf('INSERT INTO %s %%s', $this->strSource))
+            ->set($data)
+            ->execute();
+
+        if (!isset($data['id']) && strlen($insertResult->insertId)) {
+            $model->setID($insertResult->insertId);
+        }
+    }
+
+    /**
+     * Update the model in the database.
+     *
+     * @param ModelInterface $model The model to update the database.
+     *
+     * @return void
+     */
+    protected function updateModelInDatabase($model)
+    {
+        $data = $this->convertModelToDataPropertyArray($model);
+
+        $this->objDatabase
+            ->prepare(sprintf('UPDATE %s %%s WHERE id=?', $this->strSource))
+            ->set($data)
+            ->execute($model->getID());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function save(ModelInterface $objItem)
+    {
+        if ($objItem->getID() === null || $objItem->getID() === '') {
+            $this->insertModelIntoDatabase($objItem);
         } else {
-            $this->objDatabase
-                ->prepare(sprintf('UPDATE %s %%s WHERE id=?', $this->strSource))
-                ->set($arrSet)
-                ->execute($objItem->getID());
+            $this->updateModelInDatabase($objItem);
         }
 
         return $objItem;
