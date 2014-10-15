@@ -26,6 +26,20 @@ use ContaoCommunityAlliance\DcGeneral\Factory\Event\CreateDcGeneralEvent;
 class ContainerOnLoadCallbackListener extends AbstractCallbackListener
 {
     /**
+     * Check the restrictions against the information within the event and determine if the callback shall be executed.
+     *
+     * @param CreateDcGeneralEvent $event The Event for which the callback shall be invoked.
+     *
+     * @return bool
+     */
+    public function wantToExecute($event)
+    {
+        return (empty($this->dataContainerName)
+            || ($event->getDcGeneral()->getEnvironment()->getDataDefinition()->getName() == $this->dataContainerName)
+        );
+    }
+
+    /**
      * Retrieve the arguments for the callback.
      *
      * @param CreateDcGeneralEvent $event The event being emitted.

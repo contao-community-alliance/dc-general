@@ -37,23 +37,36 @@ class AbstractReturningPropertyCallbackListenerTest extends TestCase
 
     protected function mockPropertyEvent($class, $tablename, $propertyName)
     {
-        $event = $this->getMock(
-            $class,
-            array('getEnvironment', 'getProperty'),
-            array(),
-            '',
-            false
-        );
+        if (method_exists($class, 'getProperty')) {
+            $event = $this->getMock(
+                $class,
+                array('getEnvironment', 'getProperty'),
+                array(),
+                '',
+                false
+            );
+            $event
+                ->expects($this->any())
+                ->method('getProperty')
+                ->will($this->returnValue($propertyName));
+        } else {
+            $event = $this->getMock(
+                $class,
+                array('getEnvironment', 'getPropertyName'),
+                array(),
+                '',
+                false
+            );
+            $event
+                ->expects($this->any())
+                ->method('getPropertyName')
+                ->will($this->returnValue($propertyName));
+        }
 
         $event
             ->expects($this->any())
             ->method('getEnvironment')
             ->will($this->returnValue($this->mockEnvironment($tablename)));
-
-        $event
-            ->expects($this->any())
-            ->method('getProperty')
-            ->will($this->returnValue($propertyName));
 
         return $event;
     }

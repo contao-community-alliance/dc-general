@@ -25,6 +25,43 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGl
 class ContainerGlobalButtonCallbackListener extends AbstractReturningCallbackListener
 {
     /**
+     * The name of the operation button to limit execution on.
+     *
+     * @var null|string
+     */
+    protected $operationName = null;
+
+    /**
+     * Set the restrictions for this callback.
+     *
+     * @param null|string $dataContainerName The name of the data container to limit execution on.
+     *
+     * @param null|string $operationName     The name of the operation button to limit execution on.
+     *
+     * @return void
+     */
+    public function setRestrictions($dataContainerName = null, $operationName = null)
+    {
+        parent::setRestrictions($dataContainerName);
+        $this->operationName = $operationName;
+    }
+
+    /**
+     * Check the restrictions against the information within the event and determine if the callback shall be executed.
+     *
+     * @param GetGlobalButtonEvent $event The Event for which the callback shall be invoked.
+     *
+     * @return bool
+     */
+    public function wantToExecute($event)
+    {
+        return parent::wantToExecute($event)
+            && (empty($this->operationName)
+                || ($event->getKey() == $this->operationName)
+            );
+    }
+
+    /**
      * Retrieve the arguments for the callback.
      *
      * @param GetGlobalButtonEvent $event The event being emitted.
