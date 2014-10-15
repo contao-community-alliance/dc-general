@@ -399,7 +399,6 @@ class ContaoWidgetManager
         $propInfo  = $propertyDefinitions->getProperty($property);
         $propExtra = $propInfo->getExtra();
         $varValue  = $this->decodeValue($property, $this->model->getProperty($property));
-        $xLabel    = $this->getXLabel($propInfo);
 
         $strClass = $GLOBALS['BE_FFL'][$propInfo->getWidgetType()];
         if (!class_exists($strClass)) {
@@ -507,7 +506,7 @@ class ContaoWidgetManager
         // OH: what is this? source: DataContainer 232.
         $objWidget->currentRecord = $this->model->getId();
 
-        $objWidget->wizard .= $xLabel;
+        $objWidget->xlabel .= $this->getXLabel($propInfo);
 
         $event = new ManipulateWidgetEvent($environment, $this->model, $propInfo, $objWidget);
         $dispatcher->dispatch(sprintf('%s[%s][%s]', $event::NAME, $defName, $property), $event);
