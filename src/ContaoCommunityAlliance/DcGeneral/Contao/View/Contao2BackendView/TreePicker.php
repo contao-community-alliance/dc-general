@@ -259,6 +259,8 @@ class TreePicker extends \Widget
      * @param mixed  $varValue The value.
      *
      * @return void
+     *
+     * @throws \RuntimeException When an unknown field type is encountered.
      */
     public function __set($strKey, $varValue)
     {
@@ -297,6 +299,8 @@ class TreePicker extends \Widget
                             $varValue = trimsplit("\t", $varValue);
                         }
                         break;
+                    default:
+                        throw new \RuntimeException('Unknown field type encountered: ' . $this->fieldType);
                 }
 
                 $this->varValue = $varValue;
