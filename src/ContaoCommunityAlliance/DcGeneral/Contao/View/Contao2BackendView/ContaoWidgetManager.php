@@ -580,7 +580,9 @@ class ContaoWidgetManager
             && in_array($property, array_keys($GLOBALS['TL_DCA'][$defName]['subpalettes']))
             && $arrConfig['eval']['submitOnChange']
         ) {
-            $arrPrepared['onclick'] .= "Backend.autoSubmit('" . $defName . "');";
+            // We have to override the onclick, do not append to it as Contao adds it's own code here in
+            // \Widget::getAttributesFromDca() which kills our sub palette handling!
+            $arrPrepared['onclick'] = "Backend.autoSubmit('" . $defName . "');";
         }
 
         $objWidget = new $strClass($arrPrepared, new DcCompat($environment, $this->model, $property));
