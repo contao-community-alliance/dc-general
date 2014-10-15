@@ -147,9 +147,9 @@ var BackendGeneral =
 					if (img.nodeName.toLowerCase() == 'img') {
 						if (img.getParent('ul.tl_listing').hasClass('tl_tree_xtnd')) {
 							if (publish) {
-								img.src = img.src.replace(/_\.(gif|png|jpe?g)/, '.$1');
+								img.src = img.src.replace(/_1\.(gif|png|jpe?g)/, '.$1');
 							} else {
-								img.src = img.src.replace(/\.(gif|png|jpe?g)/, '_.$1');
+								img.src = img.src.replace(/\.(gif|png|jpe?g)/, '_1.$1');
 							}
 						} else {
 							if (img.src.match(/folPlus|folMinus/)) {
