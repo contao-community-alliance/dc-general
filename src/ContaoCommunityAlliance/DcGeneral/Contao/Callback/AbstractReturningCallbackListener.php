@@ -38,7 +38,7 @@ abstract class AbstractReturningCallbackListener extends AbstractCallbackListene
      */
     public function __invoke($event)
     {
-        if ($this->getCallback()) {
+        if ($this->getCallback() && $this->wantToExecute($event)) {
             $this->update(
                 $event,
                 Callbacks::callArgs($this->getCallback(), $this->getArgs($event))

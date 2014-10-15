@@ -22,7 +22,6 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\Callback;
  */
 abstract class AbstractCallbackListener
 {
-
     /**
      * The callback to use.
      *
@@ -33,11 +32,39 @@ abstract class AbstractCallbackListener
     /**
      * Create a new instance of the listener.
      *
-     * @param array|callable $callback The callback to call when invoked.
+     * @param array|callable $callback     The callback to call when invoked.
+     *
+     * @param array|null     $restrictions The restrictions for the callback.
      */
-    public function __construct($callback = null)
+    public function __construct($callback = null, $restrictions = null)
     {
         $this->callback = $callback;
+
+        call_user_func_array(array($this, 'setRestrictions'), $restrictions);
+    }
+
+    /**
+     * Set the restrictions for this callback.
+     *
+     * @return void
+     */
+    public function setRestrictions()
+    {
+        // No op.
+    }
+
+    /**
+     * Check the restrictions against the information within the event and determine if the callback shall be executed.
+     *
+     * @param \Symfony\Component\EventDispatcher\Event $event The Event for which the callback shall be invoked.
+     *
+     * @return bool
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function wantToExecute($event)
+    {
+        return true;
     }
 
     /**
@@ -68,7 +95,7 @@ abstract class AbstractCallbackListener
      */
     public function __invoke($event)
     {
-        if ($this->getCallback()) {
+        if ($this->getCallback() && $this->wantToExecute($event)) {
             Callbacks::callArgs($this->getCallback(), $this->getArgs($event));
         }
     }
