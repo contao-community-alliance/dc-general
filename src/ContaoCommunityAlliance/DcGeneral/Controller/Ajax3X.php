@@ -13,7 +13,10 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
+use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
+use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 
 /**
  * Class GeneralAjax - General purpose Ajax handler for "executePostActions" in Contao 3.X as we can not use the default
@@ -132,6 +135,37 @@ class Ajax3X extends Ajax
     }
 
     /**
+     * Retrieve a model from a serialized id.
+     *
+     * Exits the script if no model has been found.
+     *
+     * @param string $serializedId The serialized id.
+     *
+     * @return ModelInterface
+     */
+    protected function getModelFromSerializedId($serializedId)
+    {
+        $modelId      = IdSerializer::fromSerialized($serializedId);
+        $dataProvider = $this->getEnvironment()->getDataProvider($modelId->getDataProviderName());
+        $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+
+        if ($model === null) {
+            $event = new LogEvent(
+                'A record with the ID "' . $serializedId . '" does not exist in "' .
+                $this->getEnvironment()->getDataDefinition()->getName() . '"',
+                'Ajax executePostActions()',
+                TL_ERROR
+            );
+            $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::SYSTEM_LOG, $event);
+            header('HTTP/1.1 400 Bad Request');
+            echo 'Bad Request';
+            $this->exitScript();
+        }
+
+        return $model;
+    }
+
+    /**
      * Reload the file tree.
      *
      * @param string $strType The type.
@@ -148,29 +182,8 @@ class Ajax3X extends Ajax
         $serializedId = $input->hasParameter('id') ? $input->getParameter('id') : null;
         $fieldName    = $input->hasValue('name') ? $input->getValue('name') : null;
 
-        // Handle the keys in "edit multiple" mode.
-        if ($this->getGet('act') == 'editAll') {
-            // TODO: change here when implementing editAll.
-            $serializedId = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $fieldName);
-            // $field        = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $fieldName);
-        }
-
         if ($serializedId !== null) {
-            $modelId      = IdSerializer::fromSerialized($serializedId);
-            $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
-            $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-
-            if ($model === null) {
-                $this->log(
-                    'A record with the ID "' . $serializedId . '" does not exist in "' .
-                    $environment->getDataDefinition()->getName() . '"',
-                    'Ajax executePostActions()',
-                    TL_ERROR
-                );
-                header('HTTP/1.1 400 Bad Request');
-                echo 'Bad Request';
-                $this->exitScript();
-            }
+            $model = $this->getModelFromSerializedId($serializedId);
         }
 
         $varValue = $this->getTreeValue($strType, $input->getValue('value'));
