@@ -580,9 +580,7 @@ class ContaoWidgetManager
             && in_array($property, array_keys($GLOBALS['TL_DCA'][$defName]['subpalettes']))
             && $arrConfig['eval']['submitOnChange']
         ) {
-            $arrPrepared['onclick'] = $arrConfig['eval']['submitOnChange']
-                ? "Backend.autoSubmit('" . $defName . "')"
-                : '';
+            $arrPrepared['onclick'] .= "Backend.autoSubmit('" . $defName . "');";
         }
 
         $objWidget = new $strClass($arrPrepared, new DcCompat($environment, $this->model, $property));
