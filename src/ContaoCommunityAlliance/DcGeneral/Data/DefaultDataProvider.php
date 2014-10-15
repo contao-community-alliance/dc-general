@@ -21,6 +21,9 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  * Default implementation for a data provider using the Contao default database as backend.
  *
  * @package DcGeneral\Data
+ *
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) - There is no way to reduce this class more without reducing the
+ *                                                     interface.
  */
 class DefaultDataProvider implements DataProviderInterface
 {
