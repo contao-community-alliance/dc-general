@@ -52,6 +52,6 @@ class PropertyInputFieldGetWizardCallbackListener extends AbstractReturningCallb
      */
     public function update($event, $value)
     {
-        $event->getWidget()->wizard = $value;
+        $event->getWidget()->wizard .= $value;
     }
 }
