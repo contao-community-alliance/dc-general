@@ -148,7 +148,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      *
      * @return void
      */
-    protected function parseCallback($dispatcher, $callbacks, $eventName, $suffixes, $listener)
+    protected function parseCallbackPropagated($dispatcher, $callbacks, $eventName, $suffixes, $listener)
     {
         if (!(is_array($callbacks) || is_callable($callbacks))) {
             return;
@@ -185,7 +185,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         foreach ((array)$this->getFromDca('fields') as $propName => $propInfo) {
 
             if (isset($propInfo['load_callback'])) {
-                $this->parseCallback(
+                $this->parseCallbackPropagated(
                     $dispatcher,
                     $propInfo['load_callback'],
                     DecodePropertyValueForWidgetEvent::NAME,
@@ -195,7 +195,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
 
             if (isset($propInfo['save_callback'])) {
-                $this->parseCallback(
+                $this->parseCallbackPropagated(
                     $dispatcher,
                     $propInfo['save_callback'],
                     EncodePropertyValueFromWidgetEvent::NAME,
@@ -205,7 +205,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
 
             if (isset($propInfo['options_callback'])) {
-                $this->parseCallback(
+                $this->parseCallbackPropagated(
                     $dispatcher,
                     $propInfo['options_callback'],
                     GetPropertyOptionsEvent::NAME,
@@ -215,7 +215,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
 
             if (isset($propInfo['input_field_callback'])) {
-                $this->parseCallback(
+                $this->parseCallbackPropagated(
                     $dispatcher,
                     $propInfo['input_field_callback'],
                     BuildWidgetEvent::NAME,
@@ -225,12 +225,22 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
 
             if (isset($propInfo['wizard'])) {
-                $this->parseCallback(
+                $this->parseCallbackPropagated(
                     $dispatcher,
                     $propInfo['wizard'],
                     ManipulateWidgetEvent::NAME,
                     array($container->getName(), $propName),
                     'ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldGetWizardCallbackListener'
+                );
+            }
+
+            if (isset($propInfo['xlabel'])) {
+                $this->parseCallbackPropagated(
+                    $dispatcher,
+                    $propInfo['xlabel'],
+                    ManipulateWidgetEvent::NAME,
+                    array($container->getName(), $propName),
+                    'ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldGetXLabelCallbackListener'
                 );
             }
         }
@@ -247,7 +257,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      */
     protected function parseCallbacks(ContainerInterface $container, EventDispatcherInterface $dispatcher)
     {
-        $this->parseCallback(
+        $this->parseCallbackPropagated(
             $dispatcher,
             $this->getFromDca('config/onload_callback'),
             CreateDcGeneralEvent::NAME,
@@ -255,7 +265,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnLoadCallbackListener'
         );
 
-        $this->parseCallback(
+        $this->parseCallbackPropagated(
             $dispatcher,
             $this->getFromDca('config/onsubmit_callback'),
             PostPersistModelEvent::NAME,
@@ -263,7 +273,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnSubmitCallbackListener'
         );
 
-        $this->parseCallback(
+        $this->parseCallbackPropagated(
             $dispatcher,
             $this->getFromDca('config/ondelete_callback'),
             PostDeleteModelEvent::NAME,
@@ -271,7 +281,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnDeleteCallbackListener'
         );
 
-        $this->parseCallback(
+        $this->parseCallbackPropagated(
             $dispatcher,
             $this->getFromDca('config/oncut_callback'),
             PostPasteModelEvent::NAME,
@@ -279,7 +289,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnCutCallbackListener'
         );
 
-        $this->parseCallback(
+        $this->parseCallbackPropagated(
             $dispatcher,
             $this->getFromDca('config/oncopy_callback'),
             PostDuplicateModelEvent::NAME,
@@ -287,7 +297,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnCopyCallbackListener'
         );
 
-        $this->parseCallback(
+        $this->parseCallbackPropagated(
             $dispatcher,
             $this->getFromDca('list/sorting/header_callback'),
             GetParentHeaderEvent::NAME,
@@ -295,7 +305,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerHeaderCallbackListener'
         );
 
-        $this->parseCallback(
+        $this->parseCallbackPropagated(
             $dispatcher,
             $this->getFromDca('list/sorting/paste_button_callback'),
             GetPasteRootButtonEvent::NAME,
@@ -303,7 +313,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerPasteRootButtonCallbackListener'
         );
 
-        $this->parseCallback(
+        $this->parseCallbackPropagated(
             $dispatcher,
             $this->getFromDca('list/sorting/paste_button_callback'),
             GetPasteButtonEvent::NAME,
@@ -311,7 +321,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerPasteButtonCallbackListener'
         );
 
-        $this->parseCallback(
+        $this->parseCallbackPropagated(
             $dispatcher,
             $this->getFromDca('list/sorting/child_record_callback'),
             ParentViewChildRecordEvent::NAME,
@@ -319,7 +329,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelChildRecordCallbackListener'
         );
 
-        $this->parseCallback(
+        $this->parseCallbackPropagated(
             $dispatcher,
             $this->getFromDca('list/label/group_callback'),
             GetGroupHeaderEvent::NAME,
@@ -327,7 +337,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelGroupCallbackListener'
         );
 
-        $this->parseCallback(
+        $this->parseCallbackPropagated(
             $dispatcher,
             $this->getFromDca('list/label/label_callback'),
             ModelToLabelEvent::NAME,
@@ -337,7 +347,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
         foreach ((array)$this->getFromDca('global_operations') as $operationName => $operationInfo) {
             if (isset($operationInfo['button_callback'])) {
-                $this->parseCallback(
+                $this->parseCallbackPropagated(
                     $dispatcher,
                     array($operationInfo['button_callback']),
                     GetGlobalButtonEvent::NAME,
@@ -349,7 +359,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
         foreach ((array)$this->getFromDca('list/operations') as $operationName => $operationInfo) {
             if (isset($operationInfo['button_callback'])) {
-                $this->parseCallback(
+                $this->parseCallbackPropagated(
                     $dispatcher,
                     array($operationInfo['button_callback']),
                     GetOperationButtonEvent::NAME,
@@ -361,7 +371,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
         $this->parsePropertyCallbacks($container, $dispatcher);
 
-        $this->parseCallback(
+        $this->parseCallbackPropagated(
             $dispatcher,
             $this->getFromDca('list/presentation/breadcrumb_callback'),
             GetBreadcrumbEvent::NAME,
