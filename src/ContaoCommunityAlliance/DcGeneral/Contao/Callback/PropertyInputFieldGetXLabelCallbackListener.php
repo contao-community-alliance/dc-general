@@ -14,43 +14,44 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Callback;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 
 /**
- * Class PropertyOnSaveCallbackListener.
+ * Class PropertyInputFieldGetXLabelCallbackListener.
  *
- * Handler for the save_callbacks of a property.
+ * Handle the property wizard callbacks.
  *
  * @package DcGeneral\Contao\Callback
  */
-class PropertyOnSaveCallbackListener extends AbstractReturningPropertyCallbackListener
+class PropertyInputFieldGetXLabelCallbackListener extends AbstractReturningPropertyCallbackListener
 {
     /**
      * Retrieve the arguments for the callback.
      *
-     * @param EncodePropertyValueFromWidgetEvent $event The event being emitted.
+     * @param BuildWidgetEvent $event The event being emitted.
      *
      * @return array
      */
     public function getArgs($event)
     {
         return array(
-            $event->getValue(),
+            $event->getWidget(),
+            $event->getProperty(),
             new DcCompat($event->getEnvironment(), $event->getModel(), $event->getProperty())
         );
     }
 
     /**
-     * Update the value in the event.
+     * Update the wizard HTML string in the widget.
      *
-     * @param EncodePropertyValueFromWidgetEvent $event The event being emitted.
+     * @param BuildWidgetEvent $event The event being emitted.
      *
-     * @param mixed                              $value The encoded value.
+     * @param string           $value The HTML for the wizard of the widget.
      *
      * @return void
      */
     public function update($event, $value)
     {
-        $event->setValue($value);
+        $event->getWidget()->xlabel .= $value;
     }
 }

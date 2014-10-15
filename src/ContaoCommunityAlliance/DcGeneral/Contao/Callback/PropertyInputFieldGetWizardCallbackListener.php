@@ -23,7 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Build
  *
  * @package DcGeneral\Contao\Callback
  */
-class PropertyInputFieldGetWizardCallbackListener extends AbstractReturningCallbackListener
+class PropertyInputFieldGetWizardCallbackListener extends AbstractReturningPropertyCallbackListener
 {
     /**
      * Retrieve the arguments for the callback.

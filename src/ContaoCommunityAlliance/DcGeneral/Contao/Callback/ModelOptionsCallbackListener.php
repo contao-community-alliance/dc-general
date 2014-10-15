@@ -23,7 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPr
  *
  * @package DcGeneral\Contao\Callback
  */
-class ModelOptionsCallbackListener extends AbstractReturningCallbackListener
+class ModelOptionsCallbackListener extends AbstractReturningPropertyCallbackListener
 {
     /**
      * Retrieve the arguments for the callback.

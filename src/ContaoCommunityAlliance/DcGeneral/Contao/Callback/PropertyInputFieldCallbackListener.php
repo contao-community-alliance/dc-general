@@ -23,7 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Build
  *
  * @package DcGeneral\Contao\Callback
  */
-class PropertyInputFieldCallbackListener extends AbstractReturningCallbackListener
+class PropertyInputFieldCallbackListener extends AbstractReturningPropertyCallbackListener
 {
 
     /**

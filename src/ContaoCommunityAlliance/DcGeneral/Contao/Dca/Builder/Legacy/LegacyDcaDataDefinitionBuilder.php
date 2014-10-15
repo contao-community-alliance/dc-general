@@ -170,6 +170,39 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             );
         }
     }
+    /**
+     * Register the callback handlers for the given legacy callbacks.
+     *
+     * @param EventDispatcherInterface $dispatcher The event dispatcher.
+     *
+     * @param array                    $callbacks  The callbacks to be handled.
+     *
+     * @param string                   $eventName  The event to be registered to.
+     *
+     * @param array                    $arguments  The arguments to pass to the constructor.
+     *
+     * @param string                   $listener   The listener class to use.
+     *
+     * @return void
+     */
+    protected function parseCallback($dispatcher, $callbacks, $eventName, $arguments, $listener)
+    {
+        if (!(is_array($callbacks) || is_callable($callbacks))) {
+            return;
+        }
+
+        // If only one callback given, ensure the loop below handles it correctly.
+        if (is_array($callbacks) && (count($callbacks) == 2) && !is_array($callbacks[0])) {
+            $callbacks = array($callbacks);
+        }
+
+        foreach ((array)$callbacks as $callback) {
+            $dispatcher->addListener(
+                $eventName,
+                new $listener($callback, $arguments)
+            );
+        }
+    }
 
     /**
      * Parse the basic configuration and populate the definition.
@@ -185,7 +218,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         foreach ((array)$this->getFromDca('fields') as $propName => $propInfo) {
 
             if (isset($propInfo['load_callback'])) {
-                $this->parseCallbackPropagated(
+                $this->parseCallback(
                     $dispatcher,
                     $propInfo['load_callback'],
                     DecodePropertyValueForWidgetEvent::NAME,
@@ -195,7 +228,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
 
             if (isset($propInfo['save_callback'])) {
-                $this->parseCallbackPropagated(
+                $this->parseCallback(
                     $dispatcher,
                     $propInfo['save_callback'],
                     EncodePropertyValueFromWidgetEvent::NAME,
@@ -205,7 +238,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
 
             if (isset($propInfo['options_callback'])) {
-                $this->parseCallbackPropagated(
+                $this->parseCallback(
                     $dispatcher,
                     $propInfo['options_callback'],
                     GetPropertyOptionsEvent::NAME,
@@ -215,7 +248,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
 
             if (isset($propInfo['input_field_callback'])) {
-                $this->parseCallbackPropagated(
+                $this->parseCallback(
                     $dispatcher,
                     $propInfo['input_field_callback'],
                     BuildWidgetEvent::NAME,
@@ -225,7 +258,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
 
             if (isset($propInfo['wizard'])) {
-                $this->parseCallbackPropagated(
+                $this->parseCallback(
                     $dispatcher,
                     $propInfo['wizard'],
                     ManipulateWidgetEvent::NAME,
@@ -235,7 +268,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
 
             if (isset($propInfo['xlabel'])) {
-                $this->parseCallbackPropagated(
+                $this->parseCallback(
                     $dispatcher,
                     $propInfo['xlabel'],
                     ManipulateWidgetEvent::NAME,

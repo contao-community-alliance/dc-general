@@ -23,7 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Decod
  *
  * @package DcGeneral\Contao\Callback
  */
-class PropertyOnLoadCallbackListener extends AbstractReturningCallbackListener
+class PropertyOnLoadCallbackListener extends AbstractReturningPropertyCallbackListener
 {
     /**
      * Retrieve the arguments for the callback.
