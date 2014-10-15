@@ -423,6 +423,38 @@ class ContaoWidgetManager
     }
 
     /**
+     * Get special labels.
+     *
+     * @param PropertyInterface $propInfo The property for which the X label shall be generated.
+     *
+     * @param ModelInterface    $model    The model.
+     *
+     * @return string
+     */
+    protected function getOptionsForWidget($propInfo, $model)
+    {
+        $environment = $this->getEnvironment();
+        $dispatcher  = $environment->getEventDispatcher();
+        $options     = $propInfo->getOptions();
+        $event       = new GetPropertyOptionsEvent($environment, $model);
+        $event->setPropertyName($propInfo->getName());
+        $event->setOptions($options);
+
+        $dispatcher->dispatch(
+            sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $propInfo->getName()),
+            $event
+        );
+        $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()), $event);
+        $dispatcher->dispatch($event::NAME, $event);
+
+        if ($event->getOptions() !== $options) {
+            return $event->getOptions();
+        }
+
+        return $options;
+    }
+
+    /**
      * Retrieve the instance of a widget for the given property.
      *
      * @param string           $property    Name of the property for which the widget shall be retrieved.
@@ -493,29 +525,13 @@ class ContaoWidgetManager
             $model = $this->model;
         }
 
-        $options = $propInfo->getOptions();
-        $event   = new GetPropertyOptionsEvent($environment, $model);
-        $event->setPropertyName($property);
-        $event->setOptions($options);
-
-        $dispatcher->dispatch(
-            sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $property),
-            $event
-        );
-        $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()), $event);
-        $dispatcher->dispatch($event::NAME, $event);
-
-        if ($event->getOptions() !== $options) {
-            $options = $event->getOptions();
-        }
-
         $arrConfig = array(
             'inputType' => $propInfo->getWidgetType(),
             'label'     => array(
                 $propInfo->getLabel(),
                 $propInfo->getDescription()
             ),
-            'options'   => $options,
+            'options'   => $this->getOptionsForWidget($propInfo, $model),
             'eval'      => $propExtra,
             // TODO: populate these.
             // 'foreignKey' => null
