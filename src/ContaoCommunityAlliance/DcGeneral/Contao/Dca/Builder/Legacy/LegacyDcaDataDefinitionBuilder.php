@@ -116,11 +116,17 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     protected function loadAdditionalDefinitions(ContainerInterface $container)
     {
         if ($this->getFromDca('config/ptable')) {
+            $containerName = $container->getName();
             $this->getDispatcher()->addListener(
-                sprintf('%s[%s]', PopulateEnvironmentEvent::NAME, $container->getName()),
-                function (PopulateEnvironmentEvent $event) {
-                    $environment      = $event->getEnvironment();
-                    $definition       = $environment->getDataDefinition();
+                PopulateEnvironmentEvent::NAME,
+                function (PopulateEnvironmentEvent $event) use ($containerName) {
+                    $environment = $event->getEnvironment();
+                    $definition  = $environment->getDataDefinition();
+
+                    if ($definition->getName() !== $containerName) {
+                        return;
+                    }
+
                     $parentName       = $definition->getBasicDefinition()->getParentDataProvider();
                     $factory          = DcGeneralFactory::deriveEmptyFromEnvironment($environment)->setContainerName(
                         $parentName
