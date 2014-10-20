@@ -85,6 +85,10 @@ class Ajax3X extends Ajax
         $arrData['strTable'] = $input->getParameter('table');
         $arrData['id']       = $field;
         $arrData['name']     = $field;
+        $arrData             = array_merge(
+            $environment->getDataDefinition()->getPropertiesDefinition()->getProperty($field)->getExtra(),
+            $arrData
+        );
 
         /** @var \FileSelector $objWidget */
         $objWidget = new $GLOBALS['BE_FFL']['fileSelector']($arrData, $this->getDataContainer());
