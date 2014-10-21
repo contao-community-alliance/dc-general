@@ -105,6 +105,10 @@ class TreeSelect
 
         $information = (array)$GLOBALS['TL_DCA'][$strTable]['fields'][$strField];
 
+        if (!isset($information['eval'])) {
+            $information['eval'] = array();
+        }
+
         // Merge with the information from the data container.
         $property = $this
             ->itemContainer
@@ -114,8 +118,7 @@ class TreeSelect
             ->getProperty($strField);
         $extra    = $property->getExtra();
 
-        $information['eval']['sourceName'] = $extra['sourceName'];
-        $information['eval']['fieldType']  = $extra['fieldType'];
+        $information['eval'] = array_merge($extra, $information['eval']);
 
         /** @var \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker $objTreeSelector */
         $objTreeSelector = new $GLOBALS['BE_FFL']['DcGeneralTreePicker'](

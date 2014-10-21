@@ -29,7 +29,7 @@
 					name="<?php echo $this->name ?>"
 					id="ctrl_<?php echo $this->id ?>_<?php echo $model->getId(); ?>"
 					class="tl_tree_radio"
-					value="<?php echo specialchars($model->getId()); ?>"
+					value="<?php echo specialchars($model->getProperty($this->idProperty)); ?>"
 					<?php echo $this->active; ?>
 					onfocus="Backend.getScrollOffset();" />
 			<?php elseif ($this->fieldType == 'checkbox'): ?>
@@ -38,7 +38,7 @@
 					name="<?php echo $this->name ?>[]"
 					id="ctrl_<?php echo $this->id ?>_<?php echo $model->getId(); ?>"
 					class="tl_checkbox"
-					value="<?php echo specialchars($model->getId()); ?>"
+					value="<?php echo specialchars($model->getProperty($this->idProperty)); ?>"
 					<?php echo $this->active; ?>
 					onfocus="Backend.getScrollOffset();" />
 			<?php endif; ?>

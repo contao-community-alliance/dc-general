@@ -374,6 +374,7 @@ class TreePicker extends \Widget
     {
         $values = array();
         $value  = $this->varValue;
+        $idProperty = $this->idProperty ?: 'id';
 
         if (is_array($value) && !empty($value)) {
             $environment = $this->getEnvironment();
@@ -381,7 +382,7 @@ class TreePicker extends \Widget
             $config      = $environment->getController()->getBaseConfig();
             $filter      = FilterBuilder::fromArrayForRoot()
                 ->getFilter()
-                ->andPropertyValueIn('id', $value)
+                ->andPropertyValueIn($idProperty, $value)
                 ->getAllAsArray();
 
             $config->setFilter($filter);
@@ -389,9 +390,9 @@ class TreePicker extends \Widget
             $collection = $dataDriver->fetchAll($config);
             if ($collection->length() > 0) {
                 foreach ($collection as $model) {
-                    $formatted   = $this->formatModel($model, false);
-                    $id          = $model->getId();
-                    $values[$id] = $formatted[0]['content'];
+                    $formatted        = $this->formatModel($model, false);
+                    $idValue          = $model->getProperty($idProperty);
+                    $values[$idValue] = $formatted[0]['content'];
                 }
             }
 
@@ -1023,7 +1024,8 @@ class TreePicker extends \Widget
         $objTemplate->toggleUrl    = $toggleUrlEvent->getUrl();
         $objTemplate->toggleTitle  = $toggleTitle;
         $objTemplate->toggleScript = $toggleScript;
-        $objTemplate->active       = $this->optionChecked($objModel->getId(), $this->value);
+        $objTemplate->active       = $this->optionChecked($objModel->getProperty($this->idProperty), $this->value);
+        $objTemplate->idProperty   = $this->idProperty;
 
         return $objTemplate->parse();
     }
