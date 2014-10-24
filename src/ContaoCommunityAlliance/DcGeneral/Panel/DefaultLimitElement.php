@@ -206,7 +206,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
             );
         }
 
-        $objTemplate->options = $arrOptions;
+        $objTemplate->set('options', $arrOptions);
 
         return $this;
     }
