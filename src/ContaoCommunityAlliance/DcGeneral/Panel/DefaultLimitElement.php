@@ -45,6 +45,21 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
     protected $intTotal;
 
     /**
+     * Retrieve the amount of items to display per page.
+     *
+     * @return int
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     */
+    protected function getItemsPerPage()
+    {
+        if (version_compare(VERSION, '3', '<')) {
+            return $GLOBALS['TL_CONFIG']['resultsPerPage'];
+        }
+        return \Config::get('resultsPerPage');
+    }
+
      * Retrieve the persistent value from the input provider.
      *
      * @return array
@@ -97,9 +112,6 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 
     /**
      * {@inheritDoc}
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
     {
@@ -112,8 +124,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 
             $this->intTotal = $arrTotal ? count($arrTotal) : 0;
             $offset         = 0;
-            // TODO: we need to determine the perPage some better way.
-            $amount = $GLOBALS['TL_CONFIG']['resultsPerPage'];
+            $amount = $this->getItemsPerPage();
 
             $input = $this->getInputProvider();
             if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue('tl_limit')) {
