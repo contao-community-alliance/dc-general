@@ -60,6 +60,29 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
         return \Config::get('resultsPerPage');
     }
 
+    /**
+     * Calculate the total amount of items.
+     *
+     * @return void
+     */
+    protected function calculateTotal()
+    {
+        $objTempConfig = $this->getOtherConfig();
+        $total         = $this
+            ->getEnvironment()
+            ->getDataProvider()
+            ->fetchAll($objTempConfig->setIdOnly(true));
+
+        if (is_array($total)) {
+            $this->intTotal = $total ? count($total) : 0;
+        } elseif (is_object($total)) {
+            $this->intTotal = $total->length();
+        } else {
+            $this->intTotal = 0;
+        }
+    }
+
+    /**
      * Retrieve the persistent value from the input provider.
      *
      * @return array
@@ -116,14 +139,9 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
     public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
     {
         if ($objElement === null) {
-            $objTempConfig = $this->getOtherConfig();
-            $arrTotal      = $this
-                ->getEnvironment()
-                ->getDataProvider()
-                ->fetchAll($objTempConfig->setIdOnly(true));
+            $this->calculateTotal();
 
-            $this->intTotal = $arrTotal ? count($arrTotal) : 0;
-            $offset         = 0;
+            $offset = 0;
             $amount = $this->getItemsPerPage();
 
             $input = $this->getInputProvider();
