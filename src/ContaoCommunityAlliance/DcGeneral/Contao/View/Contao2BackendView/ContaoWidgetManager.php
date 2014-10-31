@@ -163,7 +163,7 @@ class ContaoWidgetManager
      */
     protected function getHelpWizard($propInfo)
     {
-        $helpWizard   = '';
+        $helpWizard  = '';
         $environment = $this->getEnvironment();
         $dispatcher  = $environment->getEventDispatcher();
         $defName     = $environment->getDataDefinition()->getName();
@@ -324,7 +324,7 @@ class ContaoWidgetManager
      */
     protected function getXLabel($propInfo)
     {
-        $xLabel   = '';
+        $xLabel      = '';
         $environment = $this->getEnvironment();
         $dispatcher  = $environment->getEventDispatcher();
         $translator  = $environment->getTranslator();
