@@ -588,13 +588,14 @@ class TreePicker extends \Widget
      */
     protected function getOpenElements()
     {
-        $inputProvider = $this->getEnvironment()->getInputProvider();
+        $inputProvider  = $this->getEnvironment()->getInputProvider();
+        $sessionStorage = $this->getEnvironment()->getSessionStorage();
 
-        $openElements = $inputProvider->getPersistentValue($this->getToggleId());
+        $openElements = $sessionStorage->get($this->getToggleId());
 
         if (!is_array($openElements)) {
             $openElements = array();
-            $inputProvider->setPersistentValue($this->getToggleId(), $openElements);
+            $sessionStorage->set($this->getToggleId(), $openElements);
         }
 
         // Check if the open/close all is active.
@@ -606,7 +607,7 @@ class TreePicker extends \Widget
             }
 
             // Save in session and reload.
-            $inputProvider->setPersistentValue($this->getToggleId(), $openElements);
+            $sessionStorage->set($this->getToggleId(), $openElements);
 
             $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
         }
@@ -625,8 +626,8 @@ class TreePicker extends \Widget
      */
     protected function toggleModel($providerName, $modelId)
     {
-        $inputProvider = $this->getEnvironment()->getInputProvider();
-        $openElements  = $this->getOpenElements();
+        $sessionStorage = $this->getEnvironment()->getSessionStorage();
+        $openElements   = $this->getOpenElements();
 
         if (!isset($openElements[$providerName])) {
             $openElements[$providerName] = array();
@@ -638,7 +639,7 @@ class TreePicker extends \Widget
             $openElements[$providerName][$modelId] = !$openElements[$providerName][$modelId];
         }
 
-        $inputProvider->setPersistentValue($this->getToggleId(), $openElements);
+        $sessionStorage->set($this->getToggleId(), $openElements);
     }
 
     /**

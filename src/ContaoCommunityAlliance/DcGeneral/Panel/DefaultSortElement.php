@@ -94,8 +94,8 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
     protected function getPersistent()
     {
         $arrValue = array();
-        if ($this->getInputProvider()->hasPersistentValue('sorting')) {
-            $arrValue = $this->getInputProvider()->getPersistentValue('sorting');
+        if ($this->getSessionStorage()->has('sorting')) {
+            $arrValue = $this->getSessionStorage()->get('sorting');
         }
 
         if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
@@ -117,8 +117,8 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
         $arrValue       = array();
         $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
-        if ($this->getInputProvider()->hasPersistentValue('sorting')) {
-            $arrValue = $this->getInputProvider()->getPersistentValue('sorting');
+        if ($this->getSessionStorage()->has('sorting')) {
+            $arrValue = $this->getSessionStorage()->get('sorting');
         }
 
         if ($strProperty) {
@@ -130,7 +130,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
             unset($arrValue[$definitionName]);
         }
 
-        $this->getInputProvider()->setPersistentValue('sorting', $arrValue);
+        $this->getSessionStorage()->set('sorting', $arrValue);
     }
 
     /**

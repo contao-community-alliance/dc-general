@@ -72,6 +72,13 @@ class DefaultEnvironment implements EnvironmentInterface
     protected $objRootDataDefinition;
 
     /**
+     * The session storage.
+     *
+     * @var SessionStorageInterface
+     */
+    protected $sessionStorage;
+
+    /**
      * The attached input provider.
      *
      * @var InputProviderInterface
@@ -201,6 +208,24 @@ class DefaultEnvironment implements EnvironmentInterface
     public function getRootDataDefinition()
     {
         return $this->objRootDataDefinition;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setSessionStorage(SessionStorageInterface $sessionStorage)
+    {
+        $this->sessionStorage = $sessionStorage;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSessionStorage()
+    {
+        return $this->sessionStorage;
     }
 
     /**

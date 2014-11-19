@@ -86,7 +86,9 @@ abstract class AbstractHandler
      */
     public static function checkLanguageSubmit($environment)
     {
-        $inputProvider = $environment->getInputProvider();
+        $sessionStorage = $environment->getSessionStorage();
+        $inputProvider  = $environment->getInputProvider();
+
         if ($inputProvider->getValue('FORM_SUBMIT') !== 'language_switch') {
             return;
         }
@@ -102,7 +104,7 @@ abstract class AbstractHandler
             && array_key_exists($inputProvider->getValue('language'), $languages)
         ) {
             $session['ml_support'][$providerName][$modelId] = $inputProvider->getValue('language');
-            $inputProvider->setPersistentValue('dc_general', $session);
+            $sessionStorage->set('dc_general', $session);
         }
 
         $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
@@ -120,13 +122,14 @@ abstract class AbstractHandler
      */
     public static function checkLanguage($environment)
     {
-        $inputProvider = $environment->getInputProvider();
-        $dataProvider  = $environment->getDataProvider();
-        $providerName  = $environment->getDataDefinition()->getName();
-        $modelId       = $inputProvider->hasParameter('id')
+        $inputProvider  = $environment->getInputProvider();
+        $sessionStorage = $environment->getSessionStorage();
+        $dataProvider   = $environment->getDataProvider();
+        $providerName   = $environment->getDataDefinition()->getName();
+        $modelId        = $inputProvider->hasParameter('id')
             ? IdSerializer::fromSerialized($inputProvider->getParameter('id'))->getId()
             : null;
-        $languages     = $environment->getController()->getSupportedLanguages($modelId);
+        $languages      = $environment->getController()->getSupportedLanguages($modelId);
 
         if (!$languages) {
             return;
@@ -135,7 +138,7 @@ abstract class AbstractHandler
         static::checkLanguageSubmit($environment);
 
         // Load language from Session.
-        $session = (array)$inputProvider->getPersistentValue('dc_general');
+        $session = (array)$sessionStorage->get('dc_general');
         /** @var MultiLanguageDataProviderInterface $dataProvider */
 
         // Try to get the language from session.
@@ -150,7 +153,7 @@ abstract class AbstractHandler
         }
 
         $session['ml_support'][$providerName][$modelId] = $currentLanguage;
-        $inputProvider->setPersistentValue('dc_general', $session);
+        $sessionStorage->set('dc_general', $session);
 
         $dataProvider->setCurrentLanguage($currentLanguage);
     }

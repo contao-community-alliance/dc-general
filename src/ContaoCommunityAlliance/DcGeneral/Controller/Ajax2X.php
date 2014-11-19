@@ -35,6 +35,7 @@ class Ajax2X extends Ajax
     {
         $environment = $this->getEnvironment();
         $input       = $environment->getInputProvider();
+        $session     = $environment->getSessionStorage();
         $field       = $input->getValue('field');
         $name        = $input->getValue('name');
         $level       = intval($input->getValue('level'));
@@ -48,9 +49,9 @@ class Ajax2X extends Ajax
             $ajaxName = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $name);
         }
 
-        $nodes          = $input->getPersistentValue($ajaxKey);
+        $nodes          = $session->get($ajaxKey);
         $nodes[$ajaxId] = intval($input->getValue('state'));
-        $input->setPersistentValue($ajaxKey, $nodes);
+        $session->set($ajaxKey, $nodes);
 
         $arrData['strTable'] = $environment->getDataDefinition()->getName();
         $arrData['id']       = $ajaxName ?: $rootId;

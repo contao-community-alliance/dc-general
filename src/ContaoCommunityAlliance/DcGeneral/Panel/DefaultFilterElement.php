@@ -54,8 +54,8 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
     protected function getPersistent()
     {
         $arrValue = array();
-        if ($this->getInputProvider()->hasPersistentValue('filter')) {
-            $arrValue = $this->getInputProvider()->getPersistentValue('filter');
+        if ($this->getSessionStorage()->has('filter')) {
+            $arrValue = $this->getSessionStorage()->get('filter');
         }
 
         if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
@@ -81,8 +81,8 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
         $arrValue       = array();
         $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
-        if ($this->getInputProvider()->hasPersistentValue('filter')) {
-            $arrValue = $this->getInputProvider()->getPersistentValue('filter');
+        if ($this->getSessionStorage()->has('filter')) {
+            $arrValue = $this->getSessionStorage()->get('filter');
         }
 
         if (!is_array($arrValue[$definitionName])) {
@@ -95,7 +95,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             unset($arrValue[$definitionName][$this->getPropertyName()]);
         }
 
-        $this->getInputProvider()->setPersistentValue('filter', $arrValue);
+        $this->getSessionStorage()->set('filter', $arrValue);
     }
 
     /**
@@ -103,8 +103,9 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
      */
     public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
     {
-        $input = $this->getInputProvider();
-        $value = null;
+        $session = $this->getSessionStorage();
+        $input   = $this->getInputProvider();
+        $value   = null;
 
         if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue($this->getPropertyName())) {
             $value = $input->getValue($this->getPropertyName());
@@ -112,7 +113,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             $this->setPersistent($value);
         }
 
-        if ($input->hasPersistentValue('filter')) {
+        if ($session->has('filter')) {
             $persistent = $this->getPersistent();
             $value      = $persistent;
         }
