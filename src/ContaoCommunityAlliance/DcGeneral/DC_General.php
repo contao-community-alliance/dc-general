@@ -82,7 +82,9 @@ class DC_General extends \DataContainer implements DataContainerInterface
         }
 
         // Load the clipboard.
-        $this->getEnvironment()->getClipboard()
+        $this
+            ->getEnvironment()
+            ->getClipboard()
             ->loadFrom($this->getEnvironment());
 
         // Execute AJAX request, called from Backend::getBackendModule

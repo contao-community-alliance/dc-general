@@ -13,6 +13,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Clipboard;
 
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 
 /**
@@ -26,27 +27,12 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 interface ClipboardInterface
 {
     /**
-     * Clipboard is in copy mode.
-     */
-    const MODE_COPY = 'copy';
-
-    /**
-     * Clipboard is in cut mode.
-     */
-    const MODE_CUT = 'cut';
-
-    /**
-     * Clipboard is in create mode.
-     */
-    const MODE_CREATE = 'create';
-
-    /**
      * Load the content of the clipboard from the input provider stored in the environment.
      *
      * @param EnvironmentInterface $objEnvironment The environment where the input provider will retrieve the
      *                                             values from.
      *
-     * @return ClipboardInterface
+     * @return static
      */
     public function loadFrom($objEnvironment);
 
@@ -56,35 +42,106 @@ interface ClipboardInterface
      * @param EnvironmentInterface $objEnvironment The environment where the input provider will store the
      *                                             values to.
      *
-     * @return ClipboardInterface
+     * @return static
      */
     public function saveTo($objEnvironment);
 
     /**
-     * Clear the content of the clipboard.
+     * Push an item to the clipboard.
      *
-     * @return ClipboardInterface
+     * @param ItemInterface $item The item.
+     *
+     * @return static
      */
-    public function clear();
+    public function push(ItemInterface $item);
+
+    /**
+     * Remove an item from the clipboard.
+     *
+     * @param ItemInterface $item The item.
+     *
+     * @return static
+     */
+    public function remove(ItemInterface $item);
+
+    /**
+     * Get all items from the clipboard.
+     *
+     * @param string|null      $modelProviderName  If given, only return items that contain model IDs that are derived
+     *                                             from this provider.
+     * @param string|null|bool $parentProviderName If given, only return items that have this parent provider name.
+     *                                             Use null for items without a parent.
+     * @param string|null|bool $parentModelId      If given, only return items that have this parent model id.
+     *                                             Use null for items without a parent.
+     *
+     * @return ItemInterface[]
+     */
+    public function fetch($modelProviderName = null, $parentProviderName = false, $parentModelId = false);
 
     /**
      * Determine if the clipboard is empty.
      *
+     * @param string|null      $modelProviderName  If given, check for items that contain model IDs that are derived
+     *                                             from this model provider.
+     * @param string|null|bool $parentProviderName If given, check for items that have this parent provider name.
+     *                                             Use null for items without a parent.
+     * @param string|null|bool $parentModelId      If given, check for items that have this parent model id.
+     *                                             Use null for items without a parent.
+     *
      * @return bool
      */
-    public function isEmpty();
+    public function isEmpty($modelProviderName = null, $parentProviderName = false, $parentModelId = false);
 
     /**
      * Determine if the clipboard is not empty.
      *
+     * @param string|null      $modelProviderName  If given, check for items that contain model IDs that are derived
+     *                                             from this model provider.
+     * @param string|null|bool $parentProviderName If given, check for items that have this parent provider name.
+     *                                             Use null for items without a parent.
+     * @param string|null|bool $parentModelId      If given, check for items that have this parent model id.
+     *                                             Use null for items without a parent.
+     *
      * @return bool
      */
-    public function isNotEmpty();
+    public function isNotEmpty($modelProviderName = null, $parentProviderName = false, $parentModelId = false);
+
+    /**
+     * Clear the complete clipboard.
+     *
+     * @return static
+     */
+    public function clear();
+
+    // ************************************************** DEPRECATED **************************************************
+
+    /**
+     * Clipboard is in copy mode.
+     *
+     * @deprecated
+     */
+    const MODE_COPY = 'copy';
+
+    /**
+     * Clipboard is in cut mode.
+     *
+     * @deprecated
+     */
+    const MODE_CUT = 'cut';
+
+    /**
+     * Clipboard is in create mode.
+     *
+     * @deprecated
+     */
+    const MODE_CREATE = 'create';
 
     /**
      * Determine if the content in the clipboard shall be cut.
      *
      * @return bool
+     *
+     * @deprecated
      */
     public function isCut();
 
@@ -92,6 +149,8 @@ interface ClipboardInterface
      * Determine if the content in the clipboard shall be copied.
      *
      * @return bool
+     *
+     * @deprecated
      */
     public function isCopy();
 
@@ -99,6 +158,8 @@ interface ClipboardInterface
      * Determine if the content in the clipboard is a new item to be created.
      *
      * @return bool
+     *
+     * @deprecated
      */
     public function isCreate();
 
@@ -108,6 +169,8 @@ interface ClipboardInterface
      * @param array|mixed $ids The id or ids to be copied.
      *
      * @return ClipboardInterface
+     *
+     * @deprecated
      */
     public function copy($ids);
 
@@ -117,6 +180,8 @@ interface ClipboardInterface
      * @param array|mixed $ids The id or ids to be cut.
      *
      * @return ClipboardInterface
+     *
+     * @deprecated
      */
     public function cut($ids);
 
@@ -126,6 +191,8 @@ interface ClipboardInterface
      * @param string $parentId The id of the parent data set.
      *
      * @return ClipboardInterface
+     *
+     * @deprecated
      */
     public function create($parentId);
 
@@ -135,6 +202,8 @@ interface ClipboardInterface
      * @param array $arrIds The list of ids.
      *
      * @return ClipboardInterface
+     *
+     * @deprecated
      */
     public function setContainedIds($arrIds);
 
@@ -142,6 +211,8 @@ interface ClipboardInterface
      * Retrieve the ids contained in the clipboard.
      *
      * @return array
+     *
+     * @deprecated
      */
     public function getContainedIds();
 
@@ -151,6 +222,8 @@ interface ClipboardInterface
      * @param array $arrIds The list of ids.
      *
      * @return ClipboardInterface
+     *
+     * @deprecated
      */
     public function setCircularIds($arrIds);
 
@@ -158,6 +231,8 @@ interface ClipboardInterface
      * Retrieve the ids ignored in the clipboard as they would create a circular reference when pasting.
      *
      * @return array
+     *
+     * @deprecated
      */
     public function getCircularIds();
 
@@ -165,6 +240,8 @@ interface ClipboardInterface
      * Retrieve the current mode of the clipboard.
      *
      * @return string Either cut|paste|mode
+     *
+     * @deprecated
      */
     public function getMode();
 
@@ -174,6 +251,8 @@ interface ClipboardInterface
      * This is only valid in create mode.
      *
      * @return null|string
+     *
+     * @deprecated
      */
     public function getParent();
 }

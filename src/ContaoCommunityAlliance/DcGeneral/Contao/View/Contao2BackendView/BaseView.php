@@ -22,6 +22,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\AbstractHandler;
@@ -533,88 +534,52 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function checkClipboard($action = null)
     {
-        $objInput     = $this->getEnvironment()->getInputProvider();
-        $objClipboard = $this->getEnvironment()->getClipboard();
+        $input     = $this->getEnvironment()->getInputProvider();
+        $clipboard = $this->getEnvironment()->getClipboard();
+
+        $clipboard->loadFrom($this->getEnvironment());
 
         // Reset Clipboard.
-        if ($objInput->getParameter('clipboard') == '1') {
-            // Check clipboard from session.
-            $objClipboard
-                ->loadFrom($this->getEnvironment())
-                ->clear()
-                ->saveTo($this->getEnvironment());
+        if ($input->getParameter('clipboard') == '1') {
+            $clipboard->clear()->saveTo($this->getEnvironment());
 
             $this->redirectHome();
-        } elseif ($id = $objInput->getParameter('source')) {
-            // Push some entry into clipboard.
-            $idDetails   = IdSerializer::fromSerialized($id);
-            $objDataProv = $this->getEnvironment()->getDataProvider($idDetails->getDataProviderName());
+            return $this;
+        }
 
-            if ($action && $action == 'cut' || $objInput->getParameter('act') == 'cut') {
-                $arrIgnored = array($id);
+        // Push some entry into clipboard.
+        if ($modelIdRaw = $input->getParameter('source')) {
+            $modelId   = IdSerializer::fromSerialized($modelIdRaw);
 
-                // We have to ignore all children of this element in mode 5 (to prevent circular references).
-                if ($this->getDataDefinition()->getBasicDefinition()->getMode() ==
-                    BasicDefinitionInterface::MODE_HIERARCHICAL
-                ) {
-                    $objModel  = $objDataProv->fetch($objDataProv->getEmptyConfig()->setId($idDetails->getId()));
-                    $ignoredId = IdSerializer::fromValues($objModel->getProviderName(), 0);
+            $parentIdRaw = $input->getParameter('pid');
+            if ($parentIdRaw) {
+                $parentId = IdSerializer::fromSerialized($parentIdRaw);
+            } else {
+                $parentId = null;
+            }
 
-                    // FIXME: this can return ids originating from another data provider, we have to alter this to
-                    //        return valid models instead of the ids or a tuple of data provider name and id.
-                    foreach ($this->getEnvironment()->getController()->assembleAllChildrenFrom($objModel) as $childId) {
-                        $arrIgnored[] = $ignoredId->setId($childId)->getSerialized();
-                    }
-                }
+            if ($action && $action == 'create' || $input->getParameter('act') == 'create') {
+                $action = Item::CREATE;
+            } elseif ($action && $action == 'cut' || $input->getParameter('act') == 'cut') {
+                $action = Item::CUT;
+            } elseif ($action && $action == 'copy' || $input->getParameter('act') == 'copy') {
+                $action = Item::COPY;
+            } elseif ($action && $action == 'deep-copy' || $input->getParameter('act') == 'deep-copy') {
+                $action = Item::DEEP_COPY;
+            } else {
+                $action = false;
+            }
 
-                $objClipboard
-                    ->clear()
-                    ->cut($id)
-                    ->setCircularIds($arrIgnored);
-
-                // Let the clipboard save it's values persistent.
-                $objClipboard->saveTo($this->getEnvironment());
-
-                $this->redirectHome();
-            } elseif ($action && $action == 'copy' || $objInput->getParameter('act') == 'copy') {
-                $arrIgnored     = array($id);
-                $objContainedId = trimsplit(',', $objInput->getParameter('children'));
-
-                $objClipboard
-                    ->clear()
-                    ->copy($id)
-                    ->setCircularIds($arrIgnored);
-
-                if (is_array($objContainedId) && !empty($objContainedId)) {
-                    $objClipboard->setContainedIds($objContainedId);
-                }
+            if ($action) {
+                $item = new Item($action, $parentId, $modelId);
 
                 // Let the clipboard save it's values persistent.
-                $objClipboard->saveTo($this->getEnvironment());
-
-                $this->redirectHome();
-            } elseif ($action && $action == 'create' || $objInput->getParameter('act') == 'create') {
-                $arrIgnored     = array($id);
-                $objContainedId = trimsplit(',', $objInput->getParameter('children'));
-
-                $objClipboard
-                    ->clear()
-                    ->create($id)
-                    ->setCircularIds($arrIgnored);
-
-                if (is_array($objContainedId) && !empty($objContainedId)) {
-                    $objClipboard->setContainedIds($objContainedId);
-                }
-
-                // Let the clipboard save it's values persistent.
-                $objClipboard->saveTo($this->getEnvironment());
+                // TODO remove clear and allow adding multiple items
+                $clipboard->clear()->push($item)->saveTo($this->getEnvironment());
 
                 $this->redirectHome();
             }
         }
-
-        // Check clipboard from session.
-        $objClipboard->loadFrom($this->getEnvironment());
 
         return $this;
     }
@@ -1636,11 +1601,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 array_unshift($globalOperations, $command);
             }
 
+            /*
             $command = $this->getClearClipboardCommand();
             if ($command !== null) {
                 // Clear clipboard to the end.
                 $globalOperations[] = $command;
             }
+            */
         }
 
         $command = $this->getBackCommand();
