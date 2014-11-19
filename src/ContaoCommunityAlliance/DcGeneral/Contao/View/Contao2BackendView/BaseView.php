@@ -318,24 +318,12 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * Retrieve the currently active sorting.
      *
      * @return GroupAndSortingDefinitionInterface
+     *
+     * @deprecated Use ViewHelpers::getCurrentSorting($environment) instead!
      */
     protected function getCurrentSorting()
     {
-        foreach ($this->getPanel() as $panel) {
-            /** @var PanelInterface $panel */
-            $sort = $panel->getElement('sort');
-            if ($sort) {
-                /** @var SortElementInterface $sort */
-                return $sort->getSelectedDefinition();
-            }
-        }
-
-        $definition = $this->getViewSection()->getListingConfig()->getGroupAndSortingDefinition();
-        if ($definition->hasDefault()) {
-            return $definition->getDefault();
-        }
-
-        return null;
+        return ViewHelpers::getCurrentSorting($this->environment);
     }
 
     /**
@@ -344,36 +332,12 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * @return array|null
      *
      * @see    ListingConfigInterface
+     *
+     * @deprecated Use ViewHelpers::getGroupingMode($environment) instead!
      */
     protected function getGroupingMode()
     {
-        $sorting = $this->getCurrentSorting();
-        // If no sorting defined, exit.
-        if ((!$sorting)
-            || (!$sorting->getCount())
-            || $sorting->get(0)->getSortingMode() === GroupAndSortingInformationInterface::SORT_RANDOM
-        ) {
-            return null;
-        }
-        $firstSorting = $sorting->get(0);
-
-        // Use the information from the property, if given.
-        if ($firstSorting->getGroupingMode() != '') {
-            $groupMode   = $firstSorting->getGroupingMode();
-            $groupLength = $firstSorting->getGroupingLength();
-        } else {
-            // No sorting? No grouping!
-            $groupMode   = GroupAndSortingInformationInterface::GROUP_NONE;
-            $groupLength = 0;
-        }
-
-        return array
-        (
-            'mode'     => $groupMode,
-            'length'   => $groupLength,
-            'property' => $firstSorting->getProperty(),
-            'sorting'  => $sorting
-        );
+        return ViewHelpers::getGroupingMode($this->environment);
     }
 
     /**
@@ -2284,24 +2248,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * @param mixed             $value    The value for the property.
      *
      * @return mixed
+     *
+     * @deprecated Use ViewHelpers::getReadableFieldValue($environment, $property, $model, $value) instead!
      */
     public function getReadableFieldValue(PropertyInterface $property, ModelInterface $model, $value)
     {
-        $event = new RenderReadablePropertyValueEvent($this->getEnvironment(), $model, $property, $value);
-
-        $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
-        $dispatcher->dispatch(
-            sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $property->getName()),
-            $event
-        );
-        $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()), $event);
-        $dispatcher->dispatch($event::NAME, $event);
-
-        if ($event->getRendered() !== null) {
-            return $event->getRendered();
-        }
-
-        return $value;
+        return ViewHelpers::getReadableFieldValue($this->environment, $property, $model, $value);
     }
 }
