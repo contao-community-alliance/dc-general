@@ -151,7 +151,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             case 'toggle':
                 $response = call_user_func_array(
                     array($this, $name),
-                    $action->getArguments()
+                    array_merge(array($action), $action->getArguments())
                 );
                 $event->setResponse($response);
                 break;
@@ -676,10 +676,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritDoc}
      */
-    public function copy()
+    public function copy(Action $action)
     {
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
+            return $this->edit($action);
         }
 
         // TODO: copy unimplemented.
@@ -690,10 +690,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritDoc}
      */
-    public function copyAll()
+    public function copyAll(Action $action)
     {
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
+            return $this->edit($action);
         }
 
         // TODO: copyAll unimplemented.
@@ -706,10 +706,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * @see edit()
      */
-    public function create()
+    public function create(Action $action)
     {
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
+            return $this->edit($action);
         }
 
         $model = $this->createEmptyModelWithDefaults();
@@ -757,19 +757,19 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritDoc}
      */
-    public function cut()
+    public function cut(Action $action)
     {
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
+            return $this->edit($action);
         }
 
-        return $this->showAll();
+        return $this->showAll($action);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function cutAll()
+    public function cutAll(Action $action)
     {
         // TODO: cutAll unimplemented.
 
@@ -886,7 +886,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * @throws DcGeneralRuntimeException When invalid parameters are encountered.
      */
-    public function paste()
+    public function paste(Action $action)
     {
         $this->checkClipboard();
 
@@ -993,10 +993,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * @throws DcGeneralRuntimeException If the model to delete could not be loaded.
      */
-    public function delete()
+    public function delete(Action $action)
     {
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
+            return $this->edit($action);
         }
 
         // Check if is it allowed to delete a record.
@@ -1092,10 +1092,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritDoc}
      */
-    public function move()
+    public function move(Action $action)
     {
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
+            return $this->edit($action);
         }
 
         // TODO: move unimplemented.
@@ -1105,10 +1105,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritDoc}
      */
-    public function undo()
+    public function undo(Action $action)
     {
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
+            return $this->edit($action);
         }
 
         // TODO: undo unimplemented.
@@ -1215,7 +1215,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * @throws DcGeneralInvalidArgumentException When an unknown property is mentioned in the palette.
      */
-    public function edit()
+    public function edit(Action $action)
     {
         $this->checkLanguage();
 
@@ -1306,7 +1306,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * @deprecated
      */
-    public function show()
+    public function show(Action $action)
     {
         $action = new Action('show');
         $event  = new ActionEvent($this->getEnvironment(), $action);
@@ -1336,10 +1336,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * @return string
      */
-    public function showAll()
+    public function showAll(Action $action)
     {
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
+            return $this->edit($action);
         }
 
         return sprintf(
@@ -1355,7 +1355,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * @return string
      */
-    public function toggle($name = 'toggle')
+    public function toggle(Action $action, $name = 'toggle')
     {
         $environment = $this->getEnvironment();
         $input       = $environment->getInputProvider();
@@ -1383,7 +1383,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $dataProvider->save($model);
 
-        return $this->showAll();
+        return $this->showAll($action);
     }
 
     /**

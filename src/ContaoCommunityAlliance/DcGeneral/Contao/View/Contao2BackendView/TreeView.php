@@ -17,6 +17,7 @@ use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
+use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
@@ -702,7 +703,7 @@ class TreeView extends BaseView
     /**
      * {@inheritDoc}
      */
-    public function paste()
+    public function paste(Action $action)
     {
         $environment = $this->getEnvironment();
         $input       = $environment->getInputProvider();
@@ -716,14 +717,14 @@ class TreeView extends BaseView
         // If destination is known, perform normal paste.
         if ($input->hasParameter('after') || $input->hasParameter('into')) {
             if ($clipboard->isCreate()) {
-                return parent::create();
+                return parent::create($action);
             }
 
-            parent::paste();
+            parent::paste($action);
         }
 
         // Show the target selection tree otherwise.
-        return $this->showAll();
+        return $this->showAll($action);
     }
 
     /**
@@ -731,10 +732,10 @@ class TreeView extends BaseView
      *
      * @return string
      */
-    public function showAll()
+    public function showAll(Action $action)
     {
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
+            return $this->edit($action);
         }
 
         $input = $this->getEnvironment()->getInputProvider();
@@ -836,11 +837,11 @@ class TreeView extends BaseView
     /**
      * {@inheritdoc}
      */
-    public function cut()
+    public function cut(Action $action)
     {
 
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
+            return $this->edit($action);
         }
 
         $this->checkClipboard('cut');
@@ -850,11 +851,11 @@ class TreeView extends BaseView
     /**
      * {@inheritdoc}
      */
-    public function copy()
+    public function copy(Action $action)
     {
 
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
+            return $this->edit($action);
         }
 
         $this->checkClipboard('copy');

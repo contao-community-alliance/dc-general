@@ -13,6 +13,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\View;
 
+use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 
@@ -51,42 +52,42 @@ interface ViewInterface
      *
      * @return void
      */
-    public function paste();
+    public function paste(Action $action);
 
     /**
      * Endpoint for copying a model (including child models).
      *
      * @return string
      */
-    public function copy();
+    public function copy(Action $action);
 
     /**
      * Endpoint for copying multiple models (including child models).
      *
      * @return string
      */
-    public function copyAll();
+    public function copyAll(Action $action);
 
     /**
      * Endpoint for create operation.
      *
      * @return string
      */
-    public function create();
+    public function create(Action $action);
 
     /**
      * Endpoint for cutting a model (including child models).
      *
      * @return string
      */
-    public function cut();
+    public function cut(Action $action);
 
     /**
      * Endpoint for cutting multiple models (including child models).
      *
      * @return string
      */
-    public function cutAll();
+    public function cutAll(Action $action);
 
     /**
      * Delete a model and redirect the user to the listing.
@@ -95,28 +96,28 @@ interface ViewInterface
      *
      * @return void
      */
-    public function delete();
+    public function delete(Action $action);
 
     /**
      * Endpoint for edit operation.
      *
      * @return string
      */
-    public function edit();
+    public function edit(Action $action);
 
     /**
      * Endpoint for move operation.
      *
      * @return string
      */
-    public function move();
+    public function move(Action $action);
 
     /**
      * Endpoint for show operation.
      *
      * @return string
      */
-    public function show();
+    public function show(Action $action);
 
     /**
      * Overview listing over all items in the current scope.
@@ -125,14 +126,14 @@ interface ViewInterface
      *
      * @return string
      */
-    public function showAll();
+    public function showAll(Action $action);
 
     /**
      * Endpoint for undo operation.
      *
      * @return string
      */
-    public function undo();
+    public function undo(Action $action);
 
     /**
      * Abstract method to be overridden in the certain child classes.
