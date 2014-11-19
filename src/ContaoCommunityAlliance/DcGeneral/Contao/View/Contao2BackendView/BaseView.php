@@ -52,6 +52,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleComma
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostCreateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
@@ -2147,95 +2148,17 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * @param ModelInterface $model The model that shall be formatted.
      *
      * @return array
+     *
+     * @deprecated Dispatch a FormatModelLabelEvent instead!
      */
     public function formatModel(ModelInterface $model)
     {
-        $listing           = $this->getViewSection()->getListingConfig();
-        $properties        = $this->getDataDefinition()->getPropertiesDefinition();
-        $formatter         = $listing->getLabelFormatter($model->getProviderName());
-        $sorting           = $this->getGroupingMode();
-        $sortingDefinition = $sorting['sorting'];
-        $firstSorting      = '';
-
-        if ($sortingDefinition) {
-            /** @var GroupAndSortingDefinitionInterface $sortingDefinition */
-            foreach ($sortingDefinition as $information) {
-                /** @var GroupAndSortingInformationInterface $information */
-                if ($information->getProperty()) {
-                    $firstSorting = reset($sorting);
-                    break;
-                }
-            }
-        }
-
-        $args = array();
-        foreach ($formatter->getPropertyNames() as $propertyName) {
-            if ($properties->hasProperty($propertyName)) {
-                $property = $properties->getProperty($propertyName);
-
-                $args[$propertyName] = (string)$this->getReadableFieldValue(
-                    $property,
-                    $model,
-                    $model->getProperty($propertyName)
-                );
-            } else {
-                $args[$propertyName] = '-';
-            }
-        }
-
-        $event = new ModelToLabelEvent($this->getEnvironment(), $model);
-        $event
-            ->setArgs($args)
-            ->setLabel($formatter->getFormat())
-            ->setFormatter($formatter);
-
-        $this->getEnvironment()->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $event::NAME, $this->getEnvironment()->getDataDefinition()->getName()),
+        $event = new FormatModelLabelEvent($this->environment, $model);
+        $this->environment->getEventDispatcher()->dispatch(
+            DcGeneralEvents::FORMAT_MODEL_LABEL,
             $event
         );
-        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
-
-        $arrLabel = array();
-
-        // Add columns.
-        if ($listing->getShowColumns()) {
-            $fields = $formatter->getPropertyNames();
-            $args   = $event->getArgs();
-
-            if (!is_array($args)) {
-                $arrLabel[] = array(
-                    'colspan' => count($fields),
-                    'class'   => 'tl_file_list col_1',
-                    'content' => $args
-                );
-            } else {
-                foreach ($fields as $j => $propertyName) {
-                    $arrLabel[] = array(
-                        'colspan' => 1,
-                        'class'   => 'tl_file_list col_' . $j . (($propertyName == $firstSorting) ? ' ordered_by' : ''),
-                        'content' => (($args[$propertyName] != '') ? $args[$propertyName] : '-')
-                    );
-                }
-            }
-        } else {
-            if (!is_array($event->getArgs())) {
-                $string = $event->getArgs();
-            } else {
-                $string = vsprintf($event->getLabel(), $event->getArgs());
-            }
-
-            if ($formatter->getMaxLength() !== null && strlen($string) > $formatter->getMaxLength()) {
-                $string = substr($string, 0, $formatter->getMaxLength());
-            }
-
-            $arrLabel[] = array(
-                'colspan' => null,
-                'class'   => 'tl_file_list',
-                'content' => $string
-            );
-        }
-
-        return $arrLabel;
+        return $event->getLabel();
     }
 
     /**
