@@ -17,4 +17,12 @@ namespace ContaoCommunityAlliance\DcGeneral;
  */
 class DcGeneralViews
 {
+    /**
+     * The clipboard view shows a clipboard summary.
+     *
+     * @var string
+     *
+     * @api
+     */
+    const CLIPBOARD = 'clipboard';
 }

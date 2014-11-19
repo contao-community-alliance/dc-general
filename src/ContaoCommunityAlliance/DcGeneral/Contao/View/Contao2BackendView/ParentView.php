@@ -25,9 +25,12 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Paren
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
+use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
+use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 
@@ -578,10 +581,14 @@ class ParentView extends BaseView
         $collection  = $this->loadCollection();
         $parentModel = $this->loadParentModel();
 
-        $arrReturn            = array();
-        $arrReturn['panel']   = $this->panel();
-        $arrReturn['buttons'] = $this->generateHeaderButtons('tl_buttons_a');
-        $arrReturn['body']    = $this->viewParent($collection, $parentModel);
+        $viewEvent = new ViewEvent($this->environment, $action, DcGeneralViews::CLIPBOARD, array());
+        $this->environment->getEventDispatcher()->dispatch(DcGeneralEvents::VIEW, $viewEvent);
+
+        $arrReturn              = array();
+        $arrReturn['panel']     = $this->panel();
+        $arrReturn['buttons']   = $this->generateHeaderButtons('tl_buttons_a');
+        $arrReturn['clipboard'] = $viewEvent->getResponse();
+        $arrReturn['body']      = $this->viewParent($collection, $parentModel);
 
         return implode("\n", $arrReturn);
     }

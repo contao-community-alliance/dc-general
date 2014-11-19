@@ -1,0 +1,42 @@
+<?php
+/** @var \ContaoCommunityAlliance\DcGeneral\EnvironmentInterface $environment */
+$environment     = $this->environment;
+$eventDispatcher = $environment->getEventDispatcher();
+?>
+<div class="tl_listing_container">
+    <?php if (count($this->options)): ?>
+        <ul id="tl_breadcrumb">
+            <?php foreach ($this->options as $id => $row): ?>
+                <li>
+                    <?php
+                    /** @var \ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface $item */
+                    $item  = $row['item'];
+                    $event = new \ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent(
+                        $item->getAction() . '.gif'
+                    );
+                    $eventDispatcher->dispatch(
+                        \ContaoCommunityAlliance\Contao\Bindings\ContaoEvents::IMAGE_GET_HTML,
+                        $event
+                    );
+                    echo $event->getHtml();
+                    ?> <?php echo $row['label'] ?>
+                </li>
+            <?php endforeach; ?>
+            <li style="float: right">
+                <a href="<?php echo $this->clearUrl ?>">
+                    <?php
+                    $event = new \ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent(
+                        'clipboard.gif'
+                    );
+                    $eventDispatcher->dispatch(
+                        \ContaoCommunityAlliance\Contao\Bindings\ContaoEvents::IMAGE_GET_HTML,
+                        $event
+                    );
+                    echo $event->getHtml();
+                    ?>
+                    <?php echo $GLOBALS['TL_LANG']['MSC']['clearClipboard'] ?>
+                </a>
+            </li>
+        </ul>
+    <?php endif; ?>
+</div>

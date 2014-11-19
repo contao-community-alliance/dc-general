@@ -19,9 +19,12 @@ use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
+use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
+use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -302,10 +305,14 @@ class ListView extends BaseView
         $this->checkClipboard();
         $collection = $this->loadCollection();
 
-        $arrReturn            = array();
-        $arrReturn['panel']   = $this->panel();
-        $arrReturn['buttons'] = $this->generateHeaderButtons('tl_buttons_a');
-        $arrReturn['body']    = $this->viewList($collection);
+        $viewEvent = new ViewEvent($this->environment, $action, DcGeneralViews::CLIPBOARD, array());
+        $this->environment->getEventDispatcher()->dispatch(DcGeneralEvents::VIEW, $viewEvent);
+
+        $arrReturn              = array();
+        $arrReturn['panel']     = $this->panel();
+        $arrReturn['buttons']   = $this->generateHeaderButtons('tl_buttons_a');
+        $arrReturn['clipboard'] = $viewEvent->getResponse();
+        $arrReturn['body']      = $this->viewList($collection);
 
         // Return all.
         return implode("\n", $arrReturn);
