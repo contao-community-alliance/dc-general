@@ -113,6 +113,7 @@ class DefaultController implements ControllerInterface
     public function handle(Action $action)
     {
         $event = new ActionEvent($this->getEnvironment(), $action);
+        // FIXME can we stop propagate with eventName[x][y] syntax here?
         $this->getEnvironment()->getEventDispatcher()->dispatch(
             sprintf(
                 '%s[%s][%s]',
