@@ -129,6 +129,7 @@ class ParentView extends BaseView
     protected function renderEntries($collection, $groupingInformation)
     {
         $environment = $this->getEnvironment();
+        $clipboard   = $environment->getClipboard();
         $view        = $this->getViewSection();
         $listing     = $view->getListingConfig();
         $remoteCur   = null;
@@ -199,7 +200,13 @@ class ParentView extends BaseView
             );
             $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
-            $model->setMeta($model::CSS_ROW_CLASS, (((++$eoCount) % 2 == 0) ? 'even' : 'odd'));
+            $cssClasses = array((((++$eoCount) % 2 == 0) ? 'even' : 'odd'));
+            $modelId    = IdSerializer::fromModel($model);
+            if ($clipboard->hasId($modelId)) {
+                $cssClasses[] = 'tl_folder_clipped';
+            }
+
+            $model->setMeta($model::CSS_ROW_CLASS, implode(' ', $cssClasses));
 
             if ($event->getHtml() !== null) {
                 $information = array(

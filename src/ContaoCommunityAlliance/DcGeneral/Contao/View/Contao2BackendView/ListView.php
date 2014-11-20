@@ -131,6 +131,7 @@ class ListView extends BaseView
      */
     protected function setListViewLabel($collection, $groupingInformation)
     {
+        $clipboard      = $this->environment->getClipboard();
         $viewDefinition = $this->getViewSection();
         $listingConfig  = $viewDefinition->getListingConfig();
         $remoteCur      = null;
@@ -169,7 +170,13 @@ class ListView extends BaseView
                 }
             }
 
-            $objModelRow->setMeta($objModelRow::CSS_ROW_CLASS, (((++$eoCount) % 2 == 0) ? 'even' : 'odd'));
+            $cssClasses = array((((++$eoCount) % 2 == 0) ? 'even' : 'odd'));
+            $modelId    = IdSerializer::fromModel($objModelRow);
+            if ($clipboard->hasId($modelId)) {
+                $cssClasses[] = 'tl_folder_clipped';
+            }
+
+            $objModelRow->setMeta($objModelRow::CSS_ROW_CLASS, implode(' ', $cssClasses));
 
             $objModelRow->setMeta($objModelRow::LABEL_VALUE, $this->formatModel($objModelRow));
         }
