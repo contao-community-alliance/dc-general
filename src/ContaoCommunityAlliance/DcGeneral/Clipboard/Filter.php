@@ -94,6 +94,18 @@ EXPR;
 )
 EXPR;
 
+    const ACTION_IS_EXPRESSION = <<<'EXPR'
+(
+    item.getAction() === variables[%d]
+)
+EXPR;
+
+    const ACTION_IS_NOT_EXPRESSION = <<<'EXPR'
+(
+    item.getAction() !== variables[%d]
+)
+EXPR;
+
     /**
      * Factory method.
      *
@@ -254,6 +266,82 @@ EXPR;
             $index             = count($this->variables);
             $expression[]      = sprintf(self::PARENT_IS_NOT_EXPRESSION, $index);
             $this->variables[] = $parentModelId;
+        }
+        $this->expression[] = '(' . implode(' or ', $expression) . ')';
+        $this->compiled     = null;
+
+        return $this;
+    }
+
+    /**
+     * And action is.
+     *
+     * @param string $action The action name.
+     *
+     * @return static
+     */
+    public function actionIs($action)
+    {
+        $index              = count($this->variables);
+        $this->expression[] = sprintf(self::ACTION_IS_EXPRESSION, $index);
+        $this->variables[]  = $action;
+        $this->compiled     = null;
+
+        return $this;
+    }
+
+    /**
+     * And action is in.
+     *
+     * @param array|string[] $actions The action names.
+     *
+     * @return static
+     */
+    public function actionIsIn(array $actions)
+    {
+        $expression = array();
+        foreach ($actions as $action) {
+            $index             = count($this->variables);
+            $expression[]      = sprintf(self::ACTION_IS_EXPRESSION, $index);
+            $this->variables[] = $action;
+        }
+        $this->expression[] = '(' . implode(' or ', $expression) . ')';
+        $this->compiled     = null;
+
+        return $this;
+    }
+
+    /**
+     * And action is.
+     *
+     * @param string $action The action name.
+     *
+     * @return static
+     */
+    public function actionIsNot($action)
+    {
+        $index              = count($this->variables);
+        $this->expression[] = sprintf(self::ACTION_IS_NOT_EXPRESSION, $index);
+        $this->variables[]  = $action;
+        $this->compiled     = null;
+
+        return $this;
+    }
+
+    /**
+     * And action is not in.
+     *
+     * @param array|string[] $actions The action names.
+     *
+     * @return static
+     */
+    public function actionIsNotIn(array $actions)
+    {
+        $expression = array();
+        foreach ($actions as $action) {
+            $index             = count($this->variables);
+            $expression[]      = sprintf(self::ACTION_IS_NOT_EXPRESSION, $index);
+            $this->variables[] = $action;
         }
         $this->expression[] = '(' . implode(' or ', $expression) . ')';
         $this->compiled     = null;
