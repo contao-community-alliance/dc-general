@@ -92,7 +92,7 @@ EXPR;
      *
      * @return static
      */
-    public function create()
+    public static function create()
     {
         return new static();
     }
