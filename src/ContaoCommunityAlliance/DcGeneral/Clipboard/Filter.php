@@ -240,7 +240,7 @@ EXPR;
      *
      * @param IdSerializer $parentModelId The parent id.
      *
-     * @return $this
+     * @return static
      */
     public function parentIsNot(IdSerializer $parentModelId)
     {
@@ -359,10 +359,13 @@ EXPR;
     {
         if (null === $this->compiled) {
             $language       = new ExpressionLanguage();
-            $this->compiled = 'return ' . $language->compile(
-                $this->getExpression(),
-                array('item', 'variables')
-            ) . ';';
+            $this->compiled = sprintf(
+                'return %s;',
+                $language->compile(
+                    $this->getExpression(),
+                    array('item', 'variables')
+                )
+            );
         }
 
         $variables = $this->variables;
