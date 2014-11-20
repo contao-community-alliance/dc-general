@@ -22,7 +22,9 @@ foreach ($this->options as $id => $row) {
     if (!isset($icons[$item->getAction()])) {
         $icon = $item->getAction();
 
-        if ('deepcopy' === $icon) {
+        if ('create' === $icon) {
+            $icon = 'new';
+        } elseif ('deepcopy' === $icon) {
             $icon = 'copychilds';
         }
 
