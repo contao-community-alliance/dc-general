@@ -362,7 +362,7 @@ class ParentView extends BaseView
                 $urlEvent = $dispatcher->dispatch(
                     ContaoEvents::BACKEND_ADD_TO_URL,
                     new AddToUrlEvent(
-                        'act=create&amp;pid=' . IdSerializer::fromModel($parentModel)->getSerialized()
+                        'act=edit&amp;pid=' . IdSerializer::fromModel($parentModel)->getSerialized()
                     )
                 );
 
@@ -389,12 +389,18 @@ class ParentView extends BaseView
 
             if ($sorting && $clipboard->isNotEmpty($filter)) {
 
-                $filter = new Filter();
-                $filter->modelIsFromProvider($basicDefinition->getDataProvider());
-                $filter->parentIsFromProvider($basicDefinition->getParentDataProvider());
-                $filter->parentIsNot(IdSerializer::fromModel($parentModel));
+                $allowPasteTop = $this->getManualSortingProperty();
 
-                if ($clipboard->fetch($filter)) {
+                if (!$allowPasteTop) {
+                    $filter = new Filter();
+                    $filter->modelIsFromProvider($basicDefinition->getDataProvider());
+                    $filter->parentIsFromProvider($basicDefinition->getParentDataProvider());
+                    $filter->parentIsNot(IdSerializer::fromModel($parentModel));
+
+                    $allowPasteTop = (bool) $clipboard->fetch($filter);
+                }
+
+                if ($allowPasteTop) {
                     /** @var AddToUrlEvent $urlEvent */
                     $urlEvent = $dispatcher->dispatch(
                         ContaoEvents::BACKEND_ADD_TO_URL,
@@ -417,7 +423,7 @@ class ParentView extends BaseView
                     $headerButtons['pasteAfter'] = sprintf(
                         '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
                         $urlEvent->getUrl(),
-                        specialchars($this->translate('pasteafter.1', $definition->getName())),
+                        specialchars($this->translate('pasteafter.0', $definition->getName())),
                         $imageEvent->getHtml()
                     );
                 } else {

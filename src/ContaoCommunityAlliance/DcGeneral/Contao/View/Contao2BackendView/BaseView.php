@@ -23,6 +23,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ShowHandler;
@@ -60,8 +61,6 @@ use ContaoCommunityAlliance\DcGeneral\Event\PrePasteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
-use ContaoCommunityAlliance\DcGeneral\Panel\PanelInterface;
-use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -489,6 +488,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function create(Action $action)
     {
+        throw new \RuntimeException('I should not be here! :-\\');
+
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit($action);
         }
@@ -612,8 +613,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         } elseif (($after && $after->getId() == '0') || ($into && $into->getId() == '0')) {
             $controller->pasteTop($models, $this->getManualSortingProperty());
         } elseif ($parentModelId) {
-            $dataProvider = $environment->getDataProvider();
-            $dataProvider->saveEach($models);
+            $manualSorting = $this->getManualSortingProperty();
+            if ($manualSorting) {
+                $controller->pasteTop($models, $this->getManualSortingProperty());
+            } else {
+                $dataProvider = $environment->getDataProvider();
+                $dataProvider->saveEach($models);
+            }
         } else {
             throw new DcGeneralRuntimeException('Invalid parameters.');
         }
@@ -1034,7 +1040,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             ($mode == BasicDefinitionInterface::MODE_FLAT)
             || (($mode == BasicDefinitionInterface::MODE_PARENTEDLIST) && !$manualSorting)
         ) {
-            $parameters['act'] = 'create';
+            $parameters['act'] = 'edit';
             // Add new button.
             if ($pid->getDataProviderName() && $pid->getId()) {
                 $parameters['pid'] = $pid->getSerialized();
@@ -1055,14 +1061,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 return null;
             }
 
-            $after = IdSerializer::fromValues($definition->getName(), 0);
-
-            $parameters['act']  = 'paste';
-            $parameters['mode'] = 'create';
-
-            if ($mode == BasicDefinitionInterface::MODE_PARENTEDLIST) {
-                $parameters['after'] = $after->getSerialized();
-            }
+            $parameters['act'] = 'create';
 
             if ($pid->getDataProviderName() && $pid->getId()) {
                 $parameters['pid'] = $pid->getSerialized();
@@ -1495,8 +1494,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return $event->getHtmlPasteAfter();
         }
 
-        $strLabel = $this->translate('pasteafter.0', $event->getModel()->getProviderName());
-        if ($event->isPasteAfterDisabled()) {
+        $model       = $event->getModel();
+        $modelId     = IdSerializer::fromModel($model);
+        $environment = $event->getEnvironment();
+        $clipboard   = $environment->getClipboard();
+
+        $strLabel = $this->translate('pasteafter.0', $model->getProviderName());
+        if ($event->isPasteAfterDisabled() || $clipboard->hasId($modelId)) {
             /** @var GenerateHtmlEvent $imageEvent */
             $imageEvent = $environment->getEventDispatcher()->dispatch(
                 ContaoEvents::IMAGE_GET_HTML,
