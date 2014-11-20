@@ -1420,6 +1420,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 return new CutCommand();
 
             case 'copy':
+            case 'deepcopy':
                 return new CopyCommand();
 
             case 'toggle':

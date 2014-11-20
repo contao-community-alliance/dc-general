@@ -44,7 +44,12 @@ class Item implements ItemInterface
 
     function __construct($action, IdSerializer $parentId = null, IdSerializer $modelId)
     {
-        if (ItemInterface::CREATE !== $action && ItemInterface::CUT !== $action && ItemInterface::COPY !== $action) {
+        if (
+            ItemInterface::CREATE !== $action
+            && ItemInterface::CUT !== $action
+            && ItemInterface::COPY !== $action
+            && ItemInterface::DEEP_COPY !== $action
+        ) {
             throw new \InvalidArgumentException(
                 '$action must be one of ItemInterface::CREATE, ItemInterface::CUT or ItemInterface::COPY'
             );
