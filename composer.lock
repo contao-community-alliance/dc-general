@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "62cf375b8bf2700a48a689c01817ea07",
+    "hash": "ba5be5a43cf43fc2f49524e42823fc46",
     "packages": [
         {
             "name": "contao-community-alliance/backports-initialize-system",
@@ -68,16 +68,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/composer-plugin.git",
-                "reference": "2bad48d1cb9226d929bee41977b843da8803a54f"
+                "reference": "e6386942009eb28b90a366f60bf32a6bc0cdbaee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/composer-plugin/zipball/2bad48d1cb9226d929bee41977b843da8803a54f",
-                "reference": "2bad48d1cb9226d929bee41977b843da8803a54f",
+                "url": "https://api.github.com/repos/contao-community-alliance/composer-plugin/zipball/e6386942009eb28b90a366f60bf32a6bc0cdbaee",
+                "reference": "e6386942009eb28b90a366f60bf32a6bc0cdbaee",
                 "shasum": ""
             },
             "require": {
-                "composer-plugin-api": "1.0.0"
+                "composer-plugin-api": "1.0.0",
+                "php": ">=5.3.2"
             },
             "conflict": {
                 "contao-community-alliance/composer": "<0.9-dev",
@@ -87,17 +88,18 @@
                 "contao-community-alliance/composer-installer": "1.7.1"
             },
             "require-dev": {
-                "bit3/php-coding-standard": "*",
                 "composer/composer": "dev-master",
-                "pdepend/pdepend": "1.1.*",
-                "phpunit/phpunit": ">=3.7.10,<4-dev"
+                "contao-community-alliance/build-system": "~1.0",
+                "contao-community-alliance/build-system-all-tasks": "~1.0",
+                "contao-community-alliance/coding-standard": "~1.0",
+                "contao/core": ">=2.11,<4.0"
             },
             "type": "composer-plugin",
             "extra": {
                 "class": "ContaoCommunityAlliance\\Composer\\Plugin\\Plugin",
                 "branch-alias": {
-                    "dev-master": "2.2.x-dev",
-                    "dev-develop": "2.3.x-dev"
+                    "dev-master": "2.3.x-dev",
+                    "dev-develop": "2.4.x-dev"
                 }
             },
             "autoload": {
@@ -111,7 +113,7 @@
             ],
             "description": "Composer plugin that provide contao integration and installer.",
             "homepage": "http://c-c-a.org/",
-            "time": "2014-09-06 15:13:25"
+            "time": "2014-11-17 21:45:53"
         },
         {
             "name": "contao-community-alliance/dependency-container",
@@ -119,18 +121,18 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/dependency-container.git",
-                "reference": "7fa301f4f2d67f8d508b6e3a02645c0daa9d1994"
+                "reference": "e85ff86b258b9422678aa5e13901a839770cd5b3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/dependency-container/zipball/7fa301f4f2d67f8d508b6e3a02645c0daa9d1994",
-                "reference": "7fa301f4f2d67f8d508b6e3a02645c0daa9d1994",
+                "url": "https://api.github.com/repos/contao-community-alliance/dependency-container/zipball/e85ff86b258b9422678aa5e13901a839770cd5b3",
+                "reference": "e85ff86b258b9422678aa5e13901a839770cd5b3",
                 "shasum": ""
             },
             "require": {
                 "contao-community-alliance/backports-initialize-system": "~1.0",
                 "contao-community-alliance/composer-plugin": "~2.0",
-                "contao/core": ">=2.11,<3.4",
+                "contao/core": ">=2.11,<4-dev",
                 "php": ">=5.3",
                 "pimple/pimple": "~1.0"
             },
@@ -138,8 +140,10 @@
                 "bit3/contao-dependency-container": "self.version",
                 "contao-legacy/dependency-container": "self.version"
             },
-            "suggest": {
-                "contao-community-alliance/dependency-container-inspector": "*"
+            "require-dev": {
+                "contao-community-alliance/build-system": "~1.0",
+                "contao-community-alliance/build-system-all-tasks": "~1.0",
+                "contao-community-alliance/coding-standard": "~1.0"
             },
             "type": "contao-module",
             "extra": {
@@ -149,8 +153,8 @@
                     }
                 },
                 "branch-alias": {
-                    "dev-master": "1.5.x-dev",
-                    "dev-develop": "1.6.x-dev"
+                    "dev-master": "1.6.x-dev",
+                    "dev-develop": "1.7.x-dev"
                 }
             },
             "autoload": {
@@ -179,7 +183,7 @@
                 "di",
                 "injection"
             ],
-            "time": "2014-06-05 08:30:58"
+            "time": "2014-11-17 20:44:47"
         },
         {
             "name": "contao-community-alliance/event-dispatcher",
@@ -187,23 +191,28 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/event-dispatcher.git",
-                "reference": "61fabc1a71a1f802fdc93811c63f0400d2f4112b"
+                "reference": "8a2c93f74968359e116cec607cdcb5406a8b69eb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/event-dispatcher/zipball/61fabc1a71a1f802fdc93811c63f0400d2f4112b",
-                "reference": "61fabc1a71a1f802fdc93811c63f0400d2f4112b",
+                "url": "https://api.github.com/repos/contao-community-alliance/event-dispatcher/zipball/8a2c93f74968359e116cec607cdcb5406a8b69eb",
+                "reference": "8a2c93f74968359e116cec607cdcb5406a8b69eb",
                 "shasum": ""
             },
             "require": {
                 "contao-community-alliance/composer-plugin": "~2.0",
-                "contao-community-alliance/dependency-container": "~1.4",
-                "contao/core": ">=2.11,<3.4",
+                "contao-community-alliance/dependency-container": "~1.6",
+                "contao/core": ">=2.11,<4-dev",
                 "php": ">=5.3",
                 "symfony/event-dispatcher": "~2.3"
             },
             "replace": {
                 "bit3/contao-event-dispatcher": "self.version"
+            },
+            "require-dev": {
+                "contao-community-alliance/build-system": "~1.0",
+                "contao-community-alliance/build-system-all-tasks": "~1.0",
+                "contao-community-alliance/coding-standard": "~1.0"
             },
             "type": "contao-module",
             "extra": {
@@ -213,8 +222,8 @@
                     }
                 },
                 "branch-alias": {
-                    "dev-master": "1.2.x-dev",
-                    "dev-develop": "1.3.x-dev"
+                    "dev-master": "1.3.x-dev",
+                    "dev-develop": "1.4.x-dev"
                 }
             },
             "autoload": {
@@ -240,30 +249,27 @@
                 "contao",
                 "event"
             ],
-            "time": "2014-06-05 08:36:18"
+            "time": "2014-11-20 12:58:25"
         },
         {
             "name": "contao-community-alliance/events-contao-bindings",
-            "version": "dev-master",
+            "version": "dev-contao-3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/events-contao-bindings.git",
-                "reference": "643be87141a0a29de232d6f3180698e446295eb9"
+                "reference": "36eee0e6d830d30d5dfe72739179008f0621a079"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/events-contao-bindings/zipball/643be87141a0a29de232d6f3180698e446295eb9",
-                "reference": "643be87141a0a29de232d6f3180698e446295eb9",
+                "url": "https://api.github.com/repos/contao-community-alliance/events-contao-bindings/zipball/36eee0e6d830d30d5dfe72739179008f0621a079",
+                "reference": "36eee0e6d830d30d5dfe72739179008f0621a079",
                 "shasum": ""
             },
             "require": {
                 "contao-community-alliance/composer-plugin": "~2.0",
                 "contao-community-alliance/event-dispatcher": "~1.0",
-                "contao/core": "~3.3.0",
+                "contao/core": "~3.2.0",
                 "php": ">=5.3"
-            },
-            "conflict": {
-                "contao/core": "3.0.*"
             },
             "require-dev": {
                 "metamodels/php-coding-standard": "dev-master",
@@ -272,7 +278,7 @@
             "type": "contao-module",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.3.x-dev"
+                    "dev-contao-3.2": "3.2.x-dev"
                 },
                 "contao": {
                     "sources": {
@@ -309,7 +315,7 @@
                 "contao",
                 "translation"
             ],
-            "time": "2014-08-25 12:51:00"
+            "time": "2014-11-08 18:39:45"
         },
         {
             "name": "contao-community-alliance/translator",
@@ -354,7 +360,7 @@
                 {
                     "name": "Tristan Lins",
                     "email": "tristan.lins@bit3.de",
-                    "homepage": "http://bit3.de/",
+                    "homepage": "http://bit3.de",
                     "role": "Developer"
                 },
                 {
@@ -374,32 +380,23 @@
         },
         {
             "name": "contao/core",
-            "version": "3.3.4",
+            "version": "3.2.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/composerized-contao-core.git",
-                "reference": "c5ec89e699f5a21a477fa1ca1de06cb462e719eb"
+                "reference": "8e6978c4e174db8bba78ce1567a14959d02ce090"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/composerized-contao-core/zipball/c5ec89e699f5a21a477fa1ca1de06cb462e719eb",
-                "reference": "c5ec89e699f5a21a477fa1ca1de06cb462e719eb",
+                "url": "https://api.github.com/repos/contao-community-alliance/composerized-contao-core/zipball/8e6978c4e174db8bba78ce1567a14959d02ce090",
+                "reference": "8e6978c4e174db8bba78ce1567a14959d02ce090",
                 "shasum": ""
             },
             "require": {
                 "contao-community-alliance/composer-plugin": "*",
-                "contao/idna": "dev-master",
-                "contao/php-diff": "dev-master",
-                "leafo/lessphp": "~0.4.0",
-                "leafo/scssphp": "dev-master",
-                "leafo/scssphp-compass": "dev-master",
-                "michelf/php-markdown": "~1.4",
-                "php": ">=5.3.2",
-                "simplepie/simplepie": "~1.3",
-                "swiftmailer/swiftmailer": "~5.2",
-                "tecnick.com/tcpdf": "dev-master"
+                "php": ">=5.3.2"
             },
-            "type": "project",
+            "type": "library",
             "autoload": {
                 "classmap": [
                     "system/modules"
@@ -407,12 +404,14 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "LGPL-3.0+"
+                "LGPL-3.0"
             ],
             "authors": [
                 {
                     "name": "Leo Feyer",
-                    "homepage": "https://github.com/leofeyer"
+                    "email": "github@contao.org",
+                    "homepage": "https://contao.org",
+                    "role": "Project leader"
                 }
             ],
             "description": "Contao Open Source CMS",
@@ -421,268 +420,19 @@
                 "contao",
                 "core"
             ],
-            "time": "2014-08-14 00:45:25"
-        },
-        {
-            "name": "contao/idna",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/contao/idna.git",
-                "reference": "176e7549aeac534f3be8dfbf8a543fd9c54b431c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/contao/idna/zipball/176e7549aeac534f3be8dfbf8a543fd9c54b431c",
-                "reference": "176e7549aeac534f3be8dfbf8a543fd9c54b431c",
-                "shasum": ""
-            },
-            "type": "library",
-            "autoload": {
-                "classmap": [
-                    "idna_convert.class.php",
-                    "uctc.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "LGPL-2.1+"
-            ],
-            "authors": [
-                {
-                    "name": "Leo Feyer",
-                    "homepage": "https://github.com/leofeyer"
-                }
-            ],
-            "description": "A library for encoding and decoding internationalized domain names.",
-            "time": "2014-05-17 19:04:55"
-        },
-        {
-            "name": "contao/php-diff",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/contao/php-diff.git",
-                "reference": "9928f73548f26c4b8627d78a3722e52f63efadbd"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/contao/php-diff/zipball/9928f73548f26c4b8627d78a3722e52f63efadbd",
-                "reference": "9928f73548f26c4b8627d78a3722e52f63efadbd",
-                "shasum": ""
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Diff": "lib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Leo Feyer",
-                    "homepage": "https://github.com/leofeyer"
-                }
-            ],
-            "description": "A comprehensive library for generating differences between two hashable objects (strings or arrays).",
-            "time": "2014-05-17 19:04:01"
-        },
-        {
-            "name": "leafo/lessphp",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/leafo/lessphp.git",
-                "reference": "011afcca8e6f1000a6e789921ba805fa578271a3"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/leafo/lessphp/zipball/011afcca8e6f1000a6e789921ba805fa578271a3",
-                "reference": "011afcca8e6f1000a6e789921ba805fa578271a3",
-                "shasum": ""
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.4.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "lessc.inc.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT",
-                "GPL-3.0"
-            ],
-            "authors": [
-                {
-                    "name": "Leaf Corcoran",
-                    "email": "leafot@gmail.com",
-                    "homepage": "http://leafo.net"
-                }
-            ],
-            "description": "lessphp is a compiler for LESS written in PHP.",
-            "homepage": "http://leafo.net/lessphp/",
-            "time": "2014-04-27 02:56:30"
-        },
-        {
-            "name": "leafo/scssphp",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/leafo/scssphp.git",
-                "reference": "8c08da585537e97efd528c7d278463d2b9396371"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/leafo/scssphp/zipball/8c08da585537e97efd528c7d278463d2b9396371",
-                "reference": "8c08da585537e97efd528c7d278463d2b9396371",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "3.7.*"
-            },
-            "bin": [
-                "bin/pscss"
-            ],
-            "type": "library",
-            "autoload": {
-                "classmap": [
-                    "classmap.php"
-                ],
-                "psr-4": {
-                    "Leafo\\ScssPhp\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT",
-                "GPL-3.0"
-            ],
-            "authors": [
-                {
-                    "name": "Leaf Corcoran",
-                    "email": "leafot@gmail.com",
-                    "homepage": "http://leafo.net"
-                }
-            ],
-            "description": "scssphp is a compiler for SCSS written in PHP.",
-            "homepage": "http://leafo.net/scssphp/",
-            "keywords": [
-                "css",
-                "less",
-                "sass",
-                "scss",
-                "stylesheet"
-            ],
-            "time": "2014-08-12 22:41:53"
-        },
-        {
-            "name": "leafo/scssphp-compass",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/leafo/scssphp-compass.git",
-                "reference": "f1631ddb17731326863954d99b39694f0bbed6ec"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/leafo/scssphp-compass/zipball/f1631ddb17731326863954d99b39694f0bbed6ec",
-                "reference": "f1631ddb17731326863954d99b39694f0bbed6ec",
-                "shasum": ""
-            },
-            "require": {
-                "leafo/scssphp": "dev-master"
-            },
-            "type": "library",
-            "autoload": {
-                "classmap": [
-                    "compass.inc.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "authors": [
-                {
-                    "name": "Leaf Corcoran",
-                    "email": "leafot@gmail.com",
-                    "homepage": "http://leafo.net"
-                }
-            ],
-            "description": "Compass for scssphp",
-            "homepage": "http://leafo.net/scssphp/",
-            "time": "2012-08-02 02:04:32"
-        },
-        {
-            "name": "michelf/php-markdown",
-            "version": "dev-lib",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/michelf/php-markdown.git",
-                "reference": "a8c56ecd5e9e7c7d37d00c814c864c3bc8b32694"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/michelf/php-markdown/zipball/a8c56ecd5e9e7c7d37d00c814c864c3bc8b32694",
-                "reference": "a8c56ecd5e9e7c7d37d00c814c864c3bc8b32694",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-lib": "1.4.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Michelf": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Michel Fortin",
-                    "email": "michel.fortin@michelf.ca",
-                    "homepage": "http://michelf.ca/",
-                    "role": "Developer"
-                },
-                {
-                    "name": "John Gruber",
-                    "homepage": "http://daringfireball.net/"
-                }
-            ],
-            "description": "PHP Markdown",
-            "homepage": "http://michelf.ca/projects/php-markdown/",
-            "keywords": [
-                "markdown"
-            ],
-            "time": "2014-08-10 19:25:52"
+            "time": "2014-10-31 16:48:38"
         },
         {
             "name": "pimple/pimple",
             "version": "1.1.x-dev",
             "source": {
                 "type": "git",
-                "url": "https://github.com/fabpot/Pimple.git",
+                "url": "https://github.com/silexphp/Pimple.git",
                 "reference": "bc2fc12cdf1f29bcad9e650d493a54a8fd1f3d85"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fabpot/Pimple/zipball/bc2fc12cdf1f29bcad9e650d493a54a8fd1f3d85",
+                "url": "https://api.github.com/repos/silexphp/Pimple/zipball/bc2fc12cdf1f29bcad9e650d493a54a8fd1f3d85",
                 "reference": "bc2fc12cdf1f29bcad9e650d493a54a8fd1f3d85",
                 "shasum": ""
             },
@@ -707,9 +457,7 @@
             "authors": [
                 {
                     "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com",
-                    "homepage": "http://fabien.potencier.org",
-                    "role": "Lead Developer"
+                    "email": "fabien@symfony.com"
                 }
             ],
             "description": "Pimple is a simple Dependency Injection Container for PHP 5.3",
@@ -721,124 +469,18 @@
             "time": "2014-04-20 07:24:09"
         },
         {
-            "name": "simplepie/simplepie",
-            "version": "1.3.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/simplepie/simplepie.git",
-                "reference": "ce53709778bc1e2e4deda1651b66e5081398d5cc"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/simplepie/simplepie/zipball/ce53709778bc1e2e4deda1651b66e5081398d5cc",
-                "reference": "ce53709778bc1e2e4deda1651b66e5081398d5cc",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.2.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "SimplePie": "library"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Ryan Parman",
-                    "homepage": "http://ryanparman.com/",
-                    "role": "Creator, alumnus developer"
-                },
-                {
-                    "name": "Geoffrey Sneddon",
-                    "homepage": "http://gsnedders.com/",
-                    "role": "Alumnus developer"
-                },
-                {
-                    "name": "Ryan McCue",
-                    "email": "me@ryanmccue.info",
-                    "homepage": "http://ryanmccue.info/",
-                    "role": "Developer"
-                }
-            ],
-            "description": "A simple Atom/RSS parsing library for PHP",
-            "homepage": "http://simplepie.org/",
-            "keywords": [
-                "atom",
-                "feeds",
-                "rss"
-            ],
-            "time": "2012-10-30 17:54:03"
-        },
-        {
-            "name": "swiftmailer/swiftmailer",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/swiftmailer/swiftmailer.git",
-                "reference": "cd12d60cdd3b03de69a68a49089d85e119491b4d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/swiftmailer/swiftmailer/zipball/cd12d60cdd3b03de69a68a49089d85e119491b4d",
-                "reference": "cd12d60cdd3b03de69a68a49089d85e119491b4d",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.3"
-            },
-            "require-dev": {
-                "mockery/mockery": "~0.9.1"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "5.3-dev"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "lib/swift_required.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Chris Corbyn"
-                },
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
-                }
-            ],
-            "description": "Swiftmailer, free feature-rich PHP mailer",
-            "homepage": "http://swiftmailer.org",
-            "keywords": [
-                "mail",
-                "mailer"
-            ],
-            "time": "2014-09-20 11:30:50"
-        },
-        {
             "name": "symfony/event-dispatcher",
-            "version": "dev-master",
+            "version": "2.7.x-dev",
             "target-dir": "Symfony/Component/EventDispatcher",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/EventDispatcher.git",
-                "reference": "bf53697836343c9bc5663649f5f094ede73c2d5c"
+                "reference": "8e5829263631e686bf4d1254b02411263b8fa228"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/bf53697836343c9bc5663649f5f094ede73c2d5c",
-                "reference": "bf53697836343c9bc5663649f5f094ede73c2d5c",
+                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/8e5829263631e686bf4d1254b02411263b8fa228",
+                "reference": "8e5829263631e686bf4d1254b02411263b8fa228",
                 "shasum": ""
             },
             "require": {
@@ -847,7 +489,8 @@
             "require-dev": {
                 "psr/log": "~1.0",
                 "symfony/config": "~2.0",
-                "symfony/dependency-injection": "~2.0",
+                "symfony/dependency-injection": "~2.6",
+                "symfony/expression-language": "~2.6",
                 "symfony/stopwatch": "~2.2"
             },
             "suggest": {
@@ -857,7 +500,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.6-dev"
+                    "dev-master": "2.7-dev"
                 }
             },
             "autoload": {
@@ -881,70 +524,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "http://symfony.com",
-            "time": "2014-09-22 11:59:59"
-        },
-        {
-            "name": "tecnick.com/tcpdf",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/tecnickcom/TCPDF.git",
-                "reference": "8ec040b3ccedc2a0150a7b6b46c18c59d932ad59"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/tecnickcom/TCPDF/zipball/8ec040b3ccedc2a0150a7b6b46c18c59d932ad59",
-                "reference": "8ec040b3ccedc2a0150a7b6b46c18c59d932ad59",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0"
-            },
-            "type": "library",
-            "autoload": {
-                "classmap": [
-                    "fonts",
-                    "config",
-                    "include",
-                    "tcpdf.php",
-                    "tcpdf_parser.php",
-                    "tcpdf_import.php",
-                    "tcpdf_barcodes_1d.php",
-                    "tcpdf_barcodes_2d.php",
-                    "include/tcpdf_colors.php",
-                    "include/tcpdf_filters.php",
-                    "include/tcpdf_font_data.php",
-                    "include/tcpdf_fonts.php",
-                    "include/tcpdf_images.php",
-                    "include/tcpdf_static.php",
-                    "include/barcodes/datamatrix.php",
-                    "include/barcodes/pdf417.php",
-                    "include/barcodes/qrcode.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "LGPLv3"
-            ],
-            "authors": [
-                {
-                    "name": "Nicola Asuni",
-                    "email": "info@tecnick.com",
-                    "homepage": "http://nicolaasuni.tecnick.com"
-                }
-            ],
-            "description": "TCPDF is a PHP class for generating PDF documents and barcodes.",
-            "homepage": "http://www.tcpdf.org/",
-            "keywords": [
-                "PDFD32000-2008",
-                "TCPDF",
-                "barcodes",
-                "datamatrix",
-                "pdf",
-                "pdf417",
-                "qrcode"
-            ],
-            "time": "2014-09-02 19:31:33"
+            "time": "2014-11-10 18:00:54"
         }
     ],
     "packages-dev": [
@@ -954,22 +534,23 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/build-system.git",
-                "reference": "1689f4e8d1395ed707ffcadd4a10a434d21f745f"
+                "reference": "772a29697ded1064ab2f778c1c9fcbfe41c3f16f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/build-system/zipball/1689f4e8d1395ed707ffcadd4a10a434d21f745f",
-                "reference": "1689f4e8d1395ed707ffcadd4a10a434d21f745f",
+                "url": "https://api.github.com/repos/contao-community-alliance/build-system/zipball/772a29697ded1064ab2f778c1c9fcbfe41c3f16f",
+                "reference": "772a29697ded1064ab2f778c1c9fcbfe41c3f16f",
                 "shasum": ""
             },
             "suggest": {
-                "contao-community-alliance/build-system-tool-branch-alias-validation": "Enable the branch-alias-validation task (sugested version: ~1.0)",
-                "pdepend/pdepend": "Enable the pdepend task (sugested version: ~2.0)",
-                "phploc/phploc": "Enable the phploc task (sugested version: ~2.0)",
-                "phpmd/phpmd": "Enable the phpmd task (sugested version: ~2.0)",
-                "phpunit/phpunit": "Enable the phpunit task (sugested version: ~3.7).",
-                "sebastian/phpcpd": "Enable the phpcpd task (sugested version: ~1.4).",
-                "squizlabs/php_codesniffer": "Enable the phpcs task (sugested version: ~1.0)"
+                "contao-community-alliance/build-system-tool-branch-alias-validation": "Enable the branch-alias-validation task (suggested version: ~1.0)",
+                "contao-community-alliance/build-system-tool-travis-configuration-check": "Enable the travis-configuration-check task (suggested version: ~1.0)",
+                "pdepend/pdepend": "Enable the pdepend task (suggested version: ~2.0)",
+                "phploc/phploc": "Enable the phploc task (suggested version: ~2.0)",
+                "phpmd/phpmd": "Enable the phpmd task (suggested version: ~2.0)",
+                "phpunit/phpunit": "Enable the phpunit task (suggested version: ~3.7).",
+                "sebastian/phpcpd": "Enable the phpcpd task (suggested version: ~1.4).",
+                "squizlabs/php_codesniffer": "Enable the phpcs task (suggested version: ~1.0)"
             },
             "type": "library",
             "extra": {
@@ -990,7 +571,7 @@
                 }
             ],
             "description": "CCABS base system.",
-            "time": "2014-09-23 20:13:08"
+            "time": "2014-11-14 01:18:22"
         },
         {
             "name": "contao-community-alliance/build-system-logger",
@@ -1075,12 +656,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/build-system-tool-branch-alias-validation.git",
-                "reference": "1d5ed4dc8003bd2a14195ea071f87c4fcd8f3a4c"
+                "reference": "d8396e347fcc584367a3bd0bdc9e71feb38bfc8e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/build-system-tool-branch-alias-validation/zipball/1d5ed4dc8003bd2a14195ea071f87c4fcd8f3a4c",
-                "reference": "1d5ed4dc8003bd2a14195ea071f87c4fcd8f3a4c",
+                "url": "https://api.github.com/repos/contao-community-alliance/build-system-tool-branch-alias-validation/zipball/d8396e347fcc584367a3bd0bdc9e71feb38bfc8e",
+                "reference": "d8396e347fcc584367a3bd0bdc9e71feb38bfc8e",
                 "shasum": ""
             },
             "require": {
@@ -1089,9 +670,7 @@
                 "symfony/console": "~2.3"
             },
             "require-dev": {
-                "pdepend/pdepend": "1.1.*",
-                "phpunit/phpunit": ">=3.7.10,<4-dev",
-                "squizlabs/php_codesniffer": "*"
+                "contao-community-alliance/build-system-all-tasks": "~1.0"
             },
             "bin": [
                 "bin/validate-branch-alias.php"
@@ -1126,7 +705,7 @@
                 }
             ],
             "description": "Validation tool to ensure that all branches are ahead of the most recent tag.",
-            "time": "2014-09-16 17:11:38"
+            "time": "2014-11-03 15:53:34"
         },
         {
             "name": "contao-community-alliance/coding-standard",
@@ -1134,12 +713,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/coding-standard.git",
-                "reference": "7b9fa864df61568382bb9113a2cc30351bc07cc9"
+                "reference": "71678146741be8ebe0563041d687fc3a44c8137f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/coding-standard/zipball/7b9fa864df61568382bb9113a2cc30351bc07cc9",
-                "reference": "7b9fa864df61568382bb9113a2cc30351bc07cc9",
+                "url": "https://api.github.com/repos/contao-community-alliance/coding-standard/zipball/71678146741be8ebe0563041d687fc3a44c8137f",
+                "reference": "71678146741be8ebe0563041d687fc3a44c8137f",
                 "shasum": ""
             },
             "require": {
@@ -1168,20 +747,20 @@
             ],
             "description": "contao community alliance coding standard",
             "homepage": "http://c-c-a.org/",
-            "time": "2014-09-18 06:52:08"
+            "time": "2014-10-28 19:03:26"
         },
         {
             "name": "pdepend/pdepend",
-            "version": "2.0.2",
+            "version": "2.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdepend/pdepend.git",
-                "reference": "5fbe4b9ec9d05057d88b898ac5ba9071f427eeb0"
+                "reference": "dc582a3c0180664a8fbfc5a34efaf4cc13fccc60"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdepend/pdepend/zipball/5fbe4b9ec9d05057d88b898ac5ba9071f427eeb0",
-                "reference": "5fbe4b9ec9d05057d88b898ac5ba9071f427eeb0",
+                "url": "https://api.github.com/repos/pdepend/pdepend/zipball/dc582a3c0180664a8fbfc5a34efaf4cc13fccc60",
+                "reference": "dc582a3c0180664a8fbfc5a34efaf4cc13fccc60",
                 "shasum": ""
             },
             "require": {
@@ -1207,31 +786,28 @@
                 "BSD-3-Clause"
             ],
             "description": "Official version of pdepend to be handled with Composer",
-            "time": "2014-09-16 14:04:28"
+            "time": "2014-10-08 06:54:50"
         },
         {
             "name": "phploc/phploc",
-            "version": "dev-master",
+            "version": "2.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phploc.git",
-                "reference": "ca70e70ae96cb268b8200af2716af366cf3dc1d1"
+                "reference": "d177c22e2a08e448f7bdfa762045f7bd086834d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phploc/zipball/ca70e70ae96cb268b8200af2716af366cf3dc1d1",
-                "reference": "ca70e70ae96cb268b8200af2716af366cf3dc1d1",
+                "url": "https://api.github.com/repos/sebastianbergmann/phploc/zipball/d177c22e2a08e448f7bdfa762045f7bd086834d7",
+                "reference": "d177c22e2a08e448f7bdfa762045f7bd086834d7",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3",
-                "sebastian/finder-facade": "~1.1",
-                "sebastian/git": "~2.0",
-                "sebastian/version": "~1.0.3",
-                "symfony/console": "~2.2"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~4"
+                "sebastian/finder-facade": ">=1.1.0",
+                "sebastian/git": ">=1.0.0",
+                "sebastian/version": ">=1.0.3",
+                "symfony/console": ">=2.2.0"
             },
             "bin": [
                 "phploc"
@@ -1239,7 +815,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.1-dev"
+                    "dev-master": "2.0-dev"
                 }
             },
             "autoload": {
@@ -1260,28 +836,28 @@
             ],
             "description": "A tool for quickly measuring the size of a PHP project.",
             "homepage": "https://github.com/sebastianbergmann/phploc",
-            "time": "2014-06-17 04:31:24"
+            "time": "2014-04-27 06:47:27"
         },
         {
             "name": "phpmd/phpmd",
-            "version": "2.1.1",
+            "version": "2.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpmd/phpmd.git",
-                "reference": "0a1a12f6867d0e676718fd1ac287e0c34b956fb2"
+                "reference": "1a485d9db869137af5e9678bd844568c92998b25"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpmd/phpmd/zipball/0a1a12f6867d0e676718fd1ac287e0c34b956fb2",
-                "reference": "0a1a12f6867d0e676718fd1ac287e0c34b956fb2",
+                "url": "https://api.github.com/repos/phpmd/phpmd/zipball/1a485d9db869137af5e9678bd844568c92998b25",
+                "reference": "1a485d9db869137af5e9678bd844568c92998b25",
                 "shasum": ""
             },
             "require": {
                 "pdepend/pdepend": "2.0.*",
                 "php": ">=5.3.0",
-                "symfony/config": "@stable",
-                "symfony/dependency-injection": "@stable",
-                "symfony/filesystem": "@stable"
+                "symfony/config": "2.5.*",
+                "symfony/dependency-injection": "2.5.*",
+                "symfony/filesystem": "2.5.*"
             },
             "bin": [
                 "src/bin/phpmd"
@@ -1289,20 +865,15 @@
             "type": "library",
             "autoload": {
                 "psr-0": {
-                    "PHPMD\\": "src/main/php",
-                    "PDepend\\": "vendor/pdepend/pdepend/src/main/php/"
+                    "PHPMD\\": "src/main/php"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
-            "include-path": [
-                "../../pdepend/pdepend/src/main/php",
-                "src/main/php"
-            ],
             "license": [
                 "BSD-3-Clause"
             ],
             "description": "Official version of PHPMD handled with Composer.",
-            "time": "2014-09-09 18:47:29"
+            "time": "2014-09-25 15:56:22"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -1554,12 +1125,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "ae6cefd7cc84586a5ef27e04bae11ee940ec63dc"
+                "reference": "38709dc22d519a3d1be46849868aa2ddf822bcf6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/ae6cefd7cc84586a5ef27e04bae11ee940ec63dc",
-                "reference": "ae6cefd7cc84586a5ef27e04bae11ee940ec63dc",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/38709dc22d519a3d1be46849868aa2ddf822bcf6",
+                "reference": "38709dc22d519a3d1be46849868aa2ddf822bcf6",
                 "shasum": ""
             },
             "require": {
@@ -1619,7 +1190,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2014-04-30 12:24:19"
+            "time": "2014-10-17 09:04:17"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -1856,16 +1427,16 @@
         },
         {
             "name": "sebastian/version",
-            "version": "1.0.3",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/version.git",
-                "reference": "b6e1f0cf6b9e1ec409a0d3e2f2a5fb0998e36b43"
+                "reference": "06e66244ff39fc40d3328bd0243f42b2adf4a7b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/version/zipball/b6e1f0cf6b9e1ec409a0d3e2f2a5fb0998e36b43",
-                "reference": "b6e1f0cf6b9e1ec409a0d3e2f2a5fb0998e36b43",
+                "url": "https://api.github.com/repos/sebastianbergmann/version/zipball/06e66244ff39fc40d3328bd0243f42b2adf4a7b6",
+                "reference": "06e66244ff39fc40d3328bd0243f42b2adf4a7b6",
                 "shasum": ""
             },
             "type": "library",
@@ -1887,20 +1458,20 @@
             ],
             "description": "Library that helps with managing the version number of Git-hosted PHP projects",
             "homepage": "https://github.com/sebastianbergmann/version",
-            "time": "2014-03-07 15:35:33"
+            "time": "2014-05-14 04:53:35"
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "1.5.4",
+            "version": "1.5.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "4097e2c106e4a32bc234ae880e5585a19137e435"
+                "reference": "5d973e59cf58a0c847f298de84374c96b42b17b3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/4097e2c106e4a32bc234ae880e5585a19137e435",
-                "reference": "4097e2c106e4a32bc234ae880e5585a19137e435",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/5d973e59cf58a0c847f298de84374c96b42b17b3",
+                "reference": "5d973e59cf58a0c847f298de84374c96b42b17b3",
                 "shasum": ""
             },
             "require": {
@@ -1962,21 +1533,21 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2014-08-05 23:54:05"
+            "time": "2014-09-25 03:33:46"
         },
         {
             "name": "symfony/config",
-            "version": "dev-master",
+            "version": "2.5.x-dev",
             "target-dir": "Symfony/Component/Config",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Config.git",
-                "reference": "7e6936c7a94c32ed4810908c7631340bf36d36f0"
+                "reference": "9332a28782d97a1cb80deb5aa3459df5aabe75d6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Config/zipball/7e6936c7a94c32ed4810908c7631340bf36d36f0",
-                "reference": "7e6936c7a94c32ed4810908c7631340bf36d36f0",
+                "url": "https://api.github.com/repos/symfony/Config/zipball/9332a28782d97a1cb80deb5aa3459df5aabe75d6",
+                "reference": "9332a28782d97a1cb80deb5aa3459df5aabe75d6",
                 "shasum": ""
             },
             "require": {
@@ -1986,7 +1557,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.6-dev"
+                    "dev-master": "2.5-dev"
                 }
             },
             "autoload": {
@@ -2010,21 +1581,21 @@
             ],
             "description": "Symfony Config Component",
             "homepage": "http://symfony.com",
-            "time": "2014-09-23 05:25:18"
+            "time": "2014-11-03 03:54:42"
         },
         {
             "name": "symfony/console",
-            "version": "dev-master",
+            "version": "2.7.x-dev",
             "target-dir": "Symfony/Component/Console",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Console.git",
-                "reference": "8ae15cf783c0990517a94d9495b11db00d628532"
+                "reference": "bd71bd56840d59c9d0f04cf45d679e7e7ede360d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Console/zipball/8ae15cf783c0990517a94d9495b11db00d628532",
-                "reference": "8ae15cf783c0990517a94d9495b11db00d628532",
+                "url": "https://api.github.com/repos/symfony/Console/zipball/bd71bd56840d59c9d0f04cf45d679e7e7ede360d",
+                "reference": "bd71bd56840d59c9d0f04cf45d679e7e7ede360d",
                 "shasum": ""
             },
             "require": {
@@ -2043,7 +1614,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.6-dev"
+                    "dev-master": "2.7-dev"
                 }
             },
             "autoload": {
@@ -2067,21 +1638,21 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "http://symfony.com",
-            "time": "2014-09-23 09:01:06"
+            "time": "2014-11-16 17:28:20"
         },
         {
             "name": "symfony/dependency-injection",
-            "version": "dev-master",
+            "version": "2.5.x-dev",
             "target-dir": "Symfony/Component/DependencyInjection",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/DependencyInjection.git",
-                "reference": "3afec4c3c60610c17609e5810cc3f84076203a0f"
+                "reference": "662d8f5e4a7542dca4194fb3f3bda0a57e65f0a4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/DependencyInjection/zipball/3afec4c3c60610c17609e5810cc3f84076203a0f",
-                "reference": "3afec4c3c60610c17609e5810cc3f84076203a0f",
+                "url": "https://api.github.com/repos/symfony/DependencyInjection/zipball/662d8f5e4a7542dca4194fb3f3bda0a57e65f0a4",
+                "reference": "662d8f5e4a7542dca4194fb3f3bda0a57e65f0a4",
                 "shasum": ""
             },
             "require": {
@@ -2100,7 +1671,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.6-dev"
+                    "dev-master": "2.5-dev"
                 }
             },
             "autoload": {
@@ -2124,21 +1695,21 @@
             ],
             "description": "Symfony DependencyInjection Component",
             "homepage": "http://symfony.com",
-            "time": "2014-09-23 05:29:08"
+            "time": "2014-11-16 17:28:00"
         },
         {
             "name": "symfony/filesystem",
-            "version": "dev-master",
+            "version": "2.5.x-dev",
             "target-dir": "Symfony/Component/Filesystem",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Filesystem.git",
-                "reference": "7d97789ea01c3c76ecaa59b954d162777033cbd4"
+                "reference": "3c3e382bd869b3ec10008a3d9ef455b1cc2868db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Filesystem/zipball/7d97789ea01c3c76ecaa59b954d162777033cbd4",
-                "reference": "7d97789ea01c3c76ecaa59b954d162777033cbd4",
+                "url": "https://api.github.com/repos/symfony/Filesystem/zipball/3c3e382bd869b3ec10008a3d9ef455b1cc2868db",
+                "reference": "3c3e382bd869b3ec10008a3d9ef455b1cc2868db",
                 "shasum": ""
             },
             "require": {
@@ -2147,7 +1718,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.6-dev"
+                    "dev-master": "2.5-dev"
                 }
             },
             "autoload": {
@@ -2171,7 +1742,7 @@
             ],
             "description": "Symfony Filesystem Component",
             "homepage": "http://symfony.com",
-            "time": "2014-09-22 15:54:44"
+            "time": "2014-11-16 17:28:00"
         },
         {
             "name": "symfony/finder",
@@ -2180,12 +1751,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Finder.git",
-                "reference": "a83f67473da5cd3abc453607dd032454189f24c9"
+                "reference": "db265d455072fc24f21da6e8b7f94944c7aef53f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Finder/zipball/a83f67473da5cd3abc453607dd032454189f24c9",
-                "reference": "a83f67473da5cd3abc453607dd032454189f24c9",
+                "url": "https://api.github.com/repos/symfony/Finder/zipball/db265d455072fc24f21da6e8b7f94944c7aef53f",
+                "reference": "db265d455072fc24f21da6e8b7f94944c7aef53f",
                 "shasum": ""
             },
             "require": {
@@ -2194,7 +1765,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.6-dev"
+                    "dev-master": "3.0-dev"
                 }
             },
             "autoload": {
@@ -2218,21 +1789,21 @@
             ],
             "description": "Symfony Finder Component",
             "homepage": "http://symfony.com",
-            "time": "2014-09-23 05:25:18"
+            "time": "2014-11-11 08:37:22"
         },
         {
             "name": "symfony/process",
-            "version": "dev-master",
+            "version": "2.7.x-dev",
             "target-dir": "Symfony/Component/Process",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Process.git",
-                "reference": "1af70850bb6f572daf059a268c04ed6d66f2faee"
+                "reference": "5f5c84ca0df9bd83e394e4884f928b27db81e11b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Process/zipball/1af70850bb6f572daf059a268c04ed6d66f2faee",
-                "reference": "1af70850bb6f572daf059a268c04ed6d66f2faee",
+                "url": "https://api.github.com/repos/symfony/Process/zipball/5f5c84ca0df9bd83e394e4884f928b27db81e11b",
+                "reference": "5f5c84ca0df9bd83e394e4884f928b27db81e11b",
                 "shasum": ""
             },
             "require": {
@@ -2241,7 +1812,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.6-dev"
+                    "dev-master": "2.7-dev"
                 }
             },
             "autoload": {
@@ -2265,21 +1836,21 @@
             ],
             "description": "Symfony Process Component",
             "homepage": "http://symfony.com",
-            "time": "2014-09-23 05:25:18"
+            "time": "2014-11-10 18:00:54"
         },
         {
             "name": "symfony/yaml",
-            "version": "dev-master",
+            "version": "2.7.x-dev",
             "target-dir": "Symfony/Component/Yaml",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "6644c5c6b395e63a55186dea1817eed0ceb1c075"
+                "reference": "6165f4b5224c22de2873deb6a3a4e622044f0705"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/6644c5c6b395e63a55186dea1817eed0ceb1c075",
-                "reference": "6644c5c6b395e63a55186dea1817eed0ceb1c075",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/6165f4b5224c22de2873deb6a3a4e622044f0705",
+                "reference": "6165f4b5224c22de2873deb6a3a4e622044f0705",
                 "shasum": ""
             },
             "require": {
@@ -2288,7 +1859,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.6-dev"
+                    "dev-master": "2.7-dev"
                 }
             },
             "autoload": {
@@ -2312,7 +1883,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
-            "time": "2014-09-22 11:59:59"
+            "time": "2014-11-10 18:00:54"
         },
         {
             "name": "theseer/fdomdocument",
@@ -2360,12 +1931,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/zetacomponents/Base.git",
-                "reference": "f20df24e8de3e48b6b69b2503f917e457281e687"
+                "reference": "dbfbf3191dc46829fc70f432af410ec11b858239"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zetacomponents/Base/zipball/f20df24e8de3e48b6b69b2503f917e457281e687",
-                "reference": "f20df24e8de3e48b6b69b2503f917e457281e687",
+                "url": "https://api.github.com/repos/zetacomponents/Base/zipball/dbfbf3191dc46829fc70f432af410ec11b858239",
+                "reference": "dbfbf3191dc46829fc70f432af410ec11b858239",
                 "shasum": ""
             },
             "require-dev": {
@@ -2415,27 +1986,21 @@
             ],
             "description": "The Base package provides the basic infrastructure that all packages rely on. Therefore every component relies on this package.",
             "homepage": "https://github.com/zetacomponents",
-            "time": "2014-09-19 03:28:34"
+            "time": "2014-10-06 21:13:40"
         },
         {
             "name": "zetacomponents/console-tools",
-            "version": "dev-master",
+            "version": "1.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zetacomponents/ConsoleTools.git",
-                "reference": "90156abef01e4215fda8b9740f77c322f126fb02"
+                "reference": "e0a0def574009f7cfdf79bf0838a810bcf643775"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zetacomponents/ConsoleTools/zipball/90156abef01e4215fda8b9740f77c322f126fb02",
-                "reference": "90156abef01e4215fda8b9740f77c322f126fb02",
+                "url": "https://api.github.com/repos/zetacomponents/ConsoleTools/zipball/e0a0def574009f7cfdf79bf0838a810bcf643775",
+                "reference": "e0a0def574009f7cfdf79bf0838a810bcf643775",
                 "shasum": ""
-            },
-            "require": {
-                "zetacomponents/base": "*"
-            },
-            "require-dev": {
-                "zetacomponents/unit-test": "*"
             },
             "type": "library",
             "autoload": {
@@ -2445,7 +2010,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "Apache-2.0"
+                "apache2"
             ],
             "authors": [
                 {
@@ -2481,7 +2046,7 @@
             ],
             "description": "A set of classes to do different actions with the console (also called shell). It can render a progress bar, tables and a status bar and contains a class for parsing command line options.",
             "homepage": "https://github.com/zetacomponents",
-            "time": "2012-05-21 09:55:34"
+            "time": "2009-12-21 12:19:33"
         }
     ],
     "aliases": [],
