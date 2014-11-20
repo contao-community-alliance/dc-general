@@ -60,7 +60,7 @@ class ClipboardController implements EventSubscriberInterface
         if (
             'cut' === $actionName
             || 'copy' === $actionName
-            || 'deep-copy' === $actionName
+            || 'deepcopy' === $actionName
         ) {
             $this->addToClipboard($event);
         }
@@ -130,7 +130,7 @@ class ClipboardController implements EventSubscriberInterface
                 case 'copy':
                     $clipboardActionName = Item::COPY;
                     break;
-                case 'deep-copy':
+                case 'deepcopy':
                     $clipboardActionName = Item::DEEP_COPY;
                     break;
                 default:

@@ -43,7 +43,7 @@ interface ItemInterface
     /**
      * Item is in deep copy action.
      */
-    const DEEP_COPY = 'deep_copy';
+    const DEEP_COPY = 'deepcopy';
 
     /**
      * Retrieve the current action of the clipboard.
