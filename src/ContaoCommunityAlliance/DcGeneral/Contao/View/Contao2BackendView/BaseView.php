@@ -266,47 +266,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Redirects to the real back end module.
-     *
-     * @return void
-     */
-    protected function redirectHome()
-    {
-        $environment = $this->getEnvironment();
-        $input       = $environment->getInputProvider();
-
-        if ($input->hasParameter('table') && $input->hasParameter('pid')) {
-            if ($input->hasParameter('pid')) {
-                $event = new RedirectEvent(
-                    sprintf(
-                        'contao/main.php?do=%s&table=%s&pid=%s',
-                        $input->getParameter('do'),
-                        $input->getParameter('table'),
-                        $input->getParameter('pid')
-                    )
-                );
-            } else {
-                $event = new RedirectEvent(
-                    sprintf(
-                        'contao/main.php?do=%s&table=%s',
-                        $input->getParameter('do'),
-                        $input->getParameter('table')
-                    )
-                );
-            }
-        } else {
-            $event = new RedirectEvent(
-                sprintf(
-                    'contao/main.php?do=%s',
-                    $input->getParameter('do')
-                )
-            );
-        }
-
-        $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_REDIRECT, $event);
-    }
-
-    /**
      * Determine if the select mode is currently active or not.
      *
      * @return bool
@@ -2094,5 +2053,17 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     public function getReadableFieldValue(PropertyInterface $property, ModelInterface $model, $value)
     {
         return ViewHelpers::getReadableFieldValue($this->environment, $property, $model, $value);
+    }
+
+    /**
+     * Redirects to the real back end module.
+     *
+     * @return void
+     *
+     * @deprecated Use ViewHelpers::redirectHome($environment) instead!
+     */
+    protected function redirectHome()
+    {
+        ViewHelpers::redirectHome($this->environment);
     }
 }

@@ -13,6 +13,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
@@ -124,5 +126,48 @@ class ViewHelpers
         }
 
         return $value;
+    }
+
+
+    /**
+     * Redirects to the real back end module.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return void
+     */
+    public static function redirectHome(EnvironmentInterface $environment)
+    {
+        $input = $environment->getInputProvider();
+
+        if ($input->hasParameter('table') && $input->hasParameter('pid')) {
+            if ($input->hasParameter('pid')) {
+                $event = new RedirectEvent(
+                    sprintf(
+                        'contao/main.php?do=%s&table=%s&pid=%s',
+                        $input->getParameter('do'),
+                        $input->getParameter('table'),
+                        $input->getParameter('pid')
+                    )
+                );
+            } else {
+                $event = new RedirectEvent(
+                    sprintf(
+                        'contao/main.php?do=%s&table=%s',
+                        $input->getParameter('do'),
+                        $input->getParameter('table')
+                    )
+                );
+            }
+        } else {
+            $event = new RedirectEvent(
+                sprintf(
+                    'contao/main.php?do=%s',
+                    $input->getParameter('do')
+                )
+            );
+        }
+
+        $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_REDIRECT, $event);
     }
 }
