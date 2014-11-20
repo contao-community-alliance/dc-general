@@ -700,6 +700,7 @@ class DefaultController implements ControllerInterface
                 $models->push($model);
 
                 if ($item->isDeepCopy()) {
+                    throw new \RuntimeException('Deep copy is not implemented yet');
                     // FIXME deep copy children
                 }
             } else {
