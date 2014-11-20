@@ -276,32 +276,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Retrieve the currently active sorting.
-     *
-     * @return GroupAndSortingDefinitionInterface
-     *
-     * @deprecated Use ViewHelpers::getCurrentSorting($environment) instead!
-     */
-    protected function getCurrentSorting()
-    {
-        return ViewHelpers::getCurrentSorting($this->environment);
-    }
-
-    /**
-     * Retrieve the currently active grouping mode.
-     *
-     * @return array|null
-     *
-     * @see    ListingConfigInterface
-     *
-     * @deprecated Use ViewHelpers::getGroupingMode($environment) instead!
-     */
-    protected function getGroupingMode()
-    {
-        return ViewHelpers::getGroupingMode($this->environment);
-    }
-
-    /**
      * Return the formatted value for use in group headers as string.
      *
      * @param string         $field       The name of the property to format.
@@ -2065,5 +2039,31 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     protected function redirectHome()
     {
         ViewHelpers::redirectHome($this->environment);
+    }
+
+    /**
+     * Retrieve the currently active sorting.
+     *
+     * @return GroupAndSortingDefinitionInterface
+     *
+     * @deprecated Use ViewHelpers::getCurrentSorting($environment) instead!
+     */
+    protected function getCurrentSorting()
+    {
+        return ViewHelpers::getCurrentSorting($this->environment);
+    }
+
+    /**
+     * Retrieve the currently active grouping mode.
+     *
+     * @return array|null
+     *
+     * @see    ListingConfigInterface
+     *
+     * @deprecated Use ViewHelpers::getGroupingMode($environment) instead!
+     */
+    protected function getGroupingMode()
+    {
+        return ViewHelpers::getGroupingMode($this->environment);
     }
 }
