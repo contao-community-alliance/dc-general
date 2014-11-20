@@ -641,7 +641,8 @@ class DefaultController implements ControllerInterface
     public function getModelsFromClipboard(
         $modelProviderName = null,
         $parentProviderName = false,
-        IdSerializer $newParentModelId = null
+        IdSerializer $newParentModelId = null,
+        array &$items = array()
     ) {
         $environment = $this->getEnvironment();
         $models      = new DefaultCollection();
@@ -655,7 +656,7 @@ class DefaultController implements ControllerInterface
             $filter->hasNoParent();
         }
 
-        $items       = $clipboard->fetch($filter);
+        $items = $clipboard->fetch($filter);
 
         foreach ($items as $item) {
             $modelId = $item->getModelId();
