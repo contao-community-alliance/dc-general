@@ -1002,7 +1002,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $providerName    = $environment->getDataDefinition()->getName();
         $mode            = $basicDefinition->getMode();
         $config          = $this->getEnvironment()->getController()->getBaseConfig();
-        $sorting         = $this->getManualSortingProperty();
+        $manualSorting   = $this->getManualSortingProperty();
 
         if ($serializedPid = $environment->getInputProvider()->getParameter('pid')) {
             $pid = IdSerializer::fromSerialized($serializedPid);
@@ -1030,24 +1030,26 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $this->getPanel()->initialize($config);
 
         // Add new button.
-        if (($mode == BasicDefinitionInterface::MODE_FLAT)
-            || (($mode == BasicDefinitionInterface::MODE_PARENTEDLIST) && !$sorting)
+        if (
+            ($mode == BasicDefinitionInterface::MODE_FLAT)
+            || (($mode == BasicDefinitionInterface::MODE_PARENTEDLIST) && !$manualSorting)
         ) {
             $parameters['act'] = 'create';
             // Add new button.
             if ($pid->getDataProviderName() && $pid->getId()) {
                 $parameters['pid'] = $pid->getSerialized();
             }
-        } elseif (($mode == BasicDefinitionInterface::MODE_PARENTEDLIST)
-                  || ($mode == BasicDefinitionInterface::MODE_HIERARCHICAL)
+        } elseif (
+            ($mode == BasicDefinitionInterface::MODE_PARENTEDLIST)
+            || ($mode == BasicDefinitionInterface::MODE_HIERARCHICAL)
         ) {
-        $filter = new Filter();
-        $filter->modelIsFromProvider($basicDefinition->getDataProvider());
-        if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
-            $filter->parentIsFromProvider($parentDataProviderName);
-        } else {
-            $filter->hasNoParent();
-        }
+            $filter = new Filter();
+            $filter->modelIsFromProvider($basicDefinition->getDataProvider());
+            if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
+                $filter->parentIsFromProvider($parentDataProviderName);
+            } else {
+                $filter->hasNoParent();
+            }
 
             if ($environment->getClipboard()->isNotEmpty($filter)) {
                 return null;
@@ -1496,7 +1498,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $strLabel = $this->translate('pasteafter.0', $event->getModel()->getProviderName());
         if ($event->isPasteAfterDisabled()) {
             /** @var GenerateHtmlEvent $imageEvent */
-            $imageEvent = $this->getEnvironment()->getEventDispatcher()->dispatch(
+            $imageEvent = $environment->getEventDispatcher()->dispatch(
                 ContaoEvents::IMAGE_GET_HTML,
                 new GenerateHtmlEvent(
                     'pasteafter_.gif',
@@ -1509,7 +1511,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         /** @var GenerateHtmlEvent $imageEvent */
-        $imageEvent = $this->getEnvironment()->getEventDispatcher()->dispatch(
+        $imageEvent = $environment->getEventDispatcher()->dispatch(
             ContaoEvents::IMAGE_GET_HTML,
             new GenerateHtmlEvent(
                 'pasteafter.gif',
@@ -1518,11 +1520,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             )
         );
 
-        $opDesc = $this->translate('pasteafter.1', $this->getEnvironment()->getDataDefinition()->getName());
+        $opDesc = $this->translate('pasteafter.1', $environment->getDataDefinition()->getName());
         if (strlen($opDesc)) {
-            $title = sprintf($opDesc, $event->getModel()->getId());
+            $title = sprintf($opDesc, $model->getId());
         } else {
-            $title = sprintf('%s id %s', $strLabel, $event->getModel()->getId());
+            $title = sprintf('%s id %s', $strLabel, $model->getId());
         }
 
         return sprintf(
@@ -1584,10 +1586,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         if ($this->getManualSortingProperty()) {
-            if ($clipboard->isEmpty($filter)
-                && $this->getDataDefinition()->getBasicDefinition()->getMode()
-                   != BasicDefinitionInterface::MODE_HIERARCHICAL
-            ) {
+            $clipboardIsEmpty = $clipboard->isEmpty($filter);
+
+            if ($clipboardIsEmpty && BasicDefinitionInterface::MODE_HIERARCHICAL !== $basicDefinition->getMode()) {
                 /** @var AddToUrlEvent $urlEvent */
                 $urlEvent = $dispatcher->dispatch(
                     ContaoEvents::BACKEND_ADD_TO_URL,
@@ -1614,7 +1615,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             }
 
             // Add paste into/after icons.
-            if ($clipboard->isNotEmpty($filter)) {
+            if (!$clipboardIsEmpty) {
                 if ($clipboard->isCreate()) {
                     // Add ext. information.
                     $add2UrlAfter = sprintf(
