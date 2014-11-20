@@ -18,6 +18,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
@@ -59,7 +60,8 @@ class ClipboardController implements EventSubscriberInterface
         }
 
         if (
-            'cut' === $actionName
+            'create' === $actionName
+            || 'cut' === $actionName
             || 'copy' === $actionName
             || 'deepcopy' === $actionName
         ) {
@@ -111,20 +113,30 @@ class ClipboardController implements EventSubscriberInterface
         $environment = $event->getEnvironment();
         $input       = $environment->getInputProvider();
         $clipboard   = $environment->getClipboard();
-        $modelIdRaw  = $input->getParameter('source');
+
+        if ('create' === $actionName) {
+            $modelId = IdSerializer::fromValues(
+                $environment->getDataDefinition()->getBasicDefinition()->getDataProvider(),
+                null
+            );
+        } else {
+            $modelIdRaw = $input->getParameter('source');
+            $modelId    = IdSerializer::fromSerialized($modelIdRaw);
+        }
+
+        $parentIdRaw = $input->getParameter('pid');
+        if ($parentIdRaw) {
+            $parentId = IdSerializer::fromSerialized($parentIdRaw);
+        } else {
+            $parentId = null;
+        }
 
         // Push some entry into clipboard.
-        if ($modelIdRaw) {
-            $modelId = IdSerializer::fromSerialized($modelIdRaw);
-
-            $parentIdRaw = $input->getParameter('pid');
-            if ($parentIdRaw) {
-                $parentId = IdSerializer::fromSerialized($parentIdRaw);
-            } else {
-                $parentId = null;
-            }
-
+        if ($modelId) {
             switch ($actionName) {
+                case 'create':
+                    $clipboardActionName = Item::CREATE;
+                    break;
                 case 'cut':
                     $clipboardActionName = Item::CUT;
                     break;
@@ -139,6 +151,19 @@ class ClipboardController implements EventSubscriberInterface
             }
 
             if ($clipboardActionName) {
+                // Remove other create items, there can only be one create item in the clipboard or many others
+                if (Item::CREATE === $clipboardActionName) {
+                    $clipboard->clear();
+                } else {
+                    $filter = new Filter();
+                    $filter->actionIs(ItemInterface::CREATE);
+                    $items = $clipboard->fetch($filter);
+                    foreach ($items as $item) {
+                        $clipboard->remove($item);
+                    }
+                }
+
+                // create the new item
                 $item = new Item($clipboardActionName, $parentId, $modelId);
 
                 // Let the clipboard save it's values persistent.
