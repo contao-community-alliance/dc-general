@@ -263,11 +263,14 @@ EXPR;
 
     /**
      * {@inheritdoc}
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     * @SuppressWarnings(PHPMD.EvalExpression)
      */
     public function accepts(ItemInterface $item)
     {
         if (null === $this->compiled) {
-            $language = new ExpressionLanguage();
+            $language       = new ExpressionLanguage();
             $this->compiled = $language->compile(
                 $this->getExpression(),
                 array('item', 'variables')
@@ -275,7 +278,9 @@ EXPR;
         }
 
         $variables = $this->variables;
+        // @codingStandardsIgnoreStart
         return eval($this->compiled);
+        // @codingStandardsIgnoreEnd
     }
 
     /**
