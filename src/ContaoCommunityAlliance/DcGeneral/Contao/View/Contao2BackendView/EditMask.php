@@ -151,7 +151,7 @@ class EditMask
         $definition  = $this->getDataDefinition();
 
         // Check if table is editable.
-        if (!($model->getId() || $definition->getBasicDefinition()->isEditable())) {
+        if ($model->getId() && !$definition->getBasicDefinition()->isEditable()) {
             $message = 'DataContainer ' . $definition->getName() . ' is not editable';
             $environment->getEventDispatcher()->dispatch(
                 ContaoEvents::SYSTEM_LOG,
@@ -176,7 +176,7 @@ class EditMask
         $definition  = $this->getDataDefinition();
 
         // Check if table is closed but we are adding a new item.
-        if ($model->getId() && !$definition->getBasicDefinition()->isCreatable()) {
+        if (!($model->getId() || $definition->getBasicDefinition()->isCreatable())) {
             $message = 'DataContainer ' . $definition->getName() . ' is closed';
             $environment->getEventDispatcher()->dispatch(
                 ContaoEvents::SYSTEM_LOG,
