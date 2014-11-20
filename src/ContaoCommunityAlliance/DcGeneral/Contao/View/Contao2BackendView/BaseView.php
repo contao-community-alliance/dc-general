@@ -563,6 +563,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $parentModelId  = $input->getParameter('pid')
             ? IdSerializer::fromSerialized($input->getParameter('pid'))
             : null;
+        $items          = array();
 
         if ($source) {
             $dataProvider = $environment->getDataProvider($source->getDataProviderName());
@@ -584,7 +585,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $models = $controller->getModelsFromClipboard(
                 $dataDefinition->getBasicDefinition()->getDataProvider(),
                 $dataDefinition->getBasicDefinition()->getParentDataProvider(),
-                $parentModelId
+                $parentModelId,
+                $items
             );
         }
 
@@ -630,6 +632,20 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $clipboard
                 ->clear()
                 ->saveTo($environment);
+        }
+
+        /** @var ItemInterface[] $items */
+        if (1 === count($items) && ItemInterface::CREATE === $items[0]->getAction()) {
+            $model   = $models->get(0);
+            $modelId = IdSerializer::fromModel($model);
+
+            $addToUrlEvent = new AddToUrlEvent('act=edit&id=' . $modelId->getSerialized());
+            $environment->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $addToUrlEvent);
+
+            $redirectEvent = new RedirectEvent($addToUrlEvent->getUrl());
+            $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_REDIRECT, $redirectEvent);
+
+            return;
         }
 
         ViewHelpers::redirectHome($environment);
