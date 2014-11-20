@@ -2,15 +2,25 @@
 /** @var \ContaoCommunityAlliance\DcGeneral\EnvironmentInterface $environment */
 $environment     = $this->environment;
 $eventDispatcher = $environment->getEventDispatcher();
-?>
-<div class="tl_listing_container">
-    <?php if (count($this->options)): ?>
-        <ul id="tl_breadcrumb">
-            <?php foreach ($this->options as $id => $row): ?>
-                <li>
-                    <?php
-                    /** @var \ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface $item */
-                    $item  = $row['item'];
+
+// pre render the clipboard icon
+$event = new \ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent(
+    'clipboard.gif'
+);
+$eventDispatcher->dispatch(
+    \ContaoCommunityAlliance\Contao\Bindings\ContaoEvents::IMAGE_GET_HTML,
+    $event
+);
+$clipboardIcon = $event->getHtml();
+
+// pre render the action icons
+$icons = array();
+foreach ($this->options as $id => $row) {
+    /** @var \ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface $item */
+    $item  = $row['item'];
+
+    if (!isset($icons[$item->getAction()])) {
+        $item  = $row['item'];
                     $event = new \ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent(
                         $item->getAction() . '.gif'
                     );
@@ -18,22 +28,25 @@ $eventDispatcher = $environment->getEventDispatcher();
                         \ContaoCommunityAlliance\Contao\Bindings\ContaoEvents::IMAGE_GET_HTML,
                         $event
                     );
-                    echo $event->getHtml();
-                    ?> <?php echo $row['label'] ?>
+        $icons[$item->getAction()] = $event->getHtml();
+    }
+}
+?>
+<div class="tl_listing_container" id="dcg_clipboard">
+    <?php if (count($this->options)): ?>
+        <ul id="tl_breadcrumb">
+            <?php foreach ($this->options as $id => $row): ?>
+                <li>
+                    <?php echo $icons[$row['item']->getAction()] ?>
+                    <?php echo $row['label'] ?>
+                    <a href="<?php echo str_replace('%id%', $id, $this->clearItemUrl) ?>">
+                        <?php echo $clipboardIcon ?>
+                    </a>
                 </li>
             <?php endforeach; ?>
             <li style="float: right">
                 <a href="<?php echo $this->clearUrl ?>">
-                    <?php
-                    $event = new \ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent(
-                        'clipboard.gif'
-                    );
-                    $eventDispatcher->dispatch(
-                        \ContaoCommunityAlliance\Contao\Bindings\ContaoEvents::IMAGE_GET_HTML,
-                        $event
-                    );
-                    echo $event->getHtml();
-                    ?>
+                    <?php echo $clipboardIcon ?>
                     <?php echo $GLOBALS['TL_LANG']['MSC']['clearClipboard'] ?>
                 </a>
             </li>

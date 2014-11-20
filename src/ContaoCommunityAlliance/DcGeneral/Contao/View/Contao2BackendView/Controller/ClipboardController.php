@@ -192,12 +192,19 @@ class ClipboardController implements EventSubscriberInterface
 
         $addToUrlEvent = new AddToUrlEvent('act=clear-clipboard&original-act=' . $input->getParameter('act'));
         $eventDispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $addToUrlEvent);
+        $clearUrl = $addToUrlEvent->getUrl();
+
+        $addToUrlEvent =
+            new AddToUrlEvent('clipboard-item=%id%&act=clear-clipboard&original-act=' . $input->getParameter('act'));
+        $eventDispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $addToUrlEvent);
+        $clearItemUrl = $addToUrlEvent->getUrl();
 
         $template = new \BackendTemplate('dcbe_general_clipboard');
 
-        $template->environment = $environment;
-        $template->options     = $options;
-        $template->clearUrl    = $addToUrlEvent->getUrl();
+        $template->environment  = $environment;
+        $template->options      = $options;
+        $template->clearUrl     = $clearUrl;
+        $template->clearItemUrl = $clearItemUrl;
 
         $event->setResponse($template->parse());
     }
