@@ -218,9 +218,6 @@ class ShowHandler extends AbstractHandler
             return;
         }
 
-        // Select language in data provider.
-        $this->checkLanguage($environment);
-
         $translator   = $environment->getTranslator();
         $modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('id'));
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());

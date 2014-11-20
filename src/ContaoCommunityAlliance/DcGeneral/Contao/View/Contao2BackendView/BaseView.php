@@ -597,18 +597,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Check if the data provider is multi language and prepare the data provider with the selected language.
-     *
-     * @return void
-     *
-     * @deprecated Use AbstractHandler::checkLanguage instead.
-     */
-    protected function checkLanguage()
-    {
-        AbstractHandler::checkLanguage($this->getEnvironment());
-    }
-
-    /**
      * Create a new instance of ContaoBackendViewTemplate with the template file of the given name.
      *
      * @param string $strTemplate Name of the template to create.
@@ -1183,8 +1171,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function edit(Action $action)
     {
-        $this->checkLanguage();
-
         $environment   = $this->getEnvironment();
         $inputProvider = $environment->getInputProvider();
         $modelId       = $inputProvider->hasParameter('id')
@@ -1228,8 +1214,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     protected function createEditMask($model, $originalModel, $preFunction, $postFunction)
     {
-        $this->checkLanguage();
-
         $editMask = new EditMask($this, $model, $originalModel, $preFunction, $postFunction);
         return $editMask->execute();
     }

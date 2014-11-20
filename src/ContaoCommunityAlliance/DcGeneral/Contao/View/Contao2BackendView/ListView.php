@@ -253,8 +253,6 @@ class ListView extends BaseView
             return $this->edit($action);
         }
 
-        $this->checkLanguage();
-
         $environment  = $this->getEnvironment();
         $dataProvider = $environment->getDataProvider();
         $modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('source'));

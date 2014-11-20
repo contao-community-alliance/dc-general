@@ -612,8 +612,6 @@ class ParentView extends BaseView
             $this->redirectHome();
         }
 
-        $this->checkLanguage();
-
         $environment  = $this->getEnvironment();
         $dataProvider = $environment->getDataProvider();
         $modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('source'));
