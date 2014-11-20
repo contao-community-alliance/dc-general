@@ -60,6 +60,46 @@ class ViewHelpers
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public static function getManualSortingProperty(EnvironmentInterface $environment)
+    {
+        /** @var BackendViewInterface $view */
+        $view = $environment->getView();
+
+        $definition = null;
+        foreach ($view->getPanel() as $panel) {
+            /** @var PanelInterface $panel */
+            $sort = $panel->getElement('sort');
+            if ($sort) {
+                /** @var SortElementInterface $sort */
+                $definition = $sort->getSelectedDefinition();
+            }
+        }
+
+        if ($definition === null) {
+            /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
+            $dataDefinition            = $environment->getDataDefinition();
+            $viewDefinition            = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+            $groupAndSortingDefinition = $viewDefinition->getListingConfig()->getGroupAndSortingDefinition();
+
+            if ($groupAndSortingDefinition->hasDefault()) {
+                $definition = $groupAndSortingDefinition->getDefault();
+            }
+        }
+
+        if ($definition) {
+            foreach ($definition as $information) {
+                if ($information->isManualSorting()) {
+                    return $information->getProperty();
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Retrieve the currently active grouping mode.
      *
      * @param EnvironmentInterface $environment The environment.

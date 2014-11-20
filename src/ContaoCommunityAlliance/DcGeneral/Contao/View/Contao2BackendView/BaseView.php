@@ -536,43 +536,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public function getManualSortingProperty()
-    {
-        $definition = null;
-        foreach ($this->getPanel() as $panel) {
-            /** @var PanelInterface $panel */
-            $sort = $panel->getElement('sort');
-            if ($sort) {
-                /** @var SortElementInterface $sort */
-                $definition = $sort->getSelectedDefinition();
-            }
-        }
-
-        if ($definition === null) {
-            $collection = $this
-                ->getViewSection()
-                ->getListingConfig()
-                ->getGroupAndSortingDefinition();
-
-            if ($collection->hasDefault()) {
-                $definition = $collection->getDefault();
-            }
-        }
-
-        if ($definition) {
-            foreach ($definition as $information) {
-                if ($information->isManualSorting()) {
-                    return $information->getProperty();
-                }
-            }
-        }
-
-        return null;
-    }
-
-    /**
      * Invoked for cut and copy.
      *
      * This performs redirectHome() upon successful execution and throws an exception otherwise.
@@ -1812,6 +1775,16 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     public function getReadableFieldValue(PropertyInterface $property, ModelInterface $model, $value)
     {
         return ViewHelpers::getReadableFieldValue($this->environment, $property, $model, $value);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated Use ViewHelpers::getManualSortingProperty($environment) instead!
+     */
+    public function getManualSortingProperty()
+    {
+        return ViewHelpers::getManualSortingProperty($this->environment);
     }
 
     /**
