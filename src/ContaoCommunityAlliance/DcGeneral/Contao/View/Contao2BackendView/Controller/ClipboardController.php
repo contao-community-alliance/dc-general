@@ -11,7 +11,7 @@
  * @filesource
  */
 
-namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
+namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller;
 
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
@@ -19,12 +19,23 @@ use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Class ClipboardView
+ * Class ClipboardController.
  */
-class ClipboardView
+class ClipboardController implements EventSubscriberInterface
 {
+    /**
+     * {@inheritdoc}
+     */
+    public static function getSubscribedEvents()
+    {
+        return array(
+            DcGeneralEvents::VIEW   => array('handleView'),
+        );
+    }
+
     public function handleView(ViewEvent $event)
     {
         if (DcGeneralViews::CLIPBOARD !== $event->getViewName()) {

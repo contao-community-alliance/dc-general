@@ -12,14 +12,10 @@
  */
 
 use ContaoCommunityAlliance\DcGeneral\Contao\Subscriber\FormatModelLabelSubscriber;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ClipboardView;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 
 return array(
     // View related listeners
-    DcGeneralEvents::VIEW => array(
-        array(new ClipboardView(), 'handleView'),
-    ),
     DcGeneralEvents::FORMAT_MODEL_LABEL => array(
         array(new FormatModelLabelSubscriber(), 'handleFormatModelLabel'),
     ),
