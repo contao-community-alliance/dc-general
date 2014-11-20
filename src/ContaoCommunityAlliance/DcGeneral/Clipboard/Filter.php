@@ -252,7 +252,7 @@ EXPR;
     {
         $language = new ExpressionLanguage();
         return $language->evaluate(
-            implode(' and ', $this->expression),
+            $this->getExpression(),
             array(
                 'item'      => $item,
                 'variables' => $this->variables,
