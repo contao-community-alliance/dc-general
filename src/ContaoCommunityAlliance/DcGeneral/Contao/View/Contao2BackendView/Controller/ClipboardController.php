@@ -208,16 +208,22 @@ class ClipboardController implements EventSubscriberInterface
         foreach ($clipboard->fetch($filter) as $item) {
             $modelId           = $item->getModelId();
             $serializedModelId = $modelId->getSerialized();
-            $dataProvider      = $environment->getDataProvider($modelId->getDataProviderName());
-            $config            = $dataProvider->getEmptyConfig();
-            $config->setId($modelId->getId());
-            $model = $dataProvider->fetch($config);
+            $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
 
-            $formatModelLabelEvent = new FormatModelLabelEvent($environment, $model);
-            $eventDispatcher->dispatch(DcGeneralEvents::FORMAT_MODEL_LABEL, $formatModelLabelEvent);
-            $label = $formatModelLabelEvent->getLabel();
-            $label = array_shift($label);
-            $label = $label['content'];
+            if ($modelId->getId()) {
+                $config       = $dataProvider->getEmptyConfig();
+                $config->setId($modelId->getId());
+                $model = $dataProvider->fetch($config);
+
+                $formatModelLabelEvent = new FormatModelLabelEvent($environment, $model);
+                $eventDispatcher->dispatch(DcGeneralEvents::FORMAT_MODEL_LABEL, $formatModelLabelEvent);
+                $label = $formatModelLabelEvent->getLabel();
+                $label = array_shift($label);
+                $label = $label['content'];
+            } else {
+                $model = $dataProvider->getEmptyModel();
+                $label = $environment->getTranslator()->translate('new.0', $modelId->getDataProviderName());
+            }
 
             $options[$serializedModelId] = array(
                 'item'  => $item,
