@@ -750,7 +750,7 @@ class TreeView extends BaseView
         $input = $this->getEnvironment()->getInputProvider();
         if (($modelId = $input->hasParameter('ptg')) && ($providerName = $input->hasParameter('provider'))) {
             $this->toggleModel($providerName, $modelId);
-            $this->redirectHome();
+            ViewHelpers::redirectHome($this->environment);
         }
 
         // TODO remove $this->checkClipboard();

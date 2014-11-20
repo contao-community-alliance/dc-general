@@ -612,7 +612,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
             $clipboard->create($input->getParameter('pid'))->saveTo($environment);
 
-            $this->redirectHome();
+            ViewHelpers::redirectHome($environment);
         }
 
         if ($source) {
@@ -680,9 +680,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 ->saveTo($environment);
         }
 
-        $this->redirectHome();
-
-        throw new DcGeneralRuntimeException('Invalid paste operation parameters.');
+        ViewHelpers::redirectHome($environment);
     }
 
     /**
@@ -785,7 +783,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         );
         $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
-        $this->redirectHome();
+        ViewHelpers::redirectHome($this->environment);
 
         return null;
     }

@@ -643,7 +643,7 @@ class ParentView extends BaseView
             && $this->environment->getDataProvider()->fieldExists($this->getManualSortingProperty())
         ) {
             // TODO remove $this->checkClipboard('copy');
-            $this->redirectHome();
+            ViewHelpers::redirectHome($this->environment);
         }
 
         $environment  = $this->getEnvironment();
