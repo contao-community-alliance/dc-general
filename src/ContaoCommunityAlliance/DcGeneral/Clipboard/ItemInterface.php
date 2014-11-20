@@ -93,4 +93,13 @@ interface ItemInterface
      * @return IdSerializer
      */
     public function getModelId();
+
+    /**
+     * Determine if this item, is equals to the other item.
+     *
+     * @param ItemInterface $item The other item.
+     *
+     * @return bool
+     */
+    public function equals(ItemInterface $item);
 }

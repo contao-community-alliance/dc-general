@@ -115,4 +115,30 @@ class Item implements ItemInterface
     {
         return $this->modelId;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function equals(ItemInterface $item)
+    {
+        // It is exactly the same item
+        if ($this === $item) {
+            return true;
+        }
+
+        return !(
+            // The actions are not equal
+            $this->getAction() !== $item->getAction()
+            // One have a parent ID, the other not
+            || $this->getParentId() && !$item->getParentId()
+            || !$this->getParentId() && $item->getParentId()
+            // The parent IDs are not equal
+            || (
+                $this->getParentId()
+                && !$this->getParentId()->equals($item->getParentId())
+            )
+            // The model IDs are not equal
+            || !$this->getModelId()->equals($item->getModelId())
+        );
+    }
 }
