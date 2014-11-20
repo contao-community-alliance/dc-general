@@ -97,6 +97,32 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      */
+    public function has(ItemInterface $item)
+    {
+        $serializedId = $item->getModelId()->getSerialized();
+
+        if (!isset($this->items[$serializedId])) {
+            return false;
+        }
+
+        $existingItem = $this->items[$serializedId];
+
+        return $existingItem->equals($item);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function hasId(IdSerializer $modelId)
+    {
+        $serializedId = $modelId->getSerialized();
+
+        return isset($this->items[$serializedId]);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function fetch(FilterInterface $filter)
     {
         $items = array();

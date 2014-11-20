@@ -74,6 +74,24 @@ interface ClipboardInterface
     public function removeById(IdSerializer $modelId);
 
     /**
+     * Determine if an item exist.
+     *
+     * @param ItemInterface $item The item.
+     *
+     * @return static
+     */
+    public function has(ItemInterface $item);
+
+    /**
+     * Determine if an item for the model id exist.
+     *
+     * @param IdSerializer $modelId The model id.
+     *
+     * @return static
+     */
+    public function hasId(IdSerializer $modelId);
+
+    /**
      * Get all items from the clipboard.
      *
      * @param FilterInterface|null $filter An item filter.
