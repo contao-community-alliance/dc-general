@@ -142,6 +142,13 @@ interface ControllerInterface
     public function fetchModelFromProvider($modelId, $providerName = null);
 
     /**
+     * Create an empty model using the default values from the definition.
+     *
+     * @return ModelInterface
+     */
+    public function createEmptyModelWithDefaults();
+
+    /**
      * Paste the content of the clipboard onto the top.
      *
      * @param CollectionInterface $models   The models to be inserted.

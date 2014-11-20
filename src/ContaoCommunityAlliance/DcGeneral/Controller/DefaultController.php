@@ -611,6 +611,29 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritDoc}
      */
+    public function createEmptyModelWithDefaults()
+    {
+        $environment        = $this->getEnvironment();
+        $definition         = $environment->getDataDefinition();
+        $dataProvider       = $environment->getDataProvider();
+        $propertyDefinition = $definition->getPropertiesDefinition();
+        $properties         = $propertyDefinition->getProperties();
+        $model              = $dataProvider->getEmptyModel();
+
+        foreach ($properties as $property) {
+            $propName = $property->getName();
+
+            if ($property->getDefaultValue() !== null) {
+                $model->setProperty($propName, $property->getDefaultValue());
+            }
+        }
+
+        return $model;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function pasteTop(CollectionInterface $models, $sortedBy)
     {
         $environment = $this->getEnvironment();

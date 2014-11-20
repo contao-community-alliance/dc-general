@@ -946,32 +946,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Create an empty model using the default values from the definition.
-     *
-     * @return ModelInterface
-     */
-    protected function createEmptyModelWithDefaults()
-    {
-        $environment        = $this->getEnvironment();
-        $definition         = $environment->getDataDefinition();
-        $environment        = $this->getEnvironment();
-        $dataProvider       = $environment->getDataProvider();
-        $propertyDefinition = $definition->getPropertiesDefinition();
-        $properties         = $propertyDefinition->getProperties();
-        $model              = $dataProvider->getEmptyModel();
-
-        foreach ($properties as $property) {
-            $propName = $property->getName();
-
-            if ($property->getDefaultValue() !== null) {
-                $model->setProperty($propName, $property->getDefaultValue());
-            }
-        }
-
-        return $model;
-    }
-
-    /**
      * Generate the view for edit.
      *
      * @return string
@@ -1847,6 +1821,18 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $this->addToTemplate('elements', $arrReturn, $objTemplate);
 
         return $objTemplate->parse();
+    }
+
+    /**
+     * Create an empty model using the default values from the definition.
+     *
+     * @return ModelInterface
+     *
+     * @deprecated Use Controller::createEmptyModelWithDefaults() instead!
+     */
+    protected function createEmptyModelWithDefaults()
+    {
+        return $this->environment->getController()->createEmptyModelWithDefaults();
     }
 
     /**
