@@ -113,13 +113,6 @@ interface ViewInterface
     public function move(Action $action);
 
     /**
-     * Endpoint for show operation.
-     *
-     * @return string
-     */
-    public function show(Action $action);
-
-    /**
      * Overview listing over all items in the current scope.
      *
      * This is the default action to perform if no other action has been specified in the URL.

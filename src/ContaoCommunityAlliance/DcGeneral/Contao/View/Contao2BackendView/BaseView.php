@@ -1248,40 +1248,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Show Information about a model.
-     *
-     * @return string
-     *
-     * @throws DcGeneralRuntimeException When an unknown property is mentioned in the palette.
-     *
-     * @deprecated
-     */
-    public function show(Action $action)
-    {
-        $action = new Action('show');
-        $event  = new ActionEvent($this->getEnvironment(), $action);
-
-        $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
-        $dispatcher->dispatch(
-            sprintf(
-                '%s[%s][%s]',
-                DcGeneralEvents::ACTION,
-                $environment->getDataDefinition()->getName(),
-                $action->getName()
-            ),
-            $event
-        );
-        $dispatcher->dispatch(
-            sprintf('%s[%s]', DcGeneralEvents::ACTION, $environment->getDataDefinition()->getName()),
-            $event
-        );
-        $dispatcher->dispatch(DcGeneralEvents::ACTION, $event);
-
-        return $event->getResponse();
-    }
-
-    /**
      * Show all entries from one table.
      *
      * @return string
