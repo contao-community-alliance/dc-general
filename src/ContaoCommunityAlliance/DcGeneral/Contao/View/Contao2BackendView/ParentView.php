@@ -610,7 +610,6 @@ class ParentView extends BaseView
             return $this->edit($action);
         }
 
-        // TODO remove $this->checkClipboard();
         $collection  = $this->loadCollection();
         $parentModel = $this->loadParentModel();
 
@@ -642,7 +641,6 @@ class ParentView extends BaseView
         if ($this->getManualSortingProperty()
             && $this->environment->getDataProvider()->fieldExists($this->getManualSortingProperty())
         ) {
-            // TODO remove $this->checkClipboard('copy');
             ViewHelpers::redirectHome($this->environment);
         }
 

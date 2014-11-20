@@ -754,8 +754,6 @@ class TreeView extends BaseView
             ViewHelpers::redirectHome($this->environment);
         }
 
-        // TODO remove $this->checkClipboard();
-
         $collection = $this->loadCollection();
         $arrReturn  = array();
 

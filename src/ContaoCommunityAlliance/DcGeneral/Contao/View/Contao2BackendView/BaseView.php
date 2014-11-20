@@ -25,7 +25,6 @@ use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\AbstractHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ShowHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
@@ -34,10 +33,8 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGr
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax2X;
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
-use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
@@ -56,18 +53,15 @@ use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostCreateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPasteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreCreateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDeleteModelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PrePasteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
-use ContaoCommunityAlliance\DcGeneral\View\Event\RenderReadablePropertyValueEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -589,19 +583,22 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function paste(Action $action)
     {
-        // TODO remove $this->checkClipboard();
-
-        $environment = $this->getEnvironment();
-        $input       = $environment->getInputProvider();
-        $clipboard   = $environment->getClipboard();
-        $source      = $input->getParameter('source')
+        $environment    = $this->getEnvironment();
+        $controller     = $environment->getController();
+        $dataDefinition = $environment->getDataDefinition();
+        $input          = $environment->getInputProvider();
+        $clipboard      = $environment->getClipboard();
+        $source         = $input->getParameter('source')
             ? IdSerializer::fromSerialized($input->getParameter('source'))
             : null;
-        $after       = $input->getParameter('after')
+        $after          = $input->getParameter('after')
             ? IdSerializer::fromSerialized($input->getParameter('after'))
             : $input->getParameter('after');
-        $into        = $input->getParameter('into')
+        $into           = $input->getParameter('into')
             ? IdSerializer::fromSerialized($input->getParameter('into'))
+            : null;
+        $parentModelId  = $input->getParameter('pid')
+            ? IdSerializer::fromSerialized($input->getParameter('pid'))
             : null;
 
         if ($input->getParameter('mode') == 'create') {
@@ -644,7 +641,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $event = new PrePasteModelEvent($environment, $model);
 
             $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
+                sprintf('%s[%s]', $event::NAME, $dataDefinition->getName()),
                 $event
             );
             $environment->getEventDispatcher()->dispatch($event::NAME, $event);
@@ -653,13 +650,16 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         if ($after && $after->getId()) {
             $dataProvider = $environment->getDataProvider($after->getDataProviderName());
             $previous     = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($after->getId()));
-            $environment->getController()->pasteAfter($previous, $models, $this->getManualSortingProperty());
+            $controller->pasteAfter($previous, $models, $this->getManualSortingProperty());
         } elseif ($into && $into->getId()) {
             $dataProvider = $environment->getDataProvider($into->getDataProviderName());
             $parent       = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($into->getId()));
-            $environment->getController()->pasteInto($parent, $models, $this->getManualSortingProperty());
+            $controller->pasteInto($parent, $models, $this->getManualSortingProperty());
         } elseif (($after && $after->getId() == '0') || ($into && $into->getId() == '0')) {
-            $environment->getController()->pasteTop($models, $this->getManualSortingProperty());
+            $controller->pasteTop($models, $this->getManualSortingProperty());
+        } elseif ($parentModelId) {
+            $dataProvider = $environment->getDataProvider();
+            $dataProvider->saveEach($models);
         } else {
             throw new DcGeneralRuntimeException('Invalid parameters.');
         }
@@ -668,7 +668,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         foreach ($models as $model) {
             $event = new PostPasteModelEvent($environment, $model);
             $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
+                sprintf('%s[%s]', $event::NAME, $dataDefinition->getName()),
                 $event
             );
             $environment->getEventDispatcher()->dispatch($event::NAME, $event);
@@ -1000,7 +1000,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         if (!(isset($serializedId)
-            && $serializedId->getDataProviderName() == $environment->getDataDefinition()->getName())
+              && $serializedId->getDataProviderName() == $environment->getDataDefinition()->getName())
         ) {
             return '';
         }
@@ -1111,7 +1111,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $environment = $this->getEnvironment();
         if (!($this->isSelectModeActive()
-            || $environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider())
+              || $environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider())
         ) {
             return null;
         }
@@ -1299,8 +1299,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $dispatcher         = $environment->getEventDispatcher();
         $dataDefinitionName = $environment->getDataDefinition()->getName();
         $commandName        = $objCommand->getName();
-        $parameters         = (array)$objCommand->getParameters();
-        $extra              = (array)$objCommand->getExtra();
+        $parameters         = (array) $objCommand->getParameters();
+        $extra              = (array) $objCommand->getExtra();
         $extraAttributes    = !empty($extra['attributes']) ? $extra['attributes'] : null;
         $attributes         = '';
 
@@ -1580,9 +1580,12 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         ModelInterface $previous = null,
         ModelInterface $next = null
     ) {
-        $commands     = $this->getViewSection()->getModelCommands();
-        $objClipboard = $this->getEnvironment()->getClipboard();
-        $dispatcher   = $this->getEnvironment()->getEventDispatcher();
+        $environment     = $this->getEnvironment();
+        $dataDefinition  = $environment->getDataDefinition();
+        $basicDefinition = $dataDefinition->getBasicDefinition();
+        $commands        = $this->getViewSection()->getModelCommands();
+        $clipboard       = $environment->getClipboard();
+        $dispatcher      = $environment->getEventDispatcher();
 
         $filter = new Filter();
         $filter->modelIsFromProvider($basicDefinition->getDataProvider());
@@ -1612,96 +1615,99 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             );
         }
 
-        if ($this->getManualSortingProperty() &&
-            $objClipboard->isEmpty() &&
-            $this->getDataDefinition()->getBasicDefinition()->getMode() != BasicDefinitionInterface::MODE_HIERARCHICAL
-        ) {
-            /** @var AddToUrlEvent $urlEvent */
-            $urlEvent = $dispatcher->dispatch(
-                ContaoEvents::BACKEND_ADD_TO_URL,
-                new AddToUrlEvent(
-                    'act=create&amp;after=' . IdSerializer::fromModel($model)->getSerialized()
-                )
-            );
-
-            /** @var GenerateHtmlEvent $imageEvent */
-            $imageEvent = $dispatcher->dispatch(
-                ContaoEvents::IMAGE_GET_HTML,
-                new GenerateHtmlEvent(
-                    'new.gif',
-                    $this->translate('pastenew.0', $this->getDataDefinition()->getName())
-                )
-            );
-
-            $arrButtons['pasteNew'] = sprintf(
-                '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
-                $urlEvent->getUrl(),
-                specialchars($this->translate('pastenew.1', $this->getDataDefinition()->getName())),
-                $imageEvent->getHtml()
-            );
-        }
-
-        // Add paste into/after icons.
-        if ($objClipboard->isNotEmpty()) {
-            if ($objClipboard->isCreate()) {
-                // Add ext. information.
-                $add2UrlAfter = sprintf(
-                    'act=create&after=%s&',
-                    IdSerializer::fromModel($model)->getSerialized()
+        if ($this->getManualSortingProperty()) {
+            if ($clipboard->isEmpty($filter)
+                && $this->getDataDefinition()->getBasicDefinition()->getMode()
+                   != BasicDefinitionInterface::MODE_HIERARCHICAL
+            ) {
+                /** @var AddToUrlEvent $urlEvent */
+                $urlEvent = $dispatcher->dispatch(
+                    ContaoEvents::BACKEND_ADD_TO_URL,
+                    new AddToUrlEvent(
+                        'act=create&amp;after=' . IdSerializer::fromModel($model)->getSerialized()
+                    )
                 );
 
-                $add2UrlInto = sprintf(
-                    'act=create&into=%s&',
-                    IdSerializer::fromModel($model)->getSerialized()
-                );
-            } else {
-                // Add ext. information.
-                $add2UrlAfter = sprintf(
-                    'act=paste&after=%s&',
-                    IdSerializer::fromModel($model)->getSerialized()
+                /** @var GenerateHtmlEvent $imageEvent */
+                $imageEvent = $dispatcher->dispatch(
+                    ContaoEvents::IMAGE_GET_HTML,
+                    new GenerateHtmlEvent(
+                        'new.gif',
+                        $this->translate('pastenew.0', $this->getDataDefinition()->getName())
+                    )
                 );
 
-                $add2UrlInto = sprintf(
-                    'act=paste&into=%s&',
-                    IdSerializer::fromModel($model)->getSerialized()
+                $arrButtons['pasteNew'] = sprintf(
+                    '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
+                    $urlEvent->getUrl(),
+                    specialchars($this->translate('pastenew.1', $this->getDataDefinition()->getName())),
+                    $imageEvent->getHtml()
                 );
             }
 
-            /** @var AddToUrlEvent $urlAfter */
-            $urlAfter = $dispatcher->dispatch(
-                ContaoEvents::BACKEND_ADD_TO_URL,
-                new AddToUrlEvent($add2UrlAfter)
-            );
+            // Add paste into/after icons.
+            if ($clipboard->isNotEmpty($filter)) {
+                if ($clipboard->isCreate()) {
+                    // Add ext. information.
+                    $add2UrlAfter = sprintf(
+                        'act=create&after=%s&',
+                        IdSerializer::fromModel($model)->getSerialized()
+                    );
 
-            /** @var AddToUrlEvent $urlInto */
-            $urlInto = $dispatcher->dispatch(
-                ContaoEvents::BACKEND_ADD_TO_URL,
-                new AddToUrlEvent($add2UrlInto)
-            );
+                    $add2UrlInto = sprintf(
+                        'act=create&into=%s&',
+                        IdSerializer::fromModel($model)->getSerialized()
+                    );
+                } else {
+                    // Add ext. information.
+                    $add2UrlAfter = sprintf(
+                        'act=paste&after=%s&',
+                        IdSerializer::fromModel($model)->getSerialized()
+                    );
 
-            $buttonEvent = new GetPasteButtonEvent($this->getEnvironment());
-            $buttonEvent
-                ->setModel($model)
-                ->setCircularReference($isCircular)
-                ->setPrevious($previous)
-                ->setNext($next)
-                ->setHrefAfter($urlAfter->getUrl())
-                ->setHrefInto($urlInto->getUrl())
-                // Check if the id is in the ignore list.
-                ->setPasteAfterDisabled($objClipboard->isCut() && $isCircular)
-                ->setPasteIntoDisabled($objClipboard->isCut() && $isCircular)
-                ->setContainedModels($this->getModelsFromClipboard());
+                    $add2UrlInto = sprintf(
+                        'act=paste&into=%s&',
+                        IdSerializer::fromModel($model)->getSerialized()
+                    );
+                }
 
-            $this->getEnvironment()->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $buttonEvent::NAME, $this->getEnvironment()->getDataDefinition()->getName()),
+                /** @var AddToUrlEvent $urlAfter */
+                $urlAfter = $dispatcher->dispatch(
+                    ContaoEvents::BACKEND_ADD_TO_URL,
+                    new AddToUrlEvent($add2UrlAfter)
+                );
+
+                /** @var AddToUrlEvent $urlInto */
+                $urlInto = $dispatcher->dispatch(
+                    ContaoEvents::BACKEND_ADD_TO_URL,
+                    new AddToUrlEvent($add2UrlInto)
+                );
+
+                $buttonEvent = new GetPasteButtonEvent($this->getEnvironment());
                 $buttonEvent
-            );
-            $this->getEnvironment()->getEventDispatcher()->dispatch($buttonEvent::NAME, $buttonEvent);
+                    ->setModel($model)
+                    ->setCircularReference($isCircular)
+                    ->setPrevious($previous)
+                    ->setNext($next)
+                    ->setHrefAfter($urlAfter->getUrl())
+                    ->setHrefInto($urlInto->getUrl())
+                    // Check if the id is in the ignore list.
+                    ->setPasteAfterDisabled($clipboard->isCut() && $isCircular)
+                    ->setPasteIntoDisabled($clipboard->isCut() && $isCircular)
+                    ->setContainedModels($this->environment->getController()->getModelsFromClipboard());
 
-            $arrButtons['pasteafter'] = $this->renderPasteAfterButton($buttonEvent);
-            if ($this->getDataDefinition()->getBasicDefinition()->getMode()
-                == BasicDefinitionInterface::MODE_HIERARCHICAL) {
-                $arrButtons['pasteinto'] = $this->renderPasteIntoButton($buttonEvent);
+                $this->getEnvironment()->getEventDispatcher()->dispatch(
+                    sprintf('%s[%s]', $buttonEvent::NAME, $this->getEnvironment()->getDataDefinition()->getName()),
+                    $buttonEvent
+                );
+                $this->getEnvironment()->getEventDispatcher()->dispatch($buttonEvent::NAME, $buttonEvent);
+
+                $arrButtons['pasteafter'] = $this->renderPasteAfterButton($buttonEvent);
+                if ($this->getDataDefinition()->getBasicDefinition()->getMode()
+                    == BasicDefinitionInterface::MODE_HIERARCHICAL
+                ) {
+                    $arrButtons['pasteinto'] = $this->renderPasteIntoButton($buttonEvent);
+                }
             }
         }
 
@@ -1837,7 +1843,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * @return array|null
      *
-     * @see    ListingConfigInterface
+     * @see        ListingConfigInterface
      *
      * @deprecated Use ViewHelpers::getGroupingMode($environment) instead!
      */
