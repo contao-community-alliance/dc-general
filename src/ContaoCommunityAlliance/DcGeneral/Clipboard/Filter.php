@@ -271,7 +271,7 @@ EXPR;
     {
         if (null === $this->compiled) {
             $language       = new ExpressionLanguage();
-            $this->compiled = $language->compile(
+            $this->compiled = 'return ' . $language->compile(
                 $this->getExpression(),
                 array('item', 'variables')
             ) . ';';
