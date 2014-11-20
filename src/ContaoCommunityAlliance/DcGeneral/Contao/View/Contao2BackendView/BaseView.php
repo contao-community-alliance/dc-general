@@ -564,17 +564,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             ? IdSerializer::fromSerialized($input->getParameter('pid'))
             : null;
 
-        if ($input->getParameter('mode') == 'create') {
-            $dataProvider = $environment->getDataProvider();
-
-            $models = $dataProvider->getEmptyCollection();
-            $models->push($dataProvider->getEmptyModel());
-
-            $clipboard->create($input->getParameter('pid'))->saveTo($environment);
-
-            ViewHelpers::redirectHome($environment);
-        }
-
         if ($source) {
             $dataProvider = $environment->getDataProvider($source->getDataProviderName());
 
