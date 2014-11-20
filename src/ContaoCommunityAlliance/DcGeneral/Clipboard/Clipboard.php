@@ -97,12 +97,12 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      */
-    public function fetch($modelProviderName = null, $parentProviderName = false, $parentModelId = false)
+    public function fetch(FilterInterface $filter)
     {
         $items = array();
 
         foreach ($this->items as $item) {
-            if ($this->isItemAccepted($item, $modelProviderName, $parentProviderName, $parentModelId)) {
+            if ($filter->accepts($item)) {
                 $items[] = $item;
             }
         }
@@ -113,10 +113,10 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      */
-    public function isEmpty($modelProviderName = null, $parentProviderName = false, $parentModelId = false)
+    public function isEmpty(FilterInterface $filter)
     {
         foreach ($this->items as $item) {
-            if ($this->isItemAccepted($item, $modelProviderName, $parentProviderName, $parentModelId)) {
+            if ($filter->accepts($item)) {
                 return false;
             }
         }
@@ -127,9 +127,9 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      */
-    public function isNotEmpty($modelProviderName = null, $parentProviderName = false, $parentModelId = false)
+    public function isNotEmpty(FilterInterface $filter)
     {
-        return !$this->isEmpty($modelProviderName, $parentProviderName, $parentModelId);
+        return !$this->isEmpty($filter);
     }
 
     /**
@@ -140,58 +140,6 @@ class Clipboard implements ClipboardInterface
         $this->items = array();
 
         return $this;
-    }
-
-    /**
-     * Determine if an item is accepted by the filter settings.
-     *
-     * @param ItemInterface    $item               The item object.
-     * @param string|null      $modelProviderName  The model provider name.
-     * @param string|null|bool $parentProviderName The parent model provider name.
-     * @param string|null|bool $parentModelId      The parent model id.
-     *
-     * @return bool
-     */
-    private function isItemAccepted(
-        ItemInterface $item,
-        $modelProviderName = null,
-        $parentProviderName = false,
-        $parentModelId = false
-    ) {
-        if (null !== $modelProviderName) {
-            if ($modelProviderName !== $item->getModelId()->getDataProviderName()) {
-                // items model provider name, does not match the required name.
-                return false;
-            }
-        }
-        if (false !== $parentProviderName) {
-            $parentId = $item->getParentId();
-            if ($parentId) {
-                if ($parentId->getDataProviderName() !== $parentProviderName) {
-                    // items parent data provider name does not match the required name.
-                    return false;
-                }
-
-                if (false !== $parentModelId) {
-                    if ($parentId->getId() !== $parentModelId) {
-                        // items parent id does not match the required id.
-                        return false;
-                    }
-                }
-            } else {
-                if (null !== $parentProviderName) {
-                    // item has no parent, but a parent provider name is required.
-                    return false;
-                }
-
-                if (false !== $parentModelId) {
-                    // items has no parent, but a parent id is required.
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 
     // ************************************************** DEPRECATED **************************************************

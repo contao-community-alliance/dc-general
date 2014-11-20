@@ -16,6 +16,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Contr
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
@@ -170,8 +171,16 @@ class ClipboardController implements EventSubscriberInterface
         $modelProviderName  = $basicDefinition->getDataProvider();
         $parentProviderName = $basicDefinition->getParentDataProvider();
 
+        $filter = new Filter();
+        $filter->modelIsFromProvider($modelProviderName);
+        if ($parentProviderName) {
+            $filter->parentIsFromProvider($parentProviderName);
+        } else {
+            $filter->hasNoParent();
+        }
+
         $options = array();
-        foreach ($clipboard->fetch($modelProviderName, $parentProviderName) as $item) {
+        foreach ($clipboard->fetch($filter) as $item) {
             $modelId           = $item->getModelId();
             $serializedModelId = $modelId->getSerialized();
             $dataProvider      = $environment->getDataProvider($modelId->getDataProviderName());

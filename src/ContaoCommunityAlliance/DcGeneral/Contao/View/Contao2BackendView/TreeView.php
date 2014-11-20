@@ -582,10 +582,11 @@ class TreeView extends BaseView
      */
     protected function viewTree($collection)
     {
-        $definition  = $this->getDataDefinition();
-        $listing     = $this->getViewSection()->getListingConfig();
-        $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
+        $definition      = $this->getDataDefinition();
+        $listing         = $this->getViewSection()->getListingConfig();
+        $basicDefinition = $definition->getBasicDefinition();
+        $environment     = $this->getEnvironment();
+        $dispatcher      = $environment->getEventDispatcher();
 
         // Init some Vars
         switch (6 /*$definition->getSortingMode()*/) {
@@ -610,8 +611,16 @@ class TreeView extends BaseView
             $strLabelIcon = $listing->getRootIcon();
         }
 
+        $filter = new Filter();
+        $filter->modelIsFromProvider($basicDefinition->getDataProvider());
+        if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
+            $filter->parentIsFromProvider($parentDataProviderName);
+        } else {
+            $filter->hasNoParent();
+        }
+
         // Root paste into.
-        if ($environment->getClipboard()->isNotEmpty()) {
+        if ($environment->getClipboard()->isNotEmpty($filter)) {
             $objClipboard = $environment->getClipboard();
             /** @var AddToUrlEvent $urlEvent */
             $urlEvent = $dispatcher->dispatch(

@@ -76,44 +76,29 @@ interface ClipboardInterface
     /**
      * Get all items from the clipboard.
      *
-     * @param string|null      $modelProviderName  If given, only return items that contain model IDs that are derived
-     *                                             from this provider.
-     * @param string|null|bool $parentProviderName If given, only return items that have this parent provider name.
-     *                                             Use null for items without a parent.
-     * @param string|null|bool $parentModelId      If given, only return items that have this parent model id.
-     *                                             Use null for items without a parent.
+     * @param FilterInterface|null $filter An item filter.
      *
      * @return ItemInterface[]
      */
-    public function fetch($modelProviderName = null, $parentProviderName = false, $parentModelId = false);
+    public function fetch(FilterInterface $filter);
 
     /**
      * Determine if the clipboard is empty.
      *
-     * @param string|null      $modelProviderName  If given, check for items that contain model IDs that are derived
-     *                                             from this model provider.
-     * @param string|null|bool $parentProviderName If given, check for items that have this parent provider name.
-     *                                             Use null for items without a parent.
-     * @param string|null|bool $parentModelId      If given, check for items that have this parent model id.
-     *                                             Use null for items without a parent.
+     * @param FilterInterface|null $filter An item filter.
      *
      * @return bool
      */
-    public function isEmpty($modelProviderName = null, $parentProviderName = false, $parentModelId = false);
+    public function isEmpty(FilterInterface $filter);
 
     /**
      * Determine if the clipboard is not empty.
      *
-     * @param string|null      $modelProviderName  If given, check for items that contain model IDs that are derived
-     *                                             from this model provider.
-     * @param string|null|bool $parentProviderName If given, check for items that have this parent provider name.
-     *                                             Use null for items without a parent.
-     * @param string|null|bool $parentModelId      If given, check for items that have this parent model id.
-     *                                             Use null for items without a parent.
+     * @param FilterInterface|null $filter An item filter.
      *
      * @return bool
      */
-    public function isNotEmpty($modelProviderName = null, $parentProviderName = false, $parentModelId = false);
+    public function isNotEmpty(FilterInterface $filter);
 
     /**
      * Clear the complete clipboard.

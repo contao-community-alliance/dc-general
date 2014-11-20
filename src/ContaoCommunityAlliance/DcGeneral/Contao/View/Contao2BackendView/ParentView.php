@@ -20,6 +20,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
@@ -338,8 +339,16 @@ class ParentView extends BaseView
 
             $headerButtons['editHeader'] = $this->getHeaderEditButtons($parentModel);
 
+            $filter = new Filter();
+            $filter->modelIsFromProvider($basicDefinition->getDataProvider());
+            if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
+                $filter->parentIsFromProvider($parentDataProviderName);
+            } else {
+                $filter->hasNoParent();
+            }
+
             if ($sorting
-                && $clipboard->isEmpty()
+                && $clipboard->isEmpty($filter)
                 && $basicDefinition->isCreatable()
             ) {
                 /** @var AddToUrlEvent $urlEvent */
@@ -367,32 +376,56 @@ class ParentView extends BaseView
                 );
             }
 
-            if ($sorting && $clipboard->isNotEmpty()) {
-                /** @var AddToUrlEvent $urlEvent */
-                $urlEvent = $dispatcher->dispatch(
-                    ContaoEvents::BACKEND_ADD_TO_URL,
-                    new AddToUrlEvent(
-                        'act=' . $clipboard->getMode() .
-                        '&amp;pid=' . IdSerializer::fromModel($parentModel)->getSerialized()
-                    )
-                );
+            $filter = new Filter();
+            $filter->modelIsFromProvider($basicDefinition->getDataProvider());
+            $filter->parentIsFromProvider($basicDefinition->getParentDataProvider());
 
-                /** @var GenerateHtmlEvent $imageEvent */
-                $imageEvent = $dispatcher->dispatch(
-                    ContaoEvents::IMAGE_GET_HTML,
-                    new GenerateHtmlEvent(
-                        'pasteafter.gif',
-                        $this->translate('pasteafter.0', $definition->getName()),
-                        'class="blink"'
-                    )
-                );
+            if ($sorting && $clipboard->isNotEmpty($filter)) {
 
-                $headerButtons['pasteAfter'] = sprintf(
-                    '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
-                    $urlEvent->getUrl(),
-                    specialchars($this->translate('pasteafter.1', $definition->getName())),
-                    $imageEvent->getHtml()
-                );
+                $filter = new Filter();
+                $filter->modelIsFromProvider($basicDefinition->getDataProvider());
+                $filter->parentIsFromProvider($basicDefinition->getParentDataProvider());
+                $filter->parentIsNot(IdSerializer::fromModel($parentModel));
+
+                if ($clipboard->fetch($filter)) {
+                    /** @var AddToUrlEvent $urlEvent */
+                    $urlEvent = $dispatcher->dispatch(
+                        ContaoEvents::BACKEND_ADD_TO_URL,
+                        new AddToUrlEvent(
+                            'act=paste' .
+                            '&amp;pid=' . IdSerializer::fromModel($parentModel)->getSerialized()
+                        )
+                    );
+
+                    /** @var GenerateHtmlEvent $imageEvent */
+                    $imageEvent = $dispatcher->dispatch(
+                        ContaoEvents::IMAGE_GET_HTML,
+                        new GenerateHtmlEvent(
+                            'pasteafter.gif',
+                            $this->translate('pasteafter.0', $definition->getName()),
+                            'class="blink"'
+                        )
+                    );
+
+                    $headerButtons['pasteAfter'] = sprintf(
+                        '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
+                        $urlEvent->getUrl(),
+                        specialchars($this->translate('pasteafter.1', $definition->getName())),
+                        $imageEvent->getHtml()
+                    );
+                } else {
+                    /** @var GenerateHtmlEvent $imageEvent */
+                    $imageEvent = $dispatcher->dispatch(
+                        ContaoEvents::IMAGE_GET_HTML,
+                        new GenerateHtmlEvent(
+                            'pasteafter_.gif',
+                            $this->translate('pasteafter.0', $definition->getName()),
+                            'class="blink"'
+                        )
+                    );
+
+                    $headerButtons['pasteAfter'] = $imageEvent->getHtml();
+                }
             }
         }
 

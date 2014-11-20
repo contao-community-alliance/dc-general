@@ -22,7 +22,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
-use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\AbstractHandler;
@@ -1163,9 +1163,17 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 $parameters['pid'] = $pid->getSerialized();
             }
         } elseif (($mode == BasicDefinitionInterface::MODE_PARENTEDLIST)
-            || ($mode == BasicDefinitionInterface::MODE_HIERARCHICAL)
+                  || ($mode == BasicDefinitionInterface::MODE_HIERARCHICAL)
         ) {
-            if ($environment->getClipboard()->isNotEmpty()) {
+        $filter = new Filter();
+        $filter->modelIsFromProvider($basicDefinition->getDataProvider());
+        if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
+            $filter->parentIsFromProvider($parentDataProviderName);
+        } else {
+            $filter->hasNoParent();
+        }
+
+            if ($environment->getClipboard()->isNotEmpty($filter)) {
                 return null;
             }
 
@@ -1668,8 +1676,16 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $objClipboard = $this->getEnvironment()->getClipboard();
         $dispatcher   = $this->getEnvironment()->getEventDispatcher();
 
-        if ($this->getEnvironment()->getClipboard()->isNotEmpty()) {
-            $circularIds = $objClipboard->getCircularIds();
+        $filter = new Filter();
+        $filter->modelIsFromProvider($basicDefinition->getDataProvider());
+        if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
+            $filter->parentIsFromProvider($parentDataProviderName);
+        } else {
+            $filter->hasNoParent();
+        }
+
+        if ($this->getEnvironment()->getClipboard()->isNotEmpty($filter)) {
+            $circularIds = $clipboard->getCircularIds();
             $isCircular  = in_array(IdSerializer::fromModel($model)->getSerialized(), $circularIds);
         } else {
             $circularIds = array();
