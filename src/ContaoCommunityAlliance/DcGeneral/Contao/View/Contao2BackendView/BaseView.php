@@ -632,11 +632,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
             $models = $dataProvider->fetchAll($filterConfig);
         } else {
-            $models = $this->getModelsFromClipboard($clipboard->isCopy());
-
-            if ($clipboard->isCopy()) {
-                // FIXME: recursive copy is not implemented yet!
-            }
+            $models = $controller->getModelsFromClipboard(
+                $dataDefinition->getBasicDefinition()->getDataProvider(),
+                $dataDefinition->getBasicDefinition()->getParentDataProvider(),
+                $parentModelId
+            );
         }
 
         // Trigger for each model the pre persist event.
