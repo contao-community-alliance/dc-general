@@ -65,6 +65,15 @@ interface ClipboardInterface
     public function remove(ItemInterface $item);
 
     /**
+     * Remove an item from the clipboard.
+     *
+     * @param IdSerializer $modelId The model id.
+     *
+     * @return static
+     */
+    public function removeById(IdSerializer $modelId);
+
+    /**
      * Get all items from the clipboard.
      *
      * @param string|null      $modelProviderName  If given, only return items that contain model IDs that are derived

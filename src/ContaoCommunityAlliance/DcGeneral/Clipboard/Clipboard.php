@@ -13,6 +13,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Clipboard;
 
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
+
 /**
  * Class Clipboard.
  *
@@ -74,6 +76,18 @@ class Clipboard implements ClipboardInterface
     public function remove(ItemInterface $item)
     {
         $serializedId = $item->getModelId()->getSerialized();
+
+        unset($this->items[$serializedId]);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function removeById(IdSerializer $modelId)
+    {
+        $serializedId = $modelId->getSerialized();
 
         unset($this->items[$serializedId]);
 
