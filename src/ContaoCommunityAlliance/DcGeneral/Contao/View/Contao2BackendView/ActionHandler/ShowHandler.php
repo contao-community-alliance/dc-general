@@ -213,7 +213,7 @@ class ShowHandler extends AbstractHandler
     {
         $environment = $this->getEnvironment();
         if ($environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            $this->getEvent()->setResponse($environment->getView()->edit());
+            $this->getEvent()->setResponse($environment->getView()->edit($this->getEvent()));
 
             return;
         }
