@@ -33,7 +33,14 @@ class Filter implements FilterInterface
      *
      * @var array
      */
-    private $variables  = array();
+    private $variables = array();
+
+    /**
+     * Pre-compiled expression.
+     *
+     * @var string
+     */
+    private $compiled = null;
 
     const MODEL_IS_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
 (
@@ -109,6 +116,7 @@ EXPR;
         $index              = count($this->variables);
         $this->expression[] = sprintf(self::MODEL_IS_FROM_PROVIDER_EXPRESSION, $index);
         $this->variables[]  = $modelProviderName;
+        $this->compiled     = null;
 
         return $this;
     }
@@ -125,6 +133,7 @@ EXPR;
         $index              = count($this->variables);
         $this->expression[] = sprintf(self::MODEL_IS_NOT_FROM_PROVIDER_EXPRESSION, $index);
         $this->variables[]  = $modelProviderName;
+        $this->compiled     = null;
 
         return $this;
     }
@@ -141,6 +150,7 @@ EXPR;
         $index              = count($this->variables);
         $this->expression[] = sprintf(self::PARENT_IS_FROM_PROVIDER_EXPRESSION, $index);
         $this->variables[]  = $parentProviderName;
+        $this->compiled     = null;
 
         return $this;
     }
@@ -157,6 +167,7 @@ EXPR;
         $index              = count($this->variables);
         $this->expression[] = sprintf(self::PARENT_IS_NOT_FROM_PROVIDER_EXPRESSION, $index);
         $this->variables[]  = $parentProviderName;
+        $this->compiled     = null;
 
         return $this;
     }
@@ -169,6 +180,7 @@ EXPR;
     public function hasNoParent()
     {
         $this->expression[] = self::HAS_NO_PARENT_EXPRESSION;
+        $this->compiled     = null;
 
         return $this;
     }
@@ -185,6 +197,7 @@ EXPR;
         $index              = count($this->variables);
         $this->expression[] = sprintf(self::PARENT_IS_EXPRESSION, $index);
         $this->variables[]  = $parentModelId;
+        $this->compiled     = null;
 
         return $this;
     }
@@ -205,6 +218,7 @@ EXPR;
             $this->variables[] = $parentModelId;
         }
         $this->expression[] = '(' . implode(' or ', $expression) . ')';
+        $this->compiled     = null;
 
         return $this;
     }
@@ -221,6 +235,7 @@ EXPR;
         $index              = count($this->variables);
         $this->expression[] = sprintf(self::PARENT_IS_NOT_EXPRESSION, $index);
         $this->variables[]  = $parentModelId;
+        $this->compiled     = null;
 
         return $this;
     }
@@ -241,6 +256,7 @@ EXPR;
             $this->variables[] = $parentModelId;
         }
         $this->expression[] = '(' . implode(' or ', $expression) . ')';
+        $this->compiled     = null;
 
         return $this;
     }
@@ -250,14 +266,16 @@ EXPR;
      */
     public function accepts(ItemInterface $item)
     {
-        $language = new ExpressionLanguage();
-        return $language->evaluate(
-            $this->getExpression(),
-            array(
-                'item'      => $item,
-                'variables' => $this->variables,
-            )
-        );
+        if (null === $this->compiled) {
+            $language = new ExpressionLanguage();
+            $this->compiled = $language->compile(
+                $this->getExpression(),
+                array('item', 'variables')
+            ) . ';';
+        }
+
+        $variables = $this->variables;
+        return eval($this->compiled);
     }
 
     /**
