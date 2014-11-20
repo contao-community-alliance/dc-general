@@ -396,9 +396,11 @@ class TreeView extends BaseView
 
             if ($objRootCollection->length() > 0) {
                 $mySubTables = array();
-                foreach ($relationships->getChildConditions(
-                    $objRootCollection->get(0)->getProviderName()
-                ) as $condition) {
+                foreach (
+                    $relationships->getChildConditions(
+                        $objRootCollection->get(0)->getProviderName()
+                    ) as $condition
+                ) {
                     $mySubTables[] = $condition->getDestinationName();
                 }
 

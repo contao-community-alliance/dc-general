@@ -295,7 +295,7 @@ class DefaultController implements ControllerInterface
         }
 
         if ($sortingProperty) {
-            $config->setSorting(array((string)$sortingProperty => 'ASC'));
+            $config->setSorting(array((string) $sortingProperty => 'ASC'));
         }
 
         // Handle grouping.
@@ -304,7 +304,7 @@ class DefaultController implements ControllerInterface
         $viewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
         if ($viewDefinition && $viewDefinition instanceof Contao2BackendViewDefinitionInterface) {
             $listingConfig        = $viewDefinition->getListingConfig();
-            $sortingProperties    = array_keys((array)$listingConfig->getDefaultSortingFields());
+            $sortingProperties    = array_keys((array) $listingConfig->getDefaultSortingFields());
             $sortingPropertyIndex = array_search($sortingProperty, $sortingProperties);
 
             if ($sortingPropertyIndex !== false && $sortingPropertyIndex > 0) {
@@ -355,7 +355,7 @@ class DefaultController implements ControllerInterface
         $config->setFilter($condition->getFilter($model));
 
         if ($sortingProperty) {
-            $config->setSorting(array((string)$sortingProperty => 'ASC'));
+            $config->setSorting(array((string) $sortingProperty => 'ASC'));
         }
 
         $siblings = $provider->fetchAll($config);
