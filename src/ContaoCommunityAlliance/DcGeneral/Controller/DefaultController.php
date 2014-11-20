@@ -14,10 +14,12 @@
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
 use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DefaultCollection;
 use ContaoCommunityAlliance\DcGeneral\Data\LanguageInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
@@ -25,6 +27,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionI
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
@@ -629,6 +633,91 @@ class DefaultController implements ControllerInterface
         }
 
         return $model;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getModelsFromClipboard(
+        $modelProviderName = null,
+        $parentProviderName = false,
+        IdSerializer $newParentModelId = null
+    ) {
+        $environment = $this->getEnvironment();
+        $models      = new DefaultCollection();
+        $clipboard   = $this->getEnvironment()->getClipboard();
+
+        $filter = new Filter();
+        $filter->modelIsFromProvider($modelProviderName);
+        if ($parentProviderName) {
+            $filter->parentIsFromProvider($parentProviderName);
+        } else {
+            $filter->hasNoParent();
+        }
+
+        $items       = $clipboard->fetch($filter);
+
+        foreach ($items as $item) {
+            $modelId = $item->getModelId();
+
+            if ($item->isCreate()) {
+                // create new model
+                $model = $this->createEmptyModelWithDefaults();
+                $models->push($model);
+            } elseif ($item->isCut()) {
+                // cut model
+                $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
+                $config       = $dataProvider->getEmptyConfig()->setId($modelId->getId());
+                $model        = $dataProvider->fetch($config);
+                $models->push($model);
+            } elseif ($item->isCopy() || $item->isDeepCopy()) {
+                // copy model
+                $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
+                $config       = $dataProvider->getEmptyConfig()->setId($modelId->getId());
+                $model        = $dataProvider->fetch($config);
+
+                // Trigger the pre duplicate event.
+                $duplicateEvent = new PreDuplicateModelEvent($environment, $model);
+
+                $environment->getEventDispatcher()->dispatch(
+                    sprintf('%s[%s]', $duplicateEvent::NAME, $environment->getDataDefinition()->getName()),
+                    $duplicateEvent
+                );
+                $environment->getEventDispatcher()->dispatch($duplicateEvent::NAME, $duplicateEvent);
+
+                // Make a duplicate.
+                $clonedModel = $this->createClonedModel($model);
+
+                // And trigger the post event for it.
+                $duplicateEvent = new PostDuplicateModelEvent($environment, $clonedModel, $model);
+                $environment->getEventDispatcher()->dispatch(
+                    sprintf('%s[%s]', $duplicateEvent::NAME, $environment->getDataDefinition()->getName()),
+                    $duplicateEvent
+                );
+                $environment->getEventDispatcher()->dispatch($duplicateEvent::NAME, $duplicateEvent);
+
+                $model = $clonedModel;
+                $models->push($model);
+
+                if ($item->isDeepCopy()) {
+                    // FIXME deep copy children
+                }
+            } else {
+                continue;
+            }
+
+            if ($newParentModelId) {
+                $dataProvider = $environment->getDataProvider(
+                    $newParentModelId->getDataProviderName()
+                );
+                $parentModel  = $dataProvider->fetch(
+                    $dataProvider->getEmptyConfig()->setId($newParentModelId->getId())
+                );
+                $this->setParent($model, $parentModel);
+            }
+        }
+
+        return $models;
     }
 
     /**

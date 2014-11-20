@@ -149,6 +149,21 @@ interface ControllerInterface
     public function createEmptyModelWithDefaults();
 
     /**
+     * Retrieve model instances for all clipboard items.
+     *
+     * @param null|string $modelProviderName  The model provider name.
+     * @param null|string $parentProviderName The parent provider name.
+     * @param null|IdSerializer $newParentModelId      The new parent model id.
+     *
+     * @return CollectionInterface
+     */
+    public function getModelsFromClipboard(
+        $modelProviderName = null,
+        $parentProviderName = null,
+        IdSerializer $newParentModelId = null
+    );
+
+    /**
      * Paste the content of the clipboard onto the top.
      *
      * @param CollectionInterface $models   The models to be inserted.
