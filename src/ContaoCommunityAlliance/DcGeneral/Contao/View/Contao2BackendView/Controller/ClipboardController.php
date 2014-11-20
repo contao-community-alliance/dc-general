@@ -15,8 +15,11 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Contr
 
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
+use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -32,10 +35,125 @@ class ClipboardController implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
+            DcGeneralEvents::ACTION => array('handleAction'),
             DcGeneralEvents::VIEW   => array('handleView'),
         );
     }
 
+    /**
+     * Handle action.
+     *
+     * @param ActionEvent $event The action event.
+     *
+     * @return void
+     */
+    public function handleAction(ActionEvent $event)
+    {
+        $actionName = $event->getAction()->getName();
+
+        if ('clear-clipboard' === $actionName) {
+            $this->clearClipboard($event);
+        }
+
+        if (
+            'cut' === $actionName
+            || 'copy' === $actionName
+            || 'deep-copy' === $actionName
+        ) {
+            $this->addToClipboard($event);
+        }
+    }
+
+    /**
+     * Handle clear clipboard action.
+     *
+     * @param ActionEvent $event The action event.
+     *
+     * @return void
+     */
+    private function clearClipboard(ActionEvent $event)
+    {
+        $environment     = $event->getEnvironment();
+        $eventDispatcher = $environment->getEventDispatcher();
+        $clipboard       = $environment->getClipboard();
+        $input           = $environment->getInputProvider();
+        $modelId         = $input->getParameter('clipboard-item');
+
+        if ($modelId) {
+            $modelId = IdSerializer::fromSerialized($modelId);
+            $clipboard->removeById($modelId);
+        } else {
+            $clipboard->clear();
+        }
+        $clipboard->saveTo($environment);
+
+        $act           = $input->getParameter('original-act');
+        $addToUrlEvent = new AddToUrlEvent('clipboard-item=&original-act=&act=' . $act);
+        $eventDispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $addToUrlEvent);
+
+        $redirectEvent = new RedirectEvent($addToUrlEvent->getUrl());
+        $eventDispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, $redirectEvent);
+    }
+
+    /**
+     * Handle "old" add to clipboard actions.
+     *
+     * @param ActionEvent $event The action event.
+     *
+     * @return void
+     */
+    private function addToClipboard(ActionEvent $event)
+    {
+        $actionName  = $event->getAction()->getName();
+        $environment = $event->getEnvironment();
+        $input       = $environment->getInputProvider();
+        $clipboard   = $environment->getClipboard();
+        $modelIdRaw  = $input->getParameter('source');
+
+        // Push some entry into clipboard.
+        if ($modelIdRaw) {
+            $modelId = IdSerializer::fromSerialized($modelIdRaw);
+
+            $parentIdRaw = $input->getParameter('pid');
+            if ($parentIdRaw) {
+                $parentId = IdSerializer::fromSerialized($parentIdRaw);
+            } else {
+                $parentId = null;
+            }
+
+            switch ($actionName) {
+                case 'cut':
+                    $clipboardActionName = Item::CUT;
+                    break;
+                case 'copy':
+                    $clipboardActionName = Item::COPY;
+                    break;
+                case 'deep-copy':
+                    $clipboardActionName = Item::DEEP_COPY;
+                    break;
+                default:
+                    return;
+            }
+
+            if ($clipboardActionName) {
+                $item = new Item($clipboardActionName, $parentId, $modelId);
+
+                // Let the clipboard save it's values persistent.
+                // TODO remove clear and allow adding multiple items
+                $clipboard->clear()->push($item)->saveTo($environment);
+
+                ViewHelpers::redirectHome($environment);
+            }
+        }
+    }
+
+    /**
+     * Handle view.
+     *
+     * @param ViewEvent $event The view event.
+     *
+     * @return void
+     */
     public function handleView(ViewEvent $event)
     {
         if (DcGeneralViews::CLIPBOARD !== $event->getViewName()) {

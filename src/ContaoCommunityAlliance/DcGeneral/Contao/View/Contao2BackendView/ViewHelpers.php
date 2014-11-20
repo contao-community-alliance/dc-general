@@ -31,6 +31,8 @@ class ViewHelpers
     /**
      * Retrieve the currently active sorting.
      *
+     * @param EnvironmentInterface $environment The environment.
+     *
      * @return GroupAndSortingDefinitionInterface
      */
     public static function getCurrentSorting(EnvironmentInterface $environment)
@@ -59,6 +61,8 @@ class ViewHelpers
 
     /**
      * Retrieve the currently active grouping mode.
+     *
+     * @param EnvironmentInterface $environment The environment.
      *
      * @return array|null
      */

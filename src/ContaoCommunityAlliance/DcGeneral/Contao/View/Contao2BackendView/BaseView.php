@@ -450,74 +450,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Update the clipboard in the Environment with data from the InputProvider.
-     *
-     * The following parameters have to be provided by the input provider:
-     *
-     * Name      Type   Description
-     * clipboard bool   Flag determining if the clipboard shall get cleared.
-     * act       string Action to perform, either paste, cut or create.
-     * id        mixed  The Id of the item to copy. In mode cut this is the id of the item to be moved.
-     *
-     * @param null|string $action The action to be executed or null.
-     *
-     * @return BaseView
-     *
-     * @SuppressWarnings(PHPMD.ShortVariable)
-     */
-    public function checkClipboard($action = null)
-    {
-        $input     = $this->getEnvironment()->getInputProvider();
-        $clipboard = $this->getEnvironment()->getClipboard();
-
-        $clipboard->loadFrom($this->getEnvironment());
-
-        // Reset Clipboard.
-        if ($input->getParameter('clipboard') == '1') {
-            $clipboard->clear()->saveTo($this->getEnvironment());
-
-            $this->redirectHome();
-            return $this;
-        }
-
-        // Push some entry into clipboard.
-        if ($modelIdRaw = $input->getParameter('source')) {
-            $modelId   = IdSerializer::fromSerialized($modelIdRaw);
-
-            $parentIdRaw = $input->getParameter('pid');
-            if ($parentIdRaw) {
-                $parentId = IdSerializer::fromSerialized($parentIdRaw);
-            } else {
-                $parentId = null;
-            }
-
-            if ($action && $action == 'create' || $input->getParameter('act') == 'create') {
-                $action = Item::CREATE;
-            } elseif ($action && $action == 'cut' || $input->getParameter('act') == 'cut') {
-                $action = Item::CUT;
-            } elseif ($action && $action == 'copy' || $input->getParameter('act') == 'copy') {
-                $action = Item::COPY;
-            } elseif ($action && $action == 'deep-copy' || $input->getParameter('act') == 'deep-copy') {
-                $action = Item::DEEP_COPY;
-            } else {
-                $action = false;
-            }
-
-            if ($action) {
-                $item = new Item($action, $parentId, $modelId);
-
-                // Let the clipboard save it's values persistent.
-                // TODO remove clear and allow adding multiple items
-                $clipboard->clear()->push($item)->saveTo($this->getEnvironment());
-
-                $this->redirectHome();
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * Determine if we are currently working in multi language mode.
      *
      * @param mixed $mixId The id of the current model.
@@ -775,7 +707,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function paste(Action $action)
     {
-        $this->checkClipboard();
+        // TODO remove $this->checkClipboard();
 
         $environment = $this->getEnvironment();
         $input       = $environment->getInputProvider();
@@ -1309,33 +1241,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Create the "clear clipboard" button.
-     *
-     * @return CommandInterface|null
-     */
-    protected function getClearClipboardCommand()
-    {
-        if ($this->getEnvironment()->getClipboard()->isEmpty()) {
-            return null;
-        }
-        $command             = new Command();
-        $parameters          = $command->getParameters();
-        $extra               = $command->getExtra();
-        $extra['class']      = 'header_clipboard';
-        $extra['accesskey']  = 'x';
-        $extra['attributes'] = 'onclick="Backend.getScrollOffset();"';
-
-        $parameters['clipboard'] = '1';
-
-        $command
-            ->setName('button_clipboard')
-            ->setLabel($this->translate('MSC.clearClipboard'))
-            ->setDescription($this->translate('MSC.clearClipboard'));
-
-        return $command;
-    }
-
-    /**
      * Create the "back" button.
      *
      * @return CommandInterface|null
@@ -1483,14 +1388,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 // New button always first.
                 array_unshift($globalOperations, $command);
             }
-
-            /*
-            $command = $this->getClearClipboardCommand();
-            if ($command !== null) {
-                // Clear clipboard to the end.
-                $globalOperations[] = $command;
-            }
-            */
         }
 
         $command = $this->getBackCommand();

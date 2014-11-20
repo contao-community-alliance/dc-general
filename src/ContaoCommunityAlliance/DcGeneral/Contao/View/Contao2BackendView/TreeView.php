@@ -744,7 +744,7 @@ class TreeView extends BaseView
             $this->redirectHome();
         }
 
-        $this->checkClipboard();
+        // TODO remove $this->checkClipboard();
 
         $collection = $this->loadCollection();
         $arrReturn  = array();
@@ -844,7 +844,7 @@ class TreeView extends BaseView
             return $this->edit($action);
         }
 
-        $this->checkClipboard('cut');
+        // TODO remove $this->checkClipboard('cut');
         $this->redirectHome();
     }
 
@@ -858,7 +858,7 @@ class TreeView extends BaseView
             return $this->edit($action);
         }
 
-        $this->checkClipboard('copy');
+        // TODO remove $this->checkClipboard('copy');
         $this->redirectHome();
     }
 }

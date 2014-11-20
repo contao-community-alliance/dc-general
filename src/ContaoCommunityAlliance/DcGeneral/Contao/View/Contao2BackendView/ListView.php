@@ -300,7 +300,7 @@ class ListView extends BaseView
             return $this->edit($action);
         }
 
-        $this->checkClipboard();
+        // TODO remove $this->checkClipboard();
         $collection = $this->loadCollection();
 
         $viewEvent = new ViewEvent($this->environment, $action, DcGeneralViews::CLIPBOARD, array());
