@@ -139,11 +139,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $name   = $action->getName();
 
         switch ($name) {
-            case 'copy':
-            case 'copyAll':
             case 'create':
-            case 'cut':
-            case 'cutAll':
             case 'paste':
             case 'delete':
             case 'move':
@@ -494,34 +490,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
     /**
      * {@inheritDoc}
-     */
-    public function copy(Action $action)
-    {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit($action);
-        }
-
-        // TODO: copy unimplemented.
-
-        return vsprintf($this->notImplMsg, 'copy - Mode');
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function copyAll(Action $action)
-    {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit($action);
-        }
-
-        // TODO: copyAll unimplemented.
-
-        return vsprintf($this->notImplMsg, 'copyAll - Mode');
-    }
-
-    /**
-     * {@inheritDoc}
      *
      * @see edit()
      */
@@ -571,28 +539,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         };
 
         return $this->createEditMask($model, null, $preFunction, $postFunction);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function cut(Action $action)
-    {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit($action);
-        }
-
-        return $this->showAll($action);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function cutAll(Action $action)
-    {
-        // TODO: cutAll unimplemented.
-
-        return vsprintf($this->notImplMsg, 'cutAll - Mode');
     }
 
     /**

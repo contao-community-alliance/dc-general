@@ -249,6 +249,8 @@ class ListView extends BaseView
      */
     public function copy(Action $action)
     {
+        // FIXME this will never be used anymore!
+
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit($action);
         }

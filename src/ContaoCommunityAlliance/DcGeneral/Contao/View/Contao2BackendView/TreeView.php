@@ -833,32 +833,4 @@ class TreeView extends BaseView
 
         return $strHtml;
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function cut(Action $action)
-    {
-
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit($action);
-        }
-
-        // TODO remove $this->checkClipboard('cut');
-        $this->redirectHome();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function copy(Action $action)
-    {
-
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit($action);
-        }
-
-        // TODO remove $this->checkClipboard('copy');
-        $this->redirectHome();
-    }
 }

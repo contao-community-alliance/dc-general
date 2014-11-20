@@ -55,39 +55,11 @@ interface ViewInterface
     public function paste(Action $action);
 
     /**
-     * Endpoint for copying a model (including child models).
-     *
-     * @return string
-     */
-    public function copy(Action $action);
-
-    /**
-     * Endpoint for copying multiple models (including child models).
-     *
-     * @return string
-     */
-    public function copyAll(Action $action);
-
-    /**
      * Endpoint for create operation.
      *
      * @return string
      */
     public function create(Action $action);
-
-    /**
-     * Endpoint for cutting a model (including child models).
-     *
-     * @return string
-     */
-    public function cut(Action $action);
-
-    /**
-     * Endpoint for cutting multiple models (including child models).
-     *
-     * @return string
-     */
-    public function cutAll(Action $action);
 
     /**
      * Delete a model and redirect the user to the listing.
