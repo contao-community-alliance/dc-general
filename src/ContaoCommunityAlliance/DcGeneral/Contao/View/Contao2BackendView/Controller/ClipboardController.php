@@ -156,7 +156,7 @@ class ClipboardController implements EventSubscriberInterface
                     $clipboard->clear();
                 } else {
                     $filter = new Filter();
-                    $filter->actionIs(ItemInterface::CREATE);
+                    $filter->andActionIs(ItemInterface::CREATE);
                     $items = $clipboard->fetch($filter);
                     foreach ($items as $item) {
                         $clipboard->remove($item);
@@ -197,11 +197,11 @@ class ClipboardController implements EventSubscriberInterface
         $parentProviderName = $basicDefinition->getParentDataProvider();
 
         $filter = new Filter();
-        $filter->modelIsFromProvider($modelProviderName);
+        $filter->andModelIsFromProvider($modelProviderName);
         if ($parentProviderName) {
-            $filter->parentIsFromProvider($parentProviderName);
+            $filter->andParentIsFromProvider($parentProviderName);
         } else {
-            $filter->hasNoParent();
+            $filter->andHasNoParent();
         }
 
         $options = array();

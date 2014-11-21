@@ -15,8 +15,12 @@ namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\FilterInterface;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultCollection;
@@ -28,7 +32,9 @@ use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\PostPasteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\PrePasteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
@@ -638,88 +644,416 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritDoc}
      */
-    public function getModelsFromClipboard(
-        $modelProviderName = null,
-        $parentProviderName = false,
-        IdSerializer $newParentModelId = null,
-        array &$items = array()
-    ) {
+    public function getModelFromClipboardItem(ItemInterface $item)
+    {
+        $modelId      = $item->getModelId();
+        $environment  = $this->getEnvironment();
+        $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
+        $config       = $dataProvider->getEmptyConfig()->setId($modelId->getId());
+        $model        = $dataProvider->fetch($config);
+
+        return $model;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getModelsFromClipboardItems(array $items)
+    {
         $environment = $this->getEnvironment();
         $models      = new DefaultCollection();
-        $clipboard   = $this->getEnvironment()->getClipboard();
-
-        $filter = new Filter();
-        $filter->modelIsFromProvider($modelProviderName);
-        if ($parentProviderName) {
-            $filter->parentIsFromProvider($parentProviderName);
-        } else {
-            $filter->hasNoParent();
-        }
-
-        $items = $clipboard->fetch($filter);
 
         foreach ($items as $item) {
-            $modelId = $item->getModelId();
-
-            if ($item->isCreate()) {
-                // create new model
-                $model = $this->createEmptyModelWithDefaults();
-                $models->push($model);
-            } elseif ($item->isCut()) {
-                // cut model
-                $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
-                $config       = $dataProvider->getEmptyConfig()->setId($modelId->getId());
-                $model        = $dataProvider->fetch($config);
-                $models->push($model);
-            } elseif ($item->isCopy() || $item->isDeepCopy()) {
-                // copy model
-                $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
-                $config       = $dataProvider->getEmptyConfig()->setId($modelId->getId());
-                $model        = $dataProvider->fetch($config);
-
-                // Trigger the pre duplicate event.
-                $duplicateEvent = new PreDuplicateModelEvent($environment, $model);
-
-                $environment->getEventDispatcher()->dispatch(
-                    sprintf('%s[%s]', $duplicateEvent::NAME, $environment->getDataDefinition()->getName()),
-                    $duplicateEvent
-                );
-                $environment->getEventDispatcher()->dispatch($duplicateEvent::NAME, $duplicateEvent);
-
-                // Make a duplicate.
-                $clonedModel = $this->createClonedModel($model);
-
-                // And trigger the post event for it.
-                $duplicateEvent = new PostDuplicateModelEvent($environment, $clonedModel, $model);
-                $environment->getEventDispatcher()->dispatch(
-                    sprintf('%s[%s]', $duplicateEvent::NAME, $environment->getDataDefinition()->getName()),
-                    $duplicateEvent
-                );
-                $environment->getEventDispatcher()->dispatch($duplicateEvent::NAME, $duplicateEvent);
-
-                $model = $clonedModel;
-                $models->push($model);
-
-                if ($item->isDeepCopy()) {
-                    throw new \RuntimeException('Deep copy is not implemented yet');
-                    // FIXME deep copy children
-                }
-            } else {
-                continue;
-            }
-
-            if ($newParentModelId) {
-                $dataProvider = $environment->getDataProvider(
-                    $newParentModelId->getDataProviderName()
-                );
-                $parentModel  = $dataProvider->fetch(
-                    $dataProvider->getEmptyConfig()->setId($newParentModelId->getId())
-                );
-                $this->setParent($model, $parentModel);
-            }
+            /** @var ItemInterface $item */
+            $modelId      = $item->getModelId();
+            $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
+            $config       = $dataProvider->getEmptyConfig()->setId($modelId->getId());
+            $model        = $dataProvider->fetch($config);
+            $models->push($model);
         }
 
         return $models;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getModelsFromClipboard(IdSerializer $parentModelId = null)
+    {
+        $environment       = $this->getEnvironment();
+        $dataDefinition    = $environment->getDataDefinition();
+        $basicDefinition   = $dataDefinition->getBasicDefinition();
+        $modelProviderName = $basicDefinition->getDataProvider();
+        $clipboard         = $environment->getClipboard();
+
+        $filter = new Filter();
+        $filter->andModelIsFromProvider($modelProviderName);
+        if ($parentModelId) {
+            $filter->andParentIsFromProvider($parentModelId->getDataProviderName());
+        } else {
+            $filter->andHasNoParent();
+        }
+
+        return $this->getModelsFromClipboardItems($clipboard->fetch($filter));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function applyClipboardActions(
+        IdSerializer $source = null,
+        IdSerializer $after = null,
+        IdSerializer $into = null,
+        IdSerializer $parentModelId = null,
+        FilterInterface $filter = null,
+        array &$items = array()
+    ) {
+        if ($source) {
+            $actions = $this->getActionsFromSource($source, $parentModelId);
+        } else {
+            $actions = $this->fetchModelsFromClipboard($filter, $parentModelId);
+        }
+
+        return $this->doActions($actions, $after, $into, $parentModelId, $items);
+    }
+
+    /**
+     * Fetch actions from source.
+     *
+     * @param IdSerializer      $source        The source id.
+     * @param IdSerializer|null $parentModelId The parent id.
+     *
+     * @return array
+     */
+    private function getActionsFromSource(IdSerializer $source, IdSerializer $parentModelId = null)
+    {
+        $environment  = $this->getEnvironment();
+        $dataProvider = $environment->getDataProvider($source->getDataProviderName());
+
+        $filterConfig = $dataProvider->getEmptyConfig();
+        $filterConfig->setId($source->getId());
+
+        $model   = $dataProvider->fetch($filterConfig);
+        $modelId = IdSerializer::fromModel($model);
+        $item    = new Item(ItemInterface::CUT, $parentModelId, $modelId);
+
+        $actions = array(
+            array(
+                'model' => $model,
+                'item'  => $item,
+            )
+        );
+
+        return $actions;
+    }
+
+    /**
+     * Fetch actions from the clipboard.
+     *
+     * @param FilterInterface|null $filter        The clipboard filter.
+     * @param IdSerializer         $parentModelId The parent id.
+     *
+     * @return array
+     */
+    private function fetchModelsFromClipboard(FilterInterface $filter = null, IdSerializer $parentModelId = null)
+    {
+        $environment    = $this->getEnvironment();
+        $dataDefinition = $environment->getDataDefinition();
+
+        if (!$filter) {
+            $filter = new Filter();
+        }
+
+        $basicDefinition   = $dataDefinition->getBasicDefinition();
+        $modelProviderName = $basicDefinition->getDataProvider();
+        $filter->andModelIsFromProvider($modelProviderName);
+        if ($parentModelId) {
+            $filter->andParentIsFromProvider($parentModelId->getDataProviderName());
+        } else {
+            $filter->andHasNoParent();
+        }
+
+        $environment = $this->getEnvironment();
+        $clipboard   = $environment->getClipboard();
+        $items       = $clipboard->fetch($filter);
+        $actions     = array();
+
+        foreach ($items as $index => $item) {
+            if ($item->isCreate()) {
+                $model = null;
+            } else {
+                $modelId      = $item->getModelId();
+                $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
+                $config       = $dataProvider->getEmptyConfig()->setId($modelId->getId());
+                $model        = $dataProvider->fetch($config);
+            }
+
+            $actions[] = array(
+                'model' => $model,
+                'item'  => $item,
+            );
+        }
+
+        return $actions;
+    }
+
+    /**
+     * Effectively do the actions.
+     *
+     * @param array        $actions       The actions collection.
+     * @param IdSerializer $after         The previous model id.
+     * @param IdSerializer $into          The hierarchical parent model id.
+     * @param IdSerializer $parentModelId The parent model id.
+     * @param array        $items         Write-back clipboard items.
+     *
+     * @return mixed
+     */
+    private function doActions(
+        array $actions,
+        IdSerializer $after = null,
+        IdSerializer $into = null,
+        IdSerializer $parentModelId = null,
+        array &$items = array()
+    ) {
+        $environment = $this->getEnvironment();
+
+        if ($parentModelId) {
+            $dataProvider = $environment->getDataProvider($parentModelId->getDataProviderName());
+            $config       = $dataProvider->getEmptyConfig()->setId($parentModelId->getId());
+            $parentModel  = $dataProvider->fetch($config);
+        } else {
+            $parentModel = null;
+        }
+
+        // Holds models, that need deep-copy
+        $deepCopyList = array();
+
+        // Apply create and copy actions
+        foreach ($actions as &$action) {
+            $this->applyAction($action, $deepCopyList, $parentModel);
+        }
+
+        // When pasting after another model, apply same grouping informations
+        // TODO to be discussed, this allow cut&paste over groupings with custom sorting
+        $this->ensureSameGrouping($actions, $after);
+
+        // Now apply sorting and persist all models
+        $models = $this->sortAndPersistModels($actions, $after, $into, $parentModelId, $items);
+
+        // At least, go ahead with the deep copy
+        $this->doDeepCopy($deepCopyList);
+
+        return $models;
+    }
+
+    /**
+     * Apply the action onto the model.
+     *
+     * This will create or clone the model in the action.
+     *
+     * @param array          $action       The action, containing a model and an item.
+     * @param array          $deepCopyList A list of models that need deep copy.
+     * @param ModelInterface $parentModel  The parent model.
+     *
+     * @return void
+     */
+    private function applyAction(array &$action, array &$deepCopyList, ModelInterface $parentModel = null)
+    {
+        $environment = $this->getEnvironment();
+
+        /** @var ModelInterface|null $model */
+        $model = $action['model'];
+        /** @var ItemInterface $item */
+        $item = $action['item'];
+
+        if ($item->isCreate()) {
+            // create new model
+            $model = $this->createEmptyModelWithDefaults();
+        } elseif ($item->isCopy() || $item->isDeepCopy()) {
+            // copy model
+            $modelId      = IdSerializer::fromModel($model);
+            $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
+            $config       = $dataProvider->getEmptyConfig()->setId($modelId->getId());
+            $model        = $dataProvider->fetch($config);
+
+            $clonedModel = $this->doCloneAction($model);
+
+            if ($item->isDeepCopy()) {
+                $deepCopyList[] = array(
+                    'origin' => $model,
+                    'model'  => $clonedModel,
+                );
+            }
+
+            $model = $clonedModel;
+        }
+
+        if ($parentModel) {
+            $this->setParent($model, $parentModel);
+        }
+
+        $action['model'] = $model;
+    }
+
+    /**
+     * Effectively do the clone action on the model.
+     *
+     * @param ModelInterface $model The model to clone.
+     *
+     * @return ModelInterface Return the cloned model.
+     */
+    private function doCloneAction(ModelInterface $model)
+    {
+        $environment = $this->getEnvironment();
+
+        // Trigger the pre duplicate event.
+        $duplicateEvent = new PreDuplicateModelEvent($environment, $model);
+
+        $environment->getEventDispatcher()->dispatch(
+            sprintf('%s[%s]', $duplicateEvent::NAME, $environment->getDataDefinition()->getName()),
+            $duplicateEvent
+        );
+        $environment->getEventDispatcher()->dispatch($duplicateEvent::NAME, $duplicateEvent);
+
+        // Make a duplicate.
+        $clonedModel = $this->createClonedModel($model);
+
+        // And trigger the post event for it.
+        $duplicateEvent = new PostDuplicateModelEvent($environment, $clonedModel, $model);
+        $environment->getEventDispatcher()->dispatch(
+            sprintf('%s[%s]', $duplicateEvent::NAME, $environment->getDataDefinition()->getName()),
+            $duplicateEvent
+        );
+        $environment->getEventDispatcher()->dispatch($duplicateEvent::NAME, $duplicateEvent);
+
+        return $clonedModel;
+    }
+
+    /**
+     * Ensure all models have the same grouping.
+     *
+     * @param array        $actions The actions collection.
+     * @param IdSerializer $after   The previous model id.
+     *
+     * @return void
+     */
+    private function ensureSameGrouping(array $actions, IdSerializer $after = null)
+    {
+        $environment  = $this->getEnvironment();
+        $groupingMode = ViewHelpers::getGroupingMode($environment);
+        if ($groupingMode && $after) {
+            // when pasting after another item, inherit the grouping field
+            $groupingField = $groupingMode['property'];
+            $dataProvider  = $environment->getDataProvider($after->getDataProviderName());
+            $previous      = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($after->getId()));
+            $groupingValue = $previous->getProperty($groupingField);
+
+            foreach ($actions as $action) {
+                /** @var ModelInterface $model */
+                $model = $action['model'];
+                $model->setProperty($groupingField, $groupingValue);
+            }
+        }
+    }
+
+    /**
+     * Apply sorting and persist all models.
+     *
+     * @param array        $actions       The actions collection.
+     * @param IdSerializer $after         The previous model id.
+     * @param IdSerializer $into          The hierarchical parent model id.
+     * @param IdSerializer $parentModelId The parent model id.
+     * @param array        $items         Write-back clipboard items.
+     *
+     * @return DefaultCollection|ModelInterface[]
+     */
+    private function sortAndPersistModels(
+        array $actions,
+        IdSerializer $after = null,
+        IdSerializer $into = null,
+        IdSerializer $parentModelId = null,
+        array &$items = array()
+    ) {
+        $environment    = $this->getEnvironment();
+        $dataDefinition = $environment->getDataDefinition();
+        $manualSorting  = ViewHelpers::getManualSortingProperty($environment);
+
+        /** @var DefaultCollection|ModelInterface[] $models */
+        $models = new DefaultCollection();
+        foreach ($actions as $action) {
+            $models->push($action['model']);
+            $items[] = $action['item'];
+        }
+
+        // Trigger for each model the pre persist event.
+        foreach ($models as $model) {
+            $event = new PrePasteModelEvent($environment, $model);
+
+            $environment->getEventDispatcher()->dispatch(
+                sprintf('%s[%s]', $event::NAME, $dataDefinition->getName()),
+                $event
+            );
+            $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        }
+
+        // FIXME too many parameters, this is just crazy! :-(
+
+        if ($after && $after->getId()) {
+            $dataProvider = $environment->getDataProvider($after->getDataProviderName());
+            $previous     = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($after->getId()));
+            $this->pasteAfter($previous, $models, $manualSorting);
+        } elseif ($into && $into->getId()) {
+            $dataProvider = $environment->getDataProvider($into->getDataProviderName());
+            $parent       = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($into->getId()));
+            $this->pasteInto($parent, $models, $manualSorting);
+        } elseif (($after && $after->getId() == '0') || ($into && $into->getId() == '0')) {
+            $this->pasteTop($models, $manualSorting);
+        } elseif ($parentModelId) {
+            if ($manualSorting) {
+                $this->pasteTop($models, $manualSorting);
+            } else {
+                $dataProvider = $environment->getDataProvider();
+                $dataProvider->saveEach($models);
+            }
+        } else {
+            throw new DcGeneralRuntimeException('Invalid parameters.');
+        }
+
+        // Trigger for each model the past persist event.
+        foreach ($models as $model) {
+            $event = new PostPasteModelEvent($environment, $model);
+            $environment->getEventDispatcher()->dispatch(
+                sprintf('%s[%s]', $event::NAME, $dataDefinition->getName()),
+                $event
+            );
+            $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        }
+
+        return $models;
+    }
+
+    /**
+     * Do deep copy.
+     *
+     * @param array $deepCopyList The deep copy list.
+     *
+     * @return void
+     */
+    public function doDeepCopy(array $deepCopyList)
+    {
+        if (empty($deepCopyList)) {
+            return;
+        }
+
+        // FIXME implement
+        throw new \RuntimeException('Not implemented yet');
+
+        foreach ($deepCopyList as $deepCopy) {
+            /** @var ModelInterface $origin */
+            $origin = $deepCopy['origin'];
+            /** @var ModelInterface $origin */
+            $model = $deepCopy['model'];
+        }
     }
 
     /**

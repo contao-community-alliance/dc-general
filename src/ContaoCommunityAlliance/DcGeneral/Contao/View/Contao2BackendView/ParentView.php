@@ -21,6 +21,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
@@ -347,11 +348,11 @@ class ParentView extends BaseView
             $headerButtons['editHeader'] = $this->getHeaderEditButtons($parentModel);
 
             $filter = new Filter();
-            $filter->modelIsFromProvider($basicDefinition->getDataProvider());
+            $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
             if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
-                $filter->parentIsFromProvider($parentDataProviderName);
+                $filter->andParentIsFromProvider($parentDataProviderName);
             } else {
-                $filter->hasNoParent();
+                $filter->andHasNoParent();
             }
 
             if ($sorting
@@ -384,18 +385,23 @@ class ParentView extends BaseView
             }
 
             $filter = new Filter();
-            $filter->modelIsFromProvider($basicDefinition->getDataProvider());
-            $filter->parentIsFromProvider($basicDefinition->getParentDataProvider());
+            $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
+            $filter->andParentIsFromProvider($basicDefinition->getParentDataProvider());
 
             if ($sorting && $clipboard->isNotEmpty($filter)) {
 
                 $allowPasteTop = $this->getManualSortingProperty();
 
                 if (!$allowPasteTop) {
+                    $subFilter = new Filter();
+                    $subFilter->andActionIsNotIn(array(ItemInterface::COPY, ItemInterface::DEEP_COPY));
+                    $subFilter->andParentIsNot(IdSerializer::fromModel($parentModel));
+                    $subFilter->orActionIsIn(array(ItemInterface::COPY, ItemInterface::DEEP_COPY));
+
                     $filter = new Filter();
-                    $filter->modelIsFromProvider($basicDefinition->getDataProvider());
-                    $filter->parentIsFromProvider($basicDefinition->getParentDataProvider());
-                    $filter->parentIsNot(IdSerializer::fromModel($parentModel));
+                    $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
+                    $filter->andParentIsFromProvider($basicDefinition->getParentDataProvider());
+                    $filter->andSub($subFilter);
 
                     $allowPasteTop = (bool) $clipboard->fetch($filter);
                 }

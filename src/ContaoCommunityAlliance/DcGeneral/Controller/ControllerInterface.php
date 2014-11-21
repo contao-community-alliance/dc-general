@@ -14,6 +14,8 @@
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
 use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\FilterInterface;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
@@ -149,18 +151,51 @@ interface ControllerInterface
     public function createEmptyModelWithDefaults();
 
     /**
-     * Retrieve model instances for all clipboard items.
+     * Retrieve a model from the clipboard item.
      *
-     * @param null|string $modelProviderName  The model provider name.
-     * @param null|string $parentProviderName The parent provider name.
-     * @param null|IdSerializer $newParentModelId      The new parent model id.
+     * @param ItemInterface $item The clipboard item.
      *
-     * @return CollectionInterface
+     * @return ModelInterface
      */
-    public function getModelsFromClipboard(
-        $modelProviderName = null,
-        $parentProviderName = null,
-        IdSerializer $newParentModelId = null
+    public function getModelFromClipboardItem(ItemInterface $item);
+
+    /**
+     * Retrieve models from the clipboard items.
+     *
+     * @param array|ItemInterface[] $items The clipboard items.
+     *
+     * @return CollectionInterface|ModelInterface[]
+     */
+    public function getModelsFromClipboardItems(array $items);
+
+    /**
+     * Retrieve models from the clipboard.
+     *
+     * This will only return models, that are compatible with the current environment.
+     *
+     * @return CollectionInterface|ModelInterface[]
+     */
+    public function getModelsFromClipboard();
+
+    /**
+     * Evaluate clipboard items, then return the corresponding models.
+     *
+     * @param IdSerializer    $source        The source model id.
+     * @param IdSerializer    $after         The previous model id.
+     * @param IdSerializer    $into          The hierarchical parent model id.
+     * @param IdSerializer    $parentModelId The parent model id.
+     * @param FilterInterface $filter        Clipboard filter.
+     * @param array           $items         Write-back evaluated clipboard items.
+     *
+     * @return CollectionInterface|ModelInterface[]
+     */
+    public function applyClipboardActions(
+        IdSerializer $source = null,
+        IdSerializer $after = null,
+        IdSerializer $into = null,
+        IdSerializer $parentModelId = null,
+        FilterInterface $filter = null,
+        array &$items = array()
     );
 
     /**

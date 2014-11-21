@@ -615,11 +615,11 @@ class TreeView extends BaseView
         }
 
         $filter = new Filter();
-        $filter->modelIsFromProvider($basicDefinition->getDataProvider());
+        $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
         if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
-            $filter->parentIsFromProvider($parentDataProviderName);
+            $filter->andParentIsFromProvider($parentDataProviderName);
         } else {
-            $filter->hasNoParent();
+            $filter->andHasNoParent();
         }
 
         // Root paste into.

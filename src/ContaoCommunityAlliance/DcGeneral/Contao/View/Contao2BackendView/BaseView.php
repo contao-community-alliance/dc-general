@@ -54,10 +54,8 @@ use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostCreateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PostPasteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreCreateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDeleteModelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PrePasteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
@@ -547,92 +545,25 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function paste(Action $action)
     {
-        $environment    = $this->getEnvironment();
-        $controller     = $environment->getController();
-        $dataDefinition = $environment->getDataDefinition();
-        $input          = $environment->getInputProvider();
-        $clipboard      = $environment->getClipboard();
-        $source         = $input->getParameter('source')
+        $environment   = $this->getEnvironment();
+        $controller    = $environment->getController();
+        $input         = $environment->getInputProvider();
+        $clipboard     = $environment->getClipboard();
+        $source        = $input->getParameter('source')
             ? IdSerializer::fromSerialized($input->getParameter('source'))
             : null;
-        $after          = $input->getParameter('after')
+        $after         = $input->getParameter('after')
             ? IdSerializer::fromSerialized($input->getParameter('after'))
             : $input->getParameter('after');
-        $into           = $input->getParameter('into')
+        $into          = $input->getParameter('into')
             ? IdSerializer::fromSerialized($input->getParameter('into'))
             : null;
-        $parentModelId  = $input->getParameter('pid')
+        $parentModelId = $input->getParameter('pid')
             ? IdSerializer::fromSerialized($input->getParameter('pid'))
             : null;
-        $items          = array();
+        $items         = array();
 
-        if ($source) {
-            $dataProvider = $environment->getDataProvider($source->getDataProviderName());
-
-            $filterConfig = $dataProvider->getEmptyConfig();
-
-            $filterConfig->setFilter(
-                array(
-                    array(
-                        'operation' => '=',
-                        'property'  => 'id',
-                        'value'     => $source->getId()
-                    )
-                )
-            );
-
-            $models = $dataProvider->fetchAll($filterConfig);
-        } else {
-            $models = $controller->getModelsFromClipboard(
-                $dataDefinition->getBasicDefinition()->getDataProvider(),
-                $dataDefinition->getBasicDefinition()->getParentDataProvider(),
-                $parentModelId,
-                $items
-            );
-        }
-
-        // Trigger for each model the pre persist event.
-        foreach ($models as $model) {
-            $event = new PrePasteModelEvent($environment, $model);
-
-            $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $event::NAME, $dataDefinition->getName()),
-                $event
-            );
-            $environment->getEventDispatcher()->dispatch($event::NAME, $event);
-        }
-
-        if ($after && $after->getId()) {
-            $dataProvider = $environment->getDataProvider($after->getDataProviderName());
-            $previous     = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($after->getId()));
-            $controller->pasteAfter($previous, $models, $this->getManualSortingProperty());
-        } elseif ($into && $into->getId()) {
-            $dataProvider = $environment->getDataProvider($into->getDataProviderName());
-            $parent       = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($into->getId()));
-            $controller->pasteInto($parent, $models, $this->getManualSortingProperty());
-        } elseif (($after && $after->getId() == '0') || ($into && $into->getId() == '0')) {
-            $controller->pasteTop($models, $this->getManualSortingProperty());
-        } elseif ($parentModelId) {
-            $manualSorting = $this->getManualSortingProperty();
-            if ($manualSorting) {
-                $controller->pasteTop($models, $this->getManualSortingProperty());
-            } else {
-                $dataProvider = $environment->getDataProvider();
-                $dataProvider->saveEach($models);
-            }
-        } else {
-            throw new DcGeneralRuntimeException('Invalid parameters.');
-        }
-
-        // Trigger for each model the past persist event.
-        foreach ($models as $model) {
-            $event = new PostPasteModelEvent($environment, $model);
-            $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $event::NAME, $dataDefinition->getName()),
-                $event
-            );
-            $environment->getEventDispatcher()->dispatch($event::NAME, $event);
-        }
+        $models = $controller->applyClipboardActions($source, $after, $into, $parentModelId, null, $items);
 
         if (!$source) {
             $clipboard
@@ -1050,11 +981,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             || ($mode == BasicDefinitionInterface::MODE_HIERARCHICAL)
         ) {
             $filter = new Filter();
-            $filter->modelIsFromProvider($basicDefinition->getDataProvider());
+            $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
             if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
-                $filter->parentIsFromProvider($parentDataProviderName);
+                $filter->andParentIsFromProvider($parentDataProviderName);
             } else {
-                $filter->hasNoParent();
+                $filter->andHasNoParent();
             }
 
             if ($environment->getClipboard()->isNotEmpty($filter)) {
@@ -1494,13 +1425,61 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return $event->getHtmlPasteAfter();
         }
 
-        $model       = $event->getModel();
-        $modelId     = IdSerializer::fromModel($model);
-        $environment = $event->getEnvironment();
-        $clipboard   = $environment->getClipboard();
+        $model           = $event->getModel();
+        $modelId         = IdSerializer::fromModel($model);
+        $environment     = $event->getEnvironment();
+        $controller      = $environment->getController();
+        $clipboard       = $environment->getClipboard();
+        $dataDefinition  = $environment->getDataDefinition();
+        $basicDefinition = $dataDefinition->getBasicDefinition();
+
+        $pasteAfterIsDisabled = $event->isPasteAfterDisabled();
+
+        if (!$pasteAfterIsDisabled) {
+            // pre-build filter, to fetch other items
+            $filter = new Filter();
+            $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
+            if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
+                $filter->andParentIsFromProvider($parentDataProviderName);
+            } else {
+                $filter->andHasNoParent();
+            }
+            $filter->andModelIsNot($modelId);
+
+            /*
+             * FIXME to be discussed, allow pasting only in the same grouping
+        }
+        /** @var Filter $filter Prevent IDE from saying $filter may be undefined! ;-D * /
+
+        if (!$pasteAfterIsDisabled) {
+            // Determine if the grouping is the same
+            $groupingMode = ViewHelpers::getGroupingMode($environment);
+
+            if ($groupingMode) {
+                $items  = $clipboard->fetch($filter);
+                $models = $controller->getModelsFromClipboardItems($items);
+                $propertyName = $groupingMode['property'];
+                $propertyValue = $model->getProperty($propertyName);
+
+                $pasteAfterIsDisabled = true;
+                foreach ($models as $clipboardModel) {
+                    if ($propertyValue === $clipboardModel->getProperty($propertyName)) {
+                        // there exist at least one item, with the same grouping
+                        $pasteAfterIsDisabled = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!$pasteAfterIsDisabled) {
+            */
+
+            $pasteAfterIsDisabled = $clipboard->isEmpty($filter);
+        }
 
         $strLabel = $this->translate('pasteafter.0', $model->getProviderName());
-        if ($event->isPasteAfterDisabled() || $clipboard->hasId($modelId)) {
+        if ($pasteAfterIsDisabled) {
             /** @var GenerateHtmlEvent $imageEvent */
             $imageEvent = $environment->getEventDispatcher()->dispatch(
                 ContaoEvents::IMAGE_GET_HTML,
@@ -1562,11 +1541,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $dispatcher      = $environment->getEventDispatcher();
 
         $filter = new Filter();
-        $filter->modelIsFromProvider($basicDefinition->getDataProvider());
+        $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
         if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
-            $filter->parentIsFromProvider($parentDataProviderName);
+            $filter->andParentIsFromProvider($parentDataProviderName);
         } else {
-            $filter->hasNoParent();
+            $filter->andHasNoParent();
         }
 
         if ($this->getEnvironment()->getClipboard()->isNotEmpty($filter)) {
@@ -1656,6 +1635,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                     new AddToUrlEvent($add2UrlInto)
                 );
 
+                $models = $this->environment->getController()->getModelsFromClipboard(/* FIXME parent is missing! */);
+
                 $buttonEvent = new GetPasteButtonEvent($this->getEnvironment());
                 $buttonEvent
                     ->setModel($model)
@@ -1667,7 +1648,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                     // Check if the id is in the ignore list.
                     ->setPasteAfterDisabled($clipboard->isCut() && $isCircular)
                     ->setPasteIntoDisabled($clipboard->isCut() && $isCircular)
-                    ->setContainedModels($this->environment->getController()->getModelsFromClipboard());
+                    ->setContainedModels($models);
 
                 $this->getEnvironment()->getEventDispatcher()->dispatch(
                     sprintf('%s[%s]', $buttonEvent::NAME, $this->getEnvironment()->getDataDefinition()->getName()),
