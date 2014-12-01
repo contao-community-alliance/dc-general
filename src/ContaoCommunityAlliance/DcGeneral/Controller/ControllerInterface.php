@@ -51,9 +51,11 @@ interface ControllerInterface
      *
      * This includes all auxiliary filters from DCA etc. but excludes the filters from panels.
      *
+     * @param IdSerializer $parentId The parent ID.
+     *
      * @return ConfigInterface
      */
-    public function getBaseConfig();
+    public function getBaseConfig(IdSerializer $parentId = null);
 
     /**
      * Handle a action within this environment.
@@ -205,9 +207,11 @@ interface ControllerInterface
      *
      * @param string              $sortedBy The name of the sorting property.
      *
+     * @param IdSerializer        $parentId The parent model ID.
+     *
      * @return void
      */
-    public function pasteTop(CollectionInterface $models, $sortedBy);
+    public function pasteTop(CollectionInterface $models, $sortedBy, IdSerializer $parentId = null);
 
     /**
      * Paste the content of the clipboard after the given model.

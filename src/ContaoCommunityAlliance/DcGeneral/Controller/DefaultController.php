@@ -271,12 +271,15 @@ class DefaultController implements ControllerInterface
      *
      * @todo This might return a lot of models, we definately want to use some lazy approach rather than this.
      */
-    protected function assembleSiblingsFor(ModelInterface $model, $sortingProperty = null)
-    {
+    protected function assembleSiblingsFor(
+        ModelInterface $model,
+        $sortingProperty = null,
+        IdSerializer $parentId = null
+    ) {
         $environment   = $this->getEnvironment();
         $definition    = $environment->getDataDefinition();
         $provider      = $environment->getDataProvider($model->getProviderName());
-        $config        = $this->getBaseConfig();
+        $config        = $this->getBaseConfig($parentId);
         $relationships = $definition->getModelRelationshipDefinition();
 
         // Root model in hierarchical mode?
@@ -519,9 +522,11 @@ class DefaultController implements ControllerInterface
      *
      * This includes parent filter when in parented list mode and the additional filters from the data definition.
      *
+     * @param IdSerializer $parentId
+     *
      * @return ConfigInterface
      */
-    public function getBaseConfig()
+    public function getBaseConfig(IdSerializer $parentId = null)
     {
         $environment   = $this->getEnvironment();
         $objConfig     = $environment->getDataProvider()->getEmptyConfig();
@@ -540,7 +545,9 @@ class DefaultController implements ControllerInterface
         }
 
         // Special filter for certain modes.
-        if ($objDefinition->getBasicDefinition()->getMode() == BasicDefinitionInterface::MODE_PARENTEDLIST) {
+        if ($parentId) {
+            $this->addParentFilter($parentId->getId(), $objConfig);
+        } elseif ($objDefinition->getBasicDefinition()->getMode() == BasicDefinitionInterface::MODE_PARENTEDLIST) {
             $pid        = $environment->getInputProvider()->getParameter('pid');
             $pidDetails = IdSerializer::fromSerialized($pid);
 
@@ -1059,12 +1066,12 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritDoc}
      */
-    public function pasteTop(CollectionInterface $models, $sortedBy)
+    public function pasteTop(CollectionInterface $models, $sortedBy, IdSerializer $parentId = null)
     {
         $environment = $this->getEnvironment();
 
         // Enforce proper sorting now.
-        $siblings    = $this->assembleSiblingsFor($models->get(0), $sortedBy);
+        $siblings    = $this->assembleSiblingsFor($models->get(0), $sortedBy, $parentId);
         $sortManager = new SortingManager($models, $siblings, $sortedBy, null);
         $newList     = $sortManager->getResults();
 
