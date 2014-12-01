@@ -28,6 +28,8 @@ use ContaoCommunityAlliance\DcGeneral\Data\LanguageInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -37,6 +39,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PrePasteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 
 /**
  * This class serves as main controller class in dc general.
@@ -1014,10 +1017,10 @@ class DefaultController implements ControllerInterface
             $parent       = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($into->getId()));
             $this->pasteInto($parent, $models, $manualSorting);
         } elseif (($after && $after->getId() == '0') || ($into && $into->getId() == '0')) {
-            $this->pasteTop($models, $manualSorting);
+            $this->pasteTop($models, $manualSorting, $parentModelId);
         } elseif ($parentModelId) {
             if ($manualSorting) {
-                $this->pasteTop($models, $manualSorting);
+                $this->pasteTop($models, $manualSorting, $parentModelId);
             } else {
                 $dataProvider = $environment->getDataProvider();
                 $dataProvider->saveEach($models);
@@ -1046,20 +1049,86 @@ class DefaultController implements ControllerInterface
      *
      * @return void
      */
-    public function doDeepCopy(array $deepCopyList)
+    protected function doDeepCopy(array $deepCopyList)
     {
         if (empty($deepCopyList)) {
             return;
         }
 
-        // FIXME implement
-        throw new \RuntimeException('Not implemented yet');
+        $factory                     = DcGeneralFactory::deriveFromEnvironment($this->environment);
+        $dataDefinition              = $this->environment->getDataDefinition();
+        $modelRelationshipDefinition = $dataDefinition->getModelRelationshipDefinition();
+        $childConditions             = $modelRelationshipDefinition->getChildConditions($dataDefinition->getName());
 
         foreach ($deepCopyList as $deepCopy) {
             /** @var ModelInterface $origin */
             $origin = $deepCopy['origin'];
-            /** @var ModelInterface $origin */
+            /** @var ModelInterface $model */
             $model = $deepCopy['model'];
+
+            $parentId = IdSerializer::fromModel($model);
+
+            foreach ($childConditions as $childCondition) {
+                // create new destination environment
+                $destinationName = $childCondition->getDestinationName();
+                $factory->setContainerName($destinationName);
+                $destinationEnvironment    = $factory->createEnvironment();
+                $destinationDataDefinition = $destinationEnvironment->getDataDefinition();
+                $destinationViewDefinition = $destinationDataDefinition->getDefinition(
+                    Contao2BackendViewDefinitionInterface::NAME
+                );
+                $destinationDataProvider   = $destinationEnvironment->getDataProvider();
+                $destinationController     = $destinationEnvironment->getController();
+                /** @var Contao2BackendViewDefinitionInterface $destinationViewDefinition */
+                /** @var DefaultController $destinationController */
+                $listingConfig             = $destinationViewDefinition->getListingConfig();
+                $groupAndSortingCollection = $listingConfig->getGroupAndSortingDefinition();
+                $groupAndSorting           = $groupAndSortingCollection->getDefault();
+
+                // ***** fetch the children
+                $filter = $childCondition->getFilter($origin);
+
+                // apply parent-child condition
+                $config = $destinationDataProvider->getEmptyConfig();
+                $config->setFilter($filter);
+
+                // apply sorting
+                $sorting = array();
+                foreach ($groupAndSorting as $information) {
+                    /** @var GroupAndSortingInformationInterface $information */
+                    $sorting[$information->getProperty()] = $information->getSortingMode();
+                }
+                $config->setSorting($sorting);
+
+                // receive children
+                $children = $destinationDataProvider->fetchAll($config);
+
+                // ***** do the deep copy
+                $actions = array();
+
+                // build the copy actions
+                foreach ($children as $childModel) {
+                    $childModelId = IdSerializer::fromModel($childModel);
+
+                    $actions[] = array(
+                        'model' => $childModel,
+                        'item'  => new Item(
+                            ItemInterface::DEEP_COPY,
+                            $parentId,
+                            $childModelId
+                        )
+                    );
+                }
+
+                // do the deep copy
+                $childrenModels = $destinationController->doActions($actions, null, null, $parentId);
+
+                // ensure parent-child condition
+                foreach ($childrenModels as $childrenModel) {
+                    $childCondition->applyTo($model, $childrenModel);
+                }
+                $destinationDataProvider->saveEach($childrenModels);
+            }
         }
     }
 
