@@ -6,4 +6,5 @@
  * @package    Backend
  */
 
-@media screen,projection{#tl_breadcrumb{padding-top:4px;}}
+@media screen,projection{#tl_breadcrumb{padding-top:4px;}#tl_breadcrumb li:before{content:">";padding-right: 5px;}#tl_breadcrumb li:first-child:before{content:"";}}
+
