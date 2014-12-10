@@ -31,14 +31,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
      *
      * @var GroupAndSortingDefinitionInterface
      */
-    protected $selected;
-
-    /**
-     * The sorting properties including the direction.
-     *
-     * @var array
-     */
-    protected $arrSorting = array();
+    private $selected;
 
     /**
      * Retrieve the group and sorting definition.
