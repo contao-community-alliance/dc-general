@@ -159,7 +159,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
                 $current[$information->getProperty()] = $information->getSortingMode();
             }
         }
-        $objConfig->setSorting(array_reverse($current, true));
+        $objConfig->setSorting($current);
     }
 
     /**
