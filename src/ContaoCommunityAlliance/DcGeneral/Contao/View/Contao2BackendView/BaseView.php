@@ -1725,8 +1725,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $dispatcher         = $environment->getEventDispatcher();
         $dataDefinitionName = $environment->getDataDefinition()->getName();
         $commandName        = $objCommand->getName();
-        $parameters         = (array)$objCommand->getParameters();
-        $extra              = (array)$objCommand->getExtra();
+        $parameters         = (array) $objCommand->getParameters();
+        $extra              = (array) $objCommand->getExtra();
         $extraAttributes    = !empty($extra['attributes']) ? $extra['attributes'] : null;
         $attributes         = '';
 
@@ -2209,7 +2209,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             if ($properties->hasProperty($propertyName)) {
                 $property = $properties->getProperty($propertyName);
 
-                $args[$propertyName] = (string)$this->getReadableFieldValue(
+                $args[$propertyName] = (string) $this->getReadableFieldValue(
                     $property,
                     $model,
                     $model->getProperty($propertyName)
