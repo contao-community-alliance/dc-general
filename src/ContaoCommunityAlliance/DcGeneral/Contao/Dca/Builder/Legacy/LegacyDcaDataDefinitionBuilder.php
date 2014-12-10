@@ -616,7 +616,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                     );
             }
             $providerInformation
-                ->isVersioningEnabled((bool)$this->getFromDca('config/enableVersioning'));
+                ->setVersioningEnabled((bool) $this->getFromDca('config/enableVersioning'));
 
             if (!$container->getBasicDefinition()->getDataProvider()) {
                 $container->getBasicDefinition()->setDataProvider($providerName);
