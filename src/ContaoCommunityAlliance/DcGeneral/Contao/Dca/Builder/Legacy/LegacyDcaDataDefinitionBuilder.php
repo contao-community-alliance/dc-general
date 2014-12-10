@@ -1022,22 +1022,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      */
     protected function parsePanelSort(PanelRowInterface $row)
     {
-        if ($row->hasElement('sort')) {
-            $element = $row->getElement('sort');
-        } else {
-            $element = new DefaultSortElementInformation();
-            $row->addElement($element);
-        }
-
-        foreach ($this->getFromDca('fields') as $property => $value) {
-            if (isset($value['sorting'])) {
-                $element->addProperty($property, (int)$value['flag']);
-            }
-        }
-
-        $default = $this->getFromDca('list/sorting/flag');
-        if ($default) {
-            $element->setDefaultFlag($default);
+        if (!$row->hasElement('sort')) {
+            $row->addElement(new DefaultSortElementInformation());
         }
     }
 
