@@ -80,7 +80,7 @@ class ListView extends BaseView
         $properties        = $definition->getPropertiesDefinition();
         $viewDefinition    = $this->getViewSection();
         $listingDefinition = $viewDefinition->getListingConfig();
-        $sorting           = $this->getGroupingMode();
+        $sorting           = ViewHelpers::getGroupingMode($this->environment);
         $sortingDefinition = $sorting['sorting'];
         $sortingColumns    = array();
 
@@ -194,7 +194,7 @@ class ListView extends BaseView
         $environment = $this->getEnvironment();
         $definition  = $environment->getDataDefinition();
 
-        $groupingInformation = $this->getGroupingMode();
+        $groupingInformation = ViewHelpers::getGroupingMode($this->environment);
 
         // Set label.
         $this->setListViewLabel($collection, $groupingInformation);
@@ -235,7 +235,7 @@ class ListView extends BaseView
             ->addToTemplate('pdp', '', $objTemplate)
             ->addToTemplate('cdp', $definition->getName(), $objTemplate)
             ->addToTemplate('selectButtons', $this->getSelectButtons(), $objTemplate)
-            ->addToTemplate('sortable', (bool) $this->getManualSortingProperty(), $objTemplate)
+            ->addToTemplate('sortable', (bool) ViewHelpers::getManualSortingProperty($this->environment), $objTemplate)
             ->addToTemplate('showColumns', $this->getViewSection()->getListingConfig()->getShowColumns(), $objTemplate);
 
         // Add breadcrumb, if we have one.

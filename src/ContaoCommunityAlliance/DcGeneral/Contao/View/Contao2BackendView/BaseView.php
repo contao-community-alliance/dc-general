@@ -282,7 +282,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     public function formatCurrentValue($field, $model, $groupMode, $groupLength)
     {
         $property   = $this->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
-        $value      = $this->getReadableFieldValue($property, $model, $model->getProperty($field));
+        $value      = ViewHelpers::getReadableFieldValue($this->environment, $property, $model);
         $dispatcher = $this->getEnvironment()->getEventDispatcher();
         $propExtra  = $property->getExtra();
 
@@ -896,7 +896,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $providerName    = $environment->getDataDefinition()->getName();
         $mode            = $basicDefinition->getMode();
         $config          = $this->getEnvironment()->getController()->getBaseConfig();
-        $manualSorting   = $this->getManualSortingProperty();
+        $manualSorting   = ViewHelpers::getManualSortingProperty($this->environment);
 
         if ($serializedPid = $environment->getInputProvider()->getParameter('pid')) {
             $pid = IdSerializer::fromSerialized($serializedPid);
@@ -1525,7 +1525,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             );
         }
 
-        if ($this->getManualSortingProperty()) {
+        if (ViewHelpers::getManualSortingProperty($this->environment)) {
             $clipboardIsEmpty = $clipboard->isEmpty($filter);
 
             if ($clipboardIsEmpty && BasicDefinitionInterface::MODE_HIERARCHICAL !== $basicDefinition->getMode()) {
@@ -1705,71 +1705,5 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $event
         );
         return $event->getLabel();
-    }
-
-    /**
-     * Get for a field the readable value.
-     *
-     * @param PropertyInterface $property The property to be rendered.
-     *
-     * @param ModelInterface    $model    The model from which the property value shall be retrieved from.
-     *
-     * @param mixed             $value    The value for the property.
-     *
-     * @return mixed
-     *
-     * @deprecated Use ViewHelpers::getReadableFieldValue($environment, $property, $model, $value) instead!
-     */
-    public function getReadableFieldValue(PropertyInterface $property, ModelInterface $model, $value)
-    {
-        return ViewHelpers::getReadableFieldValue($this->environment, $property, $model, $value);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated Use ViewHelpers::getManualSortingProperty($environment) instead!
-     */
-    public function getManualSortingProperty()
-    {
-        return ViewHelpers::getManualSortingProperty($this->environment);
-    }
-
-    /**
-     * Redirects to the real back end module.
-     *
-     * @return void
-     *
-     * @deprecated Use ViewHelpers::redirectHome($environment) instead!
-     */
-    protected function redirectHome()
-    {
-        ViewHelpers::redirectHome($this->environment);
-    }
-
-    /**
-     * Retrieve the currently active sorting.
-     *
-     * @return GroupAndSortingDefinitionInterface
-     *
-     * @deprecated Use ViewHelpers::getCurrentSorting($environment) instead!
-     */
-    protected function getCurrentSorting()
-    {
-        return ViewHelpers::getCurrentSorting($this->environment);
-    }
-
-    /**
-     * Retrieve the currently active grouping mode.
-     *
-     * @return array|null
-     *
-     * @see        ListingConfigInterface
-     *
-     * @deprecated Use ViewHelpers::getGroupingMode($environment) instead!
-     */
-    protected function getGroupingMode()
-    {
-        return ViewHelpers::getGroupingMode($this->environment);
     }
 }

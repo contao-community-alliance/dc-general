@@ -149,17 +149,14 @@ class ViewHelpers
      *
      * @param ModelInterface       $model       The model from which the property value shall be retrieved from.
      *
-     * @param mixed                $value       The value for the property.
-     *
      * @return mixed
      */
     public static function getReadableFieldValue(
         EnvironmentInterface $environment,
         PropertyInterface $property,
-        ModelInterface $model,
-        $value
+        ModelInterface $model
     ) {
-        $event = new RenderReadablePropertyValueEvent($environment, $model, $property, $value);
+        $event = new RenderReadablePropertyValueEvent($environment, $model, $property, $model->getProperty($property));
 
         $dispatcher = $environment->getEventDispatcher();
         $dispatcher->dispatch(
@@ -173,7 +170,7 @@ class ViewHelpers
             return $event->getRendered();
         }
 
-        return $value;
+        return $model->getProperty($property);
     }
 
     /**

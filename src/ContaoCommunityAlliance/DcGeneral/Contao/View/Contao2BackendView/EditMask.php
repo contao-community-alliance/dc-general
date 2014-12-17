@@ -472,7 +472,7 @@ class EditMask
      */
     protected function getManualSortingProperty()
     {
-        return $this->view->getManualSortingProperty();
+        return ViewHelpers::getManualSortingProperty($this->getEnvironment());
     }
 
     /**

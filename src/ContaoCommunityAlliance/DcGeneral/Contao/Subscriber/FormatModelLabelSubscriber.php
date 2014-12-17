@@ -62,8 +62,7 @@ class FormatModelLabelSubscriber
                 $args[$propertyName] = (string) ViewHelpers::getReadableFieldValue(
                     $environment,
                     $property,
-                    $model,
-                    $model->getProperty($propertyName)
+                    $model
                 );
             } else {
                 $args[$propertyName] = '-';

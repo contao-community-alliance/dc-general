@@ -390,7 +390,7 @@ class ParentView extends BaseView
 
             if ($sorting && $clipboard->isNotEmpty($filter)) {
 
-                $allowPasteTop = $this->getManualSortingProperty();
+                $allowPasteTop = ViewHelpers::getManualSortingProperty($this->environment);
 
                 if (!$allowPasteTop) {
                     $subFilter = new Filter();
@@ -542,7 +542,7 @@ class ParentView extends BaseView
     {
         $definition          = $this->getEnvironment()->getDataDefinition();
         $parentProvider      = $definition->getBasicDefinition()->getParentDataProvider();
-        $groupingInformation = $this->getGroupingMode();
+        $groupingInformation = ViewHelpers::getGroupingMode($this->environment);
         $dispatcher          = $this->getEnvironment()->getEventDispatcher();
 
         // Skip if we have no parent or parent collection.
@@ -583,7 +583,7 @@ class ParentView extends BaseView
             ->addToTemplate('cdp', $definition->getName(), $objTemplate)
             ->addToTemplate('selectButtons', $this->getSelectButtons(), $objTemplate)
             ->addToTemplate('headerButtons', $this->getHeaderButtons($parentModel), $objTemplate)
-            ->addToTemplate('sortable', (bool)$this->getManualSortingProperty(), $objTemplate)
+            ->addToTemplate('sortable', (bool) ViewHelpers::getManualSortingProperty($this->environment), $objTemplate)
             ->addToTemplate('showColumns', $this->getViewSection()->getListingConfig()->getShowColumns(), $objTemplate);
 
         $this->renderEntries($collection, $groupingInformation);
@@ -657,8 +657,9 @@ class ParentView extends BaseView
             return $this->edit($action);
         }
 
-        if ($this->getManualSortingProperty()
-            && $this->environment->getDataProvider()->fieldExists($this->getManualSortingProperty())
+        $manualSortingProperty = ViewHelpers::getManualSortingProperty($this->environment);
+        if ($manualSortingProperty
+            && $this->environment->getDataProvider()->fieldExists($manualSortingProperty)
         ) {
             ViewHelpers::redirectHome($this->environment);
         }
