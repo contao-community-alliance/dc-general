@@ -269,7 +269,8 @@ class Subscriber implements EventSubscriberInterface
             $event->setRendered($dateEvent->getResult());
         } elseif ($property->getWidgetType() == 'checkbox' && !$extra['multiple']) {
             $event->setRendered(strlen($value) ? $GLOBALS['TL_LANG']['MSC']['yes'] : $GLOBALS['TL_LANG']['MSC']['no']);
-        } elseif ($property->getWidgetType() == 'textarea' && ($extra['allowHtml'] || $extra['preserveTags'])) {
+        } elseif ($property->getWidgetType() == 'textarea'
+            && (!empty($extra['allowHtml']) || !empty($extra['preserveTags']))) {
             $event->setRendered(nl2br_html5(specialchars($value)));
         } elseif (isset($extra['reference']) && is_array($extra['reference'])) {
             if (isset($extra['reference'][$value])) {

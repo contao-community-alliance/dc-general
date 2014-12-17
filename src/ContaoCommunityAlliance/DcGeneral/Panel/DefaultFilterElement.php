@@ -160,7 +160,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             $arrOptions = array();
             /** @var ModelInterface $objOption */
             foreach ($objFilterOptions as $filterKey => $filterValue) {
-                $arrOptions[(string)$filterKey] = $filterValue;
+                $arrOptions[(string) $filterKey] = $filterValue;
             }
 
             $this->arrfilterOptions = $arrOptions;
@@ -181,11 +181,13 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
         $arrOptions = array(
             array(
                 'value'   => 'tl_' . $this->getPropertyName(),
-                'content' => (is_array($arrLabel) ? $arrLabel[0] : $arrLabel)
+                'content' => (is_array($arrLabel) ? $arrLabel[0] : $arrLabel),
+                'attributes' => ''
             ),
             array(
                 'value'   => 'tl_' . $this->getPropertyName(),
-                'content' => '---'
+                'content' => '---',
+                'attributes' => ''
             )
         );
 
@@ -198,11 +200,11 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             );
         }
 
-        $objTemplate->name    = $this->getPropertyName();
-        $objTemplate->id      = $this->getPropertyName();
-        $objTemplate->class   = 'tl_select' . (($this->getValue() !== null) ? ' active' : '');
-        $objTemplate->options = $arrOptions;
-        $objTemplate->active  = $this->getValue();
+        $objTemplate->set('name', $this->getPropertyName());
+        $objTemplate->set('id', $this->getPropertyName());
+        $objTemplate->set('class', 'tl_select' . (($this->getValue() !== null) ? ' active' : ''));
+        $objTemplate->set('options', $arrOptions);
+        $objTemplate->set('active', $this->getValue());
 
         return $this;
     }

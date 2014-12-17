@@ -156,7 +156,12 @@ class ViewHelpers
         PropertyInterface $property,
         ModelInterface $model
     ) {
-        $event = new RenderReadablePropertyValueEvent($environment, $model, $property, $model->getProperty($property));
+        $event = new RenderReadablePropertyValueEvent(
+            $environment,
+            $model,
+            $property,
+            $model->getProperty($property->getName())
+        );
 
         $dispatcher = $environment->getEventDispatcher();
         $dispatcher->dispatch(

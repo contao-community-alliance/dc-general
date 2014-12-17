@@ -27,7 +27,13 @@ use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
  */
 class FormatModelLabelSubscriber
 {
-
+    /**
+     * Default handler for formatting a model.
+     *
+     * @param FormatModelLabelEvent $event The event.
+     *
+     * @return void
+     */
     public function handleFormatModelLabel(FormatModelLabelEvent $event)
     {
         $environment = $event->getEnvironment();
@@ -121,6 +127,6 @@ class FormatModelLabelSubscriber
             );
         }
 
-        $event->setLabel($label);;
+        $event->setLabel($label);
     }
 }
