@@ -277,15 +277,17 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function formatCurrentValue($field, $model, $groupMode, $groupLength)
     {
-        $property   = $this->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
-        $value      = ViewHelpers::getReadableFieldValue($this->environment, $property, $model);
-        $dispatcher = $this->getEnvironment()->getEventDispatcher();
-        $propExtra  = $property->getExtra();
+        $property = $this->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
 
         // No property? Get out!
         if (!$property) {
             return '-';
         }
+
+        $value      = ViewHelpers::getReadableFieldValue($this->environment, $property, $model);
+        $dispatcher = $this->getEnvironment()->getEventDispatcher();
+        $propExtra  = $property->getExtra();
+
 
         $evaluation = $property->getExtra();
         $remoteNew  = '';
@@ -359,10 +361,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         $event = new GetGroupHeaderEvent($this->getEnvironment(), $model, $field, $remoteNew, $groupMode);
-        $dispatcher->dispatch(
-            sprintf('%s[%s]', $event::NAME, $this->getEnvironment()->getDataDefinition()->getName()),
-            $event
-        );
         $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
 
         $remoteNew = $event->getValue();
