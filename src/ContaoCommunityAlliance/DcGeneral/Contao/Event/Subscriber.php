@@ -288,6 +288,9 @@ class Subscriber implements EventSubscriberInterface
             $options = $property->getOptions();
             if (!$options) {
                 $options = $this->getOptions($event->getEnvironment(), $event->getModel(), $event->getProperty());
+                if ($options) {
+                    $property->setOptions($options);
+                }
             }
             if (array_is_assoc($options)) {
                 $event->setRendered($options[$value]);
