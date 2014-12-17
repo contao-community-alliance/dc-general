@@ -88,7 +88,7 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return void
      */
-    public function resolveWidgetErrorMessage(ResolveWidgetErrorMessageEvent $event)
+    public static function resolveWidgetErrorMessage(ResolveWidgetErrorMessageEvent $event)
     {
         $error = $event->getError();
 
@@ -116,7 +116,7 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return array
      */
-    protected function getOptions($environment, $model, $property)
+    protected static function getOptions($environment, $model, $property)
     {
         $options = $property->getOptions();
         $event   = new GetPropertyOptionsEvent($environment, $model);
@@ -145,7 +145,7 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return mixed
      */
-    public function decodeValue($environment, $model, $property, $value)
+    private static function decodeValue($environment, $model, $property, $value)
     {
         $event = new DecodePropertyValueForWidgetEvent($environment, $model);
         $event
@@ -167,14 +167,14 @@ class Subscriber implements EventSubscriberInterface
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    public function renderReadablePropertyValue(RenderReadablePropertyValueEvent $event)
+    public static function renderReadablePropertyValue(RenderReadablePropertyValueEvent $event)
     {
         if ($event->getRendered() !== null) {
             return;
         }
 
         $property = $event->getProperty();
-        $value    = $this->decodeValue(
+        $value    = self::decodeValue(
             $event->getEnvironment(),
             $event->getModel(),
             $event->getProperty()->getName(),
@@ -268,7 +268,7 @@ class Subscriber implements EventSubscriberInterface
         } else {
             $options = $property->getOptions();
             if (!$options) {
-                $options = $this->getOptions($event->getEnvironment(), $event->getModel(), $event->getProperty());
+                $options = self::getOptions($event->getEnvironment(), $event->getModel(), $event->getProperty());
                 if ($options) {
                     $property->setOptions($options);
                 }
