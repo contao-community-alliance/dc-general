@@ -175,9 +175,11 @@ interface ControllerInterface
      *
      * This will only return models, that are compatible with the current environment.
      *
-     * @return CollectionInterface|ModelInterface[]
+     * @param IdSerializer $parentModelId The optional parent id. If not given, the models must not have a parent.
+     *
+     * @return CollectionInterface|\ContaoCommunityAlliance\DcGeneral\Data\ModelInterface[]
      */
-    public function getModelsFromClipboard();
+    public function getModelsFromClipboard(IdSerializer $parentModelId = null);
 
     /**
      * Evaluate clipboard items, then return the corresponding models.

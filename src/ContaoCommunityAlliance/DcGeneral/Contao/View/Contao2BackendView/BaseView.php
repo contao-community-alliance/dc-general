@@ -1593,7 +1593,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                     new AddToUrlEvent($add2UrlInto)
                 );
 
-                $models = $this->environment->getController()->getModelsFromClipboard(/* FIXME parent is missing! */);
+                $models = $this
+                    ->environment
+                    ->getController()
+                    ->getModelsFromClipboard(IdSerializer::fromValues($parentDataProviderName, null));
 
                 $buttonEvent = new GetPasteButtonEvent($this->getEnvironment());
                 $buttonEvent
