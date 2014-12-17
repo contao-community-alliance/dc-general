@@ -23,7 +23,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPr
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\FilterElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\LimitElementInterface;
@@ -97,7 +96,7 @@ class Subscriber implements EventSubscriberInterface
             $event->setError($error->getMessage());
         } elseif (is_object($error)) {
             if (method_exists($error, '__toString')) {
-                $event->setError((string)$error);
+                $event->setError((string) $error);
             } else {
                 $event->setError(sprintf('[%s]', get_class($error)));
             }
@@ -252,7 +251,7 @@ class Subscriber implements EventSubscriberInterface
 
                 $event->setRendered($dateEvent->getResult());
             }
-        } elseif (isset($extra['rgxp']) && $extra['rgxp'] == 'datim' ||
+        } elseif (isset($extra['rgxp']) && $extra['rgxp'] == 'datim'/* ||
             in_array(
                 $property->getGroupingMode(),
                 array(
@@ -260,7 +259,7 @@ class Subscriber implements EventSubscriberInterface
                     ListingConfigInterface::GROUP_MONTH,
                     ListingConfigInterface::GROUP_YEAR
                 )
-            ) ||
+            )*/ ||
             $property->getName() == 'tstamp'
         ) {
             // Date and time format.
