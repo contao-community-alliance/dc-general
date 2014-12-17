@@ -163,13 +163,7 @@ class ViewHelpers
             $model->getProperty($property->getName())
         );
 
-        $dispatcher = $environment->getEventDispatcher();
-        $dispatcher->dispatch(
-            sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $property->getName()),
-            $event
-        );
-        $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()), $event);
-        $dispatcher->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
         if ($event->getRendered() !== null) {
             return $event->getRendered();
