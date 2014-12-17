@@ -101,6 +101,29 @@ class ClipboardController implements EventSubscriberInterface
     }
 
     /**
+     * Translate an action name to a clipboard action name.
+     *
+     * @param string $actionName The action name to translate.
+     *
+     * @return null|string
+     */
+    private function translateActionName($actionName)
+    {
+        switch ($actionName) {
+            case 'create':
+                return Item::CREATE;
+            case 'cut':
+                return Item::CUT;
+            case 'copy':
+                return Item::COPY;
+            case 'deepcopy':
+                return Item::DEEP_COPY;
+            default:
+        }
+        return null;
+    }
+
+    /**
      * Handle "old" add to clipboard actions.
      *
      * @param ActionEvent $event The action event.
@@ -133,22 +156,7 @@ class ClipboardController implements EventSubscriberInterface
 
         // Push some entry into clipboard.
         if ($modelId) {
-            switch ($actionName) {
-                case 'create':
-                    $clipboardActionName = Item::CREATE;
-                    break;
-                case 'cut':
-                    $clipboardActionName = Item::CUT;
-                    break;
-                case 'copy':
-                    $clipboardActionName = Item::COPY;
-                    break;
-                case 'deepcopy':
-                    $clipboardActionName = Item::DEEP_COPY;
-                    break;
-                default:
-                    return;
-            }
+            $clipboardActionName = $this->translateActionName($actionName);
 
             if ($clipboardActionName) {
                 // Remove other create items, there can only be one create item in the clipboard or many others
@@ -208,10 +216,10 @@ class ClipboardController implements EventSubscriberInterface
         foreach ($clipboard->fetch($filter) as $item) {
             $modelId           = $item->getModelId();
             $serializedModelId = $modelId->getSerialized();
-            $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
+            $dataProvider      = $environment->getDataProvider($modelId->getDataProviderName());
 
             if ($modelId->getId()) {
-                $config       = $dataProvider->getEmptyConfig();
+                $config = $dataProvider->getEmptyConfig();
                 $config->setId($modelId->getId());
                 $model = $dataProvider->fetch($config);
 
@@ -244,10 +252,14 @@ class ClipboardController implements EventSubscriberInterface
 
         $template = new \BackendTemplate('dcbe_general_clipboard');
 
-        $template->environment  = $environment;
-        $template->options      = $options;
-        $template->clearUrl     = $clearUrl;
-        $template->clearItemUrl = $clearItemUrl;
+        $template->setData(
+            array(
+                'environment'  => $environment,
+                'options'      => $options,
+                'clearUrl'     => $clearUrl,
+                'clearItemUrl' => $clearItemUrl
+            )
+        );
 
         $event->setResponse($template->parse());
     }
