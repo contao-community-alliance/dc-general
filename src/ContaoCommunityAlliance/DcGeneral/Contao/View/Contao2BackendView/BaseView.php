@@ -482,56 +482,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritDoc}
      *
-     * @see edit()
+     * @throws \RuntimeException This method os not in use anymore.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function create(Action $action)
     {
         throw new \RuntimeException('I should not be here! :-\\');
-
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit($action);
-        }
-
-        $model = $this->createEmptyModelWithDefaults();
-
-        $input = $this->environment->getInputProvider();
-        if ($input->hasParameter('after')) {
-            $after          = IdSerializer::fromSerialized($input->getParameter('after'));
-            $dataProvider   = $this->environment->getDataProvider($after->getDataProviderName());
-            $previous       = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($after->getId()));
-            $dataDefinition = $this->environment->getDataDefinition();
-
-            /** @var Contao2BackendViewDefinitionInterface $view */
-            $view = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-            foreach (array_keys($view->getListingConfig()->getDefaultSortingFields()) as $propertyName) {
-                if ($propertyName != 'sorting') {
-                    $propertyValue = $previous->getProperty($propertyName);
-                    $model->setProperty($propertyName, $propertyValue);
-                }
-            }
-        }
-
-        $preFunction = function ($environment, $model) {
-            /** @var EnvironmentInterface $environment */
-            $copyEvent = new PreCreateModelEvent($environment, $model);
-            $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $copyEvent::NAME, $environment->getDataDefinition()->getName()),
-                $copyEvent
-            );
-            $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
-        };
-
-        $postFunction = function ($environment, $model) {
-            /** @var EnvironmentInterface $environment */
-            $copyEvent = new PostCreateModelEvent($environment, $model);
-            $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $copyEvent::NAME, $environment->getDataDefinition()->getName()),
-                $copyEvent
-            );
-            $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
-        };
-
-        return $this->createEditMask($model, null, $preFunction, $postFunction);
     }
 
     /**
