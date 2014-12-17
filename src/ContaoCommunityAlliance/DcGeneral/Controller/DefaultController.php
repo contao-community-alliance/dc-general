@@ -269,7 +269,7 @@ class DefaultController implements ControllerInterface
         $environment   = $this->getEnvironment();
         $definition    = $environment->getDataDefinition();
         $provider      = $environment->getDataProvider($model->getProviderName());
-        $config        = $this->getBaseConfig($parentId);
+        $config        = $environment->getBaseConfigRegistry()->getBaseConfig($parentId);
         $relationships = $definition->getModelRelationshipDefinition();
 
         // Root model in hierarchical mode?
@@ -343,7 +343,7 @@ class DefaultController implements ControllerInterface
         $environment   = $this->getEnvironment();
         $definition    = $environment->getDataDefinition();
         $provider      = $environment->getDataProvider($model->getProviderName());
-        $config        = $this->getBaseConfig();
+        $config        = $environment->getBaseConfigRegistry()->getBaseConfig();
         $relationships = $definition->getModelRelationshipDefinition();
 
         if ($definition->getBasicDefinition()->getMode() !== BasicDefinitionInterface::MODE_HIERARCHICAL) {

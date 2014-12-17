@@ -379,7 +379,7 @@ class TreePicker extends \Widget
         if (is_array($value) && !empty($value)) {
             $environment = $this->getEnvironment();
             $dataDriver  = $environment->getDataProvider();
-            $config      = $environment->getController()->getBaseConfig();
+            $config      = $environment->getBaseConfigRegistry()->getBaseConfig();
             $filter      = FilterBuilder::fromArrayForRoot()
                 ->getFilter()
                 ->andPropertyValueIn($idProperty, $value)
@@ -766,7 +766,7 @@ class TreePicker extends \Widget
         $definition       = $environment->getDataDefinition();
         $dataDriver       = $environment->getDataProvider($providerName);
         $objTableTreeData = $dataDriver->getEmptyCollection();
-        $objRootConfig    = $environment->getController()->getBaseConfig();
+        $objRootConfig    = $environment->getBaseConfigRegistry()->getBaseConfig();
         $relationships    = $definition->getModelRelationshipDefinition();
 
         if (!$rootId) {

@@ -56,7 +56,7 @@ class ParentView extends BaseView
     {
         $environment   = $this->getEnvironment();
         $dataProvider  = $environment->getDataProvider();
-        $childConfig   = $environment->getController()->getBaseConfig();
+        $childConfig   = $environment->getBaseConfigRegistry()->getBaseConfig();
         $listingConfig = $this->getViewSection()->getListingConfig();
 
         $this->getPanel()->initialize($childConfig);
@@ -341,7 +341,7 @@ class ParentView extends BaseView
         } else {
             $dispatcher = $environment->getEventDispatcher();
 
-            $objConfig = $this->getEnvironment()->getController()->getBaseConfig();
+            $objConfig = $this->getEnvironment()->getBaseConfigRegistry()->getBaseConfig();
             $this->getPanel()->initialize($objConfig);
             $sorting = $objConfig->getSorting();
 

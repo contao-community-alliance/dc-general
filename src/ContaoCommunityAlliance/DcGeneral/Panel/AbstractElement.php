@@ -100,7 +100,7 @@ abstract class AbstractElement implements PanelElementInterface
         if (!isset($this->objOtherConfig)) {
             $this->objOtherConfig = $this
                 ->getEnvironment()
-                ->getController()
+                ->getBaseConfigRegistry()
                 ->getBaseConfig();
 
             $this

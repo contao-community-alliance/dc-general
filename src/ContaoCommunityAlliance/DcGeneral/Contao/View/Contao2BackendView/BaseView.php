@@ -275,7 +275,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    public function formatCurrentValue($field, $model, $groupMode, $groupLength)
+    public function formatCurrentValue($field, ModelInterface $model, $groupMode, $groupLength)
     {
         $property = $this->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
 
@@ -889,7 +889,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $basicDefinition = $definition->getBasicDefinition();
         $providerName    = $environment->getDataDefinition()->getName();
         $mode            = $basicDefinition->getMode();
-        $config          = $this->getEnvironment()->getController()->getBaseConfig();
+        $config          = $this->getEnvironment()->getBaseConfigRegistry()->getBaseConfig();
         $manualSorting   = ViewHelpers::getManualSortingProperty($this->environment);
 
         if ($serializedPid = $environment->getInputProvider()->getParameter('pid')) {

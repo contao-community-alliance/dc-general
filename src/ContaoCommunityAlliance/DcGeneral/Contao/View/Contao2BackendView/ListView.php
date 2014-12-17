@@ -49,7 +49,7 @@ class ListView extends BaseView
         /** @var Contao2BackendViewDefinitionInterface $backendView */
         $listingConfig = $backendView->getListingConfig();
         $dataProvider  = $environment->getDataProvider();
-        $dataConfig    = $environment->getController()->getBaseConfig();
+        $dataConfig    = $environment->getBaseConfigRegistry()->getBaseConfig();
 
         $this->getPanel()->initialize($dataConfig);
 

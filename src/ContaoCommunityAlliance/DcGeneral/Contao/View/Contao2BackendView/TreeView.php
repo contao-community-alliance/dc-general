@@ -364,7 +364,7 @@ class TreeView extends BaseView
         $definition       = $environment->getDataDefinition();
         $dataProvider     = $environment->getDataProvider($providerName);
         $objTableTreeData = $dataProvider->getEmptyCollection();
-        $objRootConfig    = $environment->getController()->getBaseConfig();
+        $objRootConfig    = $environment->getBaseConfigRegistry()->getBaseConfig();
         $relationships    = $definition->getModelRelationshipDefinition();
         $backendView      = $this->getViewSection();
 
