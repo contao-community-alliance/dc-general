@@ -34,9 +34,14 @@ class SessionStorage implements SessionStorageInterface
      */
     private $attributes = null;
 
+    /**
+     * Create a new instance.
+     *
+     * @param string $key The key to use for storage.
+     */
     public function __construct($key)
     {
-        $this->key = $key;
+        $this->key = (string) $key;
     }
 
     /**
@@ -109,6 +114,11 @@ class SessionStorage implements SessionStorageInterface
         $this->persist();
     }
 
+    /**
+     * Load the data from the session if it has not been loaded yet.
+     *
+     * @return void
+     */
     private function load()
     {
         if (null === $this->attributes) {
@@ -116,6 +126,11 @@ class SessionStorage implements SessionStorageInterface
         }
     }
 
+    /**
+     * Save the data to the session.
+     *
+     * @return void
+     */
     private function persist()
     {
         \Session::getInstance()->set($this->key, $this->attributes);
