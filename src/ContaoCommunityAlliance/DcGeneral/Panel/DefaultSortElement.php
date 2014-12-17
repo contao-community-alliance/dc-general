@@ -17,7 +17,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2Ba
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionCollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
 
 /**
@@ -32,28 +31,12 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
      *
      * @var GroupAndSortingDefinitionInterface
      */
-    protected $selected;
-
-    /**
-     * The default flag to use.
-     *
-     * @var int
-     *
-     * @deprecated Not in use anymore.
-     */
-    public $intDefaultFlag;
-
-    /**
-     * The sorting properties including the direction.
-     *
-     * @var array
-     */
-    protected $arrSorting = array();
+    private $selected;
 
     /**
      * Retrieve the group and sorting definition.
      *
-     * @return GroupAndSortingDefinitionCollectionInterface
+     * @return GroupAndSortingDefinitionCollectionInterface|GroupAndSortingDefinitionInterface[]
      */
     protected function getGroupAndSortingDefinition()
     {
@@ -77,7 +60,6 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
     protected function searchDefinitionByName($name)
     {
         foreach ($this->getGroupAndSortingDefinition() as $definition) {
-            /** @var GroupAndSortingDefinitionInterface $definition */
             if ($definition->getName() == $name) {
                 return $definition;
             }
@@ -167,12 +149,10 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 
         if ($this->getSelectedDefinition()) {
             foreach ($this->getSelectedDefinition() as $information) {
-                /** @var GroupAndSortingInformationInterface $information */
                 $current[$information->getProperty()] = $information->getSortingMode();
             }
         }
-
-        $objConfig->setSorting(array_reverse($current, true));
+        $objConfig->setSorting($current);
     }
 
     /**
@@ -203,57 +183,10 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
         // Sort by option values.
         uksort($arrOptions, 'strcasecmp');
 
+        /** @noinspection PhpUndefinedFieldInspection */
         $objTemplate->options = $arrOptions;
 
         return $this;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated not in use anymore.
-     */
-    public function setDefaultFlag($intFlag)
-    {
-        $this->intDefaultFlag = $intFlag;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated not in use anymore.
-     */
-    public function getDefaultFlag()
-    {
-        return $this->intDefaultFlag;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated not in use anymore.
-     */
-    public function addProperty($strPropertyName, $intFlag)
-    {
-        // NO OP as of now.
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated not in use anymore.
-     */
-    public function getPropertyNames()
-    {
-        $names = array();
-        foreach ($this->getGroupAndSortingDefinition() as $definition) {
-            /** @var GroupAndSortingDefinitionInterface $definition */
-            $names[] = $definition->getName();
-        }
-
-        return $names;
     }
 
     /**
@@ -280,15 +213,5 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
     public function getSelectedDefinition()
     {
         return $this->selected;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated not in use anymore.
-     */
-    public function getFlag()
-    {
-        return 0;
     }
 }

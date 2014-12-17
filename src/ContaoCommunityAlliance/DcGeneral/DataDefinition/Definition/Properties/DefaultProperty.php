@@ -279,60 +279,6 @@ class DefaultProperty implements PropertyInterface
     /**
      * {@inheritdoc}
      */
-    public function setGroupingMode($value)
-    {
-        $this->groupingMode = $value;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getGroupingMode()
-    {
-        return $this->groupingMode;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setGroupingLength($value)
-    {
-        $this->groupingLength = $value;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getGroupingLength()
-    {
-        return $this->groupingLength;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setSortingMode($value)
-    {
-        $this->sortingMode = $value;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSortingMode()
-    {
-        return $this->sortingMode;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function setWidgetType($value)
     {
         $this->widgetType = $value;
