@@ -1319,14 +1319,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                     $property->setFilterable((bool) $value);
                     break;
 
-                case 'flag':
-                    $this->evalFlag($property, $value);
-                    break;
-
-                case 'length':
-                    $property->setGroupingLength($value);
-                    break;
-
                 case 'inputType':
                     $property->setWidgetType($value);
                     break;
