@@ -28,7 +28,6 @@ use ContaoCommunityAlliance\DcGeneral\Data\LanguageInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -54,14 +53,7 @@ class DefaultController implements ControllerInterface
      *
      * @var EnvironmentInterface
      */
-    protected $environment;
-
-    /**
-     * A list with all current IDs.
-     *
-     * @var array
-     */
-    protected $arrInsertIDs = array();
+    private $environment;
 
     /**
      * Error message.
@@ -76,13 +68,6 @@ class DefaultController implements ControllerInterface
             style="text-decoration:underline"
             href="https://github.com/contao-community-alliance/dc-general/issues">support us</a>
         to add this important feature!</div>';
-
-    /**
-     * Field for the function sortCollection.
-     *
-     * @var string $arrColSort
-     */
-    protected $arrColSort;
 
     /**
      * Throw an exception that an unknown method has been called.
@@ -1055,8 +1040,8 @@ class DefaultController implements ControllerInterface
             return;
         }
 
-        $factory                     = DcGeneralFactory::deriveFromEnvironment($this->environment);
-        $dataDefinition              = $this->environment->getDataDefinition();
+        $factory                     = DcGeneralFactory::deriveFromEnvironment($this->getEnvironment());
+        $dataDefinition              = $this->getEnvironment()->getDataDefinition();
         $modelRelationshipDefinition = $dataDefinition->getModelRelationshipDefinition();
         $childConditions             = $modelRelationshipDefinition->getChildConditions($dataDefinition->getName());
 
