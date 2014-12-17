@@ -30,6 +30,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSor
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
@@ -219,7 +220,13 @@ class ParentView extends BaseView
                 );
                 $model->setMeta($model::LABEL_VALUE, $information);
             } else {
-                $model->setMeta($model::LABEL_VALUE, $this->formatModel($model));
+                $event = new FormatModelLabelEvent($this->environment, $model);
+                $this->environment->getEventDispatcher()->dispatch(
+                    DcGeneralEvents::FORMAT_MODEL_LABEL,
+                    $event
+                );
+
+                $model->setMeta($model::LABEL_VALUE, $event->getLabel());
             }
         }
     }

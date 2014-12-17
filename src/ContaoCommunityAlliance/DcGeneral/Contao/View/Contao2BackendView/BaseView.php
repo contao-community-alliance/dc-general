@@ -1681,25 +1681,4 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         return $this->environment->getController()->createEmptyModelWithDefaults();
     }
-
-    /**
-     * Format a model accordingly to the current configuration.
-     *
-     * Returns either an array when in tree mode or a string in (parented) list mode.
-     *
-     * @param ModelInterface $model The model that shall be formatted.
-     *
-     * @return array
-     *
-     * @deprecated Dispatch a FormatModelLabelEvent instead!
-     */
-    public function formatModel(ModelInterface $model)
-    {
-        $event = new FormatModelLabelEvent($this->environment, $model);
-        $this->environment->getEventDispatcher()->dispatch(
-            DcGeneralEvents::FORMAT_MODEL_LABEL,
-            $event
-        );
-        return $event->getLabel();
-    }
 }

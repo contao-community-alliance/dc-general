@@ -22,6 +22,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSor
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
@@ -178,7 +179,13 @@ class ListView extends BaseView
 
             $objModelRow->setMeta($objModelRow::CSS_ROW_CLASS, implode(' ', $cssClasses));
 
-            $objModelRow->setMeta($objModelRow::LABEL_VALUE, $this->formatModel($objModelRow));
+            $event = new FormatModelLabelEvent($this->environment, $objModelRow);
+            $this->environment->getEventDispatcher()->dispatch(
+                DcGeneralEvents::FORMAT_MODEL_LABEL,
+                $event
+            );
+
+            $objModelRow->setMeta($objModelRow::LABEL_VALUE, $event->getLabel());
         }
     }
 
