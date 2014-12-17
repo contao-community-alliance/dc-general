@@ -24,8 +24,10 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
 use ContaoCommunityAlliance\DcGeneral\View\Event\RenderReadablePropertyValueEvent;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * Helper class that provides static methods used in views.
+ */
 class ViewHelpers
 {
     /**
@@ -141,11 +143,13 @@ class ViewHelpers
     /**
      * Get for a field the readable value.
      *
-     * @param PropertyInterface $property The property to be rendered.
+     * @param EnvironmentInterface $environment The environment.
      *
-     * @param ModelInterface    $model    The model from which the property value shall be retrieved from.
+     * @param PropertyInterface    $property    The property to be rendered.
      *
-     * @param mixed             $value    The value for the property.
+     * @param ModelInterface       $model       The model from which the property value shall be retrieved from.
+     *
+     * @param mixed                $value       The value for the property.
      *
      * @return mixed
      */
@@ -171,7 +175,6 @@ class ViewHelpers
 
         return $value;
     }
-
 
     /**
      * Redirects to the real back end module.
