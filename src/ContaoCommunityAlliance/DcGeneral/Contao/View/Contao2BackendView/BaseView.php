@@ -44,17 +44,13 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CopyCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CutCommandInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PostCreateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PreCreateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -1190,17 +1186,22 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         if ($objCommand instanceof ToggleCommandInterface) {
             $parameters['act'] = $commandName;
 
+            $icon         = $extra['icon'];
+            $iconDisabled = isset($extra['icon_disabled'])
+                ? $extra['icon_disabled']
+                : 'invisible.gif';
+
             $attributes = sprintf(
                 'onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this, \'%s\', \'%s\');"',
-                $extra['icon'],
-                $extra['icon_disabled']
+                $icon,
+                $iconDisabled
             );
 
             if ($objCommand->isInverse()
                 ? $objModel->getProperty($objCommand->getToggleProperty())
                 : !$objModel->getProperty($objCommand->getToggleProperty())
             ) {
-                $extra['icon'] = $extra['icon_disabled'] ?: 'invisible.gif';
+                $extra['icon'] = $iconDisabled ?: 'invisible.gif';
             }
         }
 
