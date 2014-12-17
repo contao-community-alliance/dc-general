@@ -54,6 +54,10 @@ interface ControllerInterface
      * @param IdSerializer $parentId The parent ID.
      *
      * @return ConfigInterface
+     *
+     * @see    BaseConfigRegistryInterface::getBaseConfig()
+     *
+     * @deprecated Use EnvironmentInterface::getBaseConfigRegistry->getBaseConfig()
      */
     public function getBaseConfig(IdSerializer $parentId = null);
 

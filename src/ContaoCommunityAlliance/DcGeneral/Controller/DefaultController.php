@@ -253,6 +253,8 @@ class DefaultController implements ControllerInterface
      *
      * @param string|null    $sortingProperty The property name to use for sorting.
      *
+     * @param IdSerializer   $parentId        The (optional) parent id to use.
+     *
      * @return CollectionInterface
      *
      * @throws DcGeneralRuntimeException When no parent model can be located.
@@ -412,60 +414,6 @@ class DefaultController implements ControllerInterface
     }
 
     /**
-     * Add the filter for the item with the given id from the parent data provider to the given config.
-     *
-     * @param mixed           $idParent The id of the parent item.
-     *
-     * @param ConfigInterface $config   The config to add the filter to.
-     *
-     * @return ConfigInterface
-     *
-     * @throws DcGeneralRuntimeException When the parent item is not found.
-     */
-    protected function addParentFilter($idParent, $config)
-    {
-        $environment        = $this->getEnvironment();
-        $definition         = $environment->getDataDefinition();
-        $providerName       = $definition->getBasicDefinition()->getDataProvider();
-        $parentProviderName = $definition->getBasicDefinition()->getParentDataProvider();
-        $parentProvider     = $environment->getDataProvider($parentProviderName);
-
-        if ($parentProvider) {
-            $objParent = $parentProvider->fetch($parentProvider->getEmptyConfig()->setId($idParent));
-            if (!$objParent) {
-                throw new DcGeneralRuntimeException(
-                    'Parent item ' . $idParent . ' not found in ' . $parentProviderName
-                );
-            }
-
-            $condition = $definition->getModelRelationshipDefinition()->getChildCondition(
-                $parentProviderName,
-                $providerName
-            );
-
-            if ($condition) {
-                $arrBaseFilter = $config->getFilter();
-                $arrFilter     = $condition->getFilter($objParent);
-
-                if ($arrBaseFilter) {
-                    $arrFilter = array_merge($arrBaseFilter, $arrFilter);
-                }
-
-                $config->setFilter(
-                    array(
-                        array(
-                            'operation' => 'AND',
-                            'children'  => $arrFilter,
-                        )
-                    )
-                );
-            }
-        }
-
-        return $config;
-    }
-
-    /**
      * Return all supported languages from the default data data provider.
      *
      * @param mixed $mixID The id of the item for which to retrieve the valid languages.
@@ -510,39 +458,17 @@ class DefaultController implements ControllerInterface
      *
      * This includes parent filter when in parented list mode and the additional filters from the data definition.
      *
-     * @param IdSerializer $parentId
+     * @param IdSerializer $parentId The optional parent to use.
      *
      * @return ConfigInterface
+     *
+     * @see    BaseConfigRegistryInterface::getBaseConfig()
+     *
+     * @deprecated Use EnvironmentInterface::getBaseConfigRegistry->getBaseConfig()
      */
     public function getBaseConfig(IdSerializer $parentId = null)
     {
-        $environment   = $this->getEnvironment();
-        $objConfig     = $environment->getDataProvider()->getEmptyConfig();
-        $objDefinition = $environment->getDataDefinition();
-        $arrAdditional = $objDefinition->getBasicDefinition()->getAdditionalFilter();
-
-        // Custom filter common for all modes.
-        if ($arrAdditional) {
-            $objConfig->setFilter($arrAdditional);
-        }
-
-        if (!$objConfig->getSorting()) {
-            /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
-            $viewDefinition = $objDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-            $objConfig->setSorting($viewDefinition->getListingConfig()->getDefaultSortingFields());
-        }
-
-        // Special filter for certain modes.
-        if ($parentId) {
-            $this->addParentFilter($parentId->getId(), $objConfig);
-        } elseif ($objDefinition->getBasicDefinition()->getMode() == BasicDefinitionInterface::MODE_PARENTEDLIST) {
-            $pid        = $environment->getInputProvider()->getParameter('pid');
-            $pidDetails = IdSerializer::fromSerialized($pid);
-
-            $this->addParentFilter($pidDetails->getId(), $objConfig);
-        }
-
-        return $objConfig;
+        return $this->getEnvironment()->getBaseConfigRegistry()->getBaseConfig($parentId);
     }
 
     /**

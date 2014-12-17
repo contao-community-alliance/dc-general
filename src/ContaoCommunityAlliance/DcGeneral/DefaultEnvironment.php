@@ -86,6 +86,13 @@ class DefaultEnvironment implements EnvironmentInterface
     protected $objInputProvider;
 
     /**
+     * The attached base config registry.
+     *
+     * @var BaseConfigRegistryInterface
+     */
+    protected $baseConfigRegistry;
+
+    /**
      * The registered data providers.
      *
      * @var DataProviderInterface[]
@@ -244,6 +251,24 @@ class DefaultEnvironment implements EnvironmentInterface
     public function getInputProvider()
     {
         return $this->objInputProvider;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setBaseConfigRegistry($baseConfigRegistry)
+    {
+        $this->baseConfigRegistry = $baseConfigRegistry;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBaseConfigRegistry()
+    {
+        return $this->baseConfigRegistry;
     }
 
     /**

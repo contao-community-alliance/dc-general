@@ -146,6 +146,22 @@ interface EnvironmentInterface
     public function getInputProvider();
 
     /**
+     * Set the base config registry to use.
+     *
+     * @param BaseConfigRegistryInterface $baseConfigRegistry The input provider to use.
+     *
+     * @return EnvironmentInterface
+     */
+    public function setBaseConfigRegistry($baseConfigRegistry);
+
+    /**
+     * Retrieve the base config registry.
+     *
+     * @return BaseConfigRegistryInterface
+     */
+    public function getBaseConfigRegistry();
+
+    /**
      * Determine if the data provider with the given name exists.
      *
      * @param string|null $strSource The source name to check the providers for.
