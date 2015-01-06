@@ -169,7 +169,7 @@ class ViewHelpers
             return $event->getRendered();
         }
 
-        return $model->getProperty($property);
+        return $event->getValue();
     }
 
     /**
