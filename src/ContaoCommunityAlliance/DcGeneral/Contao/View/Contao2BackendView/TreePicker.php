@@ -372,8 +372,8 @@ class TreePicker extends \Widget
      */
     public function renderItemsPlain()
     {
-        $values = array();
-        $value  = $this->varValue;
+        $values     = array();
+        $value      = $this->varValue;
         $idProperty = $this->idProperty ?: 'id';
 
         if (is_array($value) && !empty($value)) {

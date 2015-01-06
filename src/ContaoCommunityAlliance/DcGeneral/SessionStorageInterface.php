@@ -42,7 +42,8 @@ interface SessionStorageInterface
     /**
      * Sets an attribute.
      *
-     * @param string $name The attribute name.
+     * @param string $name  The attribute name.
+     *
      * @param mixed  $value The attribute value.
      *
      * @return static
