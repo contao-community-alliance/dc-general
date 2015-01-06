@@ -30,6 +30,7 @@ use ContaoCommunityAlliance\DcGeneral\Panel\SearchElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SubmitElementInterface;
 use ContaoCommunityAlliance\DcGeneral\View\Event\RenderReadablePropertyValueEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -158,6 +159,25 @@ class Subscriber implements EventSubscriberInterface
     }
 
     /**
+     * Render a timestamp using the given format.
+     *
+     * @param EventDispatcherInterface $dispatcher The Event dispatcher.
+     *
+     * @param string                   $dateFormat The date format to use.
+     *
+     * @param int                      $timeStamp  The timestamp.
+     *
+     * @return string
+     */
+    private static function parseDateTime(EventDispatcherInterface $dispatcher, $dateFormat, $timeStamp)
+    {
+        $dateEvent = new ParseDateEvent($timeStamp, $dateFormat);
+        $dispatcher->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
+
+        return $dateEvent->getResult();
+    }
+
+    /**
      * Render a property value to readable text.
      *
      * @param RenderReadablePropertyValueEvent $event The event being processed.
@@ -173,8 +193,9 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
-        $property = $event->getProperty();
-        $value    = self::decodeValue(
+        $dispatcher = $event->getEnvironment()->getEventDispatcher();
+        $property   = $event->getProperty();
+        $value      = self::decodeValue(
             $event->getEnvironment(),
             $event->getModel(),
             $event->getProperty()->getName(),
@@ -219,19 +240,12 @@ class Subscriber implements EventSubscriberInterface
             $event->setRendered(implode(', ', $value));
         } elseif (isset($extra['rgxp'])) {
             // Date format.
-            if ($extra['rgxp'] == 'date') {
-                $dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['dateFormat']);
-                $event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
-
-                $event->setRendered($dateEvent->getResult());
-            } elseif ($extra['rgxp'] == 'time') {
-                // Time format.
-                $dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['timeFormat']);
-                $event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
-
-                $event->setRendered($dateEvent->getResult());
+            if ($extra['rgxp'] == 'date' || $extra['rgxp'] == 'time' || $extra['rgxp'] == 'datim') {
+                $event->setRendered(
+                    self::parseDateTime($dispatcher, $GLOBALS['TL_CONFIG'][$extra['rgxp'] . 'Format'], $value)
+                );
             }
-        } elseif (isset($extra['rgxp']) && $extra['rgxp'] == 'datim'/* ||
+        } elseif (/*
             in_array(
                 $property->getGroupingMode(),
                 array(
@@ -239,7 +253,7 @@ class Subscriber implements EventSubscriberInterface
                     ListingConfigInterface::GROUP_MONTH,
                     ListingConfigInterface::GROUP_YEAR
                 )
-            )*/ ||
+                ) ||*/
             $property->getName() == 'tstamp'
         ) {
             // Date and time format.
