@@ -258,7 +258,7 @@ class Subscriber implements EventSubscriberInterface
         ) {
             // Date and time format.
             $dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['timeFormat']);
-            $event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
+            $dispatcher->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
 
             $event->setRendered($dateEvent->getResult());
         } elseif ($property->getWidgetType() == 'checkbox' && !$extra['multiple']) {
@@ -276,7 +276,7 @@ class Subscriber implements EventSubscriberInterface
             }
         } elseif ($value instanceof \DateTime) {
             $dateEvent = new ParseDateEvent($value->getTimestamp(), $GLOBALS['TL_CONFIG']['datimFormat']);
-            $event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
+            $dispatcher->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
 
             $event->setRendered($dateEvent->getResult());
         } else {
