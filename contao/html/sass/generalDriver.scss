@@ -16,6 +16,11 @@
     border-top: 0;
   }
 
+  .treepicker_popup a.folding {
+    float: left;
+    margin-right: 20px;
+  }
+
   .tl_listing tr.tl_folder_clipped > td {
     background-color: #fff9e6;
   }
