@@ -163,12 +163,13 @@ class TreeCollector implements EnvironmentAwareInterface
      */
     private function getChildrenOfModel($dataProvider, $model, $childCondition)
     {
-        $childConfig = $dataProvider->getEmptyConfig();
-        $childConfig
-            ->setFilter($childCondition->getFilter($model))
-            ->setIdOnly(true);
-
-        $childIds = $dataProvider->fetchAll($childConfig);
+        $childIds = $dataProvider
+            ->fetchAll(
+                $dataProvider
+                    ->getEmptyConfig()
+                    ->setFilter($childCondition->getFilter($model))
+                    ->setIdOnly(true)
+            );
 
         if (!$childIds) {
             return null;
