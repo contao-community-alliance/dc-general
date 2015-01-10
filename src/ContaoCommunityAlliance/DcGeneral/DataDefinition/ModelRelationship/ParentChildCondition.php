@@ -60,11 +60,19 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     protected $destinationProvider;
 
     /**
+     * Local cache property for the needed properties for filtering.
+     *
+     * @var array
+     */
+    private $neededProperties;
+
+    /**
      * {@inheritdoc}
      */
     public function setFilterArray($value)
     {
         $this->filter = $value;
+        unset($this->neededProperties);
 
         return $this;
     }
@@ -381,5 +389,54 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
             $objChild
         );
         return $this->checkCondition($objParent, $filter);
+    }
+
+    /**
+     * Return the names of the needed properties for filtering.
+     *
+     * @param array $rule The filter rule from which the properties shall be extracted from.
+     *
+     * @return array
+     *
+     * @throws \RuntimeException When an unexpected filter rule is encountered.
+     */
+    private function extractNeededProperties($rule)
+    {
+        if (in_array($rule['operation'], array('AND', 'OR'))) {
+            $properties = array();
+            foreach ($rule['children'] as $childRule) {
+                $properties[] = $this->extractNeededProperties($childRule);
+            }
+            return $properties;
+        }
+
+        // Local is child property name.
+        if (isset($rule['local'])) {
+            return $rule['local'];
+        }
+
+        // Remote is parent property name.
+        if (isset($rule['property'])) {
+            return $rule['property'];
+        }
+
+        throw new \RuntimeException('Unexpected filter rule ' . var_export($rule, true));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function neededProperties()
+    {
+        if (!isset($this->neededProperties)) {
+            $this->neededProperties = $this->extractNeededProperties(
+                array(
+                    'operation' => 'AND',
+                    'children'  => $this->getFilterArray()
+                )
+            );
+        }
+
+        return $this->neededProperties;
     }
 }

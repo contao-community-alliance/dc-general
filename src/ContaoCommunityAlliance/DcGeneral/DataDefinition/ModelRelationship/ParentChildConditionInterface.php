@@ -155,4 +155,11 @@ interface ParentChildConditionInterface
      * @return bool
      */
     public function matches($objParent, $objChild);
+
+    /**
+     * Return the names of the needed properties for filtering.
+     *
+     * @return array
+     */
+    public function neededProperties();
 }
