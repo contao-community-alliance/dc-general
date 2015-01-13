@@ -553,6 +553,8 @@ class TreeView extends BaseView
     /**
      * Show all entries from one table.
      *
+     * @param Action $action The action being performed.
+     *
      * @return string
      */
     public function showAll(Action $action)
