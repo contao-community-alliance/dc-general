@@ -911,6 +911,12 @@ class DefaultController implements ControllerInterface
             $parent       = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($into->getId()));
             $this->pasteInto($parent, $models, $manualSorting);
         } elseif (($after && $after->getId() == '0') || ($into && $into->getId() == '0')) {
+            if ($dataDefinition->getBasicDefinition()->getMode() === BasicDefinitionInterface::MODE_HIERARCHICAL) {
+                foreach ($models as $model) {
+                    // Paste top means root in hierarchical mode!
+                    $this->setRootModel($model);
+                }
+            }
             $this->pasteTop($models, $manualSorting, $parentModelId);
         } elseif ($parentModelId) {
             if ($manualSorting) {
