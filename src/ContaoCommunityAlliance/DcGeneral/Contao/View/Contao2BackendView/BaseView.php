@@ -151,7 +151,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $command = $this->getViewSection()->getModelCommands()->getCommandNamed($name);
 
             if ($command instanceof ToggleCommandInterface) {
-                $this->toggle($name);
+                $this->toggle($action, $name);
             }
         }
     }
