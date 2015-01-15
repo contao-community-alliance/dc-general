@@ -468,12 +468,12 @@ class DefaultController implements ControllerInterface
         $properties  = $environment->getDataDefinition()->getPropertiesDefinition();
 
         foreach (array_keys($clone->getPropertiesAsArray()) as $propName) {
-            $property = $properties->getProperty($propName);
-
             // If the property is not known, remove it.
-            if (!$property) {
+            if (!$properties->hasProperty($propName)) {
                 continue;
             }
+
+            $property = $properties->getProperty($propName);
 
             $extra = $property->getExtra();
 
