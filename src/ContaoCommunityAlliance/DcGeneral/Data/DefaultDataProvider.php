@@ -533,7 +533,7 @@ class DefaultDataProvider implements DataProviderInterface
             $dbResult = $this->objDatabase
                 ->prepare($query)
                 ->limit(1, 0)
-                ->executeUncached($arrParams);
+                ->execute($arrParams);
         }
 
         if ($dbResult->numRows == 0) {
@@ -565,7 +565,7 @@ class DefaultDataProvider implements DataProviderInterface
             $objDatabaseQuery->limit($objConfig->getAmount(), $objConfig->getStart());
         }
 
-        $dbResult = $objDatabaseQuery->executeUncached($arrParams);
+        $dbResult = $objDatabaseQuery->execute($arrParams);
 
         if ($objConfig->getIdOnly()) {
             return $dbResult->fetchEach('id');
@@ -609,7 +609,7 @@ class DefaultDataProvider implements DataProviderInterface
                     $this->buildWhereQuery($objConfig, $arrParams)
                 )
             )
-            ->executeUncached($arrParams);
+            ->execute($arrParams);
 
         $objCollection = $this->getEmptyFilterOptionCollection();
         while ($objValues->next()) {
@@ -634,7 +634,7 @@ class DefaultDataProvider implements DataProviderInterface
 
         $objCount = $this->objDatabase
             ->prepare($query)
-            ->executeUncached($arrParams);
+            ->execute($arrParams);
 
         return $objCount->count;
     }
@@ -646,7 +646,7 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $objUnique = $this->objDatabase
             ->prepare('SELECT * FROM ' . $this->strSource . ' WHERE ' . $strField . ' = ? ')
-            ->executeUncached($varNew);
+            ->execute($varNew);
 
         if ($objUnique->numRows == 0) {
             return true;
@@ -976,7 +976,7 @@ class DefaultDataProvider implements DataProviderInterface
         // Load row.
         $arrResult = $this->objDatabase
             ->prepare($strSaveSQL)
-            ->executeUncached()
+            ->execute()
             ->fetchAllAssoc();
 
         // Check if we have a result.

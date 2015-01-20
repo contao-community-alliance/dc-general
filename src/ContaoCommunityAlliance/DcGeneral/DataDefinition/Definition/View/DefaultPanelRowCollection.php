@@ -22,7 +22,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DefaultPanelRowCollection implements PanelRowCollectionInterface
 {
-
     /**
      * The panel rows.
      *

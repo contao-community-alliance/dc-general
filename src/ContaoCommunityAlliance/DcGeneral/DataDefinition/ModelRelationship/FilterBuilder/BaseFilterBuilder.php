@@ -24,7 +24,6 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBui
  */
 abstract class BaseFilterBuilder
 {
-
     /**
      * The filter builder holding the scope.
      *

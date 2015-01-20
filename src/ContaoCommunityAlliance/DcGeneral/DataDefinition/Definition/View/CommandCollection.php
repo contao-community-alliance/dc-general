@@ -24,7 +24,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class CommandCollection implements CommandCollectionInterface
 {
-
     /**
      * The commands contained within the collection.
      *

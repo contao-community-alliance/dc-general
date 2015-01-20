@@ -20,7 +20,6 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition;
  */
 class DefaultBasicDefinition implements BasicDefinitionInterface
 {
-
     /**
      * The mode.
      *

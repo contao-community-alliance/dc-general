@@ -23,7 +23,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DefaultPanelRow implements PanelRowInterface
 {
-
     /**
      * The contained elements.
      *

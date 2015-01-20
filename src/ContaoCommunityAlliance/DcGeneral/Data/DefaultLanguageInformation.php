@@ -20,7 +20,6 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
  */
 class DefaultLanguageInformation implements LanguageInformationInterface
 {
-
     /**
      * The ISO 639 language code.
      *

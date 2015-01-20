@@ -53,7 +53,9 @@ abstract class AbstractReturningPropertyCallbackListener extends AbstractReturni
     /**
      * Check the restrictions against the information within the event and determine if the callback shall be executed.
      *
+     * @codingStandardsIgnoreStart
      * @param BuildWidgetEvent|DecodePropertyValueForWidgetEvent|EncodePropertyValueFromWidgetEvent|GetPropertyOptionsEvent $event The Event for which the callback shall be invoked.
+     * @codingStandardsIgnoreEnd
      *
      * @return bool
      */

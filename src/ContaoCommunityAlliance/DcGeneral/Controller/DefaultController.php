@@ -47,7 +47,6 @@ use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
  */
 class DefaultController implements ControllerInterface
 {
-
     /**
      * The attached environment.
      *
@@ -685,7 +684,7 @@ class DefaultController implements ControllerInterface
         $items       = $clipboard->fetch($filter);
         $actions     = array();
 
-        foreach ($items as $index => $item) {
+        foreach ($items as $item) {
             if ($item->isCreate()) {
                 $model = null;
             } else {
@@ -873,6 +872,8 @@ class DefaultController implements ControllerInterface
      * @param array        $items         Write-back clipboard items.
      *
      * @return DefaultCollection|ModelInterface[]
+     *
+     * @throws DcGeneralRuntimeException When the parameters for the pasting destination are invalid.
      */
     private function sortAndPersistModels(
         array $actions,
@@ -902,8 +903,6 @@ class DefaultController implements ControllerInterface
             );
             $environment->getEventDispatcher()->dispatch($event::NAME, $event);
         }
-
-        // FIXME too many parameters, this is just crazy! :-(
 
         if ($after && $after->getId()) {
             $dataProvider = $environment->getDataProvider($after->getDataProviderName());

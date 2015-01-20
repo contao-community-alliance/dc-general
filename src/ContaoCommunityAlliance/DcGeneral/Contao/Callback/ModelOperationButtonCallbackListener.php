@@ -117,7 +117,7 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
      */
     protected function buildHref(CommandInterface $command)
     {
-        $arrParameters = (array)$command->getParameters();
+        $arrParameters = (array) $command->getParameters();
         $strHref       = '';
 
         foreach ($arrParameters as $key => $value) {

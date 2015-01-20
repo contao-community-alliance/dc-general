@@ -23,7 +23,6 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
  */
 class SortingManager
 {
-
     /**
      * The collection containing the models to be inserted.
      *

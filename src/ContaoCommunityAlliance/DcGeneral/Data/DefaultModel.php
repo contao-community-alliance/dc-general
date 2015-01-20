@@ -24,7 +24,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DefaultModel extends AbstractModel
 {
-
     /**
      * A list with all properties.
      *

@@ -22,7 +22,6 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
  */
 abstract class AbstractModel implements ModelInterface
 {
-
     /**
      * A list with all meta information.
      *

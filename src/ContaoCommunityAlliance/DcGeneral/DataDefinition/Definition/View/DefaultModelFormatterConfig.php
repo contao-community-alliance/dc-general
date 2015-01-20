@@ -20,7 +20,6 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
  */
 class DefaultModelFormatterConfig implements ModelFormatterConfigInterface
 {
-
     /**
      * The used property names.
      *

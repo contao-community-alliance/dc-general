@@ -22,7 +22,6 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties
  */
 class DefaultProperty implements PropertyInterface
 {
-
     /**
      * The property name.
      *

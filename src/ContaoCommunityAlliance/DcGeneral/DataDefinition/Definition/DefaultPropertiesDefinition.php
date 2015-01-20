@@ -23,7 +23,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
 {
-
     /**
      * The property definitions contained.
      *

@@ -24,7 +24,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DefaultListingConfig implements ListingConfigInterface
 {
-
     /**
      * The grouping and sorting definitions.
      *

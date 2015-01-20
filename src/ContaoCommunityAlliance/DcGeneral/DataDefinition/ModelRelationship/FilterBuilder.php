@@ -30,7 +30,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class FilterBuilder
 {
-
     /**
      * The current filter root (always an AND builder).
      *

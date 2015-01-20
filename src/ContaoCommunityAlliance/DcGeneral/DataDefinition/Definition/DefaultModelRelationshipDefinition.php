@@ -23,7 +23,6 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootCondi
  */
 class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionInterface
 {
-
     /**
      * The root condition relationship.
      *
