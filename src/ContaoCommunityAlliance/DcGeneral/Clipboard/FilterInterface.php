@@ -13,9 +13,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Clipboard;
 
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
-use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
-
 /**
  * Interface FilterInterface.
  *

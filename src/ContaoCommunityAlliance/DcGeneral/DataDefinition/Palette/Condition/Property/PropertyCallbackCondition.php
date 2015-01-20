@@ -23,7 +23,6 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
  */
 class PropertyCallbackCondition implements PropertyConditionInterface
 {
-
     /**
      * The callback.
      *

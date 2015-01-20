@@ -100,7 +100,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
     {

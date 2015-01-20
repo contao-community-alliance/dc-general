@@ -28,7 +28,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DefaultContainer implements ContainerInterface
 {
-
     /**
      * The name of the container.
      *
@@ -50,7 +49,7 @@ class DefaultContainer implements ContainerInterface
      */
     public function __construct($name)
     {
-        $this->name = (string)$name;
+        $this->name = (string) $name;
     }
 
     /**

@@ -242,6 +242,9 @@ class DefaultController implements ControllerInterface
      * @param IdSerializer   $parentId        The (optional) parent id to use.
      *
      * @return CollectionInterface
+     *
+     * @throws DcGeneralRuntimeException When no parent model can be located.
+     *
      * @todo This might return a lot of models, we definately want to use some lazy approach rather than this.
      */
     protected function assembleSiblingsFor(

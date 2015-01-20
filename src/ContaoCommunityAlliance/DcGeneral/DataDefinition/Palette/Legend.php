@@ -23,7 +23,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class Legend implements LegendInterface
 {
-
     /**
      * The palette this legend belongs to.
      *
@@ -88,7 +87,7 @@ class Legend implements LegendInterface
      */
     public function setName($name)
     {
-        $this->name = (string)$name;
+        $this->name = (string) $name;
         return $this;
     }
 
@@ -105,7 +104,7 @@ class Legend implements LegendInterface
      */
     public function setInitialVisibility($value)
     {
-        $this->initiallyVisible = (bool)$value;
+        $this->initiallyVisible = (bool) $value;
 
         return $this;
     }

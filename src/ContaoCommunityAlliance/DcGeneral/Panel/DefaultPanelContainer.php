@@ -23,7 +23,6 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  */
 class DefaultPanelContainer implements PanelContainerInterface
 {
-
     /**
      * The environment in use.
      *

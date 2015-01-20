@@ -235,7 +235,7 @@ class ListView extends BaseView
             ->addToTemplate('tableName', strlen($definition->getName()) ? $definition->getName() : 'none', $objTemplate)
             ->addToTemplate('collection', $collection, $objTemplate)
             ->addToTemplate('select', $this->getEnvironment()->getInputProvider()->getParameter('act'), $objTemplate)
-            ->addToTemplate('action', ampersand(\Environment::getInstance()->request, true), $objTemplate)
+            ->addToTemplate('action', ampersand(\Environment::get('request'), true), $objTemplate)
             ->addToTemplate('mode', ($groupingInformation ? $groupingInformation['mode'] : null), $objTemplate)
             ->addToTemplate('tableHead', $this->getTableHead(), $objTemplate)
             // Set dataprovider from current and parent.
@@ -255,7 +255,7 @@ class ListView extends BaseView
     }
 
     /**
-     * Copy mode - this redirects to edit.
+     * {@inheritdoc}
      *
      * @throws DcGeneralRuntimeException If no model id has been given.
      *
@@ -306,9 +306,7 @@ class ListView extends BaseView
     }
 
     /**
-     * Show all entries from one table.
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function showAll(Action $action)
     {

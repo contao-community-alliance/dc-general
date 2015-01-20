@@ -25,7 +25,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class DefaultCollection implements CollectionInterface
 {
-
     /**
      * The list of contained models.
      *

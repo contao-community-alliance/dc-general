@@ -14,7 +14,6 @@ namespace ContaoCommunityAlliance\DcGeneral;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\Callback\Callbacks;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
-use ContaoCommunityAlliance\DcGeneral\Event\EventPropagator;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
@@ -32,7 +31,6 @@ use ContaoCommunityAlliance\Translator\TranslatorChain;
 class DC_General extends \DataContainer implements DataContainerInterface
 // @codingStandardsIgnoreEnd
 {
-
     /**
      * The environment attached to this DC.
      *
@@ -55,7 +53,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
         $dispatcher = $GLOBALS['container']['event-dispatcher'];
         /** @var \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher */
         $dispatcher->addListener(PopulateEnvironmentEvent::NAME, array($this, 'handlePopulateEnvironment'), 4800);
-        $propagator = new EventPropagator($dispatcher);
 
         $translator = new TranslatorChain();
         $translator->add(new LangArrayTranslator($dispatcher));
@@ -64,7 +61,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
 
         $factory
             ->setContainerName($strTable)
-            ->setEventPropagator($propagator)
+            ->setEventDispatcher($dispatcher)
             ->setTranslator($translator)
             ->createDcGeneral();
         $dispatcher->removeListener(PopulateEnvironmentEvent::NAME, array($this, 'handlePopulateEnvironment'));

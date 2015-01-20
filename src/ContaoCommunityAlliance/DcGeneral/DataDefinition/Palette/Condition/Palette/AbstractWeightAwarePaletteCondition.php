@@ -20,7 +20,6 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Pal
  */
 abstract class AbstractWeightAwarePaletteCondition implements WeightAwarePaletteConditionInterface
 {
-
     /**
      * The weight of this condition.
      *

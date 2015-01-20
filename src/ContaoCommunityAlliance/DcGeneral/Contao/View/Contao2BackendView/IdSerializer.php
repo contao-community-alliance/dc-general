@@ -24,7 +24,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class IdSerializer
 {
-
     /**
      * The data provider name.
      *

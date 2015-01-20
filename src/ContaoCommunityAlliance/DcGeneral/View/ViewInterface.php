@@ -50,12 +50,16 @@ interface ViewInterface
     /**
      * Invoked for cut and copy - inserts the content of the clipboard at the given position.
      *
+     * @param Action $action The action being executed.
+     *
      * @return void
      */
     public function paste(Action $action);
 
     /**
      * Endpoint for create operation.
+     *
+     * @param Action $action The action being executed.
      *
      * @return string
      */
@@ -66,6 +70,8 @@ interface ViewInterface
      *
      * NOTE: This method redirects the user to the listing and therefore the script will be ended.
      *
+     * @param Action $action The action being executed.
+     *
      * @return void
      */
     public function delete(Action $action);
@@ -73,12 +79,16 @@ interface ViewInterface
     /**
      * Endpoint for edit operation.
      *
+     * @param Action $action The action being executed.
+     *
      * @return string
      */
     public function edit(Action $action);
 
     /**
      * Endpoint for move operation.
+     *
+     * @param Action $action The action being executed.
      *
      * @return string
      */
@@ -89,12 +99,16 @@ interface ViewInterface
      *
      * This is the default action to perform if no other action has been specified in the URL.
      *
+     * @param Action $action The action being executed.
+     *
      * @return string
      */
     public function showAll(Action $action);
 
     /**
      * Endpoint for undo operation.
+     *
+     * @param Action $action The action being executed.
      *
      * @return string
      */

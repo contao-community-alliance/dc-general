@@ -37,7 +37,7 @@ class BooleanCondition implements PropertyConditionInterface
      */
     public function __construct($value)
     {
-        $this->value = (bool)$value;
+        $this->value = (bool) $value;
     }
 
     /**
@@ -49,7 +49,7 @@ class BooleanCondition implements PropertyConditionInterface
      */
     public function setValue($value)
     {
-        $this->value = (bool)$value;
+        $this->value = (bool) $value;
 
         return $this;
     }

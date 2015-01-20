@@ -42,7 +42,18 @@ class Item implements ItemInterface
      */
     private $modelId;
 
-    function __construct($action, IdSerializer $parentId = null, IdSerializer $modelId)
+    /**
+     * Create a new instance.
+     *
+     * @param string            $action   The action being performed.
+     *
+     * @param IdSerializer|null $parentId The id of the parent model (null for no parent).
+     *
+     * @param IdSerializer      $modelId  The id of the model the action covers.
+     *
+     * @throws \InvalidArgumentException When the action is not one of create, cut, copy or deep copy.
+     */
+    public function __construct($action, $parentId, $modelId)
     {
         if (
             ItemInterface::CREATE !== $action

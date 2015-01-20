@@ -24,7 +24,6 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\
  */
 class Property implements PropertyInterface
 {
-
     /**
      * The name of the property.
      *
@@ -61,7 +60,7 @@ class Property implements PropertyInterface
      */
     public function setName($name)
     {
-        $this->name = (string)$name;
+        $this->name = (string) $name;
     }
 
     /**

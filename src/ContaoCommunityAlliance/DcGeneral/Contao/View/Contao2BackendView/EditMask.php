@@ -500,11 +500,9 @@ class EditMask
         } elseif ($inputProvider->hasValue('saveNclose')) {
             setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
-            // @codingStandardsIgnoreStart - we have to clear the messages - direct access to $_SESSION is ok.
             $_SESSION['TL_INFO']    = '';
             $_SESSION['TL_ERROR']   = '';
             $_SESSION['TL_CONFIRM'] = '';
-            // @codingStandardsIgnoreEnd
 
             $newUrlEvent = new GetReferrerEvent();
             $dispatcher->dispatch(ContaoEvents::SYSTEM_GET_REFERRER, $newUrlEvent);
@@ -683,7 +681,7 @@ class EditMask
                 'enctype'     => 'multipart/form-data',
                 'error'       => $this->errors,
                 'editButtons' => $this->getEditButtons(),
-                'noReload'    => (bool)$this->errors
+                'noReload'    => (bool) $this->errors
             )
         );
 

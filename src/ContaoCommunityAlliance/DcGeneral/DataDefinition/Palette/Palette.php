@@ -24,7 +24,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class Palette implements PaletteInterface
 {
-
     /**
      * The name of this palette.
      *
@@ -53,7 +52,7 @@ class Palette implements PaletteInterface
      */
     public function setName($name)
     {
-        $this->name = (string)$name;
+        $this->name = (string) $name;
 
         return $this;
     }

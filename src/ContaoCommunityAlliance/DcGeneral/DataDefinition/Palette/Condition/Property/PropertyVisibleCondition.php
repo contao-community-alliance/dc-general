@@ -23,7 +23,6 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
  */
 class PropertyVisibleCondition implements PropertyConditionInterface
 {
-
     /**
      * The property name.
      *
@@ -38,7 +37,7 @@ class PropertyVisibleCondition implements PropertyConditionInterface
      */
     public function __construct($propertyName = '')
     {
-        $this->propertyName = (string)$propertyName;
+        $this->propertyName = (string) $propertyName;
     }
 
     /**
@@ -50,7 +49,7 @@ class PropertyVisibleCondition implements PropertyConditionInterface
      */
     public function setPropertyName($propertyName)
     {
-        $this->propertyName = (string)$propertyName;
+        $this->propertyName = (string) $propertyName;
         return $this;
     }
 

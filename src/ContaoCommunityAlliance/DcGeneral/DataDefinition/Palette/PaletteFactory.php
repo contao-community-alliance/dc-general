@@ -147,8 +147,7 @@ class PaletteFactory
      */
     public static function createLegend($name, $property = null, $_ = null)
     {
-        $legend = new Legend();
-        $legend->setName($name);
+        $legend = new Legend($name);
 
         $args = func_get_args();
         // Drop the name from argument list.

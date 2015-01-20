@@ -53,7 +53,7 @@ class SetDefaultPaletteConditionClassNameEvent extends BuilderEvent
      */
     public function setDefaultPaletteConditionClassName($className)
     {
-        $this->className = (string)$className;
+        $this->className = (string) $className;
         return $this;
     }
 

@@ -139,7 +139,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      */
     public function setEnvironmentClassName($environmentClassName)
     {
-        $this->environmentClassName = (string)$environmentClassName;
+        $this->environmentClassName = (string) $environmentClassName;
 
         return $this;
     }
@@ -157,7 +157,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      */
     public function setContainerName($containerName)
     {
-        $this->containerName = (string)$containerName;
+        $this->containerName = (string) $containerName;
 
         return $this;
     }
@@ -175,7 +175,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      */
     public function setContainerClassName($containerClassName)
     {
-        $this->containerClassName = (string)$containerClassName;
+        $this->containerClassName = (string) $containerClassName;
 
         return $this;
     }
@@ -193,7 +193,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      */
     public function setDcGeneralClassName($dcGeneralClassName)
     {
-        $this->dcGeneralClassName = (string)$dcGeneralClassName;
+        $this->dcGeneralClassName = (string) $dcGeneralClassName;
 
         return $this;
     }

@@ -22,7 +22,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class PaletteCollection implements PaletteCollectionInterface
 {
-
     /**
      * The palettes contained in the collection.
      *

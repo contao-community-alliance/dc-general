@@ -53,7 +53,7 @@ class SetLegendClassNameEvent extends BuilderEvent
      */
     public function setLegendClassName($legendClassName)
     {
-        $this->legendClassName = (string)$legendClassName;
+        $this->legendClassName = (string) $legendClassName;
 
         return $this;
     }

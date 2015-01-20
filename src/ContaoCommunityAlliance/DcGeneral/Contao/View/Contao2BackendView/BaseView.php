@@ -286,8 +286,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $value      = ViewHelpers::getReadableFieldValue($this->environment, $property, $model);
         $dispatcher = $this->getEnvironment()->getEventDispatcher();
         $propExtra  = $property->getExtra();
-
-
         $evaluation = $property->getExtra();
         $remoteNew  = '';
 
@@ -485,11 +483,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Invoked for cut and copy.
+     * {@inheritdoc}
      *
      * This performs redirectHome() upon successful execution and throws an exception otherwise.
-     *
-     * @return void
      *
      * @throws DcGeneralRuntimeException When invalid parameters are encountered.
      */
@@ -539,11 +535,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Delete a model and redirect the user to the listing.
+     * {@inheritDoc}
      *
      * NOTE: This method redirects the user to the listing and therefore the script will be ended.
-     *
-     * @return string
      *
      * @throws DcGeneralRuntimeException If the model to delete could not be loaded.
      */
@@ -657,7 +651,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function undo(Action $action)
     {
@@ -725,9 +719,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * {@inheritdoc}
      */
     public function enforceModelRelationship($model)
     {
@@ -735,9 +727,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Generate the view for edit.
-     *
-     * @return string
+     * {@inheritdoc}
      *
      * @throws DcGeneralRuntimeException         When the current data definition is not editable or is closed.
      *
@@ -757,7 +747,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         if ($modelId && $modelId->getId()) {
             $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
         } else {
-            $model = $this->createEmptyModelWithDefaults();
+            $model = $this->getEnvironment()->getController()->createEmptyModelWithDefaults();
         }
 
         // We need to keep the original data here.
@@ -822,9 +812,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Show all entries from one table.
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function showAll(Action $action)
     {
@@ -841,7 +829,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * Handle the "toggle" action.
      *
-     * @param string $name The command name (default: toggle).
+     * @param Action $action The action being executed.
+     *
+     * @param string $name   The command name (default: toggle).
      *
      * @return string
      */

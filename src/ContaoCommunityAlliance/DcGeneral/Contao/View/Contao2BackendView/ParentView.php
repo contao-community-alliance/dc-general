@@ -583,7 +583,7 @@ class ParentView extends BaseView
             ->addToTemplate('tableName', strlen($definition->getName()) ? $definition->getName() : 'none', $objTemplate)
             ->addToTemplate('collection', $collection, $objTemplate)
             ->addToTemplate('select', $this->isSelectModeActive(), $objTemplate)
-            ->addToTemplate('action', ampersand(\Environment::getInstance()->request, true), $objTemplate)
+            ->addToTemplate('action', ampersand(\Environment::get('request'), true), $objTemplate)
             ->addToTemplate('header', $this->renderFormattedHeaderFields($parentModel), $objTemplate)
             ->addToTemplate('mode', ($groupingInformation ? $groupingInformation['mode'] : null), $objTemplate)
             ->addToTemplate('pdp', (string) $parentProvider, $objTemplate)
@@ -626,9 +626,7 @@ class ParentView extends BaseView
     }
 
     /**
-     * Show all entries from one table.
-     *
-     * @return string HTML
+     * {@inheritdoc}
      */
     public function showAll(Action $action)
     {

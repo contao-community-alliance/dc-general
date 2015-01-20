@@ -22,7 +22,6 @@ use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
  */
 class DefaultPanel implements PanelInterface
 {
-
     /**
      * The panel container this panel is contained within.
      *

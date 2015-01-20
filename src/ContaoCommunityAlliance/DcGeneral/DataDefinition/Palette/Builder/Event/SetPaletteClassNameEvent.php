@@ -53,7 +53,7 @@ class SetPaletteClassNameEvent extends BuilderEvent
      */
     public function setPaletteClassName($paletteClassName)
     {
-        $this->paletteClassName = (string)$paletteClassName;
+        $this->paletteClassName = (string) $paletteClassName;
 
         return $this;
     }
