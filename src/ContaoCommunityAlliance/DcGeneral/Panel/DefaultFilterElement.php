@@ -15,6 +15,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Panel;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
 
 /**
@@ -129,21 +130,10 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             }
 
             $objConfig->setFilter(
-                array_merge_recursive(
-                    $arrCurrent,
-                    array(
-                        array(
-                            'operation' => 'AND',
-                            'children'  => array(
-                                array(
-                                    'operation' => '=',
-                                    'property'  => $this->getPropertyName(),
-                                    'value'     => $this->getValue()
-                                )
-                            )
-                        )
-                    )
-                )
+                FilterBuilder::fromArray($arrCurrent)
+                    ->getFilter()
+                    ->andPropertyEquals($this->getPropertyName(), $this->getValue())
+                    ->getAllAsArray()
             );
         }
 
