@@ -25,7 +25,6 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
  */
 class DefaultFilterElement extends AbstractElement implements FilterElementInterface
 {
-
     /**
      * Name of the property this filter reacts on.
      *
@@ -100,9 +99,11 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
     }
 
     /**
-     * {@inheritDoc}
+     * Update the local value property with data from either the session or from the input provider.
+     *
+     * @return void
      */
-    public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
+    private function updateValue()
     {
         $session = $this->getSessionStorage();
         $input   = $this->getInputProvider();
@@ -122,6 +123,38 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
         if ($value !== null) {
             $this->setValue($value);
         }
+    }
+
+    /**
+     * Load the filter options from the configured property.
+     *
+     * @return void
+     */
+    private function loadFilterOptions()
+    {
+        $objTempConfig = $this->getOtherConfig();
+        $objTempConfig->setFields(array($this->getPropertyName()));
+
+        $objFilterOptions = $this
+            ->getEnvironment()
+            ->getDataProvider()
+            ->getFilterOptions($objTempConfig);
+
+        $arrOptions = array();
+        /** @var ModelInterface $objOption */
+        foreach ($objFilterOptions as $filterKey => $filterValue) {
+            $arrOptions[(string) $filterKey] = $filterValue;
+        }
+
+        $this->arrfilterOptions = $arrOptions;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
+    {
+        $this->updateValue();
 
         if ($this->getPropertyName() && $this->getValue() && ($objElement !== $this)) {
             $arrCurrent = $objConfig->getFilter();
@@ -139,21 +172,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
 
         // Finally load the filter options.
         if ($objElement === null) {
-            $objTempConfig = $this->getOtherConfig();
-            $objTempConfig->setFields(array($this->getPropertyName()));
-
-            $objFilterOptions = $this
-                ->getEnvironment()
-                ->getDataProvider()
-                ->getFilterOptions($objTempConfig);
-
-            $arrOptions = array();
-            /** @var ModelInterface $objOption */
-            foreach ($objFilterOptions as $filterKey => $filterValue) {
-                $arrOptions[(string) $filterKey] = $filterValue;
-            }
-
-            $this->arrfilterOptions = $arrOptions;
+            $this->loadFilterOptions();
         }
     }
 
