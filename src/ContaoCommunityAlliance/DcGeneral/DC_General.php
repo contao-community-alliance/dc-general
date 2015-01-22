@@ -75,9 +75,8 @@ class DC_General implements DataContainerInterface
         // Execute AJAX request, called from Backend::getBackendModule
         // we have to do this here, as otherwise the script will exit as it only checks for DC_Table and DC_File
         // derived classes.
-        // @codingStandardsIgnoreStart - The access to $_POST is sane here.
-        if ($_POST && (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')) // @codingStandardsIgnoreEnd
-        {
+        $this->checkAjaxCall();
+    }
 
     /**
      * Retrieve the event dispatcher from the DIC.
@@ -105,6 +104,21 @@ class DC_General implements DataContainerInterface
 
         return $dispatcher;
     }
+
+    /**
+     * Check if we have an ajax call currently and if so, execute the action accordingly.
+     *
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     */
+    private function checkAjaxCall()
+    {
+        if (!empty($_POST)
+            && (isset($_SERVER['HTTP_X_REQUESTED_WITH'])
+            && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+        ) {
             $this->getViewHandler()->handleAjaxCall();
         }
     }
