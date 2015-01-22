@@ -2,6 +2,7 @@
 
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -13,6 +14,9 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Test;
 
+/**
+ * Base TestCase class.
+ */
 abstract class TestCase extends \PHPUnit_Framework_TestCase
 {
 
