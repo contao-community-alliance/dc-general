@@ -20,6 +20,7 @@ use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
 use ContaoCommunityAlliance\Translator\Contao\LangArrayTranslator;
 use ContaoCommunityAlliance\Translator\TranslatorChain;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * This class is only present so Contao can instantiate a backend properly as it needs a \DataContainer descendant.
@@ -50,8 +51,7 @@ class DC_General implements DataContainerInterface
     {
         $strTable = $this->getTablenameCallback($strTable);
 
-        $dispatcher = $GLOBALS['container']['event-dispatcher'];
-        /** @var \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher */
+        $dispatcher = $this->getEventDispatcher();
         $dispatcher->addListener(PopulateEnvironmentEvent::NAME, array($this, 'handlePopulateEnvironment'), 4800);
 
         $translator = new TranslatorChain();
@@ -78,6 +78,33 @@ class DC_General implements DataContainerInterface
         // @codingStandardsIgnoreStart - The access to $_POST is sane here.
         if ($_POST && (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')) // @codingStandardsIgnoreEnd
         {
+
+    /**
+     * Retrieve the event dispatcher from the DIC.
+     *
+     * @return EventDispatcherInterface
+     *
+     * @throws \RuntimeException When the DIC or event dispatcher have not been correctly initialized.
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     */
+    private function getEventDispatcher()
+    {
+        $container = $GLOBALS['container'];
+
+        if (!$container instanceof \Pimple) {
+            throw new \RuntimeException('The dependency container Pimple has not been initialized correctly.');
+        }
+
+        $dispatcher = $container['event-dispatcher'];
+
+        if (!$dispatcher instanceof EventDispatcherInterface) {
+            throw new \RuntimeException('The dependency container Pimple has not been initialized correctly.');
+        }
+
+        return $dispatcher;
+    }
             $this->getViewHandler()->handleAjaxCall();
         }
     }
