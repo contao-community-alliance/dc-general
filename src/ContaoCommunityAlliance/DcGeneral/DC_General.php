@@ -28,7 +28,7 @@ use ContaoCommunityAlliance\Translator\TranslatorChain;
  * @SuppressWarnings(PHPMD.CamelCaseClassName)
  */
 // @codingStandardsIgnoreStart - Class is not in camelCase as Contao does not allow us to.
-class DC_General extends \DataContainer implements DataContainerInterface
+class DC_General implements DataContainerInterface
 // @codingStandardsIgnoreEnd
 {
     /**
@@ -65,18 +65,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
             ->setTranslator($translator)
             ->createDcGeneral();
         $dispatcher->removeListener(PopulateEnvironmentEvent::NAME, array($this, 'handlePopulateEnvironment'));
-
-        // Switch user for FE / BE support.
-        switch (TL_MODE) {
-            case 'FE':
-                $this->import('FrontendUser', 'User');
-                break;
-
-            default:
-            case 'BE':
-                $this->import('BackendUser', 'User');
-                break;
-        }
 
         // Load the clipboard.
         $this
@@ -121,7 +109,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
      */
     protected function getTablenameCallback($strTable)
     {
-        if (array_key_exists('tablename_callback', $GLOBALS['TL_DCA'][$strTable]['config'])
+        if (isset($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback'])
             && is_array($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback'])
         ) {
             foreach ($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback'] as $callback) {
