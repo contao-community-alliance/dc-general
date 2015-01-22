@@ -34,7 +34,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGr
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
-use ContaoCommunityAlliance\DcGeneral\Controller\Ajax2X;
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
@@ -460,13 +459,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function handleAjaxCall()
     {
-        /** @var \ContaoCommunityAlliance\DcGeneral\Controller\Ajax $handler */
-        // Fallback to Contao for ajax requests we do not know.
-        if (version_compare(VERSION, '3.0', '>=')) {
-            $handler = new Ajax3X();
-        } else {
-            $handler = new Ajax2X();
-        }
+        $handler = new Ajax3X();
         $handler->executePostActions(new DcCompat($this->getEnvironment()));
     }
 

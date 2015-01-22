@@ -599,12 +599,11 @@ class TreeView extends BaseView
 
         switch ($input->getValue('action')) {
             case 'DcGeneralLoadSubTree':
-                header('Content-Type: text/html; charset=' . $GLOBALS['TL_CONFIG']['characterSet']);
+                header('Content-Type: text/html; charset=' . \Config::get('characterSet'));
                 echo $this->ajaxTreeView(
                     $input->getValue('id'),
                     $input->getValue('providerName'),
-                    $input->getValue('level'),
-                    $input->getValue('mode')
+                    $input->getValue('level')
                 );
                 exit;
 
