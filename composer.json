@@ -69,7 +69,7 @@
     },
     "autoload": {
         "classmap": [
-            "contao/DC_General.php",
+            "src/DC_General.php",
             "src/ContaoCommunityAlliance/DcGeneral/DC_General.php"
         ],
         "psr-0": {
@@ -84,8 +84,7 @@
     "extra": {
         "contao": {
             "sources": {
-                "contao": "system/modules/dc-general",
-                "contao-2.11-compat/DC_General.php": "system/drivers/DC_General.php"
+                "contao": "system/modules/dc-general"
             }
         },
         "branch-alias": {

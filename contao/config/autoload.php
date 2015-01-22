@@ -11,15 +11,6 @@
  * @filesource
  */
 
-// Register the classes.
-ClassLoader::addClasses(
-    array
-    (
-        // FIXME: we can not deprecate this class as the only way for Contao is to load the class from root namespace.
-        'DC_General' => 'system/modules/dc-general/DC_General.php',
-    )
-);
-
 // Register the templates.
 TemplateLoader::addFiles(
     array
