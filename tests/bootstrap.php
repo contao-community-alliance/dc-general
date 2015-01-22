@@ -24,7 +24,3 @@ if ((!$loader = includeIfExists(__DIR__.'/../vendor/autoload.php')) && (!$loader
 		'php composer.phar install'.PHP_EOL;
 	exit(1);
 }
-
-$loader->add('ContaoCommunityAlliance\\DcGeneral', __DIR__);
-
-require __DIR__ . '/ContaoCommunityAlliance/DcGeneral/Test/TestCase.php';

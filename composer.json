@@ -76,6 +76,11 @@
             "ContaoCommunityAlliance\\DcGeneral": "src"
         }
     },
+    "autoload-dev": {
+        "psr-0": {
+            "ContaoCommunityAlliance\\DcGeneral": "tests"
+        }
+    },
     "extra": {
         "contao": {
             "sources": {
