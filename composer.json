@@ -52,14 +52,8 @@
         "symfony/expression-language": "~2.4"
     },
     "require-dev": {
-        "phpunit/phpunit": "~3.7",
-        "sebastian/phpcpd": "~1.4",
-        "phploc/phploc": "~2.0",
-        "phpmd/phpmd": "~2.0",
-        "squizlabs/php_codesniffer": "~1.0",
-        "contao-community-alliance/build-system-tool-branch-alias-validation": "~1.0",
-        "contao-community-alliance/build-system": "~1.0",
-        "contao-community-alliance/coding-standard": "~1.0"
+        "phpcq/all-tasks": "~1.0",
+        "phpcq/coding-standard": "~1.0"
     },
     "conflict": {
         "contao/core": "3.4.0"
