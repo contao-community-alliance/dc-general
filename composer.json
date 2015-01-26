@@ -52,8 +52,7 @@
         "symfony/expression-language": "~2.4"
     },
     "require-dev": {
-        "phpcq/all-tasks": "~1.0",
-        "phpcq/coding-standard": "~1.0"
+        "phpcq/all-tasks": "~1.0"
     },
     "conflict": {
         "contao/core": "3.4.0"
