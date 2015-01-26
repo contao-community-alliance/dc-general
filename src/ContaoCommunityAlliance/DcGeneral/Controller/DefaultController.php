@@ -847,7 +847,7 @@ class DefaultController implements ControllerInterface
     {
         $environment  = $this->getEnvironment();
         $groupingMode = ViewHelpers::getGroupingMode($environment);
-        if ($groupingMode && $after) {
+        if ($groupingMode && $after && $after->getId()) {
             // when pasting after another item, inherit the grouping field
             $groupingField = $groupingMode['property'];
             $dataProvider  = $environment->getDataProvider($after->getDataProviderName());
