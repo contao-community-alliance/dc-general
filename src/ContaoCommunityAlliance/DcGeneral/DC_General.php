@@ -29,7 +29,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @SuppressWarnings(PHPMD.CamelCaseClassName)
  */
 // @codingStandardsIgnoreStart - Class is not in camelCase as Contao does not allow us to.
-class DC_General implements DataContainerInterface
+class DC_General extends \DataContainer implements DataContainerInterface
 // @codingStandardsIgnoreEnd
 {
     /**
