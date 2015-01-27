@@ -115,6 +115,10 @@ interface PropertyInterface
      * @param bool $value The flag.
      *
      * @return PropertyInterface
+     *
+     * @deprecated Deprecated in favor of GroupAndSortingInformationInterface.
+     *
+     * @see    \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface
      */
     public function setSortable($value);
 
@@ -122,6 +126,10 @@ interface PropertyInterface
      * Determinator if sorting may be performed on this property.
      *
      * @return bool
+     *
+     * @deprecated Deprecated in favor of GroupAndSortingInformationInterface.
+     *
+     * @see    \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface
      */
     public function isSortable();
 
