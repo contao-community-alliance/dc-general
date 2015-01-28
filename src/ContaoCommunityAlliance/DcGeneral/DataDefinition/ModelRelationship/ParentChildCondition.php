@@ -218,6 +218,21 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     }
 
     /**
+     * Check if the passed value is a valid setter.
+     *
+     * @param array $setter The setter.
+     *
+     * @return bool
+     */
+    private function isValidSetter($setter)
+    {
+        return (is_array($setter)
+            && (count($setter) == 2)
+            && isset($setter['to_field'])
+            && (isset($setter['from_field']) || isset($setter['value'])));
+    }
+
+    /**
      * {@inheritdoc}
      *
      * @throws DcGeneralRuntimeException For invalid setters.
@@ -237,12 +252,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
         }
 
         foreach ($setters as $setter) {
-            if (!(is_array($setter)
-                && (count($setter) == 2)
-                && isset($setter['to_field'])
-                && (isset($setter['from_field']) || isset($setter['value']))
-            )
-            ) {
+            if (!$this->isValidSetter($setter)) {
                 throw new DcGeneralRuntimeException(
                     sprintf(
                         'Invalid relationship setter entry, ensure it is an array containing only "to_field" and
@@ -280,12 +290,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
         }
 
         foreach ($setters as $setter) {
-            if (!(is_array($setter)
-                && (count($setter) == 2)
-                && isset($setter['to_field'])
-                && (isset($setter['from_field']) || isset($setter['value']))
-            )
-            ) {
+            if (!$this->isValidSetter($setter)) {
                 throw new DcGeneralRuntimeException(
                     sprintf(
                         'Invalid relationship setter entry, ensure it is an array containing only "to_field" and
