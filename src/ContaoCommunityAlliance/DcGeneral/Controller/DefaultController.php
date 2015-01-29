@@ -361,7 +361,6 @@ class DefaultController implements ControllerInterface
         foreach ($propertyValues as $property => $value) {
             try {
                 $model->setProperty($property, $value);
-                $model->setMeta($model::IS_CHANGED, true);
             } catch (\Exception $exception) {
                 $propertyValues->markPropertyValueAsInvalid($property, $exception->getMessage());
             }

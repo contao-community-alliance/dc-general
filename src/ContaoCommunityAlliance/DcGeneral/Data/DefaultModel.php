@@ -115,6 +115,7 @@ class DefaultModel extends AbstractModel
     {
         if ($this->mixID == null) {
             $this->mixID = $mixID;
+            $this->setMeta(static::IS_CHANGED, true);
         }
     }
 
