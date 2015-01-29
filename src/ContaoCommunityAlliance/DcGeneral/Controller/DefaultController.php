@@ -23,11 +23,13 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerialize
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultCollection;
 use ContaoCommunityAlliance\DcGeneral\Data\LanguageInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -456,6 +458,46 @@ class DefaultController implements ControllerInterface
     }
 
     /**
+     * Handle a property in a cloned model.
+     *
+     * @param ModelInterface        $model        The cloned model.
+     *
+     * @param PropertyInterface     $property     The property to handle.
+     *
+     * @param DataProviderInterface $dataProvider The data provider the model originates from.
+     *
+     * @return void
+     */
+    private function handleClonedModelProperty(
+        ModelInterface $model,
+        PropertyInterface $property,
+        DataProviderInterface $dataProvider
+    ) {
+        $extra    = $property->getExtra();
+        $propName = $property->getName();
+
+        // Check doNotCopy.
+        if (isset($extra['doNotCopy']) && $extra['doNotCopy'] === true) {
+            $model->setProperty($propName, null);
+            return;
+        }
+
+        // Check fallback.
+        if (isset($extra['fallback']) && $extra['fallback'] === true) {
+            $dataProvider->resetFallback($propName);
+        }
+
+        // Check uniqueness.
+        if (isset($extra['unique'])
+            && $extra['unique'] === true
+            && !$dataProvider->isUniqueValue($propName, $model->getProperty($propName))
+        ) {
+            // Implicit "do not copy" unique values, they cannot be unique anymore.
+            $model->setProperty($propName, null);
+        }
+    }
+
+    /**
      * {@inheritDoc}
      *
      * @throws DcGeneralRuntimeException For constraint violations.
@@ -465,8 +507,9 @@ class DefaultController implements ControllerInterface
         $clone = clone $model;
         $clone->setId(null);
 
-        $environment = $this->getEnvironment();
-        $properties  = $environment->getDataDefinition()->getPropertiesDefinition();
+        $environment  = $this->getEnvironment();
+        $properties   = $environment->getDataDefinition()->getPropertiesDefinition();
+        $dataProvider = $environment->getDataProvider($clone->getProviderName());
 
         foreach (array_keys($clone->getPropertiesAsArray()) as $propName) {
             // If the property is not known, remove it.
@@ -475,30 +518,7 @@ class DefaultController implements ControllerInterface
             }
 
             $property = $properties->getProperty($propName);
-
-            $extra = $property->getExtra();
-
-            // Check doNotCopy.
-            if (isset($extra['doNotCopy']) && $extra['doNotCopy'] === true) {
-                $clone->setProperty($propName, null);
-                continue;
-            }
-
-            $dataProvider = $environment->getDataProvider($clone->getProviderName());
-
-            // Check fallback.
-            if (isset($extra['fallback']) && $extra['fallback'] === true) {
-                $dataProvider->resetFallback($propName);
-            }
-
-            // Check uniqueness.
-            if (isset($extra['unique'])
-                && $extra['unique'] === true
-                && !$dataProvider->isUniqueValue($propName, $clone->getProperty($propName))
-            ) {
-                // Implicit "do not copy" unique values, they cannot be unique anymore.
-                $clone->setProperty($propName, null);
-            }
+            $this->handleClonedModelProperty($clone, $property, $dataProvider);
         }
 
         return $clone;
