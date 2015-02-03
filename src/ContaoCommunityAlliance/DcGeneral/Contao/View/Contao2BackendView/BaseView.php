@@ -1576,7 +1576,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 $models = $this
                     ->environment
                     ->getController()
-                    ->getModelsFromClipboard(IdSerializer::fromValues($parentDataProviderName, null));
+                    ->getModelsFromClipboard(
+                        $parentDataProviderName
+                        ? IdSerializer::fromValues($parentDataProviderName, null)
+                        : null
+                    );
 
                 $buttonEvent = new GetPasteButtonEvent($this->getEnvironment());
                 $buttonEvent
