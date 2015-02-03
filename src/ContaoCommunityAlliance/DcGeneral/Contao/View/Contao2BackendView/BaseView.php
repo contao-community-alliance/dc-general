@@ -1486,7 +1486,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $filter->andHasNoParent();
         }
 
-        if ($this->getEnvironment()->getClipboard()->isNotEmpty($filter)) {
+        if ($clipboard->isNotEmpty($filter)) {
             $circularIds = $clipboard->getCircularIds();
             $isCircular  = in_array(IdSerializer::fromModel($model)->getSerialized(), $circularIds);
         } else {
