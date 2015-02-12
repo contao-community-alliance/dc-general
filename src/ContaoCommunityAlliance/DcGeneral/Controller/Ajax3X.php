@@ -80,7 +80,7 @@ class Ajax3X extends Ajax
         $environment = $this->getEnvironment();
         $input       = $environment->getInputProvider();
         $folder      = $input->getValue('folder');
-        $field       = $input->getParameter('field');
+        $field       = $input->getValue('field');
         $level       = intval($input->getValue('level'));
 
         $arrData['strTable'] = $input->getParameter('table');
