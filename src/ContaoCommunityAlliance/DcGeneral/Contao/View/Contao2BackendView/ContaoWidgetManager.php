@@ -823,6 +823,8 @@ EOF;
             }
         }
 
+        // FIXME: Add new event "CheckUpdatedPropertyValueBagEvent".
+
         $_POST = $post;
         \Input::resetCache();
     }
