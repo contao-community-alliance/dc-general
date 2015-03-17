@@ -573,7 +573,7 @@ class ParentView extends BaseView
         }
 
         // Add template.
-        if ($groupingInformation['mode'] != GroupAndSortingInformationInterface::GROUP_NONE) {
+        if ($groupingInformation && ($groupingInformation['mode'] != GroupAndSortingInformationInterface::GROUP_NONE)) {
             $objTemplate = $this->getTemplate('dcbe_general_grouping');
         } else {
             $objTemplate = $this->getTemplate('dcbe_general_parentView');
