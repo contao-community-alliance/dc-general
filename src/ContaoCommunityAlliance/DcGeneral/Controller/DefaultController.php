@@ -781,6 +781,8 @@ class DefaultController implements ControllerInterface
      * @param ModelInterface $parentModel  The parent model.
      *
      * @return void
+     *
+     * @throws \UnexpectedValueException When the action is neither create, copy or deep copy.
      */
     private function applyAction(array &$action, array &$deepCopyList, ModelInterface $parentModel = null)
     {
@@ -811,6 +813,12 @@ class DefaultController implements ControllerInterface
             }
 
             $model = $clonedModel;
+        }
+
+        if (!$model) {
+            throw new \UnexpectedValueException(
+                'Invalid clipboard action entry, no model created. ' . $item->getAction()
+            );
         }
 
         if ($parentModel) {
