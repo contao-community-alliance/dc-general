@@ -483,7 +483,7 @@ class ContaoWidgetManager
 
         $event = new BuildWidgetEvent($environment, $this->model, $propertyDefinitions->getProperty($property));
 
-
+        // FIXME: propagator
         $dispatcher->dispatch(
             sprintf('%s[%s][%s]', $event::NAME, $defName, $property),
             $event
@@ -848,7 +848,7 @@ EOF;
 
                 foreach ($errors as $error) {
                     $event = new ResolveWidgetErrorMessageEvent($this->getEnvironment(), $error);
-
+                    // FIXME: propagator.
                     $dispatcher->dispatch(sprintf('%s[%s][%s]', $event::NAME, $definitionName, $property), $event);
                     $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $definitionName), $event);
                     $dispatcher->dispatch($event::NAME, $event);
