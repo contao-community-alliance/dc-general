@@ -57,7 +57,7 @@ $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalDriver.css';
 <input type="hidden" name="FORM_SUBMIT" value="<?php echo specialchars($this->table); ?>" />
 <input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>" />
 <?php if($this->error): ?>
-  <p class="tl_error"><?php echo implode('<br />', $this->error)// $GLOBALS['TL_LANG']['ERR']['general']; ?></p>
+  <p class="tl_error"><?php echo implode('<br />', $this->error); ?></p>
   <script type="text/javascript">
   /* <![CDATA[ */
 	window.addEvent('domready', function() {
