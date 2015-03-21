@@ -1176,7 +1176,7 @@ class DefaultController implements ControllerInterface
     {
         $this
             ->getEnvironment()
-            ->getDataDefinition($childModel->getProviderName())
+            ->getDataDefinition()
             ->getModelRelationshipDefinition()
             ->getChildCondition($parentModel->getProviderName(), $childModel->getProviderName())
             ->applyTo($parentModel, $childModel);

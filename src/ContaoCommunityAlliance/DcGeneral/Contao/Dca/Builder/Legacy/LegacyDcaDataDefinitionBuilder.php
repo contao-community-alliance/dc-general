@@ -100,7 +100,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $this->parseBackendView($container);
         $this->parsePalettes($container);
         $this->parseProperties($container);
-        $this->loadAdditionalDefinitions($container, $event);
+        $this->loadAdditionalDefinitions($container);
     }
 
     /**
