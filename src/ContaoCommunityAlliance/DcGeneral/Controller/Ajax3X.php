@@ -114,7 +114,7 @@ class Ajax3X extends Ajax
      *
      * @param string $varValue The value as comma separated list.
      *
-     * @return string The values as serialized array.
+     * @return string The value array.
      */
     protected function getTreeValue($strType, $varValue)
     {
@@ -125,15 +125,9 @@ class Ajax3X extends Ajax
             // Automatically add resources to the DBAFS.
             if ($strType == 'file') {
                 foreach ($varValue as $k => $v) {
-                    if (version_compare(VERSION, '3.2', '<')) {
-                        $varValue[$k] = \Dbafs::addResource($v)->id;
-                    } else {
-                        $varValue[$k] = \Dbafs::addResource($v)->uuid;
-                    }
+                    $varValue[$k] = \Dbafs::addResource($v)->uuid;
                 }
             }
-
-            $varValue = serialize($varValue);
         }
 
         return $varValue;
