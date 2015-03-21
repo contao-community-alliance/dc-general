@@ -518,9 +518,10 @@ class ContaoWidgetManager
         $propExtra['required'] = ($varValue == '') && !empty($propExtra['mandatory']);
 
         if ($inputValues) {
-            $model = clone $this->model;
+            $values = new PropertyValueBag($inputValues->getArrayCopy());
+            $model  = clone $this->model;
             $model->setId($this->model->getId());
-            $this->environment->getController()->updateModelFromPropertyBag($model, $inputValues);
+            $this->environment->getController()->updateModelFromPropertyBag($model, $values);
         } else {
             $model = $this->model;
         }
@@ -818,7 +819,9 @@ EOF;
                     );
                 } catch (\Exception $e) {
                     $widget->addError($e->getMessage());
-                    $propertyValues->markPropertyValueAsInvalid($property, $e->getMessage());
+                    foreach ($widget->getErrors() as $error) {
+                        $propertyValues->markPropertyValueAsInvalid($property, $error);
+                    }
                 }
             }
         }
