@@ -193,41 +193,6 @@ class ContaoWidgetManager
     }
 
     /**
-     * Get the popup file manager.
-     *
-     * @return string
-     *
-     * @deprecated Contao 2.11 only.
-     */
-    protected function getFileTree()
-    {
-        $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
-        $translator  = $environment->getTranslator();
-
-        // In Contao 3+ it is always a file picker - no need for the button.
-        if (version_compare(VERSION, '3.0', '>=')) {
-            return '';
-        }
-
-        $event = new GenerateHtmlEvent(
-            'filemanager.gif',
-            $translator->translate('fileManager', 'MSC'),
-            'style="vertical-align:text-bottom;"'
-        );
-
-        $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $event);
-
-        return sprintf(
-            ' <a href="contao/files.php" ' .
-            'title="%s"' .
-            'onclick="Backend.getScrollOffset(); Backend.openWindow(this, 750, 500); return false;">%s</a>',
-            specialchars($translator->translate('fileManager', 'MSC')),
-            $event->getHtml()
-        );
-    }
-
-    /**
      * Get the table import wizard.
      *
      * @return string
@@ -349,14 +314,11 @@ class ContaoWidgetManager
         $xLabel .= $this->getHelpWizard($propInfo);
 
         switch ($propInfo->getWidgetType()) {
-            case 'fileTree':
-                $xLabel .= $this->getFileTree();
-                break;
             case 'tableWizard':
-                $xLabel .= $this->getTableWizard($propInfo);
+                $xLabel .= $this->getTableWizard();
                 break;
             case 'listWizard':
-                $xLabel .= $this->getListWizard($propInfo);
+                $xLabel .= $this->getListWizard();
                 break;
             default:
         }
