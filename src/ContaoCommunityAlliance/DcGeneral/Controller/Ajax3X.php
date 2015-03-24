@@ -15,8 +15,10 @@ namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoWidgetManager;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 
 /**
  * Class GeneralAjax - General purpose Ajax handler for "executePostActions" in Contao 3.X as we can not use the default
@@ -28,6 +30,54 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
  */
 class Ajax3X extends Ajax
 {
+    /**
+     * Get the widget instance.
+     *
+     * @param string $fieldName     The property name.
+     *
+     * @param string $serializedId  The serialized id of the model.
+     *
+     * @param string $propertyValue The property value.
+     *
+     * @return \Widget
+     */
+    protected function getWidget($fieldName, $serializedId, $propertyValue)
+    {
+        $environment    = $this->getEnvironment();
+        $property       = $environment->getDataDefinition()->getPropertiesDefinition()->getProperty($fieldName);
+        $propertyValues = new PropertyValueBag();
+
+        if ($serializedId !== null) {
+            $model = $this->getModelFromSerializedId($serializedId);
+        } else {
+            $dataProvider = $environment->getDataProvider();
+            $model        = $dataProvider->getEmptyModel();
+        }
+
+        $widgetManager = new ContaoWidgetManager($environment, $model);
+
+        // Process input and update changed properties.
+        if (!empty($propertyValue)) {
+            $treeType      = substr($property->getWidgetType(), 0, 4);
+            $propertyValue = $this->getTreeValue($treeType, $propertyValue);
+            if ($treeType == 'file') {
+                $extra = $property->getExtra();
+                if (is_array($propertyValue) && !isset($extra['multiple'])) {
+                    $propertyValue = $propertyValue[0];
+                } else {
+                    $propertyValue = implode(',', $propertyValue);
+                }
+            }
+            $propertyValues->setPropertyValue($fieldName, $propertyValue);
+            $widgetManager->processInput($propertyValues);
+            $model->setProperty($fieldName, $propertyValues->getPropertyValue($fieldName));
+        }
+
+        $widget = $widgetManager->getWidget($fieldName);
+
+        return $widget;
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -125,7 +175,7 @@ class Ajax3X extends Ajax
             // Automatically add resources to the DBAFS.
             if ($strType == 'file') {
                 foreach ($varValue as $k => $v) {
-                    $varValue[$k] = \Dbafs::addResource($v)->uuid;
+                    $varValue[$k] = \String::binToUuid(\Dbafs::addResource($v)->uuid);
                 }
             }
         }
@@ -167,45 +217,19 @@ class Ajax3X extends Ajax
     /**
      * Reload the file tree.
      *
-     * @param string $strType The type.
-     *
      * @return void
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    protected function reloadTree($strType)
+    protected function reloadTree()
     {
         $environment  = $this->getEnvironment();
         $input        = $environment->getInputProvider();
         $serializedId = $input->hasParameter('id') ? $input->getParameter('id') : null;
         $fieldName    = $input->hasValue('name') ? $input->getValue('name') : null;
+        $value        = $input->hasValue('value') ? $input->getValue('value', true) : null;
 
-        if ($serializedId !== null) {
-            $model = $this->getModelFromSerializedId($serializedId);
-        }
+        $widget = $this->getWidget($fieldName, $serializedId, $value);
 
-        $varValue = $this->getTreeValue($strType, $input->getValue('value'));
-        $strKey   = $strType . 'Tree';
-
-        // Set the new value.
-        if (isset($model)) {
-            $model->setProperty($fieldName, $varValue);
-            $arrAttribs['activeRecord'] = $model;
-        } else {
-            $arrAttribs['activeRecord'] = null;
-        }
-
-        $arrAttribs['id']       = $fieldName;
-        $arrAttribs['name']     = $fieldName;
-        $arrAttribs['value']    = $varValue;
-        $arrAttribs['strTable'] = $environment->getDataDefinition()->getName();
-        $arrAttribs['strField'] = $fieldName;
-
-        /** @var \Widget $objWidget */
-        $objWidget = new $GLOBALS['BE_FFL'][$strKey]($arrAttribs);
-        echo $objWidget->generate();
-
+        echo $widget->generate();
         $this->exitScript();
     }
 
@@ -214,7 +238,7 @@ class Ajax3X extends Ajax
      */
     protected function reloadPagetree()
     {
-        $this->reloadTree('page');
+        $this->reloadTree();
     }
 
     /**
@@ -222,6 +246,6 @@ class Ajax3X extends Ajax
      */
     protected function reloadFiletree()
     {
-        $this->reloadTree('file');
+        $this->reloadTree();
     }
 }
