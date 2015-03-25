@@ -773,7 +773,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     protected function createEditMask($model, $originalModel, $preFunction, $postFunction)
     {
-        $editMask = new EditMask($this, $model, $originalModel, $preFunction, $postFunction);
+        $editMask = new EditMask($this, $model, $originalModel, $preFunction, $postFunction, $this->breadcrumb());
         return $editMask->execute();
     }
 

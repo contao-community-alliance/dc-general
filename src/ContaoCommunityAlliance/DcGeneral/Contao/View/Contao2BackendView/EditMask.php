@@ -85,7 +85,12 @@ class EditMask
      */
     protected $errors = array();
 
-
+    /**
+     * The rendered breadcrumb.
+     *
+     * @var string
+     */
+    protected $breadcrumb;
 
     /**
      * Create the edit mask.
@@ -99,14 +104,17 @@ class EditMask
      * @param callable             $preFunction   The function to call before saving an item.
      *
      * @param callable             $postFunction  The function to call after saving an item.
+     *
+     * @param string               $breadcrumb    The rendered breadcrumb.
      */
-    public function __construct($view, $model, $originalModel, $preFunction, $postFunction)
+    public function __construct($view, $model, $originalModel, $preFunction, $postFunction, $breadcrumb)
     {
         $this->view          = $view;
         $this->model         = $model;
         $this->originalModel = $originalModel;
         $this->preFunction   = $preFunction;
         $this->postFunction  = $postFunction;
+        $this->breadcrumb    = $breadcrumb;
     }
 
     /**
@@ -632,7 +640,6 @@ class EditMask
      */
     public function execute()
     {
-        $breadcrumb              = $this->breadcrumb();
         $environment             = $this->getEnvironment();
         $definition              = $this->getDataDefinition();
         $dataProvider            = $environment->getDataProvider($this->model->getProviderName());
@@ -686,7 +693,7 @@ class EditMask
                 'error'       => $this->errors,
                 'editButtons' => $this->getEditButtons(),
                 'noReload'    => (bool) $this->errors,
-                'breadcrumb'  => $breadcrumb
+                'breadcrumb'  => $this->breadcrumb
             )
         );
 
@@ -717,33 +724,5 @@ class EditMask
         }
 
         return $objTemplate->parse();
-    }
-
-    /**
-     * Get the breadcrumb navigation via event.
-     *
-     * @return string
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
-     */
-    protected function breadcrumb()
-    {
-        $event = new GetBreadcrumbEvent($this->getEnvironment());
-
-        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
-
-        $elements = $event->getElements();
-
-        if (!is_array($elements) || count($elements) == 0) {
-            return null;
-        }
-
-        $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalBreadcrumb.css';
-
-        $template = new ContaoBackendViewTemplate('dcbe_general_breadcrumb');
-        $template->set('elements', $elements);
-
-        return $template->parse();
     }
 }
