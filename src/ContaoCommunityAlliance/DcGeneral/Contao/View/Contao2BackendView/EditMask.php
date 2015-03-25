@@ -85,6 +85,8 @@ class EditMask
      */
     protected $errors = array();
 
+
+
     /**
      * Create the edit mask.
      *

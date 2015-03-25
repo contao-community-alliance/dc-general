@@ -722,9 +722,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritdoc}
      *
-     * @throws DcGeneralRuntimeException         When the current data definition is not editable or is closed.
-     *
-     * @throws DcGeneralInvalidArgumentException When an unknown property is mentioned in the palette.
+     * @throws DcGeneralRuntimeException When the model could not be found by the data provider.
      */
     public function edit(Action $action)
     {
@@ -741,6 +739,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
         } else {
             $model = $this->getEnvironment()->getController()->createEmptyModelWithDefaults();
+        }
+
+        if (!$model) {
+            throw new DcGeneralRuntimeException('Could not retrieve model with id ' . $modelId->getSerialized());
         }
 
         // We need to keep the original data here.
@@ -1640,7 +1642,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $event = new GetBreadcrumbEvent($this->getEnvironment());
 
-        $this->getEnvironment()->getEventDispatcher()->dispatch(sprintf('%s', $event::NAME), $event);
+        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
 
         $arrReturn = $event->getElements();
 
