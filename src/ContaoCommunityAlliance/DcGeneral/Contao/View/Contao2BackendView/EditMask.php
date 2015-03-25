@@ -729,50 +729,19 @@ class EditMask
     {
         $event = new GetBreadcrumbEvent($this->getEnvironment());
 
-        $this->getEnvironment()->getEventDispatcher()->dispatch(sprintf('%s', $event::NAME), $event);
+        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
 
-        $arrReturn = $event->getElements();
+        $elements = $event->getElements();
 
-        if (!is_array($arrReturn) || count($arrReturn) == 0) {
+        if (!is_array($elements) || count($elements) == 0) {
             return null;
         }
 
         $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalBreadcrumb.css';
 
-        $objTemplate = $this->getTemplate('dcbe_general_breadcrumb');
-        $this->addToTemplate('elements', $arrReturn, $objTemplate);
+        $template = new ContaoBackendViewTemplate('dcbe_general_breadcrumb');
+        $template->set('elements', $elements);
 
-        return $objTemplate->parse();
+        return $template->parse();
     }
-
-    /**
-     * Create a new instance of ContaoBackendViewTemplate with the template file of the given name.
-     *
-     * @param string $strTemplate Name of the template to create.
-     *
-     * @return ContaoBackendViewTemplate
-     */
-    protected function getTemplate($strTemplate)
-    {
-        return new ContaoBackendViewTemplate($strTemplate);
-    }
-
-    /**
-     * Add the value to the template.
-     *
-     * @param string    $name     Name of the value.
-     *
-     * @param mixed     $value    The value to add to the template.
-     *
-     * @param \Template $template The template to add the value to.
-     *
-     * @return BaseView
-     */
-    protected function addToTemplate($name, $value, $template)
-    {
-        $template->$name = $value;
-
-        return $this;
-    }
-
 }
