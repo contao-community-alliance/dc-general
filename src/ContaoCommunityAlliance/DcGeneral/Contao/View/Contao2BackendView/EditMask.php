@@ -18,6 +18,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetEditModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
@@ -629,6 +630,7 @@ class EditMask
      */
     public function execute()
     {
+        $breadcrumb              = $this->breadcrumb();
         $environment             = $this->getEnvironment();
         $definition              = $this->getDataDefinition();
         $dataProvider            = $environment->getDataProvider($this->model->getProviderName());
@@ -681,7 +683,8 @@ class EditMask
                 'enctype'     => 'multipart/form-data',
                 'error'       => $this->errors,
                 'editButtons' => $this->getEditButtons(),
-                'noReload'    => (bool) $this->errors
+                'noReload'    => (bool) $this->errors,
+                'breadcrumb'  => $breadcrumb
             )
         );
 
@@ -713,4 +716,63 @@ class EditMask
 
         return $objTemplate->parse();
     }
+
+    /**
+     * Get the breadcrumb navigation via event.
+     *
+     * @return string
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     */
+    protected function breadcrumb()
+    {
+        $event = new GetBreadcrumbEvent($this->getEnvironment());
+
+        $this->getEnvironment()->getEventDispatcher()->dispatch(sprintf('%s', $event::NAME), $event);
+
+        $arrReturn = $event->getElements();
+
+        if (!is_array($arrReturn) || count($arrReturn) == 0) {
+            return null;
+        }
+
+        $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalBreadcrumb.css';
+
+        $objTemplate = $this->getTemplate('dcbe_general_breadcrumb');
+        $this->addToTemplate('elements', $arrReturn, $objTemplate);
+
+        return $objTemplate->parse();
+    }
+
+    /**
+     * Create a new instance of ContaoBackendViewTemplate with the template file of the given name.
+     *
+     * @param string $strTemplate Name of the template to create.
+     *
+     * @return ContaoBackendViewTemplate
+     */
+    protected function getTemplate($strTemplate)
+    {
+        return new ContaoBackendViewTemplate($strTemplate);
+    }
+
+    /**
+     * Add the value to the template.
+     *
+     * @param string    $name     Name of the value.
+     *
+     * @param mixed     $value    The value to add to the template.
+     *
+     * @param \Template $template The template to add the value to.
+     *
+     * @return BaseView
+     */
+    protected function addToTemplate($name, $value, $template)
+    {
+        $template->$name = $value;
+
+        return $this;
+    }
+
 }

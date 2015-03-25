@@ -45,6 +45,10 @@ $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalDriver.css';
 <a href="<?php echo $this->getReferer(true); ?>" class="header_back" title="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['backBT']); ?>" accesskey="b" onclick="Backend.getScrollOffset();"><?php echo $GLOBALS['TL_LANG']['MSC']['backBT']; ?></a>
 </div>
 
+<div class="tl_listing_container">
+
+    <?php if(strlen($this->breadcrumb)) echo $this->breadcrumb; ?>
+</div>
 <h2 class="sub_headline"><?php echo $this->subHeadline; ?><?php echo ($this->languageHeadline != "")? " - " . $this->languageHeadline : ""; ?></h2>
 <?php echo $this->getMessages(); ?>
 
