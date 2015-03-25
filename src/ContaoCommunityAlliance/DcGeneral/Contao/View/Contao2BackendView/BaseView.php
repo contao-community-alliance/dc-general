@@ -1642,7 +1642,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $event = new GetBreadcrumbEvent($this->getEnvironment());
 
-        $this->getEnvironment()->getEventDispatcher()->dispatch(sprintf('%s', $event::NAME), $event);
+        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
 
         $arrReturn = $event->getElements();
 
