@@ -18,6 +18,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetEditModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
@@ -85,6 +86,13 @@ class EditMask
     protected $errors = array();
 
     /**
+     * The rendered breadcrumb.
+     *
+     * @var string
+     */
+    protected $breadcrumb;
+
+    /**
      * Create the edit mask.
      *
      * @param BackendViewInterface $view          The view in use.
@@ -96,14 +104,17 @@ class EditMask
      * @param callable             $preFunction   The function to call before saving an item.
      *
      * @param callable             $postFunction  The function to call after saving an item.
+     *
+     * @param string               $breadcrumb    The rendered breadcrumb.
      */
-    public function __construct($view, $model, $originalModel, $preFunction, $postFunction)
+    public function __construct($view, $model, $originalModel, $preFunction, $postFunction, $breadcrumb)
     {
         $this->view          = $view;
         $this->model         = $model;
         $this->originalModel = $originalModel;
         $this->preFunction   = $preFunction;
         $this->postFunction  = $postFunction;
+        $this->breadcrumb    = $breadcrumb;
     }
 
     /**
@@ -681,7 +692,8 @@ class EditMask
                 'enctype'     => 'multipart/form-data',
                 'error'       => $this->errors,
                 'editButtons' => $this->getEditButtons(),
-                'noReload'    => (bool) $this->errors
+                'noReload'    => (bool) $this->errors,
+                'breadcrumb'  => $this->breadcrumb
             )
         );
 
