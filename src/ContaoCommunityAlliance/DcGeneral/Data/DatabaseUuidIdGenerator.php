@@ -26,11 +26,11 @@ class DatabaseUuidIdGenerator implements IdGeneratorInterface
     protected $database;
 
     /**
-     * Set the Database instance.
+     * Create a new instance.
      *
-     * @param \Database $database The current database instance.
+     * @param \Database $database The database to use for uuid generating.
      */
-    public function setDatabase(\Database $database)
+    public function __construct(\Database $database)
     {
         $this->database = $database;
     }
