@@ -16,16 +16,6 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
  */
 interface IdGeneratorInterface
 {
-
-    /**
-     * Pass the database to the idGenerator.
-     *
-     * @param \Database $database The current database instance.
-     *
-     * @return mixed
-     */
-    public function setDatabase(\Database $database);
-
     /**
      * Generate an id.
      *
