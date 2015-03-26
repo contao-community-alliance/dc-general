@@ -85,6 +85,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
     /**
      * {@inheritDoc}
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function build(ContainerInterface $container, BuildDataDefinitionEvent $event)
     {
