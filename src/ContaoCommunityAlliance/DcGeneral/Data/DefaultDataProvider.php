@@ -149,6 +149,14 @@ class DefaultDataProvider implements DataProviderInterface
             $this->objDatabase = $arrConfig['database'];
         }
 
+        if (isset($arrConfig['idGenerator'])) {
+            if ($arrConfig['idGenerator'] instanceof IdGeneratorInterface) {
+                $idGenerator = $arrConfig['idGenerator'];
+                $idGenerator->setDatabase($this->objDatabase);
+                $this->setIdGenerator($idGenerator);
+            }
+        }
+
         $this->strSource = $arrConfig['source'];
 
         if (isset($arrConfig['timeStampProperty'])) {
@@ -521,7 +529,7 @@ class DefaultDataProvider implements DataProviderInterface
             $arrParams = array();
 
             // Build SQL.
-            $query  = sprintf(
+            $query = sprintf(
                 'SELECT %s FROM %s',
                 $this->buildFieldQuery($objConfig),
                 $this->strSource
@@ -550,7 +558,7 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $arrParams = array();
         // Build SQL.
-        $query  = sprintf(
+        $query = sprintf(
             'SELECT %s FROM %s',
             $this->buildFieldQuery($objConfig),
             $this->strSource
@@ -626,7 +634,7 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $arrParams = array();
 
-        $query  = sprintf(
+        $query = sprintf(
             'SELECT COUNT(*) AS count FROM %s',
             $this->strSource
         );
