@@ -5,6 +5,8 @@
  *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     Andreas Isaak <andy.jared@googlemail.com>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource

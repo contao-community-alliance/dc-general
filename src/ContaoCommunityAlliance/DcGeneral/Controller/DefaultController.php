@@ -6,6 +6,12 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     Andreas Isaak <andy.jared@googlemail.com>
+ * @author     David Greminger <david.greminger@1up.io>
+ * @author     Oliver Hoff <oliver@hofff.com>
+ * @author     Patrick Kahl <kahl.patrick@googlemail.com>
+ * @author     Stefan Lindecke <github.com@chektrion.de>
+ * @author     Andreas Nölke <zero@brothers-project.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
