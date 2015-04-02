@@ -557,7 +557,7 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $arrParams = array();
         // Build SQL.
-        $query = sprintf(
+        $query  = sprintf(
             'SELECT %s FROM %s',
             $this->buildFieldQuery($objConfig),
             $this->strSource
@@ -633,7 +633,7 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $arrParams = array();
 
-        $query = sprintf(
+        $query  = sprintf(
             'SELECT COUNT(*) AS count FROM %s',
             $this->strSource
         );
