@@ -14,10 +14,10 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\DcGeneral;
-use ContaoCommunityAlliance\DcGeneral\Event\EventPropagator;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\Translator\Contao\LangArrayTranslator;
 use ContaoCommunityAlliance\Translator\TranslatorChain;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * Class TreeSelect.
@@ -91,8 +91,7 @@ class TreeSelect
         define('CURRENT_ID', ($strTable ? \Session::getInstance()->get('CURRENT_ID') : \Input::get('id')));
 
         $dispatcher = $GLOBALS['container']['event-dispatcher'];
-        /** @var \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher */
-        $propagator = new EventPropagator($dispatcher);
+        $propagator = new EventDispatcher($dispatcher);
 
         $translator = new TranslatorChain();
         $translator->add(new LangArrayTranslator($dispatcher));
@@ -101,7 +100,7 @@ class TreeSelect
         $this->itemContainer = $factory
             ->setContainerName($strTable)
             ->setTranslator($translator)
-            ->setEventPropagator($propagator)
+            ->setEventDispatcher($propagator)
             ->createDcGeneral();
 
         $information = (array) $GLOBALS['TL_DCA'][$strTable]['fields'][$strField];
