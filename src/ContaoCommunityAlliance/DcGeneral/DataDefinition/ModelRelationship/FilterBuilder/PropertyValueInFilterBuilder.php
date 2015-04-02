@@ -11,6 +11,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
 
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
+
 /**
  * Handy helper class to generate and manipulate AND filter arrays.
  *

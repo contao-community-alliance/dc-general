@@ -51,8 +51,8 @@ class GetPanelElementTemplateEvent extends AbstractEnvironmentAwareEvent
      */
     public function __construct(EnvironmentInterface $environment, PanelElementInterface $element)
     {
-        $this->environment = $environment;
-        $this->element     = $element;
+        parent::__construct($environment);
+        $this->element = $element;
     }
 
     /**

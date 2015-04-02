@@ -104,7 +104,7 @@ class TreeSelect
             ->setEventPropagator($propagator)
             ->createDcGeneral();
 
-        $information = (array)$GLOBALS['TL_DCA'][$strTable]['fields'][$strField];
+        $information = (array) $GLOBALS['TL_DCA'][$strTable]['fields'][$strField];
 
         if (!isset($information['eval'])) {
             $information['eval'] = array();

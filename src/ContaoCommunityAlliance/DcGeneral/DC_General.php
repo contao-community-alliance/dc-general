@@ -44,6 +44,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
      */
     protected $objEnvironment;
 
+    /** @noinspection PhpMissingParentConstructorInspection */
     /**
      * Create a new instance.
      *
