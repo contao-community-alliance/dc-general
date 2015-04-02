@@ -149,6 +149,13 @@ class DefaultDataProvider implements DataProviderInterface
             $this->objDatabase = $arrConfig['database'];
         }
 
+        if (isset($arrConfig['idGenerator'])) {
+            if ($arrConfig['idGenerator'] instanceof IdGeneratorInterface) {
+                $idGenerator = $arrConfig['idGenerator'];
+                $this->setIdGenerator($idGenerator);
+            }
+        }
+
         $this->strSource = $arrConfig['source'];
 
         if (isset($arrConfig['timeStampProperty'])) {
