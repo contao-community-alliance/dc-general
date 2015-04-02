@@ -19,42 +19,42 @@ use ContaoCommunityAlliance\DcGeneral\Test\DataDefinition\AbstractConditionChain
 
 class PaletteConditionChainTest extends AbstractConditionChainTestBase
 {
-	public function testClone()
-	{
-		$condition = new PaletteConditionChain();
+    public function testClone()
+    {
+        $condition = new PaletteConditionChain();
 
-		$condition->addCondition(new PropertyValueCondition('propname', '0'));
-		$condition->addCondition(new PropertyValueCondition('propname2', '1'));
+        $condition->addCondition(new PropertyValueCondition('propname', '0'));
+        $condition->addCondition(new PropertyValueCondition('propname2', '1'));
 
-		$this->assertCloneMatch($condition);
-	}
+        $this->assertCloneMatch($condition);
+    }
 
-	public function testGetMatch()
-	{
-		$condition = new PaletteConditionChain();
-		$condition->setConjunction(PaletteConditionChain::AND_CONJUNCTION);
+    public function testGetMatch()
+    {
+        $condition = new PaletteConditionChain();
+        $condition->setConjunction(PaletteConditionChain::AND_CONJUNCTION);
 
-		$condition->addCondition(new PropertyValueCondition('prop1', '0'));
-		$condition->addCondition(new PropertyValueCondition('prop2', '1'));
+        $condition->addCondition(new PropertyValueCondition('prop1', '0'));
+        $condition->addCondition(new PropertyValueCondition('prop2', '1'));
 
-		$this->assertEquals(0, $condition->getMatchCount());
+        $this->assertEquals(0, $condition->getMatchCount());
 
-		$model = new DefaultModel();
-		$model->setProperty('prop1', '0');
-		$model->setProperty('prop2', '1');
+        $model = new DefaultModel();
+        $model->setProperty('prop1', '0');
+        $model->setProperty('prop2', '1');
 
-		$this->assertEquals(2, $condition->getMatchCount($model));
+        $this->assertEquals(2, $condition->getMatchCount($model));
 
-		$model->setProperty('prop2', '0');
-		$this->assertEquals(0, $condition->getMatchCount($model));
+        $model->setProperty('prop2', '0');
+        $this->assertEquals(0, $condition->getMatchCount($model));
 
-		$propertyValueBag = new PropertyValueBag();
-		$propertyValueBag->setPropertyValue('prop1', '0');
-		$propertyValueBag->setPropertyValue('prop2', '1');
+        $propertyValueBag = new PropertyValueBag();
+        $propertyValueBag->setPropertyValue('prop1', '0');
+        $propertyValueBag->setPropertyValue('prop2', '1');
 
-		$this->assertEquals(2, $condition->getMatchCount(null, $propertyValueBag));
+        $this->assertEquals(2, $condition->getMatchCount(null, $propertyValueBag));
 
-		$propertyValueBag->setPropertyValue('prop2', '3');
-		$this->assertEquals(0, $condition->getMatchCount(null, $propertyValueBag));
-	}
+        $propertyValueBag->setPropertyValue('prop2', '3');
+        $this->assertEquals(0, $condition->getMatchCount(null, $propertyValueBag));
+    }
 }

@@ -17,40 +17,40 @@ use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 
 class ParentChildConditionTest extends TestCase
 {
-	public function testMatches()
-	{
-		$parent = new DefaultModel();
-		$parent->setId(1);
+    public function testMatches()
+    {
+        $parent = new DefaultModel();
+        $parent->setId(1);
 
-		$child = new DefaultModel();
-		$child->setPropertyRaw('pid', 1);
+        $child = new DefaultModel();
+        $child->setPropertyRaw('pid', 1);
 
-		$condition = new ParentChildCondition();
-		$condition->setFilterArray(array(array(
-			'local'     => 'id',
-			'operation' => '=',
-			'remote'    => 'pid'
-		)));
+        $condition = new ParentChildCondition();
+        $condition->setFilterArray(array(array(
+            'local'     => 'id',
+            'operation' => '=',
+            'remote'    => 'pid'
+        )));
 
-		$this->assertTrue($condition->matches($parent, $child));
-	}
+        $this->assertTrue($condition->matches($parent, $child));
+    }
 
-	public function testMatchesRemoteValue()
-	{
-		$parent = new DefaultModel();
-		$parent->setId(1);
+    public function testMatchesRemoteValue()
+    {
+        $parent = new DefaultModel();
+        $parent->setId(1);
 
-		$child = new DefaultModel();
-		$child->setPropertyRaw('pid', 1);
-		$child->setId(2);
+        $child = new DefaultModel();
+        $child->setPropertyRaw('pid', 1);
+        $child->setId(2);
 
-		$condition = new ParentChildCondition();
-		$condition->setFilterArray(array(array(
-			'local'        => 'id',
-			'operation'    => '=',
-			'remote_value' => '2'
-		)));
+        $condition = new ParentChildCondition();
+        $condition->setFilterArray(array(array(
+            'local'        => 'id',
+            'operation'    => '=',
+            'remote_value' => '2'
+        )));
 
-		$this->assertTrue($condition->matches($parent, $child));
-	}
+        $this->assertTrue($condition->matches($parent, $child));
+    }
 }

@@ -16,34 +16,34 @@ use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 
 class FilterBuilderTest extends TestCase
 {
-	public function testEmpty()
-	{
-		$builder = new FilterBuilder();
+    public function testEmpty()
+    {
+        $builder = new FilterBuilder();
 
-		$this->assertEquals(array(), $builder->getAllAsArray());
-	}
+        $this->assertEquals(array(), $builder->getAllAsArray());
+    }
 
-	public function testNoOp()
-	{
-		$filter = array(array('operation' => '=', 'property' => 'prop', 'value' => '1'));
+    public function testNoOp()
+    {
+        $filter = array(array('operation' => '=', 'property' => 'prop', 'value' => '1'));
 
-		$builder = new FilterBuilder($filter, true);
+        $builder = new FilterBuilder($filter, true);
 
-		$this->assertEquals($filter, $builder->getAllAsArray());
-	}
+        $this->assertEquals($filter, $builder->getAllAsArray());
+    }
 
-	public function testAddAnd()
-	{
-		$filter = array(array('operation' => '=', 'property' => 'prop', 'value' => '1'));
-		$result = array_merge(
-			$filter,
-			array(array('operation' => '=', 'property' => 'prop2', 'value' => '2'))
-		);
+    public function testAddAnd()
+    {
+        $filter = array(array('operation' => '=', 'property' => 'prop', 'value' => '1'));
+        $result = array_merge(
+            $filter,
+            array(array('operation' => '=', 'property' => 'prop2', 'value' => '2'))
+        );
 
-		$builder = new FilterBuilder($filter, true);
+        $builder = new FilterBuilder($filter, true);
 
-		$builder->getFilter()->andPropertyEquals('prop2', '2');
+        $builder->getFilter()->andPropertyEquals('prop2', '2');
 
-		$this->assertEquals($result, $builder->getAllAsArray());
-	}
+        $this->assertEquals($result, $builder->getAllAsArray());
+    }
 }

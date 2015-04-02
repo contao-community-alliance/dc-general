@@ -17,13 +17,13 @@ use ContaoCommunityAlliance\DcGeneral\Test\DataDefinition\AbstractConditionChain
 
 class PropertyConditionChainTest extends AbstractConditionChainTestBase
 {
-	public function testClone()
-	{
-		$condition = new PropertyConditionChain();
+    public function testClone()
+    {
+        $condition = new PropertyConditionChain();
 
-		$condition->addCondition(new PropertyValueCondition('propname', '0'));
-		$condition->addCondition(new PropertyValueCondition('propname2', '1'));
+        $condition->addCondition(new PropertyValueCondition('propname', '0'));
+        $condition->addCondition(new PropertyValueCondition('propname2', '1'));
 
-		$this->assertCloneMatch($condition);
-	}
+        $this->assertCloneMatch($condition);
+    }
 }
