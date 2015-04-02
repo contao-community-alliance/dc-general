@@ -528,7 +528,7 @@ class DefaultDataProvider implements DataProviderInterface
             $arrParams = array();
 
             // Build SQL.
-            $query = sprintf(
+            $query  = sprintf(
                 'SELECT %s FROM %s',
                 $this->buildFieldQuery($objConfig),
                 $this->strSource
