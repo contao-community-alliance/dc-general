@@ -58,21 +58,20 @@ class Ajax3X extends Ajax
         $widgetManager = new ContaoWidgetManager($environment, $model);
 
         // Process input and update changed properties.
-        if (!empty($propertyValue)) {
-            $treeType      = substr($property->getWidgetType(), 0, 4);
-            $propertyValue = $this->getTreeValue($treeType, $propertyValue);
-            if ($treeType == 'file') {
-                $extra = $property->getExtra();
-                if (is_array($propertyValue) && !isset($extra['multiple'])) {
-                    $propertyValue = $propertyValue[0];
-                } else {
-                    $propertyValue = implode(',', $propertyValue);
-                }
+        $treeType      = substr($property->getWidgetType(), 0, 4);
+        $propertyValue = $this->getTreeValue($treeType, $propertyValue);
+        if ($treeType == 'file') {
+            $extra = $property->getExtra();
+            if (is_array($propertyValue) && !isset($extra['multiple'])) {
+                $propertyValue = $propertyValue[0];
+            } else {
+                $propertyValue = implode(',', (array) $propertyValue);
             }
-            $propertyValues->setPropertyValue($fieldName, $propertyValue);
-            $widgetManager->processInput($propertyValues);
-            $model->setProperty($fieldName, $propertyValues->getPropertyValue($fieldName));
         }
+
+        $propertyValues->setPropertyValue($fieldName, $propertyValue);
+        $widgetManager->processInput($propertyValues);
+        $model->setProperty($fieldName, $propertyValues->getPropertyValue($fieldName));
 
         $widget = $widgetManager->getWidget($fieldName);
 
