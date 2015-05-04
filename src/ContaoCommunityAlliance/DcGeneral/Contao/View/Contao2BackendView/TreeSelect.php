@@ -91,7 +91,6 @@ class TreeSelect
         define('CURRENT_ID', ($strTable ? \Session::getInstance()->get('CURRENT_ID') : \Input::get('id')));
 
         $dispatcher = $GLOBALS['container']['event-dispatcher'];
-        $propagator = new EventDispatcher($dispatcher);
 
         $translator = new TranslatorChain();
         $translator->add(new LangArrayTranslator($dispatcher));
@@ -100,7 +99,7 @@ class TreeSelect
         $this->itemContainer = $factory
             ->setContainerName($strTable)
             ->setTranslator($translator)
-            ->setEventDispatcher($propagator)
+            ->setEventDispatcher($dispatcher)
             ->createDcGeneral();
 
         $information = (array) $GLOBALS['TL_DCA'][$strTable]['fields'][$strField];
