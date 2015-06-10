@@ -10,6 +10,7 @@
  * @author     David Maack <david.maack@arcor.de>
  * @author     Patrick Kahl <kahl.patrick@googlemail.com>
  * @author     Simon Kusterer <simon@soped.com>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -380,7 +381,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
      * @deprecated Only here as requirement of \DataContainer
      *
      * @return void
-     * @throws DcGeneralRuntimeException
+     * @throws DcGeneralRuntimeException Throws exception because method is not supported.
      */
     public function getPalette()
     {
@@ -393,7 +394,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
      * @deprecated Only here as requirement of \DataContainer
      *
      * @return void
-     * @throws DcGeneralRuntimeException
+     * @throws DcGeneralRuntimeException Throws exception because method is not supported.
      */
     protected function save($varValue)
     {
