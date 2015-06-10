@@ -373,4 +373,30 @@ class DC_General extends \DataContainer implements DataContainerInterface
     {
         return $this->callAction();
     }
+
+    /**
+     * Do not use.
+     *
+     * @deprecated Only here as requirement of \DataContainer
+     *
+     * @return void
+     * @throws DcGeneralRuntimeException
+     */
+    public function getPalette()
+    {
+        throw new DcGeneralRuntimeException('DC General does not support $dc->getPalette().');
+    }
+
+    /**
+     * Do not use.
+     *
+     * @deprecated Only here as requirement of \DataContainer
+     *
+     * @return void
+     * @throws DcGeneralRuntimeException
+     */
+    protected function save($varValue)
+    {
+        throw new DcGeneralRuntimeException('DC General does not support $dc->save.');
+    }
 }
