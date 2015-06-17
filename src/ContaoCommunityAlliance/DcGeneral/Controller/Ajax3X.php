@@ -60,7 +60,7 @@ class Ajax3X extends Ajax
         // Process input and update changed properties.
         $treeType      = substr($property->getWidgetType(), 0, 4);
         $propertyValue = $this->getTreeValue($treeType, $propertyValue);
-        if ($treeType == 'file') {
+        if (($treeType == 'file') || ($treeType == 'page')) {
             $extra = $property->getExtra();
             if (is_array($propertyValue) && !isset($extra['multiple'])) {
                 $propertyValue = $propertyValue[0];
