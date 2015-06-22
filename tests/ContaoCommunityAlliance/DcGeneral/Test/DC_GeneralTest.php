@@ -35,11 +35,11 @@ class DC_GeneralTest extends TestCase
         define('TL_MODE', 'BE');
         $_SESSION = array('BE_DATA' => array('DC_GENERAL_TL_FOO' => array()));
         require_once __DIR__ . '/../../../../vendor/contao/core/system/helper/interface.php';
-        class_alias('\\Contao\\Session', 'Session');
-        class_alias('\\Contao\\System', 'System');
-        class_alias('\\Contao\\Controller', 'Controller');
-        class_alias('\\Contao\\Backend', 'Backend');
-        class_alias('\\Contao\\DataContainer', 'DataContainer');
+        $this->aliasContaoClass('Session');
+        $this->aliasContaoClass('System');
+        $this->aliasContaoClass('Controller');
+        $this->aliasContaoClass('Backend');
+        $this->aliasContaoClass('DataContainer');
 
         $eventDispatcher = new EventDispatcher();
         $container       = $GLOBALS['container'] = new \Pimple(array('event-dispatcher' => $eventDispatcher));
