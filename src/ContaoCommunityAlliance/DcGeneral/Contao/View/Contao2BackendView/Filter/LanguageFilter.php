@@ -5,6 +5,7 @@
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -66,7 +67,7 @@ class LanguageFilter implements EventSubscriberInterface
         $sessionStorage = $environment->getSessionStorage();
         $dataProvider   = $environment->getDataProvider();
         $providerName   = $environment->getDataDefinition()->getName();
-        $modelId        = $inputProvider->hasParameter('id')
+        $modelId        = ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id'))
             ? IdSerializer::fromSerialized($inputProvider->getParameter('id'))->getId()
             : null;
         $languages      = $environment->getController()->getSupportedLanguages($modelId);
@@ -116,7 +117,7 @@ class LanguageFilter implements EventSubscriberInterface
             return;
         }
 
-        $modelId      = $inputProvider->hasParameter('id')
+        $modelId      = ($inputProvider->getParameter('id') && $inputProvider->getParameter('id'))
             ? IdSerializer::fromSerialized($inputProvider->getParameter('id'))->getId()
             : null;
         $languages    = $environment->getController()->getSupportedLanguages($modelId);
