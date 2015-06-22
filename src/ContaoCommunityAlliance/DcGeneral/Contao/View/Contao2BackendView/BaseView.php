@@ -505,6 +505,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             : null;
         $items         = array();
 
+        $panel      = $this->getPanel();
+        $baseConfig = $environment->getBaseConfigRegistry()->getBaseConfig();
+        $panel->initialize($baseConfig);
+
         $models = $controller->applyClipboardActions($source, $after, $into, $parentModelId, null, $items);
 
         if (!$source) {
