@@ -7,6 +7,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Andreas Nölke <zero@brothers-project.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
