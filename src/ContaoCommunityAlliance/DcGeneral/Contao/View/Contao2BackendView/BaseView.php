@@ -677,7 +677,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $definition    = $environment->getDataDefinition();
         $inputProvider = $environment->getInputProvider();
 
-        if (!$inputProvider->hasParameter('id')) {
+        if (!$inputProvider->hasParameter('id') || !$inputProvider->getParameter('id')) {
             return;
         }
 
@@ -731,7 +731,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $environment   = $this->getEnvironment();
         $inputProvider = $environment->getInputProvider();
-        $modelId       = $inputProvider->hasParameter('id')
+        $modelId       = ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id'))
             ? IdSerializer::fromSerialized($inputProvider->getParameter('id'))
             : null;
         $dataProvider  = $environment->getDataProvider($modelId ? $modelId->getDataProviderName() : null);
@@ -835,11 +835,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function toggle(Action $action, $name = 'toggle')
     {
-        $environment = $this->getEnvironment();
-        $input       = $environment->getInputProvider();
+        $environment   = $this->getEnvironment();
+        $inputProvider = $environment->getInputProvider();
 
-        if ($input->hasParameter('id')) {
-            $serializedId = IdSerializer::fromSerialized($input->getParameter('id'));
+        if ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id')) {
+            $serializedId = IdSerializer::fromSerialized($inputProvider->getParameter('id'));
         }
 
         if (!(isset($serializedId)
@@ -852,8 +852,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $operation    = $this->getViewSection()->getModelCommands()->getCommandNamed($name);
         $dataProvider = $environment->getDataProvider();
         $newState     = $operation->isInverse()
-            ? $input->getParameter('state') == 1 ? '' : '1'
-            : $input->getParameter('state') == 1 ? '1' : '';
+            ? $inputProvider->getParameter('state') == 1 ? '' : '1'
+            : $inputProvider->getParameter('state') == 1 ? '1' : '';
 
         $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($serializedId->getId()));
 

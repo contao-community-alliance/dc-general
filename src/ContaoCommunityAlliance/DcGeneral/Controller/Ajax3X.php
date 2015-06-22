@@ -223,7 +223,7 @@ class Ajax3X extends Ajax
     {
         $environment  = $this->getEnvironment();
         $input        = $environment->getInputProvider();
-        $serializedId = $input->hasParameter('id') ? $input->getParameter('id') : null;
+        $serializedId = ($input->hasParameter('id') && $input->getParameter('id')) ? $input->getParameter('id') : null;
         $fieldName    = $input->hasValue('name') ? $input->getValue('name') : null;
         $value        = $input->hasValue('value') ? $input->getValue('value', true) : null;
 
