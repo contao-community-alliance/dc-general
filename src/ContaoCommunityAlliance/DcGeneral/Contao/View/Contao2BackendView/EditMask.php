@@ -529,8 +529,11 @@ class EditMask
             $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
             $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getUrl()));
         } elseif ($inputProvider->hasValue('saveNback')) {
-            echo vsprintf($this->notImplMsg, 'Save and go back');
-            exit;
+            $parentProviderName = $environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider();
+            $newUrlEvent        = new GetReferrerEvent(false, $parentProviderName);
+
+            $dispatcher->dispatch(ContaoEvents::SYSTEM_GET_REFERRER, $newUrlEvent);
+            $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getReferrerUrl()));
         }
     }
 
