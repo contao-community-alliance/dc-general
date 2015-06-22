@@ -865,6 +865,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             $information->setGroupingLength($propInfo['length']);
         }
 
+        // Special case for field named "sorting" in Contao.
+        if ($propName === 'sorting') {
+            $information->setManualSorting();
+        }
+
         $flag = empty($propInfo['flag']) ? $this->getFromDca('list/sorting/flag') : $propInfo['flag'];
         $this->evalFlag($information, $flag);
     }
@@ -997,7 +1002,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Add filter elements to the panel.
      *
      * @param PanelRowInterface $row The row to which the element shall get added to.
-     *
+     *<
      * @return void
      */
     protected function parsePanelFilter(PanelRowInterface $row)
