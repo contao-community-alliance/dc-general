@@ -5,6 +5,7 @@
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -863,6 +864,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $information->setProperty($propName);
         if (isset($propInfo['length'])) {
             $information->setGroupingLength($propInfo['length']);
+        }
+
+        // Special case for field named "sorting" in Contao.
+        if ($propName === 'sorting') {
+            $information->setManualSorting();
         }
 
         $flag = empty($propInfo['flag']) ? $this->getFromDca('list/sorting/flag') : $propInfo['flag'];
