@@ -1003,7 +1003,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Add filter elements to the panel.
      *
      * @param PanelRowInterface $row The row to which the element shall get added to.
-     *<
+     *
      * @return void
      */
     protected function parsePanelFilter(PanelRowInterface $row)
