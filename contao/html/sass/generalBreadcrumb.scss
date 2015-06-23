@@ -17,6 +17,6 @@
   }
 
   #tl_breadcrumb li:first-child:before {
-    content: "";
+    display: none;
   }
 }
