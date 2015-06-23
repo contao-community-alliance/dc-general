@@ -6,6 +6,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -52,7 +53,15 @@ class ListView extends BaseView
         $dataProvider  = $environment->getDataProvider();
         $dataConfig    = $environment->getBaseConfigRegistry()->getBaseConfig();
 
+        // Store default sorting start initializing the panel with an empty sorting.
+        $sorting = $dataConfig->getSorting();
+        $dataConfig->setSorting(array());
         $this->getPanel()->initialize($dataConfig);
+
+        // Restore default sorting if panel did not set any.
+        if ($sorting && !$dataConfig->getSorting()) {
+            $dataConfig->setSorting($sorting);
+        }
 
         // Initialize sorting if not present yet.
         if (!$dataConfig->getSorting() && $listingConfig->getGroupAndSortingDefinition()->hasDefault()) {
