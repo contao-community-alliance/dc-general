@@ -45,6 +45,15 @@ class GetGroupHeaderEvent extends AbstractModelAwareEvent
     protected $groupingMode;
 
     /**
+     * The grouping length in use as defined in the listing config.
+     *
+     * @var int
+     *
+     * @see ListingConfigInterface
+     */
+    protected $groupingLength;
+
+    /**
      * The value to be rendered.
      *
      * @var string

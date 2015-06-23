@@ -158,20 +158,14 @@ class GetGroupHeaderSubscriber
                 return ($value != '') ? ucfirst(utf8_substr($value, 0, $groupingLength ?: null)) : '-';
 
             case GroupAndSortingInformationInterface::GROUP_DAY:
-                if ($value instanceof \DateTime) {
-                    $value = $value->getTimestamp();
-                }
-
+                $value = $this->getTimestamp($value);
                 $event = new ParseDateEvent($value, \Config::get('dateFormat'));
                 $dispatcher->dispatch(ContaoEvents::DATE_PARSE, $event);
 
                 return ($value != '') ? $event->getResult() : '-';
 
             case GroupAndSortingInformationInterface::GROUP_MONTH:
-                if ($value instanceof \DateTime) {
-                    $value = $value->getTimestamp();
-                }
-
+                $value = $this->getTimestamp($value);
                 $event = new ParseDateEvent($value, 'F Y');
                 $dispatcher->dispatch(ContaoEvents::DATE_PARSE, $event);
 
@@ -187,5 +181,21 @@ class GetGroupHeaderSubscriber
             default:
                 return ViewHelpers::getReadableFieldValue($environment, $property, $model);
         }
+    }
+
+    /**
+     * Make sure a timestamp is returned.
+     *
+     * @param int|\DateTime $value The given date.
+     *
+     * @return int
+     */
+    private function getTimestamp($value)
+    {
+        if ($value instanceof \DateTime) {
+            $value = $value->getTimestamp();
+            return $value;
+        }
+        return $value;
     }
 }
