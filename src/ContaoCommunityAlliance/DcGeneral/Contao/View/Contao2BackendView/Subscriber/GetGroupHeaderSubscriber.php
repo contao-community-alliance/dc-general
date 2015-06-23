@@ -16,6 +16,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
@@ -79,7 +80,6 @@ class GetGroupHeaderSubscriber
 
         $translator = $environment->getTranslator();
         $value      = $model->getProperty($property->getName());
-        $dispatcher = $environment->getEventDispatcher();
         $evaluation = $property->getExtra();
 
         if ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple']) {
@@ -90,7 +90,7 @@ class GetGroupHeaderSubscriber
             //    $remoteNew = $objParentModel->getProperty('value');
             // }
         } elseif ($groupingMode != GroupAndSortingInformationInterface::GROUP_NONE) {
-            return $this->formatByGroupingMode($value, $groupingMode, $groupingLength, $translator, $dispatcher);
+            return $this->formatByGroupingMode($value, $groupingMode, $groupingLength, $environment, $property, $model);
         }
 
         $value = ViewHelpers::getReadableFieldValue($environment, $property, $model);
@@ -139,16 +139,22 @@ class GetGroupHeaderSubscriber
      *
      * @param int                      $groupingLength The grouping length.
      *
-     * @param TranslatorInterface      $translator     The translator.
+     * @param EnvironmentInterface     $environment    The environment.
      *
-     * @param EventDispatcherInterface $dispatcher     The event dispatcher.
+     * @param PropertyInterface        $property       The current property definition.
+     *
+     * @param ModelInterface           $model          The current data model.
      *
      * @return string
      */
-    private function formatByGroupingMode($value, $groupingMode, $groupingLength, $translator, $dispatcher)
+    private function formatByGroupingMode($value, $groupingMode, $groupingLength, $environment, $property, $model)
     {
+        $dispatcher = $environment->getEventDispatcher();
+
         switch ($groupingMode) {
             case GroupAndSortingInformationInterface::GROUP_CHAR:
+                $value = ViewHelpers::getReadableFieldValue($environment, $property, $model);
+
                 return ($value != '') ? ucfirst(utf8_substr($value, 0, $groupingLength ?: null)) : '-';
 
             case GroupAndSortingInformationInterface::GROUP_DAY:
@@ -179,7 +185,7 @@ class GetGroupHeaderSubscriber
                 return ($value != '') ? date('Y', $value) : '-';
 
             default:
-                return null;
+                return ViewHelpers::getReadableFieldValue($environment, $property, $model);
         }
     }
 }
