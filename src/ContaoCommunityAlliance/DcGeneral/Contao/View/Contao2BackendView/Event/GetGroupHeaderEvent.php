@@ -54,28 +54,32 @@ class GetGroupHeaderEvent extends AbstractModelAwareEvent
     /**
      * Create a new group header event.
      *
-     * @param EnvironmentInterface $environment   The environment.
+     * @param EnvironmentInterface $environment    The environment.
      *
-     * @param ModelInterface       $model         The model being used as group header.
+     * @param ModelInterface       $model          The model being used as group header.
      *
-     * @param string               $propertyName  The name of the property being rendered into the group header.
+     * @param string               $propertyName   The name of the property being rendered into the group header.
      *
-     * @param mixed                $propertyValue The value of the property being rendered into the group header.
+     * @param mixed                $propertyValue  The value of the property being rendered into the group header.
      *
-     * @param string               $groupingMode  The grouping mode currently active.
+     * @param string               $groupingMode   The grouping mode currently active.
+     *
+     * @param int                  $groupingLength The grouping length currently active.
      */
     public function __construct(
         EnvironmentInterface $environment,
         ModelInterface $model,
         $propertyName,
         $propertyValue,
-        $groupingMode
+        $groupingMode,
+        $groupingLength
     ) {
         parent::__construct($environment, $model);
 
-        $this->groupField   = $propertyName;
-        $this->value        = $propertyValue;
-        $this->groupingMode = $groupingMode;
+        $this->groupField     = $propertyName;
+        $this->value          = $propertyValue;
+        $this->groupingMode   = $groupingMode;
+        $this->groupingLength = $groupingLength;
     }
 
     /**
@@ -98,6 +102,18 @@ class GetGroupHeaderEvent extends AbstractModelAwareEvent
     public function getGroupingMode()
     {
         return $this->groupingMode;
+    }
+
+    /**
+     * Get the grouping length in use as defined in the listing config.
+     *
+     * @return int
+     *
+     * @see    ListingConfigInterface
+     */
+    public function getGroupingLength()
+    {
+        return $this->groupingLength;
     }
 
     /**

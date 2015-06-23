@@ -285,86 +285,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return '-';
         }
 
-        $value      = ViewHelpers::getReadableFieldValue($this->environment, $property, $model);
-        $dispatcher = $this->getEnvironment()->getEventDispatcher();
-        $propExtra  = $property->getExtra();
-        $evaluation = $property->getExtra();
-        $remoteNew  = '';
-
-        if ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple']) {
-            $remoteNew = ($value != '') ? ucfirst($this->translate('MSC.yes')) : ucfirst($this->translate('MSC.no'));
-        } elseif (false && $property->getForeignKey()) {
-            // TODO: refactor foreignKey is yet undefined.
-            if ($objParentModel->hasProperties()) {
-                $remoteNew = $objParentModel->getProperty('value');
-            }
-        } elseif ($groupMode != GroupAndSortingInformationInterface::GROUP_NONE) {
-            switch ($groupMode) {
-                case GroupAndSortingInformationInterface::GROUP_CHAR:
-                    $remoteNew = ($value != '') ? ucfirst(utf8_substr($value, 0, $groupLength ?: null)) : '-';
-                    break;
-
-                case GroupAndSortingInformationInterface::GROUP_DAY:
-                    if ($value instanceof \DateTime) {
-                        $value = $value->getTimestamp();
-                    }
-
-                    $event = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['dateFormat']);
-                    $dispatcher->dispatch(ContaoEvents::DATE_PARSE, $event);
-
-                    $remoteNew = ($value != '') ? $event->getResult() : '-';
-                    break;
-
-                case GroupAndSortingInformationInterface::GROUP_MONTH:
-                    if ($value instanceof \DateTime) {
-                        $value = $value->getTimestamp();
-                    }
-
-                    $remoteNew = ($value != '') ? date('Y-m', $value) : '-';
-                    $intMonth  = ($value != '') ? (date('m', $value) - 1) : '-';
-
-                    if ($month = $this->translate('MONTHS.' . $intMonth)) {
-                        $remoteNew = ($value != '') ? $month . ' ' . date('Y', $value) : '-';
-                    }
-                    break;
-
-                case GroupAndSortingInformationInterface::GROUP_YEAR:
-                    if ($value instanceof \DateTime) {
-                        $value = $value->getTimestamp();
-                    }
-
-                    $remoteNew = ($value != '') ? date('Y', $value) : '-';
-                    break;
-
-                default:
-            }
-        } else {
-            if ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple']) {
-                $remoteNew = ($value != '') ? $field : '';
-            } elseif (isset($propExtra['reference'])) {
-                $remoteNew = $propExtra['reference'][$value];
-            } elseif (array_is_assoc($property->getOptions())) {
-                $options   = $property->getOptions();
-                $remoteNew = $options[$value];
-            } else {
-                $remoteNew = $value;
-            }
-
-            if (is_array($remoteNew)) {
-                $remoteNew = $remoteNew[0];
-            }
-
-            if (empty($remoteNew)) {
-                $remoteNew = '-';
-            }
-        }
-
-        $event = new GetGroupHeaderEvent($this->getEnvironment(), $model, $field, $remoteNew, $groupMode);
+        $event = new GetGroupHeaderEvent($this->getEnvironment(), $model, $field, null, $groupMode, $groupLength);
         $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
 
-        $remoteNew = $event->getValue();
-
-        return $remoteNew;
+        return $event->getValue();
     }
 
     /**
