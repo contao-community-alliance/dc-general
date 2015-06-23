@@ -53,29 +53,9 @@ class ListView extends BaseView
         $dataProvider  = $environment->getDataProvider();
         $dataConfig    = $environment->getBaseConfigRegistry()->getBaseConfig();
 
-        // Store default sorting start initializing the panel with an empty sorting.
-        $sorting = $dataConfig->getSorting();
-        $dataConfig->setSorting(array());
-        $this->getPanel()->initialize($dataConfig);
+        ViewHelpers::initializeSorting($this->getPanel(), $dataConfig, $listingConfig);
 
-        // Restore default sorting if panel did not set any.
-        if ($sorting && !$dataConfig->getSorting()) {
-            $dataConfig->setSorting($sorting);
-        }
-
-        // Initialize sorting if not present yet.
-        if (!$dataConfig->getSorting() && $listingConfig->getGroupAndSortingDefinition()->hasDefault()) {
-            $newSorting = array();
-            foreach ($listingConfig->getGroupAndSortingDefinition()->getDefault() as $information) {
-                /** @var GroupAndSortingInformationInterface $information */
-                $newSorting[$information->getProperty()] = strtoupper($information->getSortingMode());
-            }
-            $dataConfig->setSorting($newSorting);
-        }
-
-        $objCollection = $dataProvider->fetchAll($dataConfig);
-
-        return $objCollection;
+        return $dataProvider->fetchAll($dataConfig);
     }
 
     /**

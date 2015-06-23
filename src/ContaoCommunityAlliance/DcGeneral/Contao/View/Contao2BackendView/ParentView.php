@@ -61,29 +61,9 @@ class ParentView extends BaseView
         $childConfig   = $environment->getBaseConfigRegistry()->getBaseConfig();
         $listingConfig = $this->getViewSection()->getListingConfig();
 
-        // Store default sorting start initializing the panel with an empty sorting.
-        $sorting = $childConfig->getSorting();
-        $childConfig->setSorting(array());
-        $this->getPanel()->initialize($childConfig);
+        ViewHelpers::initializeSorting($this->getPanel(), $childConfig, $listingConfig);
 
-        // Restore default sorting if panel did not set any.
-        if ($sorting && !$childConfig->getSorting()) {
-            $childConfig->setSorting($sorting);
-        }
-
-        // Initialize sorting if not present yet.
-        if (!$childConfig->getSorting() && $listingConfig->getGroupAndSortingDefinition()->hasDefault()) {
-            $newSorting = array();
-            foreach ($listingConfig->getGroupAndSortingDefinition()->getDefault() as $information) {
-                /** @var GroupAndSortingInformationInterface $information */
-                $newSorting[$information->getProperty()] = strtoupper($information->getSortingMode());
-            }
-            $childConfig->setSorting($newSorting);
-        }
-
-        $objChildCollection = $dataProvider->fetchAll($childConfig);
-
-        return $objChildCollection;
+        return $dataProvider->fetchAll($childConfig);
     }
 
     /**
