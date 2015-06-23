@@ -6,6 +6,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -60,7 +61,15 @@ class ParentView extends BaseView
         $childConfig   = $environment->getBaseConfigRegistry()->getBaseConfig();
         $listingConfig = $this->getViewSection()->getListingConfig();
 
+        // Store default sorting start initializing the panel with an empty sorting.
+        $sorting = $childConfig->getSorting();
+        $childConfig->setSorting(array());
         $this->getPanel()->initialize($childConfig);
+
+        // Restore default sorting if panel did not set any.
+        if ($sorting && !$childConfig->getSorting()) {
+            $childConfig->setSorting($sorting);
+        }
 
         // Initialize sorting if not present yet.
         if (!$childConfig->getSorting() && $listingConfig->getGroupAndSortingDefinition()->hasDefault()) {
