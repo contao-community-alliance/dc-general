@@ -307,15 +307,9 @@ var GeneralTreePicker =
 		});
 		M.addButton(Contao.lang.apply, 'btn primary', function() {
 			var val = [],
-				frm = null,
-				frms = window.frames;
-			for (i=0; i<frms.length; i++) {
-				if (frms[i].name == 'simple-modal-iframe') {
-					frm = frms[i];
-					break;
-				}
-			}
-			if (frm === null) {
+				frm = frm = window.frames['simple-modal-iframe'];
+
+			if (frm === undefined) {
 				alert('Could not find the SimpleModal frame');
 				return;
 			}
