@@ -5,6 +5,7 @@
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -12,6 +13,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event;
 
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
 
 /**
@@ -31,6 +34,26 @@ class GetParentHeaderEvent extends AbstractEnvironmentAwareEvent
      * @var array
      */
     protected $additional;
+
+    /**
+     * The parent model that is used at the header.
+     *
+     * @var ModelInterface
+     */
+    protected $parentModel;
+
+    /**
+     * Construct.
+     *
+     * @param EnvironmentInterface $environment The current environment.
+     * @param ModelInterface       $parentModel The parent model.
+     */
+    public function __construct(EnvironmentInterface $environment, ModelInterface $parentModel)
+    {
+        parent::__construct($environment);
+
+        $this->parentModel = $parentModel;
+    }
 
     /**
      * Set the additional lines that shall be added to the header section.
@@ -54,5 +77,15 @@ class GetParentHeaderEvent extends AbstractEnvironmentAwareEvent
     public function getAdditional()
     {
         return $this->additional;
+    }
+
+    /**
+     * Get the current parent model.
+     *
+     * @return ModelInterface
+     */
+    public function getParentModel()
+    {
+        return $this->parentModel;
     }
 }
