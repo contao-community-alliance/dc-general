@@ -288,7 +288,12 @@ class ParentView extends BaseView
 
             // Add the sorting field.
             if ($value != '') {
-                $lang = $this->translate(sprintf('%s.0', $v), $parentName);
+                if ($v === 'tstamp') {
+                    $lang = $this->translate('tstamp', 'MSC');
+                } else {
+                    $lang = $this->translate(sprintf('%s.0', $v), $parentName);
+                }
+
                 $key  = $lang ? $lang : $v;
 
                 $add[$key] = $value;
