@@ -6,6 +6,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -288,7 +289,12 @@ class ParentView extends BaseView
 
             // Add the sorting field.
             if ($value != '') {
-                $lang = $this->translate(sprintf('%s.0', $v), $parentName);
+                if ($v === 'tstamp') {
+                    $lang = $this->translate('tstamp', 'MSC');
+                } else {
+                    $lang = $this->translate(sprintf('%s.0', $v), $parentName);
+                }
+
                 $key  = $lang ? $lang : $v;
 
                 $add[$key] = $value;
