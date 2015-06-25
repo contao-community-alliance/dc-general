@@ -15,7 +15,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
-use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
 
 /**
  * Class GetParentHeaderEvent.
@@ -24,7 +24,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
  *
  * @package DcGeneral\Contao\View\Contao2BackendView\Event
  */
-class GetParentHeaderEvent extends AbstractEnvironmentAwareEvent
+class GetParentHeaderEvent extends AbstractModelAwareEvent
 {
     const NAME = 'dc-general.view.contao2backend.get-parent-header';
 
@@ -34,26 +34,6 @@ class GetParentHeaderEvent extends AbstractEnvironmentAwareEvent
      * @var array
      */
     protected $additional;
-
-    /**
-     * The parent model that is used at the header.
-     *
-     * @var ModelInterface
-     */
-    protected $parentModel;
-
-    /**
-     * Construct.
-     *
-     * @param EnvironmentInterface $environment The current environment.
-     * @param ModelInterface       $parentModel The parent model.
-     */
-    public function __construct(EnvironmentInterface $environment, ModelInterface $parentModel)
-    {
-        parent::__construct($environment);
-
-        $this->parentModel = $parentModel;
-    }
 
     /**
      * Set the additional lines that shall be added to the header section.
@@ -77,15 +57,5 @@ class GetParentHeaderEvent extends AbstractEnvironmentAwareEvent
     public function getAdditional()
     {
         return $this->additional;
-    }
-
-    /**
-     * Get the current parent model.
-     *
-     * @return ModelInterface
-     */
-    public function getParentModel()
-    {
-        return $this->parentModel;
     }
 }
