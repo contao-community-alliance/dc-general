@@ -6,6 +6,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -13,7 +14,11 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
@@ -70,6 +75,58 @@ class ListView extends BaseView
     }
 
     /**
+     * Render paste top button. Returns null if no button should be rendered.
+     *
+     * @param string $sorting The sorting mode.
+     *
+     * @return string
+     */
+    protected function renderPasteTopButton($sorting)
+    {
+        $definition      = $this->getEnvironment()->getDataDefinition();
+        $dispatcher      = $this->getEnvironment()->getEventDispatcher();
+        $basicDefinition = $definition->getBasicDefinition();
+        $clipboard       = $this->getEnvironment()->getClipboard();
+
+        $filter = new Filter();
+        $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
+
+        if ($sorting && $clipboard->isNotEmpty($filter)) {
+
+            $allowPasteTop = ViewHelpers::getManualSortingProperty($this->environment);
+
+            if ($allowPasteTop) {
+                /** @var AddToUrlEvent $urlEvent */
+                $urlEvent = $dispatcher->dispatch(
+                    ContaoEvents::BACKEND_ADD_TO_URL,
+                    new AddToUrlEvent(
+                        'act=paste&after=' . IdSerializer::fromValues($definition->getName(), 0)->getSerialized()
+                    )
+                );
+
+                /** @var GenerateHtmlEvent $imageEvent */
+                $imageEvent = $dispatcher->dispatch(
+                    ContaoEvents::IMAGE_GET_HTML,
+                    new GenerateHtmlEvent(
+                        'pasteafter.gif',
+                        $this->translate('pasteafter.0', $definition->getName()),
+                        'class="blink"'
+                    )
+                );
+
+                return sprintf(
+                    '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
+                    $urlEvent->getUrl(),
+                    specialchars($this->translate('pasteafter.0', $definition->getName())),
+                    $imageEvent->getHtml()
+                );
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Return the table heading.
      *
      * @return array
@@ -84,6 +141,7 @@ class ListView extends BaseView
         $sorting           = ViewHelpers::getGroupingMode($this->environment);
         $sortingDefinition = $sorting['sorting'];
         $sortingColumns    = array();
+        $pasteTopButton    = $this->renderPasteTopButton($sorting);
 
         if ($sortingDefinition) {
             /** @var GroupAndSortingDefinitionInterface $sortingDefinition */
@@ -113,7 +171,16 @@ class ListView extends BaseView
 
             $arrTableHead[] = array(
                 'class'   => 'tl_folder_tlist tl_right_nowrap',
-                'content' => '&nbsp;'
+                'content' => $pasteTopButton ?: '&nbsp;'
+            );
+        } elseif ($pasteTopButton) {
+            $arrTableHead[] = array(
+                'class' => 'tl_folder_tlist',
+                'content' => '&nbsp'
+            );
+            $arrTableHead[] = array(
+                'class'   => 'tl_folder_tlist tl_right_nowrap',
+                'content' => $pasteTopButton ?: '&nbsp;'
             );
         }
 
