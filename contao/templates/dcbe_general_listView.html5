@@ -43,13 +43,14 @@
 						<?php endif; ?>
 
 						<tr class="<?php echo $objModelRow->getMeta($objModelRow::CSS_ROW_CLASS); ?>" onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);">
-							<?php $arrLabels = $objModelRow->getMeta($objModelRow::LABEL_VALUE); ?>
+							<?php $arrProperties = $objModelRow->getPropertiesAsArray(); ?>
 
-							<?php foreach ($arrLabels as $arrLabel): ?>
-								<td <?php echo ((!is_null($arrLabel['colspan'])) ? 'colspan="' . $arrLabel['colspan'] . '"' : ''); ?> class="<?php echo $arrLabel['class']; ?>">
-									<?php echo $arrLabel['content']; ?>
+							<?php foreach ($arrProperties as $strValue): ?>
+								<td class="<?php echo $arrLabel['class']; ?>">
+									<?php echo $strValue ?>
 								</td>
 							<?php endforeach; ?>
+
 
 							<?php if ($this->select): ?>
 								<td class="tl_file_list tl_right_nowrap">
