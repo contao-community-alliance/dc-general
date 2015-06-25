@@ -15,11 +15,14 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
 use ContaoCommunityAlliance\DcGeneral\View\Event\RenderReadablePropertyValueEvent;
@@ -100,6 +103,40 @@ class ViewHelpers
         }
 
         return null;
+    }
+
+    /**
+     * Initialize the sorting from the panel. Fallback to default sorting if nothing given.
+     *
+     * @param PanelContainerInterface $panel         The current panel.
+     *
+     * @param ConfigInterface         $dataConfig    The current config.
+     *
+     * @param ListingConfigInterface  $listingConfig The listing config.
+     *
+     * @return void
+     */
+    public static function initializeSorting($panel, $dataConfig, $listingConfig)
+    {
+        // Store default sorting start initializing the panel with an empty sorting.
+        $sorting = $dataConfig->getSorting();
+        $dataConfig->setSorting(array());
+        $panel->initialize($dataConfig);
+
+        // Restore default sorting if panel did not set any.
+        if ($sorting && !$dataConfig->getSorting()) {
+            $dataConfig->setSorting($sorting);
+        }
+
+        // Initialize sorting if not present yet.
+        if (!$dataConfig->getSorting() && $listingConfig->getGroupAndSortingDefinition()->hasDefault()) {
+            $newSorting = array();
+            foreach ($listingConfig->getGroupAndSortingDefinition()->getDefault() as $information) {
+                /** @var GroupAndSortingInformationInterface $information */
+                $newSorting[$information->getProperty()] = strtoupper($information->getSortingMode());
+            }
+            $dataConfig->setSorting($newSorting);
+        }
     }
 
     /**
