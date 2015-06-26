@@ -384,7 +384,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         if ($basicDefinition->isDeletable()) {
             $buttons['delete'] = sprintf(
-                '<input' .
+                '<input ' .
                 'type="submit"' .
                 'name="delete"' .
                 'id="delete"' .
