@@ -127,6 +127,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $name   = $action->getName();
 
         switch ($name) {
+            case 'select':
+                $name = 'showAll';
+                // No break here
+
             case 'create':
             case 'paste':
             case 'delete':
