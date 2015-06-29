@@ -20,6 +20,8 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\PrepareMultipleModelsActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
@@ -139,15 +141,9 @@ class SelectHandler extends AbstractHandler
         $environment = $controller->getEnvironment();
         $dispatcher  = $environment->getEventDispatcher();
         $clipboard   = $environment->getClipboard();
-        $parentIdRaw = $environment->getInputProvider()->getParameter('pid');
+        $parentId    = $this->getParentId();
 
         // TODO: Protect against cut in no tree and no manual sorting view.
-
-        if ($parentIdRaw) {
-            $parentId = ModelId::fromSerialized($parentIdRaw);
-        } else {
-            $parentId = null;
-        }
 
         foreach ($modelIds as $modelId) {
             $clipboard->push(new Item(Item::COPY, $parentId, $modelId));
@@ -165,14 +161,33 @@ class SelectHandler extends AbstractHandler
     /**
      * Handle the delete all action.
      *
-     * @param ActionController $controller The action controller.
-     * @param array            $modelIds   The list of model ids.
+     * @param ActionController   $controller The action controller.
+     * @param ModelIdInterface[] $modelIds   The list of model ids.
      *
      * @return void
      */
     protected function handleCopyAllAction(ActionController $controller, $modelIds)
     {
-        throw new DcGeneralRuntimeException('Action copyAll is not implemented yet.');
+        if (ViewHelpers::getManualSortingProperty($this->getEnvironment())) {
+            $clipboard = $this->getEnvironment()->getClipboard();
+            $parentId  = $this->getParentId();
+
+            foreach ($modelIds as $modelId) {
+                $item = new Item(Item::COPY, $parentId, $modelId);
+
+                $clipboard->push($item);
+            }
+
+            $clipboard->saveTo($this->getEnvironment());
+        } else {
+            $processor = $this->createCopyProcessor();
+
+            foreach ($modelIds as $modelId) {
+                $controller->copy($modelId, $processor);
+            }
+        }
+
+        ViewHelpers::redirectHome($this->getEnvironment());
     }
 
     /**
@@ -199,5 +214,48 @@ class SelectHandler extends AbstractHandler
     protected function handleEditAllAction(ActionController $controller, $modelIds)
     {
         throw new DcGeneralRuntimeException('Action editAll is not implemented yet.');
+    }
+
+    /**
+     * Get the parent model id.
+     *
+     * Returns null if no parent id is given.
+     *
+     * @return ModelIdInterface|null
+     */
+    protected function getParentId()
+    {
+        $parentIdRaw = $this->getEnvironment()->getInputProvider()->getParameter('pid');
+
+        if ($parentIdRaw) {
+            $parentId = ModelId::fromSerialized($parentIdRaw);
+            return $parentId;
+        }
+
+        return null;
+    }
+
+    /**
+     * Create the copy processor.
+     *
+     * @return callable
+     */
+    protected function createCopyProcessor()
+    {
+        $environment = $this->getEnvironment();
+        $processor   = function (
+            ModelInterface $copyModel,
+            ModelInterface $model,
+            $preFunction,
+            $postFunction
+        ) use ($environment) {
+            call_user_func_array($preFunction, $environment, $copyModel, $model);
+
+            $provider = $environment->getDataProvider($copyModel->getProviderName());
+            $provider->save($copyModel);
+
+            call_user_func_array($postFunction, $environment, $copyModel, $model);
+        };
+        return $processor;
     }
 }
