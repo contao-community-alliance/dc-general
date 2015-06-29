@@ -249,12 +249,12 @@ class SelectHandler extends AbstractHandler
             $preFunction,
             $postFunction
         ) use ($environment) {
-            call_user_func_array($preFunction, $environment, $copyModel, $model);
+            call_user_func_array($preFunction, array($environment, $copyModel, $model));
 
             $provider = $environment->getDataProvider($copyModel->getProviderName());
             $provider->save($copyModel);
 
-            call_user_func_array($postFunction, $environment, $copyModel, $model);
+            call_user_func_array($postFunction, array($environment, $copyModel, $model));
         };
         return $processor;
     }
