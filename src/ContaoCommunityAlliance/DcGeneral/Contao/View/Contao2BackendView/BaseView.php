@@ -126,6 +126,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $name   = $action->getName();
 
         switch ($name) {
+            case 'copy':
+                if (!method_exists($this, $name)) {
+                    break;
+                }
+                // no break
             case 'create':
             case 'paste':
             case 'delete':
