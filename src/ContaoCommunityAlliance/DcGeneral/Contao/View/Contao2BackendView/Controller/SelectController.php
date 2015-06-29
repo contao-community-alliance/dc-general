@@ -13,6 +13,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Contr
 
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\PrepareMultipleModelsActionEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -64,14 +65,19 @@ class SelectController implements EventSubscriberInterface
      * @param Action               $action       The dcg action.
      * @param string               $submitAction The submit action name.
      *
-     * @return array
+     * @return ModelId[]
      */
     private function getModelIds(EnvironmentInterface $environment, Action $action, $submitAction)
     {
         $current = $environment->getSessionStorage()->get('CURRENT');
 
         if (empty($current['IDS'])) {
-            $modelIds = (array) $environment->getInputProvider()->getValue('IDS');
+            $modelIds = array_map(
+                function ($modelId) {
+                    return ModelId::fromSerialized($modelId);
+                },
+                (array) $environment->getInputProvider()->getValue('IDS')
+            );
 
             $event = new PrepareMultipleModelsActionEvent($environment, $action, $modelIds, $submitAction);
             $environment->getEventDispatcher()->dispatch($event::NAME, $event);
