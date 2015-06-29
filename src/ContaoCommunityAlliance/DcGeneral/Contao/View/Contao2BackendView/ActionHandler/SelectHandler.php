@@ -141,6 +141,8 @@ class SelectHandler extends AbstractHandler
         $clipboard   = $environment->getClipboard();
         $parentIdRaw = $environment->getInputProvider()->getParameter('pid');
 
+        // TODO: Protect against cut in no tree and no manual sorting view.
+
         if ($parentIdRaw) {
             $parentId = ModelId::fromSerialized($parentIdRaw);
         } else {
