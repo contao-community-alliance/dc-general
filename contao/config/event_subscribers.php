@@ -14,10 +14,12 @@
 
 use ContaoCommunityAlliance\DcGeneral\Contao\Event\Subscriber;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\ClipboardController;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\SelectController;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Filter\LanguageFilter;
 
 return array(
     new Subscriber(),
     new ClipboardController(),
+    new SelectController(),
     new LanguageFilter(),
 );
