@@ -14,6 +14,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Contr
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\PrepareMultipleModelsActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -121,13 +122,18 @@ class SelectController implements EventSubscriberInterface
      * Handle the delete all action.
      *
      * @param ActionController $controller The action controller.
-     * @param array            $modelIds   The list of model ids.
+     * @param ModelId[]        $modelIds   The list of model ids.
      *
      * @return void
      */
     private function handleDeleteAllAction(ActionController $controller, $modelIds)
     {
-        throw new DcGeneralRuntimeException('Action deleteAll is not implemented yet.');
+        foreach ($modelIds as $modelId) {
+            // TODO: How to handle errors for one item? Abort and roll back or just log it and print the messages?
+            $controller->delete($modelId);
+        }
+
+        ViewHelpers::redirectHome($controller->getEnvironment());
     }
 
     /**
