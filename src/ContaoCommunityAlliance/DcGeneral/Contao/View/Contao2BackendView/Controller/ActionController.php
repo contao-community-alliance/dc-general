@@ -14,10 +14,13 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Contr
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\EditOnlyModeException;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\NotDeleteableException;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentAwareInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDeleteModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -74,7 +77,7 @@ class ActionController implements EnvironmentAwareInterface
     /**
      * Delete an model.
      *
-     * @param ModelId $modelId The model id.
+     * @param ModelIdInterface $modelId The model id.
      *
      * @return void
      *
@@ -82,7 +85,7 @@ class ActionController implements EnvironmentAwareInterface
      * @throws NotDeleteableException    If the data definition does not allow delete actions.
      * @throws DcGeneralRuntimeException If the model is not found.
      */
-    public function delete(ModelId $modelId)
+    public function delete(ModelIdInterface $modelId)
     {
         $this->guardValidEnvironment($modelId);
 
@@ -157,5 +160,45 @@ class ActionController implements EnvironmentAwareInterface
             $event
         );
         $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+    }
+
+    /**
+     * Copy a model by using a processor.
+     *
+     * @param ModelIdInterface  $modelId   The model id.
+     * @param callable          $processor The processor.
+     *
+     * @return mixed
+     */
+    public function copy(ModelIdInterface $modelId, $processor)
+    {
+        $environment  = $this->getEnvironment();
+        $dataProvider = $environment->getDataProvider();
+        $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+
+        // We need to keep the original data here.
+        $copyModel = $environment->getController()->createClonedModel($model);
+
+        $preFunction = function ($environment, $model) {
+            /** @var EnvironmentInterface $environment */
+            $copyEvent = new PreDuplicateModelEvent($environment, $model);
+            $environment->getEventDispatcher()->dispatch(
+                sprintf('%s[%s]', $copyEvent::NAME, $environment->getDataDefinition()->getName()),
+                $copyEvent
+            );
+            $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
+        };
+
+        $postFunction = function ($environment, $model, $originalModel) {
+            /** @var EnvironmentInterface $environment */
+            $copyEvent = new PostDuplicateModelEvent($environment, $model, $originalModel);
+            $environment->getEventDispatcher()->dispatch(
+                sprintf('%s[%s]', $copyEvent::NAME, $environment->getDataDefinition()->getName()),
+                $copyEvent
+            );
+            $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
+        };
+
+        return call_user_func($processor, $copyModel, $model, $preFunction, $postFunction);
     }
 }

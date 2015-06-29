@@ -23,9 +23,11 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\ActionController;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
@@ -664,37 +666,13 @@ class ParentView extends BaseView
         }
 
         $environment  = $this->getEnvironment();
-        $dataProvider = $environment->getDataProvider();
-        $modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('source'));
+        $modelId      = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
+        $controller   = new ActionController($environment);
 
-        if ($modelId) {
-            $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-        } else {
-            throw new DcGeneralRuntimeException('Missing model id.');
-        }
-
-        // We need to keep the original data here.
-        $copyModel = $environment->getController()->createClonedModel($model);
-        $copyModel->setId(null);
-
-        $preFunction = function (EnvironmentInterface $environment, $model) {
-            $copyEvent = new PreDuplicateModelEvent($environment, $model);
-            $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $copyEvent::NAME, $environment->getDataDefinition()->getName()),
-                $copyEvent
-            );
-            $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
+        $processor    = function ($copyModel, $model, $preFunction, $postFunction) {
+            return $this->createEditMask($copyModel, $model, $preFunction, $postFunction);
         };
 
-        $postFunction = function (EnvironmentInterface $environment, $model, $originalModel) {
-            $copyEvent = new PostDuplicateModelEvent($environment, $model, $originalModel);
-            $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $copyEvent::NAME, $environment->getDataDefinition()->getName()),
-                $copyEvent
-            );
-            $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
-        };
-
-        return $this->createEditMask($copyModel, $model, $preFunction, $postFunction);
+        return $controller->copy($modelId, $processor);
     }
 }
