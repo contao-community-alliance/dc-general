@@ -9,7 +9,7 @@
  * @filesource
  */
 
-namespace ContaoCommunityAlliance\DcGeneral\Data;
+namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
