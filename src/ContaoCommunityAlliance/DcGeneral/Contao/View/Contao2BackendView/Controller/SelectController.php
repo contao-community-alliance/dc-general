@@ -110,20 +110,22 @@ class SelectController implements EventSubscriberInterface
             return;
         }
 
+        $controller   = new ActionController($environment);
         $modelIds     = $this->getModelIds($environment, $action, $submitAction);
         $actionMethod = sprintf('handle%sAllAction', ucfirst($submitAction));
 
-        call_user_func(array($this, $actionMethod), $modelIds);
+        call_user_func(array($this, $actionMethod), $modelIds, $controller);
     }
 
     /**
      * Handle the delete all action.
      *
-     * @param array $modelIds The list of model ids.
+     * @param ActionController $controller The action controller.
+     * @param array            $modelIds   The list of model ids.
      *
      * @return void
      */
-    private function handleDeleteAllAction($modelIds)
+    private function handleDeleteAllAction(ActionController $controller, $modelIds)
     {
         throw new DcGeneralRuntimeException('Action deleteAll is not implemented yet.');
     }
@@ -131,11 +133,12 @@ class SelectController implements EventSubscriberInterface
     /**
      * Handle the delete all action.
      *
-     * @param array $modelIds The list of model ids.
+     * @param ActionController $controller The action controller.
+     * @param array            $modelIds   The list of model ids.
      *
      * @return void
      */
-    private function handleCutAllAction($modelIds)
+    private function handleCutAllAction(ActionController $controller, $modelIds)
     {
         throw new DcGeneralRuntimeException('Action cutAll is not implemented yet.');
     }
@@ -143,11 +146,12 @@ class SelectController implements EventSubscriberInterface
     /**
      * Handle the delete all action.
      *
-     * @param array $modelIds The list of model ids.
+     * @param ActionController $controller The action controller.
+     * @param array            $modelIds   The list of model ids.
      *
      * @return void
      */
-    private function handleCopyAllAction($modelIds)
+    private function handleCopyAllAction(ActionController $controller, $modelIds)
     {
         throw new DcGeneralRuntimeException('Action copyAll is not implemented yet.');
     }
@@ -155,11 +159,12 @@ class SelectController implements EventSubscriberInterface
     /**
      * Handle the delete all action.
      *
-     * @param array $modelIds The list of model ids.
+     * @param ActionController $controller The action controller.
+     * @param array            $modelIds   The list of model ids.
      *
      * @return void
      */
-    private function handleOverrideAllAction($modelIds)
+    private function handleOverrideAllAction(ActionController $controller, $modelIds)
     {
         throw new DcGeneralRuntimeException('Action overrideAll is not implemented yet.');
     }
@@ -167,11 +172,12 @@ class SelectController implements EventSubscriberInterface
     /**
      * Handle the delete all action.
      *
-     * @param array $modelIds The list of model ids.
+     * @param ActionController $controller The action controller.
+     * @param array            $modelIds   The list of model ids.
      *
      * @return void
      */
-    private function handleEditAllAction($modelIds)
+    private function handleEditAllAction(ActionController $controller, $modelIds)
     {
         throw new DcGeneralRuntimeException('Action editAll is not implemented yet.');
     }
