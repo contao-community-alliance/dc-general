@@ -58,12 +58,9 @@ class ParentView extends BaseView
      */
     public function loadCollection()
     {
-        $environment   = $this->getEnvironment();
-        $dataProvider  = $environment->getDataProvider();
-        $childConfig   = $environment->getBaseConfigRegistry()->getBaseConfig();
-        $listingConfig = $this->getViewSection()->getListingConfig();
-
-        ViewHelpers::initializeSorting($this->getPanel(), $childConfig, $listingConfig);
+        $environment  = $this->getEnvironment();
+        $dataProvider = $environment->getDataProvider();
+        $childConfig  = $environment->getBaseConfigRegistry()->getBaseConfig();
 
         return $dataProvider->fetchAll($childConfig);
     }
@@ -652,8 +649,6 @@ class ParentView extends BaseView
      */
     public function copy(Action $action)
     {
-        // FIXME this will never be used anymore!
-
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit($action);
         }

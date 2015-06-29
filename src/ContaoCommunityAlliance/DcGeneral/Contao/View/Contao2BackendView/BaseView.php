@@ -136,6 +136,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 $name = 'showAll';
                 // No break here
 
+            case 'copy':
             case 'create':
             case 'paste':
             case 'delete':
@@ -437,10 +438,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             ? IdSerializer::fromSerialized($input->getParameter('pid'))
             : null;
         $items         = array();
-
-        $panel      = $this->getPanel();
-        $baseConfig = $environment->getBaseConfigRegistry()->getBaseConfig();
-        $panel->initialize($baseConfig);
 
         $models = $controller->applyClipboardActions($source, $after, $into, $parentModelId, null, $items);
 

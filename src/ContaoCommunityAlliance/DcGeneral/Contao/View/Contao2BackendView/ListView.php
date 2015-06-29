@@ -19,7 +19,6 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
-use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\ActionController;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
@@ -28,10 +27,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSor
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
-use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
@@ -51,15 +47,9 @@ class ListView extends BaseView
      */
     public function loadCollection()
     {
-        $environment = $this->getEnvironment();
-        $backendView = $this->getViewSection();
-
-        /** @var Contao2BackendViewDefinitionInterface $backendView */
-        $listingConfig = $backendView->getListingConfig();
-        $dataProvider  = $environment->getDataProvider();
-        $dataConfig    = $environment->getBaseConfigRegistry()->getBaseConfig();
-
-        ViewHelpers::initializeSorting($this->getPanel(), $dataConfig, $listingConfig);
+        $environment  = $this->getEnvironment();
+        $dataProvider = $environment->getDataProvider();
+        $dataConfig   = $environment->getBaseConfigRegistry()->getBaseConfig();
 
         return $dataProvider->fetchAll($dataConfig);
     }
