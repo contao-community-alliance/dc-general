@@ -9,37 +9,52 @@
  * @filesource
  */
 
-namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller;
+namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\ActionController;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\PrepareMultipleModelsActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
-use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
-use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Class SelectController.
  *
  * This class handles multiple actions.
  */
-class SelectController implements EventSubscriberInterface
+class SelectHandler extends AbstractHandler
 {
     /**
-     * {@inheritdoc}
+     * Handle the action.
+     *
+     * @return mixed
      */
-    public static function getSubscribedEvents()
+    public function process()
     {
-        return array(
-            DcGeneralEvents::ACTION => 'handleAction'
-        );
+        $action = $this->getEvent()->getAction();
+
+        if ($action->getName() !== 'select') {
+            return;
+        }
+
+        $environment  = $this->getEvent()->getEnvironment();
+        $submitAction = $this->getSubmitAction($environment);
+
+        if (!$submitAction) {
+            return;
+        }
+
+        $controller   = new ActionController($environment);
+        $modelIds     = $this->getModelIds($environment, $action, $submitAction);
+        $actionMethod = sprintf('handle%sAllAction', ucfirst($submitAction));
+
+        call_user_func(array($this, $actionMethod), $controller, $modelIds);
     }
 
     /**
@@ -76,7 +91,7 @@ class SelectController implements EventSubscriberInterface
     {
         $modelIds = (array) $environment->getInputProvider()->getValue('IDS');
 
-        if (! empty($modelIds)) {
+        if (!empty($modelIds)) {
             $modelIds = array_map(
                 function ($modelId) {
                     return ModelId::fromSerialized($modelId);
@@ -91,34 +106,6 @@ class SelectController implements EventSubscriberInterface
         }
 
         return $modelIds;
-    }
-
-    /**
-     * Handle the action event for the select action.
-     *
-     * @param ActionEvent $event The action event.
-     *
-     * @return void
-     */
-    public function handleAction(ActionEvent $event)
-    {
-        if ($event->getAction()->getName() !== 'select') {
-            return;
-        }
-
-        $action       = $event->getAction();
-        $environment  = $event->getEnvironment();
-        $submitAction = $this->getSubmitAction($environment);
-
-        if (!$submitAction) {
-            return;
-        }
-
-        $controller   = new ActionController($environment);
-        $modelIds     = $this->getModelIds($environment, $action, $submitAction);
-        $actionMethod = sprintf('handle%sAllAction', ucfirst($submitAction));
-
-        call_user_func(array($this, $actionMethod), $controller, $modelIds);
     }
 
     /**
