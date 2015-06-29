@@ -35,17 +35,26 @@ class PrepareMultipleModelsActionEvent extends AbstractActionAwareEvent
     private $modelIds;
 
     /**
+     * The submit action.
+     *
+     * @var string
+     */
+    private $submitAction;
+
+    /**
      * Create a new instance.
      *
-     * @param EnvironmentInterface $environment The environment.
-     * @param Action               $action      The called action.
-     * @param array                $modelIds    The list of model ids being parsed.
+     * @param EnvironmentInterface $environment  The environment.
+     * @param Action               $action       The called action.
+     * @param array                $modelIds     The list of model ids being parsed.
+     * @param string               $submitAction The submit action name.
      */
-    public function __construct(EnvironmentInterface $environment, Action $action, array $modelIds)
+    public function __construct(EnvironmentInterface $environment, Action $action, array $modelIds, $submitAction)
     {
         parent::__construct($environment, $action);
 
-        $this->modelIds = $modelIds;
+        $this->modelIds     = $modelIds;
+        $this->submitAction = $submitAction;
     }
 
     /**
@@ -70,5 +79,15 @@ class PrepareMultipleModelsActionEvent extends AbstractActionAwareEvent
         $this->modelIds = $modelIds;
 
         return $this;
+    }
+
+    /**
+     * Get the submit action.
+     *
+     * @return string
+     */
+    public function getSubmitAction()
+    {
+        return $this->submitAction;
     }
 }
