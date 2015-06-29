@@ -30,6 +30,7 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ShowHandler;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\ActionController;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonsEvent;
@@ -37,6 +38,8 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGr
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\EditOnlyModeException;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\NotDeleteableException;
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
@@ -471,12 +474,15 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function delete(Action $action)
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit($action);
-        }
+        $environment = $this->getEnvironment();
+        $controller  = new ActionController($environment);
+        $modelId     = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
 
-        // Check if is it allowed to delete a record.
-        if (!$this->getEnvironment()->getDataDefinition()->getBasicDefinition()->isDeletable()) {
+        try {
+            $controller->delete($modelId);
+        } catch (EditOnlyModeException $e) {
+            return $this->edit($action);
+        } catch (NotDeleteableException $e) {
             $this->getEnvironment()->getEventDispatcher()->dispatch(
                 ContaoEvents::SYSTEM_LOG,
                 new LogEvent(
@@ -495,70 +501,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 new RedirectEvent('contao/main.php?act=error')
             );
         }
-
-        $environment  = $this->getEnvironment();
-        $modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('id'));
-        $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
-        $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-
-        if (!$model->getId()) {
-            throw new DcGeneralRuntimeException(
-                'Could not load model with id ' . $environment->getInputProvider()->getParameter('id')
-            );
-        }
-
-        // Trigger event before the model will be deleted.
-        $event = new PreDeleteModelEvent($environment, $model);
-        $environment->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
-            $event
-        );
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
-
-        // FIXME: See DefaultController::delete() - we need to delete the children of this item as well over all data providers.
-        /*
-        $arrDelIDs = array();
-
-        // Delete record
-        switch ($definition->getSortingMode())
-        {
-            case 0:
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-                $arrDelIDs = array();
-                $arrDelIDs[] = $intRecordID;
-                break;
-
-            case 5:
-                $arrDelIDs = $environment->getController()->fetchMode5ChildrenOf($environment->getCurrentModel(), $blnRecurse = true);
-                $arrDelIDs[] = $intRecordID;
-                break;
-        }
-
-        // Delete all entries
-        foreach ($arrDelIDs as $intId)
-        {
-            $this->getEnvironment()->getDataProvider()->delete($intId);
-
-            // Add a log entry unless we are deleting from tl_log itself
-            if ($environment->getDataDefinition()->getName() != 'tl_log')
-            {
-                BackendBindings::log('DELETE FROM ' . $environment->getDataDefinition()->getName() . ' WHERE id=' . $intId, 'DC_General - DefaultController - delete()', TL_GENERAL);
-            }
-        }
-         */
-
-        $dataProvider->delete($model);
-
-        // Trigger event after the model is deleted.
-        $event = new PostDeleteModelEvent($environment, $model);
-        $environment->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
-            $event
-        );
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
         ViewHelpers::redirectHome($this->environment);
 
