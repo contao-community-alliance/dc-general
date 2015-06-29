@@ -11,7 +11,11 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller;
 
+use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\PrepareMultipleModelsActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
@@ -145,7 +149,21 @@ class SelectController implements EventSubscriberInterface
      */
     private function handleCutAllAction(ActionController $controller, $modelIds)
     {
-        throw new DcGeneralRuntimeException('Action cutAll is not implemented yet.');
+        $environment = $controller->getEnvironment();
+        $dispatcher  = $environment->getEventDispatcher();
+        $clipboard   = $environment->getClipboard();
+
+        foreach ($modelIds as $modelId) {
+            $clipboard->push(new Item(Item::COPY, null, $modelId));
+        }
+
+        $clipboard->saveTo($controller->getEnvironment());
+
+        $event = new GetReferrerEvent();
+        $dispatcher->dispatch(ContaoEvents::SYSTEM_GET_REFERRER, $event);
+
+        $event = new RedirectEvent($event->getReferrerUrl());
+        $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, $event);
     }
 
     /**
