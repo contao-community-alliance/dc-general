@@ -49,7 +49,7 @@ class SelectController implements EventSubscriberInterface
      *
      * @return string
      */
-    private function getSubmitAction(EnvironmentInterface $environment)
+    protected function getSubmitAction(EnvironmentInterface $environment)
     {
         $inputProvider = $environment->getInputProvider();
         $actions       = array('delete', 'cut', 'copy', 'override', 'edit');
@@ -72,7 +72,7 @@ class SelectController implements EventSubscriberInterface
      *
      * @return ModelId[]
      */
-    private function getModelIds(EnvironmentInterface $environment, Action $action, $submitAction)
+    protected function getModelIds(EnvironmentInterface $environment, Action $action, $submitAction)
     {
         $modelIds = (array) $environment->getInputProvider()->getValue('IDS');
 
@@ -129,7 +129,7 @@ class SelectController implements EventSubscriberInterface
      *
      * @return void
      */
-    private function handleDeleteAllAction(ActionController $controller, $modelIds)
+    protected function handleDeleteAllAction(ActionController $controller, $modelIds)
     {
         foreach ($modelIds as $modelId) {
             // TODO: How to handle errors for one item? Abort and roll back or just log it and print the messages?
@@ -147,7 +147,7 @@ class SelectController implements EventSubscriberInterface
      *
      * @return void
      */
-    private function handleCutAllAction(ActionController $controller, $modelIds)
+    protected function handleCutAllAction(ActionController $controller, $modelIds)
     {
         $environment = $controller->getEnvironment();
         $dispatcher  = $environment->getEventDispatcher();
@@ -181,7 +181,7 @@ class SelectController implements EventSubscriberInterface
      *
      * @return void
      */
-    private function handleCopyAllAction(ActionController $controller, $modelIds)
+    protected function handleCopyAllAction(ActionController $controller, $modelIds)
     {
         throw new DcGeneralRuntimeException('Action copyAll is not implemented yet.');
     }
@@ -194,7 +194,7 @@ class SelectController implements EventSubscriberInterface
      *
      * @return void
      */
-    private function handleOverrideAllAction(ActionController $controller, $modelIds)
+    protected function handleOverrideAllAction(ActionController $controller, $modelIds)
     {
         throw new DcGeneralRuntimeException('Action overrideAll is not implemented yet.');
     }
@@ -207,7 +207,7 @@ class SelectController implements EventSubscriberInterface
      *
      * @return void
      */
-    private function handleEditAllAction(ActionController $controller, $modelIds)
+    protected function handleEditAllAction(ActionController $controller, $modelIds)
     {
         throw new DcGeneralRuntimeException('Action editAll is not implemented yet.');
     }
