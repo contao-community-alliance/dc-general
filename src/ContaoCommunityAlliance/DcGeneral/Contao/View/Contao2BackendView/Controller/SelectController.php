@@ -152,9 +152,16 @@ class SelectController implements EventSubscriberInterface
         $environment = $controller->getEnvironment();
         $dispatcher  = $environment->getEventDispatcher();
         $clipboard   = $environment->getClipboard();
+        $parentIdRaw = $environment->getInputProvider()->getParameter('pid');
+
+        if ($parentIdRaw) {
+            $parentId = ModelId::fromSerialized($parentIdRaw);
+        } else {
+            $parentId = null;
+        }
 
         foreach ($modelIds as $modelId) {
-            $clipboard->push(new Item(Item::COPY, null, $modelId));
+            $clipboard->push(new Item(Item::COPY, $parentId, $modelId));
         }
 
         $clipboard->saveTo($controller->getEnvironment());
