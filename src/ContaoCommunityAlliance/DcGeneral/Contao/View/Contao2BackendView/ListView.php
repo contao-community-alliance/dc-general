@@ -19,7 +19,6 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
-use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
@@ -49,15 +48,9 @@ class ListView extends BaseView
      */
     public function loadCollection()
     {
-        $environment = $this->getEnvironment();
-        $backendView = $this->getViewSection();
-
-        /** @var Contao2BackendViewDefinitionInterface $backendView */
-        $listingConfig = $backendView->getListingConfig();
-        $dataProvider  = $environment->getDataProvider();
-        $dataConfig    = $environment->getBaseConfigRegistry()->getBaseConfig();
-
-        ViewHelpers::initializeSorting($this->getPanel(), $dataConfig, $listingConfig);
+        $environment  = $this->getEnvironment();
+        $dataProvider = $environment->getDataProvider();
+        $dataConfig   = $environment->getBaseConfigRegistry()->getBaseConfig();
 
         return $dataProvider->fetchAll($dataConfig);
     }

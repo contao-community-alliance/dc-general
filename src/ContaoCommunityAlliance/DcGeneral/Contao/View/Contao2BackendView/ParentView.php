@@ -59,9 +59,6 @@ class ParentView extends BaseView
         $environment   = $this->getEnvironment();
         $dataProvider  = $environment->getDataProvider();
         $childConfig   = $environment->getBaseConfigRegistry()->getBaseConfig();
-        $listingConfig = $this->getViewSection()->getListingConfig();
-
-        ViewHelpers::initializeSorting($this->getPanel(), $childConfig, $listingConfig);
 
         return $dataProvider->fetchAll($childConfig);
     }
