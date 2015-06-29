@@ -153,7 +153,7 @@ class ListView extends BaseView
 
                 $arrTableHead[] = array(
                     'class'   => 'tl_folder_tlist col_' . $f . ((in_array($f, $sortingColumns)) ? ' ordered_by' : ''),
-                    'content' => $label[0]
+                    'content' => $label
                 );
             }
 
