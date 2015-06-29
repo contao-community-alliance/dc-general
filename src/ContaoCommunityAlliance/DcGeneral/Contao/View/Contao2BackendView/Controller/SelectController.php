@@ -13,8 +13,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Contr
 
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\PrepareMultipleModelsActionEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -70,24 +70,23 @@ class SelectController implements EventSubscriberInterface
      */
     private function getModelIds(EnvironmentInterface $environment, Action $action, $submitAction)
     {
-        $current = $environment->getSessionStorage()->get('CURRENT');
+        $modelIds = (array) $environment->getInputProvider()->getValue('IDS');
 
-        if (empty($current['IDS'])) {
+        if (! empty($modelIds)) {
             $modelIds = array_map(
                 function ($modelId) {
                     return ModelId::fromSerialized($modelId);
                 },
-                (array) $environment->getInputProvider()->getValue('IDS')
+                $modelIds
             );
 
             $event = new PrepareMultipleModelsActionEvent($environment, $action, $modelIds, $submitAction);
             $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
-            $current['IDS'] = $event->getModelIds();
-            $environment->getSessionStorage()->set('CURRENT', $current);
+            $modelIds = $event->getModelIds();
         }
 
-        return $current['IDS'];
+        return $modelIds;
     }
 
     /**
@@ -115,7 +114,7 @@ class SelectController implements EventSubscriberInterface
         $modelIds     = $this->getModelIds($environment, $action, $submitAction);
         $actionMethod = sprintf('handle%sAllAction', ucfirst($submitAction));
 
-        call_user_func(array($this, $actionMethod), $modelIds, $controller);
+        call_user_func(array($this, $actionMethod), $controller, $modelIds);
     }
 
     /**
