@@ -170,6 +170,11 @@ class ClipboardController implements EventSubscriberInterface
                     }
                 }
 
+                // Only push item to clipboard if manual sorting is used.
+                if (Item::COPY === $clipboardActionName && !ViewHelpers::getManualSortingProperty($environment)) {
+                    return;
+                }
+
                 // create the new item
                 $item = new Item($clipboardActionName, $parentId, $modelId);
 
