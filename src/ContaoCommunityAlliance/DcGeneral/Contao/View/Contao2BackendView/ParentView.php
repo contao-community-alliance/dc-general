@@ -56,9 +56,9 @@ class ParentView extends BaseView
      */
     public function loadCollection()
     {
-        $environment   = $this->getEnvironment();
-        $dataProvider  = $environment->getDataProvider();
-        $childConfig   = $environment->getBaseConfigRegistry()->getBaseConfig();
+        $environment  = $this->getEnvironment();
+        $dataProvider = $environment->getDataProvider();
+        $childConfig  = $environment->getBaseConfigRegistry()->getBaseConfig();
 
         return $dataProvider->fetchAll($childConfig);
     }
