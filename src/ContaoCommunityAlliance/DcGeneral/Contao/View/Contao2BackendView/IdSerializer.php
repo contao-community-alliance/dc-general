@@ -13,6 +13,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+
 /**
  * The class IdSerializer provides handy methods to serialize and un-serialize model ids including the data provider
  * name into a string.
