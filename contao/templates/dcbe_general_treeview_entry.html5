@@ -8,8 +8,14 @@
         <?php $arrLabels = $this->objModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::MODEL_LABEL_VALUE); ?>
         <div class="tl_pagetree_content"><?php echo $arrLabels[0]['content']; ?></div>
     </div>
+    <?php if ($this->select): ?>
+        <div class="tl_right tl_right_nowrap">
+            <input type="checkbox" name="IDS[]" id="ids_<?php echo $this->objModel->getId(); ?>" class="tl_tree_checkbox" value="<?php echo \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer::fromModel($this->objModel)->getSerialized(); ?>">
+        </div>
+    <?php else: ?>
     <div class="tl_right">
         <?php echo $this->objModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::MODEL_BUTTONS); ?>
     </div>
+    <?php endif; ?>
     <div style="clear:both;"></div>
 </li>

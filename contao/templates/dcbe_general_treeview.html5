@@ -9,17 +9,40 @@ $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalTreeView.css';
 
 <?php echo $this->getMessages(); ?>
 
-<div class="tl_listing_container tree_view table_<?php echo $this->tableName; ?>" id="tl_listing">
-	<?php if(strlen($this->breadcrumb)) echo $this->breadcrumb; ?>
+<?php if ($this->select): ?>
+<form action="<?php echo $this->action; ?>" id="tl_select" class="tl_form" method="post">
+    <div class="tl_formbody">
+        <input type="hidden" name="FORM_SUBMIT" value="tl_select">
+        <input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>">
+    <?php endif; ?>
+    <div class="tl_listing_container tree_view table_<?php echo $this->tableName; ?>" id="tl_listing">
+        <?php if(strlen($this->breadcrumb)) echo $this->breadcrumb; ?>
 
-    <ul class="tl_listing <?php echo $this->treeClass; ?>">
-        <li class="tl_folder_top">
-            <div class="tl_left">
-                <?php echo $this->strLabelIcon ?> <label><?php echo $this->strLabelText; ?></label>
+        <?php if ($this->select): ?>
+            <div class="tl_select_trigger">
+                <label for="tl_select_trigger" class="tl_select_label"><?php echo $GLOBALS['TL_LANG']['MSC']['selectAll']; ?></label>
+                <input type="checkbox" id="tl_select_trigger" onclick="Backend.toggleCheckboxes(this)" class="tl_tree_checkbox">
             </div>
-            <div class="tl_right"><?php echo (strlen($this->strRootPasteinto)) ? $this->strRootPasteinto : '';  ?></div>
-            <div style="clear:both;"></div>
-        </li>
-        <?php echo $this->strHTML; ?>
-    </ul>
+        <?php endif; ?>
+
+        <ul class="tl_listing <?php echo $this->treeClass; ?>">
+            <li class="tl_folder_top">
+                <div class="tl_left">
+                    <?php echo $this->strLabelIcon ?> <label><?php echo $this->strLabelText; ?></label>
+                </div>
+                <div class="tl_right"><?php echo (strlen($this->strRootPasteinto)) ? $this->strRootPasteinto : '';  ?></div>
+                <div style="clear:both;"></div>
+            </li>
+            <?php echo $this->strHTML; ?>
+        </ul>
+
+        <?php if ($this->select): ?>
+        <div class="tl_formbody_submit" style="text-align:right;">
+            <div class="tl_submit_container">
+                <?php echo implode(' ', $this->selectButtons); ?>
+            </div>
+        </div>
+    </div>
+
+    <?php endif; ?>
 </div>

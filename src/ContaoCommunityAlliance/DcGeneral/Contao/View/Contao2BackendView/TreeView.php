@@ -6,6 +6,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -25,7 +26,9 @@ use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
+use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -282,6 +285,7 @@ class TreeView extends BaseView
         $this
             ->addToTemplate('environment', $this->getEnvironment(), $objTemplate)
             ->addToTemplate('objModel', $objModel, $objTemplate)
+            ->addToTemplate('select', $this->isSelectModeActive(), $objTemplate)
             // FIXME: add real tree mode here.
             ->addToTemplate('intMode', 6, $objTemplate)
             ->addToTemplate('strToggleID', $strToggleID, $objTemplate)
@@ -325,6 +329,7 @@ class TreeView extends BaseView
                 }
 
                 $this
+                    ->addToTemplate('select', $this->isSelectModeActive(), $objTemplate)
                     ->addToTemplate('objParentModel', $objModel, $objTemplate)
                     ->addToTemplate('strToggleID', $strToggleID, $objTemplate)
                     ->addToTemplate('strHTML', $strSubHtml, $objTemplate)
@@ -473,6 +478,8 @@ class TreeView extends BaseView
         $objTemplate->strLabelText     = $strLabelText;
         $objTemplate->strHTML          = $this->generateTreeView($collection, $treeClass);
         $objTemplate->strRootPasteinto = $strRootPasteInto;
+        $objTemplate->select           = $this->isSelectModeActive();
+        $objTemplate->selectButtons    = $this->getSelectButtons();
         // FIXME: set real tree mode here.
         $objTemplate->intMode = 6;
 
@@ -571,6 +578,9 @@ class TreeView extends BaseView
             }
         */
 
+        $viewEvent = new ViewEvent($this->environment, $action, DcGeneralViews::CLIPBOARD, array());
+        $this->environment->getEventDispatcher()->dispatch(DcGeneralEvents::VIEW, $viewEvent);
+
         // A list with ignored panels.
         $arrIgnoredPanels = array
         (
@@ -578,9 +588,10 @@ class TreeView extends BaseView
             '\ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface'
         );
 
-        $arrReturn['panel']   = $this->panel($arrIgnoredPanels);
-        $arrReturn['buttons'] = $this->generateHeaderButtons('tl_buttons_a');
-        $arrReturn['body']    = $this->viewTree($collection);
+        $arrReturn['panel']     = $this->panel($arrIgnoredPanels);
+        $arrReturn['buttons']   = $this->generateHeaderButtons('tl_buttons_a');
+        $arrReturn['clipboard'] = $viewEvent->getResponse();
+        $arrReturn['body']      = $this->viewTree($collection);
 
         return implode("\n", $arrReturn);
     }
