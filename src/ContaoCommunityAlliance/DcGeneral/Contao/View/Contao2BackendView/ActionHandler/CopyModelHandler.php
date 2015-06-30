@@ -9,7 +9,7 @@
  * @filesource
  */
 
-namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller;
+namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
@@ -23,7 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
  *
  * @package ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller
  */
-class CopyModelController implements EnvironmentAwareInterface
+class CopyModelHandler implements EnvironmentAwareInterface
 {
     /**
      * The environment.

@@ -16,13 +16,10 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\CopyModelController;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\DeleteModelController;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\PrepareMultipleModelsActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -115,7 +112,7 @@ class SelectHandler extends AbstractHandler
      */
     protected function handleDeleteAllAction($modelIds)
     {
-        $controller = new DeleteModelController($this->getEnvironment());
+        $controller = new DeleteModelHandler($this->getEnvironment());
 
         foreach ($modelIds as $modelId) {
             // TODO: How to handle errors for one item? Abort and roll back or just log it and print the messages?
@@ -147,17 +144,13 @@ class SelectHandler extends AbstractHandler
 
         $clipboard->saveTo($environment);
 
-        $event = new GetReferrerEvent();
-        $dispatcher->dispatch(ContaoEvents::SYSTEM_GET_REFERRER, $event);
-
-        $event = new RedirectEvent($event->getReferrerUrl());
-        $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, $event);
+        ViewHelpers::redirectHome($this->getEnvironment());
     }
 
     /**
      * Handle the delete all action.
      *
-     * @param ModelId[] $modelIds The list of model ids.
+     * @param ModelIdInterface[] $modelIds The list of model ids.
      *
      * @return void
      */
@@ -175,7 +168,7 @@ class SelectHandler extends AbstractHandler
 
             $clipboard->saveTo($this->getEnvironment());
         } else {
-            $controller = new CopyModelController($this->getEnvironment());
+            $controller = new CopyModelHandler($this->getEnvironment());
 
             foreach ($modelIds as $modelId) {
                 $controller->handle($modelId);

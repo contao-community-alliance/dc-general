@@ -19,7 +19,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\CopyModelController;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\CopyModelHandler;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
@@ -316,7 +316,7 @@ class ListView extends BaseView
 
         $environment = $this->getEnvironment();
         $modelId     = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
-        $controller  = new CopyModelController($environment);
+        $controller  = new CopyModelHandler($environment);
         $processor   = function ($copyModel, $model, $preFunction, $postFunction) {
             return $this->createEditMask($copyModel, $model, $preFunction, $postFunction);
         };

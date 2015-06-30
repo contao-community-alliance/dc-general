@@ -23,7 +23,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\CopyModelController;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\CopyModelHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
@@ -659,7 +659,7 @@ class ParentView extends BaseView
 
         $environment = $this->getEnvironment();
         $modelId     = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
-        $controller  = new CopyModelController($environment);
+        $controller  = new CopyModelHandler($environment);
         $processor   = function ($copyModel, $model, $preFunction, $postFunction) {
             return $this->createEditMask($copyModel, $model, $preFunction, $postFunction);
         };

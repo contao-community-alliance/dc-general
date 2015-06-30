@@ -9,7 +9,7 @@
  * @filesource
  */
 
-namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller;
+namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\EditOnlyModeException;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\NotDeleteableException;
@@ -27,7 +27,7 @@ use Symfony\Component\EventDispatcher\Event;
  *
  * @package ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller
  */
-class DeleteModelController implements EnvironmentAwareInterface
+class DeleteModelHandler implements EnvironmentAwareInterface
 {
     /**
      * The environment.
