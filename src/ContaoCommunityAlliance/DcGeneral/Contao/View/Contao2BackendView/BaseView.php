@@ -31,6 +31,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2Ba
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\SelectHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ShowHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\ActionController;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\DeleteModelController;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonsEvent;
@@ -474,11 +475,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     public function delete(Action $action)
     {
         $environment = $this->getEnvironment();
-        $controller  = new ActionController($environment);
+        $controller  = new DeleteModelController($environment);
         $modelId     = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
 
         try {
-            $controller->delete($modelId);
+            $controller->handle($modelId);
         } catch (EditOnlyModeException $e) {
             return $this->edit($action);
         } catch (NotDeleteableException $e) {

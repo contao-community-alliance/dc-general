@@ -16,13 +16,12 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\ActionController;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\DeleteModelController;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\PrepareMultipleModelsActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -45,30 +44,26 @@ class SelectHandler extends AbstractHandler
             return;
         }
 
-        $environment  = $this->getEvent()->getEnvironment();
-        $submitAction = $this->getSubmitAction($environment);
+        $submitAction = $this->getSubmitAction();
 
         if (!$submitAction) {
             return;
         }
 
-        $controller   = new ActionController($environment);
-        $modelIds     = $this->getModelIds($environment, $action, $submitAction);
+        $modelIds     = $this->getModelIds($action, $submitAction);
         $actionMethod = sprintf('handle%sAllAction', ucfirst($submitAction));
 
-        call_user_func(array($this, $actionMethod), $controller, $modelIds);
+        call_user_func(array($this, $actionMethod), $modelIds);
     }
 
     /**
-     * Get the submit action name
-     *
-     * @param EnvironmentInterface $environment The request environment.
+     * Get the submit action name.
      *
      * @return string
      */
-    protected function getSubmitAction(EnvironmentInterface $environment)
+    protected function getSubmitAction()
     {
-        $inputProvider = $environment->getInputProvider();
+        $inputProvider = $this->getEnvironment()->getInputProvider();
         $actions       = array('delete', 'cut', 'copy', 'override', 'edit');
 
         foreach ($actions as $action) {
@@ -83,15 +78,15 @@ class SelectHandler extends AbstractHandler
     /**
      * Get The model ids from the environment.
      *
-     * @param EnvironmentInterface $environment  The request environment.
      * @param Action               $action       The dcg action.
      * @param string               $submitAction The submit action name.
      *
      * @return ModelId[]
      */
-    protected function getModelIds(EnvironmentInterface $environment, Action $action, $submitAction)
+    protected function getModelIds(Action $action, $submitAction)
     {
-        $modelIds = (array) $environment->getInputProvider()->getValue('IDS');
+        $environment = $this->getEnvironment();
+        $modelIds    = (array) $environment->getInputProvider()->getValue('IDS');
 
         if (!empty($modelIds)) {
             $modelIds = array_map(
@@ -113,32 +108,32 @@ class SelectHandler extends AbstractHandler
     /**
      * Handle the delete all action.
      *
-     * @param ActionController $controller The action controller.
-     * @param ModelId[]        $modelIds   The list of model ids.
+     * @param ModelId[] $modelIds The list of model ids.
      *
      * @return void
      */
-    protected function handleDeleteAllAction(ActionController $controller, $modelIds)
+    protected function handleDeleteAllAction($modelIds)
     {
+        $controller = new DeleteModelController($this->getEnvironment());
+
         foreach ($modelIds as $modelId) {
             // TODO: How to handle errors for one item? Abort and roll back or just log it and print the messages?
-            $controller->delete($modelId);
+            $controller->handle($modelId);
         }
 
-        ViewHelpers::redirectHome($controller->getEnvironment());
+        ViewHelpers::redirectHome($this->getEnvironment());
     }
 
     /**
      * Handle the delete all action.
      *
-     * @param ActionController $controller The action controller.
-     * @param array            $modelIds   The list of model ids.
+     * @param ModelId[] $modelIds The list of model ids.
      *
      * @return void
      */
-    protected function handleCutAllAction(ActionController $controller, $modelIds)
+    protected function handleCutAllAction($modelIds)
     {
-        $environment = $controller->getEnvironment();
+        $environment = $this->getEnvironment();
         $dispatcher  = $environment->getEventDispatcher();
         $clipboard   = $environment->getClipboard();
         $parentId    = $this->getParentId();
@@ -149,7 +144,7 @@ class SelectHandler extends AbstractHandler
             $clipboard->push(new Item(Item::COPY, $parentId, $modelId));
         }
 
-        $clipboard->saveTo($controller->getEnvironment());
+        $clipboard->saveTo($environment);
 
         $event = new GetReferrerEvent();
         $dispatcher->dispatch(ContaoEvents::SYSTEM_GET_REFERRER, $event);
@@ -161,12 +156,11 @@ class SelectHandler extends AbstractHandler
     /**
      * Handle the delete all action.
      *
-     * @param ActionController   $controller The action controller.
-     * @param ModelIdInterface[] $modelIds   The list of model ids.
+     * @param ModelId[] $modelIds The list of model ids.
      *
      * @return void
      */
-    protected function handleCopyAllAction(ActionController $controller, $modelIds)
+    protected function handleCopyAllAction($modelIds)
     {
         if (ViewHelpers::getManualSortingProperty($this->getEnvironment())) {
             $clipboard = $this->getEnvironment()->getClipboard();
@@ -193,12 +187,11 @@ class SelectHandler extends AbstractHandler
     /**
      * Handle the delete all action.
      *
-     * @param ActionController $controller The action controller.
-     * @param array            $modelIds   The list of model ids.
+     * @param ModelId[] $modelIds The list of model ids.
      *
      * @return void
      */
-    protected function handleOverrideAllAction(ActionController $controller, $modelIds)
+    protected function handleOverrideAllAction($modelIds)
     {
         throw new DcGeneralRuntimeException('Action overrideAll is not implemented yet.');
     }
@@ -206,12 +199,11 @@ class SelectHandler extends AbstractHandler
     /**
      * Handle the delete all action.
      *
-     * @param ActionController $controller The action controller.
-     * @param array            $modelIds   The list of model ids.
+     * @param ModelId[] $modelIds The list of model ids.
      *
      * @return void
      */
-    protected function handleEditAllAction(ActionController $controller, $modelIds)
+    protected function handleEditAllAction($modelIds)
     {
         throw new DcGeneralRuntimeException('Action editAll is not implemented yet.');
     }
