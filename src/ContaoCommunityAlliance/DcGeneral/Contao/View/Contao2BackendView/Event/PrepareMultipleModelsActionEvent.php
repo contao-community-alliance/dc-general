@@ -12,6 +12,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event;
 
 use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractActionAwareEvent;
 
@@ -30,7 +31,7 @@ class PrepareMultipleModelsActionEvent extends AbstractActionAwareEvent
     /**
      * The model ids.
      *
-     * @var array
+     * @var ModelIdInterface[]
      */
     private $modelIds;
 
@@ -46,7 +47,7 @@ class PrepareMultipleModelsActionEvent extends AbstractActionAwareEvent
      *
      * @param EnvironmentInterface $environment  The environment.
      * @param Action               $action       The called action.
-     * @param array                $modelIds     The list of model ids being parsed.
+     * @param ModelIdInterface[]   $modelIds     The list of model ids being parsed.
      * @param string               $submitAction The submit action name.
      */
     public function __construct(EnvironmentInterface $environment, Action $action, array $modelIds, $submitAction)
@@ -60,7 +61,7 @@ class PrepareMultipleModelsActionEvent extends AbstractActionAwareEvent
     /**
      * Get modelIds.
      *
-     * @return array
+     * @return ModelIdInterface[]
      */
     public function getModelIds()
     {
@@ -70,7 +71,7 @@ class PrepareMultipleModelsActionEvent extends AbstractActionAwareEvent
     /**
      * Set the model ids.
      *
-     * @param array $modelIds The new model ids.
+     * @param ModelIdInterface[] $modelIds The new model ids.
      *
      * @return $this
      */
