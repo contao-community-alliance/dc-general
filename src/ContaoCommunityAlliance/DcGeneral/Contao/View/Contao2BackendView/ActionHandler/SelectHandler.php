@@ -138,7 +138,7 @@ class SelectHandler extends AbstractHandler
         // TODO: Protect against cut in no tree and no manual sorting view.
 
         foreach ($modelIds as $modelId) {
-            $clipboard->push(new Item(Item::COPY, $parentId, $modelId));
+            $clipboard->push(new Item(Item::CUT, $parentId, $modelId));
         }
 
         $clipboard->saveTo($environment);
