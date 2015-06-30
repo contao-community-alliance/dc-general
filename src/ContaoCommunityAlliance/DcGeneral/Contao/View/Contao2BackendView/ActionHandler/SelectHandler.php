@@ -132,7 +132,6 @@ class SelectHandler extends AbstractHandler
     protected function handleCutAllAction($modelIds)
     {
         $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
         $clipboard   = $environment->getClipboard();
         $parentId    = $this->getParentId();
 
