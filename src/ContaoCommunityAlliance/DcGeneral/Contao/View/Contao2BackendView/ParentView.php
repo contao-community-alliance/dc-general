@@ -23,7 +23,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\ActionController;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\CopyModelController;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
@@ -657,14 +657,13 @@ class ParentView extends BaseView
             ViewHelpers::redirectHome($this->environment);
         }
 
-        $environment  = $this->getEnvironment();
-        $modelId      = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
-        $controller   = new ActionController($environment);
-
-        $processor    = function ($copyModel, $model, $preFunction, $postFunction) {
+        $environment = $this->getEnvironment();
+        $modelId     = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
+        $controller  = new CopyModelController($environment);
+        $processor   = function ($copyModel, $model, $preFunction, $postFunction) {
             return $this->createEditMask($copyModel, $model, $preFunction, $postFunction);
         };
 
-        return $controller->copy($modelId, $processor);
+        return $controller->handle($modelId, $processor);
     }
 }

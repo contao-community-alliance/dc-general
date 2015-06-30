@@ -11,24 +11,19 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller;
 
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\EditOnlyModeException;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\NotDeleteableException;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentAwareInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
-use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PreDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
-use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
- * Class ActionController handles actions on the model.
+ * Class CopyModelController handles copy action on a model.
  *
  * @package ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller
  */
-class ActionController implements EnvironmentAwareInterface
+class CopyModelController implements EnvironmentAwareInterface
 {
     /**
      * The environment.
@@ -56,41 +51,12 @@ class ActionController implements EnvironmentAwareInterface
     }
 
     /**
-     * Guard that the environment is prepared for models data definition.
+     * Create the pre function.
      *
-     * @param ModelId $modelId The model id.
-     *
-     * @throws DcGeneralRuntimeException If data provider name of modelId and definition does not match.
+     * @return callable
      */
-    private function guardValidEnvironment(ModelId $modelId)
+    protected function createPreFunction()
     {
-        if ($this->environment->getDataDefinition()->getName() !== $modelId->getDataProviderName()) {
-            throw new DcGeneralRuntimeException(
-                sprintf(
-                    'Not able to perform action. Environment is not prepared for model "%s"',
-                    $modelId->getSerialized()
-                )
-            );
-        }
-    }
-
-    /**
-     * Copy a model by using a processor.
-     *
-     * @param ModelIdInterface  $modelId   The model id.
-     * @param callable          $processor The processor.
-     *
-     * @return mixed
-     */
-    public function copy(ModelIdInterface $modelId, $processor)
-    {
-        $environment  = $this->getEnvironment();
-        $dataProvider = $environment->getDataProvider();
-        $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-
-        // We need to keep the original data here.
-        $copyModel = $environment->getController()->createClonedModel($model);
-
         $preFunction = function ($environment, $model) {
             /** @var EnvironmentInterface $environment */
             $copyEvent = new PreDuplicateModelEvent($environment, $model);
@@ -100,7 +66,16 @@ class ActionController implements EnvironmentAwareInterface
             );
             $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
         };
+        return $preFunction;
+    }
 
+    /**
+     * Create the post function.
+     *
+     * @return callable
+     */
+    protected function createPostFunction()
+    {
         $postFunction = function ($environment, $model, $originalModel) {
             /** @var EnvironmentInterface $environment */
             $copyEvent = new PostDuplicateModelEvent($environment, $model, $originalModel);
@@ -110,6 +85,48 @@ class ActionController implements EnvironmentAwareInterface
             );
             $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
         };
+        return $postFunction;
+    }
+
+    /**
+     * Create the default processor.
+     *
+     * The default process will trigger the pre function and post function and save the model into the data provider.
+     *
+     * @return callable
+     */
+    protected function createDefaultProcessor()
+    {
+        return function (ModelInterface $copyModel, ModelInterface $model, $preFunction, $postFunction) {
+            call_user_func_array($preFunction, array($this->getEnvironment(), $copyModel, $model));
+
+            $provider = $this->getEnvironment()->getDataProvider($copyModel->getProviderName());
+            $provider->save($copyModel);
+
+            call_user_func_array($postFunction, array($this->getEnvironment(), $copyModel, $model));
+        };
+    }
+
+    /**
+     * Copy a model by using a processor.
+     *
+     * @param ModelIdInterface  $modelId   The model id.
+     * @param callable|null     $processor The processor being used to save the copy. @See createDefaultProcessor().
+     *
+     * @return mixed
+     */
+    public function handle(ModelIdInterface $modelId, $processor = null)
+    {
+        $environment  = $this->getEnvironment();
+        $dataProvider = $environment->getDataProvider();
+        $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+
+        // We need to keep the original data here.
+        $copyModel = $environment->getController()->createClonedModel($model);
+
+        $processor    = $processor ?: $this->createDefaultProcessor();
+        $preFunction  = $this->createPreFunction();
+        $postFunction = $this->createPostFunction();
 
         return call_user_func($processor, $copyModel, $model, $preFunction, $postFunction);
     }

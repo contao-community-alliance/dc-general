@@ -16,6 +16,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\CopyModelController;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\DeleteModelController;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\PrepareMultipleModelsActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
@@ -174,10 +175,10 @@ class SelectHandler extends AbstractHandler
 
             $clipboard->saveTo($this->getEnvironment());
         } else {
-            $processor = $this->createCopyProcessor();
+            $controller = new CopyModelController($this->getEnvironment());
 
             foreach ($modelIds as $modelId) {
-                $controller->copy($modelId, $processor);
+                $controller->handle($modelId);
             }
         }
 
@@ -225,29 +226,5 @@ class SelectHandler extends AbstractHandler
         }
 
         return null;
-    }
-
-    /**
-     * Create the copy processor.
-     *
-     * @return callable
-     */
-    protected function createCopyProcessor()
-    {
-        $environment = $this->getEnvironment();
-        $processor   = function (
-            ModelInterface $copyModel,
-            ModelInterface $model,
-            $preFunction,
-            $postFunction
-        ) use ($environment) {
-            call_user_func_array($preFunction, array($environment, $copyModel, $model));
-
-            $provider = $environment->getDataProvider($copyModel->getProviderName());
-            $provider->save($copyModel);
-
-            call_user_func_array($postFunction, array($environment, $copyModel, $model));
-        };
-        return $processor;
     }
 }

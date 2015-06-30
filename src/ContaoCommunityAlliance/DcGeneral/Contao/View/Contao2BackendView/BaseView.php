@@ -30,7 +30,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\SelectHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ShowHandler;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\ActionController;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\DeleteModelController;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
