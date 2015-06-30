@@ -24,8 +24,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
-use ContaoCommunityAlliance\Translator\Contao\LangArrayTranslator;
-use ContaoCommunityAlliance\Translator\TranslatorChain;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -56,13 +55,11 @@ class DC_General extends \DataContainer implements DataContainerInterface
      */
     public function __construct($strTable)
     {
-        $strTable = $this->getTablenameCallback($strTable);
+        $strTable   = $this->getTablenameCallback($strTable);
+        $translator = $this->getTranslator();
 
         $dispatcher = $this->getEventDispatcher();
         $dispatcher->addListener(PopulateEnvironmentEvent::NAME, array($this, 'handlePopulateEnvironment'), 4800);
-
-        $translator = new TranslatorChain();
-        $translator->add(new LangArrayTranslator($dispatcher));
 
         $factory = new DcGeneralFactory();
 
@@ -110,6 +107,18 @@ class DC_General extends \DataContainer implements DataContainerInterface
         }
 
         return $dispatcher;
+    }
+
+    /**
+     * Get the translator from the service container.
+     *
+     * @return TranslatorInterface
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     */
+    private function getTranslator()
+    {
+        return $GLOBALS['container']['translator'];
     }
 
     /**
