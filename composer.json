@@ -53,7 +53,8 @@
         "symfony/expression-language": "~2.4"
     },
     "require-dev": {
-        "phpcq/all-tasks": "~1.0"
+        "phpcq/all-tasks": "~1.0",
+        "contao-community-alliance/contao-twig": "~1.12"
     },
     "conflict": {
         "contao/core": "3.4.0"
