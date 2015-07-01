@@ -115,7 +115,7 @@ class CopyModelHandler implements EnvironmentAwareInterface
      *
      * @return mixed
      */
-    public function handle(ModelIdInterface $modelId, $processor = null)
+    public function process(ModelIdInterface $modelId, $processor = null)
     {
         $environment  = $this->getEnvironment();
         $dataProvider = $environment->getDataProvider();

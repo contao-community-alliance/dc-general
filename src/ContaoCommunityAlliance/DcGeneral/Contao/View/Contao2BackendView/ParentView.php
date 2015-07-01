@@ -659,11 +659,11 @@ class ParentView extends BaseView
 
         $environment = $this->getEnvironment();
         $modelId     = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
-        $controller  = new CopyModelHandler($environment);
+        $handler     = new CopyModelHandler($environment);
         $processor   = function ($copyModel, $model, $preFunction, $postFunction) {
             return $this->createEditMask($copyModel, $model, $preFunction, $postFunction);
         };
 
-        return $controller->handle($modelId, $processor);
+        return $handler->process($modelId, $processor);
     }
 }

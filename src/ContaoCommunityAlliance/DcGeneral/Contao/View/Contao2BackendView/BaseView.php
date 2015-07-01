@@ -474,11 +474,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     public function delete(Action $action)
     {
         $environment = $this->getEnvironment();
-        $controller  = new DeleteModelHandler($environment);
+        $handler     = new DeleteModelHandler($environment);
         $modelId     = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
 
         try {
-            $controller->handle($modelId);
+            $handler->process($modelId);
         } catch (EditOnlyModeException $e) {
             return $this->edit($action);
         } catch (NotDeleteableException $e) {

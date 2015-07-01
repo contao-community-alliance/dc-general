@@ -109,11 +109,11 @@ class SelectHandler extends AbstractHandler
      */
     protected function handleDeleteAllAction($modelIds)
     {
-        $controller = new DeleteModelHandler($this->getEnvironment());
+        $handler = new DeleteModelHandler($this->getEnvironment());
 
         foreach ($modelIds as $modelId) {
             // TODO: How to handle errors for one item? Abort and roll back or just log it and print the messages?
-            $controller->handle($modelId);
+            $handler->process($modelId);
         }
 
         ViewHelpers::redirectHome($this->getEnvironment());
@@ -167,7 +167,7 @@ class SelectHandler extends AbstractHandler
             $controller = new CopyModelHandler($this->getEnvironment());
 
             foreach ($modelIds as $modelId) {
-                $controller->handle($modelId);
+                $controller->process($modelId);
             }
         }
 

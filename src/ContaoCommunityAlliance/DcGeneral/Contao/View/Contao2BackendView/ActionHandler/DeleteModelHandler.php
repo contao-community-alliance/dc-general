@@ -201,7 +201,7 @@ class DeleteModelHandler implements EnvironmentAwareInterface
      * @throws NotDeleteableException    If the data definition does not allow delete actions.
      * @throws DcGeneralRuntimeException If the model is not found.
      */
-    public function handle(ModelIdInterface $modelId)
+    public function process(ModelIdInterface $modelId)
     {
         $this->guardValidEnvironment($modelId);
         $this->guardNotEditOnly($modelId);
