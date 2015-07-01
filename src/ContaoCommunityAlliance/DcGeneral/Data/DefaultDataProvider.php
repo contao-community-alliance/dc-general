@@ -11,6 +11,7 @@
  * @author     Oliver Hoff <oliver@hofff.com>
  * @author     Patrick Kahl <kahl.patrick@googlemail.com>
  * @author     Simon Kusterer <simon@soped.com>
+ * @author     Christopher Boelter <christopher@boelter.eu>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource

@@ -8,6 +8,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Andreas Nölke <zero@brothers-project.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
