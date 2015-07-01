@@ -43,15 +43,24 @@
 						<?php endif; ?>
 
 						<tr class="<?php echo $objModelRow->getMeta($objModelRow::CSS_ROW_CLASS); ?>" onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);">
-							<?php $arrProperties = $objModelRow->getPropertiesAsArray(); ?>
+							<?php if ($this->showColumns): ?>
+								<?php $arrProperties = $objModelRow->getPropertiesAsArray(); ?>
 
-							<?php foreach ($arrProperties as $strValue): ?>
-								<td class="<?php echo $arrLabel['class']; ?>">
-									<?php echo $strValue ?>
-								</td>
-							<?php endforeach; ?>
+								<?php foreach ($arrProperties as $strValue): ?>
+									<td class="<?php echo $arrLabel['class']; ?>">
+										<?php echo $strValue ?>
+									</td>
+								<?php endforeach; ?>
+							<?php else: ?>
+								<?php $arrLabels = $objModelRow->getMeta($objModelRow::LABEL_VALUE); ?>
 
-
+								<?php foreach ($arrLabels as $arrLabel): ?>
+									<td <?php echo ((!is_null($arrLabel['colspan'])) ? 'colspan="' . $arrLabel['colspan'] . '"' : ''); ?> class="<?php echo $arrLabel['class']; ?>">
+										<?php echo $arrLabel['content']; ?>
+									</td>
+								<?php endforeach; ?>
+							<?php endif; ?>
+							
 							<?php if ($this->select): ?>
 								<td class="tl_file_list tl_right_nowrap">
 									<input type="checkbox" name="IDS[]" id="ids_<?php echo $objModelRow->getId(); ?>" class="tl_tree_checkbox" value="<?php echo $objModelRow->getId(); ?>">
