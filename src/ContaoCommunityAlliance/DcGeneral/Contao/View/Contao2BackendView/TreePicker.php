@@ -427,7 +427,7 @@ class TreePicker extends \Widget
             $config->setFilter($filter);
 
             // Set the sort field.
-            if($this->orderField && $dataDriver->fieldExists($this->orderField)){
+            if ($this->orderField && $dataDriver->fieldExists($this->orderField)) {
                 $config->setSorting(array($this->orderField => 'ASC'));
             }
 
