@@ -18,7 +18,6 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetEditModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
@@ -726,13 +725,16 @@ class EditMask
      * Clear the backend messages and offset states.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     protected function clearBackendStates()
     {
         setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
-        $_SESSION['TL_INFO'] = array();
-        $_SESSION['TL_ERROR'] = array();
+        $_SESSION['TL_INFO']    = array();
+        $_SESSION['TL_ERROR']   = array();
         $_SESSION['TL_CONFIRM'] = array();
     }
 }
