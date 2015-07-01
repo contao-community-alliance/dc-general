@@ -23,6 +23,7 @@ sudo: false
 install:
     - composer require contao/core $CONTAO_VERSION --no-update
     - composer update --prefer-dist --dev
+    - travis_retry composer self-update && composer --version
 
 script: ant -keep-going
 
