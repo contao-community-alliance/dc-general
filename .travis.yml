@@ -1,4 +1,5 @@
 language: php
+
 php:
     - "5.3"
     - "5.4"
@@ -12,6 +13,12 @@ env:
         - CONTAO_VERSION=~3.3.0
         - CONTAO_VERSION=~3.4.0
         - CONTAO_VERSION=~3.5.0
+
+# Exclude impossible Contao Version combinations.
+matrix:
+    exclude:
+    - php: 5.3
+        env: CONTAO_VERSION=~3.5.0
 
 install:
     - composer require contao/core $CONTAO_VERSION --no-update
