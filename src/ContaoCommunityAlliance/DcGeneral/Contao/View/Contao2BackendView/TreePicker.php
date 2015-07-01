@@ -20,6 +20,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
+use ContaoCommunityAlliance\DcGeneral\Controller\TreeNodeStates;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
@@ -132,6 +133,13 @@ class TreePicker extends \Widget
      * @var string
      */
     protected $orderField;
+
+    /**
+     * The tree nodes to be handled.
+     *
+     * @var TreeNodeStates
+     */
+    protected $nodeStates;
 
     /**
      * Create a new instance.
@@ -249,6 +257,36 @@ class TreePicker extends \Widget
     public function getEnvironment()
     {
         return $this->getItemContainer()->getEnvironment();
+    }
+
+    /**
+     * Create a tree states instance.
+     *
+     * @return TreeNodeStates
+     */
+    public function getTreeNodeStates()
+    {
+        if (!isset($this->nodeStates)) {
+            $environment      = $this->getEnvironment();
+            $sessionStorage   = $environment->getSessionStorage();
+            $this->nodeStates = new TreeNodeStates(
+                $sessionStorage->get($this->getToggleId()),
+                $this->determineParentsOfValues()
+            );
+
+            // Maybe it is not the best location to do this here.
+            if ($environment->getInputProvider()->getParameter('ptg') == 'all') {
+                // Save in session and reload.
+                $sessionStorage->set(
+                    $this->getToggleId(),
+                    $this->nodeStates->setAllOpen($this->nodeStates->isAllOpen())->getStates()
+                );
+
+                $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
+            }
+        }
+
+        return $this->nodeStates;
     }
 
     /**
@@ -550,7 +588,10 @@ class TreePicker extends \Widget
         ) {
             $provider = $input->getValue('providerName');
             $rootId   = $input->getValue('id');
-            $this->toggleModel($provider, $rootId);
+            $this->getEnvironment()->getSessionStorage()->set(
+                $this->getToggleId(),
+                $this->getTreeNodeStates()->toggleModel($provider, $rootId)->getStates()
+            );
             $collection = $this->loadCollection($rootId, (intval($input->getValue('level')) + 1));
             echo $this->generateTreeView($collection, 'tree');
             exit;
@@ -588,87 +629,6 @@ class TreePicker extends \Widget
     }
 
     /**
-     * Retrieve the ids of all tree nodes that are expanded.
-     *
-     * @return array
-     */
-    protected function getOpenElements()
-    {
-        $inputProvider  = $this->getEnvironment()->getInputProvider();
-        $sessionStorage = $this->getEnvironment()->getSessionStorage();
-
-        $openElements = $sessionStorage->get($this->getToggleId());
-
-        if (!is_array($openElements)) {
-            $openElements = array();
-            $sessionStorage->set($this->getToggleId(), $openElements);
-        }
-
-        // Check if the open/close all is active.
-        if ($inputProvider->getParameter('ptg') == 'all') {
-            $openElements = array();
-            if (!array_key_exists('all', $openElements)) {
-                $openElements        = array();
-                $openElements['all'] = 1;
-            }
-
-            // Save in session and reload.
-            $sessionStorage->set($this->getToggleId(), $openElements);
-
-            $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
-        }
-
-        return $openElements;
-    }
-
-    /**
-     * Toggle the model with the given id from the given provider.
-     *
-     * @param string $providerName The data provider name.
-     *
-     * @param mixed  $modelId      The id of the model.
-     *
-     * @return void
-     */
-    protected function toggleModel($providerName, $modelId)
-    {
-        $sessionStorage = $this->getEnvironment()->getSessionStorage();
-        $openElements   = $this->getOpenElements();
-
-        if (!isset($openElements[$providerName])) {
-            $openElements[$providerName] = array();
-        }
-
-        if (!isset($openElements[$providerName][$modelId])) {
-            $openElements[$providerName][$modelId] = 1;
-        } else {
-            $openElements[$providerName][$modelId] = !$openElements[$providerName][$modelId];
-        }
-
-        $sessionStorage->set($this->getToggleId(), $openElements);
-    }
-
-    /**
-     * Determine if the passed model is expanded.
-     *
-     * @param ModelInterface $model The model to check.
-     *
-     * @return bool
-     */
-    protected function isModelOpen($model)
-    {
-        $providerName = $model->getProviderName();
-        $modelId      = $model->getId();
-        $openElements = $this->getOpenElements();
-
-        if (!isset($openElements[$providerName])) {
-            $openElements[$providerName] = array();
-        }
-
-        return isset($openElements[$providerName][$modelId]) && $openElements[$providerName][$modelId];
-    }
-
-    /**
      * Check the state of a model and set the metadata accordingly.
      *
      * @param ModelInterface $model The model of which the state shall be checked of.
@@ -680,7 +640,13 @@ class TreePicker extends \Widget
     protected function determineModelState(ModelInterface $model, $level)
     {
         $model->setMeta(DCGE::TREE_VIEW_LEVEL, $level);
-        $model->setMeta(DCGE::TREE_VIEW_IS_OPEN, $this->isModelOpen($model));
+        $model->setMeta(
+            DCGE::TREE_VIEW_IS_OPEN,
+            $this->getTreeNodeStates()->isModelOpen(
+                $model->getProviderName(),
+                $model->getId()
+            )
+        );
     }
 
     /**
@@ -1078,5 +1044,46 @@ class TreePicker extends \Widget
         }
 
         return implode("\n", $arrHtml);
+    }
+
+
+    /**
+     * Fetch all parents of the passed model.
+     *
+     * @param ModelInterface $value   The model.
+     *
+     * @param string[]       $parents The ids of all detected parents so far.
+     *
+     * @return void
+     */
+    private function parentsOf($value, &$parents)
+    {
+        $controller = $this->getEnvironment()->getController();
+        if (!$controller->isRootModel($value)) {
+            $parent = $controller->searchParentOf($value);
+            if (!isset($parents[$value->getProviderName()][$parent->getId()])) {
+                $this->parentsOf($parent, $parents);
+            }
+        }
+
+        $parents[$value->getProviderName()][$value->getId()] = 1;
+    }
+
+    /**
+     * Determine all parents of all selected values.
+     *
+     * @return array
+     */
+    private function determineParentsOfValues()
+    {
+        $parents     = array();
+        $environment = $this->getEnvironment();
+
+        foreach ((array) $this->varValue as $value) {
+            $dataDriver = $environment->getDataProvider();
+            $this->parentsOf($dataDriver->fetch($dataDriver->getEmptyConfig()->setId($value)), $parents);
+        }
+
+        return $parents;
     }
 }
