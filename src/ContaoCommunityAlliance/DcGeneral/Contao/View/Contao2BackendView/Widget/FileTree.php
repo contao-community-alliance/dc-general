@@ -17,6 +17,12 @@ use Model\Collection;
 /**
  * File tree widget being compatible with the dc general.
  *
+ * @property string strField    The field name.
+ * @property bool   mandatory   If true the field is required.
+ * @property bool   multiple    If true multiple values are allowed.
+ * @property bool   isGallery   If true the a image gallery is rendered.
+ * @property bool   isDownloads If true only allowed download files are listed.
+ *
  * @see https://github.com/contao/core/blob/master/system/modules/core/widgets/FileTree.php
  */
 class FileTree extends AbstractWidget
@@ -52,9 +58,9 @@ class FileTree extends AbstractWidget
     /**
      * Create a new instance.
      *
-     * @param array    $attributes    The custom attributes.
+     * @param array|null    $attributes    The custom attributes.
      *
-     * @param DcCompat $dataContainer The data container.
+     * @param DcCompat|null $dataContainer The data container.
      */
     public function __construct($attributes = null, DcCompat $dataContainer = null)
     {
@@ -66,13 +72,13 @@ class FileTree extends AbstractWidget
     /**
      * Setup the file tree widget.
      *
-     * @param DcCompat $dataContainer The data container.
+     * @param DcCompat|null $dataContainer The data container.
      *
      * @return void
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
-    private function setUp(DcCompat $dataContainer)
+    private function setUp(DcCompat $dataContainer = null)
     {
         // Load the fonts for the drag hint (see #4838)
         $GLOBALS['TL_CONFIG']['loadGoogleFonts'] = true;
@@ -122,10 +128,10 @@ class FileTree extends AbstractWidget
     /**
      * Render the file list.
      *
-     * @param array       $values        The selected values.
-     * @param array       $icons         The generated icons.
-     * @param Collection  $collection    The files collection.
-     * @param bool        $followSubDirs If true subfolders get rendered.
+     * @param array           $values        The selected values.
+     * @param array           $icons         The generated icons.
+     * @param Collection|null $collection    The files collection.
+     * @param bool            $followSubDirs If true subfolders get rendered.
      *
      * @return void
      */
@@ -146,12 +152,12 @@ class FileTree extends AbstractWidget
             if ($this->isGallery && !$this->isDownloads) {
                 $icons[$model->uuid] = $this->renderIcon($model);
             } elseif ($model->type === 'folder' && $followSubDirs) {
-                $subCollection  = \FilesModel::findByPid($model->uuid);
+                $subCollection = \FilesModel::findByPid($model->uuid);
                 $this->renderList($values, $icons, $subCollection);
             } else {
                 $icon = $this->renderIcon($model, $this->isGallery, $this->isDownloads);
 
-                if ($icon) {
+                if ($icon !== false) {
                     $icons[$model->uuid] = $icon;
                 }
             }
@@ -199,7 +205,7 @@ class FileTree extends AbstractWidget
      * @param bool        $imagesOnly If true only images are rendered.
      * @param bool        $downloads  If true file extension has to be in the allowed downloads list.
      *
-     * @return bool|string
+     * @return false|string
      */
     protected function renderIcon($model, $imagesOnly = false, $downloads = false)
     {
@@ -213,7 +219,7 @@ class FileTree extends AbstractWidget
             return \Image::getHtml('folderC.gif') . ' ' . $model->path;
         }
 
-        $info = $this->renderFileInfo($model);
+        $info = $this->renderFileInfo($file);
 
         if ($imagesOnly && !($file->isGdImage || $file->isSvgImage)) {
             return false;
@@ -306,8 +312,8 @@ class FileTree extends AbstractWidget
      */
     public function generate()
     {
-        $values   = array();
-        $icons    = array();
+        $values = array();
+        $icons  = array();
 
         if (!empty($this->varValue)) {
             $files = \FilesModel::findMultipleByUuids((array)$this->varValue);
@@ -315,8 +321,8 @@ class FileTree extends AbstractWidget
             $icons = $this->applySorting($icons);
         }
 
-        $translator    = $this->getEnvironment()->getTranslator();
-        $template      = new \BackendTemplate($this->subTemplate);
+        $translator = $this->getEnvironment()->getTranslator();
+        $template   = new \BackendTemplate($this->subTemplate);
 
         $template->translate = function ($string, $domain = 'MSC', $parameters = array()) use ($translator) {
             return $translator->translate($string, $domain, $parameters);
