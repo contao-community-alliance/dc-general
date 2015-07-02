@@ -66,19 +66,17 @@ class FileTree extends AbstractWidget
     {
         parent::__construct($attributes, $dataContainer);
 
-        $this->setUp($dataContainer);
+        $this->setUp();
     }
 
     /**
      * Setup the file tree widget.
      *
-     * @param DcCompat|null $dataContainer The data container.
-     *
      * @return void
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
-    private function setUp(DcCompat $dataContainer = null)
+    private function setUp()
     {
         // Load the fonts for the drag hint (see #4838)
         $GLOBALS['TL_CONFIG']['loadGoogleFonts'] = true;
@@ -87,7 +85,7 @@ class FileTree extends AbstractWidget
             return;
         }
 
-        $value = $dataContainer->getModel()->getProperty($this->orderField);
+        $value = $this->dataContainer->getModel()->getProperty($this->orderField);
 
         // support serialized values.
         if (!is_array($value)) {
