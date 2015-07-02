@@ -6,6 +6,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Christopher Boelter <christopher@boelter.eu>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -53,6 +54,16 @@ class ContaoWidgetManager
      * @var ModelInterface
      */
     protected $model;
+
+    /**
+     * Mapping list of widget types where the DC General has it own widgets.
+     *
+     * @var array
+     */
+    protected $widgetMapping = array(
+        'fileTree'      => 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\FileTree',
+        'fileTreeOrder' => 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\FileTreeOrder'
+    );
 
     /**
      * Create a new instance.
@@ -428,6 +439,10 @@ class ContaoWidgetManager
      */
     protected function getWidgetClass(PropertyInterface $property)
     {
+        if (isset($this->widgetMapping[$property->getWidgetType()])) {
+            return $this->widgetMapping[$property->getWidgetType()];
+        }
+
         if (!isset($GLOBALS['BE_FFL'][$property->getWidgetType()])) {
             return null;
         }
