@@ -144,7 +144,7 @@ class ListView extends BaseView
 
         // Generate the table header if the "show columns" option is active.
         if ($listingDefinition->getShowColumns()) {
-            foreach ($properties->getPropertyNames() as $f) {
+            foreach ($listingDefinition->getHeaderPropertyNames() as $f) {
                 $property = $properties->getProperty($f);
                 if ($property) {
                     $label = $property->getLabel();
