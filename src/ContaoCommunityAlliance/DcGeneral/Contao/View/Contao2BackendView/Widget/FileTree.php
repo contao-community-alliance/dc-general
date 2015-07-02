@@ -12,6 +12,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use Model\Collection;
 
 /**
@@ -319,28 +320,23 @@ class FileTree extends AbstractWidget
             $icons = $this->applySorting($icons);
         }
 
-        $translator = $this->getEnvironment()->getTranslator();
-        $template   = new \BackendTemplate($this->subTemplate);
-
-        $template->translate = function ($string, $domain = 'MSC', $parameters = array()) use ($translator) {
-            return $translator->translate($string, $domain, $parameters);
-        };
-
-        $template->name      = $this->strName;
-        $template->id        = $this->strId;
-        $template->value     = implode(',', array_map('String::binToUuid', $values));
-        $template->hasOrder  = ($this->orderField != '' && is_array($this->orderFieldValue));
-        $template->icons     = $icons;
-        $template->isGallery = $this->isGallery;
-        $template->orderId   = $this->orderId;
-        $template->link      = $this->generateLink($values);
-
-        $return = $template->parse();
+        $template = new ContaoBackendViewTemplate($this->subTemplate);
+        $buffer   = $template
+            ->setTranslator($this->getEnvironment()->getTranslator())
+            ->set('name', $this->strName)
+            ->set('id', $this->strId)
+            ->set('value', implode(',', array_map('String::binToUuid', $values)))
+            ->set('hasOrder', ($this->orderField != '' && is_array($this->orderFieldValue)))
+            ->set('icons', $icons)
+            ->set('isGallery', $this->isGallery)
+            ->set('orderId', $this->orderId)
+            ->set('link', $this->generateLink($values))
+            ->parse();
 
         if (!\Environment::get('isAjaxRequest')) {
-            $return = '<div>' . $return . '</div>';
+            $buffer = '<div>' . $buffer . '</div>';
         }
 
-        return $return;
+        return $buffer;
     }
 }
