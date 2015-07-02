@@ -13,4 +13,5 @@
     <a href="<?php echo $this->link; ?>" class="tl_submit" onclick="Backend.getScrollOffset();Backend.openModalSelector({'width':768,'title':'<?php echo $this->translate('filepicker'); ?>','url':this.href,'id':'<?php echo $this->id; ?>'});return false"><?php echo $this->translate('changeSelection'); ?></a>
 </p>
 <?php if ($this->hasOrder): ?>
+    <script>Backend.makeMultiSrcSortable("sort_<?php echo $this->id; ?>", "ctrl_<?php echo $this->orderId; ?>")</script>
 <?php endif; ?>
