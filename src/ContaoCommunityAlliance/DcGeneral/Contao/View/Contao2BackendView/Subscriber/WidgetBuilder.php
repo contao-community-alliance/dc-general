@@ -19,6 +19,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\PropertyValueEncoder;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
@@ -41,6 +42,13 @@ class WidgetBuilder implements EnvironmentAwareInterface
     private $environment;
 
     /**
+     * The property value encoder.
+     *
+     * @type PropertyValueEncoder
+     */
+    private $propertyValueEncoder;
+
+    /**
      * Mapping list of widget types where the DC General has it own widgets.
      *
      * @var array
@@ -52,12 +60,15 @@ class WidgetBuilder implements EnvironmentAwareInterface
 
     /**
      * Construct.
-     * 
-     * @param EnvironmentInterface $environment The environment.
+     *
+     * @param EnvironmentInterface $environment          The environment.
+     *
+     * @param PropertyValueEncoder $propertyValueEncoder The property value encoder.
      */
-    public function __construct(EnvironmentInterface $environment)
+    public function __construct(EnvironmentInterface $environment, PropertyValueEncoder $propertyValueEncoder)
     {
-        $this->environment = $environment;
+        $this->environment          = $environment;
+        $this->propertyValueEncoder = $propertyValueEncoder;
     }
 
     /**
@@ -73,7 +84,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
             return;
         }
 
-        $builder = new static($event->getEnvironment());
+        $builder = new static($event->getEnvironment(), $event->getValueEncoder());
 
         try {
             $widget = $builder->buildWidget($event->getProperty(), $event->getModel(), $event->getInputValues());
@@ -346,9 +357,12 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $propertyName = $property->getName();
         $propExtra    = $property->getExtra();
         $defName      = $environment->getDataDefinition()->getName();
-        // FIXME: Handle value decoding.
-        $varValue     = $this->decodeValue($propertyName, $model->getProperty($propertyName));
         $strClass     = $this->getWidgetClass($property);
+        $varValue     = $this->propertyValueEncoder->decodeValue(
+            $propertyName,
+            $model->getProperty($propertyName),
+            $model
+        );
 
         if ((isset($propExtra['rgxp']) && in_array($propExtra['rgxp'], array('date', 'time', 'datim')))
             && empty($propExtra['mandatory'])
