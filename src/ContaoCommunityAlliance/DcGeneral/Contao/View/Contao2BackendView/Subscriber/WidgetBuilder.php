@@ -85,13 +85,9 @@ class WidgetBuilder implements EnvironmentAwareInterface
         }
 
         $builder = new static($event->getEnvironment(), $event->getValueEncoder());
+        $widget  = $builder->buildWidget($event->getProperty(), $event->getModel(), $event->getInputValues());
 
-        try {
-            $widget = $builder->buildWidget($event->getProperty(), $event->getModel(), $event->getInputValues());
-            $event->setWidget($widget);
-        } catch (DcGeneralException $e) {
-            // Do nothing so that other subscribers can fill the gap.
-        }
+        $event->setWidget($widget);
     }
 
     /**
@@ -346,6 +342,8 @@ class WidgetBuilder implements EnvironmentAwareInterface
      * @param PropertyValueBag  $inputValues The input values to use (optional).
      *
      * @return \Widget
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     public function buildWidget(
         PropertyInterface $property,
