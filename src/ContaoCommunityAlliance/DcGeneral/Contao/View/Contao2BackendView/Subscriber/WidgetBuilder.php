@@ -17,15 +17,14 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Widget\GetAttributesFromDcaEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\PropertyValueEncoder;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentAwareInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
-use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralException;
 
 /**
  * Widget Builder build Contao backend widgets.
@@ -42,13 +41,6 @@ class WidgetBuilder implements EnvironmentAwareInterface
     private $environment;
 
     /**
-     * The property value encoder.
-     *
-     * @var PropertyValueEncoder
-     */
-    private $propertyValueEncoder;
-
-    /**
      * Mapping list of widget types where the DC General has it own widgets.
      *
      * @var array
@@ -61,14 +53,11 @@ class WidgetBuilder implements EnvironmentAwareInterface
     /**
      * Construct.
      *
-     * @param EnvironmentInterface $environment          The environment.
-     *
-     * @param PropertyValueEncoder $propertyValueEncoder The property value encoder.
+     * @param EnvironmentInterface $environment The environment.
      */
-    public function __construct(EnvironmentInterface $environment, PropertyValueEncoder $propertyValueEncoder)
+    public function __construct(EnvironmentInterface $environment)
     {
-        $this->environment          = $environment;
-        $this->propertyValueEncoder = $propertyValueEncoder;
+        $this->environment = $environment;
     }
 
     /**
@@ -84,7 +73,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
             return;
         }
 
-        $builder = new static($event->getEnvironment(), $event->getValueEncoder());
+        $builder = new static($event->getEnvironment());
         $widget  = $builder->buildWidget($event->getProperty(), $event->getModel(), $event->getInputValues());
 
         $event->setWidget($widget);
@@ -356,11 +345,10 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $propExtra    = $property->getExtra();
         $defName      = $environment->getDataDefinition()->getName();
         $strClass     = $this->getWidgetClass($property);
-        $varValue     = $this->propertyValueEncoder->decodeValue(
-            $propertyName,
-            $model->getProperty($propertyName),
-            $model
-        );
+
+        $event = new DecodePropertyValueForWidgetEvent($environment, $model);
+        $dispatcher->dispatch($event::NAME, $event);
+        $varValue = $event->getValue();
 
         if ((isset($propExtra['rgxp']) && in_array($propExtra['rgxp'], array('date', 'time', 'datim')))
             && empty($propExtra['mandatory'])
