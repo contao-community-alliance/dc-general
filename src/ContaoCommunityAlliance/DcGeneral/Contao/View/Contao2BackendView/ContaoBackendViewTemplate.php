@@ -110,7 +110,7 @@ class ContaoBackendViewTemplate extends \BackendTemplate implements ViewTemplate
     public function translatePluralized($string, $number, $domain = null, array $parameters = array(), $locale = null)
     {
         if ($this->translator) {
-            return $this->translator->translate($string, $number, $domain, $parameters, $locale);
+            return $this->translator->translatePluralized($string, $number, $domain, $parameters, $locale);
         }
 
         return $string;
