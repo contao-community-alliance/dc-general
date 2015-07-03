@@ -25,6 +25,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentAwareInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * Widget Builder build Contao backend widgets.
@@ -69,7 +70,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
      */
     public static function handleEvent(BuildWidgetEvent $event)
     {
-        if ($event->getWidget()) {
+        if ($event->getWidget() || TL_MODE !== 'BE') {
             return;
         }
 
@@ -332,6 +333,8 @@ class WidgetBuilder implements EnvironmentAwareInterface
      *
      * @return \Widget
      *
+     * @throws DcGeneralRuntimeException When not running in TL_MODE BE.
+     *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
     public function buildWidget(
@@ -339,6 +342,12 @@ class WidgetBuilder implements EnvironmentAwareInterface
         ModelInterface $model,
         PropertyValueBag $inputValues = null
     ) {
+        if (TL_MODE !== 'BE') {
+            throw new DcGeneralRuntimeException(
+                sprintf('WidgetBuilder only supports TL_MODE "BE". Running in TL_MODE "%s".', TL_MODE)
+            );
+        }
+
         $environment  = $this->getEnvironment();
         $dispatcher   = $environment->getEventDispatcher();
         $propertyName = $property->getName();
