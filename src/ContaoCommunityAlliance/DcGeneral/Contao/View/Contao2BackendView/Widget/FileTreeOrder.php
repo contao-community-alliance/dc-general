@@ -23,7 +23,7 @@ class FileTreeOrder extends AbstractWidget
      *
      * @var string
      */
-    protected $strTemplate = 'be_widget_rdo';
+    protected $strTemplate = 'widget_filetree_order';
 
     /**
      * {@inheritdoc}
@@ -42,11 +42,18 @@ class FileTreeOrder extends AbstractWidget
      */
     public function generate()
     {
-        return sprintf(
-            '<input type="hidden" name="%s" value="%s" id="ctrl_%s" />',
-            $this->strName,
-            implode(',', array_map('String::binToUuid', $this->varValue)),
-            $this->strId
-        );
+        // Nothing to do here. Markup is in the widget template.
+
+        return '';
+    }
+
+    /**
+     * Get the value serialized as string.
+     *
+     * @return string
+     */
+    protected function getSerializedValue()
+    {
+        return implode(',', array_map('String::binToUuid', $this->varValue));
     }
 }
