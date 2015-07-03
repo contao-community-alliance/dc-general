@@ -7,6 +7,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
+ * @author     Alexander Menk <alex.menk@gmail.com>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -130,6 +131,7 @@ class ListView extends BaseView
         $sortingDefinition = $sorting['sorting'];
         $sortingColumns    = array();
         $pasteTopButton    = $this->renderPasteTopButton($sorting);
+        $formatter         = $listingDefinition->getLabelFormatter($definition->getName());
 
         if ($sortingDefinition) {
             /** @var GroupAndSortingDefinitionInterface $sortingDefinition */
@@ -143,7 +145,7 @@ class ListView extends BaseView
 
         // Generate the table header if the "show columns" option is active.
         if ($listingDefinition->getShowColumns()) {
-            foreach ($properties->getPropertyNames() as $f) {
+            foreach ($formatter->getPropertyNames() as $f) {
                 $property = $properties->getProperty($f);
                 if ($property) {
                     $label = $property->getLabel();
@@ -318,8 +320,6 @@ class ListView extends BaseView
      */
     public function copy(Action $action)
     {
-        // FIXME this will never be used anymore!
-
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit($action);
         }
