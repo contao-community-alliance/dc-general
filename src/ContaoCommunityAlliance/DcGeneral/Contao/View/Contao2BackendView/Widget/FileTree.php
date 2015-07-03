@@ -191,7 +191,8 @@ class FileTree extends AbstractWidget
     protected function renderFileInfo($file)
     {
         return sprintf(
-            '%s <span class="tl_gray">(%s&s)</span>',
+            '%s <span class="tl_gray">(%s%s)</span>',
+            $file->path,
             $this->getReadableSize($file->size),
             (($file->isGdImage || $file->isSvgImage) ? ', ' . $file->width . 'x' . $file->height . ' px' : '')
         );
