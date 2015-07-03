@@ -75,7 +75,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         }
 
         $builder = new static($event->getEnvironment());
-        $widget  = $builder->buildWidget($event->getProperty(), $event->getModel(), $event->getInputValues());
+        $widget  = $builder->buildWidget($event->getProperty(), $event->getModel());
 
         $event->setWidget($widget);
     }
@@ -329,8 +329,6 @@ class WidgetBuilder implements EnvironmentAwareInterface
      *
      * @param ModelInterface    $model       The current model.
      *
-     * @param PropertyValueBag  $inputValues The input values to use (optional).
-     *
      * @return \Widget
      *
      * @throws DcGeneralRuntimeException When not running in TL_MODE BE.
@@ -339,8 +337,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
      */
     public function buildWidget(
         PropertyInterface $property,
-        ModelInterface $model,
-        PropertyValueBag $inputValues = null
+        ModelInterface $model
     ) {
         if (TL_MODE !== 'BE') {
             throw new DcGeneralRuntimeException(
@@ -356,6 +353,10 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $strClass     = $this->getWidgetClass($property);
 
         $event = new DecodePropertyValueForWidgetEvent($environment, $model);
+        $event
+            ->setProperty($propertyName)
+            ->setValue($model->getProperty($propertyName));
+
         $dispatcher->dispatch($event::NAME, $event);
         $varValue = $event->getValue();
 
@@ -375,14 +376,6 @@ class WidgetBuilder implements EnvironmentAwareInterface
         // OH: the whole prepareForWidget(..) thing is an only mess
         // Widgets should parse the configuration by themselves, depending on what they need.
         $propExtra['required'] = ($varValue == '') && !empty($propExtra['mandatory']);
-
-        if ($inputValues) {
-            $values   = new PropertyValueBag($inputValues->getArrayCopy());
-            $newModel = clone $model;
-            $newModel->setId($model->getId());
-            $this->environment->getController()->updateModelFromPropertyBag($newModel, $values);
-            $model = $newModel;
-        }
 
         $arrConfig = array(
             'inputType' => $property->getWidgetType(),
