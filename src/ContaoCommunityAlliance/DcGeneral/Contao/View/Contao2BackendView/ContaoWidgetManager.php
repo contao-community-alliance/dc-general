@@ -235,8 +235,16 @@ class ContaoWidgetManager
             );
         }
 
+        $model = clone $this->model;
+        $model->setId($this->model->getId());
+
+        if ($inputValues) {
+            $values = new PropertyValueBag($inputValues->getArrayCopy());
+            $this->environment->getController()->updateModelFromPropertyBag($model, $values);
+        }
+
         $propertyDefinition = $propertyDefinitions->getProperty($property);
-        $event              = new BuildWidgetEvent($environment, $this->model, $propertyDefinition, $inputValues);
+        $event              = new BuildWidgetEvent($environment, $model, $propertyDefinition);
 
         $dispatcher->dispatch($event::NAME, $event);
         if (!$event->getWidget()) {

@@ -13,7 +13,6 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
@@ -47,13 +46,6 @@ class BuildWidgetEvent extends AbstractModelAwareEvent
     protected $widget;
 
     /**
-     * The input values being optionally used.
-     *
-     * @type PropertyValueBag|null
-     */
-    private $inputValues;
-
-    /**
      * Create a new event.
      *
      * @param EnvironmentInterface  $environment The environment instance in use.
@@ -61,19 +53,15 @@ class BuildWidgetEvent extends AbstractModelAwareEvent
      * @param ModelInterface        $model       The model holding the data for the widget that shall be instantiated.
      *
      * @param PropertyInterface     $property    The property for which the widget shall be instantiated.
-     *
-     * @param PropertyValueBag|null $inputValues The input values to use (optional).
      */
     public function __construct(
         EnvironmentInterface $environment,
         ModelInterface $model,
-        PropertyInterface $property,
-        PropertyValueBag $inputValues = null
+        PropertyInterface $property
     ) {
         parent::__construct($environment, $model);
 
-        $this->property    = $property;
-        $this->inputValues = $inputValues;
+        $this->property = $property;
     }
 
     /**
@@ -108,15 +96,5 @@ class BuildWidgetEvent extends AbstractModelAwareEvent
     public function getProperty()
     {
         return $this->property;
-    }
-
-    /**
-     * Get the input values..
-     *
-     * @return PropertyValueBag|null
-     */
-    public function getInputValues()
-    {
-        return $this->inputValues;
     }
 }
