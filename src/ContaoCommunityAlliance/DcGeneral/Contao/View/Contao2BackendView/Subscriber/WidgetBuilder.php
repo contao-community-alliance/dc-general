@@ -44,7 +44,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
     /**
      * The property value encoder.
      *
-     * @type PropertyValueEncoder
+     * @var PropertyValueEncoder
      */
     private $propertyValueEncoder;
 
