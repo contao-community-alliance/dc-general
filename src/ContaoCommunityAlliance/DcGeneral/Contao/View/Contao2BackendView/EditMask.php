@@ -232,16 +232,17 @@ class EditMask
 
         if ($input->getValue('FORM_SUBMIT') == $this->getDataDefinition()->getName()) {
             $propertyValues = new PropertyValueBag();
-            $propertyNames  = $this->getDataDefinition()->getPropertiesDefinition()->getPropertyNames(
+            $propertyNames  = array_intersect(
+                $this->getDataDefinition()->getPropertiesDefinition()->getPropertyNames(),
+                $input->getValue('FORM_INPUTS')
             );
 
             // Process input and update changed properties.
             foreach ($propertyNames as $propertyName) {
-                if ($input->hasValue($propertyName)) {
-                    $propertyValue = $input->getValue($propertyName, true);
-                    $propertyValues->setPropertyValue($propertyName, $propertyValue);
-                }
+                $propertyValue = $input->hasValue($propertyName) ? $input->getValue($propertyName, true) : null;
+                $propertyValues->setPropertyValue($propertyName, $propertyValue);
             }
+
             $widgetManager->processInput($propertyValues);
 
             return $propertyValues;
