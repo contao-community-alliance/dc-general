@@ -1080,14 +1080,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                             ->setId($objModel->getId())
                             ->setFields($objCommand->getToggleProperty())
                 );
-
-                $state = $propModel->getProperty($objCommand->getToggleProperty());
                 $dataProvider->setCurrentLanguage($language);
             } else {
-                $state = $objCommand->isInverse()
-                    ? $objModel->getProperty($objCommand->getToggleProperty())
-                    : !$objModel->getProperty($objCommand->getToggleProperty());
+                $propModel = $objModel;
             }
+            $state = $objCommand->isInverse()
+                ? !$propModel->getProperty($objCommand->getToggleProperty())
+                : $propModel->getProperty($objCommand->getToggleProperty());
 
             if (!$state) {
                 $extra['icon'] = $iconDisabled ?: 'invisible.gif';
