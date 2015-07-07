@@ -209,8 +209,6 @@ class FileTree extends AbstractWidget
      */
     protected function renderIcon($model, $imagesOnly = false, $downloads = false)
     {
-        $file = new \File($model->path, true);
-
         if ($model->type === 'folder') {
             if ($imagesOnly || $downloads) {
                 return false;
@@ -218,7 +216,7 @@ class FileTree extends AbstractWidget
 
             return \Image::getHtml('folderC.gif') . ' ' . $model->path;
         }
-
+        $file = new \File($model->path, true);
         $info = $this->renderFileInfo($file);
 
         if ($imagesOnly && !($file->isGdImage || $file->isSvgImage)) {
