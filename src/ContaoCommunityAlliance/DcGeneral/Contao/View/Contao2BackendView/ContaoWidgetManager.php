@@ -14,16 +14,9 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
-use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
-use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
-use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
-use ContaoCommunityAlliance\Contao\Bindings\Events\Widget\GetAttributesFromDcaEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
@@ -54,16 +47,6 @@ class ContaoWidgetManager
      * @var ModelInterface
      */
     protected $model;
-
-    /**
-     * Mapping list of widget types where the DC General has it own widgets.
-     *
-     * @var array
-     */
-    protected $widgetMapping = array(
-        'fileTree'      => 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\FileTree',
-        'fileTreeOrder' => 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\FileTreeOrder'
-    );
 
     /**
      * Create a new instance.
@@ -166,178 +149,6 @@ class ContaoWidgetManager
     }
 
     /**
-     * Get the help wizard.
-     *
-     * @param PropertyInterface $propInfo The property for which the wizard shall be generated.
-     *
-     * @return string
-     */
-    protected function getHelpWizard($propInfo)
-    {
-        $helpWizard  = '';
-        $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
-        $defName     = $environment->getDataDefinition()->getName();
-        $translator  = $environment->getTranslator();
-        // Add the help wizard.
-        if ($propInfo->getExtra() && array_key_exists('helpwizard', $propInfo->getExtra())) {
-            $event = new GenerateHtmlEvent(
-                'about.gif',
-                $translator->translate('helpWizard', 'MSC'),
-                'style="vertical-align:text-bottom;"'
-            );
-
-            $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $event);
-
-            $helpWizard .= sprintf(
-                ' <a href="contao/help.php?table=%s&amp;field=%s" ' .
-                'title="%s" ' .
-                'onclick="Backend.openWindow(this, 600, 500); return false;">%s</a>',
-                $defName,
-                $propInfo->getName(),
-                specialchars($translator->translate('helpWizard', 'MSC')),
-                $event->getHtml()
-            );
-        }
-
-        return $helpWizard;
-    }
-
-    /**
-     * Get the table import wizard.
-     *
-     * @return string
-     */
-    protected function getTableWizard()
-    {
-        $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
-        $defName     = $environment->getDataDefinition()->getName();
-        $translator  = $environment->getTranslator();
-        $urlEvent    = new AddToUrlEvent('key=table');
-
-        $importTableEvent = new GenerateHtmlEvent(
-            'tablewizard.gif',
-            $translator->translate('importTable.0', $defName),
-            'style="vertical-align:text-bottom;"'
-        );
-
-        $shrinkEvent = new GenerateHtmlEvent(
-            'demagnify.gif',
-            $translator->translate('shrink.0', $defName),
-            sprintf(
-                'title="%s" ' .
-                'style="vertical-align:text-bottom; cursor:pointer;" ' .
-                'onclick="Backend.tableWizardResize(0.9);"',
-                specialchars($translator->translate('shrink.1', $defName))
-            )
-        );
-
-        $expandEvent = new GenerateHtmlEvent(
-            'magnify.gif',
-            $translator->translate('expand.0', $defName),
-            sprintf(
-                'title="%s" ' .
-                'style="vertical-align:text-bottom; cursor:pointer;" ' .
-                'onclick="Backend.tableWizardResize(1.1);"',
-                specialchars($translator->translate('expand.1', $defName))
-            )
-        );
-
-        $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $urlEvent);
-
-        $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $importTableEvent);
-        $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $shrinkEvent);
-        $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $expandEvent);
-
-        return sprintf(
-            ' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a> %s%s',
-            ampersand($urlEvent->getUrl()),
-            specialchars($translator->translate('importTable.1', $defName)),
-            $importTableEvent->getHtml(),
-            $shrinkEvent->getHtml(),
-            $expandEvent->getHtml()
-        );
-    }
-
-    /**
-     * Get the list import wizard.
-     *
-     * @return string
-     */
-    protected function getListWizard()
-    {
-        $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
-        $defName     = $environment->getDataDefinition()->getName();
-        $translator  = $environment->getTranslator();
-
-        $urlEvent = new AddToUrlEvent('key=list');
-
-        $importListEvent = new GenerateHtmlEvent(
-            'tablewizard.gif',
-            $translator->translate('importList.0', $defName),
-            'style="vertical-align:text-bottom;"'
-        );
-
-        $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $urlEvent);
-        $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $importListEvent);
-
-        return sprintf(
-            ' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a>',
-            ampersand($urlEvent->getUrl()),
-            specialchars($translator->translate('importList.1', $defName)),
-            $importListEvent->getHtml()
-        );
-    }
-
-    /**
-     * Get special labels.
-     *
-     * @param PropertyInterface $propInfo The property for which the X label shall be generated.
-     *
-     * @return string
-     */
-    protected function getXLabel($propInfo)
-    {
-        $xLabel      = '';
-        $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
-        $translator  = $environment->getTranslator();
-
-        // Toggle line wrap (textarea).
-        if ($propInfo->getWidgetType() === 'textarea' && !array_key_exists('rte', $propInfo->getExtra())) {
-            $event = new GenerateHtmlEvent(
-                'wrap.gif',
-                $translator->translate('wordWrap', 'MSC'),
-                sprintf(
-                    'title="%s" class="toggleWrap" onclick="Backend.toggleWrap(\'ctrl_%s\');"',
-                    specialchars($translator->translate('wordWrap', 'MSC')),
-                    $propInfo->getName()
-                )
-            );
-
-            $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $event);
-
-            $xLabel .= ' ' . $event->getHtml();
-        }
-
-        $xLabel .= $this->getHelpWizard($propInfo);
-
-        switch ($propInfo->getWidgetType()) {
-            case 'tableWizard':
-                $xLabel .= $this->getTableWizard();
-                break;
-            case 'listWizard':
-                $xLabel .= $this->getListWizard();
-                break;
-            default:
-        }
-
-        return $xLabel;
-    }
-
-    /**
      * Function for pre-loading the tiny mce.
      *
      * @return void
@@ -396,66 +207,6 @@ class ContaoWidgetManager
     }
 
     /**
-     * Get special labels.
-     *
-     * @param PropertyInterface $propInfo The property for which the X label shall be generated.
-     *
-     * @param ModelInterface    $model    The model.
-     *
-     * @return string
-     */
-    protected function getOptionsForWidget($propInfo, $model)
-    {
-        $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
-        $options     = $propInfo->getOptions();
-        $event       = new GetPropertyOptionsEvent($environment, $model);
-        $event->setPropertyName($propInfo->getName());
-        $event->setOptions($options);
-
-        $dispatcher->dispatch(
-            sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $propInfo->getName()),
-            $event
-        );
-        $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()), $event);
-        $dispatcher->dispatch($event::NAME, $event);
-
-        if ($event->getOptions() !== $options) {
-            return $event->getOptions();
-        }
-
-        return $options;
-    }
-
-    /**
-     * Try to resolve the class name for the widget.
-     *
-     * @param PropertyInterface $property The property to get the widget class name for.
-     *
-     * @return string
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
-     */
-    protected function getWidgetClass(PropertyInterface $property)
-    {
-        if (isset($this->widgetMapping[$property->getWidgetType()])) {
-            return $this->widgetMapping[$property->getWidgetType()];
-        }
-
-        if (!isset($GLOBALS['BE_FFL'][$property->getWidgetType()])) {
-            return null;
-        }
-
-        $className = $GLOBALS['BE_FFL'][$property->getWidgetType()];
-        if (!class_exists($className)) {
-            return null;
-        }
-
-        return $className;
-    }
-
-    /**
      * Retrieve the instance of a widget for the given property.
      *
      * @param string           $property    Name of the property for which the widget shall be retrieved.
@@ -466,6 +217,9 @@ class ContaoWidgetManager
      *
      * @return \Widget
      *
+     * @throws DcGeneralRuntimeException         When No widget could be build.
+     * @throws DcGeneralInvalidArgumentException When property is not defined in the property definitions.
+     *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
@@ -473,7 +227,6 @@ class ContaoWidgetManager
     {
         $environment         = $this->getEnvironment();
         $dispatcher          = $environment->getEventDispatcher();
-        $defName             = $environment->getDataDefinition()->getName();
         $propertyDefinitions = $environment->getDataDefinition()->getPropertiesDefinition();
 
         if (!$propertyDefinitions->hasProperty($property)) {
@@ -482,118 +235,25 @@ class ContaoWidgetManager
             );
         }
 
-        $event = new BuildWidgetEvent($environment, $this->model, $propertyDefinitions->getProperty($property));
-
-        $dispatcher->dispatch($event::NAME, $event);
-        if ($event->getWidget()) {
-            return $event->getWidget();
-        }
-
-        $propInfo  = $propertyDefinitions->getProperty($property);
-        $propExtra = $propInfo->getExtra();
-        $varValue  = $this->decodeValue($property, $this->model->getProperty($property));
-        $strClass  = $this->getWidgetClass($propInfo);
-
-        if ((isset($propExtra['rgxp']) && in_array($propExtra['rgxp'], array('date', 'time', 'datim')))
-            && empty($propExtra['mandatory'])
-            && is_numeric($varValue) && $varValue == 0
-        ) {
-            /*
-                FIXME TEMPORARY WORKAROUND! To be fixed in the core:
-                @see \Widget::getAttributesFromDca()
-            */
-
-            $varValue = '';
-        }
-
-        // OH: why not $required = $mandatory always? source: DataContainer 226.
-        // OH: the whole prepareForWidget(..) thing is an only mess
-        // Widgets should parse the configuration by themselves, depending on what they need.
-        $propExtra['required'] = ($varValue == '') && !empty($propExtra['mandatory']);
+        $model = clone $this->model;
+        $model->setId($this->model->getId());
 
         if ($inputValues) {
             $values = new PropertyValueBag($inputValues->getArrayCopy());
-            $model  = clone $this->model;
-            $model->setId($this->model->getId());
             $this->environment->getController()->updateModelFromPropertyBag($model, $values);
-        } else {
-            $model = $this->model;
         }
 
-        $arrConfig = array(
-            'inputType' => $propInfo->getWidgetType(),
-            'label'     => array(
-                $propInfo->getLabel(),
-                $propInfo->getDescription()
-            ),
-            'options'   => $this->getOptionsForWidget($propInfo, $model),
-            'eval'      => $propExtra,
-            // TODO: populate these.
-            // 'foreignKey' => null
-        );
+        $propertyDefinition = $propertyDefinitions->getProperty($property);
+        $event              = new BuildWidgetEvent($environment, $model, $propertyDefinition);
 
-        if (isset($propExtra['reference'])) {
-            $arrConfig['reference'] = $propExtra['reference'];
-        }
-
-        $event = new GetAttributesFromDcaEvent(
-            $arrConfig,
-            $propInfo->getName(),
-            $varValue,
-            $property,
-            $defName,
-            new DcCompat($environment, $this->model, $property)
-        );
-
-        // FIXME: propagator
-        $dispatcher->dispatch(
-            sprintf(
-                '%s[%s][%s]',
-                ContaoEvents::WIDGET_GET_ATTRIBUTES_FROM_DCA,
-                $defName,
-                $property
-            ),
-            $event
-        );
-        $dispatcher->dispatch(
-            sprintf(
-                '%s[%s]',
-                ContaoEvents::WIDGET_GET_ATTRIBUTES_FROM_DCA,
-                $defName
-            ),
-            $event
-        );
-        $dispatcher->dispatch(ContaoEvents::WIDGET_GET_ATTRIBUTES_FROM_DCA, $event);
-
-        $arrPrepared = $event->getResult();
-
-        // Bugfix CS: ajax subpalettes are really broken.
-        // Therefore we reset to the default checkbox behaviour here and submit the entire form.
-        // This way, the javascript needed by the widget (wizards) will be correctly evaluated.
-        if ($arrConfig['inputType'] == 'checkbox'
-            && isset($GLOBALS['TL_DCA'][$defName]['subpalettes'])
-            && is_array($GLOBALS['TL_DCA'][$defName]['subpalettes'])
-            && in_array($property, array_keys($GLOBALS['TL_DCA'][$defName]['subpalettes']))
-            && $arrConfig['eval']['submitOnChange']
-        ) {
-            // We have to override the onclick, do not append to it as Contao adds it's own code here in
-            // \Widget::getAttributesFromDca() which kills our sub palette handling!
-            $arrPrepared['onclick'] = "Backend.autoSubmit('" . $defName . "');";
-        }
-
-        $objWidget = new $strClass($arrPrepared, new DcCompat($environment, $this->model, $property));
-        // OH: what is this? source: DataContainer 232.
-        $objWidget->currentRecord = $this->model->getId();
-
-        $objWidget->xlabel .= $this->getXLabel($propInfo);
-
-        // FIXME: propagator
-        $event = new ManipulateWidgetEvent($environment, $this->model, $propInfo, $objWidget);
-        $dispatcher->dispatch(sprintf('%s[%s][%s]', $event::NAME, $defName, $property), $event);
-        $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $defName), $event);
         $dispatcher->dispatch($event::NAME, $event);
+        if (!$event->getWidget()) {
+            throw new DcGeneralRuntimeException(
+                sprintf('Widget was not build for property %s::%s.', $this->model->getProviderName(), $property)
+            );
+        }
 
-        return $objWidget;
+        return $event->getWidget();
     }
 
     /**
