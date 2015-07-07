@@ -25,9 +25,9 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -283,7 +283,7 @@ class ParentView extends BaseView
                     $lang = $this->translate(sprintf('%s.0', $v), $parentName);
                 }
 
-                $key  = $lang ? $lang : $v;
+                $key = $lang ? $lang : $v;
 
                 $add[$key] = $value;
             }
@@ -320,7 +320,7 @@ class ParentView extends BaseView
      *
      * @param ModelInterface $parentModel The parent model.
      *
-     * @return array
+     * @return string
      */
     protected function getHeaderButtons($parentModel)
     {
@@ -457,7 +457,7 @@ class ParentView extends BaseView
      *
      * @param ModelInterface $parentModel The parent model.
      *
-     * @return array
+     * @return null|string
      */
     protected function getHeaderEditButtons($parentModel)
     {

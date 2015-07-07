@@ -132,11 +132,11 @@ class TreeView extends BaseView
     /**
      * Load the collection of child items and the parent item for the currently selected parent item.
      *
-     * @param mixed $rootId       The root element (or null to fetch everything).
+     * @param string $rootId       The root element (or null to fetch everything).
      *
      * @param int   $intLevel     The current level in the tree (of the optional root element).
      *
-     * @param null  $providerName The data provider from which the optional root element shall be taken from.
+     * @param string  $providerName The data provider from which the optional root element shall be taken from.
      *
      * @return CollectionInterface
      */
@@ -146,7 +146,7 @@ class TreeView extends BaseView
         $dataDriver   = $environment->getDataProvider($providerName);
         $realProvider = $dataDriver->getEmptyModel()->getProviderName();
 
-        $collector     = new TreeCollector(
+        $collector = new TreeCollector(
             $environment,
             $this->getPanel(),
             $this->getViewSection()->getListingConfig()->getDefaultSortingFields(),
@@ -572,8 +572,7 @@ class TreeView extends BaseView
         */
 
         // A list with ignored panels.
-        $arrIgnoredPanels = array
-        (
+        $arrIgnoredPanels = array(
             '\ContaoCommunityAlliance\DcGeneral\Panel\LimitElementInterface',
             '\ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface'
         );

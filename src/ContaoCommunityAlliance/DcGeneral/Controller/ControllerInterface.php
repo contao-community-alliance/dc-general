@@ -144,7 +144,7 @@ interface ControllerInterface
      * @param string|null         $providerName The name of the provider, if this is empty, the id will be deserialized
      *                                          and the provider name will get extracted from there.
      *
-     * @return mixed
+     * @return ModelInterface
      */
     public function fetchModelFromProvider($modelId, $providerName = null);
 
