@@ -19,6 +19,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\ExtendedLegacyDcaPopu
 use ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\HardCodedPopulator;
 use ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\PickerCompatPopulator;
 use ContaoCommunityAlliance\DcGeneral\Contao\Subscriber\FormatModelLabelSubscriber;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ToggleHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\GetGroupHeaderSubscriber;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
@@ -65,4 +66,7 @@ return array(
     GetGroupHeaderEvent::NAME => array(
         array(new GetGroupHeaderSubscriber(), 'handle')
     ),
+    DcGeneralEvents::ACTION => array(
+        array(new ToggleHandler(), 'handleEvent')
+    )
 );

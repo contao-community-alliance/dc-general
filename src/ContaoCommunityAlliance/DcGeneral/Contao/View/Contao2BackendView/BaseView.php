@@ -141,7 +141,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             case 'undo':
             case 'edit':
             case 'showAll':
-            case 'toggle':
                 $response = call_user_func_array(
                     array($this, $name),
                     array_merge(array($action), $action->getArguments())
@@ -154,14 +153,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 break;
 
             default:
-        }
-
-        if ($this->getViewSection()->getModelCommands()->hasCommandNamed($name)) {
-            $command = $this->getViewSection()->getModelCommands()->getCommandNamed($name);
-
-            if ($command instanceof ToggleCommandInterface) {
-                $this->toggle($action, $name);
-            }
         }
     }
 
@@ -760,53 +751,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Handle the "toggle" action.
-     *
-     * @param Action $action The action being executed.
-     *
-     * @param string $name   The command name (default: toggle).
-     *
-     * @return string
-     */
-    public function toggle(Action $action, $name = 'toggle')
-    {
-        $environment   = $this->getEnvironment();
-        $inputProvider = $environment->getInputProvider();
-
-        if ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id')) {
-            $serializedId = IdSerializer::fromSerialized($inputProvider->getParameter('id'));
-        }
-
-        if (!(isset($serializedId)
-              && $serializedId->getDataProviderName() == $environment->getDataDefinition()->getName())
-        ) {
-            return '';
-        }
-
-        /** @var ToggleCommandInterface $operation */
-        $operation    = $this->getViewSection()->getModelCommands()->getCommandNamed($name);
-        $dataProvider = $environment->getDataProvider();
-        $newState     = $operation->isInverse()
-            ? $inputProvider->getParameter('state') == 1 ? '' : '1'
-            : $inputProvider->getParameter('state') == 1 ? '1' : '';
-
-        if ($operation instanceof TranslatedToggleCommandInterface
-            && $dataProvider instanceof MultiLanguageDataProviderInterface
-        ) {
-            /** @var TranslatedToggleCommandInterface $operation */
-            $dataProvider->setCurrentLanguage($operation->getLanguage());
-        }
-
-        $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($serializedId->getId()));
-
-        $model->setProperty($operation->getToggleProperty(), $newState);
-
-        $dataProvider->save($model);
-
-        return $this->showAll($action);
-    }
-
-    /**
      * Create the "new" button.
      *
      * @return CommandInterface|null
@@ -1124,10 +1068,28 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 $iconDisabled
             );
 
-            if ($objCommand->isInverse()
-                ? $objModel->getProperty($objCommand->getToggleProperty())
-                : !$objModel->getProperty($objCommand->getToggleProperty())
+            $dataProvider = $this->getEnvironment()->getDataProvider($objModel->getProviderName());
+            if ($objCommand instanceof TranslatedToggleCommandInterface
+                && $dataProvider instanceof MultiLanguageDataProviderInterface
             ) {
+                $language = $dataProvider->getCurrentLanguage();
+                $dataProvider->setCurrentLanguage($objCommand->getLanguage());
+                $propModel = $dataProvider->fetch(
+                    $dataProvider
+                        ->getEmptyConfig()
+                            ->setId($objModel->getId())
+                            ->setFields($objCommand->getToggleProperty())
+                );
+
+                $state = $propModel->getProperty($objCommand->getToggleProperty());
+                $dataProvider->setCurrentLanguage($language);
+            } else {
+                $state = $objCommand->isInverse()
+                    ? $objModel->getProperty($objCommand->getToggleProperty())
+                    : !$objModel->getProperty($objCommand->getToggleProperty());
+            }
+
+            if (!$state) {
                 $extra['icon'] = $iconDisabled ?: 'invisible.gif';
             }
         }
