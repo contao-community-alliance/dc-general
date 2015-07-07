@@ -179,7 +179,7 @@ class ShowHandler extends AbstractHandler
     {
         $environment = $this->getEnvironment();
         if ($environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            $this->getEvent()->setResponse($environment->getView()->edit($this->getEvent()));
+            $this->getEvent()->setResponse($environment->getView()->edit($this->getEvent()->getAction()));
 
             return;
         }
@@ -187,7 +187,7 @@ class ShowHandler extends AbstractHandler
         $translator   = $environment->getTranslator();
         $modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('id'));
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
-        $model        = $this->getModel($environment);
+        $model        = $this->getModel();
         $data         = $this->convertModel($model, $environment);
         $headline     = $this->getHeadline($model);
         $template     = new ContaoBackendViewTemplate('dcbe_general_show');
