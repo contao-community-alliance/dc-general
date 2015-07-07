@@ -39,6 +39,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPa
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
@@ -48,6 +49,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CopyCommand
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CutCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\TranslatedToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -787,6 +789,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $newState     = $operation->isInverse()
             ? $inputProvider->getParameter('state') == 1 ? '' : '1'
             : $inputProvider->getParameter('state') == 1 ? '1' : '';
+
+        if ($operation instanceof TranslatedToggleCommandInterface
+            && $dataProvider instanceof MultiLanguageDataProviderInterface
+        ) {
+            /** @var TranslatedToggleCommandInterface $operation */
+            $dataProvider->setCurrentLanguage($operation->getLanguage());
+        }
 
         $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($serializedId->getId()));
 
