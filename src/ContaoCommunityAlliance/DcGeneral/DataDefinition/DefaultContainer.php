@@ -138,7 +138,7 @@ class DefaultContainer implements ContainerInterface
     {
         if (!$this->hasDefinition($definitionName)) {
             throw new DcGeneralInvalidArgumentException(
-                'Definition ' . $definitionName . ' is not registered in the configuration ' . $this->getName() .'.'
+                'Definition ' . $definitionName . ' is not registered in the configuration ' . $this->getName() . '.'
             );
         }
 

@@ -12,8 +12,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Compatibility;
 
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DC_General;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;

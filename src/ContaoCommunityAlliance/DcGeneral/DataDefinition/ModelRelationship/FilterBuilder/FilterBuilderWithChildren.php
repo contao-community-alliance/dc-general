@@ -319,8 +319,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
             $children[] = $child->get();
         }
 
-        return array
-        (
+        return array(
             'operation' => $this->operation,
             'children'  => $children
         );

@@ -20,7 +20,6 @@ use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
-use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
@@ -38,8 +37,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOp
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
@@ -47,9 +44,10 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CopyCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CutCommandInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\TranslatedToggleCommandInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -292,7 +290,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * Retrieve a list of html buttons to use in the bottom panel (submit area) when in select mode.
      *
-     * @return array
+     * @return string[]
      */
     protected function getSelectButtons()
     {
@@ -753,7 +751,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * Create the "new" button.
      *
-     * @return CommandInterface|null
+     * @return null|Command
      */
     protected function getCreateModelCommand()
     {
@@ -829,7 +827,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * Create the "back" button.
      *
-     * @return CommandInterface|null
+     * @return null|Command
      */
     protected function getBackCommand()
     {
@@ -1524,7 +1522,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * Render the panel.
      *
-     * @param array $ignoredPanels A list with ignored elements [Optional].
+     * @param string[] $ignoredPanels A list with ignored elements [Optional].
      *
      * @throws DcGeneralRuntimeException When no information of panels can be obtained from the data container.
      *

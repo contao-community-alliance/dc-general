@@ -27,6 +27,9 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
@@ -34,9 +37,6 @@ use ContaoCommunityAlliance\DcGeneral\Data\DefaultCollection;
 use ContaoCommunityAlliance\DcGeneral\Data\LanguageInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -738,7 +738,7 @@ class DefaultController implements ControllerInterface
      * @param IdSerializer $parentModelId The parent model id.
      * @param array        $items         Write-back clipboard items.
      *
-     * @return mixed
+     * @return CollectionInterface
      */
     private function doActions(
         array $actions,
@@ -1102,8 +1102,7 @@ class DefaultController implements ControllerInterface
                 ->getDataDefinition()
                 ->getBasicDefinition()
                 ->getMode(),
-            array
-            (
+            array(
                 BasicDefinitionInterface::MODE_HIERARCHICAL,
                 BasicDefinitionInterface::MODE_PARENTEDLIST
             )
