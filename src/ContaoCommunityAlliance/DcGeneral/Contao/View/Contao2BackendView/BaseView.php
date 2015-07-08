@@ -766,7 +766,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         if ($serializedPid = $environment->getInputProvider()->getParameter('pid')) {
             $pid = IdSerializer::fromSerialized($serializedPid);
         } else {
-            $pid = new IdSerializer();
+            $pid = null;
         }
 
         if (!$basicDefinition->isCreatable()) {
@@ -795,7 +795,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         ) {
             $parameters['act'] = 'edit';
             // Add new button.
-            if ($pid->getDataProviderName() && $pid->getId()) {
+            if ($pid) {
                 $parameters['pid'] = $pid->getSerialized();
             }
         } elseif (
@@ -816,7 +816,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
             $parameters['act'] = 'create';
 
-            if ($pid->getDataProviderName() && $pid->getId()) {
+            if ($pid) {
                 $parameters['pid'] = $pid->getSerialized();
             }
         }

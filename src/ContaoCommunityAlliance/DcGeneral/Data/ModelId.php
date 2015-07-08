@@ -3,29 +3,27 @@
  * PHP version 5
  *
  * @package    generalDriver
- * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
  */
 
-namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
+namespace ContaoCommunityAlliance\DcGeneral\Data;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
- * The class IdSerializer provides handy methods to serialize and un-serialize model ids including the data provider
- * name into a string.
+ * The class ModelId implements the ModelIdInterface.
  *
- * @deprecated This class gonna be replaced by the ModelIdInterface. Use this instead!
+ * It is the successor of the previous used ModelIdSerializer in the Contao2BackendView.
  *
  * @package DcGeneral\Contao\View\Contao2BackendView
  */
-class IdSerializer implements ModelIdInterface
+class ModelId implements ModelIdInterface
 {
     /**
      * The data provider name.
@@ -42,17 +40,25 @@ class IdSerializer implements ModelIdInterface
     protected $modelId;
 
     /**
-     * Set the data provider name.
+     * Construct.
      *
-     * @param string $dataProviderName The name.
+     * @param string $dataProviderName The data provider name.
+     * @param mixed  $modelId          The model id.
      *
-     * @return IdSerializer
+     * @throws DcGeneralInvalidArgumentException If an invalid data provider name or model id is given.
      */
-    public function setDataProviderName($dataProviderName)
+    public function __construct($dataProviderName, $modelId)
     {
-        $this->dataProviderName = $dataProviderName;
+        if (empty($dataProviderName)) {
+            throw new DcGeneralInvalidArgumentException('Can\'t instantiate model id. No data provider name given.');
+        }
 
-        return $this;
+        if (empty($modelId)) {
+            throw new DcGeneralInvalidArgumentException('Can\'t instantiate model id. No model id given.');
+        }
+
+        $this->modelId          = $modelId;
+        $this->dataProviderName = $dataProviderName;
     }
 
     /**
@@ -66,23 +72,7 @@ class IdSerializer implements ModelIdInterface
     }
 
     /**
-     * Set the model Id.
-     *
-     * @param mixed $modelId The id.
-     *
-     * @return IdSerializer
-     */
-    public function setId($modelId)
-    {
-        $this->modelId = $modelId;
-
-        return $this;
-    }
-
-    /**
-     * Retrieve the id.
-     *
-     * @return mixed
+     * {@inheritdoc}
      */
     public function getId()
     {
@@ -90,31 +80,15 @@ class IdSerializer implements ModelIdInterface
     }
 
     /**
-     * Create an instance from the passed values.
-     *
-     * @param string $dataProviderName The data provider name.
-     *
-     * @param mixed  $modelId          The id.
-     *
-     * @return IdSerializer
+     * {@inheritdoc}
      */
     public static function fromValues($dataProviderName, $modelId)
     {
-        $instance = new IdSerializer();
-
-        $instance
-            ->setId($modelId)
-            ->setDataProviderName($dataProviderName);
-
-        return $instance;
+        return new static($dataProviderName, $modelId);
     }
 
     /**
-     * Create an instance from a model.
-     *
-     * @param ModelInterface $model The model.
-     *
-     * @return IdSerializer
+     * {@inheritdoc}
      */
     public static function fromModel(ModelInterface $model)
     {
@@ -122,18 +96,10 @@ class IdSerializer implements ModelIdInterface
     }
 
     /**
-     * Create an instance from an serialized id.
-     *
-     * @param string $serialized The id.
-     *
-     * @return IdSerializer
-     *
-     * @throws DcGeneralRuntimeException When invalid data is encountered.
+     * {@inheritdoc}
      */
     public static function fromSerialized($serialized)
     {
-        $instance = new IdSerializer();
-
         $serialized = rawurldecode($serialized);
         $serialized = html_entity_decode($serialized, ENT_QUOTES, 'UTF-8');
 
@@ -143,16 +109,14 @@ class IdSerializer implements ModelIdInterface
             throw new DcGeneralRuntimeException('Unparsable encoded id value: ' . var_export($serialized, true));
         }
 
-        $instance->setDataProviderName($chunks[0]);
+        if (!is_numeric($chunks[1])) {
+            $decodedSource = base64_decode($chunks[1]);
+            $decodedJson   = json_decode($decodedSource, true);
 
-        if (is_numeric($chunks[1])) {
-            return $instance->setId($chunks[1]);
+            $chunks[1] = $decodedJson ?: $decodedSource;
         }
 
-        $decodedSource = base64_decode($chunks[1]);
-        $decodedJson   = json_decode($decodedSource, true);
-
-        return $instance->setId($decodedJson ?: $decodedSource);
+        return new static($chunks[0], $chunks[1]);
     }
 
     /**
@@ -170,21 +134,7 @@ class IdSerializer implements ModelIdInterface
     }
 
     /**
-     * Determine if both, data provider name and id are set and non empty.
-     *
-     * @return bool
-     */
-    public function isValid()
-    {
-        return !(empty($this->modelId) || empty($this->dataProviderName));
-    }
-
-    /**
-     * Determine if this id, is equals to the other id.
-     *
-     * @param ModelIdInterface $modelId The other id.
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function equals(ModelIdInterface $modelId)
     {
