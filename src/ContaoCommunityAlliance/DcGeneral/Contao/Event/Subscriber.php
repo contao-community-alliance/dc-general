@@ -331,6 +331,7 @@ class Subscriber implements EventSubscriberInterface
             case 'move':
             case 'undo':
             case 'edit':
+            case 'toggle':
             case 'showAll':
             case 'show':
                 $environment = $event->getEnvironment();
