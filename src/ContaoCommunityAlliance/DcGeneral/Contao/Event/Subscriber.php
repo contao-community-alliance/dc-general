@@ -5,6 +5,7 @@
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -322,20 +323,34 @@ class Subscriber implements EventSubscriberInterface
      */
     public function initializePanels(ActionEvent $event)
     {
-        $environment = $event->getEnvironment();
-        $definition  = $environment->getDataDefinition();
-        $view        = $environment->getView();
+        switch ($event->getAction()->getName()) {
+            case 'copy':
+            case 'create':
+            case 'paste':
+            case 'delete':
+            case 'move':
+            case 'undo':
+            case 'edit':
+            case 'showAll':
+            case 'show':
+                $environment = $event->getEnvironment();
+                $definition  = $environment->getDataDefinition();
+                $view        = $environment->getView();
 
-        if (!$definition->hasDefinition(Contao2BackendViewDefinitionInterface::NAME)
-            || !$view instanceof BaseView || !$view->getPanel()
-        ) {
-            return;
+                if (!$definition->hasDefinition(Contao2BackendViewDefinitionInterface::NAME)
+                    || !$view instanceof BaseView
+                    || !$view->getPanel()
+                ) {
+                    return;
+                }
+
+                /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
+                $dataConfig = $environment->getBaseConfigRegistry()->getBaseConfig();
+                $panel      = $view->getPanel();
+
+                $panel->initialize($dataConfig);
+                break;
+            default:
         }
-
-        /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
-        $dataConfig = $environment->getBaseConfigRegistry()->getBaseConfig();
-        $panel      = $view->getPanel();
-
-        $panel->initialize($dataConfig);
     }
 }
