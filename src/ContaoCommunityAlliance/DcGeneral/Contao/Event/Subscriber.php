@@ -5,6 +5,7 @@
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -268,7 +269,8 @@ class Subscriber implements EventSubscriberInterface
         } elseif ($property->getWidgetType() == 'checkbox' && !$extra['multiple']) {
             $event->setRendered(strlen($value) ? $GLOBALS['TL_LANG']['MSC']['yes'] : $GLOBALS['TL_LANG']['MSC']['no']);
         } elseif ($property->getWidgetType() == 'textarea'
-            && (!empty($extra['allowHtml']) || !empty($extra['preserveTags']))) {
+                  && (!empty($extra['allowHtml']) || !empty($extra['preserveTags']))
+        ) {
             $event->setRendered(nl2br_html5(specialchars($value)));
         } elseif (isset($extra['reference']) && is_array($extra['reference'])) {
             if (isset($extra['reference'][$value])) {
@@ -321,20 +323,35 @@ class Subscriber implements EventSubscriberInterface
      */
     public function initializePanels(ActionEvent $event)
     {
-        $environment = $event->getEnvironment();
-        $definition  = $environment->getDataDefinition();
-        $view        = $environment->getView();
+        switch ($event->getAction()->getName()) {
+            case 'copy':
+            case 'create':
+            case 'paste':
+            case 'delete':
+            case 'move':
+            case 'undo':
+            case 'edit':
+            case 'toggle':
+            case 'showAll':
+            case 'show':
+                $environment = $event->getEnvironment();
+                $definition  = $environment->getDataDefinition();
+                $view        = $environment->getView();
 
-        if (!$definition->hasDefinition(Contao2BackendViewDefinitionInterface::NAME)
-            || !$view instanceof BaseView || !$view->getPanel()
-        ) {
-            return;
+                if (!$definition->hasDefinition(Contao2BackendViewDefinitionInterface::NAME)
+                    || !$view instanceof BaseView
+                    || !$view->getPanel()
+                ) {
+                    return;
+                }
+
+                /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
+                $dataConfig = $environment->getBaseConfigRegistry()->getBaseConfig();
+                $panel      = $view->getPanel();
+
+                $panel->initialize($dataConfig);
+                break;
+            default:
         }
-
-        /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
-        $dataConfig = $environment->getBaseConfigRegistry()->getBaseConfig();
-        $panel      = $view->getPanel();
-
-        $panel->initialize($dataConfig);
     }
 }
