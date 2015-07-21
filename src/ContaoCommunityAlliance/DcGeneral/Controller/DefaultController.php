@@ -419,12 +419,7 @@ class DefaultController implements ControllerInterface
         $objDataProvider = $environment->getDataProvider();
 
         // Check if current data provider supports multi language.
-        if (in_array(
-            'ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface',
-            class_implements($objDataProvider)
-        )
-        ) {
-            /** @var MultiLanguageDataProviderInterface $objDataProvider */
+        if ($objDataProvider instanceof MultiLanguageDataProviderInterface) {
             $supportedLanguages = $objDataProvider->getLanguages($mixID);
         } else {
             $supportedLanguages = null;
