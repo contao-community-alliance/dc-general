@@ -91,7 +91,7 @@ class ModelId implements ModelIdInterface
      */
     public static function fromModel(ModelInterface $model)
     {
-        return self::fromValues($model->getProviderName(), $model->getId());
+        return static::fromValues($model->getProviderName(), $model->getId());
     }
 
     /**
@@ -117,7 +117,7 @@ class ModelId implements ModelIdInterface
             $chunks[1] = $decodedJson ?: $decodedSource;
         }
 
-        return new static($chunks[0], $chunks[1]);
+        return static::fromValues($chunks[0], $chunks[1]);
     }
 
     /**
