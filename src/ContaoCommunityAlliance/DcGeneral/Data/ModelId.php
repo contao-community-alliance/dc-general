@@ -4,6 +4,7 @@
  *
  * @package    generalDriver
  * @author     David Molineus <david.molineus@netzmacht.de>
+ * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -11,8 +12,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Data;
 
-use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
@@ -97,6 +96,8 @@ class ModelId implements ModelIdInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @throws DcGeneralRuntimeException When the id is unparsable.
      */
     public static function fromSerialized($serialized)
     {
