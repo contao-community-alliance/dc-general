@@ -148,11 +148,15 @@ class TreePicker extends \Widget
      *
      * @param DC_General $dataContainer The data container.
      *
-     * @internal param $array
+     * @throws DcGeneralRuntimeException When not in Backend mode.
      */
     public function __construct($attributes = array(), DC_General $dataContainer = null)
     {
         parent::__construct($attributes);
+
+        if (TL_MODE !== 'BE') {
+            throw new DcGeneralRuntimeException('Treepicker is currently for Backend only.');
+        }
 
         $this->setUp($dataContainer);
     }
