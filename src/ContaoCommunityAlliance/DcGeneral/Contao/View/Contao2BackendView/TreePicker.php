@@ -556,9 +556,6 @@ class TreePicker extends \Widget
         $icon = new GenerateHtmlEvent($this->titleIcon);
         $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $icon);
 
-        // Get table, column and setup root id's.
-        $root = $this->root;
-        $root = is_array($root) ? $root : ((is_numeric($root) && $root > 0) ? array($root) : array());
         $template
             ->setTranslator($translator)
             ->set('id', $this->strId)
@@ -573,7 +570,7 @@ class TreePicker extends \Widget
 
         // Create Tree Render with custom root points.
         $tree = '';
-        foreach (array_merge($root, array(0)) as $pid) {
+        foreach ($this->getRootIds() as $pid) {
             $collection = $this->loadCollection($pid);
             $tree      .= $this->generateTreeView($collection, 'tree');
         }
@@ -584,6 +581,20 @@ class TreePicker extends \Widget
         $GLOBALS['TL_CONFIG']['loadGoogleFonts'] = true;
 
         return $template->parse();
+    }
+
+    /**
+     * Determine the root ids.
+     *
+     * @return array
+     */
+    private function getRootIds()
+    {
+        $root = $this->root;
+        $root = is_array($root) ? $root : ((is_numeric($root) && $root > 0) ? array($root) : array());
+        $root = array_merge($root, array(0));
+
+        return $root;
     }
 
     /**
