@@ -76,6 +76,7 @@ class FileTree extends AbstractWidget
      * @return void
      *
      * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     private function setUp()
     {
