@@ -113,6 +113,20 @@ class TreePicker extends \Widget
     protected $alwaysSave;
 
     /**
+     * The minimum level for items to be selectable.
+     *
+     * @var int
+     */
+    protected $minLevel = 0;
+
+    /**
+     * The maximum level for items to be selectable.
+     *
+     * @var int
+     */
+    protected $maxLevel = 0;
+
+    /**
      * The icon to use in the title section.
      *
      * @var string
@@ -1023,6 +1037,13 @@ class TreePicker extends \Widget
             ->set('active', $this->optionChecked($objModel->getProperty($this->idProperty), $this->value))
             ->set('idProperty', $this->idProperty);
 
+        $level = $objModel->getMeta(DCGE::TREE_VIEW_LEVEL);
+        if (($this->minLevel > 0) && ($level < ($this->minLevel - 1))) {
+            $template->set('fieldType', 'none');
+        }
+        if (($this->maxLevel > 0) && ($level > ($this->maxLevel - 1))) {
+            $template->set('fieldType', 'none');
+        }
 
         return $template->parse();
     }
