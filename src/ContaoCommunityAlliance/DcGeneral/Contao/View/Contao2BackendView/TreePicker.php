@@ -106,6 +106,13 @@ class TreePicker extends \Widget
     protected $fieldType = 'radio';
 
     /**
+     * Flag determining if the value shall always be saved.
+     *
+     * @var bool
+     */
+    protected $alwaysSave;
+
+    /**
      * The icon to use in the title section.
      *
      * @var string
