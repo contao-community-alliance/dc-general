@@ -315,7 +315,7 @@ class Subscriber implements EventSubscriberInterface
     }
 
     /**
-     * Initialize the panels so that they always know there state.
+     * Initialize the panels for known actions so that they always know their state.
      *
      * @param ActionEvent $event The event.
      *
@@ -323,35 +323,28 @@ class Subscriber implements EventSubscriberInterface
      */
     public function initializePanels(ActionEvent $event)
     {
-        switch ($event->getAction()->getName()) {
-            case 'copy':
-            case 'create':
-            case 'paste':
-            case 'delete':
-            case 'move':
-            case 'undo':
-            case 'edit':
-            case 'toggle':
-            case 'showAll':
-            case 'show':
-                $environment = $event->getEnvironment();
-                $definition  = $environment->getDataDefinition();
-                $view        = $environment->getView();
-
-                if (!$definition->hasDefinition(Contao2BackendViewDefinitionInterface::NAME)
-                    || !$view instanceof BaseView
-                    || !$view->getPanel()
-                ) {
-                    return;
-                }
-
-                /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
-                $dataConfig = $environment->getBaseConfigRegistry()->getBaseConfig();
-                $panel      = $view->getPanel();
-
-                $panel->initialize($dataConfig);
-                break;
-            default:
+        if (!in_array(
+            $event->getAction(),
+            array('copy', 'create', 'paste', 'delete', 'move', 'undo', 'edit', 'toggle', 'showAll', 'show')
+        )) {
+            return;
         }
+
+        $environment = $event->getEnvironment();
+        $definition  = $environment->getDataDefinition();
+        $view        = $environment->getView();
+
+        if (!$definition->hasDefinition(Contao2BackendViewDefinitionInterface::NAME)
+            || !$view instanceof BaseView
+            || !$view->getPanel()
+        ) {
+            return;
+        }
+
+        /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
+        $dataConfig = $environment->getBaseConfigRegistry()->getBaseConfig();
+        $panel      = $view->getPanel();
+
+        $panel->initialize($dataConfig);
     }
 }
