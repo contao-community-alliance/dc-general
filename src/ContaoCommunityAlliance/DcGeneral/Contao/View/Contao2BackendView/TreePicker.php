@@ -330,29 +330,40 @@ class TreePicker extends \Widget
                 break;
 
             case 'value':
-                switch ($this->fieldType) {
-                    case 'radio':
-                        if (!empty($varValue) && !is_array($varValue)) {
-                            $varValue = array($varValue);
-                        }
-                        break;
-                    case 'checkbox':
-                        if (!empty($varValue) && !is_array($varValue)) {
-                            $delimiter = (stripos($varValue, "\t") !== false) ? "\t" : ',';
-                            $varValue  = trimsplit($delimiter, $varValue);
-                        }
-                        break;
-                    default:
-                        throw new \RuntimeException('Unknown field type encountered: ' . $this->fieldType);
-                }
-
-                $this->varValue = $varValue;
+                $this->varValue = $this->convertValue($varValue);
                 break;
 
             default:
                 parent::__set($strKey, $varValue);
                 break;
         }
+    }
+
+    /**
+     * Convert the value according to the configured fieldtype.
+     *
+     * @param mixed $varValue The value to convert.
+     *
+     * @return mixed
+     *
+     * @throws \RuntimeException When an unknown field type is encountered.
+     */
+    private function convertValue($varValue)
+    {
+        if (empty($varValue) || is_array($varValue)) {
+            return $varValue;
+        }
+
+        switch ($this->fieldType) {
+            case 'radio':
+                return array($varValue);
+            case 'checkbox':
+                $delimiter = (stripos($varValue, "\t") !== false) ? "\t" : ',';
+
+                return trimsplit($delimiter, $varValue);
+            default:
+        }
+        throw new \RuntimeException('Unknown field type encountered: ' . $this->fieldType);
     }
 
     /**
