@@ -30,17 +30,6 @@ class ContaoBackendViewTemplate extends \BackendTemplate implements ViewTemplate
     protected $translator;
 
     /**
-     * Construct.
-     *
-     * @param string              $strTemplate    The template name.
-     * @param string              $strContentType the content type.
-     */
-    public function __construct($strTemplate = '', $strContentType = 'text/html')
-    {
-        parent::__construct($strTemplate, $strContentType);
-    }
-
-    /**
      * Get the translator.
      *
      * @return TranslatorInterface
