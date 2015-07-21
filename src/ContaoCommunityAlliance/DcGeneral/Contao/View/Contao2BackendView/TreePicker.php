@@ -940,10 +940,6 @@ class TreePicker extends \Widget
             ->setLabel($formatter->getFormat())
             ->setFormatter($formatter);
 
-        $this->getEnvironment()->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $event::NAME, $definition->getName()),
-            $event
-        );
         $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
 
         $arrLabel = array();
