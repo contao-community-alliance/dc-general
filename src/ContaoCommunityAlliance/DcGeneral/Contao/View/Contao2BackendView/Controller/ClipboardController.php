@@ -227,6 +227,11 @@ class ClipboardController implements EventSubscriberInterface
                 $config->setId($modelId->getId());
                 $model = $dataProvider->fetch($config);
 
+                // The model might have been deleted meanwhile.
+                if (!$model) {
+                    continue;
+                }
+
                 $formatModelLabelEvent = new FormatModelLabelEvent($environment, $model);
                 $eventDispatcher->dispatch(DcGeneralEvents::FORMAT_MODEL_LABEL, $formatModelLabelEvent);
                 $label = $formatModelLabelEvent->getLabel();
