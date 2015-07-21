@@ -13,7 +13,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
-use BackendTemplate;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
@@ -31,7 +30,6 @@ use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
-use FrontendTemplate;
 
 /**
  * Provide methods to handle input field "tableTree".
@@ -495,37 +493,35 @@ class TreePicker extends \Widget
 
         $environment = $this->getEnvironment();
         $translator  = $environment->getTranslator();
-        $template    = (TL_MODE === 'BE')
-            ? new BackendTemplate('widget_treepicker')
-            : new FrontendTemplate('widget_treepicker');
+        $template    = new ContaoBackendViewTemplate('widget_treepicker');
 
         $icon = new GenerateHtmlEvent($this->titleIcon);
         $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $icon);
 
-        $template->id    = $this->strId;
-        $template->name  = $this->strName;
-        $template->class = ($this->strClass ? ' ' . $this->strClass : '');
-        $template->icon  = $icon->getHtml();
-        $template->title = $translator->translate(
-            $this->title ?: 'MSC.treePicker',
-            '',
-            array($this->sourceName)
-        );
-
-        $template->changeSelection = $translator->translate('MSC.changeSelection');
-        $template->dragItemsHint   = $translator->translate('MSC.dragItemsHint');
-        $template->fieldType       = $this->fieldType;
-        $template->values          = $this->renderItemsPlain();
-        $template->popupUrl        = 'system/modules/dc-general/backend/generaltree.php?' .
+        $values   = $this->renderItemsPlain();
+        $popupUrl = 'system/modules/dc-general/backend/generaltree.php?' .
             sprintf(
                 'do=%s&amp;table=%s&amp;field=%s&amp;act=show&amp;id=%s&amp;value=%s&amp;rt=%s',
                 \Input::get('do'),
                 $this->strTable,
                 $this->strField,
                 $environment->getInputProvider()->getParameter('id'),
-                implode(',', array_keys($template->values)),
+                implode(',', array_keys($values)),
                 REQUEST_TOKEN
             );
+
+        $template
+            ->setTranslator($translator)
+            ->set('id', $this->strId)
+            ->set('name', $this->strName)
+            ->set('class', ($this->strClass ? ' ' . $this->strClass : ''))
+            ->set('icon', $icon->getHtml())
+            ->set('title', $translator->translate($this->title ?: 'MSC.treePicker', '', array($this->sourceName)))
+            ->set('changeSelection', $translator->translate('MSC.changeSelection'))
+            ->set('dragItemsHint', $translator->translate('MSC.dragItemsHint'))
+            ->set('fieldType', $this->fieldType)
+            ->set('values', $values)
+            ->set('popupUrl', $popupUrl);
 
         // Load the fonts for the drag hint.
         $GLOBALS['TL_CONFIG']['loadGoogleFonts'] = true;
@@ -547,31 +543,25 @@ class TreePicker extends \Widget
 
         $environment = $this->getEnvironment();
         $translator  = $environment->getTranslator();
-        $template    = (TL_MODE === 'BE')
-            ? new BackendTemplate('widget_treepicker_popup')
-            : new FrontendTemplate('widget_treepicker_popup');
+        $template    = new ContaoBackendViewTemplate('widget_treepicker_popup');
 
         $icon = new GenerateHtmlEvent($this->titleIcon);
         $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $icon);
 
-        $template->id    = $this->strId;
-        $template->name  = $this->strName;
-        $template->class = ($this->strClass ? ' ' . $this->strClass : '');
-        $template->icon  = $icon->getHtml();
-        $template->title = $translator->translate(
-            $this->title ?: 'MSC.treePicker',
-            '',
-            array($this->sourceName)
-        );
-
-        $template->fieldType     = $this->fieldType;
-        $template->resetSelected = $translator->translate('MSC.resetSelected');
-        $template->selectAll     = $translator->translate('MSC.selectAll');
-        $template->values        = deserialize($this->varValue, true);
-
         // Get table, column and setup root id's.
         $root = $this->root;
         $root = is_array($root) ? $root : ((is_numeric($root) && $root > 0) ? array($root) : array());
+        $template
+            ->setTranslator($translator)
+            ->set('id', $this->strId)
+            ->set('name', $this->strName)
+            ->set('class', ($this->strClass ? ' ' . $this->strClass : ''))
+            ->set('icon', $icon->getHtml())
+            ->set('title', $translator->translate($this->title ?: 'MSC.treePicker', '', array($this->sourceName)))
+            ->set('fieldType', $this->fieldType)
+            ->set('resetSelected', $translator->translate('MSC.resetSelected'))
+            ->set('selectAll', $translator->translate('MSC.selectAll'))
+            ->set('values', deserialize($this->varValue, true));
 
         // Create Tree Render with custom root points.
         $tree = '';
@@ -580,7 +570,7 @@ class TreePicker extends \Widget
             $tree      .= $this->generateTreeView($collection, 'tree');
         }
 
-        $template->tree = $tree;
+        $template->set('tree', $tree);
 
         // Load the fonts for the drag hint.
         $GLOBALS['TL_CONFIG']['loadGoogleFonts'] = true;
@@ -979,10 +969,6 @@ class TreePicker extends \Widget
     {
         $objModel->setMeta($objModel::LABEL_VALUE, $this->formatModel($objModel));
 
-        $objTemplate = (TL_MODE === 'BE')
-            ? new BackendTemplate('widget_treepicker_entry')
-            : new FrontendTemplate('widget_treepicker_entry');
-
         if ($objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN)) {
             $toggleTitle = $this->getEnvironment()->getTranslator()->translate('collapseNode', 'MSC');
         } else {
@@ -1003,19 +989,23 @@ class TreePicker extends \Widget
         );
         $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
 
-        $objTemplate->id           = $this->strId;
-        $objTemplate->name         = $this->strName;
-        $objTemplate->fieldType    = $this->fieldType;
-        $objTemplate->environment  = $this->getEnvironment();
-        $objTemplate->objModel     = $objModel;
-        $objTemplate->strToggleID  = $strToggleID;
-        $objTemplate->toggleUrl    = $toggleUrlEvent->getUrl();
-        $objTemplate->toggleTitle  = $toggleTitle;
-        $objTemplate->toggleScript = $toggleScript;
-        $objTemplate->active       = $this->optionChecked($objModel->getProperty($this->idProperty), $this->value);
-        $objTemplate->idProperty   = $this->idProperty;
+        $template = new ContaoBackendViewTemplate('widget_treepicker_entry');
+        $template
+            ->setTranslator($this->getEnvironment()->getTranslator())
+            ->set('id', $this->strId)
+            ->set('name', $this->strName)
+            ->set('fieldType', $this->fieldType)
+            ->set('environment', $this->getEnvironment())
+            ->set('objModel', $objModel)
+            ->set('strToggleID', $strToggleID)
+            ->set('toggleUrl', $toggleUrlEvent->getUrl())
+            ->set('toggleTitle', $toggleTitle)
+            ->set('toggleScript', $toggleScript)
+            ->set('active', $this->optionChecked($objModel->getProperty($this->idProperty), $this->value))
+            ->set('idProperty', $this->idProperty);
 
-        return $objTemplate->parse();
+
+        return $template->parse();
     }
 
     /**
@@ -1039,22 +1029,21 @@ class TreePicker extends \Widget
             $arrHtml[] = $this->parseModel($objModel, $strToggleID);
 
             if ($objModel->getMeta($objModel::HAS_CHILDREN) && $objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN)) {
-                $objTemplate = (TL_MODE === 'BE')
-                    ? new BackendTemplate('widget_treepicker_child')
-                    : new FrontendTemplate('widget_treepicker_child');
-
-                $strSubHtml = '';
+                $template = new ContaoBackendViewTemplate('widget_treepicker_child');
+                $subHtml  = '';
 
                 foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection) {
-                    $strSubHtml .= $this->generateTreeView($objCollection, $treeClass);
+                    $subHtml .= $this->generateTreeView($objCollection, $treeClass);
                 }
 
-                $objTemplate->objParentModel = $objModel;
-                $objTemplate->strToggleID    = $strToggleID;
-                $objTemplate->strHTML        = $strSubHtml;
-                $objTemplate->strTable       = $objModel->getProviderName();
+                $template
+                    ->setTranslator($this->getEnvironment()->getTranslator())
+                    ->set('objParentModel', $objModel)
+                    ->set('strToggleID', $strToggleID)
+                    ->set('strHTML', $subHtml)
+                    ->set('strTable', $objModel->getProviderName());
 
-                $arrHtml[] = $objTemplate->parse();
+                $arrHtml[] = $template->parse();
             }
         }
 
