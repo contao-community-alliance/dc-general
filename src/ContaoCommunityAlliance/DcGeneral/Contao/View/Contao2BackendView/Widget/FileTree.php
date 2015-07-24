@@ -4,6 +4,7 @@
  *
  * @package    generalDriver
  * @author     David Molineus <david.molineus@netzmacht.de>
+ * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource

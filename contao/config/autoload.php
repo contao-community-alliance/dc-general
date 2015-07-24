@@ -5,6 +5,7 @@
  * @package    dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  Contao Community Alliance.
  * @license    LGPL.
  * @filesource
