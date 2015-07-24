@@ -15,7 +15,7 @@ use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\TranslatedToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
@@ -27,19 +27,17 @@ class ToggleHandler extends AbstractHandler
 {
     /**
      * {@inheritDoc}
+     *
+     * @SuppressWarnings(PHPMD.ExitExpression)
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public function process()
     {
-        $environment   = $this->getEnvironment();
-        $inputProvider = $environment->getInputProvider();
+        $environment  = $this->getEnvironment();
+        $serializedId = $this->getModelId();
 
-        if ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id')) {
-            $serializedId = IdSerializer::fromSerialized($inputProvider->getParameter('id'));
-        }
-
-        if (!(isset($serializedId)
-            && ($serializedId->getDataProviderName() == $environment->getDataDefinition()->getName()))
-        ) {
+        if (empty($serializedId)) {
             return;
         }
 
@@ -70,7 +68,6 @@ class ToggleHandler extends AbstractHandler
 
         // Sad that we can not determine ajax requests better.
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')) {
-            // HTTP 204 - No content would be more sufficient here.
             header('HTTP/1.1 204 No Content');
             exit;
         }
@@ -79,6 +76,29 @@ class ToggleHandler extends AbstractHandler
         $newUrlEvent = new GetReferrerEvent();
         $dispatcher->dispatch(ContaoEvents::SYSTEM_GET_REFERRER, $newUrlEvent);
         $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getReferrerUrl()));
+    }
+
+    /**
+     * Retrieve the model id from the input provider and validate it.
+     *
+     * @return ModelId|null
+     */
+    private function getModelId()
+    {
+        $environment   = $this->getEnvironment();
+        $inputProvider = $environment->getInputProvider();
+
+        if ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id')) {
+            $serializedId = ModelId::fromSerialized($inputProvider->getParameter('id'));
+        }
+
+        if (!(isset($serializedId)
+            && ($serializedId->getDataProviderName() == $environment->getDataDefinition()->getName()))
+        ) {
+            return null;
+        }
+
+        return $serializedId;
     }
 
     /**
