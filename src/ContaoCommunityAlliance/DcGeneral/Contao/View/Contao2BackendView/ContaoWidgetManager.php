@@ -83,15 +83,7 @@ class ContaoWidgetManager
             ->setProperty($property)
             ->setValue($value);
 
-        $environment->getEventDispatcher()->dispatch(
-            sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $property),
-            $event
-        );
-        $environment->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
-            $event
-        );
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch(EncodePropertyValueFromWidgetEvent::NAME, $event);
 
         return $event->getValue();
     }
@@ -113,16 +105,7 @@ class ContaoWidgetManager
         $event
             ->setProperty($property)
             ->setValue($value);
-
-        $environment->getEventDispatcher()->dispatch(
-            sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $property),
-            $event
-        );
-        $environment->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
-            $event
-        );
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch(EncodePropertyValueFromWidgetEvent::NAME, $event);
 
         return $event->getValue();
     }
@@ -504,10 +487,7 @@ EOF;
 
                 foreach ($errors as $error) {
                     $event = new ResolveWidgetErrorMessageEvent($this->getEnvironment(), $error);
-                    // FIXME: propagator.
-                    $dispatcher->dispatch(sprintf('%s[%s][%s]', $event::NAME, $definitionName, $property), $event);
-                    $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $definitionName), $event);
-                    $dispatcher->dispatch($event::NAME, $event);
+                    $dispatcher->dispatch(ResolveWidgetErrorMessageEvent::NAME, $event);
                     $widget->addError($event->getError());
                 }
             }

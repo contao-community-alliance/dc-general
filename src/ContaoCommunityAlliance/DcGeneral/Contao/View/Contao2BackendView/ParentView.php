@@ -181,14 +181,6 @@ class ParentView extends BaseView
 
             $event = new ParentViewChildRecordEvent($this->getEnvironment(), $model);
 
-            $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $model->getId()),
-                $event
-            );
-            $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
-                $event
-            );
             $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
             $cssClasses = array((((++$eoCount) % 2 == 0) ? 'even' : 'odd'));
@@ -292,10 +284,6 @@ class ParentView extends BaseView
         $event = new GetParentHeaderEvent($environment, $parentModel);
         $event->setAdditional($add);
 
-        $dispatcher->dispatch(
-            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
-            $event
-        );
         $dispatcher->dispatch($event::NAME, $event);
 
         if (!$event->getAdditional() !== null) {
@@ -676,21 +664,17 @@ class ParentView extends BaseView
         $copyModel->setId(null);
 
         $preFunction = function (EnvironmentInterface $environment, $model) {
-            $copyEvent = new PreDuplicateModelEvent($environment, $model);
             $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $copyEvent::NAME, $environment->getDataDefinition()->getName()),
-                $copyEvent
+                PreDuplicateModelEvent::NAME,
+                new PreDuplicateModelEvent($environment, $model)
             );
-            $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
         };
 
         $postFunction = function (EnvironmentInterface $environment, $model, $originalModel) {
-            $copyEvent = new PostDuplicateModelEvent($environment, $model, $originalModel);
             $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $copyEvent::NAME, $environment->getDataDefinition()->getName()),
-                $copyEvent
+                PostDuplicateModelEvent::NAME,
+                new PostDuplicateModelEvent($environment, $model, $originalModel)
             );
-            $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
         };
 
         return $this->createEditMask($copyModel, $model, $preFunction, $postFunction);

@@ -341,10 +341,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $event = new GetSelectModeButtonsEvent($this->getEnvironment());
         $event->setButtons($buttons);
-
-        $dispatcher = $this->getEnvironment()->getEventDispatcher();
-        $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $definition->getName()), $event);
-        $dispatcher->dispatch($event::NAME, $event);
+        $this->getEnvironment()->getEventDispatcher()->dispatch(GetSelectModeButtonsEvent::NAME, $event);
 
         return $event->getButtons();
     }
@@ -500,12 +497,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         // Trigger event before the model will be deleted.
-        $event = new PreDeleteModelEvent($environment, $model);
         $environment->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
-            $event
+            PreDeleteModelEvent::NAME,
+            new PreDeleteModelEvent($environment, $model)
         );
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
         // FIXME: See DefaultController::delete() - we need to delete the children of this item as well over all data providers.
         /*
@@ -546,10 +541,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         // Trigger event after the model is deleted.
         $event = new PostDeleteModelEvent($environment, $model);
-        $environment->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
-            $event
-        );
         $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
         ViewHelpers::redirectHome($this->environment);
@@ -912,21 +903,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             ->setHref($href)
             ->setLabel($label)
             ->setTitle($command->getDescription());
-
-        $dispatcher->dispatch(
-            sprintf(
-                '%s[%s][%s]',
-                $buttonEvent::NAME,
-                $environment->getDataDefinition()->getName(),
-                $command->getName()
-            ),
-            $buttonEvent
-        );
-        $dispatcher->dispatch(
-            sprintf('%s[%s]', $buttonEvent::NAME, $environment->getDataDefinition()->getName()),
-            $buttonEvent
-        );
-        $environment->getEventDispatcher()->dispatch($buttonEvent::NAME, $buttonEvent);
+        $environment->getEventDispatcher()->dispatch(GetGlobalButtonEvent::NAME, $buttonEvent);
 
         // Allow to override the button entirely.
         $html = $buttonEvent->getHtml();
@@ -986,12 +963,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $buttonsEvent = new GetGlobalButtonsEvent($this->getEnvironment());
         $buttonsEvent->setButtons($buttons);
-
-        $this->getEnvironment()->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $buttonsEvent::NAME, $this->getEnvironment()->getDataDefinition()->getName()),
-            $buttonsEvent
-        );
-        $this->getEnvironment()->getEventDispatcher()->dispatch($buttonsEvent::NAME, $buttonsEvent);
+        $this->getEnvironment()->getEventDispatcher()->dispatch(GetGlobalButtonsEvent::NAME, $buttonsEvent);
 
         return '<div id="' . $strButtonId . '">' . implode('', $buttonsEvent->getButtons()) . '</div>';
     }
@@ -1153,16 +1125,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             ->setPrevious($previous)
             ->setNext($next)
             ->setDisabled($objCommand->isDisabled());
-
-        $dispatcher->dispatch(
-            sprintf('%s[%s][%s]', $buttonEvent::NAME, $dataDefinitionName, $commandName),
-            $buttonEvent
-        );
-        $dispatcher->dispatch(
-            sprintf('%s[%s]', $buttonEvent::NAME, $dataDefinitionName, $commandName),
-            $buttonEvent
-        );
-        $dispatcher->dispatch($buttonEvent::NAME, $buttonEvent);
+        $dispatcher->dispatch(GetOperationButtonEvent::NAME, $buttonEvent);
 
         // If the event created a button, use it.
         if ($buttonEvent->getHtml() !== null) {
@@ -1500,12 +1463,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                     ->setPasteAfterDisabled($clipboard->isCut() && $isCircular)
                     ->setPasteIntoDisabled($clipboard->isCut() && $isCircular)
                     ->setContainedModels($models);
-
-                $this->getEnvironment()->getEventDispatcher()->dispatch(
-                    sprintf('%s[%s]', $buttonEvent::NAME, $this->getEnvironment()->getDataDefinition()->getName()),
-                    $buttonEvent
-                );
-                $this->getEnvironment()->getEventDispatcher()->dispatch($buttonEvent::NAME, $buttonEvent);
+                $this->getEnvironment()->getEventDispatcher()->dispatch(GetPasteButtonEvent::NAME, $buttonEvent);
 
                 $arrButtons['pasteafter'] = $this->renderPasteAfterButton($buttonEvent);
                 if ($this->getDataDefinition()->getBasicDefinition()->getMode()

@@ -844,23 +844,11 @@ class DefaultController implements ControllerInterface
         // Trigger the pre duplicate event.
         $duplicateEvent = new PreDuplicateModelEvent($environment, $model);
 
-        // FIXME: propagator
-        $environment->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $duplicateEvent::NAME, $environment->getDataDefinition()->getName()),
-            $duplicateEvent
-        );
         $environment->getEventDispatcher()->dispatch($duplicateEvent::NAME, $duplicateEvent);
-
         // Make a duplicate.
         $clonedModel = $this->createClonedModel($model);
-
         // And trigger the post event for it.
         $duplicateEvent = new PostDuplicateModelEvent($environment, $clonedModel, $model);
-        // FIXME: propagator
-        $environment->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $duplicateEvent::NAME, $environment->getDataDefinition()->getName()),
-            $duplicateEvent
-        );
         $environment->getEventDispatcher()->dispatch($duplicateEvent::NAME, $duplicateEvent);
 
         return $clonedModel;
@@ -927,11 +915,6 @@ class DefaultController implements ControllerInterface
         // Trigger for each model the pre persist event.
         foreach ($models as $model) {
             $event = new PrePasteModelEvent($environment, $model);
-
-            $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $event::NAME, $dataDefinition->getName()),
-                $event
-            );
             $environment->getEventDispatcher()->dispatch($event::NAME, $event);
         }
 
@@ -965,10 +948,6 @@ class DefaultController implements ControllerInterface
         // Trigger for each model the past persist event.
         foreach ($models as $model) {
             $event = new PostPasteModelEvent($environment, $model);
-            $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $event::NAME, $dataDefinition->getName()),
-                $event
-            );
             $environment->getEventDispatcher()->dispatch($event::NAME, $event);
         }
 

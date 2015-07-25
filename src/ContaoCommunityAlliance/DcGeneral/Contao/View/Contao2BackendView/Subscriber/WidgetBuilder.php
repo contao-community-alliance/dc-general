@@ -3,6 +3,7 @@
  * PHP version 5
  *
  * @package    generalDriver
+ * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
@@ -135,13 +136,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $event       = new GetPropertyOptionsEvent($environment, $model);
         $event->setPropertyName($propInfo->getName());
         $event->setOptions($options);
-
-        $dispatcher->dispatch(
-            sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $propInfo->getName()),
-            $event
-        );
-        $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()), $event);
-        $dispatcher->dispatch($event::NAME, $event);
+        $dispatcher->dispatch(GetPropertyOptionsEvent::NAME, $event);
 
         if ($event->getOptions() !== $options) {
             return $event->getOptions();
@@ -402,26 +397,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
             new DcCompat($environment, $model, $propertyName)
         );
 
-        // FIXME: propagator
-        $dispatcher->dispatch(
-            sprintf(
-                '%s[%s][%s]',
-                ContaoEvents::WIDGET_GET_ATTRIBUTES_FROM_DCA,
-                $defName,
-                $propertyName
-            ),
-            $event
-        );
-        $dispatcher->dispatch(
-            sprintf(
-                '%s[%s]',
-                ContaoEvents::WIDGET_GET_ATTRIBUTES_FROM_DCA,
-                $defName
-            ),
-            $event
-        );
         $dispatcher->dispatch(ContaoEvents::WIDGET_GET_ATTRIBUTES_FROM_DCA, $event);
-
         $arrPrepared = $event->getResult();
 
         // Bugfix CS: ajax subpalettes are really broken.
@@ -444,11 +420,8 @@ class WidgetBuilder implements EnvironmentAwareInterface
 
         $objWidget->xlabel .= $this->getXLabel($property);
 
-        // FIXME: propagator
         $event = new ManipulateWidgetEvent($environment, $model, $property, $objWidget);
-        $dispatcher->dispatch(sprintf('%s[%s][%s]', $event::NAME, $defName, $propertyName), $event);
-        $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $defName), $event);
-        $dispatcher->dispatch($event::NAME, $event);
+        $dispatcher->dispatch(ManipulateWidgetEvent::NAME, $event);
 
         return $objWidget;
     }

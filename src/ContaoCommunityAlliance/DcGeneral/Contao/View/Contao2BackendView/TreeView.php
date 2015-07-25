@@ -454,7 +454,6 @@ class TreeView extends BaseView
                 ->setHref($urlEvent->getUrl())
                 ->setPasteDisabled(false);
 
-            $dispatcher->dispatch(sprintf('%s[%s]', $buttonEvent::NAME, $definition->getName()), $buttonEvent);
             $dispatcher->dispatch($buttonEvent::NAME, $buttonEvent);
 
             $strRootPasteInto = $this->renderPasteRootButton($buttonEvent);

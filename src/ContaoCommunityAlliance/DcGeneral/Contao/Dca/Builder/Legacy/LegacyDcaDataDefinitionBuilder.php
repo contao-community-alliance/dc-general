@@ -149,43 +149,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      *
      * @param string                   $eventName  The event to be registered to.
      *
-     * @param array                    $suffixes   The suffixes for the event.
-     *
-     * @param string                   $listener   The listener class to use.
-     *
-     * @return void
-     */
-    protected function parseCallbackPropagated($dispatcher, $callbacks, $eventName, $suffixes, $listener)
-    {
-        if (!(is_array($callbacks) || is_callable($callbacks))) {
-            return;
-        }
-
-        // If only one callback given, ensure the loop below handles it correctly.
-        if (is_array($callbacks) && (count($callbacks) == 2) && !is_array($callbacks[0])) {
-            $callbacks = array($callbacks);
-        }
-
-        foreach ($suffixes as $suffix) {
-            $eventName .= sprintf('[%s]', $suffix);
-        }
-
-        foreach ((array) $callbacks as $callback) {
-            $dispatcher->addListener(
-                $eventName,
-                new $listener($callback)
-            );
-        }
-    }
-    /**
-     * Register the callback handlers for the given legacy callbacks.
-     *
-     * @param EventDispatcherInterface $dispatcher The event dispatcher.
-     *
-     * @param array                    $callbacks  The callbacks to be handled.
-     *
-     * @param string                   $eventName  The event to be registered to.
-     *
      * @param array                    $arguments  The arguments to pass to the constructor.
      *
      * @param string                   $listener   The listener class to use.
@@ -399,7 +362,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
         foreach ((array) $this->getFromDca('list/operations') as $operationName => $operationInfo) {
             if (isset($operationInfo['button_callback'])) {
-                $this->parseCallbackPropagated(
+                $this->parseCallback(
                     $dispatcher,
                     array($operationInfo['button_callback']),
                     GetOperationButtonEvent::NAME,

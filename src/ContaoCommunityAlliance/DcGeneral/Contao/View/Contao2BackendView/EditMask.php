@@ -265,12 +265,10 @@ class EditMask
             );
         }
 
-        $event = new PrePersistModelEvent($this->getEnvironment(), $this->model, $this->originalModel);
         $this->getEnvironment()->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $event::NAME, $this->getDataDefinition()->getName()),
-            $event
+            PrePersistModelEvent::NAME,
+            new PrePersistModelEvent($this->getEnvironment(), $this->model, $this->originalModel)
         );
-        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
     }
 
     /**
@@ -288,10 +286,6 @@ class EditMask
         }
 
         $event = new PostPersistModelEvent($this->getEnvironment(), $this->model, $this->originalModel);
-        $this->getEnvironment()->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $event::NAME, $this->getDataDefinition()->getName()),
-            $event
-        );
         $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
     }
 
@@ -371,10 +365,6 @@ class EditMask
         $event = new GetEditModeButtonsEvent($this->getEnvironment());
         $event->setButtons($buttons);
 
-        $this->getEnvironment()->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $event::NAME, $definition->getName()),
-            $event
-        );
         $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
 
         return $event->getButtons();
@@ -651,9 +641,10 @@ class EditMask
         $this->checkEditable($this->model);
         $this->checkCreatable($this->model);
 
-        $event = new PreEditModelEvent($environment, $this->model);
-        $environment->getEventDispatcher()->dispatch(sprintf('%s[%s]', $event::NAME, $definition->getName()), $event);
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch(
+            PreEditModelEvent::NAME,
+            new PreEditModelEvent($environment, $this->model)
+        );
 
         $this->view->enforceModelRelationship($this->model);
 
