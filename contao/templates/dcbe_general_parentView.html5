@@ -53,7 +53,7 @@
 						<tr id="table_row_<?php echo $objModel->getId(); ?>"
 						    class="<?php echo $objModel->getMeta($objModel::CSS_ROW_CLASS); ?>"
 						    onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);"
-						    data-model-id="<?php echo \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer::fromModel($objModel)->getSerialized(); ?>">
+						    data-model-id="<?php echo \ContaoCommunityAlliance\DcGeneral\Data\ModelId::fromModel($objModel)->getSerialized(); ?>">
 							<?php $arrLabels = $objModel->getMeta($objModel::LABEL_VALUE); ?>
 
 							<?php foreach ($arrLabels as $arrLabel): ?>

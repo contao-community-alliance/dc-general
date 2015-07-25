@@ -19,6 +19,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetEditModeButtonsEvent;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
@@ -495,7 +496,7 @@ class EditMask
         $inputProvider = $environment->getInputProvider();
 
         if ($inputProvider->hasValue('save')) {
-            $newUrlEvent = new AddToUrlEvent('act=edit&id=' . IdSerializer::fromModel($model)->getSerialized());
+            $newUrlEvent = new AddToUrlEvent('act=edit&id=' . ModelId::fromModel($model)->getSerialized());
             $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
             $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getUrl()));
         } elseif ($inputProvider->hasValue('saveNclose')) {
@@ -506,7 +507,7 @@ class EditMask
             $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getReferrerUrl()));
         } elseif ($inputProvider->hasValue('saveNcreate')) {
             $this->clearBackendStates();
-            $after = IdSerializer::fromModel($model);
+            $after = ModelId::fromModel($model);
 
             $newUrlEvent = new AddToUrlEvent('act=create&id=&after=' . $after->getSerialized());
             $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);

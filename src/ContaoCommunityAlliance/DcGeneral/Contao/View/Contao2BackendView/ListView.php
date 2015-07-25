@@ -21,6 +21,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
@@ -326,13 +327,8 @@ class ListView extends BaseView
 
         $environment  = $this->getEnvironment();
         $dataProvider = $environment->getDataProvider();
-        $modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('source'));
-
-        if ($modelId) {
-            $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-        } else {
-            throw new DcGeneralRuntimeException('Missing model id.');
-        }
+        $modelId      = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
+        $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
         // We need to keep the original data here.
         $copyModel = $environment->getController()->createClonedModel($model);

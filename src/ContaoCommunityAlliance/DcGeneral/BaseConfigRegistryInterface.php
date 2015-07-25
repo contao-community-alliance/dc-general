@@ -11,8 +11,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral;
 
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 
 /**
  * Registry for default data provider configurations to only resolve them once.
@@ -24,9 +24,9 @@ interface BaseConfigRegistryInterface extends EnvironmentAwareInterface
      *
      * This includes parent filter when in parented list mode and the additional filters from the data definition.
      *
-     * @param IdSerializer $parentId The optional parent to use.
+     * @param ModelIdInterface $parentId The optional parent to use.
      *
      * @return ConfigInterface
      */
-    public function getBaseConfig(IdSerializer $parentId = null);
+    public function getBaseConfig(ModelIdInterface $parentId = null);
 }

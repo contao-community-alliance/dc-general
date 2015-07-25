@@ -16,8 +16,8 @@ use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
@@ -40,7 +40,7 @@ class ShowHandler extends AbstractHandler
     {
         $environment  = $this->getEnvironment();
         $definition   = $environment->getDataDefinition();
-        $modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('id'));
+        $modelId      = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
         $objDBModel   = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
@@ -185,7 +185,7 @@ class ShowHandler extends AbstractHandler
         }
 
         $translator   = $environment->getTranslator();
-        $modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('id'));
+        $modelId      = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
         $model        = $this->getModel();
         $data         = $this->convertModel($model, $environment);

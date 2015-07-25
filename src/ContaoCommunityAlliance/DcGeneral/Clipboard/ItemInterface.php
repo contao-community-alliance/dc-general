@@ -13,7 +13,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Clipboard;
 
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 
 /**
  * Interface ItemInterface.
@@ -82,14 +82,14 @@ interface ItemInterface
     /**
      * Retrieve the id of the parent model from this item.
      *
-     * @return IdSerializer|null
+     * @return ModelId|null
      */
     public function getParentId();
 
     /**
      * Retrieve the id of the model from this item.
      *
-     * @return IdSerializer
+     * @return ModelId
      */
     public function getModelId();
 

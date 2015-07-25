@@ -37,6 +37,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOp
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
@@ -436,10 +437,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         /** @var ItemInterface[] $items */
         if (1 === count($items) && ItemInterface::CREATE === $items[0]->getAction()) {
-            $model   = $models->get(0);
-            $modelId = IdSerializer::fromModel($model);
-
-            $addToUrlEvent = new AddToUrlEvent('act=edit&id=' . $modelId->getSerialized());
+            $addToUrlEvent = new AddToUrlEvent('act=edit&id=' . ModelId::fromModel($models->get(0))->getSerialized());
             $environment->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $addToUrlEvent);
 
             $redirectEvent = new RedirectEvent($addToUrlEvent->getUrl());
@@ -486,7 +484,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         $environment  = $this->getEnvironment();
-        $modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('id'));
+        $modelId      = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
         $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
@@ -596,7 +594,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return;
         }
 
-        $modelId                 = IdSerializer::fromSerialized($inputProvider->getParameter('id'));
+        $modelId                 = ModelId::fromSerialized($inputProvider->getParameter('id'));
         $dataProviderDefinition  = $definition->getDataProviderDefinition();
         $dataProvider            = $environment->getDataProvider($modelId->getDataProviderName());
         $dataProviderInformation = $dataProviderDefinition->getInformation($modelId->getDataProviderName());
@@ -755,7 +753,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $manualSorting   = ViewHelpers::getManualSortingProperty($this->environment);
 
         if ($serializedPid = $environment->getInputProvider()->getParameter('pid')) {
-            $pid = IdSerializer::fromSerialized($serializedPid);
+            $pid = ModelId::fromSerialized($serializedPid);
         } else {
             $pid = null;
         }
@@ -1067,7 +1065,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $attributes .= ltrim(sprintf($extraAttributes, $objModel->getID()));
         }
 
-        $serializedModelId = IdSerializer::fromModel($objModel)->getSerialized();
+        $serializedModelId = ModelId::fromModel($objModel)->getSerialized();
 
         // Cut needs some special information.
         if ($objCommand instanceof CutCommandInterface) {
@@ -1357,7 +1355,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         if ($clipboard->isNotEmpty($filter)) {
             $circularIds = $clipboard->getCircularIds();
-            $isCircular  = in_array(IdSerializer::fromModel($model)->getSerialized(), $circularIds);
+            $isCircular  = in_array(ModelId::fromModel($model)->getSerialized(), $circularIds);
         } else {
             $circularIds = array();
             $isCircular  = false;
@@ -1383,7 +1381,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 $urlEvent = $dispatcher->dispatch(
                     ContaoEvents::BACKEND_ADD_TO_URL,
                     new AddToUrlEvent(
-                        'act=create&amp;after=' . IdSerializer::fromModel($model)->getSerialized()
+                        'act=create&amp;after=' . ModelId::fromModel($model)->getSerialized()
                     )
                 );
 
@@ -1410,23 +1408,23 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                     // Add ext. information.
                     $add2UrlAfter = sprintf(
                         'act=create&after=%s&',
-                        IdSerializer::fromModel($model)->getSerialized()
+                        ModelId::fromModel($model)->getSerialized()
                     );
 
                     $add2UrlInto = sprintf(
                         'act=create&into=%s&',
-                        IdSerializer::fromModel($model)->getSerialized()
+                        ModelId::fromModel($model)->getSerialized()
                     );
                 } else {
                     // Add ext. information.
                     $add2UrlAfter = sprintf(
                         'act=paste&after=%s&',
-                        IdSerializer::fromModel($model)->getSerialized()
+                        ModelId::fromModel($model)->getSerialized()
                     );
 
                     $add2UrlInto = sprintf(
                         'act=paste&into=%s&',
-                        IdSerializer::fromModel($model)->getSerialized()
+                        ModelId::fromModel($model)->getSerialized()
                     );
                 }
 

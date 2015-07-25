@@ -23,6 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\Controller\TreeCollector;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeNodeStates;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
@@ -198,7 +199,7 @@ class TreeView extends BaseView
             );
         }
 
-        $pid = IdSerializer::fromSerialized($parentId);
+        $pid = ModelId::fromSerialized($parentId);
 
         if (!($objParentProvider = $environment->getDataProvider($pid->getDataProviderName())
         )

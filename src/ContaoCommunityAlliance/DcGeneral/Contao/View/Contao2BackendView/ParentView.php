@@ -25,6 +25,7 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
@@ -78,14 +79,7 @@ class ParentView extends BaseView
     {
         $environment = $this->getEnvironment();
         $pid         = $environment->getInputProvider()->getParameter('pid');
-        $pidDetails  = IdSerializer::fromSerialized($pid);
-
-        if (!$pidDetails->isValid()) {
-            throw new DcGeneralRuntimeException(
-                'ParentView needs a proper parent id defined, somehow none is defined?',
-                1
-            );
-        }
+        $pidDetails  = ModelId::fromSerialized($pid);
 
         if (!($objParentProvider = $environment->getDataProvider($pidDetails->getDataProviderName()))) {
             throw new DcGeneralRuntimeException(
@@ -352,7 +346,7 @@ class ParentView extends BaseView
                 $urlEvent = $dispatcher->dispatch(
                     ContaoEvents::BACKEND_ADD_TO_URL,
                     new AddToUrlEvent(
-                        'act=edit&amp;pid=' . IdSerializer::fromModel($parentModel)->getSerialized()
+                        'act=edit&amp;pid=' . ModelId::fromModel($parentModel)->getSerialized()
                     )
                 );
 
@@ -384,7 +378,7 @@ class ParentView extends BaseView
                 if (!$allowPasteTop) {
                     $subFilter = new Filter();
                     $subFilter->andActionIsNotIn(array(ItemInterface::COPY, ItemInterface::DEEP_COPY));
-                    $subFilter->andParentIsNot(IdSerializer::fromModel($parentModel));
+                    $subFilter->andParentIsNot(ModelId::fromModel($parentModel));
                     $subFilter->orActionIsIn(array(ItemInterface::COPY, ItemInterface::DEEP_COPY));
 
                     $filter = new Filter();
@@ -401,7 +395,7 @@ class ParentView extends BaseView
                         ContaoEvents::BACKEND_ADD_TO_URL,
                         new AddToUrlEvent(
                             'act=paste' .
-                            '&amp;pid=' . IdSerializer::fromModel($parentModel)->getSerialized()
+                            '&amp;pid=' . ModelId::fromModel($parentModel)->getSerialized()
                         )
                     );
 
@@ -462,7 +456,7 @@ class ParentView extends BaseView
                 'do'    => $environment->getInputProvider()->getParameter('do'),
                 'act'   => 'edit',
                 'table' => $parentName,
-                'id'    => IdSerializer::fromModel($parentModel)->getSerialized(),
+                'id'    => ModelId::fromModel($parentModel)->getSerialized(),
             );
 
             $factory = DcGeneralFactory::deriveFromEnvironment($this->environment);
@@ -491,7 +485,7 @@ class ParentView extends BaseView
                     $parents = $grandParentProvider->fetchAll($config);
 
                     if ($parents->length() == 1) {
-                        $query['pid'] = IdSerializer::fromModel($parents->get(0))->getSerialized();
+                        $query['pid'] = ModelId::fromModel($parents->get(0))->getSerialized();
                     } elseif ($parents->length() > 1) {
                         return null;
                     }
@@ -651,13 +645,8 @@ class ParentView extends BaseView
 
         $environment  = $this->getEnvironment();
         $dataProvider = $environment->getDataProvider();
-        $modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('source'));
-
-        if ($modelId) {
-            $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-        } else {
-            throw new DcGeneralRuntimeException('Missing model id.');
-        }
+        $modelId      = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
+        $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
         // We need to keep the original data here.
         $copyModel = $environment->getController()->createClonedModel($model);

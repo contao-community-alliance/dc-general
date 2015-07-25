@@ -12,7 +12,8 @@
 namespace ContaoCommunityAlliance\DcGeneral;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -61,9 +62,9 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
     /**
      * Add the filter for the item with the given id from the parent data provider to the given config.
      *
-     * @param IdSerializer    $idParent The id of the parent item.
+     * @param ModelIdInterface $idParent The id of the parent item.
      *
-     * @param ConfigInterface $config   The config to add the filter to.
+     * @param ConfigInterface  $config   The config to add the filter to.
      *
      * @return ConfigInterface
      *
@@ -124,7 +125,7 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
      *
      * This includes parent filter when in parented list mode and the additional filters from the data definition.
      *
-     * @param IdSerializer|null $parentId The parent to use.
+     * @param ModelIdInterface|null $parentId The parent to use.
      *
      * @return ConfigInterface
      */
@@ -151,7 +152,7 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
             $this->addParentFilter($parentId, $config);
         } elseif ($definition->getBasicDefinition()->getMode() == BasicDefinitionInterface::MODE_PARENTEDLIST) {
             $pid        = $environment->getInputProvider()->getParameter('pid');
-            $pidDetails = IdSerializer::fromSerialized($pid);
+            $pidDetails = ModelId::fromSerialized($pid);
 
             $this->addParentFilter($pidDetails, $config);
         }
@@ -164,11 +165,11 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
      *
      * This includes parent filter when in parented list mode and the additional filters from the data definition.
      *
-     * @param IdSerializer $parentId The optional parent to use.
+     * @param ModelIdInterface $parentId The optional parent to use.
      *
      * @return ConfigInterface
      */
-    public function getBaseConfig(IdSerializer $parentId = null)
+    public function getBaseConfig(ModelIdInterface $parentId = null)
     {
         $key = $parentId ? $parentId->getSerialized() : null;
 

@@ -15,9 +15,9 @@ namespace ContaoCommunityAlliance\DcGeneral\Controller;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\FilterInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -50,7 +50,7 @@ interface ControllerInterface
      *
      * This includes all auxiliary filters from DCA etc. but excludes the filters from panels.
      *
-     * @param IdSerializer $parentId The parent ID.
+     * @param ModelIdInterface $parentId The parent ID.
      *
      * @return ConfigInterface
      *
@@ -58,7 +58,7 @@ interface ControllerInterface
      *
      * @deprecated Use EnvironmentInterface::getBaseConfigRegistry->getBaseConfig()
      */
-    public function getBaseConfig(IdSerializer $parentId = null);
+    public function getBaseConfig(ModelIdInterface $parentId = null);
 
     /**
      * Handle a action within this environment.
@@ -139,10 +139,10 @@ interface ControllerInterface
     /**
      * Fetch a certain model from its provider.
      *
-     * @param string|IdSerializer $modelId      This is either the id of the model or a serialized id.
+     * @param string|ModelIdInterface $modelId      This is either the id of the model or a serialized id.
      *
-     * @param string|null         $providerName The name of the provider, if this is empty, the id will be deserialized
-     *                                          and the provider name will get extracted from there.
+     * @param string|null             $providerName The name of the provider, if this is empty, the id will be
+     *                                              deserialized and the provider name will get extracted from there.
      *
      * @return ModelInterface
      */
@@ -178,29 +178,29 @@ interface ControllerInterface
      *
      * This will only return models, that are compatible with the current environment.
      *
-     * @param IdSerializer $parentModelId The optional parent id. If not given, the models must not have a parent.
+     * @param ModelIdInterface $parentModelId The optional parent id. If not given, the models must not have a parent.
      *
      * @return CollectionInterface|\ContaoCommunityAlliance\DcGeneral\Data\ModelInterface[]
      */
-    public function getModelsFromClipboard(IdSerializer $parentModelId = null);
+    public function getModelsFromClipboard(ModelIdInterface $parentModelId = null);
 
     /**
      * Evaluate clipboard items, then return the corresponding models.
      *
-     * @param IdSerializer    $source        The source model id.
-     * @param IdSerializer    $after         The previous model id.
-     * @param IdSerializer    $into          The hierarchical parent model id.
-     * @param IdSerializer    $parentModelId The parent model id.
-     * @param FilterInterface $filter        Clipboard filter.
-     * @param array           $items         Write-back evaluated clipboard items.
+     * @param ModelIdInterface $source        The source model id.
+     * @param ModelIdInterface $after         The previous model id.
+     * @param ModelIdInterface $into          The hierarchical parent model id.
+     * @param ModelIdInterface $parentModelId The parent model id.
+     * @param FilterInterface  $filter        Clipboard filter.
+     * @param array            $items         Write-back evaluated clipboard items.
      *
      * @return CollectionInterface|ModelInterface[]
      */
     public function applyClipboardActions(
-        IdSerializer $source = null,
-        IdSerializer $after = null,
-        IdSerializer $into = null,
-        IdSerializer $parentModelId = null,
+        ModelIdInterface $source = null,
+        ModelIdInterface $after = null,
+        ModelIdInterface $into = null,
+        ModelIdInterface $parentModelId = null,
         FilterInterface $filter = null,
         array &$items = array()
     );
@@ -212,11 +212,11 @@ interface ControllerInterface
      *
      * @param string              $sortedBy The name of the sorting property.
      *
-     * @param IdSerializer        $parentId The parent model ID.
+     * @param ModelIdInterface    $parentId The parent model ID.
      *
      * @return void
      */
-    public function pasteTop(CollectionInterface $models, $sortedBy, IdSerializer $parentId = null);
+    public function pasteTop(CollectionInterface $models, $sortedBy, ModelIdInterface $parentId = null);
 
     /**
      * Paste the content of the clipboard after the given model.

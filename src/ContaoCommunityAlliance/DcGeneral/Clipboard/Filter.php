@@ -12,7 +12,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Clipboard;
 
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 /**
@@ -226,11 +226,11 @@ EXPR;
     /**
      * And model is.
      *
-     * @param IdSerializer $modelId The model id.
+     * @param ModelId $modelId The model id.
      *
      * @return static
      */
-    public function andModelIs(IdSerializer $modelId)
+    public function andModelIs(ModelId $modelId)
     {
         $this->modelIs('and', $modelId);
 
@@ -240,11 +240,11 @@ EXPR;
     /**
      * Or model is.
      *
-     * @param IdSerializer $modelId The model id.
+     * @param ModelId $modelId The model id.
      *
      * @return static
      */
-    public function orModelIs(IdSerializer $modelId)
+    public function orModelIs(ModelId $modelId)
     {
         $this->modelIs('or', $modelId);
 
@@ -254,12 +254,12 @@ EXPR;
     /**
      * Add model is.
      *
-     * @param string       $conjunction AND or OR.
-     * @param IdSerializer $modelId     The model id.
+     * @param string  $conjunction AND or OR.
+     * @param ModelId $modelId     The model id.
      *
      * @return static
      */
-    private function modelIs($conjunction, IdSerializer $modelId)
+    private function modelIs($conjunction, ModelId $modelId)
     {
         if (!empty($this->expression)) {
             $this->expression[] = $conjunction;
@@ -276,11 +276,11 @@ EXPR;
     /**
      * And model is not.
      *
-     * @param IdSerializer $modelId The model id.
+     * @param ModelId $modelId The model id.
      *
      * @return static
      */
-    public function andModelIsNot(IdSerializer $modelId)
+    public function andModelIsNot(ModelId $modelId)
     {
         $this->modelIsNot('and', $modelId);
 
@@ -290,11 +290,11 @@ EXPR;
     /**
      * Or model is not.
      *
-     * @param IdSerializer $modelId The model id.
+     * @param ModelId $modelId The model id.
      *
      * @return static
      */
-    public function orModelIsNot(IdSerializer $modelId)
+    public function orModelIsNot(ModelId $modelId)
     {
         $this->modelIsNot('or', $modelId);
 
@@ -304,12 +304,12 @@ EXPR;
     /**
      * Add model is not.
      *
-     * @param string       $conjunction AND or OR.
-     * @param IdSerializer $modelId     The model id.
+     * @param string  $conjunction AND or OR.
+     * @param ModelId $modelId     The model id.
      *
      * @return static
      */
-    private function modelIsNot($conjunction, IdSerializer $modelId)
+    private function modelIsNot($conjunction, ModelId $modelId)
     {
         if (!empty($this->expression)) {
             $this->expression[] = $conjunction;
@@ -469,11 +469,11 @@ EXPR;
     /**
      * And parent is.
      *
-     * @param IdSerializer $parentModelId The parent id.
+     * @param ModelId $parentModelId The parent id.
      *
      * @return static
      */
-    public function andParentIs(IdSerializer $parentModelId)
+    public function andParentIs(ModelId $parentModelId)
     {
         $this->parentIs('and', $parentModelId);
 
@@ -483,11 +483,11 @@ EXPR;
     /**
      * Or parent is.
      *
-     * @param IdSerializer $parentModelId The parent id.
+     * @param ModelId $parentModelId The parent id.
      *
      * @return static
      */
-    public function orParentIs(IdSerializer $parentModelId)
+    public function orParentIs(ModelId $parentModelId)
     {
         $this->parentIs('or', $parentModelId);
 
@@ -497,12 +497,12 @@ EXPR;
     /**
      * Add parent is.
      *
-     * @param string       $conjunction   AND or OR.
-     * @param IdSerializer $parentModelId The parent id.
+     * @param string  $conjunction   AND or OR.
+     * @param ModelId $parentModelId The parent id.
      *
      * @return static
      */
-    private function parentIs($conjunction, IdSerializer $parentModelId)
+    private function parentIs($conjunction, ModelId $parentModelId)
     {
         if (!empty($this->expression)) {
             $this->expression[] = $conjunction;
@@ -519,7 +519,7 @@ EXPR;
     /**
      * And parent is in.
      *
-     * @param array|IdSerializer[] $parentModelIds The parent ids.
+     * @param array|ModelId[] $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -533,7 +533,7 @@ EXPR;
     /**
      * Or parent is in.
      *
-     * @param array|IdSerializer[] $parentModelIds The parent ids.
+     * @param array|ModelId[] $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -547,8 +547,8 @@ EXPR;
     /**
      * Add parent is in.
      *
-     * @param string               $conjunction    AND or OR.
-     * @param array|IdSerializer[] $parentModelIds The parent ids.
+     * @param string          $conjunction    AND or OR.
+     * @param array|ModelId[] $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -573,11 +573,11 @@ EXPR;
     /**
      * And parent is not.
      *
-     * @param IdSerializer $parentModelId The parent id.
+     * @param ModelId $parentModelId The parent id.
      *
      * @return static
      */
-    public function andParentIsNot(IdSerializer $parentModelId)
+    public function andParentIsNot(ModelId $parentModelId)
     {
         $this->parentIsNot('and', $parentModelId);
 
@@ -587,11 +587,11 @@ EXPR;
     /**
      * Or parent is not.
      *
-     * @param IdSerializer $parentModelId The parent id.
+     * @param ModelId $parentModelId The parent id.
      *
      * @return static
      */
-    public function orParentIsNot(IdSerializer $parentModelId)
+    public function orParentIsNot(ModelId $parentModelId)
     {
         $this->parentIsNot('and', $parentModelId);
 
@@ -601,12 +601,12 @@ EXPR;
     /**
      * Add parent is not.
      *
-     * @param string       $conjunction   AND or OR.
-     * @param IdSerializer $parentModelId The parent id.
+     * @param string  $conjunction   AND or OR.
+     * @param ModelId $parentModelId The parent id.
      *
      * @return static
      */
-    private function parentIsNot($conjunction, IdSerializer $parentModelId)
+    private function parentIsNot($conjunction, ModelId $parentModelId)
     {
         if (!empty($this->expression)) {
             $this->expression[] = $conjunction;
@@ -623,7 +623,7 @@ EXPR;
     /**
      * And parent is not in.
      *
-     * @param array|IdSerializer[] $parentModelIds The parent ids.
+     * @param array|ModelId[] $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -637,7 +637,7 @@ EXPR;
     /**
      * Or parent is not in.
      *
-     * @param array|IdSerializer[] $parentModelIds The parent ids.
+     * @param array|ModelId[] $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -651,8 +651,8 @@ EXPR;
     /**
      * Add parent is not in.
      *
-     * @param string               $conjunction    AND or OR.
-     * @param array|IdSerializer[] $parentModelIds The parent ids.
+     * @param string          $conjunction    AND or OR.
+     * @param array|ModelId[] $parentModelIds The parent ids.
      *
      * @return static
      */
