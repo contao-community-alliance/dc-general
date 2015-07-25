@@ -50,6 +50,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\DefaultMode
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionCollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelRowCollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelRowInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\DefaultFilterElementInformation;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\DefaultLimitElementInformation;
@@ -1066,24 +1067,30 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
         }
 
-        $hasSubmit = false;
+        if (!$this->hasSubmit($rows) && $rows->getRowCount()) {
+            $row = $rows->getRow($rows->getRowCount() - 1);
+            $row->addElement(new DefaultSubmitElementInformation(), 0);
+        }
+    }
+
+    /**
+     * Check if the rows is somewhere a submit element.
+     *
+     * @param PanelRowCollectionInterface $rows The panel rows.
+     *
+     * @return bool
+     */
+    private function hasSubmit($rows)
+    {
         foreach ($rows as $row) {
             foreach ($row as $element) {
                 if ($element instanceof SubmitElementInformationInterface) {
-                    $hasSubmit = true;
-                    break;
-                }
-
-                if ($hasSubmit) {
-                    break;
+                    return true;
                 }
             }
         }
 
-        if (!$hasSubmit && $rows->getRowCount()) {
-            $row = $rows->getRow($rows->getRowCount() - 1);
-            $row->addElement(new DefaultSubmitElementInformation(), 0);
-        }
+        return false;
     }
 
     /**
