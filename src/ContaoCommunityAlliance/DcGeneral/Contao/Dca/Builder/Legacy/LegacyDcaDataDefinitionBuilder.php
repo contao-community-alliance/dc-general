@@ -182,66 +182,39 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      */
     protected function parsePropertyCallbacks(ContainerInterface $container, EventDispatcherInterface $dispatcher)
     {
+        $prefix = 'ContaoCommunityAlliance\DcGeneral\Contao\Callback\\';
         foreach ((array) $this->getFromDca('fields') as $propName => $propInfo) {
-
-            if (isset($propInfo['load_callback'])) {
-                $this->parseCallback(
-                    $dispatcher,
-                    $propInfo['load_callback'],
-                    DecodePropertyValueForWidgetEvent::NAME,
-                    array($container->getName(), $propName),
-                    'ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyOnLoadCallbackListener'
-                );
-            }
-
-            if (isset($propInfo['save_callback'])) {
-                $this->parseCallback(
-                    $dispatcher,
-                    $propInfo['save_callback'],
-                    EncodePropertyValueFromWidgetEvent::NAME,
-                    array($container->getName(), $propName),
-                    'ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyOnSaveCallbackListener'
-                );
-            }
-
-            if (isset($propInfo['options_callback'])) {
-                $this->parseCallback(
-                    $dispatcher,
-                    $propInfo['options_callback'],
-                    GetPropertyOptionsEvent::NAME,
-                    array($container->getName(), $propName),
-                    'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelOptionsCallbackListener'
-                );
-            }
-
-            if (isset($propInfo['input_field_callback'])) {
-                $this->parseCallback(
-                    $dispatcher,
-                    $propInfo['input_field_callback'],
-                    BuildWidgetEvent::NAME,
-                    array($container->getName(), $propName),
-                    'ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldCallbackListener'
-                );
-            }
-
-            if (isset($propInfo['wizard'])) {
-                $this->parseCallback(
-                    $dispatcher,
-                    $propInfo['wizard'],
-                    ManipulateWidgetEvent::NAME,
-                    array($container->getName(), $propName),
-                    'ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldGetWizardCallbackListener'
-                );
-            }
-
-            if (isset($propInfo['xlabel'])) {
-                $this->parseCallback(
-                    $dispatcher,
-                    $propInfo['xlabel'],
-                    ManipulateWidgetEvent::NAME,
-                    array($container->getName(), $propName),
-                    'ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldGetXLabelCallbackListener'
-                );
+            $args = array($container->getName(), $propName);
+            foreach (array
+                (
+                    'load_callback' => array(
+                        'event' => DecodePropertyValueForWidgetEvent::NAME,
+                        'class'     => $prefix . 'PropertyOnLoadCallbackListener'
+                    ),
+                    'save_callback' => array(
+                        'event' => EncodePropertyValueFromWidgetEvent::NAME,
+                        'class'     => $prefix . 'PropertyOnSaveCallbackListener'
+                    ),
+                    'options_callback' => array(
+                        'event' => GetPropertyOptionsEvent::NAME,
+                        'class'     => $prefix . 'ModelOptionsCallbackListener'
+                    ),
+                    'input_field_callback' => array(
+                        'event' => BuildWidgetEvent::NAME,
+                        'class'     => $prefix . 'PropertyInputFieldCallbackListener'
+                    ),
+                    'wizard' => array(
+                        'event' => ManipulateWidgetEvent::NAME,
+                        'class'     => $prefix . 'PropertyInputFieldGetWizardCallbackListener'
+                    ),
+                    'xlabel' => array(
+                        'event' => ManipulateWidgetEvent::NAME,
+                        'class'     => $prefix . 'PropertyInputFieldGetXLabelCallbackListener'
+                    ),
+                ) as $name => $callback) {
+                if (isset($propInfo[$name])) {
+                    $this->parseCallback($dispatcher, $propInfo[$name], $callback['event'], $args, $callback['class']);
+                }
             }
         }
     }
@@ -257,127 +230,97 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      */
     protected function parseCallbacks(ContainerInterface $container, EventDispatcherInterface $dispatcher)
     {
-        $this->parseCallback(
-            $dispatcher,
-            $this->getFromDca('config/onload_callback'),
-            CreateDcGeneralEvent::NAME,
-            array($container->getName()),
-            'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnLoadCallbackListener'
-        );
+        $prefix = 'ContaoCommunityAlliance\DcGeneral\Contao\Callback\\';
+        $args   = array($container->getName());
+        foreach (array
+             (
+                 'config/onload_callback' => array(
+                     'event' => CreateDcGeneralEvent::NAME,
+                     'class' => $prefix . 'ContainerOnLoadCallbackListener'
+                 ),
+                 'config/onsubmit_callback' => array(
+                     'event' => PostPersistModelEvent::NAME,
+                     'class' => $prefix . 'ContainerOnSubmitCallbackListener'
+                 ),
+                 'config/ondelete_callback' => array(
+                     'event' => PostDeleteModelEvent::NAME,
+                     'class' => $prefix . 'ContainerOnDeleteCallbackListener'
+                 ),
+                 'config/oncut_callback' => array(
+                     'event' => PostPasteModelEvent::NAME,
+                     'class' => $prefix . 'ContainerOnCutCallbackListener'
+                 ),
+                 'config/oncopy_callback' => array(
+                     'event' => PostDuplicateModelEvent::NAME,
+                     'class' => $prefix . 'ContainerOnCopyCallbackListener'
+                 ),
+                 'list/sorting/header_callback' => array(
+                     'event' => GetParentHeaderEvent::NAME,
+                     'class' => $prefix . 'ContainerHeaderCallbackListener'
+                 ),
+                 'list/sorting/paste_button_callback' => array(
+                     array(
+                         'event' => GetPasteRootButtonEvent::NAME,
+                         'class' => $prefix . 'ContainerPasteRootButtonCallbackListener'
+                     ),
+                     array(
+                         'event' => GetPasteButtonEvent::NAME,
+                         'class' => $prefix . 'ContainerPasteButtonCallbackListener'
+                     ),
+                 ),
+                 'list/sorting/child_record_callback' => array(
+                     'event' => ParentViewChildRecordEvent::NAME,
+                     'class' => $prefix . 'ModelChildRecordCallbackListener'
+                 ),
+                 'list/label/group_callback' => array(
+                     'event' => GetGroupHeaderEvent::NAME,
+                     'class' => $prefix . 'ModelGroupCallbackListener'
+                 ),
+                 'list/label/label_callback' => array(
+                     'event' => ModelToLabelEvent::NAME,
+                     'class' => $prefix . 'ModelLabelCallbackListener'
+                 ),
+                 'list/presentation/breadcrumb_callback' => array(
+                     'event' => GetBreadcrumbEvent::NAME,
+                     'class' => $prefix . 'ContainerGetBreadcrumbCallbackListener'
+                 ),
+             ) as $name => $callback) {
+            if ($callbacks = $this->getFromDca($name)) {
+                if (isset($callback['event'])) {
+                    $this->parseCallback($dispatcher, $callbacks, $callback['event'], $args, $callback['class']);
+                } else {
+                    foreach ($callback as $sub) {
+                        $this->parseCallback($dispatcher, $callbacks, $sub['event'], $args, $sub['class']);
+                    }
+                }
+            }
+        }
 
-        $this->parseCallback(
-            $dispatcher,
-            $this->getFromDca('config/onsubmit_callback'),
-            PostPersistModelEvent::NAME,
-            array($container->getName()),
-            'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnSubmitCallbackListener'
-        );
-
-        $this->parseCallback(
-            $dispatcher,
-            $this->getFromDca('config/ondelete_callback'),
-            PostDeleteModelEvent::NAME,
-            array($container->getName()),
-            'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnDeleteCallbackListener'
-        );
-
-        $this->parseCallback(
-            $dispatcher,
-            $this->getFromDca('config/oncut_callback'),
-            PostPasteModelEvent::NAME,
-            array($container->getName()),
-            'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnCutCallbackListener'
-        );
-
-        $this->parseCallback(
-            $dispatcher,
-            $this->getFromDca('config/oncopy_callback'),
-            PostDuplicateModelEvent::NAME,
-            array($container->getName()),
-            'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnCopyCallbackListener'
-        );
-
-        $this->parseCallback(
-            $dispatcher,
-            $this->getFromDca('list/sorting/header_callback'),
-            GetParentHeaderEvent::NAME,
-            array($container->getName()),
-            'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerHeaderCallbackListener'
-        );
-
-        $this->parseCallback(
-            $dispatcher,
-            $this->getFromDca('list/sorting/paste_button_callback'),
-            GetPasteRootButtonEvent::NAME,
-            array($container->getName()),
-            'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerPasteRootButtonCallbackListener'
-        );
-
-        $this->parseCallback(
-            $dispatcher,
-            $this->getFromDca('list/sorting/paste_button_callback'),
-            GetPasteButtonEvent::NAME,
-            array($container->getName()),
-            'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerPasteButtonCallbackListener'
-        );
-
-        $this->parseCallback(
-            $dispatcher,
-            $this->getFromDca('list/sorting/child_record_callback'),
-            ParentViewChildRecordEvent::NAME,
-            array($container->getName()),
-            'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelChildRecordCallbackListener'
-        );
-
-        $this->parseCallback(
-            $dispatcher,
-            $this->getFromDca('list/label/group_callback'),
-            GetGroupHeaderEvent::NAME,
-            array($container->getName()),
-            'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelGroupCallbackListener'
-        );
-
-        $this->parseCallback(
-            $dispatcher,
-            $this->getFromDca('list/label/label_callback'),
-            ModelToLabelEvent::NAME,
-            array($container->getName()),
-            'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelLabelCallbackListener'
-        );
-
-        foreach ((array) $this->getFromDca('global_operations') as $operationName => $operationInfo) {
-            if (isset($operationInfo['button_callback'])) {
+        foreach ((array) $this->getFromDca('list/global_operations') as $name => $operation) {
+            if (isset($operation['button_callback'])) {
                 $this->parseCallback(
                     $dispatcher,
-                    array($operationInfo['button_callback']),
+                    array($operation['button_callback']),
                     GetGlobalButtonEvent::NAME,
-                    array($container->getName(), $operationName),
-                    'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerGlobalButtonCallbackListener'
+                    array($container->getName(), $name),
+                    $prefix . 'ContainerGlobalButtonCallbackListener'
                 );
             }
         }
 
-        foreach ((array) $this->getFromDca('list/operations') as $operationName => $operationInfo) {
-            if (isset($operationInfo['button_callback'])) {
+        foreach ((array) $this->getFromDca('list/operations') as $name => $operation) {
+            if (isset($operation['button_callback'])) {
                 $this->parseCallback(
                     $dispatcher,
-                    array($operationInfo['button_callback']),
+                    array($operation['button_callback']),
                     GetOperationButtonEvent::NAME,
-                    array($container->getName(), $operationName),
-                    'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelOperationButtonCallbackListener'
+                    array($container->getName(), $name),
+                    $prefix . 'ModelOperationButtonCallbackListener'
                 );
             }
         }
 
         $this->parsePropertyCallbacks($container, $dispatcher);
-
-        $this->parseCallback(
-            $dispatcher,
-            $this->getFromDca('list/presentation/breadcrumb_callback'),
-            GetBreadcrumbEvent::NAME,
-            array($container->getName()),
-            'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerGetBreadcrumbCallbackListener'
-        );
     }
 
     /**
