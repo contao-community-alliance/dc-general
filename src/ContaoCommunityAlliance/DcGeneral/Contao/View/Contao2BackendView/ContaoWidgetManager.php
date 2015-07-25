@@ -477,7 +477,6 @@ EOF;
     public function processErrors(PropertyValueBag $propertyValues)
     {
         $propertyErrors = $propertyValues->getInvalidPropertyErrors();
-        $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
         if ($propertyErrors) {
             $dispatcher = $this->getEnvironment()->getEventDispatcher();

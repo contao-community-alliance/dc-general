@@ -22,7 +22,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Decod
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentAwareInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -320,15 +319,16 @@ class WidgetBuilder implements EnvironmentAwareInterface
     /**
      * Build a widget for a given property.
      *
-     * @param PropertyInterface $property    The property.
+     * @param PropertyInterface $property The property.
      *
-     * @param ModelInterface    $model       The current model.
+     * @param ModelInterface    $model    The current model.
      *
      * @return \Widget
      *
      * @throws DcGeneralRuntimeException When not running in TL_MODE BE.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public function buildWidget(
         PropertyInterface $property,

@@ -134,19 +134,18 @@ class TreeView extends BaseView
      *
      * @param string $rootId       The root element (or null to fetch everything).
      *
-     * @param int   $intLevel     The current level in the tree (of the optional root element).
+     * @param int    $intLevel     The current level in the tree (of the optional root element).
      *
-     * @param string  $providerName The data provider from which the optional root element shall be taken from.
+     * @param string $providerName The data provider from which the optional root element shall be taken from.
      *
      * @return CollectionInterface
      */
     public function loadCollection($rootId = null, $intLevel = 0, $providerName = null)
     {
-        $environment  = $this->getEnvironment();
-        $dataDriver   = $environment->getDataProvider($providerName);
-        $realProvider = $dataDriver->getEmptyModel()->getProviderName();
-
-        $collector = new TreeCollector(
+        $environment   = $this->getEnvironment();
+        $dataDriver    = $environment->getDataProvider($providerName);
+        $realProvider  = $dataDriver->getEmptyModel()->getProviderName();
+        $collector     = new TreeCollector(
             $environment,
             $this->getPanel(),
             $this->getViewSection()->getListingConfig()->getDefaultSortingFields(),

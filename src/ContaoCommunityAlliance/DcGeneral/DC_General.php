@@ -115,6 +115,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
      * @return TranslatorInterface
      *
      * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     private function getTranslator()
     {
@@ -400,10 +401,15 @@ class DC_General extends \DataContainer implements DataContainerInterface
     /**
      * Do not use.
      *
+     * @param mixed $varValue Ignored.
+     *
      * @deprecated Only here as requirement of \DataContainer
      *
      * @return void
+     *
      * @throws DcGeneralRuntimeException Throws exception because method is not supported.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function save($varValue)
     {
