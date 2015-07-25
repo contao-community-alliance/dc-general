@@ -196,17 +196,7 @@ class ShowHandler extends AbstractHandler
             ->set('arrFields', $data['values'])
             ->set('arrLabels', $data['labels']);
 
-        if (
-            in_array(
-                'ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface',
-                class_implements(
-                    $environment->getDataProvider(
-                        $model->getProviderName()
-                    )
-                )
-            )
-        ) {
-            /** @var MultiLanguageDataProviderInterface $dataProvider */
+        if ($dataProvider instanceof MultiLanguageDataProviderInterface) {
             $template
                 ->set('languages', $environment->getController()->getSupportedLanguages($model->getId()))
                 ->set('currentLanguage', $dataProvider->getCurrentLanguage())
