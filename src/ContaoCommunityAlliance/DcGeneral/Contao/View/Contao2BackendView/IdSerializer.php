@@ -37,10 +37,8 @@ class IdSerializer extends ModelId
      */
     public function __construct($dataProviderName = '', $modelId = '')
     {
-        if (!empty($dataProviderName) && !empty($modelId)) {
-            parent::__construct($dataProviderName, $modelId);
-        }
-
+        $this->modelId          = $modelId;
+        $this->dataProviderName = $dataProviderName;
     }
 
     /**
