@@ -476,29 +476,43 @@ class TreePicker extends \Widget
             }
 
             // Apply a custom sort order.
-            // TODO: this is untested.
-            if ($this->orderField && is_array($this->{$this->strOrderField})) {
-                $arrNew = array();
-
-                foreach ($this->{$this->strOrderField} as $i) {
-                    if (isset($values[$i])) {
-                        $arrNew[$i] = $values[$i];
-                        unset($values[$i]);
-                    }
-                }
-
-                if (!empty($values)) {
-                    foreach ($values as $k => $v) {
-                        $arrNew[$k] = $v;
-                    }
-                }
-
-                $values = $arrNew;
-                unset($arrNew);
-            }
+            $values = $this->sortValues($values);
         }
 
         return $values;
+    }
+
+    /**
+     * Sort the passed value array by the defined order field (if defined).
+     *
+     * @param array $values The values.
+     *
+     * @return array
+     */
+    private function sortValues($values)
+    {
+        if (!($this->orderField && is_array($this->{$this->orderField}))) {
+            return $values;
+        }
+
+        /** @var array $orderValues */
+        $orderValues = $this->{$this->orderField};
+        $arrNew      = array();
+        // TODO: this is untested.
+        foreach ($orderValues as $i) {
+            if (isset($values[$i])) {
+                $arrNew[$i] = $values[$i];
+                unset($values[$i]);
+            }
+        }
+
+        if (!empty($values)) {
+            foreach ($values as $k => $v) {
+                $arrNew[$k] = $v;
+            }
+        }
+
+        return $arrNew;
     }
 
     /**
