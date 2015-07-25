@@ -722,7 +722,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
         // Cancel if no list configuration found.
         if (!$listDca) {
-            return;
+            return array();
         }
 
         $parsedProperties = $this->parseListSorting($listing, $listDca);
