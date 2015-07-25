@@ -48,14 +48,17 @@ class BuildWidgetEvent extends AbstractModelAwareEvent
     /**
      * Create a new event.
      *
-     * @param EnvironmentInterface $environment The environment instance in use.
+     * @param EnvironmentInterface  $environment The environment instance in use.
      *
-     * @param ModelInterface       $model       The model holding the data for the widget that shall be instantiated.
+     * @param ModelInterface        $model       The model holding the data for the widget that shall be instantiated.
      *
-     * @param PropertyInterface    $property    The property for which the widget shall be instantiated.
+     * @param PropertyInterface     $property    The property for which the widget shall be instantiated.
      */
-    public function __construct(EnvironmentInterface $environment, ModelInterface $model, PropertyInterface $property)
-    {
+    public function __construct(
+        EnvironmentInterface $environment,
+        ModelInterface $model,
+        PropertyInterface $property
+    ) {
         parent::__construct($environment, $model);
 
         $this->property = $property;
