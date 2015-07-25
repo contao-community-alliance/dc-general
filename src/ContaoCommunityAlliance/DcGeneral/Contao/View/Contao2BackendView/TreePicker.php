@@ -235,6 +235,7 @@ class TreePicker extends \Widget
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     * @SuppressWarnings(PHPMD.ExitExpression)
      */
     public function updateAjax($ajaxAction, $dataContainer)
     {
@@ -629,6 +630,8 @@ class TreePicker extends \Widget
      * Generate a particular sub part of the page tree and return it as HTML string.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.ExitExpression)
      */
     public function generateAjax()
     {
