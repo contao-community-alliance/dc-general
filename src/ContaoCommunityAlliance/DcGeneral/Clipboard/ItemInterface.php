@@ -89,7 +89,7 @@ interface ItemInterface
     /**
      * Retrieve the id of the model from this item.
      *
-     * @return ModelId
+     * @return ModelId|null
      */
     public function getModelId();
 
