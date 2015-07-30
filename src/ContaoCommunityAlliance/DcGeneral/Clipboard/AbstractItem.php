@@ -129,6 +129,16 @@ abstract class AbstractItem implements ItemInterface
                 && !$this->getParentId()->equals($item->getParentId())
             )
 
+            // One have a model ID, the other not
+            || $this->getModelId() && !$item->getModelId()
+            || !$this->getModelId() && $item->getModelId()
+
+            // Both has no model id.
+            || (
+                !($this->getModelId() || $item->getModelId())
+                && ($this->getDataProviderName() !== $item->getDataProviderName())
+            )
+
             // The model IDs are not equal
             || !$this->getModelId()->equals($item->getModelId())
         );
