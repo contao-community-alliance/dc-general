@@ -255,6 +255,10 @@ class DeleteHandler extends AbstractHandler
      */
     public function process()
     {
+        if ($this->getEvent()->getAction()->getName() !== 'delete') {
+            return;
+        }
+
         $environment = $this->getEnvironment();
         $modelId     = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
 
