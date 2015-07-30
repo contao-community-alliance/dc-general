@@ -618,16 +618,4 @@ class ParentView extends BaseView
 
         return implode("\n", $arrReturn);
     }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @throws \RuntimeException This method os not in use anymore.
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function copy(Action $action)
-    {
-        throw new \RuntimeException('I should not be here! :-\\');
-    }
 }
