@@ -43,15 +43,13 @@ class Filter implements FilterInterface
 
     const MODEL_IS_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
 (
-    item.getModelId()
-    and item.getModelId().getDataProviderName() === variables[%d]
+    item.getDataProviderName() === variables[%d]
 )
 EXPR;
 
     const MODEL_IS_NOT_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
 (
-    item.getModelId()
-    and item.getModelId().getDataProviderName() !== variables[%d]
+    item.getDataProviderName() !== variables[%d]
 )
 EXPR;
 
