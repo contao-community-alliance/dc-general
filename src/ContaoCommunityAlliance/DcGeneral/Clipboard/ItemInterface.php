@@ -101,7 +101,7 @@ interface ItemInterface
      *
      * @return string
      */
-    public function getProviderName();
+    public function getDataProviderName();
 
     /**
      * Get the id which identifies the item in the clipboard.

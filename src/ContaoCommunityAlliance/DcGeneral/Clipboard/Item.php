@@ -61,9 +61,9 @@ class Item extends AbstractItem
     /**
      * {@inheritdoc}
      */
-    public function getProviderName()
+    public function getDataProviderName()
     {
-        return $this->modelId->getProviderName();
+        return $this->modelId->getDataProviderName();
     }
 
     /**

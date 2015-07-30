@@ -61,7 +61,7 @@ class UnsavedItem extends AbstractItem
     /**
      * {@inheritdoc}
      */
-    public function getProviderName()
+    public function getDataProviderName()
     {
         return $this->providerName;
     }
@@ -71,6 +71,6 @@ class UnsavedItem extends AbstractItem
      */
     public function getClipboardId()
     {
-        return $this->getProviderName();
+        return $this->getDataProviderName();
     }
 }
