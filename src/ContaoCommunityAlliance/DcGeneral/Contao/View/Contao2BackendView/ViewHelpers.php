@@ -16,7 +16,6 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
@@ -105,31 +104,6 @@ class ViewHelpers
         }
 
         return null;
-    }
-
-    /**
-     * Generate the breadcrumb.
-     *
-     * @param EnvironmentInterface $environment The environment.
-     *
-     * @return null|string
-     */
-    public static function generateBreadcrumb(EnvironmentInterface $environment)
-    {
-        $event = new GetBreadcrumbEvent($environment);
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
-
-        $elements = $event->getElements();
-        if (!is_array($elements) || empty($elements)) {
-            return null;
-        }
-
-        $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalBreadcrumb.css';
-
-        $objTemplate = new ContaoBackendViewTemplate('dcbe_general_breadcrumb');
-        $objTemplate->set('elements', $elements);
-
-        return $objTemplate->parse();
     }
 
     /**
