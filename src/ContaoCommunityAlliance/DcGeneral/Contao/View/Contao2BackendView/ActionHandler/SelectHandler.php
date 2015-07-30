@@ -29,7 +29,7 @@ class SelectHandler extends AbstractHandler
     /**
      * Handle the action.
      *
-     * @return mixed
+     * @return void
      */
     public function process()
     {
