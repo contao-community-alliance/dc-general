@@ -13,7 +13,9 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Actio
 
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\NotCreatableException;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
@@ -33,6 +35,45 @@ use ContaoCommunityAlliance\UrlBuilder\Contao\BackendUrlBuilder;
 class CopyHandler extends AbstractEnvironmentAwareHandler
 {
     /**
+     * Check if is it allowed to create a new record. This is necessary to create the copy.
+     *
+     * @param ModelIdInterface $modelId  The model id.
+     * @param bool             $redirect If true it redirects to error page instead of throwing an exception.
+     *
+     * @return void
+     *
+     * @throws NotCreatableException If deletion is disabled.
+     */
+    protected function guardIsCreatable(ModelIdInterface $modelId, $redirect = false)
+    {
+        if ($this->getEnvironment()->getDataDefinition()->getBasicDefinition()->isCreatable()) {
+            return;
+        }
+
+        if ($redirect) {
+            $this->getEnvironment()->getEventDispatcher()->dispatch(
+                ContaoEvents::SYSTEM_LOG,
+                new LogEvent(
+                    sprintf(
+                        'Table "%s" is not creatable',
+                        'DC_General - DefaultController - copy()',
+                        $this->getEnvironment()->getDataDefinition()->getName()
+                    ),
+                    __CLASS__ . '::delete()',
+                    TL_ERROR
+                )
+            );
+
+            $this->getEnvironment()->getEventDispatcher()->dispatch(
+                ContaoEvents::CONTROLLER_REDIRECT,
+                new RedirectEvent('contao/main.php?act=error')
+            );
+        }
+
+        throw new NotCreatableException($modelId->getDataProviderName());
+    }
+
+    /**
      * Copy a model by using.
      *
      * @param ModelIdInterface  $modelId   The model id.
@@ -41,6 +82,9 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
      */
     public function copy(ModelIdInterface $modelId)
     {
+        $this->guardNotEditOnly($modelId);
+        $this->guardIsCreatable($modelId);
+
         $environment  = $this->getEnvironment();
         $dataProvider = $environment->getDataProvider();
         $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
@@ -97,6 +141,11 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
         }
 
         $environment = $this->getEnvironment();
+        $modelId     = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
+
+        $this->guardValidEnvironment($modelId);
+        // We want a redirect here if not creatable.
+        $this->guardIsCreatable($modelId, true);
 
         if ($environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             $event = new ActionEvent($environment, new Action('edit'));
@@ -112,7 +161,6 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
             return;
         }
 
-        $modelId     = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
         $copiedModel = $this->copy($modelId);
 
         $this->redirect($environment, ModelId::fromModel($copiedModel));

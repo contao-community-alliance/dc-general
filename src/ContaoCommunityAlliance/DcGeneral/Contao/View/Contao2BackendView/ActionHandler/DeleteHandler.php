@@ -35,41 +35,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 class DeleteHandler extends AbstractEnvironmentAwareHandler
 {
     /**
-     * Guard that the environment is prepared for models data definition.
-     *
-     * @param ModelIdInterface $modelId The model id.
-     *
-     * @throws DcGeneralRuntimeException If data provider name of modelId and definition does not match.
-     */
-    private function guardValidEnvironment(ModelIdInterface $modelId)
-    {
-        if ($this->getEnvironment()->getDataDefinition()->getName() !== $modelId->getDataProviderName()) {
-            throw new DcGeneralRuntimeException(
-                sprintf(
-                    'Not able to perform action. Environment is not prepared for model "%s"',
-                    $modelId->getSerialized()
-                )
-            );
-        }
-    }
-
-    /**
-     * Guard that the data container is not in edit only mode.
-     *
-     * @param ModelIdInterface $modelId The model id.
-     *
-     * @return void
-     *
-     * @throws EditOnlyModeException If data container is in edit only mode.
-     */
-    protected function guardNotEditOnly(ModelIdInterface $modelId)
-    {
-        if ($this->getEnvironment()->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            throw new EditOnlyModeException($modelId->getDataProviderName());
-        }
-    }
-
-    /**
      * Check if is it allowed to delete a record.
      *
      * @param ModelIdInterface $modelId  The model id.
@@ -188,7 +153,6 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
      */
     public function delete(ModelIdInterface $modelId)
     {
-        $this->guardValidEnvironment($modelId);
         $this->guardNotEditOnly($modelId);
         $this->guardIsDeletable($modelId);
 
@@ -235,8 +199,7 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
         }
 
         // We want a redirect here if not deletable.
-        $doRedirect = true;
-        $this->guardIsDeletable($modelId, $doRedirect);
+        $this->guardIsDeletable($modelId, true);
 
         $this->delete($modelId);
 
