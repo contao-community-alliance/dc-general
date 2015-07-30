@@ -216,11 +216,10 @@ class ClipboardController implements EventSubscriberInterface
 
         $options = array();
         foreach ($clipboard->fetch($filter) as $item) {
-            $modelId           = $item->getModelId();
-            $serializedModelId = $modelId->getSerialized();
-            $dataProvider      = $environment->getDataProvider($modelId->getDataProviderName());
+            $modelId      = $item->getModelId();
+            $dataProvider = $environment->getDataProvider($item->getDataProviderName());
 
-            if ($modelId->getId()) {
+            if ($modelId) {
                 $config = $dataProvider->getEmptyConfig();
                 $config->setId($modelId->getId());
                 $model = $dataProvider->fetch($config);
@@ -240,7 +239,7 @@ class ClipboardController implements EventSubscriberInterface
                 $label = $environment->getTranslator()->translate('new.0', $modelId->getDataProviderName());
             }
 
-            $options[$serializedModelId] = array(
+            $options[$item->getClipboardId()] = array(
                 'item'  => $item,
                 'model' => $model,
                 'label' => $label,
