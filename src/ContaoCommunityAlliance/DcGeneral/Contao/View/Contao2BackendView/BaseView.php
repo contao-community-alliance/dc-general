@@ -1475,25 +1475,12 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     *
+     * @deprecated Use ViewHelpers::generateBreadcrumb instead!
      */
     protected function breadcrumb()
     {
-        $event = new GetBreadcrumbEvent($this->getEnvironment());
-
-        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
-
-        $arrReturn = $event->getElements();
-
-        if (!is_array($arrReturn) || count($arrReturn) == 0) {
-            return null;
-        }
-
-        $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalBreadcrumb.css';
-
-        $objTemplate = $this->getTemplate('dcbe_general_breadcrumb');
-        $this->addToTemplate('elements', $arrReturn, $objTemplate);
-
-        return $objTemplate->parse();
+        return ViewHelpers::generateBreadcrumb($this->getEnvironment());
     }
 
     /**
