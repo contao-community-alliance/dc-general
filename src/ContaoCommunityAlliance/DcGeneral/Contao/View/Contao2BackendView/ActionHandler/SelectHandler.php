@@ -165,10 +165,11 @@ class SelectHandler extends AbstractHandler
 
             $clipboard->saveTo($this->getEnvironment());
         } else {
-            $controller = new CopyModelHandler($this->getEnvironment());
+            $handler = new CopyHandler();
+            $handler->setEnvironment($this->getEnvironment());
 
             foreach ($modelIds as $modelId) {
-                $controller->process($modelId);
+                $handler->copy($modelId);
             }
         }
 

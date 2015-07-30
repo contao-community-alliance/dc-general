@@ -19,9 +19,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\CopyModelHandler;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
@@ -29,7 +27,6 @@ use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
-use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * Class ListView.
@@ -302,26 +299,15 @@ class ListView extends BaseView
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
-     * @throws DcGeneralRuntimeException If no model id has been given.
+     * @throws \RuntimeException This method os not in use anymore.
      *
-     * @return string
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function copy(Action $action)
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit($action);
-        }
-
-        $environment = $this->getEnvironment();
-        $modelId     = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
-        $handler     = new CopyModelHandler($environment);
-        $processor   = function ($copyModel, $model, $preFunction, $postFunction) {
-            return $this->createEditMask($copyModel, $model, $preFunction, $postFunction);
-        };
-
-        return $handler->process($modelId, $processor);
+        throw new \RuntimeException('I should not be here! :-\\');
     }
 
     /**

@@ -23,11 +23,9 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\CopyModelHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
@@ -640,30 +638,14 @@ class ParentView extends BaseView
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
-     * @throws DcGeneralRuntimeException When no source id is provided by the input provider.
+     * @throws \RuntimeException This method os not in use anymore.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function copy(Action $action)
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit($action);
-        }
-
-        $manualSortingProperty = ViewHelpers::getManualSortingProperty($this->environment);
-        if ($manualSortingProperty
-            && $this->environment->getDataProvider()->fieldExists($manualSortingProperty)
-        ) {
-            ViewHelpers::redirectHome($this->environment);
-        }
-
-        $environment = $this->getEnvironment();
-        $modelId     = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
-        $handler     = new CopyModelHandler($environment);
-        $processor   = function ($copyModel, $model, $preFunction, $postFunction) {
-            return $this->createEditMask($copyModel, $model, $preFunction, $postFunction);
-        };
-
-        return $handler->process($modelId, $processor);
+        throw new \RuntimeException('I should not be here! :-\\');
     }
 }
