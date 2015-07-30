@@ -19,22 +19,8 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 /**
  * {@inheritdoc}
  */
-class Item implements ItemInterface
+class Item extends AbstractItem
 {
-    /**
-     * The item action.
-     *
-     * @var string
-     */
-    private $action;
-
-    /**
-     * The id of the parent model.
-     *
-     * @var ModelIdInterface
-     */
-    private $parentId;
-
     /**
      * The id of the model.
      *
@@ -55,74 +41,13 @@ class Item implements ItemInterface
      */
     public function __construct($action, $parentId, $modelId)
     {
-        if (
-            ItemInterface::CREATE !== $action
-            && ItemInterface::CUT !== $action
-            && ItemInterface::COPY !== $action
-            && ItemInterface::DEEP_COPY !== $action
-        ) {
-            throw new \InvalidArgumentException(
-                '$action must be one of ItemInterface::CREATE, ItemInterface::CUT or ItemInterface::COPY'
-            );
+        parent::__construct($action, $parentId);
+
+        if (!$modelId instanceof ModelIdInterface) {
+            throw new \InvalidArgumentException('Invalid $modelId given.');
         }
 
-        if (null === $modelId && $action !== ItemInterface::CREATE) {
-            throw new \InvalidArgumentException(
-                '$modelId must be valid unless in create action.'
-            );
-        }
-
-        $this->action   = (string) $action;
-        $this->parentId = $parentId;
-        $this->modelId  = $modelId;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAction()
-    {
-        return $this->action;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isCreate()
-    {
-        return ItemInterface::CREATE == $this->action;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isCut()
-    {
-        return ItemInterface::CUT == $this->action;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isCopy()
-    {
-        return ItemInterface::COPY == $this->action;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isDeepCopy()
-    {
-        return ItemInterface::DEEP_COPY == $this->action;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getParentId()
-    {
-        return $this->parentId;
+        $this->modelId = $modelId;
     }
 
     /**
@@ -136,34 +61,16 @@ class Item implements ItemInterface
     /**
      * {@inheritdoc}
      */
-    public function getClipboardId()
+    public function getProviderName()
     {
-        return $this->modelId->getSerialized();
+        return $this->modelId->getProviderName();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function equals(ItemInterface $item)
+    public function getClipboardId()
     {
-        // It is exactly the same item
-        if ($this === $item) {
-            return true;
-        }
-
-        return !(
-            // The actions are not equal
-            $this->getAction() !== $item->getAction()
-            // One have a parent ID, the other not
-            || $this->getParentId() && !$item->getParentId()
-            || !$this->getParentId() && $item->getParentId()
-            // The parent IDs are not equal
-            || (
-                $this->getParentId()
-                && !$this->getParentId()->equals($item->getParentId())
-            )
-            // The model IDs are not equal
-            || !$this->getModelId()->equals($item->getModelId())
-        );
+        return $this->modelId->getSerialized();
     }
 }
