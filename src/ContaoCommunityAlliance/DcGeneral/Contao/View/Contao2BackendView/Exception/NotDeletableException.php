@@ -12,11 +12,11 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception;
 
 /**
- * Class NotDeleteableException.
+ * Class NotDeletableException.
  *
  * This exception is thrown if a data definition does not support delete actions.
  */
-class NotDeleteableException extends DefinitionException
+class NotDeletableException extends DefinitionException
 {
     /**
      * The message template.

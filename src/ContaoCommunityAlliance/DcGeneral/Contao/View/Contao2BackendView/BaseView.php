@@ -30,7 +30,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\SelectHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ShowHandler;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\DeleteModelHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonsEvent;
@@ -38,10 +37,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGr
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\EditOnlyModeException;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\NotDeleteableException;
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
@@ -139,7 +135,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             case 'copy':
             case 'create':
             case 'paste':
-            case 'delete':
             case 'move':
             case 'undo':
             case 'edit':
@@ -473,37 +468,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function delete(Action $action)
     {
-        $environment = $this->getEnvironment();
-        $handler     = new DeleteModelHandler($environment);
-        $modelId     = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
-
-        try {
-            $handler->process($modelId);
-        } catch (EditOnlyModeException $e) {
-            return $this->edit($action);
-        } catch (NotDeleteableException $e) {
-            $this->getEnvironment()->getEventDispatcher()->dispatch(
-                ContaoEvents::SYSTEM_LOG,
-                new LogEvent(
-                    sprintf(
-                        'Table "%s" is not deletable',
-                        'DC_General - DefaultController - delete()',
-                        $this->getEnvironment()->getDataDefinition()->getName()
-                    ),
-                    __CLASS__ . '::delete()',
-                    TL_ERROR
-                )
-            );
-
-            $this->getEnvironment()->getEventDispatcher()->dispatch(
-                ContaoEvents::CONTROLLER_REDIRECT,
-                new RedirectEvent('contao/main.php?act=error')
-            );
-        }
-
-        ViewHelpers::redirectHome($this->environment);
-
-        return null;
+        throw new \RuntimeException('I should not be here! :-\\');
     }
 
     /**
