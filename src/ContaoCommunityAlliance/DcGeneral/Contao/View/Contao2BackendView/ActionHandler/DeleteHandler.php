@@ -22,7 +22,6 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
-use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDeleteModelEvent;
@@ -33,48 +32,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  *
  * @package ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller
  */
-class DeleteHandler extends AbstractHandler
+class DeleteHandler extends AbstractEnvironmentAwareHandler
 {
-    /**
-     * The environment.
-     *
-     * @var EnvironmentInterface
-     */
-    protected $environment;
-
-    /**
-     * Retrieve the environment.
-     *
-     * @return EnvironmentInterface
-     */
-    protected function getEnvironment()
-    {
-        return $this->environment;
-    }
-
-    /**
-     * Set the environment. This is required for using handler for a non event modus.
-     *
-     * @param EnvironmentInterface $environment The environment.
-     *
-     * @return $this
-     */
-    public function setEnvironment(EnvironmentInterface $environment)
-    {
-        $this->environment = $environment;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function handleEvent(ActionEvent $event)
-    {
-        $this->setEnvironment($event->getEnvironment());
-        parent::handleEvent($event);
-    }
-
     /**
      * Guard that the environment is prepared for models data definition.
      *
