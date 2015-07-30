@@ -49,7 +49,7 @@
 
 							<?php if ($this->select): ?>
 								<td class="tl_file_list tl_right_nowrap">
-									<input type="checkbox" name="IDS[]" id="ids_<?php echo $objModel->getId(); ?>" class="tl_tree_checkbox" value="<?php echo \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer::fromModel($objModel)->getSerialized(); ?>">
+									<input type="checkbox" name="IDS[]" id="ids_<?php echo $objModel->getId(); ?>" class="tl_tree_checkbox" value="<?php echo \ContaoCommunityAlliance\DcGeneral\Data\ModelId::fromModel($objModel)->getSerialized(); ?>">
 								</td>
 							<?php else: ?>
 								<td class="tl_file_list tl_right_nowrap">
