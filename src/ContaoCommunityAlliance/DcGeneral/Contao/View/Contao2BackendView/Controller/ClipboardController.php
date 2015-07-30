@@ -20,7 +20,6 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\UnsavedItem;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
@@ -84,11 +83,10 @@ class ClipboardController implements EventSubscriberInterface
         $eventDispatcher = $environment->getEventDispatcher();
         $clipboard       = $environment->getClipboard();
         $input           = $environment->getInputProvider();
-        $modelId         = $input->getParameter('clipboard-item');
+        $clipboardId     = $input->getParameter('clipboard-item');
 
-        if ($modelId) {
-            $modelId = IdSerializer::fromSerialized($modelId);
-            $clipboard->removeById($modelId);
+        if ($clipboardId) {
+            $clipboard->removeByClipboardId($clipboardId);
         } else {
             $clipboard->clear();
         }
