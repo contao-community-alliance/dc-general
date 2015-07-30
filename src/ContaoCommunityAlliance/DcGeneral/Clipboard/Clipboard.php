@@ -5,6 +5,7 @@
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -62,9 +63,9 @@ class Clipboard implements ClipboardInterface
      */
     public function push(ItemInterface $item)
     {
-        $serializedId = $item->getModelId()->getSerialized();
+        $clipboardId = $item->getClipboardId();
 
-        $this->items[$serializedId] = $item;
+        $this->items[$clipboardId] = $item;
 
         return $this;
     }
@@ -74,9 +75,9 @@ class Clipboard implements ClipboardInterface
      */
     public function remove(ItemInterface $item)
     {
-        $serializedId = $item->getModelId()->getSerialized();
+        $clipboardId = $item->getClipboardId();
 
-        unset($this->items[$serializedId]);
+        unset($this->items[$clipboardId]);
 
         return $this;
     }
@@ -86,9 +87,11 @@ class Clipboard implements ClipboardInterface
      */
     public function removeById(ModelIdInterface $modelId)
     {
-        $serializedId = $modelId->getSerialized();
-
-        unset($this->items[$serializedId]);
+        foreach ($this->items as $itemId => $item) {
+            if ($item->getModelId() && $item->getModelId()->equals($modelId)) {
+                unset($this->items[$itemId]);
+            }
+        }
 
         return $this;
     }
@@ -98,13 +101,13 @@ class Clipboard implements ClipboardInterface
      */
     public function has(ItemInterface $item)
     {
-        $serializedId = $item->getModelId()->getSerialized();
+        $clipboardId = $item->getClipboardId();
 
-        if (!isset($this->items[$serializedId])) {
+        if (!isset($this->items[$clipboardId])) {
             return false;
         }
 
-        $existingItem = $this->items[$serializedId];
+        $existingItem = $this->items[$clipboardId];
 
         return $existingItem->equals($item);
     }
@@ -114,9 +117,13 @@ class Clipboard implements ClipboardInterface
      */
     public function hasId(ModelIdInterface $modelId)
     {
-        $serializedId = $modelId->getSerialized();
+        foreach ($this->items as $item) {
+            if ($item->getModelId() && $item->getModelId()->equals($modelId)) {
+                return true;
+            }
+        }
 
-        return isset($this->items[$serializedId]);
+        return false;
     }
 
     /**
