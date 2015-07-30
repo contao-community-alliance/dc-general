@@ -73,6 +73,15 @@ interface ClipboardInterface
     public function removeById(ModelIdInterface $modelId);
 
     /**
+     * Remove an item from the clipboard by its clipboard id.
+     *
+     * @param string $clipboardId The clipboard id.
+     *
+     * @return static
+     */
+    public function removeByClipboardId($clipboardId);
+
+    /**
      * Determine if an item exist.
      *
      * @param ItemInterface $item The item.

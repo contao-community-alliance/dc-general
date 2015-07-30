@@ -99,6 +99,16 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      */
+    public function removeByClipboardId($clipboardId)
+    {
+        unset($this->items[$clipboardId]);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function has(ItemInterface $item)
     {
         $clipboardId = $item->getClipboardId();
