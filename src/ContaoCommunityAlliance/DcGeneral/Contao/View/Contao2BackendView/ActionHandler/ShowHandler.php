@@ -16,11 +16,11 @@ use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
@@ -40,7 +40,7 @@ class ShowHandler extends AbstractHandler
     {
         $environment  = $this->getEnvironment();
         $definition   = $environment->getDataDefinition();
-        $modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('id'));
+        $modelId      = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
         $objDBModel   = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
@@ -179,15 +179,15 @@ class ShowHandler extends AbstractHandler
     {
         $environment = $this->getEnvironment();
         if ($environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            $this->getEvent()->setResponse($environment->getView()->edit($this->getEvent()));
+            $this->getEvent()->setResponse($environment->getView()->edit($this->getEvent()->getAction()));
 
             return;
         }
 
         $translator   = $environment->getTranslator();
-        $modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('id'));
+        $modelId      = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
-        $model        = $this->getModel($environment);
+        $model        = $this->getModel();
         $data         = $this->convertModel($model, $environment);
         $headline     = $this->getHeadline($model);
         $template     = new ContaoBackendViewTemplate('dcbe_general_show');
@@ -196,17 +196,7 @@ class ShowHandler extends AbstractHandler
             ->set('arrFields', $data['values'])
             ->set('arrLabels', $data['labels']);
 
-        if (
-            in_array(
-                'ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface',
-                class_implements(
-                    $environment->getDataProvider(
-                        $model->getProviderName()
-                    )
-                )
-            )
-        ) {
-            /** @var MultiLanguageDataProviderInterface $dataProvider */
+        if ($dataProvider instanceof MultiLanguageDataProviderInterface) {
             $template
                 ->set('languages', $environment->getController()->getSupportedLanguages($model->getId()))
                 ->set('currentLanguage', $dataProvider->getCurrentLanguage())

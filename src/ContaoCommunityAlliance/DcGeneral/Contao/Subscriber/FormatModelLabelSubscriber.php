@@ -80,11 +80,7 @@ class FormatModelLabelSubscriber
             ->setLabel($formatter->getFormat())
             ->setFormatter($formatter);
 
-        $environment->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $modelToLabelEvent::NAME, $environment->getDataDefinition()->getName()),
-            $modelToLabelEvent
-        );
-        $environment->getEventDispatcher()->dispatch($modelToLabelEvent::NAME, $modelToLabelEvent);
+        $environment->getEventDispatcher()->dispatch(ModelToLabelEvent::NAME, $modelToLabelEvent);
 
         $label = array();
 

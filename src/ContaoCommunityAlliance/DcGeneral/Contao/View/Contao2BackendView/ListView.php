@@ -7,6 +7,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
+ * @author     Alexander Menk <alex.menk@gmail.com>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -20,9 +21,9 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
@@ -119,6 +120,7 @@ class ListView extends BaseView
         $sortingDefinition = $sorting['sorting'];
         $sortingColumns    = array();
         $pasteTopButton    = $this->renderPasteTopButton($sorting);
+        $formatter         = $listingDefinition->getLabelFormatter($definition->getName());
 
         if ($sortingDefinition) {
             /** @var GroupAndSortingDefinitionInterface $sortingDefinition */
@@ -132,7 +134,7 @@ class ListView extends BaseView
 
         // Generate the table header if the "show columns" option is active.
         if ($listingDefinition->getShowColumns()) {
-            foreach ($properties->getPropertyNames() as $f) {
+            foreach ($formatter->getPropertyNames() as $f) {
                 $property = $properties->getProperty($f);
                 if ($property) {
                     $label = $property->getLabel();
@@ -296,18 +298,6 @@ class ListView extends BaseView
         }
 
         return $objTemplate->parse();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @throws \RuntimeException This method os not in use anymore.
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function copy(Action $action)
-    {
-        throw new \RuntimeException('I should not be here! :-\\');
     }
 
     /**

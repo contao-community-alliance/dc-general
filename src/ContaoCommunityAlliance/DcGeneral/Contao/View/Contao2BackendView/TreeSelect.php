@@ -17,7 +17,6 @@ use ContaoCommunityAlliance\DcGeneral\DcGeneral;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\Translator\Contao\LangArrayTranslator;
 use ContaoCommunityAlliance\Translator\TranslatorChain;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * Class TreeSelect.

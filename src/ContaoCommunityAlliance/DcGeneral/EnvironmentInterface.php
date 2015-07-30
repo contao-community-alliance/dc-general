@@ -16,7 +16,6 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
-use ContaoCommunityAlliance\DcGeneral\Event\EventPropagatorInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -232,28 +231,6 @@ interface EnvironmentInterface
      * @return TranslatorInterface
      */
     public function getTranslator();
-
-    /**
-     * Set the event propagator to use.
-     *
-     * @param EventPropagatorInterface $propagator The event propagator to use.
-     *
-     * @return EnvironmentInterface
-     *
-     * @deprecated Event propagation turned out to be not very effective. Use plain event dispatching and check in the
-     *             listener if you want to handle the event.
-     */
-    public function setEventPropagator($propagator);
-
-    /**
-     * Retrieve the event propagator to use.
-     *
-     * @return EventPropagatorInterface
-     *
-     * @deprecated Event propagation turned out to be not very effective. Use plain event dispatching and check in the
-     *             listener if you want to handle the event.
-     */
-    public function getEventPropagator();
 
     /**
      * Set the event dispatcher to use.

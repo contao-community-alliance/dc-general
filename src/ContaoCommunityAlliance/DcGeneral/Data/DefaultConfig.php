@@ -176,7 +176,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @param boolean $blnIdOnly Boolean flag to determine that only Ids shall be returned when calling fetchAll().
      *
-     * @return bool
+     * @return DefaultConfig
      */
     public function setIdOnly($blnIdOnly)
     {

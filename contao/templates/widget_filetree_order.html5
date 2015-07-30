@@ -1,0 +1,1 @@
+<input type="hidden" name="<?php echo $this->strName; ?>" value="<?php echo $this->getSerializedValue(); ?>" id="ctrl_<?php echo $this->strId; ?>" />

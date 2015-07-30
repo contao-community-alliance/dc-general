@@ -12,7 +12,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Clipboard;
 
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 
 /**
  * Class Clipboard.
@@ -84,7 +84,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      */
-    public function removeById(IdSerializer $modelId)
+    public function removeById(ModelIdInterface $modelId)
     {
         $serializedId = $modelId->getSerialized();
 
@@ -112,7 +112,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      */
-    public function hasId(IdSerializer $modelId)
+    public function hasId(ModelIdInterface $modelId)
     {
         $serializedId = $modelId->getSerialized();
 

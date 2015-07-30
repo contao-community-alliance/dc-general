@@ -13,6 +13,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Test;
 
 use ContaoCommunityAlliance\Contao\EventDispatcher\EventDispatcherInitializer;
 use ContaoCommunityAlliance\DcGeneral\DC_General;
+use ContaoCommunityAlliance\Translator\StaticTranslator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -42,7 +43,10 @@ class DC_GeneralTest extends TestCase
         $this->aliasContaoClass('DataContainer');
 
         $eventDispatcher = new EventDispatcher();
-        $container       = $GLOBALS['container'] = new \Pimple(array('event-dispatcher' => $eventDispatcher));
+        $container       = $GLOBALS['container'] = new \Pimple(array(
+            'event-dispatcher' => $eventDispatcher,
+            'translator'       => new StaticTranslator()
+        ));
 
         $this->assertTrue($container['event-dispatcher'] instanceof EventDispatcher);
 

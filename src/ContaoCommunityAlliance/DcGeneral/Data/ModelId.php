@@ -4,6 +4,7 @@
  *
  * @package    generalDriver
  * @author     David Molineus <david.molineus@netzmacht.de>
+ * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -11,8 +12,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Data;
 
-use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
@@ -92,11 +91,13 @@ class ModelId implements ModelIdInterface
      */
     public static function fromModel(ModelInterface $model)
     {
-        return self::fromValues($model->getProviderName(), $model->getId());
+        return static::fromValues($model->getProviderName(), $model->getId());
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @throws DcGeneralRuntimeException When the id is unparsable.
      */
     public static function fromSerialized($serialized)
     {
@@ -116,7 +117,7 @@ class ModelId implements ModelIdInterface
             $chunks[1] = $decodedJson ?: $decodedSource;
         }
 
-        return new static($chunks[0], $chunks[1]);
+        return static::fromValues($chunks[0], $chunks[1]);
     }
 
     /**

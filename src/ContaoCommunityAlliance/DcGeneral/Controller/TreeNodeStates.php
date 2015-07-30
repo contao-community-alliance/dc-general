@@ -26,13 +26,24 @@ class TreeNodeStates
     private $states;
 
     /**
+     * List of implicit open nodes (selected values i.e.).
+     *
+     * @var array
+     */
+    private $implicitOpen;
+
+    /**
      * Create a new instance.
      *
-     * @param array $states The initial state array (optional, if not given, the state information will be empty).
+     * @param array $states       The initial state array (optional, if not given, the state information will be empty).
+     *
+     * @param array $implicitOpen List of implicit open nodes (selected values, if not given, the state information will
+     *                            be empty).
      */
-    public function __construct($states = array())
+    public function __construct($states = array(), $implicitOpen = array())
     {
         $this->setStates($states);
+        $this->setImplicitOpen($implicitOpen);
     }
 
     /**
@@ -48,7 +59,7 @@ class TreeNodeStates
      */
     public function setStates($states)
     {
-        $this->states = $states;
+        $this->states = (array) $states;
 
         return $this;
     }
@@ -66,6 +77,33 @@ class TreeNodeStates
     public function getStates()
     {
         return $this->states;
+    }
+
+    /**
+     * Set the list of implicit open nodes.
+     *
+     * @param array $implicitOpen The state array.
+     *
+     * @return TreeNodeStates
+     */
+    public function setImplicitOpen($implicitOpen)
+    {
+        $this->implicitOpen = (array) $implicitOpen;
+
+        return $this;
+    }
+
+    /**
+     * Retrieve the list of implicit open nodes.
+     *
+     * The returned array may be stored to session or other persistent storage and imported again via constructor
+     * argument or a call to setStates().
+     *
+     * @return array
+     */
+    public function getImplicitOpen()
+    {
+        return $this->implicitOpen;
     }
 
     /**
@@ -102,7 +140,8 @@ class TreeNodeStates
      */
     public function resetAll()
     {
-        $this->states = array('all' => $this->isAllOpen());
+        $this->states       = array('all' => $this->isAllOpen());
+        $this->implicitOpen = array();
 
         return $this;
     }
@@ -124,7 +163,8 @@ class TreeNodeStates
             return true;
         }
 
-        return (isset($this->states[$providerName][$modelId]) && ($this->states[$providerName][$modelId]));
+        return (isset($this->states[$providerName][$modelId]) && ($this->states[$providerName][$modelId]))
+            || (isset($this->implicitOpen[$providerName][$modelId]) && ($this->implicitOpen[$providerName][$modelId]));
     }
 
     /**

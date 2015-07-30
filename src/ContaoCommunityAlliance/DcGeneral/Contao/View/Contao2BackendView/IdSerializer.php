@@ -19,12 +19,28 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
  * The class IdSerializer provides handy methods to serialize and un-serialize model ids including the data provider
  * name into a string.
  *
- * @deprecated This class gonna be replaced by the ModelIdInterface. Use this instead!
+ * @deprecated This class gonna be replaced by the ModelId. Use this instead!
  *
  * @package DcGeneral\Contao\View\Contao2BackendView
+ *
+ * @see \ContaoCommunityAlliance\DcGeneral\Data\ModelId
+ * @see \ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface
  */
 class IdSerializer extends ModelId
 {
+    /**
+     * Construct.
+     *
+     * @param string $dataProviderName The data provider name.
+     *
+     * @param mixed  $modelId          The model id.
+     */
+    public function __construct($dataProviderName = '', $modelId = '')
+    {
+        $this->modelId          = $modelId;
+        $this->dataProviderName = $dataProviderName;
+    }
+
     /**
      * Set the data provider name.
      *

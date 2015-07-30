@@ -12,7 +12,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Clipboard;
 
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 
 /**
@@ -66,11 +66,11 @@ interface ClipboardInterface
     /**
      * Remove an item from the clipboard.
      *
-     * @param IdSerializer $modelId The model id.
+     * @param ModelIdInterface $modelId The model id.
      *
      * @return static
      */
-    public function removeById(IdSerializer $modelId);
+    public function removeById(ModelIdInterface $modelId);
 
     /**
      * Determine if an item exist.
@@ -84,11 +84,11 @@ interface ClipboardInterface
     /**
      * Determine if an item for the model id exist.
      *
-     * @param IdSerializer $modelId The model id.
+     * @param ModelIdInterface $modelId The model id.
      *
      * @return static
      */
-    public function hasId(IdSerializer $modelId);
+    public function hasId(ModelIdInterface $modelId);
 
     /**
      * Get all items from the clipboard.

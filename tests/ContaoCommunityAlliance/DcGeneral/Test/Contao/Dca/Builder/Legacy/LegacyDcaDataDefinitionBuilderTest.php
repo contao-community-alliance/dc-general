@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * PHP version 5
+ * @package    DcGeneral
+ * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @copyright  The MetaModels team.
+ * @license    LGPL.
+ * @filesource
+ */
+
 namespace ContaoCommunityAlliance\DcGeneral\Test\Contao\Dca\Builder\Legacy;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\Callback\AbstractCallbackListener;
@@ -102,7 +111,7 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
         );
 
         $event->setProperty('testProperty');
-
+        $this->assertEquals(1, count($dispatcher->getListeners(EncodePropertyValueFromWidgetEvent::NAME)));
         foreach ($dispatcher->getListeners(EncodePropertyValueFromWidgetEvent::NAME) as $listener) {
             /** @var AbstractCallbackListener $listener */
             $this->assertTrue($listener->wantToExecute($event));

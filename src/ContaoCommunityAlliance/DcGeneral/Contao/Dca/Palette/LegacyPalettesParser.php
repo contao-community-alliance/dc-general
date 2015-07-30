@@ -212,7 +212,7 @@ class LegacyPalettesParser
      *
      * @param array  $selectorFieldNames The property names to be used as selectors.
      *
-     * @return PaletteConditionInterface
+     * @return null|PaletteConditionInterface
      */
     public function createPaletteCondition($paletteSelector, array $selectorFieldNames)
     {

@@ -11,6 +11,7 @@
  * @author     Oliver Hoff <oliver@hofff.com>
  * @author     Patrick Kahl <kahl.patrick@googlemail.com>
  * @author     Simon Kusterer <simon@soped.com>
+ * @author     Christopher Boelter <christopher@boelter.eu>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -533,7 +534,7 @@ class DefaultDataProvider implements DataProviderInterface
             $arrParams = array();
 
             // Build SQL.
-            $query  = sprintf(
+            $query = sprintf(
                 'SELECT %s FROM %s',
                 $this->buildFieldQuery($objConfig),
                 $this->strSource
@@ -562,7 +563,7 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $arrParams = array();
         // Build SQL.
-        $query  = sprintf(
+        $query = sprintf(
             'SELECT %s FROM %s',
             $this->buildFieldQuery($objConfig),
             $this->strSource
@@ -638,7 +639,7 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $arrParams = array();
 
-        $query  = sprintf(
+        $query = sprintf(
             'SELECT COUNT(*) AS count FROM %s',
             $this->strSource
         );

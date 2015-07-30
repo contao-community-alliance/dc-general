@@ -5,6 +5,8 @@
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -14,15 +16,19 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\Event;
 
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\Twig\DcGeneralExtension;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPanelElementTemplateEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Panel\FilterElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\LimitElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SearchElementInterface;
@@ -46,6 +52,7 @@ class Subscriber implements EventSubscriberInterface
     {
         return array
         (
+            DcGeneralEvents::ACTION                => array('initializePanels', 10),
             GetPanelElementTemplateEvent::NAME     => array('getPanelElementTemplate', -1),
             ResolveWidgetErrorMessageEvent::NAME   => array('resolveWidgetErrorMessage', -1),
             RenderReadablePropertyValueEvent::NAME => 'renderReadablePropertyValue',
@@ -263,7 +270,8 @@ class Subscriber implements EventSubscriberInterface
         } elseif ($property->getWidgetType() == 'checkbox' && !$extra['multiple']) {
             $event->setRendered(strlen($value) ? $GLOBALS['TL_LANG']['MSC']['yes'] : $GLOBALS['TL_LANG']['MSC']['no']);
         } elseif ($property->getWidgetType() == 'textarea'
-            && (!empty($extra['allowHtml']) || !empty($extra['preserveTags']))) {
+                  && (!empty($extra['allowHtml']) || !empty($extra['preserveTags']))
+        ) {
             $event->setRendered(nl2br_html5(specialchars($value)));
         } elseif (isset($extra['reference']) && is_array($extra['reference'])) {
             if (isset($extra['reference'][$value])) {
@@ -305,5 +313,39 @@ class Subscriber implements EventSubscriberInterface
         $environment = $contaoTwig->getEnvironment();
 
         $environment->addExtension(new DcGeneralExtension());
+    }
+
+    /**
+     * Initialize the panels for known actions so that they always know their state.
+     *
+     * @param ActionEvent $event The event.
+     *
+     * @return void
+     */
+    public function initializePanels(ActionEvent $event)
+    {
+        if (!in_array(
+            $event->getAction(),
+            array('copy', 'create', 'paste', 'delete', 'move', 'undo', 'edit', 'toggle', 'showAll', 'show')
+        )) {
+            return;
+        }
+
+        $environment = $event->getEnvironment();
+        $definition  = $environment->getDataDefinition();
+        $view        = $environment->getView();
+
+        if (!$definition->hasDefinition(Contao2BackendViewDefinitionInterface::NAME)
+            || !$view instanceof BaseView
+            || !$view->getPanel()
+        ) {
+            return;
+        }
+
+        /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
+        $dataConfig = $environment->getBaseConfigRegistry()->getBaseConfig();
+        $panel      = $view->getPanel();
+
+        $panel->initialize($dataConfig);
     }
 }

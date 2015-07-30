@@ -12,7 +12,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Twig;
 
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 
 /**
@@ -47,7 +47,6 @@ class DcGeneralExtension extends \Twig_Extension
      */
     public function serializeModelId(ModelInterface $model)
     {
-        $serializer = IdSerializer::fromModel($model);
-        return $serializer->getSerialized();
+        return ModelId::fromModel($model)->getSerialized();
     }
 }

@@ -22,6 +22,8 @@ use ContaoCommunityAlliance\DcGeneral\Contao\Subscriber\FormatModelLabelSubscrib
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\CopyHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\DeleteHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\SelectHandler;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ToggleHandler;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\GetGroupHeaderSubscriber;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
@@ -72,5 +74,9 @@ return array(
         array(new SelectHandler(), 'handleEvent'),
         array(new CopyHandler(), 'handleEvent'),
         array(new DeleteHandler(), 'handleEvent'),
+        array(new ToggleHandler(), 'handleEvent')
     ),
+    BuildWidgetEvent::NAME => array(
+        'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\WidgetBuilder::handleEvent'
+    )
 );

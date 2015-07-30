@@ -25,8 +25,12 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\FilterInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
@@ -34,9 +38,6 @@ use ContaoCommunityAlliance\DcGeneral\Data\DefaultCollection;
 use ContaoCommunityAlliance\DcGeneral\Data\LanguageInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -242,11 +243,11 @@ class DefaultController implements ControllerInterface
     /**
      * Retrieve all siblings of a given model.
      *
-     * @param ModelInterface $model           The model for which the siblings shall be retrieved from.
+     * @param ModelInterface   $model           The model for which the siblings shall be retrieved from.
      *
-     * @param string|null    $sortingProperty The property name to use for sorting.
+     * @param string|null      $sortingProperty The property name to use for sorting.
      *
-     * @param IdSerializer   $parentId        The (optional) parent id to use.
+     * @param ModelIdInterface $parentId        The (optional) parent id to use.
      *
      * @return CollectionInterface
      *
@@ -257,7 +258,7 @@ class DefaultController implements ControllerInterface
     protected function assembleSiblingsFor(
         ModelInterface $model,
         $sortingProperty = null,
-        IdSerializer $parentId = null
+        ModelIdInterface $parentId = null
     ) {
         $environment   = $this->getEnvironment();
         $definition    = $environment->getDataDefinition();
@@ -382,14 +383,12 @@ class DefaultController implements ControllerInterface
             )
             && ($input->hasParameter('pid'))
         ) {
-            $parentModelId      = IdSerializer::fromSerialized($input->getParameter('pid'));
+            $parentModelId      = ModelId::fromSerialized($input->getParameter('pid'));
             $providerName       = $basicDefinition->getDataProvider();
             $parentProviderName = $parentModelId->getDataProviderName();
-            $objParentDriver    = $environment->getDataProvider($parentProviderName);
-            $objParentModel     = $objParentDriver->fetch(
-                $objParentDriver
-                    ->getEmptyConfig()
-                    ->setId($parentModelId->getId())
+            $objParentModel     = $this->fetchModelFromProvider(
+                $parentModelId->getId(),
+                $parentModelId->getDataProviderName()
             );
 
             $relationship = $environment
@@ -419,12 +418,7 @@ class DefaultController implements ControllerInterface
         $objDataProvider = $environment->getDataProvider();
 
         // Check if current data provider supports multi language.
-        if (in_array(
-            'ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface',
-            class_implements($objDataProvider)
-        )
-        ) {
-            /** @var MultiLanguageDataProviderInterface $objDataProvider */
+        if ($objDataProvider instanceof MultiLanguageDataProviderInterface) {
             $supportedLanguages = $objDataProvider->getLanguages($mixID);
         } else {
             $supportedLanguages = null;
@@ -451,7 +445,7 @@ class DefaultController implements ControllerInterface
      *
      * This includes parent filter when in parented list mode and the additional filters from the data definition.
      *
-     * @param IdSerializer $parentId The optional parent to use.
+     * @param ModelIdInterface $parentId The optional parent to use.
      *
      * @return ConfigInterface
      *
@@ -459,7 +453,7 @@ class DefaultController implements ControllerInterface
      *
      * @deprecated Use EnvironmentInterface::getBaseConfigRegistry->getBaseConfig()
      */
-    public function getBaseConfig(IdSerializer $parentId = null)
+    public function getBaseConfig(ModelIdInterface $parentId = null)
     {
         return $this->getEnvironment()->getBaseConfigRegistry()->getBaseConfig($parentId);
     }
@@ -538,10 +532,10 @@ class DefaultController implements ControllerInterface
     {
         if ($providerName === null) {
             if (is_string($modelId)) {
-                $modelId = IdSerializer::fromSerialized($modelId);
+                $modelId = ModelId::fromSerialized($modelId);
             }
         } else {
-            $modelId = IdSerializer::fromValues($providerName, $modelId);
+            $modelId = ModelId::fromValues($providerName, $modelId);
         }
 
         $dataProvider = $this->getEnvironment()->getDataProvider($modelId->getDataProviderName());
@@ -599,9 +593,14 @@ class DefaultController implements ControllerInterface
             /** @var ItemInterface $item */
             $modelId      = $item->getModelId();
             $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
-            $config       = $dataProvider->getEmptyConfig()->setId($modelId->getId());
-            $model        = $dataProvider->fetch($config);
-            $models->push($model);
+            // FIXME: Item should allow null as modelId so we can skip the second check here and move to class ModelId.
+            if ($modelId && $modelId->getId()) {
+                $models->push($dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId())));
+
+                continue;
+            }
+
+            $models->push($dataProvider->getEmptyModel());
         }
 
         return $models;
@@ -610,7 +609,7 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritDoc}
      */
-    public function getModelsFromClipboard(IdSerializer $parentModelId = null)
+    public function getModelsFromClipboard(ModelIdInterface $parentModelId = null)
     {
         $environment       = $this->getEnvironment();
         $dataDefinition    = $environment->getDataDefinition();
@@ -633,10 +632,10 @@ class DefaultController implements ControllerInterface
      * {@inheritDoc}
      */
     public function applyClipboardActions(
-        IdSerializer $source = null,
-        IdSerializer $after = null,
-        IdSerializer $into = null,
-        IdSerializer $parentModelId = null,
+        ModelIdInterface $source = null,
+        ModelIdInterface $after = null,
+        ModelIdInterface $into = null,
+        ModelIdInterface $parentModelId = null,
         FilterInterface $filter = null,
         array &$items = array()
     ) {
@@ -652,12 +651,12 @@ class DefaultController implements ControllerInterface
     /**
      * Fetch actions from source.
      *
-     * @param IdSerializer      $source        The source id.
-     * @param IdSerializer|null $parentModelId The parent id.
+     * @param ModelIdInterface      $source        The source id.
+     * @param ModelIdInterface|null $parentModelId The parent id.
      *
      * @return array
      */
-    private function getActionsFromSource(IdSerializer $source, IdSerializer $parentModelId = null)
+    private function getActionsFromSource(ModelIdInterface $source, ModelIdInterface $parentModelId = null)
     {
         $environment  = $this->getEnvironment();
         $dataProvider = $environment->getDataProvider($source->getDataProviderName());
@@ -665,14 +664,12 @@ class DefaultController implements ControllerInterface
         $filterConfig = $dataProvider->getEmptyConfig();
         $filterConfig->setId($source->getId());
 
-        $model   = $dataProvider->fetch($filterConfig);
-        $modelId = IdSerializer::fromModel($model);
-        $item    = new Item(ItemInterface::CUT, $parentModelId, $modelId);
+        $model = $dataProvider->fetch($filterConfig);
 
         $actions = array(
             array(
                 'model' => $model,
-                'item'  => $item,
+                'item'  => new Item(ItemInterface::CUT, $parentModelId, ModelId::fromModel($model)),
             )
         );
 
@@ -683,11 +680,11 @@ class DefaultController implements ControllerInterface
      * Fetch actions from the clipboard.
      *
      * @param FilterInterface|null $filter        The clipboard filter.
-     * @param IdSerializer         $parentModelId The parent id.
+     * @param ModelIdInterface     $parentModelId The parent id.
      *
      * @return array
      */
-    private function fetchModelsFromClipboard(FilterInterface $filter = null, IdSerializer $parentModelId = null)
+    private function fetchModelsFromClipboard(FilterInterface $filter = null, ModelIdInterface $parentModelId = null)
     {
         $environment    = $this->getEnvironment();
         $dataDefinition = $environment->getDataDefinition();
@@ -732,19 +729,19 @@ class DefaultController implements ControllerInterface
     /**
      * Effectively do the actions.
      *
-     * @param array        $actions       The actions collection.
-     * @param IdSerializer $after         The previous model id.
-     * @param IdSerializer $into          The hierarchical parent model id.
-     * @param IdSerializer $parentModelId The parent model id.
-     * @param array        $items         Write-back clipboard items.
+     * @param array            $actions       The actions collection.
+     * @param ModelIdInterface $after         The previous model id.
+     * @param ModelIdInterface $into          The hierarchical parent model id.
+     * @param ModelIdInterface $parentModelId The parent model id.
+     * @param array            $items         Write-back clipboard items.
      *
-     * @return mixed
+     * @return CollectionInterface
      */
     private function doActions(
         array $actions,
-        IdSerializer $after = null,
-        IdSerializer $into = null,
-        IdSerializer $parentModelId = null,
+        ModelIdInterface $after = null,
+        ModelIdInterface $into = null,
+        ModelIdInterface $parentModelId = null,
         array &$items = array()
     ) {
         $environment = $this->getEnvironment();
@@ -805,7 +802,7 @@ class DefaultController implements ControllerInterface
             $model = $this->createEmptyModelWithDefaults();
         } elseif ($item->isCopy() || $item->isDeepCopy()) {
             // copy model
-            $modelId      = IdSerializer::fromModel($model);
+            $modelId      = ModelId::fromModel($model);
             $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
             $config       = $dataProvider->getEmptyConfig()->setId($modelId->getId());
             $model        = $dataProvider->fetch($config);
@@ -849,23 +846,11 @@ class DefaultController implements ControllerInterface
         // Trigger the pre duplicate event.
         $duplicateEvent = new PreDuplicateModelEvent($environment, $model);
 
-        // FIXME: propagator
-        $environment->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $duplicateEvent::NAME, $environment->getDataDefinition()->getName()),
-            $duplicateEvent
-        );
         $environment->getEventDispatcher()->dispatch($duplicateEvent::NAME, $duplicateEvent);
-
         // Make a duplicate.
         $clonedModel = $this->createClonedModel($model);
-
         // And trigger the post event for it.
         $duplicateEvent = new PostDuplicateModelEvent($environment, $clonedModel, $model);
-        // FIXME: propagator
-        $environment->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $duplicateEvent::NAME, $environment->getDataDefinition()->getName()),
-            $duplicateEvent
-        );
         $environment->getEventDispatcher()->dispatch($duplicateEvent::NAME, $duplicateEvent);
 
         return $clonedModel;
@@ -874,12 +859,12 @@ class DefaultController implements ControllerInterface
     /**
      * Ensure all models have the same grouping.
      *
-     * @param array        $actions The actions collection.
-     * @param IdSerializer $after   The previous model id.
+     * @param array            $actions The actions collection.
+     * @param ModelIdInterface $after   The previous model id.
      *
      * @return void
      */
-    private function ensureSameGrouping(array $actions, IdSerializer $after = null)
+    private function ensureSameGrouping(array $actions, ModelIdInterface $after = null)
     {
         $environment  = $this->getEnvironment();
         $groupingMode = ViewHelpers::getGroupingMode($environment);
@@ -901,11 +886,11 @@ class DefaultController implements ControllerInterface
     /**
      * Apply sorting and persist all models.
      *
-     * @param array        $actions       The actions collection.
-     * @param IdSerializer $after         The previous model id.
-     * @param IdSerializer $into          The hierarchical parent model id.
-     * @param IdSerializer $parentModelId The parent model id.
-     * @param array        $items         Write-back clipboard items.
+     * @param array            $actions       The actions collection.
+     * @param ModelIdInterface $after         The previous model id.
+     * @param ModelIdInterface $into          The hierarchical parent model id.
+     * @param ModelIdInterface $parentModelId The parent model id.
+     * @param array            $items         Write-back clipboard items.
      *
      * @return DefaultCollection|ModelInterface[]
      *
@@ -913,9 +898,9 @@ class DefaultController implements ControllerInterface
      */
     private function sortAndPersistModels(
         array $actions,
-        IdSerializer $after = null,
-        IdSerializer $into = null,
-        IdSerializer $parentModelId = null,
+        ModelIdInterface $after = null,
+        ModelIdInterface $into = null,
+        ModelIdInterface $parentModelId = null,
         array &$items = array()
     ) {
         $environment    = $this->getEnvironment();
@@ -932,11 +917,6 @@ class DefaultController implements ControllerInterface
         // Trigger for each model the pre persist event.
         foreach ($models as $model) {
             $event = new PrePasteModelEvent($environment, $model);
-
-            $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $event::NAME, $dataDefinition->getName()),
-                $event
-            );
             $environment->getEventDispatcher()->dispatch($event::NAME, $event);
         }
 
@@ -970,10 +950,6 @@ class DefaultController implements ControllerInterface
         // Trigger for each model the past persist event.
         foreach ($models as $model) {
             $event = new PostPasteModelEvent($environment, $model);
-            $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $event::NAME, $dataDefinition->getName()),
-                $event
-            );
             $environment->getEventDispatcher()->dispatch($event::NAME, $event);
         }
 
@@ -1004,7 +980,7 @@ class DefaultController implements ControllerInterface
             /** @var ModelInterface $model */
             $model = $deepCopy['model'];
 
-            $parentId = IdSerializer::fromModel($model);
+            $parentId = ModelId::fromModel($model);
 
             foreach ($childConditions as $childCondition) {
                 // create new destination environment
@@ -1046,7 +1022,7 @@ class DefaultController implements ControllerInterface
 
                 // build the copy actions
                 foreach ($children as $childModel) {
-                    $childModelId = IdSerializer::fromModel($childModel);
+                    $childModelId = ModelId::fromModel($childModel);
 
                     $actions[] = array(
                         'model' => $childModel,
@@ -1073,7 +1049,7 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritDoc}
      */
-    public function pasteTop(CollectionInterface $models, $sortedBy, IdSerializer $parentId = null)
+    public function pasteTop(CollectionInterface $models, $sortedBy, ModelIdInterface $parentId = null)
     {
         $environment = $this->getEnvironment();
 
@@ -1102,8 +1078,7 @@ class DefaultController implements ControllerInterface
                 ->getDataDefinition()
                 ->getBasicDefinition()
                 ->getMode(),
-            array
-            (
+            array(
                 BasicDefinitionInterface::MODE_HIERARCHICAL,
                 BasicDefinitionInterface::MODE_PARENTEDLIST
             )
