@@ -125,10 +125,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         switch ($name) {
             case 'select':
-                $handler = new SelectHandler();
-                $handler->handleEvent($event);
-
-                // If no redirect happens, use showAll
+                // If no redirect happens, we want to display the showAll action.
                 $name = 'showAll';
                 // No break here
 
