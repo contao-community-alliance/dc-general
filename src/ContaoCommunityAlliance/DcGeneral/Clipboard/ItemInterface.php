@@ -97,6 +97,13 @@ interface ItemInterface
     public function getModelId();
 
     /**
+     * Retrieve the provider name of the model from this item.
+     *
+     * @return string
+     */
+    public function getProviderName();
+
+    /**
      * Get the id which identifies the item in the clipboard.
      *
      * @return string
