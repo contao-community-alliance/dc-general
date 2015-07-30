@@ -18,7 +18,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ListView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ParentView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreeView;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\FilterElementInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\LimitElementInformationInterface;
@@ -160,11 +159,6 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
                 }
             }
         }
-
-        $baseConfig    = $environment->getBaseConfigRegistry()->getBaseConfig();
-        $listingConfig = $viewDefinition->getListingConfig();
-
-        ViewHelpers::initializeSorting($panel, $baseConfig, $listingConfig);
     }
 
     /**
