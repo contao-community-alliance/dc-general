@@ -82,7 +82,7 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
     protected function fetchModel(ModelIdInterface $modelId)
     {
         $dataProvider = $this->getEnvironment()->getDataProvider($modelId->getDataProviderName());
-        $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+        $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
         if (!$model || !$model->getId()) {
             throw new DcGeneralRuntimeException(
