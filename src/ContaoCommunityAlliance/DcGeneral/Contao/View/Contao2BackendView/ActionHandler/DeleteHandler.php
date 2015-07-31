@@ -14,15 +14,12 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Actio
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
-use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\EditOnlyModeException;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\NotDeletableException;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
-use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -190,11 +187,7 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
         $this->guardValidEnvironment($modelId);
 
         // Only edit mode is supported. Trigger an edit action.
-        if ($environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            $event = new ActionEvent($environment, new Action('edit'));
-            $environment->getEventDispatcher()->dispatch(DcGeneralEvents::ACTION, $event);
-            $this->getEvent()->setResponse($event->getResponse());
-
+        if ($this->isEditOnlyResponse()) {
             return;
         }
 

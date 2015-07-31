@@ -12,8 +12,10 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
+use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\EditOnlyModeException;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
+use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -99,6 +101,26 @@ abstract class AbstractHandler
         if ($this->getEnvironment()->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             throw new EditOnlyModeException($modelId->getDataProviderName());
         }
+    }
+
+    /**
+     * Get response from edit action if we are in edit only mode.
+     *
+     * It returns true if the data definition is in edit only mode.
+     *
+     * @return bool
+     */
+    protected function isEditOnlyResponse()
+    {
+        if ($this->getEnvironment()->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+            $event = new ActionEvent($this->getEnvironment(), new Action('edit'));
+            $this->getEnvironment()->getEventDispatcher()->dispatch(DcGeneralEvents::ACTION, $event);
+            $this->getEvent()->setResponse($event->getResponse());
+
+            return true;
+        }
+
+        return false;
     }
 
     /**

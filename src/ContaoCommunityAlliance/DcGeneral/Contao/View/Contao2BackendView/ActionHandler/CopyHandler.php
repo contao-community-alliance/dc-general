@@ -14,15 +14,12 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Actio
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
-use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\NotCreatableException;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
-use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
 use ContaoCommunityAlliance\UrlBuilder\Contao\BackendUrlBuilder;
@@ -149,11 +146,7 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
         // We want a redirect here if not creatable.
         $this->guardIsCreatable($modelId, true);
 
-        if ($environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            $event = new ActionEvent($environment, new Action('edit'));
-            $environment->getEventDispatcher()->dispatch(DcGeneralEvents::ACTION, $event);
-            $this->getEvent()->setResponse($event->getResponse());
-
+        if ($this->isEditOnlyResponse()) {
             return;
         }
 
