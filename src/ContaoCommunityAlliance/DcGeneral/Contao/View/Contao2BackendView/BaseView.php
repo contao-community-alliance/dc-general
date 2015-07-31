@@ -366,7 +366,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     protected function getTemplate($strTemplate)
     {
-        return new ContaoBackendViewTemplate($strTemplate);
+        $template = new ContaoBackendViewTemplate($strTemplate);
+        $template->setTranslator($this->getEnvironment()->getTranslator());
+
+        return $template;
     }
 
     /**
