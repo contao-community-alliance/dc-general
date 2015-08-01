@@ -32,6 +32,13 @@ class Clipboard implements ClipboardInterface
     private $items = array();
 
     /**
+     * The item collection (indexed by model ids).
+     *
+     * @var ItemInterface[]
+     */
+    private $itemsByModelId = array();
+
+    /**
      * {@inheritDoc}
      */
     public function loadFrom($objEnvironment)
@@ -41,6 +48,11 @@ class Clipboard implements ClipboardInterface
         if ($data) {
             // FIXME use another serialisation method
             $this->items = unserialize(base64_decode($data));
+            foreach ($this->items as $item) {
+                if ($item->getModelId()) {
+                    $this->itemsByModelId[$item->getModelId()->getSerialized()] = $item;
+                }
+            }
         }
 
         return $this;
@@ -67,6 +79,10 @@ class Clipboard implements ClipboardInterface
 
         $this->items[$clipboardId] = $item;
 
+        if ($item->getModelId()) {
+            $this->itemsByModelId[$item->getModelId()->getSerialized()] = $item;
+        }
+
         return $this;
     }
 
@@ -79,6 +95,10 @@ class Clipboard implements ClipboardInterface
 
         unset($this->items[$clipboardId]);
 
+        if ($item->getModelId()) {
+            unset($this->itemsByModelId[$item->getModelId()->getSerialized()]);
+        }
+
         return $this;
     }
 
@@ -87,10 +107,10 @@ class Clipboard implements ClipboardInterface
      */
     public function removeById(ModelIdInterface $modelId)
     {
-        foreach ($this->items as $itemId => $item) {
-            if ($item->getModelId() && $item->getModelId()->equals($modelId)) {
-                unset($this->items[$itemId]);
-            }
+        $serializedId = $modelId->getSerialized();
+        if (isset($this->itemsByModelId[$serializedId])) {
+            unset($this->items[$this->itemsByModelId[$serializedId]->getClipboardId()]);
+            unset($this->itemsByModelId[$serializedId]);
         }
 
         return $this;
@@ -101,7 +121,12 @@ class Clipboard implements ClipboardInterface
      */
     public function removeByClipboardId($clipboardId)
     {
-        unset($this->items[$clipboardId]);
+        if (isset($this->items[$clipboardId])) {
+            if ($modelId = $this->items[$clipboardId]->getModelId()) {
+                unset($this->itemsByModelId[$modelId->getSerialized()]);
+            }
+            unset($this->items[$clipboardId]);
+        }
 
         return $this;
     }
@@ -127,13 +152,7 @@ class Clipboard implements ClipboardInterface
      */
     public function hasId(ModelIdInterface $modelId)
     {
-        foreach ($this->items as $item) {
-            if ($item->getModelId() && $item->getModelId()->equals($modelId)) {
-                return true;
-            }
-        }
-
-        return false;
+        return isset($this->itemsByModelId[$modelId->getSerialized()]);
     }
 
     /**
