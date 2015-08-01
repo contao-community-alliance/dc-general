@@ -25,7 +25,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 class Clipboard implements ClipboardInterface
 {
     /**
-     * The item collection.
+     * The item collection (indexed by clipboard ids).
      *
      * @var ItemInterface[]
      */

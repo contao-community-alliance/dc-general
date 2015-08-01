@@ -49,6 +49,8 @@ interface ClipboardInterface
     /**
      * Push an item to the clipboard.
      *
+     * If an instance with the same clipboard id has already been added it will get overwritten.
+     *
      * @param ItemInterface $item The item.
      *
      * @return static
