@@ -52,8 +52,6 @@ use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PreDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
@@ -128,14 +126,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $name   = $action->getName();
 
         switch ($name) {
-            case 'copy':
-                if (!method_exists($this, $name)) {
-                    break;
-                }
-                // no break
+            case 'select':
+                // If no redirect happens, we want to display the showAll action.
+                $name = 'showAll';
+                // No break here
+
             case 'create':
             case 'paste':
-            case 'delete':
             case 'move':
             case 'undo':
             case 'edit':
@@ -301,7 +298,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         if ($basicDefinition->isDeletable()) {
             $buttons['delete'] = sprintf(
-                '<input' .
+                '<input ' .
                 'type="submit"' .
                 'name="delete"' .
                 'id="delete"' .
@@ -368,7 +365,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     protected function getTemplate($strTemplate)
     {
-        return new ContaoBackendViewTemplate($strTemplate);
+        $template = new ContaoBackendViewTemplate($strTemplate);
+        $template->setTranslator($this->getEnvironment()->getTranslator());
+
+        return $template;
     }
 
     /**
@@ -423,10 +423,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             : null;
         $items         = array();
 
-        $panel      = $this->getPanel();
-        $baseConfig = $environment->getBaseConfigRegistry()->getBaseConfig();
-        $panel->initialize($baseConfig);
-
         $models = $controller->applyClipboardActions($source, $after, $into, $parentModelId, null, $items);
 
         if (!$source) {
@@ -458,92 +454,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function delete(Action $action)
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit($action);
-        }
-
-        // Check if is it allowed to delete a record.
-        if (!$this->getEnvironment()->getDataDefinition()->getBasicDefinition()->isDeletable()) {
-            $this->getEnvironment()->getEventDispatcher()->dispatch(
-                ContaoEvents::SYSTEM_LOG,
-                new LogEvent(
-                    sprintf(
-                        'Table "%s" is not deletable',
-                        'DC_General - DefaultController - delete()',
-                        $this->getEnvironment()->getDataDefinition()->getName()
-                    ),
-                    __CLASS__ . '::delete()',
-                    TL_ERROR
-                )
-            );
-
-            $this->getEnvironment()->getEventDispatcher()->dispatch(
-                ContaoEvents::CONTROLLER_REDIRECT,
-                new RedirectEvent('contao/main.php?act=error')
-            );
-        }
-
-        $environment  = $this->getEnvironment();
-        $modelId      = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
-        $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
-        $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-
-        if (!$model->getId()) {
-            throw new DcGeneralRuntimeException(
-                'Could not load model with id ' . $environment->getInputProvider()->getParameter('id')
-            );
-        }
-
-        // Trigger event before the model will be deleted.
-        $environment->getEventDispatcher()->dispatch(
-            PreDeleteModelEvent::NAME,
-            new PreDeleteModelEvent($environment, $model)
-        );
-
-        // FIXME: See DefaultController::delete() - we need to delete the children of this item as well over all data providers.
-        /*
-        $arrDelIDs = array();
-
-        // Delete record
-        switch ($definition->getSortingMode())
-        {
-            case 0:
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-                $arrDelIDs = array();
-                $arrDelIDs[] = $intRecordID;
-                break;
-
-            case 5:
-                $arrDelIDs = $environment->getController()->fetchMode5ChildrenOf($environment->getCurrentModel(), $blnRecurse = true);
-                $arrDelIDs[] = $intRecordID;
-                break;
-        }
-
-        // Delete all entries
-        foreach ($arrDelIDs as $intId)
-        {
-            $this->getEnvironment()->getDataProvider()->delete($intId);
-
-            // Add a log entry unless we are deleting from tl_log itself
-            if ($environment->getDataDefinition()->getName() != 'tl_log')
-            {
-                BackendBindings::log('DELETE FROM ' . $environment->getDataDefinition()->getName() . ' WHERE id=' . $intId, 'DC_General - DefaultController - delete()', TL_GENERAL);
-            }
-        }
-         */
-
-        $dataProvider->delete($model);
-
-        // Trigger event after the model is deleted.
-        $event = new PostDeleteModelEvent($environment, $model);
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
-
-        ViewHelpers::redirectHome($this->environment);
-
-        return null;
+        throw new \RuntimeException('I should not be here! :-\\');
     }
 
     /**

@@ -20,20 +20,14 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
-use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
-use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
-use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * Class ListView.
@@ -51,15 +45,9 @@ class ListView extends BaseView
      */
     public function loadCollection()
     {
-        $environment = $this->getEnvironment();
-        $backendView = $this->getViewSection();
-
-        /** @var Contao2BackendViewDefinitionInterface $backendView */
-        $listingConfig = $backendView->getListingConfig();
-        $dataProvider  = $environment->getDataProvider();
-        $dataConfig    = $environment->getBaseConfigRegistry()->getBaseConfig();
-
-        ViewHelpers::initializeSorting($this->getPanel(), $dataConfig, $listingConfig);
+        $environment  = $this->getEnvironment();
+        $dataProvider = $environment->getDataProvider();
+        $dataConfig   = $environment->getBaseConfigRegistry()->getBaseConfig();
 
         return $dataProvider->fetchAll($dataConfig);
     }
@@ -310,46 +298,6 @@ class ListView extends BaseView
         }
 
         return $objTemplate->parse();
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @throws DcGeneralRuntimeException If no model id has been given.
-     *
-     * @return string
-     */
-    public function copy(Action $action)
-    {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit($action);
-        }
-
-        $environment  = $this->getEnvironment();
-        $dataProvider = $environment->getDataProvider();
-        $modelId      = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
-        $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-
-        // We need to keep the original data here.
-        $copyModel = $environment->getController()->createClonedModel($model);
-
-        $preFunction = function ($environment, $model) {
-            /** @var EnvironmentInterface $environment */
-            $environment->getEventDispatcher()->dispatch(
-                PreDuplicateModelEvent::NAME,
-                new PreDuplicateModelEvent($environment, $model)
-            );
-        };
-
-        $postFunction = function ($environment, $model, $originalModel) {
-            /** @var EnvironmentInterface $environment */
-            $environment->getEventDispatcher()->dispatch(
-                PostDuplicateModelEvent::NAME,
-                new PostDuplicateModelEvent($environment, $model, $originalModel)
-            );
-        };
-
-        return $this->createEditMask($copyModel, $model, $preFunction, $postFunction);
     }
 
     /**

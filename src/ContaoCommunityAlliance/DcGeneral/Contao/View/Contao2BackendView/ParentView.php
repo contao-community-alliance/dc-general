@@ -31,10 +31,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
-use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
@@ -57,12 +54,9 @@ class ParentView extends BaseView
      */
     public function loadCollection()
     {
-        $environment   = $this->getEnvironment();
-        $dataProvider  = $environment->getDataProvider();
-        $childConfig   = $environment->getBaseConfigRegistry()->getBaseConfig();
-        $listingConfig = $this->getViewSection()->getListingConfig();
-
-        ViewHelpers::initializeSorting($this->getPanel(), $childConfig, $listingConfig);
+        $environment  = $this->getEnvironment();
+        $dataProvider = $environment->getDataProvider();
+        $childConfig  = $environment->getBaseConfigRegistry()->getBaseConfig();
 
         return $dataProvider->fetchAll($childConfig);
     }
@@ -623,49 +617,5 @@ class ParentView extends BaseView
         $arrReturn['body']      = $this->viewParent($collection, $parentModel);
 
         return implode("\n", $arrReturn);
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @throws DcGeneralRuntimeException When no source id is provided by the input provider.
-     */
-    public function copy(Action $action)
-    {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit($action);
-        }
-
-        $manualSortingProperty = ViewHelpers::getManualSortingProperty($this->environment);
-        if ($manualSortingProperty
-            && $this->environment->getDataProvider()->fieldExists($manualSortingProperty)
-        ) {
-            ViewHelpers::redirectHome($this->environment);
-        }
-
-        $environment  = $this->getEnvironment();
-        $dataProvider = $environment->getDataProvider();
-        $modelId      = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
-        $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-
-        // We need to keep the original data here.
-        $copyModel = $environment->getController()->createClonedModel($model);
-        $copyModel->setId(null);
-
-        $preFunction = function (EnvironmentInterface $environment, $model) {
-            $environment->getEventDispatcher()->dispatch(
-                PreDuplicateModelEvent::NAME,
-                new PreDuplicateModelEvent($environment, $model)
-            );
-        };
-
-        $postFunction = function (EnvironmentInterface $environment, $model, $originalModel) {
-            $environment->getEventDispatcher()->dispatch(
-                PostDuplicateModelEvent::NAME,
-                new PostDuplicateModelEvent($environment, $model, $originalModel)
-            );
-        };
-
-        return $this->createEditMask($copyModel, $model, $preFunction, $postFunction);
     }
 }

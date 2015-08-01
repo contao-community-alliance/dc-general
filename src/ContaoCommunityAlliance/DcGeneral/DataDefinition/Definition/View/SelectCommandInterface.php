@@ -13,12 +13,15 @@
  * @filesource
  */
 
-use ContaoCommunityAlliance\DcGeneral\Contao\Event\Subscriber;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\ClipboardController;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Filter\LanguageFilter;
+namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
 
-return array(
-    new Subscriber(),
-    new ClipboardController(),
-    new LanguageFilter(),
-);
+/**
+ * Select command - special interface for selecting models for multiple actions.
+ *
+ * This interface describes a command that can be used to copy a model.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View
+ */
+interface SelectCommandInterface extends CommandInterface
+{
+}
