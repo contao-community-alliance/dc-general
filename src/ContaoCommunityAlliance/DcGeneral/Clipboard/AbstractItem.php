@@ -109,6 +109,8 @@ abstract class AbstractItem implements ItemInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function equals(ItemInterface $item)
     {
