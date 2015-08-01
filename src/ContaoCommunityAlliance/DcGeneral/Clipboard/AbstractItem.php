@@ -111,38 +111,41 @@ abstract class AbstractItem implements ItemInterface
      * {@inheritdoc}
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function equals(ItemInterface $item)
     {
-        // It is exactly the same item
+        // It is exactly the same item.
         if ($this === $item) {
             return true;
         }
 
-        return !(
-            // The actions are not equal
-            $this->getAction() !== $item->getAction()
-            // One have a parent ID, the other not
-            || $this->getParentId() && !$item->getParentId()
-            || !$this->getParentId() && $item->getParentId()
-            // The parent IDs are not equal
-            || (
-                $this->getParentId()
-                && !$this->getParentId()->equals($item->getParentId())
-            )
+        // The actions are not equal.
+        if ($this->getAction() !== $item->getAction()) {
+            return false;
+        }
 
-            // One have a model ID, the other not
-            || $this->getModelId() && !$item->getModelId()
-            || !$this->getModelId() && $item->getModelId()
+        // One has a parent ID, the other not.
+        if (($this->getParentId() && !$item->getParentId()) || (!$this->getParentId() && $item->getParentId())) {
+            return false;
+        }
 
-            // Both has no model id.
-            || (
-                !($this->getModelId() || $item->getModelId())
-                && ($this->getDataProviderName() !== $item->getDataProviderName())
-            )
+        // The parent IDs are not equal.
+        if ($this->getParentId() && !$this->getParentId()->equals($item->getParentId())) {
+            return false;
+        }
 
-            // The model IDs are not equal
-            || !$this->getModelId()->equals($item->getModelId())
-        );
+        // One has a model ID, the other not.
+        if (($this->getModelId() && !$item->getModelId()) || (!$this->getModelId() && $item->getModelId())) {
+            return false;
+        }
+
+        // Both have no model id and the data provider is different.
+        if (!($this->getModelId() || $item->getModelId())) {
+            return ($this->getDataProviderName() === $item->getDataProviderName());
+        }
+
+        // The model IDs are not equal
+        return $this->getModelId()->equals($item->getModelId());
     }
 }
