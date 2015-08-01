@@ -24,7 +24,7 @@ class UnsavedItem extends AbstractItem
     /**
      * The provider name.
      *
-     * @type string
+     * @var string
      */
     private $providerName;
 
