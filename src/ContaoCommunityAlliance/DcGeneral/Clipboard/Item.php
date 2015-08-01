@@ -71,6 +71,8 @@ class Item extends AbstractItem
      */
     public function getClipboardId()
     {
-        return $this->modelId->getSerialized();
+        return $this->getAction() .
+            ($this->modelId ? $this->modelId->getSerialized() : 'null') .
+            (($parentId = $this->getParentId()) ? $parentId->getSerialized() : 'null');
     }
 }

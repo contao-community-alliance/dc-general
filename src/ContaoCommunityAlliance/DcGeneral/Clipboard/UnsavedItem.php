@@ -71,6 +71,8 @@ class UnsavedItem extends AbstractItem
      */
     public function getClipboardId()
     {
-        return $this->getDataProviderName();
+        return $this->getAction() .
+            $this->getDataProviderName() .
+            (($parentId = $this->getParentId()) ? $parentId->getSerialized() : 'null');
     }
 }
