@@ -970,7 +970,7 @@ EXPR;
      */
     public function getExpression()
     {
-        return implode(' ', $this->expression);
+        return $this->expression ? implode(' ', $this->expression) : 'true';
     }
 
     /**
