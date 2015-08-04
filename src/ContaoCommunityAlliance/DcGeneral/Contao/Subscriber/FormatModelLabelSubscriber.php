@@ -86,7 +86,7 @@ class FormatModelLabelSubscriber
 
         // Add columns.
         if ($listing->getShowColumns()) {
-            $fields = $formatter->getPropertyNames();
+            $fields = $listing->getHeaderPropertyNames();
             $args   = $modelToLabelEvent->getArgs();
 
             if (!is_array($args)) {
