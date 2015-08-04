@@ -120,7 +120,6 @@ class ListView extends BaseView
         $sortingDefinition = $sorting['sorting'];
         $sortingColumns    = array();
         $pasteTopButton    = $this->renderPasteTopButton($sorting);
-        $formatter         = $listingDefinition->getLabelFormatter($definition->getName());
 
         if ($sortingDefinition) {
             /** @var GroupAndSortingDefinitionInterface $sortingDefinition */
@@ -134,7 +133,7 @@ class ListView extends BaseView
 
         // Generate the table header if the "show columns" option is active.
         if ($listingDefinition->getShowColumns()) {
-            foreach ($formatter->getPropertyNames() as $f) {
+            foreach ($listingDefinition->getHeaderPropertyNames() as $f) {
                 $property = $properties->getProperty($f);
                 if ($property) {
                     $label = $property->getLabel();
