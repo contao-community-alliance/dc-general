@@ -317,7 +317,7 @@ class FileTree extends AbstractWidget
 
         if (!empty($this->varValue)) {
             $files = \FilesModel::findMultipleByUuids((array) $this->varValue);
-            $this->renderList($values, $icons, $files, true);
+            $this->renderList($values, $icons, $files, ($this->isGallery || $this->isDownloads));
             $icons = $this->applySorting($icons);
         }
 
