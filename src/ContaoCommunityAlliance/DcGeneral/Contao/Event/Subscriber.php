@@ -325,7 +325,7 @@ class Subscriber implements EventSubscriberInterface
     public function initializePanels(ActionEvent $event)
     {
         if (!in_array(
-            $event->getAction(),
+            $event->getAction()->getName(),
             array('copy', 'create', 'paste', 'delete', 'move', 'undo', 'edit', 'toggle', 'showAll', 'show')
         )) {
             return;
