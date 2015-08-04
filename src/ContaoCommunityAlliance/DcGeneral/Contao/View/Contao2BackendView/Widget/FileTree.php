@@ -290,7 +290,7 @@ class FileTree extends AbstractWidget
 
         // Contao passed File ids sinc 3.3.4
         // @see https://github.com/contao/core/commit/c1472209fdfd6e2446013430753ed65530b5a1d1
-        if (version_compare(VERSION, '3.3.4', '>=')) {
+        if (version_compare(VERSION . '.' . BUILD, '3.3.4', '>=')) {
             $values = array_keys($values);
         } else {
             $values = array_map('String::binToUuid', $values);
