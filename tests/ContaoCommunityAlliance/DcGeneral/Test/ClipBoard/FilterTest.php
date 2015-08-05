@@ -1,22 +1,26 @@
 <?php
-
 /**
- * @package    westwerk
- * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2015 netzmacht creative David Molineus
- * @license    LGPL 3.0
- * @filesource
+ * PHP version 5
  *
+ * @package    generalDriver
+ * @author     David Molineus <david.molineus@netzmacht.de>
+ * @copyright  The MetaModels team.
+ * @license    LGPL.
+ * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Test\ClipBoard;
-
 
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 
+/**
+ * Test for the Filter.
+ *
+ * @package ContaoCommunityAlliance\DcGeneral\Test\ClipBoard
+ */
 class FilterTest extends TestCase
 {
     /**
