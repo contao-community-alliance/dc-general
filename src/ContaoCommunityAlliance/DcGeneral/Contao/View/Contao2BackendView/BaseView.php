@@ -1409,7 +1409,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    protected function breadcrumb()
+    public function breadcrumb()
     {
         $event = new GetBreadcrumbEvent($this->getEnvironment());
 
