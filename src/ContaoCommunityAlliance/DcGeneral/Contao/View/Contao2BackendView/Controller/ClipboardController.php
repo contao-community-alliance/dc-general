@@ -150,8 +150,11 @@ class ClipboardController implements EventSubscriberInterface
         }
 
         if ('create' === $actionName) {
+            $inputProvider = $environment->getInputProvider();
+
             // No manual sorting property defined, no need to add it to the clipboard.
-            if (!ViewHelpers::getManualSortingProperty($environment)) {
+            // Or we already have an after attribute, a handler can pick it up.
+            if (!ViewHelpers::getManualSortingProperty($environment) || $inputProvider->hasParameter('after')) {
                 return;
             }
 
