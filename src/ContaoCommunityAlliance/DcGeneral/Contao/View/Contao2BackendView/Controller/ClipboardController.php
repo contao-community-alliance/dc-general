@@ -150,6 +150,11 @@ class ClipboardController implements EventSubscriberInterface
         }
 
         if ('create' === $actionName) {
+            // No manual sorting property defined, no need to add it to the clipboard.
+            if (!ViewHelpers::getManualSortingProperty($environment)) {
+                return;
+            }
+
             $providerName = $environment->getDataDefinition()->getBasicDefinition()->getDataProvider();
             $item         = new UnsavedItem($clipboardActionName, $parentId, $providerName);
 
