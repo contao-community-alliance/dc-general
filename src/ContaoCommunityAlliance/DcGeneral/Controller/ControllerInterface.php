@@ -160,7 +160,7 @@ interface ControllerInterface
      *
      * @param ItemInterface $item The clipboard item.
      *
-     * @return ModelInterface
+     * @return ModelInterface|null
      */
     public function getModelFromClipboardItem(ItemInterface $item);
 

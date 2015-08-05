@@ -234,7 +234,7 @@ class ClipboardController implements EventSubscriberInterface
                 $label = $label['content'];
             } else {
                 $model = $dataProvider->getEmptyModel();
-                $label = $environment->getTranslator()->translate('new.0', $modelId->getDataProviderName());
+                $label = $environment->getTranslator()->translate('new.0', $item->getDataProviderName());
             }
 
             $options[$item->getClipboardId()] = array(

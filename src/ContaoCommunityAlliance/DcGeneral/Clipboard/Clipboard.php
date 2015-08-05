@@ -50,7 +50,7 @@ class Clipboard implements ClipboardInterface
             $this->items = unserialize(base64_decode($data));
             foreach ($this->items as $item) {
                 if ($item->getModelId()) {
-                    $this->itemsByModelId[$item->getModelId()->getSerialized()] = $item;
+                    $this->itemsByModelId[$item->getClipboardId()] = $item;
                 }
             }
         }
