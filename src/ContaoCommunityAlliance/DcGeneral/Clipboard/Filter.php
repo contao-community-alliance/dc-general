@@ -55,13 +55,15 @@ EXPR;
 
     const MODEL_IS_EXPRESSION = <<<'EXPR'
 (
-    item.getModelId().equals(variables[%d])
+    item.getModelId()
+    and item.getModelId().equals(variables[%d])
 )
 EXPR;
 
     const MODEL_IS_NOT_EXPRESSION = <<<'EXPR'
 (
-    !item.getModelId().equals(variables[%d])
+    !item.getModelId()
+    or !item.getModelId().equals(variables[%d])
 )
 EXPR;
 
