@@ -876,7 +876,7 @@ EXPR;
             $expression[]      = sprintf(self::ACTION_IS_NOT_EXPRESSION, $index);
             $this->variables[] = $action;
         }
-        $this->expression[] = '(' . implode(' or ', $expression) . ')';
+        $this->expression[] = '(' . implode(' and ', $expression) . ')';
         $this->compiled     = null;
 
         return $this;
