@@ -1,12 +1,20 @@
 <?php
+
 /**
- * PHP version 5
+ * This file is part of contao-community-alliance/dc-general.
  *
- * @package    DcGeneral
+ * (c) 2013-2015 Contao Community Alliance.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * This project is provided in good faith and hope to be usable by anyone.
+ *
+ * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
- * @copyright  The Contao Community Alliance.
- * @license    LGPL.
+ * @copyright  2013-2015 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/LICENSE LGPL-3.0
  * @filesource
  */
 
@@ -24,8 +32,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 
 /**
  * Handy helper class to generate and manipulate filter arrays.
- *
- * @package DcGeneral\DataDefinition\ModelRelationship
  */
 class FilterBuilder
 {
