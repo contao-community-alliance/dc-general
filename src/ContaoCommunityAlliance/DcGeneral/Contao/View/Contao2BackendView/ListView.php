@@ -49,6 +49,11 @@ class ListView extends BaseView
         $dataProvider = $environment->getDataProvider();
         $dataConfig   = $environment->getBaseConfigRegistry()->getBaseConfig();
 
+        $listingConfig = $this->getViewSection()->getListingConfig();
+        $panel         = $this->getPanel();
+
+        ViewHelpers::initializeSorting($panel, $dataConfig, $listingConfig);
+
         return $dataProvider->fetchAll($dataConfig);
     }
 

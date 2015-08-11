@@ -24,6 +24,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Decod
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPanelElementTemplateEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
@@ -342,10 +343,13 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
+        /** @var Contao2BackendViewDefinitionInterface $backendDefinition */
+        $backendDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        $listingConfig     = $backendDefinition->getListingConfig();
+
         $dataConfig = $environment->getBaseConfigRegistry()->getBaseConfig();
         $panel      = $view->getPanel();
 
-        $panel->initialize($dataConfig);
+        ViewHelpers::initializeSorting($panel, $dataConfig, $listingConfig);
     }
 }
