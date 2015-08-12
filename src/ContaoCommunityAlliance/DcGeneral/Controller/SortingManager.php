@@ -4,6 +4,7 @@
  *
  * @package    DcGeneral
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The Contao Community Alliance.
  * @license    LGPL.
  * @filesource
@@ -274,7 +275,9 @@ class SortingManager
     }
 
     /**
-     * Determine delta value: ((next sorting - current sorting) / amount of insert models).
+     * Determine delta value.
+     *
+     * Delta value will be between 2 and a multiple 128 which is large enough to contain all models being moved.
      *
      * @return float|int
      */
@@ -283,11 +286,13 @@ class SortingManager
         $delta = (
             ($this->marker->getProperty($this->getSortingProperty()) - $this->position) / $this->results->length()
         );
+
         // If delta too narrow, we need to make room.
-        if ($delta < 2) {
-            $delta = 128;
-            return $delta;
+        // Prevent delta to exceed, also. Use minimum delta which is calculated as multiple of 128.
+        if ($delta < 2 || $delta > 128) {
+            return (ceil($this->results->length() / 128) * 128);
         }
+
         return $delta;
     }
 
