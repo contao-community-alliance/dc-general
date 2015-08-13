@@ -692,15 +692,20 @@ EOF;
 	 */
 	public function processInput(PropertyValueBag $propertyValues)
 	{
+		// reset all inputs these get used within the Widget::validate() method.
+		foreach ($propertyValues as $property => $propertyValue)
+		{
+			\Input::setPost($property, $propertyValue);
+		}
+
+		// now get and validate the widgets
 		foreach (array_keys($propertyValues->getArrayCopy()) as $property)
 		{
-			$widget = $this->getWidget($property, $propertyValues);
 			// NOTE: the passed input values are RAW DATA from the input provider - aka widget known values and not
 			// native data as in the model.
 			// Therefore we do not need to decode them but MUST encode them.
-			$widget->value = $propertyValues->getPropertyValue($property);
-			// TODO: we need to either override the POST data so \Widget::validate() get's it or call the (protected)
-			// \Widget::validator($value) on our own.
+
+			$widget = $this->getWidget($property, $propertyValues);
 			$widget->validate();
 
 			if ($widget->hasErrors())
