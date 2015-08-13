@@ -296,7 +296,8 @@ class TreePicker extends \Widget
                         break;
                     case 'checkbox':
                         if (!empty($varValue) && !is_array($varValue)) {
-                            $varValue = trimsplit("\t", $varValue);
+                            $delimiter = (stripos($varValue, "\t") !== false) ? "\t" : ',';
+                            $varValue  = trimsplit($delimiter, $varValue);
                         }
                         break;
                     default:

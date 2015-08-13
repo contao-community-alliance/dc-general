@@ -5,6 +5,12 @@
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
+ * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     Andreas Isaak <andy.jared@googlemail.com>
+ * @author     David Maack <david.maack@arcor.de>
+ * @author     Patrick Kahl <kahl.patrick@googlemail.com>
+ * @author     Simon Kusterer <simon@soped.com>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -39,6 +45,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
      */
     protected $objEnvironment;
 
+    /** @noinspection PhpMissingParentConstructorInspection */
     /**
      * Create a new instance.
      *
@@ -366,5 +373,31 @@ class DC_General extends \DataContainer implements DataContainerInterface
     public function undo()
     {
         return $this->callAction();
+    }
+
+    /**
+     * Do not use.
+     *
+     * @deprecated Only here as requirement of \DataContainer
+     *
+     * @return void
+     * @throws DcGeneralRuntimeException Throws exception because method is not supported.
+     */
+    public function getPalette()
+    {
+        throw new DcGeneralRuntimeException('DC General does not support $dc->getPalette().');
+    }
+
+    /**
+     * Do not use.
+     *
+     * @deprecated Only here as requirement of \DataContainer
+     *
+     * @return void
+     * @throws DcGeneralRuntimeException Throws exception because method is not supported.
+     */
+    protected function save($varValue)
+    {
+        throw new DcGeneralRuntimeException('DC General does not support $dc->save.');
     }
 }

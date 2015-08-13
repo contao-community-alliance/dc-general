@@ -5,7 +5,6 @@
  * @package    DcGeneral
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
- * @author     Tristan Lins <tristan.lins@bit3.de>
  * @copyright  The Contao Community Alliance.
  * @license    LGPL.
  * @filesource
@@ -84,15 +83,15 @@ class FilterBuilder
             case 'OR':
                 return OrFilterBuilder::fromArray($filter, $builder);
             case '=':
-                return PropertyEqualsFilterBuilder::fromArray($filter, $builder);
+                return PropertyEqualsFilterBuilder::fromArray($filter);
             case '>':
-                return PropertyGreaterThanFilterBuilder::fromArray($filter, $builder);
+                return PropertyGreaterThanFilterBuilder::fromArray($filter);
             case '<':
-                return PropertyLessThanFilterBuilder::fromArray($filter, $builder);
+                return PropertyLessThanFilterBuilder::fromArray($filter);
             case 'IN':
-                return PropertyValueInFilterBuilder::fromArray($filter, $builder);
+                return PropertyValueInFilterBuilder::fromArray($filter);
             case 'LIKE':
-                return PropertyValueLikeFilterBuilder::fromArray($filter, $builder);
+                return PropertyValueLikeFilterBuilder::fromArray($filter);
             default:
         }
 

@@ -4,8 +4,6 @@
  *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @author     Stefan Heimes <stefan_heimes@hotmail.com>
- * @author     Tristan Lins <tristan.lins@bit3.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -150,11 +148,12 @@ class AbstractContainerCallbackListenerTest extends TestCase
 
     public function testEnvironmentUnawareEventExecutionDataProvider()
     {
+        $that = $this;
         return array(
             array(
                 'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnLoadCallbackListener',
-                function ($tableName) {
-                    $event = $this->getMock(
+                function ($tableName) use ($that) {
+                    $event = $that->getMock(
                         'ContaoCommunityAlliance\DcGeneral\Factory\Event\CreateDcGeneralEvent',
                         array('getDcGeneral'),
                         array(),
@@ -163,9 +162,9 @@ class AbstractContainerCallbackListenerTest extends TestCase
                     );
                     if ($tableName) {
                         $event
-                            ->expects($this->any())
+                            ->expects($that->any())
                             ->method('getDcGeneral')
-                            ->will($this->returnValue(new DcGeneral($this->mockEnvironment($tableName))));
+                            ->will($that->returnValue(new DcGeneral($that->mockEnvironment($tableName))));
                     }
 
                     return $event;
@@ -202,11 +201,12 @@ class AbstractContainerCallbackListenerTest extends TestCase
 
     public function testOperationRestrictedEventExecutionDataProvider()
     {
+        $that = $this;
         return array(
             array(
                 'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerGlobalButtonCallbackListener',
-                function ($tableName, $operationName) {
-                    $event = $this->getMock(
+                function ($tableName, $operationName) use ($that) {
+                    $event = $that->getMock(
                         'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent',
                         array('getEnvironment', 'getKey'),
                         array(),
@@ -215,21 +215,21 @@ class AbstractContainerCallbackListenerTest extends TestCase
                     );
 
                     $event
-                        ->expects($this->any())
+                        ->expects($that->any())
                         ->method('getEnvironment')
-                        ->will($this->returnValue($this->mockEnvironment($tableName)));
+                        ->will($that->returnValue($that->mockEnvironment($tableName)));
                     $event
-                        ->expects($this->any())
+                        ->expects($that->any())
                         ->method('getKey')
-                        ->will($this->returnValue($operationName));
+                        ->will($that->returnValue($operationName));
 
                     return $event;
                 }
             ),
             array(
                 'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelOperationButtonCallbackListener',
-                function ($tableName, $operationName) {
-                    $event = $this->getMock(
+                function ($tableName, $operationName) use ($that) {
+                    $event = $that->getMock(
                         'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent',
                         array('getEnvironment', 'getKey'),
                         array(),
@@ -238,13 +238,13 @@ class AbstractContainerCallbackListenerTest extends TestCase
                     );
 
                     $event
-                        ->expects($this->any())
+                        ->expects($that->any())
                         ->method('getEnvironment')
-                        ->will($this->returnValue($this->mockEnvironment($tableName)));
+                        ->will($that->returnValue($that->mockEnvironment($tableName)));
                     $event
-                        ->expects($this->any())
+                        ->expects($that->any())
                         ->method('getKey')
-                        ->will($this->returnValue($operationName));
+                        ->will($that->returnValue($operationName));
 
                     return $event;
                 }

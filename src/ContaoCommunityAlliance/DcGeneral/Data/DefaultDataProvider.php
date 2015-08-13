@@ -6,6 +6,11 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     Andreas Isaak <andy.jared@googlemail.com>
+ * @author     David Molineus <mail@netzmacht.de>
+ * @author     Oliver Hoff <oliver@hofff.com>
+ * @author     Patrick Kahl <kahl.patrick@googlemail.com>
+ * @author     Simon Kusterer <simon@soped.com>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -147,6 +152,13 @@ class DefaultDataProvider implements DataProviderInterface
             }
 
             $this->objDatabase = $arrConfig['database'];
+        }
+
+        if (isset($arrConfig['idGenerator'])) {
+            if ($arrConfig['idGenerator'] instanceof IdGeneratorInterface) {
+                $idGenerator = $arrConfig['idGenerator'];
+                $this->setIdGenerator($idGenerator);
+            }
         }
 
         $this->strSource = $arrConfig['source'];

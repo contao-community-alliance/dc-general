@@ -6,6 +6,9 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     cogizz <c.boelter@cogizz.de>
+ * @author     David Molineus <mail@netzmacht.de>
+ * @author     Martin Treml <github@r2pi.net>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -722,9 +725,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritdoc}
      *
-     * @throws DcGeneralRuntimeException         When the current data definition is not editable or is closed.
-     *
-     * @throws DcGeneralInvalidArgumentException When an unknown property is mentioned in the palette.
+     * @throws DcGeneralRuntimeException When the model could not be found by the data provider.
      */
     public function edit(Action $action)
     {
@@ -741,6 +742,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
         } else {
             $model = $this->getEnvironment()->getController()->createEmptyModelWithDefaults();
+        }
+
+        if (!$model) {
+            throw new DcGeneralRuntimeException('Could not retrieve model with id ' . $modelId->getSerialized());
         }
 
         // We need to keep the original data here.
@@ -771,7 +776,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     protected function createEditMask($model, $originalModel, $preFunction, $postFunction)
     {
-        $editMask = new EditMask($this, $model, $originalModel, $preFunction, $postFunction);
+        $editMask = new EditMask($this, $model, $originalModel, $preFunction, $postFunction, $this->breadcrumb());
         return $editMask->execute();
     }
 
@@ -1640,7 +1645,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $event = new GetBreadcrumbEvent($this->getEnvironment());
 
-        $this->getEnvironment()->getEventDispatcher()->dispatch(sprintf('%s', $event::NAME), $event);
+        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
 
         $arrReturn = $event->getElements();
 

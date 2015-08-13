@@ -4,14 +4,14 @@
  *
  * @package    DcGeneral
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @author     Stefan Heimes <stefan_heimes@hotmail.com>
- * @author     Tristan Lins <tristan.lins@bit3.de>
  * @copyright  The Contao Community Alliance.
  * @license    LGPL.
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
+
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 /**
  * Handy helper class to generate and manipulate AND filter arrays.

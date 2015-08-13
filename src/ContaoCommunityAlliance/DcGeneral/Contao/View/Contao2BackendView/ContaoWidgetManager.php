@@ -4,8 +4,8 @@
  *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     Christopher Boelter <christopher@boelter.eu>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -417,6 +417,30 @@ class ContaoWidgetManager
     }
 
     /**
+     * Try to resolve the class name for the widget.
+     *
+     * @param PropertyInterface $property The property to get the widget class name for.
+     *
+     * @return string
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     */
+    protected function getWidgetClass(PropertyInterface $property)
+    {
+        if (!isset($GLOBALS['BE_FFL'][$property->getWidgetType()])) {
+            return null;
+        }
+
+        $className = $GLOBALS['BE_FFL'][$property->getWidgetType()];
+        if (!class_exists($className)) {
+            return null;
+        }
+
+        return $className;
+    }
+
+    /**
      * Retrieve the instance of a widget for the given property.
      *
      * @param string           $property    Name of the property for which the widget shall be retrieved.
@@ -445,14 +469,7 @@ class ContaoWidgetManager
 
         $event = new BuildWidgetEvent($environment, $this->model, $propertyDefinitions->getProperty($property));
 
-        // FIXME: propagator
-        $dispatcher->dispatch(
-            sprintf('%s[%s][%s]', $event::NAME, $defName, $property),
-            $event
-        );
-        $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $defName), $event);
         $dispatcher->dispatch($event::NAME, $event);
-
         if ($event->getWidget()) {
             return $event->getWidget();
         }
@@ -460,17 +477,17 @@ class ContaoWidgetManager
         $propInfo  = $propertyDefinitions->getProperty($property);
         $propExtra = $propInfo->getExtra();
         $varValue  = $this->decodeValue($property, $this->model->getProperty($property));
+        $strClass  = $this->getWidgetClass($propInfo);
 
-        $strClass = $GLOBALS['BE_FFL'][$propInfo->getWidgetType()];
-        if (!class_exists($strClass)) {
-            return null;
-        }
-
-        // FIXME TEMPORARY WORKAROUND! To be fixed in the core: Controller::prepareForWidget(..).
         if ((isset($propExtra['rgxp']) && in_array($propExtra['rgxp'], array('date', 'time', 'datim')))
             && empty($propExtra['mandatory'])
             && is_numeric($varValue) && $varValue == 0
         ) {
+            /*
+                FIXME TEMPORARY WORKAROUND! To be fixed in the core:
+                @see \Widget::getAttributesFromDca()
+            */
+
             $varValue = '';
         }
 
@@ -513,6 +530,7 @@ class ContaoWidgetManager
             new DcCompat($environment, $this->model, $property)
         );
 
+        // FIXME: propagator
         $dispatcher->dispatch(
             sprintf(
                 '%s[%s][%s]',
@@ -554,6 +572,7 @@ class ContaoWidgetManager
 
         $objWidget->xlabel .= $this->getXLabel($propInfo);
 
+        // FIXME: propagator
         $event = new ManipulateWidgetEvent($environment, $this->model, $propInfo, $objWidget);
         $dispatcher->dispatch(sprintf('%s[%s][%s]', $event::NAME, $defName, $property), $event);
         $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $defName), $event);

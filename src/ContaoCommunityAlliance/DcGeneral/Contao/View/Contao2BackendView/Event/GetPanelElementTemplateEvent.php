@@ -4,8 +4,6 @@
  *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @author     Stefan Heimes <stefan_heimes@hotmail.com>
- * @author     Tristan Lins <tristan.lins@bit3.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -53,8 +51,8 @@ class GetPanelElementTemplateEvent extends AbstractEnvironmentAwareEvent
      */
     public function __construct(EnvironmentInterface $environment, PanelElementInterface $element)
     {
-        $this->environment = $environment;
-        $this->element     = $element;
+        parent::__construct($environment);
+        $this->element = $element;
     }
 
     /**
