@@ -6,6 +6,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -60,21 +61,9 @@ class ParentView extends BaseView
         $childConfig   = $environment->getBaseConfigRegistry()->getBaseConfig();
         $listingConfig = $this->getViewSection()->getListingConfig();
 
-        $this->getPanel()->initialize($childConfig);
+        ViewHelpers::initializeSorting($this->getPanel(), $childConfig, $listingConfig);
 
-        // Initialize sorting if not present yet.
-        if (!$childConfig->getSorting() && $listingConfig->getGroupAndSortingDefinition()->hasDefault()) {
-            $newSorting = array();
-            foreach ($listingConfig->getGroupAndSortingDefinition()->getDefault() as $information) {
-                /** @var GroupAndSortingInformationInterface $information */
-                $newSorting[$information->getProperty()] = strtoupper($information->getSortingMode());
-            }
-            $childConfig->setSorting($newSorting);
-        }
-
-        $objChildCollection = $dataProvider->fetchAll($childConfig);
-
-        return $objChildCollection;
+        return $dataProvider->fetchAll($childConfig);
     }
 
     /**
@@ -288,14 +277,19 @@ class ParentView extends BaseView
 
             // Add the sorting field.
             if ($value != '') {
-                $lang = $this->translate(sprintf('%s.0', $v), $parentName);
+                if ($v === 'tstamp') {
+                    $lang = $this->translate('tstamp', 'MSC');
+                } else {
+                    $lang = $this->translate(sprintf('%s.0', $v), $parentName);
+                }
+
                 $key  = $lang ? $lang : $v;
 
                 $add[$key] = $value;
             }
         }
 
-        $event = new GetParentHeaderEvent($environment);
+        $event = new GetParentHeaderEvent($environment, $parentModel);
         $event->setAdditional($add);
 
         $dispatcher->dispatch(

@@ -7,7 +7,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     cogizz <c.boelter@cogizz.de>
- * @author     David Molineus <mail@netzmacht.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Martin Treml <github@r2pi.net>
  * @copyright  The MetaModels team.
  * @license    LGPL.
@@ -285,86 +285,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return '-';
         }
 
-        $value      = ViewHelpers::getReadableFieldValue($this->environment, $property, $model);
-        $dispatcher = $this->getEnvironment()->getEventDispatcher();
-        $propExtra  = $property->getExtra();
-        $evaluation = $property->getExtra();
-        $remoteNew  = '';
-
-        if ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple']) {
-            $remoteNew = ($value != '') ? ucfirst($this->translate('MSC.yes')) : ucfirst($this->translate('MSC.no'));
-        } elseif (false && $property->getForeignKey()) {
-            // TODO: refactor foreignKey is yet undefined.
-            if ($objParentModel->hasProperties()) {
-                $remoteNew = $objParentModel->getProperty('value');
-            }
-        } elseif ($groupMode != GroupAndSortingInformationInterface::GROUP_NONE) {
-            switch ($groupMode) {
-                case GroupAndSortingInformationInterface::GROUP_CHAR:
-                    $remoteNew = ($value != '') ? ucfirst(utf8_substr($value, 0, $groupLength ?: null)) : '-';
-                    break;
-
-                case GroupAndSortingInformationInterface::GROUP_DAY:
-                    if ($value instanceof \DateTime) {
-                        $value = $value->getTimestamp();
-                    }
-
-                    $event = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['dateFormat']);
-                    $dispatcher->dispatch(ContaoEvents::DATE_PARSE, $event);
-
-                    $remoteNew = ($value != '') ? $event->getResult() : '-';
-                    break;
-
-                case GroupAndSortingInformationInterface::GROUP_MONTH:
-                    if ($value instanceof \DateTime) {
-                        $value = $value->getTimestamp();
-                    }
-
-                    $remoteNew = ($value != '') ? date('Y-m', $value) : '-';
-                    $intMonth  = ($value != '') ? (date('m', $value) - 1) : '-';
-
-                    if ($month = $this->translate('MONTHS.' . $intMonth)) {
-                        $remoteNew = ($value != '') ? $month . ' ' . date('Y', $value) : '-';
-                    }
-                    break;
-
-                case GroupAndSortingInformationInterface::GROUP_YEAR:
-                    if ($value instanceof \DateTime) {
-                        $value = $value->getTimestamp();
-                    }
-
-                    $remoteNew = ($value != '') ? date('Y', $value) : '-';
-                    break;
-
-                default:
-            }
-        } else {
-            if ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple']) {
-                $remoteNew = ($value != '') ? $field : '';
-            } elseif (isset($propExtra['reference'])) {
-                $remoteNew = $propExtra['reference'][$value];
-            } elseif (array_is_assoc($property->getOptions())) {
-                $options   = $property->getOptions();
-                $remoteNew = $options[$value];
-            } else {
-                $remoteNew = $value;
-            }
-
-            if (is_array($remoteNew)) {
-                $remoteNew = $remoteNew[0];
-            }
-
-            if (empty($remoteNew)) {
-                $remoteNew = '-';
-            }
-        }
-
-        $event = new GetGroupHeaderEvent($this->getEnvironment(), $model, $field, $remoteNew, $groupMode);
+        $event = new GetGroupHeaderEvent($this->getEnvironment(), $model, $field, null, $groupMode, $groupLength);
         $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
 
-        $remoteNew = $event->getValue();
-
-        return $remoteNew;
+        return $event->getValue();
     }
 
     /**
@@ -504,6 +428,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             ? IdSerializer::fromSerialized($input->getParameter('pid'))
             : null;
         $items         = array();
+
+        $panel      = $this->getPanel();
+        $baseConfig = $environment->getBaseConfigRegistry()->getBaseConfig();
+        $panel->initialize($baseConfig);
 
         $models = $controller->applyClipboardActions($source, $after, $into, $parentModelId, null, $items);
 
@@ -677,7 +605,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $definition    = $environment->getDataDefinition();
         $inputProvider = $environment->getInputProvider();
 
-        if (!$inputProvider->hasParameter('id')) {
+        if (!$inputProvider->hasParameter('id') || !$inputProvider->getParameter('id')) {
             return;
         }
 
@@ -731,7 +659,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $environment   = $this->getEnvironment();
         $inputProvider = $environment->getInputProvider();
-        $modelId       = $inputProvider->hasParameter('id')
+        $modelId       = ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id'))
             ? IdSerializer::fromSerialized($inputProvider->getParameter('id'))
             : null;
         $dataProvider  = $environment->getDataProvider($modelId ? $modelId->getDataProviderName() : null);
@@ -835,11 +763,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function toggle(Action $action, $name = 'toggle')
     {
-        $environment = $this->getEnvironment();
-        $input       = $environment->getInputProvider();
+        $environment   = $this->getEnvironment();
+        $inputProvider = $environment->getInputProvider();
 
-        if ($input->hasParameter('id')) {
-            $serializedId = IdSerializer::fromSerialized($input->getParameter('id'));
+        if ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id')) {
+            $serializedId = IdSerializer::fromSerialized($inputProvider->getParameter('id'));
         }
 
         if (!(isset($serializedId)
@@ -852,8 +780,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $operation    = $this->getViewSection()->getModelCommands()->getCommandNamed($name);
         $dataProvider = $environment->getDataProvider();
         $newState     = $operation->isInverse()
-            ? $input->getParameter('state') == 1 ? '' : '1'
-            : $input->getParameter('state') == 1 ? '1' : '';
+            ? $inputProvider->getParameter('state') == 1 ? '' : '1'
+            : $inputProvider->getParameter('state') == 1 ? '1' : '';
 
         $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($serializedId->getId()));
 

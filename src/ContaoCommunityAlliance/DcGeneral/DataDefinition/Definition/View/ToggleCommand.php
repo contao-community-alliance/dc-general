@@ -60,7 +60,7 @@ class ToggleCommand extends Command implements ToggleCommandInterface
      */
     public function setInverse($inverse)
     {
-        $this->inverse = (bool)$inverse;
+        $this->inverse = (bool) $inverse;
         return $this;
     }
 

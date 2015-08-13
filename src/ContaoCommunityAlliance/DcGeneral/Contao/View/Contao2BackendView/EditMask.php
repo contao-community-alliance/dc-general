@@ -507,30 +507,26 @@ class EditMask
             $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
             $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getUrl()));
         } elseif ($inputProvider->hasValue('saveNclose')) {
-            setcookie('BE_PAGE_OFFSET', 0, 0, '/');
-
-            $_SESSION['TL_INFO']    = '';
-            $_SESSION['TL_ERROR']   = '';
-            $_SESSION['TL_CONFIRM'] = '';
+            $this->clearBackendStates();
 
             $newUrlEvent = new GetReferrerEvent();
             $dispatcher->dispatch(ContaoEvents::SYSTEM_GET_REFERRER, $newUrlEvent);
             $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getReferrerUrl()));
         } elseif ($inputProvider->hasValue('saveNcreate')) {
-            setcookie('BE_PAGE_OFFSET', 0, 0, '/');
-
-            $_SESSION['TL_INFO']    = '';
-            $_SESSION['TL_ERROR']   = '';
-            $_SESSION['TL_CONFIRM'] = '';
-
+            $this->clearBackendStates();
             $after = IdSerializer::fromModel($model);
 
             $newUrlEvent = new AddToUrlEvent('act=create&id=&after=' . $after->getSerialized());
             $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
             $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getUrl()));
         } elseif ($inputProvider->hasValue('saveNback')) {
-            echo vsprintf($this->notImplMsg, 'Save and go back');
-            exit;
+            $this->clearBackendStates();
+
+            $parentProviderName = $environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider();
+            $newUrlEvent        = new GetReferrerEvent(false, $parentProviderName);
+
+            $dispatcher->dispatch(ContaoEvents::SYSTEM_GET_REFERRER, $newUrlEvent);
+            $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getReferrerUrl()));
         }
     }
 
@@ -722,5 +718,19 @@ class EditMask
         }
 
         return $objTemplate->parse();
+    }
+
+    /**
+     * Clear the backend messages and offset states.
+     *
+     * @return void
+     */
+    protected function clearBackendStates()
+    {
+        setcookie('BE_PAGE_OFFSET', 0, 0, '/');
+
+        $_SESSION['TL_INFO'] = array();
+        $_SESSION['TL_ERROR'] = array();
+        $_SESSION['TL_CONFIRM'] = array();
     }
 }

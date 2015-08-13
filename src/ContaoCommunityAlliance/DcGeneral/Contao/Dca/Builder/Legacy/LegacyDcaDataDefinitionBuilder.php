@@ -5,6 +5,7 @@
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -787,8 +788,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             );
         }
 
-        $this->parseListing($container, $view);
-        $this->parsePropertySortingAndGroupings($view);
+        $parsedProperties = $this->parseListing($container, $view);
+        $this->parsePropertySortingAndGroupings($view, $parsedProperties);
         $this->parsePanel($view);
         $this->parseGlobalOperations($view);
         $this->parseModelOperations($view);
@@ -801,7 +802,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      *
      * @param Contao2BackendViewDefinitionInterface $view      The view information for the backend view.
      *
-     * @return void
+     * @return array
      */
     protected function parseListing(ContainerInterface $container, Contao2BackendViewDefinitionInterface $view)
     {
@@ -821,40 +822,46 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             return;
         }
 
-        $this->parseListSorting($listing, $listDca);
+        $parsedProperties = $this->parseListSorting($listing, $listDca);
         $this->parseListLabel($container, $listing, $listDca);
+
+        return $parsedProperties;
     }
 
     /**
      * Parse the sorting and grouping information for all properties.
      *
-     * @param Contao2BackendViewDefinitionInterface $view The view information for the backend view.
+     * @param Contao2BackendViewDefinitionInterface $view             The view information for the backend view.
+     *
+     * @param array                                 $parsedProperties A list of properties already parsed.
      *
      * @return void
      */
-    protected function parsePropertySortingAndGroupings($view)
+    protected function parsePropertySortingAndGroupings($view, $parsedProperties)
     {
         $definitions = $view->getListingConfig()->getGroupAndSortingDefinition();
 
         foreach ((array) $this->getFromDca('fields') as $propName => $propInfo) {
-            $this->parsePropertySortingAndGrouping($propName, $propInfo, $definitions);
+            $this->parsePropertySortingAndGrouping($propName, $propInfo, $definitions, $parsedProperties);
         }
     }
 
     /**
      * Parse the sorting and grouping information for a given property.
      *
-     * @param string                                       $propName    The property to parse.
+     * @param string                                       $propName         The property to parse.
      *
-     * @param array                                        $propInfo    The property information.
+     * @param array                                        $propInfo         The property information.
      *
-     * @param GroupAndSortingDefinitionCollectionInterface $definitions The definitions.
+     * @param GroupAndSortingDefinitionCollectionInterface $definitions      The definitions.
+     *
+     * @param array                                        $parsedProperties A list of properties already parsed.
      *
      * @return void
      */
-    protected function parsePropertySortingAndGrouping($propName, $propInfo, $definitions)
+    protected function parsePropertySortingAndGrouping($propName, $propInfo, $definitions, $parsedProperties)
     {
-        if (empty($propInfo['sorting'])) {
+        if (empty($propInfo['sorting']) || in_array($propName, $parsedProperties)) {
             return;
         }
 
@@ -863,6 +870,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $information->setProperty($propName);
         if (isset($propInfo['length'])) {
             $information->setGroupingLength($propInfo['length']);
+        }
+
+        // Special case for field named "sorting" in Contao.
+        if ($propName === 'sorting') {
+            $information->setManualSorting();
         }
 
         $flag = empty($propInfo['flag']) ? $this->getFromDca('list/sorting/flag') : $propInfo['flag'];
@@ -879,13 +891,14 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      *
      * @param array                  $listDca The DCA part containing the information to use.
      *
-     * @return void
+     * @return array
      *
      * @throws DcGeneralRuntimeException In case unsupported values are encountered.
      */
     protected function parseListSorting(ListingConfigInterface $listing, array $listDca)
     {
-        $sortingDca = isset($listDca['sorting']) ? $listDca['sorting'] : array();
+        $parsedProperties = array();
+        $sortingDca       = isset($listDca['sorting']) ? $listDca['sorting'] : array();
 
         if (isset($sortingDca['headerFields'])) {
             $listing->setHeaderPropertyNames((array) $sortingDca['headerFields']);
@@ -900,7 +913,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         }
 
         if (empty($sortingDca['fields'])) {
-            return;
+            return $parsedProperties;
         }
 
         $fieldsDca = $this->getFromDca('fields');
@@ -944,12 +957,19 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                     $this->evalFlagGrouping($groupAndSorting, $flag);
                     $this->evalFlagGroupingLength($groupAndSorting, $flag);
                 }
+
+                if (count($sortingDca['fields']) === 1) {
+                    $definition->setName($groupAndSorting->getProperty());
+                    $parsedProperties[] = $groupAndSorting->getProperty();
+                }
             }
 
             if (isset($sortingDca['disableGrouping']) && $sortingDca['disableGrouping']) {
                 $groupAndSorting->setGroupingMode(GroupAndSortingInformationInterface::GROUP_NONE);
             }
         }
+
+        return $parsedProperties;
     }
 
     /**

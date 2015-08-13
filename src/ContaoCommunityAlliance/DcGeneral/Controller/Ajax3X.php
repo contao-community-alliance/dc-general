@@ -7,6 +7,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Andreas Nölke <zero@brothers-project.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -60,7 +61,7 @@ class Ajax3X extends Ajax
         // Process input and update changed properties.
         $treeType      = substr($property->getWidgetType(), 0, 4);
         $propertyValue = $this->getTreeValue($treeType, $propertyValue);
-        if ($treeType == 'file') {
+        if (($treeType == 'file') || ($treeType == 'page')) {
             $extra = $property->getExtra();
             if (is_array($propertyValue) && !isset($extra['multiple'])) {
                 $propertyValue = $propertyValue[0];
@@ -223,7 +224,7 @@ class Ajax3X extends Ajax
     {
         $environment  = $this->getEnvironment();
         $input        = $environment->getInputProvider();
-        $serializedId = $input->hasParameter('id') ? $input->getParameter('id') : null;
+        $serializedId = ($input->hasParameter('id') && $input->getParameter('id')) ? $input->getParameter('id') : null;
         $fieldName    = $input->hasValue('name') ? $input->getValue('name') : null;
         $value        = $input->hasValue('value') ? $input->getValue('value', true) : null;
 

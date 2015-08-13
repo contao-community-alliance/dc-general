@@ -608,9 +608,9 @@ class ContaoWidgetManager
                 'y' => -185
             ),
             'startDay'          => $translator->translate('weekOffset', 'MSC'),
-            'days'              => array_values((array)$translator->translate('DAYS', 'MSC')),
+            'days'              => array_values((array) $translator->translate('DAYS', 'MSC')),
             'dayShort'          => $translator->translate('dayShortLength', 'MSC'),
-            'months'            => array_values((array)$translator->translate('MONTHS', 'MSC')),
+            'months'            => array_values((array) $translator->translate('MONTHS', 'MSC')),
             'monthShort'        => $translator->translate('monthShortLength', 'MSC')
         );
 

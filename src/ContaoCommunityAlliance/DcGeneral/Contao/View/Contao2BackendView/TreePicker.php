@@ -912,14 +912,14 @@ class TreePicker extends \Widget
         $definition   = $this->getEnvironment()->getDataDefinition();
         $listing      = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME)->getListingConfig();
         $properties   = $definition->getPropertiesDefinition();
-        $sorting      = array_keys((array)$listing->getDefaultSortingFields());
+        $sorting      = array_keys((array) $listing->getDefaultSortingFields());
         $firstSorting = reset($sorting);
         $formatter    = $this->getFormatter($model, $treeMode);
 
         $args = array();
         foreach ($formatter->getPropertyNames() as $propertyName) {
             if ($properties->hasProperty($propertyName)) {
-                $args[$propertyName] = (string)$model->getProperty($propertyName);
+                $args[$propertyName] = (string) $model->getProperty($propertyName);
             } else {
                 $args[$propertyName] = '-';
             }
