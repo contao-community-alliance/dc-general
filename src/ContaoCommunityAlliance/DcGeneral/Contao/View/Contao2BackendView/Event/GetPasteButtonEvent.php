@@ -116,7 +116,7 @@ class GetPasteButtonEvent extends BaseButtonEvent
      */
     public function setCircularReference($circularReference)
     {
-        $this->circularReference = (bool)$circularReference;
+        $this->circularReference = (bool) $circularReference;
 
         return $this;
     }

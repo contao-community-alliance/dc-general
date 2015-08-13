@@ -24,7 +24,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DefaultModel extends AbstractModel
 {
-
     /**
      * A list with all properties.
      *
@@ -116,6 +115,7 @@ class DefaultModel extends AbstractModel
     {
         if ($this->mixID == null) {
             $this->mixID = $mixID;
+            $this->setMeta(static::IS_CHANGED, true);
         }
     }
 

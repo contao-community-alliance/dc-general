@@ -24,7 +24,6 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  */
 abstract class AbstractModelCommandEvent extends AbstractCommandEvent implements ModelCommandEventInterface
 {
-
     /**
      * The attached model.
      *

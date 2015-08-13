@@ -53,7 +53,7 @@ class SetPropertyValueConditionClassNameEvent extends BuilderEvent
      */
     public function setPropertyValueConditionClassName($className)
     {
-        $this->className = (string)$className;
+        $this->className = (string) $className;
         return $this;
     }
 

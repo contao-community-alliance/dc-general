@@ -20,7 +20,6 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition;
  */
 class DataProviderInformation implements DataProviderInformationInterface
 {
-
     /**
      * The name of the data provider information.
      *

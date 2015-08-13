@@ -25,7 +25,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DataDefinitionContainer implements DataDefinitionContainerInterface
 {
-
     /**
      * The definitions stored in the container.
      *

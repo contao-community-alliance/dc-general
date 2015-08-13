@@ -22,7 +22,6 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
  */
 class Command implements CommandInterface
 {
-
     /**
      * Name of the command.
      *
@@ -79,7 +78,7 @@ class Command implements CommandInterface
      */
     public function setName($name)
     {
-        $this->name = (string)$name;
+        $this->name = (string) $name;
 
         return $this;
     }
@@ -115,7 +114,7 @@ class Command implements CommandInterface
      */
     public function setLabel($label)
     {
-        $this->label = (string)$label;
+        $this->label = (string) $label;
 
         return $this;
     }
@@ -133,7 +132,7 @@ class Command implements CommandInterface
      */
     public function setDescription($description)
     {
-        $this->description = (string)$description;
+        $this->description = (string) $description;
 
         return $this;
     }

@@ -22,7 +22,6 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties
  */
 class DefaultProperty implements PropertyInterface
 {
-
     /**
      * The property name.
      *
@@ -242,6 +241,10 @@ class DefaultProperty implements PropertyInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Deprecated in favor of GroupAndSortingInformationInterface.
+     *
+     * @see    \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface
      */
     public function setSortable($value)
     {
@@ -252,6 +255,10 @@ class DefaultProperty implements PropertyInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Deprecated in favor of GroupAndSortingInformationInterface.
+     *
+     * @see    \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface
      */
     public function isSortable()
     {
@@ -274,60 +281,6 @@ class DefaultProperty implements PropertyInterface
     public function isFilterable()
     {
         return $this->filterable;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setGroupingMode($value)
-    {
-        $this->groupingMode = $value;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getGroupingMode()
-    {
-        return $this->groupingMode;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setGroupingLength($value)
-    {
-        $this->groupingLength = $value;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getGroupingLength()
-    {
-        return $this->groupingLength;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setSortingMode($value)
-    {
-        $this->sortingMode = $value;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSortingMode()
-    {
-        return $this->sortingMode;
     }
 
     /**

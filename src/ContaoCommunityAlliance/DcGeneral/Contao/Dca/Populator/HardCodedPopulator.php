@@ -13,8 +13,10 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator;
 
-use ContaoCommunityAlliance\DcGeneral\Clipboard\DefaultClipboard;
+use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistry;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\Clipboard;
 use ContaoCommunityAlliance\DcGeneral\Contao\InputProvider;
+use ContaoCommunityAlliance\DcGeneral\Contao\SessionStorage;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 use ContaoCommunityAlliance\DcGeneral\Controller\DefaultController;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -59,12 +61,24 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
      */
     public function populate(EnvironmentInterface $environment)
     {
+        if (!$environment->getSessionStorage()) {
+            $environment->setSessionStorage(
+                new SessionStorage('DC_GENERAL_' . strtoupper($environment->getDataDefinition()->getName()))
+            );
+        }
+
         if (!$environment->getInputProvider()) {
             $environment->setInputProvider(new InputProvider());
         }
 
         if (!$environment->getClipboard()) {
-            $environment->setClipboard(new DefaultClipboard());
+            $environment->setClipboard(new Clipboard());
+        }
+
+        if (!$environment->getBaseConfigRegistry()) {
+            $baseConfigRegistry = new BaseConfigRegistry();
+            $baseConfigRegistry->setEnvironment($environment);
+            $environment->setBaseConfigRegistry($baseConfigRegistry);
         }
 
         $this->populateController($environment);

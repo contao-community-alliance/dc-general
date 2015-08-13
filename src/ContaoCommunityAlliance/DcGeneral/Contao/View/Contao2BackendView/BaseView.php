@@ -22,9 +22,10 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\AbstractHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ShowHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
@@ -33,10 +34,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGr
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
-use ContaoCommunityAlliance\DcGeneral\Controller\Ajax2X;
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
-use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
@@ -45,27 +43,16 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CopyCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CutCommandInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PostCreateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PostPasteModelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PreCreateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDeleteModelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
-use ContaoCommunityAlliance\DcGeneral\Event\PrePasteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
-use ContaoCommunityAlliance\DcGeneral\Panel\PanelInterface;
-use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
-use ContaoCommunityAlliance\DcGeneral\View\Event\RenderReadablePropertyValueEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -137,11 +124,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $name   = $action->getName();
 
         switch ($name) {
-            case 'copy':
-            case 'copyAll':
             case 'create':
-            case 'cut':
-            case 'cutAll':
             case 'paste':
             case 'delete':
             case 'move':
@@ -151,7 +134,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             case 'toggle':
                 $response = call_user_func_array(
                     array($this, $name),
-                    $action->getArguments()
+                    array_merge(array($action), $action->getArguments())
                 );
                 $event->setResponse($response);
                 break;
@@ -167,7 +150,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $command = $this->getViewSection()->getModelCommands()->getCommandNamed($name);
 
             if ($command instanceof ToggleCommandInterface) {
-                $this->toggle($name);
+                $this->toggle($action, $name);
             }
         }
     }
@@ -264,47 +247,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Redirects to the real back end module.
-     *
-     * @return void
-     */
-    protected function redirectHome()
-    {
-        $environment = $this->getEnvironment();
-        $input       = $environment->getInputProvider();
-
-        if ($input->hasParameter('table') && $input->hasParameter('pid')) {
-            if ($input->hasParameter('pid')) {
-                $event = new RedirectEvent(
-                    sprintf(
-                        'contao/main.php?do=%s&table=%s&pid=%s',
-                        $input->getParameter('do'),
-                        $input->getParameter('table'),
-                        $input->getParameter('pid')
-                    )
-                );
-            } else {
-                $event = new RedirectEvent(
-                    sprintf(
-                        'contao/main.php?do=%s&table=%s',
-                        $input->getParameter('do'),
-                        $input->getParameter('table')
-                    )
-                );
-            }
-        } else {
-            $event = new RedirectEvent(
-                sprintf(
-                    'contao/main.php?do=%s',
-                    $input->getParameter('do')
-                )
-            );
-        }
-
-        $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_REDIRECT, $event);
-    }
-
-    /**
      * Determine if the select mode is currently active or not.
      *
      * @return bool
@@ -312,68 +254,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     protected function isSelectModeActive()
     {
         return $this->getEnvironment()->getInputProvider()->getParameter('act') == 'select';
-    }
-
-    /**
-     * Retrieve the currently active sorting.
-     *
-     * @return GroupAndSortingDefinitionInterface
-     */
-    protected function getCurrentSorting()
-    {
-        foreach ($this->getPanel() as $panel) {
-            /** @var PanelInterface $panel */
-            $sort = $panel->getElement('sort');
-            if ($sort) {
-                /** @var SortElementInterface $sort */
-                return $sort->getSelectedDefinition();
-            }
-        }
-
-        $definition = $this->getViewSection()->getListingConfig()->getGroupAndSortingDefinition();
-        if ($definition->hasDefault()) {
-            return $definition->getDefault();
-        }
-
-        return null;
-    }
-
-    /**
-     * Retrieve the currently active grouping mode.
-     *
-     * @return array|null
-     *
-     * @see    ListingConfigInterface
-     */
-    protected function getGroupingMode()
-    {
-        $sorting = $this->getCurrentSorting();
-        // If no sorting defined, exit.
-        if ((!$sorting)
-            || (!$sorting->getCount())
-            || $sorting->get(0)->getSortingMode() === GroupAndSortingInformationInterface::SORT_RANDOM
-        ) {
-            return null;
-        }
-        $firstSorting = $sorting->get(0);
-
-        // Use the information from the property, if given.
-        if ($firstSorting->getGroupingMode() != '') {
-            $groupMode   = $firstSorting->getGroupingMode();
-            $groupLength = $firstSorting->getGroupingLength();
-        } else {
-            // No sorting? No grouping!
-            $groupMode   = GroupAndSortingInformationInterface::GROUP_NONE;
-            $groupLength = 0;
-        }
-
-        return array
-        (
-            'mode'     => $groupMode,
-            'length'   => $groupLength,
-            'property' => $firstSorting->getProperty(),
-            'sorting'  => $sorting
-        );
     }
 
     /**
@@ -393,18 +273,18 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    public function formatCurrentValue($field, $model, $groupMode, $groupLength)
+    public function formatCurrentValue($field, ModelInterface $model, $groupMode, $groupLength)
     {
-        $property   = $this->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
-        $value      = $this->getReadableFieldValue($property, $model, $model->getProperty($field));
-        $dispatcher = $this->getEnvironment()->getEventDispatcher();
-        $propExtra  = $property->getExtra();
+        $property = $this->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
 
         // No property? Get out!
         if (!$property) {
             return '-';
         }
 
+        $value      = ViewHelpers::getReadableFieldValue($this->environment, $property, $model);
+        $dispatcher = $this->getEnvironment()->getEventDispatcher();
+        $propExtra  = $property->getExtra();
         $evaluation = $property->getExtra();
         $remoteNew  = '';
 
@@ -477,10 +357,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         $event = new GetGroupHeaderEvent($this->getEnvironment(), $model, $field, $remoteNew, $groupMode);
-        $dispatcher->dispatch(
-            sprintf('%s[%s]', $event::NAME, $this->getEnvironment()->getDataDefinition()->getName()),
-            $event
-        );
         $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
 
         $remoteNew = $event->getValue();
@@ -551,110 +427,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Update the clipboard in the Environment with data from the InputProvider.
-     *
-     * The following parameters have to be provided by the input provider:
-     *
-     * Name      Type   Description
-     * clipboard bool   Flag determining if the clipboard shall get cleared.
-     * act       string Action to perform, either paste, cut or create.
-     * id        mixed  The Id of the item to copy. In mode cut this is the id of the item to be moved.
-     *
-     * @param null|string $action The action to be executed or null.
-     *
-     * @return BaseView
-     *
-     * @SuppressWarnings(PHPMD.ShortVariable)
-     */
-    public function checkClipboard($action = null)
-    {
-        $objInput     = $this->getEnvironment()->getInputProvider();
-        $objClipboard = $this->getEnvironment()->getClipboard();
-
-        // Reset Clipboard.
-        if ($objInput->getParameter('clipboard') == '1') {
-            // Check clipboard from session.
-            $objClipboard
-                ->loadFrom($this->getEnvironment())
-                ->clear()
-                ->saveTo($this->getEnvironment());
-
-            $this->redirectHome();
-        } elseif ($id = $objInput->getParameter('source')) {
-            // Push some entry into clipboard.
-            $idDetails   = IdSerializer::fromSerialized($id);
-            $objDataProv = $this->getEnvironment()->getDataProvider($idDetails->getDataProviderName());
-
-            if ($action && $action == 'cut' || $objInput->getParameter('act') == 'cut') {
-                $arrIgnored = array($id);
-
-                // We have to ignore all children of this element in mode 5 (to prevent circular references).
-                if ($this->getDataDefinition()->getBasicDefinition()->getMode() ==
-                    BasicDefinitionInterface::MODE_HIERARCHICAL
-                ) {
-                    $objModel  = $objDataProv->fetch($objDataProv->getEmptyConfig()->setId($idDetails->getId()));
-                    $ignoredId = IdSerializer::fromValues($objModel->getProviderName(), 0);
-
-                    // FIXME: this can return ids originating from another data provider, we have to alter this to
-                    //        return valid models instead of the ids or a tuple of data provider name and id.
-                    foreach ($this->getEnvironment()->getController()->assembleAllChildrenFrom($objModel) as $childId) {
-                        $arrIgnored[] = $ignoredId->setId($childId)->getSerialized();
-                    }
-                }
-
-                $objClipboard
-                    ->clear()
-                    ->cut($id)
-                    ->setCircularIds($arrIgnored);
-
-                // Let the clipboard save it's values persistent.
-                $objClipboard->saveTo($this->getEnvironment());
-
-                $this->redirectHome();
-            } elseif ($action && $action == 'copy' || $objInput->getParameter('act') == 'copy') {
-                $arrIgnored     = array($id);
-                $objContainedId = trimsplit(',', $objInput->getParameter('children'));
-
-                $objClipboard
-                    ->clear()
-                    ->copy($id)
-                    ->setCircularIds($arrIgnored);
-
-                if (is_array($objContainedId) && !empty($objContainedId)) {
-                    $objClipboard->setContainedIds($objContainedId);
-                }
-
-                // Let the clipboard save it's values persistent.
-                $objClipboard->saveTo($this->getEnvironment());
-
-                $this->redirectHome();
-            } elseif ($action && $action == 'create' || $objInput->getParameter('act') == 'create') {
-                $arrIgnored     = array($id);
-                $objContainedId = trimsplit(',', $objInput->getParameter('children'));
-
-                $objClipboard
-                    ->clear()
-                    ->create($id)
-                    ->setCircularIds($arrIgnored);
-
-                if (is_array($objContainedId) && !empty($objContainedId)) {
-                    $objClipboard->setContainedIds($objContainedId);
-                }
-
-                // Let the clipboard save it's values persistent.
-                $objClipboard->saveTo($this->getEnvironment());
-
-                $this->redirectHome();
-            }
-        }
-
-        // Check clipboard from session.
-        $objClipboard->loadFrom($this->getEnvironment());
-
-        return $this;
-    }
-
-    /**
      * Determine if we are currently working in multi language mode.
      *
      * @param mixed $mixId The id of the current model.
@@ -664,18 +436,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     protected function isMultiLanguage($mixId)
     {
         return count($this->getEnvironment()->getController()->getSupportedLanguages($mixId)) > 0;
-    }
-
-    /**
-     * Check if the data provider is multi language and prepare the data provider with the selected language.
-     *
-     * @return void
-     *
-     * @deprecated Use AbstractHandler::checkLanguage instead.
-     */
-    protected function checkLanguage()
-    {
-        AbstractHandler::checkLanguage($this->getEnvironment());
     }
 
     /**
@@ -699,315 +459,50 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function handleAjaxCall()
     {
-        /** @var \ContaoCommunityAlliance\DcGeneral\Controller\Ajax $handler */
-        // Fallback to Contao for ajax requests we do not know.
-        if (version_compare(VERSION, '3.0', '>=')) {
-            $handler = new Ajax3X();
-        } else {
-            $handler = new Ajax2X();
-        }
+        $handler = new Ajax3X();
         $handler->executePostActions(new DcCompat($this->getEnvironment()));
     }
 
     /**
      * {@inheritDoc}
-     */
-    public function copy()
-    {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
-        }
-
-        // TODO: copy unimplemented.
-
-        return vsprintf($this->notImplMsg, 'copy - Mode');
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function copyAll()
-    {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
-        }
-
-        // TODO: copyAll unimplemented.
-
-        return vsprintf($this->notImplMsg, 'copyAll - Mode');
-    }
-
-    /**
-     * {@inheritDoc}
      *
-     * @see edit()
-     */
-    public function create()
-    {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
-        }
-
-        $model = $this->createEmptyModelWithDefaults();
-
-        $input = $this->environment->getInputProvider();
-        if ($input->hasParameter('after')) {
-            $after          = IdSerializer::fromSerialized($input->getParameter('after'));
-            $dataProvider   = $this->environment->getDataProvider($after->getDataProviderName());
-            $previous       = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($after->getId()));
-            $dataDefinition = $this->environment->getDataDefinition();
-
-            /** @var Contao2BackendViewDefinitionInterface $view */
-            $view = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-            foreach (array_keys($view->getListingConfig()->getDefaultSortingFields()) as $propertyName) {
-                if ($propertyName != 'sorting') {
-                    $propertyValue = $previous->getProperty($propertyName);
-                    $model->setProperty($propertyName, $propertyValue);
-                }
-            }
-        }
-
-        $preFunction = function ($environment, $model) {
-            /** @var EnvironmentInterface $environment */
-            $copyEvent = new PreCreateModelEvent($environment, $model);
-            $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $copyEvent::NAME, $environment->getDataDefinition()->getName()),
-                $copyEvent
-            );
-            $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
-        };
-
-        $postFunction = function ($environment, $model) {
-            /** @var EnvironmentInterface $environment */
-            $copyEvent = new PostCreateModelEvent($environment, $model);
-            $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $copyEvent::NAME, $environment->getDataDefinition()->getName()),
-                $copyEvent
-            );
-            $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
-        };
-
-        return $this->createEditMask($model, null, $preFunction, $postFunction);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function cut()
-    {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
-        }
-
-        return $this->showAll();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function cutAll()
-    {
-        // TODO: cutAll unimplemented.
-
-        return vsprintf($this->notImplMsg, 'cutAll - Mode');
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getManualSortingProperty()
-    {
-        $definition = null;
-        foreach ($this->getPanel() as $panel) {
-            /** @var PanelInterface $panel */
-            $sort = $panel->getElement('sort');
-            if ($sort) {
-                /** @var SortElementInterface $sort */
-                $definition = $sort->getSelectedDefinition();
-            }
-        }
-
-        if ($definition === null) {
-            $collection = $this
-                ->getViewSection()
-                ->getListingConfig()
-                ->getGroupAndSortingDefinition();
-
-            if ($collection->hasDefault()) {
-                $definition = $collection->getDefault();
-            }
-        }
-
-        if ($definition) {
-            foreach ($definition as $information) {
-                if ($information->isManualSorting()) {
-                    return $information->getProperty();
-                }
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Retrieve model instances for all ids contained in the clipboard.
+     * @throws \RuntimeException This method os not in use anymore.
      *
-     * @param bool $clone True if the models shall be copied, false otherwise.
-     *
-     * @return CollectionInterface
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    protected function getModelsFromClipboard($clone = false)
+    public function create(Action $action)
     {
-        $environment  = $this->getEnvironment();
-        $dataProvider = $environment->getDataProvider();
-        $models       = $dataProvider->getEmptyCollection();
-        $clipboard    = $this->getEnvironment()->getClipboard();
-
-        foreach ($clipboard->getContainedIds() as $id) {
-            if ($id === null) {
-                $model = $this->createEmptyModelWithDefaults();
-                $models->push($model);
-
-                if ($parentId = $clipboard->getParent()) {
-                    $id           = IdSerializer::fromSerialized($parentId);
-                    $dataProvider = $environment->getDataProvider($id->getDataProviderName());
-                    $parentModel  = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($id->getId()));
-                    $environment->getController()->setParent($model, $parentModel);
-                }
-            } elseif (is_string($id)) {
-                $id           = IdSerializer::fromSerialized($id);
-                $dataProvider = $environment->getDataProvider($id->getDataProviderName());
-                $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($id->getId()));
-
-                if ($model) {
-                    if ($clone) {
-                        // Trigger the pre duplicate event.
-                        $duplicateEvent = new PreDuplicateModelEvent($environment, $model);
-
-                        $environment->getEventDispatcher()->dispatch(
-                            sprintf('%s[%s]', $duplicateEvent::NAME, $environment->getDataDefinition()->getName()),
-                            $duplicateEvent
-                        );
-                        $environment->getEventDispatcher()->dispatch($duplicateEvent::NAME, $duplicateEvent);
-
-                        // Make a duplicate.
-                        $newModel = $environment->getController()->createClonedModel($model);
-
-                        // And trigger the post event for it.
-                        $duplicateEvent = new PostDuplicateModelEvent($environment, $newModel, $model);
-                        $environment->getEventDispatcher()->dispatch(
-                            sprintf('%s[%s]', $duplicateEvent::NAME, $environment->getDataDefinition()->getName()),
-                            $duplicateEvent
-                        );
-                        $environment->getEventDispatcher()->dispatch($duplicateEvent::NAME, $duplicateEvent);
-
-                        // Set the new model as the old one.
-                        $model = $newModel;
-                    }
-
-                    $models->push($model);
-                }
-            }
-        }
-
-        return $models;
+        throw new \RuntimeException('I should not be here! :-\\');
     }
 
     /**
-     * Invoked for cut and copy.
+     * {@inheritdoc}
      *
      * This performs redirectHome() upon successful execution and throws an exception otherwise.
      *
-     * @return void
-     *
      * @throws DcGeneralRuntimeException When invalid parameters are encountered.
      */
-    public function paste()
+    public function paste(Action $action)
     {
-        $this->checkClipboard();
-
-        $environment = $this->getEnvironment();
-        $input       = $environment->getInputProvider();
-        $clipboard   = $environment->getClipboard();
-        $source      = $input->getParameter('source')
+        $environment   = $this->getEnvironment();
+        $controller    = $environment->getController();
+        $input         = $environment->getInputProvider();
+        $clipboard     = $environment->getClipboard();
+        $source        = $input->getParameter('source')
             ? IdSerializer::fromSerialized($input->getParameter('source'))
             : null;
-        $after       = $input->getParameter('after')
+        $after         = $input->getParameter('after')
             ? IdSerializer::fromSerialized($input->getParameter('after'))
             : $input->getParameter('after');
-        $into        = $input->getParameter('into')
+        $into          = $input->getParameter('into')
             ? IdSerializer::fromSerialized($input->getParameter('into'))
             : null;
+        $parentModelId = $input->getParameter('pid')
+            ? IdSerializer::fromSerialized($input->getParameter('pid'))
+            : null;
+        $items         = array();
 
-        if ($input->getParameter('mode') == 'create') {
-            $dataProvider = $environment->getDataProvider();
-
-            $models = $dataProvider->getEmptyCollection();
-            $models->push($dataProvider->getEmptyModel());
-
-            $clipboard->create($input->getParameter('pid'))->saveTo($environment);
-
-            $this->redirectHome();
-        }
-
-        if ($source) {
-            $dataProvider = $environment->getDataProvider($source->getDataProviderName());
-
-            $filterConfig = $dataProvider->getEmptyConfig();
-
-            $filterConfig->setFilter(
-                array(
-                    array(
-                        'operation' => '=',
-                        'property'  => 'id',
-                        'value'     => $source->getId()
-                    )
-                )
-            );
-
-            $models = $dataProvider->fetchAll($filterConfig);
-        } else {
-            $models = $this->getModelsFromClipboard($clipboard->isCopy());
-
-            if ($clipboard->isCopy()) {
-                // FIXME: recursive copy is not implemented yet!
-            }
-        }
-
-        // Trigger for each model the pre persist event.
-        foreach ($models as $model) {
-            $event = new PrePasteModelEvent($environment, $model);
-
-            $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
-                $event
-            );
-            $environment->getEventDispatcher()->dispatch($event::NAME, $event);
-        }
-
-        if ($after && $after->getId()) {
-            $dataProvider = $environment->getDataProvider($after->getDataProviderName());
-            $previous     = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($after->getId()));
-            $environment->getController()->pasteAfter($previous, $models, $this->getManualSortingProperty());
-        } elseif ($into && $into->getId()) {
-            $dataProvider = $environment->getDataProvider($into->getDataProviderName());
-            $parent       = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($into->getId()));
-            $environment->getController()->pasteInto($parent, $models, $this->getManualSortingProperty());
-        } elseif (($after && $after->getId() == '0') || ($into && $into->getId() == '0')) {
-            $environment->getController()->pasteTop($models, $this->getManualSortingProperty());
-        } else {
-            throw new DcGeneralRuntimeException('Invalid parameters.');
-        }
-
-        // Trigger for each model the past persist event.
-        foreach ($models as $model) {
-            $event = new PostPasteModelEvent($environment, $model);
-            $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
-                $event
-            );
-            $environment->getEventDispatcher()->dispatch($event::NAME, $event);
-        }
+        $models = $controller->applyClipboardActions($source, $after, $into, $parentModelId, null, $items);
 
         if (!$source) {
             $clipboard
@@ -1015,24 +510,34 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 ->saveTo($environment);
         }
 
-        $this->redirectHome();
+        /** @var ItemInterface[] $items */
+        if (1 === count($items) && ItemInterface::CREATE === $items[0]->getAction()) {
+            $model   = $models->get(0);
+            $modelId = IdSerializer::fromModel($model);
 
-        throw new DcGeneralRuntimeException('Invalid paste operation parameters.');
+            $addToUrlEvent = new AddToUrlEvent('act=edit&id=' . $modelId->getSerialized());
+            $environment->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $addToUrlEvent);
+
+            $redirectEvent = new RedirectEvent($addToUrlEvent->getUrl());
+            $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_REDIRECT, $redirectEvent);
+
+            return;
+        }
+
+        ViewHelpers::redirectHome($environment);
     }
 
     /**
-     * Delete a model and redirect the user to the listing.
+     * {@inheritDoc}
      *
      * NOTE: This method redirects the user to the listing and therefore the script will be ended.
      *
-     * @return string
-     *
      * @throws DcGeneralRuntimeException If the model to delete could not be loaded.
      */
-    public function delete()
+    public function delete(Action $action)
     {
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
+            return $this->edit($action);
         }
 
         // Check if is it allowed to delete a record.
@@ -1120,7 +625,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         );
         $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
-        $this->redirectHome();
+        ViewHelpers::redirectHome($this->environment);
 
         return null;
     }
@@ -1128,10 +633,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritDoc}
      */
-    public function move()
+    public function move(Action $action)
     {
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
+            return $this->edit($action);
         }
 
         // TODO: move unimplemented.
@@ -1139,12 +644,12 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
-    public function undo()
+    public function undo(Action $action)
     {
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
+            return $this->edit($action);
         }
 
         // TODO: undo unimplemented.
@@ -1207,9 +712,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * {@inheritdoc}
      */
     public function enforceModelRelationship($model)
     {
@@ -1217,44 +720,14 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Create an empty model using the default values from the definition.
-     *
-     * @return ModelInterface
-     */
-    protected function createEmptyModelWithDefaults()
-    {
-        $environment        = $this->getEnvironment();
-        $definition         = $environment->getDataDefinition();
-        $environment        = $this->getEnvironment();
-        $dataProvider       = $environment->getDataProvider();
-        $propertyDefinition = $definition->getPropertiesDefinition();
-        $properties         = $propertyDefinition->getProperties();
-        $model              = $dataProvider->getEmptyModel();
-
-        foreach ($properties as $property) {
-            $propName = $property->getName();
-
-            if ($property->getDefaultValue() !== null) {
-                $model->setProperty($propName, $property->getDefaultValue());
-            }
-        }
-
-        return $model;
-    }
-
-    /**
-     * Generate the view for edit.
-     *
-     * @return string
+     * {@inheritdoc}
      *
      * @throws DcGeneralRuntimeException         When the current data definition is not editable or is closed.
      *
      * @throws DcGeneralInvalidArgumentException When an unknown property is mentioned in the palette.
      */
-    public function edit()
+    public function edit(Action $action)
     {
-        $this->checkLanguage();
-
         $environment   = $this->getEnvironment();
         $inputProvider = $environment->getInputProvider();
         $modelId       = $inputProvider->hasParameter('id')
@@ -1267,7 +740,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         if ($modelId && $modelId->getId()) {
             $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
         } else {
-            $model = $this->createEmptyModelWithDefaults();
+            $model = $this->getEnvironment()->getController()->createEmptyModelWithDefaults();
         }
 
         // We need to keep the original data here.
@@ -1298,8 +771,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     protected function createEditMask($model, $originalModel, $preFunction, $postFunction)
     {
-        $this->checkLanguage();
-
         $editMask = new EditMask($this, $model, $originalModel, $preFunction, $postFunction);
         return $editMask->execute();
     }
@@ -1334,48 +805,12 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Show Information about a model.
-     *
-     * @return string
-     *
-     * @throws DcGeneralRuntimeException When an unknown property is mentioned in the palette.
-     *
-     * @deprecated
+     * {@inheritdoc}
      */
-    public function show()
-    {
-        $action = new Action('show');
-        $event  = new ActionEvent($this->getEnvironment(), $action);
-
-        $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
-        $dispatcher->dispatch(
-            sprintf(
-                '%s[%s][%s]',
-                DcGeneralEvents::ACTION,
-                $environment->getDataDefinition()->getName(),
-                $action->getName()
-            ),
-            $event
-        );
-        $dispatcher->dispatch(
-            sprintf('%s[%s]', DcGeneralEvents::ACTION, $environment->getDataDefinition()->getName()),
-            $event
-        );
-        $dispatcher->dispatch(DcGeneralEvents::ACTION, $event);
-
-        return $event->getResponse();
-    }
-
-    /**
-     * Show all entries from one table.
-     *
-     * @return string
-     */
-    public function showAll()
+    public function showAll(Action $action)
     {
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
+            return $this->edit($action);
         }
 
         return sprintf(
@@ -1387,11 +822,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * Handle the "toggle" action.
      *
-     * @param string $name The command name (default: toggle).
+     * @param Action $action The action being executed.
+     *
+     * @param string $name   The command name (default: toggle).
      *
      * @return string
      */
-    public function toggle($name = 'toggle')
+    public function toggle(Action $action, $name = 'toggle')
     {
         $environment = $this->getEnvironment();
         $input       = $environment->getInputProvider();
@@ -1401,7 +838,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         if (!(isset($serializedId)
-            && $serializedId->getDataProviderName() == $environment->getDataDefinition()->getName())
+              && $serializedId->getDataProviderName() == $environment->getDataDefinition()->getName())
         ) {
             return '';
         }
@@ -1419,7 +856,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $dataProvider->save($model);
 
-        return $this->showAll();
+        return $this->showAll($action);
     }
 
     /**
@@ -1434,8 +871,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $basicDefinition = $definition->getBasicDefinition();
         $providerName    = $environment->getDataDefinition()->getName();
         $mode            = $basicDefinition->getMode();
-        $config          = $this->getEnvironment()->getController()->getBaseConfig();
-        $sorting         = $this->getManualSortingProperty();
+        $config          = $this->getEnvironment()->getBaseConfigRegistry()->getBaseConfig();
+        $manualSorting   = ViewHelpers::getManualSortingProperty($this->environment);
 
         if ($serializedPid = $environment->getInputProvider()->getParameter('pid')) {
             $pid = IdSerializer::fromSerialized($serializedPid);
@@ -1463,61 +900,37 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $this->getPanel()->initialize($config);
 
         // Add new button.
-        if (($mode == BasicDefinitionInterface::MODE_FLAT)
-            || (($mode == BasicDefinitionInterface::MODE_PARENTEDLIST) && !$sorting)
+        if (
+            ($mode == BasicDefinitionInterface::MODE_FLAT)
+            || (($mode == BasicDefinitionInterface::MODE_PARENTEDLIST) && !$manualSorting)
         ) {
-            $parameters['act'] = 'create';
+            $parameters['act'] = 'edit';
             // Add new button.
             if ($pid->getDataProviderName() && $pid->getId()) {
                 $parameters['pid'] = $pid->getSerialized();
             }
-        } elseif (($mode == BasicDefinitionInterface::MODE_PARENTEDLIST)
+        } elseif (
+            ($mode == BasicDefinitionInterface::MODE_PARENTEDLIST)
             || ($mode == BasicDefinitionInterface::MODE_HIERARCHICAL)
         ) {
-            if ($environment->getClipboard()->isNotEmpty()) {
+            $filter = new Filter();
+            $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
+            if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
+                $filter->andParentIsFromProvider($parentDataProviderName);
+            } else {
+                $filter->andHasNoParent();
+            }
+
+            if ($environment->getClipboard()->isNotEmpty($filter)) {
                 return null;
             }
 
-            $after = IdSerializer::fromValues($definition->getName(), 0);
-
-            $parameters['act']  = 'paste';
-            $parameters['mode'] = 'create';
-
-            if ($mode == BasicDefinitionInterface::MODE_PARENTEDLIST) {
-                $parameters['after'] = $after->getSerialized();
-            }
+            $parameters['act'] = 'create';
 
             if ($pid->getDataProviderName() && $pid->getId()) {
                 $parameters['pid'] = $pid->getSerialized();
             }
         }
-
-        return $command;
-    }
-
-    /**
-     * Create the "clear clipboard" button.
-     *
-     * @return CommandInterface|null
-     */
-    protected function getClearClipboardCommand()
-    {
-        if ($this->getEnvironment()->getClipboard()->isEmpty()) {
-            return null;
-        }
-        $command             = new Command();
-        $parameters          = $command->getParameters();
-        $extra               = $command->getExtra();
-        $extra['class']      = 'header_clipboard';
-        $extra['accesskey']  = 'x';
-        $extra['attributes'] = 'onclick="Backend.getScrollOffset();"';
-
-        $parameters['clipboard'] = '1';
-
-        $command
-            ->setName('button_clipboard')
-            ->setLabel($this->translate('MSC.clearClipboard'))
-            ->setDescription($this->translate('MSC.clearClipboard'));
 
         return $command;
     }
@@ -1531,7 +944,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $environment = $this->getEnvironment();
         if (!($this->isSelectModeActive()
-            || $environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider())
+              || $environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider())
         ) {
             return null;
         }
@@ -1670,12 +1083,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 // New button always first.
                 array_unshift($globalOperations, $command);
             }
-
-            $command = $this->getClearClipboardCommand();
-            if ($command !== null) {
-                // Clear clipboard to the end.
-                $globalOperations[] = $command;
-            }
         }
 
         $command = $this->getBackCommand();
@@ -1725,8 +1132,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $dispatcher         = $environment->getEventDispatcher();
         $dataDefinitionName = $environment->getDataDefinition()->getName();
         $commandName        = $objCommand->getName();
-        $parameters         = (array)$objCommand->getParameters();
-        $extra              = (array)$objCommand->getExtra();
+        $parameters         = (array) $objCommand->getParameters();
+        $extra              = (array) $objCommand->getExtra();
         $extraAttributes    = !empty($extra['attributes']) ? $extra['attributes'] : null;
         $attributes         = '';
 
@@ -1759,17 +1166,22 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         if ($objCommand instanceof ToggleCommandInterface) {
             $parameters['act'] = $commandName;
 
+            $icon         = $extra['icon'];
+            $iconDisabled = isset($extra['icon_disabled'])
+                ? $extra['icon_disabled']
+                : 'invisible.gif';
+
             $attributes = sprintf(
                 'onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this, \'%s\', \'%s\');"',
-                $extra['icon'],
-                $extra['icon_disabled']
+                $icon,
+                $iconDisabled
             );
 
             if ($objCommand->isInverse()
                 ? $objModel->getProperty($objCommand->getToggleProperty())
                 : !$objModel->getProperty($objCommand->getToggleProperty())
             ) {
-                $extra['icon'] = $extra['icon_disabled'] ?: 'invisible.gif';
+                $extra['icon'] = $iconDisabled ?: 'invisible.gif';
             }
         }
 
@@ -1951,10 +1363,63 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return $event->getHtmlPasteAfter();
         }
 
-        $strLabel = $this->translate('pasteafter.0', $event->getModel()->getProviderName());
-        if ($event->isPasteAfterDisabled()) {
+        $model           = $event->getModel();
+        $modelId         = IdSerializer::fromModel($model);
+        $environment     = $event->getEnvironment();
+        $controller      = $environment->getController();
+        $clipboard       = $environment->getClipboard();
+        $dataDefinition  = $environment->getDataDefinition();
+        $basicDefinition = $dataDefinition->getBasicDefinition();
+
+        $pasteAfterIsDisabled = $event->isPasteAfterDisabled();
+
+        if (!$pasteAfterIsDisabled) {
+            // pre-build filter, to fetch other items
+            $filter = new Filter();
+            $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
+            if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
+                $filter->andParentIsFromProvider($parentDataProviderName);
+            } else {
+                $filter->andHasNoParent();
+            }
+            $filter->andModelIsNot($modelId);
+
+            /*
+             * FIXME to be discussed, allow pasting only in the same grouping
+        }
+        /** @var Filter $filter Prevent IDE from saying $filter may be undefined! ;-D * /
+
+        if (!$pasteAfterIsDisabled) {
+            // Determine if the grouping is the same
+            $groupingMode = ViewHelpers::getGroupingMode($environment);
+
+            if ($groupingMode) {
+                $items  = $clipboard->fetch($filter);
+                $models = $controller->getModelsFromClipboardItems($items);
+                $propertyName = $groupingMode['property'];
+                $propertyValue = $model->getProperty($propertyName);
+
+                $pasteAfterIsDisabled = true;
+                foreach ($models as $clipboardModel) {
+                    if ($propertyValue === $clipboardModel->getProperty($propertyName)) {
+                        // there exist at least one item, with the same grouping
+                        $pasteAfterIsDisabled = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!$pasteAfterIsDisabled) {
+            */
+
+            $pasteAfterIsDisabled = $clipboard->isEmpty($filter);
+        }
+
+        $strLabel = $this->translate('pasteafter.0', $model->getProviderName());
+        if ($pasteAfterIsDisabled) {
             /** @var GenerateHtmlEvent $imageEvent */
-            $imageEvent = $this->getEnvironment()->getEventDispatcher()->dispatch(
+            $imageEvent = $environment->getEventDispatcher()->dispatch(
                 ContaoEvents::IMAGE_GET_HTML,
                 new GenerateHtmlEvent(
                     'pasteafter_.gif',
@@ -1967,7 +1432,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         /** @var GenerateHtmlEvent $imageEvent */
-        $imageEvent = $this->getEnvironment()->getEventDispatcher()->dispatch(
+        $imageEvent = $environment->getEventDispatcher()->dispatch(
             ContaoEvents::IMAGE_GET_HTML,
             new GenerateHtmlEvent(
                 'pasteafter.gif',
@@ -1976,11 +1441,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             )
         );
 
-        $opDesc = $this->translate('pasteafter.1', $this->getEnvironment()->getDataDefinition()->getName());
+        $opDesc = $this->translate('pasteafter.1', $environment->getDataDefinition()->getName());
         if (strlen($opDesc)) {
-            $title = sprintf($opDesc, $event->getModel()->getId());
+            $title = sprintf($opDesc, $model->getId());
         } else {
-            $title = sprintf('%s id %s', $strLabel, $event->getModel()->getId());
+            $title = sprintf('%s id %s', $strLabel, $model->getId());
         }
 
         return sprintf(
@@ -2006,12 +1471,23 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         ModelInterface $previous = null,
         ModelInterface $next = null
     ) {
-        $commands     = $this->getViewSection()->getModelCommands();
-        $objClipboard = $this->getEnvironment()->getClipboard();
-        $dispatcher   = $this->getEnvironment()->getEventDispatcher();
+        $environment     = $this->getEnvironment();
+        $dataDefinition  = $environment->getDataDefinition();
+        $basicDefinition = $dataDefinition->getBasicDefinition();
+        $commands        = $this->getViewSection()->getModelCommands();
+        $clipboard       = $environment->getClipboard();
+        $dispatcher      = $environment->getEventDispatcher();
 
-        if ($this->getEnvironment()->getClipboard()->isNotEmpty()) {
-            $circularIds = $objClipboard->getCircularIds();
+        $filter = new Filter();
+        $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
+        if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
+            $filter->andParentIsFromProvider($parentDataProviderName);
+        } else {
+            $filter->andHasNoParent();
+        }
+
+        if ($this->getEnvironment()->getClipboard()->isNotEmpty($filter)) {
+            $circularIds = $clipboard->getCircularIds();
             $isCircular  = in_array(IdSerializer::fromModel($model)->getSerialized(), $circularIds);
         } else {
             $circularIds = array();
@@ -2030,96 +1506,103 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             );
         }
 
-        if ($this->getManualSortingProperty() &&
-            $objClipboard->isEmpty() &&
-            $this->getDataDefinition()->getBasicDefinition()->getMode() != BasicDefinitionInterface::MODE_HIERARCHICAL
-        ) {
-            /** @var AddToUrlEvent $urlEvent */
-            $urlEvent = $dispatcher->dispatch(
-                ContaoEvents::BACKEND_ADD_TO_URL,
-                new AddToUrlEvent(
-                    'act=create&amp;after=' . IdSerializer::fromModel($model)->getSerialized()
-                )
-            );
+        if (ViewHelpers::getManualSortingProperty($this->environment)) {
+            $clipboardIsEmpty = $clipboard->isEmpty($filter);
 
-            /** @var GenerateHtmlEvent $imageEvent */
-            $imageEvent = $dispatcher->dispatch(
-                ContaoEvents::IMAGE_GET_HTML,
-                new GenerateHtmlEvent(
-                    'new.gif',
-                    $this->translate('pastenew.0', $this->getDataDefinition()->getName())
-                )
-            );
-
-            $arrButtons['pasteNew'] = sprintf(
-                '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
-                $urlEvent->getUrl(),
-                specialchars($this->translate('pastenew.1', $this->getDataDefinition()->getName())),
-                $imageEvent->getHtml()
-            );
-        }
-
-        // Add paste into/after icons.
-        if ($objClipboard->isNotEmpty()) {
-            if ($objClipboard->isCreate()) {
-                // Add ext. information.
-                $add2UrlAfter = sprintf(
-                    'act=create&after=%s&',
-                    IdSerializer::fromModel($model)->getSerialized()
+            if ($clipboardIsEmpty && BasicDefinitionInterface::MODE_HIERARCHICAL !== $basicDefinition->getMode()) {
+                /** @var AddToUrlEvent $urlEvent */
+                $urlEvent = $dispatcher->dispatch(
+                    ContaoEvents::BACKEND_ADD_TO_URL,
+                    new AddToUrlEvent(
+                        'act=create&amp;after=' . IdSerializer::fromModel($model)->getSerialized()
+                    )
                 );
 
-                $add2UrlInto = sprintf(
-                    'act=create&into=%s&',
-                    IdSerializer::fromModel($model)->getSerialized()
-                );
-            } else {
-                // Add ext. information.
-                $add2UrlAfter = sprintf(
-                    'act=paste&after=%s&',
-                    IdSerializer::fromModel($model)->getSerialized()
+                /** @var GenerateHtmlEvent $imageEvent */
+                $imageEvent = $dispatcher->dispatch(
+                    ContaoEvents::IMAGE_GET_HTML,
+                    new GenerateHtmlEvent(
+                        'new.gif',
+                        $this->translate('pastenew.0', $this->getDataDefinition()->getName())
+                    )
                 );
 
-                $add2UrlInto = sprintf(
-                    'act=paste&into=%s&',
-                    IdSerializer::fromModel($model)->getSerialized()
+                $arrButtons['pasteNew'] = sprintf(
+                    '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
+                    $urlEvent->getUrl(),
+                    specialchars($this->translate('pastenew.1', $this->getDataDefinition()->getName())),
+                    $imageEvent->getHtml()
                 );
             }
 
-            /** @var AddToUrlEvent $urlAfter */
-            $urlAfter = $dispatcher->dispatch(
-                ContaoEvents::BACKEND_ADD_TO_URL,
-                new AddToUrlEvent($add2UrlAfter)
-            );
+            // Add paste into/after icons.
+            if (!$clipboardIsEmpty) {
+                if ($clipboard->isCreate()) {
+                    // Add ext. information.
+                    $add2UrlAfter = sprintf(
+                        'act=create&after=%s&',
+                        IdSerializer::fromModel($model)->getSerialized()
+                    );
 
-            /** @var AddToUrlEvent $urlInto */
-            $urlInto = $dispatcher->dispatch(
-                ContaoEvents::BACKEND_ADD_TO_URL,
-                new AddToUrlEvent($add2UrlInto)
-            );
+                    $add2UrlInto = sprintf(
+                        'act=create&into=%s&',
+                        IdSerializer::fromModel($model)->getSerialized()
+                    );
+                } else {
+                    // Add ext. information.
+                    $add2UrlAfter = sprintf(
+                        'act=paste&after=%s&',
+                        IdSerializer::fromModel($model)->getSerialized()
+                    );
 
-            $buttonEvent = new GetPasteButtonEvent($this->getEnvironment());
-            $buttonEvent
-                ->setModel($model)
-                ->setCircularReference($isCircular)
-                ->setPrevious($previous)
-                ->setNext($next)
-                ->setHrefAfter($urlAfter->getUrl())
-                ->setHrefInto($urlInto->getUrl())
-                // Check if the id is in the ignore list.
-                ->setPasteAfterDisabled($objClipboard->isCut() && $isCircular)
-                ->setPasteIntoDisabled($objClipboard->isCut() && $isCircular)
-                ->setContainedModels($this->getModelsFromClipboard());
+                    $add2UrlInto = sprintf(
+                        'act=paste&into=%s&',
+                        IdSerializer::fromModel($model)->getSerialized()
+                    );
+                }
 
-            $this->getEnvironment()->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $buttonEvent::NAME, $this->getEnvironment()->getDataDefinition()->getName()),
+                /** @var AddToUrlEvent $urlAfter */
+                $urlAfter = $dispatcher->dispatch(
+                    ContaoEvents::BACKEND_ADD_TO_URL,
+                    new AddToUrlEvent($add2UrlAfter)
+                );
+
+                /** @var AddToUrlEvent $urlInto */
+                $urlInto = $dispatcher->dispatch(
+                    ContaoEvents::BACKEND_ADD_TO_URL,
+                    new AddToUrlEvent($add2UrlInto)
+                );
+
+                $models = $this
+                    ->environment
+                    ->getController()
+                    ->getModelsFromClipboard(IdSerializer::fromValues($parentDataProviderName, null));
+
+                $buttonEvent = new GetPasteButtonEvent($this->getEnvironment());
                 $buttonEvent
-            );
-            $this->getEnvironment()->getEventDispatcher()->dispatch($buttonEvent::NAME, $buttonEvent);
+                    ->setModel($model)
+                    ->setCircularReference($isCircular)
+                    ->setPrevious($previous)
+                    ->setNext($next)
+                    ->setHrefAfter($urlAfter->getUrl())
+                    ->setHrefInto($urlInto->getUrl())
+                    // Check if the id is in the ignore list.
+                    ->setPasteAfterDisabled($clipboard->isCut() && $isCircular)
+                    ->setPasteIntoDisabled($clipboard->isCut() && $isCircular)
+                    ->setContainedModels($models);
 
-            $arrButtons['pasteafter'] = $this->renderPasteAfterButton($buttonEvent);
-            if ($this->getDataDefinition()->getBasicDefinition()->getMode()
-                == BasicDefinitionInterface::MODE_HIERARCHICAL) {
-                $arrButtons['pasteinto'] = $this->renderPasteIntoButton($buttonEvent);
+                $this->getEnvironment()->getEventDispatcher()->dispatch(
+                    sprintf('%s[%s]', $buttonEvent::NAME, $this->getEnvironment()->getDataDefinition()->getName()),
+                    $buttonEvent
+                );
+                $this->getEnvironment()->getEventDispatcher()->dispatch($buttonEvent::NAME, $buttonEvent);
+
+                $arrButtons['pasteafter'] = $this->renderPasteAfterButton($buttonEvent);
+                if ($this->getDataDefinition()->getBasicDefinition()->getMode()
+                    == BasicDefinitionInterface::MODE_HIERARCHICAL
+                ) {
+                    $arrButtons['pasteinto'] = $this->renderPasteIntoButton($buttonEvent);
+                }
             }
         }
 
@@ -2153,13 +1636,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $event = new GetBreadcrumbEvent($this->getEnvironment());
 
-        $dispatcher = $this->getEnvironment()->getEventDispatcher();
-        // Backwards compatibility.
-        $dispatcher->dispatch(
-            sprintf('%s[%s]', $event::NAME, $this->getEnvironment()->getDataDefinition()->getName()),
-            $event
-        );
-        $dispatcher->dispatch(sprintf('%s', $event::NAME), $event);
+        $this->getEnvironment()->getEventDispatcher()->dispatch(sprintf('%s', $event::NAME), $event);
 
         $arrReturn = $event->getElements();
 
@@ -2176,132 +1653,14 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Format a model accordingly to the current configuration.
+     * Create an empty model using the default values from the definition.
      *
-     * Returns either an array when in tree mode or a string in (parented) list mode.
+     * @return ModelInterface
      *
-     * @param ModelInterface $model The model that shall be formatted.
-     *
-     * @return array
+     * @deprecated Use Controller::createEmptyModelWithDefaults() instead!
      */
-    public function formatModel(ModelInterface $model)
+    protected function createEmptyModelWithDefaults()
     {
-        $listing           = $this->getViewSection()->getListingConfig();
-        $properties        = $this->getDataDefinition()->getPropertiesDefinition();
-        $formatter         = $listing->getLabelFormatter($model->getProviderName());
-        $sorting           = $this->getGroupingMode();
-        $sortingDefinition = $sorting['sorting'];
-        $firstSorting      = '';
-
-        if ($sortingDefinition) {
-            /** @var GroupAndSortingDefinitionInterface $sortingDefinition */
-            foreach ($sortingDefinition as $information) {
-                /** @var GroupAndSortingInformationInterface $information */
-                if ($information->getProperty()) {
-                    $firstSorting = reset($sorting);
-                    break;
-                }
-            }
-        }
-
-        $args = array();
-        foreach ($formatter->getPropertyNames() as $propertyName) {
-            if ($properties->hasProperty($propertyName)) {
-                $property = $properties->getProperty($propertyName);
-
-                $args[$propertyName] = (string)$this->getReadableFieldValue(
-                    $property,
-                    $model,
-                    $model->getProperty($propertyName)
-                );
-            } else {
-                $args[$propertyName] = '-';
-            }
-        }
-
-        $event = new ModelToLabelEvent($this->getEnvironment(), $model);
-        $event
-            ->setArgs($args)
-            ->setLabel($formatter->getFormat())
-            ->setFormatter($formatter);
-
-        $this->getEnvironment()->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $event::NAME, $this->getEnvironment()->getDataDefinition()->getName()),
-            $event
-        );
-        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
-
-        $arrLabel = array();
-
-        // Add columns.
-        if ($listing->getShowColumns()) {
-            $fields = $formatter->getPropertyNames();
-            $args   = $event->getArgs();
-
-            if (!is_array($args)) {
-                $arrLabel[] = array(
-                    'colspan' => count($fields),
-                    'class'   => 'tl_file_list col_1',
-                    'content' => $args
-                );
-            } else {
-                foreach ($fields as $j => $propertyName) {
-                    $arrLabel[] = array(
-                        'colspan' => 1,
-                        'class'   => 'tl_file_list col_' . $j . (($propertyName == $firstSorting) ? ' ordered_by' : ''),
-                        'content' => (($args[$propertyName] != '') ? $args[$propertyName] : '-')
-                    );
-                }
-            }
-        } else {
-            if (!is_array($event->getArgs())) {
-                $string = $event->getArgs();
-            } else {
-                $string = vsprintf($event->getLabel(), $event->getArgs());
-            }
-
-            if ($formatter->getMaxLength() !== null && strlen($string) > $formatter->getMaxLength()) {
-                $string = substr($string, 0, $formatter->getMaxLength());
-            }
-
-            $arrLabel[] = array(
-                'colspan' => null,
-                'class'   => 'tl_file_list',
-                'content' => $string
-            );
-        }
-
-        return $arrLabel;
-    }
-
-    /**
-     * Get for a field the readable value.
-     *
-     * @param PropertyInterface $property The property to be rendered.
-     *
-     * @param ModelInterface    $model    The model from which the property value shall be retrieved from.
-     *
-     * @param mixed             $value    The value for the property.
-     *
-     * @return mixed
-     */
-    public function getReadableFieldValue(PropertyInterface $property, ModelInterface $model, $value)
-    {
-        $event = new RenderReadablePropertyValueEvent($this->getEnvironment(), $model, $property, $value);
-
-        $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
-        $dispatcher->dispatch(
-            sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $property->getName()),
-            $event
-        );
-        $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()), $event);
-        $dispatcher->dispatch($event::NAME, $event);
-
-        if ($event->getRendered() !== null) {
-            return $event->getRendered();
-        }
-
-        return $value;
+        return $this->environment->getController()->createEmptyModelWithDefaults();
     }
 }

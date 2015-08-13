@@ -22,7 +22,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class RootCondition extends AbstractCondition implements RootConditionInterface
 {
-
     /**
      * The filter rules to use.
      *

@@ -19,7 +19,6 @@ namespace ContaoCommunityAlliance\DcGeneral;
  */
 class DcGeneral implements EnvironmentAwareInterface
 {
-
     /**
      * The environment instance.
      *

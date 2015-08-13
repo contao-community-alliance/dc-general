@@ -11,7 +11,7 @@
  * @filesource
  */
 
-namespace ContaoCommunityAlliance\DcGeneral\Test\DataDefinition\Palette;
+namespace ContaoCommunityAlliance\DcGeneral\Test\DataDefinition\ModelRelationship;
 
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultModel;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildCondition;

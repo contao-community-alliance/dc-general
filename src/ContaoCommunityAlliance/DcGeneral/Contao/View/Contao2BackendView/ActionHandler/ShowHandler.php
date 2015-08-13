@@ -18,12 +18,12 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
-use ContaoCommunityAlliance\DcGeneral\View\Event\RenderReadablePropertyValueEvent;
 
 /**
  * Handler class for handling the "show" action.
@@ -101,39 +101,6 @@ class ShowHandler extends AbstractHandler
     }
 
     /**
-     * Get for a field the readable value.
-     *
-     * @param PropertyInterface $property The property to be rendered.
-     *
-     * @param ModelInterface    $model    The model from which the property value shall be retrieved from.
-     *
-     * @param mixed             $value    The value for the property.
-     *
-     * @return mixed
-     */
-    public function getReadableFieldValue(PropertyInterface $property, ModelInterface $model, $value)
-    {
-        $event = new RenderReadablePropertyValueEvent($this->getEnvironment(), $model, $property, $value);
-
-        $environment = $this->getEnvironment();
-        $environment->getEventDispatcher()->dispatch(
-            sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $property->getName()),
-            $event
-        );
-        $environment->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
-            $event
-        );
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
-
-        if ($event->getRendered() !== null) {
-            return $event->getRendered();
-        }
-
-        return $value;
-    }
-
-    /**
      * Convert a model to it's labels and human readable values.
      *
      * @param ModelInterface       $model       The model to display.
@@ -160,10 +127,10 @@ class ShowHandler extends AbstractHandler
             }
 
             // Make it human readable.
-            $values[$paletteProperty->getName()] = $this->getReadableFieldValue(
+            $values[$paletteProperty->getName()] = ViewHelpers::getReadableFieldValue(
+                $this->getEnvironment(),
                 $property,
-                $model,
-                $model->getProperty($paletteProperty->getName())
+                $model
             );
 
             $labels[$paletteProperty->getName()] = $this->getPropertyLabel($property);
@@ -213,13 +180,10 @@ class ShowHandler extends AbstractHandler
     {
         $environment = $this->getEnvironment();
         if ($environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            $this->getEvent()->setResponse($environment->getView()->edit());
+            $this->getEvent()->setResponse($environment->getView()->edit($this->getEvent()));
 
             return;
         }
-
-        // Select language in data provider.
-        $this->checkLanguage($environment);
 
         $translator   = $environment->getTranslator();
         $modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('id'));

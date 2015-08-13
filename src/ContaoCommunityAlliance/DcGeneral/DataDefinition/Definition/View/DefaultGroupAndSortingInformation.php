@@ -18,7 +18,6 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
  */
 class DefaultGroupAndSortingInformation implements GroupAndSortingInformationInterface
 {
-
     /**
      * The property to use.
      *

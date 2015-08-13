@@ -15,10 +15,7 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event
 
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition
-    as PalettePropertyValueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyValueCondition;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 /**
@@ -53,7 +50,7 @@ class FinishConditionEvent extends BuilderEvent
     /**
      * Set the condition.
      *
-     * @param PalettePropertyValueCondition|PropertyValueCondition $condition The condition.
+     * @param PaletteConditionInterface|PropertyConditionInterface $condition The condition.
      *
      * @return FinishConditionEvent
      *
@@ -72,7 +69,7 @@ class FinishConditionEvent extends BuilderEvent
     /**
      * Retrieve the condition.
      *
-     * @return PalettePropertyValueCondition|PropertyValueCondition
+     * @return PaletteConditionInterface|PropertyConditionInterface
      */
     public function getCondition()
     {

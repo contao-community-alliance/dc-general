@@ -53,7 +53,7 @@ class SetPropertyConditionChainClassNameEvent extends BuilderEvent
      */
     public function setPalettePropertyConditionChainClassName($className)
     {
-        $this->className = (string)$className;
+        $this->className = (string) $className;
 
         return $this;
     }

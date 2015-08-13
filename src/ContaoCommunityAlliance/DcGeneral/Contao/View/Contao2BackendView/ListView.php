@@ -13,14 +13,19 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
+use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
+use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -45,7 +50,7 @@ class ListView extends BaseView
         /** @var Contao2BackendViewDefinitionInterface $backendView */
         $listingConfig = $backendView->getListingConfig();
         $dataProvider  = $environment->getDataProvider();
-        $dataConfig    = $environment->getController()->getBaseConfig();
+        $dataConfig    = $environment->getBaseConfigRegistry()->getBaseConfig();
 
         $this->getPanel()->initialize($dataConfig);
 
@@ -76,7 +81,7 @@ class ListView extends BaseView
         $properties        = $definition->getPropertiesDefinition();
         $viewDefinition    = $this->getViewSection();
         $listingDefinition = $viewDefinition->getListingConfig();
-        $sorting           = $this->getGroupingMode();
+        $sorting           = ViewHelpers::getGroupingMode($this->environment);
         $sortingDefinition = $sorting['sorting'];
         $sortingColumns    = array();
 
@@ -127,6 +132,7 @@ class ListView extends BaseView
      */
     protected function setListViewLabel($collection, $groupingInformation)
     {
+        $clipboard      = $this->environment->getClipboard();
         $viewDefinition = $this->getViewSection();
         $listingConfig  = $viewDefinition->getListingConfig();
         $remoteCur      = null;
@@ -165,9 +171,21 @@ class ListView extends BaseView
                 }
             }
 
-            $objModelRow->setMeta($objModelRow::CSS_ROW_CLASS, (((++$eoCount) % 2 == 0) ? 'even' : 'odd'));
+            $cssClasses = array((((++$eoCount) % 2 == 0) ? 'even' : 'odd'));
+            $modelId    = IdSerializer::fromModel($objModelRow);
+            if ($clipboard->hasId($modelId)) {
+                $cssClasses[] = 'tl_folder_clipped';
+            }
 
-            $objModelRow->setMeta($objModelRow::LABEL_VALUE, $this->formatModel($objModelRow));
+            $objModelRow->setMeta($objModelRow::CSS_ROW_CLASS, implode(' ', $cssClasses));
+
+            $event = new FormatModelLabelEvent($this->environment, $objModelRow);
+            $this->environment->getEventDispatcher()->dispatch(
+                DcGeneralEvents::FORMAT_MODEL_LABEL,
+                $event
+            );
+
+            $objModelRow->setMeta($objModelRow::LABEL_VALUE, $event->getLabel());
         }
     }
 
@@ -183,7 +201,7 @@ class ListView extends BaseView
         $environment = $this->getEnvironment();
         $definition  = $environment->getDataDefinition();
 
-        $groupingInformation = $this->getGroupingMode();
+        $groupingInformation = ViewHelpers::getGroupingMode($this->environment);
 
         // Set label.
         $this->setListViewLabel($collection, $groupingInformation);
@@ -217,14 +235,14 @@ class ListView extends BaseView
             ->addToTemplate('tableName', strlen($definition->getName()) ? $definition->getName() : 'none', $objTemplate)
             ->addToTemplate('collection', $collection, $objTemplate)
             ->addToTemplate('select', $this->getEnvironment()->getInputProvider()->getParameter('act'), $objTemplate)
-            ->addToTemplate('action', ampersand(\Environment::getInstance()->request, true), $objTemplate)
+            ->addToTemplate('action', ampersand(\Environment::get('request'), true), $objTemplate)
             ->addToTemplate('mode', ($groupingInformation ? $groupingInformation['mode'] : null), $objTemplate)
             ->addToTemplate('tableHead', $this->getTableHead(), $objTemplate)
             // Set dataprovider from current and parent.
             ->addToTemplate('pdp', '', $objTemplate)
             ->addToTemplate('cdp', $definition->getName(), $objTemplate)
             ->addToTemplate('selectButtons', $this->getSelectButtons(), $objTemplate)
-            ->addToTemplate('sortable', (bool)$this->getManualSortingProperty(), $objTemplate)
+            ->addToTemplate('sortable', (bool) ViewHelpers::getManualSortingProperty($this->environment), $objTemplate)
             ->addToTemplate('showColumns', $this->getViewSection()->getListingConfig()->getShowColumns(), $objTemplate);
 
         // Add breadcrumb, if we have one.
@@ -237,19 +255,19 @@ class ListView extends BaseView
     }
 
     /**
-     * Copy mode - this redirects to edit.
+     * {@inheritdoc}
      *
      * @throws DcGeneralRuntimeException If no model id has been given.
      *
      * @return string
      */
-    public function copy()
+    public function copy(Action $action)
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
-        }
+        // FIXME this will never be used anymore!
 
-        $this->checkLanguage();
+        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+            return $this->edit($action);
+        }
 
         $environment  = $this->getEnvironment();
         $dataProvider = $environment->getDataProvider();
@@ -288,23 +306,24 @@ class ListView extends BaseView
     }
 
     /**
-     * Show all entries from one table.
-     *
-     * @return string
+     * {@inheritdoc}
      */
-    public function showAll()
+    public function showAll(Action $action)
     {
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
+            return $this->edit($action);
         }
 
-        $this->checkClipboard();
         $collection = $this->loadCollection();
 
-        $arrReturn            = array();
-        $arrReturn['panel']   = $this->panel();
-        $arrReturn['buttons'] = $this->generateHeaderButtons('tl_buttons_a');
-        $arrReturn['body']    = $this->viewList($collection);
+        $viewEvent = new ViewEvent($this->environment, $action, DcGeneralViews::CLIPBOARD, array());
+        $this->environment->getEventDispatcher()->dispatch(DcGeneralEvents::VIEW, $viewEvent);
+
+        $arrReturn              = array();
+        $arrReturn['panel']     = $this->panel();
+        $arrReturn['buttons']   = $this->generateHeaderButtons('tl_buttons_a');
+        $arrReturn['clipboard'] = $viewEvent->getResponse();
+        $arrReturn['body']      = $this->viewList($collection);
 
         // Return all.
         return implode("\n", $arrReturn);

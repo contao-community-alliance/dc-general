@@ -15,14 +15,17 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
-use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
+use ContaoCommunityAlliance\DcGeneral\Controller\TreeCollector;
+use ContaoCommunityAlliance\DcGeneral\Controller\TreeNodeStates;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
+use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -45,36 +48,59 @@ class TreeView extends BaseView
     }
 
     /**
-     * Retrieve the ids of all tree nodes that are expanded.
+     * Create a tree states instance.
      *
-     * @return array
+     * @return TreeNodeStates
      */
-    protected function getOpenElements()
+    protected function getTreeNodeStates()
     {
-        $inputProvider = $this->getEnvironment()->getInputProvider();
-
-        $openElements = $inputProvider->getPersistentValue($this->getToggleId());
+        $sessionStorage = $this->getEnvironment()->getSessionStorage();
+        $openElements   = $sessionStorage->get($this->getToggleId());
 
         if (!is_array($openElements)) {
             $openElements = array();
-            $inputProvider->setPersistentValue($this->getToggleId(), $openElements);
         }
 
-        // Check if the open/close all is active.
-        if ($inputProvider->getParameter('ptg') == 'all') {
-            $openElements = array();
-            if (!array_key_exists('all', $openElements)) {
-                $openElements        = array();
-                $openElements['all'] = 1;
+        return new TreeNodeStates($openElements);
+    }
+
+    /**
+     * Save a tree node states instance to the session.
+     *
+     * @param TreeNodeStates $states The instance to be saved.
+     *
+     * @return void
+     */
+    protected function saveTreeNodeStates(TreeNodeStates $states)
+    {
+        $sessionStorage = $this->getEnvironment()->getSessionStorage();
+        $sessionStorage->set($this->getToggleId(), $states->getStates());
+    }
+
+    /**
+     * Check the get parameters if there is any node toggling.
+     *
+     * CAUTION: If there has been any action, the browser will get redirected and the script therefore exited.
+     *
+     * @return void
+     */
+    private function handleNodeStateChanges()
+    {
+        $input = $this->getEnvironment()->getInputProvider();
+        if (($modelId = $input->getParameter('ptg')) && ($providerName = $input->getParameter('provider'))) {
+            $states = $this->getTreeNodeStates();
+            // Check if the open/close all has been triggered or just a model.
+            if ($modelId == 'all') {
+                if ($states->isAllOpen()) {
+                    $states->resetAll();
+                }
+                $states->setAllOpen($states->isAllOpen());
+            } else {
+                $this->toggleModel($providerName, $modelId);
             }
 
-            // Save in session and reload.
-            $inputProvider->setPersistentValue($this->getToggleId(), $openElements);
-
-            $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
+            ViewHelpers::redirectHome($this->environment);
         }
-
-        return $openElements;
     }
 
     /**
@@ -86,22 +112,9 @@ class TreeView extends BaseView
      *
      * @return void
      */
-    protected function toggleModel($providerName, $modelId)
+    private function toggleModel($providerName, $modelId)
     {
-        $inputProvider = $this->getEnvironment()->getInputProvider();
-        $openElements  = $this->getOpenElements();
-
-        if (!isset($openElements[$providerName])) {
-            $openElements[$providerName] = array();
-        }
-
-        if (!isset($openElements[$providerName][$modelId])) {
-            $openElements[$providerName][$modelId] = 1;
-        } else {
-            $openElements[$providerName][$modelId] = !$openElements[$providerName][$modelId];
-        }
-
-        $inputProvider->setPersistentValue($this->getToggleId(), $openElements);
+        $this->saveTreeNodeStates($this->getTreeNodeStates()->toggleModel($providerName, $modelId));
     }
 
     /**
@@ -113,19 +126,7 @@ class TreeView extends BaseView
      */
     protected function isModelOpen($model)
     {
-        $openModels = $this->getOpenElements();
-
-        if (isset($openModels['all']) && ($openModels['all'] == 1)) {
-            return true;
-        }
-
-        if (isset($openModels[$model->getProviderName()][$model->getID()])
-            && ($openModels[$model->getProviderName()][$model->getID()])
-        ) {
-            return true;
-        }
-
-        return false;
+        return $this->getTreeNodeStates()->isModelOpen($model->getProviderName(), $model->getID());
     }
 
     /**
@@ -141,16 +142,29 @@ class TreeView extends BaseView
      */
     public function loadCollection($rootId = null, $intLevel = 0, $providerName = null)
     {
-        $environment = $this->getEnvironment();
-        $dataDriver  = $environment->getDataProvider($providerName);
+        $environment  = $this->getEnvironment();
+        $dataDriver   = $environment->getDataProvider($providerName);
+        $realProvider = $dataDriver->getEmptyModel()->getProviderName();
 
-        $objCollection = $this->getTreeCollectionRecursive($rootId, $intLevel, $providerName);
+        $collector     = new TreeCollector(
+            $environment,
+            $this->getPanel(),
+            $this->getViewSection()->getListingConfig()->getDefaultSortingFields(),
+            $this->getTreeNodeStates()
+        );
+        $objCollection = $rootId
+            ? $collector->getTreeCollectionRecursive($rootId, $intLevel, $realProvider)
+            : $collector->getChildrenOf(
+                $realProvider,
+                $intLevel,
+                $environment->getInputProvider()->hasParameter('pid') ? $this->loadParentModel() : null
+            );
 
         if ($rootId) {
             $objTreeData = $dataDriver->getEmptyCollection();
             $objModel    = $objCollection->get(0);
 
-            if (!$objModel->getMeta($objModel::HAS_CHILDREN)) {
+            if (!$objModel->getMeta(ModelInterface::HAS_CHILDREN)) {
                 return $objTreeData;
             }
 
@@ -222,210 +236,6 @@ class TreeView extends BaseView
     }
 
     /**
-     * Check the state of a model and set the metadata accordingly.
-     *
-     * @param ModelInterface $model The model of which the state shall be checked of.
-     *
-     * @param int            $level The tree level the model is contained within.
-     *
-     * @return void
-     */
-    protected function determineModelState(ModelInterface $model, $level)
-    {
-        $model->setMeta(DCGE::TREE_VIEW_LEVEL, $level);
-        $model->setMeta(DCGE::TREE_VIEW_IS_OPEN, $this->isModelOpen($model));
-    }
-
-    /**
-     * This "renders" a model for tree view.
-     *
-     * @param ModelInterface $objModel     The model to render.
-     *
-     * @param int            $intLevel     The current level in the tree hierarchy.
-     *
-     * @param array          $arrSubTables The names of data providers that shall be rendered "below" this item.
-     *
-     * @return void
-     */
-    protected function treeWalkModel(ModelInterface $objModel, $intLevel, $arrSubTables = array())
-    {
-        $environment   = $this->getEnvironment();
-        $relationships = $environment->getDataDefinition()->getModelRelationshipDefinition();
-        $blnHasChild   = false;
-
-        $this->determineModelState($objModel, $intLevel);
-
-        $providerName = $objModel->getProviderName();
-        $mySubTables  = array();
-        foreach ($relationships->getChildConditions($providerName) as $condition) {
-            $mySubTables[] = $condition->getDestinationName();
-        }
-        $arrChildCollections = array();
-        foreach ($arrSubTables as $strSubTable) {
-            // Evaluate the child filter for this item.
-            $arrChildFilter = $relationships->getChildCondition($providerName, $strSubTable);
-
-            // If we do not know how to render this table within here, continue with the next one.
-            if (!$arrChildFilter) {
-                continue;
-            }
-
-            // Create a new Config and fetch the children from the child provider.
-            $dataProvider   = $environment->getDataProvider($strSubTable);
-            $objChildConfig = $dataProvider->getEmptyConfig();
-            $objChildConfig->setFilter($arrChildFilter->getFilter($objModel));
-
-            // TODO: hardcoded sorting... NOT GOOD!
-            $objChildConfig->setSorting(array('sorting' => 'ASC'));
-            $objChildCollection = $dataProvider->fetchAll($objChildConfig);
-
-            $blnHasChild = ($objChildCollection->length() > 0);
-
-            // Speed up - we may exit if we have at least one child but the parenting model is collapsed.
-            if ($blnHasChild && !$objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN)) {
-                break;
-            } elseif ($blnHasChild) {
-                foreach ($objChildCollection as $objChildModel) {
-                    // Let the child know about it's parent.
-                    $objModel->setMeta($objModel::PARENT_ID, $objModel->getID());
-                    $objModel->setMeta($objModel::PARENT_PROVIDER_NAME, $providerName);
-
-                    $this->treeWalkModel($objChildModel, ($intLevel + 1), $mySubTables);
-                }
-                $arrChildCollections[] = $objChildCollection;
-
-                // Speed up, if collapsed, one item is enough to break as we have some children.
-                if (!$objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN)) {
-                    break;
-                }
-            }
-        }
-
-        // If expanded, store children.
-        if ($objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN) && count($arrChildCollections) != 0) {
-            $objModel->setMeta(DCGE::TREE_VIEW_CHILD_COLLECTION, $arrChildCollections);
-        }
-
-        $objModel->setMeta($objModel::HAS_CHILDREN, $blnHasChild);
-    }
-
-    /**
-     * Add the parent filtering to the given data config if any defined.
-     *
-     * @param ConfigInterface $config The data config.
-     *
-     * @return void
-     */
-    protected function addParentFilter($config)
-    {
-        $environment     = $this->getEnvironment();
-        $definition      = $environment->getDataDefinition();
-        $basicDefinition = $definition->getBasicDefinition();
-        $relationships   = $definition->getModelRelationshipDefinition();
-
-        if (!$basicDefinition->getParentDataProvider()) {
-            return;
-        }
-
-        // Apply parent filtering, do this only for root elements.
-        if ($objParentCondition = $relationships->getChildCondition(
-            $basicDefinition->getParentDataProvider(),
-            $basicDefinition->getRootDataProvider()
-        )
-        ) {
-            $arrBaseFilter = $config->getFilter();
-            $arrFilter     = $objParentCondition->getFilter($this->loadParentModel());
-
-            if ($arrBaseFilter) {
-                $arrFilter = array_merge($arrBaseFilter, $arrFilter);
-            }
-
-            $config->setFilter($arrFilter);
-        }
-    }
-
-    /**
-     * Recursively retrieve a collection of all complete node hierarchy.
-     *
-     * @param array  $rootId       The ids of the root node.
-     *
-     * @param int    $intLevel     The level the items are residing on.
-     *
-     * @param string $providerName The data provider from which the root element originates from.
-     *
-     * @return CollectionInterface
-     */
-    public function getTreeCollectionRecursive($rootId, $intLevel = 0, $providerName = null)
-    {
-        $environment      = $this->getEnvironment();
-        $definition       = $environment->getDataDefinition();
-        $dataProvider     = $environment->getDataProvider($providerName);
-        $objTableTreeData = $dataProvider->getEmptyCollection();
-        $objRootConfig    = $environment->getController()->getBaseConfig();
-        $relationships    = $definition->getModelRelationshipDefinition();
-        $backendView      = $this->getViewSection();
-
-        /** @var Contao2BackendViewDefinitionInterface $backendView */
-        $listingConfig = $backendView->getListingConfig();
-        // Initialize sorting.
-        $objRootConfig->setSorting($listingConfig->getDefaultSortingFields());
-
-        $this->getPanel()->initialize($objRootConfig);
-
-        if (!$rootId) {
-            $objRootCondition = $relationships->getRootCondition();
-
-            if ($objRootCondition) {
-                $arrBaseFilter = $objRootConfig->getFilter();
-                $arrFilter     = $objRootCondition->getFilterArray();
-
-                if ($arrBaseFilter) {
-                    $arrFilter = array_merge($arrBaseFilter, $arrFilter);
-                }
-
-                $objRootConfig->setFilter($arrFilter);
-            }
-
-            $this->addParentFilter($objRootConfig);
-
-            // Fetch all root elements.
-            $objRootCollection = $dataProvider->fetchAll($objRootConfig);
-
-            if ($objRootCollection->length() > 0) {
-                $mySubTables = array();
-                foreach ($relationships->getChildConditions(
-                    $objRootCollection->get(0)->getProviderName()
-                ) as $condition) {
-                    $mySubTables[] = $condition->getDestinationName();
-                }
-
-                foreach ($objRootCollection as $objRootModel) {
-                    /** @var ModelInterface $objRootModel */
-                    $objTableTreeData->push($objRootModel);
-                    $this->treeWalkModel($objRootModel, $intLevel, $mySubTables);
-                }
-            }
-
-            return $objTableTreeData;
-        }
-
-        $objRootConfig->setId($rootId);
-        // Fetch root element.
-        $objRootModel = $dataProvider->fetch($objRootConfig);
-
-        $mySubTables = array();
-        foreach ($relationships->getChildConditions($objRootModel->getProviderName()) as $condition) {
-            $mySubTables[] = $condition->getDestinationName();
-        }
-
-        $this->treeWalkModel($objRootModel, $intLevel, $mySubTables);
-        $objRootCollection = $dataProvider->getEmptyCollection();
-        $objRootCollection->push($objRootModel);
-
-        return $objRootCollection;
-    }
-
-    /**
      * Render a given model.
      *
      * @param ModelInterface $objModel    The model to render.
@@ -436,8 +246,14 @@ class TreeView extends BaseView
      */
     protected function parseModel($objModel, $strToggleID)
     {
+        $event = new FormatModelLabelEvent($this->environment, $objModel);
+        $this->environment->getEventDispatcher()->dispatch(
+            DcGeneralEvents::FORMAT_MODEL_LABEL,
+            $event
+        );
+
         $objModel->setMeta($objModel::OPERATION_BUTTONS, $this->generateButtons($objModel));
-        $objModel->setMeta($objModel::LABEL_VALUE, $this->formatModel($objModel));
+        $objModel->setMeta($objModel::LABEL_VALUE, $event->getLabel());
 
         $objTemplate = $this->getTemplate('dcbe_general_treeview_entry');
 
@@ -580,10 +396,11 @@ class TreeView extends BaseView
      */
     protected function viewTree($collection)
     {
-        $definition  = $this->getDataDefinition();
-        $listing     = $this->getViewSection()->getListingConfig();
-        $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
+        $definition      = $this->getDataDefinition();
+        $listing         = $this->getViewSection()->getListingConfig();
+        $basicDefinition = $definition->getBasicDefinition();
+        $environment     = $this->getEnvironment();
+        $dispatcher      = $environment->getEventDispatcher();
 
         // Init some Vars
         switch (6 /*$definition->getSortingMode()*/) {
@@ -608,8 +425,16 @@ class TreeView extends BaseView
             $strLabelIcon = $listing->getRootIcon();
         }
 
+        $filter = new Filter();
+        $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
+        if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
+            $filter->andParentIsFromProvider($parentDataProviderName);
+        } else {
+            $filter->andHasNoParent();
+        }
+
         // Root paste into.
-        if ($environment->getClipboard()->isNotEmpty()) {
+        if ($environment->getClipboard()->isNotEmpty($filter)) {
             $objClipboard = $environment->getClipboard();
             /** @var AddToUrlEvent $urlEvent */
             $urlEvent = $dispatcher->dispatch(
@@ -701,7 +526,7 @@ class TreeView extends BaseView
     /**
      * {@inheritDoc}
      */
-    public function paste()
+    public function paste(Action $action)
     {
         $environment = $this->getEnvironment();
         $input       = $environment->getInputProvider();
@@ -715,34 +540,26 @@ class TreeView extends BaseView
         // If destination is known, perform normal paste.
         if ($input->hasParameter('after') || $input->hasParameter('into')) {
             if ($clipboard->isCreate()) {
-                return parent::create();
+                return parent::create($action);
             }
 
-            parent::paste();
+            parent::paste($action);
         }
 
         // Show the target selection tree otherwise.
-        return $this->showAll();
+        return $this->showAll($action);
     }
 
     /**
-     * Show all entries from one table.
-     *
-     * @return string
+     * {@inheritdoc}
      */
-    public function showAll()
+    public function showAll(Action $action)
     {
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
+            return $this->edit($action);
         }
 
-        $input = $this->getEnvironment()->getInputProvider();
-        if (($modelId = $input->hasParameter('ptg')) && ($providerName = $input->hasParameter('provider'))) {
-            $this->toggleModel($providerName, $modelId);
-            $this->redirectHome();
-        }
-
-        $this->checkClipboard();
+        $this->handleNodeStateChanges();
 
         $collection = $this->loadCollection();
         $arrReturn  = array();
@@ -782,12 +599,11 @@ class TreeView extends BaseView
 
         switch ($input->getValue('action')) {
             case 'DcGeneralLoadSubTree':
-                header('Content-Type: text/html; charset=' . $GLOBALS['TL_CONFIG']['characterSet']);
+                header('Content-Type: text/html; charset=' . \Config::get('characterSet'));
                 echo $this->ajaxTreeView(
                     $input->getValue('id'),
                     $input->getValue('providerName'),
-                    $input->getValue('level'),
-                    $input->getValue('mode')
+                    $input->getValue('level')
                 );
                 exit;
 
@@ -830,33 +646,5 @@ class TreeView extends BaseView
         $strHtml = $this->generateTreeView($collection, $treeClass);
 
         return $strHtml;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function cut()
-    {
-
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
-        }
-
-        $this->checkClipboard('cut');
-        $this->redirectHome();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function copy()
-    {
-
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
-        }
-
-        $this->checkClipboard('copy');
-        $this->redirectHome();
     }
 }

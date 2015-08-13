@@ -19,14 +19,21 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
+use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
+use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
+use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 
@@ -50,7 +57,7 @@ class ParentView extends BaseView
     {
         $environment   = $this->getEnvironment();
         $dataProvider  = $environment->getDataProvider();
-        $childConfig   = $environment->getController()->getBaseConfig();
+        $childConfig   = $environment->getBaseConfigRegistry()->getBaseConfig();
         $listingConfig = $this->getViewSection()->getListingConfig();
 
         $this->getPanel()->initialize($childConfig);
@@ -124,6 +131,7 @@ class ParentView extends BaseView
     protected function renderEntries($collection, $groupingInformation)
     {
         $environment = $this->getEnvironment();
+        $clipboard   = $environment->getClipboard();
         $view        = $this->getViewSection();
         $listing     = $view->getListingConfig();
         $remoteCur   = null;
@@ -194,7 +202,13 @@ class ParentView extends BaseView
             );
             $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
-            $model->setMeta($model::CSS_ROW_CLASS, (((++$eoCount) % 2 == 0) ? 'even' : 'odd'));
+            $cssClasses = array((((++$eoCount) % 2 == 0) ? 'even' : 'odd'));
+            $modelId    = IdSerializer::fromModel($model);
+            if ($clipboard->hasId($modelId)) {
+                $cssClasses[] = 'tl_folder_clipped';
+            }
+
+            $model->setMeta($model::CSS_ROW_CLASS, implode(' ', $cssClasses));
 
             if ($event->getHtml() !== null) {
                 $information = array(
@@ -206,7 +220,13 @@ class ParentView extends BaseView
                 );
                 $model->setMeta($model::LABEL_VALUE, $information);
             } else {
-                $model->setMeta($model::LABEL_VALUE, $this->formatModel($model));
+                $event = new FormatModelLabelEvent($this->environment, $model);
+                $this->environment->getEventDispatcher()->dispatch(
+                    DcGeneralEvents::FORMAT_MODEL_LABEL,
+                    $event
+                );
+
+                $model->setMeta($model::LABEL_VALUE, $event->getLabel());
             }
         }
     }
@@ -328,21 +348,29 @@ class ParentView extends BaseView
         } else {
             $dispatcher = $environment->getEventDispatcher();
 
-            $objConfig = $this->getEnvironment()->getController()->getBaseConfig();
+            $objConfig = $this->getEnvironment()->getBaseConfigRegistry()->getBaseConfig();
             $this->getPanel()->initialize($objConfig);
             $sorting = $objConfig->getSorting();
 
             $headerButtons['editHeader'] = $this->getHeaderEditButtons($parentModel);
 
+            $filter = new Filter();
+            $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
+            if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
+                $filter->andParentIsFromProvider($parentDataProviderName);
+            } else {
+                $filter->andHasNoParent();
+            }
+
             if ($sorting
-                && $clipboard->isEmpty()
+                && $clipboard->isEmpty($filter)
                 && $basicDefinition->isCreatable()
             ) {
                 /** @var AddToUrlEvent $urlEvent */
                 $urlEvent = $dispatcher->dispatch(
                     ContaoEvents::BACKEND_ADD_TO_URL,
                     new AddToUrlEvent(
-                        'act=create&amp;pid=' . IdSerializer::fromModel($parentModel)->getSerialized()
+                        'act=edit&amp;pid=' . IdSerializer::fromModel($parentModel)->getSerialized()
                     )
                 );
 
@@ -363,32 +391,67 @@ class ParentView extends BaseView
                 );
             }
 
-            if ($sorting && $clipboard->isNotEmpty()) {
-                /** @var AddToUrlEvent $urlEvent */
-                $urlEvent = $dispatcher->dispatch(
-                    ContaoEvents::BACKEND_ADD_TO_URL,
-                    new AddToUrlEvent(
-                        'act=' . $clipboard->getMode() .
-                        '&amp;pid=' . IdSerializer::fromModel($parentModel)->getSerialized()
-                    )
-                );
+            $filter = new Filter();
+            $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
+            $filter->andParentIsFromProvider($basicDefinition->getParentDataProvider());
 
-                /** @var GenerateHtmlEvent $imageEvent */
-                $imageEvent = $dispatcher->dispatch(
-                    ContaoEvents::IMAGE_GET_HTML,
-                    new GenerateHtmlEvent(
-                        'pasteafter.gif',
-                        $this->translate('pasteafter.0', $definition->getName()),
-                        'class="blink"'
-                    )
-                );
+            if ($sorting && $clipboard->isNotEmpty($filter)) {
 
-                $headerButtons['pasteAfter'] = sprintf(
-                    '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
-                    $urlEvent->getUrl(),
-                    specialchars($this->translate('pasteafter.1', $definition->getName())),
-                    $imageEvent->getHtml()
-                );
+                $allowPasteTop = ViewHelpers::getManualSortingProperty($this->environment);
+
+                if (!$allowPasteTop) {
+                    $subFilter = new Filter();
+                    $subFilter->andActionIsNotIn(array(ItemInterface::COPY, ItemInterface::DEEP_COPY));
+                    $subFilter->andParentIsNot(IdSerializer::fromModel($parentModel));
+                    $subFilter->orActionIsIn(array(ItemInterface::COPY, ItemInterface::DEEP_COPY));
+
+                    $filter = new Filter();
+                    $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
+                    $filter->andParentIsFromProvider($basicDefinition->getParentDataProvider());
+                    $filter->andSub($subFilter);
+
+                    $allowPasteTop = (bool) $clipboard->fetch($filter);
+                }
+
+                if ($allowPasteTop) {
+                    /** @var AddToUrlEvent $urlEvent */
+                    $urlEvent = $dispatcher->dispatch(
+                        ContaoEvents::BACKEND_ADD_TO_URL,
+                        new AddToUrlEvent(
+                            'act=paste' .
+                            '&amp;pid=' . IdSerializer::fromModel($parentModel)->getSerialized()
+                        )
+                    );
+
+                    /** @var GenerateHtmlEvent $imageEvent */
+                    $imageEvent = $dispatcher->dispatch(
+                        ContaoEvents::IMAGE_GET_HTML,
+                        new GenerateHtmlEvent(
+                            'pasteafter.gif',
+                            $this->translate('pasteafter.0', $definition->getName()),
+                            'class="blink"'
+                        )
+                    );
+
+                    $headerButtons['pasteAfter'] = sprintf(
+                        '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
+                        $urlEvent->getUrl(),
+                        specialchars($this->translate('pasteafter.0', $definition->getName())),
+                        $imageEvent->getHtml()
+                    );
+                } else {
+                    /** @var GenerateHtmlEvent $imageEvent */
+                    $imageEvent = $dispatcher->dispatch(
+                        ContaoEvents::IMAGE_GET_HTML,
+                        new GenerateHtmlEvent(
+                            'pasteafter_.gif',
+                            $this->translate('pasteafter.0', $definition->getName()),
+                            'class="blink"'
+                        )
+                    );
+
+                    $headerButtons['pasteAfter'] = $imageEvent->getHtml();
+                }
             }
         }
 
@@ -486,7 +549,7 @@ class ParentView extends BaseView
     {
         $definition          = $this->getEnvironment()->getDataDefinition();
         $parentProvider      = $definition->getBasicDefinition()->getParentDataProvider();
-        $groupingInformation = $this->getGroupingMode();
+        $groupingInformation = ViewHelpers::getGroupingMode($this->environment);
         $dispatcher          = $this->getEnvironment()->getEventDispatcher();
 
         // Skip if we have no parent or parent collection.
@@ -520,14 +583,14 @@ class ParentView extends BaseView
             ->addToTemplate('tableName', strlen($definition->getName()) ? $definition->getName() : 'none', $objTemplate)
             ->addToTemplate('collection', $collection, $objTemplate)
             ->addToTemplate('select', $this->isSelectModeActive(), $objTemplate)
-            ->addToTemplate('action', ampersand(\Environment::getInstance()->request, true), $objTemplate)
+            ->addToTemplate('action', ampersand(\Environment::get('request'), true), $objTemplate)
             ->addToTemplate('header', $this->renderFormattedHeaderFields($parentModel), $objTemplate)
             ->addToTemplate('mode', ($groupingInformation ? $groupingInformation['mode'] : null), $objTemplate)
-            ->addToTemplate('pdp', (string)$parentProvider, $objTemplate)
+            ->addToTemplate('pdp', (string) $parentProvider, $objTemplate)
             ->addToTemplate('cdp', $definition->getName(), $objTemplate)
             ->addToTemplate('selectButtons', $this->getSelectButtons(), $objTemplate)
             ->addToTemplate('headerButtons', $this->getHeaderButtons($parentModel), $objTemplate)
-            ->addToTemplate('sortable', (bool)$this->getManualSortingProperty(), $objTemplate)
+            ->addToTemplate('sortable', (bool) ViewHelpers::getManualSortingProperty($this->environment), $objTemplate)
             ->addToTemplate('showColumns', $this->getViewSection()->getListingConfig()->getShowColumns(), $objTemplate);
 
         $this->renderEntries($collection, $groupingInformation);
@@ -563,24 +626,25 @@ class ParentView extends BaseView
     }
 
     /**
-     * Show all entries from one table.
-     *
-     * @return string HTML
+     * {@inheritdoc}
      */
-    public function showAll()
+    public function showAll(Action $action)
     {
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
+            return $this->edit($action);
         }
 
-        $this->checkClipboard();
         $collection  = $this->loadCollection();
         $parentModel = $this->loadParentModel();
 
-        $arrReturn            = array();
-        $arrReturn['panel']   = $this->panel();
-        $arrReturn['buttons'] = $this->generateHeaderButtons('tl_buttons_a');
-        $arrReturn['body']    = $this->viewParent($collection, $parentModel);
+        $viewEvent = new ViewEvent($this->environment, $action, DcGeneralViews::CLIPBOARD, array());
+        $this->environment->getEventDispatcher()->dispatch(DcGeneralEvents::VIEW, $viewEvent);
+
+        $arrReturn              = array();
+        $arrReturn['panel']     = $this->panel();
+        $arrReturn['buttons']   = $this->generateHeaderButtons('tl_buttons_a');
+        $arrReturn['clipboard'] = $viewEvent->getResponse();
+        $arrReturn['body']      = $this->viewParent($collection, $parentModel);
 
         return implode("\n", $arrReturn);
     }
@@ -590,21 +654,20 @@ class ParentView extends BaseView
      *
      * @throws DcGeneralRuntimeException When no source id is provided by the input provider.
      */
-    public function copy()
+    public function copy(Action $action)
     {
+        // FIXME this will never be used anymore!
 
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $this->edit();
+            return $this->edit($action);
         }
 
-        if ($this->getManualSortingProperty()
-            && $this->environment->getDataProvider()->fieldExists($this->getManualSortingProperty())
+        $manualSortingProperty = ViewHelpers::getManualSortingProperty($this->environment);
+        if ($manualSortingProperty
+            && $this->environment->getDataProvider()->fieldExists($manualSortingProperty)
         ) {
-            $this->checkClipboard('copy');
-            $this->redirectHome();
+            ViewHelpers::redirectHome($this->environment);
         }
-
-        $this->checkLanguage();
 
         $environment  = $this->getEnvironment();
         $dataProvider = $environment->getDataProvider();

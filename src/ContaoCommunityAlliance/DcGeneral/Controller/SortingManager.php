@@ -23,7 +23,6 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
  */
 class SortingManager
 {
-
     /**
      * The collection containing the models to be inserted.
      *
@@ -277,22 +276,31 @@ class SortingManager
     }
 
     /**
-     * Calculate the resulting list.
+     * Determine delta value: ((next sorting - current sorting) / amount of insert models).
+     *
+     * @return float|int
+     */
+    private function determineDelta()
+    {
+        $delta = (
+            ($this->marker->getProperty($this->getSortingProperty()) - $this->position) / $this->results->length()
+        );
+        // If delta too narrow, we need to make room.
+        if ($delta < 2) {
+            $delta = 128;
+            return $delta;
+        }
+        return $delta;
+    }
+
+    /**
+     * Update the sorting property values of all models.
      *
      * @return void
      */
-    protected function calculate()
+    private function updateSorting()
     {
-        if (isset($this->results) || $this->models->length() == 0) {
-            return;
-        }
-
-        $ids                = $this->getModelIds();
-        $this->results      = clone $this->models;
-        $this->siblingsCopy = clone $this->siblings;
-
-        $this->scanToDesiredPosition();
-
+        $ids = $this->getModelIds();
         // If no "next" sibling, simply increment the sorting as we are at the end of the list.
         if (!$this->marker) {
             foreach ($this->results as $model) {
@@ -304,15 +312,7 @@ class SortingManager
             return;
         }
 
-        // Determine delta value: ((next sorting - current sorting) / amount of insert models).
-        $delta = (
-            ($this->marker->getProperty($this->getSortingProperty()) - $this->position)
-            / $this->results->length()
-        );
-        // If delta too narrow, we need to make room.
-        if ($delta < 2) {
-            $delta = 128;
-        }
+        $delta = $this->determineDelta();
 
         // Loop over all models and increment sorting value.
         foreach ($this->results as $model) {
@@ -338,5 +338,29 @@ class SortingManager
                 $this->marker = $this->siblingsCopy->shift();
             } while ($this->marker);
         }
+    }
+
+    /**
+     * Calculate the resulting list.
+     *
+     * @return void
+     *
+     * @throws \RuntimeException When no sorting property has been defined.
+     */
+    protected function calculate()
+    {
+        if (isset($this->results) || $this->models->length() == 0) {
+            return;
+        }
+
+        if (!$this->getSortingProperty()) {
+            throw new \RuntimeException('No sorting property defined for ' . $this->models->get(0)->getProviderName());
+        }
+
+        $this->results      = clone $this->models;
+        $this->siblingsCopy = clone $this->siblings;
+
+        $this->scanToDesiredPosition();
+        $this->updateSorting();
     }
 }

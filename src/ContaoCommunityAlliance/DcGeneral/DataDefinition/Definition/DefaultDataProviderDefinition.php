@@ -23,7 +23,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
 {
-
     /**
      * The data provider information stored in the definition.
      *

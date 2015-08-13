@@ -14,6 +14,8 @@
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
 use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\FilterInterface;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
@@ -49,9 +51,15 @@ interface ControllerInterface
      *
      * This includes all auxiliary filters from DCA etc. but excludes the filters from panels.
      *
+     * @param IdSerializer $parentId The parent ID.
+     *
      * @return ConfigInterface
+     *
+     * @see    BaseConfigRegistryInterface::getBaseConfig()
+     *
+     * @deprecated Use EnvironmentInterface::getBaseConfigRegistry->getBaseConfig()
      */
-    public function getBaseConfig();
+    public function getBaseConfig(IdSerializer $parentId = null);
 
     /**
      * Handle a action within this environment.
@@ -142,15 +150,74 @@ interface ControllerInterface
     public function fetchModelFromProvider($modelId, $providerName = null);
 
     /**
+     * Create an empty model using the default values from the definition.
+     *
+     * @return ModelInterface
+     */
+    public function createEmptyModelWithDefaults();
+
+    /**
+     * Retrieve a model from the clipboard item.
+     *
+     * @param ItemInterface $item The clipboard item.
+     *
+     * @return ModelInterface
+     */
+    public function getModelFromClipboardItem(ItemInterface $item);
+
+    /**
+     * Retrieve models from the clipboard items.
+     *
+     * @param array|ItemInterface[] $items The clipboard items.
+     *
+     * @return CollectionInterface|ModelInterface[]
+     */
+    public function getModelsFromClipboardItems(array $items);
+
+    /**
+     * Retrieve models from the clipboard.
+     *
+     * This will only return models, that are compatible with the current environment.
+     *
+     * @param IdSerializer $parentModelId The optional parent id. If not given, the models must not have a parent.
+     *
+     * @return CollectionInterface|\ContaoCommunityAlliance\DcGeneral\Data\ModelInterface[]
+     */
+    public function getModelsFromClipboard(IdSerializer $parentModelId = null);
+
+    /**
+     * Evaluate clipboard items, then return the corresponding models.
+     *
+     * @param IdSerializer    $source        The source model id.
+     * @param IdSerializer    $after         The previous model id.
+     * @param IdSerializer    $into          The hierarchical parent model id.
+     * @param IdSerializer    $parentModelId The parent model id.
+     * @param FilterInterface $filter        Clipboard filter.
+     * @param array           $items         Write-back evaluated clipboard items.
+     *
+     * @return CollectionInterface|ModelInterface[]
+     */
+    public function applyClipboardActions(
+        IdSerializer $source = null,
+        IdSerializer $after = null,
+        IdSerializer $into = null,
+        IdSerializer $parentModelId = null,
+        FilterInterface $filter = null,
+        array &$items = array()
+    );
+
+    /**
      * Paste the content of the clipboard onto the top.
      *
      * @param CollectionInterface $models   The models to be inserted.
      *
      * @param string              $sortedBy The name of the sorting property.
      *
+     * @param IdSerializer        $parentId The parent model ID.
+     *
      * @return void
      */
-    public function pasteTop(CollectionInterface $models, $sortedBy);
+    public function pasteTop(CollectionInterface $models, $sortedBy, IdSerializer $parentId = null);
 
     /**
      * Paste the content of the clipboard after the given model.

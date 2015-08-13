@@ -16,6 +16,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Panel;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 
 /**
  * Abstract base implementation for panel elements.
@@ -49,6 +50,16 @@ abstract class AbstractElement implements PanelElementInterface
     public function getEnvironment()
     {
         return $this->getPanel()->getContainer()->getEnvironment();
+    }
+
+    /**
+     * Convenience method to retrieve session storage for this Element.
+     *
+     * @return SessionStorageInterface
+     */
+    public function getSessionStorage()
+    {
+        return $this->getEnvironment()->getSessionStorage();
     }
 
     /**
@@ -89,7 +100,7 @@ abstract class AbstractElement implements PanelElementInterface
         if (!isset($this->objOtherConfig)) {
             $this->objOtherConfig = $this
                 ->getEnvironment()
-                ->getController()
+                ->getBaseConfigRegistry()
                 ->getBaseConfig();
 
             $this

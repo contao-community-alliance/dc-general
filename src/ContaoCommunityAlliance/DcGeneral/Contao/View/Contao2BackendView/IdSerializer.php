@@ -24,7 +24,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class IdSerializer
 {
-
     /**
      * The data provider name.
      *
@@ -175,5 +174,27 @@ class IdSerializer
     public function isValid()
     {
         return !(empty($this->modelId) || empty($this->dataProviderName));
+    }
+
+    /**
+     * Determine if this id, is equals to the other id.
+     *
+     * @param IdSerializer $idSerializer The other id.
+     *
+     * @return bool
+     */
+    public function equals(IdSerializer $idSerializer)
+    {
+        // It is exactly the same id
+        if ($this === $idSerializer) {
+            return true;
+        }
+
+        return !(
+            // The data provider are not equal
+            $this->getDataProviderName() !== $idSerializer->getDataProviderName()
+            // The model ids are not equal
+            || $this->getId() !== $idSerializer->getId()
+        );
     }
 }

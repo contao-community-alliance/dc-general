@@ -101,7 +101,7 @@ class PanelRenderer
             return false;
         }
 
-        foreach ((array)$ignoredPanels as $class) {
+        foreach ((array) $ignoredPanels as $class) {
             if ($element instanceof $class) {
                 return true;
             }

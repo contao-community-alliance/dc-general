@@ -22,5 +22,4 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
  */
 class CutCommand extends Command implements CutCommandInterface
 {
-
 }

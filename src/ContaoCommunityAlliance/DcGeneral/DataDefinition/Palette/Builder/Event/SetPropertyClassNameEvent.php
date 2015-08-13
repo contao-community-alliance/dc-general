@@ -53,7 +53,7 @@ class SetPropertyClassNameEvent extends BuilderEvent
      */
     public function setPropertyClassName($propertyClassName)
     {
-        $this->propertyClassName = (string)$propertyClassName;
+        $this->propertyClassName = (string) $propertyClassName;
 
         return $this;
     }

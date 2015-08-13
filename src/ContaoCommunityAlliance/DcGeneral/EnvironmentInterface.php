@@ -114,6 +114,22 @@ interface EnvironmentInterface
     public function getRootDataDefinition();
 
     /**
+     * Set the session storage to use.
+     *
+     * @param SessionStorageInterface $sessionStorage The session storage to use.
+     *
+     * @return EnvironmentInterface
+     */
+    public function setSessionStorage(SessionStorageInterface $sessionStorage);
+
+    /**
+     * Retrieve the session storage.
+     *
+     * @return SessionStorageInterface
+     */
+    public function getSessionStorage();
+
+    /**
      * Set the input provider to use.
      *
      * @param InputProviderInterface $objInputProvider The input provider to use.
@@ -128,6 +144,22 @@ interface EnvironmentInterface
      * @return InputProviderInterface
      */
     public function getInputProvider();
+
+    /**
+     * Set the base config registry to use.
+     *
+     * @param BaseConfigRegistryInterface $baseConfigRegistry The input provider to use.
+     *
+     * @return EnvironmentInterface
+     */
+    public function setBaseConfigRegistry($baseConfigRegistry);
+
+    /**
+     * Retrieve the base config registry.
+     *
+     * @return BaseConfigRegistryInterface
+     */
+    public function getBaseConfigRegistry();
 
     /**
      * Determine if the data provider with the given name exists.

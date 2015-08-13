@@ -1,0 +1,35 @@
+#dcg_clipboard {
+  position: relative;
+  padding-top: 2px;
+  padding-left: 40px;
+  min-height: 32px;
+  background-image: url(../images/clipboard.svg);
+  background-size: 24px auto;
+  background-position: 6px 0;
+  background-repeat: no-repeat;
+
+  .btn-clear {
+    position: absolute;
+    top: 0;
+    left: 6px;
+    opacity: 0;
+    transition: opacity 300ms;
+
+    &:hover {
+      opacity: 1;
+      transition: opacity 300ms;
+    }
+  }
+  ul {
+    display: block;
+  }
+  li {
+    display: inline-block;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    padding: 2px 4px;
+  }
+  img {
+    vertical-align: middle;
+  }
+}

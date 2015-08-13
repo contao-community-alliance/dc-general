@@ -20,7 +20,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInterface
 {
-
     /**
      * The information stored.
      *

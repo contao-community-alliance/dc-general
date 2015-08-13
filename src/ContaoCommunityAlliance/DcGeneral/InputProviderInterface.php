@@ -128,6 +128,8 @@ interface InputProviderInterface
      * @param string $strKey The name of the value to be retrieved.
      *
      * @return mixed
+     *
+     * @deprecated Use Environment::getSessionStorage()->get() instead.
      */
     public function getPersistentValue($strKey);
 
@@ -141,6 +143,8 @@ interface InputProviderInterface
      * @param mixed  $varValue The value to be stored.
      *
      * @return InputProviderInterface
+     *
+     * @deprecated Use Environment::getSessionStorage()->set() instead.
      */
     public function setPersistentValue($strKey, $varValue);
 
@@ -152,6 +156,8 @@ interface InputProviderInterface
      * @param string $strKey The name of the value to be checked.
      *
      * @return bool
+     *
+     * @deprecated Use Environment::getSessionStorage()->has() instead.
      */
     public function hasPersistentValue($strKey);
 

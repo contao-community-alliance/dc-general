@@ -22,7 +22,6 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel
  */
 class DefaultFilterElementInformation implements FilterElementInformationInterface
 {
-
     /**
      * The name of the property to filter on.
      *

@@ -14,13 +14,13 @@ namespace ContaoCommunityAlliance\DcGeneral;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\Callback\Callbacks;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
-use ContaoCommunityAlliance\DcGeneral\Event\EventPropagator;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
 use ContaoCommunityAlliance\Translator\Contao\LangArrayTranslator;
 use ContaoCommunityAlliance\Translator\TranslatorChain;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * This class is only present so Contao can instantiate a backend properly as it needs a \DataContainer descendant.
@@ -32,7 +32,6 @@ use ContaoCommunityAlliance\Translator\TranslatorChain;
 class DC_General extends \DataContainer implements DataContainerInterface
 // @codingStandardsIgnoreEnd
 {
-
     /**
      * The environment attached to this DC.
      *
@@ -52,10 +51,8 @@ class DC_General extends \DataContainer implements DataContainerInterface
     {
         $strTable = $this->getTablenameCallback($strTable);
 
-        $dispatcher = $GLOBALS['container']['event-dispatcher'];
-        /** @var \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher */
+        $dispatcher = $this->getEventDispatcher();
         $dispatcher->addListener(PopulateEnvironmentEvent::NAME, array($this, 'handlePopulateEnvironment'), 4800);
-        $propagator = new EventPropagator($dispatcher);
 
         $translator = new TranslatorChain();
         $translator->add(new LangArrayTranslator($dispatcher));
@@ -64,33 +61,64 @@ class DC_General extends \DataContainer implements DataContainerInterface
 
         $factory
             ->setContainerName($strTable)
-            ->setEventPropagator($propagator)
+            ->setEventDispatcher($dispatcher)
             ->setTranslator($translator)
             ->createDcGeneral();
         $dispatcher->removeListener(PopulateEnvironmentEvent::NAME, array($this, 'handlePopulateEnvironment'));
 
-        // Switch user for FE / BE support.
-        switch (TL_MODE) {
-            case 'FE':
-                $this->import('FrontendUser', 'User');
-                break;
-
-            default:
-            case 'BE':
-                $this->import('BackendUser', 'User');
-                break;
-        }
-
         // Load the clipboard.
-        $this->getEnvironment()->getClipboard()
+        $this
+            ->getEnvironment()
+            ->getClipboard()
             ->loadFrom($this->getEnvironment());
 
         // Execute AJAX request, called from Backend::getBackendModule
         // we have to do this here, as otherwise the script will exit as it only checks for DC_Table and DC_File
         // derived classes.
-        // @codingStandardsIgnoreStart - The access to $_POST is sane here.
-        if ($_POST && (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')) // @codingStandardsIgnoreEnd
-        {
+        $this->checkAjaxCall();
+    }
+
+    /**
+     * Retrieve the event dispatcher from the DIC.
+     *
+     * @return EventDispatcherInterface
+     *
+     * @throws \RuntimeException When the DIC or event dispatcher have not been correctly initialized.
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     */
+    private function getEventDispatcher()
+    {
+        $container = $GLOBALS['container'];
+
+        if (!$container instanceof \Pimple) {
+            throw new \RuntimeException('The dependency container Pimple has not been initialized correctly.');
+        }
+
+        $dispatcher = $container['event-dispatcher'];
+
+        if (!$dispatcher instanceof EventDispatcherInterface) {
+            throw new \RuntimeException('The dependency container Pimple has not been initialized correctly.');
+        }
+
+        return $dispatcher;
+    }
+
+    /**
+     * Check if we have an ajax call currently and if so, execute the action accordingly.
+     *
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     */
+    private function checkAjaxCall()
+    {
+        if (!empty($_POST)
+            && (isset($_SERVER['HTTP_X_REQUESTED_WITH'])
+            && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+        ) {
             $this->getViewHandler()->handleAjaxCall();
         }
     }
@@ -122,7 +150,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
      */
     protected function getTablenameCallback($strTable)
     {
-        if (array_key_exists('tablename_callback', $GLOBALS['TL_DCA'][$strTable]['config'])
+        if (isset($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback'])
             && is_array($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback'])
         ) {
             foreach ($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback'] as $callback) {

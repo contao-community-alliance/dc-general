@@ -22,7 +22,6 @@ use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
  */
 class DefaultPanel implements PanelInterface
 {
-
     /**
      * The panel container this panel is contained within.
      *
@@ -79,7 +78,7 @@ class DefaultPanel implements PanelInterface
      */
     public function getElement($strKey)
     {
-        return $this->arrElements[$strKey];
+        return isset($this->arrElements[$strKey]) ? $this->arrElements[$strKey] : null;
     }
 
     /**

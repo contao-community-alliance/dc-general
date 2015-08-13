@@ -95,6 +95,8 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @return void
      *
      * @throws DcGeneralException Always throws exception.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function delete($item)
     {
@@ -154,6 +156,8 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @return void
      *
      * @throws DcGeneralException Always throws exception.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function fetchAll(ConfigInterface $objConfig)
     {
@@ -168,6 +172,8 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @return void
      *
      * @throws DcGeneralException Always throws exception.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getCount(ConfigInterface $objConfig)
     {
@@ -186,6 +192,8 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @return void
      *
      * @throws DcGeneralException Always throws exception.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function isUniqueValue($strField, $varNew, $intId = null)
     {
@@ -200,6 +208,8 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @return void
      *
      * @throws DcGeneralException Always throws exception.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function resetFallback($strField)
     {
@@ -224,6 +234,8 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @throws DcGeneralException When the passed model does not contain a property named "rows", an Exception is
      *                            thrown.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function save(ModelInterface $objItem, $recursive = false)
     {
@@ -285,6 +297,8 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @return void
      *
      * @throws DcGeneralException Always throws exception.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function saveEach(CollectionInterface $objItems)
     {
@@ -315,6 +329,8 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @return void
      *
      * @throws DcGeneralException Always throws exception.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getVersion($mixID, $mixVersion)
     {
@@ -329,6 +345,8 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @param boolean $blnOnlyActive Unused.
      *
      * @return null
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getVersions($mixID, $blnOnlyActive = false)
     {
@@ -346,6 +364,8 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @return void
      *
      * @throws DcGeneralException Always throws exception.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function saveVersion(ModelInterface $objModel, $strUsername)
     {
@@ -362,6 +382,8 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @return void
      *
      * @throws DcGeneralException Always throws exception.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function setVersionActive($mixID, $mixVersion)
     {
@@ -376,6 +398,8 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @return void
      *
      * @throws DcGeneralException Always throws exception.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getActiveVersion($mixID)
     {
@@ -392,6 +416,8 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @return void
      *
      * @throws DcGeneralException Always throws exception.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function sameModels($objModel1, $objModel2)
     {
@@ -410,6 +436,8 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @return void
      *
      * @throws DcGeneralException Always throws exception.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function insertUndo($strSourceSQL, $strSaveSQL, $strTable)
     {

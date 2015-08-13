@@ -1,0 +1,30 @@
+/**
+ * General styles
+ *
+ * @copyright  Contao Community Alliance.
+ * @author     Andreas Isaak <please.andi@metamodel.me>
+ * @package    Backend
+ */
+
+@media screen, projection {
+  div table.tl_listing {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  .tl_folder_tlist {
+    border-top: 0;
+  }
+
+  .treepicker_popup a.folding {
+    float: left;
+    margin-right: 20px;
+  }
+
+  .tl_listing tr.tl_folder_clipped > td {
+    background-color: #fff9e6;
+  }
+
+  @import "clipboard";
+  @import "languagePanel";
+}

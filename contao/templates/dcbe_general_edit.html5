@@ -1,4 +1,7 @@
-
+<?php
+// Add CSS
+$GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalDriver.css';
+?>
 <?php if($this->versions): ?>
 <div class="tl_version_panel">
 <form action="<?php echo ampersand($this->Environment->request, true); ?>" id="tl_version" class="tl_form" method="post">
@@ -21,7 +24,7 @@
 <?php endif; ?>
 
 <?php if($this->language): ?>
-<div class="tl_panel">
+<div class="tl_panel tl_language_panel">
 <form action="<?php echo ampersand($this->Environment->request, true); ?>" id="language_switch" class="tl_form" method="post">
 <div class="tl_formbody">
 <input type="hidden" name="FORM_SUBMIT" value="language_switch" />

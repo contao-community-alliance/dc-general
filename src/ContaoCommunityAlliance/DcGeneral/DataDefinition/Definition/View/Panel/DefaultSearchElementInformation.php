@@ -22,7 +22,6 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel
  */
 class DefaultSearchElementInformation implements SearchElementInformationInterface
 {
-
     /**
      * The property names to search on.
      *

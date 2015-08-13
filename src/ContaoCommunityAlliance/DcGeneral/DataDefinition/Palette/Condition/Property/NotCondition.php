@@ -23,7 +23,6 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
  */
 class NotCondition implements PropertyConditionInterface
 {
-
     /**
      * The condition to negate.
      *

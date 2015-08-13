@@ -115,6 +115,10 @@ interface PropertyInterface
      * @param bool $value The flag.
      *
      * @return PropertyInterface
+     *
+     * @deprecated Deprecated in favor of GroupAndSortingInformationInterface.
+     *
+     * @see    \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface
      */
     public function setSortable($value);
 
@@ -122,6 +126,10 @@ interface PropertyInterface
      * Determinator if sorting may be performed on this property.
      *
      * @return bool
+     *
+     * @deprecated Deprecated in favor of GroupAndSortingInformationInterface.
+     *
+     * @see    \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface
      */
     public function isSortable();
 
@@ -140,79 +148,6 @@ interface PropertyInterface
      * @return bool
      */
     public function isFilterable();
-
-    /**
-     * Set the grouping mode.
-     *
-     * See ListingConfigInterface::GROUP_* flags.
-     *
-     * @param string $value The grouping mode to apply.
-     *
-     * @return PropertyInterface
-     *
-     * @deprecated Not supported any more.
-     */
-    public function setGroupingMode($value);
-
-    /**
-     * Return the grouping mode.
-     *
-     * @return string
-     *
-     * @deprecated Not supported any more.
-     */
-    public function getGroupingMode();
-
-    /**
-     * Set the grouping length is used for char or digit grouping.
-     *
-     * This defines how many chars or digits should be respected when grouping.
-     *
-     * @param int $value The prefix length.
-     *
-     * @return PropertyInterface
-     *
-     * @deprecated Not supported any more.
-     */
-    public function setGroupingLength($value);
-
-    /**
-     * Get the grouping length is used for char or digit grouping.
-     *
-     * The grouping length is used for char or digit grouping and define how many chars or digits should be respected
-     * when grouping.
-     *
-     * @return int
-     *
-     * @deprecated Not supported any more.
-     */
-    public function getGroupingLength();
-
-    /**
-     * Set the the list sorting mode.
-     *
-     * See ListingConfigInterface::SORT_* flags.
-     *
-     * @param string $value The sorting mode to apply.
-     *
-     * @return PropertyInterface
-     *
-     * @deprecated Not supported any more.
-     */
-    public function setSortingMode($value);
-
-    /**
-     * Return the list sorting mode.
-     *
-     * This sorting is applied after grouping and could also be called "in-group sorting".
-     *
-     * See ListingConfigInterface::SORT_* flags.
-     *
-     * @return string
-     *
-     * @deprecated Not supported any more.
-     */
-    public function getSortingMode();
 
     /**
      * Set the widget type name.

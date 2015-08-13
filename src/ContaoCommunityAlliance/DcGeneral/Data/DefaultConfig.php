@@ -285,7 +285,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @param array $arrSorting The sorting array to use.
      *
-     * @return array
+     * @return ConfigInterface
      */
     public function setSorting($arrSorting)
     {

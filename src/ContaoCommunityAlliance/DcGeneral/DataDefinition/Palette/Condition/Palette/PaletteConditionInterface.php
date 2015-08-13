@@ -27,11 +27,16 @@ interface PaletteConditionInterface extends ConditionInterface
      *
      * If a value is present in the input parameter, that one overrides any existing value in the model.
      *
+     * When the condition does not match at all or has not enough information for a decision, false must be returned.
+     *
+     * When the condition does match, it must return a numeric value, the value may be negative or positive and even
+     * zero.
+     *
      * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
      *
      * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
      *
-     * @return int
+     * @return bool|int
      */
     public function getMatchCount(ModelInterface $model = null, PropertyValueBag $input = null);
 

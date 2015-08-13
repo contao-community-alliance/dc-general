@@ -272,15 +272,15 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
             );
 
             if ($providerInformation instanceof ContaoDataProviderInformation) {
-                $initializationData     = (array)$providerInformation->getInitializationData();
+                $initializationData     = (array) $providerInformation->getInitializationData();
                 $baseInitializationData = array(
                     'name' => $dataProviderDcaName,
                 );
 
-                switch ((string)$dataProviderDcaName) {
+                switch ((string) $dataProviderDcaName) {
                     case 'default':
                         $providerInformation->setVersioningEnabled(
-                            (bool)$this->getFromDca('config/enableVersioning')
+                            (bool) $this->getFromDca('config/enableVersioning')
                         );
 
                         $container->getBasicDefinition()->setDataProvider($providerInformation->getName());
@@ -383,7 +383,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
                     $builder = FilterBuilder::fromArrayForRoot($relationship->getFilterArray())->getFilter();
                 }
 
-                $builder->append(FilterBuilder::fromArrayForRoot((array)$rootCondition['filter']));
+                $builder->append(FilterBuilder::fromArrayForRoot((array) $rootCondition['filter']));
 
                 $relationship
                     ->setSourceName($rootProvider)
@@ -407,7 +407,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
         ModelRelationshipDefinitionInterface $definition
     ) {
         if (($childConditions = $this->getFromDca('dca_config/childCondition')) !== null) {
-            foreach ((array)$childConditions as $childCondition) {
+            foreach ((array) $childConditions as $childCondition) {
                 /** @var ParentChildConditionInterface $relationship */
                 $relationship = $definition->getChildCondition($childCondition['from'], $childCondition['to']);
                 if (!$relationship instanceof ParentChildConditionInterface) {
@@ -419,9 +419,9 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
                     $setter  = $childCondition['setOn'];
                     $inverse = $childCondition['inverse'];
                 } else {
-                    $setter  = array_merge_recursive((array)$childCondition['setOn'], $relationship->getSetters());
+                    $setter  = array_merge_recursive((array) $childCondition['setOn'], $relationship->getSetters());
                     $inverse = array_merge_recursive(
-                        (array)$childCondition['inverse'],
+                        (array) $childCondition['inverse'],
                         $relationship->getInverseFilterArray()
                     );
                 }
@@ -431,7 +431,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
                         FilterBuilder::fromArray($relationship->getFilterArray())
                             ->getFilter()
                             ->append(
-                                FilterBuilder::fromArray((array)$childCondition['filter'])
+                                FilterBuilder::fromArray((array) $childCondition['filter'])
                             )
                             ->getAllAsArray()
                     )

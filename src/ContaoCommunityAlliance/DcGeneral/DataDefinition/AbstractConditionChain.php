@@ -22,7 +22,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 abstract class AbstractConditionChain implements ConditionChainInterface
 {
-
     /**
      * The list of conditions.
      *
@@ -123,7 +122,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
             );
         }
 
-        $this->conjunction = (string)$conjunction;
+        $this->conjunction = (string) $conjunction;
 
         return $this;
     }

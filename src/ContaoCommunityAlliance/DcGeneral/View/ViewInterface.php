@@ -13,6 +13,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\View;
 
+use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 
@@ -49,90 +50,69 @@ interface ViewInterface
     /**
      * Invoked for cut and copy - inserts the content of the clipboard at the given position.
      *
+     * @param Action $action The action being executed.
+     *
      * @return void
      */
-    public function paste();
-
-    /**
-     * Endpoint for copying a model (including child models).
-     *
-     * @return string
-     */
-    public function copy();
-
-    /**
-     * Endpoint for copying multiple models (including child models).
-     *
-     * @return string
-     */
-    public function copyAll();
+    public function paste(Action $action);
 
     /**
      * Endpoint for create operation.
      *
-     * @return string
-     */
-    public function create();
-
-    /**
-     * Endpoint for cutting a model (including child models).
+     * @param Action $action The action being executed.
      *
      * @return string
      */
-    public function cut();
-
-    /**
-     * Endpoint for cutting multiple models (including child models).
-     *
-     * @return string
-     */
-    public function cutAll();
+    public function create(Action $action);
 
     /**
      * Delete a model and redirect the user to the listing.
      *
      * NOTE: This method redirects the user to the listing and therefore the script will be ended.
      *
+     * @param Action $action The action being executed.
+     *
      * @return void
      */
-    public function delete();
+    public function delete(Action $action);
 
     /**
      * Endpoint for edit operation.
      *
+     * @param Action $action The action being executed.
+     *
      * @return string
      */
-    public function edit();
+    public function edit(Action $action);
 
     /**
      * Endpoint for move operation.
      *
-     * @return string
-     */
-    public function move();
-
-    /**
-     * Endpoint for show operation.
+     * @param Action $action The action being executed.
      *
      * @return string
      */
-    public function show();
+    public function move(Action $action);
 
     /**
      * Overview listing over all items in the current scope.
      *
      * This is the default action to perform if no other action has been specified in the URL.
      *
+     * @param Action $action The action being executed.
+     *
      * @return string
      */
-    public function showAll();
+    public function showAll(Action $action);
 
     /**
      * Endpoint for undo operation.
      *
+     * @param Action $action The action being executed.
+     *
      * @return string
      */
-    public function undo();
+    public function undo(Action $action);
 
     /**
      * Abstract method to be overridden in the certain child classes.
@@ -144,13 +124,4 @@ interface ViewInterface
      * @return void
      */
     public function enforceModelRelationship($model);
-
-    /**
-     * Get the name of the defined property to use for manual sorting (aka drag drop sorting) if any is defined.
-     *
-     * This method evaluates the panel if the currently selected property is marked for manual sorting.
-     *
-     * @return string|null
-     */
-    public function getManualSortingProperty();
 }

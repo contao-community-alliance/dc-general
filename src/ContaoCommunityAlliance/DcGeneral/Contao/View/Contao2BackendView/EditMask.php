@@ -151,7 +151,7 @@ class EditMask
         $definition  = $this->getDataDefinition();
 
         // Check if table is editable.
-        if (!($model->getId() || $definition->getBasicDefinition()->isEditable())) {
+        if ($model->getId() && !$definition->getBasicDefinition()->isEditable()) {
             $message = 'DataContainer ' . $definition->getName() . ' is not editable';
             $environment->getEventDispatcher()->dispatch(
                 ContaoEvents::SYSTEM_LOG,
@@ -176,7 +176,7 @@ class EditMask
         $definition  = $this->getDataDefinition();
 
         // Check if table is closed but we are adding a new item.
-        if ($model->getId() && !$definition->getBasicDefinition()->isCreatable()) {
+        if (!($model->getId() || $definition->getBasicDefinition()->isCreatable())) {
             $message = 'DataContainer ' . $definition->getName() . ' is closed';
             $environment->getEventDispatcher()->dispatch(
                 ContaoEvents::SYSTEM_LOG,
@@ -472,7 +472,7 @@ class EditMask
      */
     protected function getManualSortingProperty()
     {
-        return $this->view->getManualSortingProperty();
+        return ViewHelpers::getManualSortingProperty($this->getEnvironment());
     }
 
     /**
@@ -500,11 +500,9 @@ class EditMask
         } elseif ($inputProvider->hasValue('saveNclose')) {
             setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
-            // @codingStandardsIgnoreStart - we have to clear the messages - direct access to $_SESSION is ok.
             $_SESSION['TL_INFO']    = '';
             $_SESSION['TL_ERROR']   = '';
             $_SESSION['TL_CONFIRM'] = '';
-            // @codingStandardsIgnoreEnd
 
             $newUrlEvent = new GetReferrerEvent();
             $dispatcher->dispatch(ContaoEvents::SYSTEM_GET_REFERRER, $newUrlEvent);
@@ -683,7 +681,7 @@ class EditMask
                 'enctype'     => 'multipart/form-data',
                 'error'       => $this->errors,
                 'editButtons' => $this->getEditButtons(),
-                'noReload'    => (bool)$this->errors
+                'noReload'    => (bool) $this->errors
             )
         );
 

@@ -11,15 +11,6 @@
  * @filesource
  */
 
-// Register the classes.
-ClassLoader::addClasses(
-    array
-    (
-        // FIXME: we can not deprecate this class as the only way for Contao is to load the class from root namespace.
-        'DC_General' => 'system/modules/dc-general/DC_General.php',
-    )
-);
-
 // Register the templates.
 TemplateLoader::addFiles(
     array
@@ -41,6 +32,7 @@ TemplateLoader::addFiles(
         'dcbe_general_treeview_child'   => 'system/modules/dc-general/templates',
         'dcbe_general_treeview_entry'   => 'system/modules/dc-general/templates',
         'dcbe_general_breadcrumb'       => 'system/modules/dc-general/templates',
+        'dcbe_general_clipboard'        => 'system/modules/dc-general/templates',
         'dcbe_general_grouping'         => 'system/modules/dc-general/templates',
         'widget_treepicker'             => 'system/modules/dc-general/templates',
         'widget_treepicker_popup'       => 'system/modules/dc-general/templates',

@@ -90,8 +90,8 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
     protected function getPersistent()
     {
         $arrValue = array();
-        if ($this->getInputProvider()->hasPersistentValue('limit')) {
-            $arrValue = $this->getInputProvider()->getPersistentValue('limit');
+        if ($this->getSessionStorage()->has('limit')) {
+            $arrValue = $this->getSessionStorage()->get('limit');
         }
 
         if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
@@ -115,8 +115,8 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
         $arrValue       = array();
         $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
-        if ($this->getInputProvider()->hasPersistentValue('limit')) {
-            $arrValue = $this->getInputProvider()->getPersistentValue('limit');
+        if ($this->getSessionStorage()->has('limit')) {
+            $arrValue = $this->getSessionStorage()->get('limit');
         }
 
         if ($intOffset) {
@@ -130,7 +130,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
             unset($arrValue[$definitionName]);
         }
 
-        $this->getInputProvider()->setPersistentValue('limit', $arrValue);
+        $this->getSessionStorage()->set('limit', $arrValue);
     }
 
     /**

@@ -23,7 +23,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPr
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\FilterElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\LimitElementInterface;
@@ -31,6 +30,7 @@ use ContaoCommunityAlliance\DcGeneral\Panel\SearchElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SubmitElementInterface;
 use ContaoCommunityAlliance\DcGeneral\View\Event\RenderReadablePropertyValueEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -89,7 +89,7 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return void
      */
-    public function resolveWidgetErrorMessage(ResolveWidgetErrorMessageEvent $event)
+    public static function resolveWidgetErrorMessage(ResolveWidgetErrorMessageEvent $event)
     {
         $error = $event->getError();
 
@@ -97,7 +97,7 @@ class Subscriber implements EventSubscriberInterface
             $event->setError($error->getMessage());
         } elseif (is_object($error)) {
             if (method_exists($error, '__toString')) {
-                $event->setError((string)$error);
+                $event->setError((string) $error);
             } else {
                 $event->setError(sprintf('[%s]', get_class($error)));
             }
@@ -117,24 +117,14 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return array
      */
-    protected function getOptions($environment, $model, $property)
+    protected static function getOptions($environment, $model, $property)
     {
         $options = $property->getOptions();
         $event   = new GetPropertyOptionsEvent($environment, $model);
         $event->setPropertyName($property->getName());
         $event->setOptions($options);
 
-        $dispatcher = $environment->getEventDispatcher();
-        // Backwards compatibility.
-        $dispatcher->dispatch(
-            sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $property->getName()),
-            $event
-        );
-        $dispatcher->dispatch(
-            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
-            $event
-        );
-        $dispatcher->dispatch(sprintf('%s', $event::NAME), $event);
+        $environment->getEventDispatcher()->dispatch(sprintf('%s', $event::NAME), $event);
 
         if ($event->getOptions() !== $options) {
             $options = $event->getOptions();
@@ -156,26 +146,35 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return mixed
      */
-    public function decodeValue($environment, $model, $property, $value)
+    private static function decodeValue($environment, $model, $property, $value)
     {
         $event = new DecodePropertyValueForWidgetEvent($environment, $model);
         $event
             ->setProperty($property)
             ->setValue($value);
 
-        $dispatcher = $environment->getEventDispatcher();
-        // Backwards compatibility.
-        $dispatcher->dispatch(
-            sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $property),
-            $event
-        );
-        $dispatcher->dispatch(
-            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
-            $event
-        );
-        $dispatcher->dispatch(sprintf('%s', $event::NAME), $event);
+        $environment->getEventDispatcher()->dispatch(sprintf('%s', $event::NAME), $event);
 
         return $event->getValue();
+    }
+
+    /**
+     * Render a timestamp using the given format.
+     *
+     * @param EventDispatcherInterface $dispatcher The Event dispatcher.
+     *
+     * @param string                   $dateFormat The date format to use.
+     *
+     * @param int                      $timeStamp  The timestamp.
+     *
+     * @return string
+     */
+    private static function parseDateTime(EventDispatcherInterface $dispatcher, $dateFormat, $timeStamp)
+    {
+        $dateEvent = new ParseDateEvent($timeStamp, $dateFormat);
+        $dispatcher->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
+
+        return $dateEvent->getResult();
     }
 
     /**
@@ -188,14 +187,15 @@ class Subscriber implements EventSubscriberInterface
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    public function renderReadablePropertyValue(RenderReadablePropertyValueEvent $event)
+    public static function renderReadablePropertyValue(RenderReadablePropertyValueEvent $event)
     {
         if ($event->getRendered() !== null) {
             return;
         }
 
-        $property = $event->getProperty();
-        $value    = $this->decodeValue(
+        $dispatcher = $event->getEnvironment()->getEventDispatcher();
+        $property   = $event->getProperty();
+        $value      = self::decodeValue(
             $event->getEnvironment(),
             $event->getModel(),
             $event->getProperty()->getName(),
@@ -240,19 +240,12 @@ class Subscriber implements EventSubscriberInterface
             $event->setRendered(implode(', ', $value));
         } elseif (isset($extra['rgxp'])) {
             // Date format.
-            if ($extra['rgxp'] == 'date') {
-                $dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['dateFormat']);
-                $event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
-
-                $event->setRendered($dateEvent->getResult());
-            } elseif ($extra['rgxp'] == 'time') {
-                // Time format.
-                $dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['timeFormat']);
-                $event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
-
-                $event->setRendered($dateEvent->getResult());
+            if ($extra['rgxp'] == 'date' || $extra['rgxp'] == 'time' || $extra['rgxp'] == 'datim') {
+                $event->setRendered(
+                    self::parseDateTime($dispatcher, $GLOBALS['TL_CONFIG'][$extra['rgxp'] . 'Format'], $value)
+                );
             }
-        } elseif (isset($extra['rgxp']) && $extra['rgxp'] == 'datim' ||
+        } elseif (/*
             in_array(
                 $property->getGroupingMode(),
                 array(
@@ -260,17 +253,18 @@ class Subscriber implements EventSubscriberInterface
                     ListingConfigInterface::GROUP_MONTH,
                     ListingConfigInterface::GROUP_YEAR
                 )
-            ) ||
+                ) ||*/
             $property->getName() == 'tstamp'
         ) {
             // Date and time format.
             $dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['timeFormat']);
-            $event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
+            $dispatcher->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
 
             $event->setRendered($dateEvent->getResult());
         } elseif ($property->getWidgetType() == 'checkbox' && !$extra['multiple']) {
             $event->setRendered(strlen($value) ? $GLOBALS['TL_LANG']['MSC']['yes'] : $GLOBALS['TL_LANG']['MSC']['no']);
-        } elseif ($property->getWidgetType() == 'textarea' && ($extra['allowHtml'] || $extra['preserveTags'])) {
+        } elseif ($property->getWidgetType() == 'textarea'
+            && (!empty($extra['allowHtml']) || !empty($extra['preserveTags']))) {
             $event->setRendered(nl2br_html5(specialchars($value)));
         } elseif (isset($extra['reference']) && is_array($extra['reference'])) {
             if (isset($extra['reference'][$value])) {
@@ -282,13 +276,16 @@ class Subscriber implements EventSubscriberInterface
             }
         } elseif ($value instanceof \DateTime) {
             $dateEvent = new ParseDateEvent($value->getTimestamp(), $GLOBALS['TL_CONFIG']['datimFormat']);
-            $event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
+            $dispatcher->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
 
             $event->setRendered($dateEvent->getResult());
         } else {
             $options = $property->getOptions();
             if (!$options) {
-                $options = $this->getOptions($event->getEnvironment(), $event->getModel(), $event->getProperty());
+                $options = self::getOptions($event->getEnvironment(), $event->getModel(), $event->getProperty());
+                if ($options) {
+                    $property->setOptions($options);
+                }
             }
             if (array_is_assoc($options)) {
                 $event->setRendered($options[$value]);

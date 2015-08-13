@@ -20,7 +20,6 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
  */
 class DefaultPanelLayout implements PanelLayoutInterface
 {
-
     /**
      * The rows of the layout.
      *

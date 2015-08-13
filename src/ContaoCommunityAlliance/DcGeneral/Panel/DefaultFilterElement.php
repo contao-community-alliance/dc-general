@@ -15,6 +15,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Panel;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
 
 /**
@@ -24,7 +25,6 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
  */
 class DefaultFilterElement extends AbstractElement implements FilterElementInterface
 {
-
     /**
      * Name of the property this filter reacts on.
      *
@@ -54,8 +54,8 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
     protected function getPersistent()
     {
         $arrValue = array();
-        if ($this->getInputProvider()->hasPersistentValue('filter')) {
-            $arrValue = $this->getInputProvider()->getPersistentValue('filter');
+        if ($this->getSessionStorage()->has('filter')) {
+            $arrValue = $this->getSessionStorage()->get('filter');
         }
 
         if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
@@ -81,8 +81,8 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
         $arrValue       = array();
         $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
-        if ($this->getInputProvider()->hasPersistentValue('filter')) {
-            $arrValue = $this->getInputProvider()->getPersistentValue('filter');
+        if ($this->getSessionStorage()->has('filter')) {
+            $arrValue = $this->getSessionStorage()->get('filter');
         }
 
         if (!is_array($arrValue[$definitionName])) {
@@ -95,16 +95,19 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             unset($arrValue[$definitionName][$this->getPropertyName()]);
         }
 
-        $this->getInputProvider()->setPersistentValue('filter', $arrValue);
+        $this->getSessionStorage()->set('filter', $arrValue);
     }
 
     /**
-     * {@inheritDoc}
+     * Update the local value property with data from either the session or from the input provider.
+     *
+     * @return void
      */
-    public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
+    private function updateValue()
     {
-        $input = $this->getInputProvider();
-        $value = null;
+        $session = $this->getSessionStorage();
+        $input   = $this->getInputProvider();
+        $value   = null;
 
         if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue($this->getPropertyName())) {
             $value = $input->getValue($this->getPropertyName());
@@ -112,7 +115,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             $this->setPersistent($value);
         }
 
-        if ($input->hasPersistentValue('filter')) {
+        if ($session->has('filter')) {
             $persistent = $this->getPersistent();
             $value      = $persistent;
         }
@@ -120,6 +123,38 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
         if ($value !== null) {
             $this->setValue($value);
         }
+    }
+
+    /**
+     * Load the filter options from the configured property.
+     *
+     * @return void
+     */
+    private function loadFilterOptions()
+    {
+        $objTempConfig = $this->getOtherConfig();
+        $objTempConfig->setFields(array($this->getPropertyName()));
+
+        $objFilterOptions = $this
+            ->getEnvironment()
+            ->getDataProvider()
+            ->getFilterOptions($objTempConfig);
+
+        $arrOptions = array();
+        /** @var ModelInterface $objOption */
+        foreach ($objFilterOptions as $filterKey => $filterValue) {
+            $arrOptions[(string) $filterKey] = $filterValue;
+        }
+
+        $this->arrfilterOptions = $arrOptions;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
+    {
+        $this->updateValue();
 
         if ($this->getPropertyName() && $this->getValue() && ($objElement !== $this)) {
             $arrCurrent = $objConfig->getFilter();
@@ -128,41 +163,16 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             }
 
             $objConfig->setFilter(
-                array_merge_recursive(
-                    $arrCurrent,
-                    array(
-                        array(
-                            'operation' => 'AND',
-                            'children'  => array(
-                                array(
-                                    'operation' => '=',
-                                    'property'  => $this->getPropertyName(),
-                                    'value'     => $this->getValue()
-                                )
-                            )
-                        )
-                    )
-                )
+                FilterBuilder::fromArray($arrCurrent)
+                    ->getFilter()
+                    ->andPropertyEquals($this->getPropertyName(), $this->getValue())
+                    ->getAllAsArray()
             );
         }
 
         // Finally load the filter options.
         if ($objElement === null) {
-            $objTempConfig = $this->getOtherConfig();
-            $objTempConfig->setFields(array($this->getPropertyName()));
-
-            $objFilterOptions = $this
-                ->getEnvironment()
-                ->getDataProvider()
-                ->getFilterOptions($objTempConfig);
-
-            $arrOptions = array();
-            /** @var ModelInterface $objOption */
-            foreach ($objFilterOptions as $filterKey => $filterValue) {
-                $arrOptions[(string)$filterKey] = $filterValue;
-            }
-
-            $this->arrfilterOptions = $arrOptions;
+            $this->loadFilterOptions();
         }
     }
 
@@ -180,11 +190,13 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
         $arrOptions = array(
             array(
                 'value'   => 'tl_' . $this->getPropertyName(),
-                'content' => (is_array($arrLabel) ? $arrLabel[0] : $arrLabel)
+                'content' => (is_array($arrLabel) ? $arrLabel[0] : $arrLabel),
+                'attributes' => ''
             ),
             array(
                 'value'   => 'tl_' . $this->getPropertyName(),
-                'content' => '---'
+                'content' => '---',
+                'attributes' => ''
             )
         );
 
@@ -197,11 +209,11 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             );
         }
 
-        $objTemplate->name    = $this->getPropertyName();
-        $objTemplate->id      = $this->getPropertyName();
-        $objTemplate->class   = 'tl_select' . (($this->getValue() !== null) ? ' active' : '');
-        $objTemplate->options = $arrOptions;
-        $objTemplate->active  = $this->getValue();
+        $objTemplate->set('name', $this->getPropertyName());
+        $objTemplate->set('id', $this->getPropertyName());
+        $objTemplate->set('class', 'tl_select' . (($this->getValue() !== null) ? ' active' : ''));
+        $objTemplate->set('options', $arrOptions);
+        $objTemplate->set('active', $this->getValue());
 
         return $this;
     }

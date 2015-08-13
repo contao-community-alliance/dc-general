@@ -25,7 +25,7 @@
 
     <filter>
         <whitelist>
-            <directory>./src/DcGeneral/</directory>
+            <directory>./src/ContaoCommunityAlliance/DcGeneral/</directory>
         </whitelist>
     </filter>
 </phpunit>

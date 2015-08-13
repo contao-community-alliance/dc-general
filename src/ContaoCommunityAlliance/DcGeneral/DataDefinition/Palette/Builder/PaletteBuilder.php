@@ -304,7 +304,7 @@ class PaletteBuilder
         $this->dispatchEvent($event);
         $paletteCollectionClassName = $event->getPaletteCollectionClassName();
 
-        $this->paletteCollectionClassName = (string)$paletteCollectionClassName;
+        $this->paletteCollectionClassName = (string) $paletteCollectionClassName;
         $this->paletteCollectionClass     = new \ReflectionClass($this->paletteCollectionClassName);
         return $this;
     }
@@ -332,7 +332,7 @@ class PaletteBuilder
         $this->dispatchEvent($event);
         $paletteClassName = $event->getPaletteClassName();
 
-        $this->paletteClassName = (string)$paletteClassName;
+        $this->paletteClassName = (string) $paletteClassName;
         $this->paletteClass     = new \ReflectionClass($this->paletteClassName);
         return $this;
     }
@@ -360,7 +360,7 @@ class PaletteBuilder
         $this->dispatchEvent($event);
         $legendClassName = $event->getLegendClassName();
 
-        $this->legendClassName = (string)$legendClassName;
+        $this->legendClassName = (string) $legendClassName;
         $this->legendClass     = new \ReflectionClass($this->legendClassName);
         return $this;
     }
@@ -388,7 +388,7 @@ class PaletteBuilder
         $this->dispatchEvent($event);
         $propertyClassName = $event->getPropertyClassName();
 
-        $this->propertyClassName = (string)$propertyClassName;
+        $this->propertyClassName = (string) $propertyClassName;
         $this->propertyClass     = new \ReflectionClass($this->propertyClassName);
         return $this;
     }
@@ -416,7 +416,7 @@ class PaletteBuilder
         $this->dispatchEvent($event);
         $paletteConditionChainClassName = $event->getPaletteConditionChainClassName();
 
-        $this->paletteConditionChainClassName = (string)$paletteConditionChainClassName;
+        $this->paletteConditionChainClassName = (string) $paletteConditionChainClassName;
         $this->paletteConditionChainClass     = new \ReflectionClass($this->paletteConditionChainClassName);
         return $this;
     }
@@ -454,7 +454,7 @@ class PaletteBuilder
         $this->dispatchEvent($event);
         $defaultPaletteConditionClassName = $event->getDefaultPaletteConditionClassName();
 
-        $this->defaultPaletteConditionClassName = (string)$defaultPaletteConditionClassName;
+        $this->defaultPaletteConditionClassName = (string) $defaultPaletteConditionClassName;
         $this->defaultPaletteConditionClass     = new \ReflectionClass($this->defaultPaletteConditionClassName);
         return $this;
     }
@@ -482,7 +482,7 @@ class PaletteBuilder
         $this->dispatchEvent($event);
         $palettePropertyValueConditionClassName = $event->getPalettePropertyValueConditionClassName();
 
-        $this->palettePropertyValueConditionClassName = (string)$palettePropertyValueConditionClassName;
+        $this->palettePropertyValueConditionClassName = (string) $palettePropertyValueConditionClassName;
         $this->palettePropertyValueConditionClass     = new \ReflectionClass(
             $this->palettePropertyValueConditionClassName
         );
@@ -512,7 +512,7 @@ class PaletteBuilder
         $this->dispatchEvent($event);
         $propertyConditionChainClassName = $event->getPalettePropertyConditionChainClassName();
 
-        $this->propertyConditionChainClassName = (string)$propertyConditionChainClassName;
+        $this->propertyConditionChainClassName = (string) $propertyConditionChainClassName;
         $this->propertyConditionChainClass     = new \ReflectionClass($this->propertyConditionChainClassName);
         return $this;
     }
@@ -540,7 +540,7 @@ class PaletteBuilder
         $this->dispatchEvent($event);
         $propertyValueConditionClassName = $event->getPropertyValueConditionClassName();
 
-        $this->propertyValueConditionClassName = (string)$propertyValueConditionClassName;
+        $this->propertyValueConditionClassName = (string) $propertyValueConditionClassName;
         $this->propertyValueConditionClass     = new \ReflectionClass($this->propertyValueConditionClassName);
         return $this;
     }
@@ -1012,7 +1012,7 @@ class PaletteBuilder
         $condition = $this->defaultPaletteConditionClass->newInstance();
         $event     = new CreateDefaultPaletteConditionEvent($condition, $this);
         $this->dispatchEvent($event);
-        $condition = $event->getCondition();
+        $condition = $event->getDefaultPaletteCondition();
 
         $event = new CreateConditionEvent($condition, $this);
         $this->dispatchEvent($event);
@@ -1041,7 +1041,7 @@ class PaletteBuilder
         $condition = $this->defaultPaletteConditionClass->newInstance();
         $event     = new CreateDefaultPaletteConditionEvent($condition, $this);
         $this->dispatchEvent($event);
-        $condition = $event->getCondition();
+        $condition = $event->getDefaultPaletteCondition();
 
         $event = new CreateConditionEvent($condition, $this);
         $this->dispatchEvent($event);

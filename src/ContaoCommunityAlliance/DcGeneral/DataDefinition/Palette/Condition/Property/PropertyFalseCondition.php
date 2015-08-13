@@ -23,7 +23,6 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
  */
 class PropertyFalseCondition implements PropertyConditionInterface
 {
-
     /**
      * The property name.
      *
@@ -47,8 +46,8 @@ class PropertyFalseCondition implements PropertyConditionInterface
      */
     public function __construct($propertyName, $strict = false)
     {
-        $this->propertyName = (string)$propertyName;
-        $this->strict       = (bool)$strict;
+        $this->propertyName = (string) $propertyName;
+        $this->strict       = (bool) $strict;
     }
 
     /**
@@ -60,7 +59,7 @@ class PropertyFalseCondition implements PropertyConditionInterface
      */
     public function setPropertyName($propertyName)
     {
-        $this->propertyName = (string)$propertyName;
+        $this->propertyName = (string) $propertyName;
 
         return $this;
     }
@@ -84,7 +83,7 @@ class PropertyFalseCondition implements PropertyConditionInterface
      */
     public function setStrict($strict)
     {
-        $this->strict = (bool)$strict;
+        $this->strict = (bool) $strict;
 
         return $this;
     }

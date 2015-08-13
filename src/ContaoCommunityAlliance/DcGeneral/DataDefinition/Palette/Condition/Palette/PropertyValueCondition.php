@@ -21,7 +21,6 @@ use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
  */
 class PropertyValueCondition extends AbstractWeightAwarePaletteCondition
 {
-
     /**
      * The property name.
      *
@@ -56,9 +55,9 @@ class PropertyValueCondition extends AbstractWeightAwarePaletteCondition
      */
     public function __construct($propertyName = '', $propertyValue = null, $strict = false, $weight = 1)
     {
-        $this->propertyName  = (string)$propertyName;
+        $this->propertyName  = (string) $propertyName;
         $this->propertyValue = $propertyValue;
-        $this->strict        = (bool)$strict;
+        $this->strict        = (bool) $strict;
         $this->setWeight($weight);
     }
 
@@ -71,7 +70,7 @@ class PropertyValueCondition extends AbstractWeightAwarePaletteCondition
      */
     public function setPropertyName($propertyName)
     {
-        $this->propertyName = (string)$propertyName;
+        $this->propertyName = (string) $propertyName;
         return $this;
     }
 
@@ -117,7 +116,7 @@ class PropertyValueCondition extends AbstractWeightAwarePaletteCondition
      */
     public function setStrict($strict)
     {
-        $this->strict = (bool)$strict;
+        $this->strict = (bool) $strict;
         return $this;
     }
 

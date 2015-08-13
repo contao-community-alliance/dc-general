@@ -118,7 +118,7 @@ class PropertyValueBag implements PropertyValueBagInterface
      */
     public function hasInvalidPropertyValues()
     {
-        return (bool)$this->errors;
+        return (bool) $this->errors;
     }
 
     /**
@@ -135,7 +135,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     public function isPropertyValueInvalid($property)
     {
         $this->requirePropertyValue($property);
-        return isset($this->errors[$property]) && (bool)$this->errors[$property];
+        return isset($this->errors[$property]) && (bool) $this->errors[$property];
     }
 
     /**
@@ -158,7 +158,7 @@ class PropertyValueBag implements PropertyValueBagInterface
             $this->errors[$property] = array();
         }
 
-        foreach ((array)$error as $singleError) {
+        foreach ((array) $error as $singleError) {
             $this->errors[$property][] = $singleError;
         }
 
@@ -190,7 +190,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     public function getPropertyValueErrors($property)
     {
         $this->requirePropertyValue($property);
-        return (array)$this->errors[$property];
+        return (array) $this->errors[$property];
     }
 
     /**

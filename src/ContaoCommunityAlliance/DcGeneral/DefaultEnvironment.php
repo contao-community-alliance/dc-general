@@ -72,11 +72,25 @@ class DefaultEnvironment implements EnvironmentInterface
     protected $objRootDataDefinition;
 
     /**
+     * The session storage.
+     *
+     * @var SessionStorageInterface
+     */
+    protected $sessionStorage;
+
+    /**
      * The attached input provider.
      *
      * @var InputProviderInterface
      */
     protected $objInputProvider;
+
+    /**
+     * The attached base config registry.
+     *
+     * @var BaseConfigRegistryInterface
+     */
+    protected $baseConfigRegistry;
 
     /**
      * The registered data providers.
@@ -206,6 +220,24 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    public function setSessionStorage(SessionStorageInterface $sessionStorage)
+    {
+        $this->sessionStorage = $sessionStorage;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSessionStorage()
+    {
+        return $this->sessionStorage;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function setInputProvider($objInputProvider)
     {
         $this->objInputProvider = $objInputProvider;
@@ -219,6 +251,24 @@ class DefaultEnvironment implements EnvironmentInterface
     public function getInputProvider()
     {
         return $this->objInputProvider;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setBaseConfigRegistry($baseConfigRegistry)
+    {
+        $this->baseConfigRegistry = $baseConfigRegistry;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBaseConfigRegistry()
+    {
+        return $this->baseConfigRegistry;
     }
 
     /**

@@ -84,7 +84,7 @@ interface DataProviderInterface
      *
      * @param ConfigInterface $objConfig The configuration to use.
      *
-     * @return CollectionInterface|array
+     * @return CollectionInterface|ModelInterface[]|string[]
      */
     public function fetchAll(ConfigInterface $objConfig);
 

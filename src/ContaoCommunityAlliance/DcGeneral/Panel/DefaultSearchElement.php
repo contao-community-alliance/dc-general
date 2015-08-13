@@ -52,8 +52,8 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     protected function getPersistent()
     {
         $arrValue = array();
-        if ($this->getInputProvider()->hasPersistentValue('search')) {
-            $arrValue = $this->getInputProvider()->getPersistentValue('search');
+        if ($this->getSessionStorage()->has('search')) {
+            $arrValue = $this->getSessionStorage()->get('search');
         }
 
         if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
@@ -77,8 +77,8 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
         $arrValue       = array();
         $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
-        if ($this->getInputProvider()->hasPersistentValue('search')) {
-            $arrValue = $this->getInputProvider()->getPersistentValue('search');
+        if ($this->getSessionStorage()->has('search')) {
+            $arrValue = $this->getSessionStorage()->get('search');
         }
 
         if (!empty($strValue)) {
@@ -96,24 +96,25 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
             unset($arrValue[$definitionName]);
         }
 
-        $this->getInputProvider()->setPersistentValue('search', $arrValue);
+        $this->getSessionStorage()->set('search', $arrValue);
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
     {
-        $input = $this->getInputProvider();
-        $value = null;
-        $field = null;
+        $session = $this->getSessionStorage();
+        $input   = $this->getInputProvider();
+        $value   = null;
+        $field   = null;
 
         if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue('tl_field')) {
             $field = $input->getValue('tl_field');
             $value = $input->getValue('tl_value');
 
             $this->setPersistent($field, $value);
-        } elseif ($input->hasPersistentValue('search')) {
+        } elseif ($session->has('search')) {
             $persistent = $this->getPersistent();
             if ($persistent) {
                 $field = $persistent['field'];

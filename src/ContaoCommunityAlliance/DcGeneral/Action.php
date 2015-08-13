@@ -20,7 +20,6 @@ namespace ContaoCommunityAlliance\DcGeneral;
  */
 class Action
 {
-
     /**
      * The action name.
      *
