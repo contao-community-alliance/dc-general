@@ -1,11 +1,20 @@
 <?php
+
 /**
- * PHP version 5
+ * This file is part of contao-community-alliance/dc-general.
  *
- * @package    DcGeneral
+ * (c) 2013-2015 Contao Community Alliance.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * This project is provided in good faith and hope to be usable by anyone.
+ *
+ * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  The Contao Community Alliance.
- * @license    LGPL.
+ * @author     David Molineus <david.molineus@netzmacht.de>
+ * @copyright  2013-2015 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
 
@@ -16,8 +25,6 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 
 /**
  * Handy helper class to keep manually sorted lists more manageable.
- *
- * @package DcGeneral\Controller
  */
 class SortingManager
 {
@@ -274,7 +281,9 @@ class SortingManager
     }
 
     /**
-     * Determine delta value: ((next sorting - current sorting) / amount of insert models).
+     * Determine delta value.
+     *
+     * Delta value will be between 2 and a multiple 128 which is large enough to contain all models being moved.
      *
      * @return float|int
      */
@@ -283,11 +292,13 @@ class SortingManager
         $delta = (
             ($this->marker->getProperty($this->getSortingProperty()) - $this->position) / $this->results->length()
         );
+
         // If delta too narrow, we need to make room.
-        if ($delta < 2) {
-            $delta = 128;
-            return $delta;
+        // Prevent delta to exceed, also. Use minimum delta which is calculated as multiple of 128.
+        if ($delta < 2 || $delta > 128) {
+            return (ceil($this->results->length() / 128) * 128);
         }
+
         return $delta;
     }
 

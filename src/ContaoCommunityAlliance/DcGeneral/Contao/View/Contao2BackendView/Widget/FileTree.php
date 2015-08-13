@@ -1,12 +1,20 @@
 <?php
+
 /**
- * PHP version 5
+ * This file is part of contao-community-alliance/dc-general.
  *
- * @package    generalDriver
+ * (c) 2013-2015 Contao Community Alliance.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * This project is provided in good faith and hope to be usable by anyone.
+ *
+ * @package    contao-community-alliance/dc-general
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  The MetaModels team.
- * @license    LGPL.
+ * @copyright  2013-2015 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
 
@@ -290,7 +298,7 @@ class FileTree extends AbstractWidget
 
         // Contao passed File ids sinc 3.3.4
         // @see https://github.com/contao/core/commit/c1472209fdfd6e2446013430753ed65530b5a1d1
-        if (version_compare(VERSION, '3.3.4', '>=')) {
+        if (version_compare(VERSION . '.' . BUILD, '3.3.4', '>=')) {
             $values = array_keys($values);
         } else {
             $values = array_map('String::binToUuid', $values);
@@ -317,7 +325,7 @@ class FileTree extends AbstractWidget
 
         if (!empty($this->varValue)) {
             $files = \FilesModel::findMultipleByUuids((array) $this->varValue);
-            $this->renderList($values, $icons, $files, true);
+            $this->renderList($values, $icons, $files, ($this->isGallery || $this->isDownloads));
             $icons = $this->applySorting($icons);
         }
 

@@ -1,13 +1,21 @@
 <?php
+
 /**
- * PHP version 5
+ * This file is part of contao-community-alliance/dc-general.
  *
- * @package    generalDriver
+ * (c) 2013-2015 Contao Community Alliance.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * This project is provided in good faith and hope to be usable by anyone.
+ *
+ * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <mail@netzmacht.de>
- * @copyright  The MetaModels team.
- * @license    LGPL.
+ * @copyright  2013-2015 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
 
@@ -20,8 +28,6 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
  * Class GetOperationButtonEvent.
  *
  * This event gets emitted when an operation button is rendered.
- *
- * @package DcGeneral\Contao\View\Contao2BackendView\Event
  */
 class GetOperationButtonEvent extends BaseButtonEvent
 {
