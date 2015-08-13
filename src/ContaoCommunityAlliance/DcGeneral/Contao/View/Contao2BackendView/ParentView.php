@@ -25,9 +25,10 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -78,14 +79,7 @@ class ParentView extends BaseView
     {
         $environment = $this->getEnvironment();
         $pid         = $environment->getInputProvider()->getParameter('pid');
-        $pidDetails  = IdSerializer::fromSerialized($pid);
-
-        if (!$pidDetails->isValid()) {
-            throw new DcGeneralRuntimeException(
-                'ParentView needs a proper parent id defined, somehow none is defined?',
-                1
-            );
-        }
+        $pidDetails  = ModelId::fromSerialized($pid);
 
         if (!($objParentProvider = $environment->getDataProvider($pidDetails->getDataProviderName()))) {
             throw new DcGeneralRuntimeException(
@@ -181,14 +175,6 @@ class ParentView extends BaseView
 
             $event = new ParentViewChildRecordEvent($this->getEnvironment(), $model);
 
-            $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $model->getId()),
-                $event
-            );
-            $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
-                $event
-            );
             $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
             $cssClasses = array((((++$eoCount) % 2 == 0) ? 'even' : 'odd'));
@@ -283,7 +269,7 @@ class ParentView extends BaseView
                     $lang = $this->translate(sprintf('%s.0', $v), $parentName);
                 }
 
-                $key  = $lang ? $lang : $v;
+                $key = $lang ? $lang : $v;
 
                 $add[$key] = $value;
             }
@@ -292,10 +278,6 @@ class ParentView extends BaseView
         $event = new GetParentHeaderEvent($environment, $parentModel);
         $event->setAdditional($add);
 
-        $dispatcher->dispatch(
-            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
-            $event
-        );
         $dispatcher->dispatch($event::NAME, $event);
 
         if (!$event->getAdditional() !== null) {
@@ -320,7 +302,7 @@ class ParentView extends BaseView
      *
      * @param ModelInterface $parentModel The parent model.
      *
-     * @return array
+     * @return string
      */
     protected function getHeaderButtons($parentModel)
     {
@@ -364,7 +346,7 @@ class ParentView extends BaseView
                 $urlEvent = $dispatcher->dispatch(
                     ContaoEvents::BACKEND_ADD_TO_URL,
                     new AddToUrlEvent(
-                        'act=edit&amp;pid=' . IdSerializer::fromModel($parentModel)->getSerialized()
+                        'act=edit&amp;pid=' . ModelId::fromModel($parentModel)->getSerialized()
                     )
                 );
 
@@ -396,7 +378,7 @@ class ParentView extends BaseView
                 if (!$allowPasteTop) {
                     $subFilter = new Filter();
                     $subFilter->andActionIsNotIn(array(ItemInterface::COPY, ItemInterface::DEEP_COPY));
-                    $subFilter->andParentIsNot(IdSerializer::fromModel($parentModel));
+                    $subFilter->andParentIsNot(ModelId::fromModel($parentModel));
                     $subFilter->orActionIsIn(array(ItemInterface::COPY, ItemInterface::DEEP_COPY));
 
                     $filter = new Filter();
@@ -413,7 +395,7 @@ class ParentView extends BaseView
                         ContaoEvents::BACKEND_ADD_TO_URL,
                         new AddToUrlEvent(
                             'act=paste' .
-                            '&amp;pid=' . IdSerializer::fromModel($parentModel)->getSerialized()
+                            '&amp;pid=' . ModelId::fromModel($parentModel)->getSerialized()
                         )
                     );
 
@@ -457,7 +439,7 @@ class ParentView extends BaseView
      *
      * @param ModelInterface $parentModel The parent model.
      *
-     * @return array
+     * @return null|string
      */
     protected function getHeaderEditButtons($parentModel)
     {
@@ -474,7 +456,7 @@ class ParentView extends BaseView
                 'do'    => $environment->getInputProvider()->getParameter('do'),
                 'act'   => 'edit',
                 'table' => $parentName,
-                'id'    => IdSerializer::fromModel($parentModel)->getSerialized(),
+                'id'    => ModelId::fromModel($parentModel)->getSerialized(),
             );
 
             $factory = DcGeneralFactory::deriveFromEnvironment($this->environment);
@@ -503,7 +485,7 @@ class ParentView extends BaseView
                     $parents = $grandParentProvider->fetchAll($config);
 
                     if ($parents->length() == 1) {
-                        $query['pid'] = IdSerializer::fromModel($parents->get(0))->getSerialized();
+                        $query['pid'] = ModelId::fromModel($parents->get(0))->getSerialized();
                     } elseif ($parents->length() > 1) {
                         return null;
                     }
@@ -650,8 +632,6 @@ class ParentView extends BaseView
      */
     public function copy(Action $action)
     {
-        // FIXME this will never be used anymore!
-
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit($action);
         }
@@ -665,34 +645,25 @@ class ParentView extends BaseView
 
         $environment  = $this->getEnvironment();
         $dataProvider = $environment->getDataProvider();
-        $modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('source'));
-
-        if ($modelId) {
-            $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-        } else {
-            throw new DcGeneralRuntimeException('Missing model id.');
-        }
+        $modelId      = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
+        $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
         // We need to keep the original data here.
         $copyModel = $environment->getController()->createClonedModel($model);
         $copyModel->setId(null);
 
         $preFunction = function (EnvironmentInterface $environment, $model) {
-            $copyEvent = new PreDuplicateModelEvent($environment, $model);
             $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $copyEvent::NAME, $environment->getDataDefinition()->getName()),
-                $copyEvent
+                PreDuplicateModelEvent::NAME,
+                new PreDuplicateModelEvent($environment, $model)
             );
-            $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
         };
 
         $postFunction = function (EnvironmentInterface $environment, $model, $originalModel) {
-            $copyEvent = new PostDuplicateModelEvent($environment, $model, $originalModel);
             $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $copyEvent::NAME, $environment->getDataDefinition()->getName()),
-                $copyEvent
+                PostDuplicateModelEvent::NAME,
+                new PostDuplicateModelEvent($environment, $model, $originalModel)
             );
-            $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
         };
 
         return $this->createEditMask($copyModel, $model, $preFunction, $postFunction);

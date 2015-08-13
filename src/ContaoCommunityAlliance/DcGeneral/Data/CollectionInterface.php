@@ -181,7 +181,7 @@ interface CollectionInterface extends \IteratorAggregate, \ArrayAccess, \Countab
      *
      * @param CollectionInterface $collection The collection to check.
      *
-     * @return mixed
+     * @return boolean
      */
     public function isSubsetOf($collection);
 

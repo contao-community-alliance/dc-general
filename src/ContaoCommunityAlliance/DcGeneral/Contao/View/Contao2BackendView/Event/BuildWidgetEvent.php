@@ -5,6 +5,7 @@
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -54,8 +55,11 @@ class BuildWidgetEvent extends AbstractModelAwareEvent
      *
      * @param PropertyInterface    $property    The property for which the widget shall be instantiated.
      */
-    public function __construct(EnvironmentInterface $environment, ModelInterface $model, PropertyInterface $property)
-    {
+    public function __construct(
+        EnvironmentInterface $environment,
+        ModelInterface $model,
+        PropertyInterface $property
+    ) {
         parent::__construct($environment, $model);
 
         $this->property = $property;

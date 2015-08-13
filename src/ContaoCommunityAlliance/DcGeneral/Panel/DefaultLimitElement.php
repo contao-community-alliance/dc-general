@@ -183,10 +183,8 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      */
     public function render(ViewTemplateInterface $objTemplate)
     {
-        $arrOptions = array
-        (
-            array
-            (
+        $arrOptions = array(
+            array(
                 'value'      => 'tl_limit',
                 'attributes' => '',
                 'content'    => $GLOBALS['TL_LANG']['MSC']['filterRecords']
@@ -204,8 +202,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
                 $upperLimit = $this->intTotal;
             }
 
-            $arrOptions[] = array
-            (
+            $arrOptions[] = array(
                 'value'      => $thisLimit,
                 'attributes' => ($this->getOffset() == $first) ? ' selected="selected"' : '',
                 'content'    => ($first + 1) . ' - ' . $upperLimit
@@ -213,8 +210,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
         }
 
         if ($this->intTotal > $GLOBALS['TL_CONFIG']['resultsPerPage']) {
-            $arrOptions[] = array
-            (
+            $arrOptions[] = array(
                 'value'      => 'all',
                 'attributes' =>
                     (($this->getOffset() == 0) && ($this->getAmount() == $this->intTotal))

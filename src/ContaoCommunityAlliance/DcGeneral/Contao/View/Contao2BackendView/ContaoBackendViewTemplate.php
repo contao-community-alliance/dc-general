@@ -5,6 +5,7 @@
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -13,14 +14,46 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
 
 /**
  * This class is used for the contao backend view as template.
  *
  * @package DcGeneral\View
  */
-class ContaoBackendViewTemplate extends \BackendTemplate implements ViewTemplateInterface
+class ContaoBackendViewTemplate extends \BackendTemplate implements ViewTemplateInterface, TranslatorInterface
 {
+    /**
+     * The translator.
+     *
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    /**
+     * Get the translator.
+     *
+     * @return TranslatorInterface
+     */
+    public function getTranslator()
+    {
+        return $this->translator;
+    }
+
+    /**
+     * Set the translator.
+     *
+     * @param TranslatorInterface $translator The translator.
+     *
+     * @return $this
+     */
+    public function setTranslator(TranslatorInterface $translator)
+    {
+        $this->translator = $translator;
+
+        return $this;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -47,5 +80,29 @@ class ContaoBackendViewTemplate extends \BackendTemplate implements ViewTemplate
     public function get($name)
     {
         return $this->$name;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function translate($string, $domain = null, array $parameters = array(), $locale = null)
+    {
+        if ($this->translator) {
+            return $this->translator->translate($string, $domain, $parameters, $locale);
+        }
+
+        return $string;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function translatePluralized($string, $number, $domain = null, array $parameters = array(), $locale = null)
+    {
+        if ($this->translator) {
+            return $this->translator->translatePluralized($string, $number, $domain, $parameters, $locale);
+        }
+
+        return $string;
     }
 }

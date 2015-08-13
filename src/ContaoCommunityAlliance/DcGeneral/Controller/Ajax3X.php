@@ -8,6 +8,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Andreas Nölke <zero@brothers-project.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -18,7 +19,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Controller;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoWidgetManager;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 
@@ -195,7 +196,7 @@ class Ajax3X extends Ajax
      */
     protected function getModelFromSerializedId($serializedId)
     {
-        $modelId      = IdSerializer::fromSerialized($serializedId);
+        $modelId      = ModelId::fromSerialized($serializedId);
         $dataProvider = $this->getEnvironment()->getDataProvider($modelId->getDataProviderName());
         $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 

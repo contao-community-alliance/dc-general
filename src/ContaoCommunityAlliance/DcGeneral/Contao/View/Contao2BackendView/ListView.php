@@ -7,6 +7,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
+ * @author     Alexander Menk <alex.menk@gmail.com>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -20,10 +21,11 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -130,6 +132,7 @@ class ListView extends BaseView
         $sortingDefinition = $sorting['sorting'];
         $sortingColumns    = array();
         $pasteTopButton    = $this->renderPasteTopButton($sorting);
+        $formatter         = $listingDefinition->getLabelFormatter($definition->getName());
 
         if ($sortingDefinition) {
             /** @var GroupAndSortingDefinitionInterface $sortingDefinition */
@@ -143,7 +146,7 @@ class ListView extends BaseView
 
         // Generate the table header if the "show columns" option is active.
         if ($listingDefinition->getShowColumns()) {
-            foreach ($properties->getPropertyNames() as $f) {
+            foreach ($formatter->getPropertyNames() as $f) {
                 $property = $properties->getProperty($f);
                 if ($property) {
                     $label = $property->getLabel();
@@ -318,43 +321,32 @@ class ListView extends BaseView
      */
     public function copy(Action $action)
     {
-        // FIXME this will never be used anymore!
-
         if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit($action);
         }
 
         $environment  = $this->getEnvironment();
         $dataProvider = $environment->getDataProvider();
-        $modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('source'));
-
-        if ($modelId) {
-            $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-        } else {
-            throw new DcGeneralRuntimeException('Missing model id.');
-        }
+        $modelId      = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
+        $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
         // We need to keep the original data here.
         $copyModel = $environment->getController()->createClonedModel($model);
 
         $preFunction = function ($environment, $model) {
             /** @var EnvironmentInterface $environment */
-            $copyEvent = new PreDuplicateModelEvent($environment, $model);
             $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $copyEvent::NAME, $environment->getDataDefinition()->getName()),
-                $copyEvent
+                PreDuplicateModelEvent::NAME,
+                new PreDuplicateModelEvent($environment, $model)
             );
-            $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
         };
 
         $postFunction = function ($environment, $model, $originalModel) {
             /** @var EnvironmentInterface $environment */
-            $copyEvent = new PostDuplicateModelEvent($environment, $model, $originalModel);
             $environment->getEventDispatcher()->dispatch(
-                sprintf('%s[%s]', $copyEvent::NAME, $environment->getDataDefinition()->getName()),
-                $copyEvent
+                PostDuplicateModelEvent::NAME,
+                new PostDuplicateModelEvent($environment, $model, $originalModel)
             );
-            $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
         };
 
         return $this->createEditMask($copyModel, $model, $preFunction, $postFunction);

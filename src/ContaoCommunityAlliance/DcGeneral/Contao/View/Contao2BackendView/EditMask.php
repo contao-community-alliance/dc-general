@@ -4,6 +4,8 @@
  *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Christopher Boelter <christopher@boelter.eu>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -16,15 +18,15 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetEditModeButtonsEvent;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreEditModelEvent;
@@ -231,16 +233,17 @@ class EditMask
 
         if ($input->getValue('FORM_SUBMIT') == $this->getDataDefinition()->getName()) {
             $propertyValues = new PropertyValueBag();
-            $propertyNames  = $this->getDataDefinition()->getPropertiesDefinition()->getPropertyNames(
+            $propertyNames  = array_intersect(
+                $this->getDataDefinition()->getPropertiesDefinition()->getPropertyNames(),
+                $input->getValue('FORM_INPUTS')
             );
 
             // Process input and update changed properties.
             foreach ($propertyNames as $propertyName) {
-                if ($input->hasValue($propertyName)) {
-                    $propertyValue = $input->getValue($propertyName, true);
-                    $propertyValues->setPropertyValue($propertyName, $propertyValue);
-                }
+                $propertyValue = $input->hasValue($propertyName) ? $input->getValue($propertyName, true) : null;
+                $propertyValues->setPropertyValue($propertyName, $propertyValue);
             }
+
             $widgetManager->processInput($propertyValues);
 
             return $propertyValues;
@@ -263,12 +266,10 @@ class EditMask
             );
         }
 
-        $event = new PrePersistModelEvent($this->getEnvironment(), $this->model, $this->originalModel);
         $this->getEnvironment()->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $event::NAME, $this->getDataDefinition()->getName()),
-            $event
+            PrePersistModelEvent::NAME,
+            new PrePersistModelEvent($this->getEnvironment(), $this->model, $this->originalModel)
         );
-        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
     }
 
     /**
@@ -286,10 +287,6 @@ class EditMask
         }
 
         $event = new PostPersistModelEvent($this->getEnvironment(), $this->model, $this->originalModel);
-        $this->getEnvironment()->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $event::NAME, $this->getDataDefinition()->getName()),
-            $event
-        );
         $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
     }
 
@@ -322,7 +319,7 @@ class EditMask
     /**
      * Retrieve a list of html buttons to use in the bottom panel (submit area).
      *
-     * @return array
+     * @return string[]
      */
     protected function getEditButtons()
     {
@@ -369,10 +366,6 @@ class EditMask
         $event = new GetEditModeButtonsEvent($this->getEnvironment());
         $event->setButtons($buttons);
 
-        $this->getEnvironment()->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $event::NAME, $definition->getName()),
-            $event
-        );
         $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
 
         return $event->getButtons();
@@ -503,7 +496,7 @@ class EditMask
         $inputProvider = $environment->getInputProvider();
 
         if ($inputProvider->hasValue('save')) {
-            $newUrlEvent = new AddToUrlEvent('act=edit&id=' . IdSerializer::fromModel($model)->getSerialized());
+            $newUrlEvent = new AddToUrlEvent('act=edit&id=' . ModelId::fromModel($model)->getSerialized());
             $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
             $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getUrl()));
         } elseif ($inputProvider->hasValue('saveNclose')) {
@@ -514,7 +507,7 @@ class EditMask
             $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getReferrerUrl()));
         } elseif ($inputProvider->hasValue('saveNcreate')) {
             $this->clearBackendStates();
-            $after = IdSerializer::fromModel($model);
+            $after = ModelId::fromModel($model);
 
             $newUrlEvent = new AddToUrlEvent('act=create&id=&after=' . $after->getSerialized());
             $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
@@ -649,9 +642,10 @@ class EditMask
         $this->checkEditable($this->model);
         $this->checkCreatable($this->model);
 
-        $event = new PreEditModelEvent($environment, $this->model);
-        $environment->getEventDispatcher()->dispatch(sprintf('%s[%s]', $event::NAME, $definition->getName()), $event);
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch(
+            PreEditModelEvent::NAME,
+            new PreEditModelEvent($environment, $this->model)
+        );
 
         $this->view->enforceModelRelationship($this->model);
 
@@ -724,13 +718,16 @@ class EditMask
      * Clear the backend messages and offset states.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     protected function clearBackendStates()
     {
         setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
-        $_SESSION['TL_INFO'] = array();
-        $_SESSION['TL_ERROR'] = array();
+        $_SESSION['TL_INFO']    = array();
+        $_SESSION['TL_ERROR']   = array();
         $_SESSION['TL_CONFIRM'] = array();
     }
 }

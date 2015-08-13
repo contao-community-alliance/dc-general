@@ -20,7 +20,6 @@ use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
-use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
@@ -38,7 +37,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOp
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
@@ -46,8 +45,10 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CopyCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CutCommandInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\TranslatedToggleCommandInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -127,6 +128,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $name   = $action->getName();
 
         switch ($name) {
+            case 'copy':
+                if (!method_exists($this, $name)) {
+                    break;
+                }
+                // no break
             case 'create':
             case 'paste':
             case 'delete':
@@ -134,7 +140,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             case 'undo':
             case 'edit':
             case 'showAll':
-            case 'toggle':
                 $response = call_user_func_array(
                     array($this, $name),
                     array_merge(array($action), $action->getArguments())
@@ -147,14 +152,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 break;
 
             default:
-        }
-
-        if ($this->getViewSection()->getModelCommands()->hasCommandNamed($name)) {
-            $command = $this->getViewSection()->getModelCommands()->getCommandNamed($name);
-
-            if ($command instanceof ToggleCommandInterface) {
-                $this->toggle($action, $name);
-            }
         }
     }
 
@@ -294,7 +291,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * Retrieve a list of html buttons to use in the bottom panel (submit area) when in select mode.
      *
-     * @return array
+     * @return string[]
      */
     protected function getSelectButtons()
     {
@@ -345,10 +342,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $event = new GetSelectModeButtonsEvent($this->getEnvironment());
         $event->setButtons($buttons);
-
-        $dispatcher = $this->getEnvironment()->getEventDispatcher();
-        $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $definition->getName()), $event);
-        $dispatcher->dispatch($event::NAME, $event);
+        $this->getEnvironment()->getEventDispatcher()->dispatch(GetSelectModeButtonsEvent::NAME, $event);
 
         return $event->getButtons();
     }
@@ -443,10 +437,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         /** @var ItemInterface[] $items */
         if (1 === count($items) && ItemInterface::CREATE === $items[0]->getAction()) {
-            $model   = $models->get(0);
-            $modelId = IdSerializer::fromModel($model);
-
-            $addToUrlEvent = new AddToUrlEvent('act=edit&id=' . $modelId->getSerialized());
+            $addToUrlEvent = new AddToUrlEvent('act=edit&id=' . ModelId::fromModel($models->get(0))->getSerialized());
             $environment->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $addToUrlEvent);
 
             $redirectEvent = new RedirectEvent($addToUrlEvent->getUrl());
@@ -493,7 +484,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         $environment  = $this->getEnvironment();
-        $modelId      = IdSerializer::fromSerialized($environment->getInputProvider()->getParameter('id'));
+        $modelId      = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
         $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
@@ -504,12 +495,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         // Trigger event before the model will be deleted.
-        $event = new PreDeleteModelEvent($environment, $model);
         $environment->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
-            $event
+            PreDeleteModelEvent::NAME,
+            new PreDeleteModelEvent($environment, $model)
         );
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
         // FIXME: See DefaultController::delete() - we need to delete the children of this item as well over all data providers.
         /*
@@ -550,10 +539,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         // Trigger event after the model is deleted.
         $event = new PostDeleteModelEvent($environment, $model);
-        $environment->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
-            $event
-        );
         $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
         ViewHelpers::redirectHome($this->environment);
@@ -609,7 +594,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return;
         }
 
-        $modelId                 = IdSerializer::fromSerialized($inputProvider->getParameter('id'));
+        $modelId                 = ModelId::fromSerialized($inputProvider->getParameter('id'));
         $dataProviderDefinition  = $definition->getDataProviderDefinition();
         $dataProvider            = $environment->getDataProvider($modelId->getDataProviderName());
         $dataProviderInformation = $dataProviderDefinition->getInformation($modelId->getDataProviderName());
@@ -753,49 +738,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Handle the "toggle" action.
-     *
-     * @param Action $action The action being executed.
-     *
-     * @param string $name   The command name (default: toggle).
-     *
-     * @return string
-     */
-    public function toggle(Action $action, $name = 'toggle')
-    {
-        $environment   = $this->getEnvironment();
-        $inputProvider = $environment->getInputProvider();
-
-        if ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id')) {
-            $serializedId = IdSerializer::fromSerialized($inputProvider->getParameter('id'));
-        }
-
-        if (!(isset($serializedId)
-              && $serializedId->getDataProviderName() == $environment->getDataDefinition()->getName())
-        ) {
-            return '';
-        }
-
-        /** @var ToggleCommandInterface $operation */
-        $operation    = $this->getViewSection()->getModelCommands()->getCommandNamed($name);
-        $dataProvider = $environment->getDataProvider();
-        $newState     = $operation->isInverse()
-            ? $inputProvider->getParameter('state') == 1 ? '' : '1'
-            : $inputProvider->getParameter('state') == 1 ? '1' : '';
-
-        $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($serializedId->getId()));
-
-        $model->setProperty($operation->getToggleProperty(), $newState);
-
-        $dataProvider->save($model);
-
-        return $this->showAll($action);
-    }
-
-    /**
      * Create the "new" button.
      *
-     * @return CommandInterface|null
+     * @return null|Command
      */
     protected function getCreateModelCommand()
     {
@@ -808,9 +753,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $manualSorting   = ViewHelpers::getManualSortingProperty($this->environment);
 
         if ($serializedPid = $environment->getInputProvider()->getParameter('pid')) {
-            $pid = IdSerializer::fromSerialized($serializedPid);
+            $pid = ModelId::fromSerialized($serializedPid);
         } else {
-            $pid = new IdSerializer();
+            $pid = null;
         }
 
         if (!$basicDefinition->isCreatable()) {
@@ -839,7 +784,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         ) {
             $parameters['act'] = 'edit';
             // Add new button.
-            if ($pid->getDataProviderName() && $pid->getId()) {
+            if ($pid) {
                 $parameters['pid'] = $pid->getSerialized();
             }
         } elseif (
@@ -860,7 +805,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
             $parameters['act'] = 'create';
 
-            if ($pid->getDataProviderName() && $pid->getId()) {
+            if ($pid) {
                 $parameters['pid'] = $pid->getSerialized();
             }
         }
@@ -871,7 +816,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * Create the "back" button.
      *
-     * @return CommandInterface|null
+     * @return null|Command
      */
     protected function getBackCommand()
     {
@@ -956,21 +901,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             ->setHref($href)
             ->setLabel($label)
             ->setTitle($command->getDescription());
-
-        $dispatcher->dispatch(
-            sprintf(
-                '%s[%s][%s]',
-                $buttonEvent::NAME,
-                $environment->getDataDefinition()->getName(),
-                $command->getName()
-            ),
-            $buttonEvent
-        );
-        $dispatcher->dispatch(
-            sprintf('%s[%s]', $buttonEvent::NAME, $environment->getDataDefinition()->getName()),
-            $buttonEvent
-        );
-        $environment->getEventDispatcher()->dispatch($buttonEvent::NAME, $buttonEvent);
+        $environment->getEventDispatcher()->dispatch(GetGlobalButtonEvent::NAME, $buttonEvent);
 
         // Allow to override the button entirely.
         $html = $buttonEvent->getHtml();
@@ -1030,12 +961,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $buttonsEvent = new GetGlobalButtonsEvent($this->getEnvironment());
         $buttonsEvent->setButtons($buttons);
-
-        $this->getEnvironment()->getEventDispatcher()->dispatch(
-            sprintf('%s[%s]', $buttonsEvent::NAME, $this->getEnvironment()->getDataDefinition()->getName()),
-            $buttonsEvent
-        );
-        $this->getEnvironment()->getEventDispatcher()->dispatch($buttonsEvent::NAME, $buttonsEvent);
+        $this->getEnvironment()->getEventDispatcher()->dispatch(GetGlobalButtonsEvent::NAME, $buttonsEvent);
 
         return '<div id="' . $strButtonId . '">' . implode('', $buttonsEvent->getButtons()) . '</div>';
     }
@@ -1110,10 +1036,27 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 $iconDisabled
             );
 
-            if ($objCommand->isInverse()
-                ? $objModel->getProperty($objCommand->getToggleProperty())
-                : !$objModel->getProperty($objCommand->getToggleProperty())
+            $dataProvider = $this->getEnvironment()->getDataProvider($objModel->getProviderName());
+            if ($objCommand instanceof TranslatedToggleCommandInterface
+                && $dataProvider instanceof MultiLanguageDataProviderInterface
             ) {
+                $language = $dataProvider->getCurrentLanguage();
+                $dataProvider->setCurrentLanguage($objCommand->getLanguage());
+                $propModel = $dataProvider->fetch(
+                    $dataProvider
+                        ->getEmptyConfig()
+                            ->setId($objModel->getId())
+                            ->setFields($objCommand->getToggleProperty())
+                );
+                $dataProvider->setCurrentLanguage($language);
+            } else {
+                $propModel = $objModel;
+            }
+            $state = $objCommand->isInverse()
+                ? !$propModel->getProperty($objCommand->getToggleProperty())
+                : $propModel->getProperty($objCommand->getToggleProperty());
+
+            if (!$state) {
                 $extra['icon'] = $iconDisabled ?: 'invisible.gif';
             }
         }
@@ -1122,7 +1065,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $attributes .= ltrim(sprintf($extraAttributes, $objModel->getID()));
         }
 
-        $serializedModelId = IdSerializer::fromModel($objModel)->getSerialized();
+        $serializedModelId = ModelId::fromModel($objModel)->getSerialized();
 
         // Cut needs some special information.
         if ($objCommand instanceof CutCommandInterface) {
@@ -1180,16 +1123,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             ->setPrevious($previous)
             ->setNext($next)
             ->setDisabled($objCommand->isDisabled());
-
-        $dispatcher->dispatch(
-            sprintf('%s[%s][%s]', $buttonEvent::NAME, $dataDefinitionName, $commandName),
-            $buttonEvent
-        );
-        $dispatcher->dispatch(
-            sprintf('%s[%s]', $buttonEvent::NAME, $dataDefinitionName, $commandName),
-            $buttonEvent
-        );
-        $dispatcher->dispatch($buttonEvent::NAME, $buttonEvent);
+        $dispatcher->dispatch(GetOperationButtonEvent::NAME, $buttonEvent);
 
         // If the event created a button, use it.
         if ($buttonEvent->getHtml() !== null) {
@@ -1421,7 +1355,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         if ($clipboard->isNotEmpty($filter)) {
             $circularIds = $clipboard->getCircularIds();
-            $isCircular  = in_array(IdSerializer::fromModel($model)->getSerialized(), $circularIds);
+            $isCircular  = in_array(ModelId::fromModel($model)->getSerialized(), $circularIds);
         } else {
             $circularIds = array();
             $isCircular  = false;
@@ -1447,7 +1381,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 $urlEvent = $dispatcher->dispatch(
                     ContaoEvents::BACKEND_ADD_TO_URL,
                     new AddToUrlEvent(
-                        'act=create&amp;after=' . IdSerializer::fromModel($model)->getSerialized()
+                        'act=create&amp;after=' . ModelId::fromModel($model)->getSerialized()
                     )
                 );
 
@@ -1474,23 +1408,23 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                     // Add ext. information.
                     $add2UrlAfter = sprintf(
                         'act=create&after=%s&',
-                        IdSerializer::fromModel($model)->getSerialized()
+                        ModelId::fromModel($model)->getSerialized()
                     );
 
                     $add2UrlInto = sprintf(
                         'act=create&into=%s&',
-                        IdSerializer::fromModel($model)->getSerialized()
+                        ModelId::fromModel($model)->getSerialized()
                     );
                 } else {
                     // Add ext. information.
                     $add2UrlAfter = sprintf(
                         'act=paste&after=%s&',
-                        IdSerializer::fromModel($model)->getSerialized()
+                        ModelId::fromModel($model)->getSerialized()
                     );
 
                     $add2UrlInto = sprintf(
                         'act=paste&into=%s&',
-                        IdSerializer::fromModel($model)->getSerialized()
+                        ModelId::fromModel($model)->getSerialized()
                     );
                 }
 
@@ -1527,12 +1461,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                     ->setPasteAfterDisabled($clipboard->isCut() && $isCircular)
                     ->setPasteIntoDisabled($clipboard->isCut() && $isCircular)
                     ->setContainedModels($models);
-
-                $this->getEnvironment()->getEventDispatcher()->dispatch(
-                    sprintf('%s[%s]', $buttonEvent::NAME, $this->getEnvironment()->getDataDefinition()->getName()),
-                    $buttonEvent
-                );
-                $this->getEnvironment()->getEventDispatcher()->dispatch($buttonEvent::NAME, $buttonEvent);
+                $this->getEnvironment()->getEventDispatcher()->dispatch(GetPasteButtonEvent::NAME, $buttonEvent);
 
                 $arrButtons['pasteafter'] = $this->renderPasteAfterButton($buttonEvent);
                 if ($this->getDataDefinition()->getBasicDefinition()->getMode()
@@ -1549,7 +1478,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * Render the panel.
      *
-     * @param array $ignoredPanels A list with ignored elements [Optional].
+     * @param string[] $ignoredPanels A list with ignored elements [Optional].
      *
      * @throws DcGeneralRuntimeException When no information of panels can be obtained from the data container.
      *

@@ -23,6 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\Controller\TreeCollector;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeNodeStates;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
@@ -132,20 +133,19 @@ class TreeView extends BaseView
     /**
      * Load the collection of child items and the parent item for the currently selected parent item.
      *
-     * @param mixed $rootId       The root element (or null to fetch everything).
+     * @param string $rootId       The root element (or null to fetch everything).
      *
-     * @param int   $intLevel     The current level in the tree (of the optional root element).
+     * @param int    $intLevel     The current level in the tree (of the optional root element).
      *
-     * @param null  $providerName The data provider from which the optional root element shall be taken from.
+     * @param string $providerName The data provider from which the optional root element shall be taken from.
      *
      * @return CollectionInterface
      */
     public function loadCollection($rootId = null, $intLevel = 0, $providerName = null)
     {
-        $environment  = $this->getEnvironment();
-        $dataDriver   = $environment->getDataProvider($providerName);
-        $realProvider = $dataDriver->getEmptyModel()->getProviderName();
-
+        $environment   = $this->getEnvironment();
+        $dataDriver    = $environment->getDataProvider($providerName);
+        $realProvider  = $dataDriver->getEmptyModel()->getProviderName();
         $collector     = new TreeCollector(
             $environment,
             $this->getPanel(),
@@ -199,7 +199,7 @@ class TreeView extends BaseView
             );
         }
 
-        $pid = IdSerializer::fromSerialized($parentId);
+        $pid = ModelId::fromSerialized($parentId);
 
         if (!($objParentProvider = $environment->getDataProvider($pid->getDataProviderName())
         )
@@ -454,7 +454,6 @@ class TreeView extends BaseView
                 ->setHref($urlEvent->getUrl())
                 ->setPasteDisabled(false);
 
-            $dispatcher->dispatch(sprintf('%s[%s]', $buttonEvent::NAME, $definition->getName()), $buttonEvent);
             $dispatcher->dispatch($buttonEvent::NAME, $buttonEvent);
 
             $strRootPasteInto = $this->renderPasteRootButton($buttonEvent);
@@ -572,8 +571,7 @@ class TreeView extends BaseView
         */
 
         // A list with ignored panels.
-        $arrIgnoredPanels = array
-        (
+        $arrIgnoredPanels = array(
             '\ContaoCommunityAlliance\DcGeneral\Panel\LimitElementInterface',
             '\ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface'
         );

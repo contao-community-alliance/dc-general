@@ -5,6 +5,7 @@
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  The MetaModels team.
  * @license    LGPL.
  * @filesource
@@ -170,6 +171,11 @@ class ClipboardController implements EventSubscriberInterface
                     }
                 }
 
+                // Only push item to clipboard if manual sorting is used.
+                if (Item::COPY === $clipboardActionName && !ViewHelpers::getManualSortingProperty($environment)) {
+                    return;
+                }
+
                 // create the new item
                 $item = new Item($clipboardActionName, $parentId, $modelId);
 
@@ -221,6 +227,11 @@ class ClipboardController implements EventSubscriberInterface
                 $config = $dataProvider->getEmptyConfig();
                 $config->setId($modelId->getId());
                 $model = $dataProvider->fetch($config);
+
+                // The model might have been deleted meanwhile.
+                if (!$model) {
+                    continue;
+                }
 
                 $formatModelLabelEvent = new FormatModelLabelEvent($environment, $model);
                 $eventDispatcher->dispatch(DcGeneralEvents::FORMAT_MODEL_LABEL, $formatModelLabelEvent);

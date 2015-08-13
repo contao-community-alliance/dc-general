@@ -372,7 +372,7 @@ class DefaultCollection implements CollectionInterface
      *
      * @param CollectionInterface $collection The collection to check.
      *
-     * @return mixed
+     * @return boolean
      */
     public function isSubsetOf($collection)
     {
