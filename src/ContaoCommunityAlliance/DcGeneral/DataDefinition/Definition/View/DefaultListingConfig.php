@@ -24,32 +24,11 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 class DefaultListingConfig implements ListingConfigInterface
 {
 	/**
-	 * The grouping mode to use.
+	 * The grouping and sorting definitions.
 	 *
-	 * @var string
+	 * @var GroupAndSortingDefinitionCollectionInterface
 	 */
-	protected $groupingMode;
-
-	/**
-	 * The grouing length to use.
-	 *
-	 * @var string
-	 */
-	protected $groupingLength;
-
-	/**
-	 * The default sorting mode.
-	 *
-	 * @var string
-	 */
-	protected $sortingMode;
-
-	/**
-	 * The names of the properties that will be used for sorting by default.
-	 *
-	 * @var array
-	 */
-	protected $defaultSortingFields;
+	protected $groupAndSorting;
 
 	/**
 	 * The properties to display in the heder (parented mode only).
@@ -94,11 +73,43 @@ class DefaultListingConfig implements ListingConfigInterface
 	protected $showColumns;
 
 	/**
+	 * Create a new instance.
+	 */
+	public function __construct()
+	{
+		$this->groupAndSorting = new DefaultGroupAndSortingDefinitionCollection();
+	}
+
+	/**
+	 * Create a default group and sorting definition if none is present so far.
+	 *
+	 * @return GroupAndSortingDefinitionInterface
+	 */
+	protected function getOrCreateDefaultGroupAndSortingDefinition()
+	{
+		$definitions = $this->getGroupAndSortingDefinition();
+
+		if (!$definitions->hasDefault())
+		{
+			$definitions->markDefault($definitions->add());
+		}
+
+		return $definitions->getDefault();
+	}
+
+	/**
 	 * {@inheritdoc}
 	 */
 	public function setGroupingMode($value)
 	{
-		$this->groupingMode = $value;
+		$definition = $this->getOrCreateDefaultGroupAndSortingDefinition();
+
+		if ($definition->getCount() == 0)
+		{
+			$definition->add();
+		}
+
+		$definition->get(0)->setGroupingMode($value);
 
 		return $this;
 	}
@@ -108,7 +119,21 @@ class DefaultListingConfig implements ListingConfigInterface
 	 */
 	public function getGroupingMode()
 	{
-		return $this->groupingMode;
+		$definitions = $this->getGroupAndSortingDefinition();
+
+		if (!$definitions->hasDefault())
+		{
+			return GroupAndSortingInformationInterface::GROUP_NONE;
+		}
+
+		$definition = $definitions->getDefault();
+
+		if ($definition->getCount() == 0)
+		{
+			return GroupAndSortingInformationInterface::GROUP_NONE;
+		}
+
+		return $definition->get(0)->getGroupingMode();
 	}
 
 	/**
@@ -116,7 +141,14 @@ class DefaultListingConfig implements ListingConfigInterface
 	 */
 	public function setGroupingLength($value)
 	{
-		$this->groupingLength = $value;
+		$definition = $this->getOrCreateDefaultGroupAndSortingDefinition();
+
+		if ($definition->getCount() == 0)
+		{
+			$definition->add();
+		}
+
+		$definition->get(0)->setGroupingLength($value);
 
 		return $this;
 	}
@@ -126,7 +158,21 @@ class DefaultListingConfig implements ListingConfigInterface
 	 */
 	public function getGroupingLength()
 	{
-		return $this->groupingLength;
+		$definitions = $this->getGroupAndSortingDefinition();
+
+		if (!$definitions->hasDefault())
+		{
+			return 0;
+		}
+
+		$definition = $definitions->getDefault();
+
+		if ($definition->getCount() == 0)
+		{
+			return 0;
+		}
+
+		return $definition->get(0)->getGroupingLength();
 	}
 
 	/**
@@ -134,7 +180,14 @@ class DefaultListingConfig implements ListingConfigInterface
 	 */
 	public function setSortingMode($value)
 	{
-		$this->sortingMode = $value;
+		$definition = $this->getOrCreateDefaultGroupAndSortingDefinition();
+
+		if ($definition->getCount() == 0)
+		{
+			$definition->add();
+		}
+
+		$definition->get(0)->setSortingMode($value);
 
 		return $this;
 	}
@@ -144,7 +197,21 @@ class DefaultListingConfig implements ListingConfigInterface
 	 */
 	public function getSortingMode()
 	{
-		return $this->sortingMode;
+		$definitions = $this->getGroupAndSortingDefinition();
+
+		if (!$definitions->hasDefault())
+		{
+			return GroupAndSortingInformationInterface::SORT_RANDOM;
+		}
+
+		$definition = $definitions->getDefault();
+
+		if ($definition->getCount() == 0)
+		{
+			return GroupAndSortingInformationInterface::SORT_RANDOM;
+		}
+
+		return $definition->get(0)->getSortingMode();
 	}
 
 	/**
@@ -152,7 +219,15 @@ class DefaultListingConfig implements ListingConfigInterface
 	 */
 	public function setDefaultSortingFields($value)
 	{
-		$this->defaultSortingFields = $value;
+		$definition = $this->getOrCreateDefaultGroupAndSortingDefinition();
+
+		foreach ($value as $property => $direction)
+		{
+			$propertyInformation = $definition->add();
+			$propertyInformation
+				->setProperty($property)
+				->setSortingMode(strtolower($direction));
+		}
 
 		return $this;
 	}
@@ -162,7 +237,42 @@ class DefaultListingConfig implements ListingConfigInterface
 	 */
 	public function getDefaultSortingFields()
 	{
-		return $this->defaultSortingFields;
+		$definitions = $this->getGroupAndSortingDefinition();
+
+		if (!$definitions->hasDefault())
+		{
+			return array();
+		}
+
+		$properties = array();
+		foreach ($this->getGroupAndSortingDefinition()->getDefault() as $propertyInformation)
+		{
+			/** @var GroupAndSortingInformationInterface $propertyInformation */
+			if ($propertyInformation->getProperty())
+			{
+				$properties[$propertyInformation->getProperty()] = strtoupper($propertyInformation->getSortingMode());
+			}
+		}
+
+		return $properties;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setGroupAndSortingDefinition($definition)
+	{
+		$this->groupAndSorting = $definition;
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getGroupAndSortingDefinition()
+	{
+		return $this->groupAndSorting;
 	}
 
 	/**

@@ -148,6 +148,8 @@ interface PropertyInterface
 	 * @param string $value The grouping mode to apply.
 	 *
 	 * @return PropertyInterface
+	 *
+	 * @deprecated Not supported any more.
 	 */
 	public function setGroupingMode($value);
 
@@ -155,6 +157,8 @@ interface PropertyInterface
 	 * Return the grouping mode.
 	 *
 	 * @return string
+	 *
+	 * @deprecated Not supported any more.
 	 */
 	public function getGroupingMode();
 
@@ -166,6 +170,8 @@ interface PropertyInterface
 	 * @param int $value The prefix length.
 	 *
 	 * @return PropertyInterface
+	 *
+	 * @deprecated Not supported any more.
 	 */
 	public function setGroupingLength($value);
 
@@ -176,6 +182,8 @@ interface PropertyInterface
 	 * when grouping.
 	 *
 	 * @return int
+	 *
+	 * @deprecated Not supported any more.
 	 */
 	public function getGroupingLength();
 
@@ -187,6 +195,8 @@ interface PropertyInterface
 	 * @param string $value The sorting mode to apply.
 	 *
 	 * @return PropertyInterface
+	 *
+	 * @deprecated Not supported any more.
 	 */
 	public function setSortingMode($value);
 
@@ -198,6 +208,8 @@ interface PropertyInterface
 	 * See ListingConfigInterface::SORT_* flags.
 	 *
 	 * @return string
+	 *
+	 * @deprecated Not supported any more.
 	 */
 	public function getSortingMode();
 

@@ -3,7 +3,7 @@
  *
  * Provide methods to handle back end tasks.
  * Special functions for DC_General
- * 
+ *
  * @copyright  The MetaModels team.
  * @author     Stefan Heimes <cms@men-at-work.de>
  */

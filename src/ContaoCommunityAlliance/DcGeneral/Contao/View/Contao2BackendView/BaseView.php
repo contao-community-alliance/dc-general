@@ -19,7 +19,6 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
-use ContaoCommunityAlliance\Contao\Bindings\Events\Image\ResizeImageEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
@@ -38,6 +37,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CopyCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CutCommandInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
@@ -60,6 +61,7 @@ use ContaoCommunityAlliance\DcGeneral\Panel\FilterElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\LimitElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelElementInterface;
+use ContaoCommunityAlliance\DcGeneral\Panel\PanelInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SearchElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SubmitElementInterface;
@@ -330,6 +332,35 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	}
 
 	/**
+	 * Retrieve the currently active
+	 *
+	 *  @return GroupAndSortingDefinitionInterface
+	 */
+	protected function getCurrentSorting()
+	{
+		$sorting = null;
+
+		foreach ($this->getPanel() as $panel)
+		{
+			/** @var PanelInterface $panel */
+			$sort = $panel->getElement('sort');
+			if ($sort)
+			{
+				/** @var SortElementInterface $sort */
+				return $sort->getSelectedDefinition();
+			}
+		}
+
+		$definition = $this->getViewSection()->getListingConfig()->getGroupAndSortingDefinition();
+		if ($definition->hasDefault())
+		{
+			return $definition->getDefault();
+		}
+
+		return null;
+	}
+
+	/**
 	 * Retrieve the currently active grouping mode.
 	 *
 	 * @return array|null
@@ -338,59 +369,35 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 	 */
 	protected function getGroupingMode()
 	{
-		/** @var Contao2BackendViewDefinitionInterface $viewDefinition */
-		$viewDefinition = $this->getViewSection();
-		$listingConfig  = $viewDefinition->getListingConfig();
-
-		if ($listingConfig->getSortingMode() === ListingConfigInterface::SORT_RANDOM)
+		$sorting = $this->getCurrentSorting();
+		// If no sorting defined, exit.
+		if ((!$sorting)
+			|| (!$sorting->getCount())
+			|| $sorting->get(0)->getSortingMode() === GroupAndSortingInformationInterface::SORT_RANDOM)
 		{
 			return null;
 		}
+		$firstSorting = $sorting->get(0);
 
-		$definition    = $this->getEnvironment()->getDataDefinition();
-		$properties    = $definition->getPropertiesDefinition();
-		$sortingFields = array_keys((array)$listingConfig->getDefaultSortingFields());
-		$firstSorting  = reset($sortingFields);
-
-		$panel = $this->getPanel()->getPanel('sorting');
-		if ($panel)
-		{
-			/** @var SortElementInterface $panel */
-			$firstSorting = $panel->getSelected();
-		}
-
-		// Get the current value of first sorting.
-		if (!$firstSorting)
-		{
-			return null;
-		}
-
-		// TODO what happend when $firstSorting is suffixed with ASC or DESC?
-		$property = $properties->getProperty($firstSorting);
-
-		if (count($sortingFields) == 0)
-		{
-			$groupMode   = ListingConfigInterface::GROUP_NONE;
-			$groupLength = 0;
-		}
 		// Use the information from the property, if given.
-		elseif ($property->getGroupingMode() != '')
+		if ($firstSorting->getGroupingMode() != '')
 		{
-			$groupMode   = $property->getGroupingMode();
-			$groupLength = $property->getGroupingLength();
+			$groupMode   = $firstSorting->getGroupingMode();
+			$groupLength = $firstSorting->getGroupingLength();
 		}
-		// Use the global as fallback.
+		// No sorting? No grouping!
 		else
 		{
-			$groupMode   = $listingConfig->getGroupingMode();
-			$groupLength = $listingConfig->getGroupingLength();
+			$groupMode   = GroupAndSortingInformationInterface::GROUP_NONE;
+			$groupLength = 0;
 		}
 
 		return array
 		(
 			'mode'     => $groupMode,
 			'length'   => $groupLength,
-			'property' => $firstSorting
+			'property' => $firstSorting->getProperty(),
+			'sorting'  => $sorting
 		);
 	}
 
@@ -437,15 +444,15 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 				$remoteNew = $objParentModel->getProperty('value');
 			}
 		}
-		elseif ($groupMode != ListingConfigInterface::GROUP_NONE)
+		elseif ($groupMode != GroupAndSortingInformationInterface::GROUP_NONE)
 		{
 			switch ($groupMode)
 			{
-				case ListingConfigInterface::GROUP_CHAR:
+				case GroupAndSortingInformationInterface::GROUP_CHAR:
 					$remoteNew = ($value != '') ? ucfirst(utf8_substr($value, 0, $groupLength)) : '-';
 					break;
 
-				case ListingConfigInterface::GROUP_DAY:
+				case GroupAndSortingInformationInterface::GROUP_DAY:
 					if ($value instanceof \DateTime)
 					{
 						$value = $value->getTimestamp();
@@ -457,7 +464,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 					$remoteNew = ($value != '') ? $event->getResult() : '-';
 					break;
 
-				case ListingConfigInterface::GROUP_MONTH:
+				case GroupAndSortingInformationInterface::GROUP_MONTH:
 					if ($value instanceof \DateTime)
 					{
 						$value = $value->getTimestamp();
@@ -472,7 +479,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 					}
 					break;
 
-				case ListingConfigInterface::GROUP_YEAR:
+				case GroupAndSortingInformationInterface::GROUP_YEAR:
 					if ($value instanceof \DateTime)
 					{
 						$value = $value->getTimestamp();
@@ -577,7 +584,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$this->getButtonLabel('saveNclose')
 		);
 
-		if (!($this->isPopup() || $basicDefinition->isClosed()) && $basicDefinition->isCreatable())
+		if (!$this->isPopup() && $basicDefinition->isCreatable())
 		{
 			$buttons['saveNcreate'] = sprintf(
 				'<input type="submit" name="saveNcreate" id="saveNcreate" class="tl_submit" accesskey="n" value="%s" />',
@@ -967,7 +974,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			}
 		}
 
-		$preFunction = function($environment, $model, $originalModel)
+		$preFunction = function($environment, $model)
 		{
 			/** @var EnvironmentInterface $environment */
 			$copyEvent = new PreCreateModelEvent($environment, $model);
@@ -980,7 +987,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			);
 		};
 
-		$postFunction = function($environment, $model, $originalModel)
+		$postFunction = function($environment, $model)
 		{
 			/** @var EnvironmentInterface $environment */
 			$copyEvent = new PostCreateModelEvent($environment, $model);
@@ -1653,7 +1660,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		}
 
 		// Check if table is closed but we are adding a new item.
-		if ((!$modelId) && $basicDefinition->isClosed())
+		if (empty($modelId) && !$basicDefinition->isCreatable())
 		{
 			$message = 'DataContainer ' . $definition->getName() . ' is closed';
 			$environment->getEventPropagator()->propagate(
@@ -2030,7 +2037,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 		return sprintf(
 			$this->notImplMsg,
-			'showAll - Mode ' . $this->getViewSection()->getListingConfig()->getGroupingMode()
+			'showAll - Mode ' . $this->environment->getDataDefinition()->getBasicDefinition()->getMode()
 		);
 	}
 
@@ -2096,7 +2103,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			$pid = new IdSerializer();
 		}
 
-		if ($basicDefinition->isClosed())
+		if (!$basicDefinition->isCreatable())
 		{
 			return null;
 		}
@@ -2269,7 +2276,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 		$buttonEvent = new GetGlobalButtonEvent($this->getEnvironment());
 		$buttonEvent
-			->setAccessKey(trim($extra['accesskey']))
+			->setAccessKey(isset($extra['accesskey']) ? trim($extra['accesskey']) : null)
 			->setAttributes(' ' . ltrim($extra['attributes']))
 			->setClass($extra['class'])
 			->setKey($command->getName())
@@ -2421,7 +2428,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 		$arrParameters = (array)$objCommand->getParameters();
 		$extra         = (array)$objCommand->getExtra();
-		$strAttributes = $extra['attributes'];
+		$strAttributes = isset($extra['attributes']) ? $extra['attributes'] : null;
 		$attributes    = '';
 
 		// Toggle has to trigger the javascript.
@@ -2429,7 +2436,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		{
 			$arrParameters['act'] = $objCommand->getName();
 
-			$attributes = 'onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this);"';
+			$attributes = 'onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this, \'' . $extra['icon'] . '\', \'' . $extra['icon_disabled'] . '\');"';
 			if ($objCommand->isInverse()
 					? $objModel->getProperty($objCommand->getToggleProperty())
 					: !$objModel->getProperty($objCommand->getToggleProperty())
@@ -2479,7 +2486,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		else
 		{
 			// TODO: Shall we interface this option?
-			$idParam = $extra['idparam'];
+			$idParam = isset($extra['idparam']) ? $extra['idparam'] : null;
 			if ($idParam)
 			{
 				$arrParameters[$idParam] = IdSerializer::fromModel($objModel)->getSerialized();
@@ -2999,8 +3006,23 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		$listing      = $this->getViewSection()->getListingConfig();
 		$properties   = $this->getDataDefinition()->getPropertiesDefinition();
 		$formatter    = $listing->getLabelFormatter($model->getProviderName());
-		$sorting      = array_keys((array)$listing->getDefaultSortingFields());
-		$firstSorting = reset($sorting);
+		$sorting           = $this->getGroupingMode();
+		$sortingDefinition = $sorting['sorting'];
+		$firstSorting = '';
+
+		if ($sortingDefinition)
+		{
+			/** @var GroupAndSortingDefinitionInterface $sortingDefinition */
+			foreach ($sortingDefinition as $information)
+			{
+				/** @var GroupAndSortingInformationInterface $information */
+				if ($information->getProperty())
+				{
+					$firstSorting = reset($sorting);
+					break;
+				}
+			}
+		}
 
 		$args = array();
 		foreach ($formatter->getPropertyNames() as $propertyName)
@@ -3051,7 +3073,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 				{
 					$arrLabel[] = array(
 						'colspan' => 1,
-						// TODO what happend when $firstSorting is suffixed with ASC or DESC?
 						'class' => 'tl_file_list col_' . $j . (($propertyName == $firstSorting) ? ' ordered_by' : ''),
 						'content' => (($args[$propertyName] != '') ? $args[$propertyName] : '-')
 					);

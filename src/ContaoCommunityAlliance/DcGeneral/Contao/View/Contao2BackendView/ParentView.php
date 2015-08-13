@@ -14,17 +14,15 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
-use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\LoadDataContainerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
-use ContaoCommunityAlliance\Contao\Bindings\Events\System\LoadLanguageFileEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
@@ -49,18 +47,24 @@ class ParentView extends BaseView
 	 */
 	public function loadCollection()
 	{
-		$environment = $this->getEnvironment();
-
+		$environment            = $this->getEnvironment();
 		$objCurrentDataProvider = $environment->getDataProvider();
-
-		$objChildConfig = $environment->getController()->getBaseConfig();
-
-		if (!$objChildConfig->getSorting())
-		{
-			$objChildConfig->setSorting($this->getViewSection()->getListingConfig()->getDefaultSortingFields());
-		}
+		$objChildConfig         = $environment->getController()->getBaseConfig();
+		$listingConfig          = $this->getViewSection()->getListingConfig();
 
 		$this->getPanel()->initialize($objChildConfig);
+
+		// Initialize sorting if not present yet.
+		if (!$objChildConfig->getSorting() && $listingConfig->getGroupAndSortingDefinition()->hasDefault())
+		{
+			$newSorting = array();
+			foreach ($listingConfig->getGroupAndSortingDefinition()->getDefault() as $information)
+			{
+				/** @var GroupAndSortingInformationInterface $information */
+				$newSorting[$information->getProperty()] = strtoupper($information->getSortingMode());
+			}
+			$objChildConfig->setSorting($newSorting);
+		}
 
 		$objChildCollection = $objCurrentDataProvider->fetchAll($objChildConfig);
 
@@ -152,7 +156,7 @@ class ParentView extends BaseView
 
 				// Add the group header if it differs from the last header.
 				if (!$listing->getShowColumns()
-					&& ($groupingInformation['mode'] !== ListingConfigInterface::GROUP_NONE)
+					&& ($groupingInformation['mode'] !== GroupAndSortingInformationInterface::GROUP_NONE)
 					&& (($remoteNew != $remoteCur) || ($remoteCur === null))
 				)
 				{
@@ -358,7 +362,6 @@ class ParentView extends BaseView
 
 			if ($sorting
 				&& $clipboard->isEmpty()
-				&& !$basicDefinition->isClosed()
 				&& $basicDefinition->isCreatable()
 			)
 			{
@@ -493,7 +496,7 @@ class ParentView extends BaseView
 
 			return sprintf(
 				'<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
-				'contao/main.php?' . http_build_query($query),
+				'contao/main.php?' . str_replace('%3A', ':', http_build_query($query)),
 				specialchars($this->translate('editheader.1', $definition->getName())),
 				$imageEvent->getHtml()
 			);
@@ -541,7 +544,7 @@ class ParentView extends BaseView
 		}
 
 		// Add template.
-		if ($groupingInformation['mode'] != ListingConfigInterface::GROUP_NONE)
+		if ($groupingInformation['mode'] != GroupAndSortingInformationInterface::GROUP_NONE)
 		{
 			$objTemplate = $this->getTemplate('dcbe_general_grouping');
 		}
@@ -561,7 +564,8 @@ class ParentView extends BaseView
 			->addToTemplate('cdp', $definition->getName(), $objTemplate)
 			->addToTemplate('selectButtons', $this->getSelectButtons(), $objTemplate)
 			->addToTemplate('headerButtons', $this->getHeaderButtons($parentModel), $objTemplate)
-			->addToTemplate('sortable', (bool)$this->getManualSortingProperty(), $objTemplate);
+			->addToTemplate('sortable', (bool)$this->getManualSortingProperty(), $objTemplate)
+			->addToTemplate('showColumns', $this->getViewSection()->getListingConfig()->getShowColumns(), $objTemplate);
 
 		$this->renderEntries($collection, $groupingInformation);
 
@@ -634,8 +638,8 @@ class ParentView extends BaseView
 			return $this->edit();
 		}
 
-		// TODO sorting is still hardcoded :-(
-		if ($this->environment->getDataProvider()->fieldExists('sorting')) {
+		if ($this->environment->getDataProvider()->fieldExists($this->getManualSortingProperty()))
+		{
 			$this->checkClipboard('copy');
 			$this->redirectHome();
 		}

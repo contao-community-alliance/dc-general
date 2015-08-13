@@ -15,7 +15,9 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -37,7 +39,6 @@ class ListView extends BaseView
 	public function loadCollection()
 	{
 		$environment = $this->getEnvironment();
-		$definition  = $environment->getDataDefinition();
 		$backendView = $this->getViewSection();
 
 		/** @var Contao2BackendViewDefinitionInterface $backendView */
@@ -46,10 +47,19 @@ class ListView extends BaseView
 		$objCurrentDataProvider = $environment->getDataProvider();
 		$objConfig              = $environment->getController()->getBaseConfig();
 
-		// Initialize sorting.
-		$objConfig->setSorting($listingConfig->getDefaultSortingFields());
-
 		$this->getPanel()->initialize($objConfig);
+
+		// Initialize sorting if not present yet.
+		if (!$objConfig->getSorting() && $listingConfig->getGroupAndSortingDefinition()->hasDefault())
+		{
+			$newSorting = array();
+			foreach ($listingConfig->getGroupAndSortingDefinition()->getDefault() as $information)
+			{
+				/** @var GroupAndSortingInformationInterface $information */
+				$newSorting[$information->getProperty()] = strtoupper($information->getSortingMode());
+			}
+			$objConfig->setSorting($newSorting);
+		}
 
 		$objCollection = $objCurrentDataProvider->fetchAll($objConfig);
 
@@ -68,6 +78,22 @@ class ListView extends BaseView
 		$properties        = $definition->getPropertiesDefinition();
 		$viewDefinition    = $this->getViewSection();
 		$listingDefinition = $viewDefinition->getListingConfig();
+		$sorting           = $this->getGroupingMode();
+		$sortingDefinition = $sorting['sorting'];
+		$sortingColumns    = array();
+
+		if ($sortingDefinition)
+		{
+			/** @var GroupAndSortingDefinitionInterface $sortingDefinition */
+			foreach ($sortingDefinition as $information)
+			{
+				/** @var GroupAndSortingInformationInterface $information */
+				if ($information->getProperty())
+				{
+					$sortingColumns[] = $information->getProperty();
+				}
+			}
+		}
 
 		// Generate the table header if the "show columns" option is active.
 		if ($listingDefinition->getShowColumns())
@@ -85,9 +111,7 @@ class ListView extends BaseView
 				}
 
 				$arrTableHead[] = array(
-					// FIXME: getAdditionalSorting() unimplemented
-					'class'   => 'tl_folder_tlist col_'
-					/* . $f . ((in_array($f, $definition->getAdditionalSorting())) ? ' ordered_by' : '') */,
+					'class'   => 'tl_folder_tlist col_' . $f . ((in_array($f, $sortingColumns)) ? ' ordered_by' : ''),
 					'content' => $label[0]
 				);
 			}
@@ -135,7 +159,7 @@ class ListView extends BaseView
 
 				// Add the group header if it differs from the last header.
 				if (!$listingConfig->getShowColumns()
-					&& ($groupingInformation['mode'] !== ListingConfigInterface::GROUP_NONE)
+					&& ($groupingInformation['mode'] !== GroupAndSortingInformationInterface::GROUP_NONE)
 					&& (($remoteNew != $remoteCur) || ($remoteCur === null))
 				)
 				{
@@ -191,7 +215,9 @@ class ListView extends BaseView
 		}
 
 		// Add template.
-		if (isset($groupingInformation['mode']) && ($groupingInformation['mode'] != ListingConfigInterface::GROUP_NONE))
+		if (isset($groupingInformation['mode'])
+			&& ($groupingInformation['mode'] != GroupAndSortingInformationInterface::GROUP_NONE)
+		)
 		{
 			$objTemplate = $this->getTemplate('dcbe_general_grouping');
 		}
@@ -215,7 +241,8 @@ class ListView extends BaseView
 			->addToTemplate('pdp', '', $objTemplate)
 			->addToTemplate('cdp', $definition->getName(), $objTemplate)
 			->addToTemplate('selectButtons', $this->getSelectButtons(), $objTemplate)
-			->addToTemplate('sortable', (bool)$this->getManualSortingProperty(), $objTemplate);
+			->addToTemplate('sortable', (bool)$this->getManualSortingProperty(), $objTemplate)
+			->addToTemplate('showColumns', $this->getViewSection()->getListingConfig()->getShowColumns(), $objTemplate);
 
 		// Add breadcrumb, if we have one.
 		$strBreadcrumb = $this->breadcrumb();
@@ -259,8 +286,9 @@ class ListView extends BaseView
 		// We need to keep the original data here.
 		$copyModel = $environment->getController()->createClonedModel($model);
 
-		$preFunction = function($environment, $model, $originalModel)
+		$preFunction = function($environment, $model)
 		{
+			/** @var EnvironmentInterface $environment */
 			$copyEvent = new PreDuplicateModelEvent($environment, $model);
 			$environment->getEventPropagator()->propagate(
 				$copyEvent::NAME,
@@ -273,6 +301,7 @@ class ListView extends BaseView
 
 		$postFunction = function($environment, $model, $originalModel)
 		{
+			/** @var EnvironmentInterface $environment */
 			$copyEvent = new PostDuplicateModelEvent($environment, $model, $originalModel);
 			$environment->getEventPropagator()->propagate(
 				$copyEvent::NAME,

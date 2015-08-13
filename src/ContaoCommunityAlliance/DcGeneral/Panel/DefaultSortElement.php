@@ -14,6 +14,9 @@ namespace ContaoCommunityAlliance\DcGeneral\Panel;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionCollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
 
 /**
@@ -26,9 +29,18 @@ class DefaultSortElement
 	implements SortElementInterface
 {
 	/**
+	 * The selected definition.
+	 *
+	 * @var GroupAndSortingDefinitionInterface
+	 */
+	protected $selected;
+
+	/**
 	 * The default flag to use.
 	 *
 	 * @var int
+	 *
+	 * @deprecated Not in use anymore.
 	 */
 	public $intDefaultFlag;
 
@@ -40,11 +52,42 @@ class DefaultSortElement
 	protected $arrSorting = array();
 
 	/**
-	 * The selected sorting value.
+	 * Retrieve the group and sorting definition.
 	 *
-	 * @var mixed
+	 * @return GroupAndSortingDefinitionCollectionInterface
 	 */
-	protected $strSelected;
+	protected function getGroupAndSortingDefinition()
+	{
+		/** @var Contao2BackendViewDefinitionInterface $view */
+		$view = $this->getEnvironment()
+			->getDataDefinition()
+			->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+
+		return $view
+			->getListingConfig()
+			->getGroupAndSortingDefinition();
+	}
+
+	/**
+	 * Search a definition by it's name.
+	 *
+	 * @param string $name The name.
+	 *
+	 * @return GroupAndSortingDefinitionInterface|null
+	 */
+	protected function searchDefinitionByName($name)
+	{
+		foreach ($this->getGroupAndSortingDefinition() as $definition)
+		{
+			/** @var GroupAndSortingDefinitionInterface $definition */
+			if ($definition->getName() == $name)
+			{
+				return $definition;
+			}
+		}
+
+		return null;
+	}
 
 	/**
 	 * Retrieve the persistent value from the input provider.
@@ -101,62 +144,6 @@ class DefaultSortElement
 	}
 
 	/**
-	 * Retrieve the sorting flag to use for a property.
-	 *
-	 * @param string $strProperty The property.
-	 *
-	 * @return int
-	 */
-	protected function lookupFlag($strProperty)
-	{
-		return isset($this->arrSorting[$strProperty])
-			? $this->arrSorting[$strProperty]
-			: $this->getDefaultFlag();
-	}
-
-	/**
-	 * Calculate the direction from a flag.
-	 *
-	 * @param int $intFlag The flag.
-	 *
-	 * @return string
-	 */
-	protected function flagToDirection($intFlag)
-	{
-		return ($intFlag % 2) ? 'ASC' : 'DESC';
-	}
-
-	/**
-	 * Retrieve the additional sorting properties from the data definition.
-	 *
-	 * @return array
-	 */
-	protected function getAdditionalSorting()
-	{
-		/** @var Contao2BackendViewDefinitionInterface $view */
-		$view = $this->getEnvironment()
-			->getDataDefinition()
-			->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-		$tmp  = $view->getListingConfig()->getDefaultSortingFields();
-		if (!$tmp)
-		{
-			return array();
-		}
-
-		$arrReturn = array();
-		foreach ($tmp as $strProperty => $strDirection)
-		{
-			if ($this->getSelected() == $strProperty)
-			{
-				continue;
-			}
-
-			$arrReturn[$strProperty] = $strDirection;
-		}
-		return $arrReturn;
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
 	public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
@@ -172,12 +159,9 @@ class DefaultSortElement
 
 				$this->setPersistent($value);
 
-				$this->setSelected($this->getPersistent());
 			}
-			else
-			{
-				$this->setSelected($this->getPersistent());
-			}
+
+			$this->setSelected($this->getPersistent());
 		}
 
 		$current = $objConfig->getSorting();
@@ -187,31 +171,16 @@ class DefaultSortElement
 			$current = array();
 		}
 
-		$arrSecondOrder = $this->getAdditionalSorting();
-
-		if (!$this->getSelected())
+		if ($this->getSelectedDefinition())
 		{
-			if ($arrSecondOrder)
+			foreach ($this->getSelectedDefinition() as $information)
 			{
-				$filtered = array_intersect(array_keys($arrSecondOrder), $this->getPropertyNames());
-
-				$this->setSelected($filtered[0]);
-			}
-
-			// Still nothing selected? - use the first.
-			if (!$this->getSelected())
-			{
-				$all = $this->getPropertyNames();
-				$this->setSelected($all[0]);
+				/** @var GroupAndSortingInformationInterface $information */
+				$current[$information->getProperty()] = strtoupper($information->getSortingMode());
 			}
 		}
 
-		if ($this->getSelected())
-		{
-			$current[$this->getSelected()] = $this->flagToDirection($this->getFlag());
-		}
-
-		$objConfig->setSorting($current);
+		$objConfig->setSorting(array_reverse($current, true));
 	}
 
 	/**
@@ -220,14 +189,25 @@ class DefaultSortElement
 	public function render(ViewTemplateInterface $objTemplate)
 	{
 		$arrOptions = array();
-		foreach ($this->getPropertyNames() as $field)
+		foreach ($this->getGroupAndSortingDefinition() as $information)
 		{
-			$arrLabel = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getProperty($field)->getLabel();
+			/** @var GroupAndSortingDefinitionInterface $information */
+			$name       = $information->getName();
+			$properties = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition();
+			if ($properties->hasProperty($name))
+			{
+				$name = $properties->getProperty($name)->getLabel();
+			}
+
+			if (empty($name))
+			{
+				$name = $information->getName();
+			}
 
 			$arrOptions[] = array(
-				'value'      => specialchars($field),
-				'attributes' => ($this->getSelected() == $field) ? ' selected="selected"' : '',
-				'content'    => is_array($arrLabel) ? $arrLabel[0] : $arrLabel
+				'value'      => specialchars($information->getName()),
+				'attributes' => ($this->getSelected() == $information->getName()) ? ' selected="selected"' : '',
+				'content'    => $name
 			);
 		}
 
@@ -241,6 +221,8 @@ class DefaultSortElement
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	public function setDefaultFlag($intFlag)
 	{
@@ -251,6 +233,8 @@ class DefaultSortElement
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	public function getDefaultFlag()
 	{
@@ -259,26 +243,39 @@ class DefaultSortElement
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	public function addProperty($strPropertyName, $intFlag)
 	{
-		$this->arrSorting[$strPropertyName] = $intFlag;
+		// NO OP as of now.
 	}
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	public function getPropertyNames()
 	{
-		return array_keys($this->arrSorting);
+		$names = array();
+		foreach ($this->getGroupAndSortingDefinition() as $definition)
+		{
+			/** @var GroupAndSortingDefinitionInterface $definition */
+			$names[] = $definition->getName();
+		}
+
+		return $names;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function setSelected($strPropertyName)
+	public function setSelected($name)
 	{
-		$this->strSelected = $strPropertyName;
+		$this->selected = $this->searchDefinitionByName($name);
+
+		return $this;
 	}
 
 	/**
@@ -286,14 +283,24 @@ class DefaultSortElement
 	 */
 	public function getSelected()
 	{
-		return $this->strSelected;
+		return $this->selected ? $this->selected->getName() : null;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	public function getSelectedDefinition()
+	{
+		return $this->selected;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @deprecated not in use anymore.
+	 */
 	public function getFlag()
 	{
-		return $this->lookupFlag($this->getSelected());
+		return 0;
 	}
 }

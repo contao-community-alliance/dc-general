@@ -15,7 +15,7 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel
 /**
  * Class DefaultSortElementInformation.
  *
- * Default implementation of a sort definition on properties.
+ * Default implementation of a sort definition.
  *
  * @package DcGeneral\DataDefinition\Definition\View\Panel
  */
@@ -25,6 +25,8 @@ class DefaultSortElementInformation implements SortElementInformationInterface
 	 * The names of the properties to be sortable.
 	 *
 	 * @var array
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	protected $properties = array();
 
@@ -32,11 +34,15 @@ class DefaultSortElementInformation implements SortElementInformationInterface
 	 * The sorting flag to use by default.
 	 *
 	 * @var string
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	protected $defaultFlag = SortElementInformationInterface::SORTING_FLAG_NONE;
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	public function getName()
 	{
@@ -45,6 +51,8 @@ class DefaultSortElementInformation implements SortElementInformationInterface
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	public function setDefaultFlag($flag)
 	{
@@ -55,6 +63,8 @@ class DefaultSortElementInformation implements SortElementInformationInterface
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	public function getDefaultFlag()
 	{
@@ -63,6 +73,8 @@ class DefaultSortElementInformation implements SortElementInformationInterface
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	public function addProperty($propertyName, $flag = 0)
 	{
@@ -73,6 +85,8 @@ class DefaultSortElementInformation implements SortElementInformationInterface
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	public function hasProperty($propertyName)
 	{
@@ -81,6 +95,8 @@ class DefaultSortElementInformation implements SortElementInformationInterface
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	public function removeProperty($propertyName)
 	{
@@ -91,6 +107,8 @@ class DefaultSortElementInformation implements SortElementInformationInterface
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	public function getPropertyNames()
 	{
@@ -99,6 +117,8 @@ class DefaultSortElementInformation implements SortElementInformationInterface
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @deprecated not in use anymore.
 	 */
 	public function getPropertyFlag($propertyName)
 	{

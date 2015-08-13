@@ -71,17 +71,19 @@ class ContaoWidgetManager
 	/**
 	 * Encode a value from the widget to native data of the data provider via event.
 	 *
-	 * @param string $property The property.
+	 * @param string           $property       The property.
 	 *
-	 * @param mixed  $value    The value of the property.
+	 * @param mixed            $value          The value of the property.
+	 *
+	 * @param PropertyValueBag $propertyValues The property value bag the property value originates from.
 	 *
 	 * @return mixed
 	 */
-	public function encodeValue($property, $value)
+	public function encodeValue($property, $value, PropertyValueBag $propertyValues)
 	{
 		$environment = $this->getEnvironment();
 
-		$event = new EncodePropertyValueFromWidgetEvent($environment, $this->model);
+		$event = new EncodePropertyValueFromWidgetEvent($environment, $this->model, $propertyValues);
 		$event
 			->setProperty($property)
 			->setValue($value);
@@ -412,8 +414,8 @@ class ContaoWidgetManager
 		}
 
 		// FIXME TEMPORARY WORKAROUND! To be fixed in the core: Controller::prepareForWidget(..).
-		if (in_array($propExtra['rgxp'], array('date', 'time', 'datim'))
-			&& !$propExtra['mandatory']
+		if ((isset($propExtra['rgxp']) && in_array($propExtra['rgxp'], array('date', 'time', 'datim')))
+			&& empty($propExtra['mandatory'])
 			&& is_numeric($varValue) && $varValue == 0)
 		{
 			$varValue = '';
@@ -422,7 +424,7 @@ class ContaoWidgetManager
 		// OH: why not $required = $mandatory always? source: DataContainer 226.
 		// OH: the whole prepareForWidget(..) thing is an only mess
 		// Widgets should parse the configuration by themselves, depending on what they need.
-		$propExtra['required'] = ($varValue == '') && $propExtra['mandatory'];
+		$propExtra['required'] = ($varValue == '') && !empty($propExtra['mandatory']);
 
 		if ($inputValues)
 		{
@@ -490,6 +492,7 @@ class ContaoWidgetManager
 		// Therefore we reset to the default checkbox behaviour here and submit the entire form.
 		// This way, the javascript needed by the widget (wizards) will be correctly evaluated.
 		if ($arrConfig['inputType'] == 'checkbox'
+			&& isset($GLOBALS['TL_DCA'][$defName]['subpalettes'])
 			&& is_array($GLOBALS['TL_DCA'][$defName]['subpalettes'])
 			&& in_array($property, array_keys($GLOBALS['TL_DCA'][$defName]['subpalettes']))
 			&& $arrConfig['eval']['submitOnChange']
@@ -572,7 +575,7 @@ class ContaoWidgetManager
 				toggle:$$("#toggle_' . $objWidget->id . '"),
 				format:"' . \Date::formatToJs($strFormat) . '",
 				positionOffset:{x:-197,y:-182}' . $time . ',
-				pickerClass:"' . (version_compare(DATEPICKER, '2.2', '>=') ? 'datepicker_bootstrap' : 'datepicker_dashboard') . '",
+				pickerClass:"' . (version_compare(VERSION, '3.3', '>=') ? 'datepicker_bootstrap' : 'datepicker_dashboard') . '",
 				useFadeInOut:!Browser.ie,
 				startDay:' . $translator->translate('weekOffset', 'MSC') . ',
 				titleFormat:"' . $translator->translate('titleFormat', 'MSC') . '"
@@ -663,7 +666,7 @@ class ContaoWidgetManager
 		$objTemplateFoo = new ContaoBackendViewTemplate('dcbe_general_field');
 		$objTemplateFoo->setData(array(
 			'strName'       => $property,
-			'strClass'      => $propExtra['tl_class'],
+			'strClass'      => isset($propExtra['tl_class']) ? $propExtra['tl_class'] : null,
 			'widget'        => $widget->parse(),
 			'hasErrors'     => $widget->hasErrors(),
 			'strDatepicker' => $strDatePicker,
@@ -692,24 +695,26 @@ EOF;
 	 */
 	public function processInput(PropertyValueBag $propertyValues)
 	{
-		// remember current POST data and clear it
-		$post = $_POST;
+		// @codingStandardsIgnoreStart - Remember current POST data and clear it.
+		$post  = $_POST;
 		$_POST = array();
+		// @codingStandardsIgnoreEnd
 		\Input::resetCache();
 
-		// set all POST data, these get used within the Widget::validate() method.
+		// Set all POST data, these get used within the Widget::validate() method.
 		foreach ($propertyValues as $property => $propertyValue)
 		{
+			// @codingStandardsIgnoreStart - Operating on $_POST is safe context here.
 			$_POST[$property] = $propertyValue;
+			// @codingStandardsIgnoreEnd
 		}
 
-		// now get and validate the widgets
+		// Now get and validate the widgets.
 		foreach (array_keys($propertyValues->getArrayCopy()) as $property)
 		{
 			// NOTE: the passed input values are RAW DATA from the input provider - aka widget known values and not
 			// native data as in the model.
 			// Therefore we do not need to decode them but MUST encode them.
-
 			$widget = $this->getWidget($property, $propertyValues);
 			$widget->validate();
 
@@ -723,7 +728,7 @@ EOF;
 			else
 			{
 				try {
-					$propertyValues->setPropertyValue($property, $this->encodeValue($property, $widget->value));
+					$propertyValues->setPropertyValue($property, $this->encodeValue($property, $widget->value, $propertyValues));
 				}
 				catch (\Exception $e) {
 					$widget->addError($e->getMessage());
@@ -732,8 +737,9 @@ EOF;
 			}
 		}
 
-		// restore the POST data array
+		// @codingStandardsIgnoreStart - Restore the POST data array.
 		$_POST = $post;
+		// @codingStandardsIgnoreEnd
 		\Input::resetCache();
 	}
 

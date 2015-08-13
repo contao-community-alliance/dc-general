@@ -48,6 +48,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CopyCommand
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CutCommand;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CutCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\DefaultModelFormatterConfig;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionCollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\DefaultFilterElementInformation;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\DefaultLimitElementInformation;
@@ -85,12 +87,12 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 */
 	public function build(ContainerInterface $container, BuildDataDefinitionEvent $event)
 	{
-		if (!$this->loadDca($container->getName(), $event->getDispatcher()))
+		if (!$this->loadDca($container->getName(), $this->getDispatcher()))
 		{
 			return;
 		}
 
-		$this->parseCallbacks($container, $event->getDispatcher());
+		$this->parseCallbacks($container, $this->getDispatcher());
 		$this->parseBasicDefinition($container);
 		$this->parseDataProvider($container);
 		$this->parseRootEntries($container);
@@ -107,17 +109,15 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	 * This method will register an event to the populate environment event in which the parent data provider container
 	 * will get loaded.
 	 *
-	 * @param ContainerInterface       $container The container where the data shall be stored.
-	 *
-	 * @param BuildDataDefinitionEvent $event     The event being emitted.
+	 * @param ContainerInterface $container The container where the data shall be stored.
 	 *
 	 * @return void
 	 */
-	protected function loadAdditionalDefinitions(ContainerInterface $container, BuildDataDefinitionEvent $event)
+	protected function loadAdditionalDefinitions(ContainerInterface $container)
 	{
 		if ($this->getFromDca('config/ptable'))
 		{
-			$event->getDispatcher()->addListener(
+			$this->getDispatcher()->addListener(
 				sprintf('%s[%s]', PopulateEnvironmentEvent::NAME, $container->getName()),
 				function (PopulateEnvironmentEvent $event) {
 					$environment      = $event->getEnvironment();
@@ -444,7 +444,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if (($value = $this->getFromDca('config/closed')) !== null)
 		{
-			$config->setClosed((bool)$value);
+			$config
+				->setEditable(!$value)
+				->setCreatable(!$value);
 		}
 
 		if (($value = $this->getFromDca('config/notEditable')) !== null)
@@ -795,6 +797,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 		}
 
 		$this->parseListing($container, $view);
+		$this->parsePropertySortingAndGroupings($view);
 		$this->parsePanel($view);
 		$this->parseGlobalOperations($view);
 		$this->parseModelOperations($view);
@@ -835,6 +838,53 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	}
 
 	/**
+	 * Parse the sorting and grouping information for all properties.
+	 *
+	 * @param Contao2BackendViewDefinitionInterface $view The view information for the backend view.
+	 *
+	 * @return void
+	 */
+	protected function parsePropertySortingAndGroupings($view)
+	{
+		$definitions = $view->getListingConfig()->getGroupAndSortingDefinition();
+
+		foreach ((array)$this->getFromDca('fields') as $propName => $propInfo)
+		{
+			$this->parsePropertySortingAndGrouping($propName, $propInfo, $definitions);
+		}
+	}
+
+	/**
+	 * Parse the sorting and grouping information for a given property.
+	 *
+	 * @param string                                       $propName    The property to parse.
+	 *
+	 * @param array                                        $propInfo    The property information.
+	 *
+	 * @param GroupAndSortingDefinitionCollectionInterface $definitions The definitions.
+	 *
+	 * @return void
+	 */
+	protected function parsePropertySortingAndGrouping($propName, $propInfo, $definitions)
+	{
+		if (empty($propInfo['sorting']))
+		{
+			return;
+		}
+
+		$definition  = $definitions->add()->setName($propName);
+		$information = $definition->add();
+		$information->setProperty($propName);
+		if (isset($propInfo['length']))
+		{
+			$information->setGroupingLength($propInfo['length']);
+		}
+
+		$flag = empty($propInfo['flag']) ? $this->getFromDca('list/sorting/flag') : $propInfo['flag'];
+		$this->evalFlag($information, $flag);
+	}
+
+	/**
 	 * Parse the sorting part of listing configuration.
 	 *
 	 * NOTE: this method currently does NOT support the custom SQL sorting information as supported by DC_Table in
@@ -852,34 +902,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	{
 		$sortingDca = isset($listDca['sorting']) ? $listDca['sorting'] : array();
 
-		if (isset($sortingDca['flag']))
-		{
-			$this->evalFlag($listing, $sortingDca['flag']);
-		}
-
-		if (isset($sortingDca['fields']))
-		{
-			$fields = array();
-
-			foreach ($sortingDca['fields'] as $field)
-			{
-				if (preg_match('~^(\w+)(?: (ASC|DESC))?$~', $field, $matches))
-				{
-					$fields[$matches[1]] = isset($matches[2]) ? $matches[2] : 'ASC';
-				}
-				else if (preg_match('~^(\w+) => (.+)$~', $field, $matches))
-				{
-					$fields[$matches[1]] = $matches[2];
-				}
-				else
-				{
-					throw new DcGeneralRuntimeException('Custom SQL in sorting fields are currently unsupported');
-				}
-			}
-
-			$listing->setDefaultSortingFields($fields);
-		}
-
 		if (isset($sortingDca['headerFields']))
 		{
 			$listing->setHeaderPropertyNames((array)$sortingDca['headerFields']);
@@ -890,14 +912,58 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			$listing->setRootIcon($sortingDca['icon']);
 		}
 
-		if (isset($sortingDca['disableGrouping']) && $sortingDca['disableGrouping'])
-		{
-			$listing->setGroupingMode(ListingConfigInterface::GROUP_NONE);
-		}
-
 		if (isset($sortingDca['child_record_class']))
 		{
 			$listing->setItemCssClass($sortingDca['child_record_class']);
+		}
+
+		if (empty($sortingDca['fields']))
+		{
+			return;
+		}
+
+		$definitions = $listing->getGroupAndSortingDefinition();
+
+		if (!$definitions->hasDefault())
+		{
+			$definition = $definitions->add();
+			$definitions->markDefault($definition);
+		}
+		else
+		{
+			$definition = $definitions->getDefault();
+		}
+
+		foreach ($sortingDca['fields'] as $field)
+		{
+			$propertyInformation = $definition->add();
+
+			if (isset($sortingDca['flag']))
+			{
+				$this->evalFlag($propertyInformation, $sortingDca['flag']);
+			}
+
+			if (preg_match('~^(\w+)(?: (ASC|DESC))?$~', $field, $matches))
+			{
+				$propertyInformation
+					->setProperty($matches[1])
+					->setSortingMode(isset($matches[2]) ? $matches[2] : 'ASC');
+			}
+			elseif (preg_match('~^(\w+) => (.+)$~', $field, $matches))
+			{
+				$propertyInformation
+					->setProperty($matches[1])
+					->setSortingMode($matches[2]);
+			}
+			else
+			{
+				throw new DcGeneralRuntimeException('Custom SQL in sorting fields are currently unsupported');
+			}
+
+			if (isset($sortingDca['disableGrouping']) && $sortingDca['disableGrouping'])
+			{
+				$propertyInformation->setGroupingMode(ListingConfigInterface::GROUP_NONE);
+			}
 		}
 	}
 
@@ -995,6 +1061,12 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 			{
 				$element->addProperty($property, (int)$value['flag']);
 			}
+		}
+
+		$default = $this->getFromDca('list/sorting/flag');
+		if ($default)
+		{
+			$element->setDefaultFlag($default);
 		}
 	}
 
@@ -1524,9 +1596,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	/**
 	 * Evaluate the contao 2 sorting flag into sorting mode.
 	 *
-	 * @param ListingConfigInterface|PropertyInterface $config The property to evaluate the flag for.
+	 * @param GroupAndSortingInformationInterface $config The property to evaluate the flag for.
 	 *
-	 * @param int                                      $flag   The flag to be evaluated.
+	 * @param int                                 $flag   The flag to be evaluated.
 	 *
 	 * @return void
 	 */
@@ -1539,20 +1611,20 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if (($flag % 2) == 1)
 		{
-			$config->setSortingMode(ListingConfigInterface::SORT_ASC);
+			$config->setSortingMode(GroupAndSortingInformationInterface::SORT_ASC);
 		}
 		else
 		{
-			$config->setSortingMode(ListingConfigInterface::SORT_DESC);
+			$config->setSortingMode(GroupAndSortingInformationInterface::SORT_DESC);
 		}
 	}
 
 	/**
 	 * Evaluate the contao 2 sorting flag into grouping mode.
 	 *
-	 * @param ListingConfigInterface|PropertyInterface $config The property to evaluate the flag for.
+	 * @param GroupAndSortingInformationInterface $config The property to evaluate the flag for.
 	 *
-	 * @param int                                      $flag   The flag to be evaluated.
+	 * @param int                                 $flag   The flag to be evaluated.
 	 *
 	 * @return void
 	 */
@@ -1565,32 +1637,32 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
 		if ($flag <= 4)
 		{
-			$config->setGroupingMode(ListingConfigInterface::GROUP_CHAR);
+			$config->setGroupingMode(GroupAndSortingInformationInterface::GROUP_CHAR);
 		}
 		elseif ($flag <= 6)
 		{
-			$config->setGroupingMode(ListingConfigInterface::GROUP_DAY);
+			$config->setGroupingMode(GroupAndSortingInformationInterface::GROUP_DAY);
 		}
 		elseif ($flag <= 8)
 		{
-			$config->setGroupingMode(ListingConfigInterface::GROUP_MONTH);
+			$config->setGroupingMode(GroupAndSortingInformationInterface::GROUP_MONTH);
 		}
 		elseif ($flag <= 10)
 		{
-			$config->setGroupingMode(ListingConfigInterface::GROUP_YEAR);
+			$config->setGroupingMode(GroupAndSortingInformationInterface::GROUP_YEAR);
 		}
 		else
 		{
-			$config->setGroupingMode(ListingConfigInterface::GROUP_NONE);
+			$config->setGroupingMode(GroupAndSortingInformationInterface::GROUP_NONE);
 		}
 	}
 
 	/**
 	 * Evaluate the contao 2 sorting flag into grouping length.
 	 *
-	 * @param ListingConfigInterface|PropertyInterface $config The property to evaluate the flag for.
+	 * @param GroupAndSortingInformationInterface $config The property to evaluate the flag for.
 	 *
-	 * @param int                                      $flag   The flag to be evaluated.
+	 * @param int                                 $flag   The flag to be evaluated.
 	 *
 	 * @return void
 	 */
@@ -1609,9 +1681,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 	/**
 	 * Evaluate the contao 2 sorting flag into sorting mode, grouping mode and grouping length.
 	 *
-	 * @param ListingConfigInterface|PropertyInterface $config The property to evaluate the flag for.
+	 * @param GroupAndSortingInformationInterface $config The property to evaluate the flag for.
 	 *
-	 * @param int                                      $flag   The flag to be evaluated.
+	 * @param int                                 $flag   The flag to be evaluated.
 	 *
 	 * @return void
 	 */

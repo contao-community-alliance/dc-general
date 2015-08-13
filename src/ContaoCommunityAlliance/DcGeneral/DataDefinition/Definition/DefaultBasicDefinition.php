@@ -55,13 +55,6 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
 	protected $additionalFilter;
 
 	/**
-	 * If true, adding of further records is prohibited.
-	 *
-	 * @var bool
-	 */
-	protected $isClosed = false;
-
-	/**
 	 * If true, only edit mode is used.
 	 *
 	 * @var bool
@@ -216,7 +209,8 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
 	 */
 	public function setClosed($value)
 	{
-		$this->isClosed = $value;
+		$this->isEditable  = !$value;
+		$this->isCreatable = !$value;
 
 		return $this;
 	}
@@ -226,7 +220,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
 	 */
 	public function isClosed()
 	{
-		return $this->isClosed;
+		return !($this->isEditable || $this->isCreatable);
 	}
 
 	/**
