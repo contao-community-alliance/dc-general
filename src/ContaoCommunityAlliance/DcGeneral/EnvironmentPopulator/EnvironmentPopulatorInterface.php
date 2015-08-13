@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -24,12 +25,12 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  */
 interface EnvironmentPopulatorInterface
 {
-	/**
-	 * Create all needed objects the populator knows to create and put them into the environment.
-	 *
-	 * @param EnvironmentInterface $environment The environment to populate.
-	 *
-	 * @return void
-	 */
-	public function populate(EnvironmentInterface $environment);
+    /**
+     * Create all needed objects the populator knows to create and put them into the environment.
+     *
+     * @param EnvironmentInterface $environment The environment to populate.
+     *
+     * @return void
+     */
+    public function populate(EnvironmentInterface $environment);
 }

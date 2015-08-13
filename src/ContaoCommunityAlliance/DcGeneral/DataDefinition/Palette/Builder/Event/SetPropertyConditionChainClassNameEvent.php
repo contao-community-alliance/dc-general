@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,49 +22,49 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuil
  */
 class SetPropertyConditionChainClassNameEvent extends BuilderEvent
 {
-	const NAME = 'dc-general.data-definition.palette.builder.set-property-condition-chain-class-name';
+    const NAME = 'dc-general.data-definition.palette.builder.set-property-condition-chain-class-name';
 
-	/**
-	 * The class name.
-	 *
-	 * @var string
-	 */
-	protected $palettePropertyConditionChainClassName;
+    /**
+     * The class name.
+     *
+     * @var string
+     */
+    protected $className;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param string         $palettePropertyConditionChainClassName The class name.
-	 *
-	 * @param PaletteBuilder $paletteBuilder                         The palette builder in use.
-	 */
-	public function __construct($palettePropertyConditionChainClassName, PaletteBuilder $paletteBuilder)
-	{
-		$this->setPalettePropertyConditionChainClassName($palettePropertyConditionChainClassName);
-		parent::__construct($paletteBuilder);
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param string         $className      The class name.
+     *
+     * @param PaletteBuilder $paletteBuilder The palette builder in use.
+     */
+    public function __construct($className, PaletteBuilder $paletteBuilder)
+    {
+        $this->setPalettePropertyConditionChainClassName($className);
+        parent::__construct($paletteBuilder);
+    }
 
-	/**
-	 * Set the class name.
-	 *
-	 * @param string $palettePropertyConditionChainClassName The class name.
-	 *
-	 * @return SetPropertyConditionChainClassNameEvent
-	 */
-	public function setPalettePropertyConditionChainClassName($palettePropertyConditionChainClassName)
-	{
-		$this->palettePropertyConditionChainClassName = (string)$palettePropertyConditionChainClassName;
+    /**
+     * Set the class name.
+     *
+     * @param string $className The class name.
+     *
+     * @return SetPropertyConditionChainClassNameEvent
+     */
+    public function setPalettePropertyConditionChainClassName($className)
+    {
+        $this->className = (string)$className;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Retrieve the class name.
-	 *
-	 * @return string
-	 */
-	public function getPalettePropertyConditionChainClassName()
-	{
-		return $this->palettePropertyConditionChainClassName;
-	}
+    /**
+     * Retrieve the class name.
+     *
+     * @return string
+     */
+    public function getPalettePropertyConditionChainClassName()
+    {
+        return $this->className;
+    }
 }

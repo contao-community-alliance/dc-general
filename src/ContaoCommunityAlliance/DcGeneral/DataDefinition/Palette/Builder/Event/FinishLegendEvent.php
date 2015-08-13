@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -12,8 +13,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event;
 
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
 
 /**
  * This event gets emitted when a legend is finished.
@@ -22,49 +23,49 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuil
  */
 class FinishLegendEvent extends BuilderEvent
 {
-	const NAME = 'dc-general.data-definition.palette.builder.finish-legend';
+    const NAME = 'dc-general.data-definition.palette.builder.finish-legend';
 
-	/**
-	 * The legend.
-	 *
-	 * @var LegendInterface
-	 */
-	protected $legend;
+    /**
+     * The legend.
+     *
+     * @var LegendInterface
+     */
+    protected $legend;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param LegendInterface $legend         The legend.
-	 *
-	 * @param PaletteBuilder  $paletteBuilder The palette builder in use.
-	 */
-	public function __construct(LegendInterface $legend, PaletteBuilder $paletteBuilder)
-	{
-		$this->setLegend($legend);
-		parent::__construct($paletteBuilder);
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param LegendInterface $legend         The legend.
+     *
+     * @param PaletteBuilder  $paletteBuilder The palette builder in use.
+     */
+    public function __construct(LegendInterface $legend, PaletteBuilder $paletteBuilder)
+    {
+        $this->setLegend($legend);
+        parent::__construct($paletteBuilder);
+    }
 
-	/**
-	 * Set the legend.
-	 *
-	 * @param LegendInterface $legend The legend.
-	 *
-	 * @return FinishLegendEvent
-	 */
-	public function setLegend(LegendInterface $legend)
-	{
-		$this->legend = $legend;
+    /**
+     * Set the legend.
+     *
+     * @param LegendInterface $legend The legend.
+     *
+     * @return FinishLegendEvent
+     */
+    public function setLegend(LegendInterface $legend)
+    {
+        $this->legend = $legend;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Retrieve the legend.
-	 *
-	 * @return LegendInterface
-	 */
-	public function getLegend()
-	{
-		return $this->legend;
-	}
+    /**
+     * Retrieve the legend.
+     *
+     * @return LegendInterface
+     */
+    public function getLegend()
+    {
+        return $this->legend;
+    }
 }

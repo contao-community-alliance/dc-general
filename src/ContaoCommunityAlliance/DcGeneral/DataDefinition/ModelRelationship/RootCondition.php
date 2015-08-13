@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -19,134 +20,130 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  *
  * @package DcGeneral\DataDefinition\ModelRelationship
  */
-class RootCondition
-	extends AbstractCondition
-	implements RootConditionInterface
+class RootCondition extends AbstractCondition implements RootConditionInterface
 {
-	/**
-	 * The filter rules to use.
-	 *
-	 * @var array
-	 */
-	protected $filter;
 
-	/**
-	 * The setter information to use when a model shall get marked as root item.
-	 *
-	 * @var array
-	 */
-	protected $setOn;
+    /**
+     * The filter rules to use.
+     *
+     * @var array
+     */
+    protected $filter;
 
-	/**
-	 * The name of the table this condition is being applied to.
-	 *
-	 * @var string
-	 */
-	protected $sourceProvider;
+    /**
+     * The setter information to use when a model shall get marked as root item.
+     *
+     * @var array
+     */
+    protected $setOn;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setFilterArray($value)
-	{
-		$this->filter = $value;
+    /**
+     * The name of the table this condition is being applied to.
+     *
+     * @var string
+     */
+    protected $sourceProvider;
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setFilterArray($value)
+    {
+        $this->filter = $value;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getFilterArray()
-	{
-		return $this->filter;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setSetters($value)
-	{
-		$this->setOn = $value;
+    /**
+     * {@inheritdoc}
+     */
+    public function getFilterArray()
+    {
+        return $this->filter;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setSetters($value)
+    {
+        $this->setOn = $value;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getSetters()
-	{
-		return $this->setOn;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setSourceName($value)
-	{
-		$this->sourceProvider = $value;
+    /**
+     * {@inheritdoc}
+     */
+    public function getSetters()
+    {
+        return $this->setOn;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setSourceName($value)
+    {
+        $this->sourceProvider = $value;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getSourceName()
-	{
-		return $this->sourceProvider;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 *
-	 * @throws DcGeneralRuntimeException When an incomplete rule is encountered in the setters.
-	 */
-	public function applyTo($objModel)
-	{
-		if ($this->setOn)
-		{
-			foreach ($this->setOn as $rule)
-			{
-				if (!($rule['property'] && isset($rule['value'])))
-				{
-					throw new DcGeneralRuntimeException(
-						'Error Processing root condition, you need to specify property and value: ' . var_export($rule, true),
-						1
-					);
-				}
+    /**
+     * {@inheritdoc}
+     */
+    public function getSourceName()
+    {
+        return $this->sourceProvider;
+    }
 
-				$objModel->setProperty($rule['property'], $rule['value']);
-			}
-		}
-		else
-		{
-			throw new DcGeneralRuntimeException(
-				'Error Processing root condition, you need to specify root condition setters.',
-				1
-			);
-		}
+    /**
+     * {@inheritdoc}
+     *
+     * @throws DcGeneralRuntimeException When an incomplete rule is encountered in the setters.
+     */
+    public function applyTo($objModel)
+    {
+        if ($this->setOn) {
+            foreach ($this->setOn as $rule) {
+                if (!($rule['property'] && isset($rule['value']))) {
+                    throw new DcGeneralRuntimeException(
+                        'Error Processing root condition, you need to specify property and value: ' . var_export(
+                            $rule,
+                            true
+                        ),
+                        1
+                    );
+                }
 
-		return $this;
-	}
+                $objModel->setProperty($rule['property'], $rule['value']);
+            }
+        } else {
+            throw new DcGeneralRuntimeException(
+                'Error Processing root condition, you need to specify root condition setters.',
+                1
+            );
+        }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function matches($objModel)
-	{
-		if ($this->getFilterArray())
-		{
-			return $this->checkCondition(
-				$objModel,
-				array(
-					'operation' => 'AND',
-					'children'  => $this->getFilterArray()
-				)
-			);
-		}
+        return $this;
+    }
 
-		return true;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function matches($objModel)
+    {
+        if ($this->getFilterArray()) {
+            return $this->checkCondition(
+                $objModel,
+                array(
+                    'operation' => 'AND',
+                    'children'  => $this->getFilterArray()
+                )
+            );
+        }
+
+        return true;
+    }
 }

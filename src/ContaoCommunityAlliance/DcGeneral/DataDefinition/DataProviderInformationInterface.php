@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -19,35 +20,35 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition;
  */
 interface DataProviderInformationInterface
 {
-	/**
-	 * Set the name of the data provider.
-	 *
-	 * @param string $name The name.
-	 *
-	 * @return DataProviderInformationInterface
-	 */
-	public function setName($name);
+    /**
+     * Set the name of the data provider.
+     *
+     * @param string $name The name.
+     *
+     * @return DataProviderInformationInterface
+     */
+    public function setName($name);
 
-	/**
-	 * Retrieve the name of the data provider.
-	 *
-	 * @return string
-	 */
-	public function getName();
+    /**
+     * Retrieve the name of the data provider.
+     *
+     * @return string
+     */
+    public function getName();
 
-	/**
-	 * Set if versioning is enabled for this data provider or not.
-	 *
-	 * @param bool $versioningEnabled The flag.
-	 *
-	 * @return DataProviderInformationInterface
-	 */
-	public function setVersioningEnabled($versioningEnabled);
+    /**
+     * Set if versioning is enabled for this data provider or not.
+     *
+     * @param bool $versioningEnabled The flag.
+     *
+     * @return DataProviderInformationInterface
+     */
+    public function setVersioningEnabled($versioningEnabled);
 
-	/**
-	 * Check if versioning is enabled for this data provider or not.
-	 *
-	 * @return bool
-	 */
-	public function isVersioningEnabled();
+    /**
+     * Check if versioning is enabled for this data provider or not.
+     *
+     * @return bool
+     */
+    public function isVersioningEnabled();
 }

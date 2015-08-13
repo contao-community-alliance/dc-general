@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -23,40 +24,39 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGr
  */
 class ModelGroupCallbackListener extends AbstractReturningCallbackListener
 {
-	/**
-	 * Retrieve the arguments for the callback.
-	 *
-	 * @param GetGroupHeaderEvent $event The event being emitted.
-	 *
-	 * @return array
-	 */
-	public function getArgs($event)
-	{
-		return array(
-			$event->getGroupField(),
-			$event->getGroupingMode(),
-			$event->getValue(),
-			$event->getModel()->getPropertiesAsArray()
-		);
-	}
+    /**
+     * Retrieve the arguments for the callback.
+     *
+     * @param GetGroupHeaderEvent $event The event being emitted.
+     *
+     * @return array
+     */
+    public function getArgs($event)
+    {
+        return array(
+            $event->getGroupField(),
+            $event->getGroupingMode(),
+            $event->getValue(),
+            $event->getModel()->getPropertiesAsArray()
+        );
+    }
 
-	/**
-	 * Set the value in the event.
-	 *
-	 * @param GetGroupHeaderEvent $event The event being emitted.
-	 *
-	 * @param string              $value The value returned by the callback.
-	 *
-	 * @return void
-	 */
-	public function update($event, $value)
-	{
-		if (is_null($value))
-		{
-			return;
-		}
+    /**
+     * Set the value in the event.
+     *
+     * @param GetGroupHeaderEvent $event The event being emitted.
+     *
+     * @param string              $value The value returned by the callback.
+     *
+     * @return void
+     */
+    public function update($event, $value)
+    {
+        if ($value === null) {
+            return;
+        }
 
-		$event->setValue($value);
-		$event->stopPropagation();
-	}
+        $event->setValue($value);
+        $event->stopPropagation();
+    }
 }

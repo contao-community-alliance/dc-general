@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,10 +22,10 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
  */
 interface ModelAwareInterface
 {
-	/**
-	 * Retrieve the attached model.
-	 *
-	 * @return ModelInterface
-	 */
-	public function getModel();
+    /**
+     * Retrieve the attached model.
+     *
+     * @return ModelInterface
+     */
+    public function getModel();
 }

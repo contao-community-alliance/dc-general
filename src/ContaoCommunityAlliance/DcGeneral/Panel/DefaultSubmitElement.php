@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -20,21 +21,19 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
  *
  * @package DcGeneral\Panel
  */
-class DefaultSubmitElement
-	extends AbstractElement
-	implements SubmitElementInterface
+class DefaultSubmitElement extends AbstractElement implements SubmitElementInterface
 {
-	/**
-	 * {@inheritdoc}
-	 */
-	public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
-	{
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
+    {
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function render(ViewTemplateInterface $objTemplate)
-	{
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function render(ViewTemplateInterface $objTemplate)
+    {
+    }
 }

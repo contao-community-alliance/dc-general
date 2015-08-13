@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -23,57 +24,57 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
  */
 class DumpingPropertyCondition implements PropertyConditionInterface
 {
-	/**
-	 * The condition to dump.
-	 *
-	 * @var PropertyConditionInterface
-	 */
-	protected $propertyCondition;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param PropertyConditionInterface $propertyCondition The condition to debug.
-	 */
-	public function __construct($propertyCondition)
-	{
-		$this->propertyCondition = $propertyCondition;
-	}
+    /**
+     * The condition to dump.
+     *
+     * @var PropertyConditionInterface
+     */
+    protected $propertyCondition;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function match(
-		ModelInterface $model = null,
-		PropertyValueBag $input = null,
-		PropertyInterface $property = null,
-		LegendInterface $legend = null
-	)
-	{
-		$result = $this->propertyCondition->match($model, $input, $property, $legend);
+    /**
+     * Create a new instance.
+     *
+     * @param PropertyConditionInterface $propertyCondition The condition to debug.
+     */
+    public function __construct($propertyCondition)
+    {
+        $this->propertyCondition = $propertyCondition;
+    }
 
-		// @codingStandardsIgnoreStart - We explicitely allow var_dump() here for debugging purposes.
-		echo '<pre>$condition: </pre>';
-		var_dump($this->propertyCondition);
-		echo '<pre>$model: </pre>';
-		var_dump($model);
-		echo '<pre>$input: </pre>';
-		var_dump($input);
-		echo '<pre>$condition->match() result: </pre>';
-		var_dump($result);
-		echo '<pre>';
-		debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-		echo '</pre>';
-		// @codingStandardsIgnoreEnd
+    /**
+     * {@inheritdoc}
+     */
+    public function match(
+        ModelInterface $model = null,
+        PropertyValueBag $input = null,
+        PropertyInterface $property = null,
+        LegendInterface $legend = null
+    ) {
+        $result = $this->propertyCondition->match($model, $input, $property, $legend);
 
-		return $result;
-	}
+        // @codingStandardsIgnoreStart - We explicitely allow var_dump() here for debugging purposes.
+        echo '<pre>$condition: </pre>';
+        var_dump($this->propertyCondition);
+        echo '<pre>$model: </pre>';
+        var_dump($model);
+        echo '<pre>$input: </pre>';
+        var_dump($input);
+        echo '<pre>$condition->match() result: </pre>';
+        var_dump($result);
+        echo '<pre>';
+        debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        echo '</pre>';
+        // @codingStandardsIgnoreEnd
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function __clone()
-	{
-		$this->propertyCondition = clone $this->propertyCondition;
-	}
+        return $result;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __clone()
+    {
+        $this->propertyCondition = clone $this->propertyCondition;
+    }
 }

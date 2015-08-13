@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -24,39 +25,38 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Model
  */
 class ModelLabelCallbackListener extends AbstractReturningCallbackListener
 {
-	/**
-	 * Retrieve the arguments for the callback.
-	 *
-	 * @param ModelToLabelEvent $event The event being emitted.
-	 *
-	 * @return array
-	 */
-	public function getArgs($event)
-	{
-		return array(
-			$event->getModel()->getPropertiesAsArray(),
-			$event->getLabel(),
-			new DcCompat($event->getEnvironment(), $event->getModel()),
-			$event->getArgs()
-		);
-	}
+    /**
+     * Retrieve the arguments for the callback.
+     *
+     * @param ModelToLabelEvent $event The event being emitted.
+     *
+     * @return array
+     */
+    public function getArgs($event)
+    {
+        return array(
+            $event->getModel()->getPropertiesAsArray(),
+            $event->getLabel(),
+            new DcCompat($event->getEnvironment(), $event->getModel()),
+            $event->getArgs()
+        );
+    }
 
-	/**
-	 * Set the value in the event.
-	 *
-	 * @param ModelToLabelEvent $event The event being emitted.
-	 *
-	 * @param string            $value The label text to use.
-	 *
-	 * @return void
-	 */
-	public function update($event, $value)
-	{
-		if (is_null($value))
-		{
-			return;
-		}
+    /**
+     * Set the value in the event.
+     *
+     * @param ModelToLabelEvent $event The event being emitted.
+     *
+     * @param string            $value The label text to use.
+     *
+     * @return void
+     */
+    public function update($event, $value)
+    {
+        if ($value === null) {
+            return;
+        }
 
-		$event->setLabel($value);
-	}
+        $event->setLabel($value);
+    }
 }

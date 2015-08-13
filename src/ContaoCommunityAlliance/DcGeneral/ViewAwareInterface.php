@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,10 +22,10 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
  */
 interface ViewAwareInterface
 {
-	/**
-	 * Return the view.
-	 *
-	 * @return ViewInterface
-	 */
-	public function getView();
+    /**
+     * Return the view.
+     *
+     * @return ViewInterface
+     */
+    public function getView();
 }

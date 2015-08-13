@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -19,140 +20,132 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefinitionCollectionInterface
 {
-	/**
-	 * The information stored.
-	 *
-	 * @var GroupAndSortingDefinitionInterface[]
-	 */
-	protected $information = array();
 
-	/**
-	 * Index of the default information.
-	 *
-	 * @var int
-	 */
-	protected $default = -1;
+    /**
+     * The information stored.
+     *
+     * @var GroupAndSortingDefinitionInterface[]
+     */
+    protected $information = array();
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function add($index = -1)
-	{
-		$information = new DefaultGroupAndSortingDefinition();
-		$information->setName('Information ' . ($this->getCount() + 1));
+    /**
+     * Index of the default information.
+     *
+     * @var int
+     */
+    protected $default = -1;
 
-		if (($index < 0) || ($this->getCount() <= $index))
-		{
-			$this->information[] = $information;
-		}
-		else
-		{
-			array_splice($this->information, $index, 0, array($information));
-		}
+    /**
+     * {@inheritDoc}
+     */
+    public function add($index = -1)
+    {
+        $information = new DefaultGroupAndSortingDefinition();
+        $information->setName('Information ' . ($this->getCount() + 1));
 
-		return $information;
-	}
+        if (($index < 0) || ($this->getCount() <= $index)) {
+            $this->information[] = $information;
+        } else {
+            array_splice($this->information, $index, 0, array($information));
+        }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function delete($index)
-	{
-		if ($index == $this->default)
-		{
-			$this->default = -1;
-		}
-		unset($this->information[$index]);
-		$this->information = array_values($this->information);
+        return $information;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function delete($index)
+    {
+        if ($index == $this->default) {
+            $this->default = -1;
+        }
+        unset($this->information[$index]);
+        $this->information = array_values($this->information);
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getCount()
-	{
-		return count($this->information);
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @throws DcGeneralInvalidArgumentException When the offset does not exist.
-	 */
-	public function get($index = -1)
-	{
-		if ($index == -1)
-		{
-			return $this->getDefault();
-		}
+    /**
+     * {@inheritDoc}
+     */
+    public function getCount()
+    {
+        return count($this->information);
+    }
 
-		if (!isset($this->information[$index]))
-		{
-			throw new DcGeneralInvalidArgumentException('Offset ' . $index . ' does not exist.');
-		}
+    /**
+     * {@inheritDoc}
+     *
+     * @throws DcGeneralInvalidArgumentException When the offset does not exist.
+     */
+    public function get($index = -1)
+    {
+        if ($index == -1) {
+            return $this->getDefault();
+        }
 
-		return $this->information[$index];
-	}
+        if (!isset($this->information[$index])) {
+            throw new DcGeneralInvalidArgumentException('Offset ' . $index . ' does not exist.');
+        }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @throws DcGeneralInvalidArgumentException When the information is neither a proper instance nor an integer.
-	 */
-	public function markDefault($information)
-	{
-		if ($information instanceof GroupAndSortingDefinitionInterface)
-		{
-			$information = array_search($information, $this->information);
-		}
+        return $this->information[$index];
+    }
 
-		if (!is_int($information))
-		{
-			throw new DcGeneralInvalidArgumentException('Invalid argument.');
-		}
+    /**
+     * {@inheritDoc}
+     *
+     * @throws DcGeneralInvalidArgumentException When the information is neither a proper instance nor an integer.
+     */
+    public function markDefault($information)
+    {
+        if ($information instanceof GroupAndSortingDefinitionInterface) {
+            $information = array_search($information, $this->information);
+        }
 
-		$this->default = $information;
-	}
+        if (!is_int($information)) {
+            throw new DcGeneralInvalidArgumentException('Invalid argument.');
+        }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function hasDefault()
-	{
-		return ($this->getDefaultIndex() != -1);
-	}
+        $this->default = $information;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @throws DcGeneralInvalidArgumentException When no default has been defined.
-	 */
-	public function getDefault()
-	{
-		$index = $this->getDefaultIndex();
-		if ($index == -1)
-		{
-			throw new DcGeneralInvalidArgumentException('No default sorting and grouping information defined.');
-		}
+    /**
+     * {@inheritDoc}
+     */
+    public function hasDefault()
+    {
+        return ($this->getDefaultIndex() != -1);
+    }
 
-		return $this->get($index);
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @throws DcGeneralInvalidArgumentException When no default has been defined.
+     */
+    public function getDefault()
+    {
+        $index = $this->getDefaultIndex();
+        if ($index == -1) {
+            throw new DcGeneralInvalidArgumentException('No default sorting and grouping information defined.');
+        }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getDefaultIndex()
-	{
-		return $this->default;
-	}
+        return $this->get($index);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getIterator()
-	{
-		return new \ArrayIterator($this->information);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function getDefaultIndex()
+    {
+        return $this->default;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->information);
+    }
 }

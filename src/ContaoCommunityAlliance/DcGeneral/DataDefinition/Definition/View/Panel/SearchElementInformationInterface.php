@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,19 +22,19 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel
  */
 interface SearchElementInformationInterface extends ElementInformationInterface
 {
-	/**
-	 * Add a property name to the element.
-	 *
-	 * @param string $propertyName The property to allow to search on.
-	 *
-	 * @return SearchElementInformationInterface
-	 */
-	public function addProperty($propertyName);
+    /**
+     * Add a property name to the element.
+     *
+     * @param string $propertyName The property to allow to search on.
+     *
+     * @return SearchElementInformationInterface
+     */
+    public function addProperty($propertyName);
 
-	/**
-	 * Retrieve the list of properties to allow search on.
-	 *
-	 * @return string[]
-	 */
-	public function getPropertyNames();
+    /**
+     * Retrieve the list of properties to allow search on.
+     *
+     * @return string[]
+     */
+    public function getPropertyNames();
 }

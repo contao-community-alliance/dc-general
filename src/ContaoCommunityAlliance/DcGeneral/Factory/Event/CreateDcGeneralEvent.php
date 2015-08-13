@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,32 +23,32 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class CreateDcGeneralEvent extends Event
 {
-	const NAME = 'dc-general.factory.create-dc-general';
+    const NAME = 'dc-general.factory.create-dc-general';
 
-	/**
-	 * The instance that has been created.
-	 *
-	 * @var DcGeneral
-	 */
-	protected $dcGeneral;
+    /**
+     * The instance that has been created.
+     *
+     * @var DcGeneral
+     */
+    protected $dcGeneral;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param DcGeneral $dcGeneral The DcGeneral instance.
-	 */
-	public function __construct(DcGeneral $dcGeneral)
-	{
-		$this->dcGeneral = $dcGeneral;
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param DcGeneral $dcGeneral The DcGeneral instance.
+     */
+    public function __construct(DcGeneral $dcGeneral)
+    {
+        $this->dcGeneral = $dcGeneral;
+    }
 
-	/**
-	 * Retrieve the DcGeneral instance.
-	 *
-	 * @return DcGeneral
-	 */
-	public function getDcGeneral()
-	{
-		return $this->dcGeneral;
-	}
+    /**
+     * Retrieve the DcGeneral instance.
+     *
+     * @return DcGeneral
+     */
+    public function getDcGeneral()
+    {
+        return $this->dcGeneral;
+    }
 }

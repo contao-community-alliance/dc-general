@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -19,8 +20,33 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
  *
  * @package DcGeneral\View
  */
-class ContaoBackendViewTemplate
-	extends \BackendTemplate
-	implements ViewTemplateInterface
+class ContaoBackendViewTemplate extends \BackendTemplate implements ViewTemplateInterface
 {
+    /**
+     * {@inheritDoc}
+     */
+    public function setData($data)
+    {
+        parent::setData($data);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function set($name, $value)
+    {
+        $this->$name = $value;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function get($name)
+    {
+        return $this->$name;
+    }
 }

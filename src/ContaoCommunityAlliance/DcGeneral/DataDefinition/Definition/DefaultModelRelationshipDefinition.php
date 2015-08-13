@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,108 +23,102 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootCondi
  */
 class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionInterface
 {
-	/**
-	 * The root condition relationship.
-	 *
-	 * @var RootConditionInterface
-	 */
-	protected $rootCondition;
 
-	/**
-	 * A collection of parent child conditions.
-	 *
-	 * @var ParentChildConditionInterface[]
-	 */
-	protected $childConditions = array();
+    /**
+     * The root condition relationship.
+     *
+     * @var RootConditionInterface
+     */
+    protected $rootCondition;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setRootCondition($condition)
-	{
-		$this->rootCondition = $condition;
+    /**
+     * A collection of parent child conditions.
+     *
+     * @var ParentChildConditionInterface[]
+     */
+    protected $childConditions = array();
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setRootCondition($condition)
+    {
+        $this->rootCondition = $condition;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getRootCondition()
-	{
-		return $this->rootCondition;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function addChildCondition($condition)
-	{
-		$hash = spl_object_hash($condition);
+    /**
+     * {@inheritdoc}
+     */
+    public function getRootCondition()
+    {
+        return $this->rootCondition;
+    }
 
-		$this->childConditions[$hash] = $condition;
+    /**
+     * {@inheritdoc}
+     */
+    public function addChildCondition($condition)
+    {
+        $hash = spl_object_hash($condition);
 
-		return $this;
-	}
+        $this->childConditions[$hash] = $condition;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getChildCondition($srcProvider, $dstProvider)
-	{
-		foreach ($this->getChildConditions($srcProvider) as $condition)
-		{
-			if ($condition->getDestinationName() == $dstProvider)
-			{
-				return $condition;
-			}
-		}
+        return $this;
+    }
 
-		return null;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getChildCondition($srcProvider, $dstProvider)
+    {
+        foreach ($this->getChildConditions($srcProvider) as $condition) {
+            if ($condition->getDestinationName() == $dstProvider) {
+                return $condition;
+            }
+        }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getChildConditions($srcProvider = '')
-	{
+        return null;
+    }
 
-		if (!$this->childConditions)
-		{
-			return array();
-		}
+    /**
+     * {@inheritdoc}
+     */
+    public function getChildConditions($srcProvider = '')
+    {
 
-		$arrReturn = array();
-		foreach ($this->childConditions as $condition)
-		{
-			if ($condition->getSourceName() != $srcProvider)
-			{
-				continue;
-			}
+        if (!$this->childConditions) {
+            return array();
+        }
 
-			$arrReturn[] = $condition;
-		}
+        $arrReturn = array();
+        foreach ($this->childConditions as $condition) {
+            if ($condition->getSourceName() != $srcProvider) {
+                continue;
+            }
 
-		return $arrReturn;
-	}
+            $arrReturn[] = $condition;
+        }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function __clone()
-	{
-		if ($this->rootCondition !== null)
-		{
-			$this->rootCondition = clone $this->rootCondition;
-		}
+        return $arrReturn;
+    }
 
-		$conditions = array();
-		foreach ($this->childConditions as $condition)
-		{
-			$bobaFett = clone $condition;
+    /**
+     * {@inheritdoc}
+     */
+    public function __clone()
+    {
+        if ($this->rootCondition !== null) {
+            $this->rootCondition = clone $this->rootCondition;
+        }
 
-			$conditions[] = $bobaFett;
-		}
-		$this->childConditions = $conditions;
-	}
+        $conditions = array();
+        foreach ($this->childConditions as $condition) {
+            $bobaFett = clone $condition;
+
+            $conditions[] = $bobaFett;
+        }
+        $this->childConditions = $conditions;
+    }
 }

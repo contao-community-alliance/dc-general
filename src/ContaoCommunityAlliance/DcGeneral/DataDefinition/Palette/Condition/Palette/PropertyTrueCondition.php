@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -20,114 +21,111 @@ use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
  */
 class PropertyTrueCondition extends AbstractWeightAwarePaletteCondition
 {
-	/**
-	 * The property name.
-	 *
-	 * @var string
-	 */
-	protected $propertyName;
 
-	/**
-	 * Use strict compare mode.
-	 *
-	 * @var bool
-	 */
-	protected $strict;
+    /**
+     * The property name.
+     *
+     * @var string
+     */
+    protected $propertyName;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param string $propertyName The name of the property.
-	 *
-	 * @param bool   $strict       Flag if the comparison shall be strict (type safe).
-	 *
-	 * @param int    $weight       The weight of this condition to apply.
-	 */
-	public function __construct($propertyName = '', $strict = false, $weight = 1)
-	{
-		$this->propertyName = (string)$propertyName;
-		$this->strict       = (bool)$strict;
-		$this->setWeight($weight);
-	}
+    /**
+     * Use strict compare mode.
+     *
+     * @var bool
+     */
+    protected $strict;
 
-	/**
-	 * Set the property name.
-	 *
-	 * @param string $propertyName The property name.
-	 *
-	 * @return PropertyTrueCondition
-	 */
-	public function setPropertyName($propertyName)
-	{
-		$this->propertyName = (string)$propertyName;
+    /**
+     * Create a new instance.
+     *
+     * @param string $propertyName The name of the property.
+     *
+     * @param bool   $strict       Flag if the comparison shall be strict (type safe).
+     *
+     * @param int    $weight       The weight of this condition to apply.
+     */
+    public function __construct($propertyName = '', $strict = false, $weight = 1)
+    {
+        $this->propertyName = (string)$propertyName;
+        $this->strict       = (bool)$strict;
+        $this->setWeight($weight);
+    }
 
-		return $this;
-	}
+    /**
+     * Set the property name.
+     *
+     * @param string $propertyName The property name.
+     *
+     * @return PropertyTrueCondition
+     */
+    public function setPropertyName($propertyName)
+    {
+        $this->propertyName = (string)$propertyName;
 
-	/**
-	 * Retrieve the property name.
-	 *
-	 * @return string
-	 */
-	public function getPropertyName()
-	{
-		return $this->propertyName;
-	}
+        return $this;
+    }
 
-	/**
-	 * Set the flag if the comparison shall be strict (type safe).
-	 *
-	 * @param boolean $strict The flag.
-	 *
-	 * @return PropertyTrueCondition
-	 */
-	public function setStrict($strict)
-	{
-		$this->strict = (bool)$strict;
+    /**
+     * Retrieve the property name.
+     *
+     * @return string
+     */
+    public function getPropertyName()
+    {
+        return $this->propertyName;
+    }
 
-		return $this;
-	}
+    /**
+     * Set the flag if the comparison shall be strict (type safe).
+     *
+     * @param boolean $strict The flag.
+     *
+     * @return PropertyTrueCondition
+     */
+    public function setStrict($strict)
+    {
+        $this->strict = (bool)$strict;
 
-	/**
-	 * Retrieve the flag if the comparison shall be strict (type safe).
-	 *
-	 * @return boolean
-	 */
-	public function getStrict()
-	{
-		return $this->strict;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getMatchCount(ModelInterface $model = null, PropertyValueBag $input = null)
-	{
-		if (!$this->propertyName)
-		{
-			return false;
-		}
+    /**
+     * Retrieve the flag if the comparison shall be strict (type safe).
+     *
+     * @return boolean
+     *
+     * @SuppressWarnings(PHPMD.BooleanGetMethodName)
+     */
+    public function getStrict()
+    {
+        return $this->strict;
+    }
 
-		if ($input && $input->hasPropertyValue($this->propertyName))
-		{
-			$value = $input->getPropertyValue($this->propertyName);
-		}
-		elseif ($model)
-		{
-			$value = $model->getProperty($this->propertyName);
-		}
-		else
-		{
-			return false;
-		}
+    /**
+     * {@inheritdoc}
+     */
+    public function getMatchCount(ModelInterface $model = null, PropertyValueBag $input = null)
+    {
+        if (!$this->propertyName) {
+            return false;
+        }
 
-		return ($this->strict ? ($value === true) : $value) ? $this->getWeight() : false;
-	}
+        if ($input && $input->hasPropertyValue($this->propertyName)) {
+            $value = $input->getPropertyValue($this->propertyName);
+        } elseif ($model) {
+            $value = $model->getProperty($this->propertyName);
+        } else {
+            return false;
+        }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function __clone()
-	{
-	}
+        return ($this->strict ? ($value === true) : $value) ? $this->getWeight() : false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __clone()
+    {
+    }
 }

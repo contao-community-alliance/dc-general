@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,10 +23,10 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentAwareInterface;
  */
 interface CommandEventInterface extends EnvironmentAwareInterface
 {
-	/**
-	 * Return the command.
-	 * 
-	 * @return CommandInterface
-	 */
-	public function getCommand();
+    /**
+     * Return the command.
+     *
+     * @return CommandInterface
+     */
+    public function getCommand();
 }

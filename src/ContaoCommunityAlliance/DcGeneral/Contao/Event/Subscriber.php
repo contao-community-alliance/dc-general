@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -12,17 +13,24 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Event;
 
-use ContaoCommunityAlliance\DcGeneral\Contao\Twig\DcGeneralExtension;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\Twig\DcGeneralExtension;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPanelElementTemplateEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Panel\FilterElementInterface;
+use ContaoCommunityAlliance\DcGeneral\Panel\LimitElementInterface;
+use ContaoCommunityAlliance\DcGeneral\Panel\SearchElementInterface;
+use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
+use ContaoCommunityAlliance\DcGeneral\Panel\SubmitElementInterface;
 use ContaoCommunityAlliance\DcGeneral\View\Event\RenderReadablePropertyValueEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -30,154 +38,182 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @package DcGeneral\Event
  */
-class Subscriber
-	implements EventSubscriberInterface
+class Subscriber implements EventSubscriberInterface
 {
-	/**
-	 * {@inheritDoc}
-	 */
-	public static function getSubscribedEvents()
-	{
-		return array
-		(
-			ResolveWidgetErrorMessageEvent::NAME => array('resolveWidgetErrorMessage', -1),
+    /**
+     * {@inheritDoc}
+     */
+    public static function getSubscribedEvents()
+    {
+        return array
+        (
+            GetPanelElementTemplateEvent::NAME     => array('getPanelElementTemplate', -1),
+            ResolveWidgetErrorMessageEvent::NAME   => array('resolveWidgetErrorMessage', -1),
+            RenderReadablePropertyValueEvent::NAME => 'renderReadablePropertyValue',
+            'contao-twig.init'                     => 'initTwig',
+        );
+    }
 
-			RenderReadablePropertyValueEvent::NAME => 'renderReadablePropertyValue',
+    /**
+     * Create a template instance for the default panel elements if none has been created yet.
+     *
+     * @param GetPanelElementTemplateEvent $event The event.
+     *
+     * @return void
+     */
+    public static function getPanelElementTemplate(GetPanelElementTemplateEvent $event)
+    {
+        if ($event->getTemplate()) {
+            return;
+        }
 
-			'contao-twig.init' => 'initTwig',
-		);
-	}
+        $element = $event->getElement();
 
-	/**
-	 * Resolve a widget error message.
-	 *
-	 * @param ResolveWidgetErrorMessageEvent $event The event being processed.
-	 *
-	 * @return void
-	 */
-	public function resolveWidgetErrorMessage(ResolveWidgetErrorMessageEvent $event)
-	{
-		$error = $event->getError();
+        if ($element instanceof FilterElementInterface) {
+            $event->setTemplate(new ContaoBackendViewTemplate('dcbe_general_panel_filter'));
+        } elseif ($element instanceof LimitElementInterface) {
+            $event->setTemplate(new ContaoBackendViewTemplate('dcbe_general_panel_limit'));
+        } elseif ($element instanceof SearchElementInterface) {
+            $event->setTemplate(new ContaoBackendViewTemplate('dcbe_general_panel_search'));
+        } elseif ($element instanceof SortElementInterface) {
+            $event->setTemplate(new ContaoBackendViewTemplate('dcbe_general_panel_sort'));
+        } elseif ($element instanceof SubmitElementInterface) {
+            $event->setTemplate(new ContaoBackendViewTemplate('dcbe_general_panel_submit'));
+        }
+    }
 
-		if ($error instanceof \Exception)
-		{
-			$event->setError($error->getMessage());
-		}
-		elseif (is_object($error))
-		{
-			if (method_exists($error, '__toString'))
-			{
-				$event->setError((string)$error);
-			}
-			else
-			{
-				$event->setError(sprintf('[%s]', get_class($error)));
-			}
-		}
-		elseif (!is_string($error))
-		{
-			$event->setError(sprintf('[%s]', gettype($error)));
-		}
-	}
+    /**
+     * Resolve a widget error message.
+     *
+     * @param ResolveWidgetErrorMessageEvent $event The event being processed.
+     *
+     * @return void
+     */
+    public function resolveWidgetErrorMessage(ResolveWidgetErrorMessageEvent $event)
+    {
+        $error = $event->getError();
 
-	/**
-	 * Fetch the options for a certain property.
-	 *
-	 * @param EnvironmentInterface $environment The environment.
-	 *
-	 * @param ModelInterface       $model       The model.
-	 *
-	 * @param PropertyInterface    $property    The property.
-	 *
-	 * @return array
-	 */
-	protected function getOptions($environment, $model, $property)
-	{
-		$options = $property->getOptions();
-		$event   = new GetPropertyOptionsEvent($environment, $model);
-		$event->setPropertyName($property->getName());
-		$event->setOptions($options);
-		$environment->getEventPropagator()->propagate(
-			$event::NAME,
-			$event,
-			$environment->getDataDefinition()->getName(),
-			$property->getName()
-		);
+        if ($error instanceof \Exception) {
+            $event->setError($error->getMessage());
+        } elseif (is_object($error)) {
+            if (method_exists($error, '__toString')) {
+                $event->setError((string)$error);
+            } else {
+                $event->setError(sprintf('[%s]', get_class($error)));
+            }
+        } elseif (!is_string($error)) {
+            $event->setError(sprintf('[%s]', gettype($error)));
+        }
+    }
 
-		if ($event->getOptions() !== $options)
-		{
-			$options = $event->getOptions();
-		}
+    /**
+     * Fetch the options for a certain property.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @param ModelInterface       $model       The model.
+     *
+     * @param PropertyInterface    $property    The property.
+     *
+     * @return array
+     */
+    protected function getOptions($environment, $model, $property)
+    {
+        $options = $property->getOptions();
+        $event   = new GetPropertyOptionsEvent($environment, $model);
+        $event->setPropertyName($property->getName());
+        $event->setOptions($options);
 
-		return $options;
-	}
+        $dispatcher = $environment->getEventDispatcher();
+        // Backwards compatibility.
+        $dispatcher->dispatch(
+            sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $property->getName()),
+            $event
+        );
+        $dispatcher->dispatch(
+            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
+            $event
+        );
+        $dispatcher->dispatch(sprintf('%s', $event::NAME), $event);
 
-	/**
-	 * Decode a value from native data of the data provider to the widget via event.
-	 *
-	 * @param EnvironmentInterface $environment The environment.
-	 *
-	 * @param ModelInterface       $model       The model.
-	 *
-	 * @param string               $property    The property.
-	 *
-	 * @param mixed                $value       The value of the property.
-	 *
-	 * @return mixed
-	 */
-	public function decodeValue($environment, $model, $property, $value)
-	{
-		$event = new DecodePropertyValueForWidgetEvent($environment, $model);
-		$event
-			->setProperty($property)
-			->setValue($value);
+        if ($event->getOptions() !== $options) {
+            $options = $event->getOptions();
+        }
 
-		$environment->getEventPropagator()->propagate(
-			$event::NAME,
-			$event,
-			array(
-				$environment->getDataDefinition()->getName(),
-				$property
-			)
-		);
+        return $options;
+    }
 
-		return $event->getValue();
-	}
+    /**
+     * Decode a value from native data of the data provider to the widget via event.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @param ModelInterface       $model       The model.
+     *
+     * @param string               $property    The property.
+     *
+     * @param mixed                $value       The value of the property.
+     *
+     * @return mixed
+     */
+    public function decodeValue($environment, $model, $property, $value)
+    {
+        $event = new DecodePropertyValueForWidgetEvent($environment, $model);
+        $event
+            ->setProperty($property)
+            ->setValue($value);
 
-	/**
-	 * Render a property value to readable text.
-	 *
-	 * @param RenderReadablePropertyValueEvent $event The event being processed.
-	 *
-	 * @return void
-	 */
-	public function renderReadablePropertyValue(RenderReadablePropertyValueEvent $event)
-	{
-		if ($event->getRendered() !== null)
-		{
-			return;
-		}
+        $dispatcher = $environment->getEventDispatcher();
+        // Backwards compatibility.
+        $dispatcher->dispatch(
+            sprintf('%s[%s][%s]', $event::NAME, $environment->getDataDefinition()->getName(), $property),
+            $event
+        );
+        $dispatcher->dispatch(
+            sprintf('%s[%s]', $event::NAME, $environment->getDataDefinition()->getName()),
+            $event
+        );
+        $dispatcher->dispatch(sprintf('%s', $event::NAME), $event);
 
-		$property = $event->getProperty();
-		$value    = $this->decodeValue(
-			$event->getEnvironment(),
-			$event->getModel(),
-			$event->getProperty()->getName(),
-			$event->getValue()
-		);
+        return $event->getValue();
+    }
 
-		$extra = $property->getExtra();
+    /**
+     * Render a property value to readable text.
+     *
+     * @param RenderReadablePropertyValueEvent $event The event being processed.
+     *
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     */
+    public function renderReadablePropertyValue(RenderReadablePropertyValueEvent $event)
+    {
+        if ($event->getRendered() !== null) {
+            return;
+        }
 
-		// TODO: refactor - foreign key handling is not yet supported.
-		/*
-		if (isset($arrFieldConfig['foreignKey']))
-		{
-			$temp = array();
-			$chunks = explode('.', $arrFieldConfig['foreignKey'], 2);
+        $property = $event->getProperty();
+        $value    = $this->decodeValue(
+            $event->getEnvironment(),
+            $event->getModel(),
+            $event->getProperty()->getName(),
+            $event->getValue()
+        );
+
+        $extra = $property->getExtra();
+
+        // TODO: refactor - foreign key handling is not yet supported.
+        /*
+        if (isset($arrFieldConfig['foreignKey']))
+        {
+            $temp = array();
+            $chunks = explode('.', $arrFieldConfig['foreignKey'], 2);
 
 
-			foreach ((array) $value as $v)
-			{
+            foreach ((array) $value as $v)
+            {
 //                    $objKey = $this->Database->prepare("SELECT " . $chunks[1] . " AS value FROM " . $chunks[0] . " WHERE id=?")
 //                            ->limit(1)
 //                            ->execute($v);
@@ -186,114 +222,92 @@ class Subscriber
 //                    {
 //                        $temp[] = $objKey->value;
 //                    }
-			}
+            }
 
 //                $row[$i] = implode(', ', $temp);
-		}
-		// Decode array
-		else
-		 */
-		if (is_array($value))
-		{
-			foreach ($value as $kk => $vv)
-			{
-				if (is_array($vv))
-				{
-					$vals       = array_values($vv);
-					$value[$kk] = $vals[0] . ' (' . $vals[1] . ')';
-				}
-			}
+        }
+        // Decode array
+        else
+         */
+        if (is_array($value)) {
+            foreach ($value as $kk => $vv) {
+                if (is_array($vv)) {
+                    $vals       = array_values($vv);
+                    $value[$kk] = $vals[0] . ' (' . $vals[1] . ')';
+                }
+            }
 
-			$event->setRendered(implode(', ', $value));
-		}
-		// Date format.
-		elseif (isset($extra['rgxp']))
-		{
-			if ($extra['rgxp'] == 'date')
-			{
-				$dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['dateFormat']);
-				$event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
+            $event->setRendered(implode(', ', $value));
+        } elseif (isset($extra['rgxp'])) {
+            // Date format.
+            if ($extra['rgxp'] == 'date') {
+                $dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['dateFormat']);
+                $event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
 
-				$event->setRendered($dateEvent->getResult());
-			}
-			// Time format.
-			elseif ($extra['rgxp'] == 'time')
-			{
-				$dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['timeFormat']);
-				$event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
+                $event->setRendered($dateEvent->getResult());
+            } elseif ($extra['rgxp'] == 'time') {
+                // Time format.
+                $dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['timeFormat']);
+                $event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
 
-				$event->setRendered($dateEvent->getResult());
-			}
-		}
-		// Date and time format.
-		elseif (isset($extra['rgxp']) && $extra['rgxp'] == 'datim' ||
-			in_array(
-				$property->getGroupingMode(),
-				array(
-					ListingConfigInterface::GROUP_DAY,
-					ListingConfigInterface::GROUP_MONTH,
-					ListingConfigInterface::GROUP_YEAR)
-			) ||
-			$property->getName() == 'tstamp'
-		)
-		{
-			$dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['timeFormat']);
-			$event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
+                $event->setRendered($dateEvent->getResult());
+            }
+        } elseif (isset($extra['rgxp']) && $extra['rgxp'] == 'datim' ||
+            in_array(
+                $property->getGroupingMode(),
+                array(
+                    ListingConfigInterface::GROUP_DAY,
+                    ListingConfigInterface::GROUP_MONTH,
+                    ListingConfigInterface::GROUP_YEAR
+                )
+            ) ||
+            $property->getName() == 'tstamp'
+        ) {
+            // Date and time format.
+            $dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['timeFormat']);
+            $event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
 
-			$event->setRendered($dateEvent->getResult());
-		}
-		elseif ($property->getWidgetType() == 'checkbox' && !$extra['multiple'])
-		{
-			$event->setRendered(strlen($value) ? $GLOBALS['TL_LANG']['MSC']['yes'] : $GLOBALS['TL_LANG']['MSC']['no']);
-		}
-		elseif ($property->getWidgetType() == 'textarea' && ($extra['allowHtml'] || $extra['preserveTags']))
-		{
-			$event->setRendered(nl2br_html5(specialchars($value)));
-		}
-		elseif (isset($extra['reference']) && is_array($extra['reference']))
-		{
-			if (isset($extra['reference'][$value]))
-			{
-				$event->setRendered(
-					is_array($extra['reference'][$value])
-					? $extra['reference'][$value][0]
-					: $extra['reference'][$value]
-				);
-			}
-		}
-		elseif ($value instanceof \DateTime)
-		{
-			$dateEvent = new ParseDateEvent($value->getTimestamp(), $GLOBALS['TL_CONFIG']['datimFormat']);
-			$event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
+            $event->setRendered($dateEvent->getResult());
+        } elseif ($property->getWidgetType() == 'checkbox' && !$extra['multiple']) {
+            $event->setRendered(strlen($value) ? $GLOBALS['TL_LANG']['MSC']['yes'] : $GLOBALS['TL_LANG']['MSC']['no']);
+        } elseif ($property->getWidgetType() == 'textarea' && ($extra['allowHtml'] || $extra['preserveTags'])) {
+            $event->setRendered(nl2br_html5(specialchars($value)));
+        } elseif (isset($extra['reference']) && is_array($extra['reference'])) {
+            if (isset($extra['reference'][$value])) {
+                $event->setRendered(
+                    (is_array($extra['reference'][$value])
+                        ? $extra['reference'][$value][0]
+                        : $extra['reference'][$value])
+                );
+            }
+        } elseif ($value instanceof \DateTime) {
+            $dateEvent = new ParseDateEvent($value->getTimestamp(), $GLOBALS['TL_CONFIG']['datimFormat']);
+            $event->getDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
 
-			$event->setRendered($dateEvent->getResult());
-		}
-		else
-		{
-			$options = $property->getOptions();
-			if (!$options)
-			{
-				$options = $this->getOptions($event->getEnvironment(), $event->getModel(), $event->getProperty());
-			}
-			if (array_is_assoc($options))
-			{
-				$event->setRendered($options[$value]);
-			}
-		}
-	}
+            $event->setRendered($dateEvent->getResult());
+        } else {
+            $options = $property->getOptions();
+            if (!$options) {
+                $options = $this->getOptions($event->getEnvironment(), $event->getModel(), $event->getProperty());
+            }
+            if (array_is_assoc($options)) {
+                $event->setRendered($options[$value]);
+            }
+        }
+    }
 
-	/**
-	 * Add custom twig extension.
-	 *
-	 * @param \ContaoTwigInitializeEvent $event The event.
-	 *
-	 * @return void
-	 */
-	public function initTwig(\ContaoTwigInitializeEvent $event)
-	{
-		$contaoTwig  = $event->getContaoTwig();
-		$environment = $contaoTwig->getEnvironment();
+    /**
+     * Add custom twig extension.
+     *
+     * @param \ContaoTwigInitializeEvent $event The event.
+     *
+     * @return void
+     */
+    public function initTwig(\ContaoTwigInitializeEvent $event)
+    {
+        $contaoTwig  = $event->getContaoTwig();
+        $environment = $contaoTwig->getEnvironment();
 
-		$environment->addExtension(new DcGeneralExtension());
-	}
+        $environment->addExtension(new DcGeneralExtension());
+    }
 }

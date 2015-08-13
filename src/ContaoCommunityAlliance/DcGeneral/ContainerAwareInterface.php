@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,10 +22,10 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
  */
 interface ContainerAwareInterface
 {
-	/**
-	 * Retrieve the data definition container.
-	 *
-	 * @return ContainerInterface
-	 */
-	public function getContainer();
+    /**
+     * Retrieve the data definition container.
+     *
+     * @return ContainerInterface
+     */
+    public function getContainer();
 }

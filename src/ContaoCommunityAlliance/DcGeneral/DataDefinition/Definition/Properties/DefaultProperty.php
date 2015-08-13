@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,382 +22,383 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties
  */
 class DefaultProperty implements PropertyInterface
 {
-	/**
-	 * The property name.
-	 *
-	 * @var string
-	 */
-	protected $name;
 
-	/**
-	 * The label of the property.
-	 *
-	 * @var string
-	 */
-	protected $label;
+    /**
+     * The property name.
+     *
+     * @var string
+     */
+    protected $name;
 
-	/**
-	 * The description of the property.
-	 *
-	 * @var string
-	 */
-	protected $description;
+    /**
+     * The label of the property.
+     *
+     * @var string
+     */
+    protected $label;
 
-	/**
-	 * The default value of the property.
-	 *
-	 * @var mixed
-	 */
-	protected $defaultValue;
+    /**
+     * The description of the property.
+     *
+     * @var string
+     */
+    protected $description;
 
-	/**
-	 * Define if this property shall be excluded by default.
-	 *
-	 * @var bool
-	 */
-	protected $excluded;
+    /**
+     * The default value of the property.
+     *
+     * @var mixed
+     */
+    protected $defaultValue;
 
-	/**
-	 * Flag if this property shall be searchable.
-	 *
-	 * @var bool
-	 */
-	protected $searchable;
+    /**
+     * Define if this property shall be excluded by default.
+     *
+     * @var bool
+     */
+    protected $excluded;
 
-	/**
-	 * Flag if this property shall be sortable.
-	 *
-	 * @var bool
-	 */
-	protected $sortable;
+    /**
+     * Flag if this property shall be searchable.
+     *
+     * @var bool
+     */
+    protected $searchable;
 
-	/**
-	 * Flag if this property shall be filterable.
-	 *
-	 * @var bool
-	 */
-	protected $filterable;
+    /**
+     * Flag if this property shall be sortable.
+     *
+     * @var bool
+     */
+    protected $sortable;
 
-	/**
-	 * The grouping mode for this property.
-	 *
-	 * See ListingConfigInterface::GROUP_* flags.
-	 *
-	 * @var string
-	 */
-	protected $groupingMode;
+    /**
+     * Flag if this property shall be filterable.
+     *
+     * @var bool
+     */
+    protected $filterable;
 
-	/**
-	 * The grouing length of this property. See grouping mode.
-	 *
-	 * @var string
-	 */
-	protected $groupingLength;
+    /**
+     * The grouping mode for this property.
+     *
+     * See ListingConfigInterface::GROUP_* flags.
+     *
+     * @var string
+     */
+    protected $groupingMode;
 
-	/**
-	 * The sorting mode for this property.
-	 *
-	 * See ListingConfigInterface::SORT_* flags.
-	 *
-	 * @var string
-	 */
-	protected $sortingMode;
+    /**
+     * The grouing length of this property. See grouping mode.
+     *
+     * @var string
+     */
+    protected $groupingLength;
 
-	/**
-	 * The input widget type to use.
-	 *
-	 * @var string
-	 */
-	protected $widgetType;
+    /**
+     * The sorting mode for this property.
+     *
+     * See ListingConfigInterface::SORT_* flags.
+     *
+     * @var string
+     */
+    protected $sortingMode;
 
-	/**
-	 * The value options for this property.
-	 *
-	 * @var array|null
-	 */
-	protected $options;
+    /**
+     * The input widget type to use.
+     *
+     * @var string
+     */
+    protected $widgetType;
 
-	/**
-	 * The explanation string for this property.
-	 *
-	 * @var string
-	 */
-	protected $explanation;
+    /**
+     * The value options for this property.
+     *
+     * @var array|null
+     */
+    protected $options;
 
-	/**
-	 * The extra information for this property.
-	 *
-	 * @var array
-	 */
-	protected $extra;
+    /**
+     * The explanation string for this property.
+     *
+     * @var string
+     */
+    protected $explanation;
 
-	/**
-	 * Create an instance.
-	 *
-	 * @param string $name The name of the property.
-	 */
-	public function __construct($name)
-	{
-		$this->name = $name;
-	}
+    /**
+     * The extra information for this property.
+     *
+     * @var array
+     */
+    protected $extra;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getName()
-	{
-		return $this->name;
-	}
+    /**
+     * Create an instance.
+     *
+     * @param string $name The name of the property.
+     */
+    public function __construct($name)
+    {
+        $this->name = $name;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setLabel($value)
-	{
-		$this->label = $value;
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setLabel($value)
+    {
+        $this->label = $value;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getLabel()
-	{
-		return $this->label;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setDescription($value)
-	{
-		$this->description = $value;
+    /**
+     * {@inheritdoc}
+     */
+    public function getLabel()
+    {
+        return $this->label;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setDescription($value)
+    {
+        $this->description = $value;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getDescription()
-	{
-		return $this->description;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setDefaultValue($value)
-	{
-		$this->defaultValue = $value;
+    /**
+     * {@inheritdoc}
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setDefaultValue($value)
+    {
+        $this->defaultValue = $value;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getDefaultValue()
-	{
-		return $this->defaultValue;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setExcluded($value)
-	{
-		$this->excluded = $value;
+    /**
+     * {@inheritdoc}
+     */
+    public function getDefaultValue()
+    {
+        return $this->defaultValue;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setExcluded($value)
+    {
+        $this->excluded = $value;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function isExcluded()
-	{
-		return $this->excluded;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setSearchable($value)
-	{
-		$this->searchable = $value;
+    /**
+     * {@inheritdoc}
+     */
+    public function isExcluded()
+    {
+        return $this->excluded;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setSearchable($value)
+    {
+        $this->searchable = $value;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function isSearchable()
-	{
-		return $this->searchable;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setSortable($value)
-	{
-		$this->sortable = $value;
+    /**
+     * {@inheritdoc}
+     */
+    public function isSearchable()
+    {
+        return $this->searchable;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setSortable($value)
+    {
+        $this->sortable = $value;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function isSortable()
-	{
-		return $this->sortable;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setFilterable($value)
-	{
-		$this->filterable = $value;
+    /**
+     * {@inheritdoc}
+     */
+    public function isSortable()
+    {
+        return $this->sortable;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setFilterable($value)
+    {
+        $this->filterable = $value;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function isFilterable()
-	{
-		return $this->filterable;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setGroupingMode($value)
-	{
-		$this->groupingMode = $value;
+    /**
+     * {@inheritdoc}
+     */
+    public function isFilterable()
+    {
+        return $this->filterable;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setGroupingMode($value)
+    {
+        $this->groupingMode = $value;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getGroupingMode()
-	{
-		return $this->groupingMode;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setGroupingLength($value)
-	{
-		$this->groupingLength = $value;
+    /**
+     * {@inheritdoc}
+     */
+    public function getGroupingMode()
+    {
+        return $this->groupingMode;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setGroupingLength($value)
+    {
+        $this->groupingLength = $value;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getGroupingLength()
-	{
-		return $this->groupingLength;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setSortingMode($value)
-	{
-		$this->sortingMode = $value;
+    /**
+     * {@inheritdoc}
+     */
+    public function getGroupingLength()
+    {
+        return $this->groupingLength;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setSortingMode($value)
+    {
+        $this->sortingMode = $value;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getSortingMode()
-	{
-		return $this->sortingMode;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setWidgetType($value)
-	{
-		$this->widgetType = $value;
+    /**
+     * {@inheritdoc}
+     */
+    public function getSortingMode()
+    {
+        return $this->sortingMode;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setWidgetType($value)
+    {
+        $this->widgetType = $value;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getWidgetType()
-	{
-		return $this->widgetType;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setOptions($value)
-	{
-		$this->options = $value;
+    /**
+     * {@inheritdoc}
+     */
+    public function getWidgetType()
+    {
+        return $this->widgetType;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setOptions($value)
+    {
+        $this->options = $value;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getOptions()
-	{
-		return $this->options;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setExplanation($value)
-	{
-		$this->explanation = $value;
+    /**
+     * {@inheritdoc}
+     */
+    public function getOptions()
+    {
+        return $this->options;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setExplanation($value)
+    {
+        $this->explanation = $value;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getExplanation()
-	{
-		return $this->explanation;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setExtra($value)
-	{
-		$this->extra = $value;
+    /**
+     * {@inheritdoc}
+     */
+    public function getExplanation()
+    {
+        return $this->explanation;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setExtra($value)
+    {
+        $this->extra = $value;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getExtra()
-	{
-		return $this->extra;
-	}
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getExtra()
+    {
+        return $this->extra;
+    }
 }

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,48 +22,48 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuil
  */
 class SetPropertyValueConditionClassNameEvent extends BuilderEvent
 {
-	const NAME = 'dc-general.data-definition.palette.builder.set-property-value-condition-class-name';
+    const NAME = 'dc-general.data-definition.palette.builder.set-property-value-condition-class-name';
 
-	/**
-	 * The class name.
-	 *
-	 * @var string
-	 */
-	protected $propertyValueConditionClassName;
+    /**
+     * The class name.
+     *
+     * @var string
+     */
+    protected $className;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param string         $propertyValueConditionClassName The class name.
-	 *
-	 * @param PaletteBuilder $paletteBuilder                  The palette builder in use.
-	 */
-	public function __construct($propertyValueConditionClassName, PaletteBuilder $paletteBuilder)
-	{
-		$this->setPropertyValueConditionClassName($propertyValueConditionClassName);
-		parent::__construct($paletteBuilder);
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param string         $className      The class name.
+     *
+     * @param PaletteBuilder $paletteBuilder The palette builder in use.
+     */
+    public function __construct($className, PaletteBuilder $paletteBuilder)
+    {
+        $this->setPropertyValueConditionClassName($className);
+        parent::__construct($paletteBuilder);
+    }
 
-	/**
-	 * Set the class name.
-	 *
-	 * @param string $propertyValueConditionClassName The class name.
-	 *
-	 * @return SetPropertyValueConditionClassNameEvent
-	 */
-	public function setPropertyValueConditionClassName($propertyValueConditionClassName)
-	{
-		$this->propertyValueConditionClassName = (string)$propertyValueConditionClassName;
-		return $this;
-	}
+    /**
+     * Set the class name.
+     *
+     * @param string $className The class name.
+     *
+     * @return SetPropertyValueConditionClassNameEvent
+     */
+    public function setPropertyValueConditionClassName($className)
+    {
+        $this->className = (string)$className;
+        return $this;
+    }
 
-	/**
-	 * Retrieve the class name.
-	 *
-	 * @return string
-	 */
-	public function getPropertyValueConditionClassName()
-	{
-		return $this->propertyValueConditionClassName;
-	}
+    /**
+     * Retrieve the class name.
+     *
+     * @return string
+     */
+    public function getPropertyValueConditionClassName()
+    {
+        return $this->className;
+    }
 }

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -20,229 +21,247 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
  *
  * @package DcGeneral\Panel
  */
-class DefaultLimitElement
-	extends AbstractElement
-	implements LimitElementInterface
+class DefaultLimitElement extends AbstractElement implements LimitElementInterface
 {
-	/**
-	 * The current offset.
-	 *
-	 * @var int
-	 */
-	protected $intOffset;
+    /**
+     * The current offset.
+     *
+     * @var int
+     */
+    protected $intOffset;
 
-	/**
-	 * The current amount.
-	 *
-	 * @var int
-	 */
-	protected $intAmount;
+    /**
+     * The current amount.
+     *
+     * @var int
+     */
+    protected $intAmount;
 
-	/**
-	 * The total amount of all valid entries.
-	 *
-	 * @var int
-	 */
-	protected $intTotal;
+    /**
+     * The total amount of all valid entries.
+     *
+     * @var int
+     */
+    protected $intTotal;
 
-	/**
-	 * Retrieve the persistent value from the input provider.
-	 *
-	 * @return array
-	 */
-	protected function getPersistent()
-	{
-		$arrValue = array();
-		if ($this->getInputProvider()->hasPersistentValue('limit'))
-		{
-			$arrValue = $this->getInputProvider()->getPersistentValue('limit');
-		}
+    /**
+     * Retrieve the amount of items to display per page.
+     *
+     * @return int
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     */
+    protected function getItemsPerPage()
+    {
+        if (version_compare(VERSION, '3', '<')) {
+            return $GLOBALS['TL_CONFIG']['resultsPerPage'];
+        }
+        return \Config::get('resultsPerPage');
+    }
 
-		if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue))
-		{
-			return $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
-		}
+    /**
+     * Calculate the total amount of items.
+     *
+     * @return void
+     */
+    protected function calculateTotal()
+    {
+        $objTempConfig = $this->getOtherConfig();
+        $total         = $this
+            ->getEnvironment()
+            ->getDataProvider()
+            ->fetchAll($objTempConfig->setIdOnly(true));
 
-		return array();
-	}
+        if (is_array($total)) {
+            $this->intTotal = $total ? count($total) : 0;
+        } elseif (is_object($total)) {
+            $this->intTotal = $total->length();
+        } else {
+            $this->intTotal = 0;
+        }
+    }
 
-	/**
-	 * Store the persistent value in the input provider.
-	 *
-	 * @param int $intOffset The offset.
-	 *
-	 * @param int $intAmount The amount of items to show.
-	 *
-	 * @return void
-	 */
-	protected function setPersistent($intOffset, $intAmount)
-	{
-		$arrValue       = array();
-		$definitionName = $this->getEnvironment()->getDataDefinition()->getName();
+    /**
+     * Retrieve the persistent value from the input provider.
+     *
+     * @return array
+     */
+    protected function getPersistent()
+    {
+        $arrValue = array();
+        if ($this->getInputProvider()->hasPersistentValue('limit')) {
+            $arrValue = $this->getInputProvider()->getPersistentValue('limit');
+        }
 
-		if ($this->getInputProvider()->hasPersistentValue('limit'))
-		{
-			$arrValue = $this->getInputProvider()->getPersistentValue('limit');
-		}
+        if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
+            return $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
+        }
 
-		if ($intOffset)
-		{
-			if (!is_array($arrValue[$definitionName]))
-			{
-				$arrValue[$definitionName] = array();
-			}
+        return array();
+    }
 
-			$arrValue[$definitionName]['offset'] = $intOffset;
-			$arrValue[$definitionName]['amount'] = $intAmount;
-		}
-		else
-		{
-			unset($arrValue[$definitionName]);
-		}
+    /**
+     * Store the persistent value in the input provider.
+     *
+     * @param int $intOffset The offset.
+     *
+     * @param int $intAmount The amount of items to show.
+     *
+     * @return void
+     */
+    protected function setPersistent($intOffset, $intAmount)
+    {
+        $arrValue       = array();
+        $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
-		$this->getInputProvider()->setPersistentValue('limit', $arrValue);
-	}
+        if ($this->getInputProvider()->hasPersistentValue('limit')) {
+            $arrValue = $this->getInputProvider()->getPersistentValue('limit');
+        }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
-	{
-		if (is_null($objElement))
-		{
-			$objTempConfig = $this->getOtherConfig();
-			$arrTotal      = $this
-				->getEnvironment()
-				->getDataProvider()
-				->fetchAll($objTempConfig->setIdOnly(true));
+        if ($intOffset) {
+            if (!is_array($arrValue[$definitionName])) {
+                $arrValue[$definitionName] = array();
+            }
 
-			$this->intTotal = $arrTotal ? count($arrTotal) : 0;
-			$offset         = 0;
-			// TODO: we need to determine the perPage some better way.
-			$amount = $GLOBALS['TL_CONFIG']['resultsPerPage'];
+            $arrValue[$definitionName]['offset'] = $intOffset;
+            $arrValue[$definitionName]['amount'] = $intAmount;
+        } else {
+            unset($arrValue[$definitionName]);
+        }
 
-			$input = $this->getInputProvider();
-			if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue('tl_limit'))
-			{
-				$limit  = explode(',', $input->getValue('tl_limit'));
-				$offset = $limit[0];
-				$amount = $limit[1];
+        $this->getInputProvider()->setPersistentValue('limit', $arrValue);
+    }
 
-				$this->setPersistent($offset, $amount);
-			}
+    /**
+     * {@inheritDoc}
+     */
+    public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
+    {
+        if ($objElement === null) {
+            $this->calculateTotal();
 
-			$persistent = $this->getPersistent();
-			if ($persistent)
-			{
-				$offset = $persistent['offset'];
-				$amount = $persistent['amount'];
+            $offset = 0;
+            $amount = $this->getItemsPerPage();
 
-				// Hotfix the offset - we also might want to store it persistent.
-				// Another way would be to always stick on the "last" page when we hit the upper limit.
-				if ($offset > $this->intTotal)
-				{
-					$offset = 0;
-				}
-			}
+            $input = $this->getInputProvider();
+            if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue('tl_limit')) {
+                $limit  = explode(',', $input->getValue('tl_limit'));
+                $offset = $limit[0];
+                $amount = $limit[1];
 
-			if (!is_null($offset))
-			{
-				$this->setOffset($offset);
-				$this->setAmount($amount);
-			}
-		}
+                $this->setPersistent($offset, $amount);
+            }
 
-		$objConfig->setStart($this->getOffset());
-		$objConfig->setAmount($this->getAmount());
-	}
+            $persistent = $this->getPersistent();
+            if ($persistent) {
+                $offset = $persistent['offset'];
+                $amount = $persistent['amount'];
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function render(ViewTemplateInterface $objTemplate)
-	{
-		$arrOptions = array
-		(
-			array
-			(
-				'value'      => 'tl_limit',
-				'attributes' => '',
-				'content'    => $GLOBALS['TL_LANG']['MSC']['filterRecords']
-			)
-		);
+                // Hotfix the offset - we also might want to store it persistent.
+                // Another way would be to always stick on the "last" page when we hit the upper limit.
+                if ($offset > $this->intTotal) {
+                    $offset = 0;
+                }
+            }
 
-		$optionsTotal = ceil(($this->intTotal / $GLOBALS['TL_CONFIG']['resultsPerPage']));
+            if ($offset !== null) {
+                $this->setOffset($offset);
+                $this->setAmount($amount);
+            }
+        }
 
-		for ($i = 0; $i < $optionsTotal; $i++)
-		{
-			$first      = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']);
-			$thisLimit  = $first . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
-			$upperLimit = ($first + $GLOBALS['TL_CONFIG']['resultsPerPage']);
+        $objConfig->setStart($this->getOffset());
+        $objConfig->setAmount($this->getAmount());
+    }
 
-			if ($upperLimit > $this->intTotal)
-			{
-				$upperLimit = $this->intTotal;
-			}
+    /**
+     * {@inheritDoc}
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     */
+    public function render(ViewTemplateInterface $objTemplate)
+    {
+        $arrOptions = array
+        (
+            array
+            (
+                'value'      => 'tl_limit',
+                'attributes' => '',
+                'content'    => $GLOBALS['TL_LANG']['MSC']['filterRecords']
+            )
+        );
 
-			$arrOptions[] = array
-			(
-				'value'      => $thisLimit,
-				'attributes' => ($this->getOffset() == $first) ? ' selected="selected"' : '',
-				'content'    => ($first + 1) . ' - ' . $upperLimit
-			);
-		}
+        $optionsTotal = ceil(($this->intTotal / $GLOBALS['TL_CONFIG']['resultsPerPage']));
 
-		if ($this->intTotal > $GLOBALS['TL_CONFIG']['resultsPerPage'])
-		{
-			$arrOptions[] = array
-			(
-				'value'      => 'all',
-				'attributes' =>
-						(($this->getOffset() == 0) && ($this->getAmount() == $this->intTotal))
-						? ' selected="selected"'
-						: '',
-				'content'    => $GLOBALS['TL_LANG']['MSC']['filterAll']
-			);
-		}
+        for ($i = 0; $i < $optionsTotal; $i++) {
+            $first      = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']);
+            $thisLimit  = $first . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
+            $upperLimit = ($first + $GLOBALS['TL_CONFIG']['resultsPerPage']);
 
-		$objTemplate->options = $arrOptions;
+            if ($upperLimit > $this->intTotal) {
+                $upperLimit = $this->intTotal;
+            }
 
-		return $this;
-	}
+            $arrOptions[] = array
+            (
+                'value'      => $thisLimit,
+                'attributes' => ($this->getOffset() == $first) ? ' selected="selected"' : '',
+                'content'    => ($first + 1) . ' - ' . $upperLimit
+            );
+        }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function setOffset($intOffset)
-	{
-		$this->intOffset = $intOffset;
+        if ($this->intTotal > $GLOBALS['TL_CONFIG']['resultsPerPage']) {
+            $arrOptions[] = array
+            (
+                'value'      => 'all',
+                'attributes' =>
+                    (($this->getOffset() == 0) && ($this->getAmount() == $this->intTotal))
+                        ? ' selected="selected"'
+                        : '',
+                'content'    => $GLOBALS['TL_LANG']['MSC']['filterAll']
+            );
+        }
 
-		return $this;
-	}
+        $objTemplate->set('options', $arrOptions);
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getOffset()
-	{
-		return $this->intOffset;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function setAmount($intAmount)
-	{
-		$this->intAmount = $intAmount;
+    /**
+     * {@inheritDoc}
+     */
+    public function setOffset($intOffset)
+    {
+        $this->intOffset = $intOffset;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getAmount()
-	{
-		return $this->intAmount;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function getOffset()
+    {
+        return $this->intOffset;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setAmount($intAmount)
+    {
+        $this->intAmount = $intAmount;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getAmount()
+    {
+        return $this->intAmount;
+    }
 }

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,48 +22,48 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuil
  */
 class SetDefaultPaletteConditionClassNameEvent extends BuilderEvent
 {
-	const NAME = 'dc-general.data-definition.palette.builder.set-default-palette-condition-class-name';
+    const NAME = 'dc-general.data-definition.palette.builder.set-default-palette-condition-class-name';
 
-	/**
-	 * The class name.
-	 *
-	 * @var string
-	 */
-	protected $defaultPaletteConditionClassName;
+    /**
+     * The class name.
+     *
+     * @var string
+     */
+    protected $className;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param string         $defaultPaletteConditionClassName The class name.
-	 *
-	 * @param PaletteBuilder $paletteBuilder                   The palette builder in use.
-	 */
-	public function __construct($defaultPaletteConditionClassName, PaletteBuilder $paletteBuilder)
-	{
-		$this->setDefaultPaletteConditionClassName($defaultPaletteConditionClassName);
-		parent::__construct($paletteBuilder);
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param string         $className      The class name.
+     *
+     * @param PaletteBuilder $paletteBuilder The palette builder in use.
+     */
+    public function __construct($className, PaletteBuilder $paletteBuilder)
+    {
+        $this->setDefaultPaletteConditionClassName($className);
+        parent::__construct($paletteBuilder);
+    }
 
-	/**
-	 * Set the class name.
-	 *
-	 * @param string $defaultPaletteConditionClassName The class name.
-	 *
-	 * @return SetDefaultPaletteConditionClassNameEvent
-	 */
-	public function setDefaultPaletteConditionClassName($defaultPaletteConditionClassName)
-	{
-		$this->defaultPaletteConditionClassName = (string)$defaultPaletteConditionClassName;
-		return $this;
-	}
+    /**
+     * Set the class name.
+     *
+     * @param string $className The class name.
+     *
+     * @return SetDefaultPaletteConditionClassNameEvent
+     */
+    public function setDefaultPaletteConditionClassName($className)
+    {
+        $this->className = (string)$className;
+        return $this;
+    }
 
-	/**
-	 * Retrieve the class name.
-	 *
-	 * @return string
-	 */
-	public function getDefaultPaletteConditionClassName()
-	{
-		return $this->defaultPaletteConditionClassName;
-	}
+    /**
+     * Retrieve the class name.
+     *
+     * @return string
+     */
+    public function getDefaultPaletteConditionClassName()
+    {
+        return $this->className;
+    }
 }

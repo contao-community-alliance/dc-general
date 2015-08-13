@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,39 +22,38 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
  *
  * @package DcGeneral\Contao\View\Contao2BackendView\Event
  */
-class GetBreadcrumbEvent
-	extends AbstractEnvironmentAwareEvent
+class GetBreadcrumbEvent extends AbstractEnvironmentAwareEvent
 {
-	const NAME = 'dc-general.view.contao2backend.get-breadcrumb';
+    const NAME = 'dc-general.view.contao2backend.get-breadcrumb';
 
-	/**
-	 * The breadcrumb elements to be displayed in the backend.
-	 *
-	 * @var array
-	 */
-	protected $elements;
+    /**
+     * The breadcrumb elements to be displayed in the backend.
+     *
+     * @var array
+     */
+    protected $elements;
 
-	/**
-	 * Set the breadcrumb elements to be displayed in the backend.
-	 *
-	 * @param array $elements The elements.
-	 *
-	 * @return $this
-	 */
-	public function setElements($elements)
-	{
-		$this->elements = $elements;
+    /**
+     * Set the breadcrumb elements to be displayed in the backend.
+     *
+     * @param array $elements The elements.
+     *
+     * @return $this
+     */
+    public function setElements($elements)
+    {
+        $this->elements = $elements;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Get the breadcrumb elements to be displayed in the backend.
-	 *
-	 * @return array
-	 */
-	public function getElements()
-	{
-		return $this->elements;
-	}
+    /**
+     * Get the breadcrumb elements to be displayed in the backend.
+     *
+     * @return array
+     */
+    public function getElements()
+    {
+        return $this->elements;
+    }
 }

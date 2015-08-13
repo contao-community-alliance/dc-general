@@ -13,10 +13,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Event;
 
-use ContaoCommunityAlliance\DcGeneral\Action;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
-use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
-
 /**
  * This event occurs when an action should handled.
  *
@@ -24,33 +20,33 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  */
 class ActionEvent extends AbstractActionAwareEvent
 {
-	/**
-	 * The action response, if any is set.
-	 *
-	 * @var string
-	 */
-	protected $response;
+    /**
+     * The action response, if any is set.
+     *
+     * @var string
+     */
+    protected $response;
 
-	/**
-	 * Set the action response.
-	 *
-	 * @param string $response The response.
-	 *
-	 * @return ActionEvent
-	 */
-	public function setResponse($response)
-	{
-		$this->response = $response !== null ? (string)$response : null;
-		return $this;
-	}
+    /**
+     * Set the action response.
+     *
+     * @param string $response The response.
+     *
+     * @return ActionEvent
+     */
+    public function setResponse($response)
+    {
+        $this->response = $response !== null ? (string)$response : null;
+        return $this;
+    }
 
-	/**
-	 * Return the action response.
-	 *
-	 * @return string
-	 */
-	public function getResponse()
-	{
-		return $this->response;
-	}
+    /**
+     * Return the action response.
+     *
+     * @return string
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
 }

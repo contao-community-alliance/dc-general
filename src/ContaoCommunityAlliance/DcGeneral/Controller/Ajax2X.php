@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -12,7 +13,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
-use ContaoCommunityAlliance\DcGeneral\DataContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -25,120 +25,122 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class Ajax2X extends Ajax
 {
-	/**
-	 * {@inheritDoc}
-	 */
-	protected function loadPagetree(DataContainerInterface $objDc)
-	{
-		$environment = $objDc->getEnvironment();
-		$input       = $environment->getInputProvider();
-		$field       = $input->getValue('field');
-		$name        = $input->getValue('name');
-		$level       = intval($input->getValue('level'));
-		$id          = $input->getValue('id');
+    /**
+     * {@inheritDoc}
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     */
+    protected function loadPagetree()
+    {
+        $environment = $this->getEnvironment();
+        $input       = $environment->getInputProvider();
+        $field       = $input->getValue('field');
+        $name        = $input->getValue('name');
+        $level       = intval($input->getValue('level'));
+        $rootId      = $input->getValue('id');
 
-		$ajaxId   = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $id);
-		$ajaxKey  = str_replace('_' . $ajaxId, '', $id);
-		$ajaxName = null;
-		if ($input->getValue('act') == 'editAll')
-		{
-			$ajaxKey  = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $ajaxKey);
-			$ajaxName = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $name);
-		}
+        $ajaxId   = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $rootId);
+        $ajaxKey  = str_replace('_' . $ajaxId, '', $rootId);
+        $ajaxName = null;
+        if ($input->getValue('act') == 'editAll') {
+            $ajaxKey  = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $ajaxKey);
+            $ajaxName = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $name);
+        }
 
-		$nodes          = $input->getPersistentValue($ajaxKey);
-		$nodes[$ajaxId] = intval($input->getValue('state'));
-		$input->setPersistentValue($ajaxKey, $nodes);
+        $nodes          = $input->getPersistentValue($ajaxKey);
+        $nodes[$ajaxId] = intval($input->getValue('state'));
+        $input->setPersistentValue($ajaxKey, $nodes);
 
-		$arrData['strTable'] = $environment->getDataDefinition()->getName();
-		$arrData['id']       = $ajaxName ?: $id;
-		$arrData['name']     = $name;
+        $arrData['strTable'] = $environment->getDataDefinition()->getName();
+        $arrData['id']       = $ajaxName ?: $rootId;
+        $arrData['name']     = $name;
 
-		/** @var \PageSelector $objWidget */
-		$objWidget = new $GLOBALS['BE_FFL']['pageTree']($arrData, $objDc);
-		echo $objWidget->generateAjax($ajaxId, $field, $level);
-		exit;
-	}
+        /** @var \PageSelector $objWidget */
+        $objWidget = new $GLOBALS['BE_FFL']['pageTree']($arrData, $this->getDataContainer());
+        echo $objWidget->generateAjax($ajaxId, $field, $level);
 
-	/**
-	 * {@inheritDoc}
-	 */
-	protected function loadFiletree(DataContainerInterface $objDc)
-	{
-		$table               = $objDc->getEnvironment()->getDataDefinition()->getName();
-		$arrData['strTable'] = $table;
-		$arrData['id']       = self::getAjaxName() ?: $objDc->getId();
-		$arrData['name']     = self::getPost('name');
+        $this->exitScript();
+    }
 
-		/** @var \FileTree $objWidget */
-		$objWidget = new $GLOBALS['BE_FFL']['fileTree']($arrData, $objDc);
+    /**
+     * {@inheritDoc}
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     */
+    protected function loadFiletree()
+    {
+        $table               = $this->getEnvironment()->getDataDefinition()->getName();
+        $arrData['strTable'] = $table;
+        $arrData['id']       = $this->getAjaxName() ?: $this->getDataContainer()->getId();
+        $arrData['name']     = $this->getPost('name');
 
-		// Load a particular node.
-		if (self::getPost('folder', true) != '')
-		{
-			echo $objWidget->generateAjax(self::getPost('folder', true), self::getPost('field'), intval(self::getPost('level')));
-		}
-		else
-		{
-			// Reload the whole tree.
-			$user    = \BackendUser::getInstance();
-			$strTree = '';
-			$path    = $GLOBALS['TL_DCA'][$table]['fields'][self::getPost('field')]['eval']['path'];
+        /** @var \FileTree $objWidget */
+        $objWidget = new $GLOBALS['BE_FFL']['fileTree']($arrData, $this->getDataContainer());
 
-			// Set a custom path.
-			if (strlen($GLOBALS['TL_DCA'][$table]['fields'][self::getPost('field')]['eval']['path']))
-			{
-				$strTree = $objWidget->generateAjax(
-					$GLOBALS['TL_DCA'][$table]['fields'][self::getPost('field')]['eval']['path'],
-					self::getPost('field'),
-					intval(self::getPost('level'))
-				);
-			}
-			// Start from root.
-			elseif ($user->isAdmin)
-			{
-				$strTree = $objWidget->generateAjax(
-					$GLOBALS['TL_CONFIG']['uploadPath'],
-					self::getPost('field'),
-					intval(self::getPost('level'))
-				);
-			}
-			// Set file mounts.
-			else
-			{
-				foreach ($this->eliminateNestedPaths($this->User->filemounts) as $node)
-				{
-					$strTree .= $objWidget->generateAjax(
-						$node,
-						self::getPost('field'),
-						intval(self::getPost('level')),
-						true
-					);
-				}
-			}
+        // Load a particular node.
+        if ($this->getPost('folder', true) != '') {
+            echo $objWidget->generateAjax(
+                $this->getPost('folder', true),
+                $this->getPost('field'),
+                intval($this->getPost('level'))
+            );
+        } else {
+            // Reload the whole tree.
+            $user    = \BackendUser::getInstance();
+            $strTree = '';
+            $path    = $GLOBALS['TL_DCA'][$table]['fields'][$this->getPost('field')]['eval']['path'];
 
-			echo $strTree;
-		}
-		exit;
-	}
+            // Set a custom path.
+            if (strlen($path)) {
+                $strTree = $objWidget->generateAjax(
+                    $path,
+                    $this->getPost('field'),
+                    intval($this->getPost('level'))
+                );
+            } elseif ($user->isAdmin) {
+                // Start from root.
+                $strTree = $objWidget->generateAjax(
+                    $GLOBALS['TL_CONFIG']['uploadPath'],
+                    $this->getPost('field'),
+                    intval($this->getPost('level'))
+                );
+            } else {
+                // Set file mounts.
+                foreach ($this->eliminateNestedPaths($this->User->filemounts) as $node) {
+                    $strTree .= $objWidget->generateAjax(
+                        $node,
+                        $this->getPost('field'),
+                        intval($this->getPost('level')),
+                        true
+                    );
+                }
+            }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @throws DcGeneralRuntimeException as it is only present in Contao 3.X.
-	 */
-	protected function reloadPagetree(DataContainerInterface $objDc)
-	{
-		throw new DcGeneralRuntimeException('Contao 3.X only.');
-	}
+            echo $strTree;
+        }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @throws DcGeneralRuntimeException as it is only present in Contao 3.X.
-	 */
-	protected function reloadFiletree(DataContainerInterface $objDc)
-	{
-		throw new DcGeneralRuntimeException('Contao 3.X only.');
-	}
+        $this->exitScript();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws DcGeneralRuntimeException as it is only present in Contao 3.X.
+     */
+    protected function reloadPagetree()
+    {
+        throw new DcGeneralRuntimeException('Contao 3.X only.');
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws DcGeneralRuntimeException as it is only present in Contao 3.X.
+     */
+    protected function reloadFiletree()
+    {
+        throw new DcGeneralRuntimeException('Contao 3.X only.');
+    }
 }

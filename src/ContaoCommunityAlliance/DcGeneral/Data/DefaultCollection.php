@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -24,434 +25,409 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class DefaultCollection implements CollectionInterface
 {
-	/**
-	 * The list of contained models.
-	 *
-	 * @var ModelInterface[]
-	 */
-	protected $arrCollection = array();
 
-	/**
-	 * Get length of this collection.
-	 *
-	 * @return int
-	 */
-	public function length()
-	{
-		return count($this->arrCollection);
-	}
+    /**
+     * The list of contained models.
+     *
+     * @var ModelInterface[]
+     */
+    protected $arrCollection = array();
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function count()
-	{
-		return $this->length();
-	}
+    /**
+     * Get length of this collection.
+     *
+     * @return int
+     */
+    public function length()
+    {
+        return count($this->arrCollection);
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function offsetExists($offset)
-	{
-		return array_key_exists($offset, $this->arrCollection);
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function count()
+    {
+        return $this->length();
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function offsetGet($offset)
-	{
-		return $this->get($offset);
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetExists($offset)
+    {
+        return array_key_exists($offset, $this->arrCollection);
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function offsetSet($offset, $value)
-	{
-		$this->arrCollection[$offset] = $value;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetGet($offset)
+    {
+        return $this->get($offset);
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function offsetUnset($offset)
-	{
-		unset($this->arrCollection[$offset]);
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->arrCollection[$offset] = $value;
+    }
 
-	/**
-	 * Get the model at a specific index.
-	 *
-	 * @param int $intIndex The index of the model to retrieve.
-	 *
-	 * @return ModelInterface
-	 */
-	public function get($intIndex)
-	{
-		if (array_key_exists($intIndex, $this->arrCollection))
-		{
-			return $this->arrCollection[$intIndex];
-		}
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetUnset($offset)
+    {
+        unset($this->arrCollection[$offset]);
+    }
 
-		return null;
-	}
+    /**
+     * Get the model at a specific index.
+     *
+     * @param int $intIndex The index of the model to retrieve.
+     *
+     * @return ModelInterface
+     */
+    public function get($intIndex)
+    {
+        if (array_key_exists($intIndex, $this->arrCollection)) {
+            return $this->arrCollection[$intIndex];
+        }
 
-	/**
-	 * Alias for push - Append a model to the end of this collection.
-	 *
-	 * @param ModelInterface $objModel The model to append to the collection.
-	 *
-	 * @return void
-	 *
-	 * @throws DcGeneralRuntimeException When no model has been passed.
-	 *
-	 * @deprecated Use push.
-	 */
-	public function add(ModelInterface $objModel)
-	{
-		$this->push($objModel);
-	}
+        return null;
+    }
 
-	/**
-	 * Append a model to the end of this collection.
-	 *
-	 * @param ModelInterface $objModel The model to append to the collection.
-	 *
-	 * @return void
-	 *
-	 * @throws DcGeneralRuntimeException When no model has been passed.
-	 */
-	public function push(ModelInterface $objModel)
-	{
-		if (!$objModel)
-		{
-			throw new DcGeneralRuntimeException('push() - no model passed', 1);
-		}
+    /**
+     * Alias for push - Append a model to the end of this collection.
+     *
+     * @param ModelInterface $objModel The model to append to the collection.
+     *
+     * @return void
+     *
+     * @throws DcGeneralRuntimeException When no model has been passed.
+     *
+     * @deprecated Use push.
+     */
+    public function add(ModelInterface $objModel)
+    {
+        $this->push($objModel);
+    }
 
-		if ($objModel->hasProperties())
-		{
-			array_push($this->arrCollection, $objModel);
-		}
-	}
+    /**
+     * Append a model to the end of this collection.
+     *
+     * @param ModelInterface $objModel The model to append to the collection.
+     *
+     * @return void
+     *
+     * @throws DcGeneralRuntimeException When no model has been passed.
+     */
+    public function push(ModelInterface $objModel)
+    {
+        if (!$objModel) {
+            throw new DcGeneralRuntimeException('push() - no model passed', 1);
+        }
 
-	/**
-	 * Remove the model at the end of the collection and return it.
-	 *
-	 * If the collection is empty, null will be returned.
-	 *
-	 * @return ModelInterface
-	 */
-	public function pop()
-	{
-		if (count($this->arrCollection) != 0)
-		{
-			return array_pop($this->arrCollection);
-		}
+        if ($objModel->hasProperties()) {
+            array_push($this->arrCollection, $objModel);
+        }
+    }
 
-		return null;
-	}
+    /**
+     * Remove the model at the end of the collection and return it.
+     *
+     * If the collection is empty, null will be returned.
+     *
+     * @return ModelInterface
+     */
+    public function pop()
+    {
+        if (count($this->arrCollection) != 0) {
+            return array_pop($this->arrCollection);
+        }
 
-	/**
-	 * Insert a model at the beginning of the collection.
-	 *
-	 * @param ModelInterface $objModel The model to insert into the collection.
-	 *
-	 * @return void
-	 */
-	public function unshift(ModelInterface $objModel)
-	{
-		if ($objModel->hasProperties())
-		{
-			array_unshift($this->arrCollection, $objModel);
-		}
-	}
+        return null;
+    }
 
-	/**
-	 * Remove the model from the beginning of the collection and return it.
-	 *
-	 * If the collection is empty, null will be returned.
-	 *
-	 * @return ModelInterface
-	 */
-	public function shift()
-	{
-		if (count($this->arrCollection) != 0)
-		{
-			return array_shift($this->arrCollection);
-		}
+    /**
+     * Insert a model at the beginning of the collection.
+     *
+     * @param ModelInterface $objModel The model to insert into the collection.
+     *
+     * @return void
+     */
+    public function unshift(ModelInterface $objModel)
+    {
+        if ($objModel->hasProperties()) {
+            array_unshift($this->arrCollection, $objModel);
+        }
+    }
 
-		return null;
-	}
+    /**
+     * Remove the model from the beginning of the collection and return it.
+     *
+     * If the collection is empty, null will be returned.
+     *
+     * @return ModelInterface
+     */
+    public function shift()
+    {
+        if (count($this->arrCollection) != 0) {
+            return array_shift($this->arrCollection);
+        }
 
-	/**
-	 * Insert a record at the specific position.
-	 *
-	 * Move all records at position >= $index one index up.
-	 * If $index is out of bounds, just add at the end (does not fill with empty records!).
-	 *
-	 * @param int            $intIndex The index where the model shall be placed.
-	 *
-	 * @param ModelInterface $objModel The model to insert.
-	 *
-	 * @return void
-	 */
-	public function insert($intIndex, ModelInterface $objModel)
-	{
-		if ($objModel->hasProperties())
-		{
-			array_insert($this->arrCollection, $intIndex, array($objModel));
-		}
-	}
+        return null;
+    }
 
-	/**
-	 * Remove the given index or model from the collection and renew the index.
-	 *
-	 * ATTENTION: Don't use key to unset in foreach because of the new index.
-	 *
-	 * @param mixed $mixedValue The index (integer) or InterfaceGeneralModel instance to remove.
-	 *
-	 * @return void
-	 */
-	public function remove($mixedValue)
-	{
-		if (is_object($mixedValue))
-		{
-			foreach ($this->arrCollection as $intIndex => $objModel)
-			{
-				if ($mixedValue === $objModel)
-				{
-					unset($this->arrCollection[$intIndex]);
-				}
-			}
-		}
-		else
-		{
-			unset($this->arrCollection[$mixedValue]);
-		}
+    /**
+     * Insert a record at the specific position.
+     *
+     * Move all records at position >= $index one index up.
+     * If $index is out of bounds, just add at the end (does not fill with empty records!).
+     *
+     * @param int            $intIndex The index where the model shall be placed.
+     *
+     * @param ModelInterface $objModel The model to insert.
+     *
+     * @return void
+     */
+    public function insert($intIndex, ModelInterface $objModel)
+    {
+        if ($objModel->hasProperties()) {
+            array_insert($this->arrCollection, $intIndex, array($objModel));
+        }
+    }
 
-		$this->arrCollection = array_values($this->arrCollection);
-	}
+    /**
+     * Remove the given index or model from the collection and renew the index.
+     *
+     * ATTENTION: Don't use key to unset in foreach because of the new index.
+     *
+     * @param mixed $mixedValue The index (integer) or InterfaceGeneralModel instance to remove.
+     *
+     * @return void
+     */
+    public function remove($mixedValue)
+    {
+        if (is_object($mixedValue)) {
+            foreach ($this->arrCollection as $intIndex => $objModel) {
+                if ($mixedValue === $objModel) {
+                    unset($this->arrCollection[$intIndex]);
+                }
+            }
+        } else {
+            unset($this->arrCollection[$mixedValue]);
+        }
 
-	/**
-	 * Retrieve the ids of the models.
-	 *
-	 * @return array
-	 */
-	public function getModelIds()
-	{
-		$ids = array();
+        $this->arrCollection = array_values($this->arrCollection);
+    }
 
-		foreach ($this as $model)
-		{
-			/** @var ModelInterface $model */
-			$ids[] = $model->getId();
-		}
+    /**
+     * Retrieve the ids of the models.
+     *
+     * @return array
+     */
+    public function getModelIds()
+    {
+        $ids = array();
 
-		return $ids;
-	}
+        foreach ($this as $model) {
+            /** @var ModelInterface $model */
+            $ids[] = $model->getId();
+        }
 
-	/**
-	 * Remove the model with the given id from the collection.
-	 *
-	 * @param mixed $id The id of the model to remove.
-	 *
-	 * @return void
-	 */
-	public function removeById($id)
-	{
-		foreach ($this->arrCollection as $index => $model)
-		{
-			if ($id === $model->getId())
-			{
-				unset($this->arrCollection[$index]);
-			}
-		}
-	}
+        return $ids;
+    }
 
-	/**
-	 * Check whether the given model is contained in the collection.
-	 *
-	 * @param ModelInterface $model The model to search.
-	 *
-	 * @return bool
-	 */
-	public function contains($model)
-	{
-		/** @var ModelInterface $localModel */
-		foreach ($this as $localModel)
-		{
-			if ($model === $localModel)
-			{
-				return true;
-			}
-		}
+    /**
+     * Remove the model with the given id from the collection.
+     *
+     * @param mixed $modelId The id of the model to remove.
+     *
+     * @return void
+     */
+    public function removeById($modelId)
+    {
+        foreach ($this->arrCollection as $index => $model) {
+            if ($modelId === $model->getId()) {
+                unset($this->arrCollection[$index]);
+            }
+        }
+    }
 
-		return false;
-	}
+    /**
+     * Check whether the given model is contained in the collection.
+     *
+     * @param ModelInterface $model The model to search.
+     *
+     * @return bool
+     */
+    public function contains($model)
+    {
+        /** @var ModelInterface $localModel */
+        foreach ($this as $localModel) {
+            if ($model === $localModel) {
+                return true;
+            }
+        }
 
-	/**
-	 * Check whether the given model is contained in the collection.
-	 *
-	 * @param mixed $modelId The model id to search.
-	 *
-	 * @return bool
-	 */
-	public function containsById($modelId)
-	{
-		/** @var ModelInterface $localModel */
-		foreach ($this as $localModel)
-		{
-			if ($modelId === $localModel->getId())
-			{
-				return true;
-			}
-		}
+        return false;
+    }
 
-		return false;
-	}
+    /**
+     * Check whether the given model is contained in the collection.
+     *
+     * @param mixed $modelId The model id to search.
+     *
+     * @return bool
+     */
+    public function containsById($modelId)
+    {
+        /** @var ModelInterface $localModel */
+        foreach ($this as $localModel) {
+            if ($modelId === $localModel->getId()) {
+                return true;
+            }
+        }
 
-	/**
-	 * Intersect the given collection with this collection and return the result.
-	 *
-	 * @param CollectionInterface $collection The collection to intersect.
-	 *
-	 * @return CollectionInterface
-	 */
-	public function intersect($collection)
-	{
-		$intersection = new DefaultCollection();
-		/** @var ModelInterface $localModel */
-		foreach ($this as $localModel)
-		{
-			/** @var ModelInterface $otherModel */
-			foreach ($collection as $otherModel)
-			{
-				if (($localModel->getProviderName() == $otherModel->getProviderName())
-				&& ($localModel->getId() == $otherModel->getId()))
-				{
-					$intersection->push($localModel);
-				}
-			}
-		}
+        return false;
+    }
 
-		return $intersection;
-	}
+    /**
+     * Intersect the given collection with this collection and return the result.
+     *
+     * @param CollectionInterface $collection The collection to intersect.
+     *
+     * @return CollectionInterface
+     */
+    public function intersect($collection)
+    {
+        $intersection = new DefaultCollection();
+        /** @var ModelInterface $localModel */
+        foreach ($this as $localModel) {
+            /** @var ModelInterface $otherModel */
+            foreach ($collection as $otherModel) {
+                if (($localModel->getProviderName() == $otherModel->getProviderName())
+                    && ($localModel->getId() == $otherModel->getId())
+                ) {
+                    $intersection->push($localModel);
+                }
+            }
+        }
 
-	/**
-	 * Compute the union of this collection and the given collection.
-	 *
-	 * @param CollectionInterface $collection The collection to intersect.
-	 *
-	 * @return CollectionInterface
-	 */
-	public function union($collection)
-	{
-		$union = clone $this;
+        return $intersection;
+    }
 
-		/** @var ModelInterface $otherModel */
-		foreach ($collection->diff($this) as $otherModel)
-		{
-			$union->push($otherModel);
-		}
+    /**
+     * Compute the union of this collection and the given collection.
+     *
+     * @param CollectionInterface $collection The collection to intersect.
+     *
+     * @return CollectionInterface
+     */
+    public function union($collection)
+    {
+        $union = clone $this;
 
-		return $union;
-	}
+        /** @var ModelInterface $otherModel */
+        foreach ($collection->diff($this) as $otherModel) {
+            $union->push($otherModel);
+        }
 
-	/**
-	 * Computes the difference of the collection.
-	 *
-	 * @param CollectionInterface $collection The collection to compute the difference for.
-	 *
-	 * @return CollectionInterface The collection containing all the entries from this collection that are not present
-	 *                             in the given collection.
-	 */
-	public function diff($collection)
-	{
-		$diff = new DefaultCollection();
-		/** @var ModelInterface $localModel */
-		foreach ($this as $localModel)
-		{
-			/** @var ModelInterface $otherModel */
-			foreach ($collection as $otherModel)
-			{
-				if (($localModel->getProviderName() == $otherModel->getProviderName())
-					&& ($localModel->getId() == $otherModel->getId()))
-				{
-					continue;
-				}
-				$diff->push($localModel);
-			}
-		}
+        return $union;
+    }
 
-		return $diff;
-	}
+    /**
+     * Computes the difference of the collection.
+     *
+     * @param CollectionInterface $collection The collection to compute the difference for.
+     *
+     * @return CollectionInterface The collection containing all the entries from this collection that are not present
+     *                             in the given collection.
+     */
+    public function diff($collection)
+    {
+        $diff = new DefaultCollection();
+        /** @var ModelInterface $localModel */
+        foreach ($this as $localModel) {
+            /** @var ModelInterface $otherModel */
+            foreach ($collection as $otherModel) {
+                if (($localModel->getProviderName() == $otherModel->getProviderName())
+                    && ($localModel->getId() == $otherModel->getId())
+                ) {
+                    continue;
+                }
+                $diff->push($localModel);
+            }
+        }
 
-	/**
-	 * Check if the given collection is an subset of the given collection.
-	 *
-	 * @param CollectionInterface $collection The collection to check.
-	 *
-	 * @return mixed
-	 */
-	public function isSubsetOf($collection)
-	{
-		/** @var ModelInterface $localModel */
-		foreach ($this as $localModel)
-		{
-			/** @var ModelInterface $otherModel */
-			foreach ($collection as $otherModel)
-			{
-				if (($localModel->getProviderName() == $otherModel->getProviderName())
-					&& ($localModel->getId() == $otherModel->getId()))
-				{
-					continue;
-				}
-				return false;
-			}
-		}
-		return true;
-	}
+        return $diff;
+    }
 
-	/**
-	 * Make a reverse sorted collection of this collection.
-	 *
-	 * @return CollectionInterface
-	 */
-	public function reverse()
-	{
-		$newCollection = clone $this;
+    /**
+     * Check if the given collection is an subset of the given collection.
+     *
+     * @param CollectionInterface $collection The collection to check.
+     *
+     * @return mixed
+     */
+    public function isSubsetOf($collection)
+    {
+        /** @var ModelInterface $localModel */
+        foreach ($this as $localModel) {
+            /** @var ModelInterface $otherModel */
+            foreach ($collection as $otherModel) {
+                if (($localModel->getProviderName() == $otherModel->getProviderName())
+                    && ($localModel->getId() == $otherModel->getId())
+                ) {
+                    continue;
+                }
+                return false;
+            }
+        }
+        return true;
+    }
 
-		$newCollection->arrCollection = array_reverse($this->arrCollection);
+    /**
+     * Make a reverse sorted collection of this collection.
+     *
+     * @return CollectionInterface
+     */
+    public function reverse()
+    {
+        $newCollection = clone $this;
 
-		return $newCollection;
-	}
+        $newCollection->arrCollection = array_reverse($this->arrCollection);
 
-	/**
-	 * Sort the records with the given callback and return the new sorted collection.
-	 *
-	 * @param callback $callback The callback function to use.
-	 *
-	 * @return CollectionInterface
-	 */
-	public function sort($callback)
-	{
-		$newCollection = clone $this;
-		uasort($newCollection->arrCollection, $callback);
+        return $newCollection;
+    }
 
-		$newCollection->arrCollection = array_values($newCollection->arrCollection);
+    /**
+     * Sort the records with the given callback and return the new sorted collection.
+     *
+     * @param callback $callback The callback function to use.
+     *
+     * @return CollectionInterface
+     */
+    public function sort($callback)
+    {
+        $newCollection = clone $this;
+        uasort($newCollection->arrCollection, $callback);
 
-		return $newCollection;
-	}
+        $newCollection->arrCollection = array_values($newCollection->arrCollection);
 
-	/**
-	 * Get a iterator for this collection.
-	 *
-	 * @return \IteratorAggregate
-	 */
-	public function getIterator()
-	{
-		return new \ArrayIterator($this->arrCollection);
-	}
+        return $newCollection;
+    }
+
+    /**
+     * Get a iterator for this collection.
+     *
+     * @return \IteratorAggregate
+     */
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->arrCollection);
+    }
 }

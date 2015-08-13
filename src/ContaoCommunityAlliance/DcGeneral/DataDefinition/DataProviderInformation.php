@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -19,53 +20,54 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition;
  */
 class DataProviderInformation implements DataProviderInformationInterface
 {
-	/**
-	 * The name of the data provider information.
-	 *
-	 * @var string
-	 */
-	protected $name;
 
-	/**
-	 * Flag determining if versioning is enabled for this provider or not.
-	 *
-	 * @var bool
-	 */
-	protected $versioningEnabled;
+    /**
+     * The name of the data provider information.
+     *
+     * @var string
+     */
+    protected $name;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setName($name)
-	{
-		$this->name = $name;
+    /**
+     * Flag determining if versioning is enabled for this provider or not.
+     *
+     * @var bool
+     */
+    protected $versioningEnabled;
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getName()
-	{
-		return $this->name;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setVersioningEnabled($versioningEnabled)
-	{
-		$this->versioningEnabled = $versioningEnabled;
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setVersioningEnabled($versioningEnabled)
+    {
+        $this->versioningEnabled = $versioningEnabled;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function isVersioningEnabled()
-	{
-		return $this->versioningEnabled;
-	}
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isVersioningEnabled()
+    {
+        return $this->versioningEnabled;
+    }
 }

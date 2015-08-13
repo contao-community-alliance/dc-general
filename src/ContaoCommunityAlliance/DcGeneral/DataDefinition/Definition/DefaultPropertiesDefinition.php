@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -16,114 +17,108 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\Prope
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 /**
- * Interface BasicDefinitionInterface
+ * This is the reference implementation for PropertiesDefinitionInterface.
  *
  * @package DcGeneral\DataDefinition\Definition
  */
 class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
 {
-	/**
-	 * The property definitions contained.
-	 *
-	 * @var PropertyInterface[]
-	 */
-	protected $properties = array();
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getProperties()
-	{
-		return $this->properties;
-	}
+    /**
+     * The property definitions contained.
+     *
+     * @var PropertyInterface[]
+     */
+    protected $properties = array();
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getPropertyNames()
-	{
-		return array_keys($this->properties);
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getProperties()
+    {
+        return $this->properties;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 *
-	 * @throws DcGeneralInvalidArgumentException When an invalid property has been passed or a property with the given
-	 *                                           name has already been registered.
-	 */
-	public function addProperty($property)
-	{
-		if (!($property instanceof PropertyInterface))
-		{
-			throw new DcGeneralInvalidArgumentException('Passed value is not an instance of PropertyInterface.');
-		}
+    /**
+     * {@inheritdoc}
+     */
+    public function getPropertyNames()
+    {
+        return array_keys($this->properties);
+    }
 
-		$name = $property->getName();
+    /**
+     * {@inheritdoc}
+     *
+     * @throws DcGeneralInvalidArgumentException When an invalid property has been passed or a property with the given
+     *                                           name has already been registered.
+     */
+    public function addProperty($property)
+    {
+        if (!($property instanceof PropertyInterface)) {
+            throw new DcGeneralInvalidArgumentException('Passed value is not an instance of PropertyInterface.');
+        }
 
-		if ($this->hasProperty($name))
-		{
-			throw new DcGeneralInvalidArgumentException('Property ' . $name . ' is already registered.');
-		}
+        $name = $property->getName();
 
-		$this->properties[$name] = $property;
+        if ($this->hasProperty($name)) {
+            throw new DcGeneralInvalidArgumentException('Property ' . $name . ' is already registered.');
+        }
 
-		return $this;
-	}
+        $this->properties[$name] = $property;
 
-	/**
-	 * {@inheritdoc}
-	 *
-	 * @throws DcGeneralInvalidArgumentException When an a property with the given name has not been registered.
-	 */
-	public function removeProperty($property)
-	{
-		if ($property instanceof PropertyInterface)
-		{
-			$name = $property->getName();
-		}
-		else
-		{
-			$name = $property;
-		}
+        return $this;
+    }
 
-		if (!$this->hasProperty($name))
-		{
-			throw new DcGeneralInvalidArgumentException('Property ' . $name . ' is not registered.');
-		}
+    /**
+     * {@inheritdoc}
+     *
+     * @throws DcGeneralInvalidArgumentException When an a property with the given name has not been registered.
+     */
+    public function removeProperty($property)
+    {
+        if ($property instanceof PropertyInterface) {
+            $name = $property->getName();
+        } else {
+            $name = $property;
+        }
 
-		unset($this->properties[$name]);
+        if (!$this->hasProperty($name)) {
+            throw new DcGeneralInvalidArgumentException('Property ' . $name . ' is not registered.');
+        }
 
-		return $this;
-	}
+        unset($this->properties[$name]);
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function hasProperty($name)
-	{
-		return isset($this->properties[$name]);
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 *
-	 * @throws DcGeneralInvalidArgumentException When an a property with the given name has not been registered.
-	 */
-	public function getProperty($name)
-	{
-		if (!$this->hasProperty($name))
-		{
-			throw new DcGeneralInvalidArgumentException('Property ' . $name . ' is not registered.');
-		}
+    /**
+     * {@inheritdoc}
+     */
+    public function hasProperty($name)
+    {
+        return isset($this->properties[$name]);
+    }
 
-		return $this->properties[$name];
-	}
+    /**
+     * {@inheritdoc}
+     *
+     * @throws DcGeneralInvalidArgumentException When an a property with the given name has not been registered.
+     */
+    public function getProperty($name)
+    {
+        if (!$this->hasProperty($name)) {
+            throw new DcGeneralInvalidArgumentException('Property ' . $name . ' is not registered.');
+        }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getIterator()
-	{
-		return new \ArrayIterator($this->properties);
-	}
+        return $this->properties[$name];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->properties);
+    }
 }

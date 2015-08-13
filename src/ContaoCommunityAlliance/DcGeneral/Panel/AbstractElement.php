@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,83 +22,82 @@ use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
  *
  * @package DcGeneral\Panel
  */
-abstract class AbstractElement
-	implements PanelElementInterface
+abstract class AbstractElement implements PanelElementInterface
 {
-	/**
-	 * The panel this element is contained within.
-	 *
-	 * @var PanelInterface
-	 */
-	protected $objPanel;
 
-	/**
-	 * The base configuration that contains all filter, sorting and limit information for all other panel elements.
-	 *
-	 * This is used for determining the valid values in filters etc.
-	 *
-	 * @var ConfigInterface
-	 */
-	private $objOtherConfig;
+    /**
+     * The panel this element is contained within.
+     *
+     * @var PanelInterface
+     */
+    protected $objPanel;
 
-	/**
-	 * Convenience method to retrieve Environment for this element.
-	 *
-	 * @return EnvironmentInterface
-	 */
-	public function getEnvironment()
-	{
-		return $this->getPanel()->getContainer()->getEnvironment();
-	}
+    /**
+     * The base configuration that contains all filter, sorting and limit information for all other panel elements.
+     *
+     * This is used for determining the valid values in filters etc.
+     *
+     * @var ConfigInterface
+     */
+    private $objOtherConfig;
 
-	/**
-	 * Convenience method to retrieve input provider for this Element.
-	 *
-	 * @return InputProviderInterface
-	 */
-	public function getInputProvider()
-	{
-		return $this->getEnvironment()->getInputProvider();
-	}
+    /**
+     * Convenience method to retrieve Environment for this element.
+     *
+     * @return EnvironmentInterface
+     */
+    public function getEnvironment()
+    {
+        return $this->getPanel()->getContainer()->getEnvironment();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getPanel()
-	{
-		return $this->objPanel;
-	}
+    /**
+     * Convenience method to retrieve input provider for this Element.
+     *
+     * @return InputProviderInterface
+     */
+    public function getInputProvider()
+    {
+        return $this->getEnvironment()->getInputProvider();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function setPanel(PanelInterface $objPanel)
-	{
-		$this->objPanel = $objPanel;
+    /**
+     * {@inheritDoc}
+     */
+    public function getPanel()
+    {
+        return $this->objPanel;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function setPanel(PanelInterface $objPanel)
+    {
+        $this->objPanel = $objPanel;
 
-	/**
-	 * Let all other elements initialize and apply themselves to this config.
-	 *
-	 * @return ConfigInterface
-	 */
-	protected function getOtherConfig()
-	{
-		if (!isset($this->objOtherConfig))
-		{
-			$this->objOtherConfig = $this
-				->getEnvironment()
-				->getController()
-				->getBaseConfig();
+        return $this;
+    }
 
-			$this
-				->getPanel()
-				->getContainer()
-				->initialize($this->objOtherConfig, $this);
-		}
+    /**
+     * Let all other elements initialize and apply themselves to this config.
+     *
+     * @return ConfigInterface
+     */
+    protected function getOtherConfig()
+    {
+        if (!isset($this->objOtherConfig)) {
+            $this->objOtherConfig = $this
+                ->getEnvironment()
+                ->getController()
+                ->getBaseConfig();
 
-		return $this->objOtherConfig;
-	}
+            $this
+                ->getPanel()
+                ->getContainer()
+                ->initialize($this->objOtherConfig, $this);
+        }
+
+        return $this->objOtherConfig;
+    }
 }

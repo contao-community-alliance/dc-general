@@ -1,4 +1,4 @@
-<form action="<?php echo $this->action; ?>" class="tl_form" method="post">
+<form action="<?php echo $this->action; ?>" class="tl_form dc_general_panel" method="post">
 	<div class="tl_formbody">
 		<input type="hidden" name="FORM_SUBMIT" value="tl_filters">
 		<input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>">

@@ -1,4 +1,4 @@
-<div class="tl_limit tl_subpanel">
+<div class="tl_limit tl_subpanel <?php echo $this->rowClass; ?>">
 	<strong><?php echo $GLOBALS['TL_LANG']['MSC']['showOnly']; ?>:</strong>
 	<select name="tl_limit" class="tl_select<?php echo $this->class; ?>" onchange="this.form.submit()">
 		<?php foreach ($this->options as $arrOption): ?>

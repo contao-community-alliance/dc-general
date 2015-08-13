@@ -13,9 +13,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral;
 
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
-use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
-
 /**
  * This class is the base foundation for a command event.
  *
@@ -23,49 +20,50 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  */
 class Action
 {
-	/**
-	 * The action name.
-	 *
-	 * @var string
-	 */
-	protected $name;
 
-	/**
-	 * The action arguments.
-	 *
-	 * @var array
-	 */
-	protected $arguments;
+    /**
+     * The action name.
+     *
+     * @var string
+     */
+    protected $name;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param string $name      The action name.
-	 * @param array  $arguments A set of action arguments.
-	 */
-	public function __construct($name, array $arguments = array())
-	{
-		$this->name      = $name;
-		$this->arguments = $arguments;
-	}
+    /**
+     * The action arguments.
+     *
+     * @var array
+     */
+    protected $arguments;
 
-	/**
-	 * Return the name.
-	 *
-	 * @return string
-	 */
-	public function getName()
-	{
-		return $this->name;
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param string $name      The action name.
+     * @param array  $arguments A set of action arguments.
+     */
+    public function __construct($name, array $arguments = array())
+    {
+        $this->name      = $name;
+        $this->arguments = $arguments;
+    }
 
-	/**
-	 * Return the arguments.
-	 *
-	 * @return array
-	 */
-	public function getArguments()
-	{
-		return $this->arguments;
-	}
+    /**
+     * Return the name.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Return the arguments.
+     *
+     * @return array
+     */
+    public function getArguments()
+    {
+        return $this->arguments;
+    }
 }

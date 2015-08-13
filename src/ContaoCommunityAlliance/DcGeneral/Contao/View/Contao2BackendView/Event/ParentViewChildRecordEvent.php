@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,39 +22,38 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
  *
  * @package DcGeneral\Contao\View\Contao2BackendView\Event
  */
-class ParentViewChildRecordEvent
-	extends AbstractModelAwareEvent
+class ParentViewChildRecordEvent extends AbstractModelAwareEvent
 {
-	const NAME = 'dc-general.view.contao2backend.parent-view-child-record';
+    const NAME = 'dc-general.view.contao2backend.parent-view-child-record';
 
-	/**
-	 * The html code to use for the model.
-	 *
-	 * @var string
-	 */
-	protected $html;
+    /**
+     * The html code to use for the model.
+     *
+     * @var string
+     */
+    protected $html;
 
-	/**
-	 * Set the html code to use as child record.
-	 *
-	 * @param string $html The html code.
-	 *
-	 * @return $this
-	 */
-	public function setHtml($html)
-	{
-		$this->html = $html;
+    /**
+     * Set the html code to use as child record.
+     *
+     * @param string $html The html code.
+     *
+     * @return $this
+     */
+    public function setHtml($html)
+    {
+        $this->html = $html;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Retrieve the stored html code for the child record.
-	 *
-	 * @return string
-	 */
-	public function getHtml()
-	{
-		return $this->html;
-	}
+    /**
+     * Retrieve the stored html code for the child record.
+     *
+     * @return string
+     */
+    public function getHtml()
+    {
+        return $this->html;
+    }
 }

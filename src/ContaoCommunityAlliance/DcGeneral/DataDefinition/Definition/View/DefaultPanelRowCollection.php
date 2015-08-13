@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,86 +22,82 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DefaultPanelRowCollection implements PanelRowCollectionInterface
 {
-	/**
-	 * The panel rows.
-	 *
-	 * @var PanelRowInterface[]
-	 */
-	protected $rows = array();
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getRows()
-	{
-		$names = array();
-		foreach ($this as $row)
-		{
-			/** @var PanelRowInterface $row */
-			$names[] = $row->getElements();
-		}
+    /**
+     * The panel rows.
+     *
+     * @var PanelRowInterface[]
+     */
+    protected $rows = array();
 
-		return $names;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function getRows()
+    {
+        $names = array();
+        foreach ($this as $row) {
+            /** @var PanelRowInterface $row */
+            $names[] = $row->getElements();
+        }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function addRow($index = -1)
-	{
-		$row = new DefaultPanelRow();
+        return $names;
+    }
 
-		if (($index < 0) || ($this->getRowCount() <= $index))
-		{
-			$this->rows[] = $row;
-		}
-		else
-		{
-			array_splice($this->rows, $index, 0, array($row));
-		}
+    /**
+     * {@inheritDoc}
+     */
+    public function addRow($index = -1)
+    {
+        $row = new DefaultPanelRow();
 
-		return $row;
-	}
+        if (($index < 0) || ($this->getRowCount() <= $index)) {
+            $this->rows[] = $row;
+        } else {
+            array_splice($this->rows, $index, 0, array($row));
+        }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function deleteRow($index)
-	{
-		unset($this->rows[$index]);
-		$this->rows = array_values($this->rows);
+        return $row;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function deleteRow($index)
+    {
+        unset($this->rows[$index]);
+        $this->rows = array_values($this->rows);
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getRowCount()
-	{
-		return count($this->rows);
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @throws DcGeneralInvalidArgumentException When the index does not exist.
-	 */
-	public function getRow($index)
-	{
-		if (!isset($this->rows[$index]))
-		{
-			throw new DcGeneralInvalidArgumentException('Row ' . $index . ' does not exist.');
-		}
+    /**
+     * {@inheritDoc}
+     */
+    public function getRowCount()
+    {
+        return count($this->rows);
+    }
 
-		return $this->rows[$index];
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @throws DcGeneralInvalidArgumentException When the index does not exist.
+     */
+    public function getRow($index)
+    {
+        if (!isset($this->rows[$index])) {
+            throw new DcGeneralInvalidArgumentException('Row ' . $index . ' does not exist.');
+        }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getIterator()
-	{
-		return new \ArrayIterator($this->rows);
-	}
+        return $this->rows[$index];
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->rows);
+    }
 }

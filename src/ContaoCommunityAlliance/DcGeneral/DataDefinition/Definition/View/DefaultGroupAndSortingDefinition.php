@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -19,94 +20,93 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInterface
 {
-	/**
-	 * The information stored.
-	 *
-	 * @var GroupAndSortingDefinitionInterface[]
-	 */
-	protected $information = array();
 
-	/**
-	 * The name of the definition.
-	 *
-	 * @var string
-	 */
-	protected $name = '';
+    /**
+     * The information stored.
+     *
+     * @var GroupAndSortingInformationInterface[]
+     */
+    protected $information = array();
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function add($index = -1)
-	{
-		$information = new DefaultGroupAndSortingInformation();
+    /**
+     * The name of the definition.
+     *
+     * @var string
+     */
+    protected $name = '';
 
-		if (($index < 0) || ($this->getCount() <= $index))
-		{
-			$this->information[] = $information;
-		}
-		else
-		{
-			array_splice($this->information, $index, 0, array($information));
-		}
+    /**
+     * {@inheritDoc}
+     */
+    public function add($index = -1)
+    {
+        $information = new DefaultGroupAndSortingInformation();
 
-		return $information;
-	}
+        if (($index < 0) || ($this->getCount() <= $index)) {
+            $this->information[] = $information;
+        } else {
+            array_splice($this->information, $index, 0, array($information));
+        }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function delete($index)
-	{
-		unset($this->information[$index]);
-		$this->information = array_values($this->information);
+        return $information;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function delete($index)
+    {
+        unset($this->information[$index]);
+        $this->information = array_values($this->information);
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getCount()
-	{
-		return count($this->information);
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function get($index)
-	{
-		if (!isset($this->information[$index]))
-		{
-			throw new DcGeneralInvalidArgumentException('Offset ' . $index . ' does not exist.');
-		}
+    /**
+     * {@inheritDoc}
+     */
+    public function getCount()
+    {
+        return count($this->information);
+    }
 
-		return $this->information[$index];
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @throws DcGeneralInvalidArgumentException when the given offset does not exist.
+     */
+    public function get($index)
+    {
+        if (!isset($this->information[$index])) {
+            throw new DcGeneralInvalidArgumentException('Offset ' . $index . ' does not exist.');
+        }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getName()
-	{
-		return $this->name;
-	}
+        return $this->information[$index];
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function setName($name)
-	{
-		$this->name = $name;
+    /**
+     * {@inheritDoc}
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getIterator()
-	{
-		return new \ArrayIterator($this->information);
-	}
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->information);
+    }
 }

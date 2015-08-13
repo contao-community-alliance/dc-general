@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -20,84 +21,92 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  *
  * @package DcGeneral\Panel
  */
-class DefaultPanelContainer
-	implements PanelContainerInterface
+class DefaultPanelContainer implements PanelContainerInterface
 {
-	/**
-	 * The environment in use.
-	 *
-	 * @var EnvironmentInterface
-	 */
-	protected $objEnvironment;
 
-	/**
-	 * The panels contained within this container.
-	 *
-	 * @var PanelInterface[]
-	 */
-	protected $arrPanels = array();
+    /**
+     * The environment in use.
+     *
+     * @var EnvironmentInterface
+     */
+    protected $objEnvironment;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getEnvironment()
-	{
-		return $this->objEnvironment;
-	}
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setEnvironment(EnvironmentInterface $objEnvironment)
-	{
-		$this->objEnvironment = $objEnvironment;
-		return $this;
-	}
+    /**
+     * The panels contained within this container.
+     *
+     * @var PanelInterface[]
+     */
+    protected $arrPanels = array();
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function addPanel($strKey, $objPanel)
-	{
-		$this->arrPanels[$strKey] = $objPanel;
-		$objPanel->setContainer($this);
+    /**
+     * {@inheritdoc}
+     */
+    public function getEnvironment()
+    {
+        return $this->objEnvironment;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setEnvironment(EnvironmentInterface $objEnvironment)
+    {
+        $this->objEnvironment = $objEnvironment;
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getPanel($strKey)
-	{
-		return $this->arrPanels[$strKey];
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function addPanel($strKey, $objPanel)
+    {
+        $this->arrPanels[$strKey] = $objPanel;
+        $objPanel->setContainer($this);
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
-	{
-		/** @var PanelInterface $objPanel */
+        return $this;
+    }
 
-		foreach ($this as $objPanel)
-		{
-			$objPanel->initialize($objConfig, $objElement);
-		}
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getPanel($strKey)
+    {
+        return $this->arrPanels[$strKey];
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function updateValues()
-	{
-		return ($this->getEnvironment()->getInputProvider()->getValue('FORM_SUBMIT') === 'tl_filters');
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
+    {
+        /** @var PanelInterface $objPanel */
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getIterator()
-	{
-		return new \ArrayIterator($this->arrPanels);
-	}
+        foreach ($this as $objPanel) {
+            $objPanel->initialize($objConfig, $objElement);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function updateValues()
+    {
+        return ($this->getEnvironment()->getInputProvider()->getValue('FORM_SUBMIT') === 'tl_filters');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->arrPanels);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function count()
+    {
+        return count($this->arrPanels);
+    }
 }

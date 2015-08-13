@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -19,78 +20,79 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
  */
 class DefaultModelFormatterConfig implements ModelFormatterConfigInterface
 {
-	/**
-	 * The used property names.
-	 *
-	 * @var array
-	 */
-	protected $propertyNames = array();
 
-	/**
-	 * The format string.
-	 *
-	 * @var string
-	 */
-	protected $format = '%s';
+    /**
+     * The used property names.
+     *
+     * @var array
+     */
+    protected $propertyNames = array();
 
-	/**
-	 * The maximum length of the formatted string.
-	 *
-	 * @var int|null
-	 */
-	protected $maxLength = null;
+    /**
+     * The format string.
+     *
+     * @var string
+     */
+    protected $format = '%s';
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function setPropertyNames(array $propertyNames)
-	{
-		$this->propertyNames = $propertyNames;
+    /**
+     * The maximum length of the formatted string.
+     *
+     * @var int|null
+     */
+    protected $maxLength = null;
 
-		return $this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function setPropertyNames(array $propertyNames)
+    {
+        $this->propertyNames = $propertyNames;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getPropertyNames()
-	{
-		return $this->propertyNames;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function setFormat($format)
-	{
-		$this->format = (string)$format;
+    /**
+     * {@inheritDoc}
+     */
+    public function getPropertyNames()
+    {
+        return $this->propertyNames;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function setFormat($format)
+    {
+        $this->format = (string)$format;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getFormat()
-	{
-		return $this->format;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function setMaxLength($maxLength)
-	{
-		$this->maxLength = ($maxLength !== null) ? (int)$maxLength : null;
+    /**
+     * {@inheritDoc}
+     */
+    public function getFormat()
+    {
+        return $this->format;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function setMaxLength($maxLength)
+    {
+        $this->maxLength = ($maxLength !== null) ? (int)$maxLength : null;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getMaxLength()
-	{
-		return $this->maxLength;
-	}
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getMaxLength()
+    {
+        return $this->maxLength;
+    }
 }

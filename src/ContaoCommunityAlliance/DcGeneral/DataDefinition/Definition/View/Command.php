@@ -22,162 +22,163 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
  */
 class Command implements CommandInterface
 {
-	/**
-	 * Name of the command.
-	 *
-	 * @var string
-	 */
-	protected $name;
 
-	/**
-	 * The parameters for the command.
-	 *
-	 * @var \ArrayObject
-	 */
-	protected $parameters;
+    /**
+     * Name of the command.
+     *
+     * @var string
+     */
+    protected $name;
 
-	/**
-	 * The label string for the command.
-	 *
-	 * @var string
-	 */
-	protected $label;
+    /**
+     * The parameters for the command.
+     *
+     * @var \ArrayObject
+     */
+    protected $parameters;
 
-	/**
-	 * The description text for the command.
-	 *
-	 * @var string
-	 */
-	protected $description;
+    /**
+     * The label string for the command.
+     *
+     * @var string
+     */
+    protected $label;
 
-	/**
-	 * The extra data for the command.
-	 *
-	 * @var \ArrayObject
-	 */
-	protected $extra;
+    /**
+     * The description text for the command.
+     *
+     * @var string
+     */
+    protected $description;
 
-	/**
-	 * Flag if the command is disabled or not.
-	 *
-	 * @var bool
-	 */
-	protected $disabled;
+    /**
+     * The extra data for the command.
+     *
+     * @var \ArrayObject
+     */
+    protected $extra;
 
-	/**
-	 * Create a new instance.
-	 */
-	public function __construct()
-	{
-		$this->parameters = new \ArrayObject();
-		$this->extra      = new \ArrayObject();
-	}
+    /**
+     * Flag if the command is disabled or not.
+     *
+     * @var bool
+     */
+    protected $disabled;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setName($name)
-	{
-		$this->name = (string)$name;
+    /**
+     * Create a new instance.
+     */
+    public function __construct()
+    {
+        $this->parameters = new \ArrayObject();
+        $this->extra      = new \ArrayObject();
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setName($name)
+    {
+        $this->name = (string)$name;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getName()
-	{
-		return $this->name;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setParameters(\ArrayObject $parameters)
-	{
-		$this->parameters = $parameters;
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setParameters(\ArrayObject $parameters)
+    {
+        $this->parameters = $parameters;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getParameters()
-	{
-		return $this->parameters;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setLabel($label)
-	{
-		$this->label = (string)$label;
+    /**
+     * {@inheritdoc}
+     */
+    public function getParameters()
+    {
+        return $this->parameters;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setLabel($label)
+    {
+        $this->label = (string)$label;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getLabel()
-	{
-		return $this->label;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setDescription($description)
-	{
-		$this->description = (string)$description;
+    /**
+     * {@inheritdoc}
+     */
+    public function getLabel()
+    {
+        return $this->label;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setDescription($description)
+    {
+        $this->description = (string)$description;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getDescription()
-	{
-		return $this->description;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setExtra(\ArrayObject $extra)
-	{
-		$this->extra = $extra;
+    /**
+     * {@inheritdoc}
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setExtra(\ArrayObject $extra)
+    {
+        $this->extra = $extra;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getExtra()
-	{
-		return $this->extra;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setDisabled($disabled = true)
-	{
-		$this->disabled = $disabled;
+    /**
+     * {@inheritdoc}
+     */
+    public function getExtra()
+    {
+        return $this->extra;
+    }
 
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setDisabled($disabled = true)
+    {
+        $this->disabled = $disabled;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function isDisabled()
-	{
-		return $this->disabled;
-	}
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isDisabled()
+    {
+        return $this->disabled;
+    }
 }

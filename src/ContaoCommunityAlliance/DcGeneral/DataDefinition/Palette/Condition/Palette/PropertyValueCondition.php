@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -20,147 +21,144 @@ use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
  */
 class PropertyValueCondition extends AbstractWeightAwarePaletteCondition
 {
-	/**
-	 * The property name.
-	 *
-	 * @var string
-	 */
-	protected $propertyName;
 
-	/**
-	 * The expected property value.
-	 *
-	 * @var mixed
-	 */
-	protected $propertyValue;
+    /**
+     * The property name.
+     *
+     * @var string
+     */
+    protected $propertyName;
 
-	/**
-	 * Use strict compare mode.
-	 *
-	 * @var bool
-	 */
-	protected $strict;
+    /**
+     * The expected property value.
+     *
+     * @var mixed
+     */
+    protected $propertyValue;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param string $propertyName  The name of the property.
-	 *
-	 * @param mixed  $propertyValue The value of the property to match.
-	 *
-	 * @param bool   $strict        Flag if the comparison shall be strict (type safe).
-	 *
-	 * @param int    $weight        The weight of this condition to apply.
-	 */
-	public function __construct($propertyName = '', $propertyValue = null, $strict = false, $weight = 1)
-	{
-		$this->propertyName  = (string)$propertyName;
-		$this->propertyValue = $propertyValue;
-		$this->strict        = (bool)$strict;
-		$this->setWeight($weight);
-	}
+    /**
+     * Use strict compare mode.
+     *
+     * @var bool
+     */
+    protected $strict;
 
-	/**
-	 * Set the property name.
-	 *
-	 * @param string $propertyName The property name.
-	 *
-	 * @return PropertyValueCondition
-	 */
-	public function setPropertyName($propertyName)
-	{
-		$this->propertyName = (string)$propertyName;
-		return $this;
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param string $propertyName  The name of the property.
+     *
+     * @param mixed  $propertyValue The value of the property to match.
+     *
+     * @param bool   $strict        Flag if the comparison shall be strict (type safe).
+     *
+     * @param int    $weight        The weight of this condition to apply.
+     */
+    public function __construct($propertyName = '', $propertyValue = null, $strict = false, $weight = 1)
+    {
+        $this->propertyName  = (string)$propertyName;
+        $this->propertyValue = $propertyValue;
+        $this->strict        = (bool)$strict;
+        $this->setWeight($weight);
+    }
 
-	/**
-	 * Retrieve the property name.
-	 *
-	 * @return string
-	 */
-	public function getPropertyName()
-	{
-		return $this->propertyName;
-	}
+    /**
+     * Set the property name.
+     *
+     * @param string $propertyName The property name.
+     *
+     * @return PropertyValueCondition
+     */
+    public function setPropertyName($propertyName)
+    {
+        $this->propertyName = (string)$propertyName;
+        return $this;
+    }
 
-	/**
-	 * Set the property value to match.
-	 *
-	 * @param mixed $propertyValue The value.
-	 *
-	 * @return PropertyValueCondition
-	 */
-	public function setPropertyValue($propertyValue)
-	{
-		$this->propertyValue = $propertyValue;
-		return $this;
-	}
+    /**
+     * Retrieve the property name.
+     *
+     * @return string
+     */
+    public function getPropertyName()
+    {
+        return $this->propertyName;
+    }
 
-	/**
-	 * Retrieve the property value to match.
-	 *
-	 * @return mixed
-	 */
-	public function getPropertyValue()
-	{
-		return $this->propertyValue;
-	}
+    /**
+     * Set the property value to match.
+     *
+     * @param mixed $propertyValue The value.
+     *
+     * @return PropertyValueCondition
+     */
+    public function setPropertyValue($propertyValue)
+    {
+        $this->propertyValue = $propertyValue;
+        return $this;
+    }
 
-	/**
-	 * Set the flag if the comparison shall be strict (type safe).
-	 *
-	 * @param boolean $strict The flag.
-	 *
-	 * @return PropertyValueCondition
-	 */
-	public function setStrict($strict)
-	{
-		$this->strict = (bool)$strict;
-		return $this;
-	}
+    /**
+     * Retrieve the property value to match.
+     *
+     * @return mixed
+     */
+    public function getPropertyValue()
+    {
+        return $this->propertyValue;
+    }
 
-	/**
-	 * Retrieve the flag if the comparison shall be strict (type safe).
-	 *
-	 * @return boolean
-	 */
-	public function getStrict()
-	{
-		return $this->strict;
-	}
+    /**
+     * Set the flag if the comparison shall be strict (type safe).
+     *
+     * @param boolean $strict The flag.
+     *
+     * @return PropertyValueCondition
+     */
+    public function setStrict($strict)
+    {
+        $this->strict = (bool)$strict;
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getMatchCount(ModelInterface $model = null, PropertyValueBag $input = null)
-	{
-		if (!$this->propertyName)
-		{
-			return false;
-		}
+    /**
+     * Retrieve the flag if the comparison shall be strict (type safe).
+     *
+     * @return boolean
+     *
+     * @SuppressWarnings(PHPMD.BooleanGetMethodName)
+     */
+    public function getStrict()
+    {
+        return $this->strict;
+    }
 
-		if ($input && $input->hasPropertyValue($this->propertyName))
-		{
-			$value = $input->getPropertyValue($this->propertyName);
-		}
-		elseif ($model)
-		{
-			$value = $model->getProperty($this->propertyName);
-		}
-		else
-		{
-			return false;
-		}
+    /**
+     * {@inheritdoc}
+     */
+    public function getMatchCount(ModelInterface $model = null, PropertyValueBag $input = null)
+    {
+        if (!$this->propertyName) {
+            return false;
+        }
 
-		return ($this->strict ? ($value === $this->propertyValue) : ($value == $this->propertyValue))
-			? $this->getWeight()
-			: false;
-	}
+        if ($input && $input->hasPropertyValue($this->propertyName)) {
+            $value = $input->getPropertyValue($this->propertyName);
+        } elseif ($model) {
+            $value = $model->getProperty($this->propertyName);
+        } else {
+            return false;
+        }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function __clone()
-	{
-	}
+        return ($this->strict ? ($value === $this->propertyValue) : ($value == $this->propertyValue))
+            ? $this->getWeight()
+            : false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __clone()
+    {
+    }
 }

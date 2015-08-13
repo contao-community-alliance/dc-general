@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -20,8 +21,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event
  *
  * @package DcGeneral\Contao\View\Contao2BackendView\Event
  */
-class GetSelectModeButtonsEvent
-	extends BaseGetButtonsEvent
+class GetSelectModeButtonsEvent extends BaseGetButtonsEvent
 {
-	const NAME = 'dc-general.view.contao2backend.get-select-mode-buttons';
+    const NAME = 'dc-general.view.contao2backend.get-select-mode-buttons';
 }

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -12,8 +13,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event;
 
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
 
 /**
  * This event gets emitted when a legend is used.
@@ -22,35 +23,35 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuil
  */
 class UseLegendEvent extends BuilderEvent
 {
-	const NAME = 'dc-general.data-definition.palette.builder.use-legend';
+    const NAME = 'dc-general.data-definition.palette.builder.use-legend';
 
-	/**
-	 * The legend interface.
-	 *
-	 * @var LegendInterface
-	 */
-	protected $legend;
+    /**
+     * The legend interface.
+     *
+     * @var LegendInterface
+     */
+    protected $legend;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param LegendInterface $legend         The legend being used.
-	 *
-	 * @param PaletteBuilder  $paletteBuilder The palette builder in use.
-	 */
-	public function __construct(LegendInterface $legend, PaletteBuilder $paletteBuilder)
-	{
-		$this->legend = $legend;
-		parent::__construct($paletteBuilder);
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param LegendInterface $legend         The legend being used.
+     *
+     * @param PaletteBuilder  $paletteBuilder The palette builder in use.
+     */
+    public function __construct(LegendInterface $legend, PaletteBuilder $paletteBuilder)
+    {
+        $this->legend = $legend;
+        parent::__construct($paletteBuilder);
+    }
 
-	/**
-	 * Retrieve the legend.
-	 *
-	 * @return LegendInterface
-	 */
-	public function getLegend()
-	{
-		return $this->legend;
-	}
+    /**
+     * Retrieve the legend.
+     *
+     * @return LegendInterface
+     */
+    public function getLegend()
+    {
+        return $this->legend;
+    }
 }

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,132 +22,131 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 abstract class AbstractConditionChain implements ConditionChainInterface
 {
-	/**
-	 * The list of conditions.
-	 *
-	 * @var ConditionInterface[]
-	 */
-	protected $conditions = array();
 
-	/**
-	 * The conjunction mode.
-	 *
-	 * @var string
-	 */
-	protected $conjunction = self::AND_CONJUNCTION;
+    /**
+     * The list of conditions.
+     *
+     * @var ConditionInterface[]
+     */
+    protected $conditions = array();
 
-	/**
-	 * Create a new condition chain.
-	 *
-	 * @param array  $conditions  The conditions to initialize the chain with (optional).
-	 *
-	 * @param string $conjunction The conjunction this chain contains (defaults to AND).
-	 */
-	public function __construct(array $conditions = array(), $conjunction = self::AND_CONJUNCTION)
-	{
-		$this->addConditions($conditions);
-		$this->setConjunction($conjunction);
-	}
+    /**
+     * The conjunction mode.
+     *
+     * @var string
+     */
+    protected $conjunction = self::AND_CONJUNCTION;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function clearConditions()
-	{
-		$this->conditions = array();
-		return $this;
-	}
+    /**
+     * Create a new condition chain.
+     *
+     * @param array  $conditions  The conditions to initialize the chain with (optional).
+     *
+     * @param string $conjunction The conjunction this chain contains (defaults to AND).
+     */
+    public function __construct(array $conditions = array(), $conjunction = self::AND_CONJUNCTION)
+    {
+        $this->addConditions($conditions);
+        $this->setConjunction($conjunction);
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setConditions(array $conditions)
-	{
-		$this->clearConditions();
-		$this->addConditions($conditions);
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function clearConditions()
+    {
+        $this->conditions = array();
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function addConditions(array $conditions)
-	{
-		foreach ($conditions as $condition)
-		{
-			$this->addCondition($condition);
-		}
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function setConditions(array $conditions)
+    {
+        $this->clearConditions();
+        $this->addConditions($conditions);
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function addCondition(ConditionInterface $condition)
-	{
-		$hash = spl_object_hash($condition);
+    /**
+     * {@inheritdoc}
+     */
+    public function addConditions(array $conditions)
+    {
+        foreach ($conditions as $condition) {
+            $this->addCondition($condition);
+        }
+        return $this;
+    }
 
-		$this->conditions[$hash] = $condition;
-		return $this;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function addCondition(ConditionInterface $condition)
+    {
+        $hash = spl_object_hash($condition);
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function removeCondition(ConditionInterface $condition)
-	{
-		$hash = spl_object_hash($condition);
-		unset($this->conditions[$hash]);
-		return $this;
-	}
+        $this->conditions[$hash] = $condition;
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getConditions()
-	{
-		return array_values($this->conditions);
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function removeCondition(ConditionInterface $condition)
+    {
+        $hash = spl_object_hash($condition);
+        unset($this->conditions[$hash]);
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 *
-	 * @throws DcGeneralInvalidArgumentException When the conjunction is neither AND nor OR.
-	 */
-	public function setConjunction($conjunction)
-	{
-		if ($conjunction != static::AND_CONJUNCTION && $conjunction != static::OR_CONJUNCTION)
-		{
-			throw new DcGeneralInvalidArgumentException(
-				'Conjunction must be ConditionChainInterface::AND_CONJUNCTION or ConditionChainInterface::OR_CONJUNCTION'
-			);
-		}
+    /**
+     * {@inheritdoc}
+     */
+    public function getConditions()
+    {
+        return array_values($this->conditions);
+    }
 
-		$this->conjunction = (string)$conjunction;
+    /**
+     * {@inheritdoc}
+     *
+     * @throws DcGeneralInvalidArgumentException When the conjunction is neither AND nor OR.
+     */
+    public function setConjunction($conjunction)
+    {
+        if ($conjunction != static::AND_CONJUNCTION && $conjunction != static::OR_CONJUNCTION) {
+            throw new DcGeneralInvalidArgumentException(
+                'Conjunction must be ConditionChainInterface::AND_CONJUNCTION ' .
+                'or ConditionChainInterface::OR_CONJUNCTION'
+            );
+        }
 
-		return $this;
-	}
+        $this->conjunction = (string)$conjunction;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getConjunction()
-	{
-		return $this->conjunction;
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function __clone()
-	{
-		$conditions = array();
-		foreach ($this->conditions as $condition)
-		{
-			$bobaFett = clone $condition;
+    /**
+     * {@inheritdoc}
+     */
+    public function getConjunction()
+    {
+        return $this->conjunction;
+    }
 
-			$conditions[spl_object_hash($bobaFett)] = $bobaFett;
-		}
-		$this->conditions = $conditions;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function __clone()
+    {
+        $conditions = array();
+        foreach ($this->conditions as $condition) {
+            $bobaFett = clone $condition;
+
+            $conditions[spl_object_hash($bobaFett)] = $bobaFett;
+        }
+        $this->conditions = $conditions;
+    }
 }

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,33 +23,33 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  */
 abstract class AbstractCommandEvent extends AbstractEnvironmentAwareEvent implements CommandEventInterface
 {
-	/**
-	 * The command attached to the event.
-	 *
-	 * @var CommandInterface
-	 */
-	protected $command;
+    /**
+     * The command attached to the event.
+     *
+     * @var CommandInterface
+     */
+    protected $command;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param CommandInterface     $command     The command to attach.
-	 *
-	 * @param EnvironmentInterface $environment The environment in use.
-	 */
-	public function __construct(CommandInterface $command, EnvironmentInterface $environment)
-	{
-		parent::__construct($environment);
-		$this->command = $command;
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param CommandInterface     $command     The command to attach.
+     *
+     * @param EnvironmentInterface $environment The environment in use.
+     */
+    public function __construct(CommandInterface $command, EnvironmentInterface $environment)
+    {
+        parent::__construct($environment);
+        $this->command = $command;
+    }
 
-	/**
-	 * Return the command.
-	 *
-	 * @return CommandInterface
-	 */
-	public function getCommand()
-	{
-		return $this->command;
-	}
+    /**
+     * Return the command.
+     *
+     * @return CommandInterface
+     */
+    public function getCommand()
+    {
+        return $this->command;
+    }
 }

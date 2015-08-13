@@ -14,7 +14,6 @@
 namespace ContaoCommunityAlliance\DcGeneral\Event;
 
 use ContaoCommunityAlliance\DcGeneral\Action;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 
 /**
@@ -24,33 +23,33 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  */
 abstract class AbstractActionAwareEvent extends AbstractEnvironmentAwareEvent
 {
-	/**
-	 * The action.
-	 *
-	 * @var Action
-	 */
-	protected $action;
+    /**
+     * The action.
+     *
+     * @var Action
+     */
+    protected $action;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param EnvironmentInterface $environment The environment in use.
-	 *
-	 * @param Action               $action      The action.
-	 */
-	public function __construct(EnvironmentInterface $environment, Action $action)
-	{
-		parent::__construct($environment);
-		$this->action = $action;
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param EnvironmentInterface $environment The environment in use.
+     *
+     * @param Action               $action      The action.
+     */
+    public function __construct(EnvironmentInterface $environment, Action $action)
+    {
+        parent::__construct($environment);
+        $this->action = $action;
+    }
 
-	/**
-	 * Return the action.
-	 *
-	 * @return Action
-	 */
-	public function getAction()
-	{
-		return $this->action;
-	}
+    /**
+     * Return the action.
+     *
+     * @return Action
+     */
+    public function getAction()
+    {
+        return $this->action;
+    }
 }

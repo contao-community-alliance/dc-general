@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,53 +23,49 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  *
  * @package DcGeneral
  */
-class DataDefinitionContainer
-	implements DataDefinitionContainerInterface
+class DataDefinitionContainer implements DataDefinitionContainerInterface
 {
-	/**
-	 * The definitions stored in the container.
-	 *
-	 * @var ContainerInterface[]
-	 */
-	protected $definitions;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function setDefinition($name, $definition)
-	{
-		if ($definition)
-		{
-			$this->definitions[$name] = $definition;
-		}
-		else
-		{
-			unset($this->definitions[$name]);
-		}
+    /**
+     * The definitions stored in the container.
+     *
+     * @var ContainerInterface[]
+     */
+    protected $definitions;
 
-		return $this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function setDefinition($name, $definition)
+    {
+        if ($definition) {
+            $this->definitions[$name] = $definition;
+        } else {
+            unset($this->definitions[$name]);
+        }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function hasDefinition($name)
-	{
-		return isset($this->definitions[$name]);
-	}
+        return $this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @throws DcGeneralInvalidArgumentException When a definition is requested that is not contained.
-	 */
-	public function getDefinition($name)
-	{
-		if (!$this->hasDefinition($name))
-		{
-			throw new DcGeneralInvalidArgumentException('Data definition ' . $name . ' is not contained.');
-		}
+    /**
+     * {@inheritDoc}
+     */
+    public function hasDefinition($name)
+    {
+        return isset($this->definitions[$name]);
+    }
 
-		return $this->definitions[$name];
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @throws DcGeneralInvalidArgumentException When a definition is requested that is not contained.
+     */
+    public function getDefinition($name)
+    {
+        if (!$this->hasDefinition($name)) {
+            throw new DcGeneralInvalidArgumentException('Data definition ' . $name . ' is not contained.');
+        }
+
+        return $this->definitions[$name];
+    }
 }

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -17,43 +18,42 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
  *
  * @package DcGeneral\Data
  */
-class DefaultLanguageInformationCollection
-	implements LanguageInformationCollectionInterface
+class DefaultLanguageInformationCollection implements LanguageInformationCollectionInterface
 {
-	/**
-	 * The language information stored in this collection.
-	 *
-	 * @var LanguageInformationInterface[]
-	 */
-	protected $languages = array();
+    /**
+     * The language information stored in this collection.
+     *
+     * @var LanguageInformationInterface[]
+     */
+    protected $languages = array();
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function add(LanguageInformationInterface $language)
-	{
-		$this->languages[] = $language;
+    /**
+     * {@inheritDoc}
+     */
+    public function add(LanguageInformationInterface $language)
+    {
+        $this->languages[] = $language;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Get a iterator for this collection.
-	 *
-	 * @return \IteratorAggregate
-	 */
-	public function getIterator()
-	{
-		return new \ArrayIterator($this->languages);
-	}
+    /**
+     * Get a iterator for this collection.
+     *
+     * @return \IteratorAggregate
+     */
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->languages);
+    }
 
-	/**
-	 * Count the contained language information.
-	 *
-	 * @return int
-	 */
-	public function count()
-	{
-		return count($this->languages);
-	}
+    /**
+     * Count the contained language information.
+     *
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->languages);
+    }
 }

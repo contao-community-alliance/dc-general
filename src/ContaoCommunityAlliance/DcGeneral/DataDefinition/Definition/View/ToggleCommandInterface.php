@@ -20,35 +20,35 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
  */
 interface ToggleCommandInterface extends CommandInterface
 {
-	/**
-	 * Set the property to toggle.
-	 *
-	 * @param string $property The property name.
-	 *
-	 * @return ToggleCommandInterface
-	 */
-	public function setToggleProperty($property);
+    /**
+     * Set the property to toggle.
+     *
+     * @param string $property The property name.
+     *
+     * @return ToggleCommandInterface
+     */
+    public function setToggleProperty($property);
 
-	/**
-	 * Set the property to toggle.
-	 *
-	 * @return string
-	 */
-	public function getToggleProperty();
+    /**
+     * Set the property to toggle.
+     *
+     * @return string
+     */
+    public function getToggleProperty();
 
-	/**
-	 * Set the inverse state of this toggle command.
-	 *
-	 * @param bool $inverse The inverse state.
-	 *
-	 * @return ToggleCommandInterface
-	 */
-	public function setInverse($inverse);
+    /**
+     * Set the inverse state of this toggle command.
+     *
+     * @param bool $inverse The inverse state.
+     *
+     * @return ToggleCommandInterface
+     */
+    public function setInverse($inverse);
 
-	/**
-	 * Determine the inverse state.
-	 *
-	 * @return bool
-	 */
-	public function isInverse();
+    /**
+     * Determine the inverse state.
+     *
+     * @return bool
+     */
+    public function isInverse();
 }

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,39 +22,38 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
  *
  * @package DcGeneral\Contao\View\Contao2BackendView\Event
  */
-class GetParentHeaderEvent
-	extends AbstractEnvironmentAwareEvent
+class GetParentHeaderEvent extends AbstractEnvironmentAwareEvent
 {
-	const NAME = 'dc-general.view.contao2backend.get-parent-header';
+    const NAME = 'dc-general.view.contao2backend.get-parent-header';
 
-	/**
-	 * The additional lines that shall be added to the header section.
-	 *
-	 * @var array
-	 */
-	protected $additional;
+    /**
+     * The additional lines that shall be added to the header section.
+     *
+     * @var array
+     */
+    protected $additional;
 
-	/**
-	 * Set the additional lines that shall be added to the header section.
-	 *
-	 * @param array $additional The lines to use as header.
-	 *
-	 * @return $this
-	 */
-	public function setAdditional($additional)
-	{
-		$this->additional = $additional;
+    /**
+     * Set the additional lines that shall be added to the header section.
+     *
+     * @param array $additional The lines to use as header.
+     *
+     * @return $this
+     */
+    public function setAdditional($additional)
+    {
+        $this->additional = $additional;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Get the additional lines that shall be added to the header section.
-	 *
-	 * @return array
-	 */
-	public function getAdditional()
-	{
-		return $this->additional;
-	}
+    /**
+     * Get the additional lines that shall be added to the header section.
+     *
+     * @return array
+     */
+    public function getAdditional()
+    {
+        return $this->additional;
+    }
 }

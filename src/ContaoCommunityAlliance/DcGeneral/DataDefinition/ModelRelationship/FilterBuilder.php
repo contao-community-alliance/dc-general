@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    DcGeneral
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -29,201 +30,199 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class FilterBuilder
 {
-	/**
-	 * The current filter root (always an AND builder).
-	 *
-	 * @var AndFilterBuilder
-	 */
-	protected $filters;
-	/**
-	 * Flag determining if the current filter is a root filter or parent child filter.
-	 *
-	 * @var bool
-	 */
-	protected $isRootFilter;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param array $filter Optional base filter array.
-	 *
-	 * @param bool  $isRoot Flag determining if the current filter is a root filter.
-	 *
-	 * @throws DcGeneralInvalidArgumentException When an invalid filter array has been passed.
-	 */
-	public function __construct($filter = array(), $isRoot = false)
-	{
-		if (!is_array($filter))
-		{
-			throw new DcGeneralInvalidArgumentException(
-				'FilterBuilder needs a valid filter array ' . gettype($filter) . 'given'
-			);
-		}
+    /**
+     * The current filter root (always an AND builder).
+     *
+     * @var AndFilterBuilder
+     */
+    protected $filters;
 
-		$this->filters      = $this->getBuilderFromArray(array('operation' => 'AND', 'children' => $filter), $this);
-		$this->isRootFilter = $isRoot;
-	}
+    /**
+     * Flag determining if the current filter is a root filter or parent child filter.
+     *
+     * @var bool
+     */
+    protected $isRootFilter;
 
-	/**
-	 * Instantiate the correct builder class from a given filter array.
-	 *
-	 * @param array         $filter  The filter.
-	 *
-	 * @param FilterBuilder $builder The builder instance.
-	 *
-	 * @return BaseFilterBuilder
-	 *
-	 * @throws DcGeneralInvalidArgumentException When an invalid operation is encountered.
-	 */
-	public static function getBuilderFromArray($filter, $builder)
-	{
-		switch ($filter['operation'])
-		{
-			case 'AND':
-				return AndFilterBuilder::fromArray($filter, $builder);
-			case 'OR':
-				return OrFilterBuilder::fromArray($filter, $builder);
-			case '=':
-				return PropertyEqualsFilterBuilder::fromArray($filter, $builder);
-			case '>':
-				return PropertyGreaterThanFilterBuilder::fromArray($filter, $builder);
-			case '<':
-				return PropertyLessThanFilterBuilder::fromArray($filter, $builder);
-			case 'IN':
-				return PropertyValueInFilterBuilder::fromArray($filter, $builder);
-			case 'LIKE':
-				return PropertyValueLikeFilterBuilder::fromArray($filter, $builder);
-			default:
-		}
+    /**
+     * Create a new instance.
+     *
+     * @param array $filter Optional base filter array.
+     *
+     * @param bool  $isRoot Flag determining if the current filter is a root filter.
+     *
+     * @throws DcGeneralInvalidArgumentException When an invalid filter array has been passed.
+     */
+    public function __construct($filter = array(), $isRoot = false)
+    {
+        if (!is_array($filter)) {
+            throw new DcGeneralInvalidArgumentException(
+                'FilterBuilder needs a valid filter array ' . gettype($filter) . 'given'
+            );
+        }
 
-		throw new DcGeneralInvalidArgumentException(
-			'Invalid operation ' . $filter['operation'] . ' it must be one of: AND, OR, =, >, <, IN, LIKE'
-		);
-	}
+        $this->filters      = $this->getBuilderFromArray(array('operation' => 'AND', 'children' => $filter), $this);
+        $this->isRootFilter = $isRoot;
+    }
 
-	/**
-	 * Create a new instance from an array.
-	 *
-	 * @param array $filter The initial filter array (optional).
-	 *
-	 * @return FilterBuilder
-	 */
-	public static function fromArray($filter = array())
-	{
-		return new static($filter, false);
-	}
+    /**
+     * Instantiate the correct builder class from a given filter array.
+     *
+     * @param array         $filter  The filter.
+     *
+     * @param FilterBuilder $builder The builder instance.
+     *
+     * @return BaseFilterBuilder
+     *
+     * @throws DcGeneralInvalidArgumentException When an invalid operation is encountered.
+     */
+    public static function getBuilderFromArray($filter, $builder)
+    {
+        switch ($filter['operation']) {
+            case 'AND':
+                return AndFilterBuilder::fromArray($filter, $builder);
+            case 'OR':
+                return OrFilterBuilder::fromArray($filter, $builder);
+            case '=':
+                return PropertyEqualsFilterBuilder::fromArray($filter, $builder);
+            case '>':
+                return PropertyGreaterThanFilterBuilder::fromArray($filter, $builder);
+            case '<':
+                return PropertyLessThanFilterBuilder::fromArray($filter, $builder);
+            case 'IN':
+                return PropertyValueInFilterBuilder::fromArray($filter, $builder);
+            case 'LIKE':
+                return PropertyValueLikeFilterBuilder::fromArray($filter, $builder);
+            default:
+        }
 
-	/**
-	 * Create a new instance from an array for a root filter.
-	 *
-	 * @param array $filter The initial filter array (optional).
-	 *
-	 * @return FilterBuilder
-	 */
-	public static function fromArrayForRoot($filter = array())
-	{
-		return new static($filter, true);
-	}
+        throw new DcGeneralInvalidArgumentException(
+            'Invalid operation ' . $filter['operation'] . ' it must be one of: AND, OR, =, >, <, IN, LIKE'
+        );
+    }
 
-	/**
-	 * Return the root AND condition.
-	 *
-	 * @return AndFilterBuilder
-	 */
-	public function getFilter()
-	{
-		return $this->filters;
-	}
+    /**
+     * Create a new instance from an array.
+     *
+     * @param array $filter The initial filter array (optional).
+     *
+     * @return FilterBuilder
+     */
+    public static function fromArray($filter = array())
+    {
+        return new static($filter, false);
+    }
 
-	/**
-	 * Encapsulate the root with an Or condition and return the OR condition.
-	 *
-	 * @return OrFilterBuilder
-	 */
-	public function encapsulateOr()
-	{
-		$root = $this->filters;
+    /**
+     * Create a new instance from an array for a root filter.
+     *
+     * @param array $filter The initial filter array (optional).
+     *
+     * @return FilterBuilder
+     */
+    public static function fromArrayForRoot($filter = array())
+    {
+        return new static($filter, true);
+    }
 
-		$this->filters = new AndFilterBuilder();
-		$this->filters->setBuilder($this);
+    /**
+     * Return the root AND condition.
+     *
+     * @return AndFilterBuilder
+     */
+    public function getFilter()
+    {
+        return $this->filters;
+    }
 
-		$or = new OrFilterBuilder(array($root));
-		$this->filters->add($or);
+    /**
+     * Encapsulate the root with an Or condition and return the OR condition.
+     *
+     * @return OrFilterBuilder
+     */
+    public function encapsulateOr()
+    {
+        $root = $this->filters;
 
-		return $or;
-	}
+        $this->filters = new AndFilterBuilder();
+        $this->filters->setBuilder($this);
 
-	/**
-	 * Determine if this builder is for a root filter or not.
-	 *
-	 * @return bool
-	 */
-	public function isRootFilter()
-	{
-		return $this->isRootFilter;
-	}
+        $orFilter = new OrFilterBuilder(array($root));
+        $this->filters->add($orFilter);
 
-	/**
-	 * Check that the builder is not for a root filter.
-	 *
-	 * @return FilterBuilder
-	 *
-	 * @throws DcGeneralInvalidArgumentException When the builder is for an root filter.
-	 */
-	public function checkNotRoot()
-	{
-		if ($this->isRootFilter)
-		{
-			throw new DcGeneralInvalidArgumentException(
-				'ERROR: Filter builder is for an root filter.'
-			);
-		}
+        return $orFilter;
+    }
 
-		return $this;
-	}
+    /**
+     * Determine if this builder is for a root filter or not.
+     *
+     * @return bool
+     */
+    public function isRootFilter()
+    {
+        return $this->isRootFilter;
+    }
 
-	/**
-	 * Return the current filters.
-	 *
-	 * @return array
-	 */
-	public function getAllAsArray()
-	{
-		$array = $this->filters->get();
+    /**
+     * Check that the builder is not for a root filter.
+     *
+     * @return FilterBuilder
+     *
+     * @throws DcGeneralInvalidArgumentException When the builder is for an root filter.
+     */
+    public function checkNotRoot()
+    {
+        if ($this->isRootFilter) {
+            throw new DcGeneralInvalidArgumentException(
+                'ERROR: Filter builder is for an root filter.'
+            );
+        }
 
-		return $array['children'];
-	}
+        return $this;
+    }
 
-	/**
-	 * Check if an given argument is a valid operation.
-	 *
-	 * @param string $operation The operation to check.
-	 *
-	 * @return bool
-	 */
-	public static function isValidOperation($operation)
-	{
-		return in_array($operation, array('AND', 'OR', '=', '>', '<', 'IN', 'LIKE'));
-	}
+    /**
+     * Return the current filters.
+     *
+     * @return array
+     */
+    public function getAllAsArray()
+    {
+        $array = $this->filters->get();
 
-	/**
-	 * Check that an given argument is a valid operation.
-	 *
-	 * @param string $operation The operation to check.
-	 *
-	 * @return FilterBuilder
-	 *
-	 * @throws DcGeneralInvalidArgumentException When an invalid operation name has been passed.
-	 */
-	public function checkValidOperation($operation)
-	{
-		if (!$this->isValidOperation($operation))
-		{
-			throw new DcGeneralInvalidArgumentException(
-				'Invalid operation ' . $operation . ' it must be one of: AND, OR, =, >, <, IN, LIKE'
-			);
-		}
+        return $array['children'];
+    }
 
-		return $this;
-	}
+    /**
+     * Check if an given argument is a valid operation.
+     *
+     * @param string $operation The operation to check.
+     *
+     * @return bool
+     */
+    public static function isValidOperation($operation)
+    {
+        return in_array($operation, array('AND', 'OR', '=', '>', '<', 'IN', 'LIKE'));
+    }
+
+    /**
+     * Check that an given argument is a valid operation.
+     *
+     * @param string $operation The operation to check.
+     *
+     * @return FilterBuilder
+     *
+     * @throws DcGeneralInvalidArgumentException When an invalid operation name has been passed.
+     */
+    public function checkValidOperation($operation)
+    {
+        if (!$this->isValidOperation($operation)) {
+            throw new DcGeneralInvalidArgumentException(
+                'Invalid operation ' . $operation . ' it must be one of: AND, OR, =, >, <, IN, LIKE'
+            );
+        }
+
+        return $this;
+    }
 }

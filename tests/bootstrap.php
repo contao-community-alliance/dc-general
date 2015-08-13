@@ -27,4 +27,4 @@ if ((!$loader = includeIfExists(__DIR__.'/../vendor/autoload.php')) && (!$loader
 
 $loader->add('ContaoCommunityAlliance\\DcGeneral', __DIR__);
 
-require __DIR__.'/ContaoCommunityAlliance/DcGeneral/Test/TestCase.php';
+require __DIR__ . '/ContaoCommunityAlliance/DcGeneral/Test/TestCase.php';

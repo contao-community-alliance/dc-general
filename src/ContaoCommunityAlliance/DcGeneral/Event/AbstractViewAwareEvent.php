@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -13,22 +14,19 @@
 namespace ContaoCommunityAlliance\DcGeneral\Event;
 
 use ContaoCommunityAlliance\DcGeneral\ViewAwareInterface;
-use Symfony\Component\EventDispatcher\Event;
 
 /**
  * Abstract event class referencing an environment and a view.
  *
  * @package DcGeneral\Event
  */
-class AbstractViewAwareEvent
-	extends AbstractEnvironmentAwareEvent
-	implements ViewAwareInterface
+class AbstractViewAwareEvent extends AbstractEnvironmentAwareEvent implements ViewAwareInterface
 {
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getView()
-	{
-		return $this->getEnvironment()->getView();
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getView()
+    {
+        return $this->getEnvironment()->getView();
+    }
 }

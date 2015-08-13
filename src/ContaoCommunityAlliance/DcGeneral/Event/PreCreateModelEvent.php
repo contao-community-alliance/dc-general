@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -19,5 +20,5 @@ namespace ContaoCommunityAlliance\DcGeneral\Event;
  */
 class PreCreateModelEvent extends AbstractModelAwareEvent
 {
-	const NAME = 'dc-general.model.pre-create';
+    const NAME = 'dc-general.model.pre-create';
 }

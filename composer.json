@@ -1,79 +1,90 @@
 {
-	"name":"contao-community-alliance/dc-general",
-	"description":"Universal data container for Contao",
-	"keywords":["framework", "data", "container", "driver", "php", "contao"],
-	"type":"contao-module",
-	"homepage":"http://c-c-a.org/",
-	"license":"LGPL-3.0+",
-	"authors": [
-		{
-			"name":"Christian Schiffler",
-			"email":"c.schiffler@cyberspectrum.de",
-			"homepage":"http://www.cyberspectrum.de",
-			"role":"Developer"
-		},
-		{
-			"name":"Andreas Isaak",
-			"email":"info@andreas-isaak.de",
-			"homepage":"http://www.andreas-isaak.de",
-			"role":"Developer"
-		},
-		{
-			"name":"Stefan Heimes",
-			"email":"stefan_heimes@hotmail.com",
-			"role":"Developer"
-		},
-		{
-			"name":"Tristan Lins",
-			"email":"tristan.lins@bit3.de",
-			"homepage":"http://bit3.de/",
-			"role":"Developer"
-		}
-	],
-	"support":{
-			"issues":"https://github.com/contao-community-alliance/dc-general/issues",
-			"wiki":"http://de.contaowiki.org/DC_General",
-			"irc":"irc://irc.freenode.org/contao.dev",
-			"source":"https://github.com/contao-community-alliance/dc-general"
-	},
-	"require": {
-		"php":">=5.3",
-		"contao/core":">=2.11,<4.0",
-		"contao-community-alliance/composer-plugin": "~2.0",
-		"contao-community-alliance/event-dispatcher": "~1.1",
-		"contao-community-alliance/translator": "~1.0"
-	},
-	"require-dev": {
-		"metamodels/php-coding-standard": "*",
-		"pdepend/pdepend": "1.1.*",
-		"phpunit/phpunit": ">=3.7.10,<4-dev",
-		"phpmd/phpmd": "1.5"
-	},
-	"conflict": {
-		"contao/core": "3.0.*"
-	},
-	"replace": {
-		"metamodels/dc_general": "self.version"
-	},
-	"autoload": {
-		"classmap": [
-			"contao/DC_General.php",
-			"src/ContaoCommunityAlliance/DcGeneral/DC_General.php"
-		],
-		"psr-0": {
-			"ContaoCommunityAlliance\\DcGeneral": "src"
-		}
-	},
-	"extra":{
-		"contao": {
-			"sources": {
-				"contao": "system/modules/dc-general",
-				"contao-2.11-compat/DC_General.php": "system/drivers/DC_General.php"
-			}
-		},
-		"branch-alias": {
-			"dev-develop": "2.0.x-dev"
-		}
-	},
-	"minimum-stability": "dev"
+    "name": "contao-community-alliance/dc-general",
+    "description": "Universal data container for Contao",
+    "keywords": [
+        "framework",
+        "data",
+        "container",
+        "driver",
+        "php",
+        "contao"
+    ],
+    "type": "contao-module",
+    "homepage": "http://c-c-a.org/",
+    "license": "LGPL-3.0+",
+    "authors": [
+        {
+            "name": "Christian Schiffler",
+            "email": "c.schiffler@cyberspectrum.de",
+            "homepage": "http://www.cyberspectrum.de",
+            "role": "Developer"
+        },
+        {
+            "name": "Andreas Isaak",
+            "email": "info@andreas-isaak.de",
+            "homepage": "http://www.andreas-isaak.de",
+            "role": "Developer"
+        },
+        {
+            "name": "Stefan Heimes",
+            "email": "stefan_heimes@hotmail.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Tristan Lins",
+            "email": "tristan.lins@bit3.de",
+            "homepage": "http://bit3.de/",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/contao-community-alliance/dc-general/issues",
+        "wiki": "http://de.contaowiki.org/DC_General",
+        "irc": "irc://irc.freenode.org/contao.dev",
+        "source": "https://github.com/contao-community-alliance/dc-general"
+    },
+    "require": {
+        "php": ">=5.3",
+        "contao/core": ">=2.11,<4.0",
+        "contao-community-alliance/composer-plugin": "~2.0",
+        "contao-community-alliance/event-dispatcher": "~1.1",
+        "contao-community-alliance/translator": "~1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~3.7",
+        "sebastian/phpcpd": "~1.4",
+        "phploc/phploc": "~2.0",
+        "phpmd/phpmd": "~2.0",
+        "squizlabs/php_codesniffer": "~1.0",
+        "contao-community-alliance/build-system-tool-branch-alias-validation": "~1.0",
+        "contao-community-alliance/build-system": "~1.0",
+        "contao-community-alliance/coding-standard": "~1.0"
+    },
+    "conflict": {
+        "contao/core": "3.0.*"
+    },
+    "replace": {
+        "metamodels/dc_general": "self.version"
+    },
+    "autoload": {
+        "classmap": [
+            "contao/DC_General.php",
+            "src/ContaoCommunityAlliance/DcGeneral/DC_General.php"
+        ],
+        "psr-0": {
+            "ContaoCommunityAlliance\\DcGeneral": "src"
+        }
+    },
+    "extra": {
+        "contao": {
+            "sources": {
+                "contao": "system/modules/dc-general",
+                "contao-2.11-compat/DC_General.php": "system/drivers/DC_General.php"
+            }
+        },
+        "branch-alias": {
+            "dev-develop": "2.0.x-dev"
+        }
+    },
+    "minimum-stability": "dev"
 }

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -17,45 +18,45 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
  */
 interface VersionModelInterface extends ModelInterface
 {
-	/**
-	 * Return the version string of this model version.
-	 *
-	 * @return string
-	 */
-	public function getVersion();
+    /**
+     * Return the version string of this model version.
+     *
+     * @return string
+     */
+    public function getVersion();
 
-	/**
-	 * Determine if this is the current version of the model.
-	 *
-	 * @return bool
-	 */
-	public function isCurrent();
+    /**
+     * Determine if this is the current version of the model.
+     *
+     * @return bool
+     */
+    public function isCurrent();
 
-	/**
-	 * Return the data time this version was created.
-	 *
-	 * @return \DateTime
-	 */
-	public function getDateTime();
+    /**
+     * Return the data time this version was created.
+     *
+     * @return \DateTime
+     */
+    public function getDateTime();
 
-	/**
-	 * Return the name of the version's author, at the moment the version was created.
-	 *
-	 * @return string
-	 */
-	public function getAuthorName();
+    /**
+     * Return the name of the version's author, at the moment the version was created.
+     *
+     * @return string
+     */
+    public function getAuthorName();
 
-	/**
-	 * Return the username of the version's author, at the moment the version was created.
-	 *
-	 * @return string
-	 */
-	public function getAuthorUsername();
+    /**
+     * Return the username of the version's author, at the moment the version was created.
+     *
+     * @return string
+     */
+    public function getAuthorUsername();
 
-	/**
-	 * Return the email of the version's author, at the moment the version was created.
-	 *
-	 * @return string
-	 */
-	public function getAuthorEmail();
+    /**
+     * Return the email of the version's author, at the moment the version was created.
+     *
+     * @return string
+     */
+    public function getAuthorEmail();
 }

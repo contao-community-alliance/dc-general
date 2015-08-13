@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    DcGeneral
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -23,337 +24,339 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBui
  */
 abstract class BaseFilterBuilder
 {
-	/**
-	 * The filter builder holding the scope.
-	 *
-	 * @var FilterBuilder
-	 */
-	protected $builder;
 
-	/**
-	 * The current parenting Builder.
-	 *
-	 * @var FilterBuilderWithChildren
-	 */
-	protected $parent;
+    /**
+     * The filter builder holding the scope.
+     *
+     * @var FilterBuilder
+     */
+    protected $builder;
 
-	/**
-	 * Get the filter builder.
-	 *
-	 * @return FilterBuilder
-	 */
-	public function getBuilder()
-	{
-		return $this->builder;
-	}
+    /**
+     * The current parenting Builder.
+     *
+     * @var FilterBuilderWithChildren
+     */
+    protected $parent;
 
-	/**
-	 * Set the filter builder.
-	 *
-	 * @param FilterBuilder $builder The filter builder.
-	 *
-	 * @return BaseFilterBuilder
-	 */
-	public function setBuilder($builder)
-	{
-		$this->builder = $builder;
+    /**
+     * Get the filter builder.
+     *
+     * @return FilterBuilder
+     */
+    public function getBuilder()
+    {
+        return $this->builder;
+    }
 
-		return $this;
-	}
+    /**
+     * Set the filter builder.
+     *
+     * @param FilterBuilder $builder The filter builder.
+     *
+     * @return BaseFilterBuilder
+     */
+    public function setBuilder($builder)
+    {
+        $this->builder = $builder;
 
-	/**
-	 * Set the parent and return self.
-	 *
-	 * @param FilterBuilderWithChildren $parent The new parent.
-	 *
-	 * @return FilterBuilderWithChildren
-	 */
-	public function setParent(FilterBuilderWithChildren $parent)
-	{
-		if ($this->parent && $this->parent !== $parent)
-		{
-			$this->parent->remove($this);
-		}
+        return $this;
+    }
 
-		$this->parent = $parent;
-		$this->parent->add($this);
+    /**
+     * Set the parent and return self.
+     *
+     * @param FilterBuilderWithChildren $parent The new parent.
+     *
+     * @return FilterBuilderWithChildren
+     */
+    public function setParent(FilterBuilderWithChildren $parent)
+    {
+        if ($this->parent && $this->parent !== $parent) {
+            $this->parent->remove($this);
+        }
 
-		return $this;
-	}
+        $this->parent = $parent;
+        $this->parent->add($this);
 
-	/**
-	 * Retrieve the parent.
-	 *
-	 * @return FilterBuilderWithChildren
-	 */
-	public function getParent()
-	{
-		return $this->parent;
-	}
+        return $this;
+    }
 
-	/**
-	 * Serialize the filter into an array.
-	 *
-	 * @return array
-	 */
-	abstract public function get();
+    /**
+     * Retrieve the parent.
+     *
+     * @return FilterBuilderWithChildren
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
 
-	/**
-	 * Get all the filter array for all filters from the current filter builder.
-	 *
-	 * @return array
-	 */
-	public function getAllAsArray()
-	{
-		return $this->builder->getAllAsArray();
-	}
+    /**
+     * Serialize the filter into an array.
+     *
+     * @return array
+     */
+    abstract public function get();
 
-	/**
-	 * Ensure this filter builder is encapsulated within an AND filter builder.
-	 *
-	 * @return AndFilterBuilder
-	 */
-	protected function ensureAndEncapsulation()
-	{
-		$parent = $this->getParent();
+    /**
+     * Get all the filter array for all filters from the current filter builder.
+     *
+     * @return array
+     */
+    public function getAllAsArray()
+    {
+        return $this->builder->getAllAsArray();
+    }
 
-		if ($this instanceof AndFilterBuilder)
-		{
-			return $this;
-		}
+    /**
+     * Ensure this filter builder is encapsulated within an AND filter builder.
+     *
+     * @return AndFilterBuilder
+     */
+    protected function ensureAndEncapsulation()
+    {
+        $parent = $this->getParent();
 
-		if ($parent instanceof AndFilterBuilder && !($this instanceof FilterBuilderWithChildren))
-		{
-			return $parent;
-		}
+        if ($this instanceof AndFilterBuilder) {
+            return $this;
+        }
 
-		if ($this instanceof FilterBuilderWithChildren)
-		{
-			/** @var FilterBuilderWithChildren $this */
-			$and = new AndFilterBuilder();
-			$this->add($and);
+        if ($parent instanceof AndFilterBuilder && !($this instanceof FilterBuilderWithChildren)) {
+            return $parent;
+        }
 
-			return $and;
-		}
+        if ($this instanceof FilterBuilderWithChildren) {
+            /** @var FilterBuilderWithChildren $this */
+            $and = new AndFilterBuilder();
+            $this->add($and);
 
-		$and    = new AndFilterBuilder();
-		$parent = $this->getParent();
-		$parent->add($and);
-		$and->add($this);
+            return $and;
+        }
 
-		return $and;
-	}
+        $and    = new AndFilterBuilder();
+        $parent = $this->getParent();
+        $parent->add($and);
+        $and->add($this);
 
-	/**
-	 * Ensure this filter builder is encapsulated within an AND filter builder.
-	 *
-	 * @return OrFilterBuilder
-	 */
-	protected function ensureOrEncapsulation()
-	{
-		$parent = $this->getParent();
+        return $and;
+    }
 
-		if ($this instanceof OrFilterBuilder)
-		{
-			return $this;
-		}
+    /**
+     * Ensure this filter builder is encapsulated within an AND filter builder.
+     *
+     * @return OrFilterBuilder
+     */
+    protected function ensureOrEncapsulation()
+    {
+        $parent = $this->getParent();
 
-		if ($parent instanceof OrFilterBuilder && !($this instanceof FilterBuilderWithChildren))
-		{
-			return $parent;
-		}
+        if ($this instanceof OrFilterBuilder) {
+            return $this;
+        }
 
-		if ($this instanceof FilterBuilderWithChildren)
-		{
-			/** @var FilterBuilderWithChildren $this */
-			$or = new OrFilterBuilder();
-			$this->add($or);
+        if ($parent instanceof OrFilterBuilder && !($this instanceof FilterBuilderWithChildren)) {
+            return $parent;
+        }
 
-			return $or;
-		}
+        if ($this instanceof FilterBuilderWithChildren) {
+            /** @var FilterBuilderWithChildren $this */
+            $orFilter = new OrFilterBuilder();
+            $this->add($orFilter);
 
-		$or     = new OrFilterBuilder();
-		$parent = $this->getParent();
-		$parent->add($or);
+            return $orFilter;
+        }
 
-		$or->add($this);
+        $orFilter = new OrFilterBuilder();
+        $parent   = $this->getParent();
+        $parent->add($orFilter);
 
-		return $or;
-	}
+        $orFilter->add($this);
 
-	/**
-	 * Encapsulate the given filter with AND and return it.
-	 *
-	 * @param BaseFilterBuilder $filter The filter to encapsulate.
-	 *
-	 * @return BaseFilterBuilder
-	 */
-	protected function andEncapsulate($filter)
-	{
-		$this->ensureAndEncapsulation()->add($filter);
+        return $orFilter;
+    }
 
-		return $filter;
-	}
+    /**
+     * Encapsulate the given filter with AND and return it.
+     *
+     * @param BaseFilterBuilder $filter The filter to encapsulate.
+     *
+     * @return BaseFilterBuilder
+     */
+    protected function andEncapsulate($filter)
+    {
+        $this->ensureAndEncapsulation()->add($filter);
 
-	/**
-	 * Encapsulate the given filter with AND and return it.
-	 *
-	 * @param BaseFilterBuilder $filter The filter to encapsulate.
-	 *
-	 * @return BaseFilterBuilder
-	 */
-	protected function orEncapsulate($filter)
-	{
-		$this->ensureOrEncapsulation()->add($filter);
+        return $filter;
+    }
 
-		return $filter;
-	}
+    /**
+     * Encapsulate the given filter with AND and return it.
+     *
+     * @param BaseFilterBuilder $filter The filter to encapsulate.
+     *
+     * @return BaseFilterBuilder
+     */
+    protected function orEncapsulate($filter)
+    {
+        $this->ensureOrEncapsulation()->add($filter);
 
-	/**
-	 * Move one level up in the filter hierarchy.
-	 *
-	 * @return FilterBuilderWithChildren
-	 */
-	public function up()
-	{
-		return $this->getParent();
-	}
+        return $filter;
+    }
 
-	/**
-	 * Ensure that the given property also equals the given value.
-	 *
-	 * @param string $property The property name.
-	 *
-	 * @param mixed  $value    The property value.
-	 *
-	 * @return PropertyEqualsFilterBuilder The newly created filter.
-	 */
-	public function andPropertyEquals($property, $value)
-	{
-		return $this->andEncapsulate(new PropertyEqualsFilterBuilder($property, $value));
-	}
+    /**
+     * Move one level up in the filter hierarchy.
+     *
+     * @return FilterBuilderWithChildren
+     *
+     * @SuppressWarnings(PHPMD.ShortMethodName)
+     */
+    public function up()
+    {
+        return $this->getParent();
+    }
 
-	/**
-	 * Ensure that the given property also equals the given value.
-	 *
-	 * @param string $property The property name.
-	 *
-	 * @param mixed  $value    The property value.
-	 *
-	 * @return PropertyEqualsFilterBuilder The newly created filter.
-	 */
-	public function orPropertyEquals($property, $value)
-	{
-		return $this->orEncapsulate(new PropertyEqualsFilterBuilder($property, $value));
-	}
+    /**
+     * Ensure that the given property also equals the given value.
+     *
+     * @param string $property The property name.
+     *
+     * @param mixed  $value    The property value.
+     *
+     * @return PropertyEqualsFilterBuilder The newly created filter.
+     */
+    public function andPropertyEquals($property, $value)
+    {
+        return $this->andEncapsulate(new PropertyEqualsFilterBuilder($property, $value));
+    }
 
-	/**
-	 * Ensure that the given property also equals the given remote property.
-	 *
-	 * @param string $property       The name of the property.
-	 *
-	 * @param string $remoteProperty The name of the remote property.
-	 *
-	 * @param bool   $remoteIsValue  True if the passed remote value is a value, false if it is a property name.
-	 *
-	 * @return PropertyEqualsFilterBuilder The newly created filter.
-	 */
-	public function andRemotePropertyEquals($property, $remoteProperty, $remoteIsValue = false)
-	{
-		$this->getBuilder()->checkNotRoot();
+    /**
+     * Ensure that the given property also equals the given value.
+     *
+     * @param string $property The property name.
+     *
+     * @param mixed  $value    The property value.
+     *
+     * @return PropertyEqualsFilterBuilder The newly created filter.
+     */
+    public function orPropertyEquals($property, $value)
+    {
+        return $this->orEncapsulate(new PropertyEqualsFilterBuilder($property, $value));
+    }
 
-		return $this->andEncapsulate(new PropertyEqualsFilterBuilder($property, $remoteProperty, true, !$remoteIsValue));
-	}
+    /**
+     * Ensure that the given property also equals the given remote property.
+     *
+     * @param string $property       The name of the property.
+     *
+     * @param string $remoteProperty The name of the remote property.
+     *
+     * @param bool   $remoteIsValue  True if the passed remote value is a value, false if it is a property name.
+     *
+     * @return PropertyEqualsFilterBuilder The newly created filter.
+     */
+    public function andRemotePropertyEquals($property, $remoteProperty, $remoteIsValue = false)
+    {
+        $this->getBuilder()->checkNotRoot();
 
-	/**
-	 * Ensure that the given property also is greater than the given value.
-	 *
-	 * @param string $property The property name.
-	 *
-	 * @param mixed  $value    The property value.
-	 *
-	 * @return PropertyGreaterThanFilterBuilder The newly created filter.
-	 */
-	public function andPropertyGreaterThan($property, $value)
-	{
-		return $this->andEncapsulate(new PropertyGreaterThanFilterBuilder($property, $value));
-	}
+        return $this->andEncapsulate(
+            new PropertyEqualsFilterBuilder($property, $remoteProperty, true, !$remoteIsValue)
+        );
+    }
 
-	/**
-	 * Ensure that the given property also is greater than the given remote property.
-	 *
-	 * @param string $property       The name of the property.
-	 *
-	 * @param string $remoteProperty The name of the remote property.
-	 *
-	 * @param bool   $remoteIsValue  True if the passed remote value is a value, false if it is a property name.
-	 *
-	 * @return PropertyGreaterThanFilterBuilder The newly created filter.
-	 */
-	public function andRemotePropertyGreaterThan($property, $remoteProperty, $remoteIsValue = false)
-	{
-		$this->getBuilder()->checkNotRoot();
+    /**
+     * Ensure that the given property also is greater than the given value.
+     *
+     * @param string $property The property name.
+     *
+     * @param mixed  $value    The property value.
+     *
+     * @return PropertyGreaterThanFilterBuilder The newly created filter.
+     */
+    public function andPropertyGreaterThan($property, $value)
+    {
+        return $this->andEncapsulate(new PropertyGreaterThanFilterBuilder($property, $value));
+    }
 
-		return $this->andEncapsulate(new PropertyGreaterThanFilterBuilder($property, $remoteProperty, true, !$remoteIsValue));
-	}
+    /**
+     * Ensure that the given property also is greater than the given remote property.
+     *
+     * @param string $property       The name of the property.
+     *
+     * @param string $remoteProperty The name of the remote property.
+     *
+     * @param bool   $remoteIsValue  True if the passed remote value is a value, false if it is a property name.
+     *
+     * @return PropertyGreaterThanFilterBuilder The newly created filter.
+     */
+    public function andRemotePropertyGreaterThan($property, $remoteProperty, $remoteIsValue = false)
+    {
+        $this->getBuilder()->checkNotRoot();
 
-	/**
-	 * Ensure that the given property also is less than the given value.
-	 *
-	 * @param string $property The property name.
-	 *
-	 * @param mixed  $value    The property value.
-	 *
-	 * @return PropertyLessThanFilterBuilder The newly created filter.
-	 */
-	public function andPropertyLessThan($property, $value)
-	{
-		return $this->andEncapsulate(new PropertyLessThanFilterBuilder($property, $value));
-	}
+        return $this->andEncapsulate(
+            new PropertyGreaterThanFilterBuilder($property, $remoteProperty, true, !$remoteIsValue)
+        );
+    }
 
-	/**
-	 * Ensure that the given property also is less than the given remote property.
-	 *
-	 * @param string $property       The name of the property.
-	 *
-	 * @param string $remoteProperty The name of the remote property.
-	 *
-	 * @param bool   $remoteIsValue  True if the passed remote value is a value, false if it is a property name.
-	 *
-	 * @return PropertyLessThanFilterBuilder The newly created filter.
-	 */
-	public function andRemotePropertyLessThan($property, $remoteProperty, $remoteIsValue = false)
-	{
-		$this->getBuilder()->checkNotRoot();
+    /**
+     * Ensure that the given property also is less than the given value.
+     *
+     * @param string $property The property name.
+     *
+     * @param mixed  $value    The property value.
+     *
+     * @return PropertyLessThanFilterBuilder The newly created filter.
+     */
+    public function andPropertyLessThan($property, $value)
+    {
+        return $this->andEncapsulate(new PropertyLessThanFilterBuilder($property, $value));
+    }
 
-		return $this->andEncapsulate(new PropertyLessThanFilterBuilder($property, $remoteProperty, true, !$remoteIsValue));
-	}
+    /**
+     * Ensure that the given property also is less than the given remote property.
+     *
+     * @param string $property       The name of the property.
+     *
+     * @param string $remoteProperty The name of the remote property.
+     *
+     * @param bool   $remoteIsValue  True if the passed remote value is a value, false if it is a property name.
+     *
+     * @return PropertyLessThanFilterBuilder The newly created filter.
+     */
+    public function andRemotePropertyLessThan($property, $remoteProperty, $remoteIsValue = false)
+    {
+        $this->getBuilder()->checkNotRoot();
 
-	/**
-	 * Ensure that the given property also is less than the given value.
-	 *
-	 * @param string $property The property name.
-	 *
-	 * @param mixed  $value    The property value.
-	 *
-	 * @return PropertyValueInFilterBuilder The newly created filter.
-	 */
-	public function andPropertyValueIn($property, $value)
-	{
-		return $this->andEncapsulate(new PropertyValueInFilterBuilder($property, $value));
-	}
+        return $this->andEncapsulate(
+            new PropertyLessThanFilterBuilder($property, $remoteProperty, true, !$remoteIsValue)
+        );
+    }
 
-	/**
-	 * Ensure that the given property also is less than the given value.
-	 *
-	 * @param string $property The property name.
-	 *
-	 * @param mixed  $value    The property value.
-	 *
-	 * @return PropertyValueInFilterBuilder The newly created filter.
-	 */
-	public function andPropertyValueLike($property, $value)
-	{
-		return $this->andEncapsulate(new PropertyValueLikeFilterBuilder($property, $value));
-	}
+    /**
+     * Ensure that the given property also is less than the given value.
+     *
+     * @param string $property The property name.
+     *
+     * @param mixed  $value    The property value.
+     *
+     * @return PropertyValueInFilterBuilder The newly created filter.
+     */
+    public function andPropertyValueIn($property, $value)
+    {
+        return $this->andEncapsulate(new PropertyValueInFilterBuilder($property, $value));
+    }
+
+    /**
+     * Ensure that the given property also is less than the given value.
+     *
+     * @param string $property The property name.
+     *
+     * @param mixed  $value    The property value.
+     *
+     * @return PropertyValueInFilterBuilder The newly created filter.
+     */
+    public function andPropertyValueLike($property, $value)
+    {
+        return $this->andEncapsulate(new PropertyValueLikeFilterBuilder($property, $value));
+    }
 }

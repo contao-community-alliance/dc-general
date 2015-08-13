@@ -14,92 +14,90 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition;
 
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandCollection;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandCollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\DefaultListingConfig;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\DefaultPanelLayout;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandCollectionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelLayoutInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelLayoutInterface;
 
 /**
- * Interface BasicDefinitionInterface
+ * Reference implementation for BasicDefinitionInterface.
  *
  * @package DcGeneral\DataDefinition\Definition
  */
 class Contao2BackendViewDefinition implements Contao2BackendViewDefinitionInterface
 {
-	/**
-	 * The listing configuration for this backend view.
-	 *
-	 * @var ListingConfigInterface
-	 */
-	protected $listingConfig;
 
-	/**
-	 * The collection of global commands for this backend view.
-	 *
-	 * @var CommandCollectionInterface
-	 */
-	protected $globalCommands;
+    /**
+     * The listing configuration for this backend view.
+     *
+     * @var ListingConfigInterface
+     */
+    protected $listingConfig;
 
-	/**
-	 * The collection of commands invokable on a model for this backend view.
-	 *
-	 * @var CommandCollectionInterface
-	 */
-	protected $modelCommands;
+    /**
+     * The collection of global commands for this backend view.
+     *
+     * @var CommandCollectionInterface
+     */
+    protected $globalCommands;
 
-	/**
-	 * The current panel layout.
-	 *
-	 * @var PanelLayoutInterface
-	 */
-	protected $panelLayout;
+    /**
+     * The collection of commands invokable on a model for this backend view.
+     *
+     * @var CommandCollectionInterface
+     */
+    protected $modelCommands;
 
-	/**
-	 * Create a new instance of the Contao2BackendViewDefinition.
-	 *
-	 * The sections will get initialized with instances of the default implementation.
-	 */
-	public function __construct()
-	{
-		$this->listingConfig  = new DefaultListingConfig();
-		$this->globalCommands = new CommandCollection();
-		$this->modelCommands  = new CommandCollection();
-		$this->panelLayout    = new DefaultPanelLayout();
-	}
+    /**
+     * The current panel layout.
+     *
+     * @var PanelLayoutInterface
+     */
+    protected $panelLayout;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getListingConfig()
-	{
-		return $this->listingConfig;
-	}
+    /**
+     * Create a new instance of the Contao2BackendViewDefinition.
+     *
+     * The sections will get initialized with instances of the default implementation.
+     */
+    public function __construct()
+    {
+        $this->listingConfig  = new DefaultListingConfig();
+        $this->globalCommands = new CommandCollection();
+        $this->modelCommands  = new CommandCollection();
+        $this->panelLayout    = new DefaultPanelLayout();
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getGlobalCommands()
-	{
-		return $this->globalCommands;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getListingConfig()
+    {
+        return $this->listingConfig;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getModelCommands()
-	{
-		return $this->modelCommands;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getGlobalCommands()
+    {
+        return $this->globalCommands;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getPanelLayout()
-	{
-		return $this->panelLayout;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getModelCommands()
+    {
+        return $this->modelCommands;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPanelLayout()
+    {
+        return $this->panelLayout;
+    }
 }
-
-
-

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -19,69 +20,69 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event
  *
  * @package DcGeneral\Contao\View\Contao2BackendView\Event
  */
-class GetPasteRootButtonEvent
-	extends BaseButtonEvent
+class GetPasteRootButtonEvent extends BaseButtonEvent
 {
-	const NAME = 'dc-general.view.contao2backend.get-paste-root-button';
+    const NAME = 'dc-general.view.contao2backend.get-paste-root-button';
 
-	/**
-	 * The href information to use for the paste button.
-	 *
-	 * @var string
-	 */
-	protected $href;
+    /**
+     * The href information to use for the paste button.
+     *
+     * @var string
+     */
+    protected $href;
 
-	/**
-	 * Determinator if the paste button shall be disabled.
-	 *
-	 * @var bool
-	 */
-	protected $pasteDisabled;
+    /**
+     * Determinator if the paste button shall be disabled.
+     *
+     * @var bool
+     */
+    protected $pasteDisabled;
 
-	/**
-	 * Set the href for the button.
-	 *
-	 * @param string $href The href.
-	 *
-	 * @return $this
-	 */
-	public function setHref($href)
-	{
-		$this->href = $href;
+    /**
+     * Set the href for the button.
+     *
+     * @param string $href The href.
+     *
+     * @return $this
+     */
+    public function setHref($href)
+    {
+        $this->href = $href;
 
-		return $this;
-	}
-	/**
-	 * Get the href for the button.
-	 *
-	 * @return string
-	 */
-	public function getHref()
-	{
-		return $this->href;
-	}
+        return $this;
+    }
 
-	/**
-	 * Set the determinator if the button shall be disabled or not.
-	 *
-	 * @param boolean $pasteDisabled The flag.
-	 *
-	 * @return $this
-	 */
-	public function setPasteDisabled($pasteDisabled)
-	{
-		$this->pasteDisabled = $pasteDisabled;
+    /**
+     * Get the href for the button.
+     *
+     * @return string
+     */
+    public function getHref()
+    {
+        return $this->href;
+    }
 
-		return $this;
-	}
+    /**
+     * Set the determinator if the button shall be disabled or not.
+     *
+     * @param boolean $pasteDisabled The flag.
+     *
+     * @return $this
+     */
+    public function setPasteDisabled($pasteDisabled)
+    {
+        $this->pasteDisabled = $pasteDisabled;
 
-	/**
-	 * Check if the paste button shall be disabled or not.
-	 *
-	 * @return boolean
-	 */
-	public function isPasteDisabled()
-	{
-		return $this->pasteDisabled;
-	}
+        return $this;
+    }
+
+    /**
+     * Check if the paste button shall be disabled or not.
+     *
+     * @return boolean
+     */
+    public function isPasteDisabled()
+    {
+        return $this->pasteDisabled;
+    }
 }

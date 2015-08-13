@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -23,37 +24,36 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Paren
  */
 class ModelChildRecordCallbackListener extends AbstractReturningCallbackListener
 {
-	/**
-	 * Retrieve the arguments for the callback.
-	 *
-	 * @param ParentViewChildRecordEvent $event The event being emitted.
-	 *
-	 * @return array
-	 */
-	public function getArgs($event)
-	{
-		return array(
-			$event->getModel()->getPropertiesAsArray()
-		);
-	}
+    /**
+     * Retrieve the arguments for the callback.
+     *
+     * @param ParentViewChildRecordEvent $event The event being emitted.
+     *
+     * @return array
+     */
+    public function getArgs($event)
+    {
+        return array(
+            $event->getModel()->getPropertiesAsArray()
+        );
+    }
 
-	/**
-	 * Set the HTML code for the button.
-	 *
-	 * @param ParentViewChildRecordEvent $event The event being emitted.
-	 *
-	 * @param string                     $value The value returned by the callback.
-	 *
-	 * @return void
-	 */
-	public function update($event, $value)
-	{
-		if (is_null($value))
-		{
-			return;
-		}
+    /**
+     * Set the HTML code for the button.
+     *
+     * @param ParentViewChildRecordEvent $event The event being emitted.
+     *
+     * @param string                     $value The value returned by the callback.
+     *
+     * @return void
+     */
+    public function update($event, $value)
+    {
+        if ($value === null) {
+            return;
+        }
 
-		$event->setHtml($value);
-		$event->stopPropagation();
-	}
+        $event->setHtml($value);
+        $event->stopPropagation();
+    }
 }

@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -21,23 +22,23 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ConditionInterface;
  */
 interface PaletteConditionInterface extends ConditionInterface
 {
-	/**
-	 * Calculate how "strong" (aka "count of matches") this condition match the model and input parameters.
-	 *
-	 * If a value is present in the input parameter, that one overrides any existing value in the model.
-	 *
-	 * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
-	 *
-	 * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
-	 *
-	 * @return bool
-	 */
-	public function getMatchCount(ModelInterface $model = null, PropertyValueBag $input = null);
+    /**
+     * Calculate how "strong" (aka "count of matches") this condition match the model and input parameters.
+     *
+     * If a value is present in the input parameter, that one overrides any existing value in the model.
+     *
+     * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
+     *
+     * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
+     *
+     * @return int
+     */
+    public function getMatchCount(ModelInterface $model = null, PropertyValueBag $input = null);
 
-	/**
-	 * Create a deep clone of the condition.
-	 *
-	 * @return void
-	 */
-	public function __clone();
+    /**
+     * Create a deep clone of the condition.
+     *
+     * @return void
+     */
+    public function __clone();
 }

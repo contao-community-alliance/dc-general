@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,39 +23,38 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPr
  *
  * @package DcGeneral\Contao\Callback
  */
-class ModelOptionsCallbackListener extends AbstractReturningCallbackListener
+class ModelOptionsCallbackListener extends AbstractReturningPropertyCallbackListener
 {
-	/**
-	 * Retrieve the arguments for the callback.
-	 *
-	 * @param GetPropertyOptionsEvent $event The event being emitted.
-	 *
-	 * @return array
-	 */
-	public function getArgs($event)
-	{
-		return array(
-			new DcCompat($event->getEnvironment(), $event->getModel())
-		);
-	}
+    /**
+     * Retrieve the arguments for the callback.
+     *
+     * @param GetPropertyOptionsEvent $event The event being emitted.
+     *
+     * @return array
+     */
+    public function getArgs($event)
+    {
+        return array(
+            new DcCompat($event->getEnvironment(), $event->getModel())
+        );
+    }
 
-	/**
-	 * Update the options list in the event.
-	 *
-	 * @param GetPropertyOptionsEvent $event The event being emitted.
-	 *
-	 * @param array                   $value The options array.
-	 *
-	 * @return void
-	 */
-	public function update($event, $value)
-	{
-		if (is_null($value))
-		{
-			return;
-		}
+    /**
+     * Update the options list in the event.
+     *
+     * @param GetPropertyOptionsEvent $event The event being emitted.
+     *
+     * @param array                   $value The options array.
+     *
+     * @return void
+     */
+    public function update($event, $value)
+    {
+        if ($value === null) {
+            return;
+        }
 
-		$event->setOptions($value);
-		$event->stopPropagation();
-	}
+        $event->setOptions($value);
+        $event->stopPropagation();
+    }
 }

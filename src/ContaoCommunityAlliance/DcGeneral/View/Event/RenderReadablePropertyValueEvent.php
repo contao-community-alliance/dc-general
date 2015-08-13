@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,95 +23,93 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
  *
  * @package DcGeneral\View\Event
  */
-class RenderReadablePropertyValueEvent
-	extends AbstractModelAwareEvent
+class RenderReadablePropertyValueEvent extends AbstractModelAwareEvent
 {
-	const NAME = 'dc-general.view.contao2backend.render-readable-property-value';
+    const NAME = 'dc-general.view.contao2backend.render-readable-property-value';
 
-	/**
-	 * The property that shall be transformed.
-	 *
-	 * @var PropertyInterface
-	 */
-	protected $property;
+    /**
+     * The property that shall be transformed.
+     *
+     * @var PropertyInterface
+     */
+    protected $property;
 
-	/**
-	 * The value that shall be transformed.
-	 *
-	 * @var mixed
-	 */
-	protected $value;
+    /**
+     * The value that shall be transformed.
+     *
+     * @var mixed
+     */
+    protected $value;
 
-	/**
-	 * The transformed string representation.
-	 *
-	 * @var string|null
-	 */
-	protected $rendered = null;
+    /**
+     * The transformed string representation.
+     *
+     * @var string|null
+     */
+    protected $rendered = null;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param EnvironmentInterface $environment The environment in use.
-	 *
-	 * @param ModelInterface       $model       The model the value originates from.
-	 *
-	 * @param PropertyInterface    $property    The property to transform.
-	 *
-	 * @param mixed                $value       The value to transform.
-	 */
-	public function __construct(
-		EnvironmentInterface $environment,
-		ModelInterface $model,
-		PropertyInterface $property,
-		$value
-	)
-	{
-		parent::__construct($environment, $model);
-		$this->property = $property;
-		$this->value    = $value;
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param EnvironmentInterface $environment The environment in use.
+     *
+     * @param ModelInterface       $model       The model the value originates from.
+     *
+     * @param PropertyInterface    $property    The property to transform.
+     *
+     * @param mixed                $value       The value to transform.
+     */
+    public function __construct(
+        EnvironmentInterface $environment,
+        ModelInterface $model,
+        PropertyInterface $property,
+        $value
+    ) {
+        parent::__construct($environment, $model);
+        $this->property = $property;
+        $this->value    = $value;
+    }
 
-	/**
-	 * Retrieve the property.
-	 *
-	 * @return PropertyInterface
-	 */
-	public function getProperty()
-	{
-		return $this->property;
-	}
+    /**
+     * Retrieve the property.
+     *
+     * @return PropertyInterface
+     */
+    public function getProperty()
+    {
+        return $this->property;
+    }
 
-	/**
-	 * Retrieve the value.
-	 *
-	 * @return mixed
-	 */
-	public function getValue()
-	{
-		return $this->value;
-	}
+    /**
+     * Retrieve the value.
+     *
+     * @return mixed
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
 
-	/**
-	 * Set the rendered value.
-	 *
-	 * @param null|string $rendered The rendered string representation or null to clear the representation.
-	 *
-	 * @return RenderReadablePropertyValueEvent
-	 */
-	public function setRendered($rendered)
-	{
-		$this->rendered = $rendered;
-		return $this;
-	}
+    /**
+     * Set the rendered value.
+     *
+     * @param null|string $rendered The rendered string representation or null to clear the representation.
+     *
+     * @return RenderReadablePropertyValueEvent
+     */
+    public function setRendered($rendered)
+    {
+        $this->rendered = $rendered;
+        return $this;
+    }
 
-	/**
-	 * Retrieve the rendered string representation.
-	 *
-	 * @return null|string
-	 */
-	public function getRendered()
-	{
-		return $this->rendered;
-	}
+    /**
+     * Retrieve the rendered string representation.
+     *
+     * @return null|string
+     */
+    public function getRendered()
+    {
+        return $this->rendered;
+    }
 }

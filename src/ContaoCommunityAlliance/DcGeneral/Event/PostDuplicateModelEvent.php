@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,37 +23,37 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  */
 class PostDuplicateModelEvent extends AbstractModelAwareEvent
 {
-	const NAME = 'dc-general.model.post-duplicate';
+    const NAME = 'dc-general.model.post-duplicate';
 
-	/**
-	 * The source model.
-	 *
-	 * @var ModelInterface
-	 */
-	protected $sourceModel;
+    /**
+     * The source model.
+     *
+     * @var ModelInterface
+     */
+    protected $sourceModel;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param EnvironmentInterface $environment The environment.
-	 *
-	 * @param ModelInterface       $model       The new model.
-	 *
-	 * @param ModelInterface       $sourceModel The source model.
-	 */
-	public function __construct(EnvironmentInterface $environment, ModelInterface $model, ModelInterface $sourceModel)
-	{
-		parent::__construct($environment, $model);
-		$this->sourceModel = $sourceModel;
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @param ModelInterface       $model       The new model.
+     *
+     * @param ModelInterface       $sourceModel The source model.
+     */
+    public function __construct(EnvironmentInterface $environment, ModelInterface $model, ModelInterface $sourceModel)
+    {
+        parent::__construct($environment, $model);
+        $this->sourceModel = $sourceModel;
+    }
 
-	/**
-	 * Retrieve the source model.
-	 *
-	 * @return ModelInterface
-	 */
-	public function getSourceModel()
-	{
-		return $this->sourceModel;
-	}
+    /**
+     * Retrieve the source model.
+     *
+     * @return ModelInterface
+     */
+    public function getSourceModel()
+    {
+        return $this->sourceModel;
+    }
 }

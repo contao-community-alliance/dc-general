@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -22,35 +23,35 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteCollectionIn
  */
 class UsePaletteCollectionEvent extends BuilderEvent
 {
-	const NAME = 'dc-general.data-definition.palette.builder.use-palette-collection';
+    const NAME = 'dc-general.data-definition.palette.builder.use-palette-collection';
 
-	/**
-	 * The palette collection.
-	 *
-	 * @var PaletteCollectionInterface
-	 */
-	protected $paletteCollection;
+    /**
+     * The palette collection.
+     *
+     * @var PaletteCollectionInterface
+     */
+    protected $paletteCollection;
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param PaletteCollectionInterface $paletteCollection The palette collection.
-	 *
-	 * @param PaletteBuilder             $paletteBuilder    The palette builder in use.
-	 */
-	public function __construct(PaletteCollectionInterface $paletteCollection, PaletteBuilder $paletteBuilder)
-	{
-		$this->paletteCollection = $paletteCollection;
-		parent::__construct($paletteBuilder);
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param PaletteCollectionInterface $paletteCollection The palette collection.
+     *
+     * @param PaletteBuilder             $paletteBuilder    The palette builder in use.
+     */
+    public function __construct(PaletteCollectionInterface $paletteCollection, PaletteBuilder $paletteBuilder)
+    {
+        $this->paletteCollection = $paletteCollection;
+        parent::__construct($paletteBuilder);
+    }
 
-	/**
-	 * Retrieve the palette collection.
-	 *
-	 * @return PaletteCollectionInterface
-	 */
-	public function getPaletteCollection()
-	{
-		return $this->paletteCollection;
-	}
+    /**
+     * Retrieve the palette collection.
+     *
+     * @return PaletteCollectionInterface
+     */
+    public function getPaletteCollection()
+    {
+        return $this->paletteCollection;
+    }
 }

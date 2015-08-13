@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -23,8 +24,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteCollectionIn
  */
 interface PalettesDefinitionInterface extends DefinitionInterface, PaletteCollectionInterface
 {
-	/**
-	 * The name of the definition.
-	 */
-	const NAME = 'palettes';
+    /**
+     * The name of the definition.
+     */
+    const NAME = 'palettes';
 }

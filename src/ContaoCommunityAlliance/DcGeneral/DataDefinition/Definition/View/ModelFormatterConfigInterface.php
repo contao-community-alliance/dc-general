@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -19,51 +20,51 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
  */
 interface ModelFormatterConfigInterface
 {
-	/**
-	 * Set the used property names.
-	 *
-	 * @param array $propertyNames The property names.
-	 *
-	 * @return ModelFormatterConfigInterface
-	 */
-	public function setPropertyNames(array $propertyNames);
+    /**
+     * Set the used property names.
+     *
+     * @param array $propertyNames The property names.
+     *
+     * @return ModelFormatterConfigInterface
+     */
+    public function setPropertyNames(array $propertyNames);
 
-	/**
-	 * Return the used property names.
-	 *
-	 * @return array
-	 */
-	public function getPropertyNames();
+    /**
+     * Return the used property names.
+     *
+     * @return array
+     */
+    public function getPropertyNames();
 
-	/**
-	 * Set the format string.
-	 *
-	 * @param string $format The format string to use.
-	 *
-	 * @return ModelFormatterConfigInterface
-	 */
-	public function setFormat($format);
+    /**
+     * Set the format string.
+     *
+     * @param string $format The format string to use.
+     *
+     * @return ModelFormatterConfigInterface
+     */
+    public function setFormat($format);
 
-	/**
-	 * Return the format string.
-	 *
-	 * @return string
-	 */
-	public function getFormat();
+    /**
+     * Return the format string.
+     *
+     * @return string
+     */
+    public function getFormat();
 
-	/**
-	 * Set the formatted maximum length.
-	 *
-	 * @param int|null $maxLength The length to use - pass null to clear the cutting.
-	 *
-	 * @return ModelFormatterConfigInterface
-	 */
-	public function setMaxLength($maxLength);
+    /**
+     * Set the formatted maximum length.
+     *
+     * @param int|null $maxLength The length to use - pass null to clear the cutting.
+     *
+     * @return ModelFormatterConfigInterface
+     */
+    public function setMaxLength($maxLength);
 
-	/**
-	 * Return the formatted maximum length.
-	 *
-	 * @return int|null
-	 */
-	public function getMaxLength();
+    /**
+     * Return the formatted maximum length.
+     *
+     * @return int|null
+     */
+    public function getMaxLength();
 }

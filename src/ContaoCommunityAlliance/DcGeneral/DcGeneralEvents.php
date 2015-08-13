@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -18,16 +19,16 @@ namespace ContaoCommunityAlliance\DcGeneral;
  */
 class DcGeneralEvents
 {
-	/**
-	 * The ACTION event occurs when an action must be handled.
-	 *
-	 * This event allows to handle DC actions. The event listener method
-	 * receives a ContaoCommunityAlliance\DcGeneral\Event\ActionEvent
-	 * instance.
-	 *
-	 * @var string
-	 *
-	 * @api
-	 */
-	const ACTION = 'dc-general.action';
+    /**
+     * The ACTION event occurs when an action must be handled.
+     *
+     * This event allows to handle DC actions. The event listener method
+     * receives a ContaoCommunityAlliance\DcGeneral\Event\ActionEvent
+     * instance.
+     *
+     * @var string
+     *
+     * @api
+     */
+    const ACTION = 'dc-general.action';
 }

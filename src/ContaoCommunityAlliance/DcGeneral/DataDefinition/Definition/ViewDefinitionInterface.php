@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -12,8 +13,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition;
 
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandCollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelLayoutInterface;
 
 /**
@@ -23,31 +24,31 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelLayout
  */
 interface ViewDefinitionInterface extends DefinitionInterface
 {
-	/**
-	 * Retrieve the listing configuration.
-	 *
-	 * @return ListingConfigInterface
-	 */
-	public function getListingConfig();
+    /**
+     * Retrieve the listing configuration.
+     *
+     * @return ListingConfigInterface
+     */
+    public function getListingConfig();
 
-	/**
-	 * Retrieve the global commands.
-	 *
-	 * @return CommandCollectionInterface
-	 */
-	public function getGlobalCommands();
+    /**
+     * Retrieve the global commands.
+     *
+     * @return CommandCollectionInterface
+     */
+    public function getGlobalCommands();
 
-	/**
-	 * Retrieve the model command colletion.
-	 *
-	 * @return CommandCollectionInterface
-	 */
-	public function getModelCommands();
+    /**
+     * Retrieve the model command colletion.
+     *
+     * @return CommandCollectionInterface
+     */
+    public function getModelCommands();
 
-	/**
-	 * Retrieve the panel layout.
-	 *
-	 * @return PanelLayoutInterface
-	 */
-	public function getPanelLayout();
+    /**
+     * Retrieve the panel layout.
+     *
+     * @return PanelLayoutInterface
+     */
+    public function getPanelLayout();
 }

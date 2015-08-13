@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -20,18 +21,18 @@ use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
  */
 class DefaultPaletteCondition implements PaletteConditionInterface
 {
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getMatchCount(ModelInterface $model = null, PropertyValueBag $input = null)
-	{
-		return 0;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getMatchCount(ModelInterface $model = null, PropertyValueBag $input = null)
+    {
+        return 0;
+    }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function __clone()
-	{
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function __clone()
+    {
+    }
 }

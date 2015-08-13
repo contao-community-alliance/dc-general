@@ -1,6 +1,7 @@
 <?php
 /**
  * PHP version 5
+ *
  * @package    generalDriver
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
@@ -23,57 +24,56 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 abstract class DcaReadingDataDefinitionBuilder extends AbstractEventDrivenDataDefinitionBuilder
 {
-	/**
-	 * Buffer for the DCA.
-	 *
-	 * @var array
-	 */
-	protected $dca;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function loadDca($dcaName, EventDispatcherInterface $dispatcher)
-	{
-		$this->dca = null;
-		$event     = new LoadDataContainerEvent($dcaName, false);
-		$dispatcher->dispatch(ContaoEvents::CONTROLLER_LOAD_DATA_CONTAINER, $event);
+    /**
+     * Buffer for the DCA.
+     *
+     * @var array
+     */
+    protected $dca;
 
-		if (isset($GLOBALS['TL_DCA'][$dcaName]))
-		{
-			$this->dca = $GLOBALS['TL_DCA'][$dcaName];
-		}
+    /**
+     * {@inheritdoc}
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     */
+    public function loadDca($dcaName, EventDispatcherInterface $dispatcher)
+    {
+        $this->dca = null;
+        $event     = new LoadDataContainerEvent($dcaName, false);
+        $dispatcher->dispatch(ContaoEvents::CONTROLLER_LOAD_DATA_CONTAINER, $event);
 
-		$event = new LoadLanguageFileEvent($dcaName);
-		$dispatcher->dispatch(ContaoEvents::SYSTEM_LOAD_LANGUAGE_FILE, $event);
+        if (isset($GLOBALS['TL_DCA'][$dcaName])) {
+            $this->dca = $GLOBALS['TL_DCA'][$dcaName];
+        }
 
-		return $this->dca !== null;
-	}
+        $event = new LoadLanguageFileEvent($dcaName);
+        $dispatcher->dispatch(ContaoEvents::SYSTEM_LOAD_LANGUAGE_FILE, $event);
 
-	/**
-	 * Read the specified sub path from the dca.
-	 *
-	 * @param string $path The path from the Dca to read.
-	 *
-	 * @return mixed
-	 *
-	 * @internal
-	 */
-	protected function getFromDca($path)
-	{
-		$chunks = explode('/', trim($path, '/'));
-		$dca    = $this->dca;
+        return $this->dca !== null;
+    }
 
-		while (($chunk = array_shift($chunks)) !== null)
-		{
-			if (!(is_array($dca) && array_key_exists($chunk, $dca)))
-			{
-				return null;
-			}
+    /**
+     * Read the specified sub path from the dca.
+     *
+     * @param string $path The path from the Dca to read.
+     *
+     * @return mixed
+     */
+    protected function getFromDca($path)
+    {
+        $chunks = explode('/', trim($path, '/'));
+        $dca    = $this->dca;
 
-			$dca = $dca[$chunk];
-		}
+        while (($chunk = array_shift($chunks)) !== null) {
+            if (!(is_array($dca) && array_key_exists($chunk, $dca))) {
+                return null;
+            }
 
-		return $dca;
-	}
+            $dca = $dca[$chunk];
+        }
+
+        return $dca;
+    }
 }
