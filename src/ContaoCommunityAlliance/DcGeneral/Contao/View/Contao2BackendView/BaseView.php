@@ -1486,7 +1486,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $filter->andHasNoParent();
         }
 
-        if ($this->getEnvironment()->getClipboard()->isNotEmpty($filter)) {
+        if ($clipboard->isNotEmpty($filter)) {
             $circularIds = $clipboard->getCircularIds();
             $isCircular  = in_array(IdSerializer::fromModel($model)->getSerialized(), $circularIds);
         } else {
@@ -1576,7 +1576,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 $models = $this
                     ->environment
                     ->getController()
-                    ->getModelsFromClipboard(IdSerializer::fromValues($parentDataProviderName, null));
+                    ->getModelsFromClipboard(
+                        $parentDataProviderName
+                        ? IdSerializer::fromValues($parentDataProviderName, null)
+                        : null
+                    );
 
                 $buttonEvent = new GetPasteButtonEvent($this->getEnvironment());
                 $buttonEvent

@@ -12,8 +12,8 @@ env:
         - CONTAO_VERSION=~3.3.0
 
 install:
-    - composer require contao/core $CONTAO_VERSION --prefer-dist --dev
-    - composer install --prefer-dist --dev
+    - composer require contao/core $CONTAO_VERSION --no-update
+    - composer update --prefer-dist --dev
 
 script: ant -keep-going
 

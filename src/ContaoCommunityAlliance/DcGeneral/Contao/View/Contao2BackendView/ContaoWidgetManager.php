@@ -193,41 +193,6 @@ class ContaoWidgetManager
     }
 
     /**
-     * Get the popup file manager.
-     *
-     * @return string
-     *
-     * @deprecated Contao 2.11 only.
-     */
-    protected function getFileTree()
-    {
-        $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
-        $translator  = $environment->getTranslator();
-
-        // In Contao 3+ it is always a file picker - no need for the button.
-        if (version_compare(VERSION, '3.0', '>=')) {
-            return '';
-        }
-
-        $event = new GenerateHtmlEvent(
-            'filemanager.gif',
-            $translator->translate('fileManager', 'MSC'),
-            'style="vertical-align:text-bottom;"'
-        );
-
-        $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $event);
-
-        return sprintf(
-            ' <a href="contao/files.php" ' .
-            'title="%s"' .
-            'onclick="Backend.getScrollOffset(); Backend.openWindow(this, 750, 500); return false;">%s</a>',
-            specialchars($translator->translate('fileManager', 'MSC')),
-            $event->getHtml()
-        );
-    }
-
-    /**
      * Get the table import wizard.
      *
      * @return string
@@ -349,14 +314,11 @@ class ContaoWidgetManager
         $xLabel .= $this->getHelpWizard($propInfo);
 
         switch ($propInfo->getWidgetType()) {
-            case 'fileTree':
-                $xLabel .= $this->getFileTree();
-                break;
             case 'tableWizard':
-                $xLabel .= $this->getTableWizard($propInfo);
+                $xLabel .= $this->getTableWizard();
                 break;
             case 'listWizard':
-                $xLabel .= $this->getListWizard($propInfo);
+                $xLabel .= $this->getListWizard();
                 break;
             default:
         }
@@ -483,7 +445,7 @@ class ContaoWidgetManager
 
         $event = new BuildWidgetEvent($environment, $this->model, $propertyDefinitions->getProperty($property));
 
-
+        // FIXME: propagator
         $dispatcher->dispatch(
             sprintf('%s[%s][%s]', $event::NAME, $defName, $property),
             $event
@@ -518,9 +480,10 @@ class ContaoWidgetManager
         $propExtra['required'] = ($varValue == '') && !empty($propExtra['mandatory']);
 
         if ($inputValues) {
-            $model = clone $this->model;
+            $values = new PropertyValueBag($inputValues->getArrayCopy());
+            $model  = clone $this->model;
             $model->setId($this->model->getId());
-            $this->environment->getController()->updateModelFromPropertyBag($model, $inputValues);
+            $this->environment->getController()->updateModelFromPropertyBag($model, $values);
         } else {
             $model = $this->model;
         }
@@ -818,10 +781,14 @@ EOF;
                     );
                 } catch (\Exception $e) {
                     $widget->addError($e->getMessage());
-                    $propertyValues->markPropertyValueAsInvalid($property, $e->getMessage());
+                    foreach ($widget->getErrors() as $error) {
+                        $propertyValues->markPropertyValueAsInvalid($property, $error);
+                    }
                 }
             }
         }
+
+        // FIXME: Add new event "CheckUpdatedPropertyValueBagEvent".
 
         $_POST = $post;
         \Input::resetCache();
@@ -843,7 +810,7 @@ EOF;
 
                 foreach ($errors as $error) {
                     $event = new ResolveWidgetErrorMessageEvent($this->getEnvironment(), $error);
-
+                    // FIXME: propagator.
                     $dispatcher->dispatch(sprintf('%s[%s][%s]', $event::NAME, $definitionName, $property), $event);
                     $dispatcher->dispatch(sprintf('%s[%s]', $event::NAME, $definitionName), $event);
                     $dispatcher->dispatch($event::NAME, $event);

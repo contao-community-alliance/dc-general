@@ -392,6 +392,7 @@ class DefaultController implements ControllerInterface
                 ->getChildCondition($parentProviderName, $providerName);
 
             if ($relationship && $relationship->getSetters()) {
+                // FIXME: the relationship data should be pushed into the property value bag.
                 $relationship->applyTo($objParentModel, $model);
             }
         }
@@ -781,6 +782,8 @@ class DefaultController implements ControllerInterface
      * @param ModelInterface $parentModel  The parent model.
      *
      * @return void
+     *
+     * @throws \UnexpectedValueException When the action is neither create, copy or deep copy.
      */
     private function applyAction(array &$action, array &$deepCopyList, ModelInterface $parentModel = null)
     {
@@ -813,6 +816,12 @@ class DefaultController implements ControllerInterface
             $model = $clonedModel;
         }
 
+        if (!$model) {
+            throw new \UnexpectedValueException(
+                'Invalid clipboard action entry, no model created. ' . $item->getAction()
+            );
+        }
+
         if ($parentModel) {
             $this->setParent($model, $parentModel);
         }
@@ -834,6 +843,7 @@ class DefaultController implements ControllerInterface
         // Trigger the pre duplicate event.
         $duplicateEvent = new PreDuplicateModelEvent($environment, $model);
 
+        // FIXME: propagator
         $environment->getEventDispatcher()->dispatch(
             sprintf('%s[%s]', $duplicateEvent::NAME, $environment->getDataDefinition()->getName()),
             $duplicateEvent
@@ -845,6 +855,7 @@ class DefaultController implements ControllerInterface
 
         // And trigger the post event for it.
         $duplicateEvent = new PostDuplicateModelEvent($environment, $clonedModel, $model);
+        // FIXME: propagator
         $environment->getEventDispatcher()->dispatch(
             sprintf('%s[%s]', $duplicateEvent::NAME, $environment->getDataDefinition()->getName()),
             $duplicateEvent
@@ -1176,7 +1187,7 @@ class DefaultController implements ControllerInterface
     {
         $this
             ->getEnvironment()
-            ->getDataDefinition($childModel->getProviderName())
+            ->getDataDefinition()
             ->getModelRelationshipDefinition()
             ->getChildCondition($parentModel->getProviderName(), $childModel->getProviderName())
             ->applyTo($parentModel, $childModel);
