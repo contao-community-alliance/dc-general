@@ -37,7 +37,7 @@ class Item implements ItemInterface
     /**
      * The id of the model.
      *
-     * @var ModelIdInterface
+     * @var ModelIdInterface|null
      */
     private $modelId;
 
@@ -48,7 +48,7 @@ class Item implements ItemInterface
      *
      * @param ModelIdInterface|null $parentId The id of the parent model (null for no parent).
      *
-     * @param ModelIdInterface      $modelId  The id of the model the action covers.
+     * @param ModelIdInterface|null $modelId  The id of the model the action covers (may be null for "create" only).
      *
      * @throws \InvalidArgumentException When the action is not one of create, cut, copy or deep copy.
      */
@@ -62,6 +62,12 @@ class Item implements ItemInterface
         ) {
             throw new \InvalidArgumentException(
                 '$action must be one of ItemInterface::CREATE, ItemInterface::CUT or ItemInterface::COPY'
+            );
+        }
+
+        if (null === $modelId && $action !== ItemInterface::CREATE) {
+            throw new \InvalidArgumentException(
+                '$modelId must be valid unless in create action.'
             );
         }
 

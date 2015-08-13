@@ -593,9 +593,14 @@ class DefaultController implements ControllerInterface
             /** @var ItemInterface $item */
             $modelId      = $item->getModelId();
             $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
-            $config       = $dataProvider->getEmptyConfig()->setId($modelId->getId());
-            $model        = $dataProvider->fetch($config);
-            $models->push($model);
+            // FIXME: Item should allow null as modelId so we can skip the second check here and move to class ModelId.
+            if ($modelId && $modelId->getId()) {
+                $models->push($dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId())));
+
+                continue;
+            }
+
+            $models->push($dataProvider->getEmptyModel());
         }
 
         return $models;

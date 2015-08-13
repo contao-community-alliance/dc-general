@@ -13,12 +13,15 @@
  * @filesource
  */
 
-use ContaoCommunityAlliance\DcGeneral\Contao\Event\Subscriber;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\ClipboardController;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Filter\LanguageFilter;
+namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
 
-return array(
-    new Subscriber(),
-    new ClipboardController(),
-    new LanguageFilter(),
-);
+/**
+ * Select command - special implementation for selecting models for multiple actions.
+ *
+ * Ths is merely just an empty container to tell copy commands and generic commands apart.
+ *
+ * @package DcGeneral\DataDefinition\Definition\View
+ */
+class SelectCommand extends Command implements SelectCommandInterface
+{
+}
