@@ -52,6 +52,9 @@
 	"conflict": {
 		"contao/core": "3.0.*"
 	},
+	"replace": {
+		"metamodels/dc_general": "self.version"
+	},
 	"autoload": {
 		"classmap": [
 			"contao/DC_General.php",

@@ -422,8 +422,14 @@ class LegacyPalettesParser
 		$selectorValues     = explode('_', $subPaletteSelector);
 		$selectorFieldName  = array_shift($selectorValues);
 		$selectorValueCount = count($selectorValues);
+
 		while ($selectorValueCount)
 		{
+			if (empty($selectorValues))
+			{
+				break;
+			}
+
 			if (in_array($selectorFieldName, $selectorFieldNames))
 			{
 				$condition = new PropertyValueCondition($selectorFieldName, implode('_', $selectorValues));

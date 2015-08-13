@@ -12,7 +12,7 @@
 				<input type="hidden" name="FORM_SUBMIT" value="tl_select">
 				<input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>">
 	<?php endif; ?>
-			<div class="tl_listing_container list_view table_<?php echo $this->tableName; ?>">
+			<div class="tl_listing_container list_view_sorted table_<?php echo $this->tableName; ?>">
 
 				<?php if(strlen($this->breadcrumb)) echo $this->breadcrumb; ?>
 
@@ -21,13 +21,11 @@
 						<label for="tl_select_trigger" class="tl_select_label"><?php echo $GLOBALS['TL_LANG']['MSC']['selectAll']; ?></label>
 						<input type="checkbox" id="tl_select_trigger" onclick="Backend.toggleCheckboxes(this)" class="tl_tree_checkbox">
 					</div>
-				<?php elseif ($this->clipboard): ?>
-					<a href="<?php echo $this->pasteAfter['href']; ?>" title="<?php echo $this->pasteAfter['title']; ?>"><?php echo $this->pasteAfter['content']; ?></a>
 				<?php endif; ?>
 
-				<table class="tl_listing<?php echo ($GLOBALS['TL_DCA'][$this->strTable]['list']['label']['showColumns']) ? ' showColumns' : ''; ?>">
-
-					<?php if (count($this->tableHead > 0)): ?>
+				<table id="table_<?php echo $this->tableName; ?>"  class="tl_listing<?php echo ($GLOBALS['TL_DCA'][$this->strTable]['list']['label']['showColumns']) ? ' showColumns' : ''; ?>">
+					<tbody>
+					<?php if (count($this->tableHead) > 0): ?>
 						<tr>
 							<?php foreach ($this->tableHead as $arrTableHead): ?>
 								<th class="<?php echo $arrTableHead['class']; ?>"><?php echo $arrTableHead['content']; ?></th>
@@ -35,46 +33,41 @@
 						</tr>
 					<?php endif; ?>
 
-				</table>
+					<?php foreach ($this->collection as $objModel): ?>
+						<?php /** @var \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface $objModel */ ?>
+						<tr id="table_row_<?php echo $objModel->getId(); ?>"
+						    class="<?php echo $objModel->getMeta($objModel::CSS_ROW_CLASS); ?>"
+						    onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);"
+						    data-model-id="<?= \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer::fromModel($objModel)->getSerialized() ?>">
+							<?php $arrLabels = $objModel->getMeta($objModel::LABEL_VALUE); ?>
 
-				<ul id="ul_<?php echo CURRENT_ID; ?>" class="sortable">
+							<?php foreach ($arrLabels as $arrLabel): ?>
+								<td <?php echo ((!is_null($arrLabel['colspan'])) ? 'colspan="' . $arrLabel['colspan'] . '"' : ''); ?> class="<?php echo $arrLabel['class']; ?>">
+									<?php echo $arrLabel['content']; ?>
+								</td>
+							<?php endforeach; ?>
 
-					<?php
-					foreach ($this->collection as $objModel):
-						/** @var \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface $objModel */
-					?>
-
-						<li id="li_<?php echo $objModel->getId(); ?>">
-
-							<div class="tl_content<?php echo $objModel->getMeta($objModel::CSS_CLASS); ?>" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
-								<?php $arrLabels = $objModel->getMeta($objModel::LABEL_VALUE); ?>
-
-								<?php foreach ($arrLabels as $arrLabel): ?>
-									<td <?php echo ((!is_null($arrLabel['colspan'])) ? 'colspan="' . $arrLabel['colspan'] . '"' : ''); ?> class="<?php echo $arrLabel['class']; ?>">
-										<?php echo $arrLabel['content']; ?>
-									</td>
-								<?php endforeach; ?>
-
-								<div class="tl_content_right">
-
-									<?php if ($this->select): ?>
-										<input type="checkbox" name="IDS[]" id="ids_<?php echo $objModel->getId(); ?>" class="tl_tree_checkbox" value="<?php echo $objModel->getId(); ?>">
-									<?php endif; ?>
-
+							<?php if ($this->select): ?>
+								<td class="tl_file_list tl_right_nowrap">
+									<input type="checkbox" name="IDS[]" id="ids_<?php echo $objModel->getId(); ?>" class="tl_tree_checkbox" value="<?php echo $objModel->getId(); ?>">
+								</td>
+							<?php else: ?>
+								<td class="tl_file_list tl_right_nowrap">
 									<?php echo $objModel->getMeta($objModel::OPERATION_BUTTONS); ?>
-
-								</div>
-							</div>
-
-						</li>
+									<?php if ($this->sortable): echo $this->generateImage('system/modules/dc-general/html/images/drag.gif', '&udarr;', 'class="drag"'); endif; ?>
+								</td>
+							<?php endif; ?>
+						</tr>
 					<?php endforeach; ?>
-
-				</ul>
-
-				<script>
-					BackendGeneral.makeParentViewSortable("ul_<?php echo CURRENT_ID; ?>", "<?php echo $this->cdp; ?>", "<?php echo $this->pdp; ?>");
-				</script>
-
+					</tbody>
+				</table>
+				<?php if ($this->sortable): ?>
+					<script>
+						var table = document.getElementById('table_<?php echo $this->tableName; ?>');
+						var SortableTableDnD = new GeneralTableDnD();
+						SortableTableDnD.init(table);
+					</script>
+				<?php endif; ?>
 			</div>
 
 			<?php if ($this->select): ?>
@@ -86,5 +79,4 @@
 			</div>
 		</form>
 	<?php endif; ?>
-
 <?php endif; ?>
