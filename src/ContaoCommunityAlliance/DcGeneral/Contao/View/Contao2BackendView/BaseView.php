@@ -949,6 +949,24 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
 		$model = $this->createEmptyModelWithDefaults();
 
+		$input = $this->environment->getInputProvider();
+		if ($input->hasParameter('after'))
+		{
+			$after          = IdSerializer::fromSerialized($input->getParameter('after'));
+			$dataProvider   = $this->environment->getDataProvider($after->getDataProviderName());
+			$previous       = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($after->getId()));
+			$dataDefinition = $this->environment->getDataDefinition();
+
+			/** @var Contao2BackendViewDefinitionInterface $view */
+			$view = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+			foreach (array_keys($view->getListingConfig()->getDefaultSortingFields()) as $propertyName) {
+				if ($propertyName != 'sorting') {
+					$propertyValue = $previous->getProperty($propertyName);
+					$model->setProperty($propertyName, $propertyValue);
+				}
+			}
+		}
+
 		$preFunction = function($environment, $model, $originalModel)
 		{
 			/** @var EnvironmentInterface $environment */
@@ -1024,13 +1042,22 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		$environment  = $this->getEnvironment();
 		$dataProvider = $environment->getDataProvider();
 		$models       = $dataProvider->getEmptyCollection();
+		$clipboard    = $this->getEnvironment()->getClipboard();
 
-		foreach ($this->getEnvironment()->getClipboard()->getContainedIds() as $id)
+		foreach ($clipboard->getContainedIds() as $id)
 		{
 			if ($id === null)
 			{
 				$model = $this->createEmptyModelWithDefaults();
 				$models->push($model);
+
+				if ($parentId = $clipboard->getParent())
+				{
+					$id           = IdSerializer::fromSerialized($parentId);
+					$dataProvider = $environment->getDataProvider($id->getDataProviderName());
+					$parentModel  = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($id->getId()));
+					$environment->getController()->setParent($model, $parentModel);
+				}
 			}
 			elseif (is_string($id))
 			{
@@ -1038,7 +1065,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 				$dataProvider = $environment->getDataProvider($id->getDataProviderName());
 				$model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($id->getId()));
 
-				if ($model) {
+				if ($model)
+				{
 					if ($clone)
 					{
 						// Trigger the pre duplicate event.
@@ -2729,14 +2757,28 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		// Add paste into/after icons.
 		if ($objClipboard->isNotEmpty())
 		{
-			// Add ext. information.
-			$add2UrlAfter = sprintf('act=paste&after=%s&',
-				IdSerializer::fromModel($model)->getSerialized()
-			);
+			if ($objClipboard->isCreate())
+			{
+				// Add ext. information.
+				$add2UrlAfter = sprintf('act=create&after=%s&',
+					IdSerializer::fromModel($model)->getSerialized()
+				);
 
-			$add2UrlInto = sprintf('act=paste&into=%s&',
-				IdSerializer::fromModel($model)->getSerialized()
-			);
+				$add2UrlInto = sprintf('act=create&into=%s&',
+					IdSerializer::fromModel($model)->getSerialized()
+				);
+			}
+			else
+			{
+				// Add ext. information.
+				$add2UrlAfter = sprintf('act=paste&after=%s&',
+					IdSerializer::fromModel($model)->getSerialized()
+				);
+
+				$add2UrlInto = sprintf('act=paste&into=%s&',
+					IdSerializer::fromModel($model)->getSerialized()
+				);
+			}
 
 			/** @var AddToUrlEvent $urlAfter */
 			$urlAfter = $propagator->propagate(

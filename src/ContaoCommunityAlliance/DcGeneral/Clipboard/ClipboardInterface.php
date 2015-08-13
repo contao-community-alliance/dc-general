@@ -166,4 +166,13 @@ interface ClipboardInterface
 	 * @return string Either cut|paste|mode
 	 */
 	public function getMode();
+
+	/**
+	 * Retrieve the id of the parent item (if any).
+	 *
+	 * This is only valid in create mode.
+	 *
+	 * @return null|string
+	 */
+	public function getParent();
 }
