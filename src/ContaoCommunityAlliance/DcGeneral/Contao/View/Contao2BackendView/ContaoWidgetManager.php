@@ -692,10 +692,15 @@ EOF;
 	 */
 	public function processInput(PropertyValueBag $propertyValues)
 	{
-		// reset all inputs these get used within the Widget::validate() method.
+		// remember current POST data and clear it
+		$post = $_POST;
+		$_POST = array();
+		\Input::resetCache();
+
+		// set all POST data, these get used within the Widget::validate() method.
 		foreach ($propertyValues as $property => $propertyValue)
 		{
-			\Input::setPost($property, $propertyValue);
+			$_POST[$property] = $propertyValue;
 		}
 
 		// now get and validate the widgets
@@ -726,6 +731,10 @@ EOF;
 				}
 			}
 		}
+
+		// restore the POST data array
+		$_POST = $post;
+		\Input::resetCache();
 	}
 
 	/**

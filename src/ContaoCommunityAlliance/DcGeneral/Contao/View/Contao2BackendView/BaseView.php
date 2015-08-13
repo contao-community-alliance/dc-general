@@ -2931,7 +2931,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 			{
 				if ($input->hasValue($propertyName))
 				{
-					$propertyValue = $input->getValue($propertyName);
+					$propertyValue = $input->getValue($propertyName, true);
 					$propertyValues->setPropertyValue($propertyName, $propertyValue);
 				}
 			}
