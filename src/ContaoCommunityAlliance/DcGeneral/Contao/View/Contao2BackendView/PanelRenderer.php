@@ -13,7 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/LICENSE LGPL-3.0
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
 
