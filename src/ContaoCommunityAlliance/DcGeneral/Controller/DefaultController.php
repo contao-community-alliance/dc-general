@@ -681,6 +681,7 @@ class DefaultController implements ControllerInterface
 		))
 		{
 			$parentModel = null;
+			$parentModel = null;
 
 			if (!$this->isRootModel($previousModel))
 			{

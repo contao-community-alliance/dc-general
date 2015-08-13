@@ -572,7 +572,7 @@ class ContaoWidgetManager
 				toggle:$$("#toggle_' . $objWidget->id . '"),
 				format:"' . \Date::formatToJs($strFormat) . '",
 				positionOffset:{x:-197,y:-182}' . $time . ',
-				pickerClass:"datepicker_dashboard",
+				pickerClass:"' . (version_compare(DATEPICKER, '2.2', '>=') ? 'datepicker_bootstrap' : 'datepicker_dashboard') . '",
 				useFadeInOut:!Browser.ie,
 				startDay:' . $translator->translate('weekOffset', 'MSC') . ',
 				titleFormat:"' . $translator->translate('titleFormat', 'MSC') . '"

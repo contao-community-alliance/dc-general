@@ -356,12 +356,12 @@ class ParentView extends BaseView
 
 			$headerButtons['editHeader'] = $this->getHeaderEditButtons($parentModel);
 
-			if (
-				$sorting
+			if ($sorting
 				&& $clipboard->isEmpty()
 				&& !$basicDefinition->isClosed()
 				&& $basicDefinition->isCreatable()
-			) {
+			)
+			{
 				/** @var AddToUrlEvent $urlEvent */
 				$urlEvent = $propagator->propagate(
 					ContaoEvents::BACKEND_ADD_TO_URL,
@@ -394,7 +394,7 @@ class ParentView extends BaseView
 					ContaoEvents::BACKEND_ADD_TO_URL,
 					new AddToUrlEvent(
 						'act=' . $clipboard->getMode() .
-						'&amp;mode=2&amp;pid=' . IdSerializer::fromModel($parentModel)->getSerialized()
+						'&amp;pid=' . IdSerializer::fromModel($parentModel)->getSerialized()
 					)
 				);
 

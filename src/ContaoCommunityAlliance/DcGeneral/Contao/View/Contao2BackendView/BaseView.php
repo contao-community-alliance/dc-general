@@ -2730,13 +2730,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 		if ($objClipboard->isNotEmpty())
 		{
 			// Add ext. information.
-			$add2UrlAfter = sprintf('act=%s&after=%s&',
-				$objClipboard->getMode(),
+			$add2UrlAfter = sprintf('act=paste&after=%s&',
 				IdSerializer::fromModel($model)->getSerialized()
 			);
 
-			$add2UrlInto = sprintf('act=%s&into=%s&',
-				$objClipboard->getMode(),
+			$add2UrlInto = sprintf('act=paste&into=%s&',
 				IdSerializer::fromModel($model)->getSerialized()
 			);
 
