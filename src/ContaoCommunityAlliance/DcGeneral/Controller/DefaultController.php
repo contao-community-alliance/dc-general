@@ -670,10 +670,15 @@ class DefaultController implements ControllerInterface
 		}
 		$environment = $this->getEnvironment();
 
-		if ($environment
+		if (in_array($environment
 				->getDataDefinition()
 				->getBasicDefinition()
-				->getMode() === BasicDefinitionInterface::MODE_HIERARCHICAL)
+				->getMode(), array
+					(
+						BasicDefinitionInterface::MODE_HIERARCHICAL,
+						BasicDefinitionInterface::MODE_PARENTEDLIST
+					)
+		))
 		{
 			$parentModel = null;
 
