@@ -64,12 +64,8 @@ var BackendGeneral =
 					var folder = false,
 						parent = $(el).getParent('li');
 
-					while (typeOf(parent) == 'element' && (next = parent.getNext('li'))) {
-						parent = next;
-						if (parent.hasClass('tl_folder')) {
-							folder = true;
-							break;
-						}
+					if(typeOf(parent) == 'element' && parent.hasClass('tl_folder')){
+						folder = true;
 					}
 
 					if (folder) {
