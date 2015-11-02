@@ -292,7 +292,8 @@ var GeneralTreePicker =
 	 */
 	openModal: function(options) {
 		var opt = options || {},
-			max = (window.getSize().y-180).toInt();
+			max = (window.getSize().y-180).toInt(),
+			self = this;
 		if (!opt.height || opt.height > max) opt.height = max;
 		var M = new SimpleModal({
 			'width': opt.width,
@@ -317,7 +318,13 @@ var GeneralTreePicker =
 				alert(Contao.lang.picker);
 				return; // see #5704
 			}
-			var inp = frm.document.getElementById('tl_listing').getElementsByTagName('input');
+
+			var inp = self.getInput(frm.document);
+			if (inp == null) {
+				alert('Could not find the input fields.');
+				return;
+			}
+
 			for (var i=0; i<inp.length; i++) {
 				if (!inp[i].checked || inp[i].id.match(/^check_all_/)) continue;
 				if (!inp[i].id.match(/^reset_/)) val.push(inp[i].get('value'));
@@ -349,6 +356,18 @@ var GeneralTreePicker =
 			'contents': '<iframe src="' + opt.url + '" name="simple-modal-iframe" width="100%" height="' + opt.height + '" frameborder="0"></iframe>',
 			'model': 'modal'
 		});
+	},
+
+	getInput: function(element){
+		if(element.getElementById('tl_listing') != null){
+			return element.getElementById('tl_listing').getElementsByTagName('input');
+		}
+
+		if(element.getElementById('tl_select') != null){
+			return element.getElementById('tl_select').getElementsByTagName('input');
+		}
+
+		return null;
 	}
 };
 
