@@ -113,6 +113,13 @@ EXPR;
 )
 EXPR;
 
+    const SUB_FILTER = <<<'EXPR'
+(
+    variables[%d].accepts(item)
+)
+EXPR;
+
+
     /**
      * Factory method.
      *
@@ -885,11 +892,11 @@ EXPR;
     /**
      * And sub filter.
      *
-     * @param Filter $filter The sub filter.
+     * @param FilterInterface $filter The sub filter.
      *
      * @return static
      */
-    public function andSub(Filter $filter)
+    public function andSub(FilterInterface $filter)
     {
         $this->sub('and', $filter);
 
@@ -899,11 +906,11 @@ EXPR;
     /**
      * Or sub filter.
      *
-     * @param Filter $filter The sub filter.
+     * @param FilterInterface $filter The sub filter.
      *
      * @return static
      */
-    public function orSub(Filter $filter)
+    public function orSub(FilterInterface $filter)
     {
         $this->sub('or', $filter);
 
@@ -913,25 +920,21 @@ EXPR;
     /**
      * Add sub filter.
      *
-     * @param string $conjunction AND or OR.
-     * @param Filter $filter      The sub filter.
+     * @param string          $conjunction AND or OR.
+     * @param FilterInterface $filter      The sub filter.
      *
      * @return static
      */
-    private function sub($conjunction, Filter $filter)
+    private function sub($conjunction, FilterInterface $filter)
     {
         if (!empty($this->expression)) {
             $this->expression[] = $conjunction;
         }
 
-        $expression = $filter->getExpression();
-        $variables  = $filter->getVariables();
-
-        $index      = count($this->variables);
-        $expression = str_replace('variables', 'variables[' . $index . ']', $expression);
-
-        $this->expression[] = '(' . $expression . ')';
-        $this->variables[]  = $variables;
+        $index              = count($this->variables);
+        $this->expression[] = sprintf(self::SUB_FILTER, $index);
+        $this->variables[]  = $filter;
+        $this->compiled     = null;
 
         return $this;
     }
