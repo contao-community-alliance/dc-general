@@ -12,6 +12,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Test\ClipBoard;
 
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\FilterInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
@@ -488,7 +489,7 @@ class FilterTest extends TestCase
 
 
     /**
-     * Test andModelIs filter.
+     * Test andParentIsNotFromProvider filter.
      *
      * @dataProvider provideForModelIsNotFromDataProvider()
      */
@@ -498,6 +499,112 @@ class FilterTest extends TestCase
         $item   = new MockedAbstractItem(ItemInterface::CREATE, new ModelId($provider1, 3), null);
 
         $filter->andParentIsNotFromProvider($provider2);
+
+        $this->assertEquals($expected, $filter->accepts($item));
+    }
+
+    /**
+     * Test orParentIsNotFromProvider filter.
+     *
+     * @dataProvider provideForModelIsNotFromDataProvider()
+     */
+    public function testOrParentIsNotFromProvider($expected, $provider1, $provider2)
+    {
+        $filter = new Filter();
+        $item   = new MockedAbstractItem(ItemInterface::CREATE, new ModelId($provider1, 3), null);
+
+        $filter->orParentIsNotFromProvider($provider2);
+
+        $this->assertEquals($expected, $filter->accepts($item));
+    }
+
+    /**
+     * Test testAndParentIsIn filter.
+     *
+     * @dataProvider provideParents()
+     */
+    public function testAndParentIsIn($expected, $parentId1, $parentId2, $parentId3)
+    {
+        $filter = new Filter();
+        $item   = new MockedAbstractItem(ItemInterface::CREATE, $parentId1);
+
+        $filter->andParentIsIn([$parentId2, $parentId3]);
+        $this->assertEquals($expected, $filter->accepts($item));
+    }
+
+    /**
+     * Test testAndParentIsIn filter.
+     *
+     * @dataProvider provideParents()
+     */
+    public function testParentIsNotIn($expected, $parentId1, $parentId2, $parentId3)
+    {
+        $filter = new Filter();
+        $item   = new MockedAbstractItem(ItemInterface::CREATE, $parentId1);
+
+        $filter->andParentIsNotIn([$parentId2, $parentId3]);
+        $this->assertEquals(!$expected, $filter->accepts($item));
+    }
+
+    /**
+     * Test testAndParentIsIn filter.
+     *
+     * @dataProvider provideParents()
+     */
+    public function testOrParentIsIn($expected, $parentId1, $parentId2, $parentId3)
+    {
+        $filter = new Filter();
+        $item   = new MockedAbstractItem(ItemInterface::CREATE, $parentId1);
+
+        $filter->andParentIsIn([$parentId2, $parentId3]);
+        $this->assertEquals($expected, $filter->accepts($item));
+    }
+
+    /**
+     * Provide sub filter test values.
+     *
+     * @return array
+     */
+    public function provideSubFilter()
+    {
+        return array(
+            array(true, new MockedFilter(true)),
+            array(false, new MockedFilter(false))
+        );
+    }
+
+    /**
+     * Test and sub filter.
+     *
+     * @dataProvider provideSubFilter()
+     */
+    public function testAndSub($expected, FilterInterface $subFilter)
+    {
+        $item   = new MockedAbstractItem(ItemInterface::CREATE);
+
+        $firstSub = new MockedFilter(true);
+        $filter   = new Filter();
+
+        $filter->andSub($firstSub);
+        $filter->andSub($subFilter);
+
+        $this->assertEquals($expected, $filter->accepts($item));
+    }
+
+    /**
+     * Test and sub filter.
+     *
+     * @dataProvider provideSubFilter()
+     */
+    public function testOrSub($expected, FilterInterface $subFilter)
+    {
+        $item   = new MockedAbstractItem(ItemInterface::CREATE);
+
+        $firstSub = new MockedFilter(false);
+        $filter   = new Filter();
+
+        $filter->orSub($firstSub);
+        $filter->orSub($subFilter);
 
         $this->assertEquals($expected, $filter->accepts($item));
     }
