@@ -96,8 +96,8 @@ EXPR;
 
     const PARENT_IS_NOT_EXPRESSION = <<<'EXPR'
 (
-    item.getParentId()
-    and !item.getParentId().equals(variables[%d])
+    !item.getParentId()
+    or !item.getParentId().equals(variables[%d])
 )
 EXPR;
 
@@ -668,7 +668,7 @@ EXPR;
             $expression[]      = sprintf(self::PARENT_IS_NOT_EXPRESSION, $index);
             $this->variables[] = $parentModelId;
         }
-        $this->expression[] = '(' . implode(' or ', $expression) . ')';
+        $this->expression[] = '(' . implode(' and ', $expression) . ')';
         $this->compiled     = null;
 
         return $this;
