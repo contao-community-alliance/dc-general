@@ -1,14 +1,22 @@
 <?php
+
 /**
- * PHP version 5
+ * This file is part of contao-community-alliance/dc-general.
  *
- * @package    generalDriver
+ * (c) 2013-2015 Contao Community Alliance.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * This project is provided in good faith and hope to be usable by anyone.
+ *
+ * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  The MetaModels team.
- * @license    LGPL.
+ * @copyright  2013-2015 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
 
@@ -24,6 +32,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Decod
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPanelElementTemplateEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
@@ -40,8 +49,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Class Subscriber - gateway to the legacy Contao HOOK style callbacks.
- *
- * @package DcGeneral\Event
  */
 class Subscriber implements EventSubscriberInterface
 {
@@ -342,10 +349,13 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
+        /** @var Contao2BackendViewDefinitionInterface $backendDefinition */
+        $backendDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        $listingConfig     = $backendDefinition->getListingConfig();
+
         $dataConfig = $environment->getBaseConfigRegistry()->getBaseConfig();
         $panel      = $view->getPanel();
 
-        $panel->initialize($dataConfig);
+        ViewHelpers::initializeSorting($panel, $dataConfig, $listingConfig);
     }
 }

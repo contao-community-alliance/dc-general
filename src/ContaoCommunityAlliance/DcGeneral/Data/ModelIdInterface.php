@@ -1,17 +1,20 @@
 <?php
+
 /**
- * The MetaModels extension allows the creation of multiple collections of custom items,
- * each with its own unique set of selectable attributes, with attribute extendability.
- * The Front-End modules allow you to build powerful listing and filtering of the
- * data in each collection.
+ * This file is part of contao-community-alliance/dc-general.
  *
- * PHP version 5
+ * (c) 2013-2015 Contao Community Alliance.
  *
- * @package    MetaModels
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * This project is provided in good faith and hope to be usable by anyone.
+ *
+ * @package    contao-community-alliance/dc-general
  * @subpackage Core
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  The MetaModels team.
- * @license    LGPL.
+ * @copyright  2013-2015 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
 
@@ -23,8 +26,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  * Interface ModelIdInterface.
  *
  * This interface the model id which identifies an model.
- *
- * @package ContaoCommunityAlliance\DcGeneral\Data
  */
 interface ModelIdInterface
 {
