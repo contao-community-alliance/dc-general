@@ -696,15 +696,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         // Add new button.
         if (
-            ($mode == BasicDefinitionInterface::MODE_FLAT)
-            || (($mode == BasicDefinitionInterface::MODE_PARENTEDLIST) && !$manualSorting)
-        ) {
-            $parameters['act'] = 'edit';
-            // Add new button.
-            if ($pid) {
-                $parameters['pid'] = $pid->getSerialized();
-            }
-        } elseif (
             ($mode == BasicDefinitionInterface::MODE_PARENTEDLIST)
             || ($mode == BasicDefinitionInterface::MODE_HIERARCHICAL)
         ) {
@@ -719,12 +710,12 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             if ($environment->getClipboard()->isNotEmpty($filter)) {
                 return null;
             }
+        }
 
-            $parameters['act'] = 'create';
-
-            if ($pid) {
-                $parameters['pid'] = $pid->getSerialized();
-            }
+        $parameters['act'] = 'create';
+        // Add new button.
+        if ($pid) {
+            $parameters['pid'] = $pid->getSerialized();
         }
 
         return $command;
@@ -1415,7 +1406,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    protected function breadcrumb()
+    public function breadcrumb()
     {
         $event = new GetBreadcrumbEvent($this->getEnvironment());
 

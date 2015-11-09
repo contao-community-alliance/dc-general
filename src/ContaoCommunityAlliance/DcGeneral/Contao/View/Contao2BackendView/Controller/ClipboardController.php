@@ -27,8 +27,9 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\UnsavedItem;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -90,11 +91,10 @@ class ClipboardController implements EventSubscriberInterface
         $eventDispatcher = $environment->getEventDispatcher();
         $clipboard       = $environment->getClipboard();
         $input           = $environment->getInputProvider();
-        $modelId         = $input->getParameter('clipboard-item');
+        $clipboardId     = $input->getParameter('clipboard-item');
 
-        if ($modelId) {
-            $modelId = IdSerializer::fromSerialized($modelId);
-            $clipboard->removeById($modelId);
+        if ($clipboardId) {
+            $clipboard->removeByClipboardId($clipboardId);
         } else {
             $clipboard->clear();
         }
@@ -145,55 +145,58 @@ class ClipboardController implements EventSubscriberInterface
         $input       = $environment->getInputProvider();
         $clipboard   = $environment->getClipboard();
 
-        if ('create' === $actionName) {
-            $modelId = IdSerializer::fromValues(
-                $environment->getDataDefinition()->getBasicDefinition()->getDataProvider(),
-                null
-            );
-        } else {
-            $modelIdRaw = $input->getParameter('source');
-            $modelId    = IdSerializer::fromSerialized($modelIdRaw);
-        }
-
         $parentIdRaw = $input->getParameter('pid');
         if ($parentIdRaw) {
-            $parentId = IdSerializer::fromSerialized($parentIdRaw);
+            $parentId = ModelId::fromSerialized($parentIdRaw);
         } else {
             $parentId = null;
         }
 
-        // Push some entry into clipboard.
-        if ($modelId) {
-            $clipboardActionName = $this->translateActionName($actionName);
-
-            if ($clipboardActionName) {
-                // Remove other create items, there can only be one create item in the clipboard or many others
-                if (Item::CREATE === $clipboardActionName) {
-                    $clipboard->clear();
-                } else {
-                    $filter = new Filter();
-                    $filter->andActionIs(ItemInterface::CREATE);
-                    $items = $clipboard->fetch($filter);
-                    foreach ($items as $item) {
-                        $clipboard->remove($item);
-                    }
-                }
-
-                // Only push item to clipboard if manual sorting is used.
-                if (Item::COPY === $clipboardActionName && !ViewHelpers::getManualSortingProperty($environment)) {
-                    return;
-                }
-
-                // create the new item
-                $item = new Item($clipboardActionName, $parentId, $modelId);
-
-                // Let the clipboard save it's values persistent.
-                // TODO remove clear and allow adding multiple items
-                $clipboard->clear()->push($item)->saveTo($environment);
-
-                ViewHelpers::redirectHome($environment);
-            }
+        $clipboardActionName = $this->translateActionName($actionName);
+        if (!$clipboardActionName) {
+            return;
         }
+
+        if ('create' === $actionName) {
+            $inputProvider = $environment->getInputProvider();
+
+            // No manual sorting property defined, no need to add it to the clipboard.
+            // Or we already have an after attribute, a handler can pick it up.
+            if (!ViewHelpers::getManualSortingProperty($environment) || $inputProvider->hasParameter('after')) {
+                return;
+            }
+
+            $providerName = $environment->getDataDefinition()->getBasicDefinition()->getDataProvider();
+            $item         = new UnsavedItem($clipboardActionName, $parentId, $providerName);
+
+            // Remove other create items, there can only be one create item in the clipboard or many others
+            $clipboard->clear();
+        } else {
+            $modelIdRaw = $input->getParameter('source');
+            $modelId    = ModelId::fromSerialized($modelIdRaw);
+
+            $filter = new Filter();
+            $filter->andActionIs(ItemInterface::CREATE);
+            $items = $clipboard->fetch($filter);
+            foreach ($items as $item) {
+                $clipboard->remove($item);
+            }
+
+            // Only push item to clipboard if manual sorting is used.
+            if (Item::COPY === $clipboardActionName && !ViewHelpers::getManualSortingProperty($environment)) {
+                return;
+            }
+
+            // create the new item
+            $item = new Item($clipboardActionName, $parentId, $modelId);
+        }
+
+        // Let the clipboard save it's values persistent.
+        // TODO remove clear and allow adding multiple items
+        // Clipboard get cleared twice so far if being in create mode and partially in others. Don't know why it's here.
+        $clipboard->clear()->push($item)->saveTo($environment);
+
+        ViewHelpers::redirectHome($environment);
     }
 
     /**
@@ -227,11 +230,10 @@ class ClipboardController implements EventSubscriberInterface
 
         $options = array();
         foreach ($clipboard->fetch($filter) as $item) {
-            $modelId           = $item->getModelId();
-            $serializedModelId = $modelId->getSerialized();
-            $dataProvider      = $environment->getDataProvider($modelId->getDataProviderName());
+            $modelId      = $item->getModelId();
+            $dataProvider = $environment->getDataProvider($item->getDataProviderName());
 
-            if ($modelId->getId()) {
+            if ($modelId) {
                 $config = $dataProvider->getEmptyConfig();
                 $config->setId($modelId->getId());
                 $model = $dataProvider->fetch($config);
@@ -248,10 +250,10 @@ class ClipboardController implements EventSubscriberInterface
                 $label = $label['content'];
             } else {
                 $model = $dataProvider->getEmptyModel();
-                $label = $environment->getTranslator()->translate('new.0', $modelId->getDataProviderName());
+                $label = $environment->getTranslator()->translate('new.0', $item->getDataProviderName());
             }
 
-            $options[$serializedModelId] = array(
+            $options[$item->getClipboardId()] = array(
                 'item'  => $item,
                 'model' => $model,
                 'label' => $label,

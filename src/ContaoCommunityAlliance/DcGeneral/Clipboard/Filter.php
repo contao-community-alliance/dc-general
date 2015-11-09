@@ -51,27 +51,27 @@ class Filter implements FilterInterface
 
     const MODEL_IS_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
 (
-    item.getModelId()
-    and item.getModelId().getDataProviderName() === variables[%d]
+    item.getDataProviderName() === variables[%d]
 )
 EXPR;
 
     const MODEL_IS_NOT_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
 (
-    item.getModelId()
-    and item.getModelId().getDataProviderName() !== variables[%d]
+    item.getDataProviderName() !== variables[%d]
 )
 EXPR;
 
     const MODEL_IS_EXPRESSION = <<<'EXPR'
 (
-    item.getModelId().equals(variables[%d])
+    item.getModelId()
+    and item.getModelId().equals(variables[%d])
 )
 EXPR;
 
     const MODEL_IS_NOT_EXPRESSION = <<<'EXPR'
 (
-    !item.getModelId().equals(variables[%d])
+    !item.getModelId()
+    or !item.getModelId().equals(variables[%d])
 )
 EXPR;
 
@@ -104,8 +104,8 @@ EXPR;
 
     const PARENT_IS_NOT_EXPRESSION = <<<'EXPR'
 (
-    item.getParentId()
-    and !item.getParentId().equals(variables[%d])
+    !item.getParentId()
+    or !item.getParentId().equals(variables[%d])
 )
 EXPR;
 
@@ -120,6 +120,13 @@ EXPR;
     item.getAction() !== variables[%d]
 )
 EXPR;
+
+    const SUB_FILTER = <<<'EXPR'
+(
+    variables[%d].accepts(item)
+)
+EXPR;
+
 
     /**
      * Factory method.
@@ -676,7 +683,7 @@ EXPR;
             $expression[]      = sprintf(self::PARENT_IS_NOT_EXPRESSION, $index);
             $this->variables[] = $parentModelId;
         }
-        $this->expression[] = '(' . implode(' or ', $expression) . ')';
+        $this->expression[] = '(' . implode(' and ', $expression) . ')';
         $this->compiled     = null;
 
         return $this;
@@ -884,7 +891,7 @@ EXPR;
             $expression[]      = sprintf(self::ACTION_IS_NOT_EXPRESSION, $index);
             $this->variables[] = $action;
         }
-        $this->expression[] = '(' . implode(' or ', $expression) . ')';
+        $this->expression[] = '(' . implode(' and ', $expression) . ')';
         $this->compiled     = null;
 
         return $this;
@@ -893,11 +900,11 @@ EXPR;
     /**
      * And sub filter.
      *
-     * @param Filter $filter The sub filter.
+     * @param FilterInterface $filter The sub filter.
      *
      * @return static
      */
-    public function andSub(Filter $filter)
+    public function andSub(FilterInterface $filter)
     {
         $this->sub('and', $filter);
 
@@ -907,11 +914,11 @@ EXPR;
     /**
      * Or sub filter.
      *
-     * @param Filter $filter The sub filter.
+     * @param FilterInterface $filter The sub filter.
      *
      * @return static
      */
-    public function orSub(Filter $filter)
+    public function orSub(FilterInterface $filter)
     {
         $this->sub('or', $filter);
 
@@ -921,25 +928,21 @@ EXPR;
     /**
      * Add sub filter.
      *
-     * @param string $conjunction AND or OR.
-     * @param Filter $filter      The sub filter.
+     * @param string          $conjunction AND or OR.
+     * @param FilterInterface $filter      The sub filter.
      *
      * @return static
      */
-    private function sub($conjunction, Filter $filter)
+    private function sub($conjunction, FilterInterface $filter)
     {
         if (!empty($this->expression)) {
             $this->expression[] = $conjunction;
         }
 
-        $expression = $filter->getExpression();
-        $variables  = $filter->getVariables();
-
-        $index      = count($this->variables);
-        $expression = str_replace('variables', 'variables[' . $index . ']', $expression);
-
-        $this->expression[] = '(' . $expression . ')';
-        $this->variables[]  = $variables;
+        $index              = count($this->variables);
+        $this->expression[] = sprintf(self::SUB_FILTER, $index);
+        $this->variables[]  = $filter;
+        $this->compiled     = null;
 
         return $this;
     }

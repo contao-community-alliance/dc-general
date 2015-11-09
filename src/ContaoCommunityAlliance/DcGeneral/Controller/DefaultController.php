@@ -580,7 +580,12 @@ class DefaultController implements ControllerInterface
      */
     public function getModelFromClipboardItem(ItemInterface $item)
     {
-        $modelId      = $item->getModelId();
+        $modelId = $item->getModelId();
+
+        if (!$modelId) {
+            return null;
+        }
+
         $environment  = $this->getEnvironment();
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
         $config       = $dataProvider->getEmptyConfig()->setId($modelId->getId());
@@ -600,11 +605,15 @@ class DefaultController implements ControllerInterface
         foreach ($items as $item) {
             /** @var ItemInterface $item */
             $modelId      = $item->getModelId();
-            $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
-            // FIXME: Item should allow null as modelId so we can skip the second check here and move to class ModelId.
-            if ($modelId && $modelId->getId()) {
-                $models->push($dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId())));
+            $dataProvider = $environment->getDataProvider($item->getDataProviderName());
 
+            if ($modelId) {
+                $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+
+                // Make sure model exists.
+                if ($model) {
+                    $models->push($model);
+                }
                 continue;
             }
 
@@ -716,11 +725,11 @@ class DefaultController implements ControllerInterface
         $actions     = array();
 
         foreach ($items as $item) {
-            if ($item->isCreate()) {
-                $model = null;
-            } else {
+            $model = null;
+
+            if (!$item->isCreate() && $item->getModelId()) {
                 $modelId      = $item->getModelId();
-                $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
+                $dataProvider = $environment->getDataProvider($item->getDataProviderName());
                 $config       = $dataProvider->getEmptyConfig()->setId($modelId->getId());
                 $model        = $dataProvider->fetch($config);
             }
