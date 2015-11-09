@@ -44,7 +44,7 @@ if (count($this->options)):
     <div class="tl_listing_container" id="dcg_clipboard">
         <ul>
             <?php foreach ($this->options as $id => $row): ?>
-                <li title="ID <?php echo specialchars($item->getModelId()->getId()) ?>">
+                <li title="ID <?php echo specialchars($item->getClipboardId()) ?>">
                     <?php $item = $row['item']; ?>
                     <?php echo $icons[$item->getAction()] ?>
                     <?php echo $row['label'] ?>

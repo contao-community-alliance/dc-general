@@ -13,8 +13,9 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     David Molineus <david.molineus@netzmacht.de>
+ * @copyright  The MetaModels team.
+ * @license    LGPL.
  * @filesource
  */
 
@@ -26,6 +27,10 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
  * Interface ItemInterface.
  *
  * A single clipboard action item.
+ *
+ * The item is designed to be immutable! A mutable implementation would probably leads to unexpected behaviour.
+ *
+ * @package DcGeneral\Clipboard
  */
 interface ItemInterface
 {
@@ -97,6 +102,20 @@ interface ItemInterface
      * @return ModelId|null
      */
     public function getModelId();
+
+    /**
+     * Retrieve the provider name of the model from this item.
+     *
+     * @return string
+     */
+    public function getDataProviderName();
+
+    /**
+     * Get the id which identifies the item in the clipboard.
+     *
+     * @return string
+     */
+    public function getClipboardId();
 
     /**
      * Determine if this item, is equals to the other item.

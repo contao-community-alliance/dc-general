@@ -13,6 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -54,6 +55,8 @@ interface ClipboardInterface
     /**
      * Push an item to the clipboard.
      *
+     * If an instance with the same clipboard id has already been added it will get overwritten.
+     *
      * @param ItemInterface $item The item.
      *
      * @return static
@@ -77,6 +80,15 @@ interface ClipboardInterface
      * @return static
      */
     public function removeById(ModelIdInterface $modelId);
+
+    /**
+     * Remove an item from the clipboard by its clipboard id.
+     *
+     * @param string $clipboardId The clipboard id.
+     *
+     * @return static
+     */
+    public function removeByClipboardId($clipboardId);
 
     /**
      * Determine if an item exist.

@@ -11,11 +11,9 @@
  * This project is provided in good faith and hope to be usable by anyone.
  *
  * @package    contao-community-alliance/dc-general
- * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  The MetaModels team.
- * @license    LGPL.
+ * @copyright  2013-2015 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
 
@@ -24,37 +22,39 @@ namespace ContaoCommunityAlliance\DcGeneral\Clipboard;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 
 /**
- * {@inheritdoc}
+ * UnsavedItem is designed for new items being created which does not have an id yet.
+ *
+ * @package ContaoCommunityAlliance\DcGeneral\Clipboard
  */
-class Item extends AbstractItem
+class UnsavedItem extends AbstractItem
 {
     /**
-     * The id of the model.
+     * The provider name.
      *
-     * @var ModelIdInterface|null
+     * @var string
      */
-    private $modelId;
+    private $providerName;
 
     /**
      * Create a new instance.
      *
-     * @param string                $action   The action being performed.
+     * @param string                $action       The action being performed.
      *
-     * @param ModelIdInterface|null $parentId The id of the parent model (null for no parent).
+     * @param ModelIdInterface|null $parentId     The id of the parent model (null for no parent).
      *
-     * @param ModelIdInterface|null $modelId  The id of the model the action covers (may be null for "create" only).
+     * @param string                $providerName The provider name of the item being created.
      *
-     * @throws \InvalidArgumentException When the action is not one of create, cut, copy or deep copy.
+     * @throws \InvalidArgumentException When the action is not create.
      */
-    public function __construct($action, $parentId, $modelId)
+    public function __construct($action, $parentId, $providerName)
     {
         parent::__construct($action, $parentId);
 
-        if (!$modelId instanceof ModelIdInterface) {
-            throw new \InvalidArgumentException('Invalid $modelId given.');
+        if ($action !== ItemInterface::CREATE) {
+            throw new \InvalidArgumentException('UnsavedItem is designed for create actions only.');
         }
 
-        $this->modelId = $modelId;
+        $this->providerName = $providerName;
     }
 
     /**
@@ -62,7 +62,7 @@ class Item extends AbstractItem
      */
     public function getModelId()
     {
-        return $this->modelId;
+        return null;
     }
 
     /**
@@ -70,7 +70,7 @@ class Item extends AbstractItem
      */
     public function getDataProviderName()
     {
-        return $this->modelId->getDataProviderName();
+        return $this->providerName;
     }
 
     /**
@@ -79,7 +79,7 @@ class Item extends AbstractItem
     public function getClipboardId()
     {
         return $this->getAction() .
-            ($this->modelId ? $this->modelId->getSerialized() : 'null') .
+            $this->getDataProviderName() .
             (($parentId = $this->getParentId()) ? $parentId->getSerialized() : 'null');
     }
 }
