@@ -81,7 +81,6 @@ class ListView extends BaseView
         $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
 
         if ($sorting && $clipboard->isNotEmpty($filter)) {
-
             $allowPasteTop = ViewHelpers::getManualSortingProperty($this->environment);
 
             if ($allowPasteTop) {

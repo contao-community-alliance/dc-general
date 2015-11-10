@@ -282,7 +282,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      *
-     * @throws DcGeneralRuntimeException when an undefined provider is requested.
+     * @throws DcGeneralRuntimeException When an undefined provider is requested.
      */
     public function getDataProvider($strSource = null)
     {

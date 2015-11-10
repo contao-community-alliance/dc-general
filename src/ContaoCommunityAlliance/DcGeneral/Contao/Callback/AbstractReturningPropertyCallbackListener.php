@@ -54,10 +54,10 @@ abstract class AbstractReturningPropertyCallbackListener extends AbstractReturni
         $this->propertyName = $propertyName;
     }
 
+    // @codingStandardsIgnoreStart
     /**
      * Check the restrictions against the information within the event and determine if the callback shall be executed.
      *
-     * @codingStandardsIgnoreStart
      * @param BuildWidgetEvent|DecodePropertyValueForWidgetEvent|EncodePropertyValueFromWidgetEvent|GetPropertyOptionsEvent $event The Event for which the callback shall be invoked.
      * @codingStandardsIgnoreEnd
      *
@@ -68,7 +68,6 @@ abstract class AbstractReturningPropertyCallbackListener extends AbstractReturni
         if (method_exists($event, 'getPropertyName')) {
             $property = $event->getPropertyName();
         } else {
-
             if ($event->getProperty() instanceof PropertyInterface) {
                 $property = $event->getProperty()->getName();
             } else {

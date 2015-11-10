@@ -120,7 +120,6 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
                     $rootName = $definition->getBasicDefinition()->getRootDataProvider();
                     if ($rootName) {
-
                         $factory        = DcGeneralFactory::deriveEmptyFromEnvironment($environment)->setContainerName(
                             $rootName
                         );

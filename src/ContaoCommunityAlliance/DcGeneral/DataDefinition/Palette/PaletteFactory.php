@@ -34,7 +34,6 @@ class PaletteFactory
      *
      * @param array|PaletteInterface $palettes A list of palettes. Can be multiple arrays and arrays of arrays.
      *
-     *
      * @param PaletteInterface       $_        A list of palettes. Can be multiple arrays and arrays of arrays.
      *
      * @return PaletteCollectionInterface

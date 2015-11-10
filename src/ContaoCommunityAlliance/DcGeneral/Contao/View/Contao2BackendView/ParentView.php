@@ -377,7 +377,6 @@ class ParentView extends BaseView
             $filter->andParentIsFromProvider($basicDefinition->getParentDataProvider());
 
             if ($sorting && $clipboard->isNotEmpty($filter)) {
-
                 $allowPasteTop = ViewHelpers::getManualSortingProperty($this->environment);
 
                 if (!$allowPasteTop) {

@@ -130,8 +130,7 @@ class LanguageFilter implements EventSubscriberInterface
         $providerName = $environment->getDataDefinition()->getName();
 
         // Get/Check the new language.
-        if (
-            $inputProvider->hasValue('language')
+        if ($inputProvider->hasValue('language')
             && array_key_exists($inputProvider->getValue('language'), $languages)
         ) {
             $session['ml_support'][$providerName][$modelId] = $inputProvider->getValue('language');

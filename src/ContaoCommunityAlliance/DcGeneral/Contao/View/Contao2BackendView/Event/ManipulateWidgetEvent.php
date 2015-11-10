@@ -33,7 +33,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
  *
  * If you want to create the widget entirely by yourself refer to the BuildWidgetEvent event.
  *
- * @see     BuildWidgetEvent
+ * @see BuildWidgetEvent
  */
 class ManipulateWidgetEvent extends AbstractModelAwareEvent
 {

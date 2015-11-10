@@ -12,6 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     David Molineus <david.molineus@netzmacht.de>
+ * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -104,7 +105,6 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
         $provider->save($copyModel);
 
         // FIXME: Copy each language multi language models.
-
         // Dispatch post duplicate event.
         $copyEvent = new PostDuplicateModelEvent($environment, $copyModel, $model);
         $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);

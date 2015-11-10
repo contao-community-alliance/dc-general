@@ -143,7 +143,6 @@ interface ClipboardInterface
     public function clear();
 
     // ************************************************** DEPRECATED **************************************************
-
     /**
      * Clipboard is in copy mode.
      *
@@ -170,7 +169,7 @@ interface ClipboardInterface
      *
      * @return bool
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function isCut();
 
@@ -179,7 +178,7 @@ interface ClipboardInterface
      *
      * @return bool
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function isCopy();
 
@@ -188,7 +187,7 @@ interface ClipboardInterface
      *
      * @return bool
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function isCreate();
 
@@ -199,7 +198,7 @@ interface ClipboardInterface
      *
      * @return ClipboardInterface
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function copy($ids);
 
@@ -210,7 +209,7 @@ interface ClipboardInterface
      *
      * @return ClipboardInterface
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function cut($ids);
 
@@ -221,7 +220,7 @@ interface ClipboardInterface
      *
      * @return ClipboardInterface
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function create($parentId);
 
@@ -232,7 +231,7 @@ interface ClipboardInterface
      *
      * @return ClipboardInterface
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function setContainedIds($arrIds);
 
@@ -241,7 +240,7 @@ interface ClipboardInterface
      *
      * @return array
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function getContainedIds();
 
@@ -252,7 +251,7 @@ interface ClipboardInterface
      *
      * @return ClipboardInterface
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function setCircularIds($arrIds);
 
@@ -261,7 +260,7 @@ interface ClipboardInterface
      *
      * @return array
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function getCircularIds();
 
@@ -270,7 +269,7 @@ interface ClipboardInterface
      *
      * @return string Either cut|paste|mode
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function getMode();
 
@@ -281,7 +280,7 @@ interface ClipboardInterface
      *
      * @return null|string
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function getParent();
 }

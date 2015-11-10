@@ -256,7 +256,6 @@ class DefaultDataProvider implements DataProviderInterface
 
         $combine = array();
         foreach ($children as $child) {
-
             $combine[] = $this->calculateSubfilter($child, $params);
         }
 
@@ -540,7 +539,7 @@ class DefaultDataProvider implements DataProviderInterface
             $arrParams = array();
 
             // Build SQL.
-            $query = sprintf(
+            $query  = sprintf(
                 'SELECT %s FROM %s',
                 $this->buildFieldQuery($objConfig),
                 $this->strSource
@@ -569,7 +568,7 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $arrParams = array();
         // Build SQL.
-        $query = sprintf(
+        $query  = sprintf(
             'SELECT %s FROM %s',
             $this->buildFieldQuery($objConfig),
             $this->strSource
@@ -606,7 +605,7 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * {@inheritDoc}
      *
-     * @throws DcGeneralRuntimeException if improper values have been passed (i.e. not exactly one field requested).
+     * @throws DcGeneralRuntimeException If improper values have been passed (i.e. not exactly one field requested).
      */
     public function getFilterOptions(ConfigInterface $objConfig)
     {
@@ -645,7 +644,7 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $arrParams = array();
 
-        $query = sprintf(
+        $query  = sprintf(
             'SELECT COUNT(*) AS count FROM %s',
             $this->strSource
         );

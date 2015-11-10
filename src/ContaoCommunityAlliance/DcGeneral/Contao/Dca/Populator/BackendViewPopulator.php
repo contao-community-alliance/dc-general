@@ -60,6 +60,7 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
      * @return void
      *
      * @throws DcGeneralInvalidArgumentException Upon an unknown view mode has been encountered.
+     *
      * @internal
      */
     protected function populateView(EnvironmentInterface $environment)

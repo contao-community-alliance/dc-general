@@ -42,7 +42,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
 {
     /**
      * The environment.
-     * 
+     *
      * @var EnvironmentInterface
      */
     private $environment;
@@ -69,9 +69,9 @@ class WidgetBuilder implements EnvironmentAwareInterface
 
     /**
      * Handle the build widget event.
-     * 
+     *
      * @param BuildWidgetEvent $event The event.
-     * 
+     *
      * @return void
      */
     public static function handleEvent(BuildWidgetEvent $event)
