@@ -58,12 +58,6 @@ class DCGE
     const TREE_VIEW_CHILD_COLLECTION = 'dc_gen_children_collection';
 
     /**
-     * @deprecated Use ModelInterface::PARENT_ID
-     * @see        ModelInterface::PARENT_ID
-     */
-    const MODEL_PID = ModelInterface::PARENT_ID;
-
-    /**
      * @deprecated Use ModelInterface::PARENT_PROVIDER_NAME
      * @see        ModelInterface::PARENT_PROVIDER_NAME
      */
