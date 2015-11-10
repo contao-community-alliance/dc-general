@@ -58,12 +58,6 @@ class DCGE
     const TREE_VIEW_CHILD_COLLECTION = 'dc_gen_children_collection';
 
     /**
-     * @deprecated Use ModelInterface::CSS_ROW_CLASS
-     * @see        ModelInterface::CSS_ROW_CLASS
-     */
-    const MODEL_EVEN_ODD_CLASS = ModelInterface::CSS_ROW_CLASS;
-
-    /**
      * @deprecated Use ModelInterface::PARENT_ID
      * @see        ModelInterface::PARENT_ID
      */
