@@ -1251,10 +1251,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                     $property->setSearchable((bool) $value);
                     break;
 
-                case 'sorting':
-                    $property->setSortable((bool) $value);
-                    break;
-
                 case 'filter':
                     $property->setFilterable((bool) $value);
                     break;
