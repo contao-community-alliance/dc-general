@@ -1424,16 +1424,4 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         return $objTemplate->parse();
     }
-
-    /**
-     * Create an empty model using the default values from the definition.
-     *
-     * @return ModelInterface
-     *
-     * @deprecated Use Controller::createEmptyModelWithDefaults() instead!
-     */
-    protected function createEmptyModelWithDefaults()
-    {
-        return $this->environment->getController()->createEmptyModelWithDefaults();
-    }
 }
