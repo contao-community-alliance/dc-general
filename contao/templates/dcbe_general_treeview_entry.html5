@@ -1,20 +1,28 @@
-<li class="<?php echo ($this->objModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::TREE_VIEW_LEVEL) == 0) ? 'tl_folder' : 'tl_file'; ?>" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
-    <div class="tl_left" style="padding-left:<?php echo $this->objModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::TREE_VIEW_LEVEL) * 20 ?>px;">
-        <?php if ($this->objModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::TREE_VIEW_HAS_CHILDS) == true): ?>
+<?php
+use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+
+/** @var ModelInterface $model */
+$model = $this->objModel;
+?>
+<li class="<?php echo ($model->getMeta(DCGE::TREE_VIEW_LEVEL) == 0) ? 'tl_folder' : 'tl_file'; ?>" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
+    <div class="tl_left" style="padding-left:<?php echo $model->getMeta(DCGE::TREE_VIEW_LEVEL) * 20 ?>px;">
+        <?php if ($model->getMeta($model::HAS_CHILDREN) == true): ?>
             <a class="folding" href="<?php echo $this->toggleUrl; ?>" title="<?php echo $this->toggleTitle; ?>" onclick="<?php echo $this->toggleScript; ?>">
-                <img src="system/themes/default/images/<?php echo ($this->objModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::TREE_VIEW_IS_OPEN)) ? 'folMinus.gif' : 'folPlus.gif'; ?>" width="18" height="18" alt="" style="margin-right:-2px;">
+                <img src="system/themes/default/images/<?php echo ($model->getMeta(DCGE::TREE_VIEW_IS_OPEN)) ? 'folMinus.gif' : 'folPlus.gif'; ?>" width="18" height="18" alt="" style="margin-right:-2px;">
             </a>
         <?php endif; ?>
-        <?php $arrLabels = $this->objModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::MODEL_LABEL_VALUE); ?>
+        <?php $arrLabels = $model->getMeta(DCGE::MODEL_LABEL_VALUE); ?>
         <div class="tl_pagetree_content"><?php echo $arrLabels[0]['content']; ?></div>
     </div>
     <?php if ($this->select): ?>
         <div class="tl_right tl_right_nowrap">
-            <input type="checkbox" name="IDS[]" id="ids_<?php echo $this->objModel->getId(); ?>" class="tl_tree_checkbox" value="<?php echo \ContaoCommunityAlliance\DcGeneral\Data\ModelId::fromModel($this->objModel)->getSerialized(); ?>">
+            <input type="checkbox" name="IDS[]" id="ids_<?php echo $model->getId(); ?>" class="tl_tree_checkbox" value="<?php echo ModelId::fromModel($model)->getSerialized(); ?>">
         </div>
     <?php else: ?>
     <div class="tl_right">
-        <?php echo $this->objModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::MODEL_BUTTONS); ?>
+        <?php echo $model->getMeta(DCGE::MODEL_BUTTONS); ?>
     </div>
     <?php endif; ?>
     <div style="clear:both;"></div>
