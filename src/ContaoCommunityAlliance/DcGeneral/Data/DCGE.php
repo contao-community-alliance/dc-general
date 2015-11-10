@@ -70,12 +70,6 @@ class DCGE
     const MODEL_LABEL_ARGS = ModelInterface::LABEL_ARGS;
 
     /**
-     * @deprecated Use ModelInterface::LABEL_VALUE
-     * @see        ModelInterface::LABEL_VALUE
-     */
-    const MODEL_LABEL_VALUE = ModelInterface::LABEL_VALUE;
-
-    /**
      * @deprecated Use ModelInterface::GROUP_HEADER
      * @see        ModelInterface::GROUP_HEADER
      */
