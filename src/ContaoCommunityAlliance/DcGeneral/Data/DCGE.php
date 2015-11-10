@@ -58,12 +58,6 @@ class DCGE
     const TREE_VIEW_CHILD_COLLECTION = 'dc_gen_children_collection';
 
     /**
-     * @deprecated Use ModelInterface::GROUP_VALUE
-     * @see        ModelInterface::GROUP_VALUE
-     */
-    const MODEL_GROUP_VALUE = ModelInterface::GROUP_VALUE;
-
-    /**
      * @deprecated Use ModelInterface::CSS_CLASS
      * @see        ModelInterface::CSS_CLASS
      */
