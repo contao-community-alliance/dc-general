@@ -35,8 +35,6 @@ class Palette implements PaletteInterface
      * The name of this palette.
      *
      * @var string
-     *
-     * @deprecated Only for backwards compatibility, we will remove palette names in the future!
      */
     protected $name = null;
 
