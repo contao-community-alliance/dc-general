@@ -20,20 +20,8 @@
             "role": "Developer"
         },
         {
-            "name": "Andreas Isaak",
-            "email": "info@andreas-isaak.de",
-            "homepage": "http://www.andreas-isaak.de",
-            "role": "Developer"
-        },
-        {
             "name": "Stefan Heimes",
             "email": "stefan_heimes@hotmail.com",
-            "role": "Developer"
-        },
-        {
-            "name": "Tristan Lins",
-            "email": "tristan.lins@bit3.de",
-            "homepage": "http://bit3.de/",
             "role": "Developer"
         }
     ],
