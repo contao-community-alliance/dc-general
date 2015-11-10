@@ -56,10 +56,4 @@ class DCGE
      * Child Collection.
      */
     const TREE_VIEW_CHILD_COLLECTION = 'dc_gen_children_collection';
-
-    /**
-     * @deprecated Use ModelInterface::PARENT_PROVIDER_NAME
-     * @see        ModelInterface::PARENT_PROVIDER_NAME
-     */
-    const MODEL_PTABLE = ModelInterface::PARENT_PROVIDER_NAME;
 }
