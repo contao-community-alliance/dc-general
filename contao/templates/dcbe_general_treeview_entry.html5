@@ -22,7 +22,7 @@ $model = $this->objModel;
         </div>
     <?php else: ?>
     <div class="tl_right">
-        <?php echo $model->getMeta(DCGE::MODEL_BUTTONS); ?>
+        <?php echo $model->getMeta($model::OPERATION_BUTTONS); ?>
     </div>
     <?php endif; ?>
     <div style="clear:both;"></div>

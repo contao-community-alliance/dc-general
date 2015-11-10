@@ -58,12 +58,6 @@ class DCGE
     const TREE_VIEW_CHILD_COLLECTION = 'dc_gen_children_collection';
 
     /**
-     * @deprecated Use ModelInterface::OPERATION_BUTTONS
-     * @see        ModelInterface::OPERATION_BUTTONS
-     */
-    const MODEL_BUTTONS = ModelInterface::OPERATION_BUTTONS;
-
-    /**
      * @deprecated Use ModelInterface::LABEL_ARGS
      * @see        ModelInterface::LABEL_ARGS
      */
