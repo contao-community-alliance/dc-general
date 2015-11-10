@@ -43,7 +43,7 @@ class ContainerPasteButtonCallbackListener extends AbstractReturningCallbackList
             new DcCompat($event->getEnvironment(), $event->getModel()),
             $event->getModel()->getPropertiesAsArray(),
             $event->getEnvironment()->getDataDefinition()->getName(),
-            $event->getCircularReference(),
+            $event->isCircularReference(),
             $event->getEnvironment()->getClipboard()->getContainedIds(),
             $event->getPrevious() ? $event->getPrevious()->getId() : null,
             $event->getNext() ? $event->getNext()->getId() : null
