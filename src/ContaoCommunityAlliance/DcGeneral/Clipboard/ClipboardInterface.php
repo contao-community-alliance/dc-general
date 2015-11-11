@@ -148,21 +148,21 @@ interface ClipboardInterface
      *
      * @deprecated
      */
-    const MODE_COPY = 'copy';
+    const MODE_COPY = ItemInterface::COPY;
 
     /**
      * Clipboard is in cut mode.
      *
      * @deprecated
      */
-    const MODE_CUT = 'cut';
+    const MODE_CUT = ItemInterface::CUT;
 
     /**
      * Clipboard is in create mode.
      *
      * @deprecated
      */
-    const MODE_CREATE = 'create';
+    const MODE_CREATE = ItemInterface::CREATE;
 
     /**
      * Determine if the content in the clipboard shall be cut.
