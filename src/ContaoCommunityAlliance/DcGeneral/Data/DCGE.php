@@ -38,11 +38,6 @@ class DCGE
     const MODEL_SORTING_DESC = 'DESC';
 
     /**
-     * Title of an item in a tree view.
-     */
-    const TREE_VIEW_TITLE = 'dc_gen_tv_title';
-
-    /**
      * The current level in a tree view.
      */
     const TREE_VIEW_LEVEL = 'dc_gen_tv_level';
