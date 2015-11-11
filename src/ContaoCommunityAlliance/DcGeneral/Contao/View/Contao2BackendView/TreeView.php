@@ -451,16 +451,13 @@ class TreeView extends BaseView
 
         // Root paste into.
         if ($environment->getClipboard()->isNotEmpty($filter)) {
-            $objClipboard = $environment->getClipboard();
             /** @var AddToUrlEvent $urlEvent */
             $urlEvent = $dispatcher->dispatch(
                 ContaoEvents::BACKEND_ADD_TO_URL,
                 new AddToUrlEvent(
                     sprintf(
-                        'act=paste&amp;into=%s::0&amp;children=%s',
-                        $definition->getName(),
-                        $objClipboard->getContainedIds(),
-                        implode(',', $objClipboard->getCircularIds())
+                        'act=paste&amp;into=%s::0',
+                        $definition->getName()
                     )
                 )
             );
@@ -547,19 +544,9 @@ class TreeView extends BaseView
     {
         $environment = $this->getEnvironment();
         $input       = $environment->getInputProvider();
-        $clipboard   = $environment->getClipboard();
-
-        // Push an empty model into the clipboard.
-        if ($input->getParameter('mode') === 'create') {
-            $clipboard->create(null);
-        }
 
         // If destination is known, perform normal paste.
         if ($input->hasParameter('after') || $input->hasParameter('into')) {
-            if ($clipboard->isCreate()) {
-                return parent::create($action);
-            }
-
             parent::paste($action);
         }
 
