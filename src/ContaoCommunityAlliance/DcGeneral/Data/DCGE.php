@@ -49,8 +49,10 @@ class DCGE
 
     /**
      * Is the tree item open.
+     *
+     * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface::SHOW_CHILDREN
      */
-    const TREE_VIEW_IS_OPEN = 'dc_gen_tv_open';
+    const TREE_VIEW_IS_OPEN = \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface::SHOW_CHILDREN;
 
     /**
      * Child Collection.

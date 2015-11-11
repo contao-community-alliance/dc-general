@@ -130,7 +130,7 @@ class TreeCollector implements EnvironmentAwareInterface
     {
         $model->setMeta(DCGE::TREE_VIEW_LEVEL, $level);
         $model->setMeta(
-            DCGE::TREE_VIEW_IS_OPEN,
+            $model::SHOW_CHILDREN,
             $this->states->isModelOpen($model->getProviderName(), $model->getId())
         );
     }
@@ -233,7 +233,7 @@ class TreeCollector implements EnvironmentAwareInterface
             $hasChildren     = !!$childCollection;
 
             // Speed up - we may exit if we have at least one child but the parenting model is collapsed.
-            if ($hasChildren && !$model->getMeta(DCGE::TREE_VIEW_IS_OPEN)) {
+            if ($hasChildren && !$model->getMeta($model::SHOW_CHILDREN)) {
                 break;
             } elseif ($hasChildren) {
                 foreach ($childCollection as $childModel) {
@@ -248,7 +248,7 @@ class TreeCollector implements EnvironmentAwareInterface
         }
 
         // If expanded, store children.
-        if ($model->getMeta(DCGE::TREE_VIEW_IS_OPEN) && count($childCollections) != 0) {
+        if ($model->getMeta($model::SHOW_CHILDREN) && count($childCollections) != 0) {
             $model->setMeta($model::CHILD_COLLECTIONS, $childCollections);
         }
 

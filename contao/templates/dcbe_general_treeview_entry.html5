@@ -10,7 +10,7 @@ $model = $this->objModel;
     <div class="tl_left" style="padding-left:<?php echo $model->getMeta(DCGE::TREE_VIEW_LEVEL) * 20 ?>px;">
         <?php if ($model->getMeta($model::HAS_CHILDREN) == true): ?>
             <a class="folding" href="<?php echo $this->toggleUrl; ?>" title="<?php echo $this->toggleTitle; ?>" onclick="<?php echo $this->toggleScript; ?>">
-                <img src="system/themes/default/images/<?php echo ($model->getMeta(DCGE::TREE_VIEW_IS_OPEN)) ? 'folMinus.gif' : 'folPlus.gif'; ?>" width="18" height="18" alt="" style="margin-right:-2px;">
+                <img src="system/themes/default/images/<?php echo ($model->getMeta($model::SHOW_CHILDREN)) ? 'folMinus.gif' : 'folPlus.gif'; ?>" width="18" height="18" alt="" style="margin-right:-2px;">
             </a>
         <?php endif; ?>
         <?php $arrLabels = $model->getMeta($model::LABEL_VALUE); ?>

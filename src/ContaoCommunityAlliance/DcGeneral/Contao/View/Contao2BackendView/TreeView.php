@@ -31,7 +31,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPa
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeCollector;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeNodeStates;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
@@ -265,7 +264,7 @@ class TreeView extends BaseView
 
         $objTemplate = $this->getTemplate('dcbe_general_treeview_entry');
 
-        if ($objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN)) {
+        if ($objModel->getMeta($objModel::SHOW_CHILDREN)) {
             $toggleTitle = $this->getEnvironment()->getTranslator()->translate('collapseNode', 'MSC');
         } else {
             $toggleTitle = $this->getEnvironment()->getTranslator()->translate('expandNode', 'MSC');
@@ -332,7 +331,7 @@ class TreeView extends BaseView
 
             $arrHtml[] = $this->parseModel($objModel, $strToggleID);
 
-            if ($objModel->getMeta($objModel::HAS_CHILDREN) && $objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN)) {
+            if ($objModel->getMeta($objModel::HAS_CHILDREN) && $objModel->getMeta($objModel::SHOW_CHILDREN)) {
                 $objTemplate = $this->getTemplate('dcbe_general_treeview_child');
                 $strSubHtml  = '';
 
