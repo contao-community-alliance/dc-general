@@ -261,7 +261,9 @@ class TreeView extends BaseView
             $event
         );
 
-        $objModel->setMeta($objModel::OPERATION_BUTTONS, $this->generateButtons($objModel));
+        if (!$this->isSelectModeActive()) {
+            $objModel->setMeta($objModel::OPERATION_BUTTONS, $this->generateButtons($objModel));
+        }
         $objModel->setMeta($objModel::LABEL_VALUE, $event->getLabel());
 
         $objTemplate = $this->getTemplate('dcbe_general_treeview_entry');
