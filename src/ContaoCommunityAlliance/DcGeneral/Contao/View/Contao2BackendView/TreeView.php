@@ -177,7 +177,7 @@ class TreeView extends BaseView
                 return $objTreeData;
             }
 
-            foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection) {
+            foreach ($objModel->getMeta($objModel::CHILD_COLLECTIONS) as $objCollection) {
                 foreach ($objCollection as $objSubModel) {
                     $objTreeData->push($objSubModel);
                 }
@@ -336,7 +336,7 @@ class TreeView extends BaseView
                 $objTemplate = $this->getTemplate('dcbe_general_treeview_child');
                 $strSubHtml  = '';
 
-                foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection) {
+                foreach ($objModel->getMeta($objModel::CHILD_COLLECTIONS) as $objCollection) {
                     $strSubHtml .= $this->generateTreeView($objCollection, $treeClass);
                 }
 

@@ -249,7 +249,7 @@ class TreeCollector implements EnvironmentAwareInterface
 
         // If expanded, store children.
         if ($model->getMeta(DCGE::TREE_VIEW_IS_OPEN) && count($childCollections) != 0) {
-            $model->setMeta(DCGE::TREE_VIEW_CHILD_COLLECTION, $childCollections);
+            $model->setMeta($model::CHILD_COLLECTIONS, $childCollections);
         }
 
         $model->setMeta($model::HAS_CHILDREN, $hasChildren);

@@ -49,6 +49,11 @@ interface ModelInterface extends \IteratorAggregate
     const HAS_CHILDREN = 'dc_gen_tv_children';
 
     /**
+     * All child collections.
+     */
+    const CHILD_COLLECTIONS = 'dc_gen_children_collection';
+
+    /**
      * Meta name for the model operation buttons.
      */
     const OPERATION_BUTTONS = '%buttons%';

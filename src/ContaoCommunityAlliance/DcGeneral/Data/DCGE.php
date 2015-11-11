@@ -54,6 +54,8 @@ class DCGE
 
     /**
      * Child Collection.
+     *
+     * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface::CHILD_COLLECTIONS
      */
-    const TREE_VIEW_CHILD_COLLECTION = 'dc_gen_children_collection';
+    const TREE_VIEW_CHILD_COLLECTION = \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface::CHILD_COLLECTIONS;
 }

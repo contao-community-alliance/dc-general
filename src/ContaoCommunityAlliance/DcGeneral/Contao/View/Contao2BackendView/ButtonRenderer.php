@@ -28,7 +28,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2Ba
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
@@ -338,7 +337,7 @@ class ButtonRenderer
      */
     private function getChildIds(ModelInterface $model)
     {
-        if (null === ($childCollections = $model->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION))) {
+        if (null === ($childCollections = $model->getMeta($model::CHILD_COLLECTIONS))) {
             return array();
         }
 

@@ -775,7 +775,7 @@ class TreePicker extends \Widget
 
         // If expanded, store children.
         if ($objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN) && count($arrChildCollections) != 0) {
-            $objModel->setMeta(DCGE::TREE_VIEW_CHILD_COLLECTION, $arrChildCollections);
+            $objModel->setMeta($objModel::CHILD_COLLECTIONS, $arrChildCollections);
         }
 
         $objModel->setMeta($objModel::HAS_CHILDREN, $blnHasChild);
@@ -872,7 +872,7 @@ class TreePicker extends \Widget
         if ($rootId) {
             $objTreeData = $dataDriver->getEmptyCollection();
             $objModel    = $objCollection->get(0);
-            foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection) {
+            foreach ($objModel->getMeta($objModel::CHILD_COLLECTIONS) as $objCollection) {
                 foreach ($objCollection as $objSubModel) {
                     $objTreeData->push($objSubModel);
                 }
@@ -1090,7 +1090,7 @@ class TreePicker extends \Widget
                 $template = new ContaoBackendViewTemplate('widget_treepicker_child');
                 $subHtml  = '';
 
-                foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection) {
+                foreach ($objModel->getMeta($objModel::CHILD_COLLECTIONS) as $objCollection) {
                     $subHtml .= $this->generateTreeView($objCollection, $treeClass);
                 }
 
