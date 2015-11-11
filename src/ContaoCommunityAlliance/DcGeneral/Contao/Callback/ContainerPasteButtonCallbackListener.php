@@ -44,7 +44,7 @@ class ContainerPasteButtonCallbackListener extends AbstractReturningCallbackList
             $event->getModel()->getPropertiesAsArray(),
             $event->getEnvironment()->getDataDefinition()->getName(),
             $event->isCircularReference(),
-            $event->getEnvironment()->getClipboard()->getContainedIds(),
+            $event->getContainedModels(),
             $event->getPrevious() ? $event->getPrevious()->getId() : null,
             $event->getNext() ? $event->getNext()->getId() : null
         );
