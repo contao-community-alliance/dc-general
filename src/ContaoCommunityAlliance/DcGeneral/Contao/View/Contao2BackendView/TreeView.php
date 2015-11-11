@@ -261,9 +261,6 @@ class TreeView extends BaseView
             $event
         );
 
-        if (!$this->isSelectModeActive()) {
-            $objModel->setMeta($objModel::OPERATION_BUTTONS, $this->generateButtons($objModel));
-        }
         $objModel->setMeta($objModel::LABEL_VALUE, $event->getLabel());
 
         $objTemplate = $this->getTemplate('dcbe_general_treeview_entry');
@@ -320,6 +317,13 @@ class TreeView extends BaseView
     protected function generateTreeView($objCollection, $treeClass)
     {
         $arrHtml = array();
+
+        // Generate buttons - only if not in select mode!
+        if (!$this->isSelectModeActive()) {
+            // FIXME: should be a property in this view, as we will end up here multiple times.
+            $buttonRenderer = new ButtonRenderer($this->environment);
+            $buttonRenderer->renderButtonsForCollection($objCollection);
+        }
 
         foreach ($objCollection as $objModel) {
             /** @var ModelInterface $objModel */
