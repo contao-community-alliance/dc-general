@@ -790,6 +790,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             $information->setManualSorting();
         }
 
+        // If no default sorting and grouping definition is defined, assume the first one is default.
+        if (!$definitions->hasDefault()) {
+            $definitions->markDefault($definition);
+        }
+
         $flag = empty($propInfo['flag']) ? $this->getFromDca('list/sorting/flag') : $propInfo['flag'];
         $this->evalFlag($information, $flag);
     }
