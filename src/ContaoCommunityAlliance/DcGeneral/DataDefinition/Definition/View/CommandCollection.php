@@ -159,7 +159,7 @@ class CommandCollection implements CommandCollectionInterface
     /**
      * {@inheritdoc}
      *
-     * @throws DcGeneralInvalidArgumentException when the requested command could not be found.
+     * @throws DcGeneralInvalidArgumentException When the requested command could not be found.
      */
     public function removeCommandNamed($name)
     {
@@ -177,7 +177,7 @@ class CommandCollection implements CommandCollectionInterface
     /**
      * {@inheritdoc}
      *
-     * @throws DcGeneralInvalidArgumentException when the requested command could not be found.
+     * @throws DcGeneralInvalidArgumentException When the requested command could not be found.
      */
     public function getCommandNamed($name)
     {

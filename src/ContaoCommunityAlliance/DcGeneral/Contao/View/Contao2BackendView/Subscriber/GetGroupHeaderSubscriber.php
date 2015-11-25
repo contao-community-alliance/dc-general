@@ -12,6 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     David Molineus <david.molineus@netzmacht.de>
+ * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -37,7 +38,9 @@ class GetGroupHeaderSubscriber
     /**
      * Handle the subscribed event.
      *
-     * @param GetGroupHeaderEvent $event
+     * @param GetGroupHeaderEvent $event The event.
+     *
+     * @return void
      */
     public static function handle(GetGroupHeaderEvent $event)
     {
@@ -138,17 +141,17 @@ class GetGroupHeaderSubscriber
     /**
      * Format the group header by the grouping mode.
      *
-     * @param mixed                    $value          The given value.
+     * @param mixed                $value          The given value.
      *
-     * @param int                      $groupingMode   The grouping mode.
+     * @param int                  $groupingMode   The grouping mode.
      *
-     * @param int                      $groupingLength The grouping length.
+     * @param int                  $groupingLength The grouping length.
      *
-     * @param EnvironmentInterface     $environment    The environment.
+     * @param EnvironmentInterface $environment    The environment.
      *
-     * @param PropertyInterface        $property       The current property definition.
+     * @param PropertyInterface    $property       The current property definition.
      *
-     * @param ModelInterface           $model          The current data model.
+     * @param ModelInterface       $model          The current data model.
      *
      * @return string
      */

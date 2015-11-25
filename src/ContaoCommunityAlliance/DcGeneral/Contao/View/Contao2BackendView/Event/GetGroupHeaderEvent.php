@@ -113,7 +113,7 @@ class GetGroupHeaderEvent extends AbstractModelAwareEvent
      *
      * @return string
      *
-     * @see    ListingConfigInterface
+     * @see ListingConfigInterface
      */
     public function getGroupingMode()
     {
@@ -125,7 +125,7 @@ class GetGroupHeaderEvent extends AbstractModelAwareEvent
      *
      * @return int
      *
-     * @see    ListingConfigInterface
+     * @see ListingConfigInterface
      */
     public function getGroupingLength()
     {

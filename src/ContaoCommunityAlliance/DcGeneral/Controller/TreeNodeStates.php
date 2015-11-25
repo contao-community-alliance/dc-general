@@ -63,7 +63,7 @@ class TreeNodeStates
      *
      * @return TreeNodeStates
      *
-     * @see    getStates()
+     * @see getStates()
      */
     public function setStates($states)
     {
@@ -80,7 +80,7 @@ class TreeNodeStates
      *
      * @return array
      *
-     * @see    getStates().
+     * @see setStates().
      */
     public function getStates()
     {

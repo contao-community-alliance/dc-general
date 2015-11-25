@@ -20,6 +20,7 @@
  * @author     Patrick Kahl <kahl.patrick@googlemail.com>
  * @author     Stefan Lindecke <github.com@chektrion.de>
  * @author     Andreas Nölke <zero@brothers-project.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -457,7 +458,7 @@ class DefaultController implements ControllerInterface
      *
      * @return ConfigInterface
      *
-     * @see    BaseConfigRegistryInterface::getBaseConfig()
+     * @see BaseConfigRegistryInterface::getBaseConfig()
      *
      * @deprecated Use EnvironmentInterface::getBaseConfigRegistry->getBaseConfig()
      */

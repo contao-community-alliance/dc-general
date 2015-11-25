@@ -68,8 +68,7 @@ class ClipboardController implements EventSubscriberInterface
             $this->clearClipboard($event);
         }
 
-        if (
-            'create' === $actionName
+        if ('create' === $actionName
             || 'cut' === $actionName
             || 'copy' === $actionName
             || 'deepcopy' === $actionName

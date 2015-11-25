@@ -695,8 +695,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $this->getPanel()->initialize($config);
 
         // Add new button.
-        if (
-            ($mode == BasicDefinitionInterface::MODE_PARENTEDLIST)
+        if (($mode == BasicDefinitionInterface::MODE_PARENTEDLIST)
             || ($mode == BasicDefinitionInterface::MODE_HIERARCHICAL)
         ) {
             $filter = new Filter();
