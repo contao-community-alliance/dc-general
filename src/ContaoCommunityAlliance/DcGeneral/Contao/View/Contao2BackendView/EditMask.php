@@ -691,16 +691,14 @@ class EditMask
             )
         );
 
-        if (
-            in_array(
-                'ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface',
-                class_implements(
-                    $environment->getDataProvider(
-                        $this->model->getProviderName()
-                    )
+        if (in_array(
+            'ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface',
+            class_implements(
+                $environment->getDataProvider(
+                    $this->model->getProviderName()
                 )
             )
-        ) {
+        )) {
             /** @var MultiLanguageDataProviderInterface $dataProvider */
             $langsNative = array();
             require TL_ROOT . '/system/config/languages.php';

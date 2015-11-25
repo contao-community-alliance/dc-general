@@ -210,13 +210,12 @@ class Clipboard implements ClipboardInterface
     }
 
     // ************************************************** DEPRECATED **************************************************
-
     /**
      * The ids contained.
      *
      * @var array
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     protected $arrIds = array();
 
@@ -225,7 +224,7 @@ class Clipboard implements ClipboardInterface
      *
      * @var array
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     protected $arrCircularIds = array();
 
@@ -234,7 +233,7 @@ class Clipboard implements ClipboardInterface
      *
      * @var string
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     protected $mode;
 
@@ -243,14 +242,14 @@ class Clipboard implements ClipboardInterface
      *
      * @var string
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     protected $parentId;
 
     /**
      * {@inheritDoc}
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function isCut()
     {
@@ -260,7 +259,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function isCopy()
     {
@@ -270,7 +269,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function isCreate()
     {
@@ -280,7 +279,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function copy($ids)
     {
@@ -298,7 +297,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function cut($ids)
     {
@@ -316,7 +315,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function create($parentId)
     {
@@ -331,7 +330,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function setContainedIds($arrIds)
     {
@@ -343,7 +342,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function getContainedIds()
     {
@@ -353,7 +352,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function setCircularIds($arrIds)
     {
@@ -365,7 +364,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function getCircularIds()
     {
@@ -375,7 +374,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritdoc}
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function getMode()
     {
@@ -385,7 +384,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      *
-     * @deprecated
+     * @deprecated Use new ModelIdInterface based methods.
      */
     public function getParent()
     {

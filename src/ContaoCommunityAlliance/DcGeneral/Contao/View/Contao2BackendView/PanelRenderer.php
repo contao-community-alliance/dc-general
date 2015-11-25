@@ -95,7 +95,7 @@ class PanelRenderer
      *
      * @param PanelElementInterface $element       A panel Element.
      *
-     * @param string[]                 $ignoredPanels A list with ignored elements.
+     * @param string[]              $ignoredPanels A list with ignored elements.
      *
      * @return boolean True => Element is on the ignored list. | False => Nope not in the list.
      */
@@ -175,7 +175,6 @@ class PanelRenderer
     public function render($ignoredPanels = array())
     {
         // TODO: Determine list of ignored panels by triggering an event.
-
         if ($this->view->getPanel() === null) {
             throw new DcGeneralRuntimeException('No panel information stored in data container.');
         }

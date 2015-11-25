@@ -78,7 +78,7 @@ class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInter
     /**
      * {@inheritDoc}
      *
-     * @throws DcGeneralInvalidArgumentException when the given offset does not exist.
+     * @throws DcGeneralInvalidArgumentException When the given offset does not exist.
      */
     public function get($index)
     {

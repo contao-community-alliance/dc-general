@@ -49,7 +49,7 @@ interface BasicDefinitionInterface extends DefinitionInterface
     /**
      * Set the mode the data definition is in.
      *
-     * @param int $mode
+     * @param int $mode The mode value.
      *
      * See the constants in this interface. The mode should either be {@link BasicDefinitionInterface::MODE_FLAT}
      * or {@link BasicDefinitionInterface::MODE_HIERARCHICAL}.

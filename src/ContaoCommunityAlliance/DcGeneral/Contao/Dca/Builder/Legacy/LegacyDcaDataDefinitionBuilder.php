@@ -92,6 +92,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
     /**
      * {@inheritDoc}
+     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function build(ContainerInterface $container, BuildDataDefinitionEvent $event)
@@ -196,32 +197,32 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         foreach ((array) $this->getFromDca('fields') as $propName => $propInfo) {
             $args = array($container->getName(), $propName);
             foreach (array
-                (
-                    'load_callback' => array(
-                        'event' => DecodePropertyValueForWidgetEvent::NAME,
-                        'class'     => $prefix . 'PropertyOnLoadCallbackListener'
-                    ),
-                    'save_callback' => array(
-                        'event' => EncodePropertyValueFromWidgetEvent::NAME,
-                        'class'     => $prefix . 'PropertyOnSaveCallbackListener'
-                    ),
-                    'options_callback' => array(
-                        'event' => GetPropertyOptionsEvent::NAME,
-                        'class'     => $prefix . 'ModelOptionsCallbackListener'
-                    ),
-                    'input_field_callback' => array(
-                        'event' => BuildWidgetEvent::NAME,
-                        'class'     => $prefix . 'PropertyInputFieldCallbackListener'
-                    ),
-                    'wizard' => array(
-                        'event' => ManipulateWidgetEvent::NAME,
-                        'class'     => $prefix . 'PropertyInputFieldGetWizardCallbackListener'
-                    ),
-                    'xlabel' => array(
-                        'event' => ManipulateWidgetEvent::NAME,
-                        'class'     => $prefix . 'PropertyInputFieldGetXLabelCallbackListener'
-                    ),
-                ) as $name => $callback) {
+            (
+                'load_callback' => array(
+                    'event' => DecodePropertyValueForWidgetEvent::NAME,
+                    'class'     => $prefix . 'PropertyOnLoadCallbackListener'
+                ),
+                'save_callback' => array(
+                    'event' => EncodePropertyValueFromWidgetEvent::NAME,
+                    'class'     => $prefix . 'PropertyOnSaveCallbackListener'
+                ),
+                'options_callback' => array(
+                    'event' => GetPropertyOptionsEvent::NAME,
+                    'class'     => $prefix . 'ModelOptionsCallbackListener'
+                ),
+                'input_field_callback' => array(
+                    'event' => BuildWidgetEvent::NAME,
+                    'class'     => $prefix . 'PropertyInputFieldCallbackListener'
+                ),
+                'wizard' => array(
+                    'event' => ManipulateWidgetEvent::NAME,
+                    'class'     => $prefix . 'PropertyInputFieldGetWizardCallbackListener'
+                ),
+                'xlabel' => array(
+                    'event' => ManipulateWidgetEvent::NAME,
+                    'class'     => $prefix . 'PropertyInputFieldGetXLabelCallbackListener'
+                ),
+            ) as $name => $callback) {
                 if (isset($propInfo[$name])) {
                     $this->parseCallback($dispatcher, $propInfo[$name], $callback['event'], $args, $callback['class']);
                 }
@@ -243,58 +244,58 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $prefix = 'ContaoCommunityAlliance\DcGeneral\Contao\Callback\\';
         $args   = array($container->getName());
         foreach (array
-             (
-                 'config/onload_callback' => array(
-                     'event' => CreateDcGeneralEvent::NAME,
-                     'class' => $prefix . 'ContainerOnLoadCallbackListener'
-                 ),
-                 'config/onsubmit_callback' => array(
-                     'event' => PostPersistModelEvent::NAME,
-                     'class' => $prefix . 'ContainerOnSubmitCallbackListener'
-                 ),
-                 'config/ondelete_callback' => array(
-                     'event' => PostDeleteModelEvent::NAME,
-                     'class' => $prefix . 'ContainerOnDeleteCallbackListener'
-                 ),
-                 'config/oncut_callback' => array(
-                     'event' => PostPasteModelEvent::NAME,
-                     'class' => $prefix . 'ContainerOnCutCallbackListener'
-                 ),
-                 'config/oncopy_callback' => array(
-                     'event' => PostDuplicateModelEvent::NAME,
-                     'class' => $prefix . 'ContainerOnCopyCallbackListener'
-                 ),
-                 'list/sorting/header_callback' => array(
-                     'event' => GetParentHeaderEvent::NAME,
-                     'class' => $prefix . 'ContainerHeaderCallbackListener'
-                 ),
-                 'list/sorting/paste_button_callback' => array(
-                     array(
-                         'event' => GetPasteRootButtonEvent::NAME,
-                         'class' => $prefix . 'ContainerPasteRootButtonCallbackListener'
-                     ),
-                     array(
-                         'event' => GetPasteButtonEvent::NAME,
-                         'class' => $prefix . 'ContainerPasteButtonCallbackListener'
-                     ),
-                 ),
-                 'list/sorting/child_record_callback' => array(
-                     'event' => ParentViewChildRecordEvent::NAME,
-                     'class' => $prefix . 'ModelChildRecordCallbackListener'
-                 ),
-                 'list/label/group_callback' => array(
-                     'event' => GetGroupHeaderEvent::NAME,
-                     'class' => $prefix . 'ModelGroupCallbackListener'
-                 ),
-                 'list/label/label_callback' => array(
-                     'event' => ModelToLabelEvent::NAME,
-                     'class' => $prefix . 'ModelLabelCallbackListener'
-                 ),
-                 'list/presentation/breadcrumb_callback' => array(
-                     'event' => GetBreadcrumbEvent::NAME,
-                     'class' => $prefix . 'ContainerGetBreadcrumbCallbackListener'
-                 ),
-             ) as $name => $callback) {
+        (
+            'config/onload_callback' => array(
+                'event' => CreateDcGeneralEvent::NAME,
+                'class' => $prefix . 'ContainerOnLoadCallbackListener'
+            ),
+            'config/onsubmit_callback' => array(
+                'event' => PostPersistModelEvent::NAME,
+                'class' => $prefix . 'ContainerOnSubmitCallbackListener'
+            ),
+            'config/ondelete_callback' => array(
+                'event' => PostDeleteModelEvent::NAME,
+                'class' => $prefix . 'ContainerOnDeleteCallbackListener'
+            ),
+            'config/oncut_callback' => array(
+                'event' => PostPasteModelEvent::NAME,
+                'class' => $prefix . 'ContainerOnCutCallbackListener'
+            ),
+            'config/oncopy_callback' => array(
+                'event' => PostDuplicateModelEvent::NAME,
+                'class' => $prefix . 'ContainerOnCopyCallbackListener'
+            ),
+            'list/sorting/header_callback' => array(
+                'event' => GetParentHeaderEvent::NAME,
+                'class' => $prefix . 'ContainerHeaderCallbackListener'
+            ),
+            'list/sorting/paste_button_callback' => array(
+                array(
+                    'event' => GetPasteRootButtonEvent::NAME,
+                    'class' => $prefix . 'ContainerPasteRootButtonCallbackListener'
+                ),
+                array(
+                    'event' => GetPasteButtonEvent::NAME,
+                    'class' => $prefix . 'ContainerPasteButtonCallbackListener'
+                ),
+            ),
+            'list/sorting/child_record_callback' => array(
+                'event' => ParentViewChildRecordEvent::NAME,
+                'class' => $prefix . 'ModelChildRecordCallbackListener'
+            ),
+            'list/label/group_callback' => array(
+                'event' => GetGroupHeaderEvent::NAME,
+                'class' => $prefix . 'ModelGroupCallbackListener'
+            ),
+            'list/label/label_callback' => array(
+                'event' => ModelToLabelEvent::NAME,
+                'class' => $prefix . 'ModelLabelCallbackListener'
+            ),
+            'list/presentation/breadcrumb_callback' => array(
+                'event' => GetBreadcrumbEvent::NAME,
+                'class' => $prefix . 'ContainerGetBreadcrumbCallbackListener'
+            ),
+        ) as $name => $callback) {
             if ($callbacks = $this->getFromDca($name)) {
                 if (isset($callback['event'])) {
                     $this->parseCallback($dispatcher, $callbacks, $callback['event'], $args, $callback['class']);
@@ -788,6 +789,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         // Special case for field named "sorting" in Contao.
         if ($propName === 'sorting') {
             $information->setManualSorting();
+        }
+
+        // If no default sorting and grouping definition is defined, assume the first one is default.
+        if (!$definitions->hasDefault()) {
+            $definitions->markDefault($definition);
         }
 
         $flag = empty($propInfo['flag']) ? $this->getFromDca('list/sorting/flag') : $propInfo['flag'];

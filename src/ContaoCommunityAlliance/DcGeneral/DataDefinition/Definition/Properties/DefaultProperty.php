@@ -249,7 +249,7 @@ class DefaultProperty implements PropertyInterface
      *
      * @deprecated Deprecated in favor of GroupAndSortingInformationInterface.
      *
-     * @see    \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface
+     * @see \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface
      */
     public function setSortable($value)
     {
@@ -263,7 +263,7 @@ class DefaultProperty implements PropertyInterface
      *
      * @deprecated Deprecated in favor of GroupAndSortingInformationInterface.
      *
-     * @see    \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface
+     * @see \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface
      */
     public function isSortable()
     {

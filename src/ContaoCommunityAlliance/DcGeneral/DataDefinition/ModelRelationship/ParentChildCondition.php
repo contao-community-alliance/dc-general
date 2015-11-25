@@ -206,7 +206,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     /**
      * {@inheritdoc}
      *
-     * @throws DcGeneralInvalidArgumentException when an empty parent model is given.
+     * @throws DcGeneralInvalidArgumentException When an empty parent model is given.
      */
     public function getFilter($objParent)
     {
@@ -216,7 +216,6 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
 
         $arrResult = array();
         foreach ($this->getFilterArray() as $child) {
-
             $arrResult[] = $this->parseFilter($child, $objParent);
         }
 

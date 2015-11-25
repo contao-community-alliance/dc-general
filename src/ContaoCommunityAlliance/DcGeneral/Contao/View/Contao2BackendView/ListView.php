@@ -81,7 +81,6 @@ class ListView extends BaseView
         $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
 
         if ($sorting && $clipboard->isNotEmpty($filter)) {
-
             $allowPasteTop = ViewHelpers::getManualSortingProperty($this->environment);
 
             if ($allowPasteTop) {
@@ -263,10 +262,9 @@ class ListView extends BaseView
         // Set label.
         $this->setListViewLabel($collection, $groupingInformation);
 
-        // Generate buttons.
-        foreach ($collection as $i => $objModel) {
-            // Regular buttons - only if not in select mode!
-            if (!$this->isSelectModeActive()) {
+        // Generate buttons - only if not in select mode!
+        if (!$this->isSelectModeActive()) {
+            foreach ($collection as $i => $objModel) {
                 $previous = (($collection->get($i - 1) !== null) ? $collection->get($i - 1) : null);
                 $next     = (($collection->get($i + 1) !== null) ? $collection->get($i + 1) : null);
                 /** @var ModelInterface $objModel */

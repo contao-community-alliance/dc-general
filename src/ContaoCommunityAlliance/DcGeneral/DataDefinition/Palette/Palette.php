@@ -203,7 +203,7 @@ class Palette implements PaletteInterface
     /**
      * {@inheritdoc}
      *
-     * @throws DcGeneralInvalidArgumentException when the legend passed as $before can not be found.
+     * @throws DcGeneralInvalidArgumentException When the legend passed as $before can not be found.
      */
     public function addLegend(LegendInterface $legend, LegendInterface $before = null)
     {

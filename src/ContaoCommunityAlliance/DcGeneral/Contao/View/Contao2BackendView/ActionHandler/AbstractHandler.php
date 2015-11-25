@@ -80,6 +80,8 @@ abstract class AbstractHandler
      *
      * @param ModelIdInterface $modelId The model id.
      *
+     * @return void
+     *
      * @throws DcGeneralRuntimeException If data provider name of modelId and definition does not match.
      */
     protected function guardValidEnvironment(ModelIdInterface $modelId)
