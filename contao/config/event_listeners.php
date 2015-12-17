@@ -39,11 +39,7 @@ use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 
-return array(
-    // View related listeners
-    DcGeneralEvents::FORMAT_MODEL_LABEL => array(
-        array(new FormatModelLabelSubscriber(), 'handleFormatModelLabel'),
-    ),
+$result = array(
     BuildDataDefinitionEvent::NAME => array(
         array(
             array(new LegacyDcaDataDefinitionBuilder(), 'process'),
@@ -60,33 +56,50 @@ return array(
             DataProviderPopulator::PRIORITY
         ),
         array(
-            array(new ExtendedLegacyDcaPopulator(), 'process'),
-            ExtendedLegacyDcaPopulator::PRIORITY
-        ),
-        array(
-            array(new BackendViewPopulator(), 'process'),
-            BackendViewPopulator::PRIORITY
-        ),
-        array(
             array(new HardCodedPopulator(), 'process'),
             HardCodedPopulator::PRIORITY
         ),
+    ),
+);
+
+if ('BE' === TL_MODE) {
+    $result[PopulateEnvironmentEvent::NAME] = array_merge(
+        $result[PopulateEnvironmentEvent::NAME],
         array(
-            array(new PickerCompatPopulator(), 'process'),
-            PickerCompatPopulator::PRIORITY
-        ),
-    ),
-    GetGroupHeaderEvent::NAME => array(
+            array(
+                array(new ExtendedLegacyDcaPopulator(), 'process'),
+                ExtendedLegacyDcaPopulator::PRIORITY
+            ),
+            array(
+                array(new BackendViewPopulator(), 'process'),
+                BackendViewPopulator::PRIORITY
+            ),
+            array(
+                array(new PickerCompatPopulator(), 'process'),
+                PickerCompatPopulator::PRIORITY
+            ),
+        )
+    );
+
+    $result[DcGeneralEvents::FORMAT_MODEL_LABEL] = array(
+        array(new FormatModelLabelSubscriber(), 'handleFormatModelLabel'),
+    );
+
+    $result[GetGroupHeaderEvent::NAME] = array(
         array(new GetGroupHeaderSubscriber(), 'handle')
-    ),
-    DcGeneralEvents::ACTION => array(
+    );
+
+    $result[BuildWidgetEvent::NAME] = array(
+        'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\WidgetBuilder::handleEvent'
+    );
+
+    $result[DcGeneralEvents::ACTION] = array(
         array(new CreateHandler(), 'handleEvent'),
         array(new SelectHandler(), 'handleEvent'),
         array(new CopyHandler(), 'handleEvent'),
         array(new DeleteHandler(), 'handleEvent'),
         array(new ToggleHandler(), 'handleEvent')
-    ),
-    BuildWidgetEvent::NAME => array(
-        'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\WidgetBuilder::handleEvent'
-    )
-);
+    );
+}
+
+return $result;
