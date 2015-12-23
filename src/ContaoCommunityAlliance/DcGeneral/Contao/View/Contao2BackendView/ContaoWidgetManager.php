@@ -202,8 +202,6 @@ class ContaoWidgetManager
      *
      * @param PropertyValueBag $inputValues The input values to use (optional).
      *
-     * @throws DcGeneralInvalidArgumentException When an unknown property has been passed.
-     *
      * @return \Widget
      *
      * @throws DcGeneralRuntimeException         When No widget could be build.
