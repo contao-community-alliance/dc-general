@@ -35,7 +35,9 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\EnforceModelRelationshipEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreEditModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PrePersistModelEvent;
@@ -52,9 +54,9 @@ class EditMask
     /**
      * The environment.
      *
-     * @var BackendViewInterface
+     * @var EnvironmentInterface
      */
-    protected $view;
+    protected $environment;
 
     /**
      * The model to be manipulated.
@@ -115,7 +117,7 @@ class EditMask
      */
     public function __construct($view, $model, $originalModel, $preFunction, $postFunction, $breadcrumb)
     {
-        $this->view          = $view;
+        $this->environment   = $view->getEnvironment();
         $this->model         = $model;
         $this->originalModel = $originalModel;
         $this->preFunction   = $preFunction;
@@ -130,7 +132,7 @@ class EditMask
      */
     public function getEnvironment()
     {
-        return $this->view->getEnvironment();
+        return $this->environment;
     }
 
     /**
@@ -653,7 +655,10 @@ class EditMask
             new PreEditModelEvent($environment, $this->model)
         );
 
-        $this->view->enforceModelRelationship($this->model);
+        $environment->getEventDispatcher()->dispatch(
+            DcGeneralEvents::ENFORCE_MODEL_RELATIONSHIP,
+            new EnforceModelRelationshipEvent($this->getEnvironment(), $this->model)
+        );
 
         // Pass 1: Get the palette for the values stored in the model.
         $palette = $palettesDefinition->findPalette($this->model);

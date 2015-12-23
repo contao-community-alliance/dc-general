@@ -36,6 +36,8 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Build
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\GetGroupHeaderSubscriber;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
+use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\ParentEnforcingListener;
+use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 
@@ -60,6 +62,10 @@ $result = array(
             HardCodedPopulator::PRIORITY
         ),
     ),
+    DcGeneralEvents::ENFORCE_MODEL_RELATIONSHIP => array(
+        array(new TreeEnforcingListener(), 'process'),
+        array(new ParentEnforcingListener(), 'process'),
+    )
 );
 
 if ('BE' === TL_MODE) {

@@ -39,8 +39,10 @@ use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
+use ContaoCommunityAlliance\DcGeneral\Event\EnforceModelRelationshipEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
+use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\ParentEnforcingListener;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 
@@ -586,23 +588,16 @@ class ParentView extends BaseView
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\ParentEnforcingListener
+     *
+     * @see ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\ParentEnforcingListener
      */
     public function enforceModelRelationship($model)
     {
-        $definition = $this->getEnvironment()->getDataDefinition();
-        $basic      = $definition->getBasicDefinition();
-        $parent     = $this->loadParentModel();
-
-        $condition = $definition
-            ->getModelRelationshipDefinition()
-            ->getChildCondition(
-                $basic->getParentDataProvider(),
-                $basic->getDataProvider()
-            );
-
-        if ($condition) {
-            $condition->applyTo($parent, $model);
-        }
+        // Fallback implementation.
+        $listener = new ParentEnforcingListener();
+        $listener->process(new EnforceModelRelationshipEvent($this->getEnvironment(), $model));
     }
 
     /**

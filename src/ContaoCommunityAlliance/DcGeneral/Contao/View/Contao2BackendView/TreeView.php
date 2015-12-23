@@ -36,8 +36,10 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
+use ContaoCommunityAlliance\DcGeneral\Event\EnforceModelRelationshipEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
+use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -501,40 +503,16 @@ class TreeView extends BaseView
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener
+     *
+     * @see ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener
      */
     public function enforceModelRelationship($model)
     {
-        $environment = $this->getEnvironment();
-        $input       = $environment->getInputProvider();
-        $controller  = $environment->getController();
-
-        if ($input->hasParameter('into')) {
-            $into = IdSerializer::fromSerialized($input->getParameter('into'));
-
-            // If we have a null, it means insert into the tree root.
-            if ($into->getId() == 0) {
-                $controller->setRootModel($model);
-            } else {
-                $parent = $controller->fetchModelFromProvider($into);
-                $controller->setParent($model, $parent);
-            }
-        } elseif ($input->hasParameter('after')) {
-            $after   = IdSerializer::fromSerialized($input->getParameter('after'));
-            $sibling = $controller->fetchModelFromProvider($after);
-
-            if (!$sibling || $controller->isRootModel($sibling)) {
-                $controller->setRootModel($model);
-            } else {
-                $parent = $controller->searchParentOf($sibling);
-                $controller->setParent($model, $parent);
-            }
-        }
-
-        // Also enforce the parent condition of the parent provider (if any).
-        if ($input->hasParameter('pid')) {
-            $parent = $controller->fetchModelFromProvider($input->getParameter('pid'));
-            $controller->setParent($model, $parent);
-        }
+        // Fallback implementation.
+        $listener = new TreeEnforcingListener();
+        $listener->process(new EnforceModelRelationshipEvent($this->getEnvironment(), $model));
     }
 
     /**
