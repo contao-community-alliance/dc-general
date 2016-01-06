@@ -137,9 +137,7 @@ class DefaultCollection implements CollectionInterface
             throw new DcGeneralRuntimeException('push() - no model passed', 1);
         }
 
-        if ($objModel->hasProperties()) {
-            array_push($this->arrCollection, $objModel);
-        }
+        array_push($this->arrCollection, $objModel);
     }
 
     /**
