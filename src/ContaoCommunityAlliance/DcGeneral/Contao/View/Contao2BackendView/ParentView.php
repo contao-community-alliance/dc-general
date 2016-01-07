@@ -131,6 +131,12 @@ class ParentView extends BaseView
         $objConfig = $environment->getDataProvider()->getEmptyConfig();
         $this->getPanel()->initialize($objConfig);
 
+        // Generate buttons - only if not in select mode!
+        if (!$this->isSelectModeActive()) {
+            $buttonRenderer = new ButtonRenderer($this->environment);
+            $buttonRenderer->renderButtonsForCollection($collection);
+        }
+
         // Run each model.
         $index = 0;
         foreach ($collection as $model) {
@@ -168,16 +174,6 @@ class ParentView extends BaseView
 
             if ($listing->getItemCssClass()) {
                 $model->setMeta($model::CSS_CLASS, $listing->getItemCssClass());
-            }
-
-            // Regular buttons.
-            if (!$this->isSelectModeActive()) {
-                $previous = (($collection->get($index - 1) !== null) ? $collection->get($index - 1) : null);
-                $next     = (($collection->get($index + 1) !== null) ? $collection->get($index + 1) : null);
-
-                $buttons = $this->generateButtons($model, $previous, $next);
-
-                $model->setMeta($model::OPERATION_BUTTONS, $buttons);
             }
 
             $event = new ParentViewChildRecordEvent($this->getEnvironment(), $model);

@@ -212,25 +212,6 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritdoc}
      */
-    public function setClosed($value)
-    {
-        $this->isEditable  = !$value;
-        $this->isCreatable = !$value;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isClosed()
-    {
-        return !($this->isEditable || $this->isCreatable);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function setEditOnlyMode($value)
     {
         $this->isEditOnlyMode = $value;

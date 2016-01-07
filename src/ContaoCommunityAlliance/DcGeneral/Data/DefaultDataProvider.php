@@ -596,7 +596,7 @@ class DefaultDataProvider implements DataProviderInterface
         }
 
         while ($dbResult->next()) {
-            $objCollection->add($this->createModelFromDatabaseResult($dbResult));
+            $objCollection->push($this->createModelFromDatabaseResult($dbResult));
         }
 
         return $objCollection;
@@ -863,7 +863,7 @@ class DefaultDataProvider implements DataProviderInterface
                 $objReturn->setProperty($key, $value);
             }
 
-            $objCollection->add($objReturn);
+            $objCollection->push($objReturn);
         }
 
         return $objCollection;

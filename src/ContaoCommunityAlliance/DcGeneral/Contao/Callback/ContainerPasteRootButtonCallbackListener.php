@@ -44,7 +44,7 @@ class ContainerPasteRootButtonCallbackListener extends AbstractReturningCallback
             $event->getEnvironment()->getDataProvider()->getEmptyModel()->getPropertiesAsArray(),
             $event->getEnvironment()->getDataDefinition()->getName(),
             false,
-            $event->getEnvironment()->getClipboard()->getContainedIds(),
+            array(),
             null,
             null
         );

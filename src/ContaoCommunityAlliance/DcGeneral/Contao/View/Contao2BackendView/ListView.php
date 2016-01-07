@@ -264,15 +264,8 @@ class ListView extends BaseView
 
         // Generate buttons - only if not in select mode!
         if (!$this->isSelectModeActive()) {
-            foreach ($collection as $i => $objModel) {
-                $previous = (($collection->get($i - 1) !== null) ? $collection->get($i - 1) : null);
-                $next     = (($collection->get($i + 1) !== null) ? $collection->get($i + 1) : null);
-                /** @var ModelInterface $objModel */
-                $objModel->setMeta(
-                    $objModel::OPERATION_BUTTONS,
-                    $this->generateButtons($objModel, $previous, $next)
-                );
-            }
+            $buttonRenderer = new ButtonRenderer($this->environment);
+            $buttonRenderer->renderButtonsForCollection($collection);
         }
 
         // Add template.

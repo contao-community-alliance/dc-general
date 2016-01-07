@@ -25,7 +25,6 @@ use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\FilterInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
@@ -51,21 +50,6 @@ interface ControllerInterface
      * @return EnvironmentInterface
      */
     public function getEnvironment();
-
-    /**
-     * Retrieve the base config for retrieving data.
-     *
-     * This includes all auxiliary filters from DCA etc. but excludes the filters from panels.
-     *
-     * @param ModelIdInterface $parentId The parent ID.
-     *
-     * @return ConfigInterface
-     *
-     * @see BaseConfigRegistryInterface::getBaseConfig()
-     *
-     * @deprecated Use EnvironmentInterface::getBaseConfigRegistry->getBaseConfig()
-     */
-    public function getBaseConfig(ModelIdInterface $parentId = null);
 
     /**
      * Handle a action within this environment.

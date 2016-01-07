@@ -110,32 +110,6 @@ class InputProvider implements InputProviderInterface
     /**
      * {@inheritDoc}
      */
-    public function getPersistentValue($strKey)
-    {
-        return \Session::getInstance()->get($strKey);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setPersistentValue($strKey, $varValue)
-    {
-        \Session::getInstance()->set($strKey, $varValue);
-
-        return $this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function hasPersistentValue($strKey)
-    {
-        return (\Session::getInstance()->get($strKey) !== null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getRequestUrl()
     {
 

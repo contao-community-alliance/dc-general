@@ -107,22 +107,6 @@ class DefaultCollection implements CollectionInterface
     }
 
     /**
-     * Alias for push - Append a model to the end of this collection.
-     *
-     * @param ModelInterface $objModel The model to append to the collection.
-     *
-     * @return void
-     *
-     * @throws DcGeneralRuntimeException When no model has been passed.
-     *
-     * @deprecated Use push.
-     */
-    public function add(ModelInterface $objModel)
-    {
-        $this->push($objModel);
-    }
-
-    /**
      * Append a model to the end of this collection.
      *
      * @param ModelInterface $objModel The model to append to the collection.

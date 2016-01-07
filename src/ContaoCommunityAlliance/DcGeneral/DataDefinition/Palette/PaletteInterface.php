@@ -36,8 +36,6 @@ interface PaletteInterface
      * @param string $name The name.
      *
      * @return PaletteInterface
-     *
-     * @deprecated Only for backwards compatibility, we will remove palette names in the future!
      */
     public function setName($name);
 
@@ -45,8 +43,6 @@ interface PaletteInterface
      * Return the name of this palette.
      *
      * @return string
-     *
-     * @deprecated Only for backwards compatibility, we will remove palette names in the future!
      */
     public function getName();
 
