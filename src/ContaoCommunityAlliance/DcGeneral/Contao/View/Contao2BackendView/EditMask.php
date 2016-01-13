@@ -710,8 +710,9 @@ class EditMask
         $fieldSets = $this->buildFieldSet($widgetManager, $palette, $propertyValues);
 
         if ((!$blnIsAutoSubmit) && $blnSubmitted && empty($this->errors)) {
-            $this->doPersist();
-            $this->handleSubmit($this->model);
+            if ($this->doPersist()) {
+                $this->handleSubmit($this->model);
+            }
         }
 
         $objTemplate = new ContaoBackendViewTemplate('dcbe_general_edit');
