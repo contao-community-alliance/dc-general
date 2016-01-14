@@ -165,7 +165,7 @@ class ListView extends BaseView
         } elseif ($pasteTopButton) {
             $arrTableHead[] = array(
                 'class' => 'tl_folder_tlist',
-                'content' => '&nbsp'
+                'content' => '&nbsp;'
             );
             $arrTableHead[] = array(
                 'class'   => 'tl_folder_tlist tl_right_nowrap',
