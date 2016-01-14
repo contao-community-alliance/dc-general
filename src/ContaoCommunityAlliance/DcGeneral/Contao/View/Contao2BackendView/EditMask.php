@@ -542,15 +542,15 @@ class EditMask
         $translator     = $this->getEnvironment()->getTranslator();
 
         if ($this->model->getId()) {
-            $headline = $translator->translate('editRecord', $definitionName, array('ID ' . $this->model->getId()));
+            $headline = $translator->translate('editRecord', $definitionName, array($this->model->getId()));
 
             if ($headline !== 'editRecord') {
                 return $headline;
             }
-            return $translator->translate('MSC.editRecord', null, array('ID ' . $this->model->getId()));
+            return $translator->translate('MSC.editRecord', null, array($this->model->getId()));
         }
 
-        $headline = $translator->translate('newRecord', $definitionName, array('ID ' . $this->model->getId()));
+        $headline = $translator->translate('newRecord', $definitionName, array($this->model->getId()));
         if ($headline !== 'newRecord') {
             return $headline;
         }
