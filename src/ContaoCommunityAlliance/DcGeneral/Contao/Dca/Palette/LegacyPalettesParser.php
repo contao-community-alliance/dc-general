@@ -359,6 +359,7 @@ class LegacyPalettesParser
                 break;
             }
             $selectorFieldName .= '_' . array_shift($selectorValues);
+            $selectorValueCount = count($selectorValues);
         }
 
         return $selectorFieldName;
