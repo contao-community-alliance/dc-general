@@ -104,8 +104,6 @@ interface PaletteCollectionInterface
      * @param string $paletteName The palette name.
      *
      * @return bool
-     *
-     * @deprecated Only for backwards compatibility, we will remove palette names in the future!
      */
     public function hasPaletteByName($paletteName);
 
@@ -115,8 +113,6 @@ interface PaletteCollectionInterface
      * @param string $paletteName The palette name.
      *
      * @return PaletteInterface
-     *
-     * @deprecated Only for backwards compatibility, we will remove palette names in the future!
      */
     public function getPaletteByName($paletteName);
 

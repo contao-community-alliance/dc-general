@@ -129,6 +129,10 @@ interface ViewInterface
      * @param ModelInterface $model The model to be updated.
      *
      * @return void
+     *
+     * @deprecated Use listener on EnforceModelRelationshipEvent instead.
+     *
+     * @see ContaoCommunityAlliance\DcGeneral\Event\EnforceModelRelationshipEvent
      */
     public function enforceModelRelationship($model);
 }

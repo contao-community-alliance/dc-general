@@ -31,13 +31,14 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPa
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeCollector;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeNodeStates;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
+use ContaoCommunityAlliance\DcGeneral\Event\EnforceModelRelationshipEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
+use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -177,7 +178,7 @@ class TreeView extends BaseView
                 return $objTreeData;
             }
 
-            foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection) {
+            foreach ($objModel->getMeta($objModel::CHILD_COLLECTIONS) as $objCollection) {
                 foreach ($objCollection as $objSubModel) {
                     $objTreeData->push($objSubModel);
                 }
@@ -261,14 +262,11 @@ class TreeView extends BaseView
             $event
         );
 
-        if (!$this->isSelectModeActive()) {
-            $objModel->setMeta($objModel::OPERATION_BUTTONS, $this->generateButtons($objModel));
-        }
         $objModel->setMeta($objModel::LABEL_VALUE, $event->getLabel());
 
         $objTemplate = $this->getTemplate('dcbe_general_treeview_entry');
 
-        if ($objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN)) {
+        if ($objModel->getMeta($objModel::SHOW_CHILDREN)) {
             $toggleTitle = $this->getEnvironment()->getTranslator()->translate('collapseNode', 'MSC');
         } else {
             $toggleTitle = $this->getEnvironment()->getTranslator()->translate('expandNode', 'MSC');
@@ -321,6 +319,13 @@ class TreeView extends BaseView
     {
         $arrHtml = array();
 
+        // Generate buttons - only if not in select mode!
+        if (!$this->isSelectModeActive()) {
+            // FIXME: should be a property in this view, as we will end up here multiple times.
+            $buttonRenderer = new ButtonRenderer($this->environment);
+            $buttonRenderer->renderButtonsForCollection($objCollection);
+        }
+
         foreach ($objCollection as $objModel) {
             /** @var ModelInterface $objModel */
 
@@ -328,11 +333,11 @@ class TreeView extends BaseView
 
             $arrHtml[] = $this->parseModel($objModel, $strToggleID);
 
-            if ($objModel->getMeta($objModel::HAS_CHILDREN) && $objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN)) {
+            if ($objModel->getMeta($objModel::HAS_CHILDREN) && $objModel->getMeta($objModel::SHOW_CHILDREN)) {
                 $objTemplate = $this->getTemplate('dcbe_general_treeview_child');
                 $strSubHtml  = '';
 
-                foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection) {
+                foreach ($objModel->getMeta($objModel::CHILD_COLLECTIONS) as $objCollection) {
                     $strSubHtml .= $this->generateTreeView($objCollection, $treeClass);
                 }
 
@@ -448,16 +453,13 @@ class TreeView extends BaseView
 
         // Root paste into.
         if ($environment->getClipboard()->isNotEmpty($filter)) {
-            $objClipboard = $environment->getClipboard();
             /** @var AddToUrlEvent $urlEvent */
             $urlEvent = $dispatcher->dispatch(
                 ContaoEvents::BACKEND_ADD_TO_URL,
                 new AddToUrlEvent(
                     sprintf(
-                        'act=paste&amp;into=%s::0&amp;children=%s',
-                        $definition->getName(),
-                        $objClipboard->getContainedIds(),
-                        implode(',', $objClipboard->getCircularIds())
+                        'act=paste&amp;into=%s::0',
+                        $definition->getName()
                     )
                 )
             );
@@ -501,40 +503,16 @@ class TreeView extends BaseView
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener
+     *
+     * @see ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener
      */
     public function enforceModelRelationship($model)
     {
-        $environment = $this->getEnvironment();
-        $input       = $environment->getInputProvider();
-        $controller  = $environment->getController();
-
-        if ($input->hasParameter('into')) {
-            $into = IdSerializer::fromSerialized($input->getParameter('into'));
-
-            // If we have a null, it means insert into the tree root.
-            if ($into->getId() == 0) {
-                $controller->setRootModel($model);
-            } else {
-                $parent = $controller->fetchModelFromProvider($into);
-                $controller->setParent($model, $parent);
-            }
-        } elseif ($input->hasParameter('after')) {
-            $after   = IdSerializer::fromSerialized($input->getParameter('after'));
-            $sibling = $controller->fetchModelFromProvider($after);
-
-            if (!$sibling || $controller->isRootModel($sibling)) {
-                $controller->setRootModel($model);
-            } else {
-                $parent = $controller->searchParentOf($sibling);
-                $controller->setParent($model, $parent);
-            }
-        }
-
-        // Also enforce the parent condition of the parent provider (if any).
-        if ($input->hasParameter('pid')) {
-            $parent = $controller->fetchModelFromProvider($input->getParameter('pid'));
-            $controller->setParent($model, $parent);
-        }
+        // Fallback implementation.
+        $listener = new TreeEnforcingListener();
+        $listener->process(new EnforceModelRelationshipEvent($this->getEnvironment(), $model));
     }
 
     /**
@@ -544,19 +522,9 @@ class TreeView extends BaseView
     {
         $environment = $this->getEnvironment();
         $input       = $environment->getInputProvider();
-        $clipboard   = $environment->getClipboard();
-
-        // Push an empty model into the clipboard.
-        if ($input->getParameter('mode') === 'create') {
-            $clipboard->create(null);
-        }
 
         // If destination is known, perform normal paste.
         if ($input->hasParameter('after') || $input->hasParameter('into')) {
-            if ($clipboard->isCreate()) {
-                return parent::create($action);
-            }
-
             parent::paste($action);
         }
 

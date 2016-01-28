@@ -12,14 +12,14 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
+ * @author     Tristan Lins <tristan.lins@bit3.de>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
 
-namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
+namespace ContaoCommunityAlliance\DcGeneral\View\ActionHandler;
 
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\EditOnlyModeException;
@@ -30,7 +30,7 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
- * Handler class for handling the show events.
+ * Abstract base class for handling dc-general action events.
  */
 abstract class AbstractHandler
 {
@@ -135,7 +135,7 @@ abstract class AbstractHandler
     /**
      * Handle the action.
      *
-     * @return mixed
+     * @return void
      */
-    abstract public function process();
+     abstract public function process();
 }

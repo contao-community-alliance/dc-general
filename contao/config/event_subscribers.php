@@ -25,8 +25,12 @@ use ContaoCommunityAlliance\DcGeneral\Contao\Event\Subscriber;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\ClipboardController;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Filter\LanguageFilter;
 
-return array(
-    new Subscriber(),
-    new ClipboardController(),
-    new LanguageFilter(),
-);
+if ('BE' === TL_MODE) {
+    return array(
+        new Subscriber(),
+        new ClipboardController(),
+        new LanguageFilter(),
+    );
+}
+
+return array();

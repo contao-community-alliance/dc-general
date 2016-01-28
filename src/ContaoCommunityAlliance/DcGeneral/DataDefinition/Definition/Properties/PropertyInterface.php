@@ -115,30 +115,6 @@ interface PropertyInterface
     public function isSearchable();
 
     /**
-     * Set the sorting determinator.
-     *
-     * @param bool $value The flag.
-     *
-     * @return PropertyInterface
-     *
-     * @deprecated Deprecated in favor of GroupAndSortingInformationInterface.
-     *
-     * @see \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface
-     */
-    public function setSortable($value);
-
-    /**
-     * Determinator if sorting may be performed on this property.
-     *
-     * @return bool
-     *
-     * @deprecated Deprecated in favor of GroupAndSortingInformationInterface.
-     *
-     * @see \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface
-     */
-    public function isSortable();
-
-    /**
      * Set filtering determinator.
      *
      * @param bool $value The flag.

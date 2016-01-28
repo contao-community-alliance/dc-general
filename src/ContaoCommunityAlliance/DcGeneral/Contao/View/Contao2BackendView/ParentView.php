@@ -39,8 +39,10 @@ use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
+use ContaoCommunityAlliance\DcGeneral\Event\EnforceModelRelationshipEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
+use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\ParentEnforcingListener;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 
@@ -129,6 +131,12 @@ class ParentView extends BaseView
         $objConfig = $environment->getDataProvider()->getEmptyConfig();
         $this->getPanel()->initialize($objConfig);
 
+        // Generate buttons - only if not in select mode!
+        if (!$this->isSelectModeActive()) {
+            $buttonRenderer = new ButtonRenderer($this->environment);
+            $buttonRenderer->renderButtonsForCollection($collection);
+        }
+
         // Run each model.
         $index = 0;
         foreach ($collection as $model) {
@@ -166,16 +174,6 @@ class ParentView extends BaseView
 
             if ($listing->getItemCssClass()) {
                 $model->setMeta($model::CSS_CLASS, $listing->getItemCssClass());
-            }
-
-            // Regular buttons.
-            if (!$this->isSelectModeActive()) {
-                $previous = (($collection->get($index - 1) !== null) ? $collection->get($index - 1) : null);
-                $next     = (($collection->get($index + 1) !== null) ? $collection->get($index + 1) : null);
-
-                $buttons = $this->generateButtons($model, $previous, $next);
-
-                $model->setMeta($model::OPERATION_BUTTONS, $buttons);
             }
 
             $event = new ParentViewChildRecordEvent($this->getEnvironment(), $model);
@@ -586,23 +584,16 @@ class ParentView extends BaseView
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\ParentEnforcingListener
+     *
+     * @see ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\ParentEnforcingListener
      */
     public function enforceModelRelationship($model)
     {
-        $definition = $this->getEnvironment()->getDataDefinition();
-        $basic      = $definition->getBasicDefinition();
-        $parent     = $this->loadParentModel();
-
-        $condition = $definition
-            ->getModelRelationshipDefinition()
-            ->getChildCondition(
-                $basic->getParentDataProvider(),
-                $basic->getDataProvider()
-            );
-
-        if ($condition) {
-            $condition->applyTo($parent, $model);
-        }
+        // Fallback implementation.
+        $listener = new ParentEnforcingListener();
+        $listener->process(new EnforceModelRelationshipEvent($this->getEnvironment(), $model));
     }
 
     /**

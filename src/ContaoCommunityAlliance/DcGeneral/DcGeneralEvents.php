@@ -66,4 +66,11 @@ class DcGeneralEvents
      * @api
      */
     const FORMAT_MODEL_LABEL = 'dc-general.model.format_model_label';
+
+    /**
+     * Triggered when a models relationship must be recalculated.
+     *
+     * @see ContaoCommunityAlliance\DcGeneral\Event\EnforceModelRelationshipEvent
+     */
+    const ENFORCE_MODEL_RELATIONSHIP = 'dc-general.model.enforce-relationship';
 }
