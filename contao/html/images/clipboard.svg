@@ -1,83 +1,27 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   viewBox="0 -256 1900 1900"
-   id="svg2"
-   version="1.1"
-   inkscape:version="0.48.4 r9939"
-   width="100%"
-   height="100%"
-   sodipodi:docname="clipboard.svg">
-  <metadata
-     id="metadata12">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <defs
-     id="defs10">
-    <linearGradient
-       id="linearGradient3753">
-      <stop
-         style="stop-color:#f9e094;stop-opacity:1;"
-         offset="0"
-         id="stop3755" />
-      <stop
-         style="stop-color:#de964a;stop-opacity:1;"
-         offset="1"
-         id="stop3757" />
-    </linearGradient>
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient3753"
-       id="linearGradient3759"
-       x1="1794.5"
-       y1="1539.8105"
-       x2="1794.5"
-       y2="-252.26773"
-       gradientUnits="userSpaceOnUse" />
-  </defs>
-  <sodipodi:namedview
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1025"
-     id="namedview8"
-     showgrid="false"
-     inkscape:zoom="0.26339286"
-     inkscape:cx="318.91197"
-     inkscape:cy="1036.1552"
-     inkscape:window-x="1918"
-     inkscape:window-y="1077"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg2" />
-  <g
-     transform="matrix(1,0,0,-1,53.152542,1325.0847)"
-     id="g4"
-     style="fill:url(#linearGradient3759);fill-opacity:1;stroke:#000000;stroke-opacity:1;stroke-width:10;stroke-miterlimit:4;stroke-dasharray:none">
-    <path
-       d="m 768,-128 h 896 v 640 h -416 q -40,0 -68,28 -28,28 -28,68 v 416 H 768 V -128 z m 256,1440 v 64 q 0,13 -9.5,22.5 -9.5,9.5 -22.5,9.5 H 288 q -13,0 -22.5,-9.5 Q 256,1389 256,1376 v -64 q 0,-13 9.5,-22.5 9.5,-9.5 22.5,-9.5 h 704 q 13,0 22.5,9.5 9.5,9.5 9.5,22.5 z m 256,-672 h 299 L 1280,939 V 640 z m 512,-128 v -672 q 0,-40 -28,-68 -28,-28 -68,-28 H 736 q -40,0 -68,28 -28,28 -28,68 V 0 H 96 Q 56,0 28,28 0,56 0,96 v 1344 q 0,40 28,68 28,28 68,28 h 1088 q 40,0 68,-28 28,-28 28,-68 v -328 q 21,-13 36,-28 l 408,-408 q 28,-28 48,-76 20,-48 20,-88 z"
-       id="path6"
-       inkscape:connector-curvature="0"
-       style="fill:url(#linearGradient3759);fill-opacity:1;stroke:#000000;stroke-opacity:1;stroke-width:10;stroke-miterlimit:4;stroke-dasharray:none" />
-  </g>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 15.0.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="svg2" xmlns:svg="http://www.w3.org/2000/svg"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="500px" height="500px"
+	 viewBox="0 0 500 500" enable-background="new 0 0 500 500" xml:space="preserve">
+<g id="g4" transform="matrix(0.01328236,0,0,-0.01328257,0.06650479,20.943343)">
+	
+		<linearGradient id="path6_1_" gradientUnits="userSpaceOnUse" x1="-1214843.75" y1="682.8164" x2="-1214843.75" y2="209.6914" gradientTransform="matrix(0.0036 0 0 0.0036 -446105.4688 587220)">
+		<stop  offset="0" style="stop-color:#F9E094"/>
+		<stop  offset="1" style="stop-color:#DE964A"/>
+	</linearGradient>
+	<path id="path6" fill="url(#path6_1_)" d="M16157.314-32694.219h17808.92v12719.352h-8268.355
+		c-529.602,0-980.973,185.637-1352.275,556.912s-557.027,820.773-557.027,1352.176v8267.807H16155.44v-22896.246H16157.314z
+		 M21246.146-4076.264v1272.076c0,172-62.496,320.508-189.623,447.512c-126.977,126.969-275.498,189.535-447.475,189.535H6616.825
+		c-172.013,0-320.497-62.566-447.548-189.535c-125.066-125.055-189.511-275.512-189.511-447.512v-1272.076
+		c0-171.963,62.533-320.473,189.511-447.514c125.103-125.059,275.536-189.498,447.548-189.498h13992.225
+		c171.977,0,320.498,62.455,447.475,189.498C21183.65-4396.736,21246.146-4248.227,21246.146-4076.264z M26334.902-17430.643h5942.9
+		l-5942.9,5942.377V-17430.643z M36510.504-19974.941V-33331.27c0-529.488-185.578-980.973-556.809-1352.246
+		c-371.301-371.273-820.91-556.84-1352.352-556.84h-19081.09c-529.603,0-981.011,185.566-1352.312,556.84
+		c-371.303,371.273-556.954,820.773-556.954,1352.246v3179.361H2798.253c-529.602,0-981.01,185.564-1352.276,556.912
+		c-371.339,371.275-556.991,820.701-556.991,1352.248v26710.709c0,529.523,185.651,980.938,556.991,1352.211
+		c371.266,371.273,820.762,556.836,1352.276,556.836h21625.434c529.602,0,980.973-185.562,1352.35-556.836
+		c371.303-371.273,556.881-820.773,556.881-1352.211v-6518.922c277.484-171.998,516-357.637,715.254-556.947l8109.98-8109.594
+		c371.301-371.275,689.887-875.326,953.695-1510.537C36379.699-18861.117,36510.504-19445.377,36510.504-19974.941z"/>
+</g>
 </svg>
