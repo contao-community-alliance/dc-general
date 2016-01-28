@@ -12,6 +12,9 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Andreas Isaak <andy.jared@googlemail.com>
+ * @author     Stefan Heimes <stefan_heimes@hotmail.com>
+ * @author     Tristan Lins <tristan.lins@bit3.de>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
