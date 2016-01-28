@@ -4,13 +4,13 @@
   padding-left: 40px;
   min-height: 32px;
   background-image: url(../images/clipboard.svg);
-  background-size: 24px auto;
-  background-position: 6px center;
+  background-size: 24px 24px;
+  background-position: 6px 3px;
   background-repeat: no-repeat;
 
   .btn-clear {
     position: absolute;
-    top: 0;
+    top: 3px;
     left: 6px;
     opacity: 0;
     transition: opacity 300ms;
