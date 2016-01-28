@@ -701,7 +701,7 @@ class TreePicker extends \Widget
     {
         $model->setMeta(DCGE::TREE_VIEW_LEVEL, $level);
         $model->setMeta(
-            DCGE::TREE_VIEW_IS_OPEN,
+            $model::SHOW_CHILDREN,
             $this->getTreeNodeStates()->isModelOpen(
                 $model->getProviderName(),
                 $model->getId()
@@ -749,7 +749,7 @@ class TreePicker extends \Widget
             $blnHasChild = ($objChildCollection->length() > 0);
 
             // Speed up - we may exit if we have at least one child but the parenting model is collapsed.
-            if ($blnHasChild && !$objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN)) {
+            if ($blnHasChild && !$objModel->getMeta($objModel::SHOW_CHILDREN)) {
                 break;
             } elseif ($blnHasChild) {
                 foreach ($objChildCollection as $objChildModel) {
@@ -767,15 +767,15 @@ class TreePicker extends \Widget
                 $arrChildCollections[] = $objChildCollection;
 
                 // Speed up, if collapsed, one item is enough to break as we have some children.
-                if (!$objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN)) {
+                if (!$objModel->getMeta($objModel::SHOW_CHILDREN)) {
                     break;
                 }
             }
         }
 
         // If expanded, store children.
-        if ($objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN) && count($arrChildCollections) != 0) {
-            $objModel->setMeta(DCGE::TREE_VIEW_CHILD_COLLECTION, $arrChildCollections);
+        if ($objModel->getMeta($objModel::SHOW_CHILDREN) && count($arrChildCollections) != 0) {
+            $objModel->setMeta($objModel::CHILD_COLLECTIONS, $arrChildCollections);
         }
 
         $objModel->setMeta($objModel::HAS_CHILDREN, $blnHasChild);
@@ -872,7 +872,7 @@ class TreePicker extends \Widget
         if ($rootId) {
             $objTreeData = $dataDriver->getEmptyCollection();
             $objModel    = $objCollection->get(0);
-            foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection) {
+            foreach ($objModel->getMeta($objModel::CHILD_COLLECTIONS) as $objCollection) {
                 foreach ($objCollection as $objSubModel) {
                     $objTreeData->push($objSubModel);
                 }
@@ -1020,7 +1020,7 @@ class TreePicker extends \Widget
     {
         $objModel->setMeta($objModel::LABEL_VALUE, $this->formatModel($objModel));
 
-        if ($objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN)) {
+        if ($objModel->getMeta($objModel::SHOW_CHILDREN)) {
             $toggleTitle = $this->getEnvironment()->getTranslator()->translate('collapseNode', 'MSC');
         } else {
             $toggleTitle = $this->getEnvironment()->getTranslator()->translate('expandNode', 'MSC');
@@ -1086,11 +1086,11 @@ class TreePicker extends \Widget
 
             $arrHtml[] = $this->parseModel($objModel, $strToggleID);
 
-            if ($objModel->getMeta($objModel::HAS_CHILDREN) && $objModel->getMeta(DCGE::TREE_VIEW_IS_OPEN)) {
+            if ($objModel->getMeta($objModel::HAS_CHILDREN) && $objModel->getMeta($objModel::SHOW_CHILDREN)) {
                 $template = new ContaoBackendViewTemplate('widget_treepicker_child');
                 $subHtml  = '';
 
-                foreach ($objModel->getMeta(DCGE::TREE_VIEW_CHILD_COLLECTION) as $objCollection) {
+                foreach ($objModel->getMeta($objModel::CHILD_COLLECTIONS) as $objCollection) {
                     $subHtml .= $this->generateTreeView($objCollection, $treeClass);
                 }
 

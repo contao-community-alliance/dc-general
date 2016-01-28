@@ -106,40 +106,6 @@ abstract class Ajax implements EnvironmentAwareInterface
     }
 
     /**
-     * Retrieve the ajax id.
-     *
-     * @return string
-     *
-     * @deprecated
-     */
-    protected function getAjaxKey()
-    {
-        $strAjaxKey = str_replace('_' . $this->getAjaxId(), '', $this->getPost('id'));
-
-        if ($this->getGet('act') == 'editAll') {
-            $strAjaxKey = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $strAjaxKey);
-        }
-
-        return $strAjaxKey;
-    }
-
-    /**
-     * Retrieve the ajax name.
-     *
-     * @return string
-     *
-     * @deprecated
-     */
-    protected function getAjaxName()
-    {
-        if ($this->getGet('act') == 'editAll') {
-            return preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $this->getPost('name'));
-        }
-
-        return $this->getPost('name');
-    }
-
-    /**
      * Load a tree structure.
      *
      * This method exits the script!

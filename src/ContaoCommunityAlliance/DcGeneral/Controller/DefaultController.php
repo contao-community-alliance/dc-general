@@ -41,7 +41,6 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionI
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultCollection;
 use ContaoCommunityAlliance\DcGeneral\Data\LanguageInformationInterface;
@@ -447,24 +446,6 @@ class DefaultController implements ControllerInterface
         }
 
         return $arrLanguage;
-    }
-
-    /**
-     * Retrieve the base data provider config for the current data definition.
-     *
-     * This includes parent filter when in parented list mode and the additional filters from the data definition.
-     *
-     * @param ModelIdInterface $parentId The optional parent to use.
-     *
-     * @return ConfigInterface
-     *
-     * @see BaseConfigRegistryInterface::getBaseConfig()
-     *
-     * @deprecated Use EnvironmentInterface::getBaseConfigRegistry->getBaseConfig()
-     */
-    public function getBaseConfig(ModelIdInterface $parentId = null)
-    {
-        return $this->getEnvironment()->getBaseConfigRegistry()->getBaseConfig($parentId);
     }
 
     /**

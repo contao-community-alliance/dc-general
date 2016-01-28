@@ -31,6 +31,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
+use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractEnvironmentAwareHandler;
 use ContaoCommunityAlliance\UrlBuilder\Contao\BackendUrlBuilder;
 
 /**

@@ -51,32 +51,6 @@ class GetPropertyOptionsEvent extends AbstractModelAwareEvent
      * @param string $propertyName The name of the property.
      *
      * @return $this
-     *
-     * @deprecated this method has been renamed to setPropertyName.
-     */
-    public function setFieldName($propertyName)
-    {
-        return $this->setPropertyName($propertyName);
-    }
-
-    /**
-     * Get the property name to retrieve the options for.
-     *
-     * @return string
-     *
-     * @deprecated this method has been renamed to getPropertyName.
-     */
-    public function getFieldName()
-    {
-        return $this->getPropertyName();
-    }
-
-    /**
-     * Set the property name to retrieve the options for.
-     *
-     * @param string $propertyName The name of the property.
-     *
-     * @return $this
      */
     public function setPropertyName($propertyName)
     {

@@ -157,29 +157,6 @@ interface BasicDefinitionInterface extends DefinitionInterface
     public function getAdditionalFilter($dataProvider = null);
 
     /**
-     * If true, adding of further records is prohibited.
-     *
-     * @param bool $value The flag - true means prohibit element creation, false means allow creation of new elements.
-     *
-     * @return BasicDefinitionInterface
-     *
-     * @deprecated Use setEditable, setDeletable or setCreatable instead.
-     */
-    public function setClosed($value);
-
-    /**
-     * Boolean flag determining if this data container is closed.
-     *
-     * True means, there may not be any records added or deleted, false means there may be any record appended or
-     * deleted..
-     *
-     * @return bool
-     *
-     * @deprecated Use isEditable, isDeletable or isCreatable instead.
-     */
-    public function isClosed();
-
-    /**
      * If true, only the edit mode will be shown.
      *
      * This is more or less the opposite to BasicDefinitionInterface::isEditable().

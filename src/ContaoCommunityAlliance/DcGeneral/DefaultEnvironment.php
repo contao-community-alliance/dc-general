@@ -21,13 +21,10 @@
 namespace ContaoCommunityAlliance\DcGeneral;
 
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
-use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
-use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -320,125 +317,6 @@ class DefaultEnvironment implements EnvironmentInterface
         }
 
         return $this;
-    }
-
-    /**
-     * Retrieve the data provider for the named source.
-     *
-     * If a source name is given, the named data provider will get returned, if not given, the default data provider
-     * will get returned, the default is to be determined via: getEnvironment()->getDataDefinition()->getDataProvider()
-     *
-     * @param string|null $strSource The name of the source.
-     *
-     * @return DataProviderInterface
-     *
-     * @deprecated Use getDataProvider() instead!
-     */
-    public function getDataDriver($strSource = null)
-    {
-        trigger_error(
-            __CLASS__ . '::getDataDriver() is deprecated - please use ' . __CLASS__ . '::getDataProvider().',
-            E_USER_DEPRECATED
-        );
-        return $this->getDataProvider($strSource);
-    }
-
-    /**
-     * Register a data provider to the environment.
-     *
-     * @param string                $strSource    The name of the source.
-     *
-     * @param DataProviderInterface $dataProvider The data provider instance to register under the given name.
-     *
-     * @return EnvironmentInterface
-     *
-     * @deprecated Use addDataProvider() instead!
-     */
-    public function addDataDriver($strSource, $dataProvider)
-    {
-        trigger_error(
-            __CLASS__ . '::addDataDriver() is deprecated - please use ' . __CLASS__ . '::addDataProvider().',
-            E_USER_DEPRECATED
-        );
-        // Force removal of an potentially registered data provider to ease sub-classing.
-        $this->addDataProvider($strSource, $dataProvider);
-
-        return $this;
-    }
-
-    /**
-     * Remove a data provider from the environment.
-     *
-     * @param string $strSource The name of the source.
-     *
-     * @return EnvironmentInterface
-     *
-     * @deprecated use removeDataProvider() instead!
-     */
-    public function removeDataDriver($strSource)
-    {
-        trigger_error(
-            __CLASS__ . '::removeDataDriver() is deprecated - please use ' . __CLASS__ . '::removeDataProvider().',
-            E_USER_DEPRECATED
-        );
-        $this->removeDataProvider($strSource);
-
-        return $this;
-    }
-
-    /**
-     * Store the panel container in the view.
-     *
-     * @param PanelContainerInterface $objPanelContainer The panel container.
-     *
-     * @throws DcGeneralInvalidArgumentException When an invalid view instance is stored in the environment.
-     *
-     * @return EnvironmentInterface
-     *
-     * @deprecated use the proper interface in the view!
-     */
-    public function setPanelContainer($objPanelContainer)
-    {
-        trigger_error(
-            __CLASS__ . '::setPanelContainer() is deprecated - please use the proper interface in the view.',
-            E_USER_DEPRECATED
-        );
-
-        if (!(($view = $this->getView()) instanceof BaseView)) {
-            throw new DcGeneralInvalidArgumentException(
-                __CLASS__ . '::setPanelContainer() got an invalid view instance passed.'
-            );
-        }
-
-        /** @var BaseView $view */
-        $view->setPanel($objPanelContainer);
-        return $this;
-    }
-
-    /**
-     * Retrieve the panel container.
-     *
-     * @return PanelContainerInterface
-     *
-     * @throws DcGeneralInvalidArgumentException When an invalid view instance is stored in the environment.
-     *
-     * @deprecated use the proper interface in the view!
-     */
-    public function getPanelContainer()
-    {
-        trigger_error(
-            __CLASS__ . '::setPanelContainer() is deprecated - please use the proper interface in the view.',
-            E_USER_DEPRECATED
-        );
-
-        if (!(($view = $this->getView()) instanceof BaseView)) {
-            throw new DcGeneralInvalidArgumentException(
-                __CLASS__ . '::setPanelContainer() got an invalid view instance passed.'
-            );
-        }
-
-        /** @var BaseView $view */
-        return $view->getPanel();
     }
 
     /**

@@ -49,6 +49,16 @@ interface ModelInterface extends \IteratorAggregate
     const HAS_CHILDREN = 'dc_gen_tv_children';
 
     /**
+     * If the children shall be shown (i.e. unfolded in tree mode).
+     */
+    const SHOW_CHILDREN = 'dc_gen_tv_open';
+
+    /**
+     * All child collections.
+     */
+    const CHILD_COLLECTIONS = 'dc_gen_children_collection';
+
+    /**
      * Meta name for the model operation buttons.
      */
     const OPERATION_BUTTONS = '%buttons%';

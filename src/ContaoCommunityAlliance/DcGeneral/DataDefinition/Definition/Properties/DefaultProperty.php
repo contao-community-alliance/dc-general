@@ -246,32 +246,6 @@ class DefaultProperty implements PropertyInterface
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated Deprecated in favor of GroupAndSortingInformationInterface.
-     *
-     * @see \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface
-     */
-    public function setSortable($value)
-    {
-        $this->sortable = $value;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Deprecated in favor of GroupAndSortingInformationInterface.
-     *
-     * @see \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface
-     */
-    public function isSortable()
-    {
-        return $this->sortable;
-    }
-
-    /**
-     * {@inheritdoc}
      */
     public function setFilterable($value)
     {

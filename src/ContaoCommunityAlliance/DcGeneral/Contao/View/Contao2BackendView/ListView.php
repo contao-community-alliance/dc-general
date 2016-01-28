@@ -16,6 +16,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Alexander Menk <alex.menk@gmail.com>
+ * @author     Ingolf Steinhardt <info@e-spin.de>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -165,7 +166,7 @@ class ListView extends BaseView
         } elseif ($pasteTopButton) {
             $arrTableHead[] = array(
                 'class' => 'tl_folder_tlist',
-                'content' => '&nbsp'
+                'content' => '&nbsp;'
             );
             $arrTableHead[] = array(
                 'class'   => 'tl_folder_tlist tl_right_nowrap',
@@ -264,15 +265,8 @@ class ListView extends BaseView
 
         // Generate buttons - only if not in select mode!
         if (!$this->isSelectModeActive()) {
-            foreach ($collection as $i => $objModel) {
-                $previous = (($collection->get($i - 1) !== null) ? $collection->get($i - 1) : null);
-                $next     = (($collection->get($i + 1) !== null) ? $collection->get($i + 1) : null);
-                /** @var ModelInterface $objModel */
-                $objModel->setMeta(
-                    $objModel::OPERATION_BUTTONS,
-                    $this->generateButtons($objModel, $previous, $next)
-                );
-            }
+            $buttonRenderer = new ButtonRenderer($this->environment);
+            $buttonRenderer->renderButtonsForCollection($collection);
         }
 
         // Add template.

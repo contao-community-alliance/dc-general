@@ -126,47 +126,6 @@ interface InputProviderInterface
     public function hasValue($strKey);
 
     /**
-     * Retrieve a persistent value.
-     *
-     * Usually this value is being kept in the user session.
-     *
-     * @param string $strKey The name of the value to be retrieved.
-     *
-     * @return mixed
-     *
-     * @deprecated Use Environment::getSessionStorage()->get() instead.
-     */
-    public function getPersistentValue($strKey);
-
-    /**
-     * Save/change a persistent value.
-     *
-     * Usually this value is being kept in the user session.
-     *
-     * @param string $strKey   The name of the value to be stored.
-     *
-     * @param mixed  $varValue The value to be stored.
-     *
-     * @return InputProviderInterface
-     *
-     * @deprecated Use Environment::getSessionStorage()->set() instead.
-     */
-    public function setPersistentValue($strKey, $varValue);
-
-    /**
-     * Determines if a persistent value is defined.
-     *
-     * Usually this value is being kept in the user session.
-     *
-     * @param string $strKey The name of the value to be checked.
-     *
-     * @return bool
-     *
-     * @deprecated Use Environment::getSessionStorage()->has() instead.
-     */
-    public function hasPersistentValue($strKey);
-
-    /**
      * Retrieve the current request url.
      *
      * @return string
