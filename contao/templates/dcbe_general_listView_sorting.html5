@@ -35,7 +35,7 @@
 					</thead>
 					<?php endif; ?>
 					
-          <tbody>
+					<tbody>
 					<?php foreach ($this->collection as $objModel): ?>
 						<?php /** @var \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface $objModel */ ?>
 						<tr id="table_row_<?php echo $objModel->getId(); ?>"
