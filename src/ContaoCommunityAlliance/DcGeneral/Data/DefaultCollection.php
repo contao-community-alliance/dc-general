@@ -16,6 +16,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Andreas Isaak <andy.jared@googlemail.com>
  * @author     Patrick Kahl <kahl.patrick@googlemail.com>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -121,9 +122,7 @@ class DefaultCollection implements CollectionInterface
             throw new DcGeneralRuntimeException('push() - no model passed', 1);
         }
 
-        if ($objModel->hasProperties()) {
-            array_push($this->arrCollection, $objModel);
-        }
+        array_push($this->arrCollection, $objModel);
     }
 
     /**
