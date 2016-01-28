@@ -17,15 +17,17 @@
 				</div>
 			<?php endif; ?>
 			<table id="table_<?php echo $this->tableName; ?>"  class="tl_listing<?php echo $this->showColumns ? ' showColumns' : ''; ?>">
-				<tbody>
 				<?php if (count($this->tableHead) > 0): ?>
+				<thead>
 					<tr>
 						<?php foreach ($this->tableHead as $arrTableHead): ?>
 							<th class="<?php echo $arrTableHead['class']; ?>"><?php echo $arrTableHead['content']; ?></th>
 						<?php endforeach; ?>
 					</tr>
+				</thead>
 				<?php endif; ?>
 
+				<tbody>
 				<?php foreach ($this->collection as $objModel): ?>
 					<?php /** @var \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface $objModel */ ?>
 					<tr id="table_row_<?php echo $objModel->getId(); ?>"
