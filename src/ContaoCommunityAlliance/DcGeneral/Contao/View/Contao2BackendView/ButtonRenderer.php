@@ -364,6 +364,7 @@ class ButtonRenderer
         if ($command instanceof ToggleCommandInterface) {
             // Toggle has to trigger the javascript.
             $parameters['act'] = $command->getName();
+            $parameters['id']  = $serializedModelId;
 
             return $parameters;
         }

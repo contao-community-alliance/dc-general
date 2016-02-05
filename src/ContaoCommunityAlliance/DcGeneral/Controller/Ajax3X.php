@@ -254,4 +254,23 @@ class Ajax3X extends Ajax
     {
         $this->reloadTree();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function setLegendState()
+    {
+        $environment  = $this->getEnvironment();
+        $input        = $environment->getInputProvider();
+        $table        = $input->getValue('table');
+        $legend       = $input->getValue('legend');
+        $state        = (bool) $input->getValue('state');
+        $session      = $environment->getSessionStorage();
+        $states       = $session->get('LEGENDS');
+
+        $states[$table][$legend] = $state;
+        $session->set('LEGENDS', $states);
+
+        $this->exitScript();
+    }
 }
