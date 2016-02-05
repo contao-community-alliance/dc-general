@@ -174,7 +174,6 @@ class LegacyPalettesParser
         $legend = null;
 
         foreach ($fields as $field) {
-            // TODO what about :hide? this is currently not supported by LegendInterface.
             if (preg_match('~^\{(.*?)(_legend)?(:hide)?\}$~', $field, $matches)) {
                 $name = $matches[1];
                 if ($palette->hasLegend($name)) {
@@ -182,6 +181,9 @@ class LegacyPalettesParser
                 } else {
                     $legend = new Legend($matches[1]);
                     $palette->addLegend($legend);
+                }
+                if (array_key_exists(3, $matches)) {
+                    $legend->setInitialVisibility(false);
                 }
             } else {
                 // Fallback for incomplete palettes without legend,
