@@ -74,7 +74,7 @@ $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalDriver.css';
 
 <?php foreach($this->fieldsets as $arrFieldset): if($arrFieldset['legend']): ?>
 <fieldset id="pal_<?php echo specialchars($arrFieldset['legend']); ?>" class="<?php echo $arrFieldset['class']; ?> block">
-<legend onclick="AjaxRequest.toggleFieldset(this,'<?php echo specialchars($arrFieldset['legend']); ?>','<?php echo specialchars($this->table); ?>')"><?php echo $arrFieldset['label']; ?></legend>
+<legend onclick="BackendGeneral.setLegendState(this,'<?php echo specialchars($arrFieldset['legend']); ?>','<?php echo specialchars($this->table); ?>')"><?php echo $arrFieldset['label']; ?></legend>
   <?php echo $arrFieldset['palette']; ?>
 </fieldset>
 <?php else: ?>

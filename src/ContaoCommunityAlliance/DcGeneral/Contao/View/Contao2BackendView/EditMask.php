@@ -32,6 +32,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
@@ -398,6 +399,7 @@ class EditMask
         $translator          = $environment->getTranslator();
         $propertyDefinitions = $definition->getPropertiesDefinition();
         $isAutoSubmit        = ($environment->getInputProvider()->getValue('SUBMIT_TYPE') === 'auto');
+        $legendStates        = $this->getLegendStates();
 
         $fieldSets = array();
         $first     = true;
@@ -413,6 +415,8 @@ class EditMask
                 continue;
             }
 
+            $legendVisible = $this->isLegendVisible($legend, $legendStates);
+
             foreach ($properties as $property) {
                 $this->ensurePropertyExists($property->getName(), $propertyDefinitions);
 
@@ -426,13 +430,15 @@ class EditMask
                         $this->errors,
                         $propertyValues->getPropertyValueErrors($property->getName())
                     );
+                    // Force legend open on error.
+                    $legendVisible = true;
                 }
 
                 $fields[] = $widgetManager->renderWidget($property->getName(), $isAutoSubmit, $propertyValues);
             }
 
             $fieldSet['label']   = $legendName;
-            $fieldSet['class']   = ($first) ? 'tl_tbox' : 'tl_box';
+            $fieldSet['class']   = $this->getLegendClass($first, $legendVisible);
             $fieldSet['palette'] = implode('', $fields);
             $fieldSet['legend']  = $legend->getName();
             $fieldSets[]         = $fieldSet;
@@ -739,5 +745,65 @@ class EditMask
         $_SESSION['TL_INFO']    = array();
         $_SESSION['TL_ERROR']   = array();
         $_SESSION['TL_CONFIRM'] = array();
+    }
+
+    /**
+     * Determine if the passed legend is visible or collapsed.
+     *
+     * @param LegendInterface $legend       The legend.
+     *
+     * @param bool[]          $legendStates The states from the session.
+     *
+     * @return bool
+     */
+    private function isLegendVisible($legend, $legendStates)
+    {
+        if (array_key_exists($legend->getName(), $legendStates)) {
+            return $legendStates[$legend->getName()];
+        }
+
+        return $legend->isInitialVisible();
+    }
+
+    /**
+     * Obtain the legend states.
+     *
+     * @return array
+     */
+    private function getLegendStates()
+    {
+        $environment  = $this->getEnvironment();
+        $definition   = $environment->getDataDefinition();
+        $legendStates = $environment->getSessionStorage()->get('LEGENDS');
+
+        if (array_key_exists($definition->getName(), $legendStates)) {
+            $legendStates = $legendStates[$definition->getName()];
+
+            return $legendStates;
+        } else {
+            $legendStates = array();
+
+            return $legendStates;
+        }
+    }
+
+    /**
+     * Determine the class to use for a legend.
+     *
+     * @param bool $first   Flag if this is the first legend.
+     *
+     * @param bool $visible Flag determining if the legend is visible.
+     *
+     * @return string
+     */
+    private function getLegendClass($first, $visible)
+    {
+        $classes = array((($first) ? 'tl_tbox' : 'tl_box'));
+
+        if (!$visible) {
+            $classes[] = ' collapsed';
+        }
+
+        return implode(' ', $classes);
     }
 }

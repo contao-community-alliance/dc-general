@@ -137,5 +137,5 @@ abstract class AbstractHandler
      *
      * @return void
      */
-     abstract public function process();
+    abstract public function process();
 }
