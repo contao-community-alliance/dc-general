@@ -79,7 +79,7 @@ class ParentEnforcingListener
      */
     protected function loadParentModel(InputProviderInterface $input, EnvironmentInterface $environment)
     {
-        if (!$input->hasValue('pid')) {
+        if (!$input->hasParameter('pid')) {
             return null;
         }
 
