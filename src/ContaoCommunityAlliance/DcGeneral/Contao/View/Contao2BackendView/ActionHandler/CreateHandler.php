@@ -51,9 +51,22 @@ class CreateHandler extends AbstractHandler
             return;
         }
 
-        $dataProvider = $environment->getDataProvider();
-        $model        = $dataProvider->getEmptyModel();
-        $clone        = $dataProvider->getEmptyModel();
+        $definition         = $environment->getDataDefinition();
+        $dataProvider       = $environment->getDataProvider();
+        $propertyDefinition = $definition->getPropertiesDefinition();
+        $properties         = $propertyDefinition->getProperties();
+        $model              = $dataProvider->getEmptyModel();
+        $clone              = $dataProvider->getEmptyModel();
+
+        // If some of the fields have a default value, set it.
+        foreach ($properties as $property) {
+            $propName = $property->getName();
+
+            if ($property->getDefaultValue() !== null) {
+                $model->setProperty($propName, $property->getDefaultValue());
+                $clone->setProperty($propName, $property->getDefaultValue());
+            }
+        }
 
         $view = $environment->getView();
         if (!$view instanceof BaseView) {
