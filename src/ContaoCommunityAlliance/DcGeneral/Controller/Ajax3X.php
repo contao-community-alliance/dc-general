@@ -180,8 +180,16 @@ class Ajax3X extends Ajax
 
             // Automatically add resources to the DBAFS.
             if ($strType == 'file') {
-                foreach ($varValue as $k => $v) {
-                    $varValue[$k] = \String::binToUuid(\Dbafs::addResource($v)->uuid);
+                // PHP 7 compatibility
+                // See #309 (https://github.com/contao/core-bundle/issues/309)
+                if (version_compare('3.5.5', VERSION, '>=')) {
+                    foreach ($varValue as $k => $v) {
+                        $varValue[$k] = \StringUtil::binToUuid(\Dbafs::addResource($v)->uuid);
+                    }
+                } else {
+                    foreach ($varValue as $k => $v) {
+                        $varValue[$k] = \String::binToUuid(\Dbafs::addResource($v)->uuid);
+                    }
                 }
             }
         }
