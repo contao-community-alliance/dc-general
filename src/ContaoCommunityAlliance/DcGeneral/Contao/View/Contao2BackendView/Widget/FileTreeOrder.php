@@ -62,6 +62,10 @@ class FileTreeOrder extends AbstractWidget
      */
     protected function getSerializedValue()
     {
+        if ($this->varValue === null) {
+            $this->varValue = array();
+        }
+
         return implode(',', array_map('String::binToUuid', $this->varValue));
     }
 }
