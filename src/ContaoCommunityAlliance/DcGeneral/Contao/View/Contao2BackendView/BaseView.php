@@ -764,7 +764,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $environment = $this->getEnvironment();
         $extra       = $command->getExtra();
-        $label       = $command->getLabel();
+        $label       = $this->translate($command->getLabel());
         $dispatcher  = $environment->getEventDispatcher();
 
         if (isset($extra['href'])) {
@@ -798,7 +798,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             ->setKey($command->getName())
             ->setHref($href)
             ->setLabel($label)
-            ->setTitle($command->getDescription());
+            ->setTitle($this->translate($command->getDescription()));
         $environment->getEventDispatcher()->dispatch(GetGlobalButtonEvent::NAME, $buttonEvent);
 
         // Allow to override the button entirely.

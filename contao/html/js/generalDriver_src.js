@@ -61,18 +61,8 @@ var BackendGeneral =
 				if (mode == 5) {
 					li.inject($(el).getParent('li'), 'after');
 				} else {
-					var folder = false,
-						parent = $(el).getParent('li');
-
-					if(typeOf(parent) == 'element' && parent.hasClass('tl_folder')){
-						folder = true;
-					}
-
-					if (folder) {
-						li.inject(parent, 'before');
-					} else {
-						li.inject(parent, 'after');
-					}
+					var parent = $(el).getParent('li');
+					li.inject(parent, 'after');
 				}
 
 				// Update the referer ID
