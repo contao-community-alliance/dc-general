@@ -5,7 +5,7 @@
     <?php endif; ?>
     <ul id="sort_<?php echo $this->id; ?>" class="<?php echo trim(($this->hasOrder ? 'sortable ' : '') . ($this->isGallery ? 'sgallery' : '')); ?>">
     <?php foreach ($this->icons as $id => $icon): ?>
-        <?php if (version_compare('3.5.5', VERSION, '>=')): ?>
+        <?php if (version_compare('3.5.5', VERSION . '.' . BUILD, '>=')): ?>
             <li data-id="<?php echo \StringUtil::binToUuid($id); ?>"><?php echo $icon; ?></li>
         <?php else: ?>
             <li data-id="<?php echo \String::binToUuid($id); ?>"><?php echo $icon; ?></li>
