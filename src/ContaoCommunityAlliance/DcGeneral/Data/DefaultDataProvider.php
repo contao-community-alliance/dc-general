@@ -55,6 +55,13 @@ class DefaultDataProvider implements DataProviderInterface
     protected $objDatabase = null;
 
     /**
+     * The name of the id property.
+     *
+     * @var string
+     */
+    protected $idProperty = 'id';
+
+    /**
      * The property that shall get populated with the current timestamp when saving data.
      *
      * @var string
@@ -67,6 +74,30 @@ class DefaultDataProvider implements DataProviderInterface
      * @var IdGeneratorInterface
      */
     protected $idGenerator = null;
+
+    /**
+     * Retrieve the name of the id property.
+     *
+     * @return string
+     */
+    public function getIdProperty()
+    {
+        return $this->idProperty;
+    }
+
+    /**
+     * Set the id property.
+     *
+     * @param string $idProperty The name of the id property.
+     *
+     * @return DefaultDataProvider
+     */
+    public function setIdProperty($idProperty)
+    {
+        $this->idProperty = $idProperty;
+
+        return $this;
+    }
 
     /**
      * Get the property name that shall get updated with the current time stamp when saving to the database.
@@ -170,6 +201,10 @@ class DefaultDataProvider implements DataProviderInterface
         } elseif ($this->objDatabase->fieldExists('tstamp', $this->strSource)) {
             $this->setTimeStampProperty('tstamp');
         }
+
+        if (isset($arrConfig['idProperty'])) {
+            $this->setIdProperty($arrConfig['idProperty']);
+        }
     }
 
     /**
@@ -220,12 +255,12 @@ class DefaultDataProvider implements DataProviderInterface
         $strFields = '*';
 
         if ($objConfig->getIdOnly()) {
-            $strFields = 'id';
+            $strFields = $this->idProperty;
         } elseif ($objConfig->getFields() !== null) {
             $strFields = implode(', ', $objConfig->getFields());
 
             if (!stristr($strFields, 'DISTINCT')) {
-                $strFields = 'id, ' . $strFields;
+                $strFields = $this->idProperty . ', ' . $strFields;
             }
         }
 
@@ -466,8 +501,8 @@ class DefaultDataProvider implements DataProviderInterface
         $modelId = null;
         if (is_numeric($item) || is_string($item)) {
             $modelId = $item;
-        } elseif (is_object($item) && $item instanceof ModelInterface && strlen($item->getID()) != 0) {
-            $modelId = $item->getID();
+        } elseif (is_object($item) && $item instanceof ModelInterface && strlen($item->getId()) != 0) {
+            $modelId = $item->getId();
         } else {
             throw new DcGeneralRuntimeException("ID missing or given object not of type 'ModelInterface'.");
         }
@@ -505,8 +540,8 @@ class DefaultDataProvider implements DataProviderInterface
 
         /** @var \Contao\Database\Result $dbResult */
         foreach ($dbResult->row() as $key => $value) {
-            if ($key == 'id') {
-                $objModel->setID($value);
+            if ($key == $this->idProperty) {
+                $objModel->setId($value);
             }
 
             $objModel->setPropertyRaw($key, deserialize($value));
@@ -581,7 +616,7 @@ class DefaultDataProvider implements DataProviderInterface
         $dbResult = $objDatabaseQuery->execute($arrParams);
 
         if ($objConfig->getIdOnly()) {
-            return $dbResult->fetchEach('id');
+            return $dbResult->fetchEach($this->idProperty);
         }
 
         $objCollection = $this->getEmptyCollection();
@@ -692,7 +727,7 @@ class DefaultDataProvider implements DataProviderInterface
         $data = array();
 
         foreach ($model as $key => $value) {
-            if ($key == 'id') {
+            if ($key == $this->idProperty) {
                 continue;
             }
 
@@ -721,8 +756,8 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $data = $this->convertModelToDataPropertyArray($model);
         if ($this->getIdGenerator()) {
-            $model->setID($this->getIdGenerator()->generate());
-            $data['id'] = $model->getID();
+            $model->setId($this->getIdGenerator()->generate());
+            $data[$this->idProperty] = $model->getId();
         }
 
         $insertResult = $this->objDatabase
@@ -730,8 +765,8 @@ class DefaultDataProvider implements DataProviderInterface
             ->set($data)
             ->execute();
 
-        if (!isset($data['id']) && strlen($insertResult->insertId)) {
-            $model->setID($insertResult->insertId);
+        if (!isset($data[$this->idProperty]) && strlen($insertResult->insertId)) {
+            $model->setId($insertResult->insertId);
         }
     }
 
@@ -749,7 +784,7 @@ class DefaultDataProvider implements DataProviderInterface
         $this->objDatabase
             ->prepare(sprintf('UPDATE %s %%s WHERE id=?', $this->strSource))
             ->set($data)
-            ->execute($model->getID());
+            ->execute($model->getId());
     }
 
     /**
@@ -757,7 +792,7 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function save(ModelInterface $objItem)
     {
-        if ($objItem->getID() === null || $objItem->getID() === '') {
+        if ($objItem->getId() === null || $objItem->getId() === '') {
             $this->insertModelIntoDatabase($objItem);
         } else {
             $this->updateModelInDatabase($objItem);
@@ -806,7 +841,7 @@ class DefaultDataProvider implements DataProviderInterface
         $objModel = $this->getEmptyModel();
         $objModel->setID($mixID);
         foreach ($arrData as $key => $value) {
-            if ($key == 'id') {
+            if ($key == $this->idProperty) {
                 continue;
             }
 
@@ -848,10 +883,10 @@ class DefaultDataProvider implements DataProviderInterface
 
         foreach ($arrVersion as $versionValue) {
             $objReturn = $this->getEmptyModel();
-            $objReturn->setID($mixID);
+            $objReturn->setId($mixID);
 
             foreach ($versionValue as $key => $value) {
-                if ($key == 'id') {
+                if ($key == $this->idProperty) {
                     continue;
                 }
 
@@ -877,15 +912,15 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $objCount = $this->objDatabase
             ->prepare('SELECT count(*) as mycount FROM tl_version WHERE pid=? AND fromTable = ?')
-            ->execute($objModel->getID(), $this->strSource);
+            ->execute($objModel->getId(), $this->strSource);
 
         $mixNewVersion = (intval($objCount->mycount) + 1);
-
         $mixData       = $objModel->getPropertiesAsArray();
-        $mixData['id'] = $objModel->getID();
+
+        $mixData[$this->idProperty] = $objModel->getId();
 
         $arrInsert              = array();
-        $arrInsert['pid']       = $objModel->getID();
+        $arrInsert['pid']       = $objModel->getId();
         $arrInsert['tstamp']    = time();
         $arrInsert['version']   = $mixNewVersion;
         $arrInsert['fromTable'] = $this->strSource;
@@ -896,7 +931,7 @@ class DefaultDataProvider implements DataProviderInterface
             ->set($arrInsert)
             ->execute();
 
-        $this->setVersionActive($objModel->getID(), $mixNewVersion);
+        $this->setVersionActive($objModel->getId(), $mixNewVersion);
     }
 
     /**
@@ -951,7 +986,7 @@ class DefaultDataProvider implements DataProviderInterface
     public function sameModels($objModel1, $objModel2)
     {
         foreach ($objModel1 as $key => $value) {
-            if ($key == 'id') {
+            if ($key == $this->idProperty) {
                 continue;
             }
 
