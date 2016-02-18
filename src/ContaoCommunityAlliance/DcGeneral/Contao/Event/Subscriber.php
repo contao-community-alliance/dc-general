@@ -239,19 +239,14 @@ class Subscriber implements EventSubscriberInterface
 
 //                $row[$i] = implode(', ', $temp);
         }
-        // Decode array
         else
          */
         if (is_array($value)) {
-            foreach ($value as $kk => $vv) {
-                if (is_array($vv)) {
-                    $vals       = array_values($vv);
-                    $value[$kk] = $vals[0] . ' (' . $vals[1] . ')';
-                }
-            }
+            self::renderArrayReadable($event, $value);
 
-            $event->setRendered(implode(', ', $value));
-        } elseif (isset($extra['rgxp'])) {
+            return;
+        }
+        if (isset($extra['rgxp'])) {
             // Date format.
             if ($extra['rgxp'] == 'date' || $extra['rgxp'] == 'time' || $extra['rgxp'] == 'datim') {
                 $event->setRendered(
@@ -357,5 +352,26 @@ class Subscriber implements EventSubscriberInterface
         $panel      = $view->getPanel();
 
         ViewHelpers::initializeSorting($panel, $dataConfig, $listingConfig);
+    }
+
+    /**
+     * Render an array as readable property value.
+     *
+     * @param RenderReadablePropertyValueEvent $event The event to store the value to.
+     *
+     * @param array                            $value The array to render.
+     *
+     * @return void
+     */
+    private static function renderArrayReadable(RenderReadablePropertyValueEvent $event, $value)
+    {
+        foreach ($value as $kk => $vv) {
+            if (is_array($vv)) {
+                $vals       = array_values($vv);
+                $value[$kk] = $vals[0] . ' (' . $vals[1] . ')';
+            }
+        }
+
+        $event->setRendered(implode(', ', $value));
     }
 }
