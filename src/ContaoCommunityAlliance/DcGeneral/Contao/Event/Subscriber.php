@@ -255,13 +255,12 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
         if (isset($extra['rgxp'])) {
-            // Date format.
-            if ($extra['rgxp'] == 'date' || $extra['rgxp'] == 'time' || $extra['rgxp'] == 'datim') {
-                $event->setRendered(
-                    self::parseDateTime($dispatcher, $GLOBALS['TL_CONFIG'][$extra['rgxp'] . 'Format'], $value)
-                );
-            }
-        } elseif (/*
+            self::renderTimestampReadable($event, $extra, $dispatcher, $value);
+
+            return;
+        }
+
+        if (/*
             in_array(
                 $property->getGroupingMode(),
                 array(
@@ -407,5 +406,31 @@ class Subscriber implements EventSubscriberInterface
         }
 
         $event->setRendered(implode(', ', $value));
+    }
+
+    /**
+     * Render a timestamp.
+     *
+     * @param RenderReadablePropertyValueEvent $event      The event to store the value to.
+     *
+     * @param array                            $extra      The extra data from the property.
+     *
+     * @param EventDispatcherInterface         $dispatcher The event dispatcher.
+     *
+     * @param int                              $value      The value to format.
+     *
+     * @return void
+     */
+    private static function renderTimestampReadable(
+        RenderReadablePropertyValueEvent $event,
+        $extra,
+        $dispatcher,
+        $value
+    ) {
+        if ($extra['rgxp'] == 'date' || $extra['rgxp'] == 'time' || $extra['rgxp'] == 'datim') {
+            $event->setRendered(
+                self::parseDateTime($dispatcher, self::getConfig()->get($extra['rgxp'] . 'Format'), $value)
+            );
+        }
     }
 }
