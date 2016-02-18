@@ -95,6 +95,8 @@ class Callbacks
      * @param array|callable $callback The callback to invoke.
      *
      * @return array|callable
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected static function evaluateCallback($callback)
     {
