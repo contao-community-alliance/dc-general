@@ -53,16 +53,15 @@
     },
     "autoload": {
         "classmap": [
-            "src/DC_General.php",
-            "src/ContaoCommunityAlliance/DcGeneral/DC_General.php"
+            "src/DC_General.php"
         ],
         "psr-0": {
-            "ContaoCommunityAlliance\\DcGeneral": "src"
+            "ContaoCommunityAlliance\\DcGeneral\\": "src"
         }
     },
     "autoload-dev": {
         "psr-0": {
-            "ContaoCommunityAlliance\\DcGeneral": "tests"
+            "ContaoCommunityAlliance\\DcGeneral\\": "tests"
         }
     },
     "extra": {
