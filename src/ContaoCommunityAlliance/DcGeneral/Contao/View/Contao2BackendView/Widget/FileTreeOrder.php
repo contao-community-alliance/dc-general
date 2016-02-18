@@ -12,6 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     David Molineus <david.molineus@netzmacht.de>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
@@ -69,6 +70,9 @@ class FileTreeOrder extends AbstractWidget
      */
     protected function getSerializedValue()
     {
+        if ($this->varValue === null) {
+            $this->varValue = array();
+        }
         // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
         if (version_compare('3.5.5', VERSION . '.' . BUILD, '>=')) {
             $mapFunc = 'StringUtil::binToUuid';
