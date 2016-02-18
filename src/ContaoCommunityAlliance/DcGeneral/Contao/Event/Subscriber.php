@@ -22,6 +22,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Event;
 
+use Contao\Config;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
@@ -52,6 +53,13 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class Subscriber implements EventSubscriberInterface
 {
+    /**
+     * The config instance.
+     *
+     * @var \Contao\Config
+     */
+    private static $config;
+
     /**
      * {@inheritDoc}
      */
@@ -352,6 +360,32 @@ class Subscriber implements EventSubscriberInterface
         $panel      = $view->getPanel();
 
         ViewHelpers::initializeSorting($panel, $dataConfig, $listingConfig);
+    }
+
+    /**
+     * Set the config instance in use.
+     *
+     * @param Config $config The config instance.
+     *
+     * @return void
+     */
+    public function setConfig(Config $config)
+    {
+        self::$config = $config;
+    }
+
+    /**
+     * Retrieve the config in use.
+     *
+     * @return Config
+     */
+    public function getConfig()
+    {
+        if (!self::$config) {
+            return self::$config = Config::getInstance();
+        }
+
+        return self::$config;
     }
 
     /**
