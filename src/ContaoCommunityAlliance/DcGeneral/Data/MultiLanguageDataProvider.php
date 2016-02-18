@@ -43,8 +43,6 @@ class MultiLanguageDataProvider extends DefaultDataProvider implements MultiLang
     public function __construct()
     {
         $this->setCurrentLanguage('en');
-
-        parent::__construct();
     }
 
     /**
@@ -53,6 +51,8 @@ class MultiLanguageDataProvider extends DefaultDataProvider implements MultiLang
      * @param mixed $mixID The ID of the record to retrieve.
      *
      * @return LanguageInformationCollectionInterface
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getLanguages($mixID)
     {
@@ -72,6 +72,8 @@ class MultiLanguageDataProvider extends DefaultDataProvider implements MultiLang
      * @param mixed $mixID The ID of the record to retrieve.
      *
      * @return LanguageInformationInterface
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getFallbackLanguage($mixID)
     {

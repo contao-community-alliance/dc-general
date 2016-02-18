@@ -27,6 +27,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Data;
 
+use Contao\Database;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -66,14 +67,6 @@ class DefaultDataProvider implements DataProviderInterface
      * @var IdGeneratorInterface
      */
     protected $idGenerator = null;
-
-    /**
-     * Create a new instance of the data provider.
-     */
-    public function __construct()
-    {
-        $this->objDatabase = \Database::getInstance();
-    }
 
     /**
      * Get the property name that shall get updated with the current time stamp when saving to the database.
@@ -154,11 +147,13 @@ class DefaultDataProvider implements DataProviderInterface
         }
 
         if (isset($arrConfig['database'])) {
-            if (!($arrConfig['database'] instanceof \Database)) {
+            if (!($arrConfig['database'] instanceof Database)) {
                 throw new DcGeneralRuntimeException('Invalid database.');
             }
 
             $this->objDatabase = $arrConfig['database'];
+        } else {
+            $this->objDatabase = \Database::getInstance();
         }
 
         if (isset($arrConfig['idGenerator'])) {
