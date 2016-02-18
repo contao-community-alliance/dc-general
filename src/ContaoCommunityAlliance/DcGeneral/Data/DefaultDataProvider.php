@@ -234,10 +234,18 @@ class DefaultDataProvider implements DataProviderInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Fetch an empty single filter option collection (new model list).
+     *
+     * @return FilterOptionCollectionInterface
+     *
+     * @deprecated This method was never intended to be used externally.
      */
     public function getEmptyFilterOptionCollection()
     {
+        trigger_error(
+            'Method ' . __METHOD__ . ' was never intended to be called via interface and will get removed',
+            E_USER_DEPRECATED
+        );
         return new DefaultFilterOptionCollection();
     }
 
@@ -659,7 +667,7 @@ class DefaultDataProvider implements DataProviderInterface
             )
             ->execute($arrParams);
 
-        $objCollection = $this->getEmptyFilterOptionCollection();
+        $objCollection = new DefaultFilterOptionCollection();
         while ($objValues->next()) {
             $objCollection->add($objValues->$strProperty, $objValues->$strProperty);
         }
