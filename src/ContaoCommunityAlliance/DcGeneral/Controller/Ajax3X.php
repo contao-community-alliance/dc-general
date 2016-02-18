@@ -267,13 +267,13 @@ class Ajax3X extends Ajax
      */
     protected function setLegendState()
     {
-        $environment  = $this->getEnvironment();
-        $input        = $environment->getInputProvider();
-        $table        = $input->getValue('table');
-        $legend       = $input->getValue('legend');
-        $state        = (bool) $input->getValue('state');
-        $session      = $environment->getSessionStorage();
-        $states       = $session->get('LEGENDS');
+        $environment = $this->getEnvironment();
+        $input       = $environment->getInputProvider();
+        $table       = $input->getValue('table');
+        $legend      = $input->getValue('legend');
+        $state       = (bool) $input->getValue('state');
+        $session     = $environment->getSessionStorage();
+        $states      = $session->get('LEGENDS');
 
         $states[$table][$legend] = $state;
         $session->set('LEGENDS', $states);
