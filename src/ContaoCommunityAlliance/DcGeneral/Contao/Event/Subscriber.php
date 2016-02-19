@@ -284,10 +284,12 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
-        if ($property->getWidgetType() == 'textarea'
-                  && (!empty($extra['allowHtml']) || !empty($extra['preserveTags']))
-        ) {
-            $event->setRendered(nl2br_html5(specialchars($value)));
+        if ($property->getWidgetType() == 'textarea') {
+            self::renderTextAreaReadable($event, $extra, $value);
+
+            return;
+        }
+
         if (isset($extra['reference'])) {
             self::renderReferenceReadable($event, $extra, $value);
 
@@ -466,5 +468,25 @@ class Subscriber implements EventSubscriberInterface
         }
 
         $event->setRendered($extra['reference'][$value]);
+    }
+
+    /**
+     * Render a string if not allow html or preserve tags is given.
+     *
+     * @param RenderReadablePropertyValueEvent $event The event to store the value to.
+     *
+     * @param array                            $extra The extra data from the property.
+     *
+     * @param string                           $value The value to format.
+     *
+     * @return void
+     */
+    private static function renderTextAreaReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
+    {
+        if (empty($extra['allowHtml']) && empty($extra['preserveTags'])) {
+            return;
+        }
+
+        $event->setRendered(nl2br_html5(specialchars($value)));
     }
 }
