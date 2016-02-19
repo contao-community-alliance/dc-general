@@ -755,7 +755,7 @@ class TreePicker extends \Widget
             } elseif ($blnHasChild) {
                 foreach ($objChildCollection as $objChildModel) {
                     // Let the child know about it's parent.
-                    $objModel->setMeta($objModel::PARENT_ID, $objModel->getID());
+                    $objModel->setMeta($objModel::PARENT_ID, $objModel->getId());
                     $objModel->setMeta($objModel::PARENT_PROVIDER_NAME, $objModel->getProviderName());
 
                     $mySubTables = array();
@@ -1083,7 +1083,7 @@ class TreePicker extends \Widget
         foreach ($objCollection as $objModel) {
             /** @var ModelInterface $objModel */
 
-            $strToggleID = $objModel->getProviderName() . '_' . $treeClass . '_' . $objModel->getID();
+            $strToggleID = $objModel->getProviderName() . '_' . $treeClass . '_' . $objModel->getId();
 
             $arrHtml[] = $this->parseModel($objModel, $strToggleID);
 
