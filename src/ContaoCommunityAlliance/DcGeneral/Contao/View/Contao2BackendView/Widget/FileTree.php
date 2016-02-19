@@ -66,6 +66,20 @@ class FileTree extends AbstractWidget
     protected $orderFieldValue;
 
     /**
+     * The default width of the thumbnail.
+     *
+     * @var int
+     */
+    protected $thumbnailHeight = 80;
+
+    /**
+     * The default height of the thumbnail.
+     *
+     * @var int
+     */
+    protected $thumbnailWidth = 60;
+
+    /**
      * Create a new instance.
      *
      * @param array|null    $attributes    The custom attributes.
@@ -250,7 +264,9 @@ class FileTree extends AbstractWidget
         if ($file->isSvgImage
             || $file->height <= \Config::get('gdMaxImgHeight') && $file->width <= \Config::get('gdMaxImgWidth')
         ) {
-            $image = \Image::get($model->path, 80, 60, 'center_center');
+            $width  = min($file->width, $this->thumbnailWidth);
+            $height = min($file->height, $this->thumbnailHeight);
+            $image  = \Image::get($model->path, $width, $height, 'center_center');
         }
 
         return \Image::getHtml($image, '', 'class="gimage" title="' . specialchars($info) . '"');
