@@ -288,15 +288,13 @@ class Subscriber implements EventSubscriberInterface
                   && (!empty($extra['allowHtml']) || !empty($extra['preserveTags']))
         ) {
             $event->setRendered(nl2br_html5(specialchars($value)));
-        } elseif (isset($extra['reference']) && is_array($extra['reference'])) {
-            if (isset($extra['reference'][$value])) {
-                $event->setRendered(
-                    (is_array($extra['reference'][$value])
-                        ? $extra['reference'][$value][0]
-                        : $extra['reference'][$value])
-                );
-            }
-        } elseif ($value instanceof \DateTime) {
+        if (isset($extra['reference'])) {
+            self::renderReferenceReadable($event, $extra, $value);
+
+            return;
+        }
+
+        if ($value instanceof \DateTime) {
             $dateEvent = new ParseDateEvent($value->getTimestamp(), $GLOBALS['TL_CONFIG']['datimFormat']);
             $dispatcher->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
 
@@ -438,5 +436,35 @@ class Subscriber implements EventSubscriberInterface
                 self::parseDateTime($dispatcher, self::getConfig()->get($extra['rgxp'] . 'Format'), $value)
             );
         }
+    }
+
+    /**
+     * Render a referenced value.
+     *
+     * @param RenderReadablePropertyValueEvent $event The event to store the value to.
+     *
+     * @param array                            $extra The extra data from the property.
+     *
+     * @param string                           $value The value to format.
+     *
+     * @return void
+     */
+    private static function renderReferenceReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
+    {
+        if (!is_array($extra['reference'])) {
+            return;
+        }
+
+        if (!array_key_exists($value, $extra['reference'])) {
+            return;
+        }
+
+        if (is_array($extra['reference'][$value])) {
+            $event->setRendered($extra['reference'][$value][0]);
+
+            return;
+        }
+
+        $event->setRendered($extra['reference'][$value]);
     }
 }
