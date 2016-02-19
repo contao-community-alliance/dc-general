@@ -774,7 +774,7 @@ class EditMask
     {
         $environment  = $this->getEnvironment();
         $definition   = $environment->getDataDefinition();
-        $legendStates = $environment->getSessionStorage()->get('LEGENDS');
+        $legendStates = (array) $environment->getSessionStorage()->get('LEGENDS');
 
         if (array_key_exists($definition->getName(), $legendStates)) {
             $legendStates = $legendStates[$definition->getName()];
