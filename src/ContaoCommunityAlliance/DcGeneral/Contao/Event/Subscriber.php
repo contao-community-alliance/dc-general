@@ -225,30 +225,12 @@ class Subscriber implements EventSubscriberInterface
 
         $extra = $property->getExtra();
 
-        // TODO: refactor - foreign key handling is not yet supported.
-        /*
-        if (isset($arrFieldConfig['foreignKey']))
-        {
-            $temp = array();
-            $chunks = explode('.', $arrFieldConfig['foreignKey'], 2);
+        if (isset($extra['foreignKey'])) {
+            self::renderForeignKeyReadable($event, $extra, $value);
 
-
-            foreach ((array) $value as $v)
-            {
-//                    $objKey = $this->Database->prepare("SELECT " . $chunks[1] . " AS value FROM " . $chunks[0] . " WHERE id=?")
-//                            ->limit(1)
-//                            ->execute($v);
-//
-//                    if ($objKey->numRows)
-//                    {
-//                        $temp[] = $objKey->value;
-//                    }
-            }
-
-//                $row[$i] = implode(', ', $temp);
+            return;
         }
-        else
-         */
+
         if (is_array($value)) {
             self::renderArrayReadable($event, $value);
 
@@ -383,6 +365,36 @@ class Subscriber implements EventSubscriberInterface
         }
 
         return self::$config;
+    }
+
+    /**
+     * Render a foreign key reference.
+     *
+     * @param RenderReadablePropertyValueEvent $event The event to store the value to.
+     *
+     * @param array                            $extra The extra data from the property.
+     *
+     * @param mixed                            $value The value to format.
+     *
+     * @return void
+     */
+    private static function renderForeignKeyReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
+    {
+        // TODO: refactor - foreign key handling is not yet supported.
+        return;
+
+        $temp     = array();
+        $chunks   = explode('.', $extra['foreignKey'], 2);
+        $provider = $event->getEnvironment()->getDataProvider($chunks[0]);
+
+        foreach ((array) $value as $v) {
+            $model = $provider->fetch($provider->getEmptyConfig()->setId($v));
+            if ($model instanceof ModelInterface) {
+                $temp[] = $model->getProperty($chunks[1]);
+            }
+        }
+
+        $event->setRendered(implode(', ', $temp));
     }
 
     /**
