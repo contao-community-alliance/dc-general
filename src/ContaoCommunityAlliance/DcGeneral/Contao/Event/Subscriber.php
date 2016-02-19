@@ -302,18 +302,9 @@ class Subscriber implements EventSubscriberInterface
             );
 
             return;
-        } else {
-            $options = $property->getOptions();
-            if (!$options) {
-                $options = self::getOptions($event->getEnvironment(), $event->getModel(), $event->getProperty());
-                if ($options) {
-                    $property->setOptions($options);
-                }
-            }
-            if (array_is_assoc($options)) {
-                $event->setRendered($options[$value]);
-            }
         }
+
+        self::renderOptionValueReadable($event, $property, $value);
     }
 
     /**
@@ -489,5 +480,29 @@ class Subscriber implements EventSubscriberInterface
         }
 
         $event->setRendered(nl2br_html5(specialchars($value)));
+    }
+
+    /**
+     * Render a property option.
+     *
+     * @param RenderReadablePropertyValueEvent $event    The event to store the value to.
+     * @param PropertyInterface                $property The property holding the options.
+     * @param mixed                            $value    The value to format.
+     *
+     * @return void
+     */
+    private static function renderOptionValueReadable(RenderReadablePropertyValueEvent $event, $property, $value)
+    {
+        $options = $property->getOptions();
+        if (!$options) {
+            $options = self::getOptions($event->getEnvironment(), $event->getModel(), $event->getProperty());
+            if ($options) {
+                $property->setOptions($options);
+            }
+        }
+
+        if (array_is_assoc($options)) {
+            $event->setRendered($options[$value]);
+        }
     }
 }
