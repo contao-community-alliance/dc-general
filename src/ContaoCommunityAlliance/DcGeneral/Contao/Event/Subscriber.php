@@ -272,11 +272,12 @@ class Subscriber implements EventSubscriberInterface
             $property->getName() == 'tstamp'
         ) {
             // Date and time format.
-            $dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['timeFormat']);
-            $dispatcher->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
+            $event->setRendered(self::parseDateTime($dispatcher, self::getConfig()->get('timeFormat'), $value));
 
-            $event->setRendered($dateEvent->getResult());
-        } elseif ($property->getWidgetType() == 'checkbox' && !$extra['multiple']) {
+            return;
+        }
+
+        if ($property->getWidgetType() == 'checkbox' && !$extra['multiple']) {
             $map = array(false => 'no', true => 'yes');
             $event->setRendered($GLOBALS['TL_LANG']['MSC'][$map[(bool) $value]]);
 
