@@ -297,10 +297,11 @@ class Subscriber implements EventSubscriberInterface
         }
 
         if ($value instanceof \DateTime) {
-            $dateEvent = new ParseDateEvent($value->getTimestamp(), $GLOBALS['TL_CONFIG']['datimFormat']);
-            $dispatcher->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
+            $event->setRendered(
+                self::parseDateTime($dispatcher, self::getConfig()->get('datimFormat'), $value->getTimestamp())
+            );
 
-            $event->setRendered($dateEvent->getResult());
+            return;
         } else {
             $options = $property->getOptions();
             if (!$options) {
