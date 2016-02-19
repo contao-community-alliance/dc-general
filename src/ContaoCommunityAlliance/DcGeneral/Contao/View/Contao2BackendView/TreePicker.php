@@ -29,6 +29,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2Ba
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeNodeStates;
 use ContaoCommunityAlliance\DcGeneral\DC_General;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\DefaultModelFormatterConfig;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ModelFormatterConfigInterface;
@@ -1140,6 +1141,10 @@ class TreePicker extends \Widget
     {
         $parents     = array();
         $environment = $this->getEnvironment();
+        $mode        = $environment->getDataDefinition()->getBasicDefinition()->getMode();
+        if ($mode !== BasicDefinitionInterface::MODE_HIERARCHICAL) {
+            return array();
+        }
 
         foreach ((array) $this->varValue as $value) {
             $dataDriver = $environment->getDataProvider();
