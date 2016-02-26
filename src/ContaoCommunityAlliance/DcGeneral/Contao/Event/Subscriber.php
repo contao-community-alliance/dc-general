@@ -22,6 +22,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Event;
 
+use Contao\Config;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
@@ -52,6 +53,13 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class Subscriber implements EventSubscriberInterface
 {
+    /**
+     * The config instance.
+     *
+     * @var \Contao\Config
+     */
+    private static $config;
+
     /**
      * {@inheritDoc}
      */
@@ -217,48 +225,24 @@ class Subscriber implements EventSubscriberInterface
 
         $extra = $property->getExtra();
 
-        // TODO: refactor - foreign key handling is not yet supported.
-        /*
-        if (isset($arrFieldConfig['foreignKey']))
-        {
-            $temp = array();
-            $chunks = explode('.', $arrFieldConfig['foreignKey'], 2);
+        if (isset($extra['foreignKey'])) {
+            self::renderForeignKeyReadable($event, $extra, $value);
 
-
-            foreach ((array) $value as $v)
-            {
-//                    $objKey = $this->Database->prepare("SELECT " . $chunks[1] . " AS value FROM " . $chunks[0] . " WHERE id=?")
-//                            ->limit(1)
-//                            ->execute($v);
-//
-//                    if ($objKey->numRows)
-//                    {
-//                        $temp[] = $objKey->value;
-//                    }
-            }
-
-//                $row[$i] = implode(', ', $temp);
+            return;
         }
-        // Decode array
-        else
-         */
-        if (is_array($value)) {
-            foreach ($value as $kk => $vv) {
-                if (is_array($vv)) {
-                    $vals       = array_values($vv);
-                    $value[$kk] = $vals[0] . ' (' . $vals[1] . ')';
-                }
-            }
 
-            $event->setRendered(implode(', ', $value));
-        } elseif (isset($extra['rgxp'])) {
-            // Date format.
-            if ($extra['rgxp'] == 'date' || $extra['rgxp'] == 'time' || $extra['rgxp'] == 'datim') {
-                $event->setRendered(
-                    self::parseDateTime($dispatcher, $GLOBALS['TL_CONFIG'][$extra['rgxp'] . 'Format'], $value)
-                );
-            }
-        } elseif (/*
+        if (is_array($value)) {
+            self::renderArrayReadable($event, $value);
+
+            return;
+        }
+        if (isset($extra['rgxp'])) {
+            self::renderTimestampReadable($event, $extra, $dispatcher, $value);
+
+            return;
+        }
+
+        if (/*
             in_array(
                 $property->getGroupingMode(),
                 array(
@@ -270,41 +254,39 @@ class Subscriber implements EventSubscriberInterface
             $property->getName() == 'tstamp'
         ) {
             // Date and time format.
-            $dateEvent = new ParseDateEvent($value, $GLOBALS['TL_CONFIG']['timeFormat']);
-            $dispatcher->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
+            $event->setRendered(self::parseDateTime($dispatcher, self::getConfig()->get('timeFormat'), $value));
 
-            $event->setRendered($dateEvent->getResult());
-        } elseif ($property->getWidgetType() == 'checkbox' && !$extra['multiple']) {
-            $event->setRendered(strlen($value) ? $GLOBALS['TL_LANG']['MSC']['yes'] : $GLOBALS['TL_LANG']['MSC']['no']);
-        } elseif ($property->getWidgetType() == 'textarea'
-                  && (!empty($extra['allowHtml']) || !empty($extra['preserveTags']))
-        ) {
-            $event->setRendered(nl2br_html5(specialchars($value)));
-        } elseif (isset($extra['reference']) && is_array($extra['reference'])) {
-            if (isset($extra['reference'][$value])) {
-                $event->setRendered(
-                    (is_array($extra['reference'][$value])
-                        ? $extra['reference'][$value][0]
-                        : $extra['reference'][$value])
-                );
-            }
-        } elseif ($value instanceof \DateTime) {
-            $dateEvent = new ParseDateEvent($value->getTimestamp(), $GLOBALS['TL_CONFIG']['datimFormat']);
-            $dispatcher->dispatch(ContaoEvents::DATE_PARSE, $dateEvent);
-
-            $event->setRendered($dateEvent->getResult());
-        } else {
-            $options = $property->getOptions();
-            if (!$options) {
-                $options = self::getOptions($event->getEnvironment(), $event->getModel(), $event->getProperty());
-                if ($options) {
-                    $property->setOptions($options);
-                }
-            }
-            if (array_is_assoc($options)) {
-                $event->setRendered($options[$value]);
-            }
+            return;
         }
+
+        if ($property->getWidgetType() == 'checkbox' && !$extra['multiple']) {
+            $map = array(false => 'no', true => 'yes');
+            $event->setRendered($GLOBALS['TL_LANG']['MSC'][$map[(bool) $value]]);
+
+            return;
+        }
+
+        if ($property->getWidgetType() == 'textarea') {
+            self::renderTextAreaReadable($event, $extra, $value);
+
+            return;
+        }
+
+        if (isset($extra['reference'])) {
+            self::renderReferenceReadable($event, $extra, $value);
+
+            return;
+        }
+
+        if ($value instanceof \DateTime) {
+            $event->setRendered(
+                self::parseDateTime($dispatcher, self::getConfig()->get('datimFormat'), $value->getTimestamp())
+            );
+
+            return;
+        }
+
+        self::renderOptionValueReadable($event, $property, $value);
     }
 
     /**
@@ -357,5 +339,182 @@ class Subscriber implements EventSubscriberInterface
         $panel      = $view->getPanel();
 
         ViewHelpers::initializeSorting($panel, $dataConfig, $listingConfig);
+    }
+
+    /**
+     * Set the config instance in use.
+     *
+     * @param Config $config The config instance.
+     *
+     * @return void
+     */
+    public function setConfig(Config $config)
+    {
+        self::$config = $config;
+    }
+
+    /**
+     * Retrieve the config in use.
+     *
+     * @return Config
+     */
+    public function getConfig()
+    {
+        if (!self::$config) {
+            return self::$config = Config::getInstance();
+        }
+
+        return self::$config;
+    }
+
+    /**
+     * Render a foreign key reference.
+     *
+     * @param RenderReadablePropertyValueEvent $event The event to store the value to.
+     *
+     * @param array                            $extra The extra data from the property.
+     *
+     * @param mixed                            $value The value to format.
+     *
+     * @return void
+     */
+    private static function renderForeignKeyReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
+    {
+        // TODO: refactor - foreign key handling is not yet supported.
+        return;
+
+        $temp     = array();
+        $chunks   = explode('.', $extra['foreignKey'], 2);
+        $provider = $event->getEnvironment()->getDataProvider($chunks[0]);
+
+        foreach ((array) $value as $v) {
+            $model = $provider->fetch($provider->getEmptyConfig()->setId($v));
+            if ($model instanceof ModelInterface) {
+                $temp[] = $model->getProperty($chunks[1]);
+            }
+        }
+
+        $event->setRendered(implode(', ', $temp));
+    }
+
+    /**
+     * Render an array as readable property value.
+     *
+     * @param RenderReadablePropertyValueEvent $event The event to store the value to.
+     *
+     * @param array                            $value The array to render.
+     *
+     * @return void
+     */
+    private static function renderArrayReadable(RenderReadablePropertyValueEvent $event, $value)
+    {
+        foreach ($value as $kk => $vv) {
+            if (is_array($vv)) {
+                $vals       = array_values($vv);
+                $value[$kk] = $vals[0] . ' (' . $vals[1] . ')';
+            }
+        }
+
+        $event->setRendered(implode(', ', $value));
+    }
+
+    /**
+     * Render a timestamp.
+     *
+     * @param RenderReadablePropertyValueEvent $event      The event to store the value to.
+     *
+     * @param array                            $extra      The extra data from the property.
+     *
+     * @param EventDispatcherInterface         $dispatcher The event dispatcher.
+     *
+     * @param int                              $value      The value to format.
+     *
+     * @return void
+     */
+    private static function renderTimestampReadable(
+        RenderReadablePropertyValueEvent $event,
+        $extra,
+        $dispatcher,
+        $value
+    ) {
+        if ($extra['rgxp'] == 'date' || $extra['rgxp'] == 'time' || $extra['rgxp'] == 'datim') {
+            $event->setRendered(
+                self::parseDateTime($dispatcher, self::getConfig()->get($extra['rgxp'] . 'Format'), $value)
+            );
+        }
+    }
+
+    /**
+     * Render a referenced value.
+     *
+     * @param RenderReadablePropertyValueEvent $event The event to store the value to.
+     *
+     * @param array                            $extra The extra data from the property.
+     *
+     * @param string                           $value The value to format.
+     *
+     * @return void
+     */
+    private static function renderReferenceReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
+    {
+        if (!is_array($extra['reference'])) {
+            return;
+        }
+
+        if (!array_key_exists($value, $extra['reference'])) {
+            return;
+        }
+
+        if (is_array($extra['reference'][$value])) {
+            $event->setRendered($extra['reference'][$value][0]);
+
+            return;
+        }
+
+        $event->setRendered($extra['reference'][$value]);
+    }
+
+    /**
+     * Render a string if not allow html or preserve tags is given.
+     *
+     * @param RenderReadablePropertyValueEvent $event The event to store the value to.
+     *
+     * @param array                            $extra The extra data from the property.
+     *
+     * @param string                           $value The value to format.
+     *
+     * @return void
+     */
+    private static function renderTextAreaReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
+    {
+        if (empty($extra['allowHtml']) && empty($extra['preserveTags'])) {
+            return;
+        }
+
+        $event->setRendered(nl2br_html5(specialchars($value)));
+    }
+
+    /**
+     * Render a property option.
+     *
+     * @param RenderReadablePropertyValueEvent $event    The event to store the value to.
+     * @param PropertyInterface                $property The property holding the options.
+     * @param mixed                            $value    The value to format.
+     *
+     * @return void
+     */
+    private static function renderOptionValueReadable(RenderReadablePropertyValueEvent $event, $property, $value)
+    {
+        $options = $property->getOptions();
+        if (!$options) {
+            $options = self::getOptions($event->getEnvironment(), $event->getModel(), $event->getProperty());
+            if ($options) {
+                $property->setOptions($options);
+            }
+        }
+
+        if (array_is_assoc($options)) {
+            $event->setRendered($options[$value]);
+        }
     }
 }

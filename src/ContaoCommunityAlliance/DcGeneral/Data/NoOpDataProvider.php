@@ -79,6 +79,10 @@ class NoOpDataProvider implements DataProviderInterface
      */
     public function getEmptyFilterOptionCollection()
     {
+        trigger_error(
+            'Method ' . __METHOD__ . ' was never intended to be called via interface and will get removed',
+            E_USER_DEPRECATED
+        );
         return new DefaultFilterOptionCollection();
     }
 
@@ -103,7 +107,7 @@ class NoOpDataProvider implements DataProviderInterface
      */
     public function getFilterOptions(ConfigInterface $objConfig)
     {
-        return $this->getEmptyFilterOptionCollection();
+        return new DefaultFilterOptionCollection();
     }
 
     /**
