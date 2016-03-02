@@ -568,7 +568,7 @@ class EditMask
     /**
      * Handle the persisting of the currently loaded model.
      *
-     * @return void
+     * @return bool True means everything is okay, False error.
      */
     protected function doPersist()
     {
@@ -577,7 +577,7 @@ class EditMask
         $inputProvider = $environment->getInputProvider();
 
         if (!$this->model->getMeta(ModelInterface::IS_CHANGED)) {
-            return;
+            return true;
         }
 
         $this->handlePrePersist();
@@ -620,6 +620,10 @@ class EditMask
 
             $environment->getClipboard()->clear()->saveTo($environment);
         } else {
+            if (!$this->allValuesUnique()) {
+                return false;
+            }
+
             // Save the model.
             $dataProvider->save($this->model);
         }
@@ -627,6 +631,42 @@ class EditMask
         $this->handlePostPersist();
 
         $this->storeVersion($this->model);
+
+        return true;
+    }
+
+    /**
+     * Check if all values are unique, but only for the fields which have the option enabled.
+     *
+     * @return bool True => everything is okay | False => One value is not unique.
+     */
+    protected function allValuesUnique()
+    {
+        // Init some vars.
+        $environment   = $this->getEnvironment();
+        $dataProvider  = $environment->getDataProvider($this->model->getProviderName());
+        $propertyNames = $this->getDataDefinition()->getPropertiesDefinition()->getPropertyNames();
+        // Run each and check the unique flag.
+        foreach ($propertyNames as $propertyName) {
+            $definition = $this->getDataDefinition()->getPropertiesDefinition()->getProperty($propertyName);
+            $extra      = $definition->getExtra();
+            $value      = $this->model->getProperty($propertyName);
+
+            // Check the flag and the value.
+            if (isset($extra['unique']) && $extra['unique'] && $value != '') {
+                // Check the database. If return true the value is already in the database.
+                if (!$dataProvider->isUniqueValue($propertyName, $value, $this->model->getId())) {
+                    $this->errors[] = sprintf(
+                        'The property "%s" is already in the database and not unique.',
+                        $propertyName
+                    );
+
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -682,8 +722,9 @@ class EditMask
         $fieldSets = $this->buildFieldSet($widgetManager, $palette, $propertyValues);
 
         if ((!$blnIsAutoSubmit) && $blnSubmitted && empty($this->errors)) {
-            $this->doPersist();
-            $this->handleSubmit($this->model);
+            if ($this->doPersist()) {
+                $this->handleSubmit($this->model);
+            }
         }
 
         $objTemplate = new ContaoBackendViewTemplate('dcbe_general_edit');
