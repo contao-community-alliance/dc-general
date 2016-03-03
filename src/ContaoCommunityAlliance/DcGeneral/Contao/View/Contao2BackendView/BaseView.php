@@ -849,8 +849,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $command = $this->getBackCommand();
         if ($command !== null) {
-            // Back button always to the end.
-            $globalOperations[] = $command;
+            // Back button always to the front.
+            array_unshift($globalOperations, $command);
         }
 
         foreach ($globalOperations as $command) {
