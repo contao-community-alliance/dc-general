@@ -644,6 +644,7 @@ class EditMask
     {
         // Init some vars.
         $environment   = $this->getEnvironment();
+        $translator    = $environment->getTranslator();
         $dataProvider  = $environment->getDataProvider($this->model->getProviderName());
         $propertyNames = $this->getDataDefinition()->getPropertiesDefinition()->getPropertyNames();
         // Run each and check the unique flag.
@@ -656,10 +657,7 @@ class EditMask
             if (isset($extra['unique']) && $extra['unique'] && $value != '') {
                 // Check the database. If return true the value is already in the database.
                 if (!$dataProvider->isUniqueValue($propertyName, $value, $this->model->getId())) {
-                    $this->errors[] = sprintf(
-                        'The property "%s" is already in the database and not unique.',
-                        $propertyName
-                    );
+                    $this->errors[] = $translator->translate('not_unique', 'MSC', array($propertyName));
 
                     return false;
                 }
