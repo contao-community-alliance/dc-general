@@ -4,21 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f248b86c608b22a04194c9bbf9313c12",
-    "content-hash": "29a4b87bd118ec61fb49a0ddbc85e100",
+    "hash": "ade182c54435a06964a65ca1849e577b",
+    "content-hash": "2899a990ee73f6981579e01ea1fabd4b",
     "packages": [
         {
             "name": "contao-community-alliance/composer-plugin",
-            "version": "dev-develop",
+            "version": "2.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/contao-community-alliance/composer-plugin.git",
-                "reference": "5543ed7f841f5b190095790f4d10bb7e9ce47be2"
+                "reference": "6371d9d383e9b8faf9fcd68388f16ab2e37890df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/composer-plugin/zipball/5543ed7f841f5b190095790f4d10bb7e9ce47be2",
-                "reference": "5543ed7f841f5b190095790f4d10bb7e9ce47be2",
+                "url": "https://api.github.com/repos/contao-community-alliance/composer-plugin/zipball/6371d9d383e9b8faf9fcd68388f16ab2e37890df",
+                "reference": "6371d9d383e9b8faf9fcd68388f16ab2e37890df",
                 "shasum": ""
             },
             "require": {
@@ -35,19 +35,15 @@
             "require-dev": {
                 "composer/composer": "~1.0@dev",
                 "contao/core": ">=2.11,<4.0",
-                "phpcq/all-tasks": "~1.0"
+                "phpcq/all-tasks": "~1.1"
             },
             "type": "composer-plugin",
             "extra": {
-                "class": "ContaoCommunityAlliance\\Composer\\Plugin\\Plugin",
-                "branch-alias": {
-                    "dev-master": "2.3.x-dev",
-                    "dev-develop": "2.4.x-dev"
-                }
+                "class": "ContaoCommunityAlliance\\Composer\\Plugin\\Plugin"
             },
             "autoload": {
                 "psr-0": {
-                    "ContaoCommunityAlliance\\Composer\\Plugin": "src/"
+                    "ContaoCommunityAlliance\\Composer\\Plugin\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -56,7 +52,7 @@
             ],
             "description": "Composer plugin that provide contao integration and installer.",
             "homepage": "http://c-c-a.org/",
-            "time": "2015-10-28 11:39:26"
+            "time": "2016-02-16 04:41:46"
         },
         {
             "name": "contao-community-alliance/dependency-container",
@@ -327,6 +323,63 @@
             "time": "2015-11-25 18:42:08"
         },
         {
+            "name": "contao-community-alliance/url-builder",
+            "version": "dev-develop",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/contao-community-alliance/url-builder.git",
+                "reference": "c814771883f74ce893cf538be52303da23c0f0e3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/contao-community-alliance/url-builder/zipball/c814771883f74ce893cf538be52303da23c0f0e3",
+                "reference": "c814771883f74ce893cf538be52303da23c0f0e3",
+                "shasum": ""
+            },
+            "require": {
+                "contao/core": ">=2.11,<4-dev",
+                "php": ">=5.3"
+            },
+            "conflict": {
+                "contao/core": "3.0.*"
+            },
+            "require-dev": {
+                "contao-community-alliance/build-system": "~1.0",
+                "contao-community-alliance/build-system-tool-branch-alias-validation": "~1.0",
+                "phploc/phploc": "~2.0",
+                "phpmd/phpmd": "~2.0",
+                "phpunit/phpunit": "~3.7",
+                "sebastian/phpcpd": "~1.4",
+                "squizlabs/php_codesniffer": "~1.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.1.x-dev",
+                    "dev-develop": "1.2.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "ContaoCommunityAlliance\\UrlBuilder": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Christian Schiffler",
+                    "email": "c.schiffler@cyberspectrum.de",
+                    "homepage": "http://www.cyberspectrum.de",
+                    "role": "Developer"
+                }
+            ],
+            "description": "General purpose URL builder and manipulator.",
+            "time": "2015-12-23 16:51:16"
+        },
+        {
             "name": "contao-components/compass",
             "version": "0.12.2",
             "source": {
@@ -364,7 +417,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/contao-community-alliance/composerized-contao-core/zipball/7d7a730ee4d4ee72cdb665eeed1744c2cfbb8645",
+                "url": "https://api.github.com/repos/contao-community-alliance/composerized-contao-core/zipball/c0393b2e5c9eeeb396142d8624dfa74f8d7fa750",
                 "reference": "7d7a730ee4d4ee72cdb665eeed1744c2cfbb8645",
                 "shasum": ""
             },
@@ -1241,18 +1294,18 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpcq/all-tasks.git",
-                "reference": "4a520d67c4c21e8f2f5dbaabe2790516b011cf0c"
+                "reference": "e26d88450cd622e6cd76b9d15392593234bb7082"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpcq/all-tasks/zipball/4a520d67c4c21e8f2f5dbaabe2790516b011cf0c",
-                "reference": "4a520d67c4c21e8f2f5dbaabe2790516b011cf0c",
+                "url": "https://api.github.com/repos/phpcq/all-tasks/zipball/e26d88450cd622e6cd76b9d15392593234bb7082",
+                "reference": "e26d88450cd622e6cd76b9d15392593234bb7082",
                 "shasum": ""
             },
             "require": {
                 "pdepend/pdepend": "~2.1",
                 "phpcq/author-validation": "~1.1",
-                "phpcq/autoload-validation": "~1.0",
+                "phpcq/autoload-validation": "~1.1",
                 "phpcq/branch-alias-validation": "~1.0",
                 "phpcq/coding-standard": "~2.0",
                 "phpcq/phpcq": "~1.0",
@@ -1288,7 +1341,7 @@
                 }
             ],
             "description": "Meta package to enable all tasks of the PHP code quality project",
-            "time": "2015-08-05 19:25:13"
+            "time": "2016-02-16 02:44:09"
         },
         {
             "name": "phpcq/author-validation",
@@ -1296,12 +1349,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpcq/author-validation.git",
-                "reference": "6d63bcfd89fc3a0f29123e35df5f1d5145f1a3f1"
+                "reference": "bf72038eaa4469946531648d4c1cd6312604084c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpcq/author-validation/zipball/6d63bcfd89fc3a0f29123e35df5f1d5145f1a3f1",
-                "reference": "6d63bcfd89fc3a0f29123e35df5f1d5145f1a3f1",
+                "url": "https://api.github.com/repos/phpcq/author-validation/zipball/bf72038eaa4469946531648d4c1cd6312604084c",
+                "reference": "bf72038eaa4469946531648d4c1cd6312604084c",
                 "shasum": ""
             },
             "require": {
@@ -1312,8 +1365,8 @@
                 "symfony/finder": "~2.3"
             },
             "require-dev": {
-                "phpcq/all-tasks": "~1.0",
-                "phpcq/coding-standard": "~1.0"
+                "phpcq/all-tasks": "~1.1",
+                "phpcq/coding-standard": "~2.0"
             },
             "bin": [
                 "bin/check-author.php"
@@ -1348,7 +1401,7 @@
                 }
             ],
             "description": "Check if all authors of a particular file are mentioned in the copyright header.",
-            "time": "2015-08-01 01:11:04"
+            "time": "2016-02-11 00:06:19"
         },
         {
             "name": "phpcq/autoload-validation",
@@ -1356,21 +1409,22 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpcq/autoload-validation.git",
-                "reference": "34b5710abacc6011c286427687f8c4f4e7092cf4"
+                "reference": "cdc3a6e9b6d4ed314b4b8f255aa21e6f90e6b520"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpcq/autoload-validation/zipball/34b5710abacc6011c286427687f8c4f4e7092cf4",
-                "reference": "34b5710abacc6011c286427687f8c4f4e7092cf4",
+                "url": "https://api.github.com/repos/phpcq/autoload-validation/zipball/cdc3a6e9b6d4ed314b4b8f255aa21e6f90e6b520",
+                "reference": "cdc3a6e9b6d4ed314b4b8f255aa21e6f90e6b520",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.4",
-                "symfony/console": "~2.3"
+                "psr/log": "~1.0",
+                "symfony/console": "~2.3 | ~3.0",
+                "symfony/finder": "~2.3 | ~3.0"
             },
             "require-dev": {
-                "phpcq/all-tasks": "~1.0",
-                "phpcq/coding-standard": "~1.0"
+                "phpcq/all-tasks": "~1.1"
             },
             "bin": [
                 "bin/check-autoloading.php"
@@ -1405,7 +1459,7 @@
                 }
             ],
             "description": "Check that the contents of the composer.json autoload keys are correct.",
-            "time": "2015-08-06 06:12:30"
+            "time": "2016-02-16 02:08:38"
         },
         {
             "name": "phpcq/branch-alias-validation",
@@ -1692,7 +1746,7 @@
             "require": {
                 "php": ">=5.6",
                 "sebastian/finder-facade": "~1.1",
-                "sebastian/git": "~2.0",
+                "sebastian/git": "~2.1",
                 "sebastian/version": "~1.0.3",
                 "symfony/console": "~2.5|~3.0"
             },
@@ -1799,12 +1853,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "e55e3e32a870bd4f05425fa4f717b52bd40e5659"
+                "reference": "ce91d434b3dc443a3294c4535747765e84d11094"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/e55e3e32a870bd4f05425fa4f717b52bd40e5659",
-                "reference": "e55e3e32a870bd4f05425fa4f717b52bd40e5659",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/ce91d434b3dc443a3294c4535747765e84d11094",
+                "reference": "ce91d434b3dc443a3294c4535747765e84d11094",
                 "shasum": ""
             },
             "require": {
@@ -1820,7 +1874,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.5.x-dev"
+                    "dev-master": "1.6.x-dev"
                 }
             },
             "autoload": {
@@ -1853,7 +1907,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2015-12-28 13:26:33"
+            "time": "2016-02-15 13:39:12"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -2101,12 +2155,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "1ae3a683f38fe24d4b69ef35da82bd211e1894fb"
+                "reference": "6e351261f9cd33daf205a131a1ba61c6d33bd483"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/1ae3a683f38fe24d4b69ef35da82bd211e1894fb",
-                "reference": "1ae3a683f38fe24d4b69ef35da82bd211e1894fb",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/6e351261f9cd33daf205a131a1ba61c6d33bd483",
+                "reference": "6e351261f9cd33daf205a131a1ba61c6d33bd483",
                 "shasum": ""
             },
             "require": {
@@ -2165,7 +2219,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2016-02-03 15:13:49"
+            "time": "2016-02-11 14:56:33"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -2505,20 +2559,20 @@
         },
         {
             "name": "sebastian/finder-facade",
-            "version": "1.2.0",
+            "version": "1.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/finder-facade.git",
-                "reference": "a520dcc3dd39160eea480daa3426f4fd419a327b"
+                "reference": "2a6f7f57efc0aa2d23297d9fd9e2a03111a8c0b9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/finder-facade/zipball/a520dcc3dd39160eea480daa3426f4fd419a327b",
-                "reference": "a520dcc3dd39160eea480daa3426f4fd419a327b",
+                "url": "https://api.github.com/repos/sebastianbergmann/finder-facade/zipball/2a6f7f57efc0aa2d23297d9fd9e2a03111a8c0b9",
+                "reference": "2a6f7f57efc0aa2d23297d9fd9e2a03111a8c0b9",
                 "shasum": ""
             },
             "require": {
-                "symfony/finder": "~2.3",
+                "symfony/finder": "~2.3|~3.0",
                 "theseer/fdomdocument": "~1.3"
             },
             "type": "library",
@@ -2540,7 +2594,7 @@
             ],
             "description": "FinderFacade is a convenience wrapper for Symfony's Finder component.",
             "homepage": "https://github.com/sebastianbergmann/finder-facade",
-            "time": "2015-06-04 08:11:58"
+            "time": "2016-02-17 07:02:23"
         },
         {
             "name": "sebastian/git",
@@ -2548,12 +2602,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/git.git",
-                "reference": "27de483134bab3db7663cd400e145b58f9edd8ec"
+                "reference": "a50659f5dc0a4ea9c713c123043f3fb9125bc1b1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/git/zipball/27de483134bab3db7663cd400e145b58f9edd8ec",
-                "reference": "27de483134bab3db7663cd400e145b58f9edd8ec",
+                "url": "https://api.github.com/repos/sebastianbergmann/git/zipball/a50659f5dc0a4ea9c713c123043f3fb9125bc1b1",
+                "reference": "a50659f5dc0a4ea9c713c123043f3fb9125bc1b1",
                 "shasum": ""
             },
             "require": {
@@ -2562,7 +2616,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.0-dev"
+                    "dev-master": "2.1-dev"
                 }
             },
             "autoload": {
@@ -2585,7 +2639,7 @@
             "keywords": [
                 "git"
             ],
-            "time": "2015-06-30 05:13:18"
+            "time": "2016-02-17 07:50:52"
         },
         {
             "name": "sebastian/global-state",
@@ -2780,12 +2834,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "f33834cef21fe4a6b41ba1deed19a19b1627dca4"
+                "reference": "58470a6685844a1c5e3c876d89708f7c219f3874"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/f33834cef21fe4a6b41ba1deed19a19b1627dca4",
-                "reference": "f33834cef21fe4a6b41ba1deed19a19b1627dca4",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/58470a6685844a1c5e3c876d89708f7c219f3874",
+                "reference": "58470a6685844a1c5e3c876d89708f7c219f3874",
                 "shasum": ""
             },
             "require": {
@@ -2849,7 +2903,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2016-02-05 07:29:08"
+            "time": "2016-02-16 05:26:05"
         },
         {
             "name": "symfony/config",
@@ -2857,17 +2911,20 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/config.git",
-                "reference": "f4d8e2236db888c708d934975070ff6f0a332a24"
+                "reference": "8a2ae1c89e72d080f357567fa5ab1e7ba8e5c0f1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/config/zipball/f4d8e2236db888c708d934975070ff6f0a332a24",
-                "reference": "f4d8e2236db888c708d934975070ff6f0a332a24",
+                "url": "https://api.github.com/repos/symfony/config/zipball/8a2ae1c89e72d080f357567fa5ab1e7ba8e5c0f1",
+                "reference": "8a2ae1c89e72d080f357567fa5ab1e7ba8e5c0f1",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.9",
                 "symfony/filesystem": "~2.3|~3.0.0"
+            },
+            "suggest": {
+                "symfony/yaml": "To use the yaml reference dumper"
             },
             "type": "library",
             "extra": {
@@ -2899,7 +2956,7 @@
             ],
             "description": "Symfony Config Component",
             "homepage": "https://symfony.com",
-            "time": "2016-02-04 14:44:13"
+            "time": "2016-02-18 08:58:48"
         },
         {
             "name": "symfony/console",
@@ -2907,12 +2964,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "d59b01b03451dfc1497b9736120ac6bcb422ff10"
+                "reference": "02930f823b232f4a6d7371464240896cca28560a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/d59b01b03451dfc1497b9736120ac6bcb422ff10",
-                "reference": "d59b01b03451dfc1497b9736120ac6bcb422ff10",
+                "url": "https://api.github.com/repos/symfony/console/zipball/02930f823b232f4a6d7371464240896cca28560a",
+                "reference": "02930f823b232f4a6d7371464240896cca28560a",
                 "shasum": ""
             },
             "require": {
@@ -2959,7 +3016,7 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2016-02-03 18:01:35"
+            "time": "2016-02-17 06:14:28"
         },
         {
             "name": "symfony/dependency-injection",
@@ -2967,12 +3024,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/dependency-injection.git",
-                "reference": "478a98846ef14fac480f40f8ca4e58e99c8045bf"
+                "reference": "599f413e9735924e9d2dbcb82a392b279bc3837d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/dependency-injection/zipball/478a98846ef14fac480f40f8ca4e58e99c8045bf",
-                "reference": "478a98846ef14fac480f40f8ca4e58e99c8045bf",
+                "url": "https://api.github.com/repos/symfony/dependency-injection/zipball/599f413e9735924e9d2dbcb82a392b279bc3837d",
+                "reference": "599f413e9735924e9d2dbcb82a392b279bc3837d",
                 "shasum": ""
             },
             "require": {
@@ -3021,7 +3078,7 @@
             ],
             "description": "Symfony DependencyInjection Component",
             "homepage": "https://symfony.com",
-            "time": "2016-02-04 13:53:00"
+            "time": "2016-02-18 08:58:48"
         },
         {
             "name": "symfony/filesystem",
@@ -3235,12 +3292,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "33fd1b2cfdde601704665fad343014bba04b0753"
+                "reference": "a254665f949aafe04239c80b147cb3de75b5c5c2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/33fd1b2cfdde601704665fad343014bba04b0753",
-                "reference": "33fd1b2cfdde601704665fad343014bba04b0753",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/a254665f949aafe04239c80b147cb3de75b5c5c2",
+                "reference": "a254665f949aafe04239c80b147cb3de75b5c5c2",
                 "shasum": ""
             },
             "require": {
@@ -3276,7 +3333,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2016-02-02 09:49:18"
+            "time": "2016-02-18 08:58:48"
         },
         {
             "name": "theseer/fdomdocument",

@@ -13,6 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -51,9 +52,22 @@ class CreateHandler extends AbstractHandler
             return;
         }
 
-        $dataProvider = $environment->getDataProvider();
-        $model        = $dataProvider->getEmptyModel();
-        $clone        = $dataProvider->getEmptyModel();
+        $definition         = $environment->getDataDefinition();
+        $dataProvider       = $environment->getDataProvider();
+        $propertyDefinition = $definition->getPropertiesDefinition();
+        $properties         = $propertyDefinition->getProperties();
+        $model              = $dataProvider->getEmptyModel();
+        $clone              = $dataProvider->getEmptyModel();
+
+        // If some of the fields have a default value, set it.
+        foreach ($properties as $property) {
+            $propName = $property->getName();
+
+            if ($property->getDefaultValue() !== null) {
+                $model->setProperty($propName, $property->getDefaultValue());
+                $clone->setProperty($propName, $property->getDefaultValue());
+            }
+        }
 
         $view = $environment->getView();
         if (!$view instanceof BaseView) {

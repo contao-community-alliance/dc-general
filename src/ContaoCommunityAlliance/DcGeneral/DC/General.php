@@ -39,6 +39,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * This class is only present so Contao can instantiate a backend properly as it needs a \DataContainer descendant.
  *
  * @SuppressWarnings(PHPMD.CamelCaseClassName)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 // @codingStandardsIgnoreStart - Class is not in camelCase as Contao does not allow us to.
 class DC_General extends \DataContainer implements DataContainerInterface

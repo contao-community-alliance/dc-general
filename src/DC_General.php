@@ -23,12 +23,15 @@
  * @filesource
  */
 
-// FIXME: we can not do the deprecated notice here as the only way for Contao is to load the class from root namespace.
 /**
  * This is the only entry point for Contao to load the DC class.
  *
  * @deprecated
+ *
+ * @SuppressWarnings(PHPMD.CamelCaseClassName)
  */
+// @codingStandardsIgnoreStart
 class DC_General extends ContaoCommunityAlliance\DcGeneral\DC_General
 {
 }
+// @codingStandardsIgnoreEnd

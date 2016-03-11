@@ -38,6 +38,7 @@
         "contao-community-alliance/event-dispatcher": "~1.3",
         "contao-community-alliance/translator": "~2.0",
         "contao-community-alliance/events-contao-bindings": ">=2.0,<4-dev",
+        "contao-community-alliance/url-builder": "~1.1",
         "symfony/expression-language": "~2.4"
     },
     "require-dev": {
@@ -52,16 +53,15 @@
     },
     "autoload": {
         "classmap": [
-            "src/DC_General.php",
-            "src/ContaoCommunityAlliance/DcGeneral/DC_General.php"
+            "src/DC_General.php"
         ],
         "psr-0": {
-            "ContaoCommunityAlliance\\DcGeneral": "src"
+            "ContaoCommunityAlliance\\DcGeneral\\": "src"
         }
     },
     "autoload-dev": {
         "psr-0": {
-            "ContaoCommunityAlliance\\DcGeneral": "tests"
+            "ContaoCommunityAlliance\\DcGeneral\\": "tests"
         }
     },
     "extra": {

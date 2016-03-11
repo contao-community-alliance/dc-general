@@ -126,10 +126,14 @@ class FileTree extends AbstractWidget
             return '';
         }
 
-        $inputValue = array_map(
-            'String::uuidToBin',
-            array_filter(explode(',', $inputValue))
-        );
+        // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
+        if (version_compare('3.5.5', VERSION . '.' . BUILD, '>=')) {
+            $mapFunc = 'StringUtil::uuidToBin';
+        } else {
+            $mapFunc = 'StringUtil::uuidToBin';
+        }
+
+        $inputValue = array_map($mapFunc, array_filter(explode(',', $inputValue)));
 
         return $this->multiple ? $inputValue : $inputValue[0];
     }
@@ -329,12 +333,19 @@ class FileTree extends AbstractWidget
             $icons = $this->applySorting($icons);
         }
 
+        // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
+        if (version_compare('3.5.5', VERSION . '.' . BUILD, '>=')) {
+            $mapFunc = 'StringUtil::binToUuid';
+        } else {
+            $mapFunc = 'String::binToUuid';
+        }
+
         $template = new ContaoBackendViewTemplate($this->subTemplate);
         $buffer   = $template
             ->setTranslator($this->getEnvironment()->getTranslator())
             ->set('name', $this->strName)
             ->set('id', $this->strId)
-            ->set('value', implode(',', array_map('String::binToUuid', $values)))
+            ->set('value', implode(',', array_map($mapFunc, $values)))
             ->set('hasOrder', ($this->orderField != '' && is_array($this->orderFieldValue)))
             ->set('icons', $icons)
             ->set('isGallery', $this->isGallery)

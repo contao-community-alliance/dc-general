@@ -842,12 +842,13 @@ class DefaultController implements ControllerInterface
     {
         $environment = $this->getEnvironment();
 
-        // Trigger the pre duplicate event.
-        $duplicateEvent = new PreDuplicateModelEvent($environment, $model);
-
-        $environment->getEventDispatcher()->dispatch($duplicateEvent::NAME, $duplicateEvent);
         // Make a duplicate.
         $clonedModel = $this->createClonedModel($model);
+
+        // Trigger the pre duplicate event.
+        $duplicateEvent = new PreDuplicateModelEvent($environment, $clonedModel, $model);
+        $environment->getEventDispatcher()->dispatch($duplicateEvent::NAME, $duplicateEvent);
+
         // And trigger the post event for it.
         $duplicateEvent = new PostDuplicateModelEvent($environment, $clonedModel, $model);
         $environment->getEventDispatcher()->dispatch($duplicateEvent::NAME, $duplicateEvent);
