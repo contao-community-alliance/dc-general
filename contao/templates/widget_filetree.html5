@@ -5,7 +5,14 @@
     <?php endif; ?>
     <ul id="sort_<?php echo $this->id; ?>" class="<?php echo trim(($this->hasOrder ? 'sortable ' : '') . ($this->isGallery ? 'sgallery' : '')); ?>">
     <?php foreach ($this->icons as $id => $icon): ?>
-        <li data-id="<?php echo \String::binToUuid($id); ?>"><?php echo $icon; ?></li>
+        <li data-id="<?php
+        // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
+        if (version_compare('3.5.5', VERSION . '.' . BUILD, '>=')) {
+            echo \StringUtil::binToUuid($id);
+        } else {
+            echo \String::binToUuid($id);
+        }
+        ?>"><?php echo $icon; ?></li>
     <?php endforeach; ?>
     </ul>
 </div>

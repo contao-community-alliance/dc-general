@@ -178,10 +178,17 @@ class Ajax3X extends Ajax
         if ($varValue != '') {
             $varValue = trimsplit("\t", $varValue);
 
+            // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
+            if (version_compare('3.5.5', VERSION . '.' . BUILD, '>=')) {
+                $mapFunc = 'StringUtil::binToUuid';
+            } else {
+                $mapFunc = 'String::binToUuid';
+            }
+
             // Automatically add resources to the DBAFS.
             if ($strType == 'file') {
                 foreach ($varValue as $k => $v) {
-                    $varValue[$k] = \String::binToUuid(\Dbafs::addResource($v)->uuid);
+                    $varValue[$k] = call_user_func($mapFunc, \Dbafs::addResource($v)->uuid);
                 }
             }
         }
@@ -260,13 +267,13 @@ class Ajax3X extends Ajax
      */
     protected function setLegendState()
     {
-        $environment  = $this->getEnvironment();
-        $input        = $environment->getInputProvider();
-        $table        = $input->getValue('table');
-        $legend       = $input->getValue('legend');
-        $state        = (bool) $input->getValue('state');
-        $session      = $environment->getSessionStorage();
-        $states       = $session->get('LEGENDS');
+        $environment = $this->getEnvironment();
+        $input       = $environment->getInputProvider();
+        $table       = $input->getValue('table');
+        $legend      = $input->getValue('legend');
+        $state       = (bool) $input->getValue('state');
+        $session     = $environment->getSessionStorage();
+        $states      = $session->get('LEGENDS');
 
         $states[$table][$legend] = $state;
         $session->set('LEGENDS', $states);

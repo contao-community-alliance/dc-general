@@ -28,14 +28,15 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeNodeStates;
-use ContaoCommunityAlliance\DcGeneral\DC_General;
+use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\DefaultModelFormatterConfig;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ModelFormatterConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
-use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DC_General;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
@@ -754,7 +755,7 @@ class TreePicker extends \Widget
             } elseif ($blnHasChild) {
                 foreach ($objChildCollection as $objChildModel) {
                     // Let the child know about it's parent.
-                    $objModel->setMeta($objModel::PARENT_ID, $objModel->getID());
+                    $objModel->setMeta($objModel::PARENT_ID, $objModel->getId());
                     $objModel->setMeta($objModel::PARENT_PROVIDER_NAME, $objModel->getProviderName());
 
                     $mySubTables = array();
@@ -1082,7 +1083,7 @@ class TreePicker extends \Widget
         foreach ($objCollection as $objModel) {
             /** @var ModelInterface $objModel */
 
-            $strToggleID = $objModel->getProviderName() . '_' . $treeClass . '_' . $objModel->getID();
+            $strToggleID = $objModel->getProviderName() . '_' . $treeClass . '_' . $objModel->getId();
 
             $arrHtml[] = $this->parseModel($objModel, $strToggleID);
 
@@ -1140,6 +1141,10 @@ class TreePicker extends \Widget
     {
         $parents     = array();
         $environment = $this->getEnvironment();
+        $mode        = $environment->getDataDefinition()->getBasicDefinition()->getMode();
+        if ($mode !== BasicDefinitionInterface::MODE_HIERARCHICAL) {
+            return array();
+        }
 
         foreach ((array) $this->varValue as $value) {
             $dataDriver = $environment->getDataProvider();

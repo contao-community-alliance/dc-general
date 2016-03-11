@@ -98,7 +98,7 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
         $copyModel = $environment->getController()->createClonedModel($model);
 
         // Dispatch pre duplicate event.
-        $copyEvent = new PreDuplicateModelEvent($environment, $model);
+        $copyEvent = new PreDuplicateModelEvent($environment, $copyModel, $model);
         $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
 
         // Save the copy.

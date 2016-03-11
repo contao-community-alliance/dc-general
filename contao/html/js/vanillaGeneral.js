@@ -257,15 +257,20 @@ function GeneralTableDnD()
 	{
 		var element = getEventSource(ev);
 
+		// Find TR.
 		while (element && element.tagName != 'TR') {
 			element = element.parentNode;
 		}
 
 		if (element) {
-			var table = element.parentNode;
+			var table = element;
 
+			// Check TABLE only for move in TBODY.
 			while (table && table.tagName != 'TABLE') {
 				table = table.parentNode;
+				if (table.tagName == 'THEAD' || table.tagName == 'TFOOT') {
+					return null;
+				}
 			}
 
 			if (table && table == this.table) {

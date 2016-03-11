@@ -22,3 +22,4 @@
 $GLOBALS['TL_LANG']['MSC']['language']     = 'Language';
 $GLOBALS['TL_LANG']['MSC']['showSelected'] = 'Switch language';
 $GLOBALS['TL_LANG']['MSC']['treePicker']   = 'Table: %s';
+$GLOBALS['TL_LANG']['MSC']['not_unique']   = 'The property "%s" is already in the database and not unique.';
