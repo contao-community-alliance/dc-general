@@ -127,7 +127,7 @@ class FileTree extends AbstractWidget
         }
 
         // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
-        if (version_compare('3.5.5', VERSION . '.' . BUILD, '>=')) {
+        if (version_compare(VERSION . '.' . BUILD, '3.5.5', '>=')) {
             $mapFunc = 'StringUtil::uuidToBin';
         } else {
             $mapFunc = 'StringUtil::uuidToBin';
@@ -334,7 +334,7 @@ class FileTree extends AbstractWidget
         }
 
         // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
-        if (version_compare('3.5.5', VERSION . '.' . BUILD, '>=')) {
+        if (version_compare(VERSION . '.' . BUILD, '3.5.5', '>=')) {
             $mapFunc = 'StringUtil::binToUuid';
         } else {
             $mapFunc = 'String::binToUuid';
