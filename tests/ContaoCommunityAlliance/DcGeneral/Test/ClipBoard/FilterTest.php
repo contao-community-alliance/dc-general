@@ -558,7 +558,7 @@ class FilterTest extends TestCase
         $item   = new MockedAbstractItem(ItemInterface::CREATE, $parentId1);
 
         $filter->andSub(new MockedFilter(true));
-        $filter->andParentIsIn([$parentId2, $parentId3]);
+        $filter->andParentIsIn(array($parentId2, $parentId3));
         $this->assertEquals($expected, $filter->accepts($item));
     }
 
@@ -573,7 +573,7 @@ class FilterTest extends TestCase
         $item   = new MockedAbstractItem(ItemInterface::CREATE, $parentId1);
 
         $filter->andSub(new MockedFilter(true));
-        $filter->andParentIsNotIn([$parentId2, $parentId3]);
+        $filter->andParentIsNotIn(array($parentId2, $parentId3));
         $this->assertEquals(!$expected, $filter->accepts($item));
     }
 
@@ -588,7 +588,7 @@ class FilterTest extends TestCase
         $item   = new MockedAbstractItem(ItemInterface::CREATE, $parentId1);
 
         $filter->andSub(new MockedFilter(false));
-        $filter->orParentIsIn([$parentId2, $parentId3]);
+        $filter->orParentIsIn(array($parentId2, $parentId3));
         $this->assertEquals($expected, $filter->accepts($item));
     }
 
