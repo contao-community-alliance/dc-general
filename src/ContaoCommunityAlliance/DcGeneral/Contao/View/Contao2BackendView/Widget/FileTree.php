@@ -70,14 +70,21 @@ class FileTree extends AbstractWidget
      *
      * @var int
      */
-    protected $thumbnailHeight = 80;
+    protected $thumbnailHeight = 75;
 
     /**
      * The default height of the thumbnail.
      *
      * @var int
      */
-    protected $thumbnailWidth = 60;
+    protected $thumbnailWidth = 75;
+    
+    /**
+     * The default placeholder image.
+     *
+     * @var string
+     */
+    protected $placeholderImage = 'placeholder.png';    
 
     /**
      * Create a new instance.
@@ -92,6 +99,94 @@ class FileTree extends AbstractWidget
 
         $this->setUp();
     }
+
+  	/**
+  	 * Set an object property
+  	 *
+  	 * @param string $strKey   The property name
+  	 * @param mixed  $varValue The property value
+  	 */
+  	public function __set($strKey, $varValue)
+  	{
+  		switch ($strKey)
+  		{
+  			case 'thumbnailHeight':
+  				$this->thumbnailHeight = $varValue;
+  				break;
+
+  			case 'thumbnailWidth':
+  				$this->thumbnailWidth = $varValue;
+  				break;
+
+  			case 'placeholderImage':
+  				$this->placeholderImage = $varValue;
+  				break;
+
+  			default:
+  				parent::__set($strKey, $varValue);
+  				break;
+  		}
+  	}
+  
+  
+  	/**
+  	 * Return an object property
+  	 *
+  	 * @param string $strKey The property name
+  	 *
+  	 * @return string The property value
+  	 */
+  	public function __get($strKey)
+  	{
+  		switch ($strKey)
+  		{
+  		switch ($strKey)
+  		{
+  			case 'thumbnailHeight':
+  				return $this->thumbnailHeight;
+  				break;
+
+  			case 'thumbnailWidth':
+  				return $this->thumbnailWidth;
+  				break;
+
+  			case 'placeholderImage':
+  				return $this->placeholderImage;
+  				break;
+  		}
+  
+  		return parent::__get($strKey);
+  	}
+  
+  
+  	/**
+  	 * Check whether an object property exists
+  	 *
+  	 * @param string $strKey The property name
+  	 *
+  	 * @return boolean True if the property exists
+  	 */
+  	public function __isset($strKey)
+  	{
+  		switch ($strKey)
+  		{
+  			case 'thumbnailHeight':
+  				return isset($this->thumbnailHeight);
+  				break;
+
+  			case 'thumbnailWidth':
+  				return isset($this->thumbnailWidth);
+  				break;
+
+  			case 'placeholderImage':
+  				return isset($this->placeholderImage);
+  				break;  				
+  
+  			default:
+  				return parent::__get($strKey);
+  				break;
+  		}
+  	}
 
     /**
      * Setup the file tree widget.
@@ -259,7 +354,7 @@ class FileTree extends AbstractWidget
             return \Image::getHtml($file->icon) . ' ' . $info;
         }
 
-        $image = 'placeholder.png';
+        $image = $this->placeholderImage;
 
         if ($file->isSvgImage
             || $file->height <= \Config::get('gdMaxImgHeight') && $file->width <= \Config::get('gdMaxImgWidth')
