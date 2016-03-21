@@ -13,7 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @author     Ingolf Steinhardt <info@e-spin.de> 
+ * @author     Ingolf Steinhardt <info@e-spin.de>
  * @copyright  2013-2016 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -71,14 +71,14 @@ class FileTree extends AbstractWidget
      *
      * @var int
      */
-    protected $thumbnailHeight = 75;
+    protected $thumbnailHeight = 80;
 
     /**
      * The default height of the thumbnail.
      *
      * @var int
      */
-    protected $thumbnailWidth = 75;
+    protected $thumbnailWidth = 60;
     
     /**
      * The default placeholder image.
