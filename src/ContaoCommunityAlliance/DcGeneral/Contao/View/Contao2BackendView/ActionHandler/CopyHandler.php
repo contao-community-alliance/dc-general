@@ -130,8 +130,9 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
             ->setQueryParameter('do', $environment->getInputProvider()->getParameter('do'))
             ->setQueryParameter('table', $copiedModelId->getDataProviderName())
             ->setQueryParameter('act', 'edit')
-            ->setQueryParameter('id', $copiedModelId->getSerialized());
-
+            ->setQueryParameter('id', $copiedModelId->getSerialized())
+            ->setQueryParameter('pid', $environment->getInputProvider()->getParameter('pid'));
+        
         $redirectEvent = new RedirectEvent($url->getUrl());
         $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_REDIRECT, $redirectEvent);
     }
