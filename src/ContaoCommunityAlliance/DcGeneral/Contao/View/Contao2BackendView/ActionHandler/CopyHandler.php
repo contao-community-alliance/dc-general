@@ -13,6 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -132,7 +133,7 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
             ->setQueryParameter('act', 'edit')
             ->setQueryParameter('id', $copiedModelId->getSerialized())
             ->setQueryParameter('pid', $environment->getInputProvider()->getParameter('pid'));
-        
+
         $redirectEvent = new RedirectEvent($url->getUrl());
         $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_REDIRECT, $redirectEvent);
     }
