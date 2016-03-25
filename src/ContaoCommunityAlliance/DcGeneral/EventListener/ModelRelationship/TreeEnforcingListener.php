@@ -77,7 +77,7 @@ class TreeEnforcingListener
      */
     private function handleInto(InputProviderInterface $input, ControllerInterface $controller, ModelInterface $model)
     {
-        $into = ModelId::fromSerialized($input->getParameter('into'));
+        $into = ModelId::fromSerialized($input->getParameter('pid'));
 
         // If we have a null, it means insert into the tree root.
         if ($into->getId() == 0) {
