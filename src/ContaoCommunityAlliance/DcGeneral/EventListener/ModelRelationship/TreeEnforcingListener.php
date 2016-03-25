@@ -79,13 +79,8 @@ class TreeEnforcingListener
     {
         $into = ModelId::fromSerialized($input->getParameter('pid'));
 
-        // If we have a null, it means insert into the tree root.
-        if ($into->getId() == 0) {
-            $controller->setRootModel($model);
-        } else {
-            $parent = $controller->fetchModelFromProvider($into);
-            $controller->setParent($model, $parent);
-        }
+        $parent = $controller->fetchModelFromProvider($into);
+        $controller->setParent($model, $parent);
     }
 
     /**
