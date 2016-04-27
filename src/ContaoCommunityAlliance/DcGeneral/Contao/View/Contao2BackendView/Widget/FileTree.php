@@ -131,7 +131,7 @@ class FileTree extends AbstractWidget
         if (version_compare(VERSION . '.' . BUILD, '3.5.5', '>=')) {
             $mapFunc = 'StringUtil::uuidToBin';
         } else {
-            $mapFunc = 'StringUtil::uuidToBin';
+            $mapFunc = 'String::uuidToBin';
         }
 
         $inputValue = array_map($mapFunc, array_filter(explode(',', $inputValue)));
