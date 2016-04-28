@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2016 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2016 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -66,6 +67,27 @@ class FileTree extends AbstractWidget
     protected $orderFieldValue;
 
     /**
+     * The default width of the thumbnail.
+     *
+     * @var int
+     */
+    protected $thumbnailHeight = 80;
+
+    /**
+     * The default height of the thumbnail.
+     *
+     * @var int
+     */
+    protected $thumbnailWidth = 60;
+    
+    /**
+     * The default placeholder image.
+     *
+     * @var string
+     */
+    protected $placeholderImage = 'placeholder.png';    
+
+    /**
      * Create a new instance.
      *
      * @param array|null    $attributes    The custom attributes.
@@ -78,6 +100,92 @@ class FileTree extends AbstractWidget
 
         $this->setUp();
     }
+
+  	/**
+  	 * Set an object property
+  	 *
+  	 * @param string $strKey   The property name
+  	 * @param mixed  $varValue The property value
+  	 */
+  	public function __set($strKey, $varValue)
+  	{
+  		switch ($strKey)
+  		{
+  			case 'thumbnailHeight':
+  				$this->thumbnailHeight = $varValue;
+  				break;
+
+  			case 'thumbnailWidth':
+  				$this->thumbnailWidth = $varValue;
+  				break;
+
+  			case 'placeholderImage':
+  				$this->placeholderImage = $varValue;
+  				break;
+
+  			default:
+  				parent::__set($strKey, $varValue);
+  				break;
+  		}
+  	}
+  
+  
+  	/**
+  	 * Return an object property
+  	 *
+  	 * @param string $strKey The property name
+  	 *
+  	 * @return string The property value
+  	 */
+  	public function __get($strKey)
+  	{
+  		switch ($strKey)
+  		{
+  			case 'thumbnailHeight':
+  				return $this->thumbnailHeight;
+  				break;
+
+  			case 'thumbnailWidth':
+  				return $this->thumbnailWidth;
+  				break;
+
+  			case 'placeholderImage':
+  				return $this->placeholderImage;
+  				break;
+  		}
+  
+  		return parent::__get($strKey);
+  	}
+  
+  
+  	/**
+  	 * Check whether an object property exists
+  	 *
+  	 * @param string $strKey The property name
+  	 *
+  	 * @return boolean True if the property exists
+  	 */
+  	public function __isset($strKey)
+  	{
+  		switch ($strKey)
+  		{
+  			case 'thumbnailHeight':
+  				return isset($this->thumbnailHeight);
+  				break;
+
+  			case 'thumbnailWidth':
+  				return isset($this->thumbnailWidth);
+  				break;
+
+  			case 'placeholderImage':
+  				return isset($this->placeholderImage);
+  				break;  				
+  
+  			default:
+  				return parent::__get($strKey);
+  				break;
+  		}
+  	}
 
     /**
      * Setup the file tree widget.
@@ -249,12 +357,14 @@ class FileTree extends AbstractWidget
             return \Image::getHtml($file->icon) . ' ' . $info;
         }
 
-        $image = 'placeholder.png';
+        $image = $this->placeholderImage;
 
         if ($file->isSvgImage
             || $file->height <= \Config::get('gdMaxImgHeight') && $file->width <= \Config::get('gdMaxImgWidth')
         ) {
-            $image = \Image::get($model->path, 80, 60, 'center_center');
+            $width  = min($file->width, $this->thumbnailWidth);
+            $height = min($file->height, $this->thumbnailHeight);
+            $image  = \Image::get($model->path, $width, $height, 'center_center');
         }
 
         return \Image::getHtml($image, '', 'class="gimage" title="' . specialchars($info) . '"');
