@@ -6,9 +6,12 @@
   text-align: right;
 }
 
-.tl_language_panel .tl_select,
-.mac .tl_language_panel select {
+.tl_language_panel .tl_select {
   width: 240px;
+}
+
+.mac .tl_language_panel select {
+  max-width: none;
 }
 
 .mac .tl_language_panel .tl_select,
