@@ -9,13 +9,6 @@
 
 				<?php if(strlen($this->breadcrumb)) echo $this->breadcrumb; ?>
 
-				<?php if ($this->select): ?>
-					<div class="tl_select_trigger">
-						<label for="tl_select_trigger" class="tl_select_label"><?php echo $GLOBALS['TL_LANG']['MSC']['selectAll']; ?></label>
-						<input type="checkbox" id="tl_select_trigger" onclick="Backend.toggleCheckboxes(this)" class="tl_tree_checkbox">
-					</div>
-				<?php endif; ?>
-
 				<div class="tl_header" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
 
 					<div class="tl_content_right">
