@@ -211,7 +211,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 
             $arrOptions[] = array(
                 'value'      => $thisLimit,
-                'attributes' => ($this->getOffset() == $first) ? 'selected' : '',
+                'attributes' => ($this->getOffset() == $first) ? ' selected' : '',
                 'content'    => ($first + 1) . ' - ' . $upperLimit
             );
         }

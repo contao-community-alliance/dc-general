@@ -177,7 +177,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
             (
                 'value'      => $field,
                 'content'    => is_array($arrLabel) ? $arrLabel[0] : $arrLabel,
-                'attributes' => ($field == $this->getSelectedProperty()) ? 'selected' : ''
+                'attributes' => ($field == $this->getSelectedProperty()) ? ' selected' : ''
             );
         }
 

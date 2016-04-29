@@ -182,7 +182,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 
             $arrOptions[] = array(
                 'value'      => specialchars($information->getName()),
-                'attributes' => ($this->getSelected() == $information->getName()) ? 'selected' : '',
+                'attributes' => ($this->getSelected() == $information->getName()) ? ' selected' : '',
                 'content'    => $name
             );
         }

@@ -211,7 +211,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             $arrOptions[] = array(
                 'value'      => $key,
                 'content'    => $value,
-                'attributes' => ($key === $this->getValue()) ? 'selected' : ''
+                'attributes' => ($key === $this->getValue()) ? ' selected' : ''
             );
         }
 
