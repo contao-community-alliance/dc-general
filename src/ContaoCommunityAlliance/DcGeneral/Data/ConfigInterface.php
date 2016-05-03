@@ -31,8 +31,6 @@ interface ConfigInterface
     /**
      * Static constructor.
      *
-     * @todo: do we want to keep this behaviour? Third party will not know the correct class anyway.
-     *
      * @return mixed
      */
     public static function init();
@@ -179,7 +177,6 @@ interface ConfigInterface
      */
     public function setFields($arrFields);
 
-    // TODO: make a property bag out of this.
     /**
      * Get the additional information.
      *

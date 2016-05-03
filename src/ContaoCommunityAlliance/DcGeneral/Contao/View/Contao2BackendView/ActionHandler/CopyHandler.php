@@ -107,7 +107,6 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
         $provider = $this->getEnvironment()->getDataProvider($copyModel->getProviderName());
         $provider->save($copyModel);
 
-        // FIXME: Copy each language multi language models.
         // Dispatch post duplicate event.
         $copyEvent = new PostDuplicateModelEvent($environment, $copyModel, $model);
         $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);

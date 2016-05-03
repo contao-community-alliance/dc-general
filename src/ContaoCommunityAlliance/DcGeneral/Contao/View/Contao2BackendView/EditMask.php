@@ -356,7 +356,6 @@ class EditMask
             );
         }
 
-        // TODO: "save and edit" is unimplemented, we do not know to where we want to redirect.
         if ($this->getEnvironment()->getInputProvider()->hasParameter('s2e')) {
             $buttons['saveNedit'] = sprintf(
                 '<input type="submit" name="saveNedit" id="saveNedit" class="tl_submit" accesskey="e" value="%s" />',

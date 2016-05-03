@@ -253,7 +253,6 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
 
         $arrKeep = array();
         foreach ($arrData as $arrRow) {
-            // TODO: add an option to restrict this to some allowed fields?
             $arrSQL = $arrRow;
 
             // Update all.
