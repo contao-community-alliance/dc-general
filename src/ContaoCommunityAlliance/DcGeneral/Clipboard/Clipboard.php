@@ -52,7 +52,6 @@ class Clipboard implements ClipboardInterface
         $data = $objEnvironment->getSessionStorage()->get('CLIPBOARD');
 
         if ($data) {
-            // FIXME use another serialisation method
             $this->items = unserialize(base64_decode($data));
             foreach ($this->items as $item) {
                 if ($item->getModelId()) {
@@ -69,7 +68,6 @@ class Clipboard implements ClipboardInterface
      */
     public function saveTo($objEnvironment)
     {
-        // FIXME use another serialisation method
         $data = base64_encode(serialize($this->items));
         $objEnvironment->getSessionStorage()->set('CLIPBOARD', $data);
 

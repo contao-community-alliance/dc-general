@@ -191,8 +191,6 @@ class ClipboardController implements EventSubscriberInterface
         }
 
         // Let the clipboard save it's values persistent.
-        // TODO remove clear and allow adding multiple items
-        // Clipboard get cleared twice so far if being in create mode and partially in others. Don't know why it's here.
         $clipboard->clear()->push($item)->saveTo($environment);
 
         ViewHelpers::redirectHome($environment);

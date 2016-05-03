@@ -174,7 +174,6 @@ class PanelRenderer
      */
     public function render($ignoredPanels = array())
     {
-        // TODO: Determine list of ignored panels by triggering an event.
         if ($this->view->getPanel() === null) {
             throw new DcGeneralRuntimeException('No panel information stored in data container.');
         }

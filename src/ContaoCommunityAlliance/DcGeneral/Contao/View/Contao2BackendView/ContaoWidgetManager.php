@@ -256,8 +256,7 @@ class ContaoWidgetManager
     protected function buildDatePicker($objWidget)
     {
         $translator = $this->getEnvironment()->getTranslator();
-        // TODO: need better interface to Contao Config class here.
-        $strFormat = $GLOBALS['TL_CONFIG'][$objWidget->rgxp . 'Format'];
+        $strFormat  = $GLOBALS['TL_CONFIG'][$objWidget->rgxp . 'Format'];
 
         $arrConfig = array(
             'allowEmpty'        => true,
@@ -331,7 +330,6 @@ class ContaoWidgetManager
         $label       = $propInfo->getDescription();
         $widgetType  = $propInfo->getWidgetType();
 
-        // TODO: need better interface to Contao Config class here.
         if (!$GLOBALS['TL_CONFIG']['showHelp'] || $widgetType == 'password' || !strlen($label)) {
             return '';
         }
@@ -397,14 +395,8 @@ class ContaoWidgetManager
                 'widget'        => $widget->parse(),
                 'hasErrors'     => $widget->hasErrors(),
                 'strDatepicker' => $strDatePicker,
-                // TODO: need 'update' value.
-                // Old code:
-                // (\Input::get('act') == 'overrideAll'
-                // && ($arrData['inputType'] == 'checkbox'
-                // || $arrData['inputType'] == 'checkboxWizard')
-                // && $arrData['eval']['multiple'])
+                // We used the var blnUpdate before.
                 'blnUpdate'     => false,
-                // $blnUpdate,
                 'strHelp'       => $this->generateHelpText($property),
                 'strId'         => $widget->id
             )
@@ -468,8 +460,6 @@ EOF;
                 }
             }
         }
-
-        // FIXME: Add new event "CheckUpdatedPropertyValueBagEvent".
 
         $_POST = $post;
         \Input::resetCache();

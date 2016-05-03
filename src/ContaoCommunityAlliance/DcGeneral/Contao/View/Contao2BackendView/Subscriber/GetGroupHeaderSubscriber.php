@@ -94,7 +94,6 @@ class GetGroupHeaderSubscriber
         if ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple']) {
             return $this->formatCheckboxOptionLabel($value, $translator);
         } elseif (false && $property->getForeignKey()) {
-            // TODO: refactor foreignKey is yet undefined.
             // if ($objParentModel->hasProperties()) {
             //    $remoteNew = $objParentModel->getProperty('value');
             // }

@@ -136,8 +136,6 @@ interface PropertyInterface
      * @param string $value The type name of the widget.
      *
      * @return PropertyInterface
-     *
-     * @todo this is view related, should be moved there?
      */
     public function setWidgetType($value);
 
@@ -145,8 +143,6 @@ interface PropertyInterface
      * Return the widget type name.
      *
      * @return string
-     *
-     * @todo this is view related, should be moved there?
      */
     public function getWidgetType();
 

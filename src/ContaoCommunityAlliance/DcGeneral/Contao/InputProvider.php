@@ -34,7 +34,6 @@ class InputProvider implements InputProviderInterface
      */
     public function getParameter($strKey, $blnRaw = false)
     {
-        // TODO: raw handling not implemented yet.
         return \Input::getInstance()->get($strKey);
     }
 
@@ -75,7 +74,6 @@ class InputProvider implements InputProviderInterface
             return \Input::getInstance()->postRaw($strKey);
         }
 
-        // TODO: unsure if we should use postHtml here.
         return \Input::getInstance()->post($strKey);
     }
 

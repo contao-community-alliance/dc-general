@@ -186,7 +186,6 @@ class TreeCollector implements EnvironmentAwareInterface
         return $dataProvider->fetchAll(
             $dataProvider
                 ->getEmptyConfig()
-                // TODO: hardcoded sorting... NOT GOOD!
                 ->setSorting(array('sorting' => 'ASC'))
                 ->setFilter(
                     FilterBuilder::fromArray()
@@ -352,7 +351,7 @@ class TreeCollector implements EnvironmentAwareInterface
      *
      * @param string         $providerName The data provider from which the root element originates from.
      *
-     * @param int            $level        The level in the tree (TODO: isn't this always 0?).
+     * @param int            $level        The level in the tree.
      *
      * @param ModelInterface $parentModel  The optional parent model (mode 4 parent).
      *

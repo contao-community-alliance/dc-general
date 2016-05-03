@@ -260,8 +260,6 @@ class DefaultController implements ControllerInterface
      * @return CollectionInterface
      *
      * @throws DcGeneralRuntimeException When no parent model can be located.
-     *
-     * @todo This might return a lot of models, we definately want to use some lazy approach rather than this.
      */
     protected function assembleSiblingsFor(
         ModelInterface $model,
@@ -301,7 +299,6 @@ class DefaultController implements ControllerInterface
 
         // Handle grouping.
         /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
-        // TODO TL dnk how to handle this without highjacking the view.
         $viewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
         if ($viewDefinition && $viewDefinition instanceof Contao2BackendViewDefinitionInterface) {
             $listingConfig        = $viewDefinition->getListingConfig();
@@ -405,7 +402,6 @@ class DefaultController implements ControllerInterface
                 ->getChildCondition($parentProviderName, $providerName);
 
             if ($relationship && $relationship->getSetters()) {
-                // FIXME: the relationship data should be pushed into the property value bag.
                 $relationship->applyTo($objParentModel, $model);
             }
         }
@@ -761,8 +757,7 @@ class DefaultController implements ControllerInterface
             $this->applyAction($action, $deepCopyList, $parentModel);
         }
 
-        // When pasting after another model, apply same grouping informations
-        // TODO to be discussed, this allow cut&paste over groupings with custom sorting
+        // When pasting after another model, apply same grouping information
         $this->ensureSameGrouping($actions, $after);
 
         // Now apply sorting and persist all models
