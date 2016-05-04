@@ -97,7 +97,7 @@ class FallbackResetSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            $extra = $properties->getProperty($propertyName)->getExtra();
+            $extra = (array) $properties->getProperty($propertyName)->getExtra();
             if (array_key_exists('fallback', $extra) && (true === $extra['fallback'])) {
                 if (!$dataProvider->isUniqueValue($propertyName, $model->getProperty($propertyName), $model->getId())) {
                     // Reset fallback and save model again to have the correct value.
