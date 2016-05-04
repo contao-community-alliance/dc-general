@@ -469,11 +469,6 @@ class DefaultController implements ControllerInterface
             return;
         }
 
-        // Check fallback.
-        if (isset($extra['fallback']) && $extra['fallback'] === true) {
-            $dataProvider->resetFallback($propName);
-        }
-
         // Check uniqueness.
         if (isset($extra['unique'])
             && $extra['unique'] === true
