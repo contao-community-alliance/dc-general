@@ -242,17 +242,7 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
-        if (/*
-            in_array(
-                $property->getGroupingMode(),
-                array(
-                    ListingConfigInterface::GROUP_DAY,
-                    ListingConfigInterface::GROUP_MONTH,
-                    ListingConfigInterface::GROUP_YEAR
-                )
-                ) ||*/
-            $property->getName() == 'tstamp'
-        ) {
+        if ($property->getName() == 'tstamp') {
             // Date and time format.
             $event->setRendered(self::parseDateTime($dispatcher, self::getConfig()->get('timeFormat'), $value));
 
@@ -380,21 +370,7 @@ class Subscriber implements EventSubscriberInterface
      */
     private static function renderForeignKeyReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
     {
-        // TODO: refactor - foreign key handling is not yet supported.
-        return;
-
-        $temp     = array();
-        $chunks   = explode('.', $extra['foreignKey'], 2);
-        $provider = $event->getEnvironment()->getDataProvider($chunks[0]);
-
-        foreach ((array) $value as $v) {
-            $model = $provider->fetch($provider->getEmptyConfig()->setId($v));
-            if ($model instanceof ModelInterface) {
-                $temp[] = $model->getProperty($chunks[1]);
-            }
-        }
-
-        $event->setRendered(implode(', ', $temp));
+        // Not yet impl.
     }
 
     /**

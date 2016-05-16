@@ -225,7 +225,6 @@ class TreeView extends BaseView
         if (!$objParentItem) {
             // No parent item found, might have been deleted.
             // We transparently create it for our filter to be able to filter to nothing.
-            // TODO: shall we rather bail with "parent not found"?
             $objParentItem = $objParentProvider->getEmptyModel();
             $objParentItem->setID($parentId);
         }
@@ -279,7 +278,6 @@ class TreeView extends BaseView
             $objModel->getId(),
             $objModel->getProviderName(),
             $objModel->getMeta('dc_gen_tv_level'),
-            // FIXME: add real tree mode here - intMode.
             6
         );
 
@@ -292,7 +290,6 @@ class TreeView extends BaseView
             ->addToTemplate('environment', $this->getEnvironment(), $objTemplate)
             ->addToTemplate('objModel', $objModel, $objTemplate)
             ->addToTemplate('select', $this->isSelectModeActive(), $objTemplate)
-            // FIXME: add real tree mode here.
             ->addToTemplate('intMode', 6, $objTemplate)
             ->addToTemplate('strToggleID', $strToggleID, $objTemplate)
             ->addToTemplate(
@@ -321,7 +318,6 @@ class TreeView extends BaseView
 
         // Generate buttons - only if not in select mode!
         if (!$this->isSelectModeActive()) {
-            // FIXME: should be a property in this view, as we will end up here multiple times.
             $buttonRenderer = new ButtonRenderer($this->environment);
             $buttonRenderer->renderButtonsForCollection($objCollection);
         }
@@ -421,11 +417,11 @@ class TreeView extends BaseView
         $dispatcher      = $environment->getEventDispatcher();
 
         // Init some Vars
-        switch (6 /*$definition->getSortingMode()*/) {
+        switch (6) {
             case 6:
                 $treeClass = 'tree_xtnd';
                 break;
-            // case 5:
+
             default:
                 $treeClass = 'tree';
         }
@@ -489,8 +485,7 @@ class TreeView extends BaseView
         $objTemplate->strRootPasteinto = $strRootPasteInto;
         $objTemplate->select           = $this->isSelectModeActive();
         $objTemplate->selectButtons    = $this->getSelectButtons();
-        // FIXME: set real tree mode here.
-        $objTemplate->intMode = 6;
+        $objTemplate->intMode          = 6;
 
         // Add breadcrumb, if we have one.
         $strBreadcrumb = $this->breadcrumb();
@@ -545,13 +540,6 @@ class TreeView extends BaseView
 
         $collection = $this->loadCollection();
         $arrReturn  = array();
-
-        /*
-            if ($this->getDataDefinition()->getSortingMode() == 5)
-            {
-                $arrReturn['panel'] = $this->panel();
-            }
-        */
 
         $viewEvent = new ViewEvent($this->environment, $action, DcGeneralViews::CLIPBOARD, array());
         $this->environment->getEventDispatcher()->dispatch(DcGeneralEvents::VIEW, $viewEvent);
@@ -616,7 +604,7 @@ class TreeView extends BaseView
         $collection = $this->loadCollection($rootId, $level, $providerName);
 
         $treeClass = '';
-        switch (6 /*$definition->getSortingMode()*/) {
+        switch (6) {
             case 5:
                 $treeClass = 'tree';
                 break;

@@ -93,10 +93,6 @@ class GetGroupHeaderSubscriber
 
         if ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple']) {
             return $this->formatCheckboxOptionLabel($value, $translator);
-        } elseif (false && $property->getForeignKey()) {
-            // if ($objParentModel->hasProperties()) {
-            //    $remoteNew = $objParentModel->getProperty('value');
-            // }
         } elseif ($groupingMode != GroupAndSortingInformationInterface::GROUP_NONE) {
             return $this->formatByGroupingMode($value, $groupingMode, $groupingLength, $environment, $property, $model);
         }

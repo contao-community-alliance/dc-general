@@ -108,8 +108,6 @@ class DefaultConfig implements ConfigInterface
     /**
      * Static constructor.
      *
-     * @todo: do we want to keep this behaviour? Third party will not know the correct class anyway.
-     *
      * @return ConfigInterface
      */
     public static function init()
@@ -323,7 +321,6 @@ class DefaultConfig implements ConfigInterface
         return $this;
     }
 
-    // TODO: make a property bag out of this.
     /**
      * Get the additional information.
      *

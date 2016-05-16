@@ -108,41 +108,7 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
      */
     protected function deleteChildren()
     {
-        // FIXME: See DefaultController::delete() - we need to delete the children of this item as well over all
-        //        data providers.
-        /*
-        $arrDelIDs = array();
-
-        // Delete record
-        switch ($definition->getSortingMode())
-        {
-            case 0:
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-                $arrDelIDs = array();
-                $arrDelIDs[] = $intRecordID;
-                break;
-
-            case 5:
-                $arrDelIDs = $environment->getController()->fetchMode5ChildrenOf($environment->getCurrentModel(), $blnRecurse = true);
-                $arrDelIDs[] = $intRecordID;
-                break;
-        }
-
-        // Delete all entries
-        foreach ($arrDelIDs as $intId)
-        {
-            $this->getEnvironment()->getDataProvider()->delete($intId);
-
-            // Add a log entry unless we are deleting from tl_log itself
-            if ($environment->getDataDefinition()->getName() != 'tl_log')
-            {
-                BackendBindings::log('DELETE FROM ' . $environment->getDataDefinition()->getName() . ' WHERE id=' . $intId, 'DC_General - DefaultController - delete()', TL_GENERAL);
-            }
-        }
-         */
+        // Not yet impl.
     }
 
     /**

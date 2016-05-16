@@ -77,8 +77,6 @@ class ViewHelpers
      */
     public static function getManualSortingProperty(EnvironmentInterface $environment)
     {
-        // TODO: This is called way to often. Check why so often and try to cache the value.
-
         /** @var BackendViewInterface $view */
         $view = $environment->getView();
 

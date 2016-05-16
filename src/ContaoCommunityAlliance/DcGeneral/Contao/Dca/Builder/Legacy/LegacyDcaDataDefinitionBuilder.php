@@ -437,7 +437,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 }
 
                 foreach ($filters as $filter) {
-                    // FIXME: this only takes array('name', 'value') into account. Add support for: array('name=?', 'value').
                     $builder->andPropertyEquals($filter[0], $filter[1]);
                 }
 
