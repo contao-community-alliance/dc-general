@@ -100,7 +100,6 @@ class ParentView extends BaseView
         if (!$objParentItem) {
             // No parent item found, might have been deleted.
             // We transparently create it for our filter to be able to filter to nothing.
-            // TODO: shall we rather bail with "parent not found"?
             $objParentItem = $objParentProvider->getEmptyModel();
             $objParentItem->setID($pidDetails->getId());
         }
@@ -240,8 +239,7 @@ class ParentView extends BaseView
 
             $property = $parentDefinition->getPropertiesDefinition()->getProperty($v);
 
-            // FIXME: foreignKey is not implemented yet.
-            if ($property && (($v != 'tstamp')/* || $property->get('foreignKey')*/)) {
+            if ($property && ($v != 'tstamp')) {
                 $evaluation = $property->getExtra();
                 $reference  = isset($evaluation['reference']) ? $evaluation['reference'] : null;
                 $options    = $property->getOptions();

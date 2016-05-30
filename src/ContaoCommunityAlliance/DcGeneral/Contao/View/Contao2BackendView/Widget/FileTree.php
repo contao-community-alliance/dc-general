@@ -13,6 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -127,10 +128,10 @@ class FileTree extends AbstractWidget
         }
 
         // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
-        if (version_compare('3.5.5', VERSION . '.' . BUILD, '>=')) {
+        if (version_compare(VERSION . '.' . BUILD, '3.5.5', '>=')) {
             $mapFunc = 'StringUtil::uuidToBin';
         } else {
-            $mapFunc = 'StringUtil::uuidToBin';
+            $mapFunc = 'String::uuidToBin';
         }
 
         $inputValue = array_map($mapFunc, array_filter(explode(',', $inputValue)));
@@ -334,7 +335,7 @@ class FileTree extends AbstractWidget
         }
 
         // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
-        if (version_compare('3.5.5', VERSION . '.' . BUILD, '>=')) {
+        if (version_compare(VERSION . '.' . BUILD, '3.5.5', '>=')) {
             $mapFunc = 'StringUtil::binToUuid';
         } else {
             $mapFunc = 'String::binToUuid';

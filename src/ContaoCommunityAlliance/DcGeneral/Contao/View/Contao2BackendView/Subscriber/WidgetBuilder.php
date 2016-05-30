@@ -13,6 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
+ * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -365,17 +366,9 @@ class WidgetBuilder implements EnvironmentAwareInterface
             && empty($propExtra['mandatory'])
             && is_numeric($varValue) && $varValue == 0
         ) {
-            /*
-                FIXME TEMPORARY WORKAROUND! To be fixed in the core:
-                @see \Widget::getAttributesFromDca()
-            */
-
             $varValue = '';
         }
 
-        // OH: why not $required = $mandatory always? source: DataContainer 226.
-        // OH: the whole prepareForWidget(..) thing is an only mess
-        // Widgets should parse the configuration by themselves, depending on what they need.
         $propExtra['required'] = ($varValue == '') && !empty($propExtra['mandatory']);
 
         $arrConfig = array(
@@ -386,7 +379,6 @@ class WidgetBuilder implements EnvironmentAwareInterface
             ),
             'options'   => $this->getOptionsForWidget($property, $model),
             'eval'      => $propExtra,
-            // TODO: populate these.
             // 'foreignKey' => null
         );
 
@@ -406,9 +398,6 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $dispatcher->dispatch(ContaoEvents::WIDGET_GET_ATTRIBUTES_FROM_DCA, $event);
         $arrPrepared = $event->getResult();
 
-        // Bugfix CS: ajax subpalettes are really broken.
-        // Therefore we reset to the default checkbox behaviour here and submit the entire form.
-        // This way, the javascript needed by the widget (wizards) will be correctly evaluated.
         if ($arrConfig['inputType'] == 'checkbox'
             && isset($GLOBALS['TL_DCA'][$defName]['subpalettes'])
             && is_array($GLOBALS['TL_DCA'][$defName]['subpalettes'])

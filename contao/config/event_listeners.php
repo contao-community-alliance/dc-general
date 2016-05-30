@@ -96,7 +96,9 @@ if ('BE' === TL_MODE) {
     );
 
     $result[BuildWidgetEvent::NAME] = array(
-        'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\WidgetBuilder::handleEvent'
+        'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\WidgetBuilder::handleEvent',
+        'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\ColorPickerWizardSubscriber' .
+        '::handleEvent'
     );
 
     $result[DcGeneralEvents::ACTION] = array(

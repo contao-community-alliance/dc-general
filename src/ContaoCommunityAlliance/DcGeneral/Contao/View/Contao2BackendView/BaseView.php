@@ -127,8 +127,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             case 'select':
                 // If no redirect happens, we want to display the showAll action.
                 $name = 'showAll';
-                // No break here
-
+                // No break here.
             case 'create':
             case 'paste':
             case 'move':
@@ -448,7 +447,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * NOTE: This method redirects the user to the listing and therefore the script will be ended.
      *
-     * @throws DcGeneralRuntimeException If the model to delete could not be loaded.
+     * @throws \RuntimeException If the is any error.
      */
     public function delete(Action $action)
     {
@@ -464,7 +463,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return $this->edit($action);
         }
 
-        // TODO: move unimplemented.
         return vsprintf($this->notImplMsg, 'move - Mode');
     }
 
@@ -477,7 +475,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return $this->edit($action);
         }
 
-        // TODO: undo unimplemented.
         return vsprintf($this->notImplMsg, 'undo - Mode');
     }
 

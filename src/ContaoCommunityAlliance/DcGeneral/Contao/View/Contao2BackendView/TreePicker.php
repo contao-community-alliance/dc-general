@@ -505,7 +505,7 @@ class TreePicker extends \Widget
         /** @var array $orderValues */
         $orderValues = $this->{$this->orderField};
         $arrNew      = array();
-        // TODO: this is untested.
+
         foreach ($orderValues as $i) {
             if (isset($values[$i])) {
                 $arrNew[$i] = $values[$i];
@@ -742,7 +742,6 @@ class TreePicker extends \Widget
             $objChildConfig = $this->getEnvironment()->getDataProvider($strSubTable)->getEmptyConfig();
             $objChildConfig->setFilter($arrChildFilter->getFilter($objModel));
 
-            // TODO: hardcoded sorting... NOT GOOD!
             $objChildConfig->setSorting(array('sorting' => 'ASC'));
 
             $objChildCollection = $this->getEnvironment()->getDataProvider($strSubTable)->fetchAll($objChildConfig);

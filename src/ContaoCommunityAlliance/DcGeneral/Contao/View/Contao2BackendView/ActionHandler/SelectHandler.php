@@ -13,6 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -123,7 +124,6 @@ class SelectHandler extends AbstractHandler
         $handler->setEnvironment($this->getEnvironment());
 
         foreach ($modelIds as $modelId) {
-            // TODO: How to handle errors for one item? Abort and roll back or just log it and print the messages?
             $handler->delete($modelId);
         }
 
@@ -142,8 +142,6 @@ class SelectHandler extends AbstractHandler
         $environment = $this->getEnvironment();
         $clipboard   = $environment->getClipboard();
         $parentId    = $this->getParentId();
-
-        // TODO: Protect against cut in no tree and no manual sorting view.
 
         foreach ($modelIds as $modelId) {
             $clipboard->push(new Item(Item::CUT, $parentId, $modelId));
@@ -192,6 +190,8 @@ class SelectHandler extends AbstractHandler
      * @param ModelId[] $modelIds The list of model ids.
      *
      * @return void
+     *
+     * @throws DcGeneralRuntimeException Not yet implemented.
      */
     protected function handleOverrideAllAction($modelIds)
     {
@@ -204,6 +204,8 @@ class SelectHandler extends AbstractHandler
      * @param ModelId[] $modelIds The list of model ids.
      *
      * @return void
+     *
+     * @throws DcGeneralRuntimeException Not yet implemented.
      */
     protected function handleEditAllAction($modelIds)
     {

@@ -13,6 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -92,11 +93,6 @@ class GetGroupHeaderSubscriber
 
         if ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple']) {
             return $this->formatCheckboxOptionLabel($value, $translator);
-        } elseif (false && $property->getForeignKey()) {
-            // TODO: refactor foreignKey is yet undefined.
-            // if ($objParentModel->hasProperties()) {
-            //    $remoteNew = $objParentModel->getProperty('value');
-            // }
         } elseif ($groupingMode != GroupAndSortingInformationInterface::GROUP_NONE) {
             return $this->formatByGroupingMode($value, $groupingMode, $groupingLength, $environment, $property, $model);
         }

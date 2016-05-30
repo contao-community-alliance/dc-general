@@ -22,6 +22,7 @@
  */
 
 use ContaoCommunityAlliance\DcGeneral\Contao\Event\Subscriber;
+use ContaoCommunityAlliance\DcGeneral\Contao\Subscriber\FallbackResetSubscriber;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\ClipboardController;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Filter\LanguageFilter;
 
@@ -30,7 +31,10 @@ if ('BE' === TL_MODE) {
         new Subscriber(),
         new ClipboardController(),
         new LanguageFilter(),
+        new FallbackResetSubscriber(),
     );
 }
 
-return array();
+return array(
+    new FallbackResetSubscriber(),
+);

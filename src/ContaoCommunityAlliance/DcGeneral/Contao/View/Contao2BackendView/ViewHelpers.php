@@ -14,6 +14,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
+ * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -77,8 +78,6 @@ class ViewHelpers
      */
     public static function getManualSortingProperty(EnvironmentInterface $environment)
     {
-        // TODO: This is called way to often. Check why so often and try to cache the value.
-
         /** @var BackendViewInterface $view */
         $view = $environment->getView();
 
