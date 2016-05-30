@@ -180,7 +180,8 @@ class ContaoWidgetManager
                 }
 
                 if (strncmp($extra['rte'], 'tiny', 4) !== 0) {
-                    $language = \Backend::getTinyMceLanguage(); // backwards compatibility
+                    // Backwards compatibility
+                    $language = \Backend::getTinyMceLanguage();
                 }
 
                 ob_start();
