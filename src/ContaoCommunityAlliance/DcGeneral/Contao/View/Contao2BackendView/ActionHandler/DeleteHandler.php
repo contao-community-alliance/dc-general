@@ -14,6 +14,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -27,9 +28,12 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\EditOnlyModeException;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\NotDeletableException;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
+use ContaoCommunityAlliance\DcGeneral\Data\DefaultCollection;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefaultModelRelationshipDefinition;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -168,9 +172,81 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
 
         // We want a redirect here if not deletable.
         $this->guardIsDeletable($modelId, true);
-
+        $this->deepDelete($modelId);
         $this->delete($modelId);
 
         ViewHelpers::redirectHome($this->environment);
+    }
+
+    /**
+     * Delete all deep models.
+     *
+     * @param ModelIdInterface $modelId The Model Id.
+     *
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.LongVariableName)
+     */
+    protected function deepDelete(ModelIdInterface $modelId)
+    {
+        $environment    = $this->getEnvironment();
+        $dataDefinition = $environment->getDataDefinition();
+        /** @var DefaultModelRelationshipDefinition $relationships */
+        $relationships = $dataDefinition->getDefinition('model-relationships');
+
+        $childConditions = $relationships->getChildConditions($modelId->getDataProviderName());
+
+        // delete child element before delete parent element
+        /** @var ParentChildConditionInterface $childCondition */
+        foreach ($childConditions as $childCondition) {
+            $destinationChildConditions = $relationships->getChildConditions($childCondition->getDestinationName());
+            if (empty($destinationChildConditions)) {
+                continue;
+            }
+
+            $dataProvider                 = $environment->getDataProvider($modelId->getDataProviderName());
+            $model                        = $dataProvider->fetch(
+                $dataProvider->getEmptyConfig()->setId($modelId->getId())
+            );
+            $destinationChildDataProvider = $environment->getDataProvider($childCondition->getDestinationName());
+
+            $filters = $childCondition->getFilter($model);
+            /** @var DefaultCollection $destinationChildModels */
+            $destinationChildModels = $destinationChildDataProvider->fetchAll(
+                $dataProvider->getEmptyConfig()->setFilter($filters)
+            );
+            if ($destinationChildModels->count() < 1) {
+                continue;
+            }
+
+            foreach ($destinationChildModels as $destinationChildModel) {
+                $this->deepDelete(ModelId::fromModel($destinationChildModel));
+            }
+        }
+
+        foreach ($childConditions as $childCondition) {
+            $dataProvider      = $environment->getDataProvider($modelId->getDataProviderName());
+            $model             = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+            $childDataProvider = $environment->getDataProvider($childCondition->getDestinationName());
+
+            $filters = $childCondition->getFilter($model);
+            /** @var DefaultCollection $childModels */
+            $childModels = $childDataProvider->fetchAll($dataProvider->getEmptyConfig()->setFilter($filters));
+            if ($childModels->count() < 1) {
+                continue;
+            }
+
+            foreach ($childModels as $childModel) {
+                // Trigger event before the model will be deleted.
+                $event = new PreDeleteModelEvent($this->getEnvironment(), $childModel);
+                $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+
+                $childDataProvider->delete($childModel);
+
+                // Trigger event after the model is deleted.
+                $event = new PostDeleteModelEvent($environment, $childModel);
+                $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+            }
+        }
     }
 }
