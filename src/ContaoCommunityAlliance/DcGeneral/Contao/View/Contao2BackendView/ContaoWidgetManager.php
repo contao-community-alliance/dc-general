@@ -16,6 +16,7 @@
  * @author     Christopher Boelter <christopher@boelter.eu>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
+ * @author     Ingolf Steinhardt <info@e-spin.de>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -159,7 +160,7 @@ class ContaoWidgetManager
                 continue;
             }
 
-            if (strncmp($extra['rte'], 'tiny', 4) !== 0) {
+            if (strncmp($extra['rte'], 'tiny', 4) !== 0 && strncmp($extra['rte'], 'ace', 3) !== 0) {
                 continue;
             }
 
@@ -178,12 +179,8 @@ class ContaoWidgetManager
                     throw new \Exception(sprintf('Cannot find editor configuration file "%s.php"', $file));
                 }
 
-                // Backwards compatibility.
-                $language = substr($GLOBALS['TL_LANGUAGE'], 0, 2);
-
-                // Keep $language and $selector here, they are used in the included template file! See #76.
-                if (!file_exists(TL_ROOT . '/assets/tinymce/langs/' . $language . '.js')) {
-                    $language = 'en';
+                if (strncmp($extra['rte'], 'tiny', 4) !== 0) {
+                    $language = \Backend::getTinyMceLanguage(); // backwards compatibility
                 }
 
                 ob_start();
@@ -404,14 +401,6 @@ class ContaoWidgetManager
         );
 
         $buffer = $objTemplateFoo->parse();
-
-        if (isset($propExtra['rte']) && strncmp($propExtra['rte'], 'tiny', 4) === 0) {
-            $propertyId = 'ctrl_' . $property;
-
-            $buffer .= <<<EOF
-<script>tinyMCE.execCommand('mceAddControl', false, '{$propertyId}');$('{$propertyId}').erase('required');</script>
-EOF;
-        }
 
         return $buffer;
     }
