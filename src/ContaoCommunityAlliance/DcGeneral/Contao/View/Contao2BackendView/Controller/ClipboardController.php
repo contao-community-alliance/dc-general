@@ -14,6 +14,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
+ * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -191,8 +192,6 @@ class ClipboardController implements EventSubscriberInterface
         }
 
         // Let the clipboard save it's values persistent.
-        // TODO remove clear and allow adding multiple items
-        // Clipboard get cleared twice so far if being in create mode and partially in others. Don't know why it's here.
         $clipboard->clear()->push($item)->saveTo($environment);
 
         ViewHelpers::redirectHome($environment);

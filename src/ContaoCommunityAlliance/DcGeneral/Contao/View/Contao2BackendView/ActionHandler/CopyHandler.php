@@ -13,6 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Stefan Heimes <stefan_heimes@hotmail.com>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -105,7 +107,6 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
         $provider = $this->getEnvironment()->getDataProvider($copyModel->getProviderName());
         $provider->save($copyModel);
 
-        // FIXME: Copy each language multi language models.
         // Dispatch post duplicate event.
         $copyEvent = new PostDuplicateModelEvent($environment, $copyModel, $model);
         $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
@@ -130,7 +131,8 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
             ->setQueryParameter('do', $environment->getInputProvider()->getParameter('do'))
             ->setQueryParameter('table', $copiedModelId->getDataProviderName())
             ->setQueryParameter('act', 'edit')
-            ->setQueryParameter('id', $copiedModelId->getSerialized());
+            ->setQueryParameter('id', $copiedModelId->getSerialized())
+            ->setQueryParameter('pid', $environment->getInputProvider()->getParameter('pid'));
 
         $redirectEvent = new RedirectEvent($url->getUrl());
         $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_REDIRECT, $redirectEvent);

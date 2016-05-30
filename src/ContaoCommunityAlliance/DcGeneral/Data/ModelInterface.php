@@ -88,7 +88,6 @@ interface ModelInterface extends \IteratorAggregate
      */
     const CSS_CLASS = '%class%';
 
-    // TODO: Merge with CSS_CLASS?
     /**
      * Meta name for the model label class.
      */

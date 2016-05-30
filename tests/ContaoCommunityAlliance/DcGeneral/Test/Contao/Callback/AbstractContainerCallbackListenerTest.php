@@ -36,7 +36,7 @@ class AbstractContainerCallbackListenerTest extends TestCase
         };
     }
 
-    protected function mockEnvironment($dataContainerName)
+    public function mockEnvironment($dataContainerName)
     {
         $environment = new DefaultEnvironment();
         $environment->setDataDefinition(new DefaultContainer($dataContainerName));

@@ -169,6 +169,11 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
                 if ($offset > $this->intTotal) {
                     $offset = 0;
                 }
+
+                if ('all' === $offset) {
+                    $offset = 0;
+                    $amount = $this->intTotal;
+                }
             }
 
             if ($offset !== null) {

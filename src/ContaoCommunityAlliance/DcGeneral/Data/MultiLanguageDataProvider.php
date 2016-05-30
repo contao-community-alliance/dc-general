@@ -58,7 +58,6 @@ class MultiLanguageDataProvider extends DefaultDataProvider implements MultiLang
     {
         $collection = new DefaultLanguageInformationCollection();
 
-        // FIXME: hardcoded languages "German" and "English".
         $collection
             ->add(new DefaultLanguageInformation('de', null))
             ->add(new DefaultLanguageInformation('en', null));
@@ -77,7 +76,6 @@ class MultiLanguageDataProvider extends DefaultDataProvider implements MultiLang
      */
     public function getFallbackLanguage($mixID)
     {
-        // FIXME: hardcoded fallback language "English".
         return new DefaultLanguageInformation('en', null);
     }
 

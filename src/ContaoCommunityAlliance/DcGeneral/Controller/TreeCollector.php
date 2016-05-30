@@ -12,6 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -186,7 +187,6 @@ class TreeCollector implements EnvironmentAwareInterface
         return $dataProvider->fetchAll(
             $dataProvider
                 ->getEmptyConfig()
-                // TODO: hardcoded sorting... NOT GOOD!
                 ->setSorting(array('sorting' => 'ASC'))
                 ->setFilter(
                     FilterBuilder::fromArray()
@@ -352,7 +352,7 @@ class TreeCollector implements EnvironmentAwareInterface
      *
      * @param string         $providerName The data provider from which the root element originates from.
      *
-     * @param int            $level        The level in the tree (TODO: isn't this always 0?).
+     * @param int            $level        The level in the tree.
      *
      * @param ModelInterface $parentModel  The optional parent model (mode 4 parent).
      *

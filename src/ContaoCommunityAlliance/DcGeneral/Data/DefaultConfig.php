@@ -13,6 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -107,8 +108,6 @@ class DefaultConfig implements ConfigInterface
 
     /**
      * Static constructor.
-     *
-     * @todo: do we want to keep this behaviour? Third party will not know the correct class anyway.
      *
      * @return ConfigInterface
      */
@@ -323,7 +322,6 @@ class DefaultConfig implements ConfigInterface
         return $this;
     }
 
-    // TODO: make a property bag out of this.
     /**
      * Get the additional information.
      *

@@ -12,6 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -174,7 +175,6 @@ class PanelRenderer
      */
     public function render($ignoredPanels = array())
     {
-        // TODO: Determine list of ignored panels by triggering an event.
         if ($this->view->getPanel() === null) {
             throw new DcGeneralRuntimeException('No panel information stored in data container.');
         }

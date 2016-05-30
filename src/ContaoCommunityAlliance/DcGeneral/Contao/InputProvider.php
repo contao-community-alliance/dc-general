@@ -13,6 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -34,7 +35,6 @@ class InputProvider implements InputProviderInterface
      */
     public function getParameter($strKey, $blnRaw = false)
     {
-        // TODO: raw handling not implemented yet.
         return \Input::getInstance()->get($strKey);
     }
 
@@ -75,7 +75,6 @@ class InputProvider implements InputProviderInterface
             return \Input::getInstance()->postRaw($strKey);
         }
 
-        // TODO: unsure if we should use postHtml here.
         return \Input::getInstance()->post($strKey);
     }
 

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2016 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,9 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @author     Stefan Heimes <stefan_heimes@hotmail.com>
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2016 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -242,17 +244,7 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
-        if (/*
-            in_array(
-                $property->getGroupingMode(),
-                array(
-                    ListingConfigInterface::GROUP_DAY,
-                    ListingConfigInterface::GROUP_MONTH,
-                    ListingConfigInterface::GROUP_YEAR
-                )
-                ) ||*/
-            $property->getName() == 'tstamp'
-        ) {
+        if ($property->getName() == 'tstamp') {
             // Date and time format.
             $event->setRendered(self::parseDateTime($dispatcher, self::getConfig()->get('timeFormat'), $value));
 
@@ -348,7 +340,7 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return void
      */
-    public function setConfig(Config $config)
+    public static function setConfig(Config $config)
     {
         self::$config = $config;
     }
@@ -358,7 +350,7 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return Config
      */
-    public function getConfig()
+    public static function getConfig()
     {
         if (!self::$config) {
             return self::$config = Config::getInstance();
@@ -380,21 +372,7 @@ class Subscriber implements EventSubscriberInterface
      */
     private static function renderForeignKeyReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
     {
-        // TODO: refactor - foreign key handling is not yet supported.
-        return;
-
-        $temp     = array();
-        $chunks   = explode('.', $extra['foreignKey'], 2);
-        $provider = $event->getEnvironment()->getDataProvider($chunks[0]);
-
-        foreach ((array) $value as $v) {
-            $model = $provider->fetch($provider->getEmptyConfig()->setId($v));
-            if ($model instanceof ModelInterface) {
-                $temp[] = $model->getProperty($chunks[1]);
-            }
-        }
-
-        $event->setRendered(implode(', ', $temp));
+        // Not yet impl.
     }
 
     /**

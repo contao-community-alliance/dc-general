@@ -15,6 +15,8 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Christopher Boelter <christopher@boelter.eu>
  * @author     David Molineus <david.molineus@netzmacht.de>
+ * @author     Stefan Heimes <stefan_heimes@hotmail.com>
+ * @author     Ingolf Steinhardt <info@e-spin.de>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -158,7 +160,7 @@ class ContaoWidgetManager
                 continue;
             }
 
-            if (strncmp($extra['rte'], 'tiny', 4) !== 0) {
+            if (strncmp($extra['rte'], 'tiny', 4) !== 0 && strncmp($extra['rte'], 'ace', 3) !== 0) {
                 continue;
             }
 
@@ -177,12 +179,9 @@ class ContaoWidgetManager
                     throw new \Exception(sprintf('Cannot find editor configuration file "%s.php"', $file));
                 }
 
-                // Backwards compatibility.
-                $language = substr($GLOBALS['TL_LANGUAGE'], 0, 2);
-
-                // Keep $language and $selector here, they are used in the included template file! See #76.
-                if (!file_exists(TL_ROOT . '/assets/tinymce/langs/' . $language . '.js')) {
-                    $language = 'en';
+                if (strncmp($extra['rte'], 'tiny', 4) !== 0) {
+                    // Backwards compatibility
+                    $language = \Backend::getTinyMceLanguage();
                 }
 
                 ob_start();
@@ -256,8 +255,7 @@ class ContaoWidgetManager
     protected function buildDatePicker($objWidget)
     {
         $translator = $this->getEnvironment()->getTranslator();
-        // TODO: need better interface to Contao Config class here.
-        $strFormat = $GLOBALS['TL_CONFIG'][$objWidget->rgxp . 'Format'];
+        $strFormat  = $GLOBALS['TL_CONFIG'][$objWidget->rgxp . 'Format'];
 
         $arrConfig = array(
             'allowEmpty'        => true,
@@ -331,7 +329,6 @@ class ContaoWidgetManager
         $label       = $propInfo->getDescription();
         $widgetType  = $propInfo->getWidgetType();
 
-        // TODO: need better interface to Contao Config class here.
         if (!$GLOBALS['TL_CONFIG']['showHelp'] || $widgetType == 'password' || !strlen($label)) {
             return '';
         }
@@ -397,28 +394,14 @@ class ContaoWidgetManager
                 'widget'        => $widget->parse(),
                 'hasErrors'     => $widget->hasErrors(),
                 'strDatepicker' => $strDatePicker,
-                // TODO: need 'update' value.
-                // Old code:
-                // (\Input::get('act') == 'overrideAll'
-                // && ($arrData['inputType'] == 'checkbox'
-                // || $arrData['inputType'] == 'checkboxWizard')
-                // && $arrData['eval']['multiple'])
+                // We used the var blnUpdate before.
                 'blnUpdate'     => false,
-                // $blnUpdate,
                 'strHelp'       => $this->generateHelpText($property),
                 'strId'         => $widget->id
             )
         );
 
         $buffer = $objTemplateFoo->parse();
-
-        if (isset($propExtra['rte']) && strncmp($propExtra['rte'], 'tiny', 4) === 0) {
-            $propertyId = 'ctrl_' . $property;
-
-            $buffer .= <<<EOF
-<script>tinyMCE.execCommand('mceAddControl', false, '{$propertyId}');$('{$propertyId}').erase('required');</script>
-EOF;
-        }
 
         return $buffer;
     }
@@ -468,8 +451,6 @@ EOF;
                 }
             }
         }
-
-        // FIXME: Add new event "CheckUpdatedPropertyValueBagEvent".
 
         $_POST = $post;
         \Input::resetCache();
