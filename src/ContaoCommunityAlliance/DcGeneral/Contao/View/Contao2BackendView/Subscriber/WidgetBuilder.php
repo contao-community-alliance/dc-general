@@ -136,6 +136,10 @@ class WidgetBuilder implements EnvironmentAwareInterface
      */
     protected function getOptionsForWidget($propInfo, $model)
     {
+        if (!$this->isGetOptionsAllowed($propInfo)) {
+            return null;
+        }
+
         $environment = $this->getEnvironment();
         $dispatcher  = $environment->getEventDispatcher();
         $options     = $propInfo->getOptions();
@@ -149,6 +153,36 @@ class WidgetBuilder implements EnvironmentAwareInterface
         }
 
         return $options;
+    }
+
+    /**
+     * Check if the current widget is allowed to get options.
+     *
+     * @param PropertyInterface $property The bag with all information.
+     *
+     * @return bool True => allowed to get options | False => don't get options.
+     */
+    private function isGetOptionsAllowed(PropertyInterface $property)
+    {
+        $propExtra = $property->getExtra();
+        $strClass  = $this->getWidgetClass($property);
+
+        // Check the overwrite param.
+        if (array_key_exists('fetchOptions', $propExtra) && (true === $propExtra['fetchOptions'])) {
+            return true;
+        }
+
+        // Check the class.
+        if ('CheckBox' !== $strClass) {
+            return true;
+        }
+
+        // Check if multiple is active.
+        if (array_key_exists('multiple', $propExtra) && (true === $propExtra['multiple'])) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
