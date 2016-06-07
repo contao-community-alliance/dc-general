@@ -403,6 +403,17 @@ class ContaoWidgetManager
 
         $buffer = $objTemplateFoo->parse();
 
+        if (version_compare(VERSION, '3.3', '<')
+            && isset($propExtra['rte'])
+            && strncmp($propExtra['rte'], 'tiny', 4) === 0
+        ) {
+            $propertyId = 'ctrl_' . $property;
+
+            $buffer .= <<<EOF
+<script>tinyMCE.execCommand('mceAddControl', false, '{$propertyId}');$('{$propertyId}').erase('required');</script>
+EOF;
+        }
+
         return $buffer;
     }
 
