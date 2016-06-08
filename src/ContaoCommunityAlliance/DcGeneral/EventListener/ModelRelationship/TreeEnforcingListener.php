@@ -12,6 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -77,15 +78,10 @@ class TreeEnforcingListener
      */
     private function handleInto(InputProviderInterface $input, ControllerInterface $controller, ModelInterface $model)
     {
-        $into = ModelId::fromSerialized($input->getParameter('into'));
+        $into = ModelId::fromSerialized($input->getParameter('pid'));
 
-        // If we have a null, it means insert into the tree root.
-        if ($into->getId() == 0) {
-            $controller->setRootModel($model);
-        } else {
-            $parent = $controller->fetchModelFromProvider($into);
-            $controller->setParent($model, $parent);
-        }
+        $parent = $controller->fetchModelFromProvider($into);
+        $controller->setParent($model, $parent);
     }
 
     /**
