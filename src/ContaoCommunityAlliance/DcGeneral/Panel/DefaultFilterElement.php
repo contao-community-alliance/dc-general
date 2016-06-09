@@ -163,7 +163,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
     {
         $this->updateValue();
 
-        if ($this->getPropertyName() && $this->getValue() !== NULL && ($objElement !== $this)) {
+        if ($this->getPropertyName() && $this->getValue() !== null && ($objElement !== $this)) {
             $arrCurrent = $objConfig->getFilter();
             if (!is_array($arrCurrent)) {
                 $arrCurrent = array();
