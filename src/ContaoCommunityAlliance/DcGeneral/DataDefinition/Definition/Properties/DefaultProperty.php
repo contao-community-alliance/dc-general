@@ -134,7 +134,7 @@ class DefaultProperty implements PropertyInterface
      *
      * @var array
      */
-    protected $extra;
+    protected $extra = array();
 
     /**
      * Create an instance.
