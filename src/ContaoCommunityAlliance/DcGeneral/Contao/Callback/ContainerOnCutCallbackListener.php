@@ -39,6 +39,6 @@ class ContainerOnCutCallbackListener extends AbstractCallbackListener
      */
     public function getArgs($event)
     {
-        return array($event->getModel()->getId(), new DcCompat($event->getEnvironment(), $event->getModel()));
+        return array(new DcCompat($event->getEnvironment(), $event->getModel()));
     }
 }
