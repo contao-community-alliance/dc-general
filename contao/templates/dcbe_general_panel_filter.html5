@@ -1,5 +1,5 @@
 <div class="tl_filter tl_subpanel <?php echo $this->rowClass; ?>">
-	<strong><?php echo $GLOBALS['TL_LANG']['MSC']['filter']; ?>:</strong>
+	<strong><?php echo $this->label; ?>:</strong>
 	<select name="<?php echo $this->name; ?>" id="<?php echo $this->id; ?>" class="<?php echo $this->class; ?>">
 		<?php foreach ($this->options as $arrOption): ?>
 			<option value="<?php echo $arrOption['value']; ?>"<?php echo $arrOption['attributes']; ?><?php if ($arrOption['value'] == $this->active): ?> selected<?php endif; ?>><?php echo $arrOption['content']; ?></option>

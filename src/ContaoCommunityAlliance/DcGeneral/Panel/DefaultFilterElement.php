@@ -162,7 +162,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
     {
         $this->updateValue();
 
-        if ($this->getPropertyName() && $this->getValue() && ($objElement !== $this)) {
+        if ($this->getPropertyName() && (null !== $this->getValue()) && ($objElement !== $this)) {
             $arrCurrent = $objConfig->getFilter();
             if (!is_array($arrCurrent)) {
                 $arrCurrent = array();
@@ -196,11 +196,6 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
         $arrOptions = array(
             array(
                 'value'   => 'tl_' . $this->getPropertyName(),
-                'content' => (is_array($arrLabel) ? $arrLabel[0] : $arrLabel),
-                'attributes' => ''
-            ),
-            array(
-                'value'   => 'tl_' . $this->getPropertyName(),
                 'content' => '---',
                 'attributes' => ''
             )
@@ -214,6 +209,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             );
         }
 
+        $objTemplate->set('label', (is_array($arrLabel) ? $arrLabel[0] : $arrLabel));
         $objTemplate->set('name', $this->getPropertyName());
         $objTemplate->set('id', $this->getPropertyName());
         $objTemplate->set('class', 'tl_select' . (($this->getValue() !== null) ? ' active' : ''));
