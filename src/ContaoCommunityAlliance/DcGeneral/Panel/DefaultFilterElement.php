@@ -37,21 +37,21 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
      *
      * @var string
      */
-    protected $strProperty;
+    private $strProperty;
 
     /**
      * The current value of this filter.
      *
      * @var mixed
      */
-    protected $mixValue;
+    private $mixValue;
 
     /**
      * All valid filter options of the property.
      *
      * @var array
      */
-    protected $arrfilterOptions;
+    private $arrFilterOptions;
 
     /**
      * Retrieve the persistent value from the input provider.
@@ -153,7 +153,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             $arrOptions[(string) $filterKey] = $filterValue;
         }
 
-        $this->arrfilterOptions = $arrOptions;
+        $this->arrFilterOptions = $arrOptions;
     }
 
     /**
@@ -202,7 +202,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             )
         );
 
-        foreach ($this->arrfilterOptions as $key => $value) {
+        foreach ($this->arrFilterOptions as $key => $value) {
             $arrOptions[] = array(
                 'value'      => $key,
                 'content'    => $value,

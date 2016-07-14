@@ -35,21 +35,21 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      *
      * @var int
      */
-    protected $intOffset;
+    private $intOffset;
 
     /**
      * The current amount.
      *
      * @var int
      */
-    protected $intAmount;
+    private $intAmount;
 
     /**
      * The total amount of all valid entries.
      *
      * @var int
      */
-    protected $intTotal;
+    private $intTotal;
 
     /**
      * Retrieve the amount of items to display per page.

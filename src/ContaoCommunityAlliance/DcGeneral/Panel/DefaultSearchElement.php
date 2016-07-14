@@ -34,21 +34,21 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
      *
      * @var array
      */
-    protected $arrProperties;
+    private $arrProperties;
 
     /**
      * The currently active property to be searched on.
      *
      * @var string
      */
-    protected $strSelectedProperty;
+    private $strSelectedProperty;
 
     /**
      * The current value to be searched.
      *
      * @var mixed
      */
-    protected $mixValue;
+    private $mixValue;
 
     /**
      * Retrieve the persistent value from the input provider.
@@ -181,9 +181,9 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
             );
         }
 
-        $objTemplate->class   = 'tl_select' . (($this->getValue() !== null) ? ' active' : '');
-        $objTemplate->options = $arrOptions;
-        $objTemplate->value   = $this->getValue();
+        $objTemplate->set('class', 'tl_select' . (($this->getValue() !== null) ? ' active' : ''));
+        $objTemplate->set('options', $arrOptions);
+        $objTemplate->set('value', $this->getValue());
 
         return $this;
     }
