@@ -142,14 +142,13 @@ class FileTree extends AbstractWidget
     /**
      * Render the file list.
      *
-     * @param array           $values        The selected values.
      * @param array           $icons         The generated icons.
      * @param Collection|null $collection    The files collection.
      * @param bool            $followSubDirs If true subfolders get rendered.
      *
      * @return void
      */
-    private function renderList(array &$values, array &$icons, Collection $collection = null, $followSubDirs = false)
+    private function renderList(array &$icons, Collection $collection = null, $followSubDirs = false)
     {
         if (!$collection) {
             return;
@@ -161,13 +160,11 @@ class FileTree extends AbstractWidget
                 continue;
             }
 
-            $values[$model->id] = $model->uuid;
-
             if ($this->isGallery && !$this->isDownloads) {
                 $icons[$model->uuid] = $this->renderIcon($model);
             } elseif ($model->type === 'folder' && $followSubDirs) {
                 $subCollection = \FilesModel::findByPid($model->uuid);
-                $this->renderList($values, $icons, $subCollection);
+                $this->renderList($icons, $subCollection);
             } else {
                 $icon = $this->renderIcon($model, $this->isGallery, $this->isDownloads);
 
@@ -293,21 +290,13 @@ class FileTree extends AbstractWidget
     /**
      * Generate the adjust selection link.
      *
-     * @param array $values The selected files.
+     * @param array $values The selected files (string uuids).
      *
      * @return string
      */
     private function generateLink($values)
     {
         $inputProvider = $this->getEnvironment()->getInputProvider();
-
-        // Contao passed File ids sinc 3.3.4
-        // @see https://github.com/contao/core/commit/c1472209fdfd6e2446013430753ed65530b5a1d1
-        if (version_compare(VERSION . '.' . BUILD, '3.3.4', '>=')) {
-            $values = array_keys($values);
-        } else {
-            $values = array_map('String::binToUuid', $values);
-        }
 
         return sprintf(
             'contao/file.php?do=%s&amp;table=%s&amp;field=%s&amp;act=show&amp;id=%s&amp;value=%s&amp;rt=%s',
@@ -330,15 +319,18 @@ class FileTree extends AbstractWidget
 
         if (!empty($this->varValue)) {
             $files = \FilesModel::findMultipleByUuids((array) $this->varValue);
-            $this->renderList($values, $icons, $files, ($this->isGallery || $this->isDownloads));
+            $this->renderList($icons, $files, ($this->isGallery || $this->isDownloads));
             $icons = $this->applySorting($icons);
-        }
+            // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
+            if (version_compare(VERSION . '.' . BUILD, '3.5.5', '>=')) {
+                $mapFunc = 'StringUtil::binToUuid';
+            } else {
+                $mapFunc = 'String::binToUuid';
+            }
 
-        // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
-        if (version_compare(VERSION . '.' . BUILD, '3.5.5', '>=')) {
-            $mapFunc = 'StringUtil::binToUuid';
-        } else {
-            $mapFunc = 'String::binToUuid';
+            foreach ($files as $model) {
+                $values[] = $mapFunc($model->uuid);
+            }
         }
 
         $template = new ContaoBackendViewTemplate($this->subTemplate);
@@ -346,7 +338,7 @@ class FileTree extends AbstractWidget
             ->setTranslator($this->getEnvironment()->getTranslator())
             ->set('name', $this->strName)
             ->set('id', $this->strId)
-            ->set('value', implode(',', array_map($mapFunc, $values)))
+            ->set('value', implode(',', $values))
             ->set('hasOrder', ($this->orderField != '' && is_array($this->orderFieldValue)))
             ->set('icons', $icons)
             ->set('isGallery', $this->isGallery)
