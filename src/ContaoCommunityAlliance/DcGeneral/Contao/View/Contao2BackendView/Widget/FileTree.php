@@ -160,17 +160,12 @@ class FileTree extends AbstractWidget
                 continue;
             }
 
-            if ($this->isGallery && !$this->isDownloads) {
-                $icons[$model->uuid] = $this->renderIcon($model);
-            } elseif ($model->type === 'folder' && $followSubDirs) {
-                $subCollection = \FilesModel::findByPid($model->uuid);
-                $this->renderList($icons, $subCollection);
-            } else {
-                $icon = $this->renderIcon($model, $this->isGallery, $this->isDownloads);
-
-                if ($icon !== false) {
-                    $icons[$model->uuid] = $icon;
-                }
+            if (('folder' === $model->type) && $followSubDirs) {
+                $this->renderList($icons, \FilesModel::findByPid($model->uuid));
+                continue;
+            }
+            if (false !== ($icon = $this->renderIcon($model, $this->isGallery, $this->isDownloads))) {
+                $icons[$model->uuid] = $icon;
             }
         }
     }
@@ -231,7 +226,7 @@ class FileTree extends AbstractWidget
         $file = new \File($model->path, true);
         $info = $this->renderFileInfo($file);
 
-        if ($imagesOnly && !($file->isGdImage || $file->isSvgImage)) {
+        if ($imagesOnly && !$file->isImage) {
             return false;
         }
 
@@ -243,10 +238,26 @@ class FileTree extends AbstractWidget
             return false;
         }
 
-        if (!$file->isGdImage && !$file->isSvgImage) {
+        if (!$file->isImage) {
             return \Image::getHtml($file->icon) . ' ' . $info;
         }
 
+        return $this->generateGalleryImage($model, $file, $info);
+    }
+
+    /**
+     * Generate a image for use as gallery listing.
+     *
+     * @param \FilesModel $model The file model in use.
+     *
+     * @param \File       $file  The image file being rendered.
+     *
+     * @param $info
+     *
+     * @return string
+     */
+    private function generateGalleryImage($model, $file, $info)
+    {
         $image = 'placeholder.png';
 
         if ($file->isSvgImage
