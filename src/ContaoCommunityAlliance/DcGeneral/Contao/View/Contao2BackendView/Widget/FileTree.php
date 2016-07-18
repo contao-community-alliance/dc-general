@@ -442,7 +442,7 @@ class FileTree extends AbstractWidget
             }
 
             foreach ($files as $model) {
-                $values[] = $mapFunc($model->uuid);
+                $values[] = call_user_func($mapFunc, $model->uuid);
             }
         }
 
