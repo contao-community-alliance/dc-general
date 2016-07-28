@@ -313,16 +313,7 @@ class ParentView extends BaseView
         $basicDefinition = $definition->getBasicDefinition();
 
         $headerButtons = array();
-        if ($this->isSelectModeActive()) {
-            $headerButtons['selectAll'] = sprintf(
-                '<label for="tl_select_trigger" class="tl_select_label">%s</label>
-                <input type="checkbox"
-                    id="tl_select_trigger"
-                    onclick="Backend.toggleCheckboxes(this)"
-                    class="tl_tree_checkbox" />',
-                $this->translate('selectAll', 'MSC')
-            );
-        } else {
+        if (!$this->isSelectModeActive()) {
             $dispatcher = $environment->getEventDispatcher();
 
             $objConfig = $this->getEnvironment()->getBaseConfigRegistry()->getBaseConfig();
