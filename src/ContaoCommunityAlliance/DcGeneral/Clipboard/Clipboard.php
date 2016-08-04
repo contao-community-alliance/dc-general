@@ -28,6 +28,8 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
  * Class Clipboard.
  *
  * Default implementation of the clipboard.
+ *
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class Clipboard implements ClipboardInterface
 {
