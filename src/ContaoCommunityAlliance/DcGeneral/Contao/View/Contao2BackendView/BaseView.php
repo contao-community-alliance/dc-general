@@ -31,6 +31,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
@@ -403,16 +404,26 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function paste(Action $action)
     {
-        $environment   = $this->getEnvironment();
+        $environment = $this->getEnvironment();
+        $clipboard   = $environment->getClipboard();
+
+        // Check if it is a simple create-paste of a single model, if so, redirect to edit view.
+        if ($this->isSimpleCreatePaste(
+            $clipboard,
+            $environment->getDataDefinition()->getBasicDefinition()->getDataProvider()
+        )) {
+            $event = new ActionEvent($environment, new Action('create'));
+            $environment->getEventDispatcher()->dispatch(DcGeneralEvents::ACTION, $event);
+            return $event->getResponse();
+        }
+
         $controller    = $environment->getController();
         $input         = $environment->getInputProvider();
-        $clipboard     = $environment->getClipboard();
         $after         = $this->modelIdFromParameter($input, 'after');
         $into          = $this->modelIdFromParameter($input, 'into');
         $parentModelId = $this->modelIdFromParameter($input, 'pid');
         $items         = array();
-
-        $models = $controller->applyClipboardActions(null, $after, $into, $parentModelId, null, $items);
+        $models        = $controller->applyClipboardActions(null, $after, $into, $parentModelId, null, $items);
 
         $clipboard
             ->clear()
@@ -430,6 +441,24 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         ViewHelpers::redirectHome($environment);
+    }
+
+    /**
+     * Test if the current paste action is a simple paste for the passed data provider.
+     *
+     * @param ClipboardInterface $clipboard The clipboard instance.
+     * @param string             $provider  The providername
+     *
+     * @return bool
+     */
+    private function isSimpleCreatePaste(ClipboardInterface $clipboard, $provider)
+    {
+        $filter = new Filter();
+        $all    = $clipboard->fetch($filter);
+        return (1 === count($all)
+            && $all[0]->isCreate()
+            && (null === $all[0]->getModelId())
+            && $all[0]->getDataProviderName() === $provider);
     }
 
     /**
