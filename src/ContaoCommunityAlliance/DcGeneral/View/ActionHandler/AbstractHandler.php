@@ -122,14 +122,27 @@ abstract class AbstractHandler
     protected function isEditOnlyResponse()
     {
         if ($this->getEnvironment()->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            $event = new ActionEvent($this->getEnvironment(), new Action('edit'));
-            $this->getEnvironment()->getEventDispatcher()->dispatch(DcGeneralEvents::ACTION, $event);
-            $this->getEvent()->setResponse($event->getResponse());
+            $this->callAction('edit');
 
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * Call a dc-general action (sub processing).
+     *
+     * @param string $actionName The action name.
+     * @param array  $arguments  The optional action arguments.
+     *
+     * @return void
+     */
+    protected function callAction($actionName, $arguments = array())
+    {
+        $event = new ActionEvent($this->getEnvironment(), new Action($actionName, $arguments));
+        $this->getEnvironment()->getEventDispatcher()->dispatch(DcGeneralEvents::ACTION, $event);
+        $this->getEvent()->setResponse($event->getResponse());
     }
 
     /**
