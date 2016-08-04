@@ -45,7 +45,7 @@ class CreateHandler extends AbstractHandler
         $event         = $this->getEvent();
         $action        = $event->getAction();
 
-        // Only handle if we does not have a manual sorting or we know where to insert.
+        // Only handle if we do not have a manual sorting or we know where to insert.
         // Manual sorting is handled by clipboard.
         if ($action->getName() !== 'create'
             || (ViewHelpers::getManualSortingProperty($environment)

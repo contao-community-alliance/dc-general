@@ -226,7 +226,7 @@ class TreeView extends BaseView
             // No parent item found, might have been deleted.
             // We transparently create it for our filter to be able to filter to nothing.
             $objParentItem = $objParentProvider->getEmptyModel();
-            $objParentItem->setID($parentId);
+            $objParentItem->setId($parentId);
         }
 
         return $objParentItem;
@@ -325,7 +325,7 @@ class TreeView extends BaseView
         foreach ($objCollection as $objModel) {
             /** @var ModelInterface $objModel */
 
-            $strToggleID = $objModel->getProviderName() . '_' . $treeClass . '_' . $objModel->getID();
+            $strToggleID = $objModel->getProviderName() . '_' . $treeClass . '_' . $objModel->getId();
 
             $arrHtml[] = $this->parseModel($objModel, $strToggleID);
 
