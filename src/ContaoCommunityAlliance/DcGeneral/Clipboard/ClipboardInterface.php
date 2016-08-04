@@ -95,7 +95,7 @@ interface ClipboardInterface
      *
      * @param ItemInterface $item The item.
      *
-     * @return static
+     * @return bool
      */
     public function has(ItemInterface $item);
 
@@ -104,7 +104,7 @@ interface ClipboardInterface
      *
      * @param ModelIdInterface $modelId The model id.
      *
-     * @return static
+     * @return bool
      */
     public function hasId(ModelIdInterface $modelId);
 
