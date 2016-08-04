@@ -48,7 +48,10 @@ class CreateHandler extends AbstractHandler
         // Only handle if we does not have a manual sorting or we know where to insert.
         // Manual sorting is handled by clipboard.
         if ($action->getName() !== 'create'
-            || (ViewHelpers::getManualSortingProperty($environment) && !$inputProvider->hasParameter('after'))) {
+            || (ViewHelpers::getManualSortingProperty($environment)
+                && !$inputProvider->hasParameter('after')
+                && !$inputProvider->hasParameter('into')
+            )) {
             return;
         }
 
