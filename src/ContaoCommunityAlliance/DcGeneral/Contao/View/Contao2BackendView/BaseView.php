@@ -406,9 +406,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $controller    = $environment->getController();
         $input         = $environment->getInputProvider();
         $clipboard     = $environment->getClipboard();
-        $source        = $input->getParameter('source')
-            ? IdSerializer::fromSerialized($input->getParameter('source'))
-            : null;
         $after         = $input->getParameter('after')
             ? IdSerializer::fromSerialized($input->getParameter('after'))
             : $input->getParameter('after');
@@ -420,13 +417,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             : null;
         $items         = array();
 
-        $models = $controller->applyClipboardActions($source, $after, $into, $parentModelId, null, $items);
+        $models = $controller->applyClipboardActions(null, $after, $into, $parentModelId, null, $items);
 
-        if (!$source) {
-            $clipboard
-                ->clear()
-                ->saveTo($environment);
-        }
+        $clipboard
+            ->clear()
+            ->saveTo($environment);
 
         /** @var ItemInterface[] $items */
         if (1 === count($items) && ItemInterface::CREATE === $items[0]->getAction()) {
