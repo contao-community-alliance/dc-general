@@ -66,14 +66,14 @@ interface LegendInterface
      *
      * @param bool $value The visibility state.
      *
-     * @return bool
+     * @return LegendInterface
      */
     public function setInitialVisibility($value);
 
     /**
      * Determine if this legend's initial state shall be expanded.
      *
-     * @return LegendInterface
+     * @return bool
      */
     public function isInitialVisible();
 
