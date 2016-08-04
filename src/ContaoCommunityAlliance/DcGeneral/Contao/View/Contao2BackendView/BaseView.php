@@ -54,6 +54,7 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -406,15 +407,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $controller    = $environment->getController();
         $input         = $environment->getInputProvider();
         $clipboard     = $environment->getClipboard();
-        $after         = $input->getParameter('after')
-            ? IdSerializer::fromSerialized($input->getParameter('after'))
-            : $input->getParameter('after');
-        $into          = $input->getParameter('into')
-            ? IdSerializer::fromSerialized($input->getParameter('into'))
-            : null;
-        $parentModelId = $input->getParameter('pid')
-            ? IdSerializer::fromSerialized($input->getParameter('pid'))
-            : null;
+        $after         = $this->modelIdFromParameter($input, 'after');
+        $into          = $this->modelIdFromParameter($input, 'into');
+        $parentModelId = $this->modelIdFromParameter($input, 'pid');
         $items         = array();
 
         $models = $controller->applyClipboardActions(null, $after, $into, $parentModelId, null, $items);
@@ -435,6 +430,23 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         ViewHelpers::redirectHome($environment);
+    }
+
+    /**
+     * Obtain the parameter with the given name from the input provider if it exists.
+     *
+     * @param InputProviderInterface $input The input provider.
+     * @param string                 $name  The parameter to retrieve.
+     *
+     * @return ModelId|null
+     */
+    private function modelIdFromParameter(InputProviderInterface $input, $name)
+    {
+        if ($input->hasParameter($name) && ($value = $input->getParameter($name))) {
+            return ModelId::fromSerialized($value);
+        }
+
+        return null;
     }
 
     /**
