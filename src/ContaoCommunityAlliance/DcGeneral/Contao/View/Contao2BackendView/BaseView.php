@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2016 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     cogizz <c.boelter@cogizz.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Martin Treml <github@r2pi.net>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @copyright  2013-2016 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -398,84 +398,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritdoc}
      *
-     * This performs redirectHome() upon successful execution and throws an exception otherwise.
+     * @throws \RuntimeException This method os not in use anymore.
      *
-     * @throws DcGeneralRuntimeException When invalid parameters are encountered.
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function paste(Action $action)
     {
-        $environment = $this->getEnvironment();
-        $clipboard   = $environment->getClipboard();
-
-        // Check if it is a simple create-paste of a single model, if so, redirect to edit view.
-        if ($this->isSimpleCreatePaste(
-            $clipboard,
-            $environment->getDataDefinition()->getBasicDefinition()->getDataProvider()
-        )) {
-            $event = new ActionEvent($environment, new Action('create'));
-            $environment->getEventDispatcher()->dispatch(DcGeneralEvents::ACTION, $event);
-            return $event->getResponse();
-        }
-
-        $controller    = $environment->getController();
-        $input         = $environment->getInputProvider();
-        $after         = $this->modelIdFromParameter($input, 'after');
-        $into          = $this->modelIdFromParameter($input, 'into');
-        $parentModelId = $this->modelIdFromParameter($input, 'pid');
-        $items         = array();
-        $models        = $controller->applyClipboardActions(null, $after, $into, $parentModelId, null, $items);
-
-        $clipboard
-            ->clear()
-            ->saveTo($environment);
-
-        /** @var ItemInterface[] $items */
-        if (1 === count($items) && ItemInterface::CREATE === $items[0]->getAction()) {
-            $addToUrlEvent = new AddToUrlEvent('act=edit&id=' . ModelId::fromModel($models->get(0))->getSerialized());
-            $environment->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $addToUrlEvent);
-
-            $redirectEvent = new RedirectEvent($addToUrlEvent->getUrl());
-            $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_REDIRECT, $redirectEvent);
-
-            return;
-        }
-
-        ViewHelpers::redirectHome($environment);
-    }
-
-    /**
-     * Test if the current paste action is a simple paste for the passed data provider.
-     *
-     * @param ClipboardInterface $clipboard The clipboard instance.
-     * @param string             $provider  The providername
-     *
-     * @return bool
-     */
-    private function isSimpleCreatePaste(ClipboardInterface $clipboard, $provider)
-    {
-        $filter = new Filter();
-        $all    = $clipboard->fetch($filter);
-        return (1 === count($all)
-            && $all[0]->isCreate()
-            && (null === $all[0]->getModelId())
-            && $all[0]->getDataProviderName() === $provider);
-    }
-
-    /**
-     * Obtain the parameter with the given name from the input provider if it exists.
-     *
-     * @param InputProviderInterface $input The input provider.
-     * @param string                 $name  The parameter to retrieve.
-     *
-     * @return ModelId|null
-     */
-    private function modelIdFromParameter(InputProviderInterface $input, $name)
-    {
-        if ($input->hasParameter($name) && ($value = $input->getParameter($name))) {
-            return ModelId::fromSerialized($value);
-        }
-
-        return null;
+        throw new \RuntimeException('I should not be here! :-\\');
     }
 
     /**
