@@ -508,6 +508,8 @@ class DefaultController implements ControllerInterface
 
     /**
      * {@inheritDoc}
+     *
+     * @throws \InvalidArgumentException When the model id is invalid.
      */
     public function fetchModelFromProvider($modelId, $providerName = null)
     {
@@ -517,6 +519,9 @@ class DefaultController implements ControllerInterface
             }
         } else {
             $modelId = ModelId::fromValues($providerName, $modelId);
+        }
+        if (!($modelId instanceof ModelIdInterface)) {
+            throw new \InvalidArgumentException('Invalid model id passed: ' . var_export($modelId, true));
         }
 
         $dataProvider = $this->getEnvironment()->getDataProvider($modelId->getDataProviderName());
