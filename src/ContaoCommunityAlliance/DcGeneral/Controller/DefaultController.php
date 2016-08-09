@@ -371,10 +371,15 @@ class DefaultController implements ControllerInterface
         }
         $environment = $this->getEnvironment();
         $input       = $environment->getInputProvider();
+        $properties  = $environment->getDataDefinition()->getPropertiesDefinition();
 
         foreach ($propertyValues as $property => $value) {
             try {
                 $model->setProperty($property, $value);
+                // If always save is true, we need to mark the model as changed.
+                if ($properties->getProperty($property)->getExtra()['alwaysSave']) {
+                    $model->setMeta($model::IS_CHANGED, true);
+                }
             } catch (\Exception $exception) {
                 $propertyValues->markPropertyValueAsInvalid($property, $exception->getMessage());
             }
