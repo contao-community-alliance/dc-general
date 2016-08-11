@@ -107,16 +107,6 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
     }
 
     /**
-     * Delete all children.
-     *
-     * @return void
-     */
-    protected function deleteChildren()
-    {
-        // Not yet impl.
-    }
-
-    /**
      * Delete an model.
      *
      * @param ModelIdInterface $modelId The model id.
@@ -138,8 +128,6 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
         // Trigger event before the model will be deleted.
         $event = new PreDeleteModelEvent($this->getEnvironment(), $model);
         $environment->getEventDispatcher()->dispatch($event::NAME, $event);
-
-        $this->deleteChildren();
 
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
         $dataProvider->delete($model);

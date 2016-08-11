@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2016 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     cogizz <c.boelter@cogizz.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Martin Treml <github@r2pi.net>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @copyright  2013-2016 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -31,6 +31,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
@@ -54,6 +55,7 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -396,50 +398,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritdoc}
      *
-     * This performs redirectHome() upon successful execution and throws an exception otherwise.
+     * @throws \RuntimeException This method os not in use anymore.
      *
-     * @throws DcGeneralRuntimeException When invalid parameters are encountered.
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function paste(Action $action)
     {
-        $environment   = $this->getEnvironment();
-        $controller    = $environment->getController();
-        $input         = $environment->getInputProvider();
-        $clipboard     = $environment->getClipboard();
-        $source        = $input->getParameter('source')
-            ? IdSerializer::fromSerialized($input->getParameter('source'))
-            : null;
-        $after         = $input->getParameter('after')
-            ? IdSerializer::fromSerialized($input->getParameter('after'))
-            : $input->getParameter('after');
-        $into          = $input->getParameter('into')
-            ? IdSerializer::fromSerialized($input->getParameter('into'))
-            : null;
-        $parentModelId = $input->getParameter('pid')
-            ? IdSerializer::fromSerialized($input->getParameter('pid'))
-            : null;
-        $items         = array();
-
-        $models = $controller->applyClipboardActions($source, $after, $into, $parentModelId, null, $items);
-
-        if (!$source) {
-            $clipboard
-                ->clear()
-                ->saveTo($environment);
-        }
-
-        /** @var ItemInterface[] $items */
-        if (1 === count($items) && ItemInterface::CREATE === $items[0]->getAction()) {
-            $addToUrlEvent = new AddToUrlEvent('act=edit&id=' . ModelId::fromModel($models->get(0))->getSerialized());
-            $environment->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $addToUrlEvent);
-
-            $redirectEvent = new RedirectEvent($addToUrlEvent->getUrl());
-            $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_REDIRECT, $redirectEvent);
-
-            return;
-        }
-
-        ViewHelpers::redirectHome($environment);
+        throw new \RuntimeException('I should not be here! :-\\');
     }
 
     /**

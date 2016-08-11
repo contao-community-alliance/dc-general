@@ -371,10 +371,17 @@ class DefaultController implements ControllerInterface
         }
         $environment = $this->getEnvironment();
         $input       = $environment->getInputProvider();
+        $properties  = $environment->getDataDefinition()->getPropertiesDefinition();
 
         foreach ($propertyValues as $property => $value) {
             try {
                 $model->setProperty($property, $value);
+                // If always save is true, we need to mark the model as changed.
+                if ($properties->hasProperty($property)
+                    && isset($properties->getProperty($property)->getExtra()['alwaysSave'])
+                ) {
+                    $model->setMeta($model::IS_CHANGED, true);
+                }
             } catch (\Exception $exception) {
                 $propertyValues->markPropertyValueAsInvalid($property, $exception->getMessage());
             }
@@ -508,6 +515,8 @@ class DefaultController implements ControllerInterface
 
     /**
      * {@inheritDoc}
+     *
+     * @throws \InvalidArgumentException When the model id is invalid.
      */
     public function fetchModelFromProvider($modelId, $providerName = null)
     {
@@ -517,6 +526,9 @@ class DefaultController implements ControllerInterface
             }
         } else {
             $modelId = ModelId::fromValues($providerName, $modelId);
+        }
+        if (!($modelId instanceof ModelIdInterface)) {
+            throw new \InvalidArgumentException('Invalid model id passed: ' . var_export($modelId, true));
         }
 
         $dataProvider = $this->getEnvironment()->getDataProvider($modelId->getDataProviderName());

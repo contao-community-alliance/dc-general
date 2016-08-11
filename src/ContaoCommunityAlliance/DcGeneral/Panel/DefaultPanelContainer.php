@@ -33,14 +33,14 @@ class DefaultPanelContainer implements PanelContainerInterface
      *
      * @var EnvironmentInterface
      */
-    protected $objEnvironment;
+    private $objEnvironment;
 
     /**
      * The panels contained within this container.
      *
      * @var PanelInterface[]
      */
-    protected $arrPanels = array();
+    private $arrPanels = array();
 
     /**
      * {@inheritdoc}

@@ -124,7 +124,7 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
      */
     protected function redirect($environment, $copiedModelId)
     {
-        // Build a clean url to remove the copy related arguments instad of using the AddToUrlEvent.
+        // Build a clean url to remove the copy related arguments instead of using the AddToUrlEvent.
         $url = new BackendUrlBuilder();
         $url
             ->setPath('contao/main.php')
