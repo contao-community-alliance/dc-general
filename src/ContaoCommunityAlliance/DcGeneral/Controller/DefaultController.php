@@ -378,7 +378,7 @@ class DefaultController implements ControllerInterface
                 $model->setProperty($property, $value);
                 // If always save is true, we need to mark the model as changed.
                 if ($properties->hasProperty($property)
-                    && isset($properties->getProperty($property)->getExtra()['alwaysSave'])
+                    && null !== $properties->getProperty($property)->getExtra()['alwaysSave']
                 ) {
                     $model->setMeta($model::IS_CHANGED, true);
                 }
