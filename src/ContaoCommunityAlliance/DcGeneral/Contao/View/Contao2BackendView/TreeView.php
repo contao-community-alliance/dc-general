@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2016 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @copyright  2013-2016 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -226,7 +226,7 @@ class TreeView extends BaseView
             // No parent item found, might have been deleted.
             // We transparently create it for our filter to be able to filter to nothing.
             $objParentItem = $objParentProvider->getEmptyModel();
-            $objParentItem->setID($parentId);
+            $objParentItem->setId($parentId);
         }
 
         return $objParentItem;
@@ -325,7 +325,7 @@ class TreeView extends BaseView
         foreach ($objCollection as $objModel) {
             /** @var ModelInterface $objModel */
 
-            $strToggleID = $objModel->getProviderName() . '_' . $treeClass . '_' . $objModel->getID();
+            $strToggleID = $objModel->getProviderName() . '_' . $treeClass . '_' . $objModel->getId();
 
             $arrHtml[] = $this->parseModel($objModel, $strToggleID);
 
@@ -511,23 +511,6 @@ class TreeView extends BaseView
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public function paste(Action $action)
-    {
-        $environment = $this->getEnvironment();
-        $input       = $environment->getInputProvider();
-
-        // If destination is known, perform normal paste.
-        if ($input->hasParameter('after') || $input->hasParameter('into')) {
-            parent::paste($action);
-        }
-
-        // Show the target selection tree otherwise.
-        return $this->showAll($action);
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function showAll(Action $action)
@@ -565,6 +548,7 @@ class TreeView extends BaseView
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     * @SuppressWarnings(PHPMD.ExitExpression)
      */
     public function handleAjaxCall()
     {

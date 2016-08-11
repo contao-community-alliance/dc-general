@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2016 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2016 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -67,6 +68,27 @@ class FileTree extends AbstractWidget
     protected $orderFieldValue;
 
     /**
+     * The default width of the thumbnail.
+     *
+     * @var int
+     */
+    protected $thumbnailHeight = 80;
+
+    /**
+     * The default height of the thumbnail.
+     *
+     * @var int
+     */
+    protected $thumbnailWidth = 60;
+
+    /**
+     * The default placeholder image.
+     *
+     * @var string
+     */
+    protected $placeholderImage = 'placeholder.png';
+
+    /**
      * Create a new instance.
      *
      * @param array|null    $attributes    The custom attributes.
@@ -78,6 +100,84 @@ class FileTree extends AbstractWidget
         parent::__construct($attributes, $dataContainer);
 
         $this->setUp();
+    }
+
+    /**
+     * Set an object property
+     *
+     * @param string $strKey   The property name.
+     *
+     * @param mixed  $varValue The property value.
+     *
+     * @return void
+     */
+    public function __set($strKey, $varValue)
+    {
+        switch ($strKey) {
+            case 'thumbnailHeight':
+                $this->thumbnailHeight = $varValue;
+                break;
+
+            case 'thumbnailWidth':
+                $this->thumbnailWidth = $varValue;
+                break;
+
+            case 'placeholderImage':
+                $this->placeholderImage = $varValue;
+                break;
+
+            default:
+                parent::__set($strKey, $varValue);
+                break;
+        }
+    }
+
+    /**
+     * Return an object property
+     *
+     * @param string $strKey The property name.
+     *
+     * @return string The property value
+     */
+    public function __get($strKey)
+    {
+        switch ($strKey) {
+            case 'thumbnailHeight':
+                return $this->thumbnailHeight;
+
+            case 'thumbnailWidth':
+                return $this->thumbnailWidth;
+
+            case 'placeholderImage':
+                return $this->placeholderImage;
+            default:
+        }
+
+        return parent::__get($strKey);
+    }
+
+    /**
+     * Check whether an object property exists
+     *
+     * @param string $strKey The property name.
+     *
+     * @return boolean True if the property exists
+     */
+    public function __isset($strKey)
+    {
+        switch ($strKey) {
+            case 'thumbnailHeight':
+                return isset($this->thumbnailHeight);
+
+            case 'thumbnailWidth':
+                return isset($this->thumbnailWidth);
+
+            case 'placeholderImage':
+                return isset($this->placeholderImage);
+
+            default:
+                return parent::__get($strKey);
+        }
     }
 
     /**
@@ -142,14 +242,13 @@ class FileTree extends AbstractWidget
     /**
      * Render the file list.
      *
-     * @param array           $values        The selected values.
      * @param array           $icons         The generated icons.
      * @param Collection|null $collection    The files collection.
      * @param bool            $followSubDirs If true subfolders get rendered.
      *
      * @return void
      */
-    private function renderList(array &$values, array &$icons, Collection $collection = null, $followSubDirs = false)
+    private function renderList(array &$icons, Collection $collection = null, $followSubDirs = false)
     {
         if (!$collection) {
             return;
@@ -161,19 +260,12 @@ class FileTree extends AbstractWidget
                 continue;
             }
 
-            $values[$model->id] = $model->uuid;
-
-            if ($this->isGallery && !$this->isDownloads) {
-                $icons[$model->uuid] = $this->renderIcon($model);
-            } elseif ($model->type === 'folder' && $followSubDirs) {
-                $subCollection = \FilesModel::findByPid($model->uuid);
-                $this->renderList($values, $icons, $subCollection);
-            } else {
-                $icon = $this->renderIcon($model, $this->isGallery, $this->isDownloads);
-
-                if ($icon !== false) {
-                    $icons[$model->uuid] = $icon;
-                }
+            if (('folder' === $model->type) && $followSubDirs) {
+                $this->renderList($icons, \FilesModel::findByPid($model->uuid));
+                continue;
+            }
+            if (false !== ($icon = $this->renderIcon($model, $this->isGallery, $this->isDownloads))) {
+                $icons[$model->uuid] = $icon;
             }
         }
     }
@@ -234,7 +326,7 @@ class FileTree extends AbstractWidget
         $file = new \File($model->path, true);
         $info = $this->renderFileInfo($file);
 
-        if ($imagesOnly && !($file->isGdImage || $file->isSvgImage)) {
+        if ($imagesOnly && !$file->isImage) {
             return false;
         }
 
@@ -246,16 +338,34 @@ class FileTree extends AbstractWidget
             return false;
         }
 
-        if (!$file->isGdImage && !$file->isSvgImage) {
+        if (!$file->isImage) {
             return \Image::getHtml($file->icon) . ' ' . $info;
         }
 
-        $image = 'placeholder.png';
+        return $this->generateGalleryImage($model, $file, $info);
+    }
+
+    /**
+     * Generate a image for use as gallery listing.
+     *
+     * @param \FilesModel $model The file model in use.
+     *
+     * @param \File       $file  The image file being rendered.
+     *
+     * @param $info
+     *
+     * @return string
+     */
+    private function generateGalleryImage($model, $file, $info)
+    {
+        $image = $this->placeholderImage;
 
         if ($file->isSvgImage
             || $file->height <= \Config::get('gdMaxImgHeight') && $file->width <= \Config::get('gdMaxImgWidth')
         ) {
-            $image = \Image::get($model->path, 80, 60, 'center_center');
+            $width  = min($file->width, $this->thumbnailWidth);
+            $height = min($file->height, $this->thumbnailHeight);
+            $image  = \Image::get($model->path, $width, $height, 'center_center');
         }
 
         return \Image::getHtml($image, '', 'class="gimage" title="' . specialchars($info) . '"');
@@ -293,21 +403,13 @@ class FileTree extends AbstractWidget
     /**
      * Generate the adjust selection link.
      *
-     * @param array $values The selected files.
+     * @param array $values The selected files (string uuids).
      *
      * @return string
      */
     private function generateLink($values)
     {
         $inputProvider = $this->getEnvironment()->getInputProvider();
-
-        // Contao passed File ids sinc 3.3.4
-        // @see https://github.com/contao/core/commit/c1472209fdfd6e2446013430753ed65530b5a1d1
-        if (version_compare(VERSION . '.' . BUILD, '3.3.4', '>=')) {
-            $values = array_keys($values);
-        } else {
-            $values = array_map('String::binToUuid', $values);
-        }
 
         return sprintf(
             'contao/file.php?do=%s&amp;table=%s&amp;field=%s&amp;act=show&amp;id=%s&amp;value=%s&amp;rt=%s',
@@ -330,15 +432,18 @@ class FileTree extends AbstractWidget
 
         if (!empty($this->varValue)) {
             $files = \FilesModel::findMultipleByUuids((array) $this->varValue);
-            $this->renderList($values, $icons, $files, ($this->isGallery || $this->isDownloads));
+            $this->renderList($icons, $files, ($this->isGallery || $this->isDownloads));
             $icons = $this->applySorting($icons);
-        }
+            // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
+            if (version_compare(VERSION . '.' . BUILD, '3.5.5', '>=')) {
+                $mapFunc = 'StringUtil::binToUuid';
+            } else {
+                $mapFunc = 'String::binToUuid';
+            }
 
-        // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
-        if (version_compare(VERSION . '.' . BUILD, '3.5.5', '>=')) {
-            $mapFunc = 'StringUtil::binToUuid';
-        } else {
-            $mapFunc = 'String::binToUuid';
+            foreach ($files as $model) {
+                $values[] = call_user_func($mapFunc, $model->uuid);
+            }
         }
 
         $template = new ContaoBackendViewTemplate($this->subTemplate);
@@ -346,7 +451,7 @@ class FileTree extends AbstractWidget
             ->setTranslator($this->getEnvironment()->getTranslator())
             ->set('name', $this->strName)
             ->set('id', $this->strId)
-            ->set('value', implode(',', array_map($mapFunc, $values)))
+            ->set('value', implode(',', $values))
             ->set('hasOrder', ($this->orderField != '' && is_array($this->orderFieldValue)))
             ->set('icons', $icons)
             ->set('isGallery', $this->isGallery)

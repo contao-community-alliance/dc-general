@@ -39,7 +39,7 @@
         "contao-community-alliance/translator": "~2.0",
         "contao-community-alliance/events-contao-bindings": ">=2.0,<4-dev",
         "contao-community-alliance/url-builder": "~1.1",
-        "symfony/expression-language": "~2.4"
+        "symfony/expression-language": "~2.4 | ~3.0"
     },
     "require-dev": {
         "phpcq/all-tasks": "~1.1",

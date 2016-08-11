@@ -32,14 +32,14 @@ class DefaultPanel implements PanelInterface
      *
      * @var PanelContainerInterface
      */
-    protected $objContainer;
+    private $objContainer;
 
     /**
      * The elements contained within this panel.
      *
      * @var PanelElementInterface[]
      */
-    protected $arrElements;
+    private $arrElements;
 
     /**
      * Create a new instance.

@@ -313,41 +313,83 @@ class ParentView extends BaseView
         $basicDefinition = $definition->getBasicDefinition();
 
         $headerButtons = array();
-        if ($this->isSelectModeActive()) {
-            $headerButtons['selectAll'] = sprintf(
-                '<label for="tl_select_trigger" class="tl_select_label">%s</label>
-                <input type="checkbox"
-                    id="tl_select_trigger"
-                    onclick="Backend.toggleCheckboxes(this)"
-                    class="tl_tree_checkbox" />',
-                $this->translate('selectAll', 'MSC')
-            );
+        if (!$this->isSelectModeActive()) {
+            return '';
+        }
+
+        $dispatcher = $environment->getEventDispatcher();
+
+        $objConfig = $this->getEnvironment()->getBaseConfigRegistry()->getBaseConfig();
+        $this->getPanel()->initialize($objConfig);
+        $sorting = $objConfig->getSorting();
+
+        $headerButtons['editHeader'] = $this->getHeaderEditButtons($parentModel);
+
+        $filter = new Filter();
+        $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
+        if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
+            $filter->andParentIsFromProvider($parentDataProviderName);
         } else {
-            $dispatcher = $environment->getEventDispatcher();
+            $filter->andHasNoParent();
+        }
 
-            $objConfig = $this->getEnvironment()->getBaseConfigRegistry()->getBaseConfig();
-            $this->getPanel()->initialize($objConfig);
-            $sorting = $objConfig->getSorting();
+        if ($sorting
+            && $clipboard->isEmpty($filter)
+            && $basicDefinition->isCreatable()
+        ) {
+            /** @var AddToUrlEvent $urlEvent */
+            $urlEvent = $dispatcher->dispatch(
+                ContaoEvents::BACKEND_ADD_TO_URL,
+                new AddToUrlEvent(
+                    'act=edit&amp;pid=' . ModelId::fromModel($parentModel)->getSerialized()
+                )
+            );
 
-            $headerButtons['editHeader'] = $this->getHeaderEditButtons($parentModel);
+            /** @var GenerateHtmlEvent $imageEvent */
+            $imageEvent = $dispatcher->dispatch(
+                ContaoEvents::IMAGE_GET_HTML,
+                new GenerateHtmlEvent(
+                    'new.gif',
+                    $this->translate('pastenew.0', $definition->getName())
+                )
+            );
 
-            $filter = new Filter();
-            $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
-            if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
-                $filter->andParentIsFromProvider($parentDataProviderName);
-            } else {
-                $filter->andHasNoParent();
+            $headerButtons['pasteNew'] = sprintf(
+                '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
+                $urlEvent->getUrl(),
+                specialchars($this->translate('pastenew.1', $definition->getName())),
+                $imageEvent->getHtml()
+            );
+        }
+
+        $filter = new Filter();
+        $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
+        $filter->andParentIsFromProvider($basicDefinition->getParentDataProvider());
+
+        if ($sorting && $clipboard->isNotEmpty($filter)) {
+            $allowPasteTop = ViewHelpers::getManualSortingProperty($this->environment);
+
+            if (!$allowPasteTop) {
+                $subFilter = new Filter();
+                $subFilter->andActionIsNotIn(array(ItemInterface::COPY, ItemInterface::DEEP_COPY));
+                $subFilter->andParentIsNot(ModelId::fromModel($parentModel));
+                $subFilter->orActionIsIn(array(ItemInterface::COPY, ItemInterface::DEEP_COPY));
+
+                $filter = new Filter();
+                $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
+                $filter->andParentIsFromProvider($basicDefinition->getParentDataProvider());
+                $filter->andSub($subFilter);
+
+                $allowPasteTop = (bool) $clipboard->fetch($filter);
             }
 
-            if ($sorting
-                && $clipboard->isEmpty($filter)
-                && $basicDefinition->isCreatable()
-            ) {
+            if ($allowPasteTop) {
                 /** @var AddToUrlEvent $urlEvent */
                 $urlEvent = $dispatcher->dispatch(
                     ContaoEvents::BACKEND_ADD_TO_URL,
                     new AddToUrlEvent(
-                        'act=edit&amp;pid=' . ModelId::fromModel($parentModel)->getSerialized()
+                        'act=paste' .
+                        '&amp;pid=' . ModelId::fromModel($parentModel)->getSerialized()
                     )
                 );
 
@@ -355,79 +397,30 @@ class ParentView extends BaseView
                 $imageEvent = $dispatcher->dispatch(
                     ContaoEvents::IMAGE_GET_HTML,
                     new GenerateHtmlEvent(
-                        'new.gif',
-                        $this->translate('pastenew.0', $definition->getName())
+                        'pasteafter.gif',
+                        $this->translate('pasteafter.0', $definition->getName()),
+                        'class="blink"'
                     )
                 );
 
-                $headerButtons['pasteNew'] = sprintf(
+                $headerButtons['pasteAfter'] = sprintf(
                     '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
                     $urlEvent->getUrl(),
-                    specialchars($this->translate('pastenew.1', $definition->getName())),
+                    specialchars($this->translate('pasteafter.0', $definition->getName())),
                     $imageEvent->getHtml()
                 );
-            }
+            } else {
+                /** @var GenerateHtmlEvent $imageEvent */
+                $imageEvent = $dispatcher->dispatch(
+                    ContaoEvents::IMAGE_GET_HTML,
+                    new GenerateHtmlEvent(
+                        'pasteafter_.gif',
+                        $this->translate('pasteafter.0', $definition->getName()),
+                        'class="blink"'
+                    )
+                );
 
-            $filter = new Filter();
-            $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
-            $filter->andParentIsFromProvider($basicDefinition->getParentDataProvider());
-
-            if ($sorting && $clipboard->isNotEmpty($filter)) {
-                $allowPasteTop = ViewHelpers::getManualSortingProperty($this->environment);
-
-                if (!$allowPasteTop) {
-                    $subFilter = new Filter();
-                    $subFilter->andActionIsNotIn(array(ItemInterface::COPY, ItemInterface::DEEP_COPY));
-                    $subFilter->andParentIsNot(ModelId::fromModel($parentModel));
-                    $subFilter->orActionIsIn(array(ItemInterface::COPY, ItemInterface::DEEP_COPY));
-
-                    $filter = new Filter();
-                    $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
-                    $filter->andParentIsFromProvider($basicDefinition->getParentDataProvider());
-                    $filter->andSub($subFilter);
-
-                    $allowPasteTop = (bool) $clipboard->fetch($filter);
-                }
-
-                if ($allowPasteTop) {
-                    /** @var AddToUrlEvent $urlEvent */
-                    $urlEvent = $dispatcher->dispatch(
-                        ContaoEvents::BACKEND_ADD_TO_URL,
-                        new AddToUrlEvent(
-                            'act=paste' .
-                            '&amp;pid=' . ModelId::fromModel($parentModel)->getSerialized()
-                        )
-                    );
-
-                    /** @var GenerateHtmlEvent $imageEvent */
-                    $imageEvent = $dispatcher->dispatch(
-                        ContaoEvents::IMAGE_GET_HTML,
-                        new GenerateHtmlEvent(
-                            'pasteafter.gif',
-                            $this->translate('pasteafter.0', $definition->getName()),
-                            'class="blink"'
-                        )
-                    );
-
-                    $headerButtons['pasteAfter'] = sprintf(
-                        '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
-                        $urlEvent->getUrl(),
-                        specialchars($this->translate('pasteafter.0', $definition->getName())),
-                        $imageEvent->getHtml()
-                    );
-                } else {
-                    /** @var GenerateHtmlEvent $imageEvent */
-                    $imageEvent = $dispatcher->dispatch(
-                        ContaoEvents::IMAGE_GET_HTML,
-                        new GenerateHtmlEvent(
-                            'pasteafter_.gif',
-                            $this->translate('pasteafter.0', $definition->getName()),
-                            'class="blink"'
-                        )
-                    );
-
-                    $headerButtons['pasteAfter'] = $imageEvent->getHtml();
-                }
+                $headerButtons['pasteAfter'] = $imageEvent->getHtml();
             }
         }
 
