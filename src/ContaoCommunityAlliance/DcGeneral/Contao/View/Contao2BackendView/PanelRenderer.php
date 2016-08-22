@@ -71,12 +71,11 @@ class PanelRenderer
      */
     protected function renderPanelElement($element, $cssClass)
     {
-        $environment    = $this->getEnvironment();
-        $dispatcher     = $environment->getEventDispatcher();
-        $definitionName = $environment->getDataDefinition()->getName();
+        $environment = $this->getEnvironment();
+        $dispatcher  = $environment->getEventDispatcher();
 
         $event = new GetPanelElementTemplateEvent($environment, $element);
-        $dispatcher->dispatch($event::NAME, $event, array($definitionName));
+        $dispatcher->dispatch($event::NAME, $event);
 
         $template = $event->getTemplate();
 
