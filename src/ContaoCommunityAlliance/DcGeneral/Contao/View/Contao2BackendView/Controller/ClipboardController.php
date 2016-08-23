@@ -160,7 +160,7 @@ class ClipboardController implements EventSubscriberInterface
         }
 
         if ('create' === $actionName) {
-            if (!$this->isAddingAllowed($environment)) {
+            if ($this->isAddingAllowed($environment)) {
                 return;
             }
 
