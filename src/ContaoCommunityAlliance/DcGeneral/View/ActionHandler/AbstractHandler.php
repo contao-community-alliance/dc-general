@@ -140,8 +140,13 @@ abstract class AbstractHandler
      */
     protected function callAction($actionName, $arguments = array())
     {
-        $event = new ActionEvent($this->getEnvironment(), new Action($actionName, $arguments));
+        // Keep the event as we might get called recursively.
+        $keepEvent = $this->event;
+        $event     = new ActionEvent($this->getEnvironment(), new Action($actionName, $arguments));
         $this->getEnvironment()->getEventDispatcher()->dispatch(DcGeneralEvents::ACTION, $event);
+        // Restore the event as we might get called recursively.
+        $this->event = $keepEvent;
+
         $this->getEvent()->setResponse($event->getResponse());
     }
 
