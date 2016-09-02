@@ -574,7 +574,7 @@ class ButtonRenderer
                 $dataProvider
                     ->getEmptyConfig()
                     ->setId($model->getId())
-                    ->setFields($command->getToggleProperty())
+                    ->setFields(array($command->getToggleProperty()))
             );
             $dataProvider->setCurrentLanguage($language);
         } else {
