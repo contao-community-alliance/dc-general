@@ -87,7 +87,6 @@ class PanelRenderer
         $element->render($template);
 
         return $template->parse();
-
     }
 
     /**
