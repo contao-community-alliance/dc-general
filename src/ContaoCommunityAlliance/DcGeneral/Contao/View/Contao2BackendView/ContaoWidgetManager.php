@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2016 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,8 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2016 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -67,8 +68,6 @@ class ContaoWidgetManager
     {
         $this->environment = $environment;
         $this->model       = $model;
-
-        $this->preLoadRichTextEditor();
     }
 
     /**
@@ -149,12 +148,21 @@ class ContaoWidgetManager
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    public function preLoadRichTextEditor()
+    public function loadRichTextEditor()
     {
-        foreach ($this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getProperties(
-        ) as $property) {
+        $environment          = $this->getEnvironment();
+        $dataDefinition       = $environment->getDataDefinition();
+        $propertiesDefinition = $dataDefinition->getPropertiesDefinition();
+        $palettesDefinition   = $dataDefinition->getPalettesDefinition();
+
+
+        $palettes = $palettesDefinition->findPalette($this->model);
+
+        $properties = $palettes->getProperties($this->model);
+
+        foreach ($properties as $property) {
             /** @var PropertyInterface $property */
-            $extra = $property->getExtra();
+            $extra = $propertiesDefinition->getProperty($property->getName())->getExtra();
 
             if (!isset($extra['rte'])) {
                 continue;
@@ -189,7 +197,7 @@ class ContaoWidgetManager
                 $updateMode = ob_get_contents();
                 ob_end_clean();
 
-                $GLOBALS['TL_MOOTOOLS'][] = $updateMode;
+                $GLOBALS['TL_MOOTOOLS'][$extra['rte']] = $updateMode;
             }
         }
     }
@@ -402,6 +410,8 @@ class ContaoWidgetManager
         );
 
         $buffer = $objTemplateFoo->parse();
+
+        $this->loadRichTextEditor();
 
         if (version_compare(VERSION, '3.3', '<')
             && isset($propExtra['rte'])
