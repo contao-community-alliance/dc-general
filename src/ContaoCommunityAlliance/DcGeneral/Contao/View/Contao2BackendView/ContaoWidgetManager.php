@@ -141,14 +141,17 @@ class ContaoWidgetManager
     /**
      * Function for pre-loading the tiny mce.
      *
-     * @return void
+     * @param $buffer string The widget.
+     *
+     * @return string The widget.
      *
      * @throws \Exception When the rich text editor config file can not be found.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
-    public function loadRichTextEditor()
+    public function loadRichTextEditor($buffer)
     {
         $environment          = $this->getEnvironment();
         $dataDefinition       = $environment->getDataDefinition();
@@ -182,6 +185,12 @@ class ContaoWidgetManager
                     'file' => $file,
                     'type' => $type
                 );
+
+                $propertyId = 'ctrl_' . $property->getName();
+
+                $buffer .= <<<EOF
+<script>tinyMCE.execCommand('mceAddControl', false, '{$propertyId}');$('{$propertyId}').erase('required');</script>
+EOF;
             } else {
                 if (!file_exists(TL_ROOT . '/system/config/' . $file . '.php')) {
                     throw new \Exception(sprintf('Cannot find editor configuration file "%s.php"', $file));
@@ -200,6 +209,8 @@ class ContaoWidgetManager
                 $GLOBALS['TL_MOOTOOLS'][$extra['rte']] = $updateMode;
             }
         }
+
+        return $buffer;
     }
 
     /**
@@ -379,13 +390,13 @@ class ContaoWidgetManager
             $reflection = new \ReflectionProperty(get_class($widget), 'strClass');
             $reflection->setAccessible(true);
             $reflection->setValue($widget, str_replace('error', '', $reflection->getValue($widget)));
-        } else {
-            if ($inputValues && $inputValues->hasPropertyValue($property)
-                && $inputValues->isPropertyValueInvalid($property)
-            ) {
-                foreach ($inputValues->getPropertyValueErrors($property) as $error) {
-                    $widget->addError($error);
-                }
+        }
+
+        if (!$ignoreErrors && $inputValues && $inputValues->hasPropertyValue($property)
+            && $inputValues->isPropertyValueInvalid($property)
+        ) {
+            foreach ($inputValues->getPropertyValueErrors($property) as $error) {
+                $widget->addError($error);
             }
         }
 
@@ -411,20 +422,7 @@ class ContaoWidgetManager
 
         $buffer = $objTemplateFoo->parse();
 
-        $this->loadRichTextEditor();
-
-        if (version_compare(VERSION, '3.3', '<')
-            && isset($propExtra['rte'])
-            && strncmp($propExtra['rte'], 'tiny', 4) === 0
-        ) {
-            $propertyId = 'ctrl_' . $property;
-
-            $buffer .= <<<EOF
-<script>tinyMCE.execCommand('mceAddControl', false, '{$propertyId}');$('{$propertyId}').erase('required');</script>
-EOF;
-        }
-
-        return $buffer;
+        return $this->loadRichTextEditor($buffer);
     }
 
     /**
