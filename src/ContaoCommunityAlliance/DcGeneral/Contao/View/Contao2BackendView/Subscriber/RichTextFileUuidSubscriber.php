@@ -84,8 +84,15 @@ class RichTextFileUuidSubscriber implements EventSubscriberInterface
             return;
         }
 
+        // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
+        if (version_compare(VERSION . '.' . BUILD, '3.5.5', '>=')) {
+            $value = StringUtil::srcToInsertTag($event->getValue());
+        } else {
+            $value = String::srcToInsertTag($event->getValue());
+        }
+
         $event->setValue(
-            StringUtil::srcToInsertTag($event->getValue())
+            $value
         );
     }
 
