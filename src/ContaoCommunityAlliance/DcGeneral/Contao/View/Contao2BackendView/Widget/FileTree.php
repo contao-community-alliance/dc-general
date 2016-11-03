@@ -227,14 +227,7 @@ class FileTree extends AbstractWidget
             return '';
         }
 
-        // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
-        if (version_compare(VERSION . '.' . BUILD, '3.5.5', '>=')) {
-            $mapFunc = 'StringUtil::uuidToBin';
-        } else {
-            $mapFunc = 'String::uuidToBin';
-        }
-
-        $inputValue = array_map($mapFunc, array_filter(explode(',', $inputValue)));
+        $inputValue = array_map('\Contao\StringUtil::uuidToBin', array_filter(explode(',', $inputValue)));
 
         return $this->multiple ? $inputValue : $inputValue[0];
     }
@@ -434,15 +427,9 @@ class FileTree extends AbstractWidget
             $files = \FilesModel::findMultipleByUuids((array) $this->varValue);
             $this->renderList($icons, $files, ($this->isGallery || $this->isDownloads));
             $icons = $this->applySorting($icons);
-            // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
-            if (version_compare(VERSION . '.' . BUILD, '3.5.5', '>=')) {
-                $mapFunc = 'StringUtil::binToUuid';
-            } else {
-                $mapFunc = 'String::binToUuid';
-            }
 
             foreach ($files as $model) {
-                $values[] = call_user_func($mapFunc, $model->uuid);
+                $values[] = call_user_func('\Contao\StringUtil::binToUuid', $model->uuid);
             }
         }
 

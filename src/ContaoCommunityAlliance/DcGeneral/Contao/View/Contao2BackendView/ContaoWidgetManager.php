@@ -168,29 +168,21 @@ class ContaoWidgetManager
 
             $selector = 'ctrl_' . $property->getName();
 
-            if (version_compare(VERSION, '3.3', '<')) {
-                $GLOBALS['TL_RTE'][$file][$selector] = array(
-                    'id'   => $selector,
-                    'file' => $file,
-                    'type' => $type
-                );
-            } else {
-                if (!file_exists(TL_ROOT . '/system/config/' . $file . '.php')) {
-                    throw new \Exception(sprintf('Cannot find editor configuration file "%s.php"', $file));
-                }
-
-                if (strncmp($extra['rte'], 'tiny', 4) !== 0) {
-                    // Backwards compatibility
-                    $language = \Backend::getTinyMceLanguage();
-                }
-
-                ob_start();
-                include TL_ROOT . '/system/config/' . $file . '.php';
-                $updateMode = ob_get_contents();
-                ob_end_clean();
-
-                $GLOBALS['TL_MOOTOOLS'][] = $updateMode;
+            if (!file_exists(TL_ROOT . '/system/config/' . $file . '.php')) {
+                throw new \Exception(sprintf('Cannot find editor configuration file "%s.php"', $file));
             }
+
+            if (strncmp($extra['rte'], 'tiny', 4) !== 0) {
+                // Backwards compatibility
+                $language = \Backend::getTinyMceLanguage();
+            }
+
+            ob_start();
+            include TL_ROOT . '/system/config/' . $file . '.php';
+            $updateMode = ob_get_contents();
+            ob_end_clean();
+
+            $GLOBALS['TL_MOOTOOLS'][] = $updateMode;
         }
     }
 
@@ -257,59 +249,28 @@ class ContaoWidgetManager
         $translator = $this->getEnvironment()->getTranslator();
         $strFormat  = $GLOBALS['TL_CONFIG'][$objWidget->rgxp . 'Format'];
 
-        $arrConfig = array(
-            'allowEmpty'        => true,
-            'toggleElements'    => '#toggle_' . $objWidget->id,
-            'pickerClass'       => 'datepicker_dashboard',
-            'format'            => $strFormat,
-            'inputOutputFormat' => $strFormat,
-            'positionOffset'    => array(
-                'x' => 130,
-                'y' => -185
-            ),
-            'startDay'          => $translator->translate('weekOffset', 'MSC'),
-            'days'              => array_values((array) $translator->translate('DAYS', 'MSC')),
-            'dayShort'          => $translator->translate('dayShortLength', 'MSC'),
-            'months'            => array_values((array) $translator->translate('MONTHS', 'MSC')),
-            'monthShort'        => $translator->translate('monthShortLength', 'MSC')
-        );
-
         switch ($objWidget->rgxp) {
             case 'datim':
-                $arrConfig['timePicker'] = true;
-
                 $time = ",\n      timePicker:true";
                 break;
 
             case 'time':
-                $arrConfig['timePickerOnly'] = true;
-
                 $time = ",\n      pickOnly:\"time\"";
                 break;
             default:
                 $time = '';
         }
 
-        if ((version_compare(DATEPICKER, '2.1', '>') && version_compare(VERSION, '3.1', '<'))
-            || (version_compare(DATEPICKER, '2.0', '>') && version_compare(VERSION, '3.1', '>='))
-        ) {
-            return 'new Picker.Date($$("#ctrl_' . $objWidget->id . '"), {
-                draggable:false,
-                toggle:$$("#toggle_' . $objWidget->id . '"),
-                format:"' . \Date::formatToJs($strFormat) . '",
-                positionOffset:{x:-197,y:-182}' . $time . ',
-                pickerClass:"' . (
-                    version_compare(VERSION, '3.3', '>=')
-                        ? 'datepicker_bootstrap'
-                        : 'datepicker_dashboard'
-                ) . '",
-                useFadeInOut:!Browser.ie,
-                startDay:' . $translator->translate('weekOffset', 'MSC') . ',
-                titleFormat:"' . $translator->translate('titleFormat', 'MSC') . '"
-            });';
-        }
-
-        return 'new DatePicker(' . json_encode('#ctrl_' . $objWidget->id) . ', ' . json_encode($arrConfig) . ');';
+        return 'new Picker.Date($$("#ctrl_' . $objWidget->id . '"), {
+            draggable:false,
+            toggle:$$("#toggle_' . $objWidget->id . '"),
+            format:"' . \Date::formatToJs($strFormat) . '",
+            positionOffset:{x:-197,y:-182}' . $time . ',
+            pickerClass:"datepicker_bootstrap",
+            useFadeInOut:!Browser.ie,
+            startDay:' . $translator->translate('weekOffset', 'MSC') . ',
+            titleFormat:"' . $translator->translate('titleFormat', 'MSC') . '"
+        });';
     }
 
     /**
@@ -402,17 +363,6 @@ class ContaoWidgetManager
         );
 
         $buffer = $objTemplateFoo->parse();
-
-        if (version_compare(VERSION, '3.3', '<')
-            && isset($propExtra['rte'])
-            && strncmp($propExtra['rte'], 'tiny', 4) === 0
-        ) {
-            $propertyId = 'ctrl_' . $property;
-
-            $buffer .= <<<EOF
-<script>tinyMCE.execCommand('mceAddControl', false, '{$propertyId}');$('{$propertyId}').erase('required');</script>
-EOF;
-        }
 
         return $buffer;
     }

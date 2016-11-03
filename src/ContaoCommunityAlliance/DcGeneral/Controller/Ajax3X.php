@@ -178,17 +178,10 @@ class Ajax3X extends Ajax
         if ($varValue != '') {
             $varValue = trimsplit("\t", $varValue);
 
-            // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
-            if (version_compare(VERSION . '.' . BUILD, '3.5.5', '>=')) {
-                $mapFunc = 'StringUtil::binToUuid';
-            } else {
-                $mapFunc = 'String::binToUuid';
-            }
-
             // Automatically add resources to the DBAFS.
             if ($strType == 'file') {
                 foreach ($varValue as $k => $v) {
-                    $varValue[$k] = call_user_func($mapFunc, \Dbafs::addResource($v)->uuid);
+                    $varValue[$k] = call_user_func('\Contao\StringUtil::binToUuid', \Dbafs::addResource($v)->uuid);
                 }
             }
         }

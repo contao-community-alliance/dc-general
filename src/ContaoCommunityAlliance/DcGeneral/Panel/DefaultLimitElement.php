@@ -55,15 +55,9 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      * Retrieve the amount of items to display per page.
      *
      * @return int
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     protected function getItemsPerPage()
     {
-        if (version_compare(VERSION, '3', '<')) {
-            return $GLOBALS['TL_CONFIG']['resultsPerPage'];
-        }
         return \Config::get('resultsPerPage');
     }
 
@@ -203,12 +197,13 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
             )
         );
 
-        $optionsTotal = ceil(($this->intTotal / $GLOBALS['TL_CONFIG']['resultsPerPage']));
+        $optionsPerPage = $this->getItemsPerPage();
+        $optionsTotal   = ceil(($this->intTotal / $optionsPerPage));
 
         for ($i = 0; $i < $optionsTotal; $i++) {
-            $first      = ($i * $GLOBALS['TL_CONFIG']['resultsPerPage']);
-            $thisLimit  = $first . ',' . $GLOBALS['TL_CONFIG']['resultsPerPage'];
-            $upperLimit = ($first + $GLOBALS['TL_CONFIG']['resultsPerPage']);
+            $first      = ($i * $optionsPerPage);
+            $thisLimit  = $first . ',' . $optionsPerPage;
+            $upperLimit = ($first + $optionsPerPage);
 
             if ($upperLimit > $this->intTotal) {
                 $upperLimit = $this->intTotal;
@@ -221,7 +216,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
             );
         }
 
-        if ($this->intTotal > $GLOBALS['TL_CONFIG']['resultsPerPage']) {
+        if ($this->intTotal > $optionsPerPage) {
             $arrOptions[] = array(
                 'value'      => 'all',
                 'attributes' =>
