@@ -12,6 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  2013-2016 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -66,12 +67,13 @@ class PasteHandler extends AbstractHandler
         }
 
         $controller    = $environment->getController();
+        $source        = $this->modelIdFromParameter($input, 'source');
         $after         = $this->modelIdFromParameter($input, 'after');
         $into          = $this->modelIdFromParameter($input, 'into');
         $parentModelId = $this->modelIdFromParameter($input, 'pid');
         $items         = array();
 
-        $controller->applyClipboardActions(null, $after, $into, $parentModelId, null, $items);
+        $controller->applyClipboardActions($source, $after, $into, $parentModelId, null, $items);
 
         foreach ($items as $item) {
             $clipboard->remove($item);
