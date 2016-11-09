@@ -23,6 +23,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller;
 
+use Contao\BackendTemplate;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
@@ -285,7 +286,7 @@ class ClipboardController implements EventSubscriberInterface
         $eventDispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $addToUrlEvent);
         $clearItemUrl = $addToUrlEvent->getUrl();
 
-        $template = new \BackendTemplate('dcbe_general_clipboard');
+        $template = new BackendTemplate('dcbe_general_clipboard');
 
         $template->setData(
             array(

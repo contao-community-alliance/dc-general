@@ -25,6 +25,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use Contao\Backend;
+use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
@@ -185,7 +187,7 @@ class ContaoWidgetManager
 
             if (strncmp($extra['rte'], 'tiny', 4) !== 0) {
                 // Backwards compatibility
-                $language = \Backend::getTinyMceLanguage();
+                $language = Backend::getTinyMceLanguage();
             }
 
             ob_start();
@@ -206,7 +208,7 @@ class ContaoWidgetManager
      *
      * @param PropertyValueBag $inputValues The input values to use (optional).
      *
-     * @return \Widget
+     * @return Widget
      *
      * @throws DcGeneralRuntimeException         When No widget could be build.
      * @throws DcGeneralInvalidArgumentException When property is not defined in the property definitions.
@@ -250,7 +252,7 @@ class ContaoWidgetManager
     /**
      * Build the date picker string.
      *
-     * @param \Contao\Widget $objWidget The widget instance to generate the date picker string for.
+     * @param Widget $objWidget The widget instance to generate the date picker string for.
      *
      * @return string
      *
@@ -332,7 +334,7 @@ class ContaoWidgetManager
         $propExtra           = $propInfo->getExtra();
         $widget              = $this->getWidget($property, $inputValues);
 
-        /** @var \Contao\Widget $widget */
+        /** @var Widget $widget */
         if (!$widget) {
             throw new DcGeneralRuntimeException('No widget for property ' . $property);
         }

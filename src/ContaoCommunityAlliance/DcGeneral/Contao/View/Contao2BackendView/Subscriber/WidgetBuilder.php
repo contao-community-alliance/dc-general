@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2016 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,13 +14,15 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2016 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber;
 
+use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
@@ -364,7 +366,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
      *
      * @param ModelInterface    $model    The current model.
      *
-     * @return \Widget
+     * @return Widget
      *
      * @throws DcGeneralRuntimeException When not running in TL_MODE BE.
      *
@@ -439,7 +441,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
             && $arrConfig['eval']['submitOnChange']
         ) {
             // We have to override the onclick, do not append to it as Contao adds it's own code here in
-            // \Widget::getAttributesFromDca() which kills our sub palette handling!
+            // Widget::getAttributesFromDca() which kills our sub palette handling!
             $arrPrepared['onclick'] = "Backend.autoSubmit('" . $defName . "');";
         }
 
