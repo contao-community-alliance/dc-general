@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2016 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,13 +17,16 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2016 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use Contao\Backend;
+use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
@@ -181,7 +184,7 @@ class ContaoWidgetManager
 
                 if (strncmp($extra['rte'], 'tiny', 4) !== 0) {
                     // Backwards compatibility
-                    $language = \Backend::getTinyMceLanguage();
+                    $language = Backend::getTinyMceLanguage();
                 }
 
                 ob_start();
@@ -201,7 +204,7 @@ class ContaoWidgetManager
      *
      * @param PropertyValueBag $inputValues The input values to use (optional).
      *
-     * @return \Widget
+     * @return Widget
      *
      * @throws DcGeneralRuntimeException         When No widget could be build.
      * @throws DcGeneralInvalidArgumentException When property is not defined in the property definitions.
@@ -245,7 +248,7 @@ class ContaoWidgetManager
     /**
      * Build the date picker string.
      *
-     * @param \Contao\Widget $objWidget The widget instance to generate the date picker string for.
+     * @param Widget $objWidget The widget instance to generate the date picker string for.
      *
      * @return string
      *
@@ -358,7 +361,7 @@ class ContaoWidgetManager
         $propExtra           = $propInfo->getExtra();
         $widget              = $this->getWidget($property, $inputValues);
 
-        /** @var \Contao\Widget $widget */
+        /** @var Widget $widget */
         if (!$widget) {
             throw new DcGeneralRuntimeException('No widget for property ' . $property);
         }
