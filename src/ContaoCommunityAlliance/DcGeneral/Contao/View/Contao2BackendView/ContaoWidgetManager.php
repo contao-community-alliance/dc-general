@@ -195,7 +195,7 @@ class ContaoWidgetManager
             $updateMode = ob_get_contents();
             ob_end_clean();
 
-            $GLOBALS['TL_MOOTOOLS'][$extra['rte']] = $updateMode;
+            $GLOBALS['TL_MOOTOOLS'][$extra['rte'] . '.' . $property->getName()] = $updateMode;
         }
 
         return $buffer;
