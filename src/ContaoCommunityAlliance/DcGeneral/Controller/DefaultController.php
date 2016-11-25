@@ -22,6 +22,7 @@
  * @author     Andreas Nölke <zero@brothers-project.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  2013-2016 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -376,6 +377,11 @@ class DefaultController implements ControllerInterface
 
         foreach ($propertyValues as $property => $value) {
             try {
+                $extra = $properties->getProperty($property)->getExtra();
+                if (!empty($extra['readonly'])) {
+                    continue;
+                }
+
                 $model->setProperty($property, $value);
                 // If always save is true, we need to mark the model as changed.
                 if ($properties->hasProperty($property)
