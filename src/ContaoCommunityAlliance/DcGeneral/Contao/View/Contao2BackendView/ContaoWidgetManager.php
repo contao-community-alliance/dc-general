@@ -358,7 +358,7 @@ class ContaoWidgetManager
         }
 
         $strDatePicker = '';
-        if (isset($propExtra['datepicker'])) {
+        if (!empty($propExtra['datepicker'])) {
             $strDatePicker = $this->buildDatePicker($widget);
         }
 
