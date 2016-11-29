@@ -11,7 +11,7 @@
 
 	<?php if (strlen($this->breadcrumb)) echo $this->breadcrumb; ?>
 
-	<?php if ($this->select): ?>
+	<?php if (!$this->header && $this->select): ?>
 		<div class="tl_select_trigger">
 			<label for="tl_select_trigger" class="tl_select_label">
 				<?php echo $GLOBALS['TL_LANG']['MSC']['selectAll']; ?>
