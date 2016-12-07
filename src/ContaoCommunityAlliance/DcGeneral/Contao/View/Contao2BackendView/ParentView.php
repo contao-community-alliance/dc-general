@@ -580,7 +580,7 @@ class ParentView extends BaseView
      *
      * @deprecated Use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\ParentEnforcingListener
      *
-     * @see ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\ParentEnforcingListener
+     * @see \ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\ParentEnforcingListener
      */
     public function enforceModelRelationship($model)
     {

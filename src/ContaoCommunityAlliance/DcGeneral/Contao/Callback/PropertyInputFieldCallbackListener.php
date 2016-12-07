@@ -53,7 +53,7 @@ class PropertyInputFieldCallbackListener extends AbstractReturningPropertyCallba
      *
      * @param BuildWidgetEvent $event The event being emitted.
      *
-     * @param Widget          $value The widget that has been constructed.
+     * @param Widget           $value The widget that has been constructed.
      *
      * @return void
      */
