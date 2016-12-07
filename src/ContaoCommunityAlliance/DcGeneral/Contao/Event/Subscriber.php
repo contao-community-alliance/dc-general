@@ -147,13 +147,9 @@ class Subscriber implements EventSubscriberInterface
         $event->setPropertyName($property->getName());
         $event->setOptions($options);
 
-        $environment->getEventDispatcher()->dispatch(sprintf('%s', $event::NAME), $event);
+        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
-        if ($event->getOptions() !== $options) {
-            $options = $event->getOptions();
-        }
-
-        return $options;
+        return $event->getOptions();
     }
 
     /**
