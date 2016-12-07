@@ -551,7 +551,7 @@ class DefaultDataProvider implements DataProviderInterface
         /** @var \Contao\Database\Result $dbResult */
         foreach ($dbResult->row() as $key => $value) {
             if ($key == $this->idProperty) {
-                $objModel->setId($value);
+                $objModel->setIdRaw($value);
             }
 
             $objModel->setPropertyRaw($key, deserialize($value));
