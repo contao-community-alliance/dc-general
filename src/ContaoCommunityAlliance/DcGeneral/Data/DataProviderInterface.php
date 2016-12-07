@@ -212,6 +212,8 @@ interface DataProviderInterface
      * @param string $strField The field to reset.
      *
      * @return void
+     *
+     * @deprecated Handle the resetting manually as you must filter the models.
      */
     public function resetFallback($strField);
 
