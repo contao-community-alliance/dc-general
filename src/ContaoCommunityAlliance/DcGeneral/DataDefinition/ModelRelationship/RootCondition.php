@@ -19,6 +19,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship;
 
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -108,6 +109,8 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
      */
     public function applyTo($objModel)
     {
+        $this->guardProviderName($objModel);
+
         if ($this->setOn) {
             foreach ($this->setOn as $rule) {
                 if (!($rule['property'] && isset($rule['value']))) {
@@ -137,6 +140,12 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
      */
     public function matches($objModel)
     {
+        try {
+            $this->guardProviderName($objModel);
+        } catch (\InvalidArgumentException $exception) {
+            return false;
+        }
+
         if ($this->getFilterArray()) {
             return $this->checkCondition(
                 $objModel,
@@ -148,5 +157,23 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
         }
 
         return true;
+    }
+
+    /**
+     * Guard that the data provider name matches.
+     *
+     * @param ModelInterface $model The model.
+     *
+     * @return void
+     *
+     * @throws \InvalidArgumentException When any provider name mismatches.
+     */
+    private function guardProviderName($model)
+    {
+        if ($model->getProviderName() !== $this->sourceProvider) {
+            throw new \InvalidArgumentException(
+                sprintf('provider name %s is not equal to %s', $model->getProviderName(), $this->getSourceName())
+            );
+        }
     }
 }
