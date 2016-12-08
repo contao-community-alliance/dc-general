@@ -372,7 +372,6 @@ class DefaultController implements ControllerInterface
             return $this;
         }
         $environment = $this->getEnvironment();
-        $input       = $environment->getInputProvider();
         $properties  = $environment->getDataDefinition()->getPropertiesDefinition();
 
         foreach ($propertyValues as $property => $value) {
@@ -391,32 +390,6 @@ class DefaultController implements ControllerInterface
                 }
             } catch (\Exception $exception) {
                 $propertyValues->markPropertyValueAsInvalid($property, $exception->getMessage());
-            }
-        }
-
-        $basicDefinition = $environment->getDataDefinition()->getBasicDefinition();
-
-        if (($basicDefinition->getMode() & (
-                    BasicDefinitionInterface::MODE_PARENTEDLIST
-                    | BasicDefinitionInterface::MODE_HIERARCHICAL)
-            )
-            && ($input->hasParameter('pid'))
-        ) {
-            $parentModelId      = ModelId::fromSerialized($input->getParameter('pid'));
-            $providerName       = $basicDefinition->getDataProvider();
-            $parentProviderName = $parentModelId->getDataProviderName();
-            $objParentModel     = $this->fetchModelFromProvider(
-                $parentModelId->getId(),
-                $parentModelId->getDataProviderName()
-            );
-
-            $relationship = $environment
-                ->getDataDefinition()
-                ->getModelRelationshipDefinition()
-                ->getChildCondition($parentProviderName, $providerName);
-
-            if ($relationship && $relationship->getSetters()) {
-                $relationship->applyTo($objParentModel, $model);
             }
         }
 
