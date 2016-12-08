@@ -174,6 +174,8 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     public function parseFilter($filter, $model)
     {
+        $this->guardProviderNames(null, $model);
+
         $arrApplied = array(
             'operation' => $filter['operation'],
         );
@@ -244,6 +246,8 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     public function applyTo($objParent, $objChild)
     {
+        $this->guardProviderNames($objChild, $objParent);
+
         $setters = $this->getSetters();
 
         if (empty($setters) || !is_array($setters)) {
@@ -282,6 +286,9 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     public function copyFrom($sourceModel, $destinationModel)
     {
+        $this->guardProviderNames($sourceModel);
+        $this->guardProviderNames($destinationModel);
+
         $setters = $this->getSetters();
 
         if (empty($setters) || !is_array($setters)) {
@@ -318,6 +325,8 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     public function getInverseFilterFor($objChild)
     {
+        $this->guardProviderNames($objChild);
+
         $arrResult = array();
         foreach ($this->getInverseFilterArray() as $arrRule) {
             $arrApplied = array(
@@ -391,6 +400,12 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     public function matches($objParent, $objChild)
     {
+        try {
+            $this->guardProviderNames($objParent, $objChild);
+        } catch (\InvalidArgumentException $exception) {
+            return false;
+        }
+
         $filter = $this->prepareRule(
             array(
                 'operation' => 'AND',
@@ -398,6 +413,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
             ),
             $objChild
         );
+
         return $this->checkCondition($objParent, $filter);
     }
 
@@ -448,5 +464,29 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
         }
 
         return $this->neededProperties;
+    }
+
+    /**
+     * Guard that the data provider names match.
+     *
+     * @param ModelInterface|null $child  The child model.
+     * @param ModelInterface|null $parent The parent model.
+     *
+     * @return void
+     *
+     * @throws \InvalidArgumentException When any provider name mismatches.
+     */
+    private function guardProviderNames($child, $parent = null)
+    {
+        if (null !== $child && $child->getProviderName() !== $this->destinationProvider) {
+            throw new \InvalidArgumentException(
+                sprintf('provider name %s is not equal to %s', $child->getProviderName(), $this->destinationProvider)
+            );
+        }
+        if (null !== $parent && $parent->getProviderName() !== $this->sourceProvider) {
+            throw new \InvalidArgumentException(
+                sprintf('provider name %s is not equal to %s', $parent->getProviderName(), $this->sourceProvider)
+            );
+        }
     }
 }

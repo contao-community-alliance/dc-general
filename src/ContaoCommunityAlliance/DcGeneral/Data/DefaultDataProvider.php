@@ -551,7 +551,7 @@ class DefaultDataProvider implements DataProviderInterface
         /** @var \Contao\Database\Result $dbResult */
         foreach ($dbResult->row() as $key => $value) {
             if ($key == $this->idProperty) {
-                $objModel->setId($value);
+                $objModel->setIdRaw($value);
             }
 
             $objModel->setPropertyRaw($key, deserialize($value));
@@ -722,6 +722,10 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function resetFallback($strField)
     {
+        // @codingStandardsIgnoreStart
+        @trigger_error(__CLASS__ . '::' . __METHOD__ . ' is deprecated - handle resetting manually', E_USER_DEPRECATED);
+        // @codingStandardsIgnoreEnd
+
         $this->objDatabase->query('UPDATE ' . $this->strSource . ' SET ' . $strField . ' = \'\'');
     }
 

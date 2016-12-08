@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2016 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @copyright  2013-2016 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -23,8 +23,76 @@ use ContaoCommunityAlliance\DcGeneral\Data\DefaultModel;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildCondition;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 
+/**
+ * This class tests the ParentChildCondition.
+ */
 class ParentChildConditionTest extends TestCase
 {
+    /**
+     * Test that the matches method does not match for children from another provider.
+     *
+     * @return void
+     */
+    public function testMatchesForChildFromOtherProvider()
+    {
+        $parent = new DefaultModel();
+        $parent->setId(1);
+        $parent->setProviderName('test-provider');
+
+        $child = new DefaultModel();
+        $child->setPropertyRaw('pid', 1);
+        $child->setProviderName('test2-provider');
+
+        $condition = new ParentChildCondition();
+        $condition
+            ->setFilterArray(
+                [[
+                     'local'     => 'id',
+                     'operation' => '=',
+                     'remote'    => 'pid'
+                ]]
+            )
+            ->setSourceName('test-provider')
+            ->setDestinationName('test-provider');
+
+        $this->assertFalse($condition->matches($parent, $child));
+    }
+
+    /**
+     * Test that the matches method does not match for children from another provider.
+     *
+     * @return void
+     */
+    public function testMatchesForParentFromOtherProvider()
+    {
+        $parent = new DefaultModel();
+        $parent->setId(1);
+        $parent->setProviderName('test2-provider');
+
+        $child = new DefaultModel();
+        $child->setPropertyRaw('pid', 1);
+        $child->setProviderName('test-provider');
+
+        $condition = new ParentChildCondition();
+        $condition
+            ->setFilterArray(
+                [[
+                     'local'     => 'id',
+                     'operation' => '=',
+                     'remote'    => 'pid'
+                ]]
+            )
+            ->setSourceName('test-provider')
+            ->setDestinationName('test-provider');
+
+        $this->assertFalse($condition->matches($parent, $child));
+    }
+
+    /**
+     * Test the matches method().
+     *
+     * @return void
+     */
     public function testMatches()
     {
         $parent = new DefaultModel();
@@ -43,6 +111,11 @@ class ParentChildConditionTest extends TestCase
         $this->assertTrue($condition->matches($parent, $child));
     }
 
+    /**
+     * Test the matches method().
+     *
+     * @return void
+     */
     public function testMatchesRemoteValue()
     {
         $parent = new DefaultModel();
