@@ -168,6 +168,7 @@ class RelationshipManagerTest extends TestCase
             [$model2]
         );
 
+        /** @var RelationshipManager $manager */
         $manager->setAllRoot($collection);
     }
 
@@ -253,6 +254,7 @@ class RelationshipManagerTest extends TestCase
             [$model2, $parent]
         );
 
+        /** @var RelationshipManager $manager */
         $manager->setParentForAll($collection, $parent);
     }
 
@@ -341,6 +343,7 @@ class RelationshipManagerTest extends TestCase
             [$model2, $source, 'parent']
         );
 
+        /** @var RelationshipManager $manager */
         $manager->setSameParentForAll($collection, $source, 'parent');
     }
 
