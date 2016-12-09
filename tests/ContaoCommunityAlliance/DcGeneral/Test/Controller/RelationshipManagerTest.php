@@ -37,6 +37,8 @@ class RelationshipManagerTest extends TestCase
      * Test the isRoot() method.
      *
      * @return void
+     *
+     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::isRoot()
      */
     public function testIsRoot()
     {
@@ -58,6 +60,8 @@ class RelationshipManagerTest extends TestCase
      * Test the isRoot() method for non hierarchical mode.
      *
      * @return void
+     *
+     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::isRoot()
      */
     public function testIsRootInNonHierarchicalMode()
     {
@@ -73,6 +77,8 @@ class RelationshipManagerTest extends TestCase
      * Test the isRoot() without condition.
      *
      * @return void
+     *
+     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::isRoot()
      */
     public function testIsRootWithoutCondition()
     {
@@ -93,6 +99,8 @@ class RelationshipManagerTest extends TestCase
      * Test the setRoot() method.
      *
      * @return void
+     *
+     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setRoot()
      */
     public function testSetRoot()
     {
@@ -114,6 +122,8 @@ class RelationshipManagerTest extends TestCase
      * Test the setRoot() method for non hierarchical mode.
      *
      * @return void
+     *
+     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setRoot()
      */
     public function testSetRootInNonHierarchicalMode()
     {
@@ -129,6 +139,8 @@ class RelationshipManagerTest extends TestCase
      * Test the setRoot() without condition.
      *
      * @return void
+     *
+     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setRoot()
      */
     public function testSetRootWithoutCondition()
     {
@@ -149,6 +161,8 @@ class RelationshipManagerTest extends TestCase
      * Test the setParentForAll() method.
      *
      * @return void
+     *
+     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setAllRoot()
      */
     public function testSetAllRoot()
     {
@@ -176,6 +190,8 @@ class RelationshipManagerTest extends TestCase
      * Test the setParent() method.
      *
      * @return void
+     *
+     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setParent()
      */
     public function testSetParent()
     {
@@ -205,6 +221,8 @@ class RelationshipManagerTest extends TestCase
      * Test the setParent() without condition.
      *
      * @return void
+     *
+     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setParent()
      */
     public function testSetParentWithoutCondition()
     {
@@ -234,6 +252,8 @@ class RelationshipManagerTest extends TestCase
      * Test the setParentForAll() method.
      *
      * @return void
+     *
+     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setParentForAll()
      */
     public function testSetParentForAll()
     {
@@ -262,6 +282,8 @@ class RelationshipManagerTest extends TestCase
      * Test the setSameParent() method.
      *
      * @return void
+     *
+     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setSameParent()
      */
     public function testSetSameParent()
     {
@@ -291,6 +313,8 @@ class RelationshipManagerTest extends TestCase
      * Test the setSameParent() without condition.
      *
      * @return void
+     *
+     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setSameParent()
      */
     public function testSetSameParentWithoutCondition()
     {
@@ -320,6 +344,8 @@ class RelationshipManagerTest extends TestCase
      * Test the setSameParentForAll() method.
      *
      * @return void
+     *
+     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setSameParentForAll()
      */
     public function testSetSameParentForAll()
     {
