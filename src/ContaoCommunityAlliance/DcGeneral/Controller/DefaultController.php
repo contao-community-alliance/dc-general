@@ -819,7 +819,7 @@ class DefaultController implements ControllerInterface
         }
 
         if ($parentModel) {
-            $this->setParent($model, $parentModel);
+            $this->relationshipManager->setParent($model, $parentModel);
         }
 
         $action['model'] = $model;
@@ -924,10 +924,7 @@ class DefaultController implements ControllerInterface
             $this->pasteInto($parent, $models, $manualSorting);
         } elseif (($after && $after->getId() == '0') || ($into && $into->getId() == '0')) {
             if ($dataDefinition->getBasicDefinition()->getMode() === BasicDefinitionInterface::MODE_HIERARCHICAL) {
-                foreach ($models as $model) {
-                    // Paste top means root in hierarchical mode!
-                    $this->setRootModel($model);
-                }
+                $this->relationshipManager->setAllRoot($models);
             }
             $this->pasteTop($models, $manualSorting, $parentModelId);
         } elseif ($parentModelId) {
