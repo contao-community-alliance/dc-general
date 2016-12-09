@@ -19,12 +19,12 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship;
 
-use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
+use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector;
+use ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\EnforceModelRelationshipEvent;
-use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 
 /**
  * This class takes care of enforcing a tree relationship on a model.
@@ -47,68 +47,93 @@ class TreeEnforcingListener
             return;
         }
 
-        $input      = $environment->getInputProvider();
-        $controller = $environment->getController();
-        $model      = $event->getModel();
+        $input         = $environment->getInputProvider();
+        $model         = $event->getModel();
+        $collector     = new ModelCollector($environment);
+        $relationships = new RelationshipManager(
+            $environment->getDataDefinition()->getModelRelationshipDefinition(),
+            $mode
+        );
 
         if ($input->hasParameter('into')) {
-            $this->handleInto($input, $controller, $model);
+            $this->handleInto(
+                ModelId::fromSerialized($input->getParameter('into')),
+                $relationships,
+                $collector,
+                $model
+            );
         } elseif ($input->hasParameter('after')) {
-            $this->handleAfter($input, $controller, $model);
+            $this->handleAfter(
+                ModelId::fromSerialized($input->getParameter('after')),
+                $relationships,
+                $collector,
+                $model
+            );
         }
 
         // Also enforce the parent condition of the parent provider (if any).
         if ($input->hasParameter('pid')) {
-            $parent = $controller->fetchModelFromProvider($input->getParameter('pid'));
-            $controller->setParent($model, $parent);
+            $parent = $collector->getModel($input->getParameter('pid'));
+            $relationships->setParent($model, $parent);
         }
     }
 
     /**
      * Handle paste into.
      *
-     * @param InputProviderInterface $input      The input provider.
+     * @param ModelId             $into          The id of the new parenting model.
      *
-     * @param ControllerInterface    $controller The controller.
+     * @param RelationshipManager $relationships The relationship manager.
      *
-     * @param ModelInterface         $model      The model.
+     * @param ModelCollector      $collector     The model collector.
+     *
+     * @param ModelInterface      $model         The model.
      *
      * @return void
      */
-    private function handleInto(InputProviderInterface $input, ControllerInterface $controller, ModelInterface $model)
-    {
-        $into = ModelId::fromSerialized($input->getParameter('into'));
-
+    private function handleInto(
+        ModelId $into,
+        RelationshipManager $relationships,
+        ModelCollector $collector,
+        ModelInterface $model
+    ) {
         // If we have a null, it means insert into the tree root.
-        if ($into->getId() == 0) {
-            $controller->setRootModel($model);
-        } else {
-            $parent = $controller->fetchModelFromProvider($into);
-            $controller->setParent($model, $parent);
+        if (0 == $into->getId()) {
+            $relationships->setRoot($model);
+            return;
         }
+
+        $parent = $collector->getModel($into);
+        $relationships->setParent($model, $parent);
     }
 
     /**
      * Handle paste after.
      *
-     * @param InputProviderInterface $input      The input provider.
+     * @param ModelId             $after         The id of the sibling model.
      *
-     * @param ControllerInterface    $controller The controller.
+     * @param RelationshipManager $relationships The relationship manager.
      *
-     * @param ModelInterface         $model      The model.
+     * @param ModelCollector      $collector     The model collector.
+     *
+     * @param ModelInterface      $model         The model.
      *
      * @return void
      */
-    private function handleAfter(InputProviderInterface $input, ControllerInterface $controller, ModelInterface $model)
-    {
-        $after   = ModelId::fromSerialized($input->getParameter('after'));
-        $sibling = $controller->fetchModelFromProvider($after);
+    private function handleAfter(
+        ModelId $after,
+        RelationshipManager $relationships,
+        ModelCollector $collector,
+        ModelInterface $model
+    ) {
+        $sibling = $collector->getModel($after);
 
-        if (!$sibling || $controller->isRootModel($sibling)) {
-            $controller->setRootModel($model);
-        } else {
-            $parent = $controller->searchParentOf($sibling);
-            $controller->setParent($model, $parent);
+        if (!$sibling || $relationships->isRoot($sibling)) {
+            $relationships->setRoot($model);
+            return;
         }
+
+        $parent = $collector->searchParentOf($sibling);
+        $relationships->setParent($model, $parent);
     }
 }
