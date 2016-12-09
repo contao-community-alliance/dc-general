@@ -68,6 +68,10 @@ interface ControllerInterface
      * @param CollectionInterface $models The collection to search in.
      *
      * @return ModelInterface
+     *
+     * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOfIn().
+     *
+     * @see \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOfIn().
      */
     public function searchParentOfIn(ModelInterface $model, CollectionInterface $models);
 
@@ -76,7 +80,11 @@ interface ControllerInterface
      *
      * @param ModelInterface $model The model for which the parent shall be retrieved.
      *
-     * @return ModelInterface
+     * @return ModelInterface|null
+     *
+     * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOf().
+     *
+     * @see \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOf().
      */
     public function searchParentOf(ModelInterface $model);
 
@@ -92,6 +100,10 @@ interface ControllerInterface
      * @param string         $strDataProvider The name of the data provider to fetch children from.
      *
      * @return array
+     *
+     * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectChildrenOf().
+     *
+     * @see \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectChildrenOf().
      */
     public function assembleAllChildrenFrom($objModel, $strDataProvider = '');
 
@@ -136,6 +148,10 @@ interface ControllerInterface
      *                                              deserialized and the provider name will get extracted from there.
      *
      * @return ModelInterface
+     *
+     * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::getModel().
+     *
+     * @see \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::getModel().
      */
     public function fetchModelFromProvider($modelId, $providerName = null);
 

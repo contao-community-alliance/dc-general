@@ -81,6 +81,13 @@ class DefaultController implements ControllerInterface
     private $relationshipManager;
 
     /**
+     * The model collector.
+     *
+     * @var ModelCollector
+     */
+    private $modelCollector;
+
+    /**
      * Error message.
      *
      * @var string
@@ -123,6 +130,7 @@ class DefaultController implements ControllerInterface
             $definition->getModelRelationshipDefinition(),
             $definition->getBasicDefinition()->getMode()
         );
+        $this->modelCollector      = new ModelCollector($this->environment);
 
         return $this;
     }
@@ -148,118 +156,61 @@ class DefaultController implements ControllerInterface
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOfIn().
+     *
+     * @see \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOfIn().
      */
     public function searchParentOfIn(ModelInterface $model, CollectionInterface $models)
     {
-        $environment   = $this->getEnvironment();
-        $definition    = $environment->getDataDefinition();
-        $relationships = $definition->getModelRelationshipDefinition();
+        // @codingStandardsIgnoreStart
+        @trigger_error(
+            'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOfIn().',
+            E_USER_DEPRECATED
+        );
+        // @codingStandardsIgnoreEnd
 
-        foreach ($models as $candidate) {
-            /** @var ModelInterface $candidate */
-            foreach ($relationships->getChildConditions($candidate->getProviderName()) as $condition) {
-                if ($condition->matches($candidate, $model)) {
-                    return $candidate;
-                }
-
-                $provider = $environment->getDataProvider($condition->getDestinationName());
-                $config   = $provider
-                    ->getEmptyConfig()
-                    ->setFilter($condition->getFilter($candidate));
-
-                $result = $this->searchParentOfIn($model, $provider->fetchAll($config));
-                if ($result === true) {
-                    return $candidate;
-                } elseif ($result !== null) {
-                    return $result;
-                }
-            }
-        }
-
-        return null;
+        return $this->modelCollector->searchParentOfIn($model, $models);
     }
 
     /**
      * {@inheritDoc}
      *
      * @throws DcGeneralInvalidArgumentException When a root model has been passed or not in hierarchical mode.
+     *
+     * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOf().
+     *
+     * @see \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOf().
      */
     public function searchParentOf(ModelInterface $model)
     {
-        $environment   = $this->getEnvironment();
-        $definition    = $environment->getDataDefinition();
-        $relationships = $definition->getModelRelationshipDefinition();
-        $mode          = $definition->getBasicDefinition()->getMode();
+        // @codingStandardsIgnoreStart
+        @trigger_error(
+            'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOf().',
+            E_USER_DEPRECATED
+        );
+        // @codingStandardsIgnoreEnd
 
-        if ($mode === BasicDefinitionInterface::MODE_HIERARCHICAL) {
-            if ($this->isRootModel($model)) {
-                throw new DcGeneralInvalidArgumentException('Invalid condition, root models can not have parents!');
-            }
-            // To speed up, some conditions have an inverse filter - we should use them!
-            // Start from the root data provider and walk through the whole tree.
-            $provider  = $environment->getDataProvider($definition->getBasicDefinition()->getRootDataProvider());
-            $condition = $relationships->getRootCondition();
-            $config    = $provider->getEmptyConfig()->setFilter($condition->getFilterArray());
-
-            return $this->searchParentOfIn($model, $provider->fetchAll($config));
-        } elseif ($mode === BasicDefinitionInterface::MODE_PARENTEDLIST) {
-            $provider  = $environment->getDataProvider($definition->getBasicDefinition()->getParentDataProvider());
-            $condition = $relationships->getChildCondition(
-                $definition->getBasicDefinition()->getParentDataProvider(),
-                $definition->getBasicDefinition()->getDataProvider()
-            );
-            $config    = $provider->getEmptyConfig();
-            // This is pretty expensive, we fetch all models from the parent provider here.
-            // This can be much faster by using the inverse condition if present.
-            foreach ($provider->fetchAll($config) as $candidate) {
-                if ($condition->matches($candidate, $model)) {
-                    return $candidate;
-                }
-            }
-
-            return null;
-        }
-
-        throw new DcGeneralInvalidArgumentException('Invalid condition, not in hierarchical mode!');
+        return $this->modelCollector->searchParentOf($model);
     }
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectChildrenOf().
+     *
+     * @see \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectChildrenOf().
      */
     public function assembleAllChildrenFrom($objModel, $strDataProvider = '')
     {
-        if ($strDataProvider == '') {
-            $strDataProvider = $objModel->getProviderName();
-        }
+        // @codingStandardsIgnoreStart
+        @trigger_error(
+            'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectChildrenOf()',
+            E_USER_DEPRECATED
+        );
+        // @codingStandardsIgnoreEnd
 
-        $arrIds = array();
-
-        if ($strDataProvider == $objModel->getProviderName()) {
-            $arrIds = array($objModel->getId());
-        }
-
-        // Check all data providers for children of the given element.
-        $conditions = $this
-            ->getEnvironment()
-            ->getDataDefinition()
-            ->getModelRelationshipDefinition()
-            ->getChildConditions($objModel->getProviderName());
-        foreach ($conditions as $objChildCondition) {
-            $objDataProv = $this->getEnvironment()->getDataProvider($objChildCondition->getDestinationName());
-            $objConfig   = $objDataProv->getEmptyConfig();
-            $objConfig->setFilter($objChildCondition->getFilter($objModel));
-
-            foreach ($objDataProv->fetchAll($objConfig) as $objChild) {
-                /** @var ModelInterface $objChild */
-                if ($strDataProvider == $objChild->getProviderName()) {
-                    $arrIds[] = $objChild->getId();
-                }
-
-                $arrIds = array_merge($arrIds, $this->assembleAllChildrenFrom($objChild, $strDataProvider));
-            }
-        }
-
-        return $arrIds;
+        return $this->modelCollector->collectChildrenOf($objModel, $strDataProvider);
     }
 
     /**
@@ -274,70 +225,24 @@ class DefaultController implements ControllerInterface
      * @return CollectionInterface
      *
      * @throws DcGeneralRuntimeException When no parent model can be located.
+     *
+     * @deprecated Use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectSiblingsOf().
+     *
+     * @see \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectSiblingsOf().
      */
     protected function assembleSiblingsFor(
         ModelInterface $model,
         $sortingProperty = null,
         ModelIdInterface $parentId = null
     ) {
-        $environment   = $this->getEnvironment();
-        $definition    = $environment->getDataDefinition();
-        $provider      = $environment->getDataProvider($model->getProviderName());
-        $config        = $environment->getBaseConfigRegistry()->getBaseConfig($parentId);
-        $relationships = $definition->getModelRelationshipDefinition();
+        // @codingStandardsIgnoreStart
+        @trigger_error(
+            'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectSiblingsOf()',
+            E_USER_DEPRECATED
+        );
+        // @codingStandardsIgnoreEnd
 
-        // Root model in hierarchical mode?
-        if ($this->isRootModel($model)) {
-            $condition = $relationships->getRootCondition();
-
-            if ($condition) {
-                $config->setFilter($condition->getFilterArray());
-            }
-        } elseif ($definition->getBasicDefinition()->getMode() === BasicDefinitionInterface::MODE_HIERARCHICAL) {
-            // Are we at least in hierarchical mode?
-            $parent = $this->searchParentOf($model);
-
-            if (!$parent instanceof ModelInterface) {
-                throw new DcGeneralRuntimeException(
-                    'Parent could not be found, are the parent child conditions correct?'
-                );
-            }
-
-            $condition = $relationships->getChildCondition($parent->getProviderName(), $model->getProviderName());
-            $config->setFilter($condition->getFilter($parent));
-        }
-
-        if ($sortingProperty) {
-            $config->setSorting(array((string) $sortingProperty => 'ASC'));
-        }
-
-        // Handle grouping.
-        /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
-        $viewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-        if ($viewDefinition && $viewDefinition instanceof Contao2BackendViewDefinitionInterface) {
-            $listingConfig        = $viewDefinition->getListingConfig();
-            $sortingProperties    = array_keys((array) $listingConfig->getDefaultSortingFields());
-            $sortingPropertyIndex = array_search($sortingProperty, $sortingProperties);
-
-            if ($sortingPropertyIndex !== false && $sortingPropertyIndex > 0) {
-                $sortingProperties = array_slice($sortingProperties, 0, $sortingPropertyIndex);
-                $filters           = $config->getFilter();
-
-                foreach ($sortingProperties as $propertyName) {
-                    $filters[] = array(
-                        'operation' => '=',
-                        'property'  => $propertyName,
-                        'value'     => $model->getProperty($propertyName),
-                    );
-                }
-
-                $config->setFilter($filters);
-            }
-        }
-
-        $siblings = $provider->fetchAll($config);
-
-        return $siblings;
+        return $this->modelCollector->collectSiblingsOf($model, $sortingProperty, $parentId);
     }
 
     /**
@@ -509,24 +414,21 @@ class DefaultController implements ControllerInterface
      * {@inheritDoc}
      *
      * @throws \InvalidArgumentException When the model id is invalid.
+     *
+     * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::getModel().
+     *
+     * @see \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::getModel().
      */
     public function fetchModelFromProvider($modelId, $providerName = null)
     {
-        if ($providerName === null) {
-            if (is_string($modelId)) {
-                $modelId = ModelId::fromSerialized($modelId);
-            }
-        } else {
-            $modelId = ModelId::fromValues($providerName, $modelId);
-        }
-        if (!($modelId instanceof ModelIdInterface)) {
-            throw new \InvalidArgumentException('Invalid model id passed: ' . var_export($modelId, true));
-        }
+        // @codingStandardsIgnoreStart
+        @trigger_error(
+            'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::getModel()',
+            E_USER_DEPRECATED
+        );
+        // @codingStandardsIgnoreEnd
 
-        $dataProvider = $this->getEnvironment()->getDataProvider($modelId->getDataProviderName());
-        $item         = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-
-        return $item;
+        return $this->modelCollector->getModel($modelId, $providerName);
     }
 
     /**
@@ -563,12 +465,7 @@ class DefaultController implements ControllerInterface
             return null;
         }
 
-        $environment  = $this->getEnvironment();
-        $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
-        $config       = $dataProvider->getEmptyConfig()->setId($modelId->getId());
-        $model        = $dataProvider->fetch($config);
-
-        return $model;
+        return $this->modelCollector->getModel($modelId);
     }
 
     /**
@@ -581,20 +478,15 @@ class DefaultController implements ControllerInterface
 
         foreach ($items as $item) {
             /** @var ItemInterface $item */
-            $modelId      = $item->getModelId();
-            $dataProvider = $environment->getDataProvider($item->getDataProviderName());
-
-            if ($modelId) {
-                $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-
+            if (null !== ($modelId = $item->getModelId())) {
                 // Make sure model exists.
-                if ($model) {
+                if (null !== ($model = $this->modelCollector->getModel($modelId))) {
                     $models->push($model);
                 }
                 continue;
             }
 
-            $models->push($dataProvider->getEmptyModel());
+            $models->push($environment->getDataProvider($item->getDataProviderName())->getEmptyModel());
         }
 
         return $models;
@@ -652,14 +544,7 @@ class DefaultController implements ControllerInterface
      */
     private function getActionsFromSource(ModelIdInterface $source, ModelIdInterface $parentModelId = null)
     {
-        $environment  = $this->getEnvironment();
-        $dataProvider = $environment->getDataProvider($source->getDataProviderName());
-
-        $filterConfig = $dataProvider->getEmptyConfig();
-        $filterConfig->setId($source->getId());
-
-        $model = $dataProvider->fetch($filterConfig);
-
+        $model   = $this->modelCollector->getModel($source);
         $actions = array(
             array(
                 'model' => $model,
@@ -705,10 +590,7 @@ class DefaultController implements ControllerInterface
             $model = null;
 
             if (!$item->isCreate() && $item->getModelId()) {
-                $modelId      = $item->getModelId();
-                $dataProvider = $environment->getDataProvider($item->getDataProviderName());
-                $config       = $dataProvider->getEmptyConfig()->setId($modelId->getId());
-                $model        = $dataProvider->fetch($config);
+                $model = $this->modelCollector->getModel($item->getModelId()->getId(), $item->getDataProviderName());
             }
 
             $actions[] = array(
@@ -738,12 +620,8 @@ class DefaultController implements ControllerInterface
         ModelIdInterface $parentModelId = null,
         array &$items = array()
     ) {
-        $environment = $this->getEnvironment();
-
         if ($parentModelId) {
-            $dataProvider = $environment->getDataProvider($parentModelId->getDataProviderName());
-            $config       = $dataProvider->getEmptyConfig()->setId($parentModelId->getId());
-            $parentModel  = $dataProvider->fetch($config);
+            $parentModel = $this->modelCollector->getModel($parentModelId);
         } else {
             $parentModel = null;
         }
@@ -783,8 +661,6 @@ class DefaultController implements ControllerInterface
      */
     private function applyAction(array &$action, array &$deepCopyList, ModelInterface $parentModel = null)
     {
-        $environment = $this->getEnvironment();
-
         /** @var ModelInterface|null $model */
         $model = $action['model'];
         /** @var ItemInterface $item */
@@ -795,11 +671,7 @@ class DefaultController implements ControllerInterface
             $model = $this->createEmptyModelWithDefaults();
         } elseif ($item->isCopy() || $item->isDeepCopy()) {
             // copy model
-            $modelId      = ModelId::fromModel($model);
-            $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
-            $config       = $dataProvider->getEmptyConfig()->setId($modelId->getId());
-            $model        = $dataProvider->fetch($config);
-
+            $model       = $this->modelCollector->getModel(ModelId::fromModel($model));
             $clonedModel = $this->doCloneAction($model);
 
             if ($item->isDeepCopy()) {
@@ -865,8 +737,7 @@ class DefaultController implements ControllerInterface
         if ($groupingMode && $after && $after->getId()) {
             // when pasting after another item, inherit the grouping field
             $groupingField = $groupingMode['property'];
-            $dataProvider  = $environment->getDataProvider($after->getDataProviderName());
-            $previous      = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($after->getId()));
+            $previous      = $this->modelCollector->getModel($after);
             $groupingValue = $previous->getProperty($groupingField);
 
             foreach ($actions as $action) {
@@ -915,13 +786,9 @@ class DefaultController implements ControllerInterface
         }
 
         if ($after && $after->getId()) {
-            $dataProvider = $environment->getDataProvider($after->getDataProviderName());
-            $previous     = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($after->getId()));
-            $this->pasteAfter($previous, $models, $manualSorting);
+            $this->pasteAfter($this->modelCollector->getModel($after), $models, $manualSorting);
         } elseif ($into && $into->getId()) {
-            $dataProvider = $environment->getDataProvider($into->getDataProviderName());
-            $parent       = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($into->getId()));
-            $this->pasteInto($parent, $models, $manualSorting);
+            $this->pasteInto($this->modelCollector->getModel($into), $models, $manualSorting);
         } elseif (($after && $after->getId() == '0') || ($into && $into->getId() == '0')) {
             if ($dataDefinition->getBasicDefinition()->getMode() === BasicDefinitionInterface::MODE_HIERARCHICAL) {
                 $this->relationshipManager->setAllRoot($models);
@@ -1045,7 +912,7 @@ class DefaultController implements ControllerInterface
         $environment = $this->getEnvironment();
 
         // Enforce proper sorting now.
-        $siblings    = $this->assembleSiblingsFor($models->get(0), $sortedBy, $parentId);
+        $siblings    = $this->modelCollector->collectSiblingsOf($models->get(0), $sortedBy, $parentId);
         $sortManager = new SortingManager($models, $siblings, $sortedBy, null);
         $newList     = $sortManager->getResults();
 
@@ -1075,8 +942,7 @@ class DefaultController implements ControllerInterface
             )
         )) {
             if (!$this->relationshipManager->isRoot($previousModel)) {
-
-                $parentModel = $this->searchParentOf($previousModel);
+                $parentModel = $this->modelCollector->searchParentOf($previousModel);
                 $parentName  = $parentModel->getProviderName();
                 $this->relationshipManager->setSameParentForAll($models, $previousModel, $parentName);
             } else {
@@ -1085,7 +951,7 @@ class DefaultController implements ControllerInterface
         }
 
         // Enforce proper sorting now.
-        $siblings    = $this->assembleSiblingsFor($previousModel, $sortedBy);
+        $siblings    = $this->modelCollector->collectSiblingsOf($previousModel, $sortedBy);
         $sortManager = new SortingManager($models, $siblings, $sortedBy, $previousModel);
         $newList     = $sortManager->getResults();
 
