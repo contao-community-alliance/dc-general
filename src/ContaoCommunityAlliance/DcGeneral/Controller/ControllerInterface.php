@@ -241,6 +241,10 @@ interface ControllerInterface
      * @param ModelInterface $model The model to check.
      *
      * @return bool
+     *
+     * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::isRoot().
+     *
+     * @see \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::isRoot()
      */
     public function isRootModel(ModelInterface $model);
 
@@ -250,6 +254,10 @@ interface ControllerInterface
      * @param ModelInterface $model The model to be used as root.
      *
      * @return ControllerInterface
+     *
+     * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setRoot().
+     *
+     * @see \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setRoot()
      */
     public function setRootModel(ModelInterface $model);
 
@@ -261,6 +269,10 @@ interface ControllerInterface
      * @param ModelInterface $parentModel The model to use as parent.
      *
      * @return ControllerInterface
+     *
+     * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setParent().
+     *
+     * @see \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setParent()
      */
     public function setParent(ModelInterface $childModel, ModelInterface $parentModel);
 
@@ -276,6 +288,10 @@ interface ControllerInterface
      * @param string         $parentTable    The name of the parent table for the models.
      *
      * @return ControllerInterface
+     *
+     * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setSameParent().
+     *
+     * @see \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setSameParent()
      */
     public function setSameParent(ModelInterface $receivingModel, ModelInterface $sourceModel, $parentTable);
 }

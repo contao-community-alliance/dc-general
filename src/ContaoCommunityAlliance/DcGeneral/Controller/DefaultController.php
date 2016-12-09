@@ -74,6 +74,13 @@ class DefaultController implements ControllerInterface
     private $environment;
 
     /**
+     * The relationship manager.
+     *
+     * @var RelationshipManager
+     */
+    private $relationshipManager;
+
+    /**
      * Error message.
      *
      * @var string
@@ -110,7 +117,12 @@ class DefaultController implements ControllerInterface
      */
     public function setEnvironment(EnvironmentInterface $environment)
     {
-        $this->environment = $environment;
+        $this->environment         = $environment;
+        $definition                = $environment->getDataDefinition();
+        $this->relationshipManager = new RelationshipManager(
+            $definition->getModelRelationshipDefinition(),
+            $definition->getBasicDefinition()->getMode()
+        );
 
         return $this;
     }
@@ -1065,16 +1077,13 @@ class DefaultController implements ControllerInterface
                 BasicDefinitionInterface::MODE_PARENTEDLIST
             )
         )) {
-            $parentModel = null;
-            $parentModel = null;
+            if (!$this->relationshipManager->isRoot($previousModel)) {
 
-            if (!$this->isRootModel($previousModel)) {
                 $parentModel = $this->searchParentOf($previousModel);
-            }
-
-            foreach ($models as $model) {
-                /** @var ModelInterface $model */
-                $this->setSameParent($model, $previousModel, $parentModel ? $parentModel->getProviderName() : null);
+                $parentName  = $parentModel->getProviderName();
+                $this->relationshipManager->setSameParentForAll($models, $previousModel, $parentName);
+            } else {
+                $this->relationshipManager->setAllRoot($models);
             }
         }
 
@@ -1093,9 +1102,7 @@ class DefaultController implements ControllerInterface
     {
         $environment = $this->getEnvironment();
 
-        foreach ($models as $model) {
-            $this->setParent($model, $parentModel);
-        }
+        $this->relationshipManager->setParentForAll($models, $parentModel);
 
         // Enforce proper sorting now.
         $siblings    = $this->assembleChildrenFor($parentModel, $sortedBy);
@@ -1107,69 +1114,61 @@ class DefaultController implements ControllerInterface
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::isRoot().
+     *
+     * @see \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::isRoot()
      */
     public function isRootModel(ModelInterface $model)
     {
-        if ($this
-                ->getEnvironment()
-                ->getDataDefinition()
-                ->getBasicDefinition()
-                ->getMode() !== BasicDefinitionInterface::MODE_HIERARCHICAL
-        ) {
-            return false;
-        }
-
-        return $this
-            ->getEnvironment()
-            ->getDataDefinition()
-            ->getModelRelationshipDefinition()
-            ->getRootCondition()
-            ->matches($model);
+        return $this->relationshipManager->isRoot($model);
     }
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setRoot().
+     *
+     * @see \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setRoot()
      */
     public function setRootModel(ModelInterface $model)
     {
-        $rootCondition = $this
-            ->getEnvironment()
-            ->getDataDefinition()
-            ->getModelRelationshipDefinition()
-            ->getRootCondition();
-
-        $rootCondition->applyTo($model);
+        $this->relationshipManager->setRoot($model);
 
         return $this;
     }
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setParent().
+     *
+     * @see \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setParent()
      */
     public function setParent(ModelInterface $childModel, ModelInterface $parentModel)
     {
-        $this
-            ->getEnvironment()
-            ->getDataDefinition()
-            ->getModelRelationshipDefinition()
-            ->getChildCondition($parentModel->getProviderName(), $childModel->getProviderName())
-            ->applyTo($parentModel, $childModel);
+        $this->relationshipManager->setParent($childModel, $parentModel);
+
+        return $this;
     }
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setSameParent().
+     *
+     * @see \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setSameParent()
      */
     public function setSameParent(ModelInterface $receivingModel, ModelInterface $sourceModel, $parentTable)
     {
-        if ($this->isRootModel($sourceModel)) {
-            $this->setRootModel($receivingModel);
-        } else {
-            $this
-                ->getEnvironment()
-                ->getDataDefinition()
-                ->getModelRelationshipDefinition()
-                ->getChildCondition($parentTable, $receivingModel->getProviderName())
-                ->copyFrom($sourceModel, $receivingModel);
+        if ($this->relationshipManager->isRoot($sourceModel)) {
+            $this->relationshipManager->setRoot($receivingModel);
+
+            return $this;
         }
+
+        $this->relationshipManager->setSameParent($receivingModel, $sourceModel, $parentTable);
+
+        return $this;
     }
 }
