@@ -401,7 +401,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     public function matches($objParent, $objChild)
     {
         try {
-            $this->guardProviderNames($objParent, $objChild);
+            $this->guardProviderNames($objChild, $objParent);
         } catch (\InvalidArgumentException $exception) {
             return false;
         }
