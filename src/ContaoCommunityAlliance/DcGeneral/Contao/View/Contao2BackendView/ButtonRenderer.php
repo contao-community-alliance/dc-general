@@ -28,6 +28,7 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
+use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
@@ -144,9 +145,10 @@ class ButtonRenderer
             return $item->getAction() === $item::CUT;
         });
         $cutModels = $controller->getModelsFromClipboardItems($cutItems);
+        $collector = new ModelCollector($environment);
         foreach ($cutModels as $model) {
             $providerName = $model->getProviderName();
-            foreach ($controller->assembleAllChildrenFrom($model) as $subModel) {
+            foreach ($collector->collectChildrenOf($model) as $subModel) {
                 $this->circularModelIds[] = ModelId::fromValues($providerName, $subModel)->getSerialized();
             }
         }
