@@ -77,7 +77,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     public function setFilterArray($value)
     {
-        $this->filter = $value;
+        $this->filter = (array) $value;
         unset($this->neededProperties);
 
         return $this;
@@ -96,7 +96,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     public function setSetters($value)
     {
-        $this->setOn = $value;
+        $this->setOn = (array) $value;
 
         return $this;
     }
@@ -114,7 +114,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     public function setInverseFilterArray($value)
     {
-        $this->inverseFilter = $value;
+        $this->inverseFilter = (array) $value;
 
         return $this;
     }
@@ -132,7 +132,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     public function setSourceName($value)
     {
-        $this->sourceProvider = $value;
+        $this->sourceProvider = (string) $value;
 
         return $this;
     }
@@ -150,7 +150,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     public function setDestinationName($value)
     {
-        $this->destinationProvider = $value;
+        $this->destinationProvider = (string) $value;
 
         return $this;
     }
