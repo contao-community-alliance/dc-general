@@ -24,7 +24,6 @@ use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistry;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Clipboard;
 use ContaoCommunityAlliance\DcGeneral\Contao\InputProvider;
 use ContaoCommunityAlliance\DcGeneral\Contao\SessionStorage;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 use ContaoCommunityAlliance\DcGeneral\Controller\DefaultController;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentPopulator\AbstractEventDrivenEnvironmentPopulator;
