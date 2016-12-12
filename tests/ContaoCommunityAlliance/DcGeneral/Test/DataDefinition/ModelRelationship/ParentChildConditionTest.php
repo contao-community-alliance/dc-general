@@ -89,6 +89,64 @@ class ParentChildConditionTest extends TestCase
     }
 
     /**
+     * Test that the matches method does not match when no provider name set.
+     *
+     * @return void
+     */
+    public function testMatchesForNoParentProvider()
+    {
+        $parent = new DefaultModel();
+        $parent->setId(1);
+        $parent->setProviderName('test2-provider');
+
+        $child = new DefaultModel();
+        $child->setPropertyRaw('pid', 1);
+        $child->setProviderName('test-provider');
+
+        $condition = new ParentChildCondition();
+        $condition
+            ->setFilterArray(
+                [[
+                     'local'     => 'id',
+                     'operation' => '=',
+                     'remote'    => 'pid'
+                ]]
+            )
+            ->setDestinationName('test-provider');
+
+        $this->assertFalse($condition->matches($parent, $child));
+    }
+
+    /**
+     * Test that the matches method does not match when no provider name set.
+     *
+     * @return void
+     */
+    public function testMatchesForNoDestinationProvider()
+    {
+        $parent = new DefaultModel();
+        $parent->setId(1);
+        $parent->setProviderName('test2-provider');
+
+        $child = new DefaultModel();
+        $child->setPropertyRaw('pid', 1);
+        $child->setProviderName('test-provider');
+
+        $condition = new ParentChildCondition();
+        $condition
+            ->setFilterArray(
+                [[
+                     'local'     => 'id',
+                     'operation' => '=',
+                     'remote'    => 'pid'
+                ]]
+            )
+            ->setSourceName('test2-provider');
+
+        $this->assertFalse($condition->matches($parent, $child));
+    }
+
+    /**
      * Test the matches method().
      *
      * @return void
