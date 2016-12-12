@@ -501,7 +501,7 @@ class TreeView extends BaseView
      *
      * @deprecated Use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener
      *
-     * @see ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener
+     * @see \ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener
      */
     public function enforceModelRelationship($model)
     {
