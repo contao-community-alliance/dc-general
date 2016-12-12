@@ -37,7 +37,7 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentPopulator\AbstractEventDrivenEn
  */
 class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
 {
-    const PRIORITY = 1000;
+    const PRIORITY = -100;
 
     /**
      * Create a controller instance in the environment if none has been defined yet.
