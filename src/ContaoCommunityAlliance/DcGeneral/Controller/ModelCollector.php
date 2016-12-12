@@ -386,6 +386,7 @@ class ModelCollector
         // Root model?
         if ($this->isRootModel($model)) {
             $config->setFilter($this->rootCondition->getFilterArray());
+            return;
         }
 
         // Determine the hard way now.
