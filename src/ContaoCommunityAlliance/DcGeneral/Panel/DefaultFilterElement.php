@@ -23,7 +23,6 @@
 namespace ContaoCommunityAlliance\DcGeneral\Panel;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
 
@@ -148,7 +147,6 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             ->getFilterOptions($objTempConfig);
 
         $arrOptions = array();
-        /** @var ModelInterface $objOption */
         foreach ($objFilterOptions as $filterKey => $filterValue) {
             $arrOptions[(string) $filterKey] = $filterValue;
         }
@@ -202,20 +200,21 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             )
         );
 
+        $selectedValue = $this->getValue();
         foreach ($this->arrFilterOptions as $key => $value) {
             $arrOptions[] = array(
-                'value'      => $key,
+                'value'      => (string) $key,
                 'content'    => $value,
-                'attributes' => ($key === $this->getValue()) ? ' selected' : ''
+                'attributes' => ((string) $key === $selectedValue) ? ' selected' : ''
             );
         }
 
         $objTemplate->set('label', (is_array($arrLabel) ? $arrLabel[0] : $arrLabel));
         $objTemplate->set('name', $this->getPropertyName());
         $objTemplate->set('id', $this->getPropertyName());
-        $objTemplate->set('class', 'tl_select' . (($this->getValue() !== null) ? ' active' : ''));
+        $objTemplate->set('class', 'tl_select' . (($selectedValue !== null) ? ' active' : ''));
         $objTemplate->set('options', $arrOptions);
-        $objTemplate->set('active', $this->getValue());
+        $objTemplate->set('active', $selectedValue);
 
         return $this;
     }
