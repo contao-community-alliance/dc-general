@@ -146,12 +146,11 @@ class ListView extends BaseView
         // Generate the table header if the "show columns" option is active.
         if ($listingDefinition->getShowColumns()) {
             foreach ($formatter->getPropertyNames() as $f) {
-                $property = $properties->getProperty($f);
-                if ($property) {
-                    $label = $property->getLabel();
-                } else {
-                    $label = $f;
+                // Skip unknown properties. This may happen if the property is not defined for editing but only listing.
+                if (!$properties->hasProperty($f)) {
+                    continue;
                 }
+                $label = $properties->getProperty($f)->getLabel();
 
                 $arrTableHead[] = array(
                     'class'   => 'tl_folder_tlist col_' . $f . ((in_array($f, $sortingColumns)) ? ' ordered_by' : ''),
