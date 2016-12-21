@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2016 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Alexander Menk <alex.menk@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @copyright  2013-2016 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -30,6 +30,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
@@ -67,7 +68,7 @@ class ListView extends BaseView
     /**
      * Render paste top button. Returns null if no button should be rendered.
      *
-     * @param string $sorting The sorting mode.
+     * @param GroupAndSortingDefinitionInterface|null $sorting The sorting mode.
      *
      * @return string
      */
@@ -89,7 +90,7 @@ class ListView extends BaseView
                 $urlEvent = $dispatcher->dispatch(
                     ContaoEvents::BACKEND_ADD_TO_URL,
                     new AddToUrlEvent(
-                        'act=paste&after=' . IdSerializer::fromValues($definition->getName(), 0)->getSerialized()
+                        'act=paste&after=' . ModelId::fromValues($definition->getName(), '0')->getSerialized()
                     )
                 );
 
@@ -122,58 +123,24 @@ class ListView extends BaseView
      */
     protected function getTableHead()
     {
-        $arrTableHead      = array();
-        $definition        = $this->getEnvironment()->getDataDefinition();
-        $properties        = $definition->getPropertiesDefinition();
-        $viewDefinition    = $this->getViewSection();
-        $listingDefinition = $viewDefinition->getListingConfig();
-        $sorting           = ViewHelpers::getGroupingMode($this->environment);
-        $sortingDefinition = $sorting['sorting'];
-        $sortingColumns    = array();
-        $pasteTopButton    = $this->renderPasteTopButton($sorting);
-        $formatter         = $listingDefinition->getLabelFormatter($definition->getName());
-
-        if ($sortingDefinition) {
-            /** @var GroupAndSortingDefinitionInterface $sortingDefinition */
-            foreach ($sortingDefinition as $information) {
-                /** @var GroupAndSortingInformationInterface $information */
-                if ($information->getProperty()) {
-                    $sortingColumns[] = $information->getProperty();
-                }
-            }
-        }
-
         // Generate the table header if the "show columns" option is active.
-        if ($listingDefinition->getShowColumns()) {
-            foreach ($formatter->getPropertyNames() as $f) {
-                // Skip unknown properties. This may happen if the property is not defined for editing but only listing.
-                if (!$properties->hasProperty($f)) {
-                    continue;
-                }
-                $label = $properties->getProperty($f)->getLabel();
-
-                $arrTableHead[] = array(
-                    'class'   => 'tl_folder_tlist col_' . $f . ((in_array($f, $sortingColumns)) ? ' ordered_by' : ''),
-                    'content' => $label
-                );
-            }
-
-            $arrTableHead[] = array(
-                'class'   => 'tl_folder_tlist tl_right_nowrap',
-                'content' => $pasteTopButton ?: '&nbsp;'
-            );
-        } elseif ($pasteTopButton) {
-            $arrTableHead[] = array(
-                'class' => 'tl_folder_tlist',
-                'content' => '&nbsp;'
-            );
-            $arrTableHead[] = array(
-                'class'   => 'tl_folder_tlist tl_right_nowrap',
-                'content' => $pasteTopButton ?: '&nbsp;'
-            );
+        if ($this->getViewSection()->getListingConfig()->getShowColumns()) {
+            return $this->getTableHeadColumns();
+        }
+        if ($pasteTopButton = $this->renderPasteTopButton(ViewHelpers::getCurrentSorting($this->environment))) {
+            return [
+                [
+                    'class' => 'tl_folder_tlist',
+                    'content' => '&nbsp;'
+                ],
+                [
+                    'class'   => 'tl_folder_tlist tl_right_nowrap',
+                    'content' => $pasteTopButton
+                ]
+            ];
         }
 
-        return $arrTableHead;
+        return [];
     }
 
     /**
@@ -228,7 +195,7 @@ class ListView extends BaseView
             }
 
             $cssClasses = array((((++$eoCount) % 2 == 0) ? 'even' : 'odd'));
-            $modelId    = IdSerializer::fromModel($objModelRow);
+            $modelId    = ModelId::fromModel($objModelRow);
             if ($clipboard->hasId($modelId)) {
                 $cssClasses[] = 'tl_folder_clipped';
             }
@@ -267,17 +234,7 @@ class ListView extends BaseView
             $buttonRenderer = new ButtonRenderer($this->environment);
             $buttonRenderer->renderButtonsForCollection($collection);
         }
-
-        // Add template.
-        if (isset($groupingInformation['mode'])
-            && ($groupingInformation['mode'] != GroupAndSortingInformationInterface::GROUP_NONE)
-        ) {
-            $objTemplate = $this->getTemplate('dcbe_general_grouping');
-        } elseif (isset($groupingInformation['property']) && ($groupingInformation['property'] != '')) {
-            $objTemplate = $this->getTemplate('dcbe_general_listView_sorting');
-        } else {
-            $objTemplate = $this->getTemplate('dcbe_general_listView');
-        }
+        $objTemplate = $this->determineTemplate($groupingInformation);
 
         $this
             ->addToTemplate('tableName', strlen($definition->getName()) ? $definition->getName() : 'none', $objTemplate)
@@ -294,8 +251,7 @@ class ListView extends BaseView
             ->addToTemplate('showColumns', $this->getViewSection()->getListingConfig()->getShowColumns(), $objTemplate);
 
         // Add breadcrumb, if we have one.
-        $strBreadcrumb = $this->breadcrumb();
-        if ($strBreadcrumb != null) {
+        if (null !== ($strBreadcrumb = $this->breadcrumb())) {
             $this->addToTemplate('breadcrumb', $strBreadcrumb, $objTemplate);
         }
 
@@ -324,5 +280,86 @@ class ListView extends BaseView
 
         // Return all.
         return implode("\n", $arrReturn);
+    }
+
+    /**
+     * Determine the template to use.
+     *
+     * @param array $groupingInformation The grouping information as retrieved via ViewHelpers::getGroupingMode().
+     *
+     * @return ContaoBackendViewTemplate
+     */
+    private function determineTemplate($groupingInformation)
+    {
+        if (isset($groupingInformation['mode'])
+            && ($groupingInformation['mode'] != GroupAndSortingInformationInterface::GROUP_NONE)
+        ) {
+            return $this->getTemplate('dcbe_general_grouping');
+        }
+
+        if (isset($groupingInformation['property']) && ($groupingInformation['property'] != '')) {
+            return $this->getTemplate('dcbe_general_listView_sorting');
+        }
+
+        return $this->getTemplate('dcbe_general_listView');
+    }
+
+    /**
+     * Build the table head for the show column layout.
+     *
+     * @return array
+     */
+    private function getTableHeadColumns()
+    {
+        $tableHead         = [];
+        $definition        = $this->getEnvironment()->getDataDefinition();
+        $properties        = $definition->getPropertiesDefinition();
+        $sortingDefinition = ViewHelpers::getCurrentSorting($this->environment);
+        $formatter         = $this->getViewSection()->getListingConfig()->getLabelFormatter($definition->getName());
+        $sortingColumns    = $this->getSortingColumns($sortingDefinition);
+        foreach ($formatter->getPropertyNames() as $f) {
+            // Skip unknown properties. This may happen if the property is not defined for editing but only listing.
+            if (!$properties->hasProperty($f)) {
+                continue;
+            }
+            $label = $properties->getProperty($f)->getLabel();
+
+            $tableHead[] = array(
+                'class'   => 'tl_folder_tlist col_' . $f . ((in_array($f, $sortingColumns)) ? ' ordered_by' : ''),
+                'content' => $label
+            );
+        }
+
+        $tableHead[] = array(
+            'class'   => 'tl_folder_tlist tl_right_nowrap',
+            'content' => $this->renderPasteTopButton($sortingDefinition) ?: '&nbsp;'
+        );
+
+        return $tableHead;
+    }
+
+    /**
+     * Determine the current sorting columns.
+     *
+     * @param GroupAndSortingDefinitionInterface|null $sortingDefinition The sorting definition.
+     *
+     * @return array
+     */
+    private function getSortingColumns($sortingDefinition)
+    {
+        if (null === $sortingDefinition) {
+            return [];
+        }
+
+        $sortingColumns = [];
+        /** @var GroupAndSortingDefinitionInterface $sortingDefinition */
+        foreach ($sortingDefinition as $information) {
+            /** @var GroupAndSortingInformationInterface $information */
+            if ($information->getProperty()) {
+                $sortingColumns[] = $information->getProperty();
+            }
+        }
+
+        return $sortingColumns;
     }
 }
