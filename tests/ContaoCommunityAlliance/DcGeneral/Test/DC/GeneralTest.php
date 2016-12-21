@@ -86,7 +86,8 @@ class DC_GeneralTest extends TestCase
                         'class'        => 'ContaoCommunityAlliance\DcGeneral\Data\NoOpDataProvider',
                     )
                 ),
-            )
+            ),
+            'palettes' => []
         );
 
         $dataContainer = new \DC_General('tl_foo');
