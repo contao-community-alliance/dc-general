@@ -64,7 +64,7 @@ class ManipulateWidgetEvent extends AbstractModelAwareEvent
      *
      * @param PropertyInterface    $property    The property information for which the widget is created.
      *
-     * @param Widget              $widget      The widget instance to manipulate.
+     * @param Widget               $widget      The widget instance to manipulate.
      */
     public function __construct(
         EnvironmentInterface $environment,

@@ -32,7 +32,6 @@ use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
  */
 class DcCompat extends DC_General
 {
-
     /**
      * The current model.
      *
