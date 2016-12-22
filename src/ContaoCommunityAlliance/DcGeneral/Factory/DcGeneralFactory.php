@@ -383,13 +383,13 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
         /** @var ContainerInterface $dataContainer */
         $dataContainer = $containerClass->newInstance($this->containerName);
 
-        $definitions->setDefinition($this->containerName, $dataContainer);
-
         // Backwards compatibility.
         $this->getEventDispatcher()->dispatch(
             BuildDataDefinitionEvent::NAME,
             new BuildDataDefinitionEvent($dataContainer)
         );
+
+        $definitions->setDefinition($this->containerName, $dataContainer);
 
         return clone $dataContainer;
     }
