@@ -39,6 +39,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\ParentEnforcingListener;
 use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener;
+use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 
@@ -54,6 +55,22 @@ $result = array(
         ),
     ),
     PopulateEnvironmentEvent::NAME => array(
+        function (PopulateEnvironmentEvent $event) {
+            $environment = $event->getEnvironment();
+            $definition  = $environment->getDataDefinition();
+            $parentName  = $definition->getBasicDefinition()->getParentDataProvider();
+
+            if (empty($parentName)) {
+                return;
+            }
+
+            $factory     = DcGeneralFactory::deriveEmptyFromEnvironment($environment)->setContainerName(
+                $parentName
+            );
+            $parentDefinition = $factory->createContainer();
+
+            $environment->setParentDataDefinition($parentDefinition);
+        },
         array(
             array(new DataProviderPopulator(), 'process'),
             DataProviderPopulator::PRIORITY
