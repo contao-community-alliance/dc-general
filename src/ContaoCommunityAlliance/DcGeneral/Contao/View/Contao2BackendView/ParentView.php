@@ -454,10 +454,7 @@ class ParentView extends BaseView
                 'id'    => ModelId::fromModel($parentModel)->getSerialized(),
             );
 
-            $factory = DcGeneralFactory::deriveFromEnvironment($this->environment);
-            $factory->setContainerName($parentDefinition->getName());
-
-            $parentContainer = $factory->createContainer();
+            $parentContainer = $this->environment->getParentDataDefinition();
             if ($parentContainer->getBasicDefinition()->getParentDataProvider()) {
                 $container = $this->environment->getDataDefinition();
 
