@@ -108,22 +108,35 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
                     $parentName = $definition->getBasicDefinition()->getParentDataProvider();
                     if ($parentName) {
-                        $factory          = DcGeneralFactory::deriveEmptyFromEnvironment(
-                            $environment
-                        )->setContainerName(
-                            $parentName
-                        );
-                        $parentDefinition = $factory->createContainer();
-
+                        if ($parentName === $definition->getName()) {
+                            $parentDefinition = $definition;
+                        } else {
+                            $factory          = new DcGeneralFactory();
+                            $parentDefinition = $factory
+                                ->setEventDispatcher($environment->getEventDispatcher())
+                                ->setTranslator($environment->getTranslator())
+                                ->setContainerName($parentName)
+                                ->createDcGeneral()
+                                ->getEnvironment()
+                                ->getDataDefinition();
+                        }
                         $environment->setParentDataDefinition($parentDefinition);
                     }
 
                     $rootName = $definition->getBasicDefinition()->getRootDataProvider();
                     if ($rootName) {
-                        $factory        = DcGeneralFactory::deriveEmptyFromEnvironment($environment)->setContainerName(
-                            $rootName
-                        );
-                        $rootDefinition = $factory->createContainer();
+                        if ($rootName === $definition->getName()) {
+                            $rootDefinition = $definition;
+                        } else {
+                            $factory        = new DcGeneralFactory();
+                            $rootDefinition = $factory
+                                ->setEventDispatcher($environment->getEventDispatcher())
+                                ->setTranslator($environment->getTranslator())
+                                ->setContainerName($rootName)
+                                ->createDcGeneral()
+                                ->getEnvironment()
+                                ->getDataDefinition();
+                        }
 
                         $environment->setRootDataDefinition($rootDefinition);
                     }

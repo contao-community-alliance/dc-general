@@ -64,10 +64,14 @@ $result = array(
                 return;
             }
 
-            $factory     = DcGeneralFactory::deriveEmptyFromEnvironment($environment)->setContainerName(
-                $parentName
-            );
-            $parentDefinition = $factory->createContainer();
+            $factory          = new DcGeneralFactory();
+            $parentDefinition = $factory
+                ->setEventDispatcher($environment->getEventDispatcher())
+                ->setTranslator($environment->getTranslator())
+                ->setContainerName($parentName)
+                ->createDcGeneral()
+                ->getEnvironment()
+                ->getDataDefinition();
 
             $environment->setParentDataDefinition($parentDefinition);
         },
