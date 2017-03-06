@@ -31,6 +31,8 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandl
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\CreateHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\DeleteHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\EditHandler;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ListViewShowAllHandler;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ParentedListViewShowAllHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\PasteHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\SelectHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ToggleHandler;
@@ -134,7 +136,9 @@ if ('BE' === TL_MODE) {
         array(new SelectHandler(), 'handleEvent'),
         array(new CopyHandler(), 'handleEvent'),
         array(new DeleteHandler(), 'handleEvent'),
-        array(new ToggleHandler(), 'handleEvent')
+        array(new ToggleHandler(), 'handleEvent'),
+        array(new ListViewShowAllHandler(), 'handleEvent'),
+        array(new ParentedListViewShowAllHandler(), 'handleEvent'),
     );
     $result[GetGlobalButtonEvent::NAME] = [
         [new BackButtonListener(), 'handle'],
