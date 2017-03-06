@@ -27,7 +27,6 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\Template;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
-use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
@@ -35,15 +34,12 @@ use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ShowHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -622,99 +618,14 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Render a single header button.
-     *
-     * @param CommandInterface $command The command definition.
-     *
-     * @return string
-     */
-    protected function generateHeaderButton(CommandInterface $command)
-    {
-        $environment = $this->getEnvironment();
-        $extra       = $command->getExtra();
-        $label       = $this->translateFallback($command->getLabel());
-        $dispatcher  = $environment->getEventDispatcher();
-
-        if (isset($extra['href'])) {
-            $href = $extra['href'];
-        } else {
-            $href = '';
-            foreach ($command->getParameters() as $key => $value) {
-                $href .= '&' . $key . '=' . $value;
-            }
-
-            /** @var AddToUrlEvent $event */
-            $event = $dispatcher->dispatch(
-                ContaoEvents::BACKEND_ADD_TO_URL,
-                new AddToUrlEvent(
-                    $href
-                )
-            );
-
-            $href = $event->getUrl();
-        }
-
-        if (!strlen($label)) {
-            $label = $command->getName();
-        }
-
-        $buttonEvent = new GetGlobalButtonEvent($this->getEnvironment());
-        $buttonEvent
-            ->setAccessKey(isset($extra['accesskey']) ? trim($extra['accesskey']) : null)
-            ->setAttributes(' ' . ltrim($extra['attributes']))
-            ->setClass($extra['class'])
-            ->setKey($command->getName())
-            ->setHref($href)
-            ->setLabel($label)
-            ->setTitle($this->translateFallback($command->getDescription()));
-        $environment->getEventDispatcher()->dispatch(GetGlobalButtonEvent::NAME, $buttonEvent);
-
-        // Allow to override the button entirely.
-        $html = $buttonEvent->getHtml();
-        if ($html !== null) {
-            return $html;
-        }
-
-        // Use the view native button building.
-        return sprintf(
-            '<a href="%s" class="%s" title="%s"%s>%s</a> ',
-            $buttonEvent->getHref(),
-            $buttonEvent->getClass(),
-            specialchars($buttonEvent->getTitle()),
-            $buttonEvent->getAttributes(),
-            $buttonEvent->getLabel()
-        );
-    }
-
-    /**
      * Generate all buttons for the header of a view.
      *
-     * @param string $strButtonId The id for the surrounding html div element.
-     *
      * @return string
      */
-    protected function generateHeaderButtons($strButtonId)
+    protected function generateHeaderButtons()
     {
-        /** @var CommandInterface[] $globalOperations */
-        $globalOperations = $this->getViewSection()->getGlobalCommands()->getCommands();
-        $buttons          = array();
-
-        if (!is_array($globalOperations)) {
-            $globalOperations = array();
-        }
-
-        foreach ($globalOperations as $command) {
-            if ($command->isDisabled()) {
-                continue;
-            }
-            $buttons[$command->getName()] = $this->generateHeaderButton($command);
-        }
-
-        $buttonsEvent = new GetGlobalButtonsEvent($this->getEnvironment());
-        $buttonsEvent->setButtons($buttons);
-        $this->getEnvironment()->getEventDispatcher()->dispatch(GetGlobalButtonsEvent::NAME, $buttonsEvent);
-
-        return '<div id="' . $strButtonId . '">' . implode('', $buttonsEvent->getButtons()) . '</div>';
+        $renderer = new GlobalButtonRenderer($this->environment);
+        return $renderer->render();
     }
 
     /**
