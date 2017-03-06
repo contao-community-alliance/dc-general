@@ -51,7 +51,6 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     {
         $factory = new DcGeneralFactory();
         $factory->setEventDispatcher($environment->getEventDispatcher());
-        $factory->setEventDispatcher($environment->getEventDispatcher());
         $factory->setTranslator($environment->getTranslator());
         $factory->setEnvironmentClassName(get_class($environment));
         $factory->setContainerClassName(get_class($environment->getDataDefinition()));
