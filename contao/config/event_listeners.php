@@ -30,6 +30,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\Subscriber\FormatModelLabelSubscrib
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\CopyHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\CreateHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\DeleteHandler;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\EditHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\PasteHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\SelectHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ToggleHandler;
@@ -129,6 +130,7 @@ if ('BE' === TL_MODE) {
     $result[DcGeneralEvents::ACTION] = array(
         array(new PasteHandler(), 'handleEvent'),
         array(new CreateHandler(), 'handleEvent'),
+        array(new EditHandler(), 'handleEvent'),
         array(new SelectHandler(), 'handleEvent'),
         array(new CopyHandler(), 'handleEvent'),
         array(new DeleteHandler(), 'handleEvent'),

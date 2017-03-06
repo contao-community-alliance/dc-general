@@ -26,9 +26,6 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\Template;
-use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
-use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
-use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
@@ -37,14 +34,12 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBr
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
-use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -453,61 +448,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Check the submitted data if we want to restore a previous version of a model.
-     *
-     * If so, the model will get loaded and marked as active version in the data provider and the client will perform a
-     * reload of the page.
-     *
-     * @return void
-     *
-     * @throws DcGeneralRuntimeException When the requested version could not be located in the database.
-     *
-     * @SuppressWarnings(PHPMD.LongVariable)
-     */
-    protected function checkRestoreVersion()
-    {
-        $environment   = $this->getEnvironment();
-        $definition    = $environment->getDataDefinition();
-        $inputProvider = $environment->getInputProvider();
-
-        if (!$inputProvider->hasParameter('id') || !$inputProvider->getParameter('id')) {
-            return;
-        }
-
-        $modelId                 = ModelId::fromSerialized($inputProvider->getParameter('id'));
-        $dataProviderDefinition  = $definition->getDataProviderDefinition();
-        $dataProvider            = $environment->getDataProvider($modelId->getDataProviderName());
-        $dataProviderInformation = $dataProviderDefinition->getInformation($modelId->getDataProviderName());
-
-        if ($dataProviderInformation->isVersioningEnabled()
-            && ($inputProvider->getValue('FORM_SUBMIT') === 'tl_version')
-            && ($modelVersion = $inputProvider->getValue('version')) !== null
-        ) {
-            $model = $dataProvider->getVersion($modelId->getId(), $modelVersion);
-
-            if ($model === null) {
-                $message = sprintf(
-                    'Could not load version %s of record ID %s from %s',
-                    $modelVersion,
-                    $modelId->getId(),
-                    $modelId->getDataProviderName()
-                );
-
-                $environment->getEventDispatcher()->dispatch(
-                    ContaoEvents::SYSTEM_LOG,
-                    new LogEvent($message, TL_ERROR, 'DC_General - checkRestoreVersion()')
-                );
-
-                throw new DcGeneralRuntimeException($message);
-            }
-
-            $dataProvider->save($model);
-            $dataProvider->setVersionActive($modelId->getId(), $modelVersion);
-            $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
-        }
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function enforceModelRelationship($model)
@@ -518,59 +458,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritdoc}
      *
-     * @throws DcGeneralRuntimeException When the model could not be found by the data provider.
+     * @throws \RuntimeException This method is not in use anymore.
      */
     public function edit(Action $action)
     {
-        $environment   = $this->getEnvironment();
-        $inputProvider = $environment->getInputProvider();
-        $modelId       = ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id'))
-            ? IdSerializer::fromSerialized($inputProvider->getParameter('id'))
-            : null;
-        $dataProvider  = $environment->getDataProvider($modelId ? $modelId->getDataProviderName() : null);
-
-        $this->checkRestoreVersion();
-
-        if ($modelId && $modelId->getId()) {
-            $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-        } else {
-            $model = $this->getEnvironment()->getController()->createEmptyModelWithDefaults();
-        }
-
-        if (!$model) {
-            throw new DcGeneralRuntimeException('Could not retrieve model with id ' . $modelId->getSerialized());
-        }
-
-        // We need to keep the original data here.
-        $originalModel = clone $model;
-        $originalModel->setId($model->getId());
-
-        return $this->createEditMask($model, $originalModel, null, null);
-    }
-
-    /**
-     * Create the edit mask.
-     *
-     * @param ModelInterface $model         The model with the current data.
-     *
-     * @param ModelInterface $originalModel The data from the original data.
-     *
-     * @param callable       $preFunction   The function to call before saving an item.
-     *
-     * @param callable       $postFunction  The function to call after saving an item.
-     *
-     * @return string
-     *
-     * @throws DcGeneralRuntimeException         If the data container is not editable, closed.
-     *
-     * @throws DcGeneralInvalidArgumentException If an unknown property is encountered in the palette.
-     *
-     * @SuppressWarnings(PHPMD.LongVariable)
-     */
-    protected function createEditMask($model, $originalModel, $preFunction, $postFunction)
-    {
-        $editMask = new EditMask($this, $model, $originalModel, $preFunction, $postFunction, $this->breadcrumb());
-        return $editMask->execute();
+        throw new \RuntimeException('I should not be here! :-\\');
     }
 
     /**
