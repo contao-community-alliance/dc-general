@@ -408,11 +408,12 @@ class ButtonRenderer
      */
     private function renderPasteNewFor($modelId)
     {
+        $label = sprintf($this->translate('pastenew.1'), ModelId::fromSerialized($modelId)->getId());
         return sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $this->addToUrl('act=create&amp;after=' . $modelId),
-            specialchars($this->translate('pastenew.1')),
-            $this->renderImageAsHtml('new.gif', $this->translate('pastenew.0'))
+            specialchars($label),
+            $this->renderImageAsHtml('new.gif', $label)
         );
     }
 
