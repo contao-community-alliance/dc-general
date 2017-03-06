@@ -51,9 +51,11 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ModelRelationshi
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\DefaultProperty;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\BackCommand;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CopyCommand;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CreateModelCommand;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CutCommand;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\DefaultModelFormatterConfig;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionCollectionInterface;
@@ -1080,11 +1082,13 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     {
         $operationsDca = $this->getFromDca('list/global_operations');
 
+        $collection = $view->getGlobalCommands();
+        $collection->addCommand(new BackCommand());
+        $collection->addCommand(new CreateModelCommand());
+
         if (!is_array($operationsDca)) {
             return;
         }
-
-        $collection = $view->getGlobalCommands();
 
         foreach (array_keys($operationsDca) as $operationName) {
             $command = $this->createCommand($operationName, $operationsDca[$operationName]);

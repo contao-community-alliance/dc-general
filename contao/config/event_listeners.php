@@ -34,7 +34,10 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandl
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\SelectHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ToggleHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\BackButtonListener;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\CreateModelButtonListener;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\GetGroupHeaderSubscriber;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\ParentEnforcingListener;
@@ -131,6 +134,10 @@ if ('BE' === TL_MODE) {
         array(new DeleteHandler(), 'handleEvent'),
         array(new ToggleHandler(), 'handleEvent')
     );
+    $result[GetGlobalButtonEvent::NAME] = [
+        [new BackButtonListener(), 'handle'],
+        [new CreateModelButtonListener(), 'handle'],
+    ];
 }
 
 return $result;

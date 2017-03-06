@@ -29,10 +29,8 @@ use Contao\Template;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
-use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
-use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ShowHandler;
@@ -44,9 +42,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSe
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
@@ -192,6 +188,25 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     protected function translate($path, $section = null)
     {
         return $this->getEnvironment()->getTranslator()->translate($path, $section);
+    }
+
+    /**
+     * Translate a string via the translator.
+     *
+     * @param string $path The path within the translation where the string can be found.
+     *
+     * @return string
+     */
+    protected function translateFallback($path)
+    {
+        $translator = $this->getEnvironment()->getTranslator();
+        // Try via definition name as domain first.
+        $value = $translator->translate($path, $this->getDataDefinition()->getName());
+        if ($value !== $path) {
+            return $value;
+        }
+
+        return $this->getEnvironment()->getTranslator()->translate($path);
     }
 
     /**
@@ -607,113 +622,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Create the "new" button.
-     *
-     * @return null|Command
-     */
-    protected function getCreateModelCommand()
-    {
-        $environment     = $this->getEnvironment();
-        $definition      = $environment->getDataDefinition();
-        $basicDefinition = $definition->getBasicDefinition();
-        $providerName    = $environment->getDataDefinition()->getName();
-        $mode            = $basicDefinition->getMode();
-        $config          = $this->getEnvironment()->getBaseConfigRegistry()->getBaseConfig();
-
-        if ($serializedPid = $environment->getInputProvider()->getParameter('pid')) {
-            $pid = ModelId::fromSerialized($serializedPid);
-        } else {
-            $pid = null;
-        }
-
-        if (!$basicDefinition->isCreatable()) {
-            return null;
-        }
-
-        $command    = new Command();
-        $parameters = $command->getParameters();
-        $extra      = $command->getExtra();
-
-        $extra['class']      = 'header_new';
-        $extra['accesskey']  = 'n';
-        $extra['attributes'] = 'onclick="Backend.getScrollOffset();"';
-
-        $command
-            ->setName('button_new')
-            ->setLabel($this->translate('new.0', $providerName))
-            ->setDescription($this->translate('new.1', $providerName));
-
-        $this->getPanel()->initialize($config);
-
-        // Add new button.
-        if (($mode == BasicDefinitionInterface::MODE_PARENTEDLIST)
-            || ($mode == BasicDefinitionInterface::MODE_HIERARCHICAL)
-        ) {
-            $filter = new Filter();
-            $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
-            if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
-                $filter->andParentIsFromProvider($parentDataProviderName);
-            } else {
-                $filter->andHasNoParent();
-            }
-
-            if ($environment->getClipboard()->isNotEmpty($filter)) {
-                return null;
-            }
-        }
-
-        $parameters['act'] = 'create';
-        // Add new button.
-        if ($pid) {
-            $parameters['pid'] = $pid->getSerialized();
-        }
-
-        return $command;
-    }
-
-    /**
-     * Create the "back" button.
-     *
-     * @return null|Command
-     */
-    protected function getBackCommand()
-    {
-        $environment = $this->getEnvironment();
-        if (!($this->isSelectModeActive()
-              || $environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider())
-        ) {
-            return null;
-        }
-
-        /** @var GetReferrerEvent $event */
-        if ($environment->getParentDataDefinition()) {
-            $event = $environment->getEventDispatcher()->dispatch(
-                ContaoEvents::SYSTEM_GET_REFERRER,
-                new GetReferrerEvent(true, $environment->getParentDataDefinition()->getName())
-            );
-        } else {
-            $event = $environment->getEventDispatcher()->dispatch(
-                ContaoEvents::SYSTEM_GET_REFERRER,
-                new GetReferrerEvent(true, $environment->getDataDefinition()->getName())
-            );
-        }
-
-        $command             = new Command();
-        $extra               = $command->getExtra();
-        $extra['class']      = 'header_back';
-        $extra['accesskey']  = 'b';
-        $extra['attributes'] = 'onclick="Backend.getScrollOffset();"';
-        $extra['href']       = $event->getReferrerUrl();
-
-        $command
-            ->setName('back_button')
-            ->setLabel($this->translate('MSC.backBT'))
-            ->setDescription($this->translate('MSC.backBT'));
-
-        return $command;
-    }
-
-    /**
      * Render a single header button.
      *
      * @param CommandInterface $command The command definition.
@@ -724,7 +632,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $environment = $this->getEnvironment();
         $extra       = $command->getExtra();
-        $label       = $this->translate($command->getLabel());
+        $label       = $this->translateFallback($command->getLabel());
         $dispatcher  = $environment->getEventDispatcher();
 
         if (isset($extra['href'])) {
@@ -758,7 +666,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             ->setKey($command->getName())
             ->setHref($href)
             ->setLabel($label)
-            ->setTitle($this->translate($command->getDescription()));
+            ->setTitle($this->translateFallback($command->getDescription()));
         $environment->getEventDispatcher()->dispatch(GetGlobalButtonEvent::NAME, $buttonEvent);
 
         // Allow to override the button entirely.
@@ -795,25 +703,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             $globalOperations = array();
         }
 
-        if ($this->isSelectModeActive()) {
-            // Special case - if select mode active, we must not display the "edit all" button.
-            unset($globalOperations['all']);
-        } else {
-            // We do not have the select mode.
-            $command = $this->getCreateModelCommand();
-            if ($command !== null) {
-                // New button always first.
-                array_unshift($globalOperations, $command);
-            }
-        }
-
-        $command = $this->getBackCommand();
-        if ($command !== null) {
-            // Back button always to the front.
-            array_unshift($globalOperations, $command);
-        }
-
         foreach ($globalOperations as $command) {
+            if ($command->isDisabled()) {
+                continue;
+            }
             $buttons[$command->getName()] = $this->generateHeaderButton($command);
         }
 
