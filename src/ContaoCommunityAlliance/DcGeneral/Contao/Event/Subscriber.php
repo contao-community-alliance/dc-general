@@ -202,9 +202,6 @@ class Subscriber implements EventSubscriberInterface
      * @param RenderReadablePropertyValueEvent $event The event being processed.
      *
      * @return void
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public static function renderReadablePropertyValue(RenderReadablePropertyValueEvent $event)
     {
@@ -249,7 +246,7 @@ class Subscriber implements EventSubscriberInterface
 
         if ($property->getWidgetType() == 'checkbox' && !$extra['multiple']) {
             $map = array(false => 'no', true => 'yes');
-            $event->setRendered($GLOBALS['TL_LANG']['MSC'][$map[(bool) $value]]);
+            $event->setRendered($event->getEnvironment()->getTranslator()->translate('MSC.' . $map[(bool) $value]));
 
             return;
         }
