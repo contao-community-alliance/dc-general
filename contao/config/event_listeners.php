@@ -120,7 +120,7 @@ if ('BE' === TL_MODE) {
     );
 
     $result[GetGroupHeaderEvent::NAME] = array(
-        array(new GetGroupHeaderSubscriber(), 'handle')
+        'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\GetGroupHeaderSubscriber::handle'
     );
 
     $result[BuildWidgetEvent::NAME] = array(
