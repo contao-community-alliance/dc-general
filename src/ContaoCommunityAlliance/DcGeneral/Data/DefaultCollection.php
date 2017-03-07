@@ -416,7 +416,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * Get a iterator for this collection.
      *
-     * @return \IteratorAggregate
+     * @return \Traversable
      */
     public function getIterator()
     {
