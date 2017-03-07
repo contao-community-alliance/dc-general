@@ -21,6 +21,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber;
 
+use Contao\Config;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
@@ -30,12 +31,39 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSor
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Handles the group header formatting.
  */
 class GetGroupHeaderSubscriber
 {
+    /**
+     * The event dispatcher.
+     *
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
+
+    /**
+     * The translator.
+     *
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    /**
+     * Create a new instance.
+     *
+     * @param EventDispatcherInterface $dispatcher The event dispatcher.
+     * @param TranslatorInterface      $translator The translator.
+     */
+    public function __construct(EventDispatcherInterface $dispatcher, TranslatorInterface $translator)
+    {
+        $this->dispatcher = $dispatcher;
+        $this->translator = $translator;
+    }
+
     /**
      * Handle the subscribed event.
      *
@@ -49,11 +77,23 @@ class GetGroupHeaderSubscriber
             return;
         }
 
-        $handler = new static();
+        $environment = $event->getEnvironment();
+        $property    = $environment
+            ->getDataDefinition()
+            ->getPropertiesDefinition()
+            ->getProperty($event->getGroupField());
+
+        // No property? Get out!
+        if (!$property) {
+            $event->setValue('-');
+            return;
+        }
+
+        $handler = new static($environment->getEventDispatcher(), $environment->getTranslator());
         $value   = $handler->formatGroupHeader(
-            $event->getEnvironment(),
+            $environment,
             $event->getModel(),
-            $event->getGroupField(),
+            $property,
             $event->getGroupingMode(),
             $event->getGroupingLength()
         );
@@ -67,34 +107,22 @@ class GetGroupHeaderSubscriber
      * Get the group header.
      *
      * @param EnvironmentInterface $environment    The environment.
-     *
-     * @param ModelInterface       $model          The model interface.
-     *
-     * @param string               $field          The grouping field name.
-     *
+     * @param ModelInterface       $model          The model.
+     * @param PropertyInterface    $property       The property.
      * @param int                  $groupingMode   The grouping mode.
-     *
      * @param int                  $groupingLength The grouping length.
      *
      * @return string
      */
-    public function formatGroupHeader($environment, $model, $field, $groupingMode, $groupingLength)
+    protected function formatGroupHeader($environment, $model, $property, $groupingMode, $groupingLength)
     {
-        $property = $environment->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
-
-        // No property? Get out!
-        if (!$property) {
-            return '-';
-        }
-
-        $translator = $environment->getTranslator();
-        $value      = $model->getProperty($property->getName());
         $evaluation = $property->getExtra();
 
         if ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple']) {
-            return $this->formatCheckboxOptionLabel($value, $translator);
-        } elseif ($groupingMode != GroupAndSortingInformationInterface::GROUP_NONE) {
-            return $this->formatByGroupingMode($value, $groupingMode, $groupingLength, $environment, $property, $model);
+            return $this->formatCheckboxOptionLabel($model->getProperty($property->getName()));
+        }
+        if ($groupingMode != GroupAndSortingInformationInterface::GROUP_NONE) {
+            return $this->formatByGroupingMode($groupingMode, $groupingLength, $environment, $property, $model);
         }
 
         $value = ViewHelpers::getReadableFieldValue($environment, $property, $model);
@@ -122,69 +150,121 @@ class GetGroupHeaderSubscriber
     /**
      * Format the grouping header for a checkbox option.
      *
-     * @param mixed               $value      The given value.
-     * @param TranslatorInterface $translator The translator.
+     * @param string $value The given value.
      *
      * @return string
      */
-    private function formatCheckboxOptionLabel($value, $translator)
+    private function formatCheckboxOptionLabel($value)
     {
         return ($value != '')
-            ? ucfirst($translator->translate('yes', 'MSC'))
-            : ucfirst($translator->translate('no', 'MSC'));
+            ? ucfirst($this->translator->translate('MSC.yes'))
+            : ucfirst($this->translator->translate('MSC.no'));
     }
 
     /**
      * Format the group header by the grouping mode.
      *
-     * @param mixed                $value          The given value.
-     *
      * @param int                  $groupingMode   The grouping mode.
-     *
      * @param int                  $groupingLength The grouping length.
-     *
      * @param EnvironmentInterface $environment    The environment.
-     *
      * @param PropertyInterface    $property       The current property definition.
-     *
      * @param ModelInterface       $model          The current data model.
      *
      * @return string
      */
-    private function formatByGroupingMode($value, $groupingMode, $groupingLength, $environment, $property, $model)
+    private function formatByGroupingMode($groupingMode, $groupingLength, $environment, $property, $model)
     {
-        $dispatcher = $environment->getEventDispatcher();
-
         switch ($groupingMode) {
             case GroupAndSortingInformationInterface::GROUP_CHAR:
-                $value = ViewHelpers::getReadableFieldValue($environment, $property, $model);
-
-                return ($value != '') ? ucfirst(utf8_substr($value, 0, $groupingLength ?: null)) : '-';
+                return $this->formatByCharGrouping(
+                    ViewHelpers::getReadableFieldValue($environment, $property, $model),
+                    $groupingLength
+                );
 
             case GroupAndSortingInformationInterface::GROUP_DAY:
-                $value = $this->getTimestamp($value);
-                $event = new ParseDateEvent($value, \Config::get('dateFormat'));
-                $dispatcher->dispatch(ContaoEvents::DATE_PARSE, $event);
-
-                return ($value != '') ? $event->getResult() : '-';
+                return $this->formatByDayGrouping($model->getProperty($property->getName()));
 
             case GroupAndSortingInformationInterface::GROUP_MONTH:
-                $value = $this->getTimestamp($value);
-                $event = new ParseDateEvent($value, 'F Y');
-                $dispatcher->dispatch(ContaoEvents::DATE_PARSE, $event);
-
-                return $event->getResult();
+                return $this->formatByMonthGrouping($model->getProperty($property->getName()));
 
             case GroupAndSortingInformationInterface::GROUP_YEAR:
-                if ($value instanceof \DateTime) {
-                    $value = $value->getTimestamp();
-                }
-
-                return ($value != '') ? date('Y', $value) : '-';
+                return $this->formatByYearGrouping($model->getProperty($property->getName()));
 
             default:
                 return ViewHelpers::getReadableFieldValue($environment, $property, $model);
         }
+    }
+
+    /**
+     * Format a value for char grouping.
+     *
+     * @param string $value          The value.
+     * @param int    $groupingLength The group length.
+     *
+     * @return string
+     */
+    private function formatByCharGrouping($value, $groupingLength)
+    {
+        if ('' == $value) {
+            return '-';
+        }
+
+        return ucfirst(utf8_substr($value, 0, $groupingLength ?: null));
+    }
+
+    /**
+     * Render a grouping header for day.
+     *
+     * @param string $value The value.
+     *
+     * @return string
+     */
+    private function formatByDayGrouping($value)
+    {
+        $value = $this->getTimestamp($value);
+        if ('' == $value) {
+            return '-';
+        }
+        $event = new ParseDateEvent($value, Config::get('dateFormat'));
+        $this->dispatcher->dispatch(ContaoEvents::DATE_PARSE, $event);
+
+        return $event->getResult();
+    }
+
+    /**
+     * Render a grouping header for month.
+     *
+     * @param string $value The value.
+     *
+     * @return string
+     */
+    private function formatByMonthGrouping($value)
+    {
+        $value = $this->getTimestamp($value);
+        if ('' == $value) {
+            return '-';
+        }
+        $event = new ParseDateEvent($value, 'F Y');
+        $this->dispatcher->dispatch(ContaoEvents::DATE_PARSE, $event);
+
+        return $event->getResult();
+    }
+
+    /**
+     * Render a grouping header for year.
+     *
+     * @param string $value The value.
+     *
+     * @return string
+     */
+    private function formatByYearGrouping($value)
+    {
+        $value = $this->getTimestamp($value);
+        if ('' == $value) {
+            return '-';
+        }
+
+        return date('Y', $value);
     }
 
     /**
