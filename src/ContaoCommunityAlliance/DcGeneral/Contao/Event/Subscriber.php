@@ -362,6 +362,8 @@ class Subscriber implements EventSubscriberInterface
      * @param mixed                            $value The value to format.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     private static function renderForeignKeyReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
     {
