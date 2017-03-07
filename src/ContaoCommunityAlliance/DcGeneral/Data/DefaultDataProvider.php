@@ -30,6 +30,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
 
 use Contao\BackendUser;
 use Contao\Database;
+use Contao\Database\Result;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -37,7 +38,9 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  *
  * Default implementation for a data provider using the Contao default database as backend.
  *
- * @SuppressWarnings(PHPMD.TooManyPublicMethods) - We have to keep them as we implement the interfaces.
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)     - We have to keep them as we implement the interfaces.
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) - There is no elegant way to reduce this class more without
+ *                                                     reducing the interface.
  */
 class DefaultDataProvider implements DataProviderInterface
 {
@@ -51,7 +54,7 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * The Database instance.
      *
-     * @var \Database
+     * @var Database
      */
     protected $objDatabase = null;
 
@@ -251,256 +254,6 @@ class DefaultDataProvider implements DataProviderInterface
     }
 
     /**
-     * Build the field list.
-     *
-     * Returns all values from $objConfig->getFields() as comma separated list.
-     *
-     * @param ConfigInterface $objConfig The configuration to use.
-     *
-     * @return string
-     */
-    protected function buildFieldQuery($objConfig)
-    {
-        $strFields = '*';
-
-        if ($objConfig->getIdOnly()) {
-            $strFields = $this->idProperty;
-        } elseif ($objConfig->getFields() !== null) {
-            $strFields = implode(', ', $objConfig->getFields());
-
-            if (!stristr($strFields, 'DISTINCT')) {
-                $strFields = $this->idProperty . ', ' . $strFields;
-            }
-        }
-
-        return $strFields;
-    }
-
-    /**
-     * Build an AND or OR query.
-     *
-     * @param array $operation The operation to convert.
-     *
-     * @param array $params    The parameter array for the resulting query.
-     *
-     * @return string
-     */
-    protected function getAndOrFilter($operation, &$params)
-    {
-        $children = $operation['children'];
-
-        if (!$children) {
-            return '';
-        }
-
-        $combine = array();
-        foreach ($children as $child) {
-            $combine[] = $this->calculateSubfilter($child, $params);
-        }
-
-        return implode(sprintf(' %s ', $operation['operation']), $combine);
-    }
-
-    /**
-     * Build the sub query for a comparing operator like =,<,>.
-     *
-     * @param array $operation The operation to apply.
-     *
-     * @param array $params    The parameters of the entire query.
-     *
-     * @return string
-     */
-    protected function getFilterForComparingOperator($operation, &$params)
-    {
-        $params[] = $operation['value'];
-
-        return sprintf('(%s %s ?)', $operation['property'], $operation['operation']);
-    }
-
-    /**
-     * Return the filter query for a "foo IN ('a', 'b')" filter.
-     *
-     * @param array $operation The operation to apply.
-     *
-     * @param array $params    The parameters of the entire query.
-     *
-     * @return string
-     */
-    protected function getFilterForInList($operation, &$params)
-    {
-        $params    = array_merge($params, array_values($operation['values']));
-        $wildcards = rtrim(str_repeat('?,', count($operation['values'])), ',');
-
-        return sprintf('(%s IN (%s))', $operation['property'], $wildcards);
-    }
-
-    /**
-     * Return the filter query for a "foo LIKE '%ba_r%'" filter.
-     *
-     * The searched value may contain the wildcards '*' and '?' which will get converted to proper SQL.
-     *
-     * @param array $operation The operation to apply.
-     *
-     * @param array $params    The parameters of the entire query.
-     *
-     * @return string
-     */
-    protected function getFilterForLike($operation, &$params)
-    {
-        $wildcards = str_replace(array('*', '?'), array('%', '_'), $operation['value']);
-        $params[]  = $wildcards;
-
-        return sprintf('(%s LIKE ?)', $operation['property'], $wildcards);
-    }
-
-    /**
-     * Combine a filter in standard filter array notation.
-     *
-     * Supported operations are:
-     * operation      needed arguments     argument type.
-     * AND
-     *                'children'           array
-     * OR
-     *                'children'           array
-     * =
-     *                'property'           string (the name of a property)
-     *                'value'              literal
-     * >
-     *                'property'           string (the name of a property)
-     *                'value'              literal
-     * <
-     *                'property'           string (the name of a property)
-     *                'value'              literal
-     * IN
-     *                'property'           string (the name of a property)
-     *                'values'             array of literal
-     *
-     * LIKE
-     *                'property'           string (the name of a property)
-     *                'value'              literal - Wildcards * (Many) ? (One)
-     *
-     * @param array $arrFilter The filter to be combined to a valid SQL filter query.
-     *
-     * @param array $arrParams The query parameters will get stored into this array.
-     *
-     * @return string The combined WHERE conditions.
-     *
-     * @throws DcGeneralRuntimeException If an invalid filter entry is encountered.
-     */
-    protected function calculateSubfilter($arrFilter, array &$arrParams)
-    {
-        if (!is_array($arrFilter)) {
-            throw new DcGeneralRuntimeException('Error Processing sub filter: ' . var_export($arrFilter, true), 1);
-        }
-
-        switch ($arrFilter['operation']) {
-            case 'AND':
-            case 'OR':
-                return $this->getAndOrFilter($arrFilter, $arrParams);
-
-            case '=':
-            case '>':
-            case '<':
-                return $this->getFilterForComparingOperator($arrFilter, $arrParams);
-
-            case 'IN':
-                return $this->getFilterForInList($arrFilter, $arrParams);
-
-            case 'LIKE':
-                return $this->getFilterForLike($arrFilter, $arrParams);
-
-            default:
-        }
-
-        throw new DcGeneralRuntimeException('Error processing filter array ' . var_export($arrFilter, true), 1);
-    }
-
-    /**
-     * Build the WHERE clause for a configuration.
-     *
-     * @param ConfigInterface $objConfig The configuration to use.
-     *
-     * @param array           $arrParams The query parameters will get stored into this array.
-     *
-     * @return string  The combined WHERE clause (including the word "WHERE").
-     */
-    protected function buildWhereQuery($objConfig, array &$arrParams = null)
-    {
-        $arrParams || $arrParams = array();
-
-        $arrQuery = array();
-
-        $arrQuery['filter'] = $this->buildFilterQuery($objConfig, $arrParams);
-
-        $arrQuery = array_filter($arrQuery, 'strlen');
-
-        return count($arrQuery) ? ' WHERE ' . implode(' AND ', $arrQuery) : '';
-    }
-
-    /**
-     * Build the WHERE conditions via calculateSubfilter().
-     *
-     * @param ConfigInterface $objConfig The configuration to use.
-     *
-     * @param array           $arrParams The query parameters will get stored into this array.
-     *
-     * @return string The combined WHERE conditions.
-     */
-    protected function buildFilterQuery($objConfig, array &$arrParams = null)
-    {
-        $arrParams || $arrParams = array();
-
-        $strReturn = $this->calculateSubfilter(
-            array(
-                'operation' => 'AND',
-                'children'  => $objConfig->getFilter()
-            ),
-            $arrParams
-        );
-
-        // Combine filter syntax.
-        return $strReturn ? $strReturn : '';
-    }
-
-    /**
-     * Build the order by part of a query.
-     *
-     * @param ConfigInterface $objConfig The configuration to use.
-     *
-     * @return string
-     */
-    protected function buildSortingQuery($objConfig)
-    {
-        $arrSorting = $objConfig->getSorting();
-        $strReturn  = '';
-        $arrFields  = array();
-
-        if (($arrSorting !== null) && is_array($arrSorting) && count($arrSorting) > 0) {
-            foreach ($arrSorting as $strField => $strOrder) {
-                if ($strOrder
-                    && !in_array(
-                        strtoupper($strOrder),
-                        array(DCGE::MODEL_SORTING_ASC, DCGE::MODEL_SORTING_DESC)
-                    )
-                ) {
-                    $strField = $strOrder;
-                    $strOrder = DCGE::MODEL_SORTING_ASC;
-                } else {
-                    if (!$strOrder) {
-                        $strOrder = DCGE::MODEL_SORTING_ASC;
-                    }
-                }
-
-                $arrFields[] = $strField . ' ' . $strOrder;
-            }
-
-            $strReturn .= ' ORDER BY ' . implode(', ', $arrFields);
-        }
-
-        return $strReturn;
-    }
-
-    /**
      * {@inheritDoc}
      *
      * @throws DcGeneralRuntimeException When an unusable object has been passed.
@@ -539,7 +292,7 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * Create a model from a database result.
      *
-     * @param \Database\Result $dbResult The database result to create a model from.
+     * @param Result $dbResult The database result to create a model from.
      *
      * @return ModelInterface
      */
@@ -565,26 +318,26 @@ class DefaultDataProvider implements DataProviderInterface
     public function fetch(ConfigInterface $objConfig)
     {
         if ($objConfig->getId() != null) {
-            $strQuery = sprintf(
-                'SELECT %s  FROM %s WHERE id = ?',
-                $this->buildFieldQuery($objConfig),
+            $query = sprintf(
+                'SELECT %s FROM %s WHERE id = ?',
+                DefaultDataProviderSqlUtils::buildFieldQuery($objConfig, $this->idProperty),
                 $this->strSource
             );
 
             $dbResult = $this->objDatabase
-                ->prepare($strQuery)
+                ->prepare($query)
                 ->execute($objConfig->getId());
         } else {
             $arrParams = array();
 
             // Build SQL.
-            $query  = sprintf(
-                'SELECT %s FROM %s',
-                $this->buildFieldQuery($objConfig),
-                $this->strSource
+            $query = sprintf(
+                'SELECT %s FROM %s%s%s',
+                DefaultDataProviderSqlUtils::buildFieldQuery($objConfig, $this->idProperty),
+                $this->strSource,
+                DefaultDataProviderSqlUtils::buildWhereQuery($objConfig, $arrParams),
+                DefaultDataProviderSqlUtils::buildSortingQuery($objConfig)
             );
-            $query .= $this->buildWhereQuery($objConfig, $arrParams);
-            $query .= $this->buildSortingQuery($objConfig);
 
             // Execute db query.
             $dbResult = $this->objDatabase
@@ -607,13 +360,13 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $arrParams = array();
         // Build SQL.
-        $query  = sprintf(
-            'SELECT %s FROM %s',
-            $this->buildFieldQuery($objConfig),
-            $this->strSource
+        $query = sprintf(
+            'SELECT %s FROM %s%s%s',
+            DefaultDataProviderSqlUtils::buildFieldQuery($objConfig, $this->idProperty),
+            $this->strSource,
+            DefaultDataProviderSqlUtils::buildWhereQuery($objConfig, $arrParams),
+            DefaultDataProviderSqlUtils::buildSortingQuery($objConfig)
         );
-        $query .= $this->buildWhereQuery($objConfig, $arrParams);
-        $query .= $this->buildSortingQuery($objConfig);
 
         // Execute db query.
         $objDatabaseQuery = $this->objDatabase->prepare($query);
@@ -663,7 +416,7 @@ class DefaultDataProvider implements DataProviderInterface
                     'SELECT DISTINCT(%s) FROM %s %s',
                     $strProperty,
                     $this->strSource,
-                    $this->buildWhereQuery($objConfig, $arrParams)
+                    DefaultDataProviderSqlUtils::buildWhereQuery($objConfig, $arrParams)
                 )
             )
             ->execute($arrParams);
@@ -681,17 +434,16 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function getCount(ConfigInterface $objConfig)
     {
-        $arrParams = array();
-
-        $query  = sprintf(
-            'SELECT COUNT(*) AS count FROM %s',
-            $this->strSource
+        $parameters = [];
+        $query      = sprintf(
+            'SELECT COUNT(*) AS count FROM %s%s',
+            $this->strSource,
+            DefaultDataProviderSqlUtils::buildWhereQuery($objConfig, $parameters)
         );
-        $query .= $this->buildWhereQuery($objConfig, $arrParams);
 
         $objCount = $this->objDatabase
             ->prepare($query)
-            ->execute($arrParams);
+            ->execute($parameters);
 
         return $objCount->count;
     }
