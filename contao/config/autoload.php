@@ -23,6 +23,7 @@
 TemplateLoader::addFiles(
     array
     (
+        'dcbe_general_common_list'      => 'system/modules/dc-general/templates',
         'dcbe_general_edit'             => 'system/modules/dc-general/templates',
         'dcbe_general_field'            => 'system/modules/dc-general/templates',
         'dcbe_general_language_panel'   => 'system/modules/dc-general/templates',
