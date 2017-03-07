@@ -466,35 +466,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Calculate the label of a property to se in "show" view.
-     *
-     * @param PropertyInterface $property The property for which the label shall be calculated.
-     *
-     * @return string
-     */
-    protected function getLabelForShow(PropertyInterface $property)
-    {
-        $environment = $this->getEnvironment();
-        $definition  = $environment->getDataDefinition();
-
-        $label = $environment->getTranslator()->translate($property->getLabel(), $definition->getName());
-
-        if (!$label) {
-            $label = $environment->getTranslator()->translate('MSC.' . $property->getName());
-        }
-
-        if (is_array($label)) {
-            $label = $label[0];
-        }
-
-        if (!$label) {
-            $label = $property->getName();
-        }
-
-        return $label;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function showAll(Action $action)
