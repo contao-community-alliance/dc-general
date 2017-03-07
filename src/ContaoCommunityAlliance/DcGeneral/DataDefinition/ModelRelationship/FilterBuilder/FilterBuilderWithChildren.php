@@ -27,6 +27,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  * Handy helper class to generate and manipulate filter arrays containing children.
  *
  * This class is intended to be only used as base class of other filters and via the FilterBuilder main class.
+ *
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods) We have to keep them as we implement the interfaces.
  */
 class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, \ArrayAccess
 {

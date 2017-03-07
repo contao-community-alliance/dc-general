@@ -30,6 +30,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 
 /**
  * Default implementation of a data definition container.
+ *
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods) We have to keep them as we implement the interfaces.
  */
 class DefaultContainer implements ContainerInterface
 {

@@ -31,6 +31,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  *
  * This is the default implementation of a model collection in DcGeneral.
  * Internally it simply holds an array.
+ *
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods) We have to keep them as we implement the interfaces.
  */
 class DefaultCollection implements CollectionInterface
 {
