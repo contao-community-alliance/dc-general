@@ -44,6 +44,8 @@ class CheckPermission implements EventSubscriberInterface
      * Check permission for properties by user alexf.
      *
      * @param BuildDataDefinitionEvent $event The event.
+     *
+     * @return void
      */
     public function checkPermissionForProperties(BuildDataDefinitionEvent $event)
     {
@@ -54,15 +56,14 @@ class CheckPermission implements EventSubscriberInterface
 
         foreach ($palettes as $palette) {
             foreach ($palette->getProperties() as $property) {
-                if (null === ($prop = $properties->getProperty($property->getName()))) {
+                if (!$properties->hasProperty($name = $property->getName())) {
+                    trigger_error('Warning: unknown property in palette: ' . $name, E_USER_DEPRECATED);
                     continue;
                 }
 
                 $chain = $this->getVisibilityConditionChain($property);
 
-                $chain->addCondition(
-                    new BooleanCondition(!$prop->isExcluded())
-                );
+                $chain->addCondition(new BooleanCondition(!$properties->getProperty($name)->isExcluded()));
             }
         }
     }
