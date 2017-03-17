@@ -380,10 +380,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         /** @var AddToUrlEvent $urlEvent */
         $urlEvent = $dispatcher->dispatch(
             ContaoEvents::BACKEND_ADD_TO_URL,
-            new AddToUrlEvent(
-                // FIXME: this URL is broken!
-                'act=edit&amp;pid=' . ModelId::fromModel($parentModel)->getSerialized()
-            )
+            new AddToUrlEvent('act=create&amp;pid=' . ModelId::fromModel($parentModel)->getSerialized())
         );
 
         $parentDefinition = $this->environment->getParentDataDefinition();
