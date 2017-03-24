@@ -144,15 +144,11 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
             array_merge_recursive(
                 $arrCurrent,
                 array(
-                    array(
-                        'operation' => 'AND',
-                        'children'  => array(
-                            array(
-                                'operation' => 'LIKE',
-                                'property'  => $this->getSelectedProperty(),
-                                'value'     => sprintf('*%s*', $this->getValue())
-                            )
-                        )
+                     array(
+                                 'operation' => '=',
+                                 'property'  => $this->getSelectedProperty(),
+                                 'value'     => sprintf('*%s*', $this->getValue())
+                             )
                     )
                 )
             )
