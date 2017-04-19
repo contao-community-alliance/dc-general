@@ -12,6 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -19,6 +20,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
+use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 
@@ -51,5 +54,35 @@ class ListViewShowAllHandler extends AbstractListShowAllHandler
         }
 
         return $this->getTemplate('dcbe_general_listView');
+    }
+
+    /**
+     * Prepare the template.
+     *
+     * @param ContaoBackendViewTemplate $template The template to populate.
+     *
+     * @return void
+     */
+    protected function renderTemplate(ContaoBackendViewTemplate $template)
+    {
+        $dataDefinition            = $this->getEnvironment()->getDataDefinition();
+        $viewDefinition            = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        $groupAndSortingDefinition = $viewDefinition->getListingConfig()->getGroupAndSortingDefinition();
+
+        $pasteButton = $this->renderPasteTopButton($groupAndSortingDefinition);
+
+        parent::renderTemplate($template);
+        $template->set('header', $pasteButton ? $this->getEmptyHeader() : null);
+        $template->set('headerButtons', $this->renderPasteTopButton($groupAndSortingDefinition));
+    }
+
+    /**
+     * Get the empty header.
+     *
+     * @return array
+     */
+    private function getEmptyHeader()
+    {
+        return array('' => '');
     }
 }
