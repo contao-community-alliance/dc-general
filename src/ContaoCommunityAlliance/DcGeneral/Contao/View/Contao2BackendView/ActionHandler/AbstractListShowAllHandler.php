@@ -12,6 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -256,7 +257,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
             $index++;
 
             // Add the group header.
-            if (GroupAndSortingInformationInterface::GROUP_NONE !== $grouping['mode']) {
+            if ($grouping && GroupAndSortingInformationInterface::GROUP_NONE !== $grouping['mode']) {
                 $remoteNew = $this->renderGroupHeader(
                     $grouping['property'],
                     $model,
