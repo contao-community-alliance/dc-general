@@ -45,6 +45,12 @@ class PasteHandler extends AbstractHandler
             return;
         }
 
+        if (false === $this->checkPermission()) {
+            $event->stopPropagation();
+
+            return;
+        }
+
         $environment = $this->getEnvironment();
         $input       = $environment->getInputProvider();
         $clipboard   = $environment->getClipboard();
@@ -81,6 +87,31 @@ class PasteHandler extends AbstractHandler
         $clipboard->saveTo($environment);
 
         ViewHelpers::redirectHome($environment);
+    }
+
+    /**
+     * Check permission for paste a model.
+     *
+     * @return bool
+     */
+    private function checkPermission()
+    {
+        $environment     = $this->getEnvironment();
+        $dataDefinition  = $environment->getDataDefinition();
+        $basicDefinition = $dataDefinition->getBasicDefinition();
+
+        if (true === $basicDefinition->isEditable()) {
+            return true;
+        }
+
+        // TODO find a way for output the permission message.
+        $this->getEvent()->setResponse(
+            '<div style="text-align:center; font-weight:bold; padding:40px;">
+                    You have no permission for paste a model.
+                </div>'
+        );
+
+        return false;
     }
 
     /**

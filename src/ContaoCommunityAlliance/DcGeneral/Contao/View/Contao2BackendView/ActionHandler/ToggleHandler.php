@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2017 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,8 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -24,9 +25,9 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\TranslatedToggleCommandInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractHandler;
 
 /**
@@ -52,6 +53,12 @@ class ToggleHandler extends AbstractHandler
 
         $operation = $this->getOperation();
         if (!($operation instanceof ToggleCommandInterface)) {
+            return;
+        }
+
+        if (false === $this->checkPermission()) {
+            $this->getEvent()->stopPropagation();
+
             return;
         }
 
@@ -85,6 +92,34 @@ class ToggleHandler extends AbstractHandler
         $newUrlEvent = new GetReferrerEvent();
         $dispatcher->dispatch(ContaoEvents::SYSTEM_GET_REFERRER, $newUrlEvent);
         $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getReferrerUrl()));
+    }
+
+    /**
+     * Check permission for toggle property.
+     *
+     * @return bool
+     */
+    private function checkPermission()
+    {
+        $environment     = $this->getEnvironment();
+        $dataDefinition  = $environment->getDataDefinition();
+        $basicDefinition = $dataDefinition->getBasicDefinition();
+
+        if (true === $basicDefinition->isEditable()) {
+            return true;
+        }
+
+        // TODO find a way for output the permission message.
+        $this->getEvent()->setResponse(
+            sprintf(
+                '<div style="text-align:center; font-weight:bold; padding:40px;">
+                    You have no permission for toggle %s.
+                </div>',
+                $this->getOperation()->getToggleProperty()
+            )
+        );
+
+        return false;
     }
 
     /**

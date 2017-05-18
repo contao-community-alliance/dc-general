@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2017 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -55,6 +56,12 @@ class CreateHandler extends AbstractHandler
             return;
         }
 
+        if (false === $this->checkPermission()) {
+            $event->stopPropagation();
+
+            return;
+        }
+
         $definition         = $environment->getDataDefinition();
         $dataProvider       = $environment->getDataProvider();
         $propertyDefinition = $definition->getPropertiesDefinition();
@@ -79,5 +86,32 @@ class CreateHandler extends AbstractHandler
 
         $editMask = new EditMask($view, $model, $clone, null, null, $view->breadcrumb());
         $event->setResponse($editMask->execute());
+    }
+
+    /**
+     * Check permission for create a model.
+     *
+     * @return bool
+     */
+    private function checkPermission()
+    {
+        $environment     = $this->getEnvironment();
+        $dataDefinition  = $environment->getDataDefinition();
+        $basicDefinition = $dataDefinition->getBasicDefinition();
+
+        if (true === $basicDefinition->isCreatable()) {
+            return true;
+        }
+
+        $this->getEvent()->setResponse(
+            sprintf(
+                '<div style="text-align:center; font-weight:bold; padding:40px;">
+                    You have no permission for create model in %s.
+                </div>',
+                $dataDefinition->getName()
+            )
+        );
+
+        return false;
     }
 }

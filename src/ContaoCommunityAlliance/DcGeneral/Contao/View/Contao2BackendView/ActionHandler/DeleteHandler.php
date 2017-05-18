@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2017 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -146,6 +146,12 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
             return;
         }
 
+        if (false === $this->checkPermission()) {
+            $this->getEvent()->stopPropagation();
+
+            return;
+        }
+
         $environment = $this->getEnvironment();
         $modelId     = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
 
@@ -164,6 +170,35 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
         $this->delete($modelId);
 
         ViewHelpers::redirectHome($this->environment);
+    }
+
+    /**
+     * Check permission for delete a model.
+     *
+     * @return bool
+     */
+    private function checkPermission()
+    {
+        $environment     = $this->getEnvironment();
+        $dataDefinition  = $environment->getDataDefinition();
+        $basicDefinition = $dataDefinition->getBasicDefinition();
+
+        $modelId = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
+
+        if (true === $basicDefinition->isDeletable()) {
+            return true;
+        }
+
+        $this->getEvent()->setResponse(
+            sprintf(
+                '<div style="text-align:center; font-weight:bold; padding:40px;">
+                    You have no permission for delete model %s.
+                </div>',
+                $modelId->getSerialized()
+            )
+        );
+
+        return false;
     }
 
     /**
