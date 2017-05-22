@@ -12,6 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -52,10 +53,17 @@ class EditHandler extends AbstractHandler
             return;
         }
 
+        if (false === $this->checkPermission()) {
+            $event->stopPropagation();
+
+            return;
+        }
+
         $environment   = $this->getEnvironment();
         $inputProvider = $environment->getInputProvider();
-        $modelId       = ModelId::fromSerialized($inputProvider->getParameter('id'));
-        $dataProvider  = $environment->getDataProvider($modelId->getDataProviderName());
+
+        $modelId      = ModelId::fromSerialized($inputProvider->getParameter('id'));
+        $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
 
         $view = $environment->getView();
         if (!$view instanceof BaseView) {
@@ -74,6 +82,37 @@ class EditHandler extends AbstractHandler
 
         $editMask = new EditMask($view, $model, $clone, null, null, $view->breadcrumb());
         $event->setResponse($editMask->execute());
+    }
+
+    /**
+     * Check permission for edit a model.
+     *
+     * @return bool
+     */
+    private function checkPermission()
+    {
+        $environment     = $this->getEnvironment();
+        $dataDefinition  = $environment->getDataDefinition();
+        $basicDefinition = $dataDefinition->getBasicDefinition();
+
+        if (true === $basicDefinition->isEditable()) {
+            return true;
+        }
+
+        $inputProvider = $environment->getInputProvider();
+
+        $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
+
+        $this->getEvent()->setResponse(
+            sprintf(
+                '<div style="text-align:center; font-weight:bold; padding:40px;">
+                    You have no permission for edit model %s.
+                </div>',
+                $modelId->getSerialized()
+            )
+        );
+
+        return false;
     }
 
     /**

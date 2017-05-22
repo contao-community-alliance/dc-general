@@ -188,7 +188,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
         $template->set('select', ('select' === $this->environment->getInputProvider()->getParameter('act')));
         $template->set('action', ampersand(Environment::get('request'), true));
         $template->set('selectButtons', $this->getSelectButtons());
-        $template->set('sortable', (bool) ViewHelpers::getManualSortingProperty($this->environment));
+        $template->set('sortable', $this->isSortable());
         $template->set('showColumns', $showColumn);
         $template->set('tableHead', $showColumn ? $this->getTableHead() : '');
         // Add breadcrumb, if we have one.
@@ -436,6 +436,21 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
     }
 
     /**
+     * Check if the models are sortable.
+     *
+     * @return bool
+     */
+    private function isSortable()
+    {
+        $environment     = $this->getEnvironment();
+        $dataDefinition  = $environment->getDataDefinition();
+        $basicDefinition = $dataDefinition->getBasicDefinition();
+
+        return ((true === (bool) ViewHelpers::getManualSortingProperty($environment))
+                && (true === $basicDefinition->isEditable()));
+    }
+
+    /**
      * Render paste top button. Returns null if no button should be rendered.
      *
      * @param GroupAndSortingDefinitionInterface|null $sorting The sorting mode.
@@ -503,7 +518,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
         }
 
         $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalBreadcrumb.css';
-        
+
         $template = $this->getTemplate('dcbe_general_breadcrumb');
         $template->set('elements', $elements);
 

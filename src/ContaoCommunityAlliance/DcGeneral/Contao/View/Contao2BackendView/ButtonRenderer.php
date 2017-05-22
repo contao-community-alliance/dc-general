@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2017 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     binron <rtb@gmx.ch>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -91,27 +92,6 @@ class ButtonRenderer
     private $eventDispatcher;
 
     /**
-     * Flag determining if into and after buttons shall be examined.
-     *
-     * @var bool
-     */
-    private $hasPasteButtons;
-
-    /**
-     * Flag determining if paste new buttons shall be examined.
-     *
-     * @var bool
-     */
-    private $hasPasteNewButton;
-
-    /**
-     * Flag if the view is hierarchical.
-     *
-     * @var bool
-     */
-    private $isHierarchical;
-
-    /**
      * The translator in use.
      *
      * @var TranslatorInterface
@@ -130,8 +110,6 @@ class ButtonRenderer
         $this->eventDispatcher  = $environment->getEventDispatcher();
         $this->clipboardItems   = $this->calculateClipboardItems();
         $dataDefinition         = $environment->getDataDefinition();
-        $basicDefinition        = $dataDefinition->getBasicDefinition();
-        $this->isHierarchical   = $basicDefinition::MODE_HIERARCHICAL === $basicDefinition->getMode();
         $this->commands         = $dataDefinition
             ->getDefinition(Contao2BackendViewDefinitionInterface::NAME)
             ->getModelCommands();
@@ -151,14 +129,6 @@ class ButtonRenderer
             foreach ($collector->collectChildrenOf($model) as $subModel) {
                 $this->circularModelIds[] = ModelId::fromValues($providerName, $subModel)->getSerialized();
             }
-        }
-
-        if (null !== ViewHelpers::getManualSortingProperty($environment)) {
-            $this->hasPasteButtons   = !empty($this->clipboardItems);
-            $this->hasPasteNewButton = empty($this->clipboardItems) && !$this->isHierarchical;
-        } else {
-            $this->hasPasteButtons   = false;
-            $this->hasPasteNewButton = false;
         }
     }
 
@@ -211,12 +181,12 @@ class ButtonRenderer
                 $this->buildCommand($command, $model, $previous, $next, $isCircular, $childIds);
         }
 
-        if ($this->hasPasteNewButton) {
+        if ($this->hasPasteNewButton()) {
             $buttons['pasteNew'] = $this->renderPasteNewFor($modelId);
         }
 
         // Add paste into/after icons.
-        if ($this->hasPasteButtons) {
+        if ($this->hasPasteButtons()) {
             $urlAfter = $this->addToUrl(sprintf('act=paste&after=%s&', $modelId));
             $urlInto  = $this->addToUrl(sprintf('act=paste&into=%s&', $modelId));
 
@@ -236,7 +206,7 @@ class ButtonRenderer
             $this->eventDispatcher->dispatch(GetPasteButtonEvent::NAME, $buttonEvent);
 
             $buttons['pasteafter'] = $this->renderPasteAfterButton($buttonEvent);
-            if ($this->isHierarchical) {
+            if ($this->isHierarchical()) {
                 $buttons['pasteinto'] = $this->renderPasteIntoButton($buttonEvent);
             }
         }
@@ -245,6 +215,48 @@ class ButtonRenderer
             $model::OPERATION_BUTTONS,
             implode(' ', $buttons)
         );
+    }
+
+    /**
+     * If the view is hierarchical.
+     *
+     * @return bool
+     */
+    private function isHierarchical()
+    {
+        $environment     = $this->environment;
+        $dataDefinition  = $environment->getDataDefinition();
+        $basicDefinition = $dataDefinition->getBasicDefinition();
+
+        return $basicDefinition::MODE_HIERARCHICAL === $basicDefinition->getMode();
+    }
+
+    /**
+     * Determining if into and after buttons shall be examined.
+     *
+     * @return bool
+     */
+    private function hasPasteButtons()
+    {
+        return ((true === (bool) ViewHelpers::getManualSortingProperty($this->environment))
+                && false === empty($this->clipboardItems));
+    }
+
+    /**
+     * Determining if paste new buttons shall be examined.
+     *
+     * @return bool
+     */
+    private function hasPasteNewButton()
+    {
+        $environment     = $this->environment;
+        $dataDefinition  = $environment->getDataDefinition();
+        $basicDefinition = $dataDefinition->getBasicDefinition();
+
+        return ((true === (bool) ViewHelpers::getManualSortingProperty($environment))
+                && (true === empty($this->clipboardItems))
+                && (false === $this->isHierarchical())
+                && ($basicDefinition->isEditable() && $basicDefinition->isCreatable()));
     }
 
     /**
@@ -353,6 +365,7 @@ class ButtonRenderer
 
         return $result;
     }
+
     /**
      * Calculate the special parameters for certain operations.
      *
