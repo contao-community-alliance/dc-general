@@ -12,6 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Christopher Boelter <christopher@boelter.eu>
  * @copyright  2013-2016 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -20,6 +21,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber;
 
 use Contao\StringUtil;
+use Contao\String;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -82,8 +84,15 @@ class RichTextFileUuidSubscriber implements EventSubscriberInterface
             return;
         }
 
+        // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
+        if (version_compare(VERSION . '.' . BUILD, '3.5.5', '>=')) {
+            $value = StringUtil::srcToInsertTag($event->getValue());
+        } else {
+            $value = String::srcToInsertTag($event->getValue());
+        }
+
         $event->setValue(
-            StringUtil::srcToInsertTag($event->getValue())
+            $value
         );
     }
 
@@ -109,8 +118,15 @@ class RichTextFileUuidSubscriber implements EventSubscriberInterface
             return;
         }
 
+        // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
+        if (version_compare(VERSION . '.' . BUILD, '3.5.5', '>=')) {
+            $value = StringUtil::insertTagToSrc($event->getValue());
+        } else {
+            $value = String::insertTagToSrc($event->getValue());
+        }
+
         $event->setValue(
-            StringUtil::insertTagToSrc($event->getValue())
+            $value
         );
     }
 }
