@@ -24,6 +24,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 
 /**
  * A generic bag containing properties and their values.
+ *
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods) We have to keep them as we implement the interfaces.
  */
 class PropertyValueBag implements PropertyValueBagInterface
 {

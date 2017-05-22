@@ -51,7 +51,6 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     {
         $factory = new DcGeneralFactory();
         $factory->setEventDispatcher($environment->getEventDispatcher());
-        $factory->setEventDispatcher($environment->getEventDispatcher());
         $factory->setTranslator($environment->getTranslator());
         $factory->setEnvironmentClassName(get_class($environment));
         $factory->setContainerClassName(get_class($environment->getDataDefinition()));
@@ -383,13 +382,13 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
         /** @var ContainerInterface $dataContainer */
         $dataContainer = $containerClass->newInstance($this->containerName);
 
-        $definitions->setDefinition($this->containerName, $dataContainer);
-
         // Backwards compatibility.
         $this->getEventDispatcher()->dispatch(
             BuildDataDefinitionEvent::NAME,
             new BuildDataDefinitionEvent($dataContainer)
         );
+
+        $definitions->setDefinition($this->containerName, $dataContainer);
 
         return clone $dataContainer;
     }

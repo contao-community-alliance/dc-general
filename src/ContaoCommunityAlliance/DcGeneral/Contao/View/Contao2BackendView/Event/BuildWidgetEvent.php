@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2016 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,13 +14,15 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2016 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event;
 
+use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -48,7 +50,7 @@ class BuildWidgetEvent extends AbstractModelAwareEvent
     /**
      * The instantiated widget.
      *
-     * @var \Widget
+     * @var Widget
      */
     protected $widget;
 
@@ -74,7 +76,7 @@ class BuildWidgetEvent extends AbstractModelAwareEvent
     /**
      * Stores the widget instance into the event.
      *
-     * @param \Widget $widget The widget instance.
+     * @param Widget $widget The widget instance.
      *
      * @return BuildWidgetEvent
      */
@@ -88,7 +90,7 @@ class BuildWidgetEvent extends AbstractModelAwareEvent
     /**
      * Retrieve the widget instance from the event.
      *
-     * @return \Widget
+     * @return Widget
      */
     public function getWidget()
     {

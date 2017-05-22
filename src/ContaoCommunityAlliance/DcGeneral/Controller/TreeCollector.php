@@ -273,6 +273,10 @@ class TreeCollector implements EnvironmentAwareInterface
         $basicDefinition = $definition->getBasicDefinition();
         $relationships   = $definition->getModelRelationshipDefinition();
 
+        if (!$basicDefinition->getParentDataProvider()) {
+            return;
+        }
+
         if ($basicDefinition->getParentDataProvider() !== $parentModel->getProviderName()) {
             throw new \RuntimeException(
                 sprintf(
@@ -281,10 +285,6 @@ class TreeCollector implements EnvironmentAwareInterface
                     $parentModel->getProviderName()
                 )
             );
-        }
-
-        if (!$basicDefinition->getParentDataProvider()) {
-            return;
         }
 
         // Apply parent filtering, do this only for root elements.

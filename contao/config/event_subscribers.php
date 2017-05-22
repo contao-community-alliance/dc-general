@@ -26,6 +26,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\Event\Subscriber;
 use ContaoCommunityAlliance\DcGeneral\Contao\Subscriber\FallbackResetSubscriber;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\ClipboardController;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Filter\LanguageFilter;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\CheckPermission;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\RichTextFileUuidSubscriber;
 
 if ('BE' === TL_MODE) {
@@ -34,7 +35,8 @@ if ('BE' === TL_MODE) {
         new ClipboardController(),
         new LanguageFilter(),
         new FallbackResetSubscriber(),
-        new RichTextFileUuidSubscriber()
+        new RichTextFileUuidSubscriber(),
+        new CheckPermission()
     );
 }
 

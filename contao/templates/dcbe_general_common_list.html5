@@ -1,0 +1,133 @@
+<?php
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
+?>
+<?php $this->block('messages'); ?>
+<?= $this->getMessages(); ?>
+<?php $this->endblock(); ?>
+<?php if ($this->select) : ?>
+<form action="<?= $this->action ?>" id="tl_select" class="tl_form" method="post">
+  <div class="tl_formbody">
+    <input type="hidden" name="FORM_SUBMIT" value="tl_select">
+    <input type="hidden" name="REQUEST_TOKEN" value="<?= REQUEST_TOKEN ?>">
+<?php endif; ?>
+  <div class="tl_listing_container <?php $this->block('view-class'); ?><?php $this->endblock(); ?> table_<?= $this->tableName ?>">
+    <?= $this->breadcrumb ?>
+    <?php if ($this->select) : ?>
+      <div class="tl_select_trigger">
+        <label for="tl_select_trigger" class="tl_select_label"><?= $GLOBALS['TL_LANG']['MSC']['selectAll'] ?></label>
+        <input type="checkbox" id="tl_select_trigger" onclick="Backend.toggleCheckboxes(this)" class="tl_tree_checkbox">
+      </div>
+    <?php endif; ?>
+<?php $this->block('parent-header'); ?>
+<?php if (!empty($this->header)) : ?>
+<div class="tl_header" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
+  <div class="tl_content_right">
+    <?= $this->headerButtons; ?>
+  </div>
+  <table class="tl_header_table">
+    <?php foreach ($this->header as $key => $value) : ?>
+      <tr>
+        <td><span class="tl_label"><?= $key; ?></span> </td>
+        <td><?= $value; ?></td>
+      </tr>
+    <?php endforeach; ?>
+  </table>
+</div>
+<?php endif; ?>
+<?php $this->endblock(); ?>
+<?php $this->block('before-body'); ?>
+<?php $this->endblock(); ?>
+<?php $this->block('empty'); ?>
+<?php if ($this->collection->length() < 1) : ?>
+  <p class="tl_empty"><?= $GLOBALS['TL_LANG']['MSC']['noResult'] ?></p>
+<?php endif; ?>
+<?php $this->endblock(); ?>
+<?php $this->block('body'); ?>
+<?php if ($this->collection->length() > 0) : ?>
+<?php
+// If we are grouped, split them up.
+$this->grouped = ($this->mode !== GroupAndSortingInformationInterface::GROUP_NONE);
+if ($this->mode !== GroupAndSortingInformationInterface::GROUP_NONE) {
+    $grouped = [];
+    foreach ($this->collection as $model) {
+        $group = $model->getMeta($model::GROUP_VALUE);
+
+        $grouped[$group['value']][] = $model;
+    }
+} else {
+    // Push all to main group otherwise.
+    $grouped = ['' => $this->collection];
+}
+?>
+<?php foreach ($grouped as $groupValue => $collection) : ?>
+  <?php if ($this->grouped) : ?>
+  <?php $group = $collection[0]->getMeta($model::GROUP_VALUE); ?>
+  <div class="tl_content_header <?= $group['class'] ?>"><?= $group['value']; ?></div>
+  <?php endif; ?>
+    <table id="table_<?= $this->tableName ?>_<?= standardize($groupValue) ?>" class="tl_listing<?= $this->showColumns ? ' showColumns' : '' ?>">
+    <?php if (!empty($this->tableHead)) : ?>
+      <thead>
+        <tr>
+        <?php foreach ($this->tableHead as $arrTableHead) : ?>
+          <th class="<?= $arrTableHead['class'] ?>"><?= $arrTableHead['content'] ?></th>
+        <?php endforeach; ?>
+        </tr>
+      </thead>
+    <?php endif; ?>
+      <tbody>
+        <?php foreach ($collection as $model) : /** @var ModelInterface $model */ ?>
+        <tr id="table_row_<?= $model->getId() ?>"
+          class="<?= $model->getMeta($model::CSS_ROW_CLASS) ?>"
+          onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);"
+          data-model-id="<?= ModelId::fromModel($model)->getSerialized() ?>">
+        <?php foreach ($model->getMeta($model::LABEL_VALUE) as $label) : ?>
+            <td class="<?= $label['class'] ?>"<?php if (!empty($label['colspan'])): ?> colspan="<?= $label['colspan'] ?>"<?php endif; ?>>
+                <?= $label['content']; ?>
+            </td>
+        <?php endforeach; ?>
+        <?php if ($this->select) : ?>
+            <td class="tl_file_list tl_right_nowrap">
+                <input
+                  type="checkbox"
+                  name="IDS[]"
+                  id="ids_<?= $model->getId() ?>"
+                  class="tl_tree_checkbox"
+                  value="<?= ModelId::fromModel($model)->getSerialized() ?>">
+            </td>
+        <?php else : ?>
+            <td class="tl_file_list tl_right_nowrap">
+                <?= $model->getMeta($model::OPERATION_BUTTONS); ?>
+                <?php if ($this->sortable) : ?>
+                <?= $this->generateImage('system/modules/dc-general/html/images/drag.gif', '&udarr;', 'class="drag"') ?>
+                <?php endif; ?>
+            </td>
+        <?php endif; ?>
+<?php $this->block('body'); ?>
+<?php $this->endblock(); ?>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+<?php if ($this->sortable) : ?>
+<script>
+var table = document.getElementById('table_<?= $this->tableName ?>_<?= standardize($groupValue) ?>');
+var SortableTableDnD = new GeneralTableDnD();
+SortableTableDnD.init(table);
+</script>
+<?php endif; ?>
+    <?php endforeach; ?>
+<?php $this->block('after-body'); ?>
+<?php $this->endblock(); ?>
+<?php if ($this->select) : ?>
+    <div class="tl_formbody_submit" style="text-align:right;">
+      <div class="tl_submit_container">
+        <?= implode(' ', $this->selectButtons); ?>
+      </div>
+    </div>
+  </div>
+</form>
+<?php endif; ?>
+<?php endif; ?>
+<?php $this->endblock(); ?>

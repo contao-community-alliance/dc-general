@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2016 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,19 +12,18 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @copyright  2013-2016 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship;
 
+use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector;
+use ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\EnforceModelRelationshipEvent;
-use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 
 /**
  * This class takes care of enforcing a parent child relationship on a model.
@@ -41,58 +40,19 @@ class ParentEnforcingListener
     public function process(EnforceModelRelationshipEvent $event)
     {
         $environment = $event->getEnvironment();
-        $mode        = $environment->getDataDefinition()->getBasicDefinition()->getMode();
+        $definition  = $environment->getDataDefinition();
+        $mode        = $definition->getBasicDefinition()->getMode();
+        $input       = $environment->getInputProvider();
 
-        if (BasicDefinitionInterface::MODE_PARENTEDLIST !== $mode) {
-            return;
-        }
-        $input = $environment->getInputProvider();
-
-        if (!$parent = $this->loadParentModel($input, $environment)) {
+        if (BasicDefinitionInterface::MODE_PARENTEDLIST !== $mode || !$input->hasParameter('pid')) {
             return;
         }
 
-        $model      = $event->getModel();
-        $definition = $environment->getDataDefinition();
-        $basic      = $definition->getBasicDefinition();
+        $model         = $event->getModel();
+        $collector     = new ModelCollector($environment);
+        $relationships = new RelationshipManager($definition->getModelRelationshipDefinition(), $mode);
+        $parent        = $collector->getModel(ModelId::fromSerialized($input->getParameter('pid')));
 
-        $condition = $definition
-            ->getModelRelationshipDefinition()
-            ->getChildCondition(
-                $basic->getParentDataProvider(),
-                $basic->getDataProvider()
-            );
-
-        if ($condition) {
-            $condition->applyTo($parent, $model);
-        }
-    }
-
-    /**
-     * Load the parent model for the current list.
-     *
-     * @param InputProviderInterface $input       The input provider.
-     *
-     * @param EnvironmentInterface   $environment The environment.
-     *
-     * @return ModelInterface|null
-     */
-    protected function loadParentModel(InputProviderInterface $input, EnvironmentInterface $environment)
-    {
-        if (!$input->hasParameter('pid')) {
-            return null;
-        }
-
-        $pid = ModelId::fromSerialized($input->getParameter('pid'));
-
-        if (!($dataProvider = $environment->getDataProvider($pid->getDataProviderName()))) {
-            return null;
-        }
-
-        if ($parent = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($pid->getId()))) {
-            return $parent;
-        }
-
-        return null;
+        $relationships->setParent($model, $parent);
     }
 }

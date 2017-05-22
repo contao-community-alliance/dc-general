@@ -13,6 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -20,6 +21,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event;
 
+use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -62,13 +64,13 @@ class ManipulateWidgetEvent extends AbstractModelAwareEvent
      *
      * @param PropertyInterface    $property    The property information for which the widget is created.
      *
-     * @param \Widget              $widget      The widget instance to manipulate.
+     * @param Widget               $widget      The widget instance to manipulate.
      */
     public function __construct(
         EnvironmentInterface $environment,
         ModelInterface $model,
         PropertyInterface $property,
-        \Widget $widget
+        Widget $widget
     ) {
         parent::__construct($environment, $model);
 

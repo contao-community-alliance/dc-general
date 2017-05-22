@@ -122,9 +122,23 @@ class DefaultModel extends AbstractModel
     public function setID($mixID)
     {
         if ($this->mixID == null) {
-            $this->mixID = $mixID;
+            $this->setIdRaw($mixID);
             $this->setMeta(static::IS_CHANGED, true);
         }
+    }
+
+    /**
+     * Set the id for this object.
+     *
+     * This method is not interfaced and MUST only be used for initial values from the data provider.
+     *
+     * @param mixed $mixID Could be a integer, string or anything else - depends on the provider implementation.
+     *
+     * @return void
+     */
+    public function setIdRaw($mixID)
+    {
+        $this->mixID = $mixID;
     }
 
     /**

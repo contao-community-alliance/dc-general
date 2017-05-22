@@ -25,25 +25,13 @@ use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2Ba
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BackendViewInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ListView;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\PanelBuilder;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ParentView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreeView;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\FilterElementInformationInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\LimitElementInformationInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\SearchElementInformationInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\SortElementInformationInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\SubmitElementInformationInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelLayoutInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentPopulator\AbstractEventDrivenEnvironmentPopulator;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
-use ContaoCommunityAlliance\DcGeneral\Panel\DefaultFilterElement;
-use ContaoCommunityAlliance\DcGeneral\Panel\DefaultLimitElement;
-use ContaoCommunityAlliance\DcGeneral\Panel\DefaultPanel;
-use ContaoCommunityAlliance\DcGeneral\Panel\DefaultPanelContainer;
-use ContaoCommunityAlliance\DcGeneral\Panel\DefaultSearchElement;
-use ContaoCommunityAlliance\DcGeneral\Panel\DefaultSortElement;
-use ContaoCommunityAlliance\DcGeneral\Panel\DefaultSubmitElement;
 
 /**
  * This class is the default fallback populator in the Contao Backend to instantiate a BackendView.
@@ -126,47 +114,8 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
             return;
         }
 
-        $panel = new DefaultPanelContainer();
-        $panel->setEnvironment($environment);
-        $view->setPanel($panel);
-
-        /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
-        $viewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-
-        /** @var PanelLayoutInterface $panelLayout */
-        $panelLayout = $viewDefinition->getPanelLayout();
-
-        foreach ($panelLayout->getRows() as $panelKey => $row) {
-            // We need a new panel.
-            $panelRow = new DefaultPanel();
-
-            $panel->addPanel($panelKey, $panelRow);
-
-            foreach ($row as $element) {
-                if ($element instanceof FilterElementInformationInterface) {
-                    $panelElement = new DefaultFilterElement();
-                    $panelElement->setPropertyName($element->getPropertyName());
-                    $panelRow->addElement($element->getName(), $panelElement);
-                } elseif ($element instanceof LimitElementInformationInterface) {
-                    $panelElement = new DefaultLimitElement();
-                    $panelRow->addElement($element->getName(), $panelElement);
-                } elseif ($element instanceof SearchElementInformationInterface) {
-                    $panelElement = new DefaultSearchElement();
-
-                    foreach ($element->getPropertyNames() as $propName) {
-                        $panelElement->addProperty($propName);
-                    }
-
-                    $panelRow->addElement($element->getName(), $panelElement);
-                } elseif ($element instanceof SortElementInformationInterface) {
-                    $panelElement = new DefaultSortElement();
-                    $panelRow->addElement($element->getName(), $panelElement);
-                } elseif ($element instanceof SubmitElementInformationInterface) {
-                    $panelElement = new DefaultSubmitElement();
-                    $panelRow->addElement($element->getName(), $panelElement);
-                }
-            }
-        }
+        $builder = new PanelBuilder($environment);
+        $view->setPanel($builder->build());
     }
 
     /**

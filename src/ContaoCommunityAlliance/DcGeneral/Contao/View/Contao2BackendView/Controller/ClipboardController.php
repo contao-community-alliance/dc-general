@@ -3,12 +3,12 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2016 Contao Community Alliance.
+ * (c) 2013-2017 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * This project is provided in good faith and hope to be usable by anyone.
+ * This project is provided in good faith and hope to be usable by anyone.x
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
@@ -16,13 +16,14 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2016 Contao Community Alliance.
+ * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller;
 
+use Contao\BackendTemplate;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
@@ -71,6 +72,14 @@ class ClipboardController implements EventSubscriberInterface
             $this->clearClipboard($event);
         }
 
+        if (false === $this->checkPermission($event)) {
+            $this->clearClipboard($event, false);
+
+            $event->stopPropagation();
+
+            return;
+        }
+
         if ('create' === $actionName
             || 'cut' === $actionName
             || 'copy' === $actionName
@@ -81,13 +90,61 @@ class ClipboardController implements EventSubscriberInterface
     }
 
     /**
+     * Check if permission for action.
+     *
+     * @param ActionEvent $event The event.
+     *
+     * @return bool
+     */
+    private function checkPermission(ActionEvent $event)
+    {
+        $actionName = $event->getAction()->getName();
+
+        $environment     = $event->getEnvironment();
+        $inputProvider   = $environment->getInputProvider();
+        $dataDefinition  = $environment->getDataDefinition();
+        $basicDefinition = $dataDefinition->getBasicDefinition();
+
+        if (('create' === $actionName && true === $basicDefinition->isCreatable())
+            || ('cut' === $actionName && true === $basicDefinition->isEditable())
+            || (false === in_array($actionName, array('create', 'cut')))
+        ) {
+            return true;
+        }
+
+        $permissionMessage = 'You have no permission for model ' . $actionName .' ';
+        switch ($actionName) {
+            case 'create':
+                $permissionMessage .= 'in ' . $dataDefinition->getName();
+                break;
+
+            case 'cut':
+                $permissionMessage .= $inputProvider->getParameter('source');
+                break;
+
+            default:
+        }
+
+        $event->setResponse(
+            sprintf(
+                '<div style="text-align:center; font-weight:bold; padding:40px;">%s.</div>',
+                $permissionMessage
+            )
+        );
+
+        return false;
+    }
+
+    /**
      * Handle clear clipboard action.
      *
-     * @param ActionEvent $event The action event.
+     * @param ActionEvent $event    The action event.
+     *
+     * @param bool        $redirect Redirect after clear the clipboard.
      *
      * @return void
      */
-    private function clearClipboard(ActionEvent $event)
+    private function clearClipboard(ActionEvent $event, $redirect = true)
     {
         $environment     = $event->getEnvironment();
         $eventDispatcher = $environment->getEventDispatcher();
@@ -101,6 +158,10 @@ class ClipboardController implements EventSubscriberInterface
             $clipboard->clear();
         }
         $clipboard->saveTo($environment);
+
+        if (false === $redirect) {
+            return;
+        }
 
         $act           = $input->getParameter('original-act');
         $addToUrlEvent = new AddToUrlEvent('clipboard-item=&original-act=&act=' . $act);
@@ -285,7 +346,7 @@ class ClipboardController implements EventSubscriberInterface
         $eventDispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $addToUrlEvent);
         $clearItemUrl = $addToUrlEvent->getUrl();
 
-        $template = new \BackendTemplate('dcbe_general_clipboard');
+        $template = new BackendTemplate('dcbe_general_clipboard');
 
         $template->setData(
             array(

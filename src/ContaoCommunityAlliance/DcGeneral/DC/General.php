@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2016 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,13 +19,15 @@
  * @author     Patrick Kahl <kahl.patrick@googlemail.com>
  * @author     Simon Kusterer <simon@soped.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2016 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral;
 
+use Contao\DataContainer;
 use ContaoCommunityAlliance\DcGeneral\Contao\Callback\Callbacks;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -42,7 +44,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 // @codingStandardsIgnoreStart - Class is not in camelCase as Contao does not allow us to.
-class DC_General extends \DataContainer implements DataContainerInterface
+class DC_General extends DataContainer implements DataContainerInterface
 // @codingStandardsIgnoreEnd
 {
     /**
@@ -63,11 +65,23 @@ class DC_General extends \DataContainer implements DataContainerInterface
      */
     public function __construct($strTable)
     {
+        // Prevent "Recoverable error: Argument X passed to SomClass::someMethod() must be an instance of DataContainer,
+        // instance of ContaoCommunityAlliance\DcGeneral\DC_General given" in callbacks.
+        if (!class_exists('\DataContainer', false)) {
+            class_alias('\Contao\DataContainer', '\DataContainer');
+        }
         $strTable   = $this->getTablenameCallback($strTable);
         $translator = $this->getTranslator();
 
         $dispatcher = $this->getEventDispatcher();
-        $dispatcher->addListener(PopulateEnvironmentEvent::NAME, array($this, 'handlePopulateEnvironment'), 4800);
+        $fetcher    = \Closure::bind(function (PopulateEnvironmentEvent $event) use ($strTable) {
+            // We need to capture the correct environment and save it for later use.
+            if ($strTable !== $event->getEnvironment()->getDataDefinition()->getName()) {
+                return;
+            }
+            $this->objEnvironment = $event->getEnvironment();
+        }, $this, $this);
+        $dispatcher->addListener(PopulateEnvironmentEvent::NAME, $fetcher, 4800);
 
         $factory = new DcGeneralFactory();
 
@@ -76,7 +90,7 @@ class DC_General extends \DataContainer implements DataContainerInterface
             ->setEventDispatcher($dispatcher)
             ->setTranslator($translator)
             ->createDcGeneral();
-        $dispatcher->removeListener(PopulateEnvironmentEvent::NAME, array($this, 'handlePopulateEnvironment'));
+        $dispatcher->removeListener(PopulateEnvironmentEvent::NAME, $fetcher);
 
         // Load the clipboard.
         $this
@@ -146,21 +160,6 @@ class DC_General extends \DataContainer implements DataContainerInterface
         ) {
             $this->getViewHandler()->handleAjaxCall();
         }
-    }
-
-    /**
-     * Callback coming from the environment populator.
-     *
-     * This is used to get to know the environment here in the DC.
-     * See the implementation in constructor and ExtendedLegacyDcaPopulator::populateCallback().
-     *
-     * @param PopulateEnvironmentEvent $event The event.
-     *
-     * @return void
-     */
-    public function handlePopulateEnvironment(PopulateEnvironmentEvent $event)
-    {
-        $this->objEnvironment = $event->getEnvironment();
     }
 
     /**

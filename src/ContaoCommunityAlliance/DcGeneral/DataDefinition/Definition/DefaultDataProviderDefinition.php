@@ -25,6 +25,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 
 /**
  * This is the default implementation of a collection of data provider information.
+ *
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods) We have to keep them as we implement the interfaces.
  */
 class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
 {

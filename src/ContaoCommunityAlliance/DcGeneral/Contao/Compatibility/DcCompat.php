@@ -32,7 +32,6 @@ use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
  */
 class DcCompat extends DC_General
 {
-
     /**
      * The current model.
      *
@@ -58,6 +57,11 @@ class DcCompat extends DC_General
      */
     public function __construct(EnvironmentInterface $environment, ModelInterface $model = null, $propertyName = null)
     {
+        // Prevent "Recoverable error: Argument X passed to SomClass::someMethod() must be an instance of DataContainer,
+        // instance of ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat given" in callbacks.
+        if (!class_exists('\DataContainer', false)) {
+            class_alias('\Contao\DataContainer', '\DataContainer');
+        }
         $this->objEnvironment = $environment;
         $this->model          = $model;
         $this->propertyName   = $propertyName;

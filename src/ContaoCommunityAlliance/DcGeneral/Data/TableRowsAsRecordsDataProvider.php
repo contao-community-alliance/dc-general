@@ -133,7 +133,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
 
         $strQuery = sprintf(
             'SELECT %s FROM %s WHERE %s=?',
-            $this->buildFieldQuery($objConfig),
+            DefaultDataProviderSqlUtils::buildFieldQuery($objConfig, $this->idProperty),
             $this->strSource,
             $this->strGroupCol
         );

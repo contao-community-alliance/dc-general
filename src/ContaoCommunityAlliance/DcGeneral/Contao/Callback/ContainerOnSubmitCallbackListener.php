@@ -13,6 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     Tsarma <tsarma@users.noreply.github.com>
  * @copyright  2013-2015 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -40,7 +41,7 @@ class ContainerOnSubmitCallbackListener extends AbstractCallbackListener
     public function getArgs($event)
     {
         return array(
-            new DcCompat($event->getEnvironment())
+            new DcCompat($event->getEnvironment(), $event->getModel())
         );
     }
 }

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2016 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,13 +17,14 @@
  * @author     Andreas Nölke <zero@brothers-project.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @copyright  2013-2016 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
+use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoWidgetManager;
@@ -46,7 +47,7 @@ class Ajax3X extends Ajax
      *
      * @param string $propertyValue The property value.
      *
-     * @return \Widget
+     * @return Widget
      */
     protected function getWidget($fieldName, $serializedId, $propertyValue)
     {
@@ -178,17 +179,10 @@ class Ajax3X extends Ajax
         if ($varValue != '') {
             $varValue = trimsplit("\t", $varValue);
 
-            // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
-            if (version_compare(VERSION . '.' . BUILD, '3.5.5', '>=')) {
-                $mapFunc = 'StringUtil::binToUuid';
-            } else {
-                $mapFunc = 'String::binToUuid';
-            }
-
             // Automatically add resources to the DBAFS.
             if ($strType == 'file') {
                 foreach ($varValue as $k => $v) {
-                    $varValue[$k] = call_user_func($mapFunc, \Dbafs::addResource($v)->uuid);
+                    $varValue[$k] = call_user_func('\Contao\StringUtil::binToUuid', \Dbafs::addResource($v)->uuid);
                 }
             }
         }

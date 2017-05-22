@@ -30,15 +30,22 @@ use ContaoCommunityAlliance\DcGeneral\Contao\Subscriber\FormatModelLabelSubscrib
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\CopyHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\CreateHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\DeleteHandler;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\EditHandler;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ListViewShowAllHandler;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ParentedListViewShowAllHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\PasteHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\SelectHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ToggleHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\BackButtonListener;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\CreateModelButtonListener;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\GetGroupHeaderSubscriber;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\ParentEnforcingListener;
 use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener;
+use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 
@@ -54,6 +61,26 @@ $result = array(
         ),
     ),
     PopulateEnvironmentEvent::NAME => array(
+        function (PopulateEnvironmentEvent $event) {
+            $environment = $event->getEnvironment();
+            $definition  = $environment->getDataDefinition();
+            $parentName  = $definition->getBasicDefinition()->getParentDataProvider();
+
+            if (empty($parentName)) {
+                return;
+            }
+
+            $factory          = new DcGeneralFactory();
+            $parentDefinition = $factory
+                ->setEventDispatcher($environment->getEventDispatcher())
+                ->setTranslator($environment->getTranslator())
+                ->setContainerName($parentName)
+                ->createDcGeneral()
+                ->getEnvironment()
+                ->getDataDefinition();
+
+            $environment->setParentDataDefinition($parentDefinition);
+        },
         array(
             array(new DataProviderPopulator(), 'process'),
             DataProviderPopulator::PRIORITY
@@ -93,7 +120,7 @@ if ('BE' === TL_MODE) {
     );
 
     $result[GetGroupHeaderEvent::NAME] = array(
-        array(new GetGroupHeaderSubscriber(), 'handle')
+        'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\GetGroupHeaderSubscriber::handle'
     );
 
     $result[BuildWidgetEvent::NAME] = array(
@@ -105,11 +132,18 @@ if ('BE' === TL_MODE) {
     $result[DcGeneralEvents::ACTION] = array(
         array(new PasteHandler(), 'handleEvent'),
         array(new CreateHandler(), 'handleEvent'),
+        array(new EditHandler(), 'handleEvent'),
         array(new SelectHandler(), 'handleEvent'),
         array(new CopyHandler(), 'handleEvent'),
         array(new DeleteHandler(), 'handleEvent'),
-        array(new ToggleHandler(), 'handleEvent')
+        array(new ToggleHandler(), 'handleEvent'),
+        array(new ListViewShowAllHandler(), 'handleEvent'),
+        array(new ParentedListViewShowAllHandler(), 'handleEvent'),
     );
+    $result[GetGlobalButtonEvent::NAME] = [
+        [new BackButtonListener(), 'handle'],
+        [new CreateModelButtonListener(), 'handle'],
+    ];
 }
 
 return $result;

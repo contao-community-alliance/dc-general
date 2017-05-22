@@ -19,6 +19,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Subscriber;
 
+use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
@@ -99,12 +100,69 @@ class FallbackResetSubscriber implements EventSubscriberInterface
 
             $extra = (array) $properties->getProperty($propertyName)->getExtra();
             if (array_key_exists('fallback', $extra) && (true === $extra['fallback'])) {
-                if (!$dataProvider->isUniqueValue($propertyName, $model->getProperty($propertyName), $model->getId())) {
-                    // Reset fallback and save model again to have the correct value.
+                // BC Layer - use old reset fallback methodology until it get's removed.
+                if (null === ($config = $this->determineFilterConfig($event))) {
+                    // @codingStandardsIgnoreStart
+                    @trigger_error(
+                        'DataProviderInterface::resetFallback is deprecated - ' .
+                        'Please specify proper parent child relationship',
+                        E_USER_DEPRECATED
+                    );
+                    // @codingStandardsIgnoreEnd
+
                     $dataProvider->resetFallback($propertyName);
-                    $dataProvider->save($model);
+                }
+
+                $models = $dataProvider->fetchAll($config);
+
+                foreach ($models as $resetModel) {
+                    if ($model->getId() === $resetModel->getId()) {
+                        continue;
+                    }
+                    $resetModel->setProperty($propertyName, null);
+                    $dataProvider->save($resetModel);
                 }
             }
         }
+    }
+
+    /**
+     * Determine the filter config to use.
+     *
+     * @param AbstractModelAwareEvent $event The event.
+     *
+     * @return ConfigInterface|null
+     */
+    private function determineFilterConfig(AbstractModelAwareEvent $event)
+    {
+        $environment  = $event->getEnvironment();
+        $model        = $event->getModel();
+        $dataProvider = $environment->getDataProvider($model->getProviderName());
+        $definition   = $environment->getDataDefinition();
+        $relationship = $definition->getModelRelationshipDefinition();
+
+        $root = $relationship->getRootCondition();
+        if (null !== $root && $root->matches($model)) {
+            return $dataProvider->getEmptyConfig()->setFilter($root->getFilterArray());
+        }
+
+        $parentFilter = $relationship->getChildCondition(
+            $definition->getBasicDefinition()->getParentDataProvider(),
+            $model->getProviderName()
+        );
+
+        if (null !== $parentFilter) {
+            $parentConfig   = $dataProvider->getEmptyConfig()->setFilter($parentFilter->getInverseFilterFor($model));
+            $parentProvider = $environment->getDataProvider($parentFilter->getSourceName());
+            $parent         = $parentProvider->fetchAll($parentConfig)->get(0);
+            return $dataProvider->getEmptyConfig()->setFilter($parentFilter->getFilter($parent));
+        }
+
+        // Trigger BC layer in handleFallback().
+        if ($root === null && count($relationship->getChildConditions()) == 0) {
+            return null;
+        }
+
+        return $dataProvider->getEmptyConfig();
     }
 }

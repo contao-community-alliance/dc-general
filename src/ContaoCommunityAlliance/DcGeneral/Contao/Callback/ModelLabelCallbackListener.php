@@ -62,6 +62,14 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
             return;
         }
 
+        // HACK: we need to escape all % chars but preserve the %s and the like.
+        $value = str_replace('%', '%%', $value);
+        $value = preg_replace(
+            '#%(%([0-9]+\$)?(\'.|0| )?-?([0-9]+)?(.[0-9]+)?(b|c|d|e|E|f|F|g|G|o|s|u|x|X))#',
+            '\\1',
+            $value
+        );
+
         $event->setLabel($value);
     }
 }

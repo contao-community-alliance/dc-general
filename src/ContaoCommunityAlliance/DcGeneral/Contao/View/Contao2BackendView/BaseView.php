@@ -17,6 +17,7 @@
  * @author     cogizz <c.boelter@cogizz.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Martin Treml <github@r2pi.net>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  2013-2016 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -24,38 +25,22 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
-use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
-use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
-use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
-use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
-use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
-use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
+use Contao\Template;
 use ContaoCommunityAlliance\DcGeneral\Action;
-use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
-use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
-use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ShowHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
-use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
-use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -197,13 +182,32 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
+     * Translate a string via the translator.
+     *
+     * @param string $path The path within the translation where the string can be found.
+     *
+     * @return string
+     */
+    protected function translateFallback($path)
+    {
+        $translator = $this->getEnvironment()->getTranslator();
+        // Try via definition name as domain first.
+        $value = $translator->translate($path, $this->getDataDefinition()->getName());
+        if ($value !== $path) {
+            return $value;
+        }
+
+        return $this->getEnvironment()->getTranslator()->translate($path);
+    }
+
+    /**
      * Add the value to the template.
      *
      * @param string    $name     Name of the value.
      *
      * @param mixed     $value    The value to add to the template.
      *
-     * @param \Template $template The template to add the value to.
+     * @param Template $template The template to add the value to.
      *
      * @return BaseView
      */
@@ -444,61 +448,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Check the submitted data if we want to restore a previous version of a model.
-     *
-     * If so, the model will get loaded and marked as active version in the data provider and the client will perform a
-     * reload of the page.
-     *
-     * @return void
-     *
-     * @throws DcGeneralRuntimeException When the requested version could not be located in the database.
-     *
-     * @SuppressWarnings(PHPMD.LongVariable)
-     */
-    protected function checkRestoreVersion()
-    {
-        $environment   = $this->getEnvironment();
-        $definition    = $environment->getDataDefinition();
-        $inputProvider = $environment->getInputProvider();
-
-        if (!$inputProvider->hasParameter('id') || !$inputProvider->getParameter('id')) {
-            return;
-        }
-
-        $modelId                 = ModelId::fromSerialized($inputProvider->getParameter('id'));
-        $dataProviderDefinition  = $definition->getDataProviderDefinition();
-        $dataProvider            = $environment->getDataProvider($modelId->getDataProviderName());
-        $dataProviderInformation = $dataProviderDefinition->getInformation($modelId->getDataProviderName());
-
-        if ($dataProviderInformation->isVersioningEnabled()
-            && ($inputProvider->getValue('FORM_SUBMIT') === 'tl_version')
-            && ($modelVersion = $inputProvider->getValue('version')) !== null
-        ) {
-            $model = $dataProvider->getVersion($modelId->getId(), $modelVersion);
-
-            if ($model === null) {
-                $message = sprintf(
-                    'Could not load version %s of record ID %s from %s',
-                    $modelVersion,
-                    $modelId->getId(),
-                    $modelId->getDataProviderName()
-                );
-
-                $environment->getEventDispatcher()->dispatch(
-                    ContaoEvents::SYSTEM_LOG,
-                    new LogEvent($message, TL_ERROR, 'DC_General - checkRestoreVersion()')
-                );
-
-                throw new DcGeneralRuntimeException($message);
-            }
-
-            $dataProvider->save($model);
-            $dataProvider->setVersionActive($modelId->getId(), $modelVersion);
-            $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
-        }
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function enforceModelRelationship($model)
@@ -509,88 +458,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritdoc}
      *
-     * @throws DcGeneralRuntimeException When the model could not be found by the data provider.
+     * @throws \RuntimeException This method is not in use anymore.
      */
     public function edit(Action $action)
     {
-        $environment   = $this->getEnvironment();
-        $inputProvider = $environment->getInputProvider();
-        $modelId       = ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id'))
-            ? IdSerializer::fromSerialized($inputProvider->getParameter('id'))
-            : null;
-        $dataProvider  = $environment->getDataProvider($modelId ? $modelId->getDataProviderName() : null);
-
-        $this->checkRestoreVersion();
-
-        if ($modelId && $modelId->getId()) {
-            $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-        } else {
-            $model = $this->getEnvironment()->getController()->createEmptyModelWithDefaults();
-        }
-
-        if (!$model) {
-            throw new DcGeneralRuntimeException('Could not retrieve model with id ' . $modelId->getSerialized());
-        }
-
-        // We need to keep the original data here.
-        $originalModel = clone $model;
-        $originalModel->setId($model->getId());
-
-        return $this->createEditMask($model, $originalModel, null, null);
-    }
-
-    /**
-     * Create the edit mask.
-     *
-     * @param ModelInterface $model         The model with the current data.
-     *
-     * @param ModelInterface $originalModel The data from the original data.
-     *
-     * @param callable       $preFunction   The function to call before saving an item.
-     *
-     * @param callable       $postFunction  The function to call after saving an item.
-     *
-     * @return string
-     *
-     * @throws DcGeneralRuntimeException         If the data container is not editable, closed.
-     *
-     * @throws DcGeneralInvalidArgumentException If an unknown property is encountered in the palette.
-     *
-     * @SuppressWarnings(PHPMD.LongVariable)
-     */
-    protected function createEditMask($model, $originalModel, $preFunction, $postFunction)
-    {
-        $editMask = new EditMask($this, $model, $originalModel, $preFunction, $postFunction, $this->breadcrumb());
-        return $editMask->execute();
-    }
-
-    /**
-     * Calculate the label of a property to se in "show" view.
-     *
-     * @param PropertyInterface $property The property for which the label shall be calculated.
-     *
-     * @return string
-     */
-    protected function getLabelForShow(PropertyInterface $property)
-    {
-        $environment = $this->getEnvironment();
-        $definition  = $environment->getDataDefinition();
-
-        $label = $environment->getTranslator()->translate($property->getLabel(), $definition->getName());
-
-        if (!$label) {
-            $label = $environment->getTranslator()->translate('MSC.' . $property->getName());
-        }
-
-        if (is_array($label)) {
-            $label = $label[0];
-        }
-
-        if (!$label) {
-            $label = $property->getName();
-        }
-
-        return $label;
+        throw new \RuntimeException('I should not be here! :-\\');
     }
 
     /**
@@ -609,221 +481,14 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     }
 
     /**
-     * Create the "new" button.
-     *
-     * @return null|Command
-     */
-    protected function getCreateModelCommand()
-    {
-        $environment     = $this->getEnvironment();
-        $definition      = $environment->getDataDefinition();
-        $basicDefinition = $definition->getBasicDefinition();
-        $providerName    = $environment->getDataDefinition()->getName();
-        $mode            = $basicDefinition->getMode();
-        $config          = $this->getEnvironment()->getBaseConfigRegistry()->getBaseConfig();
-
-        if ($serializedPid = $environment->getInputProvider()->getParameter('pid')) {
-            $pid = ModelId::fromSerialized($serializedPid);
-        } else {
-            $pid = null;
-        }
-
-        if (!$basicDefinition->isCreatable()) {
-            return null;
-        }
-
-        $command    = new Command();
-        $parameters = $command->getParameters();
-        $extra      = $command->getExtra();
-
-        $extra['class']      = 'header_new';
-        $extra['accesskey']  = 'n';
-        $extra['attributes'] = 'onclick="Backend.getScrollOffset();"';
-
-        $command
-            ->setName('button_new')
-            ->setLabel($this->translate('new.0', $providerName))
-            ->setDescription($this->translate('new.1', $providerName));
-
-        $this->getPanel()->initialize($config);
-
-        // Add new button.
-        if (($mode == BasicDefinitionInterface::MODE_PARENTEDLIST)
-            || ($mode == BasicDefinitionInterface::MODE_HIERARCHICAL)
-        ) {
-            $filter = new Filter();
-            $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
-            if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
-                $filter->andParentIsFromProvider($parentDataProviderName);
-            } else {
-                $filter->andHasNoParent();
-            }
-
-            if ($environment->getClipboard()->isNotEmpty($filter)) {
-                return null;
-            }
-        }
-
-        $parameters['act'] = 'create';
-        // Add new button.
-        if ($pid) {
-            $parameters['pid'] = $pid->getSerialized();
-        }
-
-        return $command;
-    }
-
-    /**
-     * Create the "back" button.
-     *
-     * @return null|Command
-     */
-    protected function getBackCommand()
-    {
-        $environment = $this->getEnvironment();
-        if (!($this->isSelectModeActive()
-              || $environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider())
-        ) {
-            return null;
-        }
-
-        /** @var GetReferrerEvent $event */
-        if ($environment->getParentDataDefinition()) {
-            $event = $environment->getEventDispatcher()->dispatch(
-                ContaoEvents::SYSTEM_GET_REFERRER,
-                new GetReferrerEvent(true, $environment->getParentDataDefinition()->getName())
-            );
-        } else {
-            $event = $environment->getEventDispatcher()->dispatch(
-                ContaoEvents::SYSTEM_GET_REFERRER,
-                new GetReferrerEvent(true, $environment->getDataDefinition()->getName())
-            );
-        }
-
-        $command             = new Command();
-        $extra               = $command->getExtra();
-        $extra['class']      = 'header_back';
-        $extra['accesskey']  = 'b';
-        $extra['attributes'] = 'onclick="Backend.getScrollOffset();"';
-        $extra['href']       = $event->getReferrerUrl();
-
-        $command
-            ->setName('back_button')
-            ->setLabel($this->translate('MSC.backBT'))
-            ->setDescription($this->translate('MSC.backBT'));
-
-        return $command;
-    }
-
-    /**
-     * Render a single header button.
-     *
-     * @param CommandInterface $command The command definition.
-     *
-     * @return string
-     */
-    protected function generateHeaderButton(CommandInterface $command)
-    {
-        $environment = $this->getEnvironment();
-        $extra       = $command->getExtra();
-        $label       = $this->translate($command->getLabel());
-        $dispatcher  = $environment->getEventDispatcher();
-
-        if (isset($extra['href'])) {
-            $href = $extra['href'];
-        } else {
-            $href = '';
-            foreach ($command->getParameters() as $key => $value) {
-                $href .= '&' . $key . '=' . $value;
-            }
-
-            /** @var AddToUrlEvent $event */
-            $event = $dispatcher->dispatch(
-                ContaoEvents::BACKEND_ADD_TO_URL,
-                new AddToUrlEvent(
-                    $href
-                )
-            );
-
-            $href = $event->getUrl();
-        }
-
-        if (!strlen($label)) {
-            $label = $command->getName();
-        }
-
-        $buttonEvent = new GetGlobalButtonEvent($this->getEnvironment());
-        $buttonEvent
-            ->setAccessKey(isset($extra['accesskey']) ? trim($extra['accesskey']) : null)
-            ->setAttributes(' ' . ltrim($extra['attributes']))
-            ->setClass($extra['class'])
-            ->setKey($command->getName())
-            ->setHref($href)
-            ->setLabel($label)
-            ->setTitle($this->translate($command->getDescription()));
-        $environment->getEventDispatcher()->dispatch(GetGlobalButtonEvent::NAME, $buttonEvent);
-
-        // Allow to override the button entirely.
-        $html = $buttonEvent->getHtml();
-        if ($html !== null) {
-            return $html;
-        }
-
-        // Use the view native button building.
-        return sprintf(
-            '<a href="%s" class="%s" title="%s"%s>%s</a> ',
-            $buttonEvent->getHref(),
-            $buttonEvent->getClass(),
-            specialchars($buttonEvent->getTitle()),
-            $buttonEvent->getAttributes(),
-            $buttonEvent->getLabel()
-        );
-    }
-
-    /**
      * Generate all buttons for the header of a view.
      *
-     * @param string $strButtonId The id for the surrounding html div element.
-     *
      * @return string
      */
-    protected function generateHeaderButtons($strButtonId)
+    protected function generateHeaderButtons()
     {
-        /** @var CommandInterface[] $globalOperations */
-        $globalOperations = $this->getViewSection()->getGlobalCommands()->getCommands();
-        $buttons          = array();
-
-        if (!is_array($globalOperations)) {
-            $globalOperations = array();
-        }
-
-        if ($this->isSelectModeActive()) {
-            // Special case - if select mode active, we must not display the "edit all" button.
-            unset($globalOperations['all']);
-        } else {
-            // We do not have the select mode.
-            $command = $this->getCreateModelCommand();
-            if ($command !== null) {
-                // New button always first.
-                array_unshift($globalOperations, $command);
-            }
-        }
-
-        $command = $this->getBackCommand();
-        if ($command !== null) {
-            // Back button always to the front.
-            array_unshift($globalOperations, $command);
-        }
-
-        foreach ($globalOperations as $command) {
-            $buttons[$command->getName()] = $this->generateHeaderButton($command);
-        }
-
-        $buttonsEvent = new GetGlobalButtonsEvent($this->getEnvironment());
-        $buttonsEvent->setButtons($buttons);
-        $this->getEnvironment()->getEventDispatcher()->dispatch(GetGlobalButtonsEvent::NAME, $buttonsEvent);
-
-        return '<div id="' . $strButtonId . '">' . implode('', $buttonsEvent->getButtons()) . '</div>';
+        $renderer = new GlobalButtonRenderer($this->environment);
+        return $renderer->render();
     }
 
     /**

@@ -51,9 +51,11 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ModelRelationshi
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\DefaultProperty;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\BackCommand;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CopyCommand;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CreateModelCommand;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CutCommand;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\DefaultModelFormatterConfig;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionCollectionInterface;
@@ -78,10 +80,8 @@ use ContaoCommunityAlliance\DcGeneral\Event\PostPasteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
-use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\CreateDcGeneralEvent;
-use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -110,44 +110,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $this->parseBackendView($container);
         $this->parsePalettes($container);
         $this->parseProperties($container);
-        $this->loadAdditionalDefinitions($container);
-    }
-
-    /**
-     * Load additional definitions, like naming of parent data provider.
-     *
-     * This method will register an event to the populate environment event in which the parent data provider container
-     * will get loaded.
-     *
-     * @param ContainerInterface $container The container where the data shall be stored.
-     *
-     * @return void
-     */
-    protected function loadAdditionalDefinitions(ContainerInterface $container)
-    {
-        if ($this->getFromDca('config/ptable')) {
-            $containerName = $container->getName();
-            $this->getDispatcher()->addListener(
-                PopulateEnvironmentEvent::NAME,
-                function (PopulateEnvironmentEvent $event) use ($containerName) {
-                    $environment = $event->getEnvironment();
-                    $definition  = $environment->getDataDefinition();
-
-                    if ($definition->getName() !== $containerName) {
-                        return;
-                    }
-
-                    $parentName       = $definition->getBasicDefinition()->getParentDataProvider();
-                    $factory          = DcGeneralFactory::deriveEmptyFromEnvironment($environment)->setContainerName(
-                        $parentName
-                    );
-                    $parentDefinition = $factory->createContainer();
-
-                    $environment->setParentDataDefinition($parentDefinition);
-                }
-            );
-        }
-    }
+   }
 
     /**
      * Register the callback handlers for the given legacy callbacks.
@@ -1119,11 +1082,13 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     {
         $operationsDca = $this->getFromDca('list/global_operations');
 
+        $collection = $view->getGlobalCommands();
+        $collection->addCommand(new BackCommand());
+        $collection->addCommand(new CreateModelCommand());
+
         if (!is_array($operationsDca)) {
             return;
         }
-
-        $collection = $view->getGlobalCommands();
 
         foreach (array_keys($operationsDca) as $operationName) {
             $command = $this->createCommand($operationName, $operationsDca[$operationName]);

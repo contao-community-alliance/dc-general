@@ -147,13 +147,9 @@ class Subscriber implements EventSubscriberInterface
         $event->setPropertyName($property->getName());
         $event->setOptions($options);
 
-        $environment->getEventDispatcher()->dispatch(sprintf('%s', $event::NAME), $event);
+        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
-        if ($event->getOptions() !== $options) {
-            $options = $event->getOptions();
-        }
-
-        return $options;
+        return $event->getOptions();
     }
 
     /**
@@ -206,9 +202,6 @@ class Subscriber implements EventSubscriberInterface
      * @param RenderReadablePropertyValueEvent $event The event being processed.
      *
      * @return void
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public static function renderReadablePropertyValue(RenderReadablePropertyValueEvent $event)
     {
@@ -253,7 +246,7 @@ class Subscriber implements EventSubscriberInterface
 
         if ($property->getWidgetType() == 'checkbox' && !$extra['multiple']) {
             $map = array(false => 'no', true => 'yes');
-            $event->setRendered($GLOBALS['TL_LANG']['MSC'][$map[(bool) $value]]);
+            $event->setRendered($event->getEnvironment()->getTranslator()->translate('MSC.' . $map[(bool) $value]));
 
             return;
         }
@@ -369,6 +362,8 @@ class Subscriber implements EventSubscriberInterface
      * @param mixed                            $value The value to format.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     private static function renderForeignKeyReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
     {

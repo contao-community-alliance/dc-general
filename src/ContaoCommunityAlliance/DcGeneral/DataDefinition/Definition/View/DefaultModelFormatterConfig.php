@@ -37,7 +37,7 @@ class DefaultModelFormatterConfig implements ModelFormatterConfigInterface
      *
      * @var string
      */
-    protected $format = '%s';
+    protected $format = '';
 
     /**
      * The maximum length of the formatted string.

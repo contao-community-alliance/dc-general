@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2016 Contao Community Alliance.
+ * (c) 2013-2017 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2016 Contao Community Alliance.
+ * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -114,6 +114,10 @@ class FileTree extends AbstractWidget
     public function __set($strKey, $varValue)
     {
         switch ($strKey) {
+            case 'subTemplate':
+                $this->subTemplate = $varValue;
+                break;
+
             case 'thumbnailHeight':
                 $this->thumbnailHeight = $varValue;
                 break;
@@ -142,6 +146,9 @@ class FileTree extends AbstractWidget
     public function __get($strKey)
     {
         switch ($strKey) {
+            case 'subTemplate':
+                return $this->subTemplate;
+
             case 'thumbnailHeight':
                 return $this->thumbnailHeight;
 
@@ -150,6 +157,7 @@ class FileTree extends AbstractWidget
 
             case 'placeholderImage':
                 return $this->placeholderImage;
+
             default:
         }
 
@@ -166,6 +174,9 @@ class FileTree extends AbstractWidget
     public function __isset($strKey)
     {
         switch ($strKey) {
+            case 'subTemplate':
+                return isset($this->subTemplate);
+
             case 'thumbnailHeight':
                 return isset($this->thumbnailHeight);
 
@@ -227,14 +238,7 @@ class FileTree extends AbstractWidget
             return '';
         }
 
-        // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
-        if (version_compare(VERSION . '.' . BUILD, '3.5.5', '>=')) {
-            $mapFunc = 'StringUtil::uuidToBin';
-        } else {
-            $mapFunc = 'String::uuidToBin';
-        }
-
-        $inputValue = array_map($mapFunc, array_filter(explode(',', $inputValue)));
+        $inputValue = array_map('\Contao\StringUtil::uuidToBin', array_filter(explode(',', $inputValue)));
 
         return $this->multiple ? $inputValue : $inputValue[0];
     }
@@ -434,15 +438,9 @@ class FileTree extends AbstractWidget
             $files = \FilesModel::findMultipleByUuids((array) $this->varValue);
             $this->renderList($icons, $files, ($this->isGallery || $this->isDownloads));
             $icons = $this->applySorting($icons);
-            // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
-            if (version_compare(VERSION . '.' . BUILD, '3.5.5', '>=')) {
-                $mapFunc = 'StringUtil::binToUuid';
-            } else {
-                $mapFunc = 'String::binToUuid';
-            }
 
             foreach ($files as $model) {
-                $values[] = call_user_func($mapFunc, $model->uuid);
+                $values[] = call_user_func('\Contao\StringUtil::binToUuid', $model->uuid);
             }
         }
 
