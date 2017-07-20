@@ -47,13 +47,13 @@
         "classmap": [
             "contao-compat/DC_General.php"
         ],
-        "psr-0": {
-            "ContaoCommunityAlliance\\DcGeneral\\": "src"
+        "psr-4": {
+            "ContaoCommunityAlliance\\DcGeneral\\": "src/"
         }
     },
     "autoload-dev": {
-        "psr-0": {
-            "ContaoCommunityAlliance\\DcGeneral\\": "tests"
+        "psr-4": {
+            "ContaoCommunityAlliance\\DcGeneral\\Test\\": "tests/"
         }
     },
     "extra": {
