@@ -1,1 +1,10 @@
 services:
+    ## The services block
+    dc-general.data-definition-container.factory.default:
+        class: ContaoCommunityAlliance\DcGeneral\DataDefinitionContainer
+
+    dc-general.data-definition-container.factory:
+        class: ContaoCommunityAlliance\DcGeneral\DataDefinitionContainer
+
+    dc-general.data-definition-container:
+        class: ContaoCommunityAlliance\DcGeneral\DataDefinitionContainer
