@@ -9,7 +9,7 @@
         "php",
         "contao"
     ],
-    "type": "contao-module",
+    "type": "contao-bundle",
     "homepage": "http://c-c-a.org/",
     "license": "LGPL-3.0+",
     "authors": [
@@ -57,11 +57,6 @@
         }
     },
     "extra": {
-        "contao": {
-            "sources": {
-                "contao": "system/modules/dc-general"
-            }
-        },
         "branch-alias": {
             "dev-feature/contao4": "2.1.x-dev"
         }
