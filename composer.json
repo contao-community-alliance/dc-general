@@ -35,13 +35,15 @@
         "php": ">=5.6",
         "contao/core-bundle": "~4.4",
         "contao-community-alliance/translator": "~2.0",
+        "contao-community-alliance/dependency-container": "~2.0",
         "contao-community-alliance/events-contao-bindings": "~4.0",
         "contao-community-alliance/url-builder": "~1.1",
         "symfony/event-dispatcher": "~3.0",
         "symfony/expression-language": "~3.0"
     },
     "require-dev": {
-        "phpcq/all-tasks": "~1.1"
+       "phpcq/all-tasks": "~1.1",
+        "contao/manager-bundle": "~4.4"
     },
     "autoload": {
         "classmap": [
@@ -57,6 +59,7 @@
         }
     },
     "extra": {
+        "contao-manager-plugin": "ContaoCommunityAlliance\\DcGeneral\\ContaoManager\\Plugin",
         "branch-alias": {
             "dev-feature/contao4": "2.1.x-dev"
         }
