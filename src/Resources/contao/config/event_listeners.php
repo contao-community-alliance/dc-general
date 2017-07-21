@@ -50,7 +50,7 @@ use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 
 $result = array(
-    BuildDataDefinitionEvent::NAME => array(
+    /*BuildDataDefinitionEvent::NAME => array(
         array(
             array(new LegacyDcaDataDefinitionBuilder(), 'process'),
             LegacyDcaDataDefinitionBuilder::PRIORITY
@@ -59,8 +59,9 @@ $result = array(
             array(new ExtendedLegacyDcaDataDefinitionBuilder(), 'process'),
             ExtendedLegacyDcaDataDefinitionBuilder::PRIORITY
         ),
-    ),
+    ),*/
     PopulateEnvironmentEvent::NAME => array(
+        // Todo create a listener class for this anonymous function.
         function (PopulateEnvironmentEvent $event) {
             $environment = $event->getEnvironment();
             $definition  = $environment->getDataDefinition();
@@ -81,23 +82,23 @@ $result = array(
 
             $environment->setParentDataDefinition($parentDefinition);
         },
-        array(
+        /*array(
             array(new DataProviderPopulator(), 'process'),
             DataProviderPopulator::PRIORITY
-        ),
-        array(
+        ),*/
+        /*array(
             array(new HardCodedPopulator(), 'process'),
             HardCodedPopulator::PRIORITY
-        ),
+        ),*/
     ),
-    DcGeneralEvents::ENFORCE_MODEL_RELATIONSHIP => array(
+    /*DcGeneralEvents::ENFORCE_MODEL_RELATIONSHIP => array(
         array(new TreeEnforcingListener(), 'process'),
         array(new ParentEnforcingListener(), 'process'),
-    )
+    )*/
 );
 
-if ('BE' === TL_MODE) {
-    $result[PopulateEnvironmentEvent::NAME] = array_merge(
+#if ('BE' === TL_MODE) {
+    /*$result[PopulateEnvironmentEvent::NAME] = array_merge(
         $result[PopulateEnvironmentEvent::NAME],
         array(
             array(
@@ -113,37 +114,37 @@ if ('BE' === TL_MODE) {
                 PickerCompatPopulator::PRIORITY
             ),
         )
-    );
+    );*/
 
-    $result[DcGeneralEvents::FORMAT_MODEL_LABEL] = array(
+    /*$result[DcGeneralEvents::FORMAT_MODEL_LABEL] = array(
         array(new FormatModelLabelSubscriber(), 'handleFormatModelLabel'),
-    );
+    );*/
 
-    $result[GetGroupHeaderEvent::NAME] = array(
+    /*$result[GetGroupHeaderEvent::NAME] = array(
         'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\GetGroupHeaderSubscriber::handle'
-    );
+    );*/
 
     $result[BuildWidgetEvent::NAME] = array(
         'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\WidgetBuilder::handleEvent',
-        'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\ColorPickerWizardSubscriber' .
-        '::handleEvent'
+        #'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\ColorPickerWizardSubscriber' .
+        #'::handleEvent'
     );
 
-    $result[DcGeneralEvents::ACTION] = array(
-        array(new PasteHandler(), 'handleEvent'),
-        array(new CreateHandler(), 'handleEvent'),
-        array(new EditHandler(), 'handleEvent'),
-        array(new SelectHandler(), 'handleEvent'),
-        array(new CopyHandler(), 'handleEvent'),
-        array(new DeleteHandler(), 'handleEvent'),
-        array(new ToggleHandler(), 'handleEvent'),
-        array(new ListViewShowAllHandler(), 'handleEvent'),
-        array(new ParentedListViewShowAllHandler(), 'handleEvent'),
-    );
-    $result[GetGlobalButtonEvent::NAME] = [
-        [new BackButtonListener(), 'handle'],
-        [new CreateModelButtonListener(), 'handle'],
-    ];
-}
+    #$result[DcGeneralEvents::ACTION] = array(
+        #array(new PasteHandler(), 'handleEvent'),
+        #array(new CreateHandler(), 'handleEvent'),
+        #array(new EditHandler(), 'handleEvent'),
+        #array(new SelectHandler(), 'handleEvent'),
+        #array(new CopyHandler(), 'handleEvent'),
+        #array(new DeleteHandler(), 'handleEvent'),
+        #array(new ToggleHandler(), 'handleEvent'),
+        #array(new ListViewShowAllHandler(), 'handleEvent'),
+        #array(new ParentedListViewShowAllHandler(), 'handleEvent'),
+    #);
+    #$result[GetGlobalButtonEvent::NAME] = [
+        #[new BackButtonListener(), 'handle'],
+        #[new CreateModelButtonListener(), 'handle'],
+    #];
+#}
 
 return $result;

@@ -52,8 +52,6 @@ use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
  */
 class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 {
-    const PRIORITY = 101;
-
     /**
      * {@inheritdoc}
      */

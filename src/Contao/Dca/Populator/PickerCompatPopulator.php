@@ -29,8 +29,6 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentPopulator\AbstractEventDrivenEn
  */
 class PickerCompatPopulator extends AbstractEventDrivenEnvironmentPopulator
 {
-    const PRIORITY = -10000;
-
     /**
      * Create a controller instance in the environment if none has been defined yet.
      *
