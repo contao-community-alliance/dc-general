@@ -20,6 +20,15 @@
  */
 
 /** @var \DependencyInjection\Container\PimpleGate $container */
-$container->provideSymfonyService('dc-general.data-definition-container.factory.default');
-$container->provideSymfonyService('dc-general.data-definition-container.factory');
-$container->provideSymfonyService('dc-general.data-definition-container');
+$container->provideSymfonyService(
+    'dc-general.data-definition-container.factory.default',
+    'cca.dc-general.data-definition-container.factory.default'
+);
+$container->provideSymfonyService(
+    'dc-general.data-definition-container.factory',
+    'cca.dc-general.data-definition-container.factory'
+);
+$container->provideSymfonyService(
+    'dc-general.data-definition-container',
+    'cca.dc-general.data-definition-container'
+);
