@@ -32,7 +32,7 @@
  * @SuppressWarnings(PHPMD.CamelCaseClassName)
  */
 // @codingStandardsIgnoreStart
-class DC_General extends ContaoCommunityAlliance\DcGeneral\DC_General
+class DC_General extends ContaoCommunityAlliance\DcGeneral\DC\General
 {
 }
 // @codingStandardsIgnoreEnd

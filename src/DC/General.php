@@ -25,12 +25,14 @@
  * @filesource
  */
 
-namespace ContaoCommunityAlliance\DcGeneral;
+namespace ContaoCommunityAlliance\DcGeneral\DC;
 
 use Contao\DataContainer;
 use ContaoCommunityAlliance\DcGeneral\Contao\Callback\Callbacks;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\DataContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
@@ -45,7 +47,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 // @codingStandardsIgnoreStart - Class is not in camelCase as Contao does not allow us to.
-class DC_General extends DataContainer implements DataContainerInterface
+class General extends DataContainer implements DataContainerInterface
 // @codingStandardsIgnoreEnd
 {
     /**
