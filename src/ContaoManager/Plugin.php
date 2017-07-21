@@ -26,6 +26,7 @@ use Contao\ManagerPlugin\Bundle\Config\BundleConfig;
 use Contao\ManagerPlugin\Bundle\Parser\ParserInterface;
 use ContaoCommunityAlliance\Contao\Bindings\CcaEventsContaoBindingsBundle;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralBundle;
+use ContaoCommunityAlliance\UrlBuilder\CcaUrlBuilderBundle;
 use DependencyInjection\Container\CcaDependencyInjectionBundle;
 
 /**
@@ -38,13 +39,13 @@ class Plugin implements BundlePluginInterface
      */
     public function getBundles(ParserInterface $parser)
     {
-        // Todo if the url builder is bundle add it by load after.
         return [
             BundleConfig::create(DcGeneralBundle::class)
                 ->setLoadAfter(
                     [
                         ContaoCoreBundle::class,
                         ContaoManagerBundle::class,
+                        CcaUrlBuilderBundle::class,
                         CcaDependencyInjectionBundle::class,
                         CcaEventsContaoBindingsBundle::class
                     ]
