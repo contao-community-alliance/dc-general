@@ -20,11 +20,11 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener;
 
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 
 /**
  * This handles the back button event in list views.
@@ -32,20 +32,32 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 class BackButtonListener
 {
     /**
-     * The contao framework
+     * The request mode if contao is in frontend or backend mode.
      *
-     * @var ContaoFrameworkInterface
+     * @var string
      */
-    protected $framework;
+    private $requestMode = '';
+
 
     /**
      * BackButtonListener constructor.
      *
-     * @param ContaoFrameworkInterface $framework
+     * @param ResettableContainerInterface $container
      */
-    public function __construct(ContaoFrameworkInterface $framework)
+    public function __construct(ResettableContainerInterface $container)
     {
-        $this->framework = $framework;
+        $requestStack   = $container->get('request_stack');
+        $currentRequest = $requestStack->getCurrentRequest();
+
+        $scopeMatcher = $container->get('contao.routing.scope_matcher');
+
+        if ($scopeMatcher->isBackendRequest($currentRequest)) {
+            $this->requestMode = 'BE';
+        }
+
+        if ($scopeMatcher->isFrontendRequest($currentRequest)) {
+            $this->requestMode = 'FE';
+        }
     }
 
     /**
@@ -57,7 +69,7 @@ class BackButtonListener
      */
     public function handle(GetGlobalButtonEvent $event)
     {
-        if ('BE' !== $this->framework->getMode()) {
+        if ('BE' !== $this->requestMode) {
             return;
         }
 

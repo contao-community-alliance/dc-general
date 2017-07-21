@@ -19,10 +19,10 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber;
 
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\StringUtil;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
+use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -31,20 +31,31 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class RichTextFileUuidSubscriber implements EventSubscriberInterface
 {
     /**
-     * The contao framework
+     * The request mode if contao is in frontend or backend mode.
      *
-     * @var ContaoFrameworkInterface
+     * @var string
      */
-    protected $framework;
+    private $requestMode = '';
 
     /**
      * RichTextFileUuidSubscriber constructor.
      *
-     * @param ContaoFrameworkInterface $framework
+     * @param ResettableContainerInterface $container
      */
-    public function __construct(ContaoFrameworkInterface $framework)
+    public function __construct(ResettableContainerInterface $container)
     {
-        $this->framework = $framework;
+        $requestStack   = $container->get('request_stack');
+        $currentRequest = $requestStack->getCurrentRequest();
+
+        $scopeMatcher = $container->get('contao.routing.scope_matcher');
+
+        if ($scopeMatcher->isBackendRequest($currentRequest)) {
+            $this->requestMode = 'BE';
+        }
+
+        if ($scopeMatcher->isFrontendRequest($currentRequest)) {
+            $this->requestMode = 'FE';
+        }
     }
 
     /**
@@ -88,7 +99,7 @@ class RichTextFileUuidSubscriber implements EventSubscriberInterface
      */
     public function convertFileSourceToUuid(EncodePropertyValueFromWidgetEvent $event)
     {
-        if ('BE' !== $this->framework->getMode()) {
+        if ('BE' !== $this->requestMode) {
             return;
         }
 
@@ -119,7 +130,7 @@ class RichTextFileUuidSubscriber implements EventSubscriberInterface
      */
     public function convertUuidToFileSource(DecodePropertyValueForWidgetEvent $event)
     {
-        if ('BE' !== $this->framework->getMode()) {
+        if ('BE' !== $this->requestMode) {
             return;
         }
 

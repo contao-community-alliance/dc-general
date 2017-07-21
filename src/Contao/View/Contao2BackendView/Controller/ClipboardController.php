@@ -24,7 +24,6 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller;
 
 use Contao\BackendTemplate;
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
@@ -40,6 +39,7 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
+use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -48,20 +48,31 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class ClipboardController implements EventSubscriberInterface
 {
     /**
-     * The contao framework
+     * The request mode if contao is in frontend or backend mode.
      *
-     * @var ContaoFrameworkInterface
+     * @var string
      */
-    protected $framework;
+    private $requestMode = '';
 
     /**
      * ClipboardController constructor.
      *
-     * @param ContaoFrameworkInterface $framework
+     * @param ResettableContainerInterface $container
      */
-    public function __construct(ContaoFrameworkInterface $framework)
+    public function __construct(ResettableContainerInterface $container)
     {
-        $this->framework = $framework;
+        $requestStack   = $container->get('request_stack');
+        $currentRequest = $requestStack->getCurrentRequest();
+
+        $scopeMatcher = $container->get('contao.routing.scope_matcher');
+
+        if ($scopeMatcher->isBackendRequest($currentRequest)) {
+            $this->requestMode = 'BE';
+        }
+
+        if ($scopeMatcher->isFrontendRequest($currentRequest)) {
+            $this->requestMode = 'FE';
+        }
     }
 
     /**
@@ -84,7 +95,7 @@ class ClipboardController implements EventSubscriberInterface
      */
     public function handleAction(ActionEvent $event)
     {
-        if ('BE' !== $this->framework->getMode()) {
+        if ('BE' !== $this->requestMode) {
             return;
         }
 
@@ -306,7 +317,7 @@ class ClipboardController implements EventSubscriberInterface
      */
     public function handleView(ViewEvent $event)
     {
-        if ('BE' !== $this->framework->getMode()) {
+        if ('BE' !== $this->requestMode) {
             return;
         }
 

@@ -20,12 +20,12 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener;
 
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
+use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 
 /**
  * This handles the add button event in list views.
@@ -33,20 +33,31 @@ use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
 class CreateModelButtonListener
 {
     /**
-     * The contao framework
+     * The request mode if contao is in frontend or backend mode.
      *
-     * @var ContaoFrameworkInterface
+     * @var string
      */
-    protected $framework;
+    private $requestMode = '';
 
     /**
      * CreateModelButtonListener constructor.
      *
-     * @param ContaoFrameworkInterface $framework
+     * @param ResettableContainerInterface $container
      */
-    public function __construct(ContaoFrameworkInterface $framework)
+    public function __construct(ResettableContainerInterface $container)
     {
-        $this->framework = $framework;
+        $requestStack   = $container->get('request_stack');
+        $currentRequest = $requestStack->getCurrentRequest();
+
+        $scopeMatcher = $container->get('contao.routing.scope_matcher');
+
+        if ($scopeMatcher->isBackendRequest($currentRequest)) {
+            $this->requestMode = 'BE';
+        }
+
+        if ($scopeMatcher->isFrontendRequest($currentRequest)) {
+            $this->requestMode = 'FE';
+        }
     }
 
     /**
@@ -58,7 +69,7 @@ class CreateModelButtonListener
      */
     public function handle(GetGlobalButtonEvent $event)
     {
-        if ('BE' !== $this->framework->getMode()) {
+        if ('BE' !== $this->requestMode) {
             return;
         }
 

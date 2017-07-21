@@ -25,7 +25,6 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Event;
 
 use Contao\Config;
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
@@ -48,6 +47,7 @@ use ContaoCommunityAlliance\DcGeneral\Panel\SearchElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SubmitElementInterface;
 use ContaoCommunityAlliance\DcGeneral\View\Event\RenderReadablePropertyValueEvent;
+use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -57,20 +57,32 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class Subscriber implements EventSubscriberInterface
 {
     /**
-     * The contao framework
+     * The request mode if contao is in frontend or backend mode.
      *
-     * @var ContaoFrameworkInterface
+     * @var string
      */
-    protected $framework;
+    private $requestMode = '';
+
 
     /**
      * Subscriber constructor.
      *
-     * @param ContaoFrameworkInterface $framework
+     * @param ResettableContainerInterface $container
      */
-    public function __construct(ContaoFrameworkInterface $framework)
+    public function __construct(ResettableContainerInterface $container)
     {
-        $this->framework = $framework;
+        $requestStack   = $container->get('request_stack');
+        $currentRequest = $requestStack->getCurrentRequest();
+
+        $scopeMatcher = $container->get('contao.routing.scope_matcher');
+
+        if ($scopeMatcher->isBackendRequest($currentRequest)) {
+            $this->requestMode = 'BE';
+        }
+
+        if ($scopeMatcher->isFrontendRequest($currentRequest)) {
+            $this->requestMode = 'FE';
+        }
     }
 
     /**
@@ -104,7 +116,7 @@ class Subscriber implements EventSubscriberInterface
      */
     public function getPanelElementTemplate(GetPanelElementTemplateEvent $event)
     {
-        if ('BE' !== $this->framework->getMode()) {
+        if ('BE' !== $this->requestMode) {
             return;
         }
 
@@ -136,7 +148,7 @@ class Subscriber implements EventSubscriberInterface
      */
     public function resolveWidgetErrorMessage(ResolveWidgetErrorMessageEvent $event)
     {
-        if ('BE' !== $this->framework->getMode()) {
+        if ('BE' !== $this->requestMode) {
             return;
         }
 
@@ -231,7 +243,7 @@ class Subscriber implements EventSubscriberInterface
      */
     public function renderReadablePropertyValue(RenderReadablePropertyValueEvent $event)
     {
-        if ('BE' !== $this->framework->getMode()) {
+        if ('BE' !== $this->requestMode) {
             return;
         }
 
@@ -313,7 +325,7 @@ class Subscriber implements EventSubscriberInterface
      */
     public function initTwig(\ContaoTwigInitializeEvent $event)
     {
-        if ('BE' !== $this->framework->getMode()) {
+        if ('BE' !== $this->requestMode) {
             return;
         }
 
@@ -332,7 +344,7 @@ class Subscriber implements EventSubscriberInterface
      */
     public function initializePanels(ActionEvent $event)
     {
-        if ('BE' !== $this->framework->getMode()) {
+        if ('BE' !== $this->requestMode) {
             return;
         }
 

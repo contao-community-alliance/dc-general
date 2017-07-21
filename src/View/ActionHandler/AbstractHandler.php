@@ -26,9 +26,10 @@ use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\EditOnlyModeException;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
-use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 
 /**
  * Abstract base class for handling dc-general action events.
@@ -36,11 +37,39 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 abstract class AbstractHandler
 {
     /**
+     * The request mode if contao is in frontend or backend mode.
+     *
+     * @var string
+     */
+    protected $requestMode = '';
+
+    /**
      * The event.
      *
      * @var ActionEvent
      */
     private $event = null;
+
+    /**
+     * AbstractHandler constructor.
+     *
+     * @param ResettableContainerInterface $container
+     */
+    public function __construct(ResettableContainerInterface $container)
+    {
+        $requestStack   = $container->get('request_stack');
+        $currentRequest = $requestStack->getCurrentRequest();
+
+        $scopeMatcher = $container->get('contao.routing.scope_matcher');
+
+        if ($scopeMatcher->isBackendRequest($currentRequest)) {
+            $this->requestMode = 'BE';
+        }
+
+        if ($scopeMatcher->isFrontendRequest($currentRequest)) {
+            $this->requestMode = 'FE';
+        }
+    }
 
     /**
      * Method to buffer the event and then process it.
