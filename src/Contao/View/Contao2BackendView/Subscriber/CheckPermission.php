@@ -21,6 +21,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber;
 
+use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandCollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\BooleanCondition;
@@ -35,6 +36,23 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class CheckPermission implements EventSubscriberInterface
 {
+    /**
+     * The contao framework
+     *
+     * @var ContaoFrameworkInterface
+     */
+    protected $framework;
+
+    /**
+     * CheckPermission constructor.
+     *
+     * @param ContaoFrameworkInterface $framework
+     */
+    public function __construct(ContaoFrameworkInterface $framework)
+    {
+        $this->framework = $framework;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -59,6 +77,10 @@ class CheckPermission implements EventSubscriberInterface
      */
     public function checkPermissionForProperties(BuildDataDefinitionEvent $event)
     {
+        if ('BE' !== $this->framework->getMode()) {
+            return;
+        }
+
         $container          = $event->getContainer();
         $properties         = $container->getPropertiesDefinition();
         $palettesDefinition = $container->getPalettesDefinition();
@@ -94,6 +116,10 @@ class CheckPermission implements EventSubscriberInterface
      */
     public function checkPermissionIsEditable(BuildDataDefinitionEvent $event)
     {
+        if ('BE' !== $this->framework->getMode()) {
+            return;
+        }
+
         $container       = $event->getContainer();
         $basicDefinition = $container->getBasicDefinition();
 
@@ -118,6 +144,10 @@ class CheckPermission implements EventSubscriberInterface
      */
     public function checkPermissionIsDeletable(BuildDataDefinitionEvent $event)
     {
+        if ('BE' !== $this->framework->getMode()) {
+            return;
+        }
+
         $container       = $event->getContainer();
         $basicDefinition = $container->getBasicDefinition();
 
@@ -140,6 +170,10 @@ class CheckPermission implements EventSubscriberInterface
      */
     public function checkPermissionIsCreatable(BuildDataDefinitionEvent $event)
     {
+        if ('BE' !== $this->framework->getMode()) {
+            return;
+        }
+
         $container       = $event->getContainer();
         $basicDefinition = $container->getBasicDefinition();
 

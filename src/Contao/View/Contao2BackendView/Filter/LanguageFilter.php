@@ -22,6 +22,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Filter;
 
+use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
@@ -36,6 +37,23 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class LanguageFilter implements EventSubscriberInterface
 {
+    /**
+     * The contao framework
+     *
+     * @var ContaoFrameworkInterface
+     */
+    protected $framework;
+
+    /**
+     * LanguageFilter constructor.
+     *
+     * @param ContaoFrameworkInterface $framework
+     */
+    public function __construct(ContaoFrameworkInterface $framework)
+    {
+        $this->framework = $framework;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -55,6 +73,10 @@ class LanguageFilter implements EventSubscriberInterface
      */
     public function handleAction(ActionEvent $event)
     {
+        if ('BE' !== $this->framework->getMode()) {
+            return;
+        }
+
         $this->checkLanguage($event->getEnvironment());
     }
 

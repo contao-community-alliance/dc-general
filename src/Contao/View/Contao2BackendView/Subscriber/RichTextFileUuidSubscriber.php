@@ -19,6 +19,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber;
 
+use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\StringUtil;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
@@ -29,6 +30,23 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class RichTextFileUuidSubscriber implements EventSubscriberInterface
 {
+    /**
+     * The contao framework
+     *
+     * @var ContaoFrameworkInterface
+     */
+    protected $framework;
+
+    /**
+     * RichTextFileUuidSubscriber constructor.
+     *
+     * @param ContaoFrameworkInterface $framework
+     */
+    public function __construct(ContaoFrameworkInterface $framework)
+    {
+        $this->framework = $framework;
+    }
+
     /**
      * Returns an array of event names this subscriber wants to listen to.
      *
@@ -70,6 +88,10 @@ class RichTextFileUuidSubscriber implements EventSubscriberInterface
      */
     public function convertFileSourceToUuid(EncodePropertyValueFromWidgetEvent $event)
     {
+        if ('BE' !== $this->framework->getMode()) {
+            return;
+        }
+
         $environment          = $event->getEnvironment();
         $dataDefinition       = $environment->getDataDefinition();
         $propertiesDefinition = $dataDefinition->getPropertiesDefinition();
@@ -97,6 +119,10 @@ class RichTextFileUuidSubscriber implements EventSubscriberInterface
      */
     public function convertUuidToFileSource(DecodePropertyValueForWidgetEvent $event)
     {
+        if ('BE' !== $this->framework->getMode()) {
+            return;
+        }
+
         $environment          = $event->getEnvironment();
         $dataDefinition       = $environment->getDataDefinition();
         $propertiesDefinition = $dataDefinition->getPropertiesDefinition();
