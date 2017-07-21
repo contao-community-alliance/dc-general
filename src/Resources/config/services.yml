@@ -158,3 +158,45 @@ services:
             - "@contao.framework"
         tags:
             - { name: kernel.event_listener, event: dc-general.view.contao2backend.get-global-button, method: handle }
+
+    ## The general event subscribers block
+    dc-general.general_subsriber.fallback_reset_subscriber:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\Subscriber\FallbackResetSubscriber
+        tags:
+            - { name: kernel.event_subscriber }
+
+    ## The backend event subscribers block
+    dc-general.backend_subsriber.subsriber:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\Event\Subscriber
+        arguments:
+            - "@contao.framework"
+        tags:
+            - { name: kernel.event_subscriber }
+
+    dc-general.backend_subsriber.clipboard_controller:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\ClipboardController
+        arguments:
+            - "@contao.framework"
+        tags:
+            - { name: kernel.event_subscriber }
+
+    dc-general.backend_subsriber.language_filter:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Filter\LanguageFilter
+        arguments:
+            - "@contao.framework"
+        tags:
+            - { name: kernel.event_subscriber }
+
+    dc-general.backend_subsriber.rich_text_file_uuid_subsriber:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\RichTextFileUuidSubscriber
+        arguments:
+            - "@contao.framework"
+        tags:
+            - { name: kernel.event_subscriber }
+
+    dc-general.backend_subsriber.check_permission:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\CheckPermission
+        arguments:
+            - "@contao.framework"
+        tags:
+            - { name: kernel.event_subscriber }

@@ -24,6 +24,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller;
 
 use Contao\BackendTemplate;
+use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
@@ -47,6 +48,23 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class ClipboardController implements EventSubscriberInterface
 {
     /**
+     * The contao framework
+     *
+     * @var ContaoFrameworkInterface
+     */
+    protected $framework;
+
+    /**
+     * ClipboardController constructor.
+     *
+     * @param ContaoFrameworkInterface $framework
+     */
+    public function __construct(ContaoFrameworkInterface $framework)
+    {
+        $this->framework = $framework;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public static function getSubscribedEvents()
@@ -66,6 +84,10 @@ class ClipboardController implements EventSubscriberInterface
      */
     public function handleAction(ActionEvent $event)
     {
+        if ('BE' !== $this->framework->getMode()) {
+            return;
+        }
+
         $actionName = $event->getAction()->getName();
 
         if ('clear-clipboard' === $actionName) {
@@ -284,6 +306,10 @@ class ClipboardController implements EventSubscriberInterface
      */
     public function handleView(ViewEvent $event)
     {
+        if ('BE' !== $this->framework->getMode()) {
+            return;
+        }
+
         if (DcGeneralViews::CLIPBOARD !== $event->getViewName()) {
             return;
         }

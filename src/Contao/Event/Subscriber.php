@@ -25,6 +25,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Event;
 
 use Contao\Config;
+use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
@@ -56,6 +57,23 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class Subscriber implements EventSubscriberInterface
 {
     /**
+     * The contao framework
+     *
+     * @var ContaoFrameworkInterface
+     */
+    protected $framework;
+
+    /**
+     * Subscriber constructor.
+     *
+     * @param ContaoFrameworkInterface $framework
+     */
+    public function __construct(ContaoFrameworkInterface $framework)
+    {
+        $this->framework = $framework;
+    }
+
+    /**
      * The config instance.
      *
      * @var \Contao\Config
@@ -84,8 +102,12 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return void
      */
-    public static function getPanelElementTemplate(GetPanelElementTemplateEvent $event)
+    public function getPanelElementTemplate(GetPanelElementTemplateEvent $event)
     {
+        if ('BE' !== $this->framework->getMode()) {
+            return;
+        }
+
         if ($event->getTemplate()) {
             return;
         }
@@ -112,8 +134,12 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return void
      */
-    public static function resolveWidgetErrorMessage(ResolveWidgetErrorMessageEvent $event)
+    public function resolveWidgetErrorMessage(ResolveWidgetErrorMessageEvent $event)
     {
+        if ('BE' !== $this->framework->getMode()) {
+            return;
+        }
+
         $error = $event->getError();
 
         if ($error instanceof \Exception) {
@@ -203,8 +229,12 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return void
      */
-    public static function renderReadablePropertyValue(RenderReadablePropertyValueEvent $event)
+    public function renderReadablePropertyValue(RenderReadablePropertyValueEvent $event)
     {
+        if ('BE' !== $this->framework->getMode()) {
+            return;
+        }
+
         if ($event->getRendered() !== null) {
             return;
         }
@@ -283,6 +313,10 @@ class Subscriber implements EventSubscriberInterface
      */
     public function initTwig(\ContaoTwigInitializeEvent $event)
     {
+        if ('BE' !== $this->framework->getMode()) {
+            return;
+        }
+
         $contaoTwig  = $event->getContaoTwig();
         $environment = $contaoTwig->getEnvironment();
 
@@ -298,6 +332,10 @@ class Subscriber implements EventSubscriberInterface
      */
     public function initializePanels(ActionEvent $event)
     {
+        if ('BE' !== $this->framework->getMode()) {
+            return;
+        }
+
         if (!in_array(
             $event->getAction()->getName(),
             array('copy', 'create', 'paste', 'delete', 'move', 'undo', 'edit', 'toggle', 'showAll', 'show')
