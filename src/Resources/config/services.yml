@@ -78,84 +78,84 @@ services:
     dc-general.backend_listener.color_picker_wizard_subscriber:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\ColorPickerWizardSubscriber
         arguments:
-            - "@contao.framework"
+            - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.view.contao2backend.build-widget, method: handleEvent }
 
     dc-general.backend_listener.paste_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\PasteHandler
         arguments:
-            - "@contao.framework"
+            - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
     dc-general.backend_listener.create_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\CreateHandler
         arguments:
-            - "@contao.framework"
+            - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
     dc-general.backend_listener.edit_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\EditHandler
         arguments:
-            - "@contao.framework"
+            - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
     dc-general.backend_listener.select_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\SelectHandler
         arguments:
-            - "@contao.framework"
+            - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
     dc-general.backend_listener.copy_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\CopyHandler
         arguments:
-            - "@contao.framework"
+            - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
     dc-general.backend_listener.delete_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\DeleteHandler
         arguments:
-            - "@contao.framework"
+            - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
     dc-general.backend_listener.toggle_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ToggleHandler
         arguments:
-            - "@contao.framework"
+            - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
     dc-general.backend_listener.list_view_show_all_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ListViewShowAllHandler
         arguments:
-            - "@contao.framework"
+            - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
     dc-general.backend_listener.parent_list_view_show_all_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ParentedListViewShowAllHandler
         arguments:
-            - "@contao.framework"
+            - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
     dc-general.backend_listener.backend_button_listener:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\BackButtonListener
         arguments:
-            - "@contao.framework"
+            - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.view.contao2backend.get-global-button, method: handle }
 
     dc-general.backend_listener.create_model_button_listener:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\CreateModelButtonListener
         arguments:
-            - "@contao.framework"
+            - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.view.contao2backend.get-global-button, method: handle }
 
@@ -169,34 +169,34 @@ services:
     dc-general.backend_subsriber.subsriber:
         class: ContaoCommunityAlliance\DcGeneral\Contao\Event\Subscriber
         arguments:
-            - "@contao.framework"
+            - "@service_container"
         tags:
             - { name: kernel.event_subscriber }
 
     dc-general.backend_subsriber.clipboard_controller:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\ClipboardController
         arguments:
-            - "@contao.framework"
+            - "@service_container"
         tags:
             - { name: kernel.event_subscriber }
 
     dc-general.backend_subsriber.language_filter:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Filter\LanguageFilter
         arguments:
-            - "@contao.framework"
+            - "@service_container"
         tags:
             - { name: kernel.event_subscriber }
 
     dc-general.backend_subsriber.rich_text_file_uuid_subsriber:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\RichTextFileUuidSubscriber
         arguments:
-            - "@contao.framework"
+            - "@service_container"
         tags:
             - { name: kernel.event_subscriber }
 
     dc-general.backend_subsriber.check_permission:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\CheckPermission
         arguments:
-            - "@contao.framework"
+            - "@service_container"
         tags:
             - { name: kernel.event_subscriber }

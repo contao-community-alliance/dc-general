@@ -20,7 +20,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
@@ -37,23 +36,6 @@ use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractHandler;
 class ToggleHandler extends AbstractHandler
 {
     /**
-     * The contao framework
-     *
-     * @var ContaoFrameworkInterface
-     */
-    protected $framework;
-
-    /**
-     * ToggleHandler constructor.
-     *
-     * @param ContaoFrameworkInterface $framework
-     */
-    public function __construct(ContaoFrameworkInterface $framework)
-    {
-        $this->framework = $framework;
-    }
-
-    /**
      * {@inheritDoc}
      *
      * @SuppressWarnings(PHPMD.ExitExpression)
@@ -62,7 +44,7 @@ class ToggleHandler extends AbstractHandler
      */
     public function process()
     {
-        if ('BE' !== $this->framework->getMode()) {
+        if ('BE' !== $this->requestMode) {
             return;
         }
 

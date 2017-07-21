@@ -22,8 +22,8 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Compatibility;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\DC\General;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\DC_General;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -32,7 +32,7 @@ use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 /**
  * Small compatibility layer for callbacks, that expect a "full featured" DC instance.
  */
-class DcCompat extends DC_General
+class DcCompat extends General
 {
     /**
      * The current model.

@@ -20,7 +20,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
@@ -38,23 +37,6 @@ use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractHandler;
 class EditHandler extends AbstractHandler
 {
     /**
-     * The contao framework
-     *
-     * @var ContaoFrameworkInterface
-     */
-    protected $framework;
-
-    /**
-     * EditHandler constructor.
-     *
-     * @param ContaoFrameworkInterface $framework
-     */
-    public function __construct(ContaoFrameworkInterface $framework)
-    {
-        $this->framework = $framework;
-    }
-
-    /**
      * Handle the action.
      *
      * @return void
@@ -63,7 +45,7 @@ class EditHandler extends AbstractHandler
      */
     public function process()
     {
-        if ('BE' !== $this->framework->getMode()) {
+        if ('BE' !== $this->requestMode) {
             return;
         }
 
