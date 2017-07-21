@@ -1,71 +1,71 @@
 services:
     ## The services block
-    dc-general.data-definition-container.factory.default:
+    cca.dc-general.data-definition-container.factory.default:
         class: ContaoCommunityAlliance\DcGeneral\DataDefinitionContainer
 
-    dc-general.data-definition-container.factory:
+    cca.dc-general.data-definition-container.factory:
         class: ContaoCommunityAlliance\DcGeneral\DataDefinitionContainer
 
-    dc-general.data-definition-container:
+    cca.dc-general.data-definition-container:
         class: ContaoCommunityAlliance\DcGeneral\DataDefinitionContainer
 
 
     ## The general event listeners block
-    dc-general.general_listener.legacy_dca.data_defintion_builder:
+    cca.dc-general.general_listener.legacy_dca.data_defintion_builder:
         class: ContaoCommunityAlliance\DcGeneral\Contao\Dca\Builder\Legacy\LegacyDcaDataDefinitionBuilder
         tags:
             - { name: kernel.event_listener, event: dc-general.factory.build-data-definition, method: process, priority: 100 }
 
-    dc-general.general_listener.extended_legacy_dca.data_definition_builder:
+    cca.dc-general.general_listener.extended_legacy_dca.data_definition_builder:
         class: ContaoCommunityAlliance\DcGeneral\Contao\Dca\Builder\Legacy\ExtendedLegacyDcaDataDefinitionBuilder
         tags:
             - { name: kernel.event_listener, event: dc-general.factory.build-data-definition, method: process, priority: 101 }
 
     ## PLACEHOLDER for anonymous function from event_listeners.php 65-84
 
-    dc-general.general_listener.data_provider_populator:
+    cca.dc-general.general_listener.data_provider_populator:
         class: ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\DataProviderPopulator
         tags:
             - { name: kernel.event_listener, event: dc-general.factory.populate-environment, method: process, priority: 100 }
 
-    dc-general.general_listener.hard_coded_populator:
+    cca.dc-general.general_listener.hard_coded_populator:
         class: ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\HardCodedPopulator
         tags:
             - { name: kernel.event_listener, event: dc-general.factory.populate-environment, method: process, priority: -100 }
 
-    dc-general.general_listener.tree_enforcing:
+    cca.dc-general.general_listener.tree_enforcing:
         class: ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener
         tags:
             - { name: kernel.event_listener, event: dc-general.model.enforce-relationship, method: process }
 
-    dc-general.general_listener.parent_enforcing:
+    cca.dc-general.general_listener.parent_enforcing:
         class: ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\ParentEnforcingListener
         tags:
             - { name: kernel.event_listener, event: dc-general.model.enforce-relationship, method: process }
 
 
     ## The backend event listeners block
-    dc-general.backend_listener.extended_legacy_dca_populator:
+    cca.dc-general.backend_listener.extended_legacy_dca_populator:
         class: ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\ExtendedLegacyDcaPopulator
         tags:
             - { name: kernel.event_listener, event: dc-general.factory.populate-environment, method: process, priority: 100 }
 
-    dc-general.backend_listener.backend_view_populator:
+    cca.dc-general.backend_listener.backend_view_populator:
         class: ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\BackendViewPopulator
         tags:
             - { name: kernel.event_listener, event: dc-general.factory.populate-environment, method: process, priority: 100 }
 
-    dc-general.backend_listener.picker_compat_populator:
+    cca.dc-general.backend_listener.picker_compat_populator:
         class: ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\PickerCompatPopulator
         tags:
             - { name: kernel.event_listener, event: dc-general.factory.populate-environment, method: process, priority: -10000 }
 
-    dc-general.backend_listener.format_model_label_subscriber:
+    cca.dc-general.backend_listener.format_model_label_subscriber:
         class: ContaoCommunityAlliance\DcGeneral\Contao\Subscriber\FormatModelLabelSubscriber
         tags:
             - { name: kernel.event_listener, event: dc-general.model.format_model_label, method: handleFormatModelLabel }
 
-    dc-general.backend_listener.get_group_header_subscriber:
+    cca.dc-general.backend_listener.get_group_header_subscriber:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\GetGroupHeaderSubscriber
         arguments:
             - "@event_dispatcher"
@@ -75,84 +75,84 @@ services:
 
     ## PLACEHOLDER for anonymous function from event_listeners.php 128
 
-    dc-general.backend_listener.color_picker_wizard_subscriber:
+    cca.dc-general.backend_listener.color_picker_wizard_subscriber:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\ColorPickerWizardSubscriber
         arguments:
             - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.view.contao2backend.build-widget, method: handleEvent }
 
-    dc-general.backend_listener.paste_handler:
+    cca.dc-general.backend_listener.paste_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\PasteHandler
         arguments:
             - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
-    dc-general.backend_listener.create_handler:
+    cca.dc-general.backend_listener.create_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\CreateHandler
         arguments:
             - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
-    dc-general.backend_listener.edit_handler:
+    cca.dc-general.backend_listener.edit_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\EditHandler
         arguments:
             - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
-    dc-general.backend_listener.select_handler:
+    cca.dc-general.backend_listener.select_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\SelectHandler
         arguments:
             - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
-    dc-general.backend_listener.copy_handler:
+    cca.dc-general.backend_listener.copy_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\CopyHandler
         arguments:
             - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
-    dc-general.backend_listener.delete_handler:
+    cca.dc-general.backend_listener.delete_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\DeleteHandler
         arguments:
             - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
-    dc-general.backend_listener.toggle_handler:
+    cca.dc-general.backend_listener.toggle_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ToggleHandler
         arguments:
             - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
-    dc-general.backend_listener.list_view_show_all_handler:
+    cca.dc-general.backend_listener.list_view_show_all_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ListViewShowAllHandler
         arguments:
             - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
-    dc-general.backend_listener.parent_list_view_show_all_handler:
+    cca.dc-general.backend_listener.parent_list_view_show_all_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ParentedListViewShowAllHandler
         arguments:
             - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
-    dc-general.backend_listener.backend_button_listener:
+    cca.dc-general.backend_listener.backend_button_listener:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\BackButtonListener
         arguments:
             - "@service_container"
         tags:
             - { name: kernel.event_listener, event: dc-general.view.contao2backend.get-global-button, method: handle }
 
-    dc-general.backend_listener.create_model_button_listener:
+    cca.dc-general.backend_listener.create_model_button_listener:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\CreateModelButtonListener
         arguments:
             - "@service_container"
@@ -160,41 +160,41 @@ services:
             - { name: kernel.event_listener, event: dc-general.view.contao2backend.get-global-button, method: handle }
 
     ## The general event subscribers block
-    dc-general.general_subsriber.fallback_reset_subscriber:
+    cca.dc-general.general_subsriber.fallback_reset_subscriber:
         class: ContaoCommunityAlliance\DcGeneral\Contao\Subscriber\FallbackResetSubscriber
         tags:
             - { name: kernel.event_subscriber }
 
     ## The backend event subscribers block
-    dc-general.backend_subsriber.subsriber:
+    cca.dc-general.backend_subsriber.subsriber:
         class: ContaoCommunityAlliance\DcGeneral\Contao\Event\Subscriber
         arguments:
             - "@service_container"
         tags:
             - { name: kernel.event_subscriber }
 
-    dc-general.backend_subsriber.clipboard_controller:
+    cca.dc-general.backend_subsriber.clipboard_controller:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\ClipboardController
         arguments:
             - "@service_container"
         tags:
             - { name: kernel.event_subscriber }
 
-    dc-general.backend_subsriber.language_filter:
+    cca.dc-general.backend_subsriber.language_filter:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Filter\LanguageFilter
         arguments:
             - "@service_container"
         tags:
             - { name: kernel.event_subscriber }
 
-    dc-general.backend_subsriber.rich_text_file_uuid_subsriber:
+    cca.dc-general.backend_subsriber.rich_text_file_uuid_subsriber:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\RichTextFileUuidSubscriber
         arguments:
             - "@service_container"
         tags:
             - { name: kernel.event_subscriber }
 
-    dc-general.backend_subsriber.check_permission:
+    cca.dc-general.backend_subsriber.check_permission:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\CheckPermission
         arguments:
             - "@service_container"
