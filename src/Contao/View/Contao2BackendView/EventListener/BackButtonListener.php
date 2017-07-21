@@ -20,6 +20,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener;
 
+use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
@@ -31,6 +32,23 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 class BackButtonListener
 {
     /**
+     * The contao framework
+     *
+     * @var ContaoFrameworkInterface
+     */
+    protected $framework;
+
+    /**
+     * BackButtonListener constructor.
+     *
+     * @param ContaoFrameworkInterface $framework
+     */
+    public function __construct(ContaoFrameworkInterface $framework)
+    {
+        $this->framework = $framework;
+    }
+
+    /**
      * Handle the event.
      *
      * @param GetGlobalButtonEvent $event The event.
@@ -39,6 +57,10 @@ class BackButtonListener
      */
     public function handle(GetGlobalButtonEvent $event)
     {
+        if ('BE' !== $this->framework->getMode()) {
+            return;
+        }
+
         if ('back_button' !== $event->getKey()) {
             return;
         }

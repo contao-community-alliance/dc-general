@@ -22,6 +22,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
+use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
@@ -44,6 +45,23 @@ use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractEnvironmentAwar
  */
 class DeleteHandler extends AbstractEnvironmentAwareHandler
 {
+    /**
+     * The contao framework
+     *
+     * @var ContaoFrameworkInterface
+     */
+    protected $framework;
+
+    /**
+     * DeleteHandler constructor.
+     *
+     * @param ContaoFrameworkInterface $framework
+     */
+    public function __construct(ContaoFrameworkInterface $framework)
+    {
+        $this->framework = $framework;
+    }
+
     /**
      * Check if is it allowed to delete a record.
      *
@@ -142,6 +160,10 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
      */
     public function process()
     {
+        if ('BE' !== $this->framework->getMode()) {
+            return;
+        }
+
         if ($this->getEvent()->getAction()->getName() !== 'delete') {
             return;
         }

@@ -20,6 +20,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener;
 
+use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
@@ -32,6 +33,23 @@ use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
 class CreateModelButtonListener
 {
     /**
+     * The contao framework
+     *
+     * @var ContaoFrameworkInterface
+     */
+    protected $framework;
+
+    /**
+     * CreateModelButtonListener constructor.
+     *
+     * @param ContaoFrameworkInterface $framework
+     */
+    public function __construct(ContaoFrameworkInterface $framework)
+    {
+        $this->framework = $framework;
+    }
+
+    /**
      * Handle the event.
      *
      * @param GetGlobalButtonEvent $event The event.
@@ -40,6 +58,10 @@ class CreateModelButtonListener
      */
     public function handle(GetGlobalButtonEvent $event)
     {
+        if ('BE' !== $this->framework->getMode()) {
+            return;
+        }
+
         if ('button_new' !== $event->getKey()) {
             return;
         }

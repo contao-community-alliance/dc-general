@@ -20,6 +20,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber;
 
+use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
@@ -33,14 +34,35 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 class ColorPickerWizardSubscriber
 {
     /**
+     * The contao framework
+     *
+     * @var ContaoFrameworkInterface
+     */
+    protected $framework;
+
+    /**
+     * ColorPickerWizardSubscriber constructor.
+     *
+     * @param ContaoFrameworkInterface $framework
+     */
+    public function __construct(ContaoFrameworkInterface $framework)
+    {
+        $this->framework = $framework;
+    }
+
+    /**
      * Handle the build widget event.
      *
      * @param BuildWidgetEvent $event The event.
      *
      * @return void
      */
-    public static function handleEvent(BuildWidgetEvent $event)
+    public function handleEvent(BuildWidgetEvent $event)
     {
+        if ('BE' !== $this->framework->getMode()) {
+            return;
+        }
+
         $widget = $event->getWidget();
         if (!$widget instanceof Widget) {
             return;

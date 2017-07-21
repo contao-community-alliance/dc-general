@@ -35,8 +35,6 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
  */
 class ExtendedLegacyDcaPopulator extends AbstractEventDrivenEnvironmentPopulator
 {
-    const PRIORITY = 100;
-
     /**
      * Create a view instance in the environment if none has been defined yet.
      *

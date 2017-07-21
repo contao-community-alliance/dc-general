@@ -22,6 +22,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
+use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\PrepareMultipleModelsActionEvent;
@@ -40,12 +41,33 @@ use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractHandler;
 class SelectHandler extends AbstractHandler
 {
     /**
+     * The contao framework
+     *
+     * @var ContaoFrameworkInterface
+     */
+    protected $framework;
+
+    /**
+     * SelectHandler constructor.
+     *
+     * @param ContaoFrameworkInterface $framework
+     */
+    public function __construct(ContaoFrameworkInterface $framework)
+    {
+        $this->framework = $framework;
+    }
+
+    /**
      * Handle the action.
      *
      * @return void
      */
     public function process()
     {
+        if ('BE' !== $this->framework->getMode()) {
+            return;
+        }
+
         $action = $this->getEvent()->getAction();
 
         if ($action->getName() !== 'select') {

@@ -93,8 +93,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 {
-    const PRIORITY = 100;
-
     /**
      * {@inheritDoc}
      *

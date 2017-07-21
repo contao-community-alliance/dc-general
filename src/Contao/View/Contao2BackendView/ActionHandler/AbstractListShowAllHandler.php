@@ -20,6 +20,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
+use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\Environment;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
@@ -52,10 +53,31 @@ use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractEnvironmentAwar
 abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandler
 {
     /**
+     * The contao framework
+     *
+     * @var ContaoFrameworkInterface
+     */
+    protected $framework;
+
+    /**
+     * AbstractListShowAllHandler constructor.
+     *
+     * @param ContaoFrameworkInterface $framework
+     */
+    public function __construct(ContaoFrameworkInterface $framework)
+    {
+        $this->framework = $framework;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function process()
     {
+        if ('BE' !== $this->framework->getMode()) {
+            return;
+        }
+
         $event  = $this->getEvent();
         $action = $event->getAction();
         $basic  = $this->environment->getDataDefinition()->getBasicDefinition();

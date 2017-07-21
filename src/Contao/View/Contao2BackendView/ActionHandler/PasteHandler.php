@@ -20,6 +20,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
+use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
@@ -34,12 +35,33 @@ use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractHandler;
 class PasteHandler extends AbstractHandler
 {
     /**
+     * The contao framework
+     *
+     * @var ContaoFrameworkInterface
+     */
+    protected $framework;
+
+    /**
+     * PasteHandler constructor.
+     *
+     * @param ContaoFrameworkInterface $framework
+     */
+    public function __construct(ContaoFrameworkInterface $framework)
+    {
+        $this->framework = $framework;
+    }
+
+    /**
      * Handle the action.
      *
      * @return void
      */
     public function process()
     {
+        if ('BE' !== $this->framework->getMode()) {
+            return;
+        }
+
         $event = $this->getEvent();
         if ($event->getAction()->getName() !== 'paste') {
             return;
