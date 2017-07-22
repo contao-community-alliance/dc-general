@@ -98,7 +98,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function handleAction(ActionEvent $event)
     {
-        $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalDriver.css';
+        $GLOBALS['TL_CSS'][] = 'bundles/ccadcgeneral/css/generalDriver.css';
 
         if ($event->getEnvironment()->getDataDefinition()->getName()
             !== $this->environment->getDataDefinition()->getName()
@@ -526,7 +526,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return null;
         }
 
-        $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalBreadcrumb.css';
+        $GLOBALS['TL_CSS'][] = 'bundles/ccadcgeneral/css/generalBreadcrumb.css';
 
         $objTemplate = $this->getTemplate('dcbe_general_breadcrumb');
         $this->addToTemplate('elements', $arrReturn, $objTemplate);

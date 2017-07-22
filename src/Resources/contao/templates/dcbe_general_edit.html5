@@ -1,6 +1,6 @@
 <?php
 // Add CSS
-$GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalDriver.css';
+$GLOBALS['TL_CSS'][] = 'bundles/ccadcgeneral/css/generalDriver.css';
 ?>
 <?php if($this->versions): ?>
 <div class="tl_version_panel">

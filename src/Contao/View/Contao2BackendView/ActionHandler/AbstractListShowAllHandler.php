@@ -522,7 +522,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
             return null;
         }
 
-        $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalBreadcrumb.css';
+        $GLOBALS['TL_CSS'][] = 'bundles/ccadcgeneral/css/generalBreadcrumb.css';
 
         $template = $this->getTemplate('dcbe_general_breadcrumb');
         $template->set('elements', $elements);

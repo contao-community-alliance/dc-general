@@ -56,7 +56,7 @@ if (count($this->options)):
         </ul>
         <a href="<?php echo $this->clearUrl ?>" class="btn-clear"
            title="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['clearClipboard']) ?>">
-            <img src="system/modules/dc-general/html/images/clear-clipboard.svg" width="24" height="24">
+            <img src="bundles/ccadcgeneral/images/clear-clipboard.svg" width="24" height="24">
         </a>
     </div>
     <?php
