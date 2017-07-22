@@ -5,7 +5,7 @@
 
         <div class="tl_panel">
             <div class="tl_submit_panel tl_subpanel">
-                <input type="image" name="filter" id="language_switch" src="<?php echo TL_FILES_URL; ?>system/themes/<?php echo $this->theme; ?>/images/reload.gif" class="tl_img_submit" title="<?php echo $GLOBALS['TL_LANG']['MSC']['apply']; ?>" alt="<?php echo $GLOBALS['TL_LANG']['MSC']['apply']; ?>">
+                <input type="image" name="filter" id="language_switch" src="<?php echo TL_ASSETS_URL ?>system/themes/<?php echo $this->theme; ?>/images/reload.gif" class="tl_img_submit" title="<?php echo $GLOBALS['TL_LANG']['MSC']['apply']; ?>" alt="<?php echo $GLOBALS['TL_LANG']['MSC']['apply']; ?>">
             </div>
             <div class="tl_sorting tl_subpanel">
                 <strong><?php echo $GLOBALS['TL_LANG']['MSC']['sortBy']; ?>:</strong>

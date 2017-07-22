@@ -12,7 +12,7 @@ on_stylesheet_saved do |file|
 end
 
 # Project settings
-http_path = "system/modules/dc-general/html/"
+http_path = "bundles/ccadcgeneral/"
 css_dir = "css"
 sass_dir = "sass"
 images_dir = "images"
