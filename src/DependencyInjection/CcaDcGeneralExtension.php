@@ -27,7 +27,7 @@ use Symfony\Component\DependencyInjection\Loader;
 /**
  * This is the class that loads and manages the bundle configuration
  */
-class DcGeneralExtension extends Extension
+class CcaDcGeneralExtension extends Extension
 {
     /**
      * {@inheritDoc}

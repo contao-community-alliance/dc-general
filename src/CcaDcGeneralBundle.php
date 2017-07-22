@@ -24,6 +24,6 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 /**
  * This class holds everything together.
  */
-class DcGeneralBundle extends Bundle
+class CcaDcGeneralBundle extends Bundle
 {
 }
