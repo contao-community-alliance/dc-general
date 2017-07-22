@@ -139,7 +139,7 @@ class TreePicker extends Widget
      *
      * @var string
      */
-    protected $titleIcon = 'system/themes/default/images/page.gif';
+    protected $titleIcon = TL_ASSETS_URL . 'system/themes/flexible/images/page.gif';
 
     /**
      * The title to display.
@@ -534,7 +534,7 @@ class TreePicker extends Widget
      */
     public function generate()
     {
-        $GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/dc-general/html/js/vanillaGeneral.js';
+        $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/ccadcgeneral/js/vanillaGeneral.js';
 
         $environment = $this->getEnvironment();
         $translator  = $environment->getTranslator();
@@ -584,7 +584,7 @@ class TreePicker extends Widget
      */
     public function generatePopup()
     {
-        $GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/dc-general/html/js/vanillaGeneral.js';
+        $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/ccadcgeneral/js/vanillaGeneral.js';
 
         $environment = $this->getEnvironment();
         $translator  = $environment->getTranslator();
