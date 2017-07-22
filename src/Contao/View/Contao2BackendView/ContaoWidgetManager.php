@@ -26,14 +26,17 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\Backend;
+use Contao\BackendTemplate;
+use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
+use Contao\TemplateLoader;
 use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -45,6 +48,13 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class ContaoWidgetManager
 {
+    /**
+     * The environment in use.
+     *
+     * @var ContaoFrameworkInterface
+     */
+    protected $framework;
+
     /**
      * The environment in use.
      *
@@ -70,6 +80,7 @@ class ContaoWidgetManager
     {
         $this->environment = $environment;
         $this->model       = $model;
+        $this->framework   = $GLOBALS['container']->getContainer()->get('contao.framework');
     }
 
     /**
@@ -147,7 +158,7 @@ class ContaoWidgetManager
      *
      * @return string The widget.
      *
-     * @throws \Exception When the rich text editor config file can not be found.
+     * @throws \Exception If ritch text editor template does not exist.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
@@ -160,10 +171,12 @@ class ContaoWidgetManager
         $propertiesDefinition = $dataDefinition->getPropertiesDefinition();
         $palettesDefinition   = $dataDefinition->getPalettesDefinition();
 
-
         $palettes = $palettesDefinition->findPalette($this->model);
 
         $properties = $palettes->getProperties($this->model);
+
+        $backendAdapter        = $this->framework->getAdapter(Backend::class);
+        $templateLoaderAdapter = $this->framework->getAdapter(TemplateLoader::class);
 
         foreach ($properties as $property) {
             /** @var PropertyInterface $property */
@@ -179,23 +192,20 @@ class ContaoWidgetManager
 
             list($file, $type) = explode('|', $extra['rte']);
 
-            $selector = 'ctrl_' . $property->getName();
+            $templateName = 'be_' . $file;
+            // This test if the ritch text editor template exist.
+            $templateLoaderAdapter->getDefaultPath($templateName, 'html5');
 
-            if (!file_exists(TL_ROOT . '/system/config/' . $file . '.php')) {
-                throw new \Exception(sprintf('Cannot find editor configuration file "%s.php"', $file));
-            }
+            $template = new BackendTemplate($templateName);
+            $template->selector = 'ctrl_' . $property->getName();
+            $template->type = $type;
 
             if (strncmp($extra['rte'], 'tiny', 4) !== 0) {
-                // Backwards compatibility
-                $language = Backend::getTinyMceLanguage();
+                /** @deprecated Deprecated since Contao 4.0, to be removed in Contao 5.0 */
+                $template->language = $backendAdapter->getTinyMceLanguage();
             }
 
-            ob_start();
-            include TL_ROOT . '/system/config/' . $file . '.php';
-            $updateMode = ob_get_contents();
-            ob_end_clean();
-
-            $GLOBALS['TL_MOOTOOLS'][$extra['rte'] . '.' . $property->getName()] = $updateMode;
+            $buffer .= $template->parse();
         }
 
         return $buffer;
