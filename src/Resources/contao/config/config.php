@@ -26,8 +26,8 @@
  * JS
  */
 if (TL_MODE == 'BE') {
-    $GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/dc-general/html/js/generalDriver_src.js';
-    $GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/dc-general/html/js/vanillaGeneral.js';
+    $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/ccadcgeneral/js/generalDriver_src.js';
+    $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/ccadcgeneral/js/vanillaGeneral.js';
 }
 
 $GLOBALS['BE_FFL']['DcGeneralTreePicker'] =
