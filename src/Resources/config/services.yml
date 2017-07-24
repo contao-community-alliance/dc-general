@@ -164,6 +164,10 @@ services:
         class: ContaoCommunityAlliance\DcGeneral\Contao\Subscriber\FallbackResetSubscriber
         tags:
             - { name: kernel.event_subscriber }
+    cca.dc-general.general_subsriber.dynamic_parent_table_subscriber:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\Subscriber\DynamicParentTableSubscriber
+        tags:
+            - { name: kernel.event_subscriber }
 
     ## The backend event subscribers block
     cca.dc-general.backend_subsriber.subsriber:
