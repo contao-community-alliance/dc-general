@@ -80,6 +80,13 @@ class DefaultListingConfig implements ListingConfigInterface
     protected $showColumns;
 
     /**
+     * The parent table property name.
+     *
+     * @var string
+     */
+    protected $parentTablePropertyName;
+
+    /**
      * Create a new instance.
      */
     public function __construct()
@@ -249,5 +256,21 @@ class DefaultListingConfig implements ListingConfigInterface
     public function getShowColumns()
     {
         return $this->showColumns;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getParentTablePropertyName()
+    {
+        return $this->parentTablePropertyName;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setParentTablePropertyName($propertyName)
+    {
+        $this->parentTablePropertyName = $propertyName;
     }
 }

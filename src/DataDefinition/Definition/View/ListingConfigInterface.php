@@ -165,4 +165,20 @@ interface ListingConfigInterface
      * @SuppressWarnings(PHPMD.BooleanGetMethodName)
      */
     public function getShowColumns();
+
+    /**
+     * Get the parent table property name.
+     *
+     * @return string
+     */
+    public function getParentTablePropertyName();
+
+    /**
+     * Set the parent table property.
+     *
+     * @param string $propertyName The property name.
+     *
+     * @return void
+     */
+    public function setParentTablePropertyName($propertyName);
 }

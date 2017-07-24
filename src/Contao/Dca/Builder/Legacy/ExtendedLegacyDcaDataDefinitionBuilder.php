@@ -68,6 +68,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
         $this->parseBackendView($container);
         $this->parseClassNames($container);
         $this->loadAdditionalDefinitions($container);
+        $this->parseDynamicParentTableProperty($container);
     }
 
     /**
@@ -568,5 +569,46 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
                 $listing->setLabelFormatter($providerName, $formatter);
             }
         }
+    }
+
+    /**
+     * Parse the dynamic parent table.
+     *
+     * @param ContainerInterface $container The container where the data shall be stored.
+     *
+     * @return void
+     */
+    protected function parseDynamicParentTableProperty(ContainerInterface $container)
+    {
+        if ((($propertyName = $this->getFromDca('dca_config/parent_table_property')) === null)
+            || (($sourceProvider = $this->getFromDca('config/ptable')) === null)
+            || (($dynamicParentTable = $this->getFromDca('config/dynamicPtable')) === null)
+        ) {
+            return;
+        }
+
+        $relationship   = $container->getModelRelationshipDefinition();
+        $childCondition = $relationship->getChildCondition($sourceProvider, $container->getName());
+        if (null === $childCondition) {
+            return;
+        }
+
+        $childCondition->setFilterArray(
+            array_merge(
+                $childCondition->getFilterArray(),
+                array(
+                    array(
+                        'local'        => $propertyName,
+                        'remote_value' => $sourceProvider,
+                        'operation'    => '='
+                    )
+                )
+            )
+        );
+
+        $backendView = $container->getDefinition(Contao2BackendViewDefinition::NAME);
+        $backendView->getListingConfig()->setParentTablePropertyName($propertyName);
+
+        $container->getBasicDefinition()->setDynamicParentTable($dynamicParentTable);
     }
 }

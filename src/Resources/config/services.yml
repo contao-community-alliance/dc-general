@@ -228,3 +228,10 @@ services:
             - "@cca.dc-general.scope-matcher"
         tags:
             - { name: kernel.event_subscriber }
+
+    cca.dc-general.backend_subsriber.dynmaic_parent_table:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\Subscriber\DynamicParentTableSubscriber
+        arguments:
+            - "@cca.dc-general.scope-matcher"
+        tags:
+            - { name: kernel.event_subscriber }
