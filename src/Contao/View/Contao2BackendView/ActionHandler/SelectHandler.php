@@ -46,7 +46,7 @@ class SelectHandler extends AbstractHandler
      */
     public function process()
     {
-        if ('BE' !==$this->requestMode) {
+        if ('BE' !== $this->requestMode) {
             return;
         }
 
