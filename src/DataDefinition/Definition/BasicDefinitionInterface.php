@@ -271,4 +271,20 @@ interface BasicDefinitionInterface extends DefinitionInterface
      * @return mixed[]
      */
     public function getRootEntries();
+
+    /**
+     * Determines if the data container is an dynamic parent table.
+     *
+     * @param bool $dynamicParentTable The flag - if the data container is an dynamic.
+     *
+     * @return bool
+     */
+    public function setDynamicParentTable($dynamicParentTable);
+
+    /**
+     * Determines if the data container is an dynamic parent table.
+     *
+     * @return bool
+     */
+    public function isDynamicParentTable();
 }

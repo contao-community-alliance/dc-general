@@ -105,6 +105,13 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     protected $rootEntries = array();
 
     /**
+     * Determines if the data container is an dynamic parent table.
+     *
+     * @var bool
+     */
+    protected $dynamicParentTable = false;
+
+    /**
      * {@inheritdoc}
      */
     public function setMode($mode)
@@ -314,5 +321,24 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     public function getRootEntries()
     {
         return $this->rootEntries;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setDynamicParentTable($dynamicParentTable)
+    {
+        $this->dynamicParentTable = $dynamicParentTable;
+
+        return $this;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public function isDynamicParentTable()
+    {
+        return $this->dynamicParentTable;
     }
 }
