@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2017 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -102,6 +103,13 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
      * @var mixed[]
      */
     protected $rootEntries = array();
+
+    /**
+     * Determines if the data container is an dynamic parent table.
+     *
+     * @var bool
+     */
+    protected $dynamicParentTable = false;
 
     /**
      * {@inheritdoc}
@@ -313,5 +321,24 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     public function getRootEntries()
     {
         return $this->rootEntries;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setDynamicParentTable($dynamicParentTable)
+    {
+        $this->dynamicParentTable = $dynamicParentTable;
+
+        return $this;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public function isDynamicParentTable()
+    {
+        return $this->dynamicParentTable;
     }
 }
