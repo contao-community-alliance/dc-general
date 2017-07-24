@@ -46,6 +46,9 @@ class RichTextFileUuidSubscriber implements EventSubscriberInterface
     {
         $requestStack   = $container->get('request_stack');
         $currentRequest = $requestStack->getCurrentRequest();
+        if (null === $currentRequest) {
+            return;
+        }
 
         $scopeMatcher = $container->get('contao.routing.scope_matcher');
 

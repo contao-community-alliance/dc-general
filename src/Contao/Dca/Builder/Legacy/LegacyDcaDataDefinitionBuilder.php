@@ -372,6 +372,10 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         if (($value = $this->getFromDca('config/notCreatable')) !== null) {
             $config->setCreatable(!(bool) $value);
         }
+
+        if (($value = $this->getFromDca('config/dynamicPtable')) !== null) {
+            $config->setDynamicParentTable((bool) $value);
+        }
     }
 
     /**
