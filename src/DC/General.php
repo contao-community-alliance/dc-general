@@ -235,6 +235,10 @@ class General extends DataContainer implements DataContainerInterface
                 }
 
                 if (null === $parentPropertyName) {
+                    if ($inputProvider->hasParameter('id')) {
+                        return ModelId::fromSerialized($inputProvider->getParameter($parentPropertyName))->getId();
+                    }
+
                     break;
                 }
 
