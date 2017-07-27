@@ -23,6 +23,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Panel;
 
+use Contao\StringUtil;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionCollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
@@ -182,7 +183,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
             }
 
             $arrOptions[] = array(
-                'value'      => specialchars($information->getName()),
+                'value'      => StringUtil::specialchars($information->getName()),
                 'attributes' => ($this->getSelected() == $information->getName()) ? ' selected' : '',
                 'content'    => $name
             );

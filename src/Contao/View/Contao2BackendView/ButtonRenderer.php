@@ -21,6 +21,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use Contao\StringUtil;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
@@ -337,7 +338,7 @@ class ButtonRenderer
         return sprintf(
             ' <a href="%s" title="%s" %s>%s</a>',
             $buttonEvent->getHref(),
-            specialchars($buttonEvent->getTitle()),
+            StringUtil::specialchars($buttonEvent->getTitle()),
             ltrim($buttonEvent->getAttributes()),
             $this->renderImageAsHtml($icon, $buttonEvent->getLabel())
         );
@@ -425,7 +426,7 @@ class ButtonRenderer
         return sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $this->addToUrl('act=create&amp;after=' . $modelId),
-            specialchars($label),
+            StringUtil::specialchars($label),
             $this->renderImageAsHtml('new.gif', $label)
         );
     }
@@ -457,7 +458,7 @@ class ButtonRenderer
         return sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $event->getHrefInto(),
-            specialchars($title),
+            StringUtil::specialchars($title),
             $this->renderImageAsHtml('pasteinto.gif', $label, 'class="blink"')
         );
     }
@@ -489,7 +490,7 @@ class ButtonRenderer
         return sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $event->getHrefAfter(),
-            specialchars($title),
+            StringUtil::specialchars($title),
             $this->renderImageAsHtml('pasteafter.gif', $label, 'class="blink"')
         );
     }

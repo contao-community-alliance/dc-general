@@ -30,6 +30,7 @@ use Contao\Database;
 use Contao\Environment;
 use Contao\Input;
 use Contao\Session;
+use Contao\StringUtil;
 use Contao\System;
 use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
@@ -160,7 +161,7 @@ class TreeSelect
         $template->theme       = Backend::getTheme();
         $template->base        = Environment::get('base');
         $template->language    = $GLOBALS['TL_LANGUAGE'];
-        $template->title       = specialchars($GLOBALS['TL_LANG']['MSC']['treepicker']);
+        $template->title       = StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['treepicker']);
         $template->charset     = $GLOBALS['TL_CONFIG']['characterSet'];
         $template->addSearch   = $objTreeSelector->searchField;
         $template->search      = $GLOBALS['TL_LANG']['MSC']['search'];

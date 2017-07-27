@@ -1,10 +1,12 @@
 <?php
+use Contao\Message;
+use Contao\StringUtil;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 ?>
 <?php $this->block('messages'); ?>
-<?= $this->getMessages(); ?>
+<?= Message::generate(TL_MODE); ?>
 <?php $this->endblock(); ?>
 <?php if ($this->select) : ?>
 <form action="<?= $this->action ?>" id="tl_select" class="tl_form" method="post">
@@ -66,7 +68,7 @@ if ($this->mode !== GroupAndSortingInformationInterface::GROUP_NONE) {
   <?php $group = $collection[0]->getMeta($model::GROUP_VALUE); ?>
   <div class="tl_content_header <?= $group['class'] ?>"><?= $group['value']; ?></div>
   <?php endif; ?>
-    <table id="table_<?= $this->tableName ?>_<?= standardize($groupValue) ?>" class="tl_listing<?= $this->showColumns ? ' showColumns' : '' ?>">
+    <table id="table_<?= $this->tableName ?>_<?= StringUtil::standardize($groupValue) ?>" class="tl_listing<?= $this->showColumns ? ' showColumns' : '' ?>">
     <?php if (!empty($this->tableHead)) : ?>
       <thead>
         <tr>

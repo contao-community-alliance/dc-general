@@ -23,6 +23,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget;
 
+use Contao\StringUtil;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use Model\Collection;
@@ -373,7 +374,9 @@ class FileTree extends AbstractWidget
             $image  = \Image::get($model->path, $width, $height, 'center_center');
         }
 
-        return \Image::getHtml($image, '', 'class="gimage" title="' . specialchars($info) . '"');
+        return \Image::getHtml(
+            $image, '', 'class="gimage" title="' . StringUtil::specialchars($info) . '"'
+        );
     }
 
     /**

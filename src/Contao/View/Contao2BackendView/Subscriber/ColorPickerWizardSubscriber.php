@@ -20,6 +20,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber;
 
+use Contao\StringUtil;
 use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
@@ -113,7 +114,7 @@ class ColorPickerWizardSubscriber
                 sprintf(
                     'style="%s" title="%s" id="moo_%s"',
                     'vertical-align:top;cursor:pointer',
-                    specialchars($pickerText),
+                    StringUtil::specialchars($pickerText),
                     $propInfo->getName()
                 )
             );

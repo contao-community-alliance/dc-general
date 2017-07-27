@@ -1,4 +1,8 @@
-<?php /** @var \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface $model */ $model = $this->objModel; ?>
+<?php /** @var \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface $model */
+
+use Contao\StringUtil;
+
+$model = $this->objModel; ?>
 <li
 	class="<?php echo ($model->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::TREE_VIEW_LEVEL) == 0) ? 'tl_folder' : 'tl_file'; ?>"
 	onmouseover="Theme.hoverDiv(this,1)"
@@ -29,7 +33,7 @@
 					name="<?php echo $this->name ?>"
 					id="ctrl_<?php echo $this->id ?>_<?php echo $model->getId(); ?>"
 					class="tl_tree_radio"
-					value="<?php echo specialchars($model->getProperty($this->idProperty)); ?>"
+					value="<?php echo StringUtil::specialchars($model->getProperty($this->idProperty)); ?>"
 					<?php echo $this->active; ?>
 					onfocus="Backend.getScrollOffset();" />
 			<?php elseif ($this->fieldType == 'checkbox'): ?>
@@ -38,7 +42,7 @@
 					name="<?php echo $this->name ?>[]"
 					id="ctrl_<?php echo $this->id ?>_<?php echo $model->getId(); ?>"
 					class="tl_checkbox"
-					value="<?php echo specialchars($model->getProperty($this->idProperty)); ?>"
+					value="<?php echo StringUtil::specialchars($model->getProperty($this->idProperty)); ?>"
 					<?php echo $this->active; ?>
 					onfocus="Backend.getScrollOffset();" />
 			<?php endif; ?>

@@ -22,6 +22,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber;
 
+use Contao\StringUtil;
 use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
@@ -213,7 +214,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
                 'title="%s" ' .
                 'style="vertical-align:text-bottom; cursor:pointer;" ' .
                 'onclick="Backend.tableWizardResize(0.9);"',
-                specialchars($translator->translate('shrink.1', $defName))
+                StringUtil::specialchars($translator->translate('shrink.1', $defName))
             )
         );
 
@@ -224,7 +225,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
                 'title="%s" ' .
                 'style="vertical-align:text-bottom; cursor:pointer;" ' .
                 'onclick="Backend.tableWizardResize(1.1);"',
-                specialchars($translator->translate('expand.1', $defName))
+                StringUtil::specialchars($translator->translate('expand.1', $defName))
             )
         );
 
@@ -237,7 +238,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         return sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a> %s%s',
             ampersand($urlEvent->getUrl()),
-            specialchars($translator->translate('importTable.1', $defName)),
+            StringUtil::specialchars($translator->translate('importTable.1', $defName)),
             $importTableEvent->getHtml(),
             $shrinkEvent->getHtml(),
             $expandEvent->getHtml()
@@ -270,7 +271,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         return sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a>',
             ampersand($urlEvent->getUrl()),
-            specialchars($translator->translate('importList.1', $defName)),
+            StringUtil::specialchars($translator->translate('importList.1', $defName)),
             $importListEvent->getHtml()
         );
     }
@@ -296,7 +297,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
                 $translator->translate('wordWrap', 'MSC'),
                 sprintf(
                     'title="%s" class="toggleWrap" onclick="Backend.toggleWrap(\'ctrl_%s\');"',
-                    specialchars($translator->translate('wordWrap', 'MSC')),
+                    StringUtil::specialchars($translator->translate('wordWrap', 'MSC')),
                     $propInfo->getName()
                 )
             );
@@ -351,7 +352,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
                 'onclick="Backend.openWindow(this, 600, 500); return false;">%s</a>',
                 $defName,
                 $propInfo->getName(),
-                specialchars($translator->translate('helpWizard', 'MSC')),
+                StringUtil::specialchars($translator->translate('helpWizard', 'MSC')),
                 $event->getHtml()
             );
         }

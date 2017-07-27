@@ -23,6 +23,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use Contao\StringUtil;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
@@ -396,7 +397,7 @@ class TreeView extends BaseView
         return sprintf(
             ' <a href="%s" title="%s" %s>%s</a>',
             $event->getHref(),
-            specialchars($strLabel),
+            StringUtil::specialchars($strLabel),
             'onclick="Backend.getScrollOffset()"',
             $imageEvent->getHtml()
         );
