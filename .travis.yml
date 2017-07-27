@@ -24,3 +24,7 @@ git:
 #matrix:
 #  allow_failures:
 #    - env: CONTAO_VERSION=~3.3.0
+
+cache:
+  directories:
+    - vendor
