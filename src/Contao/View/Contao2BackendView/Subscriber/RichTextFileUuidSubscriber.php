@@ -12,6 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
