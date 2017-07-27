@@ -34,6 +34,8 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentPopulator\AbstractEventDrivenEn
  *
  * This class only exists to have some intermediate hardcoded transition point until the builder ans populators have
  * been properly coded. This class will then be removed from the code base.
+ *
+ * @deprecated Should get removed from the code base!!!!
  */
 class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
 {
@@ -54,6 +56,7 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
         if ($environment->getController()) {
             return;
         }
+        @trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
 
         $controller = new DefaultController();
 
@@ -70,20 +73,24 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
             $environment->setSessionStorage(
                 new SessionStorage('DC_GENERAL_' . strtoupper($environment->getDataDefinition()->getName()))
             );
+            @trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
         }
 
         if (!$environment->getInputProvider()) {
             $environment->setInputProvider(new InputProvider());
+            @trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
         }
 
         if (!$environment->getClipboard()) {
             $environment->setClipboard(new Clipboard());
+            @trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
         }
 
         if (!$environment->getBaseConfigRegistry()) {
             $baseConfigRegistry = new BaseConfigRegistry();
             $baseConfigRegistry->setEnvironment($environment);
             $environment->setBaseConfigRegistry($baseConfigRegistry);
+            @trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
         }
 
         $this->populateController($environment);
