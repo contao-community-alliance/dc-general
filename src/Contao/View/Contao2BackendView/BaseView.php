@@ -25,6 +25,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use Contao\StringUtil;
 use Contao\Template;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
@@ -309,34 +310,34 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 'accesskey="d"' .
                 'onclick="return confirm(\'%s\')"' .
                 'value="%s" />',
-                specialchars($this->translate('MSC.delAllConfirm')),
-                specialchars($this->translate('MSC.deleteSelected'))
+                StringUtil::specialchars($this->translate('MSC.delAllConfirm')),
+                StringUtil::specialchars($this->translate('MSC.deleteSelected'))
             );
         }
 
         if ($basicDefinition->isEditable()) {
             $buttons['cut'] = sprintf(
                 '<input type="submit" name="cut" id="cut" class="tl_submit" accesskey="x" value="%s">',
-                specialchars($this->translate('MSC.moveSelected'))
+                StringUtil::specialchars($this->translate('MSC.moveSelected'))
             );
         }
 
         if ($basicDefinition->isCreatable()) {
             $buttons['copy'] = sprintf(
                 '<input type="submit" name="copy" id="copy" class="tl_submit" accesskey="c" value="%s">',
-                specialchars($this->translate('MSC.copySelected'))
+                StringUtil::specialchars($this->translate('MSC.copySelected'))
             );
         }
 
         if ($basicDefinition->isEditable()) {
             $buttons['override'] = sprintf(
                 '<input type="submit" name="override" id="override" class="tl_submit" accesskey="v" value="%s">',
-                specialchars($this->translate('MSC.overrideSelected'))
+                StringUtil::specialchars($this->translate('MSC.overrideSelected'))
             );
 
             $buttons['edit'] = sprintf(
                 '<input type="submit" name="edit" id="edit" class="tl_submit" accesskey="s" value="%s">',
-                specialchars($this->translate('MSC.editSelected'))
+                StringUtil::specialchars($this->translate('MSC.editSelected'))
             );
         }
 

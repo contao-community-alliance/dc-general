@@ -21,6 +21,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
+use Contao\StringUtil;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
@@ -208,8 +209,8 @@ class ShowHandler extends AbstractHandler
             $template
                 ->set('languages', $environment->getController()->getSupportedLanguages($model->getId()))
                 ->set('currentLanguage', $dataProvider->getCurrentLanguage())
-                ->set('languageSubmit', specialchars($translator->translate('MSC.showSelected')))
-                ->set('backBT', specialchars($translator->translate('MSC.backBT')));
+                ->set('languageSubmit', StringUtil::specialchars($translator->translate('MSC.showSelected')))
+                ->set('backBT', StringUtil::specialchars($translator->translate('MSC.backBT')));
         } else {
             $template->set('languages', null);
         }

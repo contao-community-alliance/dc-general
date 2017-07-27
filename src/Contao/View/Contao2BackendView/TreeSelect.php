@@ -29,6 +29,7 @@ use Contao\Database;
 use Contao\Environment;
 use Contao\Input;
 use Contao\Session;
+use Contao\StringUtil;
 use Contao\System;
 use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;

@@ -1,4 +1,7 @@
 <?php
+
+use Contao\StringUtil;
+
 /** @var \ContaoCommunityAlliance\DcGeneral\EnvironmentInterface $environment */
 $environment     = $this->environment;
 $eventDispatcher = $environment->getEventDispatcher();
@@ -44,7 +47,7 @@ if (count($this->options)):
     <div class="tl_listing_container" id="dcg_clipboard">
         <ul>
             <?php foreach ($this->options as $id => $row): ?>
-                <li title="ID <?php echo specialchars($item->getClipboardId()) ?>">
+                <li title="ID <?php echo StringUtil::specialchars($item->getClipboardId()) ?>">
                     <?php $item = $row['item']; ?>
                     <?php echo $icons[$item->getAction()] ?>
                     <?php echo $row['label'] ?>
@@ -55,7 +58,7 @@ if (count($this->options)):
             <?php endforeach; ?>
         </ul>
         <a href="<?php echo $this->clearUrl ?>" class="btn-clear"
-           title="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['clearClipboard']) ?>">
+           title="<?php echo StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['clearClipboard']) ?>">
             <img src="bundles/ccadcgeneral/images/clear-clipboard.svg" width="24" height="24">
         </a>
     </div>

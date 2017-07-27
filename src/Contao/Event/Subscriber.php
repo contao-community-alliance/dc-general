@@ -25,6 +25,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Event;
 
 use Contao\Config;
+use Contao\StringUtil;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
@@ -517,7 +518,7 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
-        $event->setRendered(nl2br_html5(specialchars($value)));
+        $event->setRendered(nl2br_html5(StringUtil::specialchars($value)));
     }
 
     /**

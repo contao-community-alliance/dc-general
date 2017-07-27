@@ -21,6 +21,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
 use Contao\Environment;
+use Contao\StringUtil;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
@@ -45,7 +46,6 @@ use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractEnvironmentAwareHandler;
-use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 
 /**
  * This class is the abstract base for parent list and plain list "showAll" commands.
@@ -402,34 +402,34 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
                 'accesskey="d"' .
                 'onclick="return confirm(\'%s\')"' .
                 'value="%s" />',
-                specialchars($this->translate('MSC.delAllConfirm')),
-                specialchars($this->translate('MSC.deleteSelected'))
+                StringUtil::specialchars($this->translate('MSC.delAllConfirm')),
+                StringUtil::specialchars($this->translate('MSC.deleteSelected'))
             );
         }
 
         if ($basicDefinition->isEditable()) {
             $buttons['cut'] = sprintf(
                 '<input type="submit" name="cut" id="cut" class="tl_submit" accesskey="x" value="%s">',
-                specialchars($this->translate('MSC.moveSelected'))
+                StringUtil::specialchars($this->translate('MSC.moveSelected'))
             );
         }
 
         if ($basicDefinition->isCreatable()) {
             $buttons['copy'] = sprintf(
                 '<input type="submit" name="copy" id="copy" class="tl_submit" accesskey="c" value="%s">',
-                specialchars($this->translate('MSC.copySelected'))
+                StringUtil::specialchars($this->translate('MSC.copySelected'))
             );
         }
 
         if ($basicDefinition->isEditable()) {
             $buttons['override'] = sprintf(
                 '<input type="submit" name="override" id="override" class="tl_submit" accesskey="v" value="%s">',
-                specialchars($this->translate('MSC.overrideSelected'))
+                StringUtil::specialchars($this->translate('MSC.overrideSelected'))
             );
 
             $buttons['edit'] = sprintf(
                 '<input type="submit" name="edit" id="edit" class="tl_submit" accesskey="s" value="%s">',
-                specialchars($this->translate('MSC.editSelected'))
+                StringUtil::specialchars($this->translate('MSC.editSelected'))
             );
         }
 
@@ -500,7 +500,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
         return sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $urlEvent->getUrl(),
-            specialchars($this->translate('pasteafter.0')),
+            StringUtil::specialchars($this->translate('pasteafter.0')),
             $imageEvent->getHtml()
         );
     }

@@ -21,6 +21,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
 use Contao\Config;
+use Contao\StringUtil;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
@@ -344,7 +345,9 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         return sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $urlAfter->getUrl(),
-            specialchars(sprintf($this->translate('editheader.1', $parentDefinition->getName()), $parentModel->getId())),
+            StringUtil::specialchars(
+                sprintf($this->translate('editheader.1', $parentDefinition->getName()), $parentModel->getId())
+            ),
             $imageEvent->getHtml()
         );
     }
@@ -397,7 +400,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         return sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $urlEvent->getUrl(),
-            specialchars($this->translate('pastenew.0', $parentDefinition->getName())),
+            StringUtil::specialchars($this->translate('pastenew.0', $parentDefinition->getName())),
             $imageEvent->getHtml()
         );
     }
@@ -464,7 +467,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             return sprintf(
                 '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
                 $urlEvent->getUrl(),
-                specialchars($this->translate('pasteafter.0', $definition->getName())),
+                StringUtil::specialchars($this->translate('pasteafter.0', $definition->getName())),
                 $imageEvent->getHtml()
             );
         }

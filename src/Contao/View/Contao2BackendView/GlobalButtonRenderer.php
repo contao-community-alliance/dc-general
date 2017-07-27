@@ -21,6 +21,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use Contao\StringUtil;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
@@ -159,7 +160,7 @@ class GlobalButtonRenderer
             '<a href="%s" class="%s" title="%s"%s>%s</a> ',
             $buttonEvent->getHref(),
             $buttonEvent->getClass(),
-            specialchars($buttonEvent->getTitle()),
+            StringUtil::specialchars($buttonEvent->getTitle()),
             $buttonEvent->getAttributes(),
             $buttonEvent->getLabel()
         );

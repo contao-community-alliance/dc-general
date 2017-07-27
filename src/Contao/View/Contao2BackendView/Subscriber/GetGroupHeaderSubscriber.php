@@ -32,6 +32,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSor
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Patchwork\Utf8;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -210,7 +211,7 @@ class GetGroupHeaderSubscriber
             return '-';
         }
 
-        return ucfirst(utf8_substr($value, 0, $groupingLength ?: null));
+        return ucfirst(Utf8::substr($value, 0, $groupingLength ?: null));
     }
 
     /**
