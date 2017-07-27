@@ -38,7 +38,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\DefaultMode
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ModelFormatterConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
-use ContaoCommunityAlliance\DcGeneral\DC_General;
+use ContaoCommunityAlliance\DcGeneral\DC\General;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
@@ -93,7 +93,7 @@ class TreePicker extends Widget
     /**
      * The data Container.
      *
-     * @var DC_General
+     * @var General
      */
     protected $dataContainer;
 
@@ -151,7 +151,7 @@ class TreePicker extends Widget
     /**
      * The data container for the item source.
      *
-     * @var DC_General
+     * @var General
      */
     protected $itemContainer;
 
@@ -174,11 +174,11 @@ class TreePicker extends Widget
      *
      * @param array      $attributes    The custom attributes.
      *
-     * @param DC_General $dataContainer The data container.
+     * @param General $dataContainer The data container.
      *
      * @throws DcGeneralRuntimeException When not in Backend mode.
      */
-    public function __construct($attributes = array(), DC_General $dataContainer = null)
+    public function __construct($attributes = array(), General $dataContainer = null)
     {
         parent::__construct($attributes);
 
@@ -192,11 +192,11 @@ class TreePicker extends Widget
     /**
      * Setup all local values and create the dc instance for the referenced data source.
      *
-     * @param DC_General $dataContainer The data container to use.
+     * @param General $dataContainer The data container to use.
      *
      * @return void
      */
-    protected function setUp(DC_General $dataContainer = null)
+    protected function setUp(General $dataContainer = null)
     {
         $this->dataContainer = $dataContainer ?: $this->objDca;
 
@@ -237,7 +237,7 @@ class TreePicker extends Widget
      *
      * @param string     $ajaxAction    Not used in here.
      *
-     * @param DC_General $dataContainer The data container to use.
+     * @param General $dataContainer The data container to use.
      *
      * @return string
      *
@@ -275,7 +275,7 @@ class TreePicker extends Widget
     /**
      * Retrieve the item container.
      *
-     * @return DC_General
+     * @return General
      */
     public function getItemContainer()
     {
@@ -534,6 +534,7 @@ class TreePicker extends Widget
      */
     public function generate()
     {
+        // FIXME: needs to get properly transported to the response.
         $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/ccadcgeneral/js/vanillaGeneral.js';
 
         $environment = $this->getEnvironment();
@@ -544,16 +545,19 @@ class TreePicker extends Widget
         $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $icon);
 
         $values   = $this->renderItemsPlain();
-        $popupUrl = 'system/modules/dc-general/backend/generaltree.php?' .
-            sprintf(
-                'do=%s&amp;table=%s&amp;field=%s&amp;act=show&amp;id=%s&amp;value=%s&amp;rt=%s',
-                \Input::get('do'),
-                $this->strTable,
-                $this->strField,
-                $environment->getInputProvider()->getParameter('id'),
-                implode(',', array_keys($values)),
-                REQUEST_TOKEN
-            );
+        $popupUrl = \System::getContainer()->get('router')->generate(
+            'cca_dc_general_tree',
+            [
+                'do' => \Input::get('do'),
+                'table' => $this->strTable,
+                'field' => $this->strField,
+                'act' => 'show',
+                'id' => $environment->getInputProvider()->getParameter('id'),
+                'value' => implode(',', array_keys($values)),
+                'rt' => REQUEST_TOKEN,
+                'ref'=>TL_REFERER_ID,
+            ]
+        );
 
         $template
             ->setTranslator($translator)

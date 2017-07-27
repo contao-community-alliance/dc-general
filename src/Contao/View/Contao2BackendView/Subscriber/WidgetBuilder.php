@@ -58,7 +58,8 @@ class WidgetBuilder implements EnvironmentAwareInterface
      */
     protected $widgetMapping = array(
         'fileTree'      => 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\FileTree',
-        'fileTreeOrder' => 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\FileTreeOrder'
+        'fileTreeOrder' => 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\FileTreeOrder',
+        'pageTree'      => 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker'
     );
 
     /**

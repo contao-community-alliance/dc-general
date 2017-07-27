@@ -1,0 +1,3 @@
+contao_install:
+    resource: "@CcaDcGeneralBundle/Controller"
+    type: annotation
