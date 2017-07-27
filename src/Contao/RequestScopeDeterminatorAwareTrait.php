@@ -37,6 +37,8 @@ trait RequestScopeDeterminatorAwareTrait
      * ClipboardController constructor.
      *
      * @param RequestScopeDeterminator $scopeDeterminator The request scope determinator.
+     *
+     * @return void
      */
     public function setScopeDeterminator(RequestScopeDeterminator $scopeDeterminator)
     {

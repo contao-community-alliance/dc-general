@@ -109,7 +109,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $this->parseBackendView($container);
         $this->parsePalettes($container);
         $this->parseProperties($container);
-   }
+    }
 
     /**
      * Register the callback handlers for the given legacy callbacks.

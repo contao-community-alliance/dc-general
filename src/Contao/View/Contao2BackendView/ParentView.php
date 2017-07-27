@@ -46,5 +46,4 @@ class ParentView extends BaseView
         $listener = new ParentEnforcingListener();
         $listener->process(new EnforceModelRelationshipEvent($this->getEnvironment(), $model));
     }
-
 }

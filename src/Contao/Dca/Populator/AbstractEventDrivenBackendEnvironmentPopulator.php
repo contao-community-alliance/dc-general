@@ -39,7 +39,7 @@ abstract class AbstractEventDrivenBackendEnvironmentPopulator implements Environ
     /**
      * ClipboardController constructor.
      *
-     * @param RequestScopeDeterminator $scopeDeterminator
+     * @param RequestScopeDeterminator $scopeDeterminator The request mode determinator.
      */
     public function __construct(RequestScopeDeterminator $scopeDeterminator)
     {

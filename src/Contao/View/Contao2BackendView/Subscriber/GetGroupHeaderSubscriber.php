@@ -94,7 +94,7 @@ class GetGroupHeaderSubscriber
             return;
         }
 
-        $value   = $this->formatGroupHeader(
+        $value = $this->formatGroupHeader(
             $environment,
             $event->getModel(),
             $property,

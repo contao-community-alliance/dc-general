@@ -55,7 +55,7 @@ abstract class AbstractHandler
     /**
      * AbstractHandler constructor.
      *
-     * @param RequestScopeDeterminator $scopeDeterminator
+     * @param RequestScopeDeterminator $scopeDeterminator The request mode determinator.
      */
     public function __construct(RequestScopeDeterminator $scopeDeterminator)
     {

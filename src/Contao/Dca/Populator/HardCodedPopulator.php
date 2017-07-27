@@ -56,7 +56,9 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
         if ($environment->getController()) {
             return;
         }
+        // @codingStandardsIgnoreStart
         @trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
+        // @codingStandardsIgnoreEnd
 
         $controller = new DefaultController();
 
@@ -73,24 +75,32 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
             $environment->setSessionStorage(
                 new SessionStorage('DC_GENERAL_' . strtoupper($environment->getDataDefinition()->getName()))
             );
+            // @codingStandardsIgnoreStart
             @trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
+            // @codingStandardsIgnoreEnd
         }
 
         if (!$environment->getInputProvider()) {
             $environment->setInputProvider(new InputProvider());
+            // @codingStandardsIgnoreStart
             @trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
+            // @codingStandardsIgnoreEnd
         }
 
         if (!$environment->getClipboard()) {
             $environment->setClipboard(new Clipboard());
+            // @codingStandardsIgnoreStart
             @trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
+            // @codingStandardsIgnoreEnd
         }
 
         if (!$environment->getBaseConfigRegistry()) {
             $baseConfigRegistry = new BaseConfigRegistry();
             $baseConfigRegistry->setEnvironment($environment);
             $environment->setBaseConfigRegistry($baseConfigRegistry);
+            // @codingStandardsIgnoreStart
             @trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
+            // @codingStandardsIgnoreEnd
         }
 
         $this->populateController($environment);
