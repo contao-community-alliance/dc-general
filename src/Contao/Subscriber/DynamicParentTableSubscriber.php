@@ -48,9 +48,9 @@ class DynamicParentTableSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            PrePersistModelEvent::NAME => array('handlePrePersistModelEvent', -200),
-        );
+        return [
+            PrePersistModelEvent::NAME => ['handlePrePersistModelEvent', -200],
+        ];
     }
 
     /**
