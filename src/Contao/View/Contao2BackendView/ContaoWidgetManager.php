@@ -196,9 +196,9 @@ class ContaoWidgetManager
             // This test if the ritch text editor template exist.
             $templateLoaderAdapter->getDefaultPath($templateName, 'html5');
 
-            $template = new BackendTemplate($templateName);
+            $template           = new BackendTemplate($templateName);
             $template->selector = 'ctrl_' . $property->getName();
-            $template->type = $type;
+            $template->type     = $type;
 
             if (strncmp($extra['rte'], 'tiny', 4) !== 0) {
                 /** @deprecated Deprecated since Contao 4.0, to be removed in Contao 5.0 */

@@ -378,7 +378,9 @@ class FileTree extends AbstractWidget
         }
 
         return \Image::getHtml(
-            $image, '', 'class="gimage" title="' . StringUtil::specialchars($info) . '"'
+            $image,
+            '',
+            'class="gimage" title="' . StringUtil::specialchars($info) . '"'
         );
     }
 
