@@ -17,23 +17,16 @@
  * @filesource
  */
 
-namespace ContaoCommunityAlliance\DcGeneral\Test;
+namespace ContaoCommunityAlliance\DcGeneral\Test\Factory;
 
 use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\DataDefinitionContainerInterface;
-use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
-use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
-use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
-use ContaoCommunityAlliance\DcGeneral\Factory\Event\CreateDcGeneralEvent;
-use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
-use ContaoCommunityAlliance\DcGeneral\Factory\Event\PreCreateDcGeneralEvent;
-use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * This class tests the DcGeneralFactory
