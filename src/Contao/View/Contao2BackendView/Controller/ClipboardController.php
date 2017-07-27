@@ -31,6 +31,7 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\UnsavedItem;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
@@ -39,7 +40,6 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
-use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -48,34 +48,20 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class ClipboardController implements EventSubscriberInterface
 {
     /**
-     * The request mode if contao is in frontend or backend mode.
+     * The request mode determinator.
      *
-     * @var string
+     * @var RequestScopeDeterminator
      */
-    private $requestMode = '';
+    private $scopeDeterminator;
 
     /**
      * ClipboardController constructor.
      *
-     * @param ResettableContainerInterface $container
+     * @param RequestScopeDeterminator $scopeDeterminator
      */
-    public function __construct(ResettableContainerInterface $container)
+    public function __construct(RequestScopeDeterminator $scopeDeterminator)
     {
-        $requestStack   = $container->get('request_stack');
-        $currentRequest = $requestStack->getCurrentRequest();
-        if (null === $currentRequest) {
-            return;
-        }
-
-        $scopeMatcher = $container->get('contao.routing.scope_matcher');
-
-        if ($scopeMatcher->isBackendRequest($currentRequest)) {
-            $this->requestMode = 'BE';
-        }
-
-        if ($scopeMatcher->isFrontendRequest($currentRequest)) {
-            $this->requestMode = 'FE';
-        }
+        $this->scopeDeterminator = $scopeDeterminator;
     }
 
     /**
@@ -98,7 +84,7 @@ class ClipboardController implements EventSubscriberInterface
      */
     public function handleAction(ActionEvent $event)
     {
-        if ('BE' !== $this->requestMode) {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 
@@ -320,7 +306,7 @@ class ClipboardController implements EventSubscriberInterface
      */
     public function handleView(ViewEvent $event)
     {
-        if ('BE' !== $this->requestMode) {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 

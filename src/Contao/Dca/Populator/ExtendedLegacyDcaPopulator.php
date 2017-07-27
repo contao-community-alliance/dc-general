@@ -24,7 +24,6 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator;
 use ContaoCommunityAlliance\DcGeneral\Contao\Dca\Definition\ExtendedDca;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
-use ContaoCommunityAlliance\DcGeneral\EnvironmentPopulator\AbstractEventDrivenEnvironmentPopulator;
 use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
 
 /**
@@ -33,7 +32,7 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
  * This class only populates the environment with the extended information available via the ExtendedDca data definition
  * section.
  */
-class ExtendedLegacyDcaPopulator extends AbstractEventDrivenEnvironmentPopulator
+class ExtendedLegacyDcaPopulator extends AbstractEventDrivenBackendEnvironmentPopulator
 {
     /**
      * Create a view instance in the environment if none has been defined yet.

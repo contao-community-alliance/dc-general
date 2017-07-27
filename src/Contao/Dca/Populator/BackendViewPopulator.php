@@ -31,13 +31,12 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ParentView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreeView;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
-use ContaoCommunityAlliance\DcGeneral\EnvironmentPopulator\AbstractEventDrivenEnvironmentPopulator;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 /**
  * This class is the default fallback populator in the Contao Backend to instantiate a BackendView.
  */
-class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
+class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulator
 {
     /**
      * Create a view instance in the environment if none has been defined yet.
@@ -52,8 +51,8 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
      */
     protected function populateView(EnvironmentInterface $environment)
     {
-        // Already populated or not in Backend? Get out then.
-        if ($environment->getView() || (TL_MODE != 'BE')) {
+        // Already populated? Get out then.
+        if ($environment->getView()) {
             return;
         }
 
@@ -95,7 +94,7 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
     protected function populatePanel(EnvironmentInterface $environment)
     {
         // Already populated or not in Backend? Get out then.
-        if (!(($environment->getView() instanceof BaseView) && (TL_MODE == 'BE'))) {
+        if (!(($environment->getView() instanceof BaseView))) {
             return;
         }
 

@@ -29,6 +29,8 @@ use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
  * The AbstractEnvironmentAwareHandler is designed for action handlers which can also be used in a non event context.
  *
  * It provides a setEnvironment method which has to be used to initialize the environment instead.
+ *
+ * @deprecated This class is deprecated as it is an event listener with a changing state and will get removed.
  */
 abstract class AbstractEnvironmentAwareHandler extends AbstractHandler implements EnvironmentAwareInterface
 {

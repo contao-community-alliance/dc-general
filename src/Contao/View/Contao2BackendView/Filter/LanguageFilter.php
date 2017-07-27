@@ -24,12 +24,12 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Filte
 
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
-use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -38,34 +38,20 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class LanguageFilter implements EventSubscriberInterface
 {
     /**
-     * The request mode if contao is in frontend or backend mode.
+     * The request mode determinator.
      *
-     * @var string
+     * @var RequestScopeDeterminator
      */
-    private $requestMode = '';
+    private $scopeDeterminator;
 
     /**
-     * LanguageFilter constructor.
+     * ClipboardController constructor.
      *
-     * @param ResettableContainerInterface $container
+     * @param RequestScopeDeterminator $scopeDeterminator
      */
-    public function __construct(ResettableContainerInterface $container)
+    public function __construct(RequestScopeDeterminator $scopeDeterminator)
     {
-        $requestStack   = $container->get('request_stack');
-        $currentRequest = $requestStack->getCurrentRequest();
-        if (null === $currentRequest) {
-            return;
-        }
-
-        $scopeMatcher = $container->get('contao.routing.scope_matcher');
-
-        if ($scopeMatcher->isBackendRequest($currentRequest)) {
-            $this->requestMode = 'BE';
-        }
-
-        if ($scopeMatcher->isFrontendRequest($currentRequest)) {
-            $this->requestMode = 'FE';
-        }
+        $this->scopeDeterminator = $scopeDeterminator;
     }
 
     /**
@@ -87,7 +73,7 @@ class LanguageFilter implements EventSubscriberInterface
      */
     public function handleAction(ActionEvent $event)
     {
-        if ('BE' !== $this->requestMode) {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 

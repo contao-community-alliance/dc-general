@@ -45,7 +45,7 @@ class EditHandler extends AbstractHandler
      */
     public function process()
     {
-        if ('BE' !== $this->requestMode) {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 
