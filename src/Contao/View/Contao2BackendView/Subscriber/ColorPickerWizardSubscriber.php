@@ -24,10 +24,10 @@ use Contao\StringUtil;
 use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
-use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 
 /**
  * Widget Builder to append color picker wizards to Contao backend widgets.
@@ -35,34 +35,20 @@ use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 class ColorPickerWizardSubscriber
 {
     /**
-     * The request mode if contao is in frontend or backend mode.
+     * The request mode determinator.
      *
-     * @var string
+     * @var RequestScopeDeterminator
      */
-    private $requestMode = '';
+    private $scopeDeterminator;
 
     /**
      * ColorPickerWizardSubscriber constructor.
      *
-     * @param ResettableContainerInterface $container
+     * @param RequestScopeDeterminator $scopeDeterminator The request scope determinator.
      */
-    public function __construct(ResettableContainerInterface $container)
+    public function __construct(RequestScopeDeterminator $scopeDeterminator)
     {
-        $requestStack   = $container->get('request_stack');
-        $currentRequest = $requestStack->getCurrentRequest();
-        if (null === $currentRequest) {
-            return;
-        }
-
-        $scopeMatcher = $container->get('contao.routing.scope_matcher');
-
-        if ($scopeMatcher->isBackendRequest($currentRequest)) {
-            $this->requestMode = 'BE';
-        }
-
-        if ($scopeMatcher->isFrontendRequest($currentRequest)) {
-            $this->requestMode = 'FE';
-        }
+        $this->scopeDeterminator = $scopeDeterminator;
     }
 
     /**
@@ -74,7 +60,7 @@ class ColorPickerWizardSubscriber
      */
     public function handleEvent(BuildWidgetEvent $event)
     {
-        if ('BE' !== $this->requestMode) {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 

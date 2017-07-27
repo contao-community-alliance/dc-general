@@ -46,7 +46,7 @@ class SelectHandler extends AbstractHandler
      */
     public function process()
     {
-        if ('BE' !== $this->requestMode) {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 
@@ -149,7 +149,7 @@ class SelectHandler extends AbstractHandler
      */
     protected function handleDeleteAllAction($modelIds)
     {
-        $handler = new DeleteHandler();
+        $handler = new DeleteHandler($this->scopeDeterminator);
         $handler->setEnvironment($this->getEnvironment());
 
         foreach ($modelIds as $modelId) {
@@ -202,7 +202,7 @@ class SelectHandler extends AbstractHandler
 
             $clipboard->saveTo($this->getEnvironment());
         } else {
-            $handler = new CopyHandler();
+            $handler = new CopyHandler($this->scopeDeterminator);
             $handler->setEnvironment($this->getEnvironment());
 
             foreach ($modelIds as $modelId) {

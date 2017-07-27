@@ -22,13 +22,13 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandCollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\BooleanCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionChain;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use ReflectionObject;
-use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -37,34 +37,20 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class CheckPermission implements EventSubscriberInterface
 {
     /**
-     * The request mode if contao is in frontend or backend mode.
+     * The request mode determinator.
      *
-     * @var string
+     * @var RequestScopeDeterminator
      */
-    private $requestMode = '';
+    private $scopeDeterminator;
 
     /**
-     * CheckPermission constructor.
+     * ClipboardController constructor.
      *
-     * @param ResettableContainerInterface $container
+     * @param RequestScopeDeterminator $scopeDeterminator
      */
-    public function __construct(ResettableContainerInterface $container)
+    public function __construct(RequestScopeDeterminator $scopeDeterminator)
     {
-        $requestStack   = $container->get('request_stack');
-        $currentRequest = $requestStack->getCurrentRequest();
-        if (null === $currentRequest) {
-            return;
-        }
-
-        $scopeMatcher = $container->get('contao.routing.scope_matcher');
-
-        if ($scopeMatcher->isBackendRequest($currentRequest)) {
-            $this->requestMode = 'BE';
-        }
-
-        if ($scopeMatcher->isFrontendRequest($currentRequest)) {
-            $this->requestMode = 'FE';
-        }
+        $this->scopeDeterminator = $scopeDeterminator;
     }
 
     /**
@@ -91,7 +77,7 @@ class CheckPermission implements EventSubscriberInterface
      */
     public function checkPermissionForProperties(BuildDataDefinitionEvent $event)
     {
-        if ('BE' !== $this->requestMode) {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 
@@ -130,7 +116,7 @@ class CheckPermission implements EventSubscriberInterface
      */
     public function checkPermissionIsEditable(BuildDataDefinitionEvent $event)
     {
-        if ('BE' !== $this->requestMode) {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 
@@ -158,7 +144,7 @@ class CheckPermission implements EventSubscriberInterface
      */
     public function checkPermissionIsDeletable(BuildDataDefinitionEvent $event)
     {
-        if ('BE' !== $this->requestMode) {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 
@@ -184,7 +170,7 @@ class CheckPermission implements EventSubscriberInterface
      */
     public function checkPermissionIsCreatable(BuildDataDefinitionEvent $event)
     {
-        if ('BE' !== $this->requestMode) {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 

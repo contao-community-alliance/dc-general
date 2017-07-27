@@ -22,6 +22,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Subscriber;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
@@ -36,6 +37,8 @@ use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
  */
 class FormatModelLabelSubscriber
 {
+    use RequestScopeDeterminatorAwareTrait;
+
     /**
      * Default handler for formatting a model.
      *

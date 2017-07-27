@@ -25,6 +25,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subsc
 use Contao\Config;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
@@ -40,6 +41,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class GetGroupHeaderSubscriber
 {
+    use RequestScopeDeterminatorAwareTrait;
+
     /**
      * The event dispatcher.
      *
@@ -73,9 +76,9 @@ class GetGroupHeaderSubscriber
      *
      * @return void
      */
-    public static function handle(GetGroupHeaderEvent $event)
+    public function handle(GetGroupHeaderEvent $event)
     {
-        if ($event->getValue() !== null) {
+        if ($event->getValue() !== null || !$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 
@@ -91,8 +94,7 @@ class GetGroupHeaderSubscriber
             return;
         }
 
-        $handler = new static($environment->getEventDispatcher(), $environment->getTranslator());
-        $value   = $handler->formatGroupHeader(
+        $value   = $this->formatGroupHeader(
             $environment,
             $event->getModel(),
             $property,

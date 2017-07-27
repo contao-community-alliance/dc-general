@@ -29,6 +29,7 @@ use Contao\StringUtil;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\Twig\DcGeneralExtension;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
@@ -48,7 +49,6 @@ use ContaoCommunityAlliance\DcGeneral\Panel\SearchElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SubmitElementInterface;
 use ContaoCommunityAlliance\DcGeneral\View\Event\RenderReadablePropertyValueEvent;
-use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -58,35 +58,20 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class Subscriber implements EventSubscriberInterface
 {
     /**
-     * The request mode if contao is in frontend or backend mode.
+     * The request mode determinator.
      *
-     * @var string
+     * @var RequestScopeDeterminator
      */
-    private $requestMode = '';
-
+    private $scopeDeterminator;
 
     /**
-     * Subscriber constructor.
+     * ClipboardController constructor.
      *
-     * @param ResettableContainerInterface $container
+     * @param RequestScopeDeterminator $scopeDeterminator
      */
-    public function __construct(ResettableContainerInterface $container)
+    public function __construct(RequestScopeDeterminator $scopeDeterminator)
     {
-        $requestStack   = $container->get('request_stack');
-        $currentRequest = $requestStack->getCurrentRequest();
-        if (null === $currentRequest) {
-            return;
-        }
-
-        $scopeMatcher = $container->get('contao.routing.scope_matcher');
-
-        if ($scopeMatcher->isBackendRequest($currentRequest)) {
-            $this->requestMode = 'BE';
-        }
-
-        if ($scopeMatcher->isFrontendRequest($currentRequest)) {
-            $this->requestMode = 'FE';
-        }
+        $this->scopeDeterminator = $scopeDeterminator;
     }
 
     /**
@@ -120,7 +105,7 @@ class Subscriber implements EventSubscriberInterface
      */
     public function getPanelElementTemplate(GetPanelElementTemplateEvent $event)
     {
-        if ('BE' !== $this->requestMode) {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 
@@ -152,7 +137,7 @@ class Subscriber implements EventSubscriberInterface
      */
     public function resolveWidgetErrorMessage(ResolveWidgetErrorMessageEvent $event)
     {
-        if ('BE' !== $this->requestMode) {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 
@@ -247,7 +232,7 @@ class Subscriber implements EventSubscriberInterface
      */
     public function renderReadablePropertyValue(RenderReadablePropertyValueEvent $event)
     {
-        if ('BE' !== $this->requestMode) {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 
@@ -329,7 +314,7 @@ class Subscriber implements EventSubscriberInterface
      */
     public function initTwig(\ContaoTwigInitializeEvent $event)
     {
-        if ('BE' !== $this->requestMode) {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 
@@ -348,7 +333,7 @@ class Subscriber implements EventSubscriberInterface
      */
     public function initializePanels(ActionEvent $event)
     {
-        if ('BE' !== $this->requestMode) {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 

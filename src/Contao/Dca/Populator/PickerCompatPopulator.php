@@ -21,13 +21,12 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator;
 
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
-use ContaoCommunityAlliance\DcGeneral\EnvironmentPopulator\AbstractEventDrivenEnvironmentPopulator;
 
 /**
  * Compatibility class for Contao to have the $GLOBALS['TL_DCA'] populated for pickers as those are hardcoded within
  * the handler files TL_ROOT/contao/*.php.
  */
-class PickerCompatPopulator extends AbstractEventDrivenEnvironmentPopulator
+class PickerCompatPopulator extends AbstractEventDrivenBackendEnvironmentPopulator
 {
     /**
      * Create a controller instance in the environment if none has been defined yet.

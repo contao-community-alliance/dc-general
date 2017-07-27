@@ -21,47 +21,18 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener;
 
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
-use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 
 /**
  * This handles the add button event in list views.
  */
 class CreateModelButtonListener
 {
-    /**
-     * The request mode if contao is in frontend or backend mode.
-     *
-     * @var string
-     */
-    private $requestMode = '';
-
-    /**
-     * CreateModelButtonListener constructor.
-     *
-     * @param ResettableContainerInterface $container
-     */
-    public function __construct(ResettableContainerInterface $container)
-    {
-        $requestStack   = $container->get('request_stack');
-        $currentRequest = $requestStack->getCurrentRequest();
-        if (null === $currentRequest) {
-            return;
-        }
-
-        $scopeMatcher = $container->get('contao.routing.scope_matcher');
-
-        if ($scopeMatcher->isBackendRequest($currentRequest)) {
-            $this->requestMode = 'BE';
-        }
-
-        if ($scopeMatcher->isFrontendRequest($currentRequest)) {
-            $this->requestMode = 'FE';
-        }
-    }
+    use RequestScopeDeterminatorAwareTrait;
 
     /**
      * Handle the event.
@@ -72,7 +43,7 @@ class CreateModelButtonListener
      */
     public function handle(GetGlobalButtonEvent $event)
     {
-        if ('BE' !== $this->requestMode) {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 
