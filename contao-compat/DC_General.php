@@ -27,6 +27,9 @@
 /**
  * This is the only entry point for Contao to load the DC class.
  *
+ * WARNING: Do not move this class into the src folder - the autoloading will clobber then as the psr-4 and classmap
+ *          will overlap.
+ *
  * @deprecated
  *
  * @SuppressWarnings(PHPMD.CamelCaseClassName)

@@ -32,11 +32,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * Test the main wrapper class \DC_General that it can be instantiated by Contao.
- *
- * @SuppressWarnings(PHPMD.CamelCaseClassName)
  */
-// @codingStandardsIgnoreStart
-class DC_GeneralTest extends TestCase
+class DcGeneralTest extends TestCase
 {
     /**
      * Test that the \DC_General class in global namespace is found by Contao.
@@ -109,4 +106,3 @@ class DC_GeneralTest extends TestCase
         $this->assertTrue($dataContainer instanceof General);
     }
 }
-// @codingStandardsIgnoreEnd

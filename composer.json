@@ -47,7 +47,7 @@
     },
     "autoload": {
         "classmap": [
-            "src/Resources/contao-compat/DC_General.php"
+            "contao-compat/DC_General.php"
         ],
         "psr-4": {
             "ContaoCommunityAlliance\\DcGeneral\\": "src/"
