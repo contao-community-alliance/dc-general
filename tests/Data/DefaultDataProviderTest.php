@@ -39,7 +39,7 @@ class DefaultDataProviderTest extends TestCase
         return $this
             ->getMockBuilder('Contao\Database')
             ->disableOriginalConstructor()
-            ->setMethods(array('__destruct'))
+            ->setMethods(array('__destruct', 'listFields'))
             ->getMockForAbstractClass();
     }
 
@@ -51,7 +51,7 @@ class DefaultDataProviderTest extends TestCase
     private function mockDefaultProvider()
     {
         $database = $this->mockDatabase();
-        $database->method('list_fields')->willReturn(array());
+        $database->method('listFields')->willReturn(array());
 
         $dataProvider = new DefaultDataProvider();
 
@@ -71,7 +71,7 @@ class DefaultDataProviderTest extends TestCase
     public function testSetBaseConfig()
     {
         $database = $this->mockDatabase();
-        $database->method('list_fields')->willReturn(
+        $database->method('listFields')->willReturn(
             array(
                 array(
                     'name' => 'idField',

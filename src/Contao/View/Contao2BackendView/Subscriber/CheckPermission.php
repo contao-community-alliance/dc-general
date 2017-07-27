@@ -89,7 +89,7 @@ class CheckPermission implements EventSubscriberInterface
         foreach ($palettes as $palette) {
             foreach ($palette->getProperties() as $property) {
                 if (!$properties->hasProperty($name = $property->getName())) {
-                    trigger_error('Warning: unknown property in palette: ' . $name, E_USER_DEPRECATED);
+                    @trigger_error('Warning: unknown property in palette: ' . $name, E_USER_WARNING);
                     continue;
                 }
 

@@ -21,6 +21,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Factory;
 
+use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\DataDefinitionContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneral;
@@ -372,7 +373,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
         }
 
         /** @var DataDefinitionContainerInterface $definitions */
-        $definitions = $GLOBALS['container']['dc-general.data-definition-container'];
+        $definitions = System::getContainer()->get('cca.dc-general.data-definition-container');
 
         if ($definitions->hasDefinition($this->containerName)) {
             return clone $definitions->getDefinition($this->containerName);

@@ -28,6 +28,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\DC;
 
 use Contao\DataContainer;
+use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\Callback\Callbacks;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
@@ -44,12 +45,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * This class is only present so Contao can instantiate a backend properly as it needs a \DataContainer descendant.
  *
- * @SuppressWarnings(PHPMD.CamelCaseClassName)
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
-// @codingStandardsIgnoreStart - Class is not in camelCase as Contao does not allow us to.
 class General extends DataContainer implements DataContainerInterface
-// @codingStandardsIgnoreEnd
 {
     /**
      * The environment attached to this DC.
@@ -112,40 +110,20 @@ class General extends DataContainer implements DataContainerInterface
      * Retrieve the event dispatcher from the DIC.
      *
      * @return EventDispatcherInterface
-     *
-     * @throws \RuntimeException When the DIC or event dispatcher have not been correctly initialized.
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     private function getEventDispatcher()
     {
-        $container = $GLOBALS['container'];
-
-        if (!$container instanceof \Pimple) {
-            throw new \RuntimeException('The dependency container Pimple has not been initialized correctly.');
-        }
-
-        $dispatcher = $container['event-dispatcher'];
-
-        if (!$dispatcher instanceof EventDispatcherInterface) {
-            throw new \RuntimeException('The dependency container Pimple has not been initialized correctly.');
-        }
-
-        return $dispatcher;
+        return System::getContainer()->get('event_dispatcher');
     }
 
     /**
      * Get the translator from the service container.
      *
      * @return TranslatorInterface
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     private function getTranslator()
     {
-        return $GLOBALS['container']['translator'];
+        return System::getContainer()->get('cca.translator.contao_translator');
     }
 
     /**

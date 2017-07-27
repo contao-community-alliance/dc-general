@@ -34,3 +34,8 @@ if (
         'php composer.phar install'.PHP_EOL;
     exit(1);
 }
+
+// We need the Contao interfaces - sadly they are excluded from classmap. :/
+$reflection = new ReflectionClass(\Contao\CoreBundle\ContaoCoreBundle::class);
+
+require_once dirname($reflection->getFileName()) . '/Resources/contao/helper/interface.php';
