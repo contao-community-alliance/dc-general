@@ -22,8 +22,8 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Compatibility;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
-use ContaoCommunityAlliance\DcGeneral\DC\General;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DC\General;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
