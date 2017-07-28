@@ -21,8 +21,9 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Compatibility;
 
-use ContaoCommunityAlliance\DcGeneral\DC\General;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DC\General;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -133,7 +134,33 @@ class DcCompat extends General
     {
         switch ($name) {
             case 'id':
-                return $this->getModel() ? $this->getModel()->getId() : null;
+                if (null !== $this->getModel()) {
+                    return $this->getModel()->getId();
+                }
+
+                $environment    = $this->getEnvironment();
+                $dataDefinition = $environment->getDataDefinition();
+                $inputProvider  = $environment->getInputProvider();
+
+                $idParameter = $inputProvider->hasParameter('id') ? 'id' : 'pid';
+
+                $modelId = ModelId::fromSerialized($inputProvider->getParameter($idParameter));
+                if ($modelId->getDataProviderName() === $dataDefinition->getName()) {
+                    return $modelId->getId();
+                }
+
+                if (('pid' === $idParameter)
+                    || !$inputProvider->hasParameter('pid')
+                ) {
+                    return null;
+                }
+
+                $parentModelId = ModelId::fromSerialized($inputProvider->getParameter('pid'));
+                if ($dataDefinition->getName() !== $parentModelId->getDataProviderName()) {
+                    return null;
+                }
+
+                return $parentModelId->getId();
 
             case 'parentTable':
                 if ($this->getEnvironment()->getParentDataDefinition()) {
