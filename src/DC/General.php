@@ -187,41 +187,18 @@ class General extends DataContainer implements DataContainerInterface
         $environment          = $this->getEnvironment();
         $inputProvider        = $environment->getInputProvider();
         $dataDefinition       = $environment->getDataDefinition();
-        $modelRelation        = $dataDefinition->getModelRelationshipDefinition();
-        $parentDataDefinition = $environment->getParentDataDefinition();
 
         switch ($name) {
             case 'id':
-                // Find the parent id for the Contao breadcrumb.
-                if (null === $parentDataDefinition) {
+                // Step 1: Find the parent id for the Contao breadcrumb.
+                $idParameter = $inputProvider->hasParameter('id') ? 'id' : 'pid';
+
+                // Step 2: Check if the parameter really exists.
+                if (false === $inputProvider->hasParameter($idParameter)) {
                     break;
                 }
 
-                $childCondition = $modelRelation->getChildCondition(
-                    $parentDataDefinition->getName(),
-                    $dataDefinition->getName()
-                );
-
-                $parentPropertyName = null;
-                foreach ($childCondition->getSetters() as $setter) {
-                    if ($name !== $setter['from_field']) {
-                        continue;
-                    }
-
-                    $parentPropertyName = $setter['to_field'];
-                    break;
-                }
-
-                if (null === $parentPropertyName) {
-                    if ($inputProvider->hasParameter('id')) {
-                        return ModelId::fromSerialized($inputProvider->getParameter($parentPropertyName))->getId();
-                    }
-
-                    break;
-                }
-
-                return ModelId::fromSerialized($inputProvider->getParameter($parentPropertyName))->getId();
-
+                return ModelId::fromSerialized($inputProvider->getParameter($idParameter))->getId();
             case 'table':
                 return $dataDefinition->getName();
             default:
