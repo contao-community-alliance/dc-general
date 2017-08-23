@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2016 Contao Community Alliance.
+ * (c) 2013-2017 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -23,7 +23,8 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2016 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -293,16 +294,27 @@ class DefaultController implements ControllerInterface
 
         foreach ($propertyValues as $property => $value) {
             try {
-                $extra = $properties->getProperty($property)->getExtra();
-                if (!empty($extra['readonly'])) {
+                if (!$properties->hasProperty($property)) {
                     continue;
                 }
 
-                $model->setProperty($property, $value);
+                $extra = $properties->getProperty($property)->getExtra();
+                if (empty($extra)) {
+                    continue;
+                }
+
+                // Don´t save value if isset property readonly.
+                if (empty($extra['readonly'])) {
+                    $model->setProperty($property, $value);
+                }
+
+                // Set property to generate alias or combined values.
+                if (!empty($extra['readonly']) && !empty($extra['alwaysSave'])) {
+                    $model->setProperty($property, '');
+                }
+
                 // If always save is true, we need to mark the model as changed.
-                if ($properties->hasProperty($property)
-                    && ($extra = $properties->getProperty($property)->getExtra()) && isset($extra['alwaysSave'])
-                ) {
+                if (!empty($extra['alwaysSave'])) {
                     $model->setMeta($model::IS_CHANGED, true);
                 }
             } catch (\Exception $exception) {
