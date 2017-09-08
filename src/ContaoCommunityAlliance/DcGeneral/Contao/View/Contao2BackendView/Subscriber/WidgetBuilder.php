@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2016 Contao Community Alliance.
+ * (c) 2013-2017 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,8 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2016 Contao Community Alliance.
+ * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
+ * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -34,8 +35,10 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPr
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
+use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentAwareInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\GetWidgetClassEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -102,29 +105,21 @@ class WidgetBuilder implements EnvironmentAwareInterface
     /**
      * Try to resolve the class name for the widget.
      *
-     * @param PropertyInterface $property The property to get the widget class name for.
+     * @param EnvironmentInterface $environment The environment in use.
+     * @param PropertyInterface    $property    The property to get the widget class name for.
+     * @param ModelInterface|null  $model       The model for which the widget is created.
      *
      * @return string
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    protected function getWidgetClass(PropertyInterface $property)
+    protected function getWidgetClass(EnvironmentInterface $environment, PropertyInterface $property, $model = null)
     {
-        if (isset($this->widgetMapping[$property->getWidgetType()])) {
-            return $this->widgetMapping[$property->getWidgetType()];
-        }
+        $dispatcher = $environment->getEventDispatcher();
+        $dispatcher->addListener(DcGeneralEvents::GET_WIDGET_CLASS, [$this, 'retrieveWidgetClass']);
 
-        if (!isset($GLOBALS['BE_FFL'][$property->getWidgetType()])) {
-            return null;
-        }
+        $event = new GetWidgetClassEvent($environment, $property, $model);
+        $dispatcher->dispatch(DcGeneralEvents::GET_WIDGET_CLASS, $event);
 
-        $className = $GLOBALS['BE_FFL'][$property->getWidgetType()];
-        if (!class_exists($className)) {
-            return null;
-        }
-
-        return $className;
+        return $event->getWidgetClass();
     }
 
     /**
@@ -134,7 +129,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
      *
      * @param ModelInterface    $model    The model.
      *
-     * @return string
+     * @return array
      */
     protected function getOptionsForWidget($propInfo, $model)
     {
@@ -167,7 +162,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
     private function isGetOptionsAllowed(PropertyInterface $property)
     {
         $propExtra = $property->getExtra();
-        $strClass  = $this->getWidgetClass($property);
+        $strClass  = $this->getWidgetClass($this->environment, $property);
 
         // Check the overwrite param.
         if (array_key_exists('fetchOptions', $propExtra) && (true === $propExtra['fetchOptions'])) {
@@ -359,6 +354,27 @@ class WidgetBuilder implements EnvironmentAwareInterface
         return $helpWizard;
     }
 
+    public function retrieveWidgetClass(GetWidgetClassEvent $event)
+    {
+        if (null !== $event->getWidgetClass()) {
+            return;
+        }
+
+        $property = $event->getProperty();
+
+        if (isset($this->widgetMapping[$property->getWidgetType()])) {
+            $event->setWidgetClass($this->widgetMapping[$property->getWidgetType()]);
+            return;
+        }
+
+        if (isset($GLOBALS['BE_FFL'][$property->getWidgetType()])) {
+            $className = $GLOBALS['BE_FFL'][$property->getWidgetType()];
+            if (class_exists($className)) {
+                $event->setWidgetClass($className);
+            }
+        }
+    }
+
     /**
      * Build a widget for a given property.
      *
@@ -388,7 +404,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $propertyName = $property->getName();
         $propExtra    = $property->getExtra();
         $defName      = $environment->getDataDefinition()->getName();
-        $strClass     = $this->getWidgetClass($property);
+        $strClass     = $this->getWidgetClass($environment, $property, $model);
 
         $event = new DecodePropertyValueForWidgetEvent($environment, $model);
         $event
