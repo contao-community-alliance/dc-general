@@ -34,9 +34,10 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandl
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\EditAllHandlerSubscriber;
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -116,7 +117,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 $name = 'showAll';
                 // No break here.
             case 'create':
-            case 'paste':
             case 'move':
             case 'undo':
             case 'edit':
@@ -294,46 +294,86 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $definition      = $this->getDataDefinition();
         $basicDefinition = $definition->getBasicDefinition();
-        $buttons         = array();
+        $buttons         = [];
+
+        $confirmMessage = htmlentities(
+            sprintf(
+                '<h2 class="tl_error">%s</h2>' .
+                '<p></p>' .
+                '<div class="tl_submit_container">' .
+                '<input type="submit" name="close" class="%s" value="%s" onclick="%s">' .
+                '</div>',
+                specialchars($this->translate('MSC.nothingSelect')),
+                'tl_submit',
+                specialchars($this->translate('MSC.close')),
+                'this.blur(); BackendGeneral.hideMessage(); return false;'
+            )
+        );
+        $onClick        = 'BackendGeneral.confirmSelectOverrideEditAll(this, \'models[]\', \''
+                          . $confirmMessage . '\'); return false;';
+
+        $input = '<input type="submit" name="%s" id="%s" class="tl_submit" accesskey="%s" value="%s" onclick="%s">';
 
         if ($basicDefinition->isDeletable()) {
-            $buttons['delete'] = sprintf(
-                '<input ' .
-                'type="submit"' .
-                'name="delete"' .
-                'id="delete"' .
-                'class="tl_submit"' .
-                'accesskey="d"' .
-                'onclick="return confirm(\'%s\')"' .
-                'value="%s" />',
+            $onClickDelete = sprintf(
+                'BackendGeneral.confirmSelectDeleteAll(this, \'%s\', \'%s\', \'%s\', \'%s\', \'%s\'); return false;',
+                'models[]',
+                $confirmMessage,
                 specialchars($this->translate('MSC.delAllConfirm')),
-                specialchars($this->translate('MSC.deleteSelected'))
+                specialchars($this->translate('MSC.confirmOk')),
+                specialchars($this->translate('MSC.confirmAbort'))
+            );
+
+            $buttons['delete'] = sprintf(
+                $input,
+                'delete',
+                'delete',
+                'd',
+                specialchars($this->translate('MSC.deleteSelected')),
+                $onClickDelete
             );
         }
 
-        if ($basicDefinition->isEditable()) {
+        $sortingProperty = ViewHelpers::getManualSortingProperty($this->getEnvironment());
+        if ($sortingProperty && $basicDefinition->isEditable()) {
             $buttons['cut'] = sprintf(
-                '<input type="submit" name="cut" id="cut" class="tl_submit" accesskey="x" value="%s">',
-                specialchars($this->translate('MSC.moveSelected'))
+                $input,
+                'cut',
+                'cut',
+                's',
+                specialchars($this->translate('MSC.moveSelected')),
+                $onClick
             );
         }
 
         if ($basicDefinition->isCreatable()) {
             $buttons['copy'] = sprintf(
-                '<input type="submit" name="copy" id="copy" class="tl_submit" accesskey="c" value="%s">',
-                specialchars($this->translate('MSC.copySelected'))
+                $input,
+                'copy',
+                'copy',
+                'c',
+                specialchars($this->translate('MSC.copySelected')),
+                $onClick
             );
         }
 
         if ($basicDefinition->isEditable()) {
             $buttons['override'] = sprintf(
-                '<input type="submit" name="override" id="override" class="tl_submit" accesskey="v" value="%s">',
-                specialchars($this->translate('MSC.overrideSelected'))
+                $input,
+                'override',
+                'override',
+                'v',
+                specialchars($this->translate('MSC.overrideSelected')),
+                $onClick
             );
 
             $buttons['edit'] = sprintf(
-                '<input type="submit" name="edit" id="edit" class="tl_submit" accesskey="s" value="%s">',
-                specialchars($this->translate('MSC.editSelected'))
+                $input,
+                'edit',
+                'edit',
+                's',
+                specialchars($this->translate('MSC.editSelected')),
+                $onClick
             );
         }
 
@@ -380,6 +420,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function handleAjaxCall()
     {
+        $this->addAjaxPropertyForEditAll();
+
         $handler = new Ajax3X();
         $handler->executePostActions(new DcCompat($this->getEnvironment()));
     }
@@ -529,5 +571,86 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $this->addToTemplate('elements', $arrReturn, $objTemplate);
 
         return $objTemplate->parse();
+    }
+
+    /**
+     * Add the ajax property for edit all mode.
+     *
+     * @return void
+     */
+    private function addAjaxPropertyForEditAll()
+    {
+        $inputProvider = $this->getEnvironment()->getInputProvider();
+
+        if (('select' !== $inputProvider->getParameter('act'))
+            && ('edit' !== $inputProvider->getParameter('select'))
+            && ('edit' !== $inputProvider->getParameter('mode'))
+        ) {
+            return;
+        }
+
+        $originalProperty = $this->findOriginalPropertyByModelId($inputProvider->getValue('name'));
+        if (null === $originalProperty) {
+            return;
+        }
+
+        $propertiesDefinition = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition();
+
+        $propertyClass = get_class($originalProperty);
+
+        $property = new $propertyClass($inputProvider->getValue('name'));
+        $property->setLabel($originalProperty->getLabel());
+        $property->setDescription($originalProperty->getDescription());
+        $property->setDefaultValue($originalProperty->getDefaultValue());
+        $property->setExcluded($originalProperty->isExcluded());
+        $property->setSearchable($originalProperty->isSearchable());
+        $property->setFilterable($originalProperty->isFilterable());
+        $property->setWidgetType($originalProperty->getWidgetType());
+        $property->setExplanation($originalProperty->getExplanation());
+        $property->setExtra($originalProperty->getExtra());
+
+        $propertiesDefinition->addProperty($property);
+    }
+
+    /**
+     * Find the original property by the modelId.
+     *
+     * @param string $propertyName The property name.
+     *
+     * @return PropertyInterface|null
+     */
+    private function findOriginalPropertyByModelId($propertyName)
+    {
+        if (null === $propertyName) {
+            return null;
+        }
+
+        $inputProvider  = $this->getEnvironment()->getInputProvider();
+        $sessionStorage = $this->getEnvironment()->getSessionStorage();
+
+        $selectAction = $inputProvider->getParameter('select');
+
+        $session = $sessionStorage->get($this->getEnvironment()->getDataDefinition()->getName() . '.' . $selectAction);
+
+        $originalPropertyName = null;
+        foreach ($session['models'] as $modelId) {
+            if (null !== $originalPropertyName) {
+                break;
+            }
+
+            $propertyNamePrefix = str_replace('::', '____', $modelId) . '_';
+            if ($propertyNamePrefix !== substr($propertyName, 0, strlen($propertyNamePrefix))) {
+                continue;
+            }
+
+            $originalPropertyName = substr($propertyName, strlen($propertyNamePrefix));
+        }
+
+        $propertiesDefinition = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition();
+        if (!$propertiesDefinition->hasProperty($originalPropertyName)) {
+            return null;
+        }
+
+        return $propertiesDefinition->getProperty($originalPropertyName);
     }
 }

@@ -234,12 +234,8 @@ class ClipboardController implements EventSubscriberInterface
             $modelIdRaw = $input->getParameter('source');
             $modelId    = ModelId::fromSerialized($modelIdRaw);
 
-            $filter = new Filter();
-            $filter->andActionIs(ItemInterface::CREATE);
-            $items = $clipboard->fetch($filter);
-            foreach ($items as $item) {
-                $clipboard->remove($item);
-            }
+            // If edit several don´t remove items from the clipboard.
+            $this->removeItemsFromClipboard($event);
 
             // Only push item to clipboard if manual sorting is used.
             if (Item::COPY === $clipboardActionName && !ViewHelpers::getManualSortingProperty($environment)) {
@@ -248,6 +244,13 @@ class ClipboardController implements EventSubscriberInterface
 
             // create the new item
             $item = new Item($clipboardActionName, $parentId, $modelId);
+        }
+
+        // If edit several don´t redirect do home and push item to the clipboard.
+        if ($input->getParameter('act') === 'select') {
+            $clipboard->push($item)->saveTo($environment);
+
+            return;
         }
 
         // Let the clipboard save it's values persistent.
@@ -354,5 +357,29 @@ class ClipboardController implements EventSubscriberInterface
             ->set('clearItemUrl', $clearItemUrl);
 
         $event->setResponse($template->parse());
+    }
+
+    /**
+     * Remove items from clipboard.
+     * If action is select don´t remove anything.
+     *
+     * @param ActionEvent $event The event.
+     *
+     * @return void
+     */
+    private function removeItemsFromClipboard(ActionEvent $event)
+    {
+        $inputProvider = $event->getEnvironment()->getInputProvider();
+        if ($inputProvider->getParameter('act') === 'select') {
+            return;
+        }
+
+        $clipboard = $event->getEnvironment()->getClipboard();
+        $filter    = new Filter();
+        $filter->andActionIs(ItemInterface::CREATE);
+        $items = $clipboard->fetch($filter);
+        foreach ($items as $item) {
+            $clipboard->remove($item);
+        }
     }
 }

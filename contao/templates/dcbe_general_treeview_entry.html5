@@ -6,7 +6,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 /** @var ModelInterface $model */
 $model = $this->objModel;
 ?>
-<li class="<?php echo ($model->getMeta(DCGE::TREE_VIEW_LEVEL) == 0) ? 'tl_folder' : 'tl_file'; ?>" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
+<li class="<?php echo ($model->getMeta(DCGE::TREE_VIEW_LEVEL) == 0) ? 'tl_folder' : 'tl_file'; ?><?php if ($this->select) : ?> toggle_select<?php endif; ?> click2edit" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
     <div class="tl_left" style="padding-left:<?php echo $model->getMeta(DCGE::TREE_VIEW_LEVEL) * 20 ?>px;">
         <?php if ($model->getMeta($model::HAS_CHILDREN) == true): ?>
             <a class="folding" href="<?php echo $this->toggleUrl; ?>" title="<?php echo $this->toggleTitle; ?>" onclick="<?php echo $this->toggleScript; ?>">
@@ -18,7 +18,7 @@ $model = $this->objModel;
     </div>
     <?php if ($this->select): ?>
         <div class="tl_right tl_right_nowrap">
-            <input type="checkbox" name="IDS[]" id="ids_<?php echo $model->getId(); ?>" class="tl_tree_checkbox" value="<?php echo ModelId::fromModel($model)->getSerialized(); ?>">
+            <input type="checkbox" name="models[]" id="models_<?php echo $model->getId(); ?>" class="tl_tree_checkbox" value="<?php echo ModelId::fromModel($model)->getSerialized(); ?>"<?php if (in_array(ModelId::fromModel($model)->getSerialized(), $this->selectContainer)): ?>checked<?php endif; ?>>
         </div>
     <?php else: ?>
     <div class="tl_right">

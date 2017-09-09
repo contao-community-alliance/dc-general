@@ -49,3 +49,9 @@ $container['dc-general.data-definition-container'] = $container->share(
         return $container;
     }
 );
+
+$container['dc-general.edit-information'] = $container->share(
+    function () {
+        return new \ContaoCommunityAlliance\DcGeneral\Data\DefaultEditInformation();
+    }
+);

@@ -28,6 +28,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\Subscriber\FallbackResetSubscriber;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\ClipboardController;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Filter\LanguageFilter;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\CheckPermission;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\EditAllHandlerSubscriber;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\RichTextFileUuidSubscriber;
 
 if ('BE' === TL_MODE) {
@@ -38,7 +39,8 @@ if ('BE' === TL_MODE) {
         new FallbackResetSubscriber(),
         new RichTextFileUuidSubscriber(),
         new CheckPermission(),
-        new DynamicParentTableSubscriber()
+        new DynamicParentTableSubscriber(),
+        new EditAllHandlerSubscriber()
     );
 }
 

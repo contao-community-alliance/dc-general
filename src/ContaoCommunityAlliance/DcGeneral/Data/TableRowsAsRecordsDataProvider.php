@@ -237,6 +237,8 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @param ModelInterface $objItem   The model to save.
      *
+     * @param int            $timestamp Optional the timestamp.
+     *
      * @param bool           $recursive Ignored as not relevant in this data provider.
      *
      * @return ModelInterface The passed Model.
@@ -246,8 +248,11 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function save(ModelInterface $objItem, $recursive = false)
+    public function save(ModelInterface $objItem, $timestamp = 0, $recursive = false)
     {
+        if (!is_int($timestamp)) {
+            throw new DcGeneralException('The parameter for this method has been change!');
+        }
         $arrData = $objItem->getProperty('rows');
         if (!($objItem->getID() && $arrData)) {
             throw new DcGeneralException('invalid input data in model.', 1);
@@ -300,7 +305,9 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
     /**
      * Unsupported in this data provider, throws an Exception.
      *
-     * @param CollectionInterface $objItems Unused.
+     * @param CollectionInterface $objItems  Unused.
+     *
+     * @param int                 $timestamp Optional the timestamp.
      *
      * @return void
      *
@@ -308,7 +315,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function saveEach(CollectionInterface $objItems)
+    public function saveEach(CollectionInterface $objItems, $timestamp = 0)
     {
         $this->youShouldNotCallMe(__METHOD__);
     }

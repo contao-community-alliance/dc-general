@@ -41,9 +41,7 @@ $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalDriver.css';
 </div>
 <?php endif; ?>
 
-<div id="tl_buttons">
-<a href="<?php echo $this->getReferer(true); ?>" class="header_back" title="<?php echo specialchars($GLOBALS['TL_LANG']['MSC']['backBT']); ?>" accesskey="b" onclick="Backend.getScrollOffset();"><?php echo $GLOBALS['TL_LANG']['MSC']['backBT']; ?></a>
-</div>
+<?php echo $this->getBackButton(); ?>
 
 <?php if(strlen($this->breadcrumb)): ?>
 <div class="tl_listing_container">
@@ -54,7 +52,7 @@ $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalDriver.css';
 <?php echo $this->getMessages(); ?>
 
 <form class="tl_form tableextended" method="post"
-  action="<?php echo ampersand($this->Environment->request, true); ?>"
+  action="<?php echo ampersand($this->Environment->request, true); ?><?php if($this->mode): ?>&mode=<?php echo $this->mode; ?><?php endif; ?>"
   id="<?php echo $this->table; ?>"
   enctype="<?php echo $this->enctype; ?>"
   <?php if($this->onsubmit): ?> onsubmit="<?php echo $this->onsubmit; ?>"<?php endif; ?>>
@@ -62,7 +60,12 @@ $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalDriver.css';
 <input type="hidden" name="FORM_SUBMIT" value="<?php echo specialchars($this->table); ?>" />
 <input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>" />
 <?php if($this->error): ?>
-  <p class="tl_error"><?php echo implode('<br />', $this->error); ?></p>
+    <?php if(5 < count($this->error)): ?>
+    <div class="limit_height h128">
+    <?php endif; ?>
+
+  <p class="tl_error"><?php echo implode('<br />', $this->error); ?>
+  </p>
   <script type="text/javascript">
   /* <![CDATA[ */
 	window.addEvent('domready', function() {
@@ -70,6 +73,10 @@ $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalDriver.css';
 	});
   /* ]]> */
   </script>
+
+    <?php if(5 < count($this->error)): ?>
+    </div>
+    <?php endif; ?>
 <?php endif; ?>
 
 <?php foreach($this->fieldsets as $arrFieldset): if($arrFieldset['legend']): ?>

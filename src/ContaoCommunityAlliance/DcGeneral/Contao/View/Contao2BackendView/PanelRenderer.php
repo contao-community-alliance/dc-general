@@ -175,6 +175,11 @@ class PanelRenderer
      */
     public function render($ignoredPanels = array())
     {
+        // If in edit/override all mode and list all properties, the panel filter isn´t in use.
+        if ('properties' === $this->getEnvironment()->getInputProvider()->getParameter('select')) {
+            return '';
+        }
+
         if ($this->view->getPanel() === null) {
             throw new DcGeneralRuntimeException('No panel information stored in data container.');
         }

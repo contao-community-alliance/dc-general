@@ -42,9 +42,80 @@ use ContaoCommunityAlliance\UrlBuilder\Contao\BackendUrlBuilder;
 class CopyHandler extends AbstractEnvironmentAwareHandler
 {
     /**
+     * {@inheritdoc}
+     */
+    public function process()
+    {
+        $event = $this->getEvent();
+        if ($event->getAction()->getName() !== 'copy') {
+            return;
+        }
+
+        $modelId = ModelId::fromSerialized($this->getEnvironment()->getInputProvider()->getParameter('source'));
+
+        $this->guardValidEnvironment($modelId);
+        // We want a redirect here if not creatable.
+        $this->guardIsCreatable($modelId, true);
+
+        if ($this->isEditOnlyResponse()) {
+            return;
+        }
+
+        // Manual sorting mode. The ClipboardController should pick it up.
+        $manualSortingProperty = ViewHelpers::getManualSortingProperty($this->getEnvironment());
+        if ($manualSortingProperty && $this->getEnvironment()->getDataProvider()->fieldExists($manualSortingProperty)) {
+            return;
+        }
+
+        $copiedModel = $this->copy($modelId);
+
+        // If edit several don´t redirect do home.
+        if ($this->getEnvironment()->getInputProvider()->getParameter('act') === 'select') {
+            return;
+        }
+
+        $this->redirect($this->getEnvironment(), ModelId::fromModel($copiedModel));
+    }
+
+    /**
+     * Copy a model by using.
+     *
+     * @param ModelIdInterface $modelId The model id.
+     *
+     * @return ModelInterface
+     */
+    public function copy(ModelIdInterface $modelId)
+    {
+        $this->guardNotEditOnly($modelId);
+        $this->guardIsCreatable($modelId);
+
+        $environment  = $this->getEnvironment();
+        $dataProvider = $environment->getDataProvider();
+        $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+
+        // We need to keep the original data here.
+        $copyModel = $environment->getController()->createClonedModel($model);
+
+        // Dispatch pre duplicate event.
+        $copyEvent = new PreDuplicateModelEvent($environment, $copyModel, $model);
+        $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
+
+        // Save the copy.
+        $provider = $this->getEnvironment()->getDataProvider($copyModel->getProviderName());
+        $provider->save($copyModel);
+
+        // Dispatch post duplicate event.
+        $copyEvent = new PostDuplicateModelEvent($environment, $copyModel, $model);
+        $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
+
+        return $copyModel;
+    }
+
+    /**
      * Check if is it allowed to create a new record. This is necessary to create the copy.
      *
      * @param ModelIdInterface $modelId  The model id.
+     *
      * @param bool             $redirect If true it redirects to error page instead of throwing an exception.
      *
      * @return void
@@ -81,43 +152,10 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
     }
 
     /**
-     * Copy a model by using.
-     *
-     * @param ModelIdInterface  $modelId   The model id.
-     *
-     * @return ModelInterface
-     */
-    public function copy(ModelIdInterface $modelId)
-    {
-        $this->guardNotEditOnly($modelId);
-        $this->guardIsCreatable($modelId);
-
-        $environment  = $this->getEnvironment();
-        $dataProvider = $environment->getDataProvider();
-        $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-
-        // We need to keep the original data here.
-        $copyModel = $environment->getController()->createClonedModel($model);
-
-        // Dispatch pre duplicate event.
-        $copyEvent = new PreDuplicateModelEvent($environment, $copyModel, $model);
-        $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
-
-        // Save the copy.
-        $provider = $this->getEnvironment()->getDataProvider($copyModel->getProviderName());
-        $provider->save($copyModel);
-
-        // Dispatch post duplicate event.
-        $copyEvent = new PostDuplicateModelEvent($environment, $copyModel, $model);
-        $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
-
-        return $copyModel;
-    }
-
-    /**
      * Redirect to edit mask.
      *
      * @param EnvironmentInterface $environment   The environment.
+     *
      * @param ModelIdInterface     $copiedModelId The model id.
      *
      * @return void
@@ -136,44 +174,6 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
 
         $redirectEvent = new RedirectEvent($url->getUrl());
         $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_REDIRECT, $redirectEvent);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function process()
-    {
-        $event = $this->getEvent();
-        if ($event->getAction()->getName() !== 'copy') {
-            return;
-        }
-
-        if (false === $this->checkPermission()) {
-            $this->getEvent()->stopPropagation();
-
-            return;
-        }
-
-        $environment = $this->getEnvironment();
-        $modelId     = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
-
-        $this->guardValidEnvironment($modelId);
-        // We want a redirect here if not creatable.
-        $this->guardIsCreatable($modelId, true);
-
-        if ($this->isEditOnlyResponse()) {
-            return;
-        }
-
-        // Manual sorting mode. The ClipboardController should pick it up.
-        $manualSortingProperty = ViewHelpers::getManualSortingProperty($environment);
-        if ($manualSortingProperty && $this->environment->getDataProvider()->fieldExists($manualSortingProperty)) {
-            return;
-        }
-
-        $copiedModel = $this->copy($modelId);
-
-        $this->redirect($environment, ModelId::fromModel($copiedModel));
     }
 
     /**

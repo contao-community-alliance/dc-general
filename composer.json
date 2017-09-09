@@ -43,7 +43,8 @@
     },
     "require-dev": {
         "phpcq/all-tasks": "~1.1",
-        "contao-community-alliance/contao-twig": "~1.12"
+        "contao-community-alliance/contao-twig": "~1.12",
+        "menatwork/contao-multicolumnwizard": "~3.3"
     },
     "replace": {
         "metamodels/dc_general": "self.version"

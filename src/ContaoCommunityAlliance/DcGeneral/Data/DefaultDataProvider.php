@@ -486,12 +486,15 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @param ModelInterface $model The model to convert into an property array.
      *
+     * @param int            $timestamp Optional the timestamp.
+     *
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
-    protected function convertModelToDataPropertyArray(ModelInterface $model)
+    protected function convertModelToDataPropertyArray(ModelInterface $model, $timestamp = 0)
     {
         $data = array();
-
         foreach ($model as $key => $value) {
             if ($key == $this->idProperty) {
                 continue;
@@ -505,7 +508,7 @@ class DefaultDataProvider implements DataProviderInterface
         }
 
         if ($this->timeStampProperty) {
-            $data[$this->getTimeStampProperty()] = time();
+            $data[$this->getTimeStampProperty()] = $timestamp ?: \time();
         }
 
         return $data;
@@ -516,11 +519,13 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @param ModelInterface $model The model to insert into the database.
      *
+     * @param int            $timestamp Optional the timestamp.
+     *
      * @return void
      */
-    protected function insertModelIntoDatabase(ModelInterface $model)
+    protected function insertModelIntoDatabase(ModelInterface $model, $timestamp = 0)
     {
-        $data = $this->convertModelToDataPropertyArray($model);
+        $data = $this->convertModelToDataPropertyArray($model, $timestamp);
         if ($this->getIdGenerator()) {
             $model->setId($this->getIdGenerator()->generate());
             $data[$this->idProperty] = $model->getId();
@@ -539,13 +544,15 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * Update the model in the database.
      *
-     * @param ModelInterface $model The model to update the database.
+     * @param ModelInterface $model     The model to update the database.
+     *
+     * @param int            $timestamp Optional the timestamp.
      *
      * @return void
      */
-    protected function updateModelInDatabase($model)
+    protected function updateModelInDatabase($model, $timestamp = 0)
     {
-        $data = $this->convertModelToDataPropertyArray($model);
+        $data = $this->convertModelToDataPropertyArray($model, $timestamp);
 
         $this->objDatabase
             ->prepare(sprintf('UPDATE %s %%s WHERE id=?', $this->strSource))
@@ -556,7 +563,7 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * {@inheritDoc}
      */
-    public function save(ModelInterface $objItem)
+    public function save(ModelInterface $objItem, $timestamp = 0)
     {
         if ($objItem->getId() === null || $objItem->getId() === '') {
             $this->insertModelIntoDatabase($objItem);
@@ -570,10 +577,10 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * {@inheritDoc}
      */
-    public function saveEach(CollectionInterface $objItems)
+    public function saveEach(CollectionInterface $objItems, $timestamp = 0)
     {
         foreach ($objItems as $value) {
-            $this->save($value);
+            $this->save($value, $timestamp);
         }
     }
 

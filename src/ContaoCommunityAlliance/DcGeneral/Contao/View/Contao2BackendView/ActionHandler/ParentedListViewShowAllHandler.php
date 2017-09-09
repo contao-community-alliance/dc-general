@@ -170,12 +170,15 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             $add = $event->getAdditional();
         }
 
-        return array_map(function ($value) {
-            if (is_array($value)) {
-                return $value[0];
-            }
-            return $value;
-        }, $add);
+        return array_map(
+            function ($value) {
+                if (is_array($value)) {
+                    return $value[0];
+                }
+                return $value;
+            },
+            $add
+        );
     }
 
     /**
@@ -201,6 +204,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
      * Render a property of the parent model.
      *
      * @param PropertyInterface $property The property.
+     *
      * @param mixed             $value    The value to format.
      *
      * @return string
@@ -250,6 +254,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
 
         return $reference[$value];
     }
+
     /**
      * Retrieve a list of html buttons to use in the top panel (submit area).
      *
