@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2016 Contao Community Alliance.
+ * (c) 2013-2017 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2016 Contao Community Alliance.
+ * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -58,7 +58,19 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      */
     protected function getItemsPerPage()
     {
-        return \Config::get('resultsPerPage');
+        return \Config::get('resultsPerPage') > $this->getMaxItemsPerPage()
+            ? $this->getMaxItemsPerPage()
+            : \Config::get('resultsPerPage');
+    }
+
+    /**
+     * Retrieve the max amount of items to display per page.
+     *
+     * @return int
+     */
+    protected function getMaxItemsPerPage()
+    {
+        return \Config::get('maxResultsPerPage');
     }
 
     /**
@@ -81,6 +93,10 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
         } else {
             $this->intTotal = 0;
         }
+
+        $this->intTotal = $this->intTotal > $this->getMaxItemsPerPage()
+            ? $this->getMaxItemsPerPage()
+            : $this->intTotal;
     }
 
     /**
