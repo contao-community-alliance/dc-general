@@ -22,6 +22,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use Contao\BackendUser;
 use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
@@ -653,6 +654,10 @@ class TreePicker extends Widget
         $root = is_array($root) ? $root : ((is_numeric($root) && $root > 0) ? array($root) : array());
         $root = array_merge($root, array(0));
 
+        //$root = array('73');
+
+        //$user = BackendUser::getInstance();
+
         return $root;
     }
 
@@ -836,6 +841,7 @@ class TreePicker extends Widget
                     $arrFilter = array_merge($arrBaseFilter, $arrFilter);
                 }
 
+                //$arrFilter[0]['property'] = 'id';
                 $objRootConfig->setFilter($arrFilter);
             }
             // Fetch all root elements.
@@ -896,8 +902,11 @@ class TreePicker extends Widget
         if ($rootId) {
             $objTreeData = $dataDriver->getEmptyCollection();
             $objModel    = $objCollection->get(0);
+            //$objModel->setMeta(DCGE::TREE_VIEW_LEVEL, 0);
+            //$objTreeData->push($objModel);
             foreach ($objModel->getMeta($objModel::CHILD_COLLECTIONS) as $objCollection) {
                 foreach ($objCollection as $objSubModel) {
+                    //$objSubModel->setMeta(DCGE::TREE_VIEW_LEVEL, 1);
                     $objTreeData->push($objSubModel);
                 }
             }
