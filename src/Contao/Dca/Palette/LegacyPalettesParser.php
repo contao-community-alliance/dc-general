@@ -296,10 +296,19 @@ class LegacyPalettesParser
 
             $selectorFieldName = $this->createSubpaletteSelectorFieldName($subPaletteSelector, $selectorFieldNames);
 
+            $selectorProperty = array();
+            // For selectable sub selector.
+            if (isset($properties[$selectorFieldName])
+                && (0 < substr_count($subPaletteSelector, '_'))
+            ) {
+                $selectorProperty = $properties[$selectorFieldName];
+            }
+
             $properties[$selectorFieldName] = $this->parseSubpalette(
                 $subPaletteSelector,
                 $childFields,
-                $selectorFieldNames
+                $selectorFieldNames,
+                $selectorProperty
             );
         }
 
@@ -313,18 +322,22 @@ class LegacyPalettesParser
      *
      * @param string $childFields        List of the properties for the sub palette.
      *
-     * @param array  $selectorFieldNames List of the selector properties [optional].
+     * @param array $selectorFieldNames List of the selector properties [optional].
+     *
+     * @param array $properties         List of the selector visible properties [optional].
      *
      * @return PropertyInterface[]
      */
-    public function parseSubpalette($subPaletteSelector, $childFields, array $selectorFieldNames = array())
-    {
+    public function parseSubpalette(
+        $subPaletteSelector,
+        $childFields,
+        array $selectorFieldNames = array(),
+        array $properties = array()
+    ) {
         $childFields = explode(',', $childFields);
         $childFields = array_map('trim', $childFields);
 
         $condition = $this->createSubpaletteCondition($subPaletteSelector, $selectorFieldNames);
-
-        $properties = array();
 
         foreach ($childFields as $childField) {
             $property = new Property($childField);
