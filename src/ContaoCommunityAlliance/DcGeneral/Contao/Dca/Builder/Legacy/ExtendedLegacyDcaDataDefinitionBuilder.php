@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2017 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -69,6 +70,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
         $this->parseBackendView($container);
         $this->parseClassNames($container);
         $this->loadAdditionalDefinitions($container);
+        $this->parseDynamicParentTableProperty($container);
     }
 
     /**
@@ -569,5 +571,46 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
                 $listing->setLabelFormatter($providerName, $formatter);
             }
         }
+    }
+
+    /**
+     * Parse the dynamic parent table.
+     *
+     * @param ContainerInterface $container The container where the data shall be stored.
+     *
+     * @return void
+     */
+    protected function parseDynamicParentTableProperty(ContainerInterface $container)
+    {
+        if ((($propertyName = $this->getFromDca('dca_config/parent_table_property')) === null)
+            || (($sourceProvider = $this->getFromDca('config/ptable')) === null)
+            || (($dynamicParentTable = $this->getFromDca('config/dynamicPtable')) === null)
+        ) {
+            return;
+        }
+
+        $relationship   = $container->getModelRelationshipDefinition();
+        $childCondition = $relationship->getChildCondition($sourceProvider, $container->getName());
+        if (null === $childCondition) {
+            return;
+        }
+
+        $childCondition->setFilterArray(
+            array_merge(
+                $childCondition->getFilterArray(),
+                array(
+                    array(
+                        'local'        => $propertyName,
+                        'remote_value' => $sourceProvider,
+                        'operation'    => '='
+                    )
+                )
+            )
+        );
+
+        $backendView = $container->getDefinition(Contao2BackendViewDefinition::NAME);
+        $backendView->getListingConfig()->setParentTablePropertyName($propertyName);
+
+        $container->getBasicDefinition()->setDynamicParentTable($dynamicParentTable);
     }
 }
