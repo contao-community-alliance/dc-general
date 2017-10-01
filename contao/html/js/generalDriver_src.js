@@ -8,6 +8,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  */
 
 var BackendGeneral =
@@ -105,7 +106,8 @@ var BackendGeneral =
 			image = $(el).getFirst('img'),
 			publish = (image.src.indexOf(icon_disabled) != -1),
 			div = el.getParent('div'),
-			next;
+			next,
+			listIcon;
 
 		new Request.Contao({
 			'url':$(el).href,
@@ -125,6 +127,12 @@ var BackendGeneral =
 					}
 				} else if ((next = div.getNext('div')) && next.hasClass('cte_type')) {
 					img = next;
+				}
+
+				// Provide change the list icon for example by newsletter recipients.
+				if ((img === null)
+					&& (listIcon = el.getParent().getParent().getElements('div.list_icon').getFirst().getParent())) {
+					img = listIcon[0];
 				}
 
 				// Change the icon
