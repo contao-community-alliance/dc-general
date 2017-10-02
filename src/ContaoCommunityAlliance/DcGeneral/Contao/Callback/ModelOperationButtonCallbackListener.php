@@ -64,7 +64,7 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
     {
         return parent::wantToExecute($event)
         && (empty($this->operationName)
-            || ($event->getKey() == $this->operationName)
+            || ($event->getCommand()->getName() == $this->operationName)
         );
     }
 
