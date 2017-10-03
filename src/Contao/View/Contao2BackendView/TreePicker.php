@@ -572,10 +572,29 @@ class TreePicker extends Widget
             ->set('values', $values)
             ->set('popupUrl', $popupUrl);
 
+        $this->addOrderFieldToTemplate($template);
+
         // Load the fonts for the drag hint.
         $GLOBALS['TL_CONFIG']['loadGoogleFonts'] = true;
 
         return $template->parse();
+    }
+
+    /**
+     * Add the order field to the template, if the picker has order.
+     *
+     * @param ContaoBackendViewTemplate $template The template.
+     *
+     * @return void
+     */
+    private function addOrderFieldToTemplate(ContaoBackendViewTemplate $template)
+    {
+        if (!$this->orderField) {
+            return;
+        }
+
+        $template->set('hasOrder', true);
+        $template->set('orderId', $this->orderField);
     }
 
     /**
