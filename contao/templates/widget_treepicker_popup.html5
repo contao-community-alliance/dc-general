@@ -1,4 +1,5 @@
-<ul class="tl_listing treepicker_popup<?php echo $this->class; ?>" id="<?php echo $this->id ?>">
+<div class="tl_listing_container tree_view unselectable" id="tl_select">
+<ul class="tl_listing treepicker_popup tree_view picker_selector <?php echo $this->class; ?>" id="<?php echo $this->id ?>">
 	<li class="tl_folder_top">
 		<div class="tl_left">
 			<?php echo $this->icon . $this->title; ?>
@@ -40,3 +41,4 @@
 	</ul>
 	</li>
 </ul>
+</div>
