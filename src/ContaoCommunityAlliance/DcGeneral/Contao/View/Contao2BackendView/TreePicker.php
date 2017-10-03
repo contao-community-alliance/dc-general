@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2016 Contao Community Alliance.
+ * (c) 2013-2017 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2016 Contao Community Alliance.
+ * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -567,6 +567,9 @@ class TreePicker extends Widget
             ->set('fieldType', $this->fieldType)
             ->set('values', $values)
             ->set('popupUrl', $popupUrl);
+        if ($this->orderField) {
+            $template->set('hasOrder', true);
+        }
 
         // Load the fonts for the drag hint.
         $GLOBALS['TL_CONFIG']['loadGoogleFonts'] = true;
