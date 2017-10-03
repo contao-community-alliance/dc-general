@@ -23,9 +23,10 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget;
 
+use Contao\StringUtil;
 use Contao\DataContainer;
 use Contao\RequestToken;
-use Contao\StringUtil;
+use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
@@ -77,14 +78,14 @@ class FileTree extends AbstractWidget
      *
      * @var int
      */
-    protected $thumbnailHeight = 80;
+    protected $thumbnailHeight = 50;
 
     /**
      * The default height of the thumbnail.
      *
      * @var int
      */
-    protected $thumbnailWidth = 60;
+    protected $thumbnailWidth = 75;
 
     /**
      * The default placeholder image.
@@ -380,7 +381,7 @@ class FileTree extends AbstractWidget
         return \Image::getHtml(
             $image,
             '',
-            'class="gimage" title="' . StringUtil::specialchars($info) . '"'
+            'class="gimage removable" title="' . StringUtil::specialchars($info) . '"'
         );
     }
 
@@ -422,23 +423,30 @@ class FileTree extends AbstractWidget
      */
     private function generateLink($values)
     {
-        $inputProvider = $this->getEnvironment()->getInputProvider();
+        $extras = array('fieldType'=>$this->fieldType);
 
-        $modelId = $inputProvider->getParameter('id');
-        if (!$modelId) {
-            // Use the highest id for mysql.
-            $modelId = $this->dataContainer->getModel()->getProviderName(). '::4294967295';
+        if ($this->files)
+        {
+            $extras['files'] = (bool) $this->files;
         }
 
-        return sprintf(
-            '%s?do=%s&amp;field=%s&amp;act=show&amp;id=%s&amp;value=%s&amp;rt=%s',
-            'system/modules/dc-general/backend/generalfile.php',
-            $inputProvider->getParameter('do'),
-            $this->strField,
-            $modelId,
-            implode(',', $values),
-            RequestToken::get()
-        );
+        if ($this->filesOnly)
+        {
+            $extras['filesOnly'] = (bool) $this->filesOnly;
+        }
+
+        if ($this->path)
+        {
+            $extras['path'] = (string) $this->path;
+        }
+
+        // Fixme get the allowed extensions
+        if ($this->extensions)
+        {
+            $extras['extensions'] = (string) $this->extensions;
+        }
+
+        return System::getContainer()->get('contao.picker.builder')->getUrl('file', $extras);
     }
 
     /**
@@ -473,6 +481,7 @@ class FileTree extends AbstractWidget
             ->set('isGallery', $this->isGallery)
             ->set('orderId', $this->orderId)
             ->set('link', $this->generateLink($values))
+            ->set('label', $this->label)
             ->parse();
 
         if (!\Environment::get('isAjaxRequest')) {
