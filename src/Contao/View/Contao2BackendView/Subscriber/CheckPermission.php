@@ -95,7 +95,7 @@ class CheckPermission implements EventSubscriberInterface
                             $name,
                             $palette->getName()
                         ),
-                        E_USER_DEPRECATED
+                        E_USER_WARNING
                     );
                     continue;
                 }
