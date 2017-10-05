@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2017 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,8 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -61,14 +62,14 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\DefaultMode
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionCollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelRowCollectionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelRowInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\DefaultFilterElementInformation;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\DefaultLimitElementInformation;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\DefaultSearchElementInformation;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\DefaultSortElementInformation;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\DefaultSubmitElementInformation;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\SubmitElementInformationInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelRowCollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelRowInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\SelectCommand;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommand;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
@@ -110,7 +111,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $this->parseBackendView($container);
         $this->parsePalettes($container);
         $this->parseProperties($container);
-   }
+    }
 
     /**
      * Register the callback handlers for the given legacy callbacks.
@@ -1258,6 +1259,53 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 default:
             }
         }
+
+        $this->parseWidgetPageTree($property, $propInfo);
+    }
+
+    /**
+     * Parse the property widget type of page tree.
+     *
+     * @param PropertyInterface $property The property to parse.
+     *
+     * @param array             $propInfo The property information.
+     *
+     * @return void
+     */
+    private function parseWidgetPageTree(PropertyInterface $property, array $propInfo)
+    {
+        if ('pageTree' !== $property->getWidgetType()) {
+            return;
+        }
+
+        $property
+            ->setExtra(
+                array_merge(
+                    array(
+                        'sourceName' => explode('.', $propInfo['foreignKey'])[0],
+                        'idProperty' => 'id'
+                    ),
+                    (array) $property->getExtra()
+                )
+            );
+    }
+
+    /**
+     * Parse the property for page tree order.
+     *
+     * @param PropertyInterface $property      The base property.
+     *
+     * @param PropertyInterface $orderProperty The order property.
+     *
+     * @return void
+     */
+    private function parsePropertyForPageTreeOrder(PropertyInterface $property, PropertyInterface $orderProperty)
+    {
+        if ('pageTree' !== $property->getWidgetType()) {
+            return;
+        }
+
+        $orderProperty->setWidgetType('pageTreeOrder');
     }
 
     /**
@@ -1285,6 +1333,18 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
 
             $this->parseSingleProperty($property, $propInfo);
+
+            $extra = $property->getExtra();
+            if ($extra['orderField']
+                && array_key_exists($extra['orderField'], (array) $this->getFromDca('fields'))
+            ) {
+                if (!$definition->hasProperty($extra['orderField'])) {
+                    $definition->addProperty(new DefaultProperty($extra['orderField']));
+                }
+
+                $orderProperty = $definition->getProperty($extra['orderField']);
+                $this->parsePropertyForPageTreeOrder($property, $orderProperty);
+            }
         }
     }
 
