@@ -63,7 +63,7 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
     {
         $groupingInformation = ViewHelpers::getGroupingMode($event->getEnvironment());
         if (isset($groupingInformation['mode'])
-            && ($groupingInformation['mode'] !== GroupAndSortingInformationInterface::GROUP_NONE)
+            && ($groupingInformation['mode'] === GroupAndSortingInformationInterface::GROUP_NONE)
         ) {
             if (!is_array($value)) {
                 return;
