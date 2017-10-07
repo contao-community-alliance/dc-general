@@ -15,6 +15,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -439,8 +440,11 @@ class FileTree extends AbstractWidget
             $this->renderList($icons, $files, ($this->isGallery || $this->isDownloads));
             $icons = $this->applySorting($icons);
 
-            foreach ($files as $model) {
-                $values[] = call_user_func('\Contao\StringUtil::binToUuid', $model->uuid);
+            // Files can be null.
+            if (null !== $files) {
+                foreach ($files as $model) {
+                    $values[] = call_user_func('\Contao\StringUtil::binToUuid', $model->uuid);
+                }
             }
         }
 
