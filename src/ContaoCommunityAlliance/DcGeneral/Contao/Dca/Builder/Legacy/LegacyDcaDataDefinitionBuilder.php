@@ -1278,6 +1278,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             return;
         }
 
+        // If the foreign key not set, then use an standard as fallback.
+        if (!isset($propInfo['foreignKey'])) {
+            $propInfo['foreignKey'] = 'tl_page.title';
+        }
+
         $property
             ->setExtra(
                 array_merge(
