@@ -444,8 +444,11 @@ class FileTree extends AbstractWidget
             $this->renderList($icons, $files, ($this->isGallery || $this->isDownloads));
             $icons = $this->applySorting($icons);
 
-            foreach ($files as $model) {
-                $values[] = call_user_func('\Contao\StringUtil::binToUuid', $model->uuid);
+            // Files can be null.
+            if (null !== $files) {
+                foreach ($files as $model) {
+                    $values[] = call_user_func('\Contao\StringUtil::binToUuid', $model->uuid);
+                }
             }
         }
 
