@@ -22,6 +22,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use Contao\System;
 use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
@@ -544,20 +545,7 @@ class TreePicker extends Widget
         $icon = new GenerateHtmlEvent($this->titleIcon);
         $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $icon);
 
-        $values   = $this->renderItemsPlain();
-        $popupUrl = \System::getContainer()->get('router')->generate(
-            'cca_dc_general_tree',
-            [
-                'do' => \Input::get('do'),
-                'table' => $this->strTable,
-                'field' => $this->strField,
-                'act' => 'show',
-                'id' => $environment->getInputProvider()->getParameter('id'),
-                'value' => implode(',', array_keys($values)),
-                'rt' => REQUEST_TOKEN,
-                'ref'=>TL_REFERER_ID,
-            ]
-        );
+        $values = $this->renderItemsPlain();
 
         $template
             ->setTranslator($translator)
@@ -570,7 +558,7 @@ class TreePicker extends Widget
             ->set('dragItemsHint', $translator->translate('MSC.dragItemsHint'))
             ->set('fieldType', $this->fieldType)
             ->set('values', $values)
-            ->set('popupUrl', $popupUrl);
+            ->set('popupUrl', $this->generatePickerUrl($values));
 
         $this->addOrderFieldToTemplate($template);
 
@@ -578,6 +566,30 @@ class TreePicker extends Widget
         $GLOBALS['TL_CONFIG']['loadGoogleFonts'] = true;
 
         return $template->parse();
+    }
+
+    /**
+     * Generate the picker url.
+     *
+     * @param array $values The select values.
+     *
+     * @return string
+     */
+    protected function generatePickerUrl(array $values)
+    {
+        return System::getContainer()->get('router')->generate(
+            'cca_dc_general_tree',
+            [
+                'do'    => \Input::get('do'),
+                'table' => $this->strTable,
+                'field' => $this->strField,
+                'act'   => 'show',
+                'id'    => $this->getEnvironment()->getInputProvider()->getParameter('id'),
+                'value' => implode(',', array_keys($values)),
+                'rt'    => REQUEST_TOKEN,
+                'ref'   => TL_REFERER_ID,
+            ]
+        );
     }
 
     /**
@@ -632,7 +644,7 @@ class TreePicker extends Widget
         $tree = '';
         foreach ($this->getRootIds() as $pid) {
             $collection = $this->loadCollection($pid);
-            $tree      .= $this->generateTreeView($collection, 'tree');
+            $tree       .= $this->generateTreeView($collection, 'tree');
         }
 
         $template->set('tree', $tree);

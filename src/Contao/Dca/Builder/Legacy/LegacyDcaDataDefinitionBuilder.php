@@ -1276,15 +1276,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
                 case 'inputType':
                     $property->setWidgetType($value);
-                    // FIXME: this is a dirty hack - implement properly.
-                    if ('pageTree' === $value) {
-                        $property->setExtra(
-                            array_merge(
-                                (array) $property->getExtra(),
-                                ['sourceName' => 'tl_page']
-                            )
-                        );
-                    }
                     break;
 
                 case 'options':

@@ -1,0 +1,25 @@
+<input type="hidden" name="<?= $this->name ?>" id="ctrl_<?= $this->id ?>" value="<?= implode(',', array_keys($this->values)) ?>">
+
+<div class="selector_container">
+	<?php if ($this->hasOrder && count($this->values)): ?>
+		<p class="sort_hint">
+			<?= $this->dragItemsHint ?>
+		</p>
+	<?php endif; ?>
+
+	<ul id="sort_<?= $this->id ?>"<?php if ($this->hasOrder): ?> class="sortable"<?php endif; ?>>
+		<?php foreach ($this->values as $k=>$v): ?>
+			<li data-id="<?= $k ?>"><?= $v ?></li>
+		<?php endforeach; ?>
+	</ul>
+	<p><a
+			href="<?= $this->popupUrl ?>"
+			class="tl_submit"
+			onclick="Backend.getScrollOffset();GeneralTreePicker.openModal({'width':765,'title':'<?= $this->title ?>','url':this.href,'id':'<?= $this->id ?>'});return false">
+			<?= $this->changeSelection ?>
+	</a>
+	</p>
+<?php if ($this->hasOrder): ?>
+	<script>Backend.makeMultiSrcSortable("sort_<?= $this->id ?>", "ctrl_<?= $this->orderId ?>", "ctrl_<?= $this->id ?>")</script>
+<?php endif; ?>
+</div>

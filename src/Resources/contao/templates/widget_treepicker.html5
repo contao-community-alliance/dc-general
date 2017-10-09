@@ -1,5 +1,5 @@
 <?php if ($this->hasOrder): ?>
-	<input type="hidden" name="<?php echo $this->orderName; ?>" id="ctrl_<?php echo $this->orderId ?>" value="<?php echo $this->orderValue ?>">
+	<input type="hidden" name="<?= $this->orderName ?>" id="ctrl_<?= $this->orderId ?>" value="<?= $this->orderValue ?>">
 <?php endif; ?>
 
 <?php $this->extend('widget_common_picker'); ?>
