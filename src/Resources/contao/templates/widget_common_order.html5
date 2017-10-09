@@ -1,0 +1,1 @@
+<input type="hidden" name="<?= $this->strName ?>" value="<?= $this->getSerializedValue() ?>" id="ctrl_<?= $this->strId ?>" />
