@@ -6,8 +6,8 @@
     <?php endif; ?>
     <ul id="sort_<?= $this->id ?>" class="<?= trim(($this->hasOrder ? 'sortable ' : '') . ($this->isGallery ? 'sgallery' : '')) ?>">
         <?php foreach ($this->icons as $icon): ?>
-        <li data-id="<?= \Contao\StringUtil::binToUuid($id); ?>">
-            <?= $icon ?>
+        <li data-id="<?= \Contao\StringUtil::binToUuid($icon['uuid']); ?>">
+            <?= $icon['image'] ?>
         </li>
         <?php endforeach; ?>
     </ul>
