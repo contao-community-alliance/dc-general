@@ -75,6 +75,9 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleComma
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootCondition;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyTrueCondition;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyVisibleCondition;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Property;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPasteModelEvent;
@@ -109,6 +112,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $this->parseBackendView($container);
         $this->parsePalettes($container);
         $this->parseProperties($container);
+        $this->parseOderPropertyInPalette($container);
     }
 
     /**
@@ -1162,6 +1166,49 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     }
 
     /**
+     * Parse if the order property is defined in the same palette as the corresponding source property.
+     * If not, then define it.
+     *
+     * @param ContainerInterface $container The container.
+     *
+     * @return void
+     */
+    private function parseOderPropertyInPalette(ContainerInterface $container)
+    {
+        foreach ($container->getPropertiesDefinition()->getProperties() as $property) {
+            $extra = $property->getExtra();
+            if (!isset($extra['orderField'])
+                || !$container->getPropertiesDefinition()->hasProperty($extra['orderField'])
+            ) {
+                continue;
+            }
+
+            $orderProperty = $container->getPropertiesDefinition()->getProperty($extra['orderField']);
+            if (false === (bool) $orderProperty->getWidgetType()) {
+                continue;
+            }
+
+            foreach ($container->getPalettesDefinition()->getPalettes() as $palette) {
+                foreach ($palette->getLegends() as $legend) {
+                    if ((false === $legend->hasProperty($property->getName()))
+                        || (true === $legend->hasProperty($orderProperty->getName()))
+                    ) {
+                        continue;
+                    }
+
+                    $paletteProperty      = $legend->getProperty($property->getName());
+                    $paletteOrderProperty = new Property($orderProperty->getName());
+                    $legend->addProperty($paletteOrderProperty, $paletteProperty);
+
+                    $paletteOrderProperty->setEditableCondition($paletteProperty->getEditableCondition());
+                    $visibleCondition = new PropertyTrueCondition($property->getName(), false);
+                    $paletteOrderProperty->setVisibleCondition($visibleCondition);
+                }
+            }
+        }
+    }
+
+    /**
      * Parse the label of a single property.
      *
      * @param PropertyInterface $property The property to parse the label for.
@@ -1276,7 +1323,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      */
     private function parseWidgetPageTree(PropertyInterface $property, array $propInfo)
     {
-        if ('pageTree' !== $property->getWidgetType()) {
+        if (isset($propInfo['sourceName'])
+            || ('pageTree' !== $property->getWidgetType())
+        ) {
             return;
         }
 
@@ -1298,7 +1347,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     }
 
     /**
-     * Parse the property for page tree order.
+     * Parse the property for order and set the order widget.
      *
      * @param PropertyInterface $property      The base property.
      *
@@ -1306,13 +1355,18 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      *
      * @return void
      */
-    private function parsePropertyForPageTreeOrder(PropertyInterface $property, PropertyInterface $orderProperty)
+    private function parseOrderProperty(PropertyInterface $property, PropertyInterface $orderProperty)
     {
-        if ('pageTree' !== $property->getWidgetType()) {
+        $orderWidgets = array(
+            'pageTree'            => 'pageTreeOrder',
+            'fileTree'            => 'fileTreeOrder',
+            'DcGeneralTreePicker' => 'treePickerOrder'
+        );
+        if (false === array_key_exists($property->getWidgetType(), $orderWidgets)) {
             return;
         }
 
-        $orderProperty->setWidgetType('pageTreeOrder');
+        $orderProperty->setWidgetType($orderWidgets[$property->getWidgetType()]);
     }
 
     /**
@@ -1350,7 +1404,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 }
 
                 $orderProperty = $definition->getProperty($extra['orderField']);
-                $this->parsePropertyForPageTreeOrder($property, $orderProperty);
+                $this->parseOrderProperty($property, $orderProperty);
             }
         }
     }
