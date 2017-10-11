@@ -112,6 +112,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $this->parseBackendView($container);
         $this->parsePalettes($container);
         $this->parseProperties($container);
+        $this->parseOderPropertyInPalette($container);
     }
 
     /**
@@ -1322,7 +1323,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      */
     private function parseWidgetPageTree(PropertyInterface $property, array $propInfo)
     {
-        if ('pageTree' !== $property->getWidgetType()) {
+        if (isset($propInfo['sourceName'])
+            || ('pageTree' !== $property->getWidgetType())
+        ) {
             return;
         }
 
@@ -1344,7 +1347,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     }
 
     /**
-     * Parse the property for page tree order.
+     * Parse the property for order and set the order widget.
      *
      * @param PropertyInterface $property      The base property.
      *
@@ -1352,13 +1355,18 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      *
      * @return void
      */
-    private function parsePropertyForPageTreeOrder(PropertyInterface $property, PropertyInterface $orderProperty)
+    private function parseOrderProperty(PropertyInterface $property, PropertyInterface $orderProperty)
     {
-        if ('pageTree' !== $property->getWidgetType()) {
+        $orderWidgets = array(
+            'pageTree'            => 'pageTreeOrder',
+            'fileTree'            => 'fileTreeOrder',
+            'DcGeneralTreePicker' => 'treePickerOrder'
+        );
+        if (false === array_key_exists($property->getWidgetType(), $orderWidgets)) {
             return;
         }
 
-        $orderProperty->setWidgetType('pageTreeOrder');
+        $orderProperty->setWidgetType($orderWidgets[$property->getWidgetType()]);
     }
 
     /**
@@ -1419,7 +1427,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 }
 
                 $orderProperty = $definition->getProperty($extra['orderField']);
-                $this->parsePropertyForPageTreeOrder($property, $orderProperty);
+                $this->parseOrderProperty($property, $orderProperty);
             }
         }
     }
