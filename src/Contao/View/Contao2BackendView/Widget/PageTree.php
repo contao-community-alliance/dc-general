@@ -63,11 +63,10 @@ class PageTree extends TreePicker
     /**
      * Generate the picker url.
      *
-     * @param array $values The select values.
-     *
      * @return string
+     * @internal param array $values The select values.
      */
-    protected function generatePickerUrl(array $values)
+    protected function generatePickerUrl()
     {
         $extra = [
             'fieldType' => $this->fieldType

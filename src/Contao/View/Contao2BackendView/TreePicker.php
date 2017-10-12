@@ -22,6 +22,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use Contao\CoreBundle\Picker\PickerConfig;
 use Contao\System;
 use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
@@ -33,6 +34,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Model
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeNodeStates;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\DefaultModelFormatterConfig;
@@ -43,6 +45,7 @@ use ContaoCommunityAlliance\DcGeneral\DC\General;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
+use Symfony\Component\Routing\Generator\UrlGenerator;
 
 /**
  * Provide methods to handle input field "tableTree".
@@ -242,6 +245,8 @@ class TreePicker extends Widget
      *
      * @return string
      *
+     * @deprecated This method is deprecated use the update route.
+     *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      * @SuppressWarnings(PHPMD.ExitExpression)
@@ -381,7 +386,7 @@ class TreePicker extends Widget
     private function convertValue($varValue)
     {
         if (empty($varValue) || is_array($varValue)) {
-            return $varValue;
+            return (array) $varValue;
         }
 
         switch ($this->fieldType) {
@@ -442,11 +447,7 @@ class TreePicker extends Widget
      */
     protected function validator($varInput)
     {
-        if (!($this->Input->post($this->strName . '_save') || $this->alwaysSave)) {
-            $this->blnSubmitInput = false;
-        }
-
-        return parent::validator($varInput);
+        return explode(',', $varInput);
     }
 
     /**
@@ -501,12 +502,13 @@ class TreePicker extends Widget
      */
     private function sortValues($values)
     {
-        if (!($this->orderField && is_array($this->{$this->orderField}))) {
+        $model = $this->dataContainer->getModel();
+        if (!($this->orderField && is_array($model->getProperty($this->orderField)))) {
             return $values;
         }
 
         /** @var array $orderValues */
-        $orderValues = $this->{$this->orderField};
+        $orderValues = $model->getProperty($this->orderField);
         $arrNew      = array();
 
         foreach ($orderValues as $i) {
@@ -558,7 +560,10 @@ class TreePicker extends Widget
             ->set('dragItemsHint', $translator->translate('MSC.dragItemsHint'))
             ->set('fieldType', $this->fieldType)
             ->set('values', $values)
-            ->set('popupUrl', $this->generatePickerUrl($values));
+            ->set('label', $this->label)
+            ->set('popupUrl', $this->generatePickerUrl())
+            ->set('updateUrl', $this->generateUpdateUrl())
+            ->set('providerName', $this->sourceName);
 
         $this->addOrderFieldToTemplate($template);
 
@@ -571,25 +576,111 @@ class TreePicker extends Widget
     /**
      * Generate the picker url.
      *
-     * @param array $values The select values.
+     * @return string
+     * @internal param array $values The select values.
+     */
+    protected function generatePickerUrl()
+    {
+        return System::getContainer()->get('contao.picker.builder')->getUrl(
+            'cca_tree',
+            [
+                'fieldType'    => $this->fieldType,
+                'sourceName'   => $this->sourceName,
+                'modelId'      => ModelId::fromModel($this->dataContainer->getModel())->getSerialized(),
+                'orderField'   => $this->orderField,
+                'propertyName' => $this->name
+            ]
+        );
+    }
+
+    /**
+     * Generate the update url.
      *
      * @return string
      */
-    protected function generatePickerUrl(array $values)
+    protected function generateUpdateUrl()
     {
-        return System::getContainer()->get('router')->generate(
-            'cca_dc_general_tree',
+        $request = System::getContainer()->get('request_stack')->getCurrentRequest();
+
+        $configPicker = new PickerConfig(
+            'cca_tree',
             [
-                'do'    => \Input::get('do'),
-                'table' => $this->strTable,
-                'field' => $this->strField,
-                'act'   => 'show',
-                'id'    => $this->getEnvironment()->getInputProvider()->getParameter('id'),
-                'value' => implode(',', array_keys($values)),
-                'rt'    => REQUEST_TOKEN,
-                'ref'   => TL_REFERER_ID,
-            ]
+                'fieldType'    => $this->fieldType,
+                'sourceName'   => $this->sourceName,
+                'modelId'      => ModelId::fromModel($this->dataContainer->getModel())->getSerialized(),
+                'orderField'   => $this->orderField,
+                'propertyName' => $this->name
+            ],
+            $this->value ? implode(',', $this->value) : ''
         );
+
+        return System::getContainer()->get('router')->generate(
+            'cca_dc_general_tree_update',
+            [
+                'picker' => $configPicker->cloneForCurrent($request->query->get('context'))->urlEncode()
+            ],
+            UrlGenerator::ABSOLUTE_URL
+        );
+    }
+
+    /**
+     * Generate the breadcrumb url.
+     *
+     * @param ModelInterface $model The model.
+     *
+     * @return string
+     */
+    private function generateBreadCrumbUrl(ModelInterface $model)
+    {
+        $toggleUrlEvent = new AddToUrlEvent(
+            'ptg=' . $model->getId() . '&amp;provider=' . $model->getProviderName()
+        );
+        $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
+
+        return System::getContainer()->get('router')->generate(
+            'cca_dc_general_tree_breadcrumb',
+            $this->getQueryParameterFromUrl($toggleUrlEvent->getUrl()),
+            UrlGenerator::ABSOLUTE_URL
+        );
+    }
+
+    /**
+     * Generate the toggle url.
+     *
+     * @param ModelInterface $model The model.
+     *
+     * @return string
+     */
+    private function generateToggleUrl(ModelInterface $model)
+    {
+        $toggleUrlEvent = new AddToUrlEvent(
+            'ptg=' . $model->getId() . '&amp;provider=' . $model->getProviderName()
+        );
+        $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
+
+        return System::getContainer()->get('router')->generate(
+            'cca_dc_general_tree_toggle',
+            $this->getQueryParameterFromUrl($toggleUrlEvent->getUrl()),
+            UrlGenerator::ABSOLUTE_URL
+        );
+    }
+
+    /**
+     * Get the query parameters from url.
+     *
+     * @param string $url The url.
+     *
+     * @return array
+     */
+    private function getQueryParameterFromUrl($url)
+    {
+        $parameters = array();
+        foreach (preg_split('/&(amp;)?/i', preg_split('/[?]/ui', $url)[1]) as $value) {
+            $chunks                 = explode('=', $value);
+            $parameters[$chunks[0]] = $chunks[1];
+        }
+
+        return $parameters;
     }
 
     /**
@@ -607,6 +698,7 @@ class TreePicker extends Widget
 
         $template->set('hasOrder', true);
         $template->set('orderId', $this->orderField);
+        $template->set('orderName', $this->orderField);
     }
 
     /**
@@ -672,9 +764,7 @@ class TreePicker extends Widget
     /**
      * Generate a particular sub part of the page tree and return it as HTML string.
      *
-     * @return void
-     *
-     * @SuppressWarnings(PHPMD.ExitExpression)
+     * @return string
      */
     public function generateAjax()
     {
@@ -691,8 +781,7 @@ class TreePicker extends Widget
                 $this->getTreeNodeStates()->toggleModel($provider, $rootId)->getStates()
             );
             $collection = $this->loadCollection($rootId, (intval($input->getValue('level')) + 1));
-            echo $this->generateTreeView($collection, 'tree');
-            exit;
+            return $this->generateTreeView($collection, 'tree');
         }
     }
 
@@ -999,6 +1088,7 @@ class TreePicker extends Widget
             ->setLabel($formatter->getFormat())
             ->setFormatter($formatter);
 
+        // Fixme: find a way to use the route of cca_dc_general_tree_breadcrumb.
         $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
 
         $arrLabel = array();
@@ -1065,17 +1155,13 @@ class TreePicker extends Widget
 
         $toggleScript = sprintf(
             'Backend.getScrollOffset(); return BackendGeneral.loadSubTree(this, ' .
-            '{\'toggler\':\'%s\', \'id\':\'%s\', \'providerName\':\'%s\', \'level\':\'%s\'});',
+            '{\'toggler\':\'%s\', \'id\':\'%s\', \'providerName\':\'%s\', \'level\':\'%s\', \'url\':\'%s\'});',
             $strToggleID,
             $objModel->getId(),
             $objModel->getProviderName(),
-            $objModel->getMeta('dc_gen_tv_level')
+            $objModel->getMeta('dc_gen_tv_level'),
+            $this->generateToggleUrl($objModel)
         );
-
-        $toggleUrlEvent = new AddToUrlEvent(
-            'ptg=' . $objModel->getId() . '&amp;provider=' . $objModel->getProviderName()
-        );
-        $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
 
         $template = new ContaoBackendViewTemplate('widget_treepicker_entry');
         $template
@@ -1086,7 +1172,7 @@ class TreePicker extends Widget
             ->set('environment', $this->getEnvironment())
             ->set('objModel', $objModel)
             ->set('strToggleID', $strToggleID)
-            ->set('toggleUrl', $toggleUrlEvent->getUrl())
+            ->set('toggleUrl', $this->generateToggleUrl($objModel))
             ->set('toggleTitle', $toggleTitle)
             ->set('toggleScript', $toggleScript)
             ->set('active', $this->optionChecked($objModel->getProperty($this->idProperty), $this->value))
@@ -1127,8 +1213,8 @@ class TreePicker extends Widget
                 $template = new ContaoBackendViewTemplate('widget_treepicker_child');
                 $subHtml  = '';
 
-                foreach ($objModel->getMeta($objModel::CHILD_COLLECTIONS) as $objCollection) {
-                    $subHtml .= $this->generateTreeView($objCollection, $treeClass);
+                foreach ($objModel->getMeta($objModel::CHILD_COLLECTIONS) as $objChildCollection) {
+                    $subHtml .= $this->generateTreeView($objChildCollection, $treeClass);
                 }
 
                 $template
