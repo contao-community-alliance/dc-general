@@ -235,3 +235,15 @@ services:
             - "@cca.dc-general.scope-matcher"
         tags:
             - { name: kernel.event_subscriber }
+
+    ## The picker provider block
+    cca.picker.tree_picker_provider:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\Picker\TreePickerProvider
+        public: false
+        arguments:
+            - "@knp_menu.factory"
+            - "@router"
+        calls:
+            - [setTokenStorage, ["@security.token_storage"]]
+        tags:
+            - { name: contao.picker_provider }
