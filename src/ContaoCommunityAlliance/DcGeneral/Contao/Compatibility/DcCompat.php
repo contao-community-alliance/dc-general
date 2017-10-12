@@ -143,6 +143,9 @@ class DcCompat extends DC_General
                 $inputProvider  = $environment->getInputProvider();
 
                 $idParameter = $inputProvider->hasParameter('id') ? 'id' : 'pid';
+                if (!$inputProvider->hasParameter($idParameter)) {
+                    return null;
+                }
 
                 $modelId = ModelId::fromSerialized($inputProvider->getParameter($idParameter));
                 if ($modelId->getDataProviderName() === $dataDefinition->getName()) {
