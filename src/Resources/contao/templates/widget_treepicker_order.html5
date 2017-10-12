@@ -1,0 +1,1 @@
+<?php $this->extend('widget_common_order'); ?>
