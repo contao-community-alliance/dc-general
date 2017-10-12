@@ -57,10 +57,11 @@ class WidgetBuilder implements EnvironmentAwareInterface
      * @var array
      */
     protected $widgetMapping = array(
-        'fileTree'      => 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\FileTree',
-        'fileTreeOrder' => 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\FileTreeOrder',
-        'pageTree'      => 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\PageTree',
-        'pageTreeOrder' => 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\PageTreeOrder'
+        'fileTree'        => 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\FileTree',
+        'fileTreeOrder'   => 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\FileTreeOrder',
+        'pageTree'        => 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\PageTree',
+        'pageTreeOrder'   => 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\PageTreeOrder',
+        'treePickerOrder' => 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\TreePickerOrder'
     );
 
     /**
