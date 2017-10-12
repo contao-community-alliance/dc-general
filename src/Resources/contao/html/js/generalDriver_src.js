@@ -31,17 +31,18 @@ var BackendGeneral =
 				item.setStyle('display', 'inline');
 				image.src = image.src.replace('folPlus.gif', 'folMinus.gif');
 				$(el).store('tip:title', Contao.lang.collapse);
-				new Request.Contao({field:el}).post(data);
+				new Request.Contao({url: data.url, field:el}).post(data);
 			} else {
 				item.setStyle('display', 'none');
 				image.src = image.src.replace('folMinus.gif', 'folPlus.gif');
 				$(el).store('tip:title', Contao.lang.expand);
-				new Request.Contao({field:el}).post(data);
+				new Request.Contao({url: data.url, field:el}).post(data);
 			}
 			return false;
 		}
 
 		new Request.Contao({
+			url: data.url,
 			field: el,
 			evalScripts: true,
 			onRequest: AjaxRequest.displayBox(Contao.lang.loading + ' …'),

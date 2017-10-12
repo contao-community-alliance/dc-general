@@ -19,6 +19,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget;
 
+use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker;
 
 /**
@@ -57,5 +58,20 @@ class PageTree extends TreePicker
         $inputValue = explode(',', $inputValue);
 
         return $this->multiple ? $inputValue : $inputValue[0];
+    }
+
+    /**
+     * Generate the picker url.
+     *
+     * @return string
+     * @internal param array $values The select values.
+     */
+    protected function generatePickerUrl()
+    {
+        $extra = [
+            'fieldType' => $this->fieldType
+        ];
+
+        return System::getContainer()->get('contao.picker.builder')->getUrl('page', $extra, implode(',', $this->value));
     }
 }
