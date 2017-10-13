@@ -15,6 +15,9 @@ services:
     cca.dc-general.data-definition-container:
         class: ContaoCommunityAlliance\DcGeneral\DataDefinitionContainer
 
+    cca.dc-general.environment:
+        class: ContaoCommunityAlliance\DcGeneral\DefaultEnvironment
+
 
     ## The general event listeners block
     cca.dc-general.general_listener.legacy_dca.data_defintion_builder:
@@ -94,6 +97,14 @@ services:
             - { name: kernel.event_listener, event: dc-general.view.contao2backend.get-group-header, method: handle }
 
     ## PLACEHOLDER for anonymous function from event_listeners.php 128
+
+    cca.dc-general.backend_listener.widget_builder:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\WidgetBuilder
+        arguments:
+            - "@cca.dc-general.environment"
+            - "@cca.dc-general.scope-matcher"
+        tags:
+            - { name: kernel.event_listener, event: dc-general.view.contao2backend.build-widget, method: handleEvent }
 
     cca.dc-general.backend_listener.color_picker_wizard_subscriber:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\ColorPickerWizardSubscriber

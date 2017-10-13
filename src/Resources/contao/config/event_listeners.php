@@ -125,11 +125,11 @@ $result = array(
         'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\GetGroupHeaderSubscriber::handle'
     );*/
 
-    $result[BuildWidgetEvent::NAME] = array(
-        'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\WidgetBuilder::handleEvent',
+    #$result[BuildWidgetEvent::NAME] = array(
+        #'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\WidgetBuilder::handleEvent',
         #'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\ColorPickerWizardSubscriber' .
         #'::handleEvent'
-    );
+    #);
 
     #$result[DcGeneralEvents::ACTION] = array(
         #array(new PasteHandler(), 'handleEvent'),
