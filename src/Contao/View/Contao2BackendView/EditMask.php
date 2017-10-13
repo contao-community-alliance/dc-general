@@ -25,6 +25,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\BackendUser;
+use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
@@ -753,8 +754,7 @@ class EditMask
             )
         )) {
             /** @var MultiLanguageDataProviderInterface $dataProvider */
-            $langsNative = array();
-            require TL_ROOT . '/system/config/languages.php';
+            $langsNative = System::getLanguages();
 
             $objTemplate->set(
                 'languages',
