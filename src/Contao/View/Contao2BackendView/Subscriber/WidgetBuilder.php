@@ -29,6 +29,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Widget\GetAttributesFromDcaEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
@@ -44,6 +45,13 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class WidgetBuilder implements EnvironmentAwareInterface
 {
+    /**
+     * The request mode determinator.
+     *
+     * @var RequestScopeDeterminator
+     */
+    private static $scopeDeterminator;
+
     /**
      * The environment.
      *
@@ -67,11 +75,17 @@ class WidgetBuilder implements EnvironmentAwareInterface
     /**
      * Construct.
      *
-     * @param EnvironmentInterface $environment The environment.
+     * @param EnvironmentInterface          $environment The environment.
+     *
+     * @param RequestScopeDeterminator|null $scopeDeterminator The request mode determinator.
      */
-    public function __construct(EnvironmentInterface $environment)
+    public function __construct(EnvironmentInterface $environment, RequestScopeDeterminator $scopeDeterminator = null)
     {
         $this->environment = $environment;
+
+        if (null !== $scopeDeterminator) {
+            static::$scopeDeterminator = $scopeDeterminator;
+        }
     }
 
     /**
@@ -83,7 +97,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
      */
     public static function handleEvent(BuildWidgetEvent $event)
     {
-        if ($event->getWidget() || TL_MODE !== 'BE') {
+        if ($event->getWidget() || !static::$scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 
