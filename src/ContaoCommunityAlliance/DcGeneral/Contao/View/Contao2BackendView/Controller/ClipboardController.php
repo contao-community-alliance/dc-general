@@ -23,7 +23,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller;
 
-use Contao\BackendTemplate;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
@@ -31,6 +30,7 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\UnsavedItem;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
@@ -346,16 +346,12 @@ class ClipboardController implements EventSubscriberInterface
         $eventDispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $addToUrlEvent);
         $clearItemUrl = $addToUrlEvent->getUrl();
 
-        $template = new BackendTemplate('dcbe_general_clipboard');
-
-        $template->setData(
-            array(
-                'environment'  => $environment,
-                'options'      => $options,
-                'clearUrl'     => $clearUrl,
-                'clearItemUrl' => $clearItemUrl
-            )
-        );
+        $template = new ContaoBackendViewTemplate('dcbe_general_clipboard');
+        $template
+            ->set('environment', $environment)
+            ->set('options', $options)
+            ->set('clearUrl', $clearUrl)
+            ->set('clearItemUrl', $clearItemUrl);
 
         $event->setResponse($template->parse());
     }
