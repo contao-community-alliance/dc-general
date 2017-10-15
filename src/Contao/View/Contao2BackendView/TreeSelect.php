@@ -161,7 +161,7 @@ class TreeSelect
             ->set('theme', Backend::getTheme())
             ->set('base', Environment::get('base'))
             ->set('language', $GLOBALS['TL_LANGUAGE'])
-            ->set('title', specialchars($GLOBALS['TL_LANG']['MSC']['treepicker']))
+            ->set('title', StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['treepicker']))
             ->set('charset', $GLOBALS['TL_CONFIG']['characterSet'])
             ->set('addSearch', $objTreeSelector->searchField)
             ->set('search', $GLOBALS['TL_LANG']['MSC']['search'])

@@ -196,13 +196,14 @@ class ContaoWidgetManager
             // This test if the ritch text editor template exist.
             $templateLoaderAdapter->getDefaultPath($templateName, 'html5');
 
-            $template           = new BackendTemplate($templateName);
-            $template->selector = 'ctrl_' . $property->getName();
-            $template->type     = $type;
+            $template           = new ContaoBackendViewTemplate($templateName);
+            $template
+                ->set('selector', 'ctrl_' . $property->getName())
+                ->set('type', $type);
 
             if (strncmp($extra['rte'], 'tiny', 4) !== 0) {
                 /** @deprecated Deprecated since Contao 4.0, to be removed in Contao 5.0 */
-                $template->language = $backendAdapter->getTinyMceLanguage();
+                $template->set('language', $backendAdapter->getTinyMceLanguage());
             }
 
             $buffer .= $template->parse();
