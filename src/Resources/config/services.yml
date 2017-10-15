@@ -30,7 +30,10 @@ services:
         tags:
             - { name: kernel.event_listener, event: dc-general.factory.build-data-definition, method: process, priority: 101 }
 
-    ## PLACEHOLDER for anonymous function from event_listeners.php 65-84
+    cca.dc-general.general_listener.parent_definiton_populator:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\ParentDefinitionPopulator
+        tags:
+            - { name: kernel.event_listener, event: dc-general.factory.populate-environment, method: process }
 
     cca.dc-general.general_listener.data_provider_populator:
         class: ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\DataProviderPopulator
@@ -95,8 +98,6 @@ services:
                   - "@cca.dc-general.scope-matcher"
         tags:
             - { name: kernel.event_listener, event: dc-general.view.contao2backend.get-group-header, method: handle }
-
-    ## PLACEHOLDER for anonymous function from event_listeners.php 128
 
     cca.dc-general.backend_listener.widget_builder:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\WidgetBuilder
