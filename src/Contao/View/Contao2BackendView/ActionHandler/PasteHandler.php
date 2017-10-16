@@ -22,6 +22,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Actio
 
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
@@ -33,6 +35,18 @@ use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractHandler;
  */
 class PasteHandler extends AbstractHandler
 {
+    use RequestScopeDeterminatorAwareTrait;
+
+    /**
+     * PasteHandler constructor.
+     *
+     * @param RequestScopeDeterminator $scopeDeterminator The request mode determinator.
+     */
+    public function __construct(RequestScopeDeterminator $scopeDeterminator)
+    {
+        $this->setScopeDeterminator($scopeDeterminator);
+    }
+
     /**
      * Handle the action.
      *
@@ -155,9 +169,9 @@ class PasteHandler extends AbstractHandler
         $filter = new Filter();
         $all    = $clipboard->fetch($filter);
         return (1 === count($all)
-            && $all[0]->isCreate()
-            && (null === $all[0]->getModelId())
-            && $all[0]->getDataProviderName() === $provider);
+                && $all[0]->isCreate()
+                && (null === $all[0]->getModelId())
+                && $all[0]->getDataProviderName() === $provider);
     }
 
     /**

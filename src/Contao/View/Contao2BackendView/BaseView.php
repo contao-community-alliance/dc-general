@@ -30,13 +30,14 @@ use Contao\Template;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ShowHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -52,6 +53,18 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class BaseView implements BackendViewInterface, EventSubscriberInterface
 {
+    use RequestScopeDeterminatorAwareTrait;
+
+    /**
+     * BaseView constructor.
+     *
+     * @param RequestScopeDeterminator $scopeDeterminator
+     */
+    public function __construct(RequestScopeDeterminator $scopeDeterminator)
+    {
+        $this->scopeDeterminator = $scopeDeterminator;
+    }
+
     /**
      * The error message format string to use when a method is not implemented.
      *
@@ -115,7 +128,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             case 'select':
                 // If no redirect happens, we want to display the showAll action.
                 $name = 'showAll';
-                // No break here.
+            // No break here.
             case 'create':
             case 'paste':
             case 'move':

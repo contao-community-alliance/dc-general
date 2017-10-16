@@ -20,6 +20,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator;
 
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 
 /**
@@ -28,6 +30,18 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  */
 class PickerCompatPopulator extends AbstractEventDrivenBackendEnvironmentPopulator
 {
+    use RequestScopeDeterminatorAwareTrait;
+
+    /**
+     * PickerCompatPopulator constructor.
+     *
+     * @param RequestScopeDeterminator $scopeDeterminator The request mode determinator.
+     */
+    public function __construct(RequestScopeDeterminator $scopeDeterminator)
+    {
+        $this->setScopeDeterminator($scopeDeterminator);
+    }
+
     /**
      * Create a controller instance in the environment if none has been defined yet.
      *
@@ -39,6 +53,10 @@ class PickerCompatPopulator extends AbstractEventDrivenBackendEnvironmentPopulat
      */
     public function populate(EnvironmentInterface $environment)
     {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
+            return;
+        }
+
         $this->populateFilePickers($environment);
     }
 

@@ -23,6 +23,8 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BackendViewInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ListView;
@@ -38,6 +40,18 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulator
 {
+    use RequestScopeDeterminatorAwareTrait;
+
+    /**
+     * BackendViewPopulator constructor.
+     *
+     * @param RequestScopeDeterminator $scopeDeterminator The request mode determinator.
+     */
+    public function __construct(RequestScopeDeterminator $scopeDeterminator)
+    {
+        $this->setScopeDeterminator($scopeDeterminator);
+    }
+
     /**
      * Create a view instance in the environment if none has been defined yet.
      *
@@ -66,13 +80,13 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
 
         switch ($definition->getMode()) {
             case BasicDefinitionInterface::MODE_FLAT:
-                $view = new ListView();
+                $view = new ListView($this->scopeDeterminator);
                 break;
             case BasicDefinitionInterface::MODE_PARENTEDLIST:
-                $view = new ParentView();
+                $view = new ParentView($this->scopeDeterminator);
                 break;
             case BasicDefinitionInterface::MODE_HIERARCHICAL:
-                $view = new TreeView();
+                $view = new TreeView($this->scopeDeterminator);
                 break;
             default:
                 throw new DcGeneralInvalidArgumentException('Unknown view mode encountered: ' . $definition->getMode());
@@ -125,6 +139,10 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
      */
     public function populate(EnvironmentInterface $environment)
     {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
+            return;
+        }
+
         $this->populateView($environment);
 
         $this->populatePanel($environment);
