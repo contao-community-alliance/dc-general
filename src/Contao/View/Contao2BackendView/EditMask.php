@@ -592,7 +592,7 @@ class EditMask
             $controller = $environment->getController();
 
             if ($inputProvider->hasParameter('after')) {
-                $after = IdSerializer::fromSerialized($inputProvider->getParameter('after'));
+                $after = ModelId::fromSerialized($inputProvider->getParameter('after'));
 
                 $previousDataProvider = $environment->getDataProvider($after->getDataProviderName());
                 $previousFetchConfig  = $previousDataProvider->getEmptyConfig();
@@ -605,7 +605,7 @@ class EditMask
                     $controller->pasteTop($models, $this->getManualSortingProperty());
                 }
             } elseif ($inputProvider->hasParameter('into')) {
-                $into = IdSerializer::fromSerialized($inputProvider->getParameter('into'));
+                $into = ModelId::fromSerialized($inputProvider->getParameter('into'));
 
                 $parentDataProvider = $environment->getDataProvider($into->getDataProviderName());
                 $parentFetchConfig  = $parentDataProvider->getEmptyConfig();
