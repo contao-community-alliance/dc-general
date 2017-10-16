@@ -12,6 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Ingolf Steinhardt <info@e-spin.de>
  * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -98,7 +99,7 @@ class GlobalButtonRenderer
         $buttonsEvent->setButtons($buttons);
         $this->dispatcher->dispatch(GetGlobalButtonsEvent::NAME, $buttonsEvent);
 
-        return '<div id="tl_buttons_a">' . implode('', $buttonsEvent->getButtons()) . '</div>';
+        return '<div id="tl_buttons">' . implode('', $buttonsEvent->getButtons()) . '</div>';
     }
 
     /**
