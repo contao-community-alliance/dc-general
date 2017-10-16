@@ -22,6 +22,8 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\Dca\Definition\ExtendedDca;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
@@ -34,6 +36,18 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
  */
 class ExtendedLegacyDcaPopulator extends AbstractEventDrivenBackendEnvironmentPopulator
 {
+    use RequestScopeDeterminatorAwareTrait;
+
+    /**
+     * PickerCompatPopulator constructor.
+     *
+     * @param RequestScopeDeterminator $scopeDeterminator The request mode determinator.
+     */
+    public function __construct(RequestScopeDeterminator $scopeDeterminator)
+    {
+        $this->setScopeDeterminator($scopeDeterminator);
+    }
+
     /**
      * Create a view instance in the environment if none has been defined yet.
      *
@@ -119,6 +133,10 @@ class ExtendedLegacyDcaPopulator extends AbstractEventDrivenBackendEnvironmentPo
      */
     public function populate(EnvironmentInterface $environment)
     {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
+            return;
+        }
+
         $this->populateView($environment);
         $this->populateController($environment);
     }

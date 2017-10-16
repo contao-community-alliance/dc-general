@@ -57,10 +57,6 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
      */
     public function process()
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
-            return;
-        }
-
         $event  = $this->getEvent();
         $action = $event->getAction();
         $basic  = $this->environment->getDataDefinition()->getBasicDefinition();
