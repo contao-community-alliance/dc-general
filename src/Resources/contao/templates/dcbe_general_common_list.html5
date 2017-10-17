@@ -24,7 +24,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSor
     <?php endif; ?>
 <?php $this->block('parent-header'); ?>
 <?php if (!empty($this->header)) : ?>
-<div class="tl_header" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
+<div class="tl_header hover-div">
   <div class="tl_content_right">
     <?= $this->headerButtons; ?>
   </div>
@@ -81,8 +81,7 @@ if ($this->mode !== GroupAndSortingInformationInterface::GROUP_NONE) {
       <tbody>
         <?php foreach ($collection as $model) : /** @var ModelInterface $model */ ?>
         <tr id="table_row_<?= $model->getId() ?>"
-          class="<?= $model->getMeta($model::CSS_ROW_CLASS) ?>"
-          onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);"
+          class="<?= $model->getMeta($model::CSS_ROW_CLASS) ?> hover-row"
           data-model-id="<?= ModelId::fromModel($model)->getSerialized() ?>">
         <?php foreach ($model->getMeta($model::LABEL_VALUE) as $label) : ?>
             <td class="<?= $label['class'] ?>"<?php if (!empty($label['colspan'])): ?> colspan="<?= $label['colspan'] ?>"<?php endif; ?>>
