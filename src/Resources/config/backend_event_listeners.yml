@@ -1,6 +1,7 @@
 services:
     cca.dc-general.backend_listener.extended_legacy_dca_populator:
         class: ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\ExtendedLegacyDcaPopulator
+        public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
         tags:
@@ -8,6 +9,7 @@ services:
 
     cca.dc-general.backend_listener.backend_view_populator:
         class: ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\BackendViewPopulator
+        public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
         tags:
@@ -15,6 +17,7 @@ services:
 
     cca.dc-general.backend_listener.picker_compat_populator:
         class: ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\PickerCompatPopulator
+        public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
         tags:
@@ -22,6 +25,7 @@ services:
 
     cca.dc-general.backend_listener.format_model_label_subscriber:
         class: ContaoCommunityAlliance\DcGeneral\Contao\Subscriber\FormatModelLabelSubscriber
+        public: true
         calls:
             - method: setScopeDeterminator
               arguments:
@@ -31,6 +35,7 @@ services:
 
     cca.dc-general.backend_listener.get_group_header_subscriber:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\GetGroupHeaderSubscriber
+        public: true
         arguments:
             - "@event_dispatcher"
             - "@cca.translator.contao_translator"
@@ -43,6 +48,7 @@ services:
 
     cca.dc-general.backend_listener.widget_builder:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\WidgetBuilder
+        public: true
         arguments:
             - "@cca.dc-general.environment"
             - "@cca.dc-general.scope-matcher"
@@ -51,6 +57,7 @@ services:
 
     cca.dc-general.backend_listener.color_picker_wizard_subscriber:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\ColorPickerWizardSubscriber
+        public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
         tags:
@@ -58,6 +65,7 @@ services:
 
     cca.dc-general.backend_listener.paste_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\PasteHandler
+        public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
         tags:
@@ -65,6 +73,7 @@ services:
 
     cca.dc-general.backend_listener.create_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\CreateHandler
+        public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
         tags:
@@ -72,6 +81,7 @@ services:
 
     cca.dc-general.backend_listener.edit_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\EditHandler
+        public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
         tags:
@@ -79,6 +89,7 @@ services:
 
     cca.dc-general.backend_listener.select_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\SelectHandler
+        public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
         tags:
@@ -86,6 +97,7 @@ services:
 
     cca.dc-general.backend_listener.copy_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\CopyHandler
+        public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
         tags:
@@ -93,6 +105,7 @@ services:
 
     cca.dc-general.backend_listener.delete_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\DeleteHandler
+        public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
         tags:
@@ -100,6 +113,7 @@ services:
 
     cca.dc-general.backend_listener.toggle_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ToggleHandler
+        public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
         tags:
@@ -107,6 +121,7 @@ services:
 
     cca.dc-general.backend_listener.list_view_show_all_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ListViewShowAllHandler
+        public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
         tags:
@@ -114,6 +129,7 @@ services:
 
     cca.dc-general.backend_listener.parent_list_view_show_all_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ParentedListViewShowAllHandler
+        public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
         tags:
@@ -121,6 +137,7 @@ services:
 
     cca.dc-general.backend_listener.backend_button_listener:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\BackButtonListener
+        public: true
         calls:
             - method: setScopeDeterminator
               arguments:
@@ -130,6 +147,7 @@ services:
 
     cca.dc-general.backend_listener.create_model_button_listener:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\CreateModelButtonListener
+        public: true
         calls:
             - method: setScopeDeterminator
               arguments:
