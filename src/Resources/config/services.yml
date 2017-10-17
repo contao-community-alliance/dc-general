@@ -1,24 +1,30 @@
 services:
     cca.dc-general.scope-matcher:
         class: ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator
+        public: true
         arguments:
           - "@contao.routing.scope_matcher"
           - "@request_stack"
 
     cca.dc-general.data-definition-container.factory.default:
         class: ContaoCommunityAlliance\DcGeneral\DataDefinitionContainer
+        public: true
 
     cca.dc-general.data-definition-container.factory:
         class: ContaoCommunityAlliance\DcGeneral\DataDefinitionContainer
+        public: true
 
     cca.dc-general.data-definition-container:
         class: ContaoCommunityAlliance\DcGeneral\DataDefinitionContainer
+        public: false
 
     cca.dc-general.environment:
         class: ContaoCommunityAlliance\DcGeneral\DefaultEnvironment
+        public: false
 
     cca.dc-general.session:
         class: ContaoCommunityAlliance\DcGeneral\Contao\SessionStorage
+        public: true
         arguments:
             - ""
             - "@session"
