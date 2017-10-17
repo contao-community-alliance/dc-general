@@ -12,31 +12,32 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @author     Tristan Lins <tristan.lins@bit3.de>
  * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
 
-namespace ContaoCommunityAlliance\DcGeneral;
+namespace ContaoCommunityAlliance\DcGeneral\DependencyInjection\Compiler;
 
-use ContaoCommunityAlliance\DcGeneral\DependencyInjection\Compiler\AddSessionBagsPass;
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\HttpKernel\Bundle\Bundle;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * This class holds everything together.
+ * Registers the Contao session bags.
  */
-class CcaDcGeneralBundle extends Bundle
+class AddSessionBagsPass implements CompilerPassInterface
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
-    public function build(ContainerBuilder $container)
+    public function process(ContainerBuilder $container)
     {
-        parent::build($container);
+        if (!$container->hasDefinition('session')) {
+            return;
+        }
 
-        $container->addCompilerPass(new AddSessionBagsPass());
+        $session = $container->findDefinition('session');
+        $session->addMethodCall('registerBag', [new Reference('cca.dc-general.session_attribute')]);
     }
 }
