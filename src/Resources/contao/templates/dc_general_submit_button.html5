@@ -1,0 +1,21 @@
+<?php if(isset($this->save)): ?>
+    <?= $this->save ?>
+<?php endif; ?>
+<?php if(isset($this->buttonGroup) && 1 === count($this->buttonGroup)): ?>
+    <?= implode('', $this->buttonGroup)?>
+<?php endif; ?>
+<?php if(isset($this->buttonGroup) && 1 < count($this->buttonGroup)): ?>
+    <div class="split-button">
+        <?= implode('', array_slice($this->buttonGroup, 0, 1)) ?>
+        <button type="button" id="sbtog" tabindex="-1">
+            <?= $this->toggleIcon ?>
+        </button>
+        <ul class="invisible">
+            <?php foreach (array_slice($this->buttonGroup, 1) as $button): ?>
+                <li>
+                    <?= $button ?>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+<?php endif; ?>
