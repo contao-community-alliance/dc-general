@@ -17,7 +17,16 @@ services:
     cca.dc-general.environment:
         class: ContaoCommunityAlliance\DcGeneral\DefaultEnvironment
 
+    cca.dc-general.session:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\SessionStorage
+        arguments:
+            - ""
+            - "@session"
 
-
-
-
+    cca.dc-general.session_attribute:
+        class: Contao\CoreBundle\Session\Attribute\ArrayAttributeBag
+        public: false
+        arguments:
+            - "cca_dc_general_attributes"
+        calls:
+            - ["setName", ["cca_dc_general"]]
