@@ -6,7 +6,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 /** @var ModelInterface $model */
 $model = $this->objModel;
 ?>
-<li class="<?php echo ($model->getMeta(DCGE::TREE_VIEW_LEVEL) == 0) ? 'tl_folder' : 'tl_file'; ?>" onmouseover="Theme.hoverDiv(this,1)" onmouseout="Theme.hoverDiv(this,0)">
+<li class="<?php echo ($model->getMeta(DCGE::TREE_VIEW_LEVEL) == 0) ? 'tl_folder' : 'tl_file'; ?> hover-div">
     <div class="tl_left" style="padding-left:<?php echo $model->getMeta(DCGE::TREE_VIEW_LEVEL) * 20 ?>px;">
         <?php if ($model->getMeta($model::HAS_CHILDREN) == true): ?>
             <a class="folding" href="<?php echo $this->toggleUrl; ?>" title="<?php echo $this->toggleTitle; ?>" onclick="<?php echo $this->toggleScript; ?>">
