@@ -6,18 +6,12 @@ services:
           - "@contao.routing.scope_matcher"
           - "@request_stack"
 
-    cca.dc-general.data-definition-container.factory.default:
-        class: ContaoCommunityAlliance\DcGeneral\DataDefinitionContainer
-        public: true
-
-    cca.dc-general.data-definition-container.factory:
-        class: ContaoCommunityAlliance\DcGeneral\DataDefinitionContainer
-        public: true
-
     cca.dc-general.data-definition-container:
         class: ContaoCommunityAlliance\DcGeneral\DataDefinitionContainer
-        public: false
+        public: true
 
+    # FIXME: this is so horribly wrong! - We must get rid of this again.
+    # This is only used in event listeners, we must refactor them to proper services.
     cca.dc-general.environment:
         class: ContaoCommunityAlliance\DcGeneral\DefaultEnvironment
         public: false
