@@ -13,6 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -23,51 +24,76 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Actio
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
+use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\TranslatedToggleCommandInterface;
-use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractHandler;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 
 /**
  * This class handles toggle commands.
  */
-class ToggleHandler extends AbstractHandler
+class ToggleHandler extends AbstractRequestScopeDeterminatorHandler
 {
     /**
-     * {@inheritDoc}
+     * Handle the event to process the action.
      *
-     * @SuppressWarnings(PHPMD.ExitExpression)
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     * @param ActionEvent $event The action event.
+     *
+     * @return void
      */
-    public function process()
+    public function handleEvent(ActionEvent $event)
     {
         if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 
-        $environment  = $this->getEnvironment();
-        $serializedId = $this->getModelId();
+        $environment  = $event->getEnvironment();
+        $serializedId = $this->getModelId($environment);
 
         if (empty($serializedId)) {
             return;
         }
 
-        $operation = $this->getOperation();
+        $operation = $this->getOperation($event->getAction(), $environment);
         if (!($operation instanceof ToggleCommandInterface)) {
             return;
         }
 
-        if (false === $this->checkPermission()) {
-            $this->getEvent()->stopPropagation();
+        if (false === $this->checkPermission($event)) {
+            $event->stopPropagation();
 
             return;
         }
 
+        $this->process($environment, $operation, $serializedId);
+    }
+
+    /**
+     * Process the action.
+     *
+     * @param EnvironmentInterface   $environment  The environment.
+     * @param ToggleCommandInterface $operation    The operation.
+     * @param ModelIdInterface|null  $serializedId The model id.
+     *
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.ExitExpression)
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     */
+    protected function process(
+        EnvironmentInterface $environment,
+        ToggleCommandInterface $operation,
+        ModelIdInterface $serializedId = null
+    ) {
         $dataProvider = $environment->getDataProvider();
-        $newState     = $this->determineNewState($operation->isInverse());
+        $newState     = $this->determineNewState($environment->getInputProvider(), $operation->isInverse());
 
         // Override the language for language aware toggling.
         if ($operation instanceof TranslatedToggleCommandInterface
@@ -101,11 +127,13 @@ class ToggleHandler extends AbstractHandler
     /**
      * Check permission for toggle property.
      *
+     * @param ActionEvent $event The action event.
+     *
      * @return bool
      */
-    private function checkPermission()
+    private function checkPermission(ActionEvent $event)
     {
-        $environment     = $this->getEnvironment();
+        $environment     = $event->getEnvironment();
         $dataDefinition  = $environment->getDataDefinition();
         $basicDefinition = $dataDefinition->getBasicDefinition();
 
@@ -114,7 +142,7 @@ class ToggleHandler extends AbstractHandler
         }
 
         // TODO find a way for output the permission message.
-        $this->getEvent()->setResponse(
+        $event->setResponse(
             sprintf(
                 '<div style="text-align:center; font-weight:bold; padding:40px;">
                     You have no permission for toggle %s.
@@ -129,11 +157,12 @@ class ToggleHandler extends AbstractHandler
     /**
      * Retrieve the model id from the input provider and validate it.
      *
-     * @return ModelId|null
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return ModelIdInterface|null
      */
-    private function getModelId()
+    private function getModelId(EnvironmentInterface $environment)
     {
-        $environment   = $this->getEnvironment();
         $inputProvider = $environment->getInputProvider();
 
         if ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id')) {
@@ -152,16 +181,18 @@ class ToggleHandler extends AbstractHandler
     /**
      * Retrieve the toggle operation being executed.
      *
+     * @param Action               $action      The action.
+     * @param EnvironmentInterface $environment The environment.
+     *
      * @return ToggleCommandInterface
      */
-    private function getOperation()
+    private function getOperation(Action $action, EnvironmentInterface $environment)
     {
         /** @var Contao2BackendViewDefinitionInterface $definition */
-        $definition = $this
-            ->getEnvironment()
+        $definition = $environment
             ->getDataDefinition()
             ->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-        $name       = $this->getEvent()->getAction()->getName();
+        $name       = $action->getName();
         $commands   = $definition->getModelCommands();
 
         if (!$commands->hasCommandNamed($name)) {
@@ -174,13 +205,14 @@ class ToggleHandler extends AbstractHandler
     /**
      * Determine the new state from the input data.
      *
-     * @param bool $isInverse Flag if the state shall be evaluated as inverse toggler.
+     * @param InputProviderInterface $inputProvider The input provider.
+     * @param bool                   $isInverse     Flag if the state shall be evaluated as inverse toggler.
      *
      * @return string
      */
-    private function determineNewState($isInverse)
+    private function determineNewState(InputProviderInterface $inputProvider, $isInverse)
     {
-        $state = $this->getEnvironment()->getInputProvider()->getParameter('state') == 1;
+        $state = $inputProvider->getParameter('state') == 1;
 
         if ($isInverse) {
             return $state ? '' : '1';
