@@ -24,6 +24,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2Ba
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 
 /**
  * This class handles the rendering of list view "showAll" actions.
@@ -57,23 +58,19 @@ class ListViewShowAllHandler extends AbstractListShowAllHandler
     }
 
     /**
-     * Prepare the template.
-     *
-     * @param ContaoBackendViewTemplate $template The template to populate.
-     *
-     * @return void
+     * {@inheritdoc}
      */
-    protected function renderTemplate(ContaoBackendViewTemplate $template)
+    protected function renderTemplate(ContaoBackendViewTemplate $template, EnvironmentInterface $environment)
     {
-        $dataDefinition            = $this->getEnvironment()->getDataDefinition();
+        $dataDefinition            = $environment->getDataDefinition();
         $viewDefinition            = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
         $groupAndSortingDefinition = $viewDefinition->getListingConfig()->getGroupAndSortingDefinition();
 
-        $pasteButton = $this->renderPasteTopButton($groupAndSortingDefinition);
+        $pasteButton = $this->renderPasteTopButton($environment, $groupAndSortingDefinition);
 
-        parent::renderTemplate($template);
+        parent::renderTemplate($template, $environment);
         $template->set('header', $pasteButton ? $this->getEmptyHeader() : null);
-        $template->set('headerButtons', $this->renderPasteTopButton($groupAndSortingDefinition));
+        $template->set('headerButtons', $this->renderPasteTopButton($environment, $groupAndSortingDefinition));
     }
 
     /**
