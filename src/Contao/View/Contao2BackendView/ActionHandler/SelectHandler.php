@@ -25,6 +25,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Actio
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\PrepareMultipleModelsActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
@@ -41,6 +42,38 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  */
 class SelectHandler extends AbstractRequestScopeDeterminatorHandler
 {
+    /**
+     * Delete action handler.
+     *
+     * @var DeleteHandler
+     */
+    private $deleteHandler;
+
+    /**
+     * Copy action handler.
+     *
+     * @var CopyHandler
+     */
+    private $copyHandler;
+
+    /**
+     * SelectHandler constructor.
+     *
+     * @param RequestScopeDeterminator $scopeDeterminator The request scope determinator.
+     * @param DeleteHandler            $deleteHandler     The delete action handler.
+     * @param CopyHandler              $copyHandler       The copy action handler.
+     */
+    public function __construct(
+        RequestScopeDeterminator $scopeDeterminator,
+        DeleteHandler $deleteHandler,
+        CopyHandler $copyHandler
+    ) {
+        parent::__construct($scopeDeterminator);
+
+        $this->deleteHandler = $deleteHandler;
+        $this->copyHandler = $copyHandler;
+    }
+
     /**
      * Handle the event to process the action.
      *
@@ -171,10 +204,8 @@ class SelectHandler extends AbstractRequestScopeDeterminatorHandler
      */
     protected function handleDeleteAllAction(EnvironmentInterface $environment, $modelIds)
     {
-        $handler = new DeleteHandler($this->scopeDeterminator);
-
         foreach ($modelIds as $modelId) {
-            $handler->delete($environment, $modelId);
+            $this->deleteHandler->delete($environment, $modelId);
         }
 
         ViewHelpers::redirectHome($environment);
@@ -224,10 +255,8 @@ class SelectHandler extends AbstractRequestScopeDeterminatorHandler
 
             $clipboard->saveTo($environment);
         } else {
-            $handler = new CopyHandler($this->scopeDeterminator);
-
             foreach ($modelIds as $modelId) {
-                $handler->copy($environment, $modelId);
+                $this->copyHandler->copy($environment, $modelId);
             }
         }
 

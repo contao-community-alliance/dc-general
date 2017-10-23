@@ -138,6 +138,8 @@ services:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\SelectHandler
         arguments:
             - "@cca.dc-general.scope-matcher"
+            - "@cca.dc-general.backend_listener.delete_handler"
+            - "@cca.dc-general.backend_listener.copy_handler"
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
