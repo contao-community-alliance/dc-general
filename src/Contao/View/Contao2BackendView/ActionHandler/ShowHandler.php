@@ -14,6 +14,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -25,6 +26,7 @@ use Contao\StringUtil;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
+use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
@@ -32,22 +34,39 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\Prope
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
-use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractHandler;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
 
 /**
  * Handler class for handling the "show" action.
  */
-class ShowHandler extends AbstractHandler
+class ShowHandler
 {
+    /**
+     * Handle the event to process the action.
+     *
+     * @param ActionEvent $event The action event.
+     *
+     * @return void
+     */
+    public function handleEvent(ActionEvent $event)
+    {
+        $environment = $event->getEnvironment();
+
+        $response = $this->process($event->getAction(), $environment);
+        $event->setResponse($response);
+    }
+
     /**
      * Retrieve the model from the database or redirect to error page if model could not be found.
      *
+     * @param EnvironmentInterface $environment The environment.
+     *
      * @return ModelInterface|null
      */
-    protected function getModel()
+    protected function getModel(EnvironmentInterface $environment)
     {
-        $environment  = $this->getEnvironment();
         $definition   = $environment->getDataDefinition();
         $modelId      = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
@@ -82,14 +101,14 @@ class ShowHandler extends AbstractHandler
     /**
      * Calculate the label of a property to se in "show" view.
      *
-     * @param PropertyInterface $property The property for which the label shall be calculated.
+     * @param EnvironmentInterface $environment The environment.
+     * @param PropertyInterface    $property    The property for which the label shall be calculated.
      *
      * @return string
      */
-    protected function getPropertyLabel(PropertyInterface $property)
+    protected function getPropertyLabel(EnvironmentInterface $environment, PropertyInterface $property)
     {
-        $environment = $this->getEnvironment();
-        $definition  = $environment->getDataDefinition();
+        $definition = $environment->getDataDefinition();
 
         $label = $environment->getTranslator()->translate($property->getLabel(), $definition->getName());
 
@@ -136,12 +155,12 @@ class ShowHandler extends AbstractHandler
 
             // Make it human readable.
             $values[$paletteProperty->getName()] = ViewHelpers::getReadableFieldValue(
-                $this->getEnvironment(),
+                $environment,
                 $property,
                 $model
             );
 
-            $labels[$paletteProperty->getName()] = $this->getPropertyLabel($property);
+            $labels[$paletteProperty->getName()] = $this->getPropertyLabel($environment, $property);
         }
 
         return array(
@@ -153,14 +172,14 @@ class ShowHandler extends AbstractHandler
     /**
      * Get the headline for the template.
      *
-     * @param ModelInterface $model The model.
+     * @param TranslatorInterface $translator The translator.
+     * @param ModelInterface      $model      The model.
      *
      * @return string
      */
-    protected function getHeadline($model)
+    protected function getHeadline(TranslatorInterface $translator, $model)
     {
-        $translator = $this->getEnvironment()->getTranslator();
-        $headline   = $translator->translate(
+        $headline = $translator->translate(
             'MSC.showRecord',
             $model->getProviderName(),
             array('ID ' . $model->getId())
@@ -180,25 +199,23 @@ class ShowHandler extends AbstractHandler
     /**
      * Handle the show event.
      *
-     * @return void
+     * @param Action               $action      The action which is handled.
+     * @param EnvironmentInterface $environment The environment.
      *
-     * @throws DcGeneralRuntimeException  The error.
+     * @return string
      */
-    public function process()
+    protected function process(Action $action, EnvironmentInterface $environment)
     {
-        $environment = $this->getEnvironment();
         if ($environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            $this->getEvent()->setResponse($environment->getView()->edit($this->getEvent()->getAction()));
-
-            return;
+            return $environment->getView()->edit($action);
         }
 
-        $translator   = $environment->getTranslator();
         $modelId      = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
-        $model        = $this->getModel();
+        $translator   = $environment->getTranslator();
+        $model        = $this->getModel($environment);
         $data         = $this->convertModel($model, $environment);
-        $headline     = $this->getHeadline($model);
+        $headline     = $this->getHeadline($translator, $model);
         $template     = new ContaoBackendViewTemplate('dcbe_general_show');
 
         $template->set('headline', $headline)
@@ -215,6 +232,6 @@ class ShowHandler extends AbstractHandler
             $template->set('languages', null);
         }
 
-        $this->getEvent()->setResponse($template->parse());
+        return $template->parse();
     }
 }
