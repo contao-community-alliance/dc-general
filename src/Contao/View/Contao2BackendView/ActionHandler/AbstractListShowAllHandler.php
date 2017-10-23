@@ -57,16 +57,9 @@ use ContaoCommunityAlliance\Translator\TranslatorInterface as CcaTranslator;
 /**
  * This class is the abstract base for parent list and plain list "showAll" commands.
  */
-abstract class AbstractListShowAllHandler
+abstract class AbstractListShowAllHandler extends AbstractRequestScopeDeterminatorHandler
 {
     use CallActionTrait;
-
-    /**
-     * The request mode determinator.
-     *
-     * @var RequestScopeDeterminator
-     */
-    protected $scopeDeterminator;
 
     /**
      * The translator.
@@ -94,7 +87,8 @@ abstract class AbstractListShowAllHandler
         TranslatorInterface $translator,
         CcaTranslator $ccaTranslator
     ) {
-        $this->scopeDeterminator = $scopeDeterminator;
+        parent::__construct($scopeDeterminator);
+
         $this->translator = $translator;
         $this->ccaTranslator = $ccaTranslator;
     }

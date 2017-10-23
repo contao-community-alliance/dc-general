@@ -25,7 +25,6 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Actio
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\NotCreatableException;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
@@ -42,27 +41,10 @@ use ContaoCommunityAlliance\UrlBuilder\Contao\BackendUrlBuilder;
 /**
  * Class CopyModelController handles copy action on a model.
  */
-class CopyHandler
+class CopyHandler extends AbstractRequestScopeDeterminatorHandler
 {
     use ActionGuardTrait;
     use CallActionTrait;
-
-    /**
-     * The request mode determinator.
-     *
-     * @var RequestScopeDeterminator
-     */
-    protected $scopeDeterminator;
-
-    /**
-     * CopyHandler constructor.
-     *
-     * @param RequestScopeDeterminator $scopeDeterminator The request mode determinator.
-     */
-    public function __construct(RequestScopeDeterminator $scopeDeterminator)
-    {
-        $this->scopeDeterminator = $scopeDeterminator;
-    }
 
     /**
      * Handle the event to process the action.
