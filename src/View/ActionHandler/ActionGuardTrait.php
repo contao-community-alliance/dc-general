@@ -24,14 +24,13 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
-/***
+/**
  * This traits provides some guards to protect your action handler.
  *
  * @package ContaoCommunityAlliance\DcGeneral\View\ActionHandler
  */
 trait ActionGuardTrait
 {
-
     /**
      * Guard that the environment is prepared for models data definition.
      *
@@ -39,6 +38,8 @@ trait ActionGuardTrait
      * @param ModelIdInterface   $modelId    The model id.
      *
      * @return void
+     *
+     * @throws DcGeneralRuntimeException If definition name does not match the model id data provider name.
      */
     protected function guardValidEnvironment(ContainerInterface $definition, ModelIdInterface $modelId)
     {

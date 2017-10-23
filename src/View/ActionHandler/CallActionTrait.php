@@ -42,7 +42,7 @@ trait CallActionTrait
      */
     protected function callAction(EnvironmentInterface $environment, $actionName, $arguments = array())
     {
-        $event     = new ActionEvent($environment, new Action($actionName, $arguments));
+        $event = new ActionEvent($environment, new Action($actionName, $arguments));
         $environment->getEventDispatcher()->dispatch(DcGeneralEvents::ACTION, $event);
 
         return $event->getResponse();
