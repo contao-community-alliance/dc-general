@@ -175,6 +175,8 @@ services:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ParentedListViewShowAllHandler
         arguments:
             - "@cca.dc-general.scope-matcher"
+            - "@translator"
+            - "@cca.translator.contao_translator"
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
