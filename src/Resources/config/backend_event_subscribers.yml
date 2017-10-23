@@ -1,0 +1,48 @@
+services:
+    cca.dc-general.backend_subsriber.subsriber:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\Event\Subscriber
+        public: true
+        arguments:
+            - "@cca.dc-general.scope-matcher"
+        tags:
+            - { name: kernel.event_subscriber }
+
+    cca.dc-general.backend_subsriber.clipboard_controller:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\ClipboardController
+        public: true
+        arguments:
+            - "@cca.dc-general.scope-matcher"
+        tags:
+            - { name: kernel.event_subscriber }
+
+    cca.dc-general.backend_subsriber.language_filter:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Filter\LanguageFilter
+        public: true
+        arguments:
+            - "@cca.dc-general.scope-matcher"
+        tags:
+            - { name: kernel.event_subscriber }
+
+    cca.dc-general.backend_subsriber.rich_text_file_uuid_subsriber:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\RichTextFileUuidSubscriber
+        public: true
+        arguments:
+            - "@cca.dc-general.scope-matcher"
+        tags:
+            - { name: kernel.event_subscriber }
+
+    cca.dc-general.backend_subsriber.check_permission:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\CheckPermission
+        public: true
+        arguments:
+            - "@cca.dc-general.scope-matcher"
+        tags:
+            - { name: kernel.event_subscriber }
+
+    cca.dc-general.backend_subsriber.dynmaic_parent_table:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\Subscriber\DynamicParentTableSubscriber
+        public: true
+        arguments:
+            - "@cca.dc-general.scope-matcher"
+        tags:
+            - { name: kernel.event_subscriber }

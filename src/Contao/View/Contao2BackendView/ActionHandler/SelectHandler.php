@@ -26,6 +26,7 @@ use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\PrepareMultipleModelsActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
@@ -40,8 +41,10 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  *
  * This class handles multiple actions.
  */
-class SelectHandler extends AbstractRequestScopeDeterminatorHandler
+class SelectHandler
 {
+    use RequestScopeDeterminatorAwareTrait;
+
     /**
      * Delete action handler.
      *
@@ -68,7 +71,7 @@ class SelectHandler extends AbstractRequestScopeDeterminatorHandler
         DeleteHandler $deleteHandler,
         CopyHandler $copyHandler
     ) {
-        parent::__construct($scopeDeterminator);
+        $this->setScopeDeterminator($scopeDeterminator);
 
         $this->deleteHandler = $deleteHandler;
         $this->copyHandler = $copyHandler;

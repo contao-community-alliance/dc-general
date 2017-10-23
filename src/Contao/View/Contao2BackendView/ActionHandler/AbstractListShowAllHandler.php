@@ -30,6 +30,7 @@ use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ButtonRenderer;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
@@ -57,9 +58,10 @@ use ContaoCommunityAlliance\Translator\TranslatorInterface as CcaTranslator;
 /**
  * This class is the abstract base for parent list and plain list "showAll" commands.
  */
-abstract class AbstractListShowAllHandler extends AbstractRequestScopeDeterminatorHandler
+abstract class AbstractListShowAllHandler
 {
     use CallActionTrait;
+    use RequestScopeDeterminatorAwareTrait;
 
     /**
      * The translator.
@@ -87,9 +89,9 @@ abstract class AbstractListShowAllHandler extends AbstractRequestScopeDeterminat
         TranslatorInterface $translator,
         CcaTranslator $ccaTranslator
     ) {
-        parent::__construct($scopeDeterminator);
+        $this->setScopeDeterminator($scopeDeterminator);
 
-        $this->translator = $translator;
+        $this->translator    = $translator;
         $this->ccaTranslator = $ccaTranslator;
     }
 

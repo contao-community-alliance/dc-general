@@ -23,6 +23,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Actio
 
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
@@ -34,9 +36,20 @@ use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
 /**
  * Action handler for paste actions.
  */
-class PasteHandler extends AbstractRequestScopeDeterminatorHandler
+class PasteHandler
 {
     use CallActionTrait;
+    use RequestScopeDeterminatorAwareTrait;
+
+    /**
+     * PasteHandler constructor.
+     *
+     * @param RequestScopeDeterminator $scopeDeterminator The request mode determinator.
+     */
+    public function __construct(RequestScopeDeterminator $scopeDeterminator)
+    {
+        $this->setScopeDeterminator($scopeDeterminator);
+    }
 
     /**
      * Handle the event to process the action.

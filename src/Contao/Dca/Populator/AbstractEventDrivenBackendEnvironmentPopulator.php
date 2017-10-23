@@ -21,8 +21,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator;
 
-use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
-use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentPopulator\EnvironmentPopulatorInterface;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 
@@ -34,18 +32,6 @@ use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
  */
 abstract class AbstractEventDrivenBackendEnvironmentPopulator implements EnvironmentPopulatorInterface
 {
-    use RequestScopeDeterminatorAwareTrait;
-
-    /**
-     * ClipboardController constructor.
-     *
-     * @param RequestScopeDeterminator $scopeDeterminator The request mode determinator.
-     */
-    public function __construct(RequestScopeDeterminator $scopeDeterminator)
-    {
-        $this->setScopeDeterminator($scopeDeterminator);
-    }
-
     /**
      * Creates an instance of itself and processes the event.
      *
@@ -58,9 +44,6 @@ abstract class AbstractEventDrivenBackendEnvironmentPopulator implements Environ
      */
     public function process(PopulateEnvironmentEvent $event)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
-            return;
-        }
         $this->populate($event->getEnvironment());
     }
 }

@@ -39,6 +39,11 @@ class CcaDcGeneralExtension extends Extension
     public function load(array $configs, ContainerBuilder $container)
     {
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader->load('backend_event_listeners.yml');
+        $loader->load('backend_event_subscribers.yml');
+        $loader->load('event_listeners.yml');
+        $loader->load('event_subscribers.yml');
+        $loader->load('picker_provider.yml');
         $loader->load('services.yml');
     }
 }

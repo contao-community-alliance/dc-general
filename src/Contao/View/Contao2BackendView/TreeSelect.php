@@ -23,7 +23,6 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\Ajax;
 use Contao\Backend;
-use Contao\BackendTemplate;
 use Contao\BackendUser;
 use Contao\Config;
 use Contao\Database;
@@ -93,9 +92,6 @@ class TreeSelect
      */
     public function run()
     {
-        $template       = new BackendTemplate('be_picker');
-        $template->main = '';
-
         // Ajax request.
         // @codingStandardsIgnoreStart - We need POST access here.
         if ($_POST && Environment::get('isAjaxRequest')) // @codingStandardsIgnoreEnd
@@ -157,23 +153,28 @@ class TreeSelect
             $ajax->executePostActions(new DcCompat($this->itemContainer->getEnvironment()));
         }
 
-        $template->main        = $objTreeSelector->generatePopup();
-        $template->theme       = Backend::getTheme();
-        $template->base        = Environment::get('base');
-        $template->language    = $GLOBALS['TL_LANGUAGE'];
-        $template->title       = StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['treepicker']);
-        $template->charset     = $GLOBALS['TL_CONFIG']['characterSet'];
-        $template->addSearch   = $objTreeSelector->searchField;
-        $template->search      = $GLOBALS['TL_LANG']['MSC']['search'];
-        $template->action      = ampersand(Environment::get('request'));
-        $template->value       = Session::getInstance()->get($objTreeSelector->getSearchSessionKey());
-        $template->manager     = $GLOBALS['TL_LANG']['MSC']['treepickerManager'];
-        $template->breadcrumb  = $GLOBALS['TL_DCA'][$objTreeSelector->foreignTable]['list']['sorting']['breadcrumb'];
-        $template->managerHref = '';
+
+        $template = new ContaoBackendViewTemplate('be_main');
+        $template
+            ->set('isPopup', true)
+            ->set('main', $objTreeSelector->generatePopup())
+            ->set('theme', Backend::getTheme())
+            ->set('base', Environment::get('base'))
+            ->set('language', $GLOBALS['TL_LANGUAGE'])
+            ->set('title', StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['treepicker']))
+            ->set('charset', $GLOBALS['TL_CONFIG']['characterSet'])
+            ->set('addSearch', $objTreeSelector->searchField)
+            ->set('search', $GLOBALS['TL_LANG']['MSC']['search'])
+            ->set('action', ampersand(Environment::get('request')))
+            ->set('value', Session::getInstance()->get($objTreeSelector->getSearchSessionKey()))
+            ->set('manager', $GLOBALS['TL_LANG']['MSC']['treepickerManager'])
+            ->set('breadcrumb', $GLOBALS['TL_DCA'][$objTreeSelector->foreignTable]['list']['sorting']['breadcrumb'])
+            ->set('managerHref', '');
 
         // Add the manager link.
         if ($objTreeSelector->managerHref) {
-            $template->managerHref = 'contao/main.php?' . ampersand($objTreeSelector->managerHref) . '&amp;popup=1';
+            $template
+                ->set('managerHref', 'contao/main.php?' . ampersand($objTreeSelector->managerHref) . '&amp;popup=1');
         }
 
         // Prevent debug output at all cost.

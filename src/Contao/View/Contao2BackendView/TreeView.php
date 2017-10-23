@@ -16,6 +16,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Ingolf Steinhardt <info@e-spin.de>
  * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -536,7 +537,7 @@ class TreeView extends BaseView
         );
 
         $arrReturn['panel']     = $this->panel($arrIgnoredPanels);
-        $arrReturn['buttons']   = $this->generateHeaderButtons('tl_buttons_a');
+        $arrReturn['buttons']   = $this->generateHeaderButtons('tl_buttons');
         $arrReturn['clipboard'] = $viewEvent->getResponse();
         $arrReturn['body']      = $this->viewTree($collection);
 

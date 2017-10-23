@@ -22,6 +22,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao;
 
 use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * {@inheritdoc}
@@ -36,6 +37,13 @@ class SessionStorage implements SessionStorageInterface
     private $key;
 
     /**
+     * The symfony session.
+     *
+     * @var SessionInterface
+     */
+    private $session;
+
+    /**
      * The attribute storage.
      *
      * @var array
@@ -45,11 +53,29 @@ class SessionStorage implements SessionStorageInterface
     /**
      * Create a new instance.
      *
-     * @param string $key The key to use for storage.
+     * @param string           $key     The key to use for storage.
+     *
+     * @param SessionInterface $session The symfony session.
      */
-    public function __construct($key)
+    public function __construct($key = '', SessionInterface $session = null)
     {
         $this->key = (string) $key;
+
+        if (null !== $session) {
+            $this->session = $session;
+        }
+    }
+
+    /**
+     * Create new instance of his self.
+     *
+     * @param string $key The session key.
+     *
+     * @return SessionStorage
+     */
+    public function createInstance($key)
+    {
+        return new self($key, $this->session);
     }
 
     /**
@@ -130,7 +156,8 @@ class SessionStorage implements SessionStorageInterface
     private function load()
     {
         if (null === $this->attributes) {
-            $this->attributes = (array) \Session::getInstance()->get($this->key);
+            $sessionBag       = $this->session->getBag($this->getSessionBagKey());
+            $this->attributes = (array) $sessionBag->get($this->key);
         }
     }
 
@@ -141,6 +168,17 @@ class SessionStorage implements SessionStorageInterface
      */
     private function persist()
     {
-        \Session::getInstance()->set($this->key, $this->attributes);
+        $sessionBag = $this->session->getBag($this->getSessionBagKey());
+        $sessionBag->set($this->key, $this->attributes);
+    }
+
+    /**
+     * Gets the correct session bag key depending on the environment.
+     *
+     * @return string
+     */
+    private function getSessionBagKey()
+    {
+        return 'cca_dc_general';
     }
 }
