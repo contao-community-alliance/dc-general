@@ -68,7 +68,7 @@ class ColorPickerWizardSubscriber
         $propExtra  = $propInfo->getExtra();
         $assetsPath = 'assets/mootools/colorpicker/' . $GLOBALS['TL_ASSETS']['COLORPICKER'] . '/images/';
 
-        if (array_key_exists('colorpicker', $propExtra) && $propExtra['colorpicker']) {
+        if (is_array($propExtra) && array_key_exists('colorpicker', $propExtra) && $propExtra['colorpicker']) {
             $pickerText = $translator->translate('colorpicker', 'MSC');
             $event      = new GenerateHtmlEvent(
                 'pickcolor.gif',
