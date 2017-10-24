@@ -172,7 +172,10 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $strClass  = $this->getWidgetClass($property);
 
         // Check the overwrite param.
-        if (array_key_exists('fetchOptions', $propExtra) && (true === $propExtra['fetchOptions'])) {
+        if (is_array($propExtra)
+            && array_key_exists('fetchOptions', $propExtra)
+            && (true === $propExtra['fetchOptions'])
+        ) {
             return true;
         }
 
