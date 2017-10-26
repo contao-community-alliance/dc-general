@@ -33,8 +33,6 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  */
 class ListViewShowAllHandler extends AbstractListShowAllHandler
 {
-    use RequestScopeDeterminatorAwareTrait;
-
     /**
      * {@inheritDoc}
      */
