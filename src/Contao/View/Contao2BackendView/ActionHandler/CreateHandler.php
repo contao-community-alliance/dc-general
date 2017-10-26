@@ -27,14 +27,15 @@ use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EditMask;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
-use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractHandler;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 
 /**
  * Class CreateHandler
  *
  * @package ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler
  */
-class CreateHandler extends AbstractHandler
+class CreateHandler
 {
     use RequestScopeDeterminatorAwareTrait;
 
@@ -49,20 +50,25 @@ class CreateHandler extends AbstractHandler
     }
 
     /**
-     * Handle the action.
+     * Handle the event to process the action.
+     *
+     * @param ActionEvent $event The action event.
      *
      * @return void
      */
-    public function process()
+    public function handleEvent(ActionEvent $event)
     {
         if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 
-        $environment   = $this->getEnvironment();
-        $inputProvider = $environment->getInputProvider();
-        $event         = $this->getEvent();
+        if ($event->getAction()->getName() !== 'create') {
+            return;
+        }
+
         $action        = $event->getAction();
+        $environment   = $event->getEnvironment();
+        $inputProvider = $environment->getInputProvider();
 
         // Only handle if we do not have a manual sorting or we know where to insert.
         // Manual sorting is handled by clipboard.
@@ -74,12 +80,28 @@ class CreateHandler extends AbstractHandler
             return;
         }
 
-        if (false === $this->checkPermission()) {
+        if (true !== ($response = $this->checkPermission($environment))) {
+            $event->setResponse($response);
             $event->stopPropagation();
 
             return;
         }
 
+        $response = $this->process($environment);
+        if ($response !== false) {
+            $event->setResponse($response);
+        }
+    }
+
+    /**
+     * Handle the action.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return string
+     */
+    protected function process(EnvironmentInterface $environment)
+    {
         $definition         = $environment->getDataDefinition();
         $dataProvider       = $environment->getDataProvider();
         $propertyDefinition = $definition->getPropertiesDefinition();
@@ -99,21 +121,22 @@ class CreateHandler extends AbstractHandler
 
         $view = $environment->getView();
         if (!$view instanceof BaseView) {
-            return;
+            return false;
         }
 
         $editMask = new EditMask($view, $model, $clone, null, null, $view->breadcrumb());
-        $event->setResponse($editMask->execute());
+        return $editMask->execute();
     }
 
     /**
      * Check permission for create a model.
      *
-     * @return bool
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return string|bool
      */
-    private function checkPermission()
+    private function checkPermission(EnvironmentInterface $environment)
     {
-        $environment     = $this->getEnvironment();
         $dataDefinition  = $environment->getDataDefinition();
         $basicDefinition = $dataDefinition->getBasicDefinition();
 
@@ -121,15 +144,11 @@ class CreateHandler extends AbstractHandler
             return true;
         }
 
-        $this->getEvent()->setResponse(
-            sprintf(
-                '<div style="text-align:center; font-weight:bold; padding:40px;">
-                    You have no permission for create model in %s.
-                </div>',
-                $dataDefinition->getName()
-            )
+        return sprintf(
+            '<div style="text-align:center; font-weight:bold; padding:40px;">
+                You have no permission for create model in %s.
+            </div>',
+            $dataDefinition->getName()
         );
-
-        return false;
     }
 }

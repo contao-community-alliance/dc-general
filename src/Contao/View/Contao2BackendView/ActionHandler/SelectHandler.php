@@ -24,6 +24,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Actio
 
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
+use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\PrepareMultipleModelsActionEvent;
@@ -31,54 +32,92 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\BackCommand;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
-use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractHandler;
 
 /**
  * Class SelectController.
  *
  * This class handles multiple actions.
  */
-class SelectHandler extends AbstractHandler
+class SelectHandler
 {
     use RequestScopeDeterminatorAwareTrait;
 
     /**
+     * Delete action handler.
+     *
+     * @var DeleteHandler
+     */
+    private $deleteHandler;
+
+    /**
+     * Copy action handler.
+     *
+     * @var CopyHandler
+     */
+    private $copyHandler;
+
+    /**
      * SelectHandler constructor.
      *
-     * @param RequestScopeDeterminator $scopeDeterminator The request mode determinator.
+     * @param RequestScopeDeterminator $scopeDeterminator The request scope determinator.
+     * @param DeleteHandler            $deleteHandler     The delete action handler.
+     * @param CopyHandler              $copyHandler       The copy action handler.
      */
-    public function __construct(RequestScopeDeterminator $scopeDeterminator)
-    {
+    public function __construct(
+        RequestScopeDeterminator $scopeDeterminator,
+        DeleteHandler $deleteHandler,
+        CopyHandler $copyHandler
+    ) {
         $this->setScopeDeterminator($scopeDeterminator);
+
+        $this->deleteHandler = $deleteHandler;
+        $this->copyHandler = $copyHandler;
     }
 
     /**
-     * Handle the action.
+     * Handle the event to process the action.
+     *
+     * @param ActionEvent $event The action event.
      *
      * @return void
      */
-    public function process()
+    public function handleEvent(ActionEvent $event)
     {
         if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 
-        $action = $this->getEvent()->getAction();
+        $action = $event->getAction();
 
         if ($action->getName() !== 'select') {
             return;
         }
 
-        $submitAction = $this->getSubmitAction();
+        $this->process($action, $event->getEnvironment());
+    }
+
+    /**
+     * Handle the action.
+     *
+     * @param Action               $action      The action.
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return void
+     */
+    protected function process(Action $action, EnvironmentInterface $environment)
+    {
+        $submitAction = $this->getSubmitAction($environment);
 
         if (!$submitAction) {
-            $this->removeGlobalCommands();
+            $this->removeGlobalCommands($environment);
 
             return;
         }
 
-        $modelIds     = $this->getModelIds($action, $submitAction);
+        $modelIds     = $this->getModelIds($environment, $action, $submitAction);
         $actionMethod = sprintf('handle%sAllAction', ucfirst($submitAction));
 
         call_user_func(array($this, $actionMethod), $modelIds);
@@ -87,11 +126,13 @@ class SelectHandler extends AbstractHandler
     /**
      * Get the submit action name.
      *
+     * @param EnvironmentInterface $environment The environment.
+     *
      * @return string
      */
-    protected function getSubmitAction()
+    protected function getSubmitAction(EnvironmentInterface $environment)
     {
-        $inputProvider = $this->getEnvironment()->getInputProvider();
+        $inputProvider = $environment->getInputProvider();
         $actions       = array('delete', 'cut', 'copy', 'override', 'edit');
 
         foreach ($actions as $action) {
@@ -105,14 +146,16 @@ class SelectHandler extends AbstractHandler
 
     /**
      * Remove the global commands by action select.
+     *
      * We need the back button only.
+     *
+     * @param EnvironmentInterface $environment The environment.
      *
      * @return void
      */
-    protected function removeGlobalCommands()
+    protected function removeGlobalCommands(EnvironmentInterface $environment)
     {
-        $event          = $this->getEvent();
-        $environment    = $event->getEnvironment();
+        /** @var Contao2BackendViewDefinitionInterface $view */
         $dataDefinition = $environment->getDataDefinition();
         $view           = $dataDefinition->getDefinition('view.contao2backend');
         $globalCommands = $view->getGlobalCommands();
@@ -127,15 +170,15 @@ class SelectHandler extends AbstractHandler
     /**
      * Get The model ids from the environment.
      *
-     * @param Action $action       The dcg action.
-     * @param string $submitAction The submit action name.
+     * @param EnvironmentInterface $environment  The environment.
+     * @param Action               $action       The dcg action.
+     * @param string               $submitAction The submit action name.
      *
      * @return ModelId[]
      */
-    protected function getModelIds(Action $action, $submitAction)
+    protected function getModelIds(EnvironmentInterface $environment, Action $action, $submitAction)
     {
-        $environment = $this->getEnvironment();
-        $modelIds    = (array) $environment->getInputProvider()->getValue('IDS');
+        $modelIds = (array) $environment->getInputProvider()->getValue('IDS');
 
         if (!empty($modelIds)) {
             $modelIds = array_map(
@@ -157,34 +200,32 @@ class SelectHandler extends AbstractHandler
     /**
      * Handle the delete all action.
      *
-     * @param ModelId[] $modelIds The list of model ids.
+     * @param EnvironmentInterface $environment The environment.
+     * @param ModelId[]            $modelIds   The list of model ids.
      *
      * @return void
      */
-    protected function handleDeleteAllAction($modelIds)
+    protected function handleDeleteAllAction(EnvironmentInterface $environment, $modelIds)
     {
-        $handler = new DeleteHandler($this->scopeDeterminator);
-        $handler->setEnvironment($this->getEnvironment());
-
         foreach ($modelIds as $modelId) {
-            $handler->delete($modelId);
+            $this->deleteHandler->delete($environment, $modelId);
         }
 
-        ViewHelpers::redirectHome($this->getEnvironment());
+        ViewHelpers::redirectHome($environment);
     }
 
     /**
      * Handle the delete all action.
      *
-     * @param ModelId[] $modelIds The list of model ids.
+     * @param EnvironmentInterface $environment The environment.
+     * @param ModelId[]            $modelIds    The list of model ids.
      *
      * @return void
      */
-    protected function handleCutAllAction($modelIds)
+    protected function handleCutAllAction(EnvironmentInterface $environment, $modelIds)
     {
-        $environment = $this->getEnvironment();
         $clipboard   = $environment->getClipboard();
-        $parentId    = $this->getParentId();
+        $parentId    = $this->getParentId($environment);
 
         foreach ($modelIds as $modelId) {
             $clipboard->push(new Item(Item::CUT, $parentId, $modelId));
@@ -192,21 +233,22 @@ class SelectHandler extends AbstractHandler
 
         $clipboard->saveTo($environment);
 
-        ViewHelpers::redirectHome($this->getEnvironment());
+        ViewHelpers::redirectHome($environment);
     }
 
     /**
      * Handle the delete all action.
      *
-     * @param ModelIdInterface[] $modelIds The list of model ids.
+     * @param EnvironmentInterface $environment The environment.
+     * @param ModelIdInterface[]   $modelIds    The list of model ids.
      *
      * @return void
      */
-    protected function handleCopyAllAction($modelIds)
+    protected function handleCopyAllAction(EnvironmentInterface $environment, $modelIds)
     {
-        if (ViewHelpers::getManualSortingProperty($this->getEnvironment())) {
-            $clipboard = $this->getEnvironment()->getClipboard();
-            $parentId  = $this->getParentId();
+        if (ViewHelpers::getManualSortingProperty($environment)) {
+            $clipboard = $environment->getClipboard();
+            $parentId  = $this->getParentId($environment);
 
             foreach ($modelIds as $modelId) {
                 $item = new Item(Item::COPY, $parentId, $modelId);
@@ -214,17 +256,14 @@ class SelectHandler extends AbstractHandler
                 $clipboard->push($item);
             }
 
-            $clipboard->saveTo($this->getEnvironment());
+            $clipboard->saveTo($environment);
         } else {
-            $handler = new CopyHandler($this->scopeDeterminator);
-            $handler->setEnvironment($this->getEnvironment());
-
             foreach ($modelIds as $modelId) {
-                $handler->copy($modelId);
+                $this->copyHandler->copy($environment, $modelId);
             }
         }
 
-        ViewHelpers::redirectHome($this->getEnvironment());
+        ViewHelpers::redirectHome($environment);
     }
 
     /**
@@ -264,11 +303,13 @@ class SelectHandler extends AbstractHandler
      *
      * Returns null if no parent id is given.
      *
+     * @param EnvironmentInterface $environment The environment.
+     *
      * @return ModelIdInterface|null
      */
-    protected function getParentId()
+    protected function getParentId(EnvironmentInterface $environment)
     {
-        $parentIdRaw = $this->getEnvironment()->getInputProvider()->getParameter('pid');
+        $parentIdRaw = $environment->getInputProvider()->getParameter('pid');
 
         if ($parentIdRaw) {
             $parentId = ModelId::fromSerialized($parentIdRaw);
