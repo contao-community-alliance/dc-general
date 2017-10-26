@@ -62,7 +62,7 @@ class CreateHandler
             return;
         }
 
-        if ($event->getAction()->getName() !== 'copy') {
+        if ($event->getAction()->getName() !== 'create') {
             return;
         }
 
