@@ -13,6 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -27,14 +28,17 @@ use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
-use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractHandler;
+use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
 
 /**
  * Action handler for paste actions.
  */
-class PasteHandler extends AbstractHandler
+class PasteHandler
 {
+    use CallActionTrait;
     use RequestScopeDeterminatorAwareTrait;
 
     /**
@@ -48,36 +52,48 @@ class PasteHandler extends AbstractHandler
     }
 
     /**
-     * Handle the action.
+     * Handle the event to process the action.
+     *
+     * @param ActionEvent $event The action event.
      *
      * @return void
      */
-    public function process()
+    public function handleEvent(ActionEvent $event)
     {
         if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 
-        $event = $this->getEvent();
         if ($event->getAction()->getName() !== 'paste') {
             return;
         }
 
-        if (false === $this->checkPermission()) {
+        if (false === $this->checkPermission($event)) {
             $event->stopPropagation();
 
             return;
         }
 
-        $environment = $this->getEnvironment();
+        $response = $this->process($event->getEnvironment());
+        $event->setResponse($response);
+    }
+
+    /**
+     * Handle the action.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return string
+     */
+    protected function process(EnvironmentInterface $environment)
+    {
         $input       = $environment->getInputProvider();
         $clipboard   = $environment->getClipboard();
         $definition  = $environment->getDataDefinition()->getBasicDefinition();
 
         // Tree mode needs special handling.
         if ($this->needTreeModeShowAll($definition, $input)) {
-            $this->callAction('showAll');
-            return;
+            return $this->callAction($environment, 'showAll');
         }
 
         // Check if it is a simple create-paste of a single model, if so, redirect to edit view.
@@ -85,9 +101,7 @@ class PasteHandler extends AbstractHandler
             $clipboard,
             $environment->getDataDefinition()->getBasicDefinition()->getDataProvider()
         )) {
-            $this->callAction('create');
-
-            return;
+            return $this->callAction($environment, 'create');
         }
 
         $controller    = $environment->getController();
@@ -110,11 +124,13 @@ class PasteHandler extends AbstractHandler
     /**
      * Check permission for paste a model.
      *
+     * @param ActionEvent $event The action event.
+     *
      * @return bool
      */
-    private function checkPermission()
+    private function checkPermission(ActionEvent $event)
     {
-        $environment     = $this->getEnvironment();
+        $environment     = $event->getEnvironment();
         $dataDefinition  = $environment->getDataDefinition();
         $basicDefinition = $dataDefinition->getBasicDefinition();
 
@@ -123,7 +139,7 @@ class PasteHandler extends AbstractHandler
         }
 
         // TODO find a way for output the permission message.
-        $this->getEvent()->setResponse(
+        $event->setResponse(
             '<div style="text-align:center; font-weight:bold; padding:40px;">
                     You have no permission for paste a model.
                 </div>'
