@@ -13,6 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -25,8 +26,11 @@ use Contao\StringUtil;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
+use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ButtonRenderer;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
@@ -38,71 +42,130 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
-use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
-use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractEnvironmentAwareHandler;
+use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
+use Symfony\Component\Translation\TranslatorInterface;
+use ContaoCommunityAlliance\Translator\TranslatorInterface as CcaTranslator;
 
 /**
  * This class is the abstract base for parent list and plain list "showAll" commands.
  */
-abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandler
+abstract class AbstractListShowAllHandler
 {
+    use CallActionTrait;
+    use RequestScopeDeterminatorAwareTrait;
+
     /**
-     * {@inheritdoc}
+     * The translator.
+     *
+     * @var TranslatorInterface
      */
-    public function process()
+    protected $translator;
+
+    /**
+     * The cca translator.
+     *
+     * @var CcaTranslator|TranslatorInterface
+     */
+    private $ccaTranslator;
+
+    /**
+     * AbstractHandler constructor.
+     *
+     * @param RequestScopeDeterminator          $scopeDeterminator The request mode determinator.
+     * @param TranslatorInterface               $translator        The translator.
+     * @param CcaTranslator|TranslatorInterface $ccaTranslator     The cca translator.
+     */
+    public function __construct(
+        RequestScopeDeterminator $scopeDeterminator,
+        TranslatorInterface $translator,
+        CcaTranslator $ccaTranslator
+    ) {
+        $this->setScopeDeterminator($scopeDeterminator);
+
+        $this->translator    = $translator;
+        $this->ccaTranslator = $ccaTranslator;
+    }
+
+    /**
+     * Handle the event to process the action.
+     *
+     * @param ActionEvent $event The action event.
+     *
+     * @return void
+     */
+    public function handleEvent(ActionEvent $event)
     {
         if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 
-        $event  = $this->getEvent();
-        $action = $event->getAction();
-        $basic  = $this->environment->getDataDefinition()->getBasicDefinition();
+        $basic = $event->getEnvironment()->getDataDefinition()->getBasicDefinition();
+
         if ($event->getAction()->getName() !== 'showAll' || !$this->wantToHandle($basic->getMode())) {
             return;
         }
 
+        $response = $this->process($event->getAction(), $event->getEnvironment());
+        $event->setResponse($response);
+    }
+
+    /**
+     * Process the action.
+     *
+     * @param Action               $action      The action being handled.
+     * @param EnvironmentInterface $environment Current dc-general environment.
+     *
+     * @return string
+     */
+    protected function process(Action $action, EnvironmentInterface $environment)
+    {
         // Edit only mode, forward to edit action.
+        $basic = $environment->getDataDefinition()->getBasicDefinition();
         if ($basic->isEditOnlyMode()) {
-            $this->callAction('edit', $action->getArguments());
-            return;
+            return $this->callAction($environment, 'edit', $action->getArguments());
         }
-        $grouping = ViewHelpers::getGroupingMode($this->environment);
+
+        $grouping = ViewHelpers::getGroupingMode($environment);
 
         // Process now.
-        $collection = $this->loadCollection();
-        $this->renderCollection($collection, $grouping);
+        $collection = $this->loadCollection($environment);
+        $this->renderCollection($environment, $collection, $grouping);
         $template = $this->determineTemplate($grouping);
         $template->set('collection', $collection);
         $template->set('mode', ($grouping ? $grouping['mode'] : null));
-        $this->renderTemplate($template);
+        $this->renderTemplate($template, $environment);
 
-        $clipboard = new ViewEvent($this->environment, $action, DcGeneralViews::CLIPBOARD, []);
-        $this->environment->getEventDispatcher()->dispatch(DcGeneralEvents::VIEW, $clipboard);
+        $clipboard = new ViewEvent($environment, $action, DcGeneralViews::CLIPBOARD, []);
+        $environment->getEventDispatcher()->dispatch(DcGeneralEvents::VIEW, $clipboard);
 
         $result              = [];
-        $result['panel']     = $this->panel();
-        $result['buttons']   = $this->generateHeaderButtons();
+        $result['panel']     = $this->panel($environment);
+        $result['buttons']   = $this->generateHeaderButtons($environment);
         $result['clipboard'] = $clipboard->getResponse();
         $result['body']      = $template->parse();
 
-        $event->setResponse(implode("\n", $result));
+        return implode("\n", $result);
     }
 
     /**
      * Retrieve the view section for this view.
      *
+     * @param ContainerInterface $definition Data container definition.
+     *
      * @return Contao2BackendViewDefinitionInterface
      */
-    protected function getViewSection()
+    protected function getViewSection(ContainerInterface $definition)
     {
-        return $this->environment->getDataDefinition()->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        return $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
     }
 
     /**
@@ -117,36 +180,29 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
     /**
      * Translate a string.
      *
-     * @param string      $key    The translation key.
-     * @param string|null $domain The domain name to use (if null, default definition name will be used).
+     * @param string      $key        The translation key.
+     * @param string|null $domain     The domain name to use.
+     * @param array       $parameters Parameters.
      *
-     * @return string|array
+     * @return array|string
      */
-    protected function translate($key, $domain = null)
+    protected function translate($key, $domain, array $parameters = [])
     {
-        if (null === $domain) {
-            $domain = $this->environment->getDataDefinition()->getName();
-        }
-        $translator = $this->environment->getTranslator();
-        $value      = $translator->translate($key, $domain);
-        if ($value !== $key) {
-            return $value;
-        }
-
-        return $translator->translate($key);
+        return $this->translator->trans($key, $parameters, $domain);
     }
 
     /**
      * Render a model.
      *
-     * @param ModelInterface $model The model to render.
+     * @param ModelInterface       $model       The model to render.
+     * @param EnvironmentInterface $environment Current environment.
      *
      * @return void
      */
-    protected function renderModel(ModelInterface $model)
+    protected function renderModel(ModelInterface $model, EnvironmentInterface $environment)
     {
-        $event = new FormatModelLabelEvent($this->environment, $model);
-        $this->environment->getEventDispatcher()->dispatch(
+        $event = new FormatModelLabelEvent($environment, $model);
+        $environment->getEventDispatcher()->dispatch(
             DcGeneralEvents::FORMAT_MODEL_LABEL,
             $event
         );
@@ -164,7 +220,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
     protected function getTemplate($strTemplate)
     {
         $template = new ContaoBackendViewTemplate($strTemplate);
-        $template->setTranslator($this->environment->getTranslator());
+        $template->setTranslator($this->ccaTranslator);
 
         return $template;
     }
@@ -181,23 +237,24 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
     /**
      * Prepare the template.
      *
-     * @param ContaoBackendViewTemplate $template The template to populate.
+     * @param ContaoBackendViewTemplate $template    The template to populate.
+     * @param EnvironmentInterface      $environment The environment.
      *
      * @return void
      */
-    protected function renderTemplate(ContaoBackendViewTemplate $template)
+    protected function renderTemplate(ContaoBackendViewTemplate $template, EnvironmentInterface $environment)
     {
-        $definition = $this->environment->getDataDefinition();
-        $showColumn = $this->getViewSection()->getListingConfig()->getShowColumns();
+        $definition = $environment->getDataDefinition();
+        $showColumn = $this->getViewSection($definition)->getListingConfig()->getShowColumns();
         $template->set('tableName', strlen($definition->getName()) ? $definition->getName() : 'none');
-        $template->set('select', ('select' === $this->environment->getInputProvider()->getParameter('act')));
+        $template->set('select', ('select' === $environment->getInputProvider()->getParameter('act')));
         $template->set('action', ampersand(Environment::get('request'), true));
-        $template->set('selectButtons', $this->getSelectButtons());
-        $template->set('sortable', $this->isSortable());
+        $template->set('selectButtons', $this->getSelectButtons($environment));
+        $template->set('sortable', $this->isSortable($environment));
         $template->set('showColumns', $showColumn);
-        $template->set('tableHead', $showColumn ? $this->getTableHead() : '');
+        $template->set('tableHead', $showColumn ? $this->getTableHead($environment) : '');
         // Add breadcrumb, if we have one.
-        $template->set('breadcrumb', $this->breadcrumb());
+        $template->set('breadcrumb', $this->breadcrumb($environment));
     }
 
     /**
@@ -205,15 +262,17 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
      *
      * Consumes input parameter "id".
      *
+     * @param EnvironmentInterface $environment The environment.
+     *
      * @return CollectionInterface
      */
-    private function loadCollection()
+    private function loadCollection(EnvironmentInterface $environment)
     {
-        $dataProvider = $this->environment->getDataProvider();
-        $dataConfig   = $this->environment->getBaseConfigRegistry()->getBaseConfig();
+        $dataProvider = $environment->getDataProvider();
+        $dataConfig   = $environment->getBaseConfigRegistry()->getBaseConfig();
 
-        $listingConfig = $this->getViewSection()->getListingConfig();
-        $panel         = $this->environment->getView()->getPanel();
+        $listingConfig = $this->getViewSection($environment->getDataDefinition())->getListingConfig();
+        $panel         = $environment->getView()->getPanel();
 
         ViewHelpers::initializeSorting($panel, $dataConfig, $listingConfig);
 
@@ -223,27 +282,29 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
     /**
      * Generate all buttons for the header of a view.
      *
+     * @param EnvironmentInterface $environment The environment.
+     *
      * @return string
      */
-    private function generateHeaderButtons()
+    private function generateHeaderButtons(EnvironmentInterface $environment)
     {
-        $renderer = new GlobalButtonRenderer($this->environment);
+        $renderer = new GlobalButtonRenderer($environment);
         return $renderer->render();
     }
 
     /**
      * Render the collection.
      *
-     * @param CollectionInterface $collection The collection to render.
-     * @param array               $grouping   The grouping information.
+     * @param EnvironmentInterface $environment The environment.
+     * @param CollectionInterface  $collection  The collection to render.
+     * @param array                $grouping    The grouping information.
      *
      * @return void
      */
-    private function renderCollection(CollectionInterface $collection, $grouping)
+    private function renderCollection(EnvironmentInterface $environment, CollectionInterface $collection, $grouping)
     {
-        $environment = $this->getEnvironment();
         $clipboard   = $environment->getClipboard();
-        $view        = $this->getViewSection();
+        $view        = $this->getViewSection($environment->getDataDefinition());
         $listing     = $view->getListingConfig();
         $remoteCur   = null;
         $groupClass  = 'tl_folder_tlist';
@@ -251,7 +312,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
 
         // Generate buttons - only if not in select mode!
         if ('select' !== $environment->getInputProvider()->getParameter('act')) {
-            $buttonRenderer = new ButtonRenderer($this->environment);
+            $buttonRenderer = new ButtonRenderer($environment);
             $buttonRenderer->renderButtonsForCollection($collection);
         }
 
@@ -267,7 +328,8 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
                     $grouping['property'],
                     $model,
                     $grouping['mode'],
-                    $grouping['length']
+                    $grouping['length'],
+                    $environment
                 );
 
                 $model->setMeta(
@@ -295,37 +357,39 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
 
             $model->setMeta($model::CSS_ROW_CLASS, implode(' ', $cssClasses));
 
-            $this->renderModel($model);
+            $this->renderModel($model, $environment);
         }
     }
 
     /**
      * Render the panel.
      *
-     * @param string[] $ignoredPanels A list with ignored elements [Optional].
+     * @param EnvironmentInterface $environment   The environment.
+     * @param string[]             $ignoredPanels A list with ignored elements [Optional].
      *
-     * @throws DcGeneralRuntimeException When no information of panels can be obtained from the data container.
+     * @return string When no information of panels can be obtained from the data container.
      *
-     * @return string
      */
-    private function panel($ignoredPanels = [])
+    private function panel(EnvironmentInterface $environment, $ignoredPanels = [])
     {
-        $renderer = new PanelRenderer($this->environment->getView());
+        $renderer = new PanelRenderer($environment->getView());
         return $renderer->render($ignoredPanels);
     }
 
     /**
      * Get the table headings.
      *
+     * @param EnvironmentInterface $environment   The environment.
+     *
      * @return array
      */
-    private function getTableHead()
+    private function getTableHead(EnvironmentInterface $environment)
     {
         $tableHead  = [];
-        $definition = $this->getEnvironment()->getDataDefinition();
+        $definition = $environment->getDataDefinition();
         $properties = $definition->getPropertiesDefinition();
-        $formatter  = $this->getViewSection()->getListingConfig()->getLabelFormatter($definition->getName());
-        $sorting    = ViewHelpers::getCurrentSorting($this->environment);
+        $formatter  = $this->getViewSection($definition)->getListingConfig()->getLabelFormatter($definition->getName());
+        $sorting    = ViewHelpers::getCurrentSorting($environment);
         $columns    = $this->getSortingColumns($sorting);
         foreach ($formatter->getPropertyNames() as $field) {
             // Skip unknown properties. This may happen if the property is not defined for editing but only listing.
@@ -342,7 +406,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
 
         $tableHead[] = [
             'class'   => 'tl_folder_tlist tl_right_nowrap',
-            'content' => $this->renderPasteTopButton($sorting) ?: '&nbsp;'
+            'content' => $this->renderPasteTopButton($environment, $sorting) ?: '&nbsp;'
         ];
 
         return $tableHead;
@@ -351,31 +415,37 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
     /**
      * Return the formatted value for use in group headers as string.
      *
-     * @param string         $field       The name of the property to format.
+     * @param string               $field       The name of the property to format.
      *
-     * @param ModelInterface $model       The model from which the value shall be taken from.
+     * @param ModelInterface       $model       The model from which the value shall be taken from.
      *
-     * @param string         $groupMode   The grouping mode in use.
+     * @param string               $groupMode   The grouping mode in use.
      *
-     * @param int            $groupLength The length of the value to use for grouping (only used when grouping mode is
-     *                                    ListingConfigInterface::GROUP_CHAR).
+     * @param int                  $groupLength The length of the value to use for grouping (only used when grouping mode is
+     *                                          ListingConfigInterface::GROUP_CHAR).
+     *
+     * @param EnvironmentInterface $environment The environment.
      *
      * @return string
-     *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    private function renderGroupHeader($field, ModelInterface $model, $groupMode, $groupLength)
-    {
-        $property = $this->environment->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
+    private function renderGroupHeader(
+        $field,
+        ModelInterface $model,
+        $groupMode,
+        $groupLength,
+        EnvironmentInterface $environment
+    ) {
+        $property = $environment->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
 
         // No property? Get out!
         if (!$property) {
             return '-';
         }
 
-        $event = new GetGroupHeaderEvent($this->getEnvironment(), $model, $field, null, $groupMode, $groupLength);
-        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
+        $event = new GetGroupHeaderEvent($environment, $model, $field, null, $groupMode, $groupLength);
+        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
         return $event->getValue();
     }
@@ -384,12 +454,15 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
     /**
      * Retrieve a list of html buttons to use in the bottom panel (submit area) when in select mode.
      *
+     * @param EnvironmentInterface $environment The environment.
+     *
      * @return string[]
      */
-    private function getSelectButtons()
+    private function getSelectButtons(EnvironmentInterface $environment)
     {
-        $definition      = $this->environment->getDataDefinition();
+        $definition      = $environment->getDataDefinition();
         $basicDefinition = $definition->getBasicDefinition();
+        $languageDomain  = 'contao_' . $definition->getName();
         $buttons         = [];
 
         if ($basicDefinition->isDeletable()) {
@@ -402,40 +475,40 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
                 'accesskey="d"' .
                 'onclick="return confirm(\'%s\')"' .
                 'value="%s" />',
-                StringUtil::specialchars($this->translate('MSC.delAllConfirm')),
-                StringUtil::specialchars($this->translate('MSC.deleteSelected'))
+                StringUtil::specialchars($this->translate('MSC.delAllConfirm', $languageDomain)),
+                StringUtil::specialchars($this->translate('MSC.deleteSelected', $languageDomain))
             );
         }
 
         if ($basicDefinition->isEditable()) {
             $buttons['cut'] = sprintf(
                 '<input type="submit" name="cut" id="cut" class="tl_submit" accesskey="x" value="%s">',
-                StringUtil::specialchars($this->translate('MSC.moveSelected'))
+                StringUtil::specialchars($this->translate('MSC.moveSelected', $languageDomain))
             );
         }
 
         if ($basicDefinition->isCreatable()) {
             $buttons['copy'] = sprintf(
                 '<input type="submit" name="copy" id="copy" class="tl_submit" accesskey="c" value="%s">',
-                StringUtil::specialchars($this->translate('MSC.copySelected'))
+                StringUtil::specialchars($this->translate('MSC.copySelected', $languageDomain))
             );
         }
 
         if ($basicDefinition->isEditable()) {
             $buttons['override'] = sprintf(
                 '<input type="submit" name="override" id="override" class="tl_submit" accesskey="v" value="%s">',
-                StringUtil::specialchars($this->translate('MSC.overrideSelected'))
+                StringUtil::specialchars($this->translate('MSC.overrideSelected', $languageDomain))
             );
 
             $buttons['edit'] = sprintf(
                 '<input type="submit" name="edit" id="edit" class="tl_submit" accesskey="s" value="%s">',
-                StringUtil::specialchars($this->translate('MSC.editSelected'))
+                StringUtil::specialchars($this->translate('MSC.editSelected', $languageDomain))
             );
         }
 
-        $event = new GetSelectModeButtonsEvent($this->getEnvironment());
+        $event = new GetSelectModeButtonsEvent($environment);
         $event->setButtons($buttons);
-        $this->getEnvironment()->getEventDispatcher()->dispatch(GetSelectModeButtonsEvent::NAME, $event);
+        $environment->getEventDispatcher()->dispatch(GetSelectModeButtonsEvent::NAME, $event);
 
         return $event->getButtons();
     }
@@ -443,11 +516,12 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
     /**
      * Check if the models are sortable.
      *
+     * @param EnvironmentInterface $environment The environment.
+     *
      * @return bool
      */
-    private function isSortable()
+    private function isSortable(EnvironmentInterface $environment)
     {
-        $environment     = $this->getEnvironment();
         $dataDefinition  = $environment->getDataDefinition();
         $basicDefinition = $dataDefinition->getBasicDefinition();
 
@@ -458,16 +532,19 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
     /**
      * Render paste top button. Returns null if no button should be rendered.
      *
-     * @param GroupAndSortingDefinitionInterface|null $sorting The sorting mode.
+     * @param EnvironmentInterface                    $environment The environment.
+     *
+     * @param GroupAndSortingDefinitionInterface|null $sorting     The sorting mode.
      *
      * @return string
      */
-    protected function renderPasteTopButton($sorting)
+    protected function renderPasteTopButton(EnvironmentInterface $environment, $sorting)
     {
-        $definition      = $this->getEnvironment()->getDataDefinition();
-        $dispatcher      = $this->getEnvironment()->getEventDispatcher();
+        $definition      = $environment->getDataDefinition();
+        $dispatcher      = $environment->getEventDispatcher();
         $basicDefinition = $definition->getBasicDefinition();
-        $clipboard       = $this->getEnvironment()->getClipboard();
+        $clipboard       = $environment->getClipboard();
+        $languageDomain  = 'contao_' . $definition->getName();
 
         $filter = new Filter();
         $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
@@ -475,7 +552,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
         if (!$sorting || $clipboard->isEmpty($filter)) {
             return null;
         }
-        if (!ViewHelpers::getManualSortingProperty($this->environment)) {
+        if (!ViewHelpers::getManualSortingProperty($environment)) {
             return null;
         }
 
@@ -492,7 +569,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
             ContaoEvents::IMAGE_GET_HTML,
             new GenerateHtmlEvent(
                 'pasteafter.gif',
-                $this->translate('pasteafter.0'),
+                $this->translate('pasteafter.0', $languageDomain),
                 'class="blink"'
             )
         );
@@ -500,7 +577,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
         return sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $urlEvent->getUrl(),
-            StringUtil::specialchars($this->translate('pasteafter.0')),
+            StringUtil::specialchars($this->translate('pasteafter.0', $languageDomain)),
             $imageEvent->getHtml()
         );
     }
@@ -508,15 +585,17 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
     /**
      * Render the breadcrumb.
      *
+     * @param EnvironmentInterface $environment Environment.
+     *
      * @return null|string
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    private function breadcrumb()
+    private function breadcrumb(EnvironmentInterface $environment)
     {
-        $event = new GetBreadcrumbEvent($this->environment);
-        $this->environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $event = new GetBreadcrumbEvent($environment);
+        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
         $elements = $event->getElements();
         if (empty($elements)) {
             return null;

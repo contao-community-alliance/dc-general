@@ -25,7 +25,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Filte
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -97,7 +97,7 @@ class LanguageFilter implements EventSubscriberInterface
         $dataProvider   = $environment->getDataProvider();
         $providerName   = $environment->getDataDefinition()->getName();
         $modelId        = ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id'))
-            ? IdSerializer::fromSerialized($inputProvider->getParameter('id'))->getId()
+            ? ModelId::fromSerialized($inputProvider->getParameter('id'))->getId()
             : null;
         $languages      = $environment->getController()->getSupportedLanguages($modelId);
 
@@ -147,7 +147,7 @@ class LanguageFilter implements EventSubscriberInterface
         }
 
         $modelId      = ($inputProvider->getParameter('id') && $inputProvider->getParameter('id'))
-            ? IdSerializer::fromSerialized($inputProvider->getParameter('id'))->getId()
+            ? ModelId::fromSerialized($inputProvider->getParameter('id'))->getId()
             : null;
         $languages    = $environment->getController()->getSupportedLanguages($modelId);
         $providerName = $environment->getDataDefinition()->getName();

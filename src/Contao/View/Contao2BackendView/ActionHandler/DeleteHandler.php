@@ -25,6 +25,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Actio
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\EditOnlyModeException;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\NotDeletableException;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
@@ -34,47 +36,91 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefaultModelRelationshipDefinition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
-use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractEnvironmentAwareHandler;
+use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\ActionGuardTrait;
+use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
 
 /**
  * Class DeleteHandler handles the delete action.
  */
-class DeleteHandler extends AbstractEnvironmentAwareHandler
+class DeleteHandler
 {
+    use ActionGuardTrait;
+    use CallActionTrait;
+    use RequestScopeDeterminatorAwareTrait;
+
+    /**
+     * PasteHandler constructor.
+     *
+     * @param RequestScopeDeterminator $scopeDeterminator The request mode determinator.
+     */
+    public function __construct(RequestScopeDeterminator $scopeDeterminator)
+    {
+        $this->setScopeDeterminator($scopeDeterminator);
+    }
+
+    /**
+     * Handle the event to process the action.
+     *
+     * @param ActionEvent $event The action event.
+     *
+     * @return void
+     */
+    public function handleEvent(ActionEvent $event)
+    {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
+            return;
+        }
+
+        if ($event->getAction()->getName() !== 'delete') {
+            return;
+        }
+
+        if (true !== ($response = $this->checkPermission($event->getEnvironment()))) {
+            $event->setResponse($response);
+            $event->stopPropagation();
+
+            return;
+        }
+
+        $response = $this->process($event->getEnvironment());
+        $event->setResponse($response);
+    }
+
     /**
      * Check if is it allowed to delete a record.
      *
-     * @param ModelIdInterface $modelId  The model id.
-     * @param bool             $redirect If true it redirects to error page instead of throwing an exception.
+     * @param EnvironmentInterface $environment The environment.
+     * @param ModelIdInterface     $modelId     The model id.
+     * @param bool                 $redirect    If true it redirects to error page instead of throwing an exception.
      *
      * @return void
-     *
-     * @throws NotDeletableException If deletion is disabled.
      */
-    protected function guardIsDeletable(ModelIdInterface $modelId, $redirect = false)
+    protected function guardIsDeletable(EnvironmentInterface $environment, ModelIdInterface $modelId, $redirect = false)
     {
-        if ($this->getEnvironment()->getDataDefinition()->getBasicDefinition()->isDeletable()) {
+        if ($environment->getDataDefinition()->getBasicDefinition()->isDeletable()) {
             return;
         }
 
         if ($redirect) {
-            $this->getEnvironment()->getEventDispatcher()->dispatch(
+            $environment->getEventDispatcher()->dispatch(
                 ContaoEvents::SYSTEM_LOG,
                 new LogEvent(
                     sprintf(
                         'Table "%s" is not deletable',
                         'DC_General - DefaultController - delete()',
-                        $this->getEnvironment()->getDataDefinition()->getName()
+                        $environment->getDataDefinition()->getName()
                     ),
                     __CLASS__ . '::delete()',
                     TL_ERROR
                 )
             );
 
-            $this->getEnvironment()->getEventDispatcher()->dispatch(
+            $environment->getEventDispatcher()->dispatch(
                 ContaoEvents::CONTROLLER_REDIRECT,
                 new RedirectEvent('contao/main.php?act=error')
             );
@@ -86,15 +132,14 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
     /**
      * Fetch the model.
      *
-     * @param ModelIdInterface $modelId The model id.
+     * @param EnvironmentInterface $environment The environment.
+     * @param ModelIdInterface     $modelId     The model id.
      *
      * @return ModelInterface
-     *
-     * @throws DcGeneralRuntimeException If no model are found.
      */
-    protected function fetchModel(ModelIdInterface $modelId)
+    protected function fetchModel(EnvironmentInterface $environment, ModelIdInterface $modelId)
     {
-        $dataProvider = $this->getEnvironment()->getDataProvider($modelId->getDataProviderName());
+        $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
         $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
         if (!$model || !$model->getId()) {
@@ -109,7 +154,8 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
     /**
      * Delete an model.
      *
-     * @param ModelIdInterface $modelId The model id.
+     * @param EnvironmentInterface $environment Environment.
+     * @param ModelIdInterface     $modelId     The model id.
      *
      * @return void
      *
@@ -117,16 +163,15 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
      * @throws NotDeletableException     If the data definition does not allow delete actions.
      * @throws DcGeneralRuntimeException If the model is not found.
      */
-    public function delete(ModelIdInterface $modelId)
+    public function delete(EnvironmentInterface $environment, ModelIdInterface $modelId)
     {
-        $this->guardNotEditOnly($modelId);
-        $this->guardIsDeletable($modelId);
+        $this->guardNotEditOnly($environment->getDataDefinition(), $modelId);
+        $this->guardIsDeletable($environment, $modelId);
 
-        $environment = $this->getEnvironment();
-        $model       = $this->fetchModel($modelId);
+        $model = $this->fetchModel($environment, $modelId);
 
         // Trigger event before the model will be deleted.
-        $event = new PreDeleteModelEvent($this->getEnvironment(), $model);
+        $event = new PreDeleteModelEvent($environment, $model);
         $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
@@ -138,52 +183,42 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
     }
 
     /**
-     * {@inheritdoc}
+     * Process the action.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return string
      */
-    public function process()
+    protected function process(EnvironmentInterface $environment)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
-            return;
-        }
-
-        if ($this->getEvent()->getAction()->getName() !== 'delete') {
-            return;
-        }
-
-        if (false === $this->checkPermission()) {
-            $this->getEvent()->stopPropagation();
-
-            return;
-        }
-
-        $environment = $this->getEnvironment();
-        $modelId     = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
+        $modelId = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
 
         // Guard that we are in the preloaded environment. Otherwise checking the data definition could belong to
         // another model.
-        $this->guardValidEnvironment($modelId);
+        $this->guardValidEnvironment($environment->getDataDefinition(), $modelId);
 
         // Only edit mode is supported. Trigger an edit action.
-        if ($this->isEditOnlyResponse()) {
-            return;
+        if ($environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+            return $this->callAction($environment, 'edit');
         }
 
         // We want a redirect here if not deletable.
-        $this->guardIsDeletable($modelId, true);
-        $this->deepDelete($modelId);
-        $this->delete($modelId);
+        $this->guardIsDeletable($environment, $modelId, true);
+        $this->deepDelete($environment, $modelId);
+        $this->delete($environment, $modelId);
 
-        ViewHelpers::redirectHome($this->environment);
+        ViewHelpers::redirectHome($environment);
     }
 
     /**
      * Check permission for delete a model.
      *
-     * @return bool
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return string|bool
      */
-    private function checkPermission()
+    private function checkPermission(EnvironmentInterface $environment)
     {
-        $environment     = $this->getEnvironment();
         $dataDefinition  = $environment->getDataDefinition();
         $basicDefinition = $dataDefinition->getBasicDefinition();
 
@@ -193,30 +228,26 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
             return true;
         }
 
-        $this->getEvent()->setResponse(
-            sprintf(
-                '<div style="text-align:center; font-weight:bold; padding:40px;">
-                    You have no permission for delete model %s.
-                </div>',
-                $modelId->getSerialized()
-            )
+        return sprintf(
+            '<div style="text-align:center; font-weight:bold; padding:40px;">
+                You have no permission for delete model %s.
+            </div>',
+            $modelId->getSerialized()
         );
-
-        return false;
     }
 
     /**
      * Delete all deep models.
      *
-     * @param ModelIdInterface $modelId The Model Id.
+     * @param EnvironmentInterface $environment Environment.
+     * @param ModelIdInterface     $modelId     The Model Id.
      *
      * @return void
      *
      * @SuppressWarnings(PHPMD.LongVariableName)
      */
-    protected function deepDelete(ModelIdInterface $modelId)
+    protected function deepDelete(EnvironmentInterface $environment, ModelIdInterface $modelId)
     {
-        $environment    = $this->getEnvironment();
         $dataDefinition = $environment->getDataDefinition();
         /** @var DefaultModelRelationshipDefinition $relationships */
         $relationships = $dataDefinition->getDefinition('model-relationships');
@@ -247,7 +278,7 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
             }
 
             foreach ($destinationChildModels as $destinationChildModel) {
-                $this->deepDelete(ModelId::fromModel($destinationChildModel));
+                $this->deepDelete($environment, ModelId::fromModel($destinationChildModel));
             }
         }
 
@@ -265,7 +296,7 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
 
             foreach ($childModels as $childModel) {
                 // Trigger event before the model will be deleted.
-                $event = new PreDeleteModelEvent($this->getEnvironment(), $childModel);
+                $event = new PreDeleteModelEvent($environment, $childModel);
                 $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
                 $childDataProvider->delete($childModel);

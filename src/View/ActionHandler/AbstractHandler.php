@@ -23,7 +23,6 @@
 namespace ContaoCommunityAlliance\DcGeneral\View\ActionHandler;
 
 use ContaoCommunityAlliance\DcGeneral\Action;
-use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\EditOnlyModeException;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
@@ -39,28 +38,11 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 abstract class AbstractHandler
 {
     /**
-     * The request mode determinator.
-     *
-     * @var RequestScopeDeterminator
-     */
-    protected $scopeDeterminator;
-
-    /**
      * The event.
      *
      * @var ActionEvent
      */
     private $event = null;
-
-    /**
-     * AbstractHandler constructor.
-     *
-     * @param RequestScopeDeterminator $scopeDeterminator The request mode determinator.
-     */
-    public function __construct(RequestScopeDeterminator $scopeDeterminator)
-    {
-        $this->scopeDeterminator = $scopeDeterminator;
-    }
 
     /**
      * Method to buffer the event and then process it.

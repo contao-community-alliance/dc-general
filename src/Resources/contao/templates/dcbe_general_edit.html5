@@ -90,7 +90,7 @@ $GLOBALS['TL_CSS'][] = 'bundles/ccadcgeneral/css/generalDriver.css';
 <div class="tl_formbody_submit">
 
 <div class="tl_submit_container">
-	<?php echo implode(' ', $this->editButtons); ?>
+    <?= $this->editButtons ?>
 </div>
 
 </div>

@@ -25,6 +25,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\BackendUser;
+use Contao\Image;
 use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
@@ -333,7 +334,7 @@ class EditMask
     /**
      * Retrieve a list of html buttons to use in the bottom panel (submit area).
      *
-     * @return string[]
+     * @return string
      */
     protected function getEditButtons()
     {
@@ -341,39 +342,86 @@ class EditMask
         $definition      = $this->getDataDefinition();
         $basicDefinition = $definition->getBasicDefinition();
 
-        $buttons['save'] = sprintf(
-            '<input type="submit" name="save" id="save" class="tl_submit" accesskey="s" value="%s" />',
-            $this->getButtonLabel('save')
-        );
+        // Fixme: Creating buttons via an event?
+        $buttonTemplate = new ContaoBackendViewTemplate('dc_general_button');
 
-        $buttons['saveNclose'] = sprintf(
-            '<input type="submit" name="saveNclose" id="saveNclose" class="tl_submit" accesskey="c" value="%s" />',
-            $this->getButtonLabel('saveNclose')
+        $buttonTemplate->setData(
+            [
+                'label'      => $this->getButtonLabel('save'),
+                'attributes' => [
+                    'type'      => 'submit',
+                    'name'      => 'save',
+                    'id'        => 'save',
+                    'class'     => 'tl_submit',
+                    'accesskey' => 's',
+                ]
+            ]
         );
+        $buttons['save'] = $buttonTemplate->parse();
+
+        $buttonTemplate->setData(
+            [
+                'label'      => $this->getButtonLabel('saveNclose'),
+                'attributes' => [
+                    'type'      => 'submit',
+                    'name'      => 'saveNclose',
+                    'id'        => 'saveNclose',
+                    'class'     => 'tl_submit',
+                    'accesskey' => 'c',
+                ]
+            ]
+        );
+        $buttons['saveNclose'] = $buttonTemplate->parse();
 
         if (!$this->isPopup() && $basicDefinition->isCreatable()) {
-            $buttons['saveNcreate'] = sprintf(
-                '<input type="submit" name="saveNcreate" id="saveNcreate" class="tl_submit" accesskey="n" ' .
-                ' value="%s" />',
-                $this->getButtonLabel('saveNcreate')
+            $buttonTemplate->setData(
+                [
+                    'label'      => $this->getButtonLabel('saveNcreate'),
+                    'attributes' => [
+                        'type'      => 'submit',
+                        'name'      => 'saveNcreate',
+                        'id'        => 'saveNcreate',
+                        'class'     => 'tl_submit',
+                        'accesskey' => 'n',
+                    ]
+                ]
             );
+            $buttons['saveNcreate'] = $buttonTemplate->parse();
         }
 
         if ($this->getEnvironment()->getInputProvider()->hasParameter('s2e')) {
-            $buttons['saveNedit'] = sprintf(
-                '<input type="submit" name="saveNedit" id="saveNedit" class="tl_submit" accesskey="e" value="%s" />',
-                $this->getButtonLabel('saveNedit')
+            $buttonTemplate->setData(
+                [
+                    'label'      => $this->getButtonLabel('saveNedit'),
+                    'attributes' => [
+                        'type'      => 'submit',
+                        'name'      => 'saveNedit',
+                        'id'        => 'saveNedit',
+                        'class'     => 'tl_submit',
+                        'accesskey' => 'e',
+                    ]
+                ]
             );
+            $buttons['saveNedit'] = $buttonTemplate->parse();
         } elseif (!$this->isPopup()
-            && (($basicDefinition->getMode() == BasicDefinitionInterface::MODE_PARENTEDLIST)
-                || strlen($basicDefinition->getParentDataProvider())
-                || $basicDefinition->isSwitchToEditEnabled()
-            )
+                  && (($basicDefinition->getMode() == BasicDefinitionInterface::MODE_PARENTEDLIST)
+                      || strlen($basicDefinition->getParentDataProvider())
+                      || $basicDefinition->isSwitchToEditEnabled()
+                  )
         ) {
-            $buttons['saveNback'] = sprintf(
-                '<input type="submit" name="saveNback" id="saveNback" class="tl_submit" accesskey="g" value="%s" />',
-                $this->getButtonLabel('saveNback')
+            $buttonTemplate->setData(
+                [
+                    'label'      => $this->getButtonLabel('saveNback'),
+                    'attributes' => [
+                        'type'      => 'submit',
+                        'name'      => 'saveNback',
+                        'id'        => 'saveNback',
+                        'class'     => 'tl_submit',
+                        'accesskey' => 'g',
+                    ]
+                ]
             );
+            $buttons['saveNback'] = $buttonTemplate->parse();
         }
 
         $event = new GetEditModeButtonsEvent($this->getEnvironment());
@@ -381,7 +429,21 @@ class EditMask
 
         $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
 
-        return $event->getButtons();
+        $submitButtons = ['toggleIcon' => Image::getHtml('navcol.svg')];
+        $editButtons   = $event->getButtons();
+        if (array_key_exists('save', $editButtons)) {
+            $submitButtons['save'] = $editButtons['save'];
+            unset($editButtons['save']);
+        }
+
+        if (0 < count($editButtons)) {
+            $submitButtons['buttonGroup'] = $editButtons;
+        }
+
+        $submitButtonTemplate = new ContaoBackendViewTemplate('dc_general_submit_button');
+        $submitButtonTemplate->setData($submitButtons);
+
+        return preg_replace('/(\s\s+|\t|\n)/', '', $submitButtonTemplate->parse());
     }
 
     /**
@@ -592,7 +654,7 @@ class EditMask
             $controller = $environment->getController();
 
             if ($inputProvider->hasParameter('after')) {
-                $after = IdSerializer::fromSerialized($inputProvider->getParameter('after'));
+                $after = ModelId::fromSerialized($inputProvider->getParameter('after'));
 
                 $previousDataProvider = $environment->getDataProvider($after->getDataProviderName());
                 $previousFetchConfig  = $previousDataProvider->getEmptyConfig();
@@ -605,7 +667,7 @@ class EditMask
                     $controller->pasteTop($models, $this->getManualSortingProperty());
                 }
             } elseif ($inputProvider->hasParameter('into')) {
-                $into = IdSerializer::fromSerialized($inputProvider->getParameter('into'));
+                $into = ModelId::fromSerialized($inputProvider->getParameter('into'));
 
                 $parentDataProvider = $environment->getDataProvider($into->getDataProviderName());
                 $parentFetchConfig  = $parentDataProvider->getEmptyConfig();
@@ -760,8 +822,8 @@ class EditMask
                 'languages',
                 $environment->getController()->getSupportedLanguages($this->model->getId())
             )
-            ->set('language', $dataProvider->getCurrentLanguage())
-            ->set('languageHeadline', $langsNative[$dataProvider->getCurrentLanguage()]);
+                ->set('language', $dataProvider->getCurrentLanguage())
+                ->set('languageHeadline', $langsNative[$dataProvider->getCurrentLanguage()]);
         } else {
             $objTemplate
                 ->set('languages', null)

@@ -48,6 +48,10 @@ class FormatModelLabelSubscriber
      */
     public function handleFormatModelLabel(FormatModelLabelEvent $event)
     {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
+            return;
+        }
+
         $environment = $event->getEnvironment();
         $model       = $event->getModel();
 
