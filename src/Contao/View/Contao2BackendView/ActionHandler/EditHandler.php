@@ -13,6 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -28,15 +29,16 @@ use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EditMask;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
-use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractHandler;
 
 /**
  * Class CreateHandler
  *
  * @package ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler
  */
-class EditHandler extends AbstractHandler
+class EditHandler
 {
     use RequestScopeDeterminatorAwareTrait;
 
@@ -51,19 +53,18 @@ class EditHandler extends AbstractHandler
     }
 
     /**
-     * Handle the action.
+     * Handle the event to process the action.
+     *
+     * @param ActionEvent $event The action event.
      *
      * @return void
-     *
-     * @throws DcGeneralRuntimeException When the requested model could not be located in the database.
      */
-    public function process()
+    public function handleEvent(ActionEvent $event)
     {
         if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 
-        $event  = $this->getEvent();
         $action = $event->getAction();
         // Only handle if we do not have a manual sorting or we know where to insert.
         // Manual sorting is handled by clipboard.
@@ -71,24 +72,39 @@ class EditHandler extends AbstractHandler
             return;
         }
 
-        if (false === $this->checkPermission()) {
+        if (false === $this->checkPermission($event)) {
             $event->stopPropagation();
 
             return;
         }
 
-        $environment   = $this->getEnvironment();
-        $inputProvider = $environment->getInputProvider();
+        $response = $this->process($event->getEnvironment());
+        if (false !== $response) {
+            $event->setResponse($response);
+        }
+    }
 
-        $modelId      = ModelId::fromSerialized($inputProvider->getParameter('id'));
-        $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
+    /**
+     * Handle the action.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return string|bool
+     *
+     * @throws DcGeneralRuntimeException When the requested model could not be located in the database.
+     */
+    protected function process(EnvironmentInterface $environment)
+    {
+        $inputProvider = $environment->getInputProvider();
+        $modelId       = ModelId::fromSerialized($inputProvider->getParameter('id'));
+        $dataProvider  = $environment->getDataProvider($modelId->getDataProviderName());
 
         $view = $environment->getView();
         if (!$view instanceof BaseView) {
-            return;
+            return false;
         }
 
-        $this->checkRestoreVersion($modelId);
+        $this->checkRestoreVersion($environment, $modelId);
 
         $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
         if (!$model) {
@@ -99,17 +115,20 @@ class EditHandler extends AbstractHandler
         $clone->setId($model->getId());
 
         $editMask = new EditMask($view, $model, $clone, null, null, $view->breadcrumb());
-        $event->setResponse($editMask->execute());
+
+        return $editMask->execute();
     }
 
     /**
      * Check permission for edit a model.
      *
+     * @param ActionEvent $event The action event.
+     *
      * @return bool
      */
-    private function checkPermission()
+    private function checkPermission(ActionEvent $event)
     {
-        $environment     = $this->getEnvironment();
+        $environment     = $event->getEnvironment();
         $dataDefinition  = $environment->getDataDefinition();
         $basicDefinition = $dataDefinition->getBasicDefinition();
 
@@ -121,7 +140,7 @@ class EditHandler extends AbstractHandler
 
         $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
 
-        $this->getEvent()->setResponse(
+        $event->setResponse(
             sprintf(
                 '<div style="text-align:center; font-weight:bold; padding:40px;">
                     You have no permission for edit model %s.
@@ -139,7 +158,8 @@ class EditHandler extends AbstractHandler
      * If so, the model will get loaded and marked as active version in the data provider and the client will perform a
      * reload of the page.
      *
-     * @param ModelId $modelId The model id.
+     * @param EnvironmentInterface $environment The environment.
+     * @param ModelId              $modelId     The model id.
      *
      * @return void
      *
@@ -147,9 +167,8 @@ class EditHandler extends AbstractHandler
      *
      * @SuppressWarnings(PHPMD.LongVariable)
      */
-    private function checkRestoreVersion(ModelId $modelId)
+    private function checkRestoreVersion(EnvironmentInterface $environment, ModelId $modelId)
     {
-        $environment   = $this->getEnvironment();
         $definition    = $environment->getDataDefinition();
         $inputProvider = $environment->getInputProvider();
 

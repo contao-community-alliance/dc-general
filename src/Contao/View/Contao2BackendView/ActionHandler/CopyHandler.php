@@ -33,17 +33,21 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
-use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractEnvironmentAwareHandler;
+use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\ActionGuardTrait;
+use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
 use ContaoCommunityAlliance\UrlBuilder\Contao\BackendUrlBuilder;
 
 /**
  * Class CopyModelController handles copy action on a model.
  */
-class CopyHandler extends AbstractEnvironmentAwareHandler
+class CopyHandler
 {
     use RequestScopeDeterminatorAwareTrait;
+    use ActionGuardTrait;
+    use CallActionTrait;
 
     /**
      * CopyHandler constructor.
@@ -56,36 +60,71 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
     }
 
     /**
+     * Handle the event to process the action.
+     *
+     * @param ActionEvent $event The action event.
+     *
+     * @return void
+     */
+    public function handleEvent(ActionEvent $event)
+    {
+        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
+            return;
+        }
+
+        if ($event->getEnvironment()->getDataDefinition()->getBasicDefinition()->isCreatable()) {
+            return;
+        }
+
+        if ($event->getAction()->getName() !== 'copy') {
+            return;
+        }
+
+        if (true !== ($response = $this->checkPermission($event->getEnvironment()))) {
+            $event->setResponse($response);
+            $event->stopPropagation();
+
+            return;
+        }
+
+        $response = $this->process($event->getEnvironment());
+        if ($response !== false) {
+            $event->setResponse($response);
+        }
+    }
+
+    /**
      * Check if is it allowed to create a new record. This is necessary to create the copy.
      *
-     * @param ModelIdInterface $modelId  The model id.
-     * @param bool             $redirect If true it redirects to error page instead of throwing an exception.
+     * @param EnvironmentInterface $environment The environment.
+     * @param ModelIdInterface     $modelId     The model id.
+     * @param bool                 $redirect    If true it redirects to error page instead of throwing an exception.
      *
      * @return void
      *
      * @throws NotCreatableException If deletion is disabled.
      */
-    protected function guardIsCreatable(ModelIdInterface $modelId, $redirect = false)
+    protected function guardIsCreatable(EnvironmentInterface $environment, ModelIdInterface $modelId, $redirect = false)
     {
-        if ($this->getEnvironment()->getDataDefinition()->getBasicDefinition()->isCreatable()) {
+        if ($environment->getDataDefinition()->getBasicDefinition()->isCreatable()) {
             return;
         }
 
         if ($redirect) {
-            $this->getEnvironment()->getEventDispatcher()->dispatch(
+            $environment->getEventDispatcher()->dispatch(
                 ContaoEvents::SYSTEM_LOG,
                 new LogEvent(
                     sprintf(
                         'Table "%s" is not creatable',
                         'DC_General - DefaultController - copy()',
-                        $this->getEnvironment()->getDataDefinition()->getName()
+                        $environment->getDataDefinition()->getName()
                     ),
                     __CLASS__ . '::delete()',
                     TL_ERROR
                 )
             );
 
-            $this->getEnvironment()->getEventDispatcher()->dispatch(
+            $environment->getEventDispatcher()->dispatch(
                 ContaoEvents::CONTROLLER_REDIRECT,
                 new RedirectEvent('contao/main.php?act=error')
             );
@@ -97,16 +136,16 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
     /**
      * Copy a model by using.
      *
-     * @param ModelIdInterface  $modelId   The model id.
+     * @param EnvironmentInterface $environment The environment.
+     * @param ModelIdInterface     $modelId     The model id.
      *
      * @return ModelInterface
      */
-    public function copy(ModelIdInterface $modelId)
+    public function copy(EnvironmentInterface $environment, ModelIdInterface $modelId)
     {
-        $this->guardNotEditOnly($modelId);
-        $this->guardIsCreatable($modelId);
+        $this->guardNotEditOnly($environment->getDataDefinition(), $modelId);
+        $this->guardIsCreatable($environment, $modelId);
 
-        $environment  = $this->getEnvironment();
         $dataProvider = $environment->getDataProvider();
         $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
@@ -118,7 +157,7 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
         $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
 
         // Save the copy.
-        $provider = $this->getEnvironment()->getDataProvider($copyModel->getProviderName());
+        $provider = $environment->getDataProvider($copyModel->getProviderName());
         $provider->save($copyModel);
 
         // Dispatch post duplicate event.
@@ -153,55 +192,46 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
     }
 
     /**
-     * {@inheritdoc}
+     * Process the action.
+     *
+     * @param EnvironmentInterface $environment Current dc-general environment.
+     *
+     * @return string|bool|null
      */
-    public function process()
+    protected function process(EnvironmentInterface $environment)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
-            return;
-        }
+        $modelId = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
 
-        $event = $this->getEvent();
-        if ($event->getAction()->getName() !== 'copy') {
-            return;
-        }
-
-        if (false === $this->checkPermission()) {
-            $this->getEvent()->stopPropagation();
-
-            return;
-        }
-
-        $environment = $this->getEnvironment();
-        $modelId     = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
-
-        $this->guardValidEnvironment($modelId);
+        $this->guardValidEnvironment($environment->getDataDefinition(), $modelId);
         // We want a redirect here if not creatable.
-        $this->guardIsCreatable($modelId, true);
+        $this->guardIsCreatable($environment, $modelId, true);
 
-        if ($this->isEditOnlyResponse()) {
-            return;
+        if ($environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+            return $this->callAction($environment, 'edit');
         }
 
         // Manual sorting mode. The ClipboardController should pick it up.
         $manualSortingProperty = ViewHelpers::getManualSortingProperty($environment);
-        if ($manualSortingProperty && $this->environment->getDataProvider()->fieldExists($manualSortingProperty)) {
-            return;
+        if ($manualSortingProperty && $environment->getDataProvider()->fieldExists($manualSortingProperty)) {
+            return false;
         }
 
-        $copiedModel = $this->copy($modelId);
+        $copiedModel = $this->copy($environment, $modelId);
 
         $this->redirect($environment, ModelId::fromModel($copiedModel));
+
+        return null;
     }
 
     /**
      * Check permission for copy a model.
      *
-     * @return bool
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return string|bool
      */
-    private function checkPermission()
+    private function checkPermission(EnvironmentInterface $environment)
     {
-        $environment     = $this->getEnvironment();
         $dataDefinition  = $environment->getDataDefinition();
         $basicDefinition = $dataDefinition->getBasicDefinition();
 
@@ -211,15 +241,11 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
 
         $modelId = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
 
-        $this->getEvent()->setResponse(
-            sprintf(
-                '<div style="text-align:center; font-weight:bold; padding:40px;">
-                    You have no permission for copy model %s.
-                </div>',
-                $modelId->getSerialized()
-            )
+        return sprintf(
+            '<div style="text-align:center; font-weight:bold; padding:40px;">
+                You have no permission for copy model %s.
+            </div>',
+            $modelId->getSerialized()
         );
-
-        return false;
     }
 }
