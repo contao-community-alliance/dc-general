@@ -299,11 +299,8 @@ class DefaultController implements ControllerInterface
                 }
 
                 $extra = $properties->getProperty($property)->getExtra();
-                if (empty($extra)) {
-                    continue;
-                }
 
-                // Don´t save value if isset property readonly.
+                // Save value only if extra readonly empty.
                 if (empty($extra['readonly'])) {
                     $model->setProperty($property, $value);
                 }
