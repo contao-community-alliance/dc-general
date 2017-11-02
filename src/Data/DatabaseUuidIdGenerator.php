@@ -21,7 +21,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Data;
 
-use Contao\Database;
+use Doctrine\DBAL\Connection;
 
 /**
  * Uuid generating by querying it from the Contao database class.
@@ -31,18 +31,18 @@ class DatabaseUuidIdGenerator implements IdGeneratorInterface
     /**
      * The database to use.
      *
-     * @var Database
+     * @var Connection
      */
-    protected $database;
+    protected $connection;
 
     /**
      * Create a new instance.
      *
-     * @param Database $database The database to use for uuid generating.
+     * @param Connection $connection The database to use for uuid generating.
      */
-    public function __construct(Database $database)
+    public function __construct(Connection $connection)
     {
-        $this->database = $database;
+        $this->connection = $connection;
     }
 
     /**
@@ -52,7 +52,7 @@ class DatabaseUuidIdGenerator implements IdGeneratorInterface
      */
     public function generate()
     {
-        return $this->database->query('SELECT UUID() as id')->first()->id;
+        return $this->connection->query('SELECT UUID() as id')->fetch(\PDO::FETCH_COLUMN);
     }
 
     /**

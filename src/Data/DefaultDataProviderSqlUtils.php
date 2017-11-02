@@ -24,6 +24,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * Static helper class for DefaultDataProvider.
+ *
+ * @deprecated This class is deprecated since 2.1 and where remove in 3.0. The standard connection works over dbal.
  */
 class DefaultDataProviderSqlUtils
 {
@@ -33,9 +35,12 @@ class DefaultDataProviderSqlUtils
      * Returns all values from $objConfig->getFields() as comma separated list.
      *
      * @param ConfigInterface $config     The configuration to use.
+     *
      * @param string          $idProperty The name of the id property.
      *
      * @return string
+     *
+     * @deprecated Use DefaultDataProviderDBalUtils::addField. This will be removed.
      */
     public static function buildFieldQuery($config, $idProperty)
     {
@@ -57,9 +62,12 @@ class DefaultDataProviderSqlUtils
      * Build the WHERE clause for a configuration.
      *
      * @param ConfigInterface $config     The configuration to use.
+     *
      * @param array           $parameters The query parameters will get stored into this array.
      *
      * @return string  The combined WHERE clause (including the word "WHERE").
+     *
+     * @deprecated Use DefaultDataProviderDBalUtils::addWhere. This will be removed.
      */
     public static function buildWhereQuery($config, array &$parameters)
     {
@@ -77,6 +85,8 @@ class DefaultDataProviderSqlUtils
      * @param ConfigInterface $config The configuration to use.
      *
      * @return string
+     *
+     * @deprecated Use DefaultDataProviderDBalUtils::addSorting. This will be removed.
      */
     public static function buildSortingQuery($config)
     {
