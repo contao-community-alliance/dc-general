@@ -29,12 +29,12 @@ var BackendGeneral =
 		if (item) {
 			if (item.getStyle('display') == 'none') {
 				item.setStyle('display', 'inline');
-				image.src = image.src.replace('folPlus.gif', 'folMinus.gif');
+				image.src = image.src.replace('folPlus.svg', 'folMinus.svg');
 				$(el).store('tip:title', Contao.lang.collapse);
 				new Request.Contao({url: data.url, field:el}).post(data);
 			} else {
 				item.setStyle('display', 'none');
-				image.src = image.src.replace('folMinus.gif', 'folPlus.gif');
+				image.src = image.src.replace('folMinus.svg', 'folPlus.svg');
 				$(el).store('tip:title', Contao.lang.expand);
 				new Request.Contao({url: data.url, field:el}).post(data);
 			}
@@ -73,7 +73,7 @@ var BackendGeneral =
 				});
 
 				$(el).store('tip:title', Contao.lang.collapse);
-				image.src = image.src.replace('folPlus.gif', 'folMinus.gif');
+				image.src = image.src.replace('folPlus.svg', 'folMinus.svg');
 				window.fireEvent('structure');
 				AjaxRequest.hideBox();
 
@@ -96,11 +96,11 @@ var BackendGeneral =
 		el.blur();
 
 		if(!icon) {
-			icon = 'visible.gif';
+			icon = 'visible.svg';
 		}
 
 		if(!icon_disabled) {
-			icon_disabled = 'invisible.gif';
+			icon_disabled = 'invisible.svg';
 		}
 
 		var img = null,

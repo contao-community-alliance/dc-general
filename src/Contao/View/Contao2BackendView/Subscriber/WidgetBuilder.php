@@ -219,13 +219,13 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $urlEvent    = new AddToUrlEvent('key=table');
 
         $importTableEvent = new GenerateHtmlEvent(
-            'tablewizard.gif',
+            'tablewizard.svg',
             $translator->translate('importTable.0', $defName),
             'style="vertical-align:text-bottom;"'
         );
 
         $shrinkEvent = new GenerateHtmlEvent(
-            'demagnify.gif',
+            'demagnify.svg',
             $translator->translate('shrink.0', $defName),
             sprintf(
                 'title="%s" ' .
@@ -236,7 +236,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         );
 
         $expandEvent = new GenerateHtmlEvent(
-            'magnify.gif',
+            'magnify.svg',
             $translator->translate('expand.0', $defName),
             sprintf(
                 'title="%s" ' .
@@ -277,7 +277,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $urlEvent = new AddToUrlEvent('key=list');
 
         $importListEvent = new GenerateHtmlEvent(
-            'tablewizard.gif',
+            'tablewizard.svg',
             $translator->translate('importList.0', $defName),
             'style="vertical-align:text-bottom;"'
         );
@@ -310,7 +310,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         // Toggle line wrap (textarea).
         if ($propInfo->getWidgetType() === 'textarea' && !array_key_exists('rte', $propInfo->getExtra())) {
             $event = new GenerateHtmlEvent(
-                'wrap.gif',
+                'wrap.svg',
                 $translator->translate('wordWrap', 'MSC'),
                 sprintf(
                     'title="%s" class="toggleWrap" onclick="Backend.toggleWrap(\'ctrl_%s\');"',
@@ -356,7 +356,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         // Add the help wizard.
         if ($propInfo->getExtra() && array_key_exists('helpwizard', $propInfo->getExtra())) {
             $event = new GenerateHtmlEvent(
-                'about.gif',
+                'about.svg',
                 $translator->translate('helpWizard', 'MSC'),
                 'style="vertical-align:text-bottom;"'
             );

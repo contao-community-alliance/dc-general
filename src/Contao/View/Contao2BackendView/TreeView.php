@@ -24,6 +24,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use Contao\Backend;
 use Contao\StringUtil;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
@@ -290,6 +291,7 @@ class TreeView extends BaseView
         $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
 
         $this
+            ->addToTemplate('theme', Backend::getTheme(), $objTemplate)
             ->addToTemplate('environment', $this->getEnvironment(), $objTemplate)
             ->addToTemplate('objModel', $objModel, $objTemplate)
             ->addToTemplate('select', $this->isSelectModeActive(), $objTemplate)
@@ -376,7 +378,7 @@ class TreeView extends BaseView
             $imageEvent = $event->getEnvironment()->getEventDispatcher()->dispatch(
                 ContaoEvents::IMAGE_GET_HTML,
                 new GenerateHtmlEvent(
-                    'pasteinto_.gif',
+                    'pasteinto_.svg',
                     $strLabel,
                     'class="blink"'
                 )
@@ -389,7 +391,7 @@ class TreeView extends BaseView
         $imageEvent = $event->getEnvironment()->getEventDispatcher()->dispatch(
             ContaoEvents::IMAGE_GET_HTML,
             new GenerateHtmlEvent(
-                'pasteinto.gif',
+                'pasteinto.svg',
                 $strLabel,
                 'class="blink"'
             )
@@ -437,7 +439,7 @@ class TreeView extends BaseView
         }
 
         if (strlen($listing->getRootIcon()) == 0) {
-            $strLabelIcon = 'pagemounts.gif';
+            $strLabelIcon = 'pagemounts.svg';
         } else {
             $strLabelIcon = $listing->getRootIcon();
         }

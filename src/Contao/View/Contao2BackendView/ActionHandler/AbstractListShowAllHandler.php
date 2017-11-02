@@ -21,6 +21,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
+use Contao\Backend;
 use Contao\Environment;
 use Contao\StringUtil;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
@@ -142,6 +143,7 @@ abstract class AbstractListShowAllHandler
         $template = $this->determineTemplate($grouping);
         $template->set('collection', $collection);
         $template->set('mode', ($grouping ? $grouping['mode'] : null));
+        $template->set('theme', Backend::getTheme());
         $this->renderTemplate($template, $environment);
 
         $clipboard = new ViewEvent($environment, $action, DcGeneralViews::CLIPBOARD, []);
@@ -568,7 +570,7 @@ abstract class AbstractListShowAllHandler
         $imageEvent = $dispatcher->dispatch(
             ContaoEvents::IMAGE_GET_HTML,
             new GenerateHtmlEvent(
-                'pasteafter.gif',
+                'pasteafter.svg',
                 $this->translate('pasteafter.0', $languageDomain),
                 'class="blink"'
             )

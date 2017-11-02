@@ -331,7 +331,7 @@ class FileTree extends AbstractWidget
                 return false;
             }
 
-            return \Image::getHtml('folderC.gif') . ' ' . $model->path;
+            return \Image::getHtml('folderC.svg') . ' ' . $model->path;
         }
         $file = new \File($model->path, true);
         $info = $this->renderFileInfo($file);

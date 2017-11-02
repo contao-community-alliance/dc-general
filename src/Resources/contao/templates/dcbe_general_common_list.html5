@@ -101,7 +101,7 @@ if ($this->mode !== GroupAndSortingInformationInterface::GROUP_NONE) {
             <td class="tl_file_list tl_right_nowrap">
                 <?= $model->getMeta($model::OPERATION_BUTTONS); ?>
                 <?php if ($this->sortable) : ?>
-                <?= $this->generateImage('bundles/ccadcgeneral/images/drag.gif', '&udarr;', 'class="drag"') ?>
+                <?= $this->generateImage('system/themes/' . $this->theme . '/icons/drag.svg', '&udarr;', 'class="drag"') ?>
                 <?php endif; ?>
             </td>
         <?php endif; ?>

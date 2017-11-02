@@ -293,7 +293,7 @@ class ButtonRenderer
         if ($command instanceof ToggleCommandInterface) {
             $iconDisabled = isset($extra['icon_disabled'])
                 ? $extra['icon_disabled']
-                : 'invisible.gif';
+                : 'invisible.svg';
 
             $attributes .= sprintf(
                 ' onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this, \'%s\', \'%s\');"',
@@ -428,7 +428,7 @@ class ButtonRenderer
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $this->addToUrl('act=create&amp;after=' . $modelId),
             StringUtil::specialchars($label),
-            $this->renderImageAsHtml('new.gif', $label)
+            $this->renderImageAsHtml('new.svg', $label)
         );
     }
 
@@ -447,7 +447,7 @@ class ButtonRenderer
 
         $label = $this->translate('pasteinto.0');
         if ($event->isPasteIntoDisabled()) {
-            return $this->renderImageAsHtml('pasteinto_.gif', $label, 'class="blink"');
+            return $this->renderImageAsHtml('pasteinto_.svg', $label, 'class="blink"');
         }
 
         if ('pasteinto.1' !== ($opDesc = $this->translate('pasteinto.1'))) {
@@ -460,7 +460,7 @@ class ButtonRenderer
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $event->getHrefInto(),
             StringUtil::specialchars($title),
-            $this->renderImageAsHtml('pasteinto.gif', $label, 'class="blink"')
+            $this->renderImageAsHtml('pasteinto.svg', $label, 'class="blink"')
         );
     }
 
@@ -479,7 +479,7 @@ class ButtonRenderer
 
         $label = $this->translate('pasteafter.0');
         if ($event->isPasteAfterDisabled()) {
-            return $this->renderImageAsHtml('pasteafter_.gif', $label, 'class="blink"');
+            return $this->renderImageAsHtml('pasteafter_.svg', $label, 'class="blink"');
         }
 
         if ('pasteafter.1' !== ($opDesc = $this->translate('pasteafter.1'))) {
@@ -492,7 +492,7 @@ class ButtonRenderer
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $event->getHrefAfter(),
             StringUtil::specialchars($title),
-            $this->renderImageAsHtml('pasteafter.gif', $label, 'class="blink"')
+            $this->renderImageAsHtml('pasteafter.svg', $label, 'class="blink"')
         );
     }
 
