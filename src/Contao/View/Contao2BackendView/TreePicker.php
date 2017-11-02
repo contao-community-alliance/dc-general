@@ -22,6 +22,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use Contao\Backend;
 use Contao\CoreBundle\Picker\PickerConfig;
 use Contao\System;
 use Contao\Widget;
@@ -143,7 +144,7 @@ class TreePicker extends Widget
      *
      * @var string
      */
-    protected $titleIcon = TL_ASSETS_URL . 'system/themes/flexible/images/page.gif';
+    protected $titleIcon = TL_ASSETS_URL . 'system/themes/flexible/icons/pagemounts.svg';
 
     /**
      * The title to display.
@@ -1168,6 +1169,7 @@ class TreePicker extends Widget
             ->setTranslator($this->getEnvironment()->getTranslator())
             ->set('id', $this->strId)
             ->set('name', $this->strName)
+            ->set('theme', Backend::getTheme())
             ->set('fieldType', $this->fieldType)
             ->set('environment', $this->getEnvironment())
             ->set('objModel', $objModel)

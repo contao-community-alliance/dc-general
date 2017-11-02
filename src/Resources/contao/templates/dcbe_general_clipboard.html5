@@ -8,7 +8,7 @@ $eventDispatcher = $environment->getEventDispatcher();
 
 // pre render the clipboard icon
 $event = new \ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent(
-    'clipboard.gif'
+    'clipboard.svg'
 );
 $eventDispatcher->dispatch(
     \ContaoCommunityAlliance\Contao\Bindings\ContaoEvents::IMAGE_GET_HTML,
@@ -33,7 +33,7 @@ foreach ($this->options as $id => $row) {
 
         $item  = $row['item'];
         $event = new \ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent(
-            $icon . '.gif'
+            $icon . '.svg'
         );
         $eventDispatcher->dispatch(
             \ContaoCommunityAlliance\Contao\Bindings\ContaoEvents::IMAGE_GET_HTML,

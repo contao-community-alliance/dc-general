@@ -342,7 +342,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $imageEvent = $dispatcher->dispatch(
             ContaoEvents::IMAGE_GET_HTML,
             new GenerateHtmlEvent(
-                'edit.gif',
+                'edit.svg',
                 $this->translate('editheader.0', $parentDefinition->getName())
             )
         );
@@ -406,7 +406,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $imageEvent = $dispatcher->dispatch(
             ContaoEvents::IMAGE_GET_HTML,
             new GenerateHtmlEvent(
-                'new.gif',
+                'new.svg',
                 $this->translate('pastenew.0', $parentDefinition->getName())
             )
         );
@@ -474,7 +474,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             $imageEvent = $dispatcher->dispatch(
                 ContaoEvents::IMAGE_GET_HTML,
                 new GenerateHtmlEvent(
-                    'pasteafter.gif',
+                    'pasteafter.svg',
                     $this->translate('pasteafter.0', $definition->getName()),
                     'class="blink"'
                 )
@@ -492,7 +492,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $imageEvent = $dispatcher->dispatch(
             ContaoEvents::IMAGE_GET_HTML,
             new GenerateHtmlEvent(
-                'pasteafter_.gif',
+                'pasteafter_.svg',
                 $this->translate('pasteafter.0', $definition->getName()),
                 'class="blink"'
             )

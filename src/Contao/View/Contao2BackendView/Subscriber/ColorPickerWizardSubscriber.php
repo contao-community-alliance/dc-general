@@ -97,7 +97,7 @@ class ColorPickerWizardSubscriber
         if (is_array($propExtra) && array_key_exists('colorpicker', $propExtra) && $propExtra['colorpicker']) {
             $pickerText = $translator->translate('colorpicker', 'MSC');
             $event      = new GenerateHtmlEvent(
-                'pickcolor.gif',
+                'pickcolor.svg',
                 $pickerText,
                 sprintf(
                     'style="%s" title="%s" id="moo_%s"',
