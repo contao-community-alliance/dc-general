@@ -174,18 +174,20 @@ class TreeCollector implements EnvironmentAwareInterface
                     ->setIdOnly(true)
             );
 
-        if (!$childIds) {
+        if (($childIds instanceof CollectionInterface && !$childIds->count())
+            || (\is_array($childIds) && !\count($childIds))
+        ) {
             return null;
         }
 
         return $dataProvider->fetchAll(
             $dataProvider
                 ->getEmptyConfig()
-                ->setSorting(['sorting' => 'ASC'])
+                ->setSorting(['sourceTable.sorting' => 'ASC'])
                 ->setFilter(
                     FilterBuilder::fromArray()
                         ->getFilter()
-                        ->andPropertyValueIn('id', $childIds)
+                        ->andPropertyValueIn('sourceTable.id', $childIds)
                         ->getAllAsArray()
                 )
         );

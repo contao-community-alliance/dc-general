@@ -36,13 +36,13 @@ interface DataProviderInterface
     /**
      * Set base config with source and other necessary parameter.
      *
-     * @param array $arrConfig The configuration to use.
+     * @param array $config The configuration to use.
      *
      * @return void
      *
      * @throws DcGeneralRuntimeException When no source has been defined.
      */
-    public function setBaseConfig(array $arrConfig);
+    public function setBaseConfig(array $config);
 
     /**
      * Return an empty configuration object.
@@ -72,11 +72,11 @@ interface DataProviderInterface
      *
      * If the model shall be retrieved by filter, use $objConfig->setFilter() to populate the config with a filter.
      *
-     * @param ConfigInterface $objConfig The configuration to use.
+     * @param ConfigInterface $config The configuration to use.
      *
      * @return ModelInterface
      */
-    public function fetch(ConfigInterface $objConfig);
+    public function fetch(ConfigInterface $config);
 
     /**
      * Fetch all records (optional filtered, sorted and limited).
@@ -84,11 +84,11 @@ interface DataProviderInterface
      * This returns a collection of all models matching the config object. If idOnly is true, an array containing all
      * matching ids is returned.
      *
-     * @param ConfigInterface $objConfig The configuration to use.
+     * @param ConfigInterface $config The configuration to use.
      *
      * @return CollectionInterface|ModelInterface[]|string[]
      */
-    public function fetchAll(ConfigInterface $objConfig);
+    public function fetchAll(ConfigInterface $config);
 
     /**
      * Retrieve all unique values for the given property.
@@ -99,20 +99,20 @@ interface DataProviderInterface
      * The only information being interpreted from the passed config object is the first property to fetch and the
      * filter definition.
      *
-     * @param ConfigInterface $objConfig The filter config options.
+     * @param ConfigInterface $config The filter config options.
      *
      * @return FilterOptionCollectionInterface
      */
-    public function getFilterOptions(ConfigInterface $objConfig);
+    public function getFilterOptions(ConfigInterface $config);
 
     /**
      * Return the amount of total items (filtering may be used in the config).
      *
-     * @param ConfigInterface $objConfig The configuration to use.
+     * @param ConfigInterface $config The configuration to use.
      *
      * @return int
      */
-    public function getCount(ConfigInterface $objConfig);
+    public function getCount(ConfigInterface $config);
 
     /**
      * Save an item to the data provider.
@@ -120,26 +120,24 @@ interface DataProviderInterface
      * If the item does not have an Id yet, the save operation will add it as a new row to the database and
      * populate the Id of the model accordingly.
      *
-     * @param ModelInterface $objItem   The model to save back.
-     * @param int            $timestamp Optional parameter for use own timestamp.
+     * @param ModelInterface $item The model to save back.* @param int            $timestamp Optional parameter for use own timestamp.
      *                                  This is useful if save a collection of models and all shall have
      *                                  the same timestamp.
      *
      * @return ModelInterface The passed model.
      */
-    public function save(ModelInterface $objItem, $timestamp = 0);
+    public function save(ModelInterface $item, $timestamp = 0);
 
     /**
      * Save a collection of items to the data provider.
      *
-     * @param CollectionInterface $objItems  The collection containing all items to be saved.
-     * @param int                 $timestamp Optional parameter for use own timestamp.
+     * @param CollectionInterface $items The collection containing all items to be saved.* @param int                 $timestamp Optional parameter for use own timestamp.
      *                                       This is useful if save a collection of models and all shall have
      *                                       the same timestamp.
      *
      * @return void
      */
-    public function saveEach(CollectionInterface $objItems, $timestamp = 0);
+    public function saveEach(CollectionInterface $items, $timestamp = 0);
 
     /**
      * Delete an item.
@@ -157,12 +155,12 @@ interface DataProviderInterface
     /**
      * Save a new version of a model.
      *
-     * @param ModelInterface $objModel    The model for which a new version shall be created.
-     * @param string         $strUsername The username to attach to the version as creator.
+     * @param ModelInterface $model    The model for which a new version shall be created.
+     * @param string         $username The username to attach to the version as creator.
      *
      * @return void
      */
-    public function saveVersion(ModelInterface $objModel, $strUsername);
+    public function saveVersion(ModelInterface $model, $username);
 
     /**
      * Return a model based of the version information.
@@ -178,12 +176,12 @@ interface DataProviderInterface
      * Return a list with all versions for the model with the given Id.
      *
      * @param mixed   $mixID         The ID of the row.
-     * @param boolean $blnOnlyActive If true, only active versions will get returned, if false all version will get
+     * @param boolean $onlyActive    If true, only active versions will get returned, if false all version will get
      *                               returned.
      *
      * @return CollectionInterface
      */
-    public function getVersions($mixID, $blnOnlyActive = false);
+    public function getVersions($mixID, $onlyActive = false);
 
     /**
      * Set a version as active.
@@ -212,44 +210,44 @@ interface DataProviderInterface
      * Documentation:
      *      Evaluation - fallback => If true the field can only be assigned once per table.
      *
-     * @param string $strField The field to reset.
+     * @param string $field The field to reset.
      *
      * @return void
      *
      * @deprecated Handle the resetting manually as you must filter the models.
      */
-    public function resetFallback($strField);
+    public function resetFallback($field);
 
     /**
      * Check if the value is unique in the data provider.
      *
-     * @param string $strField The field in which to test.
-     * @param mixed  $varNew   The value about to be saved.
-     * @param int    $intId    The (optional) id of the item currently in scope - pass null for new items.
+     * @param string $field     The field in which to test.
+     * @param mixed  $new       The value about to be saved.
+     * @param int    $primaryId The (optional) id of the item currently in scope - pass null for new items.
      *
      * Documentation:
      *      Evaluation - unique => If true the field value cannot be saved if it exists already.
      *
      * @return boolean
      */
-    public function isUniqueValue($strField, $varNew, $intId = null);
+    public function isUniqueValue($field, $new, $primaryId = null);
 
     /**
      * Check if a property with the given name exists in the data provider.
      *
-     * @param string $strField The name of the property to search.
+     * @param string $columnName The name of the property to search.
      *
      * @return boolean
      */
-    public function fieldExists($strField);
+    public function fieldExists($columnName);
 
     /**
      * Check if two models have the same values in all properties.
      *
-     * @param ModelInterface $objModel1 The first model to compare.
-     * @param ModelInterface $objModel2 The second model to compare.
+     * @param ModelInterface $firstModel  The first model to compare.
+     * @param ModelInterface $secondModel The second model to compare.
      *
      * @return boolean True - If both models are same, false if not.
      */
-    public function sameModels($objModel1, $objModel2);
+    public function sameModels($firstModel, $secondModel);
 }

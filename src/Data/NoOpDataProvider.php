@@ -40,9 +40,9 @@ class NoOpDataProvider implements DataProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function setBaseConfig(array $arrConfig)
+    public function setBaseConfig(array $config)
     {
-        $this->arrBaseConfig = $arrConfig;
+        $this->arrBaseConfig = $config;
     }
 
     /**
@@ -92,7 +92,7 @@ class NoOpDataProvider implements DataProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function fetch(ConfigInterface $objConfig)
+    public function fetch(ConfigInterface $config)
     {
         return $this->getEmptyModel();
     }
@@ -100,7 +100,7 @@ class NoOpDataProvider implements DataProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function fetchAll(ConfigInterface $objConfig)
+    public function fetchAll(ConfigInterface $config)
     {
         return $this->getEmptyCollection();
     }
@@ -108,7 +108,7 @@ class NoOpDataProvider implements DataProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function getFilterOptions(ConfigInterface $objConfig)
+    public function getFilterOptions(ConfigInterface $config)
     {
         return new DefaultFilterOptionCollection();
     }
@@ -116,7 +116,7 @@ class NoOpDataProvider implements DataProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function getCount(ConfigInterface $objConfig)
+    public function getCount(ConfigInterface $config)
     {
         return 0;
     }
@@ -124,17 +124,17 @@ class NoOpDataProvider implements DataProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function save(ModelInterface $objItem, $timestamp = 0)
+    public function save(ModelInterface $item, $timestamp = 0)
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function saveEach(CollectionInterface $objItems, $timestamp = 0)
+    public function saveEach(CollectionInterface $items, $timestamp = 0)
     {
-        foreach ($objItems as $objItem) {
-            $this->save($objItem, $timestamp);
+        foreach ($items as $item) {
+            $this->save($item, $timestamp);
         }
     }
 
@@ -148,7 +148,7 @@ class NoOpDataProvider implements DataProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function saveVersion(ModelInterface $objModel, $strUsername)
+    public function saveVersion(ModelInterface $model, $username)
     {
     }
 
@@ -163,7 +163,7 @@ class NoOpDataProvider implements DataProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function getVersions($mixID, $blnOnlyActive = false)
+    public function getVersions($mixID, $onlyActive = false)
     {
         return null;
     }
@@ -186,7 +186,7 @@ class NoOpDataProvider implements DataProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function resetFallback($strField)
+    public function resetFallback($field)
     {
         // @codingStandardsIgnoreStart
         @\trigger_error(__CLASS__ . '::' . __METHOD__ . ' is deprecated - handle resetting manually', E_USER_DEPRECATED);
@@ -196,7 +196,7 @@ class NoOpDataProvider implements DataProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function isUniqueValue($strField, $varNew, $intId = null)
+    public function isUniqueValue($field, $new, $primaryId = null)
     {
         return true;
     }
@@ -204,7 +204,7 @@ class NoOpDataProvider implements DataProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function fieldExists($strField)
+    public function fieldExists($columnName)
     {
         return false;
     }
@@ -212,10 +212,10 @@ class NoOpDataProvider implements DataProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function sameModels($objModel1, $objModel2)
+    public function sameModels($firstModel, $secondModel)
     {
-        $arrProperties1 = $objModel1->getPropertiesAsArray();
-        $arrProperties2 = $objModel2->getPropertiesAsArray();
+        $arrProperties1 = $firstModel->getPropertiesAsArray();
+        $arrProperties2 = $secondModel->getPropertiesAsArray();
 
         $arrKeys = \array_merge(\array_keys($arrProperties1), \array_keys($arrProperties2));
         $arrKeys = \array_unique($arrKeys);
