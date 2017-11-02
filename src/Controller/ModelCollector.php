@@ -152,9 +152,13 @@ class ModelCollector
             throw new \InvalidArgumentException('Invalid model id passed: ' . var_export($modelId, true));
         }
 
-        $dataProvider = $this->environment->getDataProvider($modelId->getDataProviderName());
+        $definition         = $this->environment->getDataDefinition();
+        $propertyDefinition = $definition->getPropertiesDefinition();
+        $dataProvider       = $this->environment->getDataProvider($modelId->getDataProviderName());
+        $config             = $dataProvider->getEmptyConfig();
+        $config->setId($modelId->getId())->setFields($propertyDefinition->getPropertyNames());
 
-        return $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+        return $dataProvider->fetch($config);
     }
 
     /**
