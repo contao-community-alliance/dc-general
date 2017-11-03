@@ -16,6 +16,7 @@
  * @author     Andreas Isaak <andy.jared@googlemail.com>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -260,11 +261,13 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
             // Update all.
             $intId = intval($arrRow['id']);
 
+            // Always unset id.
+            unset($arrSQL['id']);
+
             // Work around the fact that multicolumnwizard does not clear any hidden fields when copying a dataset.
             // therefore we do consider any dupe as new dataset and save it accordingly.
             if (in_array($intId, $arrKeep)) {
                 $intId = 0;
-                unset($arrSQL['id']);
             }
 
             if ($intId > 0) {
