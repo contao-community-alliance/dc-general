@@ -383,6 +383,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function handleAjaxCall()
     {
+        $event = new ActionEvent($this->environment, new Action('ajax3'));
+        $this->environment->getEventDispatcher()->dispatch(DcGeneralEvents::ACTION, $event);
+
         $handler = new Ajax3X();
         $handler->executePostActions(new DcCompat($this->getEnvironment()));
     }
