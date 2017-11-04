@@ -22,6 +22,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentAwareInterface;
 
@@ -237,9 +238,29 @@ abstract class Ajax implements EnvironmentAwareInterface
             default:
                 $ajax = new \Ajax($action);
                 $ajax->executePreActions();
-                $ajax->executePostActions(new DcCompat($this->getEnvironment()));
+                $ajax->executePostActions(new DcCompat($this->getEnvironment(), $this->getActiveModel()));
                 break;
         }
+    }
+
+    /**
+     * Get the active model.
+     *
+     * @return \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface|null
+     */
+    private function getActiveModel()
+    {
+        $input = $this->getEnvironment()->getInputProvider();
+        if (false === $input->hasParameter('id')) {
+            return null;
+        }
+
+        $modelId      = ModelId::fromSerialized($input->getParameter('id'));
+        $dataProvider = $this->getEnvironment()->getDataProvider($modelId->getDataProviderName());
+
+        $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+
+        return $model;
     }
 
     /**
