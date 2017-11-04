@@ -37,6 +37,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBr
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
@@ -397,8 +398,15 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function handleAjaxCall()
     {
-        $event = new ActionEvent($this->environment, new Action('ajax3'));
-        $this->environment->getEventDispatcher()->dispatch(DcGeneralEvents::ACTION, $event);
+        $input = $this->environment->getInputProvider();
+
+        // Redefine the parameter id if this isn´t model id conform.
+        if (true === ($input->hasParameter('id'))
+            && (false === stripos($input->getParameter('id'), '::'))
+        ) {
+            $modelId = new ModelId($input->getParameter('table'), $input->getParameter('id'));
+            $input->setParameter('id', $modelId->getSerialized());
+        }
 
         $handler = new Ajax3X();
         $handler->executePostActions(new DcCompat($this->getEnvironment()));
