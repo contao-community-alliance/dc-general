@@ -262,7 +262,7 @@ class FileTree extends AbstractWidget
             return;
         }
 
-        foreach ($collection as $model) {
+        foreach ($collection->getModels() as $model) {
             // File system and database seem not in sync
             if (!file_exists(TL_ROOT . '/' . $model->path)) {
                 continue;
@@ -273,7 +273,7 @@ class FileTree extends AbstractWidget
                 continue;
             }
             if (false !== ($icon = $this->renderIcon($model, $this->isGallery, $this->isDownloads))) {
-                $icons[$model->uuid] = $icon;
+                $icons[] = ['uuid' => $model->uuid, 'image' => $icon];
             }
         }
     }

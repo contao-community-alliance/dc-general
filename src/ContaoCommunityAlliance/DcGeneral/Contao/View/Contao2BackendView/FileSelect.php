@@ -192,9 +192,9 @@ class FileSelect
             ),
             $combat
         );
-        if (isset($GLOBALS['TL_DCA'][$modelId->getDataProviderName()]['fields'][$propertyName]['eval']['extensions'])) {
-            $fileSelector->extensions =
-                $GLOBALS['TL_DCA'][$modelId->getDataProviderName()]['fields'][$propertyName]['eval']['extensions'];
+
+        if (isset($information['eval']['extensions'])) {
+            $fileSelector->extensions = $information['eval']['extensions'];
         }
 
         // AJAX request.
