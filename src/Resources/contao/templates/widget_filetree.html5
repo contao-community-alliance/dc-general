@@ -1,3 +1,4 @@
+<div>
 <input type="hidden" name="<?= $this->name ?>" id="ctrl_<?= $this->id ?>" value="<?= $this->value ?>">
 <div class="selector_container">
     <?php if ($this->hasOrder && count($this->icons) > 1): ?>
@@ -19,7 +20,7 @@
         e.preventDefault();
         Backend.openModalSelector({
             "id": "tl_listing",
-            "title": "<?= \Contao\StringUtil::specialchars(str_replace("'", "\\''", $this->label)) ?>",
+            "title": "<?= \Contao\StringUtil::specialchars(str_replace("'", "\\''", implode(' ', (array) $this->label))) ?>",
             "url": this.href + document.getElementById("ctrl_<?= $this->id ?>").value,
             "callback": function(table, value) {
                 new Request.Contao({
@@ -36,3 +37,4 @@
 <?php if ($this->hasOrder): ?>
     <script>Backend.makeMultiSrcSortable("sort_<?= $this->id ?>", "ctrl_<?= $this->orderId ?>", "ctrl_<?= $this->id ?>")</script>
 <?php endif; ?>
+</div>
