@@ -24,6 +24,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
+use Contao\Dbafs;
+use Contao\StringUtil;
 use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
@@ -182,7 +184,7 @@ class Ajax3X extends Ajax
             // Automatically add resources to the DBAFS.
             if ($strType == 'file') {
                 foreach ($varValue as $k => $v) {
-                    $varValue[$k] = call_user_func('\Contao\StringUtil::binToUuid', \Dbafs::addResource($v)->uuid);
+                    $varValue[$k] = StringUtil::binToUuid(Dbafs::addResource(urldecode($v))->uuid);
                 }
             }
         }
