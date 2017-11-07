@@ -76,7 +76,6 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBui
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyTrueCondition;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyVisibleCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Property;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
@@ -1306,58 +1305,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 default:
             }
         }
-
-        $this->parseWidgetPageTree($property, $propInfo);
-    }
-
-    /**
-     * Parse the property widget type of page tree.
-     *
-     * @param PropertyInterface $property The property to parse.
-     *
-     * @param array             $propInfo The property information.
-     *
-     * @return void
-     */
-    private function parseWidgetPageTree(PropertyInterface $property, array $propInfo)
-    {
-        if ('pageTree' !== $property->getWidgetType()) {
-            return;
-        }
-
-        // If the foreign key not set, then use an standard as fallback.
-        if (!isset($propInfo['foreignKey'])) {
-            $propInfo['foreignKey'] = 'tl_page.title';
-        }
-
-        $property
-            ->setExtra(
-                array_merge(
-                    array(
-                        'sourceName' => explode('.', $propInfo['foreignKey'])[0],
-                        'idProperty' => 'id'
-                    ),
-                    (array) $property->getExtra()
-                )
-            );
-    }
-
-    /**
-     * Parse the property for page tree order.
-     *
-     * @param PropertyInterface $property      The base property.
-     *
-     * @param PropertyInterface $orderProperty The order property.
-     *
-     * @return void
-     */
-    private function parsePropertyForPageTreeOrder(PropertyInterface $property, PropertyInterface $orderProperty)
-    {
-        if ('pageTree' !== $property->getWidgetType()) {
-            return;
-        }
-
-        $orderProperty->setWidgetType('pageTreeOrder');
     }
 
     /**
