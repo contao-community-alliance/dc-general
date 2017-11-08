@@ -418,14 +418,13 @@ class FileTree extends AbstractWidget
     private function generateLink($values)
     {
         $inputProvider = $this->getEnvironment()->getInputProvider();
-        $modelId       = ModelId::fromModel($this->getModel());
 
         return sprintf(
             '%s?do=%s&amp;field=%s&amp;act=show&amp;id=%s&amp;value=%s&amp;rt=%s',
             'system/modules/dc-general/backend/generalfile.php',
             $inputProvider->getParameter('do'),
             $this->strField,
-            $modelId->getSerialized(),
+            $inputProvider->getParameter('id'),
             implode(',', $values),
             RequestToken::get()
         );
