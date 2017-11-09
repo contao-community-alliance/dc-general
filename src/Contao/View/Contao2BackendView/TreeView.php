@@ -277,7 +277,7 @@ class TreeView extends BaseView
 
         $toggleScript = sprintf(
             'Backend.getScrollOffset(); return BackendGeneral.loadSubTree(this, ' .
-            '{\'toggler\':\'%s\', \'id\':\'%s\', \'providerName\':\'%s\', \'level\':\'%s\', \'mode\':\'%s\'});',
+            '{\'toggler\':\'%s\', \'id\':\'%s\', \'providerName\':\'%s\', \'level\':\'%s\', \'mode\':\'%s\', \'url\': this.href});',
             $strToggleID,
             $objModel->getId(),
             $objModel->getProviderName(),
