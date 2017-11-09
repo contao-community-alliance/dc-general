@@ -45,6 +45,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
 use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * Class TreeView.
@@ -276,20 +277,24 @@ class TreeView extends BaseView
             $toggleTitle = $this->getEnvironment()->getTranslator()->translate('expandNode', 'MSC');
         }
 
-        $toggleScript = sprintf(
-            'Backend.getScrollOffset(); return BackendGeneral.loadSubTree(this, ' .
-            '{\'toggler\':\'%s\', \'id\':\'%s\', \'providerName\':\'%s\', \'level\':\'%s\', \'mode\':\'%s\', \'url\': this.href});',
-            $strToggleID,
-            $objModel->getId(),
-            $objModel->getProviderName(),
-            $objModel->getMeta('dc_gen_tv_level'),
-            6
-        );
-
         $toggleUrlEvent = new AddToUrlEvent(
             'ptg=' . $objModel->getId() . '&amp;provider=' . $objModel->getProviderName()
         );
         $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
+
+        $toggleData = [
+            'url'          => $toggleUrlEvent->getUrl(),
+            'toggler'      => $strToggleID,
+            'id'           => $objModel->getId(),
+            'providerName' => $objModel->getProviderName(),
+            'level'        => $objModel->getMeta('dc_gen_tv_level'),
+            'mode'         => 6
+        ];
+
+        $toggleScript = sprintf(
+            'Backend.getScrollOffset(); return BackendGeneral.loadSubTree(this, %s);',
+            htmlspecialchars(json_encode($toggleData, JsonResponse::DEFAULT_ENCODING_OPTIONS))
+        );
 
         $this
             ->addToTemplate('theme', Backend::getTheme(), $objTemplate)
@@ -298,11 +303,7 @@ class TreeView extends BaseView
             ->addToTemplate('select', $this->isSelectModeActive(), $objTemplate)
             ->addToTemplate('intMode', 6, $objTemplate)
             ->addToTemplate('strToggleID', $strToggleID, $objTemplate)
-            ->addToTemplate(
-                'toggleUrl',
-                $toggleUrlEvent->getUrl(),
-                $objTemplate
-            )
+            ->addToTemplate('toggleUrl', $toggleUrlEvent->getUrl(), $objTemplate)
             ->addToTemplate('toggleTitle', $toggleTitle, $objTemplate)
             ->addToTemplate('toggleScript', $toggleScript, $objTemplate);
 
