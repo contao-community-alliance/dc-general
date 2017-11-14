@@ -26,7 +26,6 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\Backend;
-use Contao\BackendTemplate;
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\TemplateLoader;
 use Contao\Widget;
@@ -36,7 +35,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Encod
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -154,60 +152,41 @@ class ContaoWidgetManager
     /**
      * Function for pre-loading the tiny mce.
      *
-     * @param string $buffer The widget.
+     * @param string $buffer The rendered widget as string.
+     *
+     * @param Widget $widget The widget.
      *
      * @return string The widget.
-     *
-     * @throws \Exception If ritch text editor template does not exist.
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
-     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
-    public function loadRichTextEditor($buffer)
+    public function loadRichTextEditor($buffer, Widget $widget)
     {
-        $environment          = $this->getEnvironment();
-        $dataDefinition       = $environment->getDataDefinition();
-        $propertiesDefinition = $dataDefinition->getPropertiesDefinition();
-        $palettesDefinition   = $dataDefinition->getPalettesDefinition();
-
-        $palettes = $palettesDefinition->findPalette($this->model);
-
-        $properties = $palettes->getProperties($this->model);
+        if ((null === $widget->rte)
+            || ((0 !== (strncmp($widget->rte, 'tiny', 4)))
+                && (0 !== strncmp($widget->rte, 'ace', 3)))
+        ) {
+            return $buffer;
+        }
 
         $backendAdapter        = $this->framework->getAdapter(Backend::class);
         $templateLoaderAdapter = $this->framework->getAdapter(TemplateLoader::class);
 
-        foreach ($properties as $property) {
-            /** @var PropertyInterface $property */
-            $extra = $propertiesDefinition->getProperty($property->getName())->getExtra();
+        list($file, $type) = explode('|', $widget->rte);
 
-            if (!isset($extra['rte'])) {
-                continue;
-            }
+        $templateName = 'be_' . $file;
+        // This test if the rich text editor template exist.
+        $templateLoaderAdapter->getDefaultPath($templateName, 'html5');
 
-            if (strncmp($extra['rte'], 'tiny', 4) !== 0 && strncmp($extra['rte'], 'ace', 3) !== 0) {
-                continue;
-            }
+        $template = new ContaoBackendViewTemplate($templateName);
+        $template
+            ->set('selector', 'ctrl_' . $widget->id)
+            ->set('type', $type);
 
-            list($file, $type) = explode('|', $extra['rte']);
-
-            $templateName = 'be_' . $file;
-            // This test if the ritch text editor template exist.
-            $templateLoaderAdapter->getDefaultPath($templateName, 'html5');
-
-            $template           = new ContaoBackendViewTemplate($templateName);
-            $template
-                ->set('selector', 'ctrl_' . $property->getName())
-                ->set('type', $type);
-
-            if (strncmp($extra['rte'], 'tiny', 4) !== 0) {
-                /** @deprecated Deprecated since Contao 4.0, to be removed in Contao 5.0 */
-                $template->set('language', $backendAdapter->getTinyMceLanguage());
-            }
-
-            $buffer .= $template->parse();
+        if (0 !== strncmp($widget->rte, 'tiny', 4)) {
+            /** @deprecated Deprecated since Contao 4.0, to be removed in Contao 5.0 */
+            $template->set('language', $backendAdapter->getTinyMceLanguage());
         }
+
+        $buffer .= $template->parse();
 
         return $buffer;
     }
@@ -390,7 +369,7 @@ class ContaoWidgetManager
 
         $buffer = $objTemplateFoo->parse();
 
-        return $this->loadRichTextEditor($buffer);
+        return $this->loadRichTextEditor($buffer, $widget);
     }
 
     /**
