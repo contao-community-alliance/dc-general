@@ -295,15 +295,23 @@ class DefaultController implements ControllerInterface
         foreach ($propertyValues as $property => $value) {
             try {
                 $extra = $properties->getProperty($property)->getExtra();
-                if (!empty($extra['readonly'])) {
+
+                // Don´t save value if isset property readonly.
+                if (empty($extra['readonly'])) {
+                    $model->setProperty($property, $value);
+                }
+
+                if (empty($extra)) {
                     continue;
                 }
 
-                $model->setProperty($property, $value);
                 // If always save is true, we need to mark the model as changed.
-                if ($properties->hasProperty($property)
-                    && ($extra = $properties->getProperty($property)->getExtra()) && isset($extra['alwaysSave'])
-                ) {
+                if (!empty($extra['alwaysSave'])) {
+                    // Set property to generate alias or combined values.
+                    if (!empty($extra['readonly'])) {
+                        $model->setProperty($property, '');
+                    }
+
                     $model->setMeta($model::IS_CHANGED, true);
                 }
             } catch (\Exception $exception) {
