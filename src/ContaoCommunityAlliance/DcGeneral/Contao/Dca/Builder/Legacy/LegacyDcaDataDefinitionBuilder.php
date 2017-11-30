@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2017 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,8 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @author     Sven Baumann <baumann.sv@gmailcom>
+ * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -49,6 +50,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefaultPalettesD
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefaultPropertiesDefinition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\DefaultCompoundProperty;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\DefaultProperty;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\BackCommand;
@@ -1280,7 +1282,14 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             if ($definition->hasProperty($propName)) {
                 $property = $definition->getProperty($propName);
             } else {
-                $property = new DefaultProperty($propName);
+                if (array_key_exists('collection', $propInfo['eval'])
+                    ||array_key_exists('columnFields', $propInfo['eval'])
+                    ||array_key_exists('columnsCallback', $propInfo['eval'])
+                ) {
+                    $property = new DefaultCompoundProperty($propName);
+                } else {
+                    $property = new DefaultProperty($propName);
+                }
                 $definition->addProperty($property);
             }
 

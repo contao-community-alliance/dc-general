@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2017 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -21,6 +22,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition;
 
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\CompoundPropertyInterface;
 
 /**
  * This interface describes the data definition that holds all property information.
@@ -78,7 +80,7 @@ interface PropertiesDefinitionInterface extends DefinitionInterface, \IteratorAg
      *
      * @param string $name The name of the property.
      *
-     * @return PropertyInterface
+     * @return PropertyInterface|CompoundPropertyInterface
      */
     public function getProperty($name);
 }

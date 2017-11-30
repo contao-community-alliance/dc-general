@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2017 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <mail@netzmacht.de>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -102,6 +103,16 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
      */
     public function hasProperty($name)
     {
+        $chunks = explode('__', $name);
+
+        if ((1 < count($chunks))
+            && $this->hasProperty($chunks[0])
+        ) {
+            $property = $this->getProperty($chunks[0]);
+
+            return $property->hasProperty($name);
+        }
+
         return isset($this->properties[$name]);
     }
 
@@ -112,6 +123,18 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
      */
     public function getProperty($name)
     {
+        $chunks = explode('__', $name);
+
+        if ((1 < count($chunks))
+            && $this->hasProperty($chunks[0])
+        ) {
+            $property = $this->getProperty($chunks[0]);
+
+            if ($property->hasProperty($name)) {
+                return $property->getProperty($name);
+            }
+        }
+
         if (!$this->hasProperty($name)) {
             throw new DcGeneralInvalidArgumentException('Property ' . $name . ' is not registered.');
         }
