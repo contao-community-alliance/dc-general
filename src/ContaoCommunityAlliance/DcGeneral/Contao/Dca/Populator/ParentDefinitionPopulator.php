@@ -45,7 +45,7 @@ class ParentDefinitionPopulator extends AbstractEventDrivenEnvironmentPopulator
     {
         $definition = $environment->getDataDefinition();
 
-        if (empty($definition->getBasicDefinition()->getParentDataProvider())) {
+        if (!$definition->getBasicDefinition()->getParentDataProvider()) {
             return;
         }
 
