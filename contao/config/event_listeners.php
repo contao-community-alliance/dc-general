@@ -125,10 +125,10 @@ if ('BE' === TL_MODE) {
         array(new ListViewShowAllHandler(), 'handleEvent'),
         array(new ParentedListViewShowAllHandler(), 'handleEvent'),
     );
-    $result[GetGlobalButtonEvent::NAME] = [
-        [new BackButtonListener(), 'handle'],
-        [new CreateModelButtonListener(), 'handle'],
-    ];
+    $result[GetGlobalButtonEvent::NAME] = array(
+        array(new BackButtonListener(), 'handle'),
+        array(new CreateModelButtonListener(), 'handle'),
+    );
 }
 
 return $result;
