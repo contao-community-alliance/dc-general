@@ -87,12 +87,25 @@ class ModelCollectorTest extends TestCase
      */
     public function testGetModel($modelId, $providerName)
     {
+        if (!$providerName) {
+            if ($modelId instanceof ModelId) {
+                $providerName = $modelId->getDataProviderName();
+            } else {
+                $providerName = ModelId::fromSerialized($modelId)->getDataProviderName();
+            }
+        }
+
         $basicDefinition = $this->mockBasicDefinition();
         $basicDefinition->method('getMode')->willReturn(BasicDefinitionInterface::MODE_FLAT);
         $relationships = $this->mockRelationshipDefinition();
+        $propertyDefinition = $this->getMockForAbstractClass(
+            '\ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface'
+        );
         $definition    = $this->mockDefinitionContainer();
+        $definition->method('getName')->willReturn($providerName);
         $definition->method('getBasicDefinition')->willReturn($basicDefinition);
         $definition->method('getModelRelationshipDefinition')->willReturn($relationships);
+        $definition->method('getPropertiesDefinition')->willReturn($propertyDefinition);
 
         $environment = $this->getMockForAbstractClass('ContaoCommunityAlliance\DcGeneral\EnvironmentInterface');
         $environment->method('getDataDefinition')->willReturn($definition);
