@@ -68,6 +68,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\Defau
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\DefaultSortElementInformation;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\DefaultSubmitElementInformation;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\SubmitElementInformationInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelRowCollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelRowInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\SelectCommand;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommand;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
@@ -112,7 +114,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $this->parseBackendView($container);
         $this->parsePalettes($container);
         $this->parseProperties($container);
-        $this->parseOderPropertyInPalette($container);
     }
 
     /**
@@ -1304,6 +1305,58 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 default:
             }
         }
+
+        $this->parseWidgetPageTree($property, $propInfo);
+    }
+
+    /**
+     * Parse the property widget type of page tree.
+     *
+     * @param PropertyInterface $property The property to parse.
+     *
+     * @param array             $propInfo The property information.
+     *
+     * @return void
+     */
+    private function parseWidgetPageTree(PropertyInterface $property, array $propInfo)
+    {
+        if ('pageTree' !== $property->getWidgetType()) {
+            return;
+        }
+
+        // If the foreign key not set, then use an standard as fallback.
+        if (!isset($propInfo['foreignKey'])) {
+            $propInfo['foreignKey'] = 'tl_page.title';
+        }
+
+        $property
+            ->setExtra(
+                array_merge(
+                    array(
+                        'sourceName' => explode('.', $propInfo['foreignKey'])[0],
+                        'idProperty' => 'id'
+                    ),
+                    (array) $property->getExtra()
+                )
+            );
+    }
+
+    /**
+     * Parse the property for page tree order.
+     *
+     * @param PropertyInterface $property      The base property.
+     *
+     * @param PropertyInterface $orderProperty The order property.
+     *
+     * @return void
+     */
+    private function parsePropertyForPageTreeOrder(PropertyInterface $property, PropertyInterface $orderProperty)
+    {
+        if ('pageTree' !== $property->getWidgetType()) {
+            return;
+        }
+
+        $orderProperty->setWidgetType('pageTreeOrder');
     }
 
     /**
@@ -1364,7 +1417,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 }
 
                 $orderProperty = $definition->getProperty($extra['orderField']);
-                $this->parseOrderProperty($property, $orderProperty);
+                $this->parsePropertyForPageTreeOrder($property, $orderProperty);
             }
         }
     }
