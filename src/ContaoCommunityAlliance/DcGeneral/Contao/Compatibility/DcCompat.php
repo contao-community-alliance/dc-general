@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2017 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,15 +13,17 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Compatibility;
 
-use ContaoCommunityAlliance\DcGeneral\DC_General;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DC_General;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -132,7 +134,36 @@ class DcCompat extends DC_General
     {
         switch ($name) {
             case 'id':
-                return $this->getModel() ? $this->getModel()->getId() : null;
+                if (null !== $this->getModel()) {
+                    return $this->getModel()->getId();
+                }
+
+                $environment    = $this->getEnvironment();
+                $dataDefinition = $environment->getDataDefinition();
+                $inputProvider  = $environment->getInputProvider();
+
+                $idParameter = $inputProvider->hasParameter('id') ? 'id' : 'pid';
+                if (!$inputProvider->hasParameter($idParameter)) {
+                    return null;
+                }
+
+                $modelId = ModelId::fromSerialized($inputProvider->getParameter($idParameter));
+                if ($modelId->getDataProviderName() === $dataDefinition->getName()) {
+                    return $modelId->getId();
+                }
+
+                if (('pid' === $idParameter)
+                    || !$inputProvider->hasParameter('pid')
+                ) {
+                    return null;
+                }
+
+                $parentModelId = ModelId::fromSerialized($inputProvider->getParameter('pid'));
+                if ($dataDefinition->getName() !== $parentModelId->getDataProviderName()) {
+                    return null;
+                }
+
+                return $parentModelId->getId();
 
             case 'parentTable':
                 if ($this->getEnvironment()->getParentDataDefinition()) {
