@@ -309,6 +309,7 @@ class ButtonRenderer
 
         $buttonEvent = new GetOperationButtonEvent($this->environment);
         $buttonEvent
+            ->setKey($command->getName())
             ->setCommand($command)
             ->setObjModel($model)
             ->setAttributes($attributes)
