@@ -419,12 +419,18 @@ class FileTree extends AbstractWidget
     {
         $inputProvider = $this->getEnvironment()->getInputProvider();
 
+        $modelId = $inputProvider->getParameter('id');
+        if (!$modelId) {
+            // Use the highest id for mysql.
+            $modelId = $this->dataContainer->getModel()->getProviderName(). '::4294967295';
+        }
+
         return sprintf(
             '%s?do=%s&amp;field=%s&amp;act=show&amp;id=%s&amp;value=%s&amp;rt=%s',
             'system/modules/dc-general/backend/generalfile.php',
             $inputProvider->getParameter('do'),
             $this->strField,
-            $inputProvider->getParameter('id'),
+            $modelId,
             implode(',', $values),
             RequestToken::get()
         );
