@@ -234,7 +234,7 @@ class DefaultDataProviderSqlUtils
      *
      * @return string
      */
-    private function filterInList($operation, &$params)
+    private static function filterInList($operation, &$params)
     {
         $params    = array_merge($params, array_values($operation['values']));
         $wildcards = rtrim(str_repeat('?,', count($operation['values'])), ',');
@@ -253,7 +253,7 @@ class DefaultDataProviderSqlUtils
      *
      * @return string
      */
-    private function filterLike($operation, &$params)
+    private static function filterLike($operation, &$params)
     {
         $wildcards = str_replace(array('*', '?'), array('%', '_'), $operation['value']);
         $params[]  = $wildcards;
