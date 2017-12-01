@@ -151,9 +151,22 @@ class ModelCollector
             throw new \InvalidArgumentException('Invalid model id passed: ' . var_export($modelId, true));
         }
 
-        $dataProvider = $this->environment->getDataProvider($modelId->getDataProviderName());
+        $definition       = $this->environment->getDataDefinition();
+        $parentDefinition = $this->environment->getParentDataDefinition();
+        $dataProvider     = $this->environment->getDataProvider($modelId->getDataProviderName());
+        $config           = $dataProvider->getEmptyConfig();
 
-        return $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+        if ($definition->getName() === $modelId->getDataProviderName()) {
+            $propertyDefinition = $definition->getPropertiesDefinition();
+        } elseif ($parentDefinition->getName() === $modelId->getDataProviderName()) {
+            $propertyDefinition = $parentDefinition->getPropertiesDefinition();
+        } else {
+            throw new \InvalidArgumentException('Invalid provider name ' . $modelId->getDataProviderName());
+        }
+
+        $config->setId($modelId->getId())->setFields($propertyDefinition->getPropertyNames());
+
+        return $dataProvider->fetch($config);
     }
 
     /**

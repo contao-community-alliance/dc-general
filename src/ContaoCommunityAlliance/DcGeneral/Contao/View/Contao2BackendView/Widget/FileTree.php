@@ -15,6 +15,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -22,8 +23,11 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget;
 
+use Contao\DataContainer;
+use Contao\RequestToken;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use Model\Collection;
 
 /**
@@ -258,7 +262,7 @@ class FileTree extends AbstractWidget
             return;
         }
 
-        foreach ($collection as $model) {
+        foreach ($collection->getModels() as $model) {
             // File system and database seem not in sync
             if (!file_exists(TL_ROOT . '/' . $model->path)) {
                 continue;
@@ -269,7 +273,7 @@ class FileTree extends AbstractWidget
                 continue;
             }
             if (false !== ($icon = $this->renderIcon($model, $this->isGallery, $this->isDownloads))) {
-                $icons[$model->uuid] = $icon;
+                $icons[] = ['uuid' => $model->uuid, 'image' => $icon];
             }
         }
     }
@@ -356,7 +360,7 @@ class FileTree extends AbstractWidget
      *
      * @param \File       $file  The image file being rendered.
      *
-     * @param $info
+     * @param string      $info  The image information.
      *
      * @return string
      */
@@ -415,14 +419,20 @@ class FileTree extends AbstractWidget
     {
         $inputProvider = $this->getEnvironment()->getInputProvider();
 
+        $modelId = $inputProvider->getParameter('id');
+        if (!$modelId) {
+            // Use the highest id for mysql.
+            $modelId = $this->dataContainer->getModel()->getProviderName(). '::4294967295';
+        }
+
         return sprintf(
-            'contao/file.php?do=%s&amp;table=%s&amp;field=%s&amp;act=show&amp;id=%s&amp;value=%s&amp;rt=%s',
+            '%s?do=%s&amp;field=%s&amp;act=show&amp;id=%s&amp;value=%s&amp;rt=%s',
+            'system/modules/dc-general/backend/generalfile.php',
             $inputProvider->getParameter('do'),
-            $this->getModel()->getProviderName(),
             $this->strField,
-            $this->getModel()->getId(),
+            $modelId,
             implode(',', $values),
-            \RequestToken::get()
+            RequestToken::get()
         );
     }
 
@@ -439,8 +449,11 @@ class FileTree extends AbstractWidget
             $this->renderList($icons, $files, ($this->isGallery || $this->isDownloads));
             $icons = $this->applySorting($icons);
 
-            foreach ($files as $model) {
-                $values[] = call_user_func('\Contao\StringUtil::binToUuid', $model->uuid);
+            // Files can be null.
+            if (null !== $files) {
+                foreach ($files as $model) {
+                    $values[] = call_user_func('\Contao\StringUtil::binToUuid', $model->uuid);
+                }
             }
         }
 
@@ -462,5 +475,63 @@ class FileTree extends AbstractWidget
         }
 
         return $buffer;
+    }
+
+    /**
+     * Update the value via ajax and redraw the widget.
+     *
+     * @param string        $ajaxAction    Not used in here.
+     *
+     * @param DataContainer $dataContainer The data container to use.
+     *
+     * @return string
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     * @SuppressWarnings(PHPMD.ExitExpression)
+     */
+    public function updateAjax($ajaxAction, DataContainer $dataContainer)
+    {
+        if ($ajaxAction !== 'loadFiletree') {
+            return '';
+        }
+
+        $this->dataContainer = $dataContainer;
+        $this->setUp();
+
+        $environment   = $this->dataContainer->getEnvironment();
+        $inputProvider = $environment->getInputProvider();
+        $propertyName  = $inputProvider->getValue('name');
+
+        $combat = new DcCompat($environment, null, $propertyName);
+
+        /** @var \FileSelector $widgetClass */
+        $widgetClass = $GLOBALS['BE_FFL']['fileSelector'];
+
+        /** @var \FileSelector $widget */
+        $widget = new $widgetClass(
+            $widgetClass::getAttributesFromDca(
+                $GLOBALS['TL_DCA'][$environment->getDataDefinition()->getName()]['fields'][$propertyName],
+                $combat->field,
+                null,
+                $propertyName,
+                $environment->getDataDefinition()->getName(),
+                $combat
+            )
+        );
+
+        // Load a particular node
+        if ('' !== $inputProvider->getValue('folder', true)) {
+            $buffer = $widget->generateAjax(
+                $inputProvider->getValue('folder', true),
+                $inputProvider->getValue('field'),
+                (int) $inputProvider->getValue('level')
+            );
+        } else {
+            $buffer = $widget->generate();
+        }
+
+        echo $buffer;
+        exit;
     }
 }

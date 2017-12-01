@@ -299,22 +299,23 @@ class DefaultController implements ControllerInterface
                 }
 
                 $extra = $properties->getProperty($property)->getExtra();
-                if (empty($extra)) {
-                    continue;
-                }
 
                 // Don´t save value if isset property readonly.
                 if (empty($extra['readonly'])) {
                     $model->setProperty($property, $value);
                 }
 
-                // Set property to generate alias or combined values.
-                if (!empty($extra['readonly']) && !empty($extra['alwaysSave'])) {
-                    $model->setProperty($property, '');
+                if (empty($extra)) {
+                    continue;
                 }
 
                 // If always save is true, we need to mark the model as changed.
                 if (!empty($extra['alwaysSave'])) {
+                    // Set property to generate alias or combined values.
+                    if (!empty($extra['readonly'])) {
+                        $model->setProperty($property, '');
+                    }
+
                     $model->setMeta($model::IS_CHANGED, true);
                 }
             } catch (\Exception $exception) {

@@ -25,6 +25,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\BackendViewPopulator;
 use ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\DataProviderPopulator;
 use ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\ExtendedLegacyDcaPopulator;
 use ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\HardCodedPopulator;
+use ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\ParentDefinitionPopulator;
 use ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\PickerCompatPopulator;
 use ContaoCommunityAlliance\DcGeneral\Contao\Subscriber\FormatModelLabelSubscriber;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\CopyHandler;
@@ -61,26 +62,10 @@ $result = array(
         ),
     ),
     PopulateEnvironmentEvent::NAME => array(
-        function (PopulateEnvironmentEvent $event) {
-            $environment = $event->getEnvironment();
-            $definition  = $environment->getDataDefinition();
-            $parentName  = $definition->getBasicDefinition()->getParentDataProvider();
-
-            if (empty($parentName)) {
-                return;
-            }
-
-            $factory          = new DcGeneralFactory();
-            $parentDefinition = $factory
-                ->setEventDispatcher($environment->getEventDispatcher())
-                ->setTranslator($environment->getTranslator())
-                ->setContainerName($parentName)
-                ->createDcGeneral()
-                ->getEnvironment()
-                ->getDataDefinition();
-
-            $environment->setParentDataDefinition($parentDefinition);
-        },
+        array(
+            array(new ParentDefinitionPopulator(), 'process'),
+            ParentDefinitionPopulator::PRIORITY
+        ),
         array(
             array(new DataProviderPopulator(), 'process'),
             DataProviderPopulator::PRIORITY
@@ -140,10 +125,10 @@ if ('BE' === TL_MODE) {
         array(new ListViewShowAllHandler(), 'handleEvent'),
         array(new ParentedListViewShowAllHandler(), 'handleEvent'),
     );
-    $result[GetGlobalButtonEvent::NAME] = [
-        [new BackButtonListener(), 'handle'],
-        [new CreateModelButtonListener(), 'handle'],
-    ];
+    $result[GetGlobalButtonEvent::NAME] = array(
+        array(new BackButtonListener(), 'handle'),
+        array(new CreateModelButtonListener(), 'handle'),
+    );
 }
 
 return $result;

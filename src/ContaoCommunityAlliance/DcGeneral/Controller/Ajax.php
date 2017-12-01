@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2017 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -21,6 +22,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentAwareInterface;
 
@@ -236,9 +238,29 @@ abstract class Ajax implements EnvironmentAwareInterface
             default:
                 $ajax = new \Ajax($action);
                 $ajax->executePreActions();
-                $ajax->executePostActions(new DcCompat($this->getEnvironment()));
+                $ajax->executePostActions(new DcCompat($this->getEnvironment(), $this->getActiveModel()));
                 break;
         }
+    }
+
+    /**
+     * Get the active model.
+     *
+     * @return \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface|null
+     */
+    private function getActiveModel()
+    {
+        $input = $this->getEnvironment()->getInputProvider();
+        if (false === $input->hasParameter('id')) {
+            return null;
+        }
+
+        $modelId      = ModelId::fromSerialized($input->getParameter('id'));
+        $dataProvider = $this->getEnvironment()->getDataProvider($modelId->getDataProviderName());
+
+        $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+
+        return $model;
     }
 
     /**

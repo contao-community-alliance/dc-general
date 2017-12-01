@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2017 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2015 Contao Community Alliance.
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2017 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -23,7 +24,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Filte
 
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\IdSerializer;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -74,7 +75,7 @@ class LanguageFilter implements EventSubscriberInterface
         $dataProvider   = $environment->getDataProvider();
         $providerName   = $environment->getDataDefinition()->getName();
         $modelId        = ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id'))
-            ? IdSerializer::fromSerialized($inputProvider->getParameter('id'))->getId()
+            ? ModelId::fromSerialized($inputProvider->getParameter('id'))->getId()
             : null;
         $languages      = $environment->getController()->getSupportedLanguages($modelId);
 
@@ -124,7 +125,7 @@ class LanguageFilter implements EventSubscriberInterface
         }
 
         $modelId      = ($inputProvider->getParameter('id') && $inputProvider->getParameter('id'))
-            ? IdSerializer::fromSerialized($inputProvider->getParameter('id'))->getId()
+            ? ModelId::fromSerialized($inputProvider->getParameter('id'))->getId()
             : null;
         $languages    = $environment->getController()->getSupportedLanguages($modelId);
         $providerName = $environment->getDataDefinition()->getName();
