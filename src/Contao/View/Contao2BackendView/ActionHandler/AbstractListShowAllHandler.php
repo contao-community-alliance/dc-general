@@ -53,8 +53,8 @@ use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
-use Symfony\Component\Translation\TranslatorInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface as CcaTranslator;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * This class is the abstract base for parent list and plain list "showAll" commands.
@@ -190,7 +190,21 @@ abstract class AbstractListShowAllHandler
      */
     protected function translate($key, $domain, array $parameters = [])
     {
-        return $this->translator->trans($key, $parameters, $domain);
+        $translated = $this->translator->trans($key, $parameters, $domain);
+
+        // Fallback translate for non symfony domain.
+        if ($translated === $key) {
+            @trigger_error(
+                'Fallback translation for contao lang in the global array. ' .
+                'This will remove in the future, use the symfony domain translation.',
+                E_USER_DEPRECATED
+            );
+
+            $translated =
+                $this->translator->trans(sprintf('%s.%s', $domain, $key), $parameters, sprintf('contao_%s', $domain));
+        }
+
+        return $translated;
     }
 
     /**
