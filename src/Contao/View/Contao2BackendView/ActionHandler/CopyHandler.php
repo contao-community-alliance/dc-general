@@ -72,7 +72,7 @@ class CopyHandler
             return;
         }
 
-        if ($event->getEnvironment()->getDataDefinition()->getBasicDefinition()->isCreatable()) {
+        if (!$event->getEnvironment()->getDataDefinition()->getBasicDefinition()->isCreatable()) {
             return;
         }
 
