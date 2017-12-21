@@ -1370,6 +1370,29 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     }
 
     /**
+     * Parse the property for order and set the order widget.
+     *
+     * @param PropertyInterface $property      The base property.
+     *
+     * @param PropertyInterface $orderProperty The order property.
+     *
+     * @return void
+     */
+    private function parseOrderProperty(PropertyInterface $property, PropertyInterface $orderProperty)
+    {
+        $orderWidgets = array(
+            'pageTree'            => 'pageTreeOrder',
+            'fileTree'            => 'fileTreeOrder',
+            'DcGeneralTreePicker' => 'treePickerOrder'
+        );
+        if (false === array_key_exists($property->getWidgetType(), $orderWidgets)) {
+            return;
+        }
+
+        $orderProperty->setWidgetType($orderWidgets[$property->getWidgetType()]);
+    }
+
+    /**
      * Parse the defined properties and populate the definition.
      *
      * @param ContainerInterface $container The container where the data shall be stored.
