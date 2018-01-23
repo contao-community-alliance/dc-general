@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2017 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     binron <rtb@gmx.ch>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2017 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2018 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -336,7 +337,8 @@ class ButtonRenderer
         }
 
         return sprintf(
-            ' <a href="%s" title="%s" %s>%s</a>',
+            ' <a class="%s" href="%s" title="%s" %s>%s</a>',
+            $command->getName(),
             $buttonEvent->getHref(),
             specialchars($buttonEvent->getTitle()),
             ltrim($buttonEvent->getAttributes()),
