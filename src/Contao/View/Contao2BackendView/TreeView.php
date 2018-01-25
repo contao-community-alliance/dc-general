@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2017 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,7 +18,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2017 Contao Community Alliance.
+ * @copyright  2013-2018 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -45,7 +45,6 @@ use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
 use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * Class TreeView.
@@ -283,7 +282,7 @@ class TreeView extends BaseView
         $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
 
         $toggleData = [
-            'url'          => $toggleUrlEvent->getUrl(),
+            'url'          => html_entity_decode($toggleUrlEvent->getUrl()),
             'toggler'      => $strToggleID,
             'id'           => $objModel->getId(),
             'providerName' => $objModel->getProviderName(),
@@ -293,7 +292,7 @@ class TreeView extends BaseView
 
         $toggleScript = sprintf(
             'Backend.getScrollOffset(); return BackendGeneral.loadSubTree(this, %s);',
-            htmlspecialchars(json_encode($toggleData, JsonResponse::DEFAULT_ENCODING_OPTIONS))
+            htmlspecialchars(json_encode($toggleData, JSON_FORCE_OBJECT))
         );
 
         $this
