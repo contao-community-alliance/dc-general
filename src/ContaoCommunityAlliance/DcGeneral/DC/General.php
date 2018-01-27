@@ -203,9 +203,9 @@ class DC_General extends DataContainer implements DataContainerInterface
      */
     public function __get($name)
     {
-        $environment          = $this->getEnvironment();
-        $inputProvider        = $environment->getInputProvider();
-        $dataDefinition       = $environment->getDataDefinition();
+        $environment    = $this->getEnvironment();
+        $inputProvider  = $environment->getInputProvider();
+        $dataDefinition = $environment->getDataDefinition();
 
         switch ($name) {
             case 'id':
