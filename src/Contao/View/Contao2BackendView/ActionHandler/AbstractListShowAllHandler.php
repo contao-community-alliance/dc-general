@@ -82,7 +82,9 @@ abstract class AbstractListShowAllHandler
      * AbstractHandler constructor.
      *
      * @param RequestScopeDeterminator          $scopeDeterminator The request mode determinator.
+     *
      * @param TranslatorInterface               $translator        The translator.
+     *
      * @param CcaTranslator|TranslatorInterface $ccaTranslator     The cca translator.
      */
     public function __construct(
@@ -123,6 +125,7 @@ abstract class AbstractListShowAllHandler
      * Process the action.
      *
      * @param Action               $action      The action being handled.
+     *
      * @param EnvironmentInterface $environment Current dc-general environment.
      *
      * @return string
@@ -183,7 +186,9 @@ abstract class AbstractListShowAllHandler
      * Translate a string.
      *
      * @param string      $key        The translation key.
+     *
      * @param string|null $domain     The domain name to use.
+     *
      * @param array       $parameters Parameters.
      *
      * @return array|string
@@ -194,11 +199,13 @@ abstract class AbstractListShowAllHandler
 
         // Fallback translate for non symfony domain.
         if ($translated === $key) {
+            // @codingStandardsIgnoreStart
             @trigger_error(
                 'Fallback translation for contao lang in the global array. ' .
                 'This will remove in the future, use the symfony domain translation.',
                 E_USER_DEPRECATED
             );
+            // @codingStandardsIgnoreEnd
 
             $translated =
                 $this->translator->trans(sprintf('%s.%s', $domain, $key), $parameters, sprintf('contao_%s', $domain));
@@ -211,6 +218,7 @@ abstract class AbstractListShowAllHandler
      * Render a model.
      *
      * @param ModelInterface       $model       The model to render.
+     *
      * @param EnvironmentInterface $environment Current environment.
      *
      * @return void
@@ -254,6 +262,7 @@ abstract class AbstractListShowAllHandler
      * Prepare the template.
      *
      * @param ContaoBackendViewTemplate $template    The template to populate.
+     *
      * @param EnvironmentInterface      $environment The environment.
      *
      * @return void
@@ -312,19 +321,21 @@ abstract class AbstractListShowAllHandler
      * Render the collection.
      *
      * @param EnvironmentInterface $environment The environment.
+     *
      * @param CollectionInterface  $collection  The collection to render.
+     *
      * @param array                $grouping    The grouping information.
      *
      * @return void
      */
     private function renderCollection(EnvironmentInterface $environment, CollectionInterface $collection, $grouping)
     {
-        $clipboard   = $environment->getClipboard();
-        $view        = $this->getViewSection($environment->getDataDefinition());
-        $listing     = $view->getListingConfig();
-        $remoteCur   = null;
-        $groupClass  = 'tl_folder_tlist';
-        $eoCount     = -1;
+        $clipboard  = $environment->getClipboard();
+        $view       = $this->getViewSection($environment->getDataDefinition());
+        $listing    = $view->getListingConfig();
+        $remoteCur  = null;
+        $groupClass = 'tl_folder_tlist';
+        $eoCount    = -1;
 
         // Generate buttons - only if not in select mode!
         if ('select' !== $environment->getInputProvider()->getParameter('act')) {
@@ -381,10 +392,10 @@ abstract class AbstractListShowAllHandler
      * Render the panel.
      *
      * @param EnvironmentInterface $environment   The environment.
+     *
      * @param string[]             $ignoredPanels A list with ignored elements [Optional].
      *
      * @return string When no information of panels can be obtained from the data container.
-     *
      */
     private function panel(EnvironmentInterface $environment, $ignoredPanels = [])
     {
@@ -395,7 +406,7 @@ abstract class AbstractListShowAllHandler
     /**
      * Get the table headings.
      *
-     * @param EnvironmentInterface $environment   The environment.
+     * @param EnvironmentInterface $environment The environment.
      *
      * @return array
      */
@@ -437,12 +448,13 @@ abstract class AbstractListShowAllHandler
      *
      * @param string               $groupMode   The grouping mode in use.
      *
-     * @param int                  $groupLength The length of the value to use for grouping (only used when grouping mode is
-     *                                          ListingConfigInterface::GROUP_CHAR).
+     * @param int                  $groupLength The length of the value to use for grouping (only used when grouping
+     *                                          mode ii ListingConfigInterface::GROUP_CHAR).
      *
      * @param EnvironmentInterface $environment The environment.
      *
      * @return string
+     *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */

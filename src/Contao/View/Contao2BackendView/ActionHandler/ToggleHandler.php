@@ -92,7 +92,9 @@ class ToggleHandler
      * Process the action.
      *
      * @param EnvironmentInterface   $environment  The environment.
+     *
      * @param ToggleCommandInterface $operation    The operation.
+     *
      * @param ModelIdInterface|null  $serializedId The model id.
      *
      * @return void
@@ -196,6 +198,7 @@ class ToggleHandler
      * Retrieve the toggle operation being executed.
      *
      * @param Action               $action      The action.
+     *
      * @param EnvironmentInterface $environment The environment.
      *
      * @return ToggleCommandInterface
@@ -220,6 +223,7 @@ class ToggleHandler
      * Determine the new state from the input data.
      *
      * @param InputProviderInterface $inputProvider The input provider.
+     *
      * @param bool                   $isInverse     Flag if the state shall be evaluated as inverse toggler.
      *
      * @return string

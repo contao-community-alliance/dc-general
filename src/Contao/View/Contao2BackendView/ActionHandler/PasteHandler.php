@@ -87,9 +87,9 @@ class PasteHandler
      */
     protected function process(EnvironmentInterface $environment)
     {
-        $input       = $environment->getInputProvider();
-        $clipboard   = $environment->getClipboard();
-        $definition  = $environment->getDataDefinition()->getBasicDefinition();
+        $input      = $environment->getInputProvider();
+        $clipboard  = $environment->getClipboard();
+        $definition = $environment->getDataDefinition()->getBasicDefinition();
 
         // Tree mode needs special handling.
         if ($this->needTreeModeShowAll($definition, $input)) {
@@ -154,6 +154,7 @@ class PasteHandler
      * This is needed, as the destination is otherwise undefined.
      *
      * @param BasicDefinitionInterface $definition The current definition.
+     *
      * @param InputProviderInterface   $input      The input provider.
      *
      * @return bool
@@ -176,6 +177,7 @@ class PasteHandler
      * Test if the current paste action is a simple paste for the passed data provider.
      *
      * @param ClipboardInterface $clipboard The clipboard instance.
+     *
      * @param string             $provider  The provider name.
      *
      * @return bool
@@ -194,6 +196,7 @@ class PasteHandler
      * Obtain the parameter with the given name from the input provider if it exists.
      *
      * @param InputProviderInterface $input The input provider.
+     *
      * @param string                 $name  The parameter to retrieve.
      *
      * @return ModelId|null

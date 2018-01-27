@@ -25,10 +25,10 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\Dca\Palette;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\DefaultPaletteCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionChain;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyTrueCondition
-    as PalettePropertyTrueCondition;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition
-    as PalettePropertyValueCondition;
+// @codingStandardsIgnoreStart
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyTrueCondition as PalettePropertyTrueCondition;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition as PalettePropertyValueCondition;
+// @codingStandardsIgnoreEnd
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyTrueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyValueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Legend;
@@ -322,9 +322,9 @@ class LegacyPalettesParser
      *
      * @param string $childFields        List of the properties for the sub palette.
      *
-     * @param array $selectorFieldNames List of the selector properties [optional].
+     * @param array  $selectorFieldNames List of the selector properties [optional].
      *
-     * @param array $properties         List of the selector visible properties [optional].
+     * @param array  $properties         List of the selector visible properties [optional].
      *
      * @return PropertyInterface[]
      */

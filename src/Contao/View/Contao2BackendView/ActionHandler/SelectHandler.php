@@ -63,7 +63,9 @@ class SelectHandler
      * SelectHandler constructor.
      *
      * @param RequestScopeDeterminator $scopeDeterminator The request scope determinator.
+     *
      * @param DeleteHandler            $deleteHandler     The delete action handler.
+     *
      * @param CopyHandler              $copyHandler       The copy action handler.
      */
     public function __construct(
@@ -74,7 +76,7 @@ class SelectHandler
         $this->setScopeDeterminator($scopeDeterminator);
 
         $this->deleteHandler = $deleteHandler;
-        $this->copyHandler = $copyHandler;
+        $this->copyHandler   = $copyHandler;
     }
 
     /**
@@ -103,6 +105,7 @@ class SelectHandler
      * Handle the action.
      *
      * @param Action               $action      The action.
+     *
      * @param EnvironmentInterface $environment The environment.
      *
      * @return void
@@ -171,7 +174,9 @@ class SelectHandler
      * Get The model ids from the environment.
      *
      * @param EnvironmentInterface $environment  The environment.
+     *
      * @param Action               $action       The dcg action.
+     *
      * @param string               $submitAction The submit action name.
      *
      * @return ModelId[]
@@ -201,7 +206,8 @@ class SelectHandler
      * Handle the delete all action.
      *
      * @param EnvironmentInterface $environment The environment.
-     * @param ModelId[]            $modelIds   The list of model ids.
+     *
+     * @param ModelId[]            $modelIds    The list of model ids.
      *
      * @return void
      */
@@ -218,14 +224,15 @@ class SelectHandler
      * Handle the delete all action.
      *
      * @param EnvironmentInterface $environment The environment.
+     *
      * @param ModelId[]            $modelIds    The list of model ids.
      *
      * @return void
      */
     protected function handleCutAllAction(EnvironmentInterface $environment, $modelIds)
     {
-        $clipboard   = $environment->getClipboard();
-        $parentId    = $this->getParentId($environment);
+        $clipboard = $environment->getClipboard();
+        $parentId  = $this->getParentId($environment);
 
         foreach ($modelIds as $modelId) {
             $clipboard->push(new Item(Item::CUT, $parentId, $modelId));
@@ -240,6 +247,7 @@ class SelectHandler
      * Handle the delete all action.
      *
      * @param EnvironmentInterface $environment The environment.
+     *
      * @param ModelIdInterface[]   $modelIds    The list of model ids.
      *
      * @return void

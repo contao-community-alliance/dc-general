@@ -31,16 +31,22 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 abstract class AbstractAwarePickerProvider extends AbstractPickerProvider
 {
     /**
+     * The menu factory.
+     *
      * @var FactoryInterface
      */
     private $menuFactory;
 
     /**
+     * The router.
+     *
      * @var RouterInterface
      */
     private $router;
 
     /**
+     * The token storage.
+     *
      * @var TokenStorageInterface
      */
     private $tokenStorage;
@@ -88,7 +94,9 @@ abstract class AbstractAwarePickerProvider extends AbstractPickerProvider
     /**
      * Sets the security token storage.
      *
-     * @param TokenStorageInterface $tokenStorage
+     * @param TokenStorageInterface $tokenStorage The token storage.
+     *
+     * @return void
      */
     public function setTokenStorage(TokenStorageInterface $tokenStorage)
     {
@@ -98,8 +106,9 @@ abstract class AbstractAwarePickerProvider extends AbstractPickerProvider
     /**
      * Generates the URL for the picker.
      *
-     * @param PickerConfig $config
-     * @param bool         $ignoreValue
+     * @param PickerConfig $config      The configuration.
+     *
+     * @param bool         $ignoreValue Determine by get the route parameter the picker config ignore.
      *
      * @return string
      */

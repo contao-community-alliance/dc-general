@@ -177,7 +177,7 @@ class TreePicker extends Widget
     /**
      * Create a new instance.
      *
-     * @param array      $attributes    The custom attributes.
+     * @param array   $attributes    The custom attributes.
      *
      * @param General $dataContainer The data container.
      *
@@ -240,7 +240,7 @@ class TreePicker extends Widget
     /**
      * Update the value via ajax and redraw the widget.
      *
-     * @param string     $ajaxAction    Not used in here.
+     * @param string  $ajaxAction    Not used in here.
      *
      * @param General $dataContainer The data container to use.
      *
@@ -578,7 +578,6 @@ class TreePicker extends Widget
      * Generate the picker url.
      *
      * @return string
-     * @internal param array $values The select values.
      */
     protected function generatePickerUrl()
     {
@@ -737,7 +736,8 @@ class TreePicker extends Widget
         $tree = '';
         foreach ($this->getRootIds() as $pid) {
             $collection = $this->loadCollection($pid);
-            $tree       .= $this->generateTreeView($collection, 'tree');
+
+            $tree .= $this->generateTreeView($collection, 'tree');
         }
 
         $template->set('tree', $tree);

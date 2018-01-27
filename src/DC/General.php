@@ -184,9 +184,9 @@ class General extends DataContainer implements DataContainerInterface
      */
     public function __get($name)
     {
-        $environment          = $this->getEnvironment();
-        $inputProvider        = $environment->getInputProvider();
-        $dataDefinition       = $environment->getDataDefinition();
+        $environment    = $this->getEnvironment();
+        $inputProvider  = $environment->getInputProvider();
+        $dataDefinition = $environment->getDataDefinition();
 
         switch ($name) {
             case 'id':
@@ -394,6 +394,7 @@ class General extends DataContainer implements DataContainerInterface
      * @deprecated Only here as requirement of \DataContainer
      *
      * @return void
+     *
      * @throws DcGeneralRuntimeException Throws exception because method is not supported.
      */
     public function getPalette()

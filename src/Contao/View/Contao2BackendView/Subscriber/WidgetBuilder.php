@@ -75,7 +75,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
     /**
      * Construct.
      *
-     * @param EnvironmentInterface          $environment The environment.
+     * @param EnvironmentInterface          $environment       The environment.
      *
      * @param RequestScopeDeterminator|null $scopeDeterminator The request mode determinator.
      */

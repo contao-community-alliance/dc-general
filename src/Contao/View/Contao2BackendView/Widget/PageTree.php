@@ -64,7 +64,6 @@ class PageTree extends TreePicker
      * Generate the picker url.
      *
      * @return string
-     * @internal param array $values The select values.
      */
     protected function generatePickerUrl()
     {

@@ -95,10 +95,14 @@ class DeleteHandler
      * Check if is it allowed to delete a record.
      *
      * @param EnvironmentInterface $environment The environment.
+     *
      * @param ModelIdInterface     $modelId     The model id.
+     *
      * @param bool                 $redirect    If true it redirects to error page instead of throwing an exception.
      *
      * @return void
+     *
+     * @throws NotDeletableException If table can´t delete.
      */
     protected function guardIsDeletable(EnvironmentInterface $environment, ModelIdInterface $modelId, $redirect = false)
     {
@@ -133,9 +137,12 @@ class DeleteHandler
      * Fetch the model.
      *
      * @param EnvironmentInterface $environment The environment.
+     *
      * @param ModelIdInterface     $modelId     The model id.
      *
      * @return ModelInterface
+     *
+     * @throws DcGeneralRuntimeException If model is not found.
      */
     protected function fetchModel(EnvironmentInterface $environment, ModelIdInterface $modelId)
     {
@@ -155,6 +162,7 @@ class DeleteHandler
      * Delete an model.
      *
      * @param EnvironmentInterface $environment Environment.
+     *
      * @param ModelIdInterface     $modelId     The model id.
      *
      * @return void
@@ -240,6 +248,7 @@ class DeleteHandler
      * Delete all deep models.
      *
      * @param EnvironmentInterface $environment Environment.
+     *
      * @param ModelIdInterface     $modelId     The Model Id.
      *
      * @return void

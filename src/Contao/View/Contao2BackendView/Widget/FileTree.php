@@ -24,12 +24,9 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget;
 
 use Contao\StringUtil;
-use Contao\DataContainer;
-use Contao\RequestToken;
 use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use Model\Collection;
 
 /**
@@ -253,7 +250,9 @@ class FileTree extends AbstractWidget
      * Render the file list.
      *
      * @param array           $icons         The generated icons.
+     *
      * @param Collection|null $collection    The files collection.
+     *
      * @param bool            $followSubDirs If true subfolders get rendered.
      *
      * @return void
@@ -319,7 +318,9 @@ class FileTree extends AbstractWidget
      * Render the image of a file.
      *
      * @param \FilesModel $model      The file model.
+     *
      * @param bool        $imagesOnly If true only images are rendered.
+     *
      * @param bool        $downloads  If true file extension has to be in the allowed downloads list.
      *
      * @return false|string
@@ -423,26 +424,22 @@ class FileTree extends AbstractWidget
      */
     private function generateLink($values)
     {
-        $extras = array('fieldType'=>$this->fieldType);
+        $extras = array('fieldType' => $this->fieldType);
 
-        if ($this->files)
-        {
+        if ($this->files) {
             $extras['files'] = (bool) $this->files;
         }
 
-        if ($this->filesOnly)
-        {
+        if ($this->filesOnly) {
             $extras['filesOnly'] = (bool) $this->filesOnly;
         }
 
-        if ($this->path)
-        {
+        if ($this->path) {
             $extras['path'] = (string) $this->path;
         }
 
         // Fixme get the allowed extensions
-        if ($this->extensions)
-        {
+        if ($this->extensions) {
             $extras['extensions'] = (string) $this->extensions;
         }
 

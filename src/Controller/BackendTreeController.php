@@ -109,7 +109,7 @@ class BackendTreeController implements ContainerAwareInterface
     /**
      * Run the controller and parse get the response template.
      *
-     * @param Request $request
+     * @param Request $request The request.
      *
      * @return Response
      *
@@ -149,7 +149,7 @@ class BackendTreeController implements ContainerAwareInterface
     /**
      * Run the controller and parse get the response template.
      *
-     * @param Request $request
+     * @param Request $request The request.
      *
      * @return Response
      *
@@ -194,7 +194,7 @@ class BackendTreeController implements ContainerAwareInterface
     /**
      * Run the controller and parse get the response template.
      *
-     * @param Request $request
+     * @param Request $request The request.
      *
      * @return Response
      *
@@ -223,7 +223,7 @@ class BackendTreeController implements ContainerAwareInterface
     /**
      * Run the controller and parse get the response template.
      *
-     * @param Request $request
+     * @param Request $request The request.
      *
      * @return Response
      *
@@ -242,7 +242,7 @@ class BackendTreeController implements ContainerAwareInterface
         }
         $picker = $this->container->get('contao.picker.builder')->createFromData($request->query->get('picker'));
 
-        //Fixme: If we must call the executive pre action?
+        // Fixme: If we must call the executive pre action?
         $ajax = new \Contao\Ajax($request->request->get('action'));
         $ajax->executePreActions();
 
@@ -273,7 +273,7 @@ class BackendTreeController implements ContainerAwareInterface
 
         $response = new Response($buffer);
         $response->headers->set('Content-Type', 'txt/html' . '; charset=' . Config::get('characterSet'));
-        //Fixme: If we must call the executive post action?
+        // Fixme: If we must call the executive post action?
         #$ajax->executePostActions(new DcCompat($this->itemContainer->getEnvironment()));
         return $response;
     }
@@ -285,7 +285,7 @@ class BackendTreeController implements ContainerAwareInterface
      *
      * @return TreePicker
      *
-     * @internal param Request $request The request.
+     * @throws \InvalidArgumentException If invalid characters in the data provider name or property name.
      */
     private function prepareTreeSelector(PickerInterface $picker)
     {

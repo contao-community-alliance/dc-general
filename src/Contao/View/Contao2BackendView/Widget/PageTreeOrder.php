@@ -41,7 +41,7 @@ class PageTreeOrder extends AbstractWidget
      */
     public function generate()
     {
-        //Nothing to do here.
+        // Nothing to do here.
         return '';
     }
 

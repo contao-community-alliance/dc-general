@@ -174,12 +174,14 @@ class ModelCollector
                 continue;
             }
 
+            // @codingStandardsIgnoreStart
             @trigger_error
             (
-                'Only real property is allowed in the property definition.'.
+                'Only real property is allowed in the property definition.' .
                 'This will no longer be supported in the future.',
                 E_DEPRECATED
             );
+            // @codingStandardsIgnoreEnd
         }
         $config->setId($modelId->getId())->setFields($properties);
 
