@@ -19,8 +19,9 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Picker;
 
-use Contao\CoreBundle\Picker\AbstractPickerProvider;
+use Contao\BackendUser;
 use Contao\CoreBundle\Picker\PickerConfig;
+use Contao\CoreBundle\Picker\PickerProviderInterface;
 use Knp\Menu\FactoryInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -28,7 +29,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 /**
  * Provides the own cca routing.
  */
-abstract class AbstractAwarePickerProvider extends AbstractPickerProvider
+abstract class AbstractAwarePickerProvider implements PickerProviderInterface
 {
     /**
      * The menu factory.
@@ -54,15 +55,14 @@ abstract class AbstractAwarePickerProvider extends AbstractPickerProvider
     /**
      * Constructor.
      *
-     * @param FactoryInterface $menuFactory
-     * @param RouterInterface  $router
+     * @param FactoryInterface $menuFactory The menu factory.
+     *
+     * @param RouterInterface  $router      The router.
      */
     public function __construct(FactoryInterface $menuFactory, RouterInterface $router)
     {
         $this->menuFactory = $menuFactory;
         $this->router      = $router;
-
-        parent::__construct($menuFactory, $router);
     }
 
     /**
@@ -102,6 +102,51 @@ abstract class AbstractAwarePickerProvider extends AbstractPickerProvider
     {
         $this->tokenStorage = $tokenStorage;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isCurrent(PickerConfig $config)
+    {
+        return $config->getCurrent() === $this->getName();
+    }
+
+    /**
+     * Returns the back end user object.
+     *
+     * @return BackendUser The backend user.
+     *
+     * @throws \RuntimeException If the token not provided or the backend user not in the token.
+     */
+    protected function getUser()
+    {
+        if (null === $this->tokenStorage) {
+            throw new \RuntimeException('No token storage provided');
+        }
+
+        $token = $this->tokenStorage->getToken();
+
+        if (null === $token) {
+            throw new \RuntimeException('No token provided');
+        }
+
+        $user = $token->getUser();
+
+        if (!$user instanceof BackendUser) {
+            throw new \RuntimeException('The token does not contain a back end user object');
+        }
+
+        return $user;
+    }
+
+    /**
+     * Returns the routing parameters for the back end picker.
+     *
+     * @param PickerConfig|null $config The picker config.
+     *
+     * @return array
+     */
+    abstract protected function getRouteParameters(PickerConfig $config = null);
 
     /**
      * Generates the URL for the picker.
