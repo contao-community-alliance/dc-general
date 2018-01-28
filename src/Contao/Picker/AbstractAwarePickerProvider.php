@@ -12,6 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @copyright  2013-2018 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -19,16 +20,17 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Picker;
 
-use Contao\CoreBundle\Picker\AbstractPickerProvider;
 use Contao\CoreBundle\Picker\PickerConfig;
+use Contao\CoreBundle\Picker\PickerProviderInterface;
 use Knp\Menu\FactoryInterface;
+use Knp\Menu\ItemInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
  * Provides the own cca routing.
  */
-abstract class AbstractAwarePickerProvider extends AbstractPickerProvider
+abstract class AbstractAwarePickerProvider implements PickerProviderInterface
 {
     /**
      * @var FactoryInterface
@@ -55,12 +57,18 @@ abstract class AbstractAwarePickerProvider extends AbstractPickerProvider
     {
         $this->menuFactory = $menuFactory;
         $this->router      = $router;
-
-        parent::__construct($menuFactory, $router);
     }
 
     /**
-     * {@inheritdoc}
+     * Returns the URL to the picker based on the current value.
+     *
+     * @param PickerConfig $config
+     *
+     * @return string
+     *
+     * @throws \Symfony\Component\Routing\Exception\MissingMandatoryParametersException
+     * @throws \Symfony\Component\Routing\Exception\RouteNotFoundException
+     * @throws \Symfony\Component\Routing\Exception\InvalidParameterException
      */
     public function getUrl(PickerConfig $config)
     {
@@ -68,7 +76,15 @@ abstract class AbstractAwarePickerProvider extends AbstractPickerProvider
     }
 
     /**
-     * {@inheritdoc}
+     * Creates the menu item for this picker.
+     *
+     * @param PickerConfig $config
+     *
+     * @return ItemInterface
+     *
+     * @throws \Symfony\Component\Routing\Exception\RouteNotFoundException
+     * @throws \Symfony\Component\Routing\Exception\MissingMandatoryParametersException
+     * @throws \Symfony\Component\Routing\Exception\InvalidParameterException
      */
     public function createMenuItem(PickerConfig $config)
     {
@@ -96,12 +112,37 @@ abstract class AbstractAwarePickerProvider extends AbstractPickerProvider
     }
 
     /**
+     * Returns whether the picker is currently active.
+     *
+     * @param PickerConfig $config
+     *
+     * @return bool
+     */
+    public function isCurrent(PickerConfig $config)
+    {
+        return $config->getCurrent() === $this->getName();
+    }
+
+    /**
+     * Returns the routing parameters for the back end picker.
+     *
+     * @param PickerConfig|null $config
+     *
+     * @return array
+     */
+    abstract protected function getRouteParameters(PickerConfig $config = null);
+
+    /**
      * Generates the URL for the picker.
      *
      * @param PickerConfig $config
      * @param bool         $ignoreValue
      *
      * @return string
+     *
+     * @throws \Symfony\Component\Routing\Exception\RouteNotFoundException
+     * @throws \Symfony\Component\Routing\Exception\MissingMandatoryParametersException
+     * @throws \Symfony\Component\Routing\Exception\InvalidParameterException
      */
     private function generateUrl(PickerConfig $config, $ignoreValue)
     {
