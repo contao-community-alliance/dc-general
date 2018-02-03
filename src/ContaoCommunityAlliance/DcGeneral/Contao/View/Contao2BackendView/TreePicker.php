@@ -42,6 +42,7 @@ use ContaoCommunityAlliance\DcGeneral\DC_General;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
+use Environment;
 
 /**
  * Provide methods to handle input field "tableTree".
@@ -544,14 +545,25 @@ class TreePicker extends Widget
         $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $icon);
 
         $values   = $this->renderItemsPlain();
+
+        $additionalUrlParameter = '';
+        if ($this->pickerOrderProperty && $this->pickerSortDirection) {
+            $additionalUrlParameter .= sprintf(
+                'orderProperty=%s&amp;sortDirection=%s&amp;',
+                $this->pickerOrderProperty,
+                $this->pickerSortDirection
+            );
+        }
+
         $popupUrl = 'system/modules/dc-general/backend/generaltree.php?' .
             sprintf(
-                'do=%s&amp;table=%s&amp;field=%s&amp;act=show&amp;id=%s&amp;value=%s&amp;rt=%s',
+                'do=%s&amp;table=%s&amp;field=%s&amp;act=show&amp;id=%s&amp;value=%s&amp;%srt=%s',
                 \Input::get('do'),
                 $this->strTable,
                 $this->strField,
                 $environment->getInputProvider()->getParameter('id'),
                 implode(',', array_keys($values)),
+                $additionalUrlParameter,
                 REQUEST_TOKEN
             );
 
@@ -816,6 +828,7 @@ class TreePicker extends Widget
     public function getTreeCollectionRecursive($rootId, $intLevel = 0, $providerName = null)
     {
         $environment      = $this->getEnvironment();
+        $inputProvider    = $environment->getInputProvider();
         $definition       = $environment->getDataDefinition();
         $dataDriver       = $environment->getDataProvider($providerName);
         $objTableTreeData = $dataDriver->getEmptyCollection();
@@ -835,6 +848,14 @@ class TreePicker extends Widget
 
                 $objRootConfig->setFilter($arrFilter);
             }
+
+            if ($inputProvider->hasParameter('orderProperty') && $inputProvider->hasParameter('sortDirection')) {
+                $orderProperty = $inputProvider->getParameter('orderProperty');
+                $sortDirection = $inputProvider->getParameter('sortDirection');
+
+                $objRootConfig->setSorting(array($orderProperty => $sortDirection));
+            }
+
             // Fetch all root elements.
             $objRootCollection = $dataDriver->fetchAll($objRootConfig);
 
