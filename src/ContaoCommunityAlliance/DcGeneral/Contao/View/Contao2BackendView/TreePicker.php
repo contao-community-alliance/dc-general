@@ -626,7 +626,7 @@ class TreePicker extends Widget
 
         $template
             ->setTranslator($translator)
-            ->set('id', $this->strId)
+            ->set('id', 'tl_select')
             ->set('name', $this->strName)
             ->set('class', ($this->strClass ? ' ' . $this->strClass : ''))
             ->set('icon', $icon->getHtml())
