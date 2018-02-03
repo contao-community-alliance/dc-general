@@ -581,16 +581,25 @@ class TreePicker extends Widget
      */
     protected function generatePickerUrl()
     {
-        return System::getContainer()->get('contao.picker.builder')->getUrl(
-            'cca_tree',
-            [
-                'fieldType'    => $this->fieldType,
-                'sourceName'   => $this->sourceName,
-                'modelId'      => ModelId::fromModel($this->dataContainer->getModel())->getSerialized(),
-                'orderField'   => $this->orderField,
-                'propertyName' => $this->name
-            ]
-        );
+        $parameter = [
+            'fieldType'    => $this->fieldType,
+            'sourceName'   => $this->sourceName,
+            'modelId'      => ModelId::fromModel($this->dataContainer->getModel())->getSerialized(),
+            'orderField'   => $this->orderField,
+            'propertyName' => $this->name
+        ];
+
+        if ($this->pickerOrderProperty && $this->pickerSortDirection) {
+            $parameter = array_merge(
+                $parameter,
+                [
+                    'orderProperty' => $this->pickerOrderProperty,
+                    'sortDirection' => $this->pickerSortDirection
+                ]
+            );
+        }
+
+        return System::getContainer()->get('contao.picker.builder')->getUrl('cca_tree', $parameter);
     }
 
     /**
@@ -922,6 +931,7 @@ class TreePicker extends Widget
     public function getTreeCollectionRecursive($rootId, $intLevel = 0, $providerName = null)
     {
         $environment      = $this->getEnvironment();
+        $inputProvider    = $environment->getInputProvider();
         $definition       = $environment->getDataDefinition();
         $dataDriver       = $environment->getDataProvider($providerName);
         $objTableTreeData = $dataDriver->getEmptyCollection();
@@ -941,6 +951,14 @@ class TreePicker extends Widget
 
                 $objRootConfig->setFilter($arrFilter);
             }
+
+            if ($inputProvider->hasParameter('orderProperty') && $inputProvider->hasParameter('sortDirection')) {
+                $orderProperty = $inputProvider->getParameter('orderProperty');
+                $sortDirection = $inputProvider->getParameter('sortDirection');
+
+                $objRootConfig->setSorting(array($orderProperty => $sortDirection));
+            }
+
             // Fetch all root elements.
             $objRootCollection = $dataDriver->fetchAll($objRootConfig);
 
