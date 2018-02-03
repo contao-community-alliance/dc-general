@@ -1,4 +1,3 @@
-<div>
 <input type="hidden" name="<?= $this->name ?>" id="ctrl_<?= $this->id ?>" value="<?= implode(',', array_keys($this->values)) ?>">
 
 <?php $this->block('select-container'); ?>
@@ -28,7 +27,7 @@
 	$("ft_<?= $this->name ?>").addEvent("click", function(e) {
 		e.preventDefault();
 		Backend.openModalSelector({
-			"id": "tl_listing",
+			"id": "tl_select",
 			"title": "<?= \Contao\StringUtil::specialchars(str_replace("'", "\\''", implode(' ', (array) $this->label))) ?>",
 			"url": this.href + document.getElementById("ctrl_<?= $this->id ?>").value,
 			"callback": function(table, value) {
@@ -62,4 +61,3 @@
 	<script>Backend.makeMultiSrcSortable("sort_<?= $this->id ?>", "ctrl_<?= $this->orderId ?>", "ctrl_<?= $this->id ?>")</script>
 <?php endif; ?>
 <?php $this->endblock(); ?>
-</div>
