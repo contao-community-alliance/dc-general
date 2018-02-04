@@ -127,17 +127,6 @@ class ToggleHandler
         if (isset($language)) {
             $dataProvider->setCurrentLanguage($language);
         }
-
-        // Sad that we can not determine ajax requests better.
-        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')) {
-            header('HTTP/1.1 204 No Content');
-            exit;
-        }
-
-        $dispatcher  = $environment->getEventDispatcher();
-        $newUrlEvent = new GetReferrerEvent();
-        $dispatcher->dispatch(ContaoEvents::SYSTEM_GET_REFERRER, $newUrlEvent);
-        $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getReferrerUrl()));
     }
 
     /**
