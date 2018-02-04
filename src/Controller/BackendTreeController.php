@@ -22,6 +22,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
 use Contao\Backend;
+use Contao\BackendMain;
 use Contao\Config;
 use Contao\CoreBundle\Picker\PickerInterface;
 use Contao\Environment;
@@ -121,6 +122,9 @@ class BackendTreeController implements ContainerAwareInterface
             throw new \InvalidArgumentException('No picker was given here.');
         }
         $picker = $this->container->get('contao.picker.builder')->createFromData($request->query->get('picker'));
+
+        // FIXME What can id do for define contao constants e.g. TL_ASSETS_URL.
+        new BackendMain();
 
         $treeSelector = $this->prepareTreeSelector($picker);
 
