@@ -36,6 +36,9 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\TranslatedT
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\PrePersistModelEvent;
+use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractHandler;
 
 /**
  * This class handles toggle commands.
@@ -120,9 +123,23 @@ class ToggleHandler
             $dataProvider->setCurrentLanguage($operation->getLanguage());
         }
 
-        $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($serializedId->getId()));
+        $model         = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($serializedId->getId()));
+        $originalModel = clone $model;
         $model->setProperty($operation->getToggleProperty(), $newState);
+        $dispatcher = $environment->getEventDispatcher();
+
+        $dispatcher->dispatch(
+            PrePersistModelEvent::NAME,
+            new PrePersistModelEvent($environment, $model, $originalModel)
+        );
+
         $dataProvider->save($model);
+
+        $dispatcher->dispatch(
+            PostPersistModelEvent::NAME,
+            new PostPersistModelEvent($environment, $model, $originalModel)
+        );
+
         // Select the previous language.
         if (isset($language)) {
             $dataProvider->setCurrentLanguage($language);
