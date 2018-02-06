@@ -248,7 +248,7 @@ class EditMask
             $propertyValues = new PropertyValueBag();
             $propertyNames  = array_intersect(
                 $this->getDataDefinition()->getPropertiesDefinition()->getPropertyNames(),
-                $input->getValue('FORM_INPUTS')
+                (array) $input->getValue('FORM_INPUTS')
             );
 
             // Process input and update changed properties.
