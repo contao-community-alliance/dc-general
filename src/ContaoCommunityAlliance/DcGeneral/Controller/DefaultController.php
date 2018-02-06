@@ -38,17 +38,18 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\EmptyValueAwarePropertyInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultCollection;
 use ContaoCommunityAlliance\DcGeneral\Data\LanguageInformationInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -285,15 +286,16 @@ class DefaultController implements ControllerInterface
         }
         $environment = $this->getEnvironment();
         $properties  = $environment->getDataDefinition()->getPropertiesDefinition();
-        foreach ($propertyValues as $property => $value) {
+        foreach ($propertyValues as $propertyName => $value) {
             try {
-                if (!$properties->hasProperty($property)) {
+                if (!$properties->hasProperty($propertyName)) {
                     continue;
                 }
-                $extra = $properties->getProperty($property)->getExtra();
+                $property = $properties->getProperty($propertyName);
+                $extra    = $property->getExtra();
                 // Don´t save value if isset property readonly.
                 if (empty($extra['readonly'])) {
-                    $model->setProperty($property, $value);
+                    $model->setProperty($propertyName, $this->sanitizeValue($property, $value));
                 }
                 if (empty($extra)) {
                     continue;
@@ -302,15 +304,36 @@ class DefaultController implements ControllerInterface
                 if (!empty($extra['alwaysSave'])) {
                     // Set property to generate alias or combined values.
                     if (!empty($extra['readonly'])) {
-                        $model->setProperty($property, '');
+                        $model->setProperty($propertyName, '');
                     }
                     $model->setMeta($model::IS_CHANGED, true);
                 }
             } catch (\Exception $exception) {
-                $propertyValues->markPropertyValueAsInvalid($property, $exception->getMessage());
+                $propertyValues->markPropertyValueAsInvalid($propertyName, $exception->getMessage());
             }
         }
         return $this;
+    }
+
+    /**
+     * If value is empty, then override with the empty value stored in property information (if it has any).
+     *
+     * @param PropertyInterface $property The property information.
+     * @param mixed             $value    The value.
+     *
+     * @return mixed
+     */
+    private function sanitizeValue(PropertyInterface $property, $value)
+    {
+        // If value empty, then override with empty value in property (if it has any).
+        if (empty($value)
+            && ($property instanceof EmptyValueAwarePropertyInterface)
+            && $property->hasEmptyValue()
+        ) {
+            return $property->getEmptyValue();
+        }
+
+        return $value;
     }
 
     /**
