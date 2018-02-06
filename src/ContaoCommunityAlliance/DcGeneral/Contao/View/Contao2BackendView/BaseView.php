@@ -36,7 +36,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGr
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -270,9 +269,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *                                    ListingConfigInterface::GROUP_CHAR).
      *
      * @return string
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public function formatCurrentValue($field, ModelInterface $model, $groupMode, $groupLength)
     {
@@ -391,7 +387,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritDoc}
      *
-     * @throws \RuntimeException This method os not in use anymore.
+     * @throws \RuntimeException This method is not in use anymore.
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -403,7 +399,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritdoc}
      *
-     * @throws \RuntimeException This method os not in use anymore.
+     * @throws \RuntimeException This method is not in use anymore.
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -417,7 +413,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * NOTE: This method redirects the user to the listing and therefore the script will be ended.
      *
-     * @throws \RuntimeException If the is any error.
+     * @throws \RuntimeException This method is not in use anymore.
      */
     public function delete(Action $action)
     {
