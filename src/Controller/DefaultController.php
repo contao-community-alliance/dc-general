@@ -40,8 +40,8 @@ use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2Ba
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelManipulator;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\EmptyValueAwarePropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
@@ -293,59 +293,9 @@ class DefaultController implements ControllerInterface
         $environment = $this->getEnvironment();
         $properties  = $environment->getDataDefinition()->getPropertiesDefinition();
 
-        foreach ($propertyValues as $propertyName => $value) {
-            try {
-                if (!$properties->hasProperty($propertyName)) {
-                    continue;
-                }
-
-                $property = $properties->getProperty($propertyName);
-                $extra    = $property->getExtra();
-                // Don´t save value if isset property readonly.
-                if (empty($extra['readonly'])) {
-                    $model->setProperty($propertyName, $this->sanitizeValue($property, $value));
-                }
-
-                if (empty($extra)) {
-                    continue;
-                }
-
-                // If always save is true, we need to mark the model as changed.
-                if (!empty($extra['alwaysSave'])) {
-                    // Set property to generate alias or combined values.
-                    if (!empty($extra['readonly'])) {
-                        $model->setProperty($propertyName, '');
-                    }
-
-                    $model->setMeta($model::IS_CHANGED, true);
-                }
-            } catch (\Exception $exception) {
-                $propertyValues->markPropertyValueAsInvalid($propertyName, $exception->getMessage());
-            }
-        }
+        ModelManipulator::updateModelFromPropertyBag($properties, $model, $propertyValues);
 
         return $this;
-    }
-
-    /**
-     * If value is empty, then override with the empty value stored in property information (if it has any).
-     *
-     * @param PropertyInterface $property The property information.
-     * @param mixed             $value    The value.
-     *
-     * @return mixed
-     */
-    private function sanitizeValue(PropertyInterface $property, $value)
-    {
-        // If value empty, then override with empty value in property (if it has any).
-        if (empty($value)
-            && ($property instanceof EmptyValueAwarePropertyInterface)
-            && $property->hasEmptyValue()
-        ) {
-            return $property->getEmptyValue();
-        }
-
-        return $value;
     }
 
     /**
