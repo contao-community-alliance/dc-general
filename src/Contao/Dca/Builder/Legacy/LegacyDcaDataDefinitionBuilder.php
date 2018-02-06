@@ -51,6 +51,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefaultPropertie
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\DefaultProperty;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\EmptyValueAwarePropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\BackCommand;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
@@ -1305,6 +1306,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                     );
                     break;
 
+                case 'sql':
+                    $this->determineEmptyValueFromSql($property, $value);
+
                 default:
             }
         }
@@ -1604,5 +1608,48 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $this->evalFlagSorting($config, $flag);
         $this->evalFlagGrouping($config, $flag);
         $this->evalFlagGroupingLength($config, $flag);
+    }
+
+    /**
+     * Try to determine the empty type from SQL type.
+     *
+     * @param PropertyInterface $property The property to store the value into.
+     * @param string            $sqlType  The SQL type.
+     *
+     * @return void
+     */
+    private function determineEmptyValueFromSql(PropertyInterface $property, $sqlType)
+    {
+        if ($property instanceof EmptyValueAwarePropertyInterface) {
+            $property->setEmptyValue($this->getEmptyValueByFieldType($sqlType));
+        }
+    }
+
+    /**
+     * Return the empty value based on the SQL string.
+     *
+     * This method is backported from Contao 4.0 to have a value at hand.
+     *
+     * @param string $sql The SQL string.
+     *
+     * @return string|integer|null The empty value
+     */
+    private function getEmptyValueByFieldType($sql)
+    {
+        if (empty($sql)) {
+            return '';
+        }
+        if (stripos($sql, 'NOT NULL') === false) {
+            return null;
+        }
+        $type = strtolower(preg_replace('/^([A-Za-z]+)(\(| ).*$/', '$1', $sql));
+        if (\in_array(
+            $type,
+            ['int', 'integer', 'tinyint', 'smallint', 'mediumint', 'bigint', 'float', 'double', 'dec', 'decimal']
+        )
+        ) {
+            return 0;
+        }
+        return '';
     }
 }

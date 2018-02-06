@@ -26,7 +26,7 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties
  *
  * Default implementation of a property definition.
  */
-class DefaultProperty implements PropertyInterface
+class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInterface
 {
     /**
      * The property name.
@@ -136,6 +136,20 @@ class DefaultProperty implements PropertyInterface
      * @var array
      */
     protected $extra = array();
+
+    /**
+     * Flag if an empty value has been set.
+     *
+     * @var bool
+     */
+    private $hasEmptyValue = false;
+
+    /**
+     * The empty value.
+     *
+     * @var mixed
+     */
+    private $emptyValue;
 
     /**
      * Create an instance.
@@ -333,5 +347,43 @@ class DefaultProperty implements PropertyInterface
     public function getExtra()
     {
         return $this->extra;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasEmptyValue()
+    {
+        return $this->hasEmptyValue;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getEmptyValue()
+    {
+        return $this->emptyValue;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setEmptyValue($value)
+    {
+        $this->emptyValue    = $value;
+        $this->hasEmptyValue = true;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function resetEmptyValue()
+    {
+        $this->emptyValue    = null;
+        $this->hasEmptyValue = false;
+
+        return $this;
     }
 }
