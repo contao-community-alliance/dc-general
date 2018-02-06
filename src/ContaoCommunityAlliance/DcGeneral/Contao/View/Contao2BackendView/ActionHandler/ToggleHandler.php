@@ -28,6 +28,8 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\TranslatedToggleCommandInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\PrePersistModelEvent;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractHandler;
 
 /**
@@ -74,9 +76,23 @@ class ToggleHandler extends AbstractHandler
             $dataProvider->setCurrentLanguage($operation->getLanguage());
         }
 
-        $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($serializedId->getId()));
+        $model         = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($serializedId->getId()));
+        $originalModel = clone $model;
         $model->setProperty($operation->getToggleProperty(), $newState);
+        $dispatcher = $environment->getEventDispatcher();
+
+        $dispatcher->dispatch(
+            PrePersistModelEvent::NAME,
+            new PrePersistModelEvent($environment, $model, $originalModel)
+        );
+
         $dataProvider->save($model);
+
+        $dispatcher->dispatch(
+            PostPersistModelEvent::NAME,
+            new PostPersistModelEvent($environment, $model, $originalModel)
+        );
+
         // Select the previous language.
         if (isset($language)) {
             $dataProvider->setCurrentLanguage($language);
@@ -88,7 +104,6 @@ class ToggleHandler extends AbstractHandler
             exit;
         }
 
-        $dispatcher  = $environment->getEventDispatcher();
         $newUrlEvent = new GetReferrerEvent();
         $dispatcher->dispatch(ContaoEvents::SYSTEM_GET_REFERRER, $newUrlEvent);
         $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getReferrerUrl()));
