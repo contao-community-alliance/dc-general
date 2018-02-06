@@ -121,6 +121,7 @@ class LanguageFilter implements EventSubscriberInterface
      * If so, the value in the session will be updated and the page reloaded.
      *
      * @param EnvironmentInterface $environment The environment.
+     * @param array                $languages   The valid languages.
      *
      * @return void
      */
