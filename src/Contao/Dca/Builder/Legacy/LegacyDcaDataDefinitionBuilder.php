@@ -23,6 +23,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Dca\Builder\Legacy;
 
+use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinition;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\Dca\ContaoDataProviderInformation;
@@ -1621,35 +1622,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     private function determineEmptyValueFromSql(PropertyInterface $property, $sqlType)
     {
         if ($property instanceof EmptyValueAwarePropertyInterface) {
-            $property->setEmptyValue($this->getEmptyValueByFieldType($sqlType));
+            $property->setEmptyValue(Widget::getEmptyValueByFieldType($sqlType));
         }
-    }
-
-    /**
-     * Return the empty value based on the SQL string.
-     *
-     * This method is backported from Contao 4.0 to have a value at hand.
-     *
-     * @param string $sql The SQL string.
-     *
-     * @return string|integer|null The empty value
-     */
-    private function getEmptyValueByFieldType($sql)
-    {
-        if (empty($sql)) {
-            return '';
-        }
-        if (stripos($sql, 'NOT NULL') === false) {
-            return null;
-        }
-        $type = strtolower(preg_replace('/^([A-Za-z]+)(\(| ).*$/', '$1', $sql));
-        if (\in_array(
-            $type,
-            ['int', 'integer', 'tinyint', 'smallint', 'mediumint', 'bigint', 'float', 'double', 'dec', 'decimal']
-        )
-        ) {
-            return 0;
-        }
-        return '';
     }
 }
