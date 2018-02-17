@@ -13,6 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Ingolf Steinhardt <info@e-spin.de>
  * @copyright  2013-2018 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -113,6 +114,11 @@ class FallbackResetSubscriber implements EventSubscriberInterface
                     // @codingStandardsIgnoreEnd
 
                     $dataProvider->resetFallback($propertyName);
+                }
+
+                // If value is empty, no need to reset the fallback.
+                if (!$model->getProperty($propertyName)) {
+                    continue;
                 }
 
                 $models = $dataProvider->fetchAll($config);
