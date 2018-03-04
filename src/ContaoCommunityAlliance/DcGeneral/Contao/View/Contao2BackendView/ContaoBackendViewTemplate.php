@@ -23,6 +23,9 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\BackendTemplate;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\Clipboard;
+use ContaoCommunityAlliance\DcGeneral\Contao\InputProvider;
+use ContaoCommunityAlliance\DcGeneral\DefaultEnvironment;
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
 
@@ -112,5 +115,30 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
         }
 
         return $string;
+    }
+
+    /**
+     * Get the back button.
+     *
+     * @return string
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     */
+    public function getBackButton()
+    {
+        $container = $GLOBALS['container'];
+
+        $dataContainer  = $container['dc-general.data-definition-container'];
+        $dataDefinition = $dataContainer->getDefinition($this->table);
+
+        $environment = new DefaultEnvironment();
+        $environment->setDataDefinition($dataDefinition);
+        $environment->setTranslator($container['translator']);
+        $environment->setEventDispatcher($container['event-dispatcher']);
+        $environment->setInputProvider(new InputProvider());
+        $environment->setClipboard(new Clipboard());
+
+        $renderer = new GlobalButtonRenderer($environment);
+        return $renderer->render();
     }
 }

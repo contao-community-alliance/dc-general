@@ -22,12 +22,14 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use Contao\Environment;
 use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\SessionStorage;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeNodeStates;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
@@ -256,14 +258,17 @@ class TreePicker extends Widget
         $environment = $this->dataContainer->getEnvironment();
         $this->value = $environment->getInputProvider()->getValue('value');
 
-        $result = '<input type="hidden" value="' . $this->strName . '" name="FORM_INPUTS[]">' .
-            '<h3><label>' . $this->label . '</label></h3>' . $this->generate();
-
         $label = $environment
             ->getDataDefinition()
             ->getPropertiesDefinition()
             ->getProperty($this->strName)
             ->getDescription();
+
+        $this->handleInputNameForEditAll();
+
+        // TODO handle input name by event.
+        $result = '<input type="hidden" value="' . $this->strName . '" name="FORM_INPUTS[]">' .
+            '<h3><label>' . $this->label . '</label></h3>' . $this->generate();
 
         if ($GLOBALS['TL_CONFIG']['showHelp'] && strlen($label)) {
             $result .= '<p class="tl_help tl_tip">' . $label . '</p>';
@@ -537,12 +542,25 @@ class TreePicker extends Widget
     {
         $GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/dc-general/html/js/vanillaGeneral.js';
 
-        $environment = $this->getEnvironment();
-        $translator  = $environment->getTranslator();
-        $template    = new ContaoBackendViewTemplate('widget_treepicker');
+        $environment   = $this->getEnvironment();
+        $inputProvider = $environment->getInputProvider();
+        $translator    = $environment->getTranslator();
+        $template      = new ContaoBackendViewTemplate('widget_treepicker');
 
         $icon = new GenerateHtmlEvent($this->titleIcon);
         $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $icon);
+
+        $action = 'show';
+        $field  = $this->strField;
+        if (('select' === $inputProvider->getParameter('act'))
+            && ('edit' === $inputProvider->getParameter('mode'))
+        ) {
+            $action = 'select&amp;mode=edit&amp;select=edit';
+
+            if (true === Environment::get('isAjaxRequest')) {
+                $field = $this->arrConfiguration['originalField'];
+            }
+        }
 
         $values   = $this->renderItemsPlain();
 
@@ -556,16 +574,16 @@ class TreePicker extends Widget
         }
 
         $popupUrl = 'system/modules/dc-general/backend/generaltree.php?' .
-            sprintf(
-                'do=%s&amp;table=%s&amp;field=%s&amp;act=show&amp;id=%s&amp;value=%s&amp;%srt=%s',
-                \Input::get('do'),
-                $this->strTable,
-                $this->strField,
-                $environment->getInputProvider()->getParameter('id'),
-                implode(',', array_keys($values)),
-                $additionalUrlParameter,
-                REQUEST_TOKEN
-            );
+                    sprintf(
+                        'do=%s&amp;table=%s&amp;field=%s&amp;act=%s&amp;id=%s&amp;value=%s&amp;rt=%s',
+                        \Input::get('do'),
+                        $this->strTable,
+                        $field,
+                        $action,
+                        $environment->getInputProvider()->getParameter('id'),
+                        implode(',', array_keys($values)),
+                        REQUEST_TOKEN
+                    );
 
         $template
             ->setTranslator($translator)
@@ -1193,5 +1211,50 @@ class TreePicker extends Widget
         }
 
         return $parents;
+    }
+
+    /**
+     * Handle the input name for edit all mode.
+     *
+     * @return void
+     */
+    private function handleInputNameForEditAll()
+    {
+        if (('select' !== $this->getEnvironment()->getInputProvider()->getParameter('act'))
+            && ('edit' !== $this->getEnvironment()->getInputProvider()->getParameter('select'))
+            && ('edit' !== $this->getEnvironment()->getInputProvider()->getParameter('mode'))
+        ) {
+            return;
+        }
+
+        $tableName      = explode('____', $this->getEnvironment()->getInputProvider()->getValue('name'))[0];
+        $sessionKey     = 'DC_GENERAL_' . strtoupper($tableName);
+        $sessionStorage = new SessionStorage($sessionKey);
+
+        $selectAction = $this->getEnvironment()->getInputProvider()->getParameter('select');
+
+        $session = $sessionStorage->get($tableName . '.' . $selectAction);
+
+        $originalPropertyName = null;
+        foreach ($session['models'] as $modelId) {
+            if (null !== $originalPropertyName) {
+                break;
+            }
+
+            $propertyNamePrefix = str_replace('::', '____', $modelId) . '_';
+            if ($propertyNamePrefix !== substr($this->strName, 0, strlen($propertyNamePrefix))) {
+                continue;
+            }
+
+            $originalPropertyName = substr($this->strName, strlen($propertyNamePrefix));
+        }
+
+        if (!$originalPropertyName) {
+            return;
+        }
+
+        $this->arrConfiguration['originalField'] = $originalPropertyName;
+
+        $this->strName = $propertyNamePrefix . '[' . $originalPropertyName . ']';
     }
 }

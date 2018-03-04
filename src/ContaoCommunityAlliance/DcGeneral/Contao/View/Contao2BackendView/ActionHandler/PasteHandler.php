@@ -86,6 +86,11 @@ class PasteHandler extends AbstractHandler
         }
         $clipboard->saveTo($environment);
 
+        // If we use paste all handler don´t redirect yet.
+        if ($input->getParameter('pasteAll')) {
+            return;
+        }
+
         ViewHelpers::redirectHome($environment);
     }
 

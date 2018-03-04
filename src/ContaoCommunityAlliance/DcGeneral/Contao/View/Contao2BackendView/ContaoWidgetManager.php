@@ -31,9 +31,11 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Build
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -160,7 +162,6 @@ class ContaoWidgetManager
         $propertiesDefinition = $dataDefinition->getPropertiesDefinition();
         $palettesDefinition   = $dataDefinition->getPalettesDefinition();
 
-
         $palettes = $palettesDefinition->findPalette($this->model);
 
         $properties = $palettes->getProperties($this->model);
@@ -179,7 +180,7 @@ class ContaoWidgetManager
 
             list($file, $type) = explode('|', $extra['rte']);
 
-            $selector = 'ctrl_' . $property->getName();
+            $selector = $this->getUniqueId($property->getName());
 
             if (!file_exists(TL_ROOT . '/system/config/' . $file . '.php')) {
                 throw new \Exception(sprintf('Cannot find editor configuration file "%s.php"', $file));
@@ -195,10 +196,43 @@ class ContaoWidgetManager
             $updateMode = ob_get_contents();
             ob_end_clean();
 
-            $GLOBALS['TL_MOOTOOLS'][$extra['rte'] . '.' . $property->getName()] = $updateMode;
+            $GLOBALS['TL_MOOTOOLS'][$extra['rte'] . '.' . $selector] = $updateMode;
         }
 
         return $buffer;
+    }
+
+    /**
+     * Get the unique id.
+     *
+     * @param string $propertyName The property name.
+     *
+     * @return string
+     */
+    protected function getUniqueId($propertyName)
+    {
+        $inputProvider  = $this->getEnvironment()->getInputProvider();
+        $sessionStorage = $this->getEnvironment()->getSessionStorage();
+
+        $selector = 'ctrl_' . $propertyName;
+
+        if ($inputProvider->getParameter('act') !== 'select'
+            || (false === $inputProvider->hasValue('edit') && false === $inputProvider->hasValue('edit_save'))
+        ) {
+            return $selector;
+        }
+
+        $modelId = ModelId::fromModel($this->model);
+        $fields  = $sessionStorage->get($modelId->getDataProviderName() . '.edit')['properties'];
+
+        $fieldId = new ModelId('property.' . $modelId->getDataProviderName(), $propertyName);
+        if (!in_array($fieldId->getSerialized(), $fields)) {
+            return $selector;
+        }
+
+        $selector = 'ctrl_' . str_replace('::', '____', $modelId->getSerialized()) . '_' . $propertyName;
+
+        return $selector;
     }
 
     /**
@@ -339,28 +373,11 @@ class ContaoWidgetManager
             throw new DcGeneralRuntimeException('No widget for property ' . $property);
         }
 
-        if ($ignoreErrors) {
-            // Clean the errors array and fix up the CSS class.
-            $reflection = new \ReflectionProperty(get_class($widget), 'arrErrors');
-            $reflection->setAccessible(true);
-            $reflection->setValue($widget, array());
-            $reflection = new \ReflectionProperty(get_class($widget), 'strClass');
-            $reflection->setAccessible(true);
-            $reflection->setValue($widget, str_replace('error', '', $reflection->getValue($widget)));
-        }
+        $this->cleanErrors($widget, $ignoreErrors);
 
-        if (!$ignoreErrors && $inputValues && $inputValues->hasPropertyValue($property)
-            && $inputValues->isPropertyValueInvalid($property)
-        ) {
-            foreach ($inputValues->getPropertyValueErrors($property) as $error) {
-                $widget->addError($error);
-            }
-        }
+        $this->widgetAddError($property, $widget, $inputValues, $ignoreErrors);
 
-        $strDatePicker = '';
-        if (!empty($propExtra['datepicker'])) {
-            $strDatePicker = $this->buildDatePicker($widget);
-        }
+        $strDatePicker = $this->getDatePicker($propExtra, $widget);
 
         $objTemplateFoo = new ContaoBackendViewTemplate('dcbe_general_field');
         $objTemplateFoo->setData(
@@ -452,5 +469,75 @@ class ContaoWidgetManager
                 }
             }
         }
+    }
+
+    /**
+     * Clean errors for widget.
+     *
+     * @param Widget $widget       The widget.
+     *
+     * @param bool   $ignoreErrors The flag for errors cleared.
+     *
+     * @return void
+     */
+    protected function cleanErrors(Widget $widget, $ignoreErrors = false)
+    {
+        if ($ignoreErrors) {
+            // Clean the errors array and fix up the CSS class.
+            $reflection = new \ReflectionProperty(get_class($widget), 'arrErrors');
+            $reflection->setAccessible(true);
+            $reflection->setValue($widget, array());
+            $reflection = new \ReflectionProperty(get_class($widget), 'strClass');
+            $reflection->setAccessible(true);
+            $reflection->setValue($widget, str_replace('error', '', $reflection->getValue($widget)));
+        }
+    }
+
+    /**
+     * Widget add error.
+     *
+     * @param string                         $property     The property.
+     *
+     * @param Widget                         $widget       The widget.
+     *
+     * @param PropertyValueBagInterface|null $inputValues  The input values.
+     *
+     * @param bool                           $ignoreErrors The for add error.
+     *
+     * @return void
+     */
+    protected function widgetAddError(
+        $property,
+        Widget $widget,
+        PropertyValueBagInterface $inputValues = null,
+        $ignoreErrors = false
+    ) {
+        if (!$ignoreErrors && $inputValues && $inputValues->hasPropertyValue($property)
+            && $inputValues->isPropertyValueInvalid($property)
+        ) {
+            foreach ($inputValues->getPropertyValueErrors($property) as $error) {
+                $widget->addError($error);
+            }
+        }
+    }
+
+    /**
+     * Get the date picker, if the widget has one.
+     *
+     * @param array  $propExtra The extra data from the property.
+     *
+     * @param Widget $widget    The widget.
+     *
+     * @return string
+     */
+    protected function getDatePicker(array $propExtra, Widget $widget)
+    {
+        $strDatePicker = '';
+
+        if (!empty($propExtra['datepicker'])) {
+            $strDatePicker = $this->buildDatePicker($widget);
+        }
+
+        return $strDatePicker;
     }
 }

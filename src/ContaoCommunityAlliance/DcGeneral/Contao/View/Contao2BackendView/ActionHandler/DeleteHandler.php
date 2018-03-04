@@ -45,6 +45,69 @@ use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractEnvironmentAwar
 class DeleteHandler extends AbstractEnvironmentAwareHandler
 {
     /**
+     * {@inheritdoc}
+     */
+    public function process()
+    {
+        if ($this->getEvent()->getAction()->getName() !== 'delete') {
+            return;
+        }
+
+        $modelId = ModelId::fromSerialized($this->getEnvironment()->getInputProvider()->getParameter('id'));
+
+        // Guard that we are in the preloaded environment. Otherwise checking the data definition could belong to
+        // another model.
+        $this->guardValidEnvironment($modelId);
+
+        // Only edit mode is supported. Trigger an edit action.
+        if ($this->isEditOnlyResponse()) {
+            return;
+        }
+
+        // We want a redirect here if not deletable.
+        $this->guardIsDeletable($modelId, true);
+        $this->deepDelete($modelId);
+        $this->delete($modelId);
+
+        // If edit several don´t redirect do home.
+        if ($this->getEnvironment()->getInputProvider()->getParameter('act') === 'select') {
+            return;
+        }
+
+        ViewHelpers::redirectHome($this->getEnvironment());
+    }
+
+    /**
+     * Delete an model.
+     *
+     * @param ModelIdInterface $modelId The model id.
+     *
+     * @return void
+     *
+     * @throws EditOnlyModeException     If the data definition is in edit only mode.
+     * @throws NotDeletableException     If the data definition does not allow delete actions.
+     * @throws DcGeneralRuntimeException If the model is not found.
+     */
+    public function delete(ModelIdInterface $modelId)
+    {
+        $this->guardNotEditOnly($modelId);
+        $this->guardIsDeletable($modelId);
+
+        $model = $this->fetchModel($modelId);
+
+        // Trigger event before the model will be deleted.
+        $event = new PreDeleteModelEvent($this->getEnvironment(), $model);
+        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
+
+        $dataProvider = $this->getEnvironment()->getDataProvider($modelId->getDataProviderName());
+        $dataProvider->delete($model);
+
+        // Trigger event after the model is deleted.
+        $event = new PostDeleteModelEvent($this->getEnvironment(), $model);
+        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
+    }
+
+    /**
      * Check if is it allowed to delete a record.
      *
      * @param ModelIdInterface $modelId  The model id.
@@ -104,72 +167,6 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
         }
 
         return $model;
-    }
-
-    /**
-     * Delete an model.
-     *
-     * @param ModelIdInterface $modelId The model id.
-     *
-     * @return void
-     *
-     * @throws EditOnlyModeException     If the data definition is in edit only mode.
-     * @throws NotDeletableException     If the data definition does not allow delete actions.
-     * @throws DcGeneralRuntimeException If the model is not found.
-     */
-    public function delete(ModelIdInterface $modelId)
-    {
-        $this->guardNotEditOnly($modelId);
-        $this->guardIsDeletable($modelId);
-
-        $environment = $this->getEnvironment();
-        $model       = $this->fetchModel($modelId);
-
-        // Trigger event before the model will be deleted.
-        $event = new PreDeleteModelEvent($this->getEnvironment(), $model);
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
-
-        $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
-        $dataProvider->delete($model);
-
-        // Trigger event after the model is deleted.
-        $event = new PostDeleteModelEvent($environment, $model);
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function process()
-    {
-        if ($this->getEvent()->getAction()->getName() !== 'delete') {
-            return;
-        }
-
-        if (false === $this->checkPermission()) {
-            $this->getEvent()->stopPropagation();
-
-            return;
-        }
-
-        $environment = $this->getEnvironment();
-        $modelId     = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
-
-        // Guard that we are in the preloaded environment. Otherwise checking the data definition could belong to
-        // another model.
-        $this->guardValidEnvironment($modelId);
-
-        // Only edit mode is supported. Trigger an edit action.
-        if ($this->isEditOnlyResponse()) {
-            return;
-        }
-
-        // We want a redirect here if not deletable.
-        $this->guardIsDeletable($modelId, true);
-        $this->deepDelete($modelId);
-        $this->delete($modelId);
-
-        ViewHelpers::redirectHome($this->environment);
     }
 
     /**

@@ -3,6 +3,7 @@
  *
  * @copyright  Contao Community Alliance.
  * @author     Andreas Isaak <please.andi@metamodel.me>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  * @package    Backend
  */
 
@@ -27,4 +28,5 @@
 
   @import "clipboard";
   @import "languagePanel";
+  @import "messageBox";
 }

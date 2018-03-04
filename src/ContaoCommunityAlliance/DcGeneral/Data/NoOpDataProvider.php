@@ -122,17 +122,17 @@ class NoOpDataProvider implements DataProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function save(ModelInterface $objItem)
+    public function save(ModelInterface $objItem, $timestamp = 0)
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function saveEach(CollectionInterface $objItems)
+    public function saveEach(CollectionInterface $objItems, $timestamp = 0)
     {
         foreach ($objItems as $objItem) {
-            $this->save($objItem);
+            $this->save($objItem, $timestamp);
         }
     }
 
