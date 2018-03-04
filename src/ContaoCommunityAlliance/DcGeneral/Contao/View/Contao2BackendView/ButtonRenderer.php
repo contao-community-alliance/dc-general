@@ -14,6 +14,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     binron <rtb@gmx.ch>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Ingolf Steinhardt <info@e-spin.de>
  * @copyright  2013-2018 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -336,7 +337,8 @@ class ButtonRenderer
         }
 
         return sprintf(
-            ' <a href="%s" title="%s" %s>%s</a>',
+            ' <a class="%s" href="%s" title="%s" %s>%s</a>',
+            $command->getName(),
             $buttonEvent->getHref(),
             specialchars($buttonEvent->getTitle()),
             ltrim($buttonEvent->getAttributes()),
