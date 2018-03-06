@@ -76,7 +76,6 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBui
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyTrueCondition;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyVisibleCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Property;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
@@ -114,6 +113,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $this->parseBackendView($container);
         $this->parsePalettes($container);
         $this->parseProperties($container);
+        $this->parseOderPropertyInPalette($container);
     }
 
     /**
@@ -1342,24 +1342,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     }
 
     /**
-     * Parse the property for page tree order.
-     *
-     * @param PropertyInterface $property      The base property.
-     *
-     * @param PropertyInterface $orderProperty The order property.
-     *
-     * @return void
-     */
-    private function parsePropertyForPageTreeOrder(PropertyInterface $property, PropertyInterface $orderProperty)
-    {
-        if ('pageTree' !== $property->getWidgetType()) {
-            return;
-        }
-
-        $orderProperty->setWidgetType('pageTreeOrder');
-    }
-
-    /**
      * Parse the property for order and set the order widget.
      *
      * @param PropertyInterface $property      The base property.
@@ -1417,7 +1399,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 }
 
                 $orderProperty = $definition->getProperty($extra['orderField']);
-                $this->parsePropertyForPageTreeOrder($property, $orderProperty);
+                $this->parseOrderProperty($property, $orderProperty);
             }
         }
     }
