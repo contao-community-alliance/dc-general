@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2017 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2017 Contao Community Alliance.
+ * @copyright  2013-2018 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -30,6 +30,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionI
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\DefaultProperty;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\DefaultModelFormatterConfig;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface as PalettePropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -258,20 +260,8 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
         }
 
         $palette = $palettesDefinition->findPalette($intersectModel);
-        if ('default' === $palette->getName()) {
-            return true;
-        }
 
-        $findProperty = false;
-        foreach ($palette->getLegends() as $legend) {
-            $findProperty = $legend->hasProperty($property->getName());
-
-            if (true === $findProperty) {
-                break;
-            }
-        }
-
-        return $findProperty;
+        return \in_array($property->getName(), $this->getVisibleAndEditAbleProperties($palette, $intersectModel));
     }
 
     /**
@@ -440,5 +430,31 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
     protected function determineTemplate($groupingInformation)
     {
         return $this->getTemplate('dcbe_general_listView');
+    }
+
+    /**
+     * Get the palette properties their are visible and editable.
+     *
+     * @param PaletteInterface $palette The palette.
+     * @param ModelInterface   $model   The model.
+     *
+     * @return array
+     */
+    private function getVisibleAndEditAbleProperties(PaletteInterface $palette, ModelInterface $model)
+    {
+        return \array_intersect(
+            \array_map(
+                function (PalettePropertyInterface $property) {
+                    return $property->getName();
+                },
+                $palette->getVisibleProperties($model)
+            ),
+            \array_map(
+                function (PalettePropertyInterface $property) {
+                    return $property->getName();
+                },
+                $palette->getEditableProperties($model)
+            )
+        );
     }
 }
