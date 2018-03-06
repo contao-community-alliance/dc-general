@@ -109,7 +109,7 @@ class LanguageFilter implements EventSubscriberInterface
             $currentLanguage = $dataProvider->getFallbackLanguage($modelId)->getLocale();
         }
 
-        $session['ml_support'][$providerName][$modelId] = $currentLanguage;
+        $session['ml_support'][$providerName] = $currentLanguage;
         $sessionStorage->set('dc_general', $session);
 
         $dataProvider->setCurrentLanguage($currentLanguage);
