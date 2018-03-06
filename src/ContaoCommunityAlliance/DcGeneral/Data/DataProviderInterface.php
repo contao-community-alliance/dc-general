@@ -120,11 +120,10 @@ interface DataProviderInterface
      * If the item does not have an Id yet, the save operation will add it as a new row to the database and
      * populate the Id of the model accordingly.
      *
-     * @param ModelInterface $objItem          The model to save back.
-     *
-     * @param int            $timestamp        Optional parameter for use own timestamp.
-     *                                         This is useful if save a collection of models and all shall have
-     *                                         the same timestamp.
+     * @param ModelInterface $objItem   The model to save back.
+     * @param int            $timestamp Optional parameter for use own timestamp.
+     *                                  This is useful if save a collection of models and all shall have
+     *                                  the same timestamp.
      *
      * @return ModelInterface The passed model.
      */
@@ -133,11 +132,10 @@ interface DataProviderInterface
     /**
      * Save a collection of items to the data provider.
      *
-     * @param CollectionInterface $objItems    The collection containing all items to be saved.
-     *
-     * @param int                 $timestamp   Optional parameter for use own timestamp.
-     *                                         This is useful if save a collection of models and all shall have
-     *                                         the same timestamp.
+     * @param CollectionInterface $objItems  The collection containing all items to be saved.
+     * @param int                 $timestamp Optional parameter for use own timestamp.
+     *                                       This is useful if save a collection of models and all shall have
+     *                                       the same timestamp.
      *
      * @return void
      */

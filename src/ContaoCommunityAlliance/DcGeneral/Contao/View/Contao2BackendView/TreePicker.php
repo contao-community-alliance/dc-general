@@ -561,7 +561,7 @@ class TreePicker extends Widget
             }
         }
 
-        $values   = $this->renderItemsPlain();
+        $values = $this->renderItemsPlain();
 
         $additionalUrlParameter = '';
         if ($this->pickerOrderProperty && $this->pickerSortDirection) {

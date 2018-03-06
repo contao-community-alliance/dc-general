@@ -353,7 +353,6 @@ class SelectHandler extends AbstractHandler
             $property = $propertiesDefinition->getProperty($propertyName);
             if (is_numeric($propertyValue) && (null !== $property->getWidgetType())) {
                 $propertyValue = (int) $propertyValue;
-
             }
             $model->setProperty($propertyName, $propertyValue);
         }
