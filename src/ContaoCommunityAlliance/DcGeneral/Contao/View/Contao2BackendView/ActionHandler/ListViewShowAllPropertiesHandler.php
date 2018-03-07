@@ -149,11 +149,11 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
             $model->setID($property->getName());
             $model->setProperty(
                 'name',
-                $property->getLabel() ? $property->getLabel() : $property->getName()
+                $property->getLabel() ?: $property->getName()
             );
             $model->setProperty(
                 'description',
-                $property->getDescription() ? $property->getDescription() : $property->getName()
+                $property->getDescription() ?: $property->getName()
             );
 
             $this->handlePropertyFileTree($property);
@@ -190,7 +190,7 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
             Message::addInfo(
                 sprintf(
                     $translator->translate('MSC.not_allowed_property_info'),
-                    $property->getLabel() ? $property->getLabel() : $property->getName(),
+                    $property->getLabel() ?: $property->getName(),
                     $translator->translate('MSC.' . $inputProvider->getParameter('mode') . 'Selected')
                 )
             );

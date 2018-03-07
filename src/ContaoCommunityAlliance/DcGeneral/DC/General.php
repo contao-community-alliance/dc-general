@@ -295,7 +295,7 @@ class DC_General extends DataContainer implements DataContainerInterface
     {
         $environment = $this->getEnvironment();
         $act         = $environment->getInputProvider()->getParameter('act');
-        $action      = new Action($act ? $act : 'showAll');
+        $action      = new Action($act ?: 'showAll');
         return $environment->getController()->handle($action);
     }
 
