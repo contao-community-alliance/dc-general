@@ -628,9 +628,7 @@ class TreeView extends BaseView
             default:
         }
 
-        $strHtml = $this->generateTreeView($collection, $treeClass);
-
-        return $strHtml;
+        return $this->generateTreeView($collection, $treeClass);
     }
 
     /**

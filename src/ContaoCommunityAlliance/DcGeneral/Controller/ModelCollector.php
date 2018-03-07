@@ -294,9 +294,7 @@ class ModelCollector
             }
         }
 
-        $siblings = $provider->fetchAll($config);
-
-        return $siblings;
+        return $provider->fetchAll($config);
     }
 
     /**

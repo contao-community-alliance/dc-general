@@ -276,9 +276,7 @@ class DefaultController implements ControllerInterface
             $config->setSorting(array((string) $sortingProperty => 'ASC'));
         }
 
-        $siblings = $provider->fetchAll($config);
-
-        return $siblings;
+        return $provider->fetchAll($config);
     }
 
     /**

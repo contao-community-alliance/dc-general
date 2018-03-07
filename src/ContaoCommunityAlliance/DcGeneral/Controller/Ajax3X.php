@@ -82,9 +82,7 @@ class Ajax3X extends Ajax
         $widgetManager->processInput($propertyValues);
         $model->setProperty($fieldName, $propertyValues->getPropertyValue($fieldName));
 
-        $widget = $widgetManager->getWidget($fieldName);
-
-        return $widget;
+        return $widgetManager->getWidget($fieldName);
     }
 
     /**
