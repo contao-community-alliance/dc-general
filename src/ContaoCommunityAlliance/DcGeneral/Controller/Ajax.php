@@ -204,30 +204,30 @@ abstract class Ajax implements EnvironmentAwareInterface
 
             // Load nodes of the page structure tree. Compatible between 2.X and 3.X.
             case 'loadStructure':
-                $this->loadStructure($objDc);
+                $this->loadStructure();
                 break;
 
             // Load nodes of the file manager tree.
             case 'loadFileManager':
-                $this->loadFileManager($objDc);
+                $this->loadFileManager();
                 break;
 
             // Load nodes of the page tree.
             case 'loadPagetree':
-                $this->loadPagetree($objDc);
+                $this->loadPagetree();
                 break;
 
             // Load nodes of the file tree.
             case 'loadFiletree':
-                $this->loadFiletree($objDc);
+                $this->loadFiletree();
                 break;
 
             // Reload the page/file picker.
             case 'reloadPagetree':
-                $this->reloadPagetree($objDc);
+                $this->reloadPagetree();
                 break;
             case 'reloadFiletree':
-                $this->reloadFiletree($objDc);
+                $this->reloadFiletree();
                 break;
 
             case 'setLegendState':

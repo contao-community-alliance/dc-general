@@ -562,7 +562,7 @@ class TreeView extends BaseView
         );
 
         $arrReturn['panel']     = $this->panel($arrIgnoredPanels);
-        $arrReturn['buttons']   = $this->generateHeaderButtons('tl_buttons');
+        $arrReturn['buttons']   = $this->generateHeaderButtons();
         $arrReturn['clipboard'] = $viewEvent->getResponse();
         $arrReturn['body']      = $this->viewTree($collection);
 
