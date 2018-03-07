@@ -147,7 +147,7 @@ class TreeCollector implements EnvironmentAwareInterface
             $relationships = $this->getEnvironment()->getDataDefinition()->getModelRelationshipDefinition();
         }
 
-        $mySubTables = array();
+        $mySubTables = [];
         foreach ($relationships->getChildConditions($parentProvider) as $condition) {
             $mySubTables[] = $condition->getDestinationName();
         }
@@ -181,7 +181,7 @@ class TreeCollector implements EnvironmentAwareInterface
         return $dataProvider->fetchAll(
             $dataProvider
                 ->getEmptyConfig()
-                ->setSorting(array('sorting' => 'ASC'))
+                ->setSorting(['sorting' => 'ASC'])
                 ->setFilter(
                     FilterBuilder::fromArray()
                         ->getFilter()
@@ -200,7 +200,7 @@ class TreeCollector implements EnvironmentAwareInterface
      *
      * @return void
      */
-    private function treeWalkModel(ModelInterface $model, $intLevel, $subTables = array())
+    private function treeWalkModel(ModelInterface $model, $intLevel, $subTables = [])
     {
         $environment   = $this->getEnvironment();
         $relationships = $environment->getDataDefinition()->getModelRelationshipDefinition();
@@ -210,7 +210,7 @@ class TreeCollector implements EnvironmentAwareInterface
 
         $providerName     = $model->getProviderName();
         $mySubTables      = $this->getChildProvidersOf($providerName, $relationships);
-        $childCollections = array();
+        $childCollections = [];
         foreach ($subTables as $subTable) {
             // Evaluate the child filter for this item.
             $childFilter = $relationships->getChildCondition($providerName, $subTable);
@@ -233,7 +233,7 @@ class TreeCollector implements EnvironmentAwareInterface
                     $model->setMeta(ModelInterface::PARENT_ID, $model->getID());
                     $model->setMeta(ModelInterface::PARENT_PROVIDER_NAME, $providerName);
 
-                    $this->treeWalkModel($childModel, $intLevel + 1, $mySubTables);
+                    $this->treeWalkModel($childModel, ($intLevel + 1), $mySubTables);
                 }
                 $childCollections[] = $childCollection;
             }

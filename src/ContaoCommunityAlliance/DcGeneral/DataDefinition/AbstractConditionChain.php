@@ -33,7 +33,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      *
      * @var ConditionInterface[]
      */
-    protected $conditions = array();
+    protected $conditions = [];
 
     /**
      * The conjunction mode.
@@ -48,7 +48,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      * @param array  $conditions  The conditions to initialize the chain with (optional).
      * @param string $conjunction The conjunction this chain contains (defaults to AND).
      */
-    public function __construct(array $conditions = array(), $conjunction = self::AND_CONJUNCTION)
+    public function __construct(array $conditions = [], $conjunction = self::AND_CONJUNCTION)
     {
         $this->addConditions($conditions);
         $this->setConjunction($conjunction);
@@ -59,7 +59,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      */
     public function clearConditions()
     {
-        $this->conditions = array();
+        $this->conditions = [];
         return $this;
     }
 
@@ -145,7 +145,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      */
     public function __clone()
     {
-        $conditions = array();
+        $conditions = [];
         foreach ($this->conditions as $condition) {
             $bobaFett = clone $condition;
 

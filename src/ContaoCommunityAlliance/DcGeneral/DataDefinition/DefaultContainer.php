@@ -48,7 +48,7 @@ class DefaultContainer implements ContainerInterface
      *
      * @var DefinitionInterface[]
      */
-    protected $definitions = array();
+    protected $definitions = [];
 
     /**
      * Create a new default container.
@@ -81,7 +81,7 @@ class DefaultContainer implements ContainerInterface
      */
     public function clearDefinitions()
     {
-        $this->definitions = array();
+        $this->definitions = [];
 
         return $this;
     }
@@ -287,7 +287,7 @@ class DefaultContainer implements ContainerInterface
      */
     public function __clone()
     {
-        $definitions = array();
+        $definitions = [];
         foreach ($this->definitions as $name => $definition) {
             $bobaFett = clone $definition;
 

@@ -40,9 +40,9 @@ class ModelOptionsCallbackListener extends AbstractReturningPropertyCallbackList
      */
     public function getArgs($event)
     {
-        return array(
+        return [
             new DcCompat($event->getEnvironment(), $event->getModel())
-        );
+        ];
     }
 
     /**

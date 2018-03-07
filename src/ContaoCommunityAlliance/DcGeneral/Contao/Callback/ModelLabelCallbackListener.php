@@ -42,12 +42,12 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
      */
     public function getArgs($event)
     {
-        return array(
+        return [
             $event->getModel()->getPropertiesAsArray(),
             $event->getLabel(),
             new DcCompat($event->getEnvironment(), $event->getModel()),
             $event->getArgs()
-        );
+        ];
     }
 
     /**

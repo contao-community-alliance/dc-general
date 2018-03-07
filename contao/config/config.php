@@ -33,7 +33,10 @@ if (TL_MODE == 'BE') {
 $GLOBALS['BE_FFL']['DcGeneralTreePicker'] =
     'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker';
 
-$GLOBALS['TL_HOOKS']['executePostActions'] = array_merge((array) $GLOBALS['TL_HOOKS']['executePostActions'], array(
-    array('ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker', 'updateAjax'),
-    array('ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\FileTree', 'updateAjax')
-));
+$GLOBALS['TL_HOOKS']['executePostActions'] = array_merge(
+    (array) $GLOBALS['TL_HOOKS']['executePostActions'],
+    [
+        ['ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker', 'updateAjax'],
+        ['ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\FileTree', 'updateAjax']
+    ]
+);

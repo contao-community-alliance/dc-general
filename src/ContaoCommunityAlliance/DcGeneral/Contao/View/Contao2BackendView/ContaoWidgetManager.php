@@ -376,7 +376,7 @@ class ContaoWidgetManager
 
         $objTemplateFoo = new ContaoBackendViewTemplate('dcbe_general_field');
         $objTemplateFoo->setData(
-            array(
+            [
                 'strName'       => $property,
                 'strClass'      => $widget->tl_class,
                 'widget'        => $widget->parse(),
@@ -386,7 +386,7 @@ class ContaoWidgetManager
                 'blnUpdate'     => false,
                 'strHelp'       => $this->generateHelpText($property),
                 'strId'         => $widget->id
-            )
+            ]
         );
 
         $buffer = $objTemplateFoo->parse();
@@ -404,7 +404,7 @@ class ContaoWidgetManager
     {
         // @codingStandardsIgnoreStart - Remember current POST data and clear it.
         $post  = $_POST;
-        $_POST = array();
+        $_POST = [];
         // @codingStandardsIgnoreEnd
         Input::resetCache();
 
@@ -480,7 +480,7 @@ class ContaoWidgetManager
             // Clean the errors array and fix up the CSS class.
             $reflection = new \ReflectionProperty(get_class($widget), 'arrErrors');
             $reflection->setAccessible(true);
-            $reflection->setValue($widget, array());
+            $reflection->setValue($widget, []);
             $reflection = new \ReflectionProperty(get_class($widget), 'strClass');
             $reflection->setAccessible(true);
             $reflection->setValue($widget, str_replace('error', '', $reflection->getValue($widget)));

@@ -41,7 +41,7 @@ class ModelIdTest extends TestCase
     {
         $mock = $this
             ->getMockBuilder('ContaoCommunityAlliance\DcGeneral\Data\ModelInterface')
-            ->setMethods(array('getId', 'getProviderName'))
+            ->setMethods(['getId', 'getProviderName'])
             ->getMockForAbstractClass();
         $mock
             ->expects($this->any())
@@ -63,14 +63,14 @@ class ModelIdTest extends TestCase
     public function modelProvider()
     {
         $exception = '\ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException';
-        return array(
-            array($this->mockModel(10, 'tl_page')),
-            array($this->mockModel(null, 'tl_page'), $exception),
-            array($this->mockModel(null, null), $exception),
-            array($this->mockModel(10, null), $exception),
-            array($this->mockModel(10, ''), $exception),
-            array($this->mockModel(10, 0), $exception),
-        );
+        return [
+            [$this->mockModel(10, 'tl_page')],
+            [$this->mockModel(null, 'tl_page'), $exception],
+            [$this->mockModel(null, null), $exception],
+            [$this->mockModel(10, null), $exception],
+            [$this->mockModel(10, ''), $exception],
+            [$this->mockModel(10, 0), $exception],
+        ];
     }
 
     /**
@@ -103,12 +103,12 @@ class ModelIdTest extends TestCase
     public function idProvider()
     {
         $exception = '\ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException';
-        return array(
-            array('tl_page::1'),
-            array('tl_page:1', $exception),
-            array(':1', $exception),
-            array('1', $exception),
-        );
+        return [
+            ['tl_page::1'],
+            ['tl_page:1', $exception],
+            [':1', $exception],
+            ['1', $exception],
+        ];
     }
 
     /**

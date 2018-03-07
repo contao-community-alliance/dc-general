@@ -161,11 +161,15 @@ class ParentChildConditionTest extends TestCase
         $child->setPropertyRaw('pid', 1);
 
         $condition = new ParentChildCondition();
-        $condition->setFilterArray(array(array(
+        $condition->setFilterArray(
+            [
+                [
             'local'     => 'id',
             'operation' => '=',
             'remote'    => 'pid'
-        )));
+                ]
+            ]
+        );
 
         $this->assertTrue($condition->matches($parent, $child));
     }
@@ -185,11 +189,15 @@ class ParentChildConditionTest extends TestCase
         $child->setId(2);
 
         $condition = new ParentChildCondition();
-        $condition->setFilterArray(array(array(
+        $condition->setFilterArray(
+            [
+                [
             'local'        => 'id',
             'operation'    => '=',
             'remote_value' => '2'
-        )));
+                ]
+            ]
+        );
 
         $this->assertTrue($condition->matches($parent, $child));
     }

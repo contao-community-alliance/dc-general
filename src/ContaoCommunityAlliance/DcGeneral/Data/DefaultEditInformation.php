@@ -31,14 +31,14 @@ class DefaultEditInformation implements EditInformationInterface
      *
      * @var array
      */
-    protected $models = array();
+    protected $models = [];
 
     /**
      * The model errors.
      *
      * @var array
      */
-    protected $modelErrors = array();
+    protected $modelErrors = [];
 
     /**
      * The uniform time.
@@ -93,7 +93,7 @@ class DefaultEditInformation implements EditInformationInterface
         }
 
         if (!isset($this->modelErrors[$modelId->getSerialized()])) {
-            $this->modelErrors[$modelId->getSerialized()] = array();
+            $this->modelErrors[$modelId->getSerialized()] = [];
         }
 
         $this->modelErrors[$modelId->getSerialized()][$property->getName()] = array_merge(
@@ -124,7 +124,7 @@ class DefaultEditInformation implements EditInformationInterface
             return $modelErrors;
         }
 
-        $errors = array();
+        $errors = [];
         foreach ($this->getModelError($model) as $modelError) {
             $errors = array_merge($errors, $modelError);
         }

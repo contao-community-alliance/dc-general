@@ -51,10 +51,10 @@ class ClipboardController implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            DcGeneralEvents::ACTION => array('handleAction'),
-            DcGeneralEvents::VIEW   => array('handleView'),
-        );
+        return [
+            DcGeneralEvents::ACTION => ['handleAction'],
+            DcGeneralEvents::VIEW   => ['handleView'],
+        ];
     }
 
     /**
@@ -107,7 +107,7 @@ class ClipboardController implements EventSubscriberInterface
 
         if (('create' === $actionName && true === $basicDefinition->isCreatable())
             || ('cut' === $actionName && true === $basicDefinition->isEditable())
-            || (false === in_array($actionName, array('create', 'cut')))
+            || (false === in_array($actionName, ['create', 'cut']))
         ) {
             return true;
         }
@@ -306,7 +306,7 @@ class ClipboardController implements EventSubscriberInterface
             $filter->andHasNoParent();
         }
 
-        $options = array();
+        $options = [];
         foreach ($clipboard->fetch($filter) as $item) {
             $modelId      = $item->getModelId();
             $dataProvider = $environment->getDataProvider($item->getDataProviderName());
@@ -331,11 +331,7 @@ class ClipboardController implements EventSubscriberInterface
                 $label = $environment->getTranslator()->translate('new.0', $item->getDataProviderName());
             }
 
-            $options[$item->getClipboardId()] = array(
-                'item'  => $item,
-                'model' => $model,
-                'label' => $label,
-            );
+            $options[$item->getClipboardId()] = ['item'  => $item, 'model' => $model, 'label' => $label,];
         }
 
         $addToUrlEvent = new AddToUrlEvent('act=clear-clipboard&original-act=' . $input->getParameter('act'));

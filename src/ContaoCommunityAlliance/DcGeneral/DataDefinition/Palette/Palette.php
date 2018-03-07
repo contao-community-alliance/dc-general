@@ -44,7 +44,7 @@ class Palette implements PaletteInterface
      *
      * @var array|LegendInterface[]
      */
-    protected $legends = array();
+    protected $legends = [];
 
     /**
      * The condition bound to this palette.
@@ -76,7 +76,7 @@ class Palette implements PaletteInterface
      */
     public function getProperties(ModelInterface $model = null, PropertyValueBag $input = null)
     {
-        $properties = array();
+        $properties = [];
 
         foreach ($this->legends as $legend) {
             $properties = array_merge($properties, $legend->getProperties($model, $input));
@@ -90,7 +90,7 @@ class Palette implements PaletteInterface
      */
     public function getVisibleProperties(ModelInterface $model = null, PropertyValueBag $input = null)
     {
-        $properties = array();
+        $properties = [];
 
         foreach ($this->getLegends() as $legend) {
             foreach ($legend->getProperties($model, $input) as $property) {
@@ -108,7 +108,7 @@ class Palette implements PaletteInterface
      */
     public function getEditableProperties(ModelInterface $model = null, PropertyValueBag $input = null)
     {
-        $properties = array();
+        $properties = [];
 
         foreach ($this->getLegends() as $legend) {
             foreach ($legend->getProperties($model, $input) as $property) {
@@ -148,7 +148,7 @@ class Palette implements PaletteInterface
      */
     public function clearLegends()
     {
-        $this->legends = array();
+        $this->legends = [];
 
         return $this;
     }
@@ -217,7 +217,7 @@ class Palette implements PaletteInterface
 
                 $this->legends = array_merge(
                     array_slice($this->legends, 0, $position),
-                    array($hash => $legend),
+                    [$hash => $legend],
                     array_slice($this->legends, $position)
                 );
             } else {
@@ -296,7 +296,7 @@ class Palette implements PaletteInterface
     public function __clone()
     {
         /** @var Legend[] $legends */
-        $legends = array();
+        $legends = [];
         foreach ($this->legends as $legend) {
             $bobaFett = clone $legend;
 

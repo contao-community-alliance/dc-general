@@ -52,10 +52,10 @@ class FallbackResetSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            PostPersistModelEvent::NAME => array('handlePostPersistModelEvent', -200),
-            PostDuplicateModelEvent::NAME => array('handlePostDuplicateModelEvent', -200)
-        );
+        return [
+            PostPersistModelEvent::NAME => ['handlePostPersistModelEvent', -200],
+            PostDuplicateModelEvent::NAME => ['handlePostDuplicateModelEvent', -200]
+        ];
     }
 
     /**

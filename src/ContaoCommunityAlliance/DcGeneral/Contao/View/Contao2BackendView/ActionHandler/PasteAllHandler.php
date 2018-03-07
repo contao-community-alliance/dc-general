@@ -138,7 +138,7 @@ class PasteAllHandler extends AbstractHandler
 
         $previousItem = null;
 
-        $collection = array();
+        $collection = [];
         foreach ($clipboardItems as $clipboardItem) {
             if ($clipboardItem->getAction() === 'create') {
                 continue;
@@ -148,11 +148,11 @@ class PasteAllHandler extends AbstractHandler
 
             $pasteAfter =
                 $previousItem ? $previousItem->getModelId()->getSerialized() : $inputProvider->getParameter('after');
-            $item       = array(
+            $item       = [
                 'item'       => $clipboardItem,
                 'pasteAfter' => $pasteAfter,
                 'pasteMode'  => 'after'
-            );
+            ];
 
             $collection[$modelId->getSerialized()] = $item;
 
@@ -177,7 +177,7 @@ class PasteAllHandler extends AbstractHandler
         $relationShip   = $dataDefinition->getModelRelationshipDefinition();
         $childCondition = $relationShip->getChildCondition($dataDefinition->getName(), $dataDefinition->getName());
 
-        $collection = array();
+        $collection = [];
 
         $originalPasteMode = $inputProvider->hasParameter('after') ? 'after' : 'into';
 
@@ -193,11 +193,11 @@ class PasteAllHandler extends AbstractHandler
             $pasteMode  = $previousItem ? 'after' : $originalPasteMode;
             $pasteAfter =
                 $previousItem ? $previousItem->getModelId()->getSerialized() : $inputProvider->getParameter($pasteMode);
-            $item       = array(
+            $item       = [
                 'item'       => $clipboardItem,
                 'pasteAfter' => $pasteAfter,
                 'pasteMode'  => $pasteMode
-            );
+            ];
 
             $collection[$modelId->getSerialized()] = $item;
 
@@ -230,7 +230,7 @@ class PasteAllHandler extends AbstractHandler
      */
     protected function getSubClipboardItems(array $clipboardItems, CollectionInterface $collection)
     {
-        $subClipboardItems = array();
+        $subClipboardItems = [];
 
         $modelIds = $collection->getModelIds();
         foreach ($clipboardItems as $clipboardItem) {
@@ -273,11 +273,11 @@ class PasteAllHandler extends AbstractHandler
             $pasteMode  = $intoItem ? 'after' : 'into';
             $pasteAfter =
                 $intoItem ? $intoItem->getModelId()->getSerialized() : $previousModelId->getSerialized();
-            $item       = array(
+            $item       = [
                 'item'       => $subClipboardItem,
                 'pasteAfter' => $pasteAfter,
                 'pasteMode'  => $pasteMode
-            );
+            ];
 
             $intoItem = $subClipboardItem;
 

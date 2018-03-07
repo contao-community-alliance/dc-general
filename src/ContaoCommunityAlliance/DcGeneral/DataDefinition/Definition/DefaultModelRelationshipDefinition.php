@@ -40,7 +40,7 @@ class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionI
      *
      * @var ParentChildConditionInterface[]
      */
-    protected $childConditions = array();
+    protected $childConditions = [];
 
     /**
      * {@inheritdoc}
@@ -92,10 +92,10 @@ class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionI
     public function getChildConditions($srcProvider = '')
     {
         if (!$this->childConditions) {
-            return array();
+            return [];
         }
 
-        $arrReturn = array();
+        $arrReturn = [];
         foreach ($this->childConditions as $condition) {
             if (!empty($srcProvider) && ($condition->getSourceName() != $srcProvider)) {
                 continue;
@@ -116,7 +116,7 @@ class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionI
             $this->rootCondition = clone $this->rootCondition;
         }
 
-        $conditions = array();
+        $conditions = [];
         foreach ($this->childConditions as $condition) {
             $bobaFett = clone $condition;
 

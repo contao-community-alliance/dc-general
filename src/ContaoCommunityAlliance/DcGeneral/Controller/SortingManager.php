@@ -227,7 +227,7 @@ class SortingManager
      */
     protected function getModelIds()
     {
-        $ids = array();
+        $ids = [];
 
         foreach ($this->models as $model) {
             /** @var ModelInterface $model */

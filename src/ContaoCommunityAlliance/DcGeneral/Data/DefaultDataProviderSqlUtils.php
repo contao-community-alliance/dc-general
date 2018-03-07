@@ -254,7 +254,7 @@ class DefaultDataProviderSqlUtils
      */
     private static function filterLike($operation, &$params)
     {
-        $wildcards = str_replace(array('*', '?'), array('%', '_'), $operation['value']);
+        $wildcards = str_replace(['*', '?'], ['%', '_'], $operation['value']);
         $params[]  = $wildcards;
 
         return sprintf('(%s LIKE ?)', $operation['property'], $wildcards);

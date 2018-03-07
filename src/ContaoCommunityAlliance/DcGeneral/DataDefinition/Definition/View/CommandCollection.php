@@ -36,14 +36,14 @@ class CommandCollection implements CommandCollectionInterface
      *
      * @var CommandInterface[]
      */
-    protected $commands = array();
+    protected $commands = [];
 
     /**
      * {@inheritdoc}
      */
     public function clearCommands()
     {
-        $this->commands = array();
+        $this->commands = [];
 
         return $this;
     }
@@ -127,7 +127,7 @@ class CommandCollection implements CommandCollectionInterface
 
                 $this->commands = array_merge(
                     array_slice($this->commands, 0, $position),
-                    array($hash => $command),
+                    [$hash => $command],
                     array_slice($this->commands, $position)
                 );
             } else {

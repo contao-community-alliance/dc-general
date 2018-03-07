@@ -92,7 +92,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      */
     protected function getPersistent()
     {
-        $arrValue = array();
+        $arrValue = [];
         if ($this->getSessionStorage()->has('limit')) {
             $arrValue = $this->getSessionStorage()->get('limit');
         }
@@ -101,7 +101,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
             return $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
         }
 
-        return array();
+        return [];
     }
 
     /**
@@ -114,7 +114,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      */
     protected function setPersistent($intOffset, $intAmount)
     {
-        $arrValue       = array();
+        $arrValue       = [];
         $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
         if ($this->getSessionStorage()->has('limit')) {
@@ -123,7 +123,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 
         if ($intOffset) {
             if (!is_array($arrValue[$definitionName])) {
-                $arrValue[$definitionName] = array();
+                $arrValue[$definitionName] = [];
             }
 
             $arrValue[$definitionName]['offset'] = $intOffset;
@@ -190,13 +190,13 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      */
     public function render(ViewTemplateInterface $objTemplate)
     {
-        $arrOptions = array(
-            array(
+        $arrOptions = [
+            [
                 'value'      => 'tl_limit',
                 'attributes' => '',
                 'content'    => $GLOBALS['TL_LANG']['MSC']['filterRecords']
-            )
-        );
+            ]
+        ];
 
         $optionsPerPage = $this->getItemsPerPage();
         $optionsTotal   = ceil($this->intTotal / $optionsPerPage);
@@ -210,22 +210,22 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
                 $upperLimit = $this->intTotal;
             }
 
-            $arrOptions[] = array(
+            $arrOptions[] = [
                 'value'      => $thisLimit,
                 'attributes' => ($this->getOffset() == $first) ? ' selected' : '',
                 'content'    => ($first + 1) . ' - ' . $upperLimit
-            );
+            ];
         }
 
         if ($this->intTotal > $optionsPerPage) {
-            $arrOptions[] = array(
+            $arrOptions[] = [
                 'value'      => 'all',
                 'attributes' =>
                     (($this->getOffset() == 0) && ($this->getAmount() == $this->intTotal))
                         ? 'selected'
                         : '',
                 'content'    => $GLOBALS['TL_LANG']['MSC']['filterAll']
-            );
+            ];
         }
 
         $objTemplate->set('options', $arrOptions);

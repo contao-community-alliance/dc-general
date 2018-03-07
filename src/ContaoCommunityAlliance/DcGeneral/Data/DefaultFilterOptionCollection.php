@@ -31,7 +31,7 @@ class DefaultFilterOptionCollection implements FilterOptionCollectionInterface
      *
      * @var array
      */
-    protected $filterValues = array();
+    protected $filterValues = [];
 
     /**
      * {@inheritDoc}

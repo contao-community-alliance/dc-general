@@ -58,7 +58,7 @@ class FilterBuilder
      *
      * @throws DcGeneralInvalidArgumentException When an invalid filter array has been passed.
      */
-    public function __construct($filter = array(), $isRoot = false)
+    public function __construct($filter = [], $isRoot = false)
     {
         if (!is_array($filter)) {
             throw new DcGeneralInvalidArgumentException(
@@ -66,7 +66,7 @@ class FilterBuilder
             );
         }
 
-        $this->filters      = static::getBuilderFromArray(array('operation' => 'AND', 'children' => $filter), $this);
+        $this->filters      = static::getBuilderFromArray(['operation' => 'AND', 'children' => $filter], $this);
         $this->isRootFilter = $isRoot;
     }
 
@@ -112,7 +112,7 @@ class FilterBuilder
      *
      * @return FilterBuilder
      */
-    public static function fromArray($filter = array())
+    public static function fromArray($filter = [])
     {
         return new static($filter, false);
     }
@@ -124,7 +124,7 @@ class FilterBuilder
      *
      * @return FilterBuilder
      */
-    public static function fromArrayForRoot($filter = array())
+    public static function fromArrayForRoot($filter = [])
     {
         return new static($filter, true);
     }
@@ -151,7 +151,7 @@ class FilterBuilder
         $this->filters = new AndFilterBuilder();
         $this->filters->setBuilder($this);
 
-        $orFilter = new OrFilterBuilder(array($root));
+        $orFilter = new OrFilterBuilder([$root]);
         $this->filters->add($orFilter);
 
         return $orFilter;
@@ -206,7 +206,7 @@ class FilterBuilder
      */
     public static function isValidOperation($operation)
     {
-        return in_array($operation, array('AND', 'OR', '=', '>', '<', 'IN', 'LIKE'));
+        return in_array($operation, ['AND', 'OR', '=', '>', '<', 'IN', 'LIKE']);
     }
 
     /**

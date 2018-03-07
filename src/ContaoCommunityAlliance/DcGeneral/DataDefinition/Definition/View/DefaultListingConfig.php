@@ -102,10 +102,10 @@ class DefaultListingConfig implements ListingConfigInterface
         $definitions = $this->getGroupAndSortingDefinition();
 
         if (!$definitions->hasDefault()) {
-            return array();
+            return [];
         }
 
-        $properties = array();
+        $properties = [];
         foreach ($this->getGroupAndSortingDefinition()->getDefault() as $propertyInformation) {
             /** @var GroupAndSortingInformationInterface $propertyInformation */
             if ($propertyInformation->getProperty()) {

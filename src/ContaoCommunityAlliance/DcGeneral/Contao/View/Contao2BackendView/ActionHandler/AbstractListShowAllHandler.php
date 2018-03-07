@@ -621,17 +621,17 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
 
         $sessionName = $dataDefinition->getName() . '.' . $inputProvider->getParameter('mode');
         if (!$sessionStorage->has($sessionName)) {
-            return array();
+            return [];
         }
 
         $selectAction = $inputProvider->getParameter('select');
         if (!$selectAction) {
-            return array();
+            return [];
         }
 
         $session = $sessionStorage->get($sessionName);
         if (!array_key_exists($selectAction, $session)) {
-            return array();
+            return [];
         }
 
         return $session[$selectAction];

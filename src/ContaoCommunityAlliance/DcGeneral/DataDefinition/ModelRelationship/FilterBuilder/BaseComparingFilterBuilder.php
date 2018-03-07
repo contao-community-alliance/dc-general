@@ -131,9 +131,7 @@ class BaseComparingFilterBuilder extends BaseFilterBuilder
      */
     public function get()
     {
-        $result = array(
-            'operation' => $this->operation,
-        );
+        $result = ['operation' => $this->operation,];
 
         if ($this->isRemote()) {
             $result['local'] = $this->getProperty();

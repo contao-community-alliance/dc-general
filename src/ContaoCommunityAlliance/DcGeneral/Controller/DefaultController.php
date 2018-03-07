@@ -269,7 +269,7 @@ class DefaultController implements ControllerInterface
         $config->setFilter($condition->getFilter($model));
 
         if ($sortingProperty) {
-            $config->setSorting(array((string) $sortingProperty => 'ASC'));
+            $config->setSorting([(string) $sortingProperty => 'ASC']);
         }
 
         return $provider->fetchAll($config);
@@ -334,11 +334,11 @@ class DefaultController implements ControllerInterface
 
         // Check if we have some languages.
         if ($supportedLanguages == null) {
-            return array();
+            return [];
         }
 
         // Make an array from the collection.
-        $arrLanguage = array();
+        $arrLanguage = [];
         $translator  = $environment->getTranslator();
         foreach ($supportedLanguages as $value) {
             /** @var LanguageInformationInterface $value */
@@ -521,7 +521,7 @@ class DefaultController implements ControllerInterface
         ModelIdInterface $into = null,
         ModelIdInterface $parentModelId = null,
         FilterInterface $filter = null,
-        array &$items = array()
+        array &$items = []
     ) {
         if ($source) {
             $actions = $this->getActionsFromSource($source, $parentModelId);
@@ -558,12 +558,12 @@ class DefaultController implements ControllerInterface
 
         $action  = $item ? $item->getAction() : ItemInterface::CUT;
         $model   = $this->modelCollector->getModel($source);
-        $actions = array(
-            array(
+        $actions = [
+            [
                 'model' => $model,
                 'item'  => new Item($action, $parentModelId, ModelId::fromModel($model)),
-            )
-        );
+            ]
+        ];
 
         return $actions;
     }
@@ -597,7 +597,7 @@ class DefaultController implements ControllerInterface
         $environment = $this->getEnvironment();
         $clipboard   = $environment->getClipboard();
         $items       = $clipboard->fetch($filter);
-        $actions     = array();
+        $actions     = [];
 
         foreach ($items as $item) {
             $model = null;
@@ -606,10 +606,10 @@ class DefaultController implements ControllerInterface
                 $model = $this->modelCollector->getModel($item->getModelId()->getId(), $item->getDataProviderName());
             }
 
-            $actions[] = array(
+            $actions[] = [
                 'model' => $model,
                 'item'  => $item,
-            );
+            ];
         }
 
         return $actions;
@@ -631,7 +631,7 @@ class DefaultController implements ControllerInterface
         ModelIdInterface $after = null,
         ModelIdInterface $into = null,
         ModelIdInterface $parentModelId = null,
-        array &$items = array()
+        array &$items = []
     ) {
         if ($parentModelId) {
             $parentModel = $this->modelCollector->getModel($parentModelId);
@@ -640,7 +640,7 @@ class DefaultController implements ControllerInterface
         }
 
         // Holds models, that need deep-copy
-        $deepCopyList = array();
+        $deepCopyList = [];
 
         // Apply create and copy actions
         foreach ($actions as &$action) {
@@ -688,10 +688,10 @@ class DefaultController implements ControllerInterface
             $clonedModel = $this->doCloneAction($model);
 
             if ($item->isDeepCopy()) {
-                $deepCopyList[] = array(
+                $deepCopyList[] = [
                     'origin' => $model,
                     'model'  => $clonedModel,
-                );
+                ];
             }
 
             $model = $clonedModel;
@@ -779,7 +779,7 @@ class DefaultController implements ControllerInterface
         ModelIdInterface $after = null,
         ModelIdInterface $into = null,
         ModelIdInterface $parentModelId = null,
-        array &$items = array()
+        array &$items = []
     ) {
         $environment    = $this->getEnvironment();
         $dataDefinition = $environment->getDataDefinition();
@@ -878,7 +878,7 @@ class DefaultController implements ControllerInterface
                 $config->setFilter($filter);
 
                 // apply sorting
-                $sorting = array();
+                $sorting = [];
                 foreach ($groupAndSorting as $information) {
                     /** @var GroupAndSortingInformationInterface $information */
                     $sorting[$information->getProperty()] = $information->getSortingMode();
@@ -889,20 +889,16 @@ class DefaultController implements ControllerInterface
                 $children = $destinationDataProvider->fetchAll($config);
 
                 // ***** do the deep copy
-                $actions = array();
+                $actions = [];
 
                 // build the copy actions
                 foreach ($children as $childModel) {
                     $childModelId = ModelId::fromModel($childModel);
 
-                    $actions[] = array(
+                    $actions[] = [
                         'model' => $childModel,
-                        'item'  => new Item(
-                            ItemInterface::DEEP_COPY,
-                            $parentId,
-                            $childModelId
-                        )
-                    );
+                        'item'  => new Item(ItemInterface::DEEP_COPY, $parentId, $childModelId)
+                    ];
                 }
 
                 // do the deep copy
@@ -949,10 +945,10 @@ class DefaultController implements ControllerInterface
                 ->getDataDefinition()
                 ->getBasicDefinition()
                 ->getMode(),
-            array(
+            [
                 BasicDefinitionInterface::MODE_HIERARCHICAL,
                 BasicDefinitionInterface::MODE_PARENTEDLIST
-            )
+            ]
         )) {
             if (!$this->relationshipManager->isRoot($previousModel)) {
                 $parentModel = $this->modelCollector->searchParentOf($previousModel);

@@ -79,7 +79,7 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
     {
         $extra = $event->getCommand()->getExtra();
 
-        return array(
+        return [
             $event->getModel()->getPropertiesAsArray(),
             $this->buildHref($event->getCommand()),
             $event->getLabel(),
@@ -92,7 +92,7 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
             $event->isCircularReference(),
             $event->getPrevious() ? $event->getPrevious()->getId() : null,
             $event->getNext() ? $event->getNext()->getId() : null
-        );
+        ];
     }
 
     /**

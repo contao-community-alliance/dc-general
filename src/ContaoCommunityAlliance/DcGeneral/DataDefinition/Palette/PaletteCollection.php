@@ -35,7 +35,7 @@ class PaletteCollection implements PaletteCollectionInterface
      *
      * @var array|PaletteInterface[]
      */
-    protected $palettes = array();
+    protected $palettes = [];
 
     /**
      * Remove all palettes from this collection.
@@ -44,7 +44,7 @@ class PaletteCollection implements PaletteCollectionInterface
      */
     public function clearPalettes()
     {
-        $this->palettes = array();
+        $this->palettes = [];
         return $this;
     }
 
@@ -114,7 +114,7 @@ class PaletteCollection implements PaletteCollectionInterface
      */
     public function findPalette(ModelInterface $model = null, PropertyValueBag $input = null)
     {
-        $matches = array();
+        $matches = [];
 
         // Determinate the matching count for each palette.
         foreach ($this->palettes as $palette) {
@@ -177,7 +177,7 @@ class PaletteCollection implements PaletteCollectionInterface
      */
     public function __clone()
     {
-        $palettes = array();
+        $palettes = [];
         foreach ($this->palettes as $index => $palette) {
             $palettes[$index] = clone $palette;
         }

@@ -44,7 +44,7 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
      *
      * @var array
      */
-    protected $messages = array();
+    protected $messages = [];
 
     /**
      * {@inheritdoc}
@@ -94,7 +94,7 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
         $providerName = 'property.' . $this->getEnvironment()->getDataDefinition()->getName();
 
         $dataProvider = new NoOpDataProvider();
-        $dataProvider->setBaseConfig(array('name' => $providerName));
+        $dataProvider->setBaseConfig(['name' => $providerName]);
 
         $this->setPropertyLabelFormatter($providerName);
 
@@ -113,12 +113,12 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
         $properties = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition();
 
         $labelFormatter = new DefaultModelFormatterConfig();
-        $labelFormatter->setPropertyNames(array('name', 'description'));
+        $labelFormatter->setPropertyNames(['name', 'description']);
         $labelFormatter->setFormat('%s <span style="color:#b3b3b3; padding-left:3px">[%s]</span>');
         $this->getViewSection()->getListingConfig()->setLabelFormatter($providerName, $labelFormatter);
 
         // If property name not exits create dummy property for it.
-        foreach (array('name', 'description') as $dummyName) {
+        foreach (['name', 'description'] as $dummyName) {
             if (!$properties->hasProperty($dummyName)) {
                 $dummyProperty = new DefaultProperty($dummyName);
                 $dummyProperty->setWidgetType('dummyProperty');
@@ -367,7 +367,7 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
     protected function getSelectButtons()
     {
         $continueName = '';
-        foreach (array('override', 'edit') as $subAction) {
+        foreach (['override', 'edit'] as $subAction) {
             if (!$this->getEnvironment()->getInputProvider()->hasValue($subAction)) {
                 continue;
             }

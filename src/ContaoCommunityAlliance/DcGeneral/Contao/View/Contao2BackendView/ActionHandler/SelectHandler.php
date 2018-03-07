@@ -82,7 +82,7 @@ class SelectHandler extends AbstractHandler
         $this->handleGlobalCommands();
 
         Message::reset();
-        $this->callAction($submitAction . 'All', array('mode' => $submitAction));
+        $this->callAction($submitAction . 'All', ['mode' => $submitAction]);
     }
 
     /**
@@ -94,7 +94,7 @@ class SelectHandler extends AbstractHandler
      */
     private function getSubmitAction($regardSelectMode = false)
     {
-        $actions = array('delete', 'cut', 'copy', 'override', 'edit');
+        $actions = ['delete', 'cut', 'copy', 'override', 'edit'];
 
         foreach ($actions as $action) {
             if ($this->getEnvironment()->getInputProvider()->hasValue($action)
@@ -208,7 +208,7 @@ class SelectHandler extends AbstractHandler
         $dataDefinition = $this->getEnvironment()->getDataDefinition();
         $sessionStorage = $this->getEnvironment()->getSessionStorage();
 
-        $session = array();
+        $session = [];
         if ($sessionStorage->has($dataDefinition->getName() . '.' . $this->getSubmitAction(true))) {
             $session = $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction(true));
         }
@@ -217,7 +217,7 @@ class SelectHandler extends AbstractHandler
         if (!empty($collection)) {
             $sessionCollection = array_map(
                 function ($item) use ($index) {
-                    if (!in_array($index, array('models', 'properties'))) {
+                    if (!in_array($index, ['models', 'properties'])) {
                         return $item;
                     }
 
@@ -245,7 +245,7 @@ class SelectHandler extends AbstractHandler
         // Get the verify collection from the session and return it.
         $collection = array_map(
             function ($item) use ($index) {
-                if (!in_array($index, array('models', 'properties'))) {
+                if (!in_array($index, ['models', 'properties'])) {
                     return $item;
                 }
 
@@ -316,7 +316,7 @@ class SelectHandler extends AbstractHandler
 
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction(true));
 
-        $modelIds = array();
+        $modelIds = [];
         foreach ($session['models'] as $modelId) {
             $modelIds[] = ModelId::fromSerialized($modelId)->getId();
         }
@@ -324,19 +324,19 @@ class SelectHandler extends AbstractHandler
         $idProperty = method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
         $collection = $dataProvider->fetchAll(
             $dataProvider->getEmptyConfig()->setFilter(
-                array(
-                    array(
+                [
+                    [
                         'operation' => 'IN',
                         'property'  => $idProperty,
                         'values'    => $modelIds
-                    )
-                )
+                    ]
+                ]
             )
         );
 
         $count       = $collection->count();
-        $valuesCount = array();
-        $values      = array();
+        $valuesCount = [];
+        $values      = [];
 
         $this->getIntersectValues($collection, $values, $valuesCount);
 
@@ -402,7 +402,7 @@ class SelectHandler extends AbstractHandler
     private function handleNonEditAction()
     {
         $submitAction = $this->getSubmitAction();
-        if (!in_array($submitAction, array('delete', 'copy', 'cut'))) {
+        if (!in_array($submitAction, ['delete', 'copy', 'cut'])) {
             return;
         }
 
@@ -434,7 +434,7 @@ class SelectHandler extends AbstractHandler
     private function handleNonSelectByShowAllAction()
     {
         $submitAction = $this->getSubmitAction(true);
-        if (in_array($submitAction, array('cut', 'delete', 'copy', 'override', 'edit'))) {
+        if (in_array($submitAction, ['cut', 'delete', 'copy', 'override', 'edit'])) {
             return;
         }
 
@@ -491,7 +491,7 @@ class SelectHandler extends AbstractHandler
 
         $parametersBackButton = $backButton->getParameters();
 
-        if (in_array($this->getSelectAction(), array('properties', 'edit'))) {
+        if (in_array($this->getSelectAction(), ['properties', 'edit'])) {
             $parametersBackButton->offsetSet('act', 'select');
             $parametersBackButton->offsetSet('select', ($this->getSelectAction() === 'edit') ? 'properties' : 'models');
             $parametersBackButton->offsetSet('mode', $this->getSubmitAction(true));
@@ -500,13 +500,13 @@ class SelectHandler extends AbstractHandler
         $closeCommand = new Command();
         $backendView->getGlobalCommands()->addCommand($closeCommand);
 
-        $closeExtra = array(
+        $closeExtra = [
             'href'       => $this->getReferrerUrl(),
             'class'      => 'header_logout',
             'icon'       => 'delete.gif',
             'accessKey'  => 'x',
             'attributes' => 'onclick="Backend.getScrollOffset();"'
-        );
+        ];
 
         $closeCommand
             ->setName('close_all_button')
@@ -572,7 +572,7 @@ class SelectHandler extends AbstractHandler
      */
     private function clearClipboardBySubmitAction()
     {
-        if (in_array($this->getSubmitAction(), array('edit', 'override'))) {
+        if (in_array($this->getSubmitAction(), ['edit', 'override'])) {
             return;
         }
 

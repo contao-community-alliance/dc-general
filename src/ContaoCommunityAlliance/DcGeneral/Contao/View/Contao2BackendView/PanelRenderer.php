@@ -139,7 +139,7 @@ class PanelRenderer
      */
     protected function renderPanelRow($panel, $ignoredPanels)
     {
-        $parsedElements = array();
+        $parsedElements = [];
         $index          = 0;
         $max            = (count($panel) - 1);
         foreach ($panel as $element) {
@@ -169,7 +169,7 @@ class PanelRenderer
      *
      * @return string
      */
-    public function render($ignoredPanels = array())
+    public function render($ignoredPanels = [])
     {
         // If in edit/override all mode and list all properties, the panel filter isn´t in use.
         if ('properties' === $this->getEnvironment()->getInputProvider()->getParameter('select')) {
@@ -183,7 +183,7 @@ class PanelRenderer
         $environment = $this->getEnvironment();
         $dispatcher  = $environment->getEventDispatcher();
 
-        $panels = array();
+        $panels = [];
         foreach ($this->view->getPanel() as $panel) {
             $panels[] = $this->renderPanelRow($panel, $ignoredPanels);
         }

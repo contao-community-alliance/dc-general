@@ -47,7 +47,7 @@ class DefaultPanel implements PanelInterface
      */
     public function __construct()
     {
-        $this->arrElements = array();
+        $this->arrElements = [];
     }
 
     /**

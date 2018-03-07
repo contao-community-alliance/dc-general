@@ -42,9 +42,9 @@ class LanguageFilter implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            DcGeneralEvents::ACTION => array(array('handleAction', 500)),
-        );
+        return [
+            DcGeneralEvents::ACTION => [['handleAction', 500]],
+        ];
     }
 
     /**

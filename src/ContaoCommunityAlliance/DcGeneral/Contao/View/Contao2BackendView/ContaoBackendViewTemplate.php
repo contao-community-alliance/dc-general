@@ -96,7 +96,7 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
     /**
      * {@inheritdoc}
      */
-    public function translate($string, $domain = null, array $parameters = array(), $locale = null)
+    public function translate($string, $domain = null, array $parameters = [], $locale = null)
     {
         if ($this->translator) {
             return $this->translator->translate($string, $domain, $parameters, $locale);
@@ -108,7 +108,7 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
     /**
      * {@inheritdoc}
      */
-    public function translatePluralized($string, $number, $domain = null, array $parameters = array(), $locale = null)
+    public function translatePluralized($string, $number, $domain = null, array $parameters = [], $locale = null)
     {
         if ($this->translator) {
             return $this->translator->translatePluralized($string, $number, $domain, $parameters, $locale);

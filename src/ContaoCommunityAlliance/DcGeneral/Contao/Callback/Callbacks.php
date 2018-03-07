@@ -62,7 +62,7 @@ class Callbacks
      *
      * @throws DcGeneralRuntimeException When the callback throws an exception.
      */
-    public static function callArgs($callback, array $args = array())
+    public static function callArgs($callback, array $args = [])
     {
         try {
             $callback = static::evaluateCallback($callback);

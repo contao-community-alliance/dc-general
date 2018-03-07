@@ -48,7 +48,7 @@ class TreeNodeStates
      * @param array $implicitOpen List of implicit open nodes (selected values, if not given, the state information will
      *                            be empty).
      */
-    public function __construct($states = array(), $implicitOpen = array())
+    public function __construct($states = [], $implicitOpen = [])
     {
         $this->setStates($states);
         $this->setImplicitOpen($implicitOpen);
@@ -148,8 +148,8 @@ class TreeNodeStates
      */
     public function resetAll()
     {
-        $this->states       = array('all' => $this->isAllOpen());
-        $this->implicitOpen = array();
+        $this->states       = ['all' => $this->isAllOpen()];
+        $this->implicitOpen = [];
 
         return $this;
     }
@@ -184,7 +184,7 @@ class TreeNodeStates
     public function toggleModel($providerName, $modelId)
     {
         if (!isset($this->states[$providerName])) {
-            $this->states[$providerName] = array();
+            $this->states[$providerName] = [];
         }
 
         return $this->setModelState($providerName, $modelId, !$this->isModelOpen($providerName, $modelId, true));
@@ -202,7 +202,7 @@ class TreeNodeStates
     public function setModelState($providerName, $modelId, $state)
     {
         if (!isset($this->states[$providerName])) {
-            $this->states[$providerName] = array();
+            $this->states[$providerName] = [];
         }
 
         $this->states[$providerName][$modelId] = (bool) $state;

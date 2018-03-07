@@ -75,7 +75,7 @@ class ContainerGlobalButtonCallbackListener extends AbstractReturningCallbackLis
      */
     public function getArgs($event)
     {
-        return array(
+        return [
             $event->getHref(),
             $event->getLabel(),
             $event->getTitle(),
@@ -83,7 +83,7 @@ class ContainerGlobalButtonCallbackListener extends AbstractReturningCallbackLis
             $event->getAttributes(),
             $event->getEnvironment()->getDataDefinition()->getName(),
             $event->getEnvironment()->getDataDefinition()->getBasicDefinition()->getRootEntries()
-        );
+        ];
     }
 
     /**

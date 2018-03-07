@@ -83,7 +83,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
      */
     protected function getPersistent()
     {
-        $arrValue = array();
+        $arrValue = [];
         if ($this->getSessionStorage()->has('sorting')) {
             $arrValue = $this->getSessionStorage()->get('sorting');
         }
@@ -92,7 +92,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
             return $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
         }
 
-        return array();
+        return [];
     }
 
     /**
@@ -104,7 +104,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
      */
     protected function setPersistent($strProperty)
     {
-        $arrValue       = array();
+        $arrValue       = [];
         $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
         if ($this->getSessionStorage()->has('sorting')) {
@@ -113,7 +113,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 
         if ($strProperty) {
             if (!is_array($arrValue[$definitionName])) {
-                $arrValue[$definitionName] = array();
+                $arrValue[$definitionName] = [];
             }
             $arrValue[$definitionName] = $strProperty;
         } else {
@@ -152,7 +152,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
         $current = $objConfig->getSorting();
 
         if (!is_array($current)) {
-            $current = array();
+            $current = [];
         }
 
         if ($this->getSelectedDefinition()) {
@@ -168,7 +168,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
      */
     public function render(ViewTemplateInterface $objTemplate)
     {
-        $arrOptions = array();
+        $arrOptions = [];
         foreach ($this->getGroupAndSortingDefinition() as $information) {
             /** @var GroupAndSortingDefinitionInterface $information */
             $name       = $information->getName();
@@ -181,11 +181,11 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
                 $name = $information->getName();
             }
 
-            $arrOptions[] = array(
+            $arrOptions[] = [
                 'value'      => specialchars($information->getName()),
                 'attributes' => ($this->getSelected() == $information->getName()) ? ' selected' : '',
                 'content'    => $name
-            );
+            ];
         }
 
         // Sort by option values.

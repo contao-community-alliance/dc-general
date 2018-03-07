@@ -41,7 +41,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @var array
      */
-    protected $arrIds = array();
+    protected $arrIds = [];
 
     /**
      * Flag determining if only the ids shall get fetched or models.
@@ -78,7 +78,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @var array(string => string)
      */
-    protected $arrSorting = array();
+    protected $arrSorting = [];
 
     /**
      * The properties to retrieve.
@@ -95,7 +95,7 @@ class DefaultConfig implements ConfigInterface
      * @see set
      * @see get
      */
-    protected $arrData = array();
+    protected $arrData = [];
 
     /**
      * Create object.

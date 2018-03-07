@@ -33,14 +33,14 @@ class DefaultPanelRowCollection implements PanelRowCollectionInterface
      *
      * @var PanelRowInterface[]
      */
-    protected $rows = array();
+    protected $rows = [];
 
     /**
      * {@inheritDoc}
      */
     public function getRows()
     {
-        $names = array();
+        $names = [];
         foreach ($this as $row) {
             /** @var PanelRowInterface $row */
             $names[] = $row->getElements();
@@ -59,7 +59,7 @@ class DefaultPanelRowCollection implements PanelRowCollectionInterface
         if (($index < 0) || ($this->getRowCount() <= $index)) {
             $this->rows[] = $row;
         } else {
-            array_splice($this->rows, $index, 0, array($row));
+            array_splice($this->rows, $index, 0, [$row]);
         }
 
         return $row;

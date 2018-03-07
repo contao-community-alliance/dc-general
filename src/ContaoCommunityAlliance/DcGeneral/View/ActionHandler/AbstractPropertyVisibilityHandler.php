@@ -334,7 +334,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
 
         $palette = $palettesDefinition->findPalette($model);
 
-        $invisibleProperties = array();
+        $invisibleProperties = [];
         foreach ($palette->getLegends() as $legend) {
             if (!$legend->hasProperty($property->getName())) {
                 continue;
@@ -355,7 +355,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
             return null;
         }
 
-        $information = array();
+        $information = [];
         foreach ($invisibleProperties as $propertyName => $informationProperty) {
             $labelParentProperty = !$informationProperty->getLabel() ? $propertyName : $informationProperty->getLabel();
             $labelEditProperty   = !$property->getLabel() ? $property->getName() : $property->getLabel();
@@ -392,7 +392,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
             return null;
         }
 
-        $information = array();
+        $information = [];
         foreach ($properties as $propertyName => $informationProperty) {
             $label = !$informationProperty->getLabel() ? $propertyName : $informationProperty->getLabel();
 
@@ -496,7 +496,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
 
         $palette = $palettesDefinition->findPalette($model);
 
-        $properties = array();
+        $properties = [];
         foreach ($palette->getLegends() as $legend) {
             if (!$legend->hasProperty($property->getName())) {
                 continue;
@@ -713,7 +713,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
         $inputProvider      = $this->getEnvironment()->getInputProvider();
         $palettesDefinition = $this->getEnvironment()->getDataDefinition()->getPalettesDefinition();
 
-        $legendPropertyNames = array();
+        $legendPropertyNames = [];
         if ($inputProvider->hasValue('FORM_INPUTS') && 1 === count($palettesDefinition->getPalettes())) {
             return $legendPropertyNames;
         }

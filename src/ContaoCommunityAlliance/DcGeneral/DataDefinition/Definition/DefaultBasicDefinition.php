@@ -102,7 +102,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
      *
      * @var mixed[]
      */
-    protected $rootEntries = array();
+    protected $rootEntries = [];
 
     /**
      * Determines if the data container is an dynamic parent table.

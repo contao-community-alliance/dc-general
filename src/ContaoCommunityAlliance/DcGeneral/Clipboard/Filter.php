@@ -37,14 +37,14 @@ class Filter implements FilterInterface
      *
      * @var array
      */
-    private $expression = array();
+    private $expression = [];
 
     /**
      * The expression variables.
      *
      * @var array
      */
-    private $variables = array();
+    private $variables = [];
 
     /**
      * Pre-compiled expression.
@@ -577,7 +577,7 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $expression = array();
+        $expression = [];
         foreach ($parentModelIds as $parentModelId) {
             $index             = count($this->variables);
             $expression[]      = sprintf(self::PARENT_IS_EXPRESSION, $index);
@@ -681,7 +681,7 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $expression = array();
+        $expression = [];
         foreach ($parentModelIds as $parentModelId) {
             $index             = count($this->variables);
             $expression[]      = sprintf(self::PARENT_IS_NOT_EXPRESSION, $index);
@@ -785,7 +785,7 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $expression = array();
+        $expression = [];
         foreach ($actions as $action) {
             $index             = count($this->variables);
             $expression[]      = sprintf(self::ACTION_IS_EXPRESSION, $index);
@@ -889,7 +889,7 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $expression = array();
+        $expression = [];
         foreach ($actions as $action) {
             $index             = count($this->variables);
             $expression[]      = sprintf(self::ACTION_IS_NOT_EXPRESSION, $index);
@@ -966,7 +966,7 @@ EXPR;
                 'return %s;',
                 $language->compile(
                     $expression,
-                    array('item', 'variables')
+                    ['item', 'variables']
                 )
             );
         }

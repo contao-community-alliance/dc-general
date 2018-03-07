@@ -79,9 +79,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            DcGeneralEvents::ACTION => array('handleAction', -100),
-        );
+        return [
+            DcGeneralEvents::ACTION => ['handleAction', -100],
+        ];
     }
 
     /**
@@ -120,8 +120,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             case 'edit':
             case 'showAll':
                 $response = call_user_func_array(
-                    array($this, $name),
-                    array_merge(array($action), $action->getArguments())
+                    [$this, $name],
+                    array_merge([$action], $action->getArguments())
                 );
                 $event->setResponse($response);
                 break;
@@ -531,7 +531,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * @return string
      */
-    protected function panel($ignoredPanels = array())
+    protected function panel($ignoredPanels = [])
     {
         $renderer = new PanelRenderer($this);
         return $renderer->render($ignoredPanels);

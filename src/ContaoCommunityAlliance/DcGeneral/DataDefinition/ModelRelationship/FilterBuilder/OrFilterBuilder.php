@@ -36,7 +36,7 @@ class OrFilterBuilder extends FilterBuilderWithChildren
      *
      * @throws DcGeneralInvalidArgumentException When invalid children have been passed.
      */
-    public function __construct($children = array())
+    public function __construct($children = [])
     {
         parent::__construct($children);
 

@@ -53,89 +53,89 @@ use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforc
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 
-$result = array(
-    BuildDataDefinitionEvent::NAME => array(
-        array(
-            array(new LegacyDcaDataDefinitionBuilder(), 'process'),
+$result = [
+    BuildDataDefinitionEvent::NAME => [
+        [
+            [new LegacyDcaDataDefinitionBuilder(), 'process'],
             LegacyDcaDataDefinitionBuilder::PRIORITY
-        ),
-        array(
-            array(new ExtendedLegacyDcaDataDefinitionBuilder(), 'process'),
+        ],
+        [
+            [new ExtendedLegacyDcaDataDefinitionBuilder(), 'process'],
             ExtendedLegacyDcaDataDefinitionBuilder::PRIORITY
-        ),
-    ),
-    PopulateEnvironmentEvent::NAME => array(
-        array(
-            array(new ParentDefinitionPopulator(), 'process'),
+        ],
+    ],
+    PopulateEnvironmentEvent::NAME => [
+        [
+            [new ParentDefinitionPopulator(), 'process'],
             ParentDefinitionPopulator::PRIORITY
-        ),
-        array(
-            array(new DataProviderPopulator(), 'process'),
+        ],
+        [
+            [new DataProviderPopulator(), 'process'],
             DataProviderPopulator::PRIORITY
-        ),
-        array(
-            array(new HardCodedPopulator(), 'process'),
+        ],
+        [
+            [new HardCodedPopulator(), 'process'],
             HardCodedPopulator::PRIORITY
-        ),
-    ),
-    DcGeneralEvents::ENFORCE_MODEL_RELATIONSHIP => array(
-        array(new TreeEnforcingListener(), 'process'),
-        array(new ParentEnforcingListener(), 'process'),
-    )
-);
+        ],
+    ],
+    DcGeneralEvents::ENFORCE_MODEL_RELATIONSHIP => [
+        [new TreeEnforcingListener(), 'process'],
+        [new ParentEnforcingListener(), 'process'],
+    ]
+];
 
 if ('BE' === TL_MODE) {
     $result[PopulateEnvironmentEvent::NAME] = array_merge(
         $result[PopulateEnvironmentEvent::NAME],
-        array(
-            array(
-                array(new ExtendedLegacyDcaPopulator(), 'process'),
+        [
+            [
+                [new ExtendedLegacyDcaPopulator(), 'process'],
                 ExtendedLegacyDcaPopulator::PRIORITY
-            ),
-            array(
-                array(new BackendViewPopulator(), 'process'),
+            ],
+            [
+                [new BackendViewPopulator(), 'process'],
                 BackendViewPopulator::PRIORITY
-            ),
-            array(
-                array(new PickerCompatPopulator(), 'process'),
+            ],
+            [
+                [new PickerCompatPopulator(), 'process'],
                 PickerCompatPopulator::PRIORITY
-            ),
-        )
+            ],
+        ]
     );
 
-    $result[DcGeneralEvents::FORMAT_MODEL_LABEL] = array(
-        array(new FormatModelLabelSubscriber(), 'handleFormatModelLabel'),
-    );
+    $result[DcGeneralEvents::FORMAT_MODEL_LABEL] = [
+        [new FormatModelLabelSubscriber(), 'handleFormatModelLabel'],
+    ];
 
-    $result[GetGroupHeaderEvent::NAME] = array(
+    $result[GetGroupHeaderEvent::NAME] = [
         'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\GetGroupHeaderSubscriber::handle'
-    );
+    ];
 
-    $result[BuildWidgetEvent::NAME] = array(
+    $result[BuildWidgetEvent::NAME] = [
         'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\WidgetBuilder::handleEvent',
         'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\ColorPickerWizardSubscriber' .
         '::handleEvent'
-    );
+    ];
 
-    $result[DcGeneralEvents::ACTION] = array(
-        array(new ListViewShowAllPropertiesHandler(), 'handleEvent'),
-        array(new EditAllHandler(), 'handleEvent'),
-        array(new OverrideAllHandler(), 'handleEvent'),
-        array(new PasteAllHandler(), 'handleEvent'),
-        array(new SelectHandler(), 'handleEvent'),
-        array(new PasteHandler(), 'handleEvent'),
-        array(new CreateHandler(), 'handleEvent'),
-        array(new EditHandler(), 'handleEvent'),
-        array(new CopyHandler(), 'handleEvent'),
-        array(new DeleteHandler(), 'handleEvent'),
-        array(new ToggleHandler(), 'handleEvent'),
-        array(new ListViewShowAllHandler(), 'handleEvent'),
-        array(new ParentedListViewShowAllHandler(), 'handleEvent'),
-    );
-    $result[GetGlobalButtonEvent::NAME] = array(
-        array(new BackButtonListener(), 'handle'),
-        array(new CreateModelButtonListener(), 'handle'),
-    );
+    $result[DcGeneralEvents::ACTION] = [
+        [new ListViewShowAllPropertiesHandler(), 'handleEvent'],
+        [new EditAllHandler(), 'handleEvent'],
+        [new OverrideAllHandler(), 'handleEvent'],
+        [new PasteAllHandler(), 'handleEvent'],
+        [new SelectHandler(), 'handleEvent'],
+        [new PasteHandler(), 'handleEvent'],
+        [new CreateHandler(), 'handleEvent'],
+        [new EditHandler(), 'handleEvent'],
+        [new CopyHandler(), 'handleEvent'],
+        [new DeleteHandler(), 'handleEvent'],
+        [new ToggleHandler(), 'handleEvent'],
+        [new ListViewShowAllHandler(), 'handleEvent'],
+        [new ParentedListViewShowAllHandler(), 'handleEvent'],
+    ];
+    $result[GetGlobalButtonEvent::NAME] = [
+        [new BackButtonListener(), 'handle'],
+        [new CreateModelButtonListener(), 'handle'],
+    ];
 }
 
 return $result;

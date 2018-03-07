@@ -42,7 +42,7 @@ class DefaultCollection implements CollectionInterface
      *
      * @var ModelInterface[]
      */
-    protected $arrCollection = array();
+    protected $arrCollection = [];
 
     /**
      * Get length of this collection.
@@ -188,7 +188,7 @@ class DefaultCollection implements CollectionInterface
     public function insert($intIndex, ModelInterface $objModel)
     {
         if ($objModel->hasProperties()) {
-            array_insert($this->arrCollection, $intIndex, array($objModel));
+            array_insert($this->arrCollection, $intIndex, [$objModel]);
         }
     }
 
@@ -223,7 +223,7 @@ class DefaultCollection implements CollectionInterface
      */
     public function getModelIds()
     {
-        $ids = array();
+        $ids = [];
 
         foreach ($this as $model) {
             /** @var ModelInterface $model */

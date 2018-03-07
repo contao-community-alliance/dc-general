@@ -41,7 +41,7 @@ class DefaultPanelContainer implements PanelContainerInterface
      *
      * @var PanelInterface[]
      */
-    private $arrPanels = array();
+    private $arrPanels = [];
 
     /**
      * {@inheritdoc}

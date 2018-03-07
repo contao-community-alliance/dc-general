@@ -55,7 +55,7 @@ abstract class AbstractCallbackListener
         $this->callback = $callback;
 
         if ($restrictions) {
-            call_user_func_array(array($this, 'setRestrictions'), $restrictions);
+            call_user_func_array([$this, 'setRestrictions'], $restrictions);
         }
     }
 

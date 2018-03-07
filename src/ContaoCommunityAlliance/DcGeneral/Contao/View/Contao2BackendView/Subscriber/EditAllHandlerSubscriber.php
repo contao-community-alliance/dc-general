@@ -53,11 +53,11 @@ class EditAllHandlerSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            DcGeneralEvents::ACTION => array('prepareGlobalAllButton', 9999),
-            GetOptionsEvent::NAME   => array('handleOriginalOptions', 9999),
-            BuildWidgetEvent::NAME  => array('handleOriginalWidget', 9999)
-        );
+        return [
+            DcGeneralEvents::ACTION => ['prepareGlobalAllButton', 9999],
+            GetOptionsEvent::NAME   => ['handleOriginalOptions', 9999],
+            BuildWidgetEvent::NAME  => ['handleOriginalWidget', 9999]
+        ];
     }
 
     /**

@@ -58,7 +58,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
      */
     protected function getPersistent()
     {
-        $arrValue = array();
+        $arrValue = [];
         if ($this->getSessionStorage()->has('search')) {
             $arrValue = $this->getSessionStorage()->get('search');
         }
@@ -67,7 +67,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
             return $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
         }
 
-        return array();
+        return [];
     }
 
     /**
@@ -80,7 +80,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
      */
     protected function setPersistent($strProperty, $strValue)
     {
-        $arrValue       = array();
+        $arrValue       = [];
         $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
         if ($this->getSessionStorage()->has('search')) {
@@ -89,7 +89,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 
         if (!empty($strValue)) {
             if (!is_array($arrValue[$definitionName])) {
-                $arrValue[$definitionName] = array();
+                $arrValue[$definitionName] = [];
             }
 
             if ($strValue) {
@@ -137,24 +137,24 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 
         $arrCurrent = $objConfig->getFilter();
         if (!is_array($arrCurrent)) {
-            $arrCurrent = array();
+            $arrCurrent = [];
         }
 
         $objConfig->setFilter(
             array_merge_recursive(
                 $arrCurrent,
-                array(
-                    array(
+                [
+                    [
                         'operation' => 'AND',
-                        'children'  => array(
-                            array(
+                        'children'  => [
+                            [
                                 'operation' => 'LIKE',
                                 'property'  => $this->getSelectedProperty(),
                                 'value'     => sprintf('*%s*', $this->getValue())
-                            )
-                        )
-                    )
-                )
+                            ]
+                        ]
+                    ]
+                ]
             )
         );
     }

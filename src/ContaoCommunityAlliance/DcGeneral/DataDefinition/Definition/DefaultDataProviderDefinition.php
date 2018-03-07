@@ -36,7 +36,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
      *
      * @var DataProviderInformationInterface[]
      */
-    protected $information = array();
+    protected $information = [];
 
     /**
      * {@inheritdoc}

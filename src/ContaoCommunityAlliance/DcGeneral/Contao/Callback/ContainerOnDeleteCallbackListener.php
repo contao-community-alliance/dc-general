@@ -41,6 +41,6 @@ class ContainerOnDeleteCallbackListener extends AbstractCallbackListener
      */
     public function getArgs($event)
     {
-        return array(new DcCompat($event->getEnvironment(), $event->getModel()), 0);
+        return [new DcCompat($event->getEnvironment(), $event->getModel()), 0];
     }
 }

@@ -40,9 +40,9 @@ class ContainerGetBreadcrumbCallbackListener extends AbstractReturningCallbackLi
      */
     public function getArgs($event)
     {
-        return array(
+        return [
             new DcCompat($event->getEnvironment())
-        );
+        ];
     }
 
     /**

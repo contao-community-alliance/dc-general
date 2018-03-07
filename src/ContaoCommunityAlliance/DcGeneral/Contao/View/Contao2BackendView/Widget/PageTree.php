@@ -48,7 +48,7 @@ class PageTree extends TreePicker
 
         if ('' === $inputValue) {
             if ($this->mandatory) {
-                $this->addError($translator->translate('mandatory', 'ERR', array($this->strLabel)));
+                $this->addError($translator->translate('mandatory', 'ERR', [$this->strLabel]));
             }
 
             return '';

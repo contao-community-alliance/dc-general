@@ -38,7 +38,7 @@ class DefaultModel extends AbstractModel
      *
      * @var array
      */
-    protected $arrProperties = array();
+    protected $arrProperties = [];
 
     /**
      * The Id of this model.

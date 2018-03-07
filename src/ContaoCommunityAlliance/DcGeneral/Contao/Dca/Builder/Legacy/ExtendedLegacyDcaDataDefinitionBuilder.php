@@ -197,7 +197,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
      */
     protected function isSpecialName($name)
     {
-        return in_array($name, array('default', 'root', 'parent'));
+        return in_array($name, ['default', 'root', 'parent']);
     }
 
     /**
@@ -296,9 +296,9 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
             if ($providerInformation instanceof ContaoDataProviderInformation) {
                 $initializationData     = (array) $providerInformation->getInitializationData();
-                $baseInitializationData = array(
+                $baseInitializationData = [
                     'name' => $dataProviderDcaName,
-                );
+                ];
 
                 switch ((string) $dataProviderDcaName) {
                     case 'default':
@@ -594,13 +594,13 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
         $childCondition->setFilterArray(
             array_merge(
                 $childCondition->getFilterArray(),
-                array(
-                    array(
+                [
+                    [
                         'local'        => $propertyName,
                         'remote_value' => $sourceProvider,
                         'operation'    => '='
-                    )
-                )
+                    ]
+                ]
             )
         );
 

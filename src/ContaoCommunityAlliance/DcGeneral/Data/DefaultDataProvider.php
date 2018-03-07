@@ -329,7 +329,7 @@ class DefaultDataProvider implements DataProviderInterface
                 ->prepare($query)
                 ->execute($objConfig->getId());
         } else {
-            $arrParams = array();
+            $arrParams = [];
 
             // Build SQL.
             $query = sprintf(
@@ -359,7 +359,7 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function fetchAll(ConfigInterface $objConfig)
     {
-        $arrParams = array();
+        $arrParams = [];
         // Build SQL.
         $query = sprintf(
             'SELECT %s FROM %s%s%s',
@@ -409,7 +409,7 @@ class DefaultDataProvider implements DataProviderInterface
             throw new DcGeneralRuntimeException('objConfig must contain exactly one property to be retrieved.');
         }
 
-        $arrParams = array();
+        $arrParams = [];
 
         $objValues = $this->objDatabase
             ->prepare(
@@ -493,7 +493,7 @@ class DefaultDataProvider implements DataProviderInterface
      */
     protected function convertModelToDataPropertyArray(ModelInterface $model, $timestamp = 0)
     {
-        $data = array();
+        $data = [];
         foreach ($model as $key => $value) {
             if ($key == $this->idProperty) {
                 continue;
@@ -687,7 +687,7 @@ class DefaultDataProvider implements DataProviderInterface
 
         $mixData[$this->idProperty] = $objModel->getId();
 
-        $arrInsert              = array();
+        $arrInsert              = [];
         $arrInsert['pid']       = $objModel->getId();
         $arrInsert['tstamp']    = time();
         $arrInsert['version']   = $mixNewVersion;
@@ -797,7 +797,7 @@ class DefaultDataProvider implements DataProviderInterface
         }
 
         // Save information in array.
-        $arrSave = array();
+        $arrSave = [];
         foreach ($arrResult as $value) {
             $arrSave[$strTable][] = $value;
         }

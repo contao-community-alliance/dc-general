@@ -44,7 +44,7 @@ class DC_GeneralTest extends TestCase
     public function testInstantiation()
     {
         define('TL_MODE', 'BE');
-        $_SESSION = array('BE_DATA' => array('DC_GENERAL_TL_FOO' => array()));
+        $_SESSION = ['BE_DATA' => ['DC_GENERAL_TL_FOO' => []]];
         require_once __DIR__ . '/../../../../../vendor/contao/core/system/helper/interface.php';
         $this->aliasContaoClass('Session');
         $this->aliasContaoClass('System');
@@ -53,10 +53,12 @@ class DC_GeneralTest extends TestCase
         $this->aliasContaoClass('DataContainer');
 
         $eventDispatcher = new EventDispatcher();
-        $container       = $GLOBALS['container'] = new \Pimple(array(
+        $container       = $GLOBALS['container'] = new \Pimple(
+            [
             'event-dispatcher' => $eventDispatcher,
             'translator'       => new StaticTranslator()
-        ));
+            ]
+        );
 
         $this->assertTrue($container['event-dispatcher'] instanceof EventDispatcher);
 
@@ -72,24 +74,24 @@ class DC_GeneralTest extends TestCase
 
         require_once __DIR__ . '/../../../../../contao/config/services.php';
 
-        $GLOBALS['TL_DCA']['tl_foo'] = array(
-            'config'          => array
-            (
+        $GLOBALS['TL_DCA']['tl_foo'] = [
+            'config'          =>
+                [
                 'dataContainer'    => 'General',
-            ),
-            'dca_config'   => array
-            (
-                'data_provider'  => array
-                (
-                    'tl_foo' => array
-                    (
+                ],
+            'dca_config'   =>
+                [
+                    'data_provider'  =>
+                        [
+                    'tl_foo' =>
+                        [
                         'source' => 'tl_foo',
                         'class'        => 'ContaoCommunityAlliance\DcGeneral\Data\NoOpDataProvider',
-                    )
-                ),
-            ),
+                        ]
+                        ],
+                ],
             'palettes' => []
-        );
+        ];
 
         $dataContainer = new \DC_General('tl_foo');
 

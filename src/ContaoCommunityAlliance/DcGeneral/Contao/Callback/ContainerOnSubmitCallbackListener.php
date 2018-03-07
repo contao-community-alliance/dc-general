@@ -41,8 +41,6 @@ class ContainerOnSubmitCallbackListener extends AbstractCallbackListener
      */
     public function getArgs($event)
     {
-        return array(
-            new DcCompat($event->getEnvironment(), $event->getModel())
-        );
+        return [new DcCompat($event->getEnvironment(), $event->getModel())];
     }
 }

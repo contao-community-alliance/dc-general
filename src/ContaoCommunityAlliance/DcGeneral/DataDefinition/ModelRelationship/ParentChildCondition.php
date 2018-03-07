@@ -36,7 +36,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      *
      * @var array
      */
-    protected $filter = array();
+    protected $filter = [];
 
     /**
      * The filter rules to use for an inverse filter.
@@ -176,9 +176,9 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     {
         $this->guardProviderNames(null, $model);
 
-        $arrApplied = array(
+        $arrApplied = [
             'operation' => $filter['operation'],
-        );
+        ];
 
         if (isset($filter['local'])) {
             $arrApplied['property'] = $filter['local'];
@@ -216,7 +216,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
             throw new DcGeneralInvalidArgumentException('No parent model passed.');
         }
 
-        $arrResult = array();
+        $arrResult = [];
         foreach ($this->getFilterArray() as $child) {
             $arrResult[] = $this->parseFilter($child, $objParent);
         }
@@ -327,11 +327,11 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     {
         $this->guardProviderNames($objChild);
 
-        $arrResult = array();
+        $arrResult = [];
         foreach ($this->getInverseFilterArray() as $arrRule) {
-            $arrApplied = array(
+            $arrApplied = [
                 'operation' => $arrRule['operation'],
-            );
+            ];
 
             if (isset($arrRule['remote'])) {
                 $arrApplied['property'] = $arrRule['remote'];
@@ -361,12 +361,12 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     protected function prepareRule($rule, $child)
     {
-        $applied = array(
+        $applied = [
             'operation' => $rule['operation'],
-        );
+        ];
 
-        if (in_array($rule['operation'], array('AND', 'OR'))) {
-            $children = array();
+        if (in_array($rule['operation'], ['AND', 'OR'])) {
+            $children = [];
 
             foreach ($rule['children'] as $childRule) {
                 $children[] = $this->prepareRule($childRule, $child);
@@ -406,10 +406,10 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
         }
 
         $filter = $this->prepareRule(
-            array(
+            [
                 'operation' => 'AND',
                 'children'  => $this->getFilterArray()
-            ),
+            ],
             $objChild
         );
 
@@ -427,8 +427,8 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     private function extractNeededProperties($rule)
     {
-        if (in_array($rule['operation'], array('AND', 'OR'))) {
-            $properties = array();
+        if (in_array($rule['operation'], ['AND', 'OR'])) {
+            $properties = [];
             foreach ($rule['children'] as $childRule) {
                 $properties[] = $this->extractNeededProperties($childRule);
             }
@@ -455,10 +455,10 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     {
         if (!isset($this->neededProperties)) {
             $this->neededProperties = $this->extractNeededProperties(
-                array(
+                [
                     'operation' => 'AND',
                     'children'  => $this->getFilterArray()
-                )
+                ]
             );
         }
 

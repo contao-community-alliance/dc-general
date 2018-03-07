@@ -44,25 +44,13 @@ class AbstractReturningPropertyCallbackListenerTest extends TestCase
     protected function mockPropertyEvent($class, $tablename, $propertyName)
     {
         if (method_exists($class, 'getProperty')) {
-            $event = $this->getMock(
-                $class,
-                array('getEnvironment', 'getProperty'),
-                array(),
-                '',
-                false
-            );
+            $event = $this->getMock($class, ['getEnvironment', 'getProperty'], [], '', false);
             $event
                 ->expects($this->any())
                 ->method('getProperty')
                 ->will($this->returnValue($propertyName));
         } else {
-            $event = $this->getMock(
-                $class,
-                array('getEnvironment', 'getPropertyName'),
-                array(),
-                '',
-                false
-            );
+            $event = $this->getMock($class, ['getEnvironment', 'getPropertyName'], [], '', false);
             $event
                 ->expects($this->any())
                 ->method('getPropertyName')
@@ -80,32 +68,32 @@ class AbstractReturningPropertyCallbackListenerTest extends TestCase
 
     public function propertyCallbackDataProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 'ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyOnLoadCallbackListener',
                 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent'
-            ),
-            array(
+            ],
+            [
                 'ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyOnSaveCallbackListener',
                 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent'
-            ),
-            array(
+            ],
+            [
                 'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelOptionsCallbackListener',
                 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent'
-            ),
-            array(
+            ],
+            [
                 'ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldCallbackListener',
                 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent'
-            ),
-            array(
+            ],
+            [
                 'ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldGetWizardCallbackListener',
                 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent'
-            ),
-            array(
+            ],
+            [
                 'ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldGetXLabelCallbackListener',
                 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent'
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -113,7 +101,7 @@ class AbstractReturningPropertyCallbackListenerTest extends TestCase
      */
     public function testExecution($listenerClass, $eventClass)
     {
-        $listener = new $listenerClass($this->getCallback($listenerClass), array('tablename', 'propertyName'));
+        $listener = new $listenerClass($this->getCallback($listenerClass), ['tablename', 'propertyName']);
         $this->assertTrue(
             $listener->wantToExecute($this->mockPropertyEvent($eventClass, 'tablename', 'propertyName')),
             $listenerClass

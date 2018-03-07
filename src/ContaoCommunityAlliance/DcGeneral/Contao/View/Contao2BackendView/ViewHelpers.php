@@ -127,7 +127,7 @@ class ViewHelpers
     {
         // Store default sorting start initializing the panel with an empty sorting.
         $sorting = $dataConfig->getSorting();
-        $dataConfig->setSorting(array());
+        $dataConfig->setSorting([]);
         $panel->initialize($dataConfig);
 
         // Restore default sorting if panel did not set any.
@@ -137,7 +137,7 @@ class ViewHelpers
 
         // Initialize sorting if not present yet.
         if (!$dataConfig->getSorting() && $listingConfig->getGroupAndSortingDefinition()->hasDefault()) {
-            $newSorting = array();
+            $newSorting = [];
             foreach ($listingConfig->getGroupAndSortingDefinition()->getDefault() as $information) {
                 /** @var GroupAndSortingInformationInterface $information */
                 $newSorting[$information->getProperty()] = strtoupper($information->getSortingMode());
@@ -176,12 +176,12 @@ class ViewHelpers
             $groupLength = 0;
         }
 
-        return array(
+        return [
             'mode'     => $groupMode,
             'length'   => $groupLength,
             'property' => $firstSorting->getProperty(),
             'sorting'  => $sorting
-        );
+        ];
     }
 
     /**

@@ -39,7 +39,7 @@ class DefaultDataProviderTest extends TestCase
         return $this
             ->getMockBuilder('Contao\Database')
             ->disableOriginalConstructor()
-            ->setMethods(array('__destruct'))
+            ->setMethods(['__destruct'])
             ->getMockForAbstractClass();
     }
 
@@ -51,14 +51,16 @@ class DefaultDataProviderTest extends TestCase
     private function mockDefaultProvider()
     {
         $database = $this->mockDatabase();
-        $database->method('list_fields')->willReturn(array());
+        $database->method('list_fields')->willReturn([]);
 
         $dataProvider = new DefaultDataProvider();
 
-        $dataProvider->setBaseConfig(array(
+        $dataProvider->setBaseConfig(
+            [
             'source'            => 'tl_something',
             'database'          => $database,
-        ));
+            ]
+        );
 
         return $dataProvider;
     }
@@ -72,33 +74,35 @@ class DefaultDataProviderTest extends TestCase
     {
         $database = $this->mockDatabase();
         $database->method('list_fields')->willReturn(
-            array(
-                array(
+            [
+                [
                     'name' => 'idField',
                     'type' => 'field',
-                ),
-                array(
+                ],
+                [
                     'name' => 'lastChanged',
                     'type' => 'field',
-                ),
-                array(
+                ],
+                [
                     'name' => 'idField',
                     'type' => 'index',
-                ),
-            )
+                ],
+            ]
         );
 
         $idGenerator = $this->getMockForAbstractClass('ContaoCommunityAlliance\DcGeneral\Data\IdGeneratorInterface');
 
         $dataProvider = new DefaultDataProvider();
 
-        $dataProvider->setBaseConfig(array(
+        $dataProvider->setBaseConfig(
+            [
             'source'            => 'tl_something',
             'database'          => $database,
             'idProperty'        => 'idField',
             'timeStampProperty' => 'lastChanged',
             'idGenerator'       => $idGenerator
-        ));
+            ]
+        );
 
         $reflection = new \ReflectionProperty(
             'ContaoCommunityAlliance\DcGeneral\Data\DefaultDataProvider',

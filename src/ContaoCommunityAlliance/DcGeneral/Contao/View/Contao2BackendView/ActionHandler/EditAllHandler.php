@@ -61,7 +61,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
 
         $this->getEvent()->setResponse(
             $this->renderTemplate(
-                array(
+                [
                     'subHeadline' =>
                         $translator->translate('MSC.' . $inputProvider->getParameter('mode') . 'Selected') . ': ' .
                         $translator->translate('MSC.all.0'),
@@ -71,7 +71,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
                     'breadcrumb'  => $this->renderBreadcrumb(),
                     'editButtons' => $this->getEditButtons(),
                     'noReload'    => (bool) $renderInformation->offsetGet('error')
-                )
+                ]
             )
         );
     }
@@ -90,8 +90,8 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         $formInputs = $this->getEnvironment()->getInputProvider()->getValue('FORM_INPUTS');
         $collection = $this->getCollectionFromSession();
 
-        $fieldSets = array();
-        $errors    = array();
+        $fieldSets = [];
+        $errors    = [];
         while ($collection->count() > 0) {
             $model   = $collection->shift();
             $modelId = ModelId::fromModel($model);
@@ -113,13 +113,13 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
                 continue;
             }
 
-            $fieldSet = array(
+            $fieldSet = [
                 'label'   => $modelId->getSerialized(),
                 'model'   => $model,
                 'legend'  => str_replace('::', '____', $modelId->getSerialized()),
                 'class'   => 'tl_box',
                 'palette' => implode('', $fields)
-            );
+            ];
 
             $fieldSets[] = $fieldSet;
         }
@@ -180,7 +180,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         $editModel    = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
         $visibleModel = $this->getVisibleModel($editModel, $dataProvider);
 
-        $fields = array();
+        $fields = [];
         foreach ($selectProperties as $selectProperty) {
             if (!$this->ensurePropertyVisibleInModel($selectProperty->getName(), $visibleModel)) {
                 $fields[] = $this->injectSelectParentPropertyInformation($selectProperty, $editModel);

@@ -83,6 +83,6 @@ class ListViewShowAllHandler extends AbstractListShowAllHandler
      */
     private function getEmptyHeader()
     {
-        return array('' => '');
+        return ['' => ''];
     }
 }

@@ -46,97 +46,97 @@ class SortingManagerTest extends TestCase
      */
     public function provideTestData()
     {
-        return array(
+        return [
             // Test with default gap, without previous model
-            array(
-                array(
+            [
+                [
                     1 => 128,
                     2 => 256,
                     3 => 384
-                ),
-                array(3),
+                ],
+                [3],
                 null,
-                array(3, 1, 2)
-            ),
+                [3, 1, 2]
+            ],
             // Test with minimum gap, without previous model
-            array(
-                array(
+            [
+                [
                     1 => 2,
                     2 => 4,
                     3 => 6
-                ),
-                array(3),
+                ],
+                [3],
                 null,
-                array(3, 1, 2)
-            ),
+                [3, 1, 2]
+            ],
             // Test with large gap, without previous model
-            array(
-                array(
+            [
+                [
                     1 => 2,
                     2 => 1280,
                     3 => 5560
-                ),
-                array(3),
+                ],
+                [3],
                 null,
-                array(3, 1, 2)
-            ),
+                [3, 1, 2]
+            ],
             // Test with default gap and with previous model
-            array(
-                array(
+            [
+                [
                     1 => 128,
                     2 => 256,
                     3 => 384
-                ),
-                array(3),
+                ],
+                [3],
                 1,
-                array(1,3,2)
-            ),
+                [1, 3, 2]
+            ],
             // Test with minimum gap and previous model
-            array(
-                array(
+            [
+                [
                     1 => 2,
                     2 => 4,
                     3 => 6
-                ),
-                array(3),
+                ],
+                [3],
                 1,
-                array(1,3,2)
-            ),
+                [1, 3, 2]
+            ],
             // Test with large gap, and previous model
-            array(
-                array(
+            [
+                [
                     1 => 2,
                     2 => 1280,
                     3 => 5560
-                ),
-                array(3),
+                ],
+                [3],
                 1,
-                array(1, 3, 2)
-            ),
+                [1, 3, 2]
+            ],
             // Test with multiple items being moved, no previous model
-            array(
-                array(
+            [
+                [
                     1 => 2,
                     2 => 1280,
                     3 => 5560
-                ),
-                array(3, 2),
+                ],
+                [3, 2],
                 null,
-                array(2, 3, 1)
-            ),
+                [2, 3, 1]
+            ],
             // Test with multiple items being moved, with previous model
-            array(
-                array(
+            [
+                [
                     1 => 2,
                     4 => 128,
                     2 => 1280,
                     3 => 5560,
-                ),
-                array(3, 2),
+                ],
+                [3, 2],
                 4,
-                array(1, 4, 2, 3)
-            ),
-        );
+                [1, 4, 2, 3]
+            ],
+        ];
     }
 
     /**
@@ -209,7 +209,7 @@ class SortingManagerTest extends TestCase
         $sortingManager = new SortingManager($modelCollection, $siblingCollection, 'sorting', $previousModel);
         $position       = $previousModel ? $previousModel->getProperty('sorting') : null;
         $affected       = $sortingManager->getResults()->getModelIds();
-        $ordered        = array();
+        $ordered        = [];
 
         foreach ($expectedOrder as $id) {
             // Only compare if previous model is given and not identical with test model.

@@ -85,11 +85,11 @@ class PropertyValueInFilterBuilder extends BaseFilterBuilder
      */
     public function get()
     {
-        return array(
+        return [
             'property'  => $this->getProperty(),
             'operation' => 'IN',
             'values'    => $this->getValues()
-        );
+        ];
     }
 
     /**

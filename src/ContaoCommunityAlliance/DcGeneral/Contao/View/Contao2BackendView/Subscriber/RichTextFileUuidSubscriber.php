@@ -49,15 +49,15 @@ class RichTextFileUuidSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            EncodePropertyValueFromWidgetEvent::NAME => array(
-                array('convertFileSourceToUuid')
-            ),
+        return [
+            EncodePropertyValueFromWidgetEvent::NAME => [
+                ['convertFileSourceToUuid']
+            ],
 
-            DecodePropertyValueForWidgetEvent::NAME => array(
-                array('convertUuidToFileSource')
-            )
-        );
+            DecodePropertyValueForWidgetEvent::NAME => [
+                ['convertUuidToFileSource']
+            ]
+        ];
     }
 
     /**

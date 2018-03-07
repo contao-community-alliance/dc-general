@@ -39,9 +39,9 @@ class ModelChildRecordCallbackListener extends AbstractReturningCallbackListener
      */
     public function getArgs($event)
     {
-        return array(
+        return [
             $event->getModel()->getPropertiesAsArray()
-        );
+        ];
     }
 
     /**

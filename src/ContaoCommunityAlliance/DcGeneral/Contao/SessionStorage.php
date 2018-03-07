@@ -119,7 +119,7 @@ class SessionStorage implements SessionStorageInterface
     public function clear()
     {
         $this->load();
-        $this->attributes = array();
+        $this->attributes = [];
         $this->persist();
     }
 

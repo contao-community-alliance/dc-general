@@ -49,7 +49,7 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
     {
         $class = 'ContaoCommunityAlliance\\DcGeneral\\Contao\\Dca\\Builder\\Legacy\\LegacyDcaDataDefinitionBuilder';
         $mock  = $this
-            ->getMock($class, array('loadDca', 'process'));
+            ->getMock($class, ['loadDca', 'process']);
 
         $mock
             ->expects($this->once())
@@ -92,15 +92,17 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
         $container  = new DefaultContainer('tl_test');
         $event      = new BuildDataDefinitionEvent($container);
         $builder    = $this->mockBuilderWithDca(
-            array(
-                'fields' => array(
-                    'testProperty' => array(
-                        'save_callback' => array(function () {
+            [
+                'fields' => [
+                    'testProperty' => [
+                        'save_callback' => [
+                            function () {
                             return 'executed';
-                        })
-                    )
-                )
-            ),
+                        }
+                        ]
+                    ]
+                ]
+            ],
             $event::NAME,
             $dispatcher
         );

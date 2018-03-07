@@ -206,7 +206,7 @@ interface ControllerInterface
         ModelIdInterface $into = null,
         ModelIdInterface $parentModelId = null,
         FilterInterface $filter = null,
-        array &$items = array()
+        array &$items = []
     );
 
     /**

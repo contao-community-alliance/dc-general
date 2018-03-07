@@ -55,13 +55,13 @@ class LegacyPalettesParser
      *
      * @return PaletteCollectionInterface
      */
-    public function parse(array $palettes, array $subpalettes = array(), PaletteCollectionInterface $collection = null)
+    public function parse(array $palettes, array $subpalettes = [], PaletteCollectionInterface $collection = null)
     {
         if (isset($palettes['__selector__'])) {
             $selectorFieldNames = $palettes['__selector__'];
             unset($palettes['__selector__']);
         } else {
-            $selectorFieldNames = array();
+            $selectorFieldNames = [];
         }
 
         $subPaletteProperties = $this->parseSubpalettes($subpalettes, $selectorFieldNames);
@@ -88,8 +88,8 @@ class LegacyPalettesParser
      */
     public function parsePalettes(
         array $palettes,
-        array $subPaletteProperties = array(),
-        array $selectorFieldNames = array(),
+        array $subPaletteProperties = [],
+        array $selectorFieldNames = [],
         PaletteCollectionInterface $collection = null
     ) {
         if (!$collection) {
@@ -146,8 +146,8 @@ class LegacyPalettesParser
     public function parsePalette(
         $paletteSelector,
         $fields,
-        array $subPaletteProperties = array(),
-        array $selectorFieldNames = array(),
+        array $subPaletteProperties = [],
+        array $selectorFieldNames = [],
         PaletteInterface $palette = null
     ) {
         if (!$palette) {
@@ -246,7 +246,7 @@ class LegacyPalettesParser
                 );
             } else {
                 // The part is a value (but which?) (select box like selector).
-                $orCondition = new PaletteConditionChain(array(), PaletteConditionChain::OR_CONJUNCTION);
+                $orCondition = new PaletteConditionChain([], PaletteConditionChain::OR_CONJUNCTION);
 
                 foreach ($selectorFieldNames as $selectorFieldName) {
                     $orCondition->addCondition(
@@ -273,9 +273,9 @@ class LegacyPalettesParser
      *
      * @return array(string => PropertyInterface[])
      */
-    public function parseSubpalettes(array $subpalettes, array $selectorFieldNames = array())
+    public function parseSubpalettes(array $subpalettes, array $selectorFieldNames = [])
     {
-        $properties = array();
+        $properties = [];
 
         foreach ($subpalettes as $subPaletteSelector => $childFields) {
             // Child fields list must be a string.
@@ -285,7 +285,7 @@ class LegacyPalettesParser
 
             $selectorFieldName = $this->createSubpaletteSelectorFieldName($subPaletteSelector, $selectorFieldNames);
 
-            $selectorProperty = array();
+            $selectorProperty = [];
             // For selectable sub selector.
             if (isset($properties[$selectorFieldName])
                 && (0 < substr_count($subPaletteSelector, '_'))
@@ -317,8 +317,8 @@ class LegacyPalettesParser
     public function parseSubpalette(
         $subPaletteSelector,
         $childFields,
-        array $selectorFieldNames = array(),
-        array $properties = array()
+        array $selectorFieldNames = [],
+        array $properties = []
     ) {
         $childFields = explode(',', $childFields);
         $childFields = array_map('trim', $childFields);
@@ -351,7 +351,7 @@ class LegacyPalettesParser
      *
      * @return string
      */
-    public function createSubpaletteSelectorFieldName($subPaletteSelector, array $selectorFieldNames = array())
+    public function createSubpaletteSelectorFieldName($subPaletteSelector, array $selectorFieldNames = [])
     {
         $selectorValues     = explode('_', $subPaletteSelector);
         $selectorFieldName  = array_shift($selectorValues);
@@ -384,7 +384,7 @@ class LegacyPalettesParser
      *
      * @return PropertyTrueCondition|PropertyValueCondition|null
      */
-    public function createSubpaletteCondition($subPaletteSelector, array $selectorFieldNames = array())
+    public function createSubpaletteCondition($subPaletteSelector, array $selectorFieldNames = [])
     {
         $condition = null;
 

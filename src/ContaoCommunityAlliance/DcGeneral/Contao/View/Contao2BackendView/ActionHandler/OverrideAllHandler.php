@@ -74,7 +74,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
 
         $this->getEvent()->setResponse(
             $this->renderTemplate(
-                array(
+                [
                     'subHeadline' =>
                         $translator->translate('MSC.' . $inputProvider->getParameter('mode') . 'Selected') . ': ' .
                         $translator->translate('MSC.all.0'),
@@ -84,7 +84,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
                     'breadcrumb'  => $this->renderBreadcrumb(),
                     'editButtons' => $this->getEditButtons(),
                     'noReload'    => (bool) $editInformation->hasAnyModelError()
-                )
+                ]
             )
         );
     }
@@ -111,7 +111,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
 
         foreach (array_keys($propertyValueBag->getArrayCopy()) as $propertyName) {
             $allErrors    = $propertyValueBag->getPropertyValueErrors($propertyName);
-            $mergedErrors = array();
+            $mergedErrors = [];
             if (count($allErrors) > 0) {
                 foreach ($allErrors as $error) {
                     if (in_array($error, $mergedErrors)) {
@@ -171,7 +171,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
     {
         $selectProperties = $this->getPropertiesFromSession();
 
-        $properties = array();
+        $properties = [];
         foreach (array_keys($selectProperties) as $propertyName) {
             $properties[$propertyName] = $selectProperties[$propertyName];
         }
@@ -194,8 +194,8 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
 
         $widgetManager = new ContaoWidgetManager($this->getEnvironment(), $model);
 
-        $errors   = array();
-        $fieldSet = array('palette' => '', 'class' => 'tl_box');
+        $errors   = [];
+        $fieldSet = ['palette' => '', 'class' => 'tl_box'];
 
         $propertyNames = $propertyValues ? array_keys($propertyValues->getArrayCopy()) : array_keys($properties);
 
@@ -228,7 +228,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
             }
 
             if ($extra = $property->getExtra()) {
-                foreach (array('tl_class') as $extraName) {
+                foreach (['tl_class'] as $extraName) {
                     unset($extra[$extraName]);
                 }
 
@@ -251,7 +251,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
             );
         }
 
-        $renderInformation->offsetSet('fieldsets', array($fieldSet));
+        $renderInformation->offsetSet('fieldsets', [$fieldSet]);
         $renderInformation->offsetSet('error', $errors);
     }
 

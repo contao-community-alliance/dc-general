@@ -116,7 +116,7 @@ class ButtonRenderer
             ->getModelCommands();
         $controller             = $environment->getController();
         $this->clipboardModels  = $controller->getModelsFromClipboardItems($this->clipboardItems);
-        $this->circularModelIds = array();
+        $this->circularModelIds = [];
 
         // We must only check for CUT operation here as pasting copy'ed parents is allowed.
         $cutItems = array_filter($this->clipboardItems, function ($item) {
@@ -174,7 +174,7 @@ class ButtonRenderer
         }
         $childIds = $this->getChildIds($model);
 
-        $buttons = array();
+        $buttons = [];
         foreach ($this->commands->getCommands() as $command) {
             $buttons[$command->getName()] =
                 $this->buildCommand($command, $model, $previous, $next, $isCircular, $childIds);
@@ -349,10 +349,10 @@ class ButtonRenderer
     private function getChildIds(ModelInterface $model)
     {
         if (null === ($childCollections = $model->getMeta($model::CHILD_COLLECTIONS))) {
-            return array();
+            return [];
         }
 
-        $result = array(ModelId::fromModel($model)->getSerialized());
+        $result = [ModelId::fromModel($model)->getSerialized()];
         foreach ($childCollections as $collection) {
             foreach ($collection as $child) {
                 $result += $this->getChildIds($child);
@@ -382,7 +382,7 @@ class ButtonRenderer
         }
         if (($command instanceof CutCommandInterface) || ($command instanceof CopyCommandInterface)) {
             // Cut & copy need some special information.
-            $parameters        = array();
+            $parameters        = [];
             $parameters['act'] = $command->getName();
 
             $inputProvider = $this->environment->getInputProvider();
@@ -584,7 +584,7 @@ class ButtonRenderer
                 $dataProvider
                     ->getEmptyConfig()
                     ->setId($model->getId())
-                    ->setFields(array($command->getToggleProperty()))
+                    ->setFields([$command->getToggleProperty()])
             );
             $dataProvider->setCurrentLanguage($language);
         } else {

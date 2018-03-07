@@ -223,7 +223,7 @@ class FileTree extends AbstractWidget
         }
 
         $this->orderId         = $this->orderField . str_replace($this->strField, '', $this->strId);
-        $this->orderFieldValue = (!empty($value) && is_array($value)) ? array_filter($value) : array();
+        $this->orderFieldValue = (!empty($value) && is_array($value)) ? array_filter($value) : [];
     }
 
     /**
@@ -239,7 +239,7 @@ class FileTree extends AbstractWidget
 
         if ($inputValue == '') {
             if ($this->mandatory) {
-                $this->addError($translator->translate('mandatory', 'ERR', array($this->strLabel)));
+                $this->addError($translator->translate('mandatory', 'ERR', [$this->strLabel]));
             }
 
             return '';
@@ -390,7 +390,7 @@ class FileTree extends AbstractWidget
     private function applySorting($icons)
     {
         if ($this->orderField != '' && is_array($this->orderFieldValue)) {
-            $ordered = array();
+            $ordered = [];
 
             foreach ($this->orderFieldValue as $uuid) {
                 if (isset($icons[$uuid])) {
@@ -442,8 +442,8 @@ class FileTree extends AbstractWidget
      */
     public function generate()
     {
-        $values = array();
-        $icons  = array();
+        $values = [];
+        $icons  = [];
 
         if (!empty($this->varValue)) {
             $files = FilesModel::findMultipleByUuids((array) $this->varValue);

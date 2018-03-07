@@ -122,8 +122,8 @@ class ShowHandler extends AbstractHandler
         $definition = $environment->getDataDefinition();
         $properties = $definition->getPropertiesDefinition();
         $palette    = $definition->getPalettesDefinition()->findPalette($model);
-        $values     = array();
-        $labels     = array();
+        $values     = [];
+        $labels     = [];
         // Show only allowed fields.
         foreach ($palette->getVisibleProperties($model) as $paletteProperty) {
             $property = $properties->getProperty($paletteProperty->getName());
@@ -142,10 +142,10 @@ class ShowHandler extends AbstractHandler
             $labels[$paletteProperty->getName()] = $this->getPropertyLabel($property);
         }
 
-        return array(
+        return [
             'labels' => $labels,
             'values' => $values
-        );
+        ];
     }
 
     /**
@@ -161,7 +161,7 @@ class ShowHandler extends AbstractHandler
         $headline   = $translator->translate(
             'MSC.showRecord',
             $model->getProviderName(),
-            array('ID ' . $model->getId())
+            ['ID ' . $model->getId()]
         );
 
         if ($headline !== 'MSC.showRecord') {
@@ -171,7 +171,7 @@ class ShowHandler extends AbstractHandler
         return $translator->translate(
             'MSC.showRecord',
             null,
-            array('ID ' . $model->getId())
+            ['ID ' . $model->getId()]
         );
     }
 

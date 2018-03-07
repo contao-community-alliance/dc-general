@@ -317,7 +317,7 @@ class EditMask
      */
     protected function getEditButtons()
     {
-        $buttons         = array();
+        $buttons         = [];
         $definition      = $this->getDataDefinition();
         $basicDefinition = $definition->getBasicDefinition();
 
@@ -385,14 +385,14 @@ class EditMask
         $legendStates        = $this->getLegendStates();
         $editInformation     = $GLOBALS['container']['dc-general.edit-information'];
 
-        $fieldSets = array();
+        $fieldSets = [];
         $first     = true;
         foreach ($palette->getLegends() as $legend) {
             $legendName = $translator->translate(
                 $legend->getName() . '_legend',
                 $definition->getName()
             );
-            $fields     = array();
+            $fields     = [];
             $properties = $legend->getProperties($this->model, $propertyValues);
 
             if (!$properties) {
@@ -535,20 +535,20 @@ class EditMask
         $translator     = $this->getEnvironment()->getTranslator();
 
         if ($this->model->getId()) {
-            $headline = $translator->translate('editRecord', $definitionName, array($this->model->getId()));
+            $headline = $translator->translate('editRecord', $definitionName, [$this->model->getId()]);
 
             if ($headline !== 'editRecord') {
                 return $headline;
             }
-            return $translator->translate('MSC.editRecord', null, array($this->model->getId()));
+            return $translator->translate('MSC.editRecord', null, [$this->model->getId()]);
         }
 
-        $headline = $translator->translate('newRecord', $definitionName, array($this->model->getId()));
+        $headline = $translator->translate('newRecord', $definitionName, [$this->model->getId()]);
         if ($headline !== 'newRecord') {
             return $headline;
         }
 
-        return $translator->translate('MSC.editRecord', null, array(''));
+        return $translator->translate('MSC.editRecord', null, ['']);
     }
 
     /**
@@ -649,7 +649,7 @@ class EditMask
                 if (!$dataProvider->isUniqueValue($propertyName, $value, $this->model->getId())) {
                     $editInformation->setModelError(
                         $this->model,
-                        array($translator->translate('not_unique', 'MSC', array($propertyName))),
+                        [$translator->translate('not_unique', 'MSC', [$propertyName])],
                         $definition
                     );
 
@@ -723,7 +723,7 @@ class EditMask
 
         $objTemplate = new ContaoBackendViewTemplate('dcbe_general_edit');
         $objTemplate->setData(
-            array(
+            [
                 'fieldsets'   => $fieldSets,
                 'versions'    => $dataProviderInformation->isVersioningEnabled() ? $dataProvider->getVersions(
                     $this->model->getId()
@@ -735,7 +735,7 @@ class EditMask
                 'editButtons' => $this->getEditButtons(),
                 'noReload'    => $editInformation->hasAnyModelError(),
                 'breadcrumb'  => $this->breadcrumb
-            )
+            ]
         );
 
         if (in_array(
@@ -747,7 +747,7 @@ class EditMask
             )
         )) {
             /** @var MultiLanguageDataProviderInterface $dataProvider */
-            $langsNative = array();
+            $langsNative = [];
             require TL_ROOT . '/system/config/languages.php';
 
             $objTemplate->set(
@@ -777,9 +777,9 @@ class EditMask
     {
         setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
-        $_SESSION['TL_INFO']    = array();
-        $_SESSION['TL_ERROR']   = array();
-        $_SESSION['TL_CONFIRM'] = array();
+        $_SESSION['TL_INFO']    = [];
+        $_SESSION['TL_ERROR']   = [];
+        $_SESSION['TL_CONFIRM'] = [];
     }
 
     /**
@@ -808,14 +808,14 @@ class EditMask
     {
         $environment  = $this->getEnvironment();
         $definition   = $environment->getDataDefinition();
-        $legendStates = $environment->getSessionStorage()->get('LEGENDS') ?: array();
+        $legendStates = $environment->getSessionStorage()->get('LEGENDS') ?: [];
 
         if (array_key_exists($definition->getName(), $legendStates)) {
             $legendStates = $legendStates[$definition->getName()];
 
             return $legendStates;
         } else {
-            $legendStates = array();
+            $legendStates = [];
 
             return $legendStates;
         }
@@ -831,7 +831,7 @@ class EditMask
      */
     private function getLegendClass($first, $visible)
     {
-        $classes = array($first ? 'tl_tbox' : 'tl_box');
+        $classes = [$first ? 'tl_tbox' : 'tl_box'];
 
         if (!$visible) {
             $classes[] = ' collapsed';

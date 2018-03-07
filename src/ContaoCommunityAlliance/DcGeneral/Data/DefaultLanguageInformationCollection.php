@@ -30,7 +30,7 @@ class DefaultLanguageInformationCollection implements LanguageInformationCollect
      *
      * @var LanguageInformationInterface[]
      */
-    protected $languages = array();
+    protected $languages = [];
 
     /**
      * {@inheritDoc}

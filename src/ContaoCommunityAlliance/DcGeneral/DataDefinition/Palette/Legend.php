@@ -57,7 +57,7 @@ class Legend implements LegendInterface
      *
      * @var PropertyInterface[]|array
      */
-    protected $properties = array();
+    protected $properties = [];
 
     /**
      * Create a new instance.
@@ -130,7 +130,7 @@ class Legend implements LegendInterface
      */
     public function clearProperties()
     {
-        $this->properties = array();
+        $this->properties = [];
         return $this;
     }
 
@@ -173,7 +173,7 @@ class Legend implements LegendInterface
 
                 $this->properties = array_merge(
                     array_slice($this->properties, 0, $position),
-                    array($hash => $property),
+                    [$hash => $property],
                     array_slice($this->properties, $position)
                 );
             } else {
@@ -208,7 +208,7 @@ class Legend implements LegendInterface
     public function getProperties(ModelInterface $model = null, PropertyValueBag $input = null)
     {
         if ($model || $input) {
-            $selectedProperties = array();
+            $selectedProperties = [];
 
             foreach ($this->properties as $property) {
                 $condition = $property->getVisibleCondition();
@@ -267,7 +267,7 @@ class Legend implements LegendInterface
     {
         $this->palette = null;
 
-        $properties = array();
+        $properties = [];
         foreach ($this->properties as $property) {
             $bobaFett = clone $property;
 

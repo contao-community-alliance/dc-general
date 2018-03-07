@@ -254,7 +254,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
             throw new DcGeneralException('invalid input data in model.', 1);
         }
 
-        $arrKeep = array();
+        $arrKeep = [];
         foreach ($arrData as $arrRow) {
             $arrSQL = $arrRow;
 

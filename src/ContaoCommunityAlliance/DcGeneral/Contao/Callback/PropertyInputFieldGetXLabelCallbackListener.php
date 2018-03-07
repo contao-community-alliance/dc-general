@@ -40,9 +40,9 @@ class PropertyInputFieldGetXLabelCallbackListener extends AbstractReturningPrope
      */
     public function getArgs($event)
     {
-        return array(
+        return [
             new DcCompat($event->getEnvironment(), $event->getModel(), $event->getProperty())
-        );
+        ];
     }
 
     /**

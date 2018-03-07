@@ -14,7 +14,7 @@ $eventDispatcher->dispatch(
 $clipboardIcon = $event->getHtml();
 
 // pre render the action icons
-$icons = array();
+$icons = [];
 foreach ($this->options as $id => $row) {
     /** @var \ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface $item */
     $item = $row['item'];

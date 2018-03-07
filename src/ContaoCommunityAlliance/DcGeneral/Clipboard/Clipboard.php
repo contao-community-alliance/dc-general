@@ -39,14 +39,14 @@ class Clipboard implements ClipboardInterface
      *
      * @var ItemInterface[]
      */
-    private $items = array();
+    private $items = [];
 
     /**
      * The item collection (indexed by model ids).
      *
      * @var ItemInterface[]
      */
-    private $itemsByModelId = array();
+    private $itemsByModelId = [];
 
     /**
      * {@inheritDoc}
@@ -171,7 +171,7 @@ class Clipboard implements ClipboardInterface
      */
     public function fetch(FilterInterface $filter)
     {
-        $items = array();
+        $items = [];
 
         foreach ($this->items as $item) {
             if ($filter->accepts($item)) {
@@ -209,7 +209,7 @@ class Clipboard implements ClipboardInterface
      */
     public function clear()
     {
-        $this->items = array();
+        $this->items = [];
 
         return $this;
     }

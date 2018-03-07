@@ -139,7 +139,7 @@ abstract class AbstractHandler
      *
      * @return void
      */
-    protected function callAction($actionName, $arguments = array())
+    protected function callAction($actionName, $arguments = [])
     {
         // Keep the event as we might get called recursively.
         $keepEvent = $this->event;

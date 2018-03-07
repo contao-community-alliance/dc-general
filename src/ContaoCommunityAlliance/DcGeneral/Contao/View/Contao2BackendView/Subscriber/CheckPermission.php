@@ -39,14 +39,14 @@ class CheckPermission implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            BuildDataDefinitionEvent::NAME => array(
-                array('checkPermissionForProperties'),
-                array('checkPermissionIsCreatable', -1),
-                array('checkPermissionIsEditable', -1),
-                array('checkPermissionIsDeletable', -1)
-            )
-        );
+        return [
+            BuildDataDefinitionEvent::NAME => [
+                ['checkPermissionForProperties'],
+                ['checkPermissionIsCreatable', -1],
+                ['checkPermissionIsEditable', -1],
+                ['checkPermissionIsDeletable', -1]
+            ]
+        ];
     }
 
     /**

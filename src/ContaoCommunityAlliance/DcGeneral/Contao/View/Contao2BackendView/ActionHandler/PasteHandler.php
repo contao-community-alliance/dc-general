@@ -77,7 +77,7 @@ class PasteHandler extends AbstractHandler
         $after         = $this->modelIdFromParameter($input, 'after');
         $into          = $this->modelIdFromParameter($input, 'into');
         $parentModelId = $this->modelIdFromParameter($input, 'pid');
-        $items         = array();
+        $items         = [];
 
         $controller->applyClipboardActions($source, $after, $into, $parentModelId, null, $items);
 

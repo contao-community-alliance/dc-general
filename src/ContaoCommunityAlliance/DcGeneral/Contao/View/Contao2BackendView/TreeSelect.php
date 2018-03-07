@@ -120,7 +120,7 @@ class TreeSelect
         $information = (array) $GLOBALS['TL_DCA'][$strTable]['fields'][$strField];
 
         if (!isset($information['eval'])) {
-            $information['eval'] = array();
+            $information['eval'] = [];
         }
 
         // Merge with the information from the data container.

@@ -36,14 +36,14 @@ class PropertyValueBag implements PropertyValueBagInterface
      *
      * @var array
      */
-    protected $properties = array();
+    protected $properties = [];
 
     /**
      * All properties that are marked as invalid and their error messages.
      *
      * @var array
      */
-    protected $errors = array();
+    protected $errors = [];
 
     /**
      * Create a new instance of a property bag.
@@ -165,7 +165,7 @@ class PropertyValueBag implements PropertyValueBagInterface
         $this->requirePropertyValue($property);
 
         if (!$append || !isset($this->errors[$property])) {
-            $this->errors[$property] = array();
+            $this->errors[$property] = [];
         }
 
         foreach ((array) $error as $singleError) {

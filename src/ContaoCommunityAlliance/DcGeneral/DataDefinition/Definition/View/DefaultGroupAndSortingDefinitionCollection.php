@@ -32,7 +32,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
      *
      * @var GroupAndSortingDefinitionInterface[]
      */
-    protected $information = array();
+    protected $information = [];
 
     /**
      * Index of the default information.
@@ -52,7 +52,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
         if (($index < 0) || ($this->getCount() <= $index)) {
             $this->information[] = $information;
         } else {
-            array_splice($this->information, $index, 0, array($information));
+            array_splice($this->information, $index, 0, [$information]);
         }
 
         return $information;

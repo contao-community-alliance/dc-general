@@ -59,12 +59,12 @@ class WidgetBuilder implements EnvironmentAwareInterface
      *
      * @var array
      */
-    protected static $widgetMapping = array(
+    protected static $widgetMapping = [
         'fileTree'      => FileTree::class,
         'fileTreeOrder' => FileTreeOrder::class,
         'pageTree'      => PageTree::class,
         'pageTreeOrder' => PageTreeOrder::class
-    );
+    ];
 
     /**
      * Construct.
@@ -407,7 +407,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
 
         if (is_numeric($varValue)
             && empty($propExtra['mandatory'])
-            && (isset($propExtra['rgxp']) && in_array($propExtra['rgxp'], array('date', 'time', 'datim')))
+            && (isset($propExtra['rgxp']) && in_array($propExtra['rgxp'], ['date', 'time', 'datim']))
             && $varValue == 0
         ) {
             $varValue = '';
@@ -415,16 +415,16 @@ class WidgetBuilder implements EnvironmentAwareInterface
 
         $propExtra['required'] = ($varValue == '') && !empty($propExtra['mandatory']);
 
-        $arrConfig = array(
+        $arrConfig = [
             'inputType' => $property->getWidgetType(),
-            'label'     => array(
+            'label'     => [
                 $property->getLabel(),
                 $property->getDescription()
-            ),
+            ],
             'options'   => $this->getOptionsForWidget($property, $model),
             'eval'      => $propExtra,
             // 'foreignKey' => null
-        );
+        ];
 
         if (isset($propExtra['reference'])) {
             $arrConfig['reference'] = $propExtra['reference'];

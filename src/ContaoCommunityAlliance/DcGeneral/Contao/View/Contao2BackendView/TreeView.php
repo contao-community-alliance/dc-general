@@ -74,7 +74,7 @@ class TreeView extends BaseView
         $openElements   = $sessionStorage->get($this->getToggleId());
 
         if (!is_array($openElements)) {
-            $openElements = array();
+            $openElements = [];
         }
 
         return new TreeNodeStates($openElements);
@@ -315,7 +315,7 @@ class TreeView extends BaseView
      */
     protected function generateTreeView($objCollection, $treeClass)
     {
-        $arrHtml = array();
+        $arrHtml = [];
 
         // Generate buttons - only if not in select mode!
         if (!$this->isSelectModeActive()) {
@@ -548,16 +548,16 @@ class TreeView extends BaseView
         $this->handleNodeStateChanges();
 
         $collection = $this->loadCollection();
-        $arrReturn  = array();
+        $arrReturn  = [];
 
-        $viewEvent = new ViewEvent($this->environment, $action, DcGeneralViews::CLIPBOARD, array());
+        $viewEvent = new ViewEvent($this->environment, $action, DcGeneralViews::CLIPBOARD, []);
         $this->environment->getEventDispatcher()->dispatch(DcGeneralEvents::VIEW, $viewEvent);
 
         // A list with ignored panels.
-        $arrIgnoredPanels = array(
+        $arrIgnoredPanels = [
             LimitElementInterface::class,
             SortElementInterface::class
-        );
+        ];
 
         $arrReturn['panel']     = $this->panel($arrIgnoredPanels);
         $arrReturn['buttons']   = $this->generateHeaderButtons();
@@ -639,17 +639,17 @@ class TreeView extends BaseView
 
         $sessionName = $dataDefinition->getName() . '.' . $inputProvider->getParameter('mode');
         if (!$this->getEnvironment()->getSessionStorage()->has($sessionName)) {
-            return array();
+            return [];
         }
 
         $selectAction = $inputProvider->getParameter('select');
         if (!$selectAction) {
-            return array();
+            return [];
         }
 
         $session = $this->getEnvironment()->getSessionStorage()->get($sessionName);
         if (!array_key_exists($selectAction, $session)) {
-            return array();
+            return [];
         }
 
         return $session[$selectAction];

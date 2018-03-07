@@ -121,7 +121,7 @@ class MockedSessionStorage implements SessionStorageInterface
      */
     public function clear()
     {
-        $this->values = array();
+        $this->values = [];
 
         return $this;
     }

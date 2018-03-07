@@ -34,14 +34,14 @@ class DefaultPanelRow implements PanelRowInterface
      *
      * @var ElementInformationInterface[]
      */
-    protected $elements = array();
+    protected $elements = [];
 
     /**
      * {@inheritDoc}
      */
     public function getElements()
     {
-        $names = array();
+        $names = [];
         foreach ($this as $element) {
             /** @var ElementInformationInterface $element */
             $names[] = $element->getName();
@@ -62,7 +62,7 @@ class DefaultPanelRow implements PanelRowInterface
         if (($index < 0) || ($this->getCount() <= $index)) {
             $this->elements[] = $element;
         } else {
-            array_splice($this->elements, $index, 0, array($element));
+            array_splice($this->elements, $index, 0, [$element]);
         }
 
         return $this;

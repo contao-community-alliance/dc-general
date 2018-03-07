@@ -853,7 +853,7 @@ class PaletteBuilder
 
         $properties = func_get_args();
 
-        $this->property = array();
+        $this->property = [];
         foreach ($properties as $property) {
             $event = new UsePropertyEvent($property, $this);
             $this->dispatchEvent($event);
@@ -888,7 +888,7 @@ class PaletteBuilder
 
         $propertyNames = func_get_args();
 
-        $this->property = array();
+        $this->property = [];
         foreach ($propertyNames as $propertyName) {
             $property = $this->propertyClass->newInstance($propertyName);
 
@@ -925,7 +925,7 @@ class PaletteBuilder
             $this->finishCondition();
         }
 
-        $properties = is_object($this->property) ? array($this->property) : $this->property;
+        $properties = is_object($this->property) ? [$this->property] : $this->property;
 
         foreach ($properties as $index => $tempProperty) {
             $event = new FinishPropertyEvent($tempProperty, $this);
@@ -1227,7 +1227,7 @@ class PaletteBuilder
             throw new DcGeneralRuntimeException('Property is missing, please create a property first');
         }
 
-        $properties = is_object($this->property) ? array($this->property) : $this->property;
+        $properties = is_object($this->property) ? [$this->property] : $this->property;
 
         foreach ($properties as $property) {
             /** @var PropertyInterface $property */

@@ -67,14 +67,14 @@ class Subscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array
-        (
-            DcGeneralEvents::ACTION                => array('initializePanels', 10),
-            GetPanelElementTemplateEvent::NAME     => array('getPanelElementTemplate', -1),
-            ResolveWidgetErrorMessageEvent::NAME   => array('resolveWidgetErrorMessage', -1),
+        return
+            [
+            DcGeneralEvents::ACTION                => ['initializePanels', 10],
+            GetPanelElementTemplateEvent::NAME     => ['getPanelElementTemplate', -1],
+            ResolveWidgetErrorMessageEvent::NAME   => ['resolveWidgetErrorMessage', -1],
             RenderReadablePropertyValueEvent::NAME => 'renderReadablePropertyValue',
             'contao-twig.init'                     => 'initTwig',
-        );
+            ];
     }
 
     /**
@@ -238,7 +238,7 @@ class Subscriber implements EventSubscriberInterface
         }
 
         if (!$extra['multiple'] && $property->getWidgetType() == 'checkbox') {
-            $map = array(false => 'no', true => 'yes');
+            $map = [false => 'no', true => 'yes'];
             $event->setRendered($event->getEnvironment()->getTranslator()->translate('MSC.' . $map[(bool) $value]));
 
             return;
@@ -293,7 +293,7 @@ class Subscriber implements EventSubscriberInterface
     {
         if (!in_array(
             $event->getAction()->getName(),
-            array('copy', 'create', 'paste', 'delete', 'move', 'undo', 'edit', 'toggle', 'showAll', 'show')
+            ['copy', 'create', 'paste', 'delete', 'move', 'undo', 'edit', 'toggle', 'showAll', 'show']
         )) {
             return;
         }

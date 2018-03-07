@@ -136,7 +136,7 @@ class FileSelect
         $information = (array) $GLOBALS['TL_DCA'][$modelId->getDataProviderName()]['fields'][$propertyName];
 
         if (!isset($information['eval'])) {
-            $information['eval'] = array();
+            $information['eval'] = [];
         }
 
         // Merge with the information from the data container.
@@ -152,7 +152,7 @@ class FileSelect
 
         Session::getInstance()->set('filePickerRef', Environment::get('request'));
 
-        $fileSelectorValues = array();
+        $fileSelectorValues = [];
         foreach (array_filter(explode(',', $inputProvider->getParameter('value'))) as $k => $v) {
             // Can be a UUID or a path
             if (Validator::isStringUuid($v)) {
@@ -173,7 +173,7 @@ class FileSelect
             foreach ($callbacks as $callback) {
                 if (is_array($callback)) {
                     $fileSelectorValues =
-                        Callbacks::callArgs($callback, array($fileSelectorValues, $combat));
+                        Callbacks::callArgs($callback, [$fileSelectorValues, $combat]);
                 } elseif (is_callable($callback)) {
                     $fileSelectorValues = $callback($fileSelectorValues, $combat);
                 }
