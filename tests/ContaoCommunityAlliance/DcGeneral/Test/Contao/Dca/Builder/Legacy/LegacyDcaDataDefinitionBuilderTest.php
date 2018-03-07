@@ -47,7 +47,7 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
      */
     public function mockBuilderWithDca($dca, $eventName, $dispatcher)
     {
-        $class = 'ContaoCommunityAlliance\\DcGeneral\\Contao\\Dca\\Builder\\Legacy\\LegacyDcaDataDefinitionBuilder';
+        $class = LegacyDcaDataDefinitionBuilder::class;
         $mock  = $this
             ->getMock($class, ['loadDca', 'process']);
 

@@ -24,6 +24,34 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\DefaultContainer;
 use ContaoCommunityAlliance\DcGeneral\DcGeneral;
 use ContaoCommunityAlliance\DcGeneral\DefaultEnvironment;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnSubmitCallbackListener;
+use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnDeleteCallbackListener;
+use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnCutCallbackListener;
+use ContaoCommunityAlliance\DcGeneral\Event\PostPasteModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnCopyCallbackListener;
+use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerHeaderCallbackListener;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerPasteRootButtonCallbackListener;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerPasteButtonCallbackListener;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelChildRecordCallbackListener;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelGroupCallbackListener;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelLabelCallbackListener;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerGetBreadcrumbCallbackListener;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnLoadCallbackListener;
+use ContaoCommunityAlliance\DcGeneral\Factory\Event\CreateDcGeneralEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerGlobalButtonCallbackListener;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelOperationButtonCallbackListener;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 
 /**
  * Class AbstractContainerCallbackListenerTest
@@ -69,48 +97,48 @@ class AbstractContainerCallbackListenerTest extends TestCase
     {
         return [
             [
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnSubmitCallbackListener',
-                'ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent'
+                ContainerOnSubmitCallbackListener::class,
+                PostPersistModelEvent::class
             ],
             [
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnDeleteCallbackListener',
-                'ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent'
+                ContainerOnDeleteCallbackListener::class,
+                PostDeleteModelEvent::class
             ],
             [
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnCutCallbackListener',
-                'ContaoCommunityAlliance\DcGeneral\Event\PostPasteModelEvent'
+                ContainerOnCutCallbackListener::class,
+                PostPasteModelEvent::class
             ],
             [
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnCopyCallbackListener',
-                'ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent'
+                ContainerOnCopyCallbackListener::class,
+                PostDuplicateModelEvent::class
             ],
             [
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerHeaderCallbackListener',
-                'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent'
+                ContainerHeaderCallbackListener::class,
+                GetParentHeaderEvent::class
             ],
             [
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerPasteRootButtonCallbackListener',
-                'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent'
+                ContainerPasteRootButtonCallbackListener::class,
+                GetPasteRootButtonEvent::class
             ],
             [
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerPasteButtonCallbackListener',
-                'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent'
+                ContainerPasteButtonCallbackListener::class,
+                GetPasteButtonEvent::class
             ],
             [
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelChildRecordCallbackListener',
-                'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent'
+                ModelChildRecordCallbackListener::class,
+                ParentViewChildRecordEvent::class
             ],
             [
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelGroupCallbackListener',
-                'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent'
+                ModelGroupCallbackListener::class,
+                GetGroupHeaderEvent::class
             ],
             [
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelLabelCallbackListener',
-                'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent'
+                ModelLabelCallbackListener::class,
+                ModelToLabelEvent::class
             ],
             [
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerGetBreadcrumbCallbackListener',
-                'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent'
+                ContainerGetBreadcrumbCallbackListener::class,
+                GetBreadcrumbEvent::class
             ],
         ];
     }
@@ -146,10 +174,10 @@ class AbstractContainerCallbackListenerTest extends TestCase
         $that = $this;
         return [
             [
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnLoadCallbackListener',
+                ContainerOnLoadCallbackListener::class,
                 function ($tableName) use ($that) {
                     $event = $that->getMock(
-                        'ContaoCommunityAlliance\DcGeneral\Factory\Event\CreateDcGeneralEvent',
+                        CreateDcGeneralEvent::class,
                         ['getDcGeneral'],
                         [],
                         '',
@@ -199,10 +227,10 @@ class AbstractContainerCallbackListenerTest extends TestCase
         $that = $this;
         return [
             [
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerGlobalButtonCallbackListener',
+                ContainerGlobalButtonCallbackListener::class,
                 function ($tableName, $operationName) use ($that) {
                     $event = $that->getMock(
-                        'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent',
+                        GetGlobalButtonEvent::class,
                         ['getEnvironment', 'getKey'],
                         [],
                         '',
@@ -222,10 +250,10 @@ class AbstractContainerCallbackListenerTest extends TestCase
                 }
             ],
             [
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelOperationButtonCallbackListener',
+                ModelOperationButtonCallbackListener::class,
                 function ($tableName, $operationName) use ($that) {
                     $event = $that->getMock(
-                        'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent',
+                        GetOperationButtonEvent::class,
                         ['getEnvironment', 'getKey'],
                         [],
                         '',

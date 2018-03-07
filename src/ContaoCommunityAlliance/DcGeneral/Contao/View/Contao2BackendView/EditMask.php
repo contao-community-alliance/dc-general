@@ -739,7 +739,7 @@ class EditMask
         );
 
         if (in_array(
-            'ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface',
+            MultiLanguageDataProviderInterface::class,
             class_implements(
                 $environment->getDataProvider(
                     $this->model->getProviderName()

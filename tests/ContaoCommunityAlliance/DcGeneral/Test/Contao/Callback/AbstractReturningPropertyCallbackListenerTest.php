@@ -23,6 +23,17 @@ namespace ContaoCommunityAlliance\DcGeneral\Test\Contao\Callback;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\DefaultContainer;
 use ContaoCommunityAlliance\DcGeneral\DefaultEnvironment;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyOnLoadCallbackListener;
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyOnSaveCallbackListener;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelOptionsCallbackListener;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldCallbackListener;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldGetWizardCallbackListener;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldGetXLabelCallbackListener;
 
 class AbstractReturningPropertyCallbackListenerTest extends TestCase
 {
@@ -70,28 +81,28 @@ class AbstractReturningPropertyCallbackListenerTest extends TestCase
     {
         return [
             [
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyOnLoadCallbackListener',
-                'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent'
+                PropertyOnLoadCallbackListener::class,
+                DecodePropertyValueForWidgetEvent::class
             ],
             [
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyOnSaveCallbackListener',
-                'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent'
+                PropertyOnSaveCallbackListener::class,
+                EncodePropertyValueFromWidgetEvent::class
             ],
             [
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelOptionsCallbackListener',
-                'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent'
+                ModelOptionsCallbackListener::class,
+                GetPropertyOptionsEvent::class
             ],
             [
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldCallbackListener',
-                'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent'
+                PropertyInputFieldCallbackListener::class,
+                BuildWidgetEvent::class
             ],
             [
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldGetWizardCallbackListener',
-                'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent'
+                PropertyInputFieldGetWizardCallbackListener::class,
+                ManipulateWidgetEvent::class
             ],
             [
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldGetXLabelCallbackListener',
-                'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent'
+                PropertyInputFieldGetXLabelCallbackListener::class,
+                ManipulateWidgetEvent::class
             ],
         ];
     }

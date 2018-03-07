@@ -25,6 +25,16 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootConditionInterface;
+use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistryInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 
 /**
  * Test case for the relationship manager.
@@ -47,11 +57,11 @@ class ModelCollectorTest extends TestCase
         $definition->method('getBasicDefinition')->willReturn($basicDefinition);
         $definition->method('getModelRelationshipDefinition')->willReturn($relationships);
 
-        $environment = $this->getMockForAbstractClass('ContaoCommunityAlliance\DcGeneral\EnvironmentInterface');
+        $environment = $this->getMockForAbstractClass(EnvironmentInterface::class);
         $environment->method('getDataDefinition')->willReturn($definition);
 
         $this->setExpectedException(
-            'ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException',
+            DcGeneralRuntimeException::class,
             'No root condition specified for hierarchical mode.'
         );
 
@@ -94,15 +104,15 @@ class ModelCollectorTest extends TestCase
         $definition->method('getBasicDefinition')->willReturn($basicDefinition);
         $definition->method('getModelRelationshipDefinition')->willReturn($relationships);
 
-        $environment = $this->getMockForAbstractClass('ContaoCommunityAlliance\DcGeneral\EnvironmentInterface');
+        $environment = $this->getMockForAbstractClass(EnvironmentInterface::class);
         $environment->method('getDataDefinition')->willReturn($definition);
 
-        $config = $this->getMockForAbstractClass('ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface');
+        $config = $this->getMockForAbstractClass(ConfigInterface::class);
         $config->expects($this->once())->method('setId')->with('test-id')->willReturn($config);
 
-        $provider = $this->getMockForAbstractClass('ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface');
+        $provider = $this->getMockForAbstractClass(DataProviderInterface::class);
         $provider->method('getEmptyConfig')->willReturn($config);
-        $model = $this->getMockForAbstractClass('ContaoCommunityAlliance\DcGeneral\Data\ModelInterface');
+        $model = $this->getMockForAbstractClass(ModelInterface::class);
         $provider->expects($this->once())->method('fetch')->with($config)->willReturn($model);
         $environment->expects($this->once())->method('getDataProvider')->with('provider-name')->willReturn($provider);
 
@@ -127,7 +137,7 @@ class ModelCollectorTest extends TestCase
         $definition->method('getBasicDefinition')->willReturn($basicDefinition);
         $definition->method('getModelRelationshipDefinition')->willReturn($relationships);
 
-        $environment = $this->getMockForAbstractClass('ContaoCommunityAlliance\DcGeneral\EnvironmentInterface');
+        $environment = $this->getMockForAbstractClass(EnvironmentInterface::class);
         $environment->method('getDataDefinition')->willReturn($definition);
 
         $collector = new ModelCollector($environment);
@@ -147,8 +157,8 @@ class ModelCollectorTest extends TestCase
      */
     public function testCollectSiblingsOf()
     {
-        $model           = $this->getMockForAbstractClass('ContaoCommunityAlliance\DcGeneral\Data\ModelInterface');
-        $rootCondition   = $this->getMockForAbstractClass('ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootConditionInterface');
+        $model           = $this->getMockForAbstractClass(ModelInterface::class);
+        $rootCondition   = $this->getMockForAbstractClass(RootConditionInterface::class);
         $basicDefinition = $this->mockBasicDefinition();
         $basicDefinition->method('getMode')->willReturn(BasicDefinitionInterface::MODE_HIERARCHICAL);
         $basicDefinition->method('getRootDataProvider')->willReturn('root-provider');
@@ -160,18 +170,18 @@ class ModelCollectorTest extends TestCase
         $rootCondition->method('getFilterArray')->willReturn([['local' => 'pid', 'remote' => 'id']]);
         $rootCondition->method('matches')->with($model)->willReturn(true);
 
-        $config = $this->getMockForAbstractClass('ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface');
+        $config = $this->getMockForAbstractClass(ConfigInterface::class);
         $config->expects($this->once())->method('setFilter')->with([['local' => 'pid', 'remote' => 'id']])->willReturn($config);
 
-        $configRegistry = $this->getMockForAbstractClass('ContaoCommunityAlliance\DcGeneral\BaseConfigRegistryInterface');
+        $configRegistry = $this->getMockForAbstractClass(BaseConfigRegistryInterface::class);
         $configRegistry->method('getBaseConfig')->with(null)->willReturn($config);
-        $environment = $this->getMockForAbstractClass('ContaoCommunityAlliance\DcGeneral\EnvironmentInterface');
+        $environment = $this->getMockForAbstractClass(EnvironmentInterface::class);
         $environment->method('getDataDefinition')->willReturn($definition);
         $environment->method('getBaseConfigRegistry')->willReturn($configRegistry);
 
-        $collection = $this->getMockForAbstractClass('ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface');
+        $collection = $this->getMockForAbstractClass(CollectionInterface::class);
 
-        $provider = $this->getMockForAbstractClass('ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface');
+        $provider = $this->getMockForAbstractClass(DataProviderInterface::class);
         $model->expects($this->any())->method('getProviderName')->willReturn('root-provider');
         $provider->expects($this->once())->method('fetchAll')->with($config)->willReturn($collection);
         $environment->method('getDataProvider')->with('root-provider')->willReturn($provider);
@@ -190,7 +200,7 @@ class ModelCollectorTest extends TestCase
     private function mockBasicDefinition()
     {
         $basicDefinition = $this->getMockForAbstractClass(
-            'ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface'
+            BasicDefinitionInterface::class
         );
 
         return $basicDefinition;
@@ -204,7 +214,7 @@ class ModelCollectorTest extends TestCase
     private function mockRelationshipDefinition()
     {
         $relationships = $this->getMockForAbstractClass(
-            'ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface'
+            ModelRelationshipDefinitionInterface::class
         );
 
         return $relationships;
@@ -218,7 +228,7 @@ class ModelCollectorTest extends TestCase
     private function mockDefinitionContainer()
     {
         $definition = $this->getMockForAbstractClass(
-            'ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface'
+            ContainerInterface::class
         );
 
         return $definition;

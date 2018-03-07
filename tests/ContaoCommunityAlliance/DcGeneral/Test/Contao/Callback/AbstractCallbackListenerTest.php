@@ -23,6 +23,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Test\Contao\Callback;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\DefaultContainer;
 use ContaoCommunityAlliance\DcGeneral\DefaultEnvironment;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\AbstractCallbackListener;
+use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
 
 class AbstractCallbackListenerTest extends TestCase
 {
@@ -37,8 +39,8 @@ class AbstractCallbackListenerTest extends TestCase
     {
         return [
             [
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\AbstractCallbackListener',
-                'ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent'
+                AbstractCallbackListener::class,
+                AbstractEnvironmentAwareEvent::class
             ],
         ];
     }

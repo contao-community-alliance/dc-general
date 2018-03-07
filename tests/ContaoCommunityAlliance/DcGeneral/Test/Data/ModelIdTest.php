@@ -23,6 +23,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Test\Data;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * This class tests the ModelId class.
@@ -40,7 +42,7 @@ class ModelIdTest extends TestCase
     private function mockModel($modelId, $dataProvider)
     {
         $mock = $this
-            ->getMockBuilder('ContaoCommunityAlliance\DcGeneral\Data\ModelInterface')
+            ->getMockBuilder(ModelInterface::class)
             ->setMethods(['getId', 'getProviderName'])
             ->getMockForAbstractClass();
         $mock
@@ -62,7 +64,7 @@ class ModelIdTest extends TestCase
      */
     public function modelProvider()
     {
-        $exception = '\ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException';
+        $exception = DcGeneralInvalidArgumentException::class;
         return [
             [$this->mockModel(10, 'tl_page')],
             [$this->mockModel(null, 'tl_page'), $exception],
@@ -102,7 +104,7 @@ class ModelIdTest extends TestCase
      */
     public function idProvider()
     {
-        $exception = '\ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException';
+        $exception = DcGeneralRuntimeException::class;
         return [
             ['tl_page::1'],
             ['tl_page:1', $exception],

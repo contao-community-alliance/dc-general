@@ -23,6 +23,10 @@ namespace ContaoCommunityAlliance\DcGeneral\Test\Data;
 use Contao\Database;
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultDataProvider;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use ContaoCommunityAlliance\DcGeneral\Data\IdGeneratorInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 
 /**
  * This class tests the DefaultDataProvider class.
@@ -90,7 +94,7 @@ class DefaultDataProviderTest extends TestCase
             ]
         );
 
-        $idGenerator = $this->getMockForAbstractClass('ContaoCommunityAlliance\DcGeneral\Data\IdGeneratorInterface');
+        $idGenerator = $this->getMockForAbstractClass(IdGeneratorInterface::class);
 
         $dataProvider = new DefaultDataProvider();
 
@@ -104,10 +108,7 @@ class DefaultDataProviderTest extends TestCase
             ]
         );
 
-        $reflection = new \ReflectionProperty(
-            'ContaoCommunityAlliance\DcGeneral\Data\DefaultDataProvider',
-            'objDatabase'
-        );
+        $reflection = new \ReflectionProperty(DefaultDataProvider::class, 'objDatabase');
         $reflection->setAccessible(true);
 
         $this->assertEquals('tl_something', $dataProvider->getEmptyModel()->getProviderName());
@@ -125,7 +126,7 @@ class DefaultDataProviderTest extends TestCase
     public function testGetEmptyConfig()
     {
         $provider = $this->mockDefaultProvider();
-        $this->assertInstanceOf('ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface', $provider->getEmptyConfig());
+        $this->assertInstanceOf(ConfigInterface::class, $provider->getEmptyConfig());
     }
 
     /**
@@ -136,7 +137,7 @@ class DefaultDataProviderTest extends TestCase
     public function testGetEmptyModel()
     {
         $provider = $this->mockDefaultProvider();
-        $this->assertInstanceOf('ContaoCommunityAlliance\DcGeneral\Data\ModelInterface', $provider->getEmptyModel());
+        $this->assertInstanceOf(ModelInterface::class, $provider->getEmptyModel());
     }
 
     /**
@@ -147,9 +148,6 @@ class DefaultDataProviderTest extends TestCase
     public function testGetEmptyCollection()
     {
         $provider = $this->mockDefaultProvider();
-        $this->assertInstanceOf(
-            'ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface',
-            $provider->getEmptyCollection()
-        );
+        $this->assertInstanceOf(CollectionInterface::class, $provider->getEmptyCollection());
     }
 }

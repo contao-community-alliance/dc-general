@@ -1,5 +1,9 @@
 <?php
 
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\ColorPickerWizardSubscriber;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\WidgetBuilder;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\GetGroupHeaderSubscriber;
+
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
@@ -108,13 +112,12 @@ if ('BE' === TL_MODE) {
     ];
 
     $result[GetGroupHeaderEvent::NAME] = [
-        'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\GetGroupHeaderSubscriber::handle'
+        [GetGroupHeaderSubscriber::class, 'handle']
     ];
 
     $result[BuildWidgetEvent::NAME] = [
-        'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\WidgetBuilder::handleEvent',
-        'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\ColorPickerWizardSubscriber' .
-        '::handleEvent'
+        [WidgetBuilder::class, 'handleEvent'],
+        [ColorPickerWizardSubscriber::class, 'handleEvent']
     ];
 
     $result[DcGeneralEvents::ACTION] = [

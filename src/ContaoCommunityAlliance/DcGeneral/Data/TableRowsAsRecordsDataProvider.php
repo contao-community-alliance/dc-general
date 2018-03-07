@@ -60,10 +60,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
         parent::setBaseConfig($arrConfig);
 
         if (!$arrConfig['group_column']) {
-            throw new DcGeneralException(
-                'ContaoCommunityAlliance\DcGeneral\Data\TableRowsAsRecordsDriver needs a grouping column.',
-                1
-            );
+            throw new DcGeneralException(__CLASS__ . ' needs a grouping column.', 1);
         }
         $this->strGroupCol = $arrConfig['group_column'];
 

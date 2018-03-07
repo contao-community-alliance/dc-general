@@ -23,6 +23,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Test\DataDefinition\Definition\View;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandCollection;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 class CommandCollectionTest extends TestCase
 {
@@ -75,7 +76,7 @@ class CommandCollectionTest extends TestCase
         $command2 = new Command();
         $command2->setName('test2');
 
-        $this->setExpectedException('ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException');
+        $this->setExpectedException(DcGeneralInvalidArgumentException::class);
         $collection->addCommand($command2, $command1);
 
         $this->assertTrue($collection->hasCommand($command1));
@@ -142,7 +143,7 @@ class CommandCollectionTest extends TestCase
         $command3 = new Command();
         $command3->setName('test3');
 
-        $this->setExpectedException('ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException');
+        $this->setExpectedException(DcGeneralInvalidArgumentException::class);
         $collection->addCommands([$command1, $command2], $command3);
 
         $this->assertTrue($collection->hasCommand($command1));

@@ -24,6 +24,7 @@ use ContaoCommunityAlliance\Contao\EventDispatcher\EventDispatcherInitializer;
 use ContaoCommunityAlliance\DcGeneral\DC_General;
 use ContaoCommunityAlliance\Translator\StaticTranslator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use ContaoCommunityAlliance\DcGeneral\Data\NoOpDataProvider;
 
 /**
  * Test the main wrapper class \DC_General that it can be instantiated by Contao.
@@ -85,8 +86,8 @@ class DC_GeneralTest extends TestCase
                         [
                     'tl_foo' =>
                         [
-                        'source' => 'tl_foo',
-                        'class'        => 'ContaoCommunityAlliance\DcGeneral\Data\NoOpDataProvider',
+                            'source' => 'tl_foo',
+                            'class'        => NoOpDataProvider::class,
                         ]
                         ],
                 ],
