@@ -381,8 +381,7 @@ class SelectHandler extends AbstractHandler
 
                 if (isset($values[$modelProperty])
                     && ($modelValue !== $values[$modelProperty])) {
-                    unset($values[$modelProperty]);
-                    unset($valuesCount[$modelProperty]);
+                    unset($values[$modelProperty], $valuesCount[$modelProperty]);
                 }
 
                 if (!isset($valuesCount[$modelProperty])) {
