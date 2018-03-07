@@ -28,7 +28,6 @@ use Contao\RequestToken;
 use Contao\StringUtil;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use Model\Collection;
 
 /**

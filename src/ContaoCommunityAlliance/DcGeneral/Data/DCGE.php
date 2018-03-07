@@ -23,8 +23,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Data;
 
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-
 /**
  * This class is a holder for all const vars.
  */

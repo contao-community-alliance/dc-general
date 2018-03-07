@@ -21,9 +21,9 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette;
 
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\ConditionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ConditionInterface;
 
 /**
  * A condition define when a palette is used or not.

@@ -21,9 +21,11 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Factory;
 
-use ContaoCommunityAlliance\DcGeneral\DataDefinitionContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\DefaultContainer;
+use ContaoCommunityAlliance\DcGeneral\DataDefinitionContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneral;
+use ContaoCommunityAlliance\DcGeneral\DefaultEnvironment;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
@@ -32,8 +34,6 @@ use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PreCreateDcGeneralEvent;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use ContaoCommunityAlliance\DcGeneral\DefaultEnvironment;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\DefaultContainer;
 
 /**
  * Factory to create a DcGeneral instance.

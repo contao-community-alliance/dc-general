@@ -54,25 +54,25 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\UseLe
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\UsePaletteCollectionEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\UsePaletteEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\UsePropertyEvent;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\DefaultPaletteCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionChain;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionChain;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
-use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
-use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteCollection;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Palette;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Legend;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Property;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\DefaultPaletteCondition;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition;
 // @codingStandardsIgnoreStart
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyValueCondition as PropertyPropertyValueCondition;
 // @codingStandardsIgnoreEnd
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Legend;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Palette;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteCollection;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Property;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * The palette builder is used to build palette collections, palettes, legends, properties and conditions.

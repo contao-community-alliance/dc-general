@@ -21,8 +21,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Dca;
 
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\DataProviderInformation;
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultDataProvider;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\DataProviderInformation;
 
 /**
  * Class ContaoDataProviderInformation.

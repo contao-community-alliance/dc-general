@@ -1,7 +1,9 @@
 <?php
+
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
+
 ?>
 <?php $this->block('messages'); ?>
 <?= $this->getMessages(); ?>

@@ -33,7 +33,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandl
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\EditAllHandlerSubscriber;
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
