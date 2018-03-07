@@ -415,7 +415,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
             $objChild
         );
 
-        return $this->checkCondition($objParent, $filter);
+        return static::checkCondition($objParent, $filter);
     }
 
     /**

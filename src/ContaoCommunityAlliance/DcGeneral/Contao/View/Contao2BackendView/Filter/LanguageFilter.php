@@ -93,7 +93,7 @@ class LanguageFilter implements EventSubscriberInterface
             return;
         }
 
-        static::checkLanguageSubmit($environment, $languages);
+        $this->checkLanguageSubmit($environment, $languages);
 
         // Load language from Session.
         $session = (array) $sessionStorage->get('dc_general');

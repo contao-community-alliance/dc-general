@@ -309,7 +309,7 @@ class FileTree extends AbstractWidget
         return sprintf(
             '%s <span class="tl_gray">(%s%s)</span>',
             $file->path,
-            $this->getReadableSize($file->size),
+            static::getReadableSize($file->size),
             (($file->isGdImage || $file->isSvgImage) ? ', ' . $file->width . 'x' . $file->height . ' px' : '')
         );
     }

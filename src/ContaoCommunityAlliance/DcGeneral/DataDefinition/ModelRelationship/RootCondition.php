@@ -148,7 +148,7 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
         }
 
         if ($this->getFilterArray()) {
-            return $this->checkCondition(
+            return static::checkCondition(
                 $objModel,
                 array(
                     'operation' => 'AND',

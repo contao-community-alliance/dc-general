@@ -67,7 +67,7 @@ class FilterBuilder
             );
         }
 
-        $this->filters      = $this->getBuilderFromArray(array('operation' => 'AND', 'children' => $filter), $this);
+        $this->filters      = static::getBuilderFromArray(array('operation' => 'AND', 'children' => $filter), $this);
         $this->isRootFilter = $isRoot;
     }
 
@@ -222,7 +222,7 @@ class FilterBuilder
      */
     public function checkValidOperation($operation)
     {
-        if (!$this->isValidOperation($operation)) {
+        if (!static::isValidOperation($operation)) {
             throw new DcGeneralInvalidArgumentException(
                 'Invalid operation ' . $operation . ' it must be one of: AND, OR, =, >, <, IN, LIKE'
             );

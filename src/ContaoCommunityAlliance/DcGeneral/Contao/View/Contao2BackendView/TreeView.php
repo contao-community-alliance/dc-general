@@ -470,7 +470,7 @@ class TreeView extends BaseView
 
             $dispatcher->dispatch($buttonEvent::NAME, $buttonEvent);
 
-            $strRootPasteInto = $this->renderPasteRootButton($buttonEvent);
+            $strRootPasteInto = static::renderPasteRootButton($buttonEvent);
         } else {
             $strRootPasteInto = '';
         }

@@ -23,6 +23,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\Environment;
+use Contao\Input;
 use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
@@ -446,7 +447,7 @@ class TreePicker extends Widget
      */
     protected function validator($varInput)
     {
-        if (!($this->Input->post($this->strName . '_save') || $this->alwaysSave)) {
+        if (!(Input::post($this->strName . '_save') || $this->alwaysSave)) {
             $this->blnSubmitInput = false;
         }
 
@@ -1111,7 +1112,7 @@ class TreePicker extends Widget
             ->set('toggleUrl', $toggleUrlEvent->getUrl())
             ->set('toggleTitle', $toggleTitle)
             ->set('toggleScript', $toggleScript)
-            ->set('active', $this->optionChecked($objModel->getProperty($this->idProperty), $this->value))
+            ->set('active', static::optionChecked($objModel->getProperty($this->idProperty), $this->value))
             ->set('idProperty', $this->idProperty);
 
         $level = $objModel->getMeta(DCGE::TREE_VIEW_LEVEL);
