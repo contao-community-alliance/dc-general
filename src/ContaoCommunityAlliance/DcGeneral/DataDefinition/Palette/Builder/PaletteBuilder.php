@@ -225,35 +225,35 @@ class PaletteBuilder
      *
      * @var PaletteCollectionInterface|null
      */
-    protected $paletteCollection = null;
+    protected $paletteCollection;
 
     /**
      * The palette currently working on.
      *
      * @var PaletteInterface|null
      */
-    protected $palette = null;
+    protected $palette;
 
     /**
      * The legend currently working on.
      *
      * @var LegendInterface|null
      */
-    protected $legend = null;
+    protected $legend;
 
     /**
      * The property currently working on.
      *
      * @var PropertyInterface|null
      */
-    protected $property = null;
+    protected $property;
 
     /**
      * The condition currently working on.
      *
      * @var PropertyConditionInterface|PaletteConditionInterface|ConditionChainInterface|null
      */
-    protected $condition = null;
+    protected $condition;
 
     /**
      * Factory method to create a new palette builder.

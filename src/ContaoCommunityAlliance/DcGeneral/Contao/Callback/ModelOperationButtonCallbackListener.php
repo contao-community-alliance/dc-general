@@ -37,7 +37,7 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
      *
      * @var null|string
      */
-    protected $operationName = null;
+    protected $operationName;
 
     /**
      * Set the restrictions for this callback.

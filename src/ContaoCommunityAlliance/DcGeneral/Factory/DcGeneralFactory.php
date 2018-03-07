@@ -107,28 +107,28 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      *
      * @var EventDispatcherInterface
      */
-    protected $eventDispatcher = null;
+    protected $eventDispatcher;
 
     /**
      * The translator that shall be used.
      *
      * @var TranslatorInterface
      */
-    protected $translator = null;
+    protected $translator;
 
     /**
      * The environment for the new instance.
      *
      * @var EnvironmentInterface
      */
-    protected $environment = null;
+    protected $environment;
 
     /**
      * The data definition container instance.
      *
      * @var ContainerInterface
      */
-    protected $dataContainer = null;
+    protected $dataContainer;
 
     /**
      * {@inheritdoc}

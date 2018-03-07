@@ -50,14 +50,14 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @var string
      */
-    protected $strSource = null;
+    protected $strSource;
 
     /**
      * The Database instance.
      *
      * @var Database
      */
-    protected $objDatabase = null;
+    protected $objDatabase;
 
     /**
      * The name of the id property.
@@ -78,7 +78,7 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @var IdGeneratorInterface
      */
-    protected $idGenerator = null;
+    protected $idGenerator;
 
     /**
      * Retrieve the name of the id property.

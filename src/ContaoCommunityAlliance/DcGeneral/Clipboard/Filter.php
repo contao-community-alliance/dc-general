@@ -51,7 +51,7 @@ class Filter implements FilterInterface
      *
      * @var string
      */
-    private $compiled = null;
+    private $compiled;
 
     const MODEL_IS_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
 (

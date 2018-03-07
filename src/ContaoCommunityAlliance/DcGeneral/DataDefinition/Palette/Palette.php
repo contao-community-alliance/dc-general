@@ -37,7 +37,7 @@ class Palette implements PaletteInterface
      *
      * @var string
      */
-    protected $name = null;
+    protected $name;
 
     /**
      * List of all legends in this palette.
@@ -51,7 +51,7 @@ class Palette implements PaletteInterface
      *
      * @var PaletteConditionInterface|null
      */
-    protected $condition = null;
+    protected $condition;
 
     /**
      * {@inheritdoc}

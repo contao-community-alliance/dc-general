@@ -45,7 +45,7 @@ class DefaultModelFormatterConfig implements ModelFormatterConfigInterface
      *
      * @var int|null
      */
-    protected $maxLength = null;
+    protected $maxLength;
 
     /**
      * {@inheritDoc}

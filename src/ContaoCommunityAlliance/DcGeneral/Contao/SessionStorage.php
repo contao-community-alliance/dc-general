@@ -40,7 +40,7 @@ class SessionStorage implements SessionStorageInterface
      *
      * @var array
      */
-    private $attributes = null;
+    private $attributes;
 
     /**
      * Create a new instance.

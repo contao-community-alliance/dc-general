@@ -35,7 +35,7 @@ class ContainerGlobalButtonCallbackListener extends AbstractReturningCallbackLis
      *
      * @var null|string
      */
-    protected $operationName = null;
+    protected $operationName;
 
     /**
      * Set the restrictions for this callback.

@@ -34,7 +34,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @var mixed
      */
-    protected $mixId = null;
+    protected $mixId;
 
     /**
      * The ids to be retrieved.
@@ -71,7 +71,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @var array|null
      */
-    protected $arrFilter = null;
+    protected $arrFilter;
 
     /**
      * The properties to use for sorting.
@@ -85,7 +85,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @var array|null
      */
-    protected $arrFields = null;
+    protected $arrFields;
 
     /**
      * Miscellaneous arbitrary data stored in the config.

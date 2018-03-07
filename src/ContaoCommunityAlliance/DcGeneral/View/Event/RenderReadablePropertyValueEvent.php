@@ -52,7 +52,7 @@ class RenderReadablePropertyValueEvent extends AbstractModelAwareEvent
      *
      * @var string|null
      */
-    protected $rendered = null;
+    protected $rendered;
 
     /**
      * Create a new instance.

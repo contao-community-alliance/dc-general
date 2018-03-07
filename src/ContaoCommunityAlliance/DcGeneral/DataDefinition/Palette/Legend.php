@@ -36,7 +36,7 @@ class Legend implements LegendInterface
      *
      * @var PaletteInterface|null
      */
-    protected $palette = null;
+    protected $palette;
 
     /**
      * The name of this legend.

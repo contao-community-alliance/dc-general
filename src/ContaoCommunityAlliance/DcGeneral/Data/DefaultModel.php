@@ -45,14 +45,14 @@ class DefaultModel extends AbstractModel
      *
      * @var mixed
      */
-    protected $mixID = null;
+    protected $mixID;
 
     /**
      * The name of the corresponding data provider.
      *
      * @var string
      */
-    protected $strProviderName = null;
+    protected $strProviderName;
 
     /**
      * Copy this model, without the id.

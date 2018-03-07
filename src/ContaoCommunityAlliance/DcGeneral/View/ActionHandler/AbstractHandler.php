@@ -40,7 +40,7 @@ abstract class AbstractHandler
      *
      * @var ActionEvent
      */
-    private $event = null;
+    private $event;
 
     /**
      * Method to buffer the event and then process it.
