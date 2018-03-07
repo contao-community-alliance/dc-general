@@ -705,7 +705,7 @@ class TreePicker extends Widget
                 $this->getToggleId(),
                 $this->getTreeNodeStates()->toggleModel($provider, $rootId)->getStates()
             );
-            $collection = $this->loadCollection($rootId, intval($input->getValue('level')) + 1);
+            $collection = $this->loadCollection($rootId, (int) $input->getValue('level') + 1);
             echo $this->generateTreeView($collection, 'tree');
             exit;
         }

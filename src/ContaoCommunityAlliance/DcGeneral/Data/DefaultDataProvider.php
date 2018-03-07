@@ -687,7 +687,7 @@ class DefaultDataProvider implements DataProviderInterface
             ->prepare('SELECT count(*) as mycount FROM tl_version WHERE pid=? AND fromTable = ?')
             ->execute($objModel->getId(), $this->strSource);
 
-        $mixNewVersion = (intval($objCount->mycount) + 1);
+        $mixNewVersion = ((int) $objCount->mycount + 1);
         $mixData       = $objModel->getPropertiesAsArray();
 
         $mixData[$this->idProperty] = $objModel->getId();

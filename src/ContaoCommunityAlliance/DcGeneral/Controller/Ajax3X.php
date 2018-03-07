@@ -98,7 +98,7 @@ class Ajax3X extends Ajax
         $session     = $environment->getSessionStorage();
         $field       = $input->getValue('field');
         $name        = $input->getValue('name');
-        $level       = intval($input->getValue('level'));
+        $level       = (int) $input->getValue('level');
         $rootId      = $input->getValue('id');
 
         $ajaxId   = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $rootId);
@@ -110,7 +110,7 @@ class Ajax3X extends Ajax
         }
 
         $nodes          = $session->get($ajaxKey);
-        $nodes[$ajaxId] = intval($input->getValue('state'));
+        $nodes[$ajaxId] = (int) $input->getValue('state');
         $session->set($ajaxKey, $nodes);
 
         $arrData['strTable'] = $environment->getDataDefinition()->getName();
@@ -138,7 +138,7 @@ class Ajax3X extends Ajax
         $input       = $environment->getInputProvider();
         $folder      = $input->getValue('folder');
         $field       = $input->getValue('field');
-        $level       = intval($input->getValue('level'));
+        $level       = (int) $input->getValue('level');
 
         $arrData['strTable'] = $input->getParameter('table');
         $arrData['id']       = $field;

@@ -263,7 +263,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
             $arrSQL = $arrRow;
 
             // Update all.
-            $intId = intval($arrRow['id']);
+            $intId = (int) $arrRow['id'];
 
             // Work around the fact that multicolumnwizard does not clear any hidden fields when copying a dataset.
             // therefore we do consider any dupe as new dataset and save it accordingly.

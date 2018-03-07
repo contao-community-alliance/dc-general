@@ -117,7 +117,7 @@ abstract class Ajax implements EnvironmentAwareInterface
     protected function loadStructure()
     {
         // Method ajaxTreeView is in TreeView.php - watch out!
-        echo $this->getDataContainer()->ajaxTreeView($this->getAjaxId(), intval($this->getPost('level')));
+        echo $this->getDataContainer()->ajaxTreeView($this->getAjaxId(), (int) $this->getPost('level'));
 
         $this->exitScript();
     }
@@ -132,7 +132,7 @@ abstract class Ajax implements EnvironmentAwareInterface
     protected function loadFileManager()
     {
         // Method ajaxTreeView is in TreeView.php - watch out!
-        echo $this->getDataContainer()->ajaxTreeView($this->getPost('folder', true), intval($this->getPost('level')));
+        echo $this->getDataContainer()->ajaxTreeView($this->getPost('folder', true), (int) $this->getPost('level'));
 
         $this->exitScript();
     }
