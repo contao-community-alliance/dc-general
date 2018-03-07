@@ -53,6 +53,12 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
             return;
         }
 
+        if (false === $this->checkPermission()) {
+            $this->getEvent()->stopPropagation();
+
+            return;
+        }
+
         $modelId = ModelId::fromSerialized($this->getEnvironment()->getInputProvider()->getParameter('id'));
 
         // Guard that we are in the preloaded environment. Otherwise checking the data definition could belong to

@@ -51,6 +51,12 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
             return;
         }
 
+        if (false === $this->checkPermission()) {
+            $this->getEvent()->stopPropagation();
+
+            return;
+        }
+
         $modelId = ModelId::fromSerialized($this->getEnvironment()->getInputProvider()->getParameter('source'));
 
         $this->guardValidEnvironment($modelId);
