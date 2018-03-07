@@ -442,7 +442,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         if ($arrConfig['inputType'] == 'checkbox'
             && isset($GLOBALS['TL_DCA'][$defName]['subpalettes'])
             && is_array($GLOBALS['TL_DCA'][$defName]['subpalettes'])
-            && in_array($propertyName, array_keys($GLOBALS['TL_DCA'][$defName]['subpalettes']))
+            && array_key_exists($propertyName, $GLOBALS['TL_DCA'][$defName]['subpalettes'])
             && $arrConfig['eval']['submitOnChange']
         ) {
             // We have to override the onclick, do not append to it as Contao adds it's own code here in

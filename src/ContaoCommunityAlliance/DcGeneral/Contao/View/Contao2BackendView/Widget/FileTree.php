@@ -25,6 +25,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widge
 
 use Contao\DataContainer;
 use Contao\RequestToken;
+use Contao\StringUtil;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
@@ -452,7 +453,7 @@ class FileTree extends AbstractWidget
             // Files can be null.
             if (null !== $files) {
                 foreach ($files as $model) {
-                    $values[] = call_user_func('\Contao\StringUtil::binToUuid', $model->uuid);
+                    $values[] = StringUtil::binToUuid($model->uuid);
                 }
             }
         }

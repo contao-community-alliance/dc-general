@@ -44,7 +44,7 @@ class DefaultDataProviderSqlUtils
         }
         if (null !== $config->getFields()) {
             $fields = implode(', ', $config->getFields());
-            if (stristr($fields, 'DISTINCT')) {
+            if (false !== stripos($fields, 'DISTINCT')) {
                 return $fields;
             }
             return $idProperty . ', ' . $fields;

@@ -266,10 +266,7 @@ class EditMask
     protected function handlePrePersist()
     {
         if ($this->preFunction !== null) {
-            call_user_func_array(
-                $this->preFunction,
-                array($this->getEnvironment(), $this->model, $this->originalModel)
-            );
+            call_user_func($this->preFunction, $this->getEnvironment(), $this->model, $this->originalModel);
         }
 
         $this->getEnvironment()->getEventDispatcher()->dispatch(
@@ -286,10 +283,7 @@ class EditMask
     protected function handlePostPersist()
     {
         if ($this->postFunction != null) {
-            call_user_func_array(
-                $this->postFunction,
-                array($this->getEnvironment(), $this->model, $this->originalModel)
-            );
+            call_user_func($this->postFunction, $this->getEnvironment(), $this->model, $this->originalModel);
         }
 
         $event = new PostPersistModelEvent($this->getEnvironment(), $this->model, $this->originalModel);
@@ -358,7 +352,7 @@ class EditMask
             );
         } elseif (!$this->isPopup()
                   && (($basicDefinition->getMode() == BasicDefinitionInterface::MODE_PARENTEDLIST)
-                      || strlen($basicDefinition->getParentDataProvider())
+                      || '' !== $basicDefinition->getParentDataProvider()
                       || $basicDefinition->isSwitchToEditEnabled()
                   )
         ) {

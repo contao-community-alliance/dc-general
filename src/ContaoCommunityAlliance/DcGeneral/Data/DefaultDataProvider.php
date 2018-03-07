@@ -264,7 +264,7 @@ class DefaultDataProvider implements DataProviderInterface
         $modelId = null;
         if (is_numeric($item) || is_string($item)) {
             $modelId = $item;
-        } elseif (is_object($item) && $item instanceof ModelInterface && strlen($item->getId()) != 0) {
+        } elseif (is_object($item) && $item instanceof ModelInterface && null !== $item->getId()) {
             $modelId = $item->getId();
         } else {
             throw new DcGeneralRuntimeException("ID missing or given object not of type 'ModelInterface'.");
@@ -536,7 +536,7 @@ class DefaultDataProvider implements DataProviderInterface
             ->set($data)
             ->execute();
 
-        if (!isset($data[$this->idProperty]) && strlen($insertResult->insertId)) {
+        if (null !== $insertResult->insertId && !isset($data[$this->idProperty])) {
             $model->setId((string) $insertResult->insertId);
         }
     }

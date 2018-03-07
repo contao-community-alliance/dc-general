@@ -430,13 +430,13 @@ class TreeView extends BaseView
         }
 
         // Label + Icon.
-        if (strlen($listing->getRootLabel()) == 0) {
+        if (null === $listing->getRootLabel()) {
             $strLabelText = 'DC General Tree BackendView Ultimate';
         } else {
             $strLabelText = $listing->getRootLabel();
         }
 
-        if (strlen($listing->getRootIcon()) == 0) {
+        if (null === $listing->getRootIcon()) {
             $strLabelIcon = 'pagemounts.gif';
         } else {
             $strLabelIcon = $listing->getRootIcon();

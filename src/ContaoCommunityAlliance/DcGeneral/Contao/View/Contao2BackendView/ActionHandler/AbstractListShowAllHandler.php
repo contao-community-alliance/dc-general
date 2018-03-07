@@ -191,7 +191,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
         $showColumn = $this->getViewSection()->getListingConfig()->getShowColumns();
         // TODO translate sub headline.
         $template->set('subHeadline', 'Elemente auswählen');
-        $template->set('tableName', strlen($definition->getName()) ? $definition->getName() : 'none');
+        $template->set('tableName', null !== $definition->getName() ? $definition->getName() : 'none');
         $template->set('select', ('select' === $this->environment->getInputProvider()->getParameter('act')));
         $template->set('action', ampersand(Environment::get('request'), true));
         $template->set('selectButtons', $this->getSelectButtons());

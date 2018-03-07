@@ -134,7 +134,7 @@ class GlobalButtonRenderer
             $href = $event->getUrl();
         }
 
-        if (!strlen($label)) {
+        if (null === $label) {
             $label = $command->getName();
         }
 

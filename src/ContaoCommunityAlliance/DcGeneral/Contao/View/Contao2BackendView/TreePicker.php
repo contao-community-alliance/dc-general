@@ -269,7 +269,7 @@ class TreePicker extends Widget
         $result = '<input type="hidden" value="' . $this->strName . '" name="FORM_INPUTS[]">' .
             '<h3><label>' . $this->label . '</label></h3>' . $this->generate();
 
-        if ($GLOBALS['TL_CONFIG']['showHelp'] && strlen($label)) {
+        if (null !== $label && $GLOBALS['TL_CONFIG']['showHelp']) {
             $result .= '<p class="tl_help tl_tip">' . $label . '</p>';
         }
 

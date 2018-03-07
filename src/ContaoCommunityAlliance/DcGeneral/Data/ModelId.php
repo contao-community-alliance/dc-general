@@ -59,7 +59,7 @@ class ModelId implements ModelIdInterface
             throw new DcGeneralInvalidArgumentException('Can\'t instantiate model id. No data provider name given.');
         }
 
-        if (!strlen($modelId)) {
+        if ('' === $modelId) {
             throw new DcGeneralInvalidArgumentException('Can\'t instantiate model id. No model id given.');
         }
 

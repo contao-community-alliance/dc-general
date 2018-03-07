@@ -331,7 +331,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      */
     public function fieldExists($strField)
     {
-        return in_array($strField, array('tstamp'));
+        return 'tstamp' === $strField;
     }
 
     /**

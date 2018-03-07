@@ -360,7 +360,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
             $container->setDefinition(PalettesDefinitionInterface::NAME, $palettesDefinition);
         }
 
-        call_user_func($palettesDca, $palettesDefinition, $container);
+        $palettesDca($palettesDefinition, $container);
     }
 
     /**

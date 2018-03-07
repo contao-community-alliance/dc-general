@@ -638,7 +638,7 @@ class ButtonRenderer
      */
     private function getCommandLabel(CommandInterface $command)
     {
-        if (!strlen($label = $command->getLabel())) {
+        if (null === $label = $command->getLabel()) {
             $label = $command->getName();
         }
 
