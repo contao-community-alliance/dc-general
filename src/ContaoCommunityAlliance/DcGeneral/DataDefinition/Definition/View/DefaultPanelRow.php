@@ -90,7 +90,7 @@ class DefaultPanelRow implements PanelRowInterface
                 if ($indexOrNameOrInstance == $element->getName()) {
                     unset($this->elements[$index]);
                     break;
-                };
+                }
             }
         } elseif (is_numeric($indexOrNameOrInstance)) {
             unset($this->elements[$indexOrNameOrInstance]);
@@ -115,7 +115,7 @@ class DefaultPanelRow implements PanelRowInterface
                 /** @var ElementInformationInterface $element */
                 if ($instanceOrName == $element->getName()) {
                     return true;
-                };
+                }
             }
 
             return false;
@@ -145,7 +145,7 @@ class DefaultPanelRow implements PanelRowInterface
                 /** @var ElementInformationInterface $element */
                 if ($indexOrName == $element->getName()) {
                     return $element;
-                };
+                }
             }
         } elseif (!is_numeric($indexOrName)) {
             throw new DcGeneralInvalidArgumentException('Invalid value for element name given.');
