@@ -31,6 +31,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootConditionInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -100,9 +101,13 @@ class ModelCollectorTest extends TestCase
         $basicDefinition = $this->mockBasicDefinition();
         $basicDefinition->method('getMode')->willReturn(BasicDefinitionInterface::MODE_FLAT);
         $relationships = $this->mockRelationshipDefinition();
+        $propertiesDefinition = $this->mockPropertiesDefinition();
+        $propertiesDefinition->method('getPropertyNames')->willReturn(['test-property']);
         $definition    = $this->mockDefinitionContainer();
         $definition->method('getBasicDefinition')->willReturn($basicDefinition);
         $definition->method('getModelRelationshipDefinition')->willReturn($relationships);
+        $definition->method('getName')->willReturn($providerName);
+        $definition->method('getPropertiesDefinition')->willReturn($propertiesDefinition);
 
         $environment = $this->getMockForAbstractClass(EnvironmentInterface::class);
         $environment->method('getDataDefinition')->willReturn($definition);
@@ -112,11 +117,23 @@ class ModelCollectorTest extends TestCase
 
         $provider = $this->getMockForAbstractClass(DataProviderInterface::class);
         $provider->method('getEmptyConfig')->willReturn($config);
+        $provider->method('fieldExists')->willReturn(true);
         $model = $this->getMockForAbstractClass(ModelInterface::class);
         $provider->expects($this->once())->method('fetch')->with($config)->willReturn($model);
         $environment->expects($this->once())->method('getDataProvider')->with('provider-name')->willReturn($provider);
 
         $collector = new ModelCollector($environment);
+
+        // Test with parent definition
+        if (false !== stripos($modelId, '::')) {
+            $parentPropertiesDefinition = $this->mockPropertiesDefinition();
+            $parentPropertiesDefinition->method('getPropertyNames')->willReturn(['test-parent-property']);
+            $parentDataDefinition = $this->mockDefinitionContainer();
+            $parentDataDefinition->method('getName')->willReturn(ModelId::fromSerialized($modelId)->getDataProviderName());
+            $parentDataDefinition->method('getPropertiesDefinition')->willReturn($parentPropertiesDefinition);
+
+            $environment->method('getParentDataDefinition')->willReturn($parentDataDefinition);
+        }
 
         $this->assertSame($model, $collector->getModel($modelId, $providerName));
     }
@@ -220,5 +237,15 @@ class ModelCollectorTest extends TestCase
     private function mockDefinitionContainer()
     {
         return $this->getMockForAbstractClass(ContainerInterface::class);
+    }
+
+    /**
+     * Mock a definition container.
+     *
+     * @return \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private function mockPropertiesDefinition()
+    {
+        return $this->getMockForAbstractClass(PropertiesDefinitionInterface::class);
     }
 }
