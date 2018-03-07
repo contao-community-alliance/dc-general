@@ -117,7 +117,6 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
      * Translate a string.
      *
      * @param string      $key    The translation key.
-     *
      * @param string|null $domain The domain name to use (if null, default definition name will be used).
      *
      * @return string|array
@@ -368,11 +367,8 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
      * Return the formatted value for use in group headers as string.
      *
      * @param string         $field       The name of the property to format.
-     *
      * @param ModelInterface $model       The model from which the value shall be taken from.
-     *
      * @param string         $groupMode   The grouping mode in use.
-     *
      * @param int            $groupLength The length of the value to use for grouping (only used when grouping mode is
      *                                    ListingConfigInterface::GROUP_CHAR).
      *

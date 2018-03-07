@@ -42,7 +42,6 @@ class FinishLegendEvent extends BuilderEvent
      * Create a new instance.
      *
      * @param LegendInterface $legend         The legend.
-     *
      * @param PaletteBuilder  $paletteBuilder The palette builder in use.
      */
     public function __construct(LegendInterface $legend, PaletteBuilder $paletteBuilder)

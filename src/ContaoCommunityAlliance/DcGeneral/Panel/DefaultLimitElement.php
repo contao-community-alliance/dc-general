@@ -107,7 +107,6 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      * Store the persistent value in the input provider.
      *
      * @param int $intOffset The offset.
-     *
      * @param int $intAmount The amount of items to show.
      *
      * @return void

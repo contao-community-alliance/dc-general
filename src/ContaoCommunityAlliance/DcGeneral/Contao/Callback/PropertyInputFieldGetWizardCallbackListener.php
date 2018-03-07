@@ -49,7 +49,6 @@ class PropertyInputFieldGetWizardCallbackListener extends AbstractReturningPrope
      * Update the wizard HTML string in the widget.
      *
      * @param BuildWidgetEvent $event The event being emitted.
-     *
      * @param string           $value The HTML for the wizard of the widget.
      *
      * @return void

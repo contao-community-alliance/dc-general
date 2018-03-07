@@ -49,7 +49,6 @@ class ModelOptionsCallbackListener extends AbstractReturningPropertyCallbackList
      * Update the options list in the event.
      *
      * @param GetPropertyOptionsEvent $event The event being emitted.
-     *
      * @param array                   $value The options array.
      *
      * @return void

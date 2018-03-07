@@ -41,7 +41,6 @@ class SetPaletteConditionChainClassNameEvent extends BuilderEvent
      * Create a new instance.
      *
      * @param string         $className      The class name.
-     *
      * @param PaletteBuilder $paletteBuilder The palette builder in use.
      */
     public function __construct($className, PaletteBuilder $paletteBuilder)

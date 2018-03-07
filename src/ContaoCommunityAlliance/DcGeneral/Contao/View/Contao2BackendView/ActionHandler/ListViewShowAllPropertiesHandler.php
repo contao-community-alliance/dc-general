@@ -304,7 +304,6 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
      * Handle property file tree order.
      *
      * @param PropertyInterface $property The property.
-     *
      * @param ModelInterface    $model    The model.
      *
      * @return void

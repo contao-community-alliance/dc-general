@@ -47,7 +47,6 @@ abstract class AbstractItem implements ItemInterface
      * Create a new instance.
      *
      * @param string                $action   The action being performed.
-     *
      * @param ModelIdInterface|null $parentId The id of the parent model (null for no parent).
      *
      * @throws \InvalidArgumentException When the action is not one of create, cut, copy or deep copy.

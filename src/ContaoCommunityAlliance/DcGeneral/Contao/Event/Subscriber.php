@@ -133,9 +133,7 @@ class Subscriber implements EventSubscriberInterface
      * Fetch the options for a certain property.
      *
      * @param EnvironmentInterface $environment The environment.
-     *
      * @param ModelInterface       $model       The model.
-     *
      * @param PropertyInterface    $property    The property.
      *
      * @return array
@@ -156,11 +154,8 @@ class Subscriber implements EventSubscriberInterface
      * Decode a value from native data of the data provider to the widget via event.
      *
      * @param EnvironmentInterface $environment The environment.
-     *
      * @param ModelInterface       $model       The model.
-     *
      * @param string               $property    The property.
-     *
      * @param mixed                $value       The value of the property.
      *
      * @return mixed
@@ -181,9 +176,7 @@ class Subscriber implements EventSubscriberInterface
      * Render a timestamp using the given format.
      *
      * @param EventDispatcherInterface $dispatcher The Event dispatcher.
-     *
      * @param string                   $dateFormat The date format to use.
-     *
      * @param int                      $timeStamp  The timestamp.
      *
      * @return string
@@ -356,9 +349,7 @@ class Subscriber implements EventSubscriberInterface
      * Render a foreign key reference.
      *
      * @param RenderReadablePropertyValueEvent $event The event to store the value to.
-     *
      * @param array                            $extra The extra data from the property.
-     *
      * @param mixed                            $value The value to format.
      *
      * @return void
@@ -374,7 +365,6 @@ class Subscriber implements EventSubscriberInterface
      * Render an array as readable property value.
      *
      * @param RenderReadablePropertyValueEvent $event The event to store the value to.
-     *
      * @param array                            $value The array to render.
      *
      * @return void
@@ -395,11 +385,8 @@ class Subscriber implements EventSubscriberInterface
      * Render a timestamp.
      *
      * @param RenderReadablePropertyValueEvent $event      The event to store the value to.
-     *
      * @param array                            $extra      The extra data from the property.
-     *
      * @param EventDispatcherInterface         $dispatcher The event dispatcher.
-     *
      * @param int                              $value      The value to format.
      *
      * @return void
@@ -421,9 +408,7 @@ class Subscriber implements EventSubscriberInterface
      * Render a referenced value.
      *
      * @param RenderReadablePropertyValueEvent $event The event to store the value to.
-     *
      * @param array                            $extra The extra data from the property.
-     *
      * @param string                           $value The value to format.
      *
      * @return void
@@ -451,9 +436,7 @@ class Subscriber implements EventSubscriberInterface
      * Render a string if not allow html or preserve tags is given.
      *
      * @param RenderReadablePropertyValueEvent $event The event to store the value to.
-     *
      * @param array                            $extra The extra data from the property.
-     *
      * @param string                           $value The value to format.
      *
      * @return void

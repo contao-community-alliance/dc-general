@@ -33,7 +33,6 @@ interface DataDefinitionContainerInterface
      * Add or override a definition in the container.
      *
      * @param string             $name       Name of the definition.
-     *
      * @param ContainerInterface $definition The definition to store.
      *
      * @return DataDefinitionContainerInterface

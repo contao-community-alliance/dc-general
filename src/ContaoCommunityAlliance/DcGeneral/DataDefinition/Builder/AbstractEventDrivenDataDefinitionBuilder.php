@@ -80,9 +80,7 @@ abstract class AbstractEventDrivenDataDefinitionBuilder implements DataDefinitio
      * will be populated with the information from the builder's data source.
      *
      * @param BuildDataDefinitionEvent $event      The event to process.
-     *
      * @param string                   $eventName  The name of the event to process.
-     *
      * @param EventDispatcherInterface $dispatcher The event dispatcher calling us.
      *
      * @return void

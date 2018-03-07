@@ -54,7 +54,6 @@ class FilterBuilder
      * Create a new instance.
      *
      * @param array $filter Optional base filter array.
-     *
      * @param bool  $isRoot Flag determining if the current filter is a root filter.
      *
      * @throws DcGeneralInvalidArgumentException When an invalid filter array has been passed.
@@ -75,7 +74,6 @@ class FilterBuilder
      * Instantiate the correct builder class from a given filter array.
      *
      * @param array         $filter  The filter.
-     *
      * @param FilterBuilder $builder The builder instance.
      *
      * @return BaseFilterBuilder

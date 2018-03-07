@@ -40,9 +40,7 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
      * Mocker callback for loading a dca.
      *
      * @param array           $dca
-     *
      * @param string          $eventName
-     *
      * @param Eventdispatcher $dispatcher
      *
      * @return LegacyDcaDataDefinitionBuilder

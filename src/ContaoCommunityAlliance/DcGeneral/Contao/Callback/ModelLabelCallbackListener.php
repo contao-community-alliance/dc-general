@@ -54,7 +54,6 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
      * Set the value in the event.
      *
      * @param ModelToLabelEvent $event The event being emitted.
-     *
      * @param string|array      $value The label text to use.
      *
      * @return void
@@ -83,7 +82,6 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
      * Set the value in the event.
      *
      * @param ModelToLabelEvent $event The event being emitted.
-     *
      * @param string            $value The label text to use.
      *
      * @return void
@@ -109,7 +107,6 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
      * Set the value in the event.
      *
      * @param ModelToLabelEvent $event     The event being emitted.
-     *
      * @param array             $arguments The label arguments.
      *
      * @return void

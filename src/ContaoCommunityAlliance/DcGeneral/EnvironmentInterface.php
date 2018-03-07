@@ -191,7 +191,6 @@ interface EnvironmentInterface
      * Register a data provider to the environment.
      *
      * @param string                $strSource    The name of the source.
-     *
      * @param DataProviderInterface $dataProvider The data provider instance to register under the given name.
      *
      * @return EnvironmentInterface

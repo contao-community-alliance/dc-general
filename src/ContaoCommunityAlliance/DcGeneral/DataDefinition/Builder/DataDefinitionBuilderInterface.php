@@ -38,7 +38,6 @@ interface DataDefinitionBuilderInterface
      * Build a data definition and store it into the environments container.
      *
      * @param ContainerInterface       $container The data definition container to populate.
-     *
      * @param BuildDataDefinitionEvent $event     The event that has been triggered.
      *
      * @return void

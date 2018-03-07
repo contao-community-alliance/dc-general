@@ -204,11 +204,8 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
      * Parse a single data provider information and prepare the definition object for it.
      *
      * @param ContainerInterface              $container   The container where the data shall be stored.
-     *
      * @param DataProviderDefinitionInterface $providers   The data provider container.
-     *
      * @param array                           $information The information for the data provider to be parsed.
-     *
      * @param string|null                     $name        The name of the data provider to be used within the
      *                                                     container.
      *
@@ -367,7 +364,6 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
      * Parse the root condition.
      *
      * @param ContainerInterface                   $container  The container where the data shall be stored.
-     *
      * @param ModelRelationshipDefinitionInterface $definition The relationship definition.
      *
      * @return void

@@ -130,7 +130,6 @@ class ModelCollector
      * Fetch a certain model from its provider.
      *
      * @param string|ModelIdInterface $modelId      This is either the id of the model or a serialized id.
-     *
      * @param string|null             $providerName The name of the provider, if this is empty, the id will be
      *                                              deserialized and the provider name will get extracted from there.
      *
@@ -194,7 +193,6 @@ class ModelCollector
      * This recursively tries to load the parent from sub collections in sub providers.
      *
      * @param ModelInterface      $model  The model to search the parent for.
-     *
      * @param CollectionInterface $models The collection to search in.
      *
      * @return ModelInterface
@@ -246,9 +244,7 @@ class ModelCollector
      * Retrieve all siblings of a given model.
      *
      * @param ModelInterface   $model           The model for which the siblings shall be retrieved from.
-     *
      * @param string|null      $sortingProperty The property name to use for sorting.
-     *
      * @param ModelIdInterface $parentId        The (optional) parent id to use.
      *
      * @return CollectionInterface
@@ -305,7 +301,6 @@ class ModelCollector
      * conditions.
      *
      * @param ModelInterface $model        The model to assemble children from.
-     *
      * @param string         $providerName The name of the data provider to fetch children from.
      *
      * @return array

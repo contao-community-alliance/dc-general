@@ -41,7 +41,6 @@ class ContainerGlobalButtonCallbackListener extends AbstractReturningCallbackLis
      * Set the restrictions for this callback.
      *
      * @param null|string $dataContainerName The name of the data container to limit execution on.
-     *
      * @param null|string $operationName     The name of the operation button to limit execution on.
      *
      * @return void
@@ -91,7 +90,6 @@ class ContainerGlobalButtonCallbackListener extends AbstractReturningCallbackLis
      * Update the event with the information returned by the callback.
      *
      * @param GetGlobalButtonEvent $event The event being emitted.
-     *
      * @param string               $value The HTML representation of the button.
      *
      * @return void

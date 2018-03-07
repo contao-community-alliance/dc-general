@@ -49,7 +49,6 @@ class PropertyFalseCondition implements PropertyConditionInterface
      * Create a new instance.
      *
      * @param string $propertyName The name of the property.
-     *
      * @param bool   $strict       Flag if the comparison shall be strict (type safe).
      */
     public function __construct($propertyName, $strict = false)

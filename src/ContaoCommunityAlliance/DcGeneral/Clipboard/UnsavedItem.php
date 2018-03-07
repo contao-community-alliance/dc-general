@@ -41,9 +41,7 @@ class UnsavedItem extends AbstractItem
      * Create a new instance.
      *
      * @param string                $action       The action being performed.
-     *
      * @param ModelIdInterface|null $parentId     The id of the parent model (null for no parent).
-     *
      * @param string                $providerName The provider name of the item being created.
      *
      * @throws \InvalidArgumentException When the action is not create.

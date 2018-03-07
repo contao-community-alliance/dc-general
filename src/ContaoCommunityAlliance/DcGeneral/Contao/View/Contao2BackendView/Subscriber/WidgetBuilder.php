@@ -137,7 +137,6 @@ class WidgetBuilder implements EnvironmentAwareInterface
      * Get special labels.
      *
      * @param PropertyInterface $propInfo The property for which the X label shall be generated.
-     *
      * @param ModelInterface    $model    The model.
      *
      * @return string
@@ -372,7 +371,6 @@ class WidgetBuilder implements EnvironmentAwareInterface
      * Build a widget for a given property.
      *
      * @param PropertyInterface $property The property.
-     *
      * @param ModelInterface    $model    The current model.
      *
      * @return Widget

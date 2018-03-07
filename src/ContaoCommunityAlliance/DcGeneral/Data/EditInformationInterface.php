@@ -47,9 +47,7 @@ interface EditInformationInterface
      * Set the error information for the model.
      *
      * @param ModelInterface    $model    The model.
-     *
      * @param array             $error    The error information.
-     *
      * @param PropertyInterface $property The property.
      *
      * @return void

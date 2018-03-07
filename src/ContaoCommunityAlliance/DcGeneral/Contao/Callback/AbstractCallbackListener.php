@@ -48,7 +48,6 @@ abstract class AbstractCallbackListener
      * Create a new instance of the listener.
      *
      * @param array|callable $callback     The callback to call when invoked.
-     *
      * @param array|null     $restrictions The restrictions for the callback.
      */
     public function __construct($callback = null, $restrictions = null)

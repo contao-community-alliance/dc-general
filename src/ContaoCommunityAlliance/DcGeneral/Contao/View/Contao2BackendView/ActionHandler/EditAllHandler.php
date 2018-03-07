@@ -159,9 +159,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
      * Render the edit fields.
      *
      * @param ContaoWidgetManager       $widgetManager     The widget manager.
-     *
      * @param ModelInterface            $model             The model.
-     *
      * @param PropertyValueBagInterface $propertyValuesBag The property values.
      *
      * @return array
@@ -216,7 +214,6 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
      * Get the visible model.
      *
      * @param ModelInterface        $editModel    The edit model.
-     *
      * @param DataProviderInterface $dataProvider The data provider.
      *
      * @return ModelInterface
@@ -247,9 +244,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
      * Set property value.
      *
      * @param ModelInterface            $editModel         The edit model.
-     *
      * @param PropertyInterface         $selectProperty    The property.
-     *
      * @param PropertyValueBagInterface $propertyValuesBag The property value.
      *
      * @return void
@@ -271,9 +266,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
      * Mark edit errors.
      *
      * @param PropertyInterface         $editProperty      The edit property.
-     *
      * @param PropertyInterface         $selectProperty    The select property.
-     *
      * @param PropertyValueBagInterface $propertyValuesBag The property values.
      *
      * @return void
@@ -298,13 +291,9 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
      * Mark model errors.
      *
      * @param ModelInterface            $model             The model.
-     *
      * @param ModelInterface            $editModel         The edit model.
-     *
      * @param PropertyInterface         $editProperty      The edit property.
-     *
      * @param PropertyInterface         $selectProperty    The select property.
-     *
      * @param PropertyValueBagInterface $propertyValuesBag The properties values.
      *
      * @return void
@@ -344,9 +333,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
      * Handle edit collection of models.
      *
      * @param PropertyValueBagInterface $editPropertyValuesBag The property values.
-     *
      * @param ModelInterface            $model                 The model.
-     *
      * @param \ArrayObject              $renderInformation     The render information.
      *
      * @return void
@@ -375,7 +362,6 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
      * Build edit property from the original property.
      *
      * @param PropertyInterface $originalProperty The original property.
-     *
      * @param ModelIdInterface  $modelId          The model id.
      *
      * @return PropertyInterface

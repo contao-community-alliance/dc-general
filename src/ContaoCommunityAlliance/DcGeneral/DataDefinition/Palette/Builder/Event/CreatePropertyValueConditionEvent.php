@@ -45,7 +45,6 @@ class CreatePropertyValueConditionEvent extends BuilderEvent
      * Create a new instance.
      *
      * @param PalettePropertyValueCondition|PropertyValueCondition $condition      The condition.
-     *
      * @param PaletteBuilder                                       $paletteBuilder The palette builder in use.
      */
     public function __construct($condition, PaletteBuilder $paletteBuilder)

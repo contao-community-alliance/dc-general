@@ -51,7 +51,6 @@ interface PropertyValueBagInterface extends \IteratorAggregate, \Countable, \Arr
      * Set the value of a property.
      *
      * @param string $property The name of the property to set.
-     *
      * @param mixed  $value    The value to use.
      *
      * @return PropertyValueBag
@@ -105,9 +104,7 @@ interface PropertyValueBagInterface extends \IteratorAggregate, \Countable, \Arr
      * Mark a property as invalid and add an error message to the property.
      *
      * @param string             $property The name of the property to mark.
-     *
      * @param string|array|mixed $error    The error message to attach for this property.
-     *
      * @param bool               $append   Append this error and keep previous errors (optional).
      *
      * @return PropertyValueBag

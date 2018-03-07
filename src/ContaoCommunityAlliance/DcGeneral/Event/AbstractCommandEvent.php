@@ -40,7 +40,6 @@ abstract class AbstractCommandEvent extends AbstractEnvironmentAwareEvent implem
      * Create a new instance.
      *
      * @param CommandInterface     $command     The command to attach.
-     *
      * @param EnvironmentInterface $environment The environment in use.
      */
     public function __construct(CommandInterface $command, EnvironmentInterface $environment)

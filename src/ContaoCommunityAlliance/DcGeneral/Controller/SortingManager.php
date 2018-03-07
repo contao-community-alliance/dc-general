@@ -89,11 +89,8 @@ class SortingManager
      * Create a new instance.
      *
      * @param CollectionInterface $models        The collection containing the models to be inserted.
-     *
      * @param CollectionInterface $siblings      The collection containing the models that are siblings.
-     *
      * @param string              $sortedBy      The property that is used for sorting.
-     *
      * @param ModelInterface      $previousModel The model preceding the target position of the first model from the
      *                                           collection.
      */

@@ -139,7 +139,6 @@ class ClipboardController implements EventSubscriberInterface
      * Handle clear clipboard action.
      *
      * @param ActionEvent $event    The action event.
-     *
      * @param bool        $redirect Redirect after clear the clipboard.
      *
      * @return void

@@ -343,7 +343,6 @@ class DefaultConfig implements ConfigInterface
      * Set the additional information.
      *
      * @param string $strKey   The name of the information to retrieve.
-     *
      * @param mixed  $varValue The value to store.
      *
      * @return ConfigInterface

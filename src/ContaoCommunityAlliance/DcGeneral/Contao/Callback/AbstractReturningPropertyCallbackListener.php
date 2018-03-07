@@ -44,7 +44,6 @@ abstract class AbstractReturningPropertyCallbackListener extends AbstractReturni
      * Set the restrictions for this callback.
      *
      * @param null|string $dataContainerName The name of the data container to limit execution on.
-     *
      * @param null|string $propertyName      The name of the property to limit execution on.
      *
      * @return void

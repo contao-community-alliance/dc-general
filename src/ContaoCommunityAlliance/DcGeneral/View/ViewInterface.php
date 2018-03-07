@@ -133,7 +133,7 @@ interface ViewInterface
      *
      * @deprecated Use listener on EnforceModelRelationshipEvent instead.
      *
-     * @see ContaoCommunityAlliance\DcGeneral\Event\EnforceModelRelationshipEvent
+     * @see \ContaoCommunityAlliance\DcGeneral\Event\EnforceModelRelationshipEvent
      */
     public function enforceModelRelationship($model);
 }

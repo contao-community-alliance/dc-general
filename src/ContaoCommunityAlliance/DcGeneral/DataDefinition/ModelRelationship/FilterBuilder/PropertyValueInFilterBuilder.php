@@ -47,7 +47,6 @@ class PropertyValueInFilterBuilder extends BaseFilterBuilder
      * Create a new instance.
      *
      * @param string $property The property name to be compared.
-     *
      * @param mixed  $values   The value to be compared against.
      */
     public function __construct($property, $values)

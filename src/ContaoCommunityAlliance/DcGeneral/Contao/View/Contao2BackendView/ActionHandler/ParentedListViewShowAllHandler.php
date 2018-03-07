@@ -204,7 +204,6 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
      * Render a property of the parent model.
      *
      * @param PropertyInterface $property The property.
-     *
      * @param mixed             $value    The value to format.
      *
      * @return string

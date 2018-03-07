@@ -179,7 +179,6 @@ class CheckPermission implements EventSubscriberInterface
      * Disable command by action name.
      *
      * @param CommandCollectionInterface $commands   The commands collection.
-     *
      * @param string                     $actionName The action name.
      *
      * @return void

@@ -224,7 +224,6 @@ class PasteAllHandler extends AbstractHandler
      * Get the sub items from the clipboard.
      *
      * @param array               $clipboardItems The clipboard items.
-     *
      * @param CollectionInterface $collection     The collection.
      *
      * @return array
@@ -249,9 +248,7 @@ class PasteAllHandler extends AbstractHandler
      * Set the sub items to the collection.
      *
      * @param ItemInterface $previousItem      The previous item.
-     *
      * @param array         $subClipboardItems The sub clipboard items.
-     *
      * @param array         $collection        The collection.
      *
      * @return array

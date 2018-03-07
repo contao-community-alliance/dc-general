@@ -33,7 +33,6 @@ class ModelIdTest extends TestCase
      * Mock a model instance which will return the given values.
      *
      * @param mixed $modelId      The value to use as model id.
-     *
      * @param mixed $dataProvider The value to use as data provider.
      *
      * @return ModelInterface
@@ -78,7 +77,6 @@ class ModelIdTest extends TestCase
      * Test that the ModelId class can not be instantiated with invalid values.
      *
      * @param ModelInterface $model     The model to instantiate from.
-     *
      * @param string|null    $exception The name of the expected exception class.
      *
      * @dataProvider modelProvider
@@ -117,7 +115,6 @@ class ModelIdTest extends TestCase
      * Test valid model ids.
      *
      * @param string      $testId    The id to test.
-     *
      * @param string|null $exception The name of the expected exception class.
      *
      * @dataProvider idProvider

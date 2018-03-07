@@ -71,7 +71,6 @@ abstract class Ajax implements EnvironmentAwareInterface
      * Compat wrapper for contao 2.X and 3.X - delegates to the relevant input handler.
      *
      * @param string $key               The key to retrieve.
-     *
      * @param bool   $blnDecodeEntities Decode the entities.
      *
      * @return mixed
@@ -85,7 +84,6 @@ abstract class Ajax implements EnvironmentAwareInterface
      * Compatibility wrapper for contao 2.X and 3.X - delegates to the relevant input handler.
      *
      * @param string $key               The key to retrieve.
-     *
      * @param bool   $blnDecodeEntities Decode the entities.
      *
      * @return mixed

@@ -34,7 +34,6 @@ class Callbacks
      * Call a Contao style callback.
      *
      * @param array|callable $callback The callback to invoke.
-     *
      * @param mixed          $_        List of arguments to pass to the callback [optional].
      *
      * @return mixed
@@ -57,7 +56,6 @@ class Callbacks
      * Call a Contao style callback.
      *
      * @param array|callable $callback The callback to invoke.
-     *
      * @param array          $args     List of arguments to pass to the callback.
      *
      * @return mixed

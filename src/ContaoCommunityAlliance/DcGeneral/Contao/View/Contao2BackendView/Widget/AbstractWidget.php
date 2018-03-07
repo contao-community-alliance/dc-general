@@ -58,7 +58,6 @@ abstract class AbstractWidget extends Widget
      * Create a new instance.
      *
      * @param array|null    $attributes    The custom attributes.
-     *
      * @param DcCompat|null $dataContainer The data container.
      */
     public function __construct($attributes = null, DcCompat $dataContainer = null)

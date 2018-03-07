@@ -106,7 +106,6 @@ class DefaultController implements ControllerInterface
      * Throw an exception that an unknown method has been called.
      *
      * @param string $name      Method name.
-     *
      * @param array  $arguments The method arguments.
      *
      * @return void
@@ -218,9 +217,7 @@ class DefaultController implements ControllerInterface
      * Retrieve all siblings of a given model.
      *
      * @param ModelInterface   $model           The model for which the siblings shall be retrieved from.
-     *
      * @param string|null      $sortingProperty The property name to use for sorting.
-     *
      * @param ModelIdInterface $parentId        The (optional) parent id to use.
      *
      * @return CollectionInterface
@@ -250,7 +247,6 @@ class DefaultController implements ControllerInterface
      * Retrieve children of a given model.
      *
      * @param ModelInterface $model           The model for which the children shall be retrieved.
-     *
      * @param string|null    $sortingProperty The property name to use for sorting.
      *
      * @return CollectionInterface
@@ -356,9 +352,7 @@ class DefaultController implements ControllerInterface
      * Handle a property in a cloned model.
      *
      * @param ModelInterface        $model        The cloned model.
-     *
      * @param PropertyInterface     $property     The property to handle.
-     *
      * @param DataProviderInterface $dataProvider The data provider the model originates from.
      *
      * @return void
@@ -542,7 +536,6 @@ class DefaultController implements ControllerInterface
      * Fetch actions from source.
      *
      * @param ModelIdInterface      $source        The source id.
-     *
      * @param ModelIdInterface|null $parentModelId The parent id.
      *
      * @return array

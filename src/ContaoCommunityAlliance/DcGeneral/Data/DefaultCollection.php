@@ -181,7 +181,6 @@ class DefaultCollection implements CollectionInterface
      * If $index is out of bounds, just add at the end (does not fill with empty records!).
      *
      * @param int            $intIndex The index where the model shall be placed.
-     *
      * @param ModelInterface $objModel The model to insert.
      *
      * @return void

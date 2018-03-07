@@ -42,7 +42,6 @@ class CreatePropertyEvent extends BuilderEvent
      * Create a new instance.
      *
      * @param PropertyInterface $property       The property that has been created.
-     *
      * @param PaletteBuilder    $paletteBuilder The palette builder in use.
      */
     public function __construct(PropertyInterface $property, PaletteBuilder $paletteBuilder)

@@ -485,7 +485,6 @@ class DefaultDataProvider implements DataProviderInterface
      * Convert a model into a property array to be used in insert and update queries.
      *
      * @param ModelInterface $model The model to convert into an property array.
-     *
      * @param int            $timestamp Optional the timestamp.
      *
      * @return array
@@ -518,7 +517,6 @@ class DefaultDataProvider implements DataProviderInterface
      * Insert the model into the database.
      *
      * @param ModelInterface $model The model to insert into the database.
-     *
      * @param int            $timestamp Optional the timestamp.
      *
      * @return void
@@ -545,7 +543,6 @@ class DefaultDataProvider implements DataProviderInterface
      * Update the model in the database.
      *
      * @param ModelInterface $model     The model to update the database.
-     *
      * @param int            $timestamp Optional the timestamp.
      *
      * @return void
@@ -628,7 +625,6 @@ class DefaultDataProvider implements DataProviderInterface
      * Return a list with all versions for the row with the given Id.
      *
      * @param mixed   $mixID         The ID of the row.
-     *
      * @param boolean $blnOnlyActive If true, only active versions will get returned, if false all version will get
      *                               returned.
      *
@@ -676,7 +672,6 @@ class DefaultDataProvider implements DataProviderInterface
      * Save a new version of a row.
      *
      * @param ModelInterface $objModel    The model for which a new version shall be created.
-     *
      * @param string         $strUsername The username to attach to the version as creator.
      *
      * @return void
@@ -711,7 +706,6 @@ class DefaultDataProvider implements DataProviderInterface
      * Set a version as active.
      *
      * @param mixed $mixID      The ID of the row.
-     *
      * @param mixed $mixVersion The version number to set active.
      *
      * @return void
@@ -751,7 +745,6 @@ class DefaultDataProvider implements DataProviderInterface
      * Check if two models have the same values in all properties.
      *
      * @param ModelInterface $objModel1 The first model to compare.
-     *
      * @param ModelInterface $objModel2 The second model to compare.
      *
      * @return boolean True - If both models are same, false if not.
@@ -785,9 +778,7 @@ class DefaultDataProvider implements DataProviderInterface
      * Currently this only supports delete queries.
      *
      * @param string $strSourceSQL The SQL used to perform the action to be undone.
-     *
      * @param string $strSaveSQL   The SQL query to retrieve the current entries.
-     *
      * @param string $strTable     The table to be affected by the action.
      *
      * @return void

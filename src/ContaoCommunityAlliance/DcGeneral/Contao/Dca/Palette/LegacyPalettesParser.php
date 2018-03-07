@@ -50,9 +50,7 @@ class LegacyPalettesParser
      * Parse the palette and sub palette array and create a complete palette collection.
      *
      * @param array(string => string)         $palettes    The palettes from the DCA.
-     *
      * @param array(string => string)         $subpalettes The sub palettes from the DCA [optional].
-     *
      * @param PaletteCollectionInterface|null $collection  The palette collection to populate [optional].
      *
      * @return PaletteCollectionInterface
@@ -81,12 +79,9 @@ class LegacyPalettesParser
      *
      * @param array(string => string)    $palettes             The array of palettes, e.g.
      *                                                         <code>array('default' => '{title_legend},title')</code>.
-     *
      * @param array(string => string)    $subPaletteProperties Mapped array from subpalette [optional].
-     *
      * @param array                      $selectorFieldNames   List of names of the properties to be used as selector
      *                                                         [optional].
-     *
      * @param PaletteCollectionInterface $collection           The palette collection to populate [optional].
      *
      * @return PaletteCollectionInterface
@@ -140,14 +135,10 @@ class LegacyPalettesParser
      * Parse a single palette.
      *
      * @param string                             $paletteSelector      The selector for the palette.
-     *
      * @param string                             $fields               The fields contained within the palette.
-     *
      * @param array(string => PropertyInterface) $subPaletteProperties The sub palette properties [optional].
-     *
      * @param array(string)                      $selectorFieldNames   The names of all properties being used as
      *                                                                 selectors [optional].
-     *
      * @param PaletteInterface                   $palette              The palette to be populated [optional].
      *
      * @return Palette
@@ -219,7 +210,6 @@ class LegacyPalettesParser
      * Parse the palette selector and create the corresponding condition.
      *
      * @param string $paletteSelector    Create the condition for the selector.
-     *
      * @param array  $selectorFieldNames The property names to be used as selectors.
      *
      * @return null|PaletteConditionInterface
@@ -279,7 +269,6 @@ class LegacyPalettesParser
      * Parse the sub palettes and return the properties for each selector property.
      *
      * @param array $subpalettes        The sub palettes to parse.
-     *
      * @param array $selectorFieldNames Names of the selector properties [optional].
      *
      * @return array(string => PropertyInterface[])
@@ -319,11 +308,8 @@ class LegacyPalettesParser
      * Parse the list of sub palette fields into an array of properties.
      *
      * @param string $subPaletteSelector The selector in use.
-     *
      * @param string $childFields        List of the properties for the sub palette.
-     *
      * @param array  $selectorFieldNames List of the selector properties [optional].
-     *
      * @param array  $properties         List of the selector visible properties [optional].
      *
      * @return PropertyInterface[]
@@ -361,7 +347,6 @@ class LegacyPalettesParser
      *         In this cases a checkbox sub palette is in place.
      *
      * @param string $subPaletteSelector The selector being evaluated.
-     *
      * @param array  $selectorFieldNames The names of the properties to be used as selectors [optional].
      *
      * @return string
@@ -395,7 +380,6 @@ class LegacyPalettesParser
      *         In this cases a checkbox sub palette is in place.
      *
      * @param string $subPaletteSelector The selector being evaluated.
-     *
      * @param array  $selectorFieldNames The names of the properties to be used as selectors [optional].
      *
      * @return PropertyTrueCondition|PropertyValueCondition|null

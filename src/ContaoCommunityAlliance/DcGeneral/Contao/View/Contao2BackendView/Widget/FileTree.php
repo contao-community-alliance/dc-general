@@ -97,7 +97,6 @@ class FileTree extends AbstractWidget
      * Create a new instance.
      *
      * @param array|null    $attributes    The custom attributes.
-     *
      * @param DcCompat|null $dataContainer The data container.
      */
     public function __construct($attributes = null, DcCompat $dataContainer = null)
@@ -111,7 +110,6 @@ class FileTree extends AbstractWidget
      * Set an object property
      *
      * @param string $strKey   The property name.
-     *
      * @param mixed  $varValue The property value.
      *
      * @return void
@@ -358,9 +356,7 @@ class FileTree extends AbstractWidget
      * Generate a image for use as gallery listing.
      *
      * @param \FilesModel $model The file model in use.
-     *
      * @param \File       $file  The image file being rendered.
-     *
      * @param string      $info  The image information.
      *
      * @return string
@@ -482,7 +478,6 @@ class FileTree extends AbstractWidget
      * Update the value via ajax and redraw the widget.
      *
      * @param string        $ajaxAction    Not used in here.
-     *
      * @param DataContainer $dataContainer The data container to use.
      *
      * @return string

@@ -44,7 +44,6 @@ class FinishConditionEvent extends BuilderEvent
      * Create a new instance.
      *
      * @param PaletteConditionInterface|PropertyConditionInterface $condition      The condition.
-     *
      * @param PaletteBuilder                                       $paletteBuilder The palette builder in use.
      */
     public function __construct($condition, PaletteBuilder $paletteBuilder)

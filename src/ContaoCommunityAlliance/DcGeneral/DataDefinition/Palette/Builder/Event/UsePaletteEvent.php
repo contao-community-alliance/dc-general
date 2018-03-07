@@ -42,7 +42,6 @@ class UsePaletteEvent extends BuilderEvent
      * Create a new instance.
      *
      * @param PaletteInterface $palette        The palette.
-     *
      * @param PaletteBuilder   $paletteBuilder The palette builder in use.
      */
     public function __construct(PaletteInterface $palette, PaletteBuilder $paletteBuilder)

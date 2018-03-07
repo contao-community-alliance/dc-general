@@ -121,7 +121,6 @@ interface ParentChildConditionInterface
      * Apply a condition to a child.
      *
      * @param ModelInterface $objParent The parent object.
-     *
      * @param ModelInterface $objChild  The object on which the condition shall be enforced on.
      *
      * @return void
@@ -132,7 +131,6 @@ interface ParentChildConditionInterface
      * Apply a condition to a child by copying it from another child.
      *
      * @param ModelInterface $sourceModel      The sibling model.
-     *
      * @param ModelInterface $destinationModel The model on which the condition shall be enforced on.
      *
      * @return void
@@ -155,7 +153,6 @@ interface ParentChildConditionInterface
      * Test if the given parent is indeed a parent of the given child object for this condition.
      *
      * @param ModelInterface $objParent The parent model.
-     *
      * @param ModelInterface $objChild  The child model.
      *
      * @return bool

@@ -50,7 +50,6 @@ class PropertyOnLoadCallbackListener extends AbstractReturningPropertyCallbackLi
      * Update the value in the event.
      *
      * @param DecodePropertyValueForWidgetEvent $event The event being emitted.
-     *
      * @param mixed                             $value The decoded value.
      *
      * @return void

@@ -93,7 +93,6 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
      * Handle invalid property value bag.
      *
      * @param PropertyValueBagInterface|null $propertyValueBag The property value bag.
-     *
      * @param ModelInterface|null            $model            The model.
      *
      * @return void
@@ -143,7 +142,6 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
      * Handle override of model collection.
      *
      * @param \ArrayObject              $renderInformation The render information.
-     *
      * @param PropertyValueBagInterface $propertyValues    The property values.
      *
      * @return void
@@ -185,7 +183,6 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
      * Render the field sets.
      *
      * @param \ArrayObject                   $renderInformation The render information.
-     *
      * @param PropertyValueBagInterface|null $propertyValues    The property values.
      *
      * @return void
@@ -262,9 +259,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
      * Get the merged property value errors.
      *
      * @param PropertyValueBagInterface $propertyValueBag The property value bag.
-     *
      * @param string                    $propertyName     The property name.
-     *
      * @param array                     $errors           The errors.
      *
      * @return array
@@ -288,9 +283,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
      * Set the default value if no value is set.
      *
      * @param ModelInterface            $model            The model.
-     *
      * @param PropertyValueBagInterface $propertyValueBag The property value bag.
-     *
      * @param string                    $propertyName     The property name.
      *
      * @return void

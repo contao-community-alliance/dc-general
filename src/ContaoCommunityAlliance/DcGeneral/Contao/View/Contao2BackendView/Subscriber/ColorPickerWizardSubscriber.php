@@ -53,7 +53,6 @@ class ColorPickerWizardSubscriber
      * Append wizard icons.
      *
      * @param PropertyInterface    $propInfo    The property for which the wizards shall be generated.
-     *
      * @param EnvironmentInterface $environment The environment.
      *
      * @return string

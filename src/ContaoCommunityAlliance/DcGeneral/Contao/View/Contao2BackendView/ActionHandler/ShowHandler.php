@@ -111,7 +111,6 @@ class ShowHandler extends AbstractHandler
      * Convert a model to it's labels and human readable values.
      *
      * @param ModelInterface       $model       The model to display.
-     *
      * @param EnvironmentInterface $environment The environment.
      *
      * @return array

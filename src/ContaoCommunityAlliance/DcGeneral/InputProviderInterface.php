@@ -34,7 +34,6 @@ interface InputProviderInterface
      * In plain HTTP, this will be a $_GET parameter, for other implementations consult the API.
      *
      * @param string $strKey The name of the parameter to be retrieved.
-     *
      * @param bool   $blnRaw Boolean flag to determine if the content shall be returned RAW or rather be stripped of
      *                       potential malicious content.
      *
@@ -48,7 +47,6 @@ interface InputProviderInterface
      * In plain HTTP, this will be a $_GET parameter, for other implementations consult the API.
      *
      * @param string $strKey   The name of the parameter to be stored.
-     *
      * @param mixed  $varValue The value to be stored.
      *
      * @return InputProviderInterface
@@ -83,7 +81,6 @@ interface InputProviderInterface
      * In plain HTTP, this will be a $_POST value, for other implementations consult the API.
      *
      * @param string $strKey The name of the value to be retrieved.
-     *
      * @param bool   $blnRaw Boolean flag to determine if the content shall be returned RAW or rather be stripped of
      *                       potential malicious content.
      *
@@ -97,7 +94,6 @@ interface InputProviderInterface
      * In plain HTTP, this will be a $_POST value, for other implementations consult the API.
      *
      * @param string $strKey   The name of the value to be stored.
-     *
      * @param mixed  $varValue The value to be stored.
      *
      * @return InputProviderInterface

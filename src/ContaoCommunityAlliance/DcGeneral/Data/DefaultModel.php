@@ -148,7 +148,6 @@ class DefaultModel extends AbstractModel
      * This method is not interfaced and MUST only be used for initial values from the data provider.
      *
      * @param string $strPropertyName The property name to be set.
-     *
      * @param mixed  $varValue        The value to be set.
      *
      * @return void
@@ -162,7 +161,6 @@ class DefaultModel extends AbstractModel
      * Update the property value in the model.
      *
      * @param string $strPropertyName The property name to be set.
-     *
      * @param mixed  $varValue        The value to be set.
      *
      * @return void

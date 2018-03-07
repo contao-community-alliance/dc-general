@@ -168,7 +168,6 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      * Apply the filter values for a given model to the given rule.
      *
      * @param array          $filter The filter rule to which the values shall get applied.
-     *
      * @param ModelInterface $model  The model to fetch the values from.
      *
      * @return array
@@ -356,7 +355,6 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      * Prepare a filter rule to be checked via checkCondition().
      *
      * @param array          $rule  The rule to prepare.
-     *
      * @param ModelInterface $child The child to be checked.
      *
      * @return array.

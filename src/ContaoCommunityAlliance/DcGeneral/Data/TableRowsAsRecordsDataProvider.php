@@ -193,9 +193,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * Unsupported in this data provider, throws an Exception.
      *
      * @param string $strField Unused.
-     *
      * @param mixed  $varNew   Unused.
-     *
      * @param int    $intId    Unused.
      *
      * @return void
@@ -236,9 +234,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * When rows with duplicate ids are encountered (like from MCW for example), the dupes are inserted as new rows.
      *
      * @param ModelInterface $objItem   The model to save.
-     *
      * @param int            $timestamp Optional the timestamp.
-     *
      * @param bool           $recursive Ignored as not relevant in this data provider.
      *
      * @return ModelInterface The passed Model.
@@ -306,7 +302,6 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * Unsupported in this data provider, throws an Exception.
      *
      * @param CollectionInterface $objItems  Unused.
-     *
      * @param int                 $timestamp Optional the timestamp.
      *
      * @return void
@@ -338,7 +333,6 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * Unsupported in this data provider, throws an Exception.
      *
      * @param mixed $mixID      Unused.
-     *
      * @param mixed $mixVersion Unused.
      *
      * @return void
@@ -356,7 +350,6 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * Return null as versioning is not supported in this data provider.
      *
      * @param mixed   $mixID         Unused.
-     *
      * @param boolean $blnOnlyActive Unused.
      *
      * @return null
@@ -373,7 +366,6 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * Unsupported in this data provider, throws an Exception.
      *
      * @param ModelInterface $objModel    Unused.
-     *
      * @param string         $strUsername Unused.
      *
      * @return void
@@ -391,7 +383,6 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * Unsupported in this data provider, throws an Exception.
      *
      * @param mixed $mixID      Unused.
-     *
      * @param mixed $mixVersion Unused.
      *
      * @return void
@@ -425,7 +416,6 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * Unsupported in this data provider, throws an Exception.
      *
      * @param ModelInterface $objModel1 Unused.
-     *
      * @param ModelInterface $objModel2 Unused.
      *
      * @return void
@@ -443,9 +433,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * Unsupported in this data provider, throws an Exception.
      *
      * @param string $strSourceSQL Unused.
-     *
      * @param string $strSaveSQL   Unused.
-     *
      * @param string $strTable     Unused.
      *
      * @return void

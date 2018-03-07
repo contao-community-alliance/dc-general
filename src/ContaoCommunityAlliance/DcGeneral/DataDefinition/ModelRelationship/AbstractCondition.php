@@ -35,7 +35,6 @@ abstract class AbstractCondition
      * Check if an AND condition filter matches.
      *
      * @param ModelInterface $model  The model to check the condition against.
-     *
      * @param array          $filter The filter rules to be applied.
      *
      * @return bool
@@ -55,7 +54,6 @@ abstract class AbstractCondition
      * Check if an AND condition filter matches.
      *
      * @param ModelInterface $model  The model to check the condition against.
-     *
      * @param array          $filter The filter rules to be applied.
      *
      * @return bool
@@ -75,7 +73,6 @@ abstract class AbstractCondition
      * Extract a condition value depending if it is a remote value or property.
      *
      * @param array          $condition The condition array.
-     *
      * @param ModelInterface $parent    The parent model.
      *
      * @return mixed
@@ -93,7 +90,6 @@ abstract class AbstractCondition
      * Check if the passed filter rules apply to the given model.
      *
      * @param ModelInterface $objParentModel The model to check the condition against.
-     *
      * @param array          $arrFilter      The condition filter to be applied.
      *
      * @return bool

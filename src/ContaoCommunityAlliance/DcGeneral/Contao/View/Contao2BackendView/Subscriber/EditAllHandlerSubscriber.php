@@ -231,7 +231,6 @@ class EditAllHandlerSubscriber implements EventSubscriberInterface
      * Get the original property name.
      *
      * @param string           $propertyName The property name.
-     *
      * @param ModelIdInterface $modelId      The model id.
      *
      * @return string|null

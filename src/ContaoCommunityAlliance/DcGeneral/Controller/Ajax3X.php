@@ -44,9 +44,7 @@ class Ajax3X extends Ajax
      * Get the widget instance.
      *
      * @param string $fieldName     The property name.
-     *
      * @param string $serializedId  The serialized id of the model.
-     *
      * @param string $propertyValue The property value.
      *
      * @return Widget
@@ -168,7 +166,6 @@ class Ajax3X extends Ajax
      * If the type is "file", the file names will automatically be added to the Dbafs and converted to file id.
      *
      * @param string $strType  Either "page" or "file".
-     *
      * @param string $varValue The value as comma separated list.
      *
      * @return string The value array.

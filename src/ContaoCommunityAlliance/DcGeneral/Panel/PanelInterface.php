@@ -50,7 +50,6 @@ interface PanelInterface extends \IteratorAggregate, \Countable
      * Add an element to the panel.
      *
      * @param string                $strKey     Name of the panel.
-     *
      * @param PanelElementInterface $objElement The element instance to add.
      *
      * @return mixed
@@ -70,7 +69,6 @@ interface PanelInterface extends \IteratorAggregate, \Countable
      * Initialize the passed config via all contained elements.
      *
      * @param ConfigInterface       $objConfig  The config to which the initialization shall be applied to.
-     *
      * @param PanelElementInterface $objElement The element to be initialized (if any).
      *
      * @return void

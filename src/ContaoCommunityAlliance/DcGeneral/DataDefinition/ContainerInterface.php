@@ -83,7 +83,6 @@ interface ContainerInterface
      * Set a definitions of this container.
      *
      * @param string              $definitionName The name of the definition.
-     *
      * @param DefinitionInterface $definition     The definition.
      *
      * @return ContainerInterface

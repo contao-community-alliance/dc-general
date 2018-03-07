@@ -42,7 +42,6 @@ class CreatePaletteCollectionEvent extends BuilderEvent
      * Create a new instance.
      *
      * @param PaletteCollectionInterface $paletteCollection The palette collection that has been created.
-     *
      * @param PaletteBuilder             $paletteBuilder    The palette builder in use.
      */
     public function __construct(PaletteCollectionInterface $paletteCollection, PaletteBuilder $paletteBuilder)

@@ -42,7 +42,6 @@ class UsePropertyEvent extends BuilderEvent
      * Create a new instance.
      *
      * @param PropertyInterface $property       The property.
-     *
      * @param PaletteBuilder    $paletteBuilder The palette builder in use.
      */
     public function __construct(PropertyInterface $property, PaletteBuilder $paletteBuilder)

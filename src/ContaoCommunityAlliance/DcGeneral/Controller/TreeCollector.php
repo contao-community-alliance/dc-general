@@ -70,11 +70,8 @@ class TreeCollector implements EnvironmentAwareInterface
      * Create a new instance.
      *
      * @param EnvironmentInterface    $environment The environment.
-     *
      * @param PanelContainerInterface $panel       The panel.
-     *
      * @param array                   $sorting     The sorting information.
-     *
      * @param TreeNodeStates          $states      The tree node states to use.
      */
     public function __construct(
@@ -123,7 +120,6 @@ class TreeCollector implements EnvironmentAwareInterface
      * Check the state of a model and set the metadata accordingly.
      *
      * @param ModelInterface $model The model of which the state shall be checked of.
-     *
      * @param int            $level The tree level the model is contained within.
      *
      * @return void
@@ -141,7 +137,6 @@ class TreeCollector implements EnvironmentAwareInterface
      * Retrieve the child data provider names for the passed parent provider.
      *
      * @param string                                    $parentProvider The name of the parent provider.
-     *
      * @param null|ModelRelationshipDefinitionInterface $relationships  The relationship information (optional).
      *
      * @return array
@@ -164,9 +159,7 @@ class TreeCollector implements EnvironmentAwareInterface
      * Retrieve the children of a model (if any exist).
      *
      * @param DataProviderInterface         $dataProvider   The data provider.
-     *
      * @param ModelInterface                $model          The model.
-     *
      * @param ParentChildConditionInterface $childCondition The condition.
      *
      * @return CollectionInterface|null
@@ -202,9 +195,7 @@ class TreeCollector implements EnvironmentAwareInterface
      * This "renders" a model for tree view.
      *
      * @param ModelInterface $model     The model to render.
-     *
      * @param int            $intLevel  The current level in the tree hierarchy.
-     *
      * @param array          $subTables The names of data providers that shall be rendered "below" this item.
      *
      * @return void
@@ -260,7 +251,6 @@ class TreeCollector implements EnvironmentAwareInterface
      * Add the parent filtering to the given data config if any defined.
      *
      * @param ConfigInterface $config      The data config.
-     *
      * @param ModelInterface  $parentModel The parent model.
      *
      * @return void
@@ -325,9 +315,7 @@ class TreeCollector implements EnvironmentAwareInterface
      * Recursively retrieve a collection of all complete node hierarchy.
      *
      * @param array  $rootId       The ids of the root node.
-     *
      * @param int    $level        The level the items are residing on.
-     *
      * @param string $providerName The data provider from which the root element originates from.
      *
      * @return CollectionInterface
@@ -352,9 +340,7 @@ class TreeCollector implements EnvironmentAwareInterface
      * Collect all items from real root - without root id.
      *
      * @param string         $providerName The data provider from which the root element originates from.
-     *
      * @param int            $level        The level in the tree.
-     *
      * @param ModelInterface $parentModel  The optional parent model (mode 4 parent).
      *
      * @return CollectionInterface

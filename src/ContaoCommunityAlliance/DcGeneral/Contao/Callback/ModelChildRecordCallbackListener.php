@@ -48,7 +48,6 @@ class ModelChildRecordCallbackListener extends AbstractReturningCallbackListener
      * Set the HTML code for the button.
      *
      * @param ParentViewChildRecordEvent $event The event being emitted.
-     *
      * @param string                     $value The value returned by the callback.
      *
      * @return void

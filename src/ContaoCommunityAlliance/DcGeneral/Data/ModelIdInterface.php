@@ -49,7 +49,6 @@ interface ModelIdInterface
      * Create an instance from the passed values.
      *
      * @param string $dataProviderName The data provider name.
-     *
      * @param mixed  $modelId          The id.
      *
      * @return ModelIdInterface

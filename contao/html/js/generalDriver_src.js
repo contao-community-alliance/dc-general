@@ -233,9 +233,7 @@ var BackendGeneral =
      * Display the message
      *
      * @param {string} message      The message text
-     *
      * @param {boolean} loading     If display loading indicator.
-	 *
      * @param {string} messageClass The css class for the box.
      *
      * @returns {void}
@@ -306,9 +304,7 @@ var BackendGeneral =
      * Confirm if select an element or property for override/edit all.
      *
      * @param {object} submit    The DOM submit element.
-     *
      * @param {string} selection The DOM name for selection.
-     *
      * @param {string} message   The confirm message.
      *
      * @returns {boolean}
@@ -348,15 +344,10 @@ var BackendGeneral =
      * Confirm if select an element for delete all.
      *
      * @param {object} submit          The DOM submit element.
-     *
      * @param {string} selection       The DOM name for selection.
-     *
      * @param {string} message         The confirm message.
-     *
      * @param {string} messageDelete   The confirm message for delete.
-     *
      * @param {string} confirmOk       The confirm ok for delete.
-     *
      * @param {string} confirmAbort    The confirm abort for delete.
      *
      * @returns {boolean}
@@ -379,11 +370,8 @@ var BackendGeneral =
      * Confirm for delete.
      *
      * @param {object} submit       The DOM submit element.
-     *
      * @param {string} message      The confirm message.
-     *
      * @param {string} confirmOk    The text for the confirm button ok.
-     *
      * @param {string} confirmAbort The text for the confirm button abort.
      *
      * @returns {boolean}

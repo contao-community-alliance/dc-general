@@ -41,7 +41,6 @@ class SetLegendClassNameEvent extends BuilderEvent
      * Create a new instance.
      *
      * @param string         $legendClassName The class name.
-     *
      * @param PaletteBuilder $paletteBuilder  The palette builder in use.
      */
     public function __construct($legendClassName, PaletteBuilder $paletteBuilder)

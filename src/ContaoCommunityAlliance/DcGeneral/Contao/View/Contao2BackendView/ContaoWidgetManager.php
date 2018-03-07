@@ -65,7 +65,6 @@ class ContaoWidgetManager
      * Create a new instance.
      *
      * @param EnvironmentInterface $environment The environment in use.
-     *
      * @param ModelInterface       $model       The model for which widgets shall be generated.
      */
     public function __construct(EnvironmentInterface $environment, ModelInterface $model)
@@ -78,9 +77,7 @@ class ContaoWidgetManager
      * Encode a value from the widget to native data of the data provider via event.
      *
      * @param string           $property       The property.
-     *
      * @param mixed            $value          The value of the property.
-     *
      * @param PropertyValueBag $propertyValues The property value bag the property value originates from.
      *
      * @return mixed
@@ -103,7 +100,6 @@ class ContaoWidgetManager
      * Decode a value from native data of the data provider to the widget via event.
      *
      * @param string $property The property.
-     *
      * @param mixed  $value    The value of the property.
      *
      * @return mixed
@@ -239,7 +235,6 @@ class ContaoWidgetManager
      * Retrieve the instance of a widget for the given property.
      *
      * @param string           $property    Name of the property for which the widget shall be retrieved.
-     *
      * @param PropertyValueBag $inputValues The input values to use (optional).
      *
      * @return Widget
@@ -350,9 +345,7 @@ class ContaoWidgetManager
      * Render the widget for the named property.
      *
      * @param string           $property     The name of the property for which the widget shall be rendered.
-     *
      * @param bool             $ignoreErrors Flag if the error property of the widget shall get cleared prior rendering.
-     *
      * @param PropertyValueBag $inputValues  The input values to use (optional).
      *
      * @return string
@@ -475,7 +468,6 @@ class ContaoWidgetManager
      * Clean errors for widget.
      *
      * @param Widget $widget       The widget.
-     *
      * @param bool   $ignoreErrors The flag for errors cleared.
      *
      * @return void
@@ -497,11 +489,8 @@ class ContaoWidgetManager
      * Widget add error.
      *
      * @param string                         $property     The property.
-     *
      * @param Widget                         $widget       The widget.
-     *
      * @param PropertyValueBagInterface|null $inputValues  The input values.
-     *
      * @param bool                           $ignoreErrors The for add error.
      *
      * @return void
@@ -525,7 +514,6 @@ class ContaoWidgetManager
      * Get the date picker, if the widget has one.
      *
      * @param array  $propExtra The extra data from the property.
-     *
      * @param Widget $widget    The widget.
      *
      * @return string

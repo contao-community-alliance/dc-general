@@ -55,7 +55,6 @@ class ContainerPasteRootButtonCallbackListener extends AbstractReturningCallback
      * Set the HTML code for the button.
      *
      * @param GetPasteRootButtonEvent $event The event being emitted.
-     *
      * @param string                  $value The value returned by the callback.
      *
      * @return void

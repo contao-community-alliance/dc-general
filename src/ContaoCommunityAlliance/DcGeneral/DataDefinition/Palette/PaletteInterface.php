@@ -51,7 +51,6 @@ interface PaletteInterface
      * Get all properties from all legends in this palette.
      *
      * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
-     *
      * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
      *
      * @return PropertyInterface[]
@@ -62,7 +61,6 @@ interface PaletteInterface
      * Get all properties from all legends in this palette that are visible.
      *
      * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
-     *
      * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
      *
      * @return PropertyInterface[]
@@ -73,7 +71,6 @@ interface PaletteInterface
      * Get all properties from all legends in this palette that are editable.
      *
      * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
-     *
      * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
      *
      * @return PropertyInterface[]
@@ -111,7 +108,6 @@ interface PaletteInterface
      * Add all legends to this palette.
      *
      * @param array|LegendInterface[] $legends The legends.
-     *
      * @param LegendInterface         $before  The legend before which the new legends shall be inserted (optional).
      *
      * @return PaletteInterface
@@ -140,7 +136,6 @@ interface PaletteInterface
      * Add a legend to this palette.
      *
      * @param LegendInterface $legend The legend to add.
-     *
      * @param LegendInterface $before The legend before which the new legend shall be inserted (optional).
      *
      * @return PaletteInterface

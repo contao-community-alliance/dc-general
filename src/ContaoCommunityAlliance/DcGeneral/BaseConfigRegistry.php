@@ -72,7 +72,6 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
      * Add the filter for the item with the given id from the parent data provider to the given config.
      *
      * @param ModelIdInterface $idParent The id of the parent item.
-     *
      * @param ConfigInterface  $config   The config to add the filter to.
      *
      * @return ConfigInterface

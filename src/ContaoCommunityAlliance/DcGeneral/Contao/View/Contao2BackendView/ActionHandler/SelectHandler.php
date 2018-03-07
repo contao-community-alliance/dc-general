@@ -199,7 +199,6 @@ class SelectHandler extends AbstractHandler
      * Handle session data for override/edit all.
      *
      * @param array  $collection The collection.
-     *
      * @param string $index      The session index for the collection.
      *
      * @return array The collection.
@@ -362,9 +361,7 @@ class SelectHandler extends AbstractHandler
      * Get the intersect values.
      *
      * @param CollectionInterface $collection  The collection.
-     *
      * @param array               $values      The values.
-     *
      * @param array               $valuesCount The count of values.
      *
      * @return void
@@ -543,7 +540,6 @@ class SelectHandler extends AbstractHandler
      * Get the model ids from the from input.
      *
      * @param Action $action       The dcg action.
-     *
      * @param string $submitAction The submit action name.
      *
      * @return ModelId[]

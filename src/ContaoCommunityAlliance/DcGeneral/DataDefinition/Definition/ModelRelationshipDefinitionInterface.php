@@ -64,7 +64,6 @@ interface ModelRelationshipDefinitionInterface extends DefinitionInterface
      * Retrieve the parent child condition for the current table.
      *
      * @param string $srcProvider The parenting table.
-     *
      * @param string $dstProvider The child table.
      *
      * @return ParentChildConditionInterface

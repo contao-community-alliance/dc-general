@@ -74,7 +74,6 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
      * Store the persistent value in the input provider.
      *
      * @param string $strProperty The property being searched on.
-     *
      * @param string $strValue    The value being searched for.
      *
      * @return void

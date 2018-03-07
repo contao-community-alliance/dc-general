@@ -43,7 +43,6 @@ class DefaultLanguageInformation implements LanguageInformationInterface
      * Create a new instance.
      *
      * @param string      $language The ISO 639 language code.
-     *
      * @param null|string $country  The ISO 3166 country code.
      */
     public function __construct($language, $country = null)

@@ -50,7 +50,6 @@ class PropertyOnSaveCallbackListener extends AbstractReturningPropertyCallbackLi
      * Update the value in the event.
      *
      * @param EncodePropertyValueFromWidgetEvent $event The event being emitted.
-     *
      * @param mixed                              $value The encoded value.
      *
      * @return void

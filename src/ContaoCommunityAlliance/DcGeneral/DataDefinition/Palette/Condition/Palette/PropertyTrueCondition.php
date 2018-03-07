@@ -47,9 +47,7 @@ class PropertyTrueCondition extends AbstractWeightAwarePaletteCondition
      * Create a new instance.
      *
      * @param string $propertyName The name of the property.
-     *
      * @param bool   $strict       Flag if the comparison shall be strict (type safe).
-     *
      * @param int    $weight       The weight of this condition to apply.
      */
     public function __construct($propertyName = '', $strict = false, $weight = 1)

@@ -49,7 +49,6 @@ interface PanelElementInterface
      * Initialize the passed configuration with the values of the element.
      *
      * @param ConfigInterface       $objConfig  The config to which the initialization shall be applied to.
-     *
      * @param PanelElementInterface $objElement The element to be initialized (if any).
      *
      * @return void

@@ -198,7 +198,6 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      * Set the element at a certain offset.
      *
      * @param mixed $offset The offset to assign the value to.
-     *
      * @param mixed $value  The value to set.
      *
      * @return FilterBuilderWithChildren The current builder.
@@ -299,7 +298,6 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      * Initialize an instance with the values from the given array.
      *
      * @param array         $array   The initialization array.
-     *
      * @param FilterBuilder $builder The builder instance.
      *
      * @return BaseFilterBuilder

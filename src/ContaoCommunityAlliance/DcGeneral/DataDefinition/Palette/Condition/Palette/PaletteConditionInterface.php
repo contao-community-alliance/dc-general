@@ -41,7 +41,6 @@ interface PaletteConditionInterface extends ConditionInterface
      * zero.
      *
      * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
-     *
      * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
      *
      * @return bool|int

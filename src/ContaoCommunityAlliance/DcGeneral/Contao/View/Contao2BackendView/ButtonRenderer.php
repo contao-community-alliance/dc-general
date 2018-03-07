@@ -155,9 +155,7 @@ class ButtonRenderer
      * Render the operation buttons for the passed model.
      *
      * @param ModelInterface $model    The model to render the buttons for.
-     *
      * @param ModelInterface $previous The previous model in the collection.
-     *
      * @param ModelInterface $next     The next model in the collection.
      *
      * @return void
@@ -264,16 +262,11 @@ class ButtonRenderer
      * Render a command button.
      *
      * @param CommandInterface $command             The command to render the button for.
-     *
      * @param ModelInterface   $model               The model to which the command shall get applied.
-     *
      * @param ModelInterface   $previous            The previous model in the collection.
-     *
      * @param ModelInterface   $next                The next model in the collection.
-     *
      * @param bool             $isCircularReference Determinator if there exists a circular reference between the model
      *                                              and the model(s) contained in the clipboard.
-     *
      * @param string[]         $childIds            The ids of all child models.
      *
      * @return string
@@ -540,9 +533,7 @@ class ButtonRenderer
      * Render an image as HTML string.
      *
      * @param string $src        The image path.
-     *
      * @param string $alt        An optional alt attribute.
-     *
      * @param string $attributes A string of other attributes.
      *
      * @return string
@@ -577,7 +568,6 @@ class ButtonRenderer
      * Determine the toggle state of a toggle command.
      *
      * @param ToggleCommandInterface $command The toggle command.
-     *
      * @param ModelInterface         $model   The model in scope.
      *
      * @return bool
@@ -612,7 +602,6 @@ class ButtonRenderer
      * Calculate the href for a command.
      *
      * @param CommandInterface $command The command.
-     *
      * @param ModelInterface   $model   The current model.
      *
      * @return string

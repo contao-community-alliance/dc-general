@@ -121,7 +121,6 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
      * Check if is it allowed to create a new record. This is necessary to create the copy.
      *
      * @param ModelIdInterface $modelId  The model id.
-     *
      * @param bool             $redirect If true it redirects to error page instead of throwing an exception.
      *
      * @return void
@@ -161,7 +160,6 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
      * Redirect to edit mask.
      *
      * @param EnvironmentInterface $environment   The environment.
-     *
      * @param ModelIdInterface     $copiedModelId The model id.
      *
      * @return void

@@ -102,15 +102,10 @@ class EditMask
      * Create the edit mask.
      *
      * @param BackendViewInterface $view          The view in use.
-     *
      * @param ModelInterface       $model         The model with the current data.
-     *
      * @param ModelInterface       $originalModel The data from the original data.
-     *
      * @param callable             $preFunction   The function to call before saving an item.
-     *
      * @param callable             $postFunction  The function to call after saving an item.
-     *
      * @param string               $breadcrumb    The rendered breadcrumb.
      */
     public function __construct($view, $model, $originalModel, $preFunction, $postFunction, $breadcrumb)
@@ -207,7 +202,6 @@ class EditMask
      * Ensure a property is defined in the data definition and raise an exception if it is unknown.
      *
      * @param string                        $property            The property name to check.
-     *
      * @param PropertiesDefinitionInterface $propertyDefinitions The property definitions.
      *
      * @return void
@@ -374,9 +368,7 @@ class EditMask
      * Build the field sets.
      *
      * @param ContaoWidgetManager $widgetManager  The widget manager in use.
-     *
      * @param PaletteInterface    $palette        The palette to use.
-     *
      * @param PropertyValueBag    $propertyValues The property values.
      *
      * @return array
@@ -794,7 +786,6 @@ class EditMask
      * Determine if the passed legend is visible or collapsed.
      *
      * @param LegendInterface $legend       The legend.
-     *
      * @param bool[]          $legendStates The states from the session.
      *
      * @return bool
@@ -834,7 +825,6 @@ class EditMask
      * Determine the class to use for a legend.
      *
      * @param bool $first   Flag if this is the first legend.
-     *
      * @param bool $visible Flag determining if the legend is visible.
      *
      * @return string

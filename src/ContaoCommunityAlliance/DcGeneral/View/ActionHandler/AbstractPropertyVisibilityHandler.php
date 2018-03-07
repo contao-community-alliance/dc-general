@@ -163,7 +163,6 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
      * Ensure if the property is visible by the model.
      *
      * @param string         $propertyName The property name.
-     *
      * @param ModelInterface $model        The model.
      *
      * @return bool
@@ -203,7 +202,6 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
      * Match visibility of property in any palette.
      *
      * @param PropertyInterface $property  The property.
-     *
      * @param bool              $invisible The visibility.
      *
      * @return bool
@@ -247,9 +245,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
      * Invisible palette property.
      *
      * @param PropertyInterface                        $property         The property.
-     *
      * @param ModelInterface                           $intersectModel   The intersect model.
-     *
      * @param DataDefinition\Palette\PropertyInterface $selectorProperty The palette selector property.
      *
      * @return bool
@@ -286,11 +282,8 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
      * Invisible palette property.
      *
      * @param PropertyInterface                        $property         The property.
-     *
      * @param ModelInterface                           $intersectModel   The intersect model.
-     *
      * @param DataDefinition\Palette\PropertyInterface $selectorProperty The palette selector property.
-     *
      * @param string                                   $paletteName      The palette name.
      *
      * @return bool
@@ -328,7 +321,6 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
      * if select an sub selector and their parent property don´t select for edit.
      *
      * @param DataDefinition\Definition\Properties\PropertyInterface $property The property.
-     *
      * @param ModelInterface                                         $model    The model.
      *
      * @return null|string
@@ -383,9 +375,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
      * if select an sub selector and their properties don´t select for edit.
      *
      * @param DataDefinition\Definition\Properties\PropertyInterface $property         The property.
-     *
      * @param ModelInterface                                         $model            The model.
-     *
      * @param PropertyValueBagInterface                              $propertyValueBag The property values.
      *
      * @return null|string
@@ -419,7 +409,6 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
      * Find the invisible palette selector property.
      *
      * @param ModelInterface $model               The model.
-     *
      * @param array          $invisibleProperties The invisible properties.
      *
      * @return void
@@ -458,7 +447,6 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
      * Match the invisible property.
      *
      * @param ConditionInterface $visibleCondition    The visible condition.
-     *
      * @param array              $invisibleProperties The invisible properties.
      *
      * @return void
@@ -491,9 +479,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
      * Match invisible sub properties.
      *
      * @param ModelInterface                                         $model            The model.
-     *
      * @param DataDefinition\Definition\Properties\PropertyInterface $property         The property.
-     *
      * @param PropertyValueBagInterface                              $propertyValueBag The property values.
      *
      * @return array
@@ -543,11 +529,8 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
      * Match the parent invisible property.
      *
      * @param ConditionInterface                                     $visibleCondition    The visible condition.
-     *
      * @param DataDefinition\Definition\Properties\PropertyInterface $property            The property.
-     *
      * @param DataDefinition\Palette\PropertyInterface               $legendProperty      The legend property.
-     *
      * @param array                                                  $invisibleProperties The invisible properties.
      *
      * @return void
@@ -630,9 +613,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
      * Use intersect value.
      *
      * @param string                $intersectPropertyName The intersect property name.
-     *
      * @param array                 $legendPropertyNames   The legend names.
-     *
      * @param PaletteInterface|null $defaultPalette        The default palette.
      *
      * @return bool
@@ -664,7 +645,6 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
      * Set the primaray id to the model from intersect values.
      *
      * @param ModelInterface $intersectModel The intersect model.
-     *
      * @param string         $idProperty     The id property.
      *
      * @return void
@@ -724,7 +704,6 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
      * Get legend property names.
      *
      * @param ModelInterface        $intersectModel The intersect model.
-     *
      * @param PaletteInterface|null $defaultPalette The default palette.
      *
      * @return array

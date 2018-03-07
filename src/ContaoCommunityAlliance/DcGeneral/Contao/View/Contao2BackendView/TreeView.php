@@ -122,7 +122,6 @@ class TreeView extends BaseView
      * Toggle the model with the given id from the given provider.
      *
      * @param string $providerName The data provider name.
-     *
      * @param mixed  $modelId      The id of the model.
      *
      * @return void
@@ -148,9 +147,7 @@ class TreeView extends BaseView
      * Load the collection of child items and the parent item for the currently selected parent item.
      *
      * @param string $rootId       The root element (or null to fetch everything).
-     *
      * @param int    $intLevel     The current level in the tree (of the optional root element).
-     *
      * @param string $providerName The data provider from which the optional root element shall be taken from.
      *
      * @return CollectionInterface
@@ -252,7 +249,6 @@ class TreeView extends BaseView
      * Render a given model.
      *
      * @param ModelInterface $objModel    The model to render.
-     *
      * @param string         $strToggleID The id of the toggler.
      *
      * @return string
@@ -312,7 +308,6 @@ class TreeView extends BaseView
      * Render the tree view and return it as string.
      *
      * @param CollectionInterface $objCollection The collection to iterate over.
-     *
      * @param string              $treeClass     The class to use for the tree.
      *
      * @return string
@@ -604,9 +599,7 @@ class TreeView extends BaseView
      * Handle ajax rendering of a sub tree.
      *
      * @param string $rootId       Id of the root node.
-     *
      * @param string $providerName Name of the data provider where the model is contained within.
-     *
      * @param int    $level        Level depth of the model in the whole tree.
      *
      * @return string

@@ -43,7 +43,6 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
      * Set the restrictions for this callback.
      *
      * @param null|string $dataContainerName The name of the data container to limit execution on.
-     *
      * @param null|string $operationName     The name of the operation button to limit execution on.
      *
      * @return void
@@ -100,7 +99,6 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
      * Set the value in the event.
      *
      * @param GetOperationButtonEvent $event The event being emitted.
-     *
      * @param string                  $value The value returned by the callback.
      *
      * @return void

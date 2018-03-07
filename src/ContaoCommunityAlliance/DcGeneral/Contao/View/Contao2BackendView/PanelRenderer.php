@@ -66,7 +66,6 @@ class PanelRenderer
      * Render a single panel element.
      *
      * @param PanelElementInterface $element  The element to render.
-     *
      * @param string                $cssClass The CSS class to use for this element (even, odd, first, last, ...).
      *
      * @return string
@@ -95,7 +94,6 @@ class PanelRenderer
      * Check if the current element is in the ignored list.
      *
      * @param PanelElementInterface $element       A panel Element.
-     *
      * @param string[]              $ignoredPanels A list with ignored elements.
      *
      * @return boolean True => Element is on the ignored list. | False => Nope not in the list.
@@ -119,7 +117,6 @@ class PanelRenderer
      * Calculate the correct CSS class for a panel element.
      *
      * @param int $index The index of the element in it's panel.
-     *
      * @param int $max   The index of the last element in the panel.
      *
      * @return string
@@ -136,7 +133,6 @@ class PanelRenderer
      * Render a panel.
      *
      * @param PanelInterface $panel         The panel to render.
-     *
      * @param string[]       $ignoredPanels Array of class names that shall be ignored.
      *
      * @return string

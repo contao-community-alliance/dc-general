@@ -76,7 +76,6 @@ class ModelCollectorTest extends TestCase
      * Test that the getModel() method works.
      *
      * @param string|ModelIdInterface $modelId      This is either the id of the model or a serialized id.
-     *
      * @param string|null             $providerName The name of the provider, if this is empty, the id will be
      *                                              deserialized and the provider name will get extracted from there.
      *

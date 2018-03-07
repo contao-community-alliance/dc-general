@@ -44,7 +44,6 @@ class CreateConditionEvent extends BuilderEvent
      * Create a new instance.
      *
      * @param PaletteConditionInterface|PropertyConditionInterface $condition      The condition that has been created.
-     *
      * @param PaletteBuilder                                       $paletteBuilder The palette builder that created the
      *                                                                             condition.
      */

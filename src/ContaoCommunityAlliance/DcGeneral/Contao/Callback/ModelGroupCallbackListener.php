@@ -51,7 +51,6 @@ class ModelGroupCallbackListener extends AbstractReturningCallbackListener
      * Set the value in the event.
      *
      * @param GetGroupHeaderEvent $event The event being emitted.
-     *
      * @param string              $value The value returned by the callback.
      *
      * @return void

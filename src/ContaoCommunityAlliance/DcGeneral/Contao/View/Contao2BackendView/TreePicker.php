@@ -177,7 +177,6 @@ class TreePicker extends Widget
      * Create a new instance.
      *
      * @param array      $attributes    The custom attributes.
-     *
      * @param DC_General $dataContainer The data container.
      *
      * @throws DcGeneralRuntimeException When not in Backend mode.
@@ -240,7 +239,6 @@ class TreePicker extends Widget
      * Update the value via ajax and redraw the widget.
      *
      * @param string     $ajaxAction    Not used in here.
-     *
      * @param DC_General $dataContainer The data container to use.
      *
      * @return string
@@ -333,7 +331,6 @@ class TreePicker extends Widget
      * Add specific attributes.
      *
      * @param string $strKey   The key to set.
-     *
      * @param mixed  $varValue The value.
      *
      * @return void
@@ -745,7 +742,6 @@ class TreePicker extends Widget
      * Check the state of a model and set the metadata accordingly.
      *
      * @param ModelInterface $model The model of which the state shall be checked of.
-     *
      * @param int            $level The tree level the model is contained within.
      *
      * @return void
@@ -766,9 +762,7 @@ class TreePicker extends Widget
      * This "renders" a model for tree view.
      *
      * @param ModelInterface $objModel     The model to render.
-     *
      * @param int            $intLevel     The current level in the tree hierarchy.
-     *
      * @param array          $arrSubTables The names of data providers that shall be rendered "below" this item.
      *
      * @return void
@@ -837,9 +831,7 @@ class TreePicker extends Widget
      * Recursively retrieve a collection of all complete node hierarchy.
      *
      * @param array  $rootId       The ids of the root node.
-     *
      * @param int    $intLevel     The level the items are residing on.
-     *
      * @param string $providerName The data provider from which the root element originates from.
      *
      * @return CollectionInterface
@@ -916,9 +908,7 @@ class TreePicker extends Widget
      * Load the collection of child items and the parent item for the currently selected parent item.
      *
      * @param mixed $rootId       The root element (or null to fetch everything).
-     *
      * @param int   $intLevel     The current level in the tree (of the optional root element).
-     *
      * @param null  $providerName The data provider from which the optional root element shall be taken from.
      *
      * @return CollectionInterface
@@ -993,7 +983,6 @@ class TreePicker extends Widget
      * Returns either an array when in tree mode or a string in (parented) list mode.
      *
      * @param ModelInterface $model    The model that shall be formatted.
-     *
      * @param bool           $treeMode Flag if we are running in tree mode or not (optional, default: true).
      *
      * @return array
@@ -1072,7 +1061,6 @@ class TreePicker extends Widget
      * Render a given model.
      *
      * @param ModelInterface $objModel    The model to render.
-     *
      * @param string         $strToggleID The id of the toggler.
      *
      * @return string
@@ -1131,7 +1119,6 @@ class TreePicker extends Widget
      * Generate the tree view for a given collection.
      *
      * @param CollectionInterface $objCollection The collection to iterate over.
-     *
      * @param string              $treeClass     The class to use for the tree.
      *
      * @return string
@@ -1174,7 +1161,6 @@ class TreePicker extends Widget
      * Fetch all parents of the passed model.
      *
      * @param ModelInterface $value   The model.
-     *
      * @param string[]       $parents The ids of all detected parents so far.
      *
      * @return void

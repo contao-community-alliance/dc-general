@@ -58,11 +58,8 @@ class RenderReadablePropertyValueEvent extends AbstractModelAwareEvent
      * Create a new instance.
      *
      * @param EnvironmentInterface $environment The environment in use.
-     *
      * @param ModelInterface       $model       The model the value originates from.
-     *
      * @param PropertyInterface    $property    The property to transform.
-     *
      * @param mixed                $value       The value to transform.
      */
     public function __construct(

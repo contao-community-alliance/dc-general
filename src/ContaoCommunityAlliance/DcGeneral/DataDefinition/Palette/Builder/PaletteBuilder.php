@@ -837,7 +837,6 @@ class PaletteBuilder
      * Reuse an existing property or set of properties.
      *
      * @param PropertyInterface $property The first property.
-     *
      * @param PropertyInterface $_        Any more subsequent properties to be used.
      *
      * @return PaletteBuilder
@@ -873,7 +872,6 @@ class PaletteBuilder
      * Start a new single property or set of properties.
      *
      * @param string            $propertyName The name of the property.
-     *
      * @param PropertyInterface $_            Any more subsequent property names to be used.
      *
      * @return PaletteBuilder
@@ -1068,9 +1066,7 @@ class PaletteBuilder
      * Start a new property-value condition.
      *
      * @param string $propertyName  The name of the property.
-     *
      * @param mixed  $propertyValue The value of the property.
-     *
      * @param bool   $strict        Flag if the comparison shall be strict (type safe).
      *
      * @return PaletteBuilder
@@ -1114,11 +1110,8 @@ class PaletteBuilder
      * Start a new property-value condition and chain with previous condition.
      *
      * @param string $propertyName  The name of the property.
-     *
      * @param mixed  $propertyValue The value of the property.
-     *
      * @param bool   $strict        Flag if the comparison shall be strict (type safe).
-     *
      * @param string $conjunction   The conjunction.
      *
      * @return PaletteBuilder
@@ -1222,7 +1215,6 @@ class PaletteBuilder
      * Add a custom condition to last created property.
      *
      * @param PropertyConditionInterface $condition The condition to add.
-     *
      * @param string                     $scope     The scope.
      *
      * @return void
@@ -1273,7 +1265,6 @@ class PaletteBuilder
      * Add a custom condition to last created property or palette.
      *
      * @param PaletteConditionInterface|PropertyConditionInterface $condition The condition to add.
-     *
      * @param string                                               $scope     The scope.
      *
      * @return PaletteBuilder

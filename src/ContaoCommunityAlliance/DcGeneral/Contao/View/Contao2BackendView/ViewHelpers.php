@@ -118,9 +118,7 @@ class ViewHelpers
      * Initialize the sorting from the panel. Fallback to default sorting if nothing given.
      *
      * @param PanelContainerInterface $panel         The current panel.
-     *
      * @param ConfigInterface         $dataConfig    The current config.
-     *
      * @param ListingConfigInterface  $listingConfig The listing config.
      *
      * @return void
@@ -190,9 +188,7 @@ class ViewHelpers
      * Get for a field the readable value.
      *
      * @param EnvironmentInterface $environment The environment.
-     *
      * @param PropertyInterface    $property    The property to be rendered.
-     *
      * @param ModelInterface       $model       The model from which the property value shall be retrieved from.
      *
      * @return mixed

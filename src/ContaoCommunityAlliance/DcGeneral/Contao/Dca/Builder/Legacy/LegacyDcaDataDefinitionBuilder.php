@@ -120,13 +120,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Register the callback handlers for the given legacy callbacks.
      *
      * @param EventDispatcherInterface $dispatcher The event dispatcher.
-     *
      * @param array                    $callbacks  The callbacks to be handled.
-     *
      * @param string                   $eventName  The event to be registered to.
-     *
      * @param array                    $arguments  The arguments to pass to the constructor.
-     *
      * @param string                   $listener   The listener class to use.
      *
      * @return void
@@ -154,7 +150,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Parse the basic configuration and populate the definition.
      *
      * @param ContainerInterface       $container  The container where the data shall be stored.
-     *
      * @param EventDispatcherInterface $dispatcher The event dispatcher in use.
      *
      * @return void
@@ -202,7 +197,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Parse the basic configuration and populate the definition.
      *
      * @param ContainerInterface       $container  The container where the data shall be stored.
-     *
      * @param EventDispatcherInterface $dispatcher The event dispatcher in use.
      *
      * @return void
@@ -680,7 +674,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Parse the listing configuration.
      *
      * @param ContainerInterface                    $container The container where the data shall be stored.
-     *
      * @param Contao2BackendViewDefinitionInterface $view      The view information for the backend view.
      *
      * @return array
@@ -713,7 +706,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Parse the sorting and grouping information for all properties.
      *
      * @param Contao2BackendViewDefinitionInterface $view             The view information for the backend view.
-     *
      * @param array                                 $parsedProperties A list of properties already parsed.
      *
      * @return void
@@ -731,11 +723,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Parse the sorting and grouping information for a given property.
      *
      * @param string                                       $propName         The property to parse.
-     *
      * @param array                                        $propInfo         The property information.
-     *
      * @param GroupAndSortingDefinitionCollectionInterface $definitions      The definitions.
-     *
      * @param array                                        $parsedProperties A list of properties already parsed.
      *
      * @return void
@@ -774,7 +763,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Contao.
      *
      * @param ListingConfigInterface $listing The listing configuration definition to populate.
-     *
      * @param array                  $listDca The DCA part containing the information to use.
      *
      * @return array
@@ -862,9 +850,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Parse the sorting part of listing configuration.
      *
      * @param ContainerInterface     $container The container where the data shall be stored.
-     *
      * @param ListingConfigInterface $listing   The listing configuration definition to populate.
-     *
      * @param array                  $listDca   The DCA part containing the information to use.
      *
      * @return void
@@ -989,7 +975,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Parse a single panel row.
      *
      * @param PanelRowInterface $row         The row to be populated.
-     *
      * @param string            $elementList A comma separated list of elements to be stored in the row.
      *
      * @return void
@@ -1209,7 +1194,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Parse the label of a single property.
      *
      * @param PropertyInterface $property The property to parse the label for.
-     *
      * @param string|array      $label    The label value.
      *
      * @return void
@@ -1233,7 +1217,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Parse a single property.
      *
      * @param PropertyInterface $property The property to parse.
-     *
      * @param array             $propInfo The property information.
      *
      * @return void
@@ -1313,7 +1296,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Parse the property widget type of page tree.
      *
      * @param PropertyInterface $property The property to parse.
-     *
      * @param array             $propInfo The property information.
      *
      * @return void
@@ -1345,7 +1327,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Parse the property for order and set the order widget.
      *
      * @param PropertyInterface $property      The base property.
-     *
      * @param PropertyInterface $orderProperty The order property.
      *
      * @return void
@@ -1408,7 +1389,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Create the correct command instance for the given information.
      *
      * @param string $commandName The name of the command to create.
-     *
      * @param array  $commandDca  The Dca information of the command.
      *
      * @return CommandInterface
@@ -1452,7 +1432,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Create a command from dca.
      *
      * @param string $commandName The name of the command to parse.
-     *
      * @param array  $commandDca  The chunk from the DCA containing the command specification.
      *
      * @return CommandInterface
@@ -1521,7 +1500,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Evaluate the contao 2 sorting flag into sorting mode.
      *
      * @param GroupAndSortingInformationInterface $config The property to evaluate the flag for.
-     *
      * @param int                                 $flag   The flag to be evaluated.
      *
      * @return void
@@ -1543,7 +1521,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Evaluate the contao 2 sorting flag into grouping mode.
      *
      * @param GroupAndSortingInformationInterface $config The property to evaluate the flag for.
-     *
      * @param int                                 $flag   The flag to be evaluated.
      *
      * @return void
@@ -1571,7 +1548,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Evaluate the contao 2 sorting flag into grouping length.
      *
      * @param GroupAndSortingInformationInterface $config The property to evaluate the flag for.
-     *
      * @param int                                 $flag   The flag to be evaluated.
      *
      * @return void
@@ -1589,7 +1565,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Evaluate the contao 2 sorting flag into sorting mode, grouping mode and grouping length.
      *
      * @param GroupAndSortingInformationInterface $config The property to evaluate the flag for.
-     *
      * @param int                                 $flag   The flag to be evaluated.
      *
      * @return void

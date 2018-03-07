@@ -52,7 +52,6 @@ interface DataProviderDefinitionInterface extends DefinitionInterface, \Iterator
      * Forcefully overwrite a stored data provider with another one.
      *
      * @param string                           $name        The name of a data provider to overwrite.
-     *
      * @param DataProviderInformationInterface $information The information of the new data provider.
      *
      * @return DataProviderDefinitionInterface

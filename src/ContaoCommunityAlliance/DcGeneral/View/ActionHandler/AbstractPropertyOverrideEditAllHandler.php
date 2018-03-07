@@ -73,9 +73,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
      * If model property isn´t visible revoke this.
      *
      * @param CollectionInterface       $collection        The model collection.
-     *
      * @param PropertyValueBagInterface $propertyValueBag  The properties and values for model collection.
-     *
      * @param \ArrayObject              $renderInformation The render information.
      *
      * @return void
@@ -143,7 +141,6 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
      * Clone and clean property value bag.
      *
      * @param PropertyValueBagInterface $propertyValueBag The property value bag.
-     *
      * @param ModelInterface            $model            The model.
      *
      * @return PropertyValueBagInterface
@@ -189,9 +186,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
      * Mark property in invalid errors by model.
      *
      * @param PropertyValueBagInterface $propertyValueBag  The property values.
-     *
      * @param ModelInterface            $model             The Model.
-     *
      * @param \ArrayObject              $renderInformation The render information.
      *
      * @return void
@@ -258,9 +253,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
      * Update property value bag.
      *
      * @param ModelInterface            $model                  The model.
-     *
      * @param PropertyValueBagInterface $sourcePropertyValueBag The source property value bag.
-     *
      * @param PropertyValueBagInterface $updatePropertyValueBag The update property value bag.
      *
      * @return void
@@ -303,7 +296,6 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
      * Handle the edit handler.
      *
      * @param ModelInterface            $model            The model.
-     *
      * @param PropertyValueBagInterface $propertyValueBag The property value.
      *
      * @return void
@@ -426,9 +418,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
      * Restore input values.
      *
      * @param ModelInterface            $model            The model.
-     *
      * @param PropertyValueBagInterface $propertyValueBag The property value bag.
-     *
      * @param array                     $inputValues      The input values.
      *
      * @return void
@@ -693,7 +683,6 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
      * Trigger the post persist event if available.
      *
      * @param ModelInterface $model         The edit model.
-     *
      * @param ModelInterface $originalModel The original model.
      *
      * @return void

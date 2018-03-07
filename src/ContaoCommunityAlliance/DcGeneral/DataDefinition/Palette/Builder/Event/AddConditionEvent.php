@@ -53,9 +53,7 @@ class AddConditionEvent extends BuilderEvent
      * Create a new instance.
      *
      * @param PaletteConditionInterface|PropertyConditionInterface $condition      The condition being added.
-     *
      * @param PaletteInterface|PropertyInterface                   $target         The target property or palette.
-     *
      * @param PaletteBuilder                                       $paletteBuilder The palette builder in use.
      */
     public function __construct($condition, $target, PaletteBuilder $paletteBuilder)

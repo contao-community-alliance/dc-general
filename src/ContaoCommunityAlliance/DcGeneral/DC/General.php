@@ -276,7 +276,6 @@ class DC_General extends DataContainer implements DataContainerInterface
      * Delegate all calls directly to current view.
      *
      * @param string $name      Name of the method.
-     *
      * @param array  $arguments Array of arguments.
      *
      * @return mixed

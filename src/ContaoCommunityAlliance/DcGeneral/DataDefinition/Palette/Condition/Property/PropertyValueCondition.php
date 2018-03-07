@@ -56,9 +56,7 @@ class PropertyValueCondition implements PropertyConditionInterface
      * Create a new instance.
      *
      * @param string $propertyName  The name of the property.
-     *
      * @param mixed  $propertyValue The value of the property to match.
-     *
      * @param bool   $strict        Flag if the comparison shall be strict (type safe).
      */
     public function __construct($propertyName = '', $propertyValue = null, $strict = false)

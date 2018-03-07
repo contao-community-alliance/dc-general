@@ -47,7 +47,6 @@ class ContainerHeaderCallbackListener extends AbstractReturningCallbackListener
      * Update the event with the information returned by the callback.
      *
      * @param GetParentHeaderEvent $event The event being emitted.
-     *
      * @param array                $value The additional information.
      *
      * @return void

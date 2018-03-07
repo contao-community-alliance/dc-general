@@ -73,15 +73,10 @@ class GetGroupHeaderEvent extends AbstractModelAwareEvent
      * Create a new group header event.
      *
      * @param EnvironmentInterface $environment    The environment.
-     *
      * @param ModelInterface       $model          The model being used as group header.
-     *
      * @param string               $propertyName   The name of the property being rendered into the group header.
-     *
      * @param mixed                $propertyValue  The value of the property being rendered into the group header.
-     *
      * @param string               $groupingMode   The grouping mode currently active.
-     *
      * @param int                  $groupingLength The grouping length currently active.
      */
     public function __construct(

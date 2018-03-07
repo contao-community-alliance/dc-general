@@ -18,7 +18,6 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Martin Treml <github@r2pi.net>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  2013-2018 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -171,7 +170,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * Translate a string via the translator.
      *
      * @param string      $path    The path within the translation where the string can be found.
-     *
      * @param string|null $section The section from which the translation shall be retrieved.
      *
      * @return string
@@ -204,9 +202,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * Add the value to the template.
      *
      * @param string    $name     Name of the value.
-     *
      * @param mixed     $value    The value to add to the template.
-     *
      * @param Template $template The template to add the value to.
      *
      * @return BaseView
@@ -260,11 +256,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * Return the formatted value for use in group headers as string.
      *
      * @param string         $field       The name of the property to format.
-     *
      * @param ModelInterface $model       The model from which the value shall be taken from.
-     *
      * @param string         $groupMode   The grouping mode in use.
-     *
      * @param int            $groupLength The length of the value to use for grouping (only used when grouping mode is
      *                                    ListingConfigInterface::GROUP_CHAR).
      *

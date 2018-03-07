@@ -111,7 +111,6 @@ class DefaultDataProviderSqlUtils
      * Build the WHERE conditions via calculateSubfilter().
      *
      * @param ConfigInterface $config     The configuration to use.
-     *
      * @param array           $parameters The query parameters will get stored into this array.
      *
      * @return string The combined conditions.
@@ -249,7 +248,6 @@ class DefaultDataProviderSqlUtils
      * The searched value may contain the wildcards '*' and '?' which will get converted to proper SQL.
      *
      * @param array $operation The operation to apply.
-     *
      * @param array $params    The parameters of the entire query.
      *
      * @return string
