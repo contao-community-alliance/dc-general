@@ -21,6 +21,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao;
 
+use Contao\Session;
 use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 
 /**
@@ -130,7 +131,7 @@ class SessionStorage implements SessionStorageInterface
     private function load()
     {
         if (null === $this->attributes) {
-            $this->attributes = (array) \Session::getInstance()->get($this->key);
+            $this->attributes = (array) Session::getInstance()->get($this->key);
         }
     }
 
@@ -141,6 +142,6 @@ class SessionStorage implements SessionStorageInterface
      */
     private function persist()
     {
-        \Session::getInstance()->set($this->key, $this->attributes);
+        Session::getInstance()->set($this->key, $this->attributes);
     }
 }

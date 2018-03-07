@@ -23,6 +23,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Panel;
 
+use Contao\Config;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
 
@@ -59,7 +60,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      */
     protected function getItemsPerPage()
     {
-        return \Config::get('resultsPerPage');
+        return Config::get('resultsPerPage');
     }
 
     /**

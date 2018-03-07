@@ -573,7 +573,7 @@ class TreePicker extends Widget
         $popupUrl = 'system/modules/dc-general/backend/generaltree.php?' .
                     sprintf(
                         'do=%s&amp;table=%s&amp;field=%s&amp;act=%s&amp;id=%s&amp;value=%s&amp;rt=%s',
-                        \Input::get('do'),
+                        Input::get('do'),
                         $this->strTable,
                         $field,
                         $action,

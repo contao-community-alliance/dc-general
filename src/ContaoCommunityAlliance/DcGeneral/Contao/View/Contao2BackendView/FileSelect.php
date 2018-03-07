@@ -107,7 +107,7 @@ class FileSelect
         // @codingStandardsIgnoreStart - We need POST access here.
         if ($_POST && Environment::get('isAjaxRequest')) // @codingStandardsIgnoreEnd
         {
-            $ajax = new Ajax(\Input::post('action'));
+            $ajax = new Ajax(Input::post('action'));
             $ajax->executePreActions();
         }
 

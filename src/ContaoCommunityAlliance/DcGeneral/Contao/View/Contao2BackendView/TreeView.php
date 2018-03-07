@@ -24,6 +24,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use Contao\Config;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
@@ -581,7 +582,7 @@ class TreeView extends BaseView
 
         switch ($input->getValue('action')) {
             case 'DcGeneralLoadSubTree':
-                header('Content-Type: text/html; charset=' . \Config::get('characterSet'));
+                header('Content-Type: text/html; charset=' . Config::get('characterSet'));
                 echo $this->ajaxTreeView(
                     $input->getValue('id'),
                     $input->getValue('providerName'),

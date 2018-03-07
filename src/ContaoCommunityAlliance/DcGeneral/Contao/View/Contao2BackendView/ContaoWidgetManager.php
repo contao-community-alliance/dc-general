@@ -26,6 +26,8 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\Backend;
+use Contao\Date;
+use Contao\Input;
 use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
@@ -308,7 +310,7 @@ class ContaoWidgetManager
         return 'new Picker.Date($$("#ctrl_' . $objWidget->id . '"), {
             draggable:false,
             toggle:$$("#toggle_' . $objWidget->id . '"),
-            format:"' . \Date::formatToJs($strFormat) . '",
+            format:"' . Date::formatToJs($strFormat) . '",
             positionOffset:{x:-197,y:-182}' . $time . ',
             pickerClass:"datepicker_bootstrap",
             useFadeInOut:!Browser.ie,
@@ -404,7 +406,7 @@ class ContaoWidgetManager
         $post  = $_POST;
         $_POST = array();
         // @codingStandardsIgnoreEnd
-        \Input::resetCache();
+        Input::resetCache();
 
         // Set all POST data, these get used within the Widget::validate() method.
         foreach ($propertyValues as $property => $propertyValue) {
@@ -439,7 +441,7 @@ class ContaoWidgetManager
         }
 
         $_POST = $post;
-        \Input::resetCache();
+        Input::resetCache();
     }
 
     /**

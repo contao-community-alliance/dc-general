@@ -44,7 +44,7 @@ class ManipulateWidgetEvent extends AbstractModelAwareEvent
     /**
      * The widget instance to manipulate.
      *
-     * @var \Widget
+     * @var Widget
      */
     protected $widget;
 

@@ -189,7 +189,7 @@ class DefaultDataProvider implements DataProviderInterface
 
             $this->objDatabase = $arrConfig['database'];
         } else {
-            $this->objDatabase = \Database::getInstance();
+            $this->objDatabase = Database::getInstance();
         }
 
         if (isset($arrConfig['idGenerator'])) {

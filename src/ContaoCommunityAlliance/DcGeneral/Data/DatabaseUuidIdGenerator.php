@@ -21,6 +21,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Data;
 
+use Contao\Database;
+
 /**
  * Uuid generating by querying it from the Contao database class.
  */
@@ -29,16 +31,16 @@ class DatabaseUuidIdGenerator implements IdGeneratorInterface
     /**
      * The database to use.
      *
-     * @var \Database
+     * @var Database
      */
     protected $database;
 
     /**
      * Create a new instance.
      *
-     * @param \Database $database The database to use for uuid generating.
+     * @param Database $database The database to use for uuid generating.
      */
-    public function __construct(\Database $database)
+    public function __construct(Database $database)
     {
         $this->database = $database;
     }

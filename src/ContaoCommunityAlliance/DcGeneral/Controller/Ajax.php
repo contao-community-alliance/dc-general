@@ -21,6 +21,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
+use Contao\Ajax as ContaoAjax;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataContainerInterface;
@@ -234,7 +235,7 @@ abstract class Ajax implements EnvironmentAwareInterface
 
             // Pass unknown actions to original Contao handler.
             default:
-                $ajax = new \Ajax($action);
+                $ajax = new ContaoAjax($action);
                 $ajax->executePreActions();
                 $ajax->executePostActions(new DcCompat($this->getEnvironment(), $this->getActiveModel()));
                 break;
