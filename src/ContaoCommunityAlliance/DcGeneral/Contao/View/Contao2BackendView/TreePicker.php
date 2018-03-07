@@ -357,7 +357,7 @@ class TreePicker extends Widget
                 break;
 
             case 'mandatory':
-                $this->arrConfiguration['mandatory'] = !!$varValue;
+                $this->arrConfiguration['mandatory'] = (bool) $varValue;
                 break;
 
             case 'orderField':

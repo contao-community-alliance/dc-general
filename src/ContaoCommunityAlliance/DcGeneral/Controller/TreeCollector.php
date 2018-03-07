@@ -231,7 +231,7 @@ class TreeCollector implements EnvironmentAwareInterface
 
             $dataProvider    = $environment->getDataProvider($subTable);
             $childCollection = $this->getChildrenOfModel($dataProvider, $model, $childFilter);
-            $hasChildren     = !!$childCollection;
+            $hasChildren     = (bool) $childCollection;
 
             // Speed up - we may exit if we have at least one child but the parenting model is collapsed.
             if ($hasChildren && !$model->getMeta($model::SHOW_CHILDREN)) {
