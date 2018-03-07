@@ -37,7 +37,7 @@ class ModelIdTest extends TestCase
      * @param mixed $modelId      The value to use as model id.
      * @param mixed $dataProvider The value to use as data provider.
      *
-     * @return ModelInterface
+     * @return \PHPUnit_Framework_MockObject_MockObject|ModelInterface
      */
     private function mockModel($modelId, $dataProvider)
     {

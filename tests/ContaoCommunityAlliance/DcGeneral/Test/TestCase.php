@@ -26,7 +26,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Test;
 /**
  * Base TestCase class.
  */
-abstract class TestCase extends \PHPUnit_Framework_TestCase
+abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
     protected function aliasContaoClass($class)
     {

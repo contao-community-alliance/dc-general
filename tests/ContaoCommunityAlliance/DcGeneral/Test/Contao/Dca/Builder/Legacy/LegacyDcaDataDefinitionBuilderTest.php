@@ -43,7 +43,7 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
      * @param string          $eventName
      * @param Eventdispatcher $dispatcher
      *
-     * @return LegacyDcaDataDefinitionBuilder
+     * @return \PHPUnit_Framework_MockObject_MockObject|LegacyDcaDataDefinitionBuilder
      */
     public function mockBuilderWithDca($dca, $eventName, $dispatcher)
     {
