@@ -37,6 +37,10 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\Prope
 use ContaoCommunityAlliance\DcGeneral\EnvironmentAwareInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\FileTree;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\FileTreeOrder;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\PageTree;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\PageTreeOrder;
 
 /**
  * Widget Builder build Contao backend widgets.
@@ -55,11 +59,11 @@ class WidgetBuilder implements EnvironmentAwareInterface
      *
      * @var array
      */
-    protected $widgetMapping = array(
-        'fileTree'      => 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\FileTree',
-        'fileTreeOrder' => 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\FileTreeOrder',
-        'pageTree'      => 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\PageTree',
-        'pageTreeOrder' => 'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\PageTreeOrder'
+    protected static $widgetMapping = array(
+        'fileTree'      => FileTree::class,
+        'fileTreeOrder' => FileTreeOrder::class,
+        'pageTree'      => PageTree::class,
+        'pageTreeOrder' => PageTreeOrder::class
     );
 
     /**
@@ -113,8 +117,8 @@ class WidgetBuilder implements EnvironmentAwareInterface
      */
     protected function getWidgetClass(PropertyInterface $property)
     {
-        if (isset($this->widgetMapping[$property->getWidgetType()])) {
-            return $this->widgetMapping[$property->getWidgetType()];
+        if (isset(static::$widgetMapping[$property->getWidgetType()])) {
+            return static::$widgetMapping[$property->getWidgetType()];
         }
 
         if (!isset($GLOBALS['BE_FFL'][$property->getWidgetType()])) {
