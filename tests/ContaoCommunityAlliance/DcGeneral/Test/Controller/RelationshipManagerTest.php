@@ -91,10 +91,7 @@ class RelationshipManagerTest extends TestCase
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
-        $this->setExpectedException(
-            DcGeneralRuntimeException::class,
-            'No root condition defined'
-        );
+        $this->setExpectedException(DcGeneralRuntimeException::class, 'No root condition defined');
 
         $manager->isRoot($this->mockModel());
     }
@@ -153,10 +150,7 @@ class RelationshipManagerTest extends TestCase
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
-        $this->setExpectedException(
-            DcGeneralRuntimeException::class,
-            'No root condition defined'
-        );
+        $this->setExpectedException(DcGeneralRuntimeException::class, 'No root condition defined');
 
         $manager->setRoot($this->mockModel());
     }
@@ -181,10 +175,7 @@ class RelationshipManagerTest extends TestCase
             ->setMethods(['setRoot'])
             ->disableOriginalConstructor()
             ->getMock();
-        $manager->expects($this->exactly(2))->method('setRoot')->withConsecutive(
-            [$model1],
-            [$model2]
-        );
+        $manager->expects($this->exactly(2))->method('setRoot')->withConsecutive([$model1], [$model2]);
 
         /** @var RelationshipManager $manager */
         $manager->setAllRoot($collection);
@@ -201,9 +192,7 @@ class RelationshipManagerTest extends TestCase
     {
         $model     = $this->mockModel();
         $parent    = $this->mockModel();
-        $condition = $this->getMockForAbstractClass(
-            ParentChildConditionInterface::class
-        );
+        $condition = $this->getMockForAbstractClass(ParentChildConditionInterface::class);
         $condition->expects($this->once())->method('applyTo')->with($model);
 
         $model->expects($this->any())->method('getProviderName')->willReturn('child');
@@ -244,10 +233,7 @@ class RelationshipManagerTest extends TestCase
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
-        $this->setExpectedException(
-            DcGeneralRuntimeException::class,
-            'No condition defined from parent to child'
-        );
+        $this->setExpectedException(DcGeneralRuntimeException::class, 'No condition defined from parent to child');
 
         $manager->setParent($model, $parent);
     }
@@ -384,9 +370,7 @@ class RelationshipManagerTest extends TestCase
      */
     private function mockRelationship()
     {
-        return $this->getMockForAbstractClass(
-            ModelRelationshipDefinitionInterface::class
-        );
+        return $this->getMockForAbstractClass(ModelRelationshipDefinitionInterface::class);
     }
 
     /**

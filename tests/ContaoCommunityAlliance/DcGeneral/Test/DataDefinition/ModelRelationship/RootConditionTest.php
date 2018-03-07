@@ -43,12 +43,13 @@ class RootConditionTest extends TestCase
 
         $condition = new RootCondition();
         $condition
-            ->setFilterArray(
-                [[
-                     'value'     => '0',
-                     'operation' => '=',
-                     'property'  => 'pid'
-                ]]
+            ->setFilterArray([
+                    [
+                        'value'     => '0',
+                        'operation' => '=',
+                        'property'  => 'pid'
+                    ]
+                ]
             )
             ->setSourceName('test-provider');
 
@@ -69,12 +70,13 @@ class RootConditionTest extends TestCase
 
         $condition = new RootCondition();
         $condition
-            ->setFilterArray(
-                [[
-                     'value'     => '0',
-                     'operation' => '=',
-                     'property'  => 'pid'
-                 ]]
+            ->setFilterArray([
+                    [
+                        'value'     => '0',
+                        'operation' => '=',
+                        'property'  => 'pid'
+                    ]
+                ]
             )
             ->setSourceName('test-provider');
 

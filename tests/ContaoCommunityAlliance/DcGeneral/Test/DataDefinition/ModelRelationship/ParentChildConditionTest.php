@@ -46,12 +46,13 @@ class ParentChildConditionTest extends TestCase
 
         $condition = new ParentChildCondition();
         $condition
-            ->setFilterArray(
-                [[
-                     'local'     => 'id',
-                     'operation' => '=',
-                     'remote'    => 'pid'
-                ]]
+            ->setFilterArray([
+                    [
+                        'local'     => 'id',
+                        'operation' => '=',
+                        'remote'    => 'pid'
+                    ]
+                ]
             )
             ->setSourceName('test-provider')
             ->setDestinationName('test-provider');
@@ -76,12 +77,13 @@ class ParentChildConditionTest extends TestCase
 
         $condition = new ParentChildCondition();
         $condition
-            ->setFilterArray(
-                [[
-                     'local'     => 'id',
-                     'operation' => '=',
-                     'remote'    => 'pid'
-                ]]
+            ->setFilterArray([
+                    [
+                        'local'     => 'id',
+                        'operation' => '=',
+                        'remote'    => 'pid'
+                    ]
+                ]
             )
             ->setSourceName('test-provider')
             ->setDestinationName('test-provider');
@@ -106,12 +108,13 @@ class ParentChildConditionTest extends TestCase
 
         $condition = new ParentChildCondition();
         $condition
-            ->setFilterArray(
-                [[
-                     'local'     => 'id',
-                     'operation' => '=',
-                     'remote'    => 'pid'
-                ]]
+            ->setFilterArray([
+                    [
+                        'local'     => 'id',
+                        'operation' => '=',
+                        'remote'    => 'pid'
+                    ]
+                ]
             )
             ->setDestinationName('test-provider');
 
@@ -135,12 +138,13 @@ class ParentChildConditionTest extends TestCase
 
         $condition = new ParentChildCondition();
         $condition
-            ->setFilterArray(
-                [[
-                     'local'     => 'id',
-                     'operation' => '=',
-                     'remote'    => 'pid'
-                ]]
+            ->setFilterArray([
+                    [
+                        'local'     => 'id',
+                        'operation' => '=',
+                        'remote'    => 'pid'
+                    ]
+                ]
             )
             ->setSourceName('test2-provider');
 
@@ -161,8 +165,7 @@ class ParentChildConditionTest extends TestCase
         $child->setPropertyRaw('pid', 1);
 
         $condition = new ParentChildCondition();
-        $condition->setFilterArray(
-            [
+        $condition->setFilterArray([
                 [
             'local'     => 'id',
             'operation' => '=',
@@ -189,12 +192,11 @@ class ParentChildConditionTest extends TestCase
         $child->setId(2);
 
         $condition = new ParentChildCondition();
-        $condition->setFilterArray(
-            [
+        $condition->setFilterArray([
                 [
-            'local'        => 'id',
-            'operation'    => '=',
-            'remote_value' => '2'
+                    'local'        => 'id',
+                    'operation'    => '=',
+                    'remote_value' => '2'
                 ]
             ]
         );

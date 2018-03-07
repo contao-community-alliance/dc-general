@@ -91,14 +91,13 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
         $dispatcher = new EventDispatcher();
         $container  = new DefaultContainer('tl_test');
         $event      = new BuildDataDefinitionEvent($container);
-        $builder    = $this->mockBuilderWithDca(
-            [
+        $builder = $this->mockBuilderWithDca([
                 'fields' => [
                     'testProperty' => [
                         'save_callback' => [
                             function () {
-                            return 'executed';
-                        }
+                                return 'executed';
+                            }
                         ]
                     ]
                 ]

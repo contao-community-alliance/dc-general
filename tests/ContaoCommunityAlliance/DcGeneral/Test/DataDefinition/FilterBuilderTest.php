@@ -44,10 +44,7 @@ class FilterBuilderTest extends TestCase
     public function testAddAnd()
     {
         $filter = [['operation' => '=', 'property' => 'prop', 'value' => '1']];
-        $result = array_merge(
-            $filter,
-            [['operation' => '=', 'property' => 'prop2', 'value' => '2']]
-        );
+        $result = array_merge($filter, [['operation' => '=', 'property' => 'prop2', 'value' => '2']]);
 
         $builder = new FilterBuilder($filter, true);
 

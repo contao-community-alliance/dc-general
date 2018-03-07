@@ -20,21 +20,21 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Test\Controller;
 
+use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistryInterface;
 use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
-use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
-use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootConditionInterface;
-use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistryInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootConditionInterface;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 
 /**
  * Test case for the relationship manager.
@@ -142,10 +142,7 @@ class ModelCollectorTest extends TestCase
 
         $collector = new ModelCollector($environment);
 
-        $this->setExpectedException(
-            'InvalidArgumentException',
-            'Invalid model id passed: '
-        );
+        $this->setExpectedException('InvalidArgumentException', 'Invalid model id passed: ');
 
         $collector->getModel(new \DateTime());
     }
@@ -171,7 +168,10 @@ class ModelCollectorTest extends TestCase
         $rootCondition->method('matches')->with($model)->willReturn(true);
 
         $config = $this->getMockForAbstractClass(ConfigInterface::class);
-        $config->expects($this->once())->method('setFilter')->with([['local' => 'pid', 'remote' => 'id']])->willReturn($config);
+        $config->expects($this->once())
+            ->method('setFilter')
+            ->with([['local' => 'pid', 'remote' => 'id']])
+            ->willReturn($config);
 
         $configRegistry = $this->getMockForAbstractClass(BaseConfigRegistryInterface::class);
         $configRegistry->method('getBaseConfig')->with(null)->willReturn($config);
@@ -199,11 +199,7 @@ class ModelCollectorTest extends TestCase
      */
     private function mockBasicDefinition()
     {
-        $basicDefinition = $this->getMockForAbstractClass(
-            BasicDefinitionInterface::class
-        );
-
-        return $basicDefinition;
+        return $this->getMockForAbstractClass(BasicDefinitionInterface::class);
     }
 
     /**
@@ -213,11 +209,7 @@ class ModelCollectorTest extends TestCase
      */
     private function mockRelationshipDefinition()
     {
-        $relationships = $this->getMockForAbstractClass(
-            ModelRelationshipDefinitionInterface::class
-        );
-
-        return $relationships;
+        return $this->getMockForAbstractClass(ModelRelationshipDefinitionInterface::class);
     }
 
     /**
@@ -227,10 +219,6 @@ class ModelCollectorTest extends TestCase
      */
     private function mockDefinitionContainer()
     {
-        $definition = $this->getMockForAbstractClass(
-            ContainerInterface::class
-        );
-
-        return $definition;
+        return $this->getMockForAbstractClass(ContainerInterface::class);
     }
 }

@@ -22,8 +22,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Test\DataDefinition\Definition;
 
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefaultModelRelationshipDefinition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface;
-use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootConditionInterface;
+use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 
 /**
  * This tests the DefaultModelRelationshipDefinition.
@@ -41,9 +41,7 @@ class DefaultModelRelationshipDefinitionTest extends TestCase
     public function testSetGetRootCondition()
     {
         $definition = new DefaultModelRelationshipDefinition();
-        $root       = $this->getMockForAbstractClass(
-            RootConditionInterface::class
-        );
+        $root       = $this->getMockForAbstractClass(RootConditionInterface::class);
 
         $this->assertSame($definition, $definition->setRootCondition($root));
         $this->assertSame($root, $definition->getRootCondition());
@@ -161,10 +159,7 @@ class DefaultModelRelationshipDefinitionTest extends TestCase
         $definition2 = clone $definition;
 
         $this->assertNotSame($root, $definition2->getRootCondition());
-        $this->assertInstanceOf(
-            RootConditionInterface::class,
-            $definition2->getRootCondition()
-        );
+        $this->assertInstanceOf(RootConditionInterface::class, $definition2->getRootCondition());
 
         $this->assertNotSame($condition, $definition2->getChildCondition('parent', 'child'));
         $this->assertInstanceOf(
@@ -183,9 +178,7 @@ class DefaultModelRelationshipDefinitionTest extends TestCase
      */
     private function mockChildCondition($source, $destination)
     {
-        $condition = $this->getMockForAbstractClass(
-            ParentChildConditionInterface::class
-        );
+        $condition = $this->getMockForAbstractClass(ParentChildConditionInterface::class);
         $condition->method('getSourceName')->willReturn($source);
         $condition->method('getDestinationName')->willReturn($destination);
 

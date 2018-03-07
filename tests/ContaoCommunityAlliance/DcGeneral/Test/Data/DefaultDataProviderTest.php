@@ -21,12 +21,12 @@
 namespace ContaoCommunityAlliance\DcGeneral\Test\Data;
 
 use Contao\Database;
-use ContaoCommunityAlliance\DcGeneral\Data\DefaultDataProvider;
-use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
-use ContaoCommunityAlliance\DcGeneral\Data\IdGeneratorInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DefaultDataProvider;
+use ContaoCommunityAlliance\DcGeneral\Data\IdGeneratorInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 
 /**
  * This class tests the DefaultDataProvider class.
@@ -59,10 +59,9 @@ class DefaultDataProviderTest extends TestCase
 
         $dataProvider = new DefaultDataProvider();
 
-        $dataProvider->setBaseConfig(
-            [
-            'source'            => 'tl_something',
-            'database'          => $database,
+        $dataProvider->setBaseConfig([
+                'source'   => 'tl_something',
+                'database' => $database,
             ]
         );
 
@@ -77,8 +76,7 @@ class DefaultDataProviderTest extends TestCase
     public function testSetBaseConfig()
     {
         $database = $this->mockDatabase();
-        $database->method('list_fields')->willReturn(
-            [
+        $database->method('list_fields')->willReturn([
                 [
                     'name' => 'idField',
                     'type' => 'field',
@@ -98,13 +96,12 @@ class DefaultDataProviderTest extends TestCase
 
         $dataProvider = new DefaultDataProvider();
 
-        $dataProvider->setBaseConfig(
-            [
-            'source'            => 'tl_something',
-            'database'          => $database,
-            'idProperty'        => 'idField',
-            'timeStampProperty' => 'lastChanged',
-            'idGenerator'       => $idGenerator
+        $dataProvider->setBaseConfig([
+                'source'            => 'tl_something',
+                'database'          => $database,
+                'idProperty'        => 'idField',
+                'timeStampProperty' => 'lastChanged',
+                'idGenerator'       => $idGenerator
             ]
         );
 

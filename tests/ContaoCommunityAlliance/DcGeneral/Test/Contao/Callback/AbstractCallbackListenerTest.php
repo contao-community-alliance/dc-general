@@ -20,25 +20,24 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Test\Contao\Callback;
 
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\AbstractCallbackListener;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\DefaultContainer;
 use ContaoCommunityAlliance\DcGeneral\DefaultEnvironment;
-use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
-use ContaoCommunityAlliance\DcGeneral\Contao\Callback\AbstractCallbackListener;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
+use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 
 class AbstractCallbackListenerTest extends TestCase
 {
     protected function getCallback($value)
     {
-        return function () use($value) {
+        return function () use ($value) {
             throw new \Exception('The callback should not be executed as it is only mocked');
         };
     }
 
     public function abstractCallbackDataProvider()
     {
-        return [
-            [
+        return [[
                 AbstractCallbackListener::class,
                 AbstractEnvironmentAwareEvent::class
             ],

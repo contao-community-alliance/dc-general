@@ -21,17 +21,17 @@
 namespace ContaoCommunityAlliance\DcGeneral\Test\Contao\View\Contao2BackendView\Subscriber;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\CheckPermission;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\BooleanCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionChain;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Property;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\BooleanCondition;
 
 /**
  * This tests the CheckPermission subscriber.
@@ -63,39 +63,23 @@ class CheckPermissionTest extends TestCase
         $property11 = new Property('property11');
         $property12 = new Property('property12');
         $property12->setVisibleCondition(
-            $prop12chain = $this
-                ->getMockBuilder(
-                    PropertyConditionInterface::class
-                )
-                ->getMockForAbstractClass()
+            $prop12chain = $this->getMockBuilder(PropertyConditionInterface::class)->getMockForAbstractClass()
         );
         $propertyNotExist = new Property('property13');
         $property21       = new Property('property21');
         $property21->setVisibleCondition($prop21chain = new PropertyConditionChain([], PropertyConditionChain::OR_CONJUNCTION));
         $property22 = new Property('property22');
         $property22->setVisibleCondition($prop22chain = new PropertyConditionChain());
-        $palette1 = $this
-            ->getMockBuilder(PaletteInterface::class)
-            ->getMockForAbstractClass();
-        $palette2 = $this
-            ->getMockBuilder(PaletteInterface::class)
-            ->getMockForAbstractClass();
+        $palette1 = $this->getMockBuilder(PaletteInterface::class)->getMockForAbstractClass();
+        $palette2 = $this->getMockBuilder(PaletteInterface::class)->getMockForAbstractClass();
 
         $palettes = [$palette1, $palette2];
 
-        $container = $this
-            ->getMockBuilder(ContainerInterface::class)
-            ->getMockForAbstractClass();
+        $container = $this->getMockBuilder(ContainerInterface::class)->getMockForAbstractClass();
 
-        $properties = $this
-            ->getMockBuilder(
-                PropertiesDefinitionInterface::class
-            )
-            ->getMockForAbstractClass();
+        $properties = $this->getMockBuilder(PropertiesDefinitionInterface::class)->getMockForAbstractClass();
 
-        $palettesDefinition = $this
-            ->getMockBuilder(PalettesDefinitionInterface::class)
-            ->getMockForAbstractClass();
+        $palettesDefinition = $this->getMockBuilder(PalettesDefinitionInterface::class)->getMockForAbstractClass();
 
         $container->expects($this->once())->method('getPropertiesDefinition')->willReturn($properties);
         $container->expects($this->once())->method('getPalettesDefinition')->willReturn($palettesDefinition);
@@ -127,49 +111,25 @@ class CheckPermissionTest extends TestCase
         $subscriber = new CheckPermission();
         $subscriber->checkPermissionForProperties($event);
 
-        $this->assertInstanceOf(
-            PropertyConditionChain::class,
-            $property11->getVisibleCondition()
-        );
+        $this->assertInstanceOf(PropertyConditionChain::class, $property11->getVisibleCondition());
         $this->assertCount(1, $property11->getVisibleCondition()->getConditions());
-        $this->assertInstanceOf(
-            BooleanCondition::class,
-            $property11->getVisibleCondition()->getConditions()[0]
-        );
+        $this->assertInstanceOf(BooleanCondition::class, $property11->getVisibleCondition()->getConditions()[0]);
         $this->assertFalse($property11->getVisibleCondition()->getConditions()[0]->getValue());
 
-        $this->assertInstanceOf(
-            PropertyConditionChain::class,
-            $property12->getVisibleCondition()
-        );
+        $this->assertInstanceOf(PropertyConditionChain::class, $property12->getVisibleCondition());
         $this->assertSame($prop12chain,  $property12->getVisibleCondition()->getConditions()[0]);
-        $this->assertInstanceOf(
-            BooleanCondition::class,
-            $property12->getVisibleCondition()->getConditions()[1]
-        );
+        $this->assertInstanceOf(BooleanCondition::class, $property12->getVisibleCondition()->getConditions()[1]);
         $this->assertTrue($property12->getVisibleCondition()->getConditions()[1]->getValue());
 
-        $this->assertInstanceOf(
-            PropertyConditionChain::class,
-            $property21->getVisibleCondition()
-        );
+        $this->assertInstanceOf(PropertyConditionChain::class, $property21->getVisibleCondition());
         $this->assertSame($prop21chain,  $property21->getVisibleCondition()->getConditions()[0]);
-        $this->assertInstanceOf(
-            BooleanCondition::class,
-            $property21->getVisibleCondition()->getConditions()[1]
-        );
+        $this->assertInstanceOf(BooleanCondition::class, $property21->getVisibleCondition()->getConditions()[1]);
         $this->assertFalse($property21->getVisibleCondition()->getConditions()[1]->getValue());
 
 
-        $this->assertInstanceOf(
-            PropertyConditionChain::class,
-            $property22->getVisibleCondition()
-        );
+        $this->assertInstanceOf(PropertyConditionChain::class, $property22->getVisibleCondition());
         $this->assertSame($prop22chain, $property22->getVisibleCondition());
-        $this->assertInstanceOf(
-            BooleanCondition::class,
-            $property22->getVisibleCondition()->getConditions()[0]
-        );
+        $this->assertInstanceOf(BooleanCondition::class, $property22->getVisibleCondition()->getConditions()[0]);
         $this->assertFalse($property22->getVisibleCondition()->getConditions()[0]->getValue());
 
 
@@ -177,7 +137,7 @@ class CheckPermissionTest extends TestCase
     }
 
     /**
-     * @return \PHPUnit\Framework\MockObject\MockObjecta|PropertyInterface
+     * @return \PHPUnit_Framework_MockObject_MockObject|PropertyInterface
      */
     private function mockProperty($isExcluded = false)
     {

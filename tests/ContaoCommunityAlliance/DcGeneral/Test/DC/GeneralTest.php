@@ -21,10 +21,10 @@
 namespace ContaoCommunityAlliance\DcGeneral\Test;
 
 use ContaoCommunityAlliance\Contao\EventDispatcher\EventDispatcherInitializer;
+use ContaoCommunityAlliance\DcGeneral\Data\NoOpDataProvider;
 use ContaoCommunityAlliance\DcGeneral\DC_General;
 use ContaoCommunityAlliance\Translator\StaticTranslator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use ContaoCommunityAlliance\DcGeneral\Data\NoOpDataProvider;
 
 /**
  * Test the main wrapper class \DC_General that it can be instantiated by Contao.
@@ -54,10 +54,9 @@ class DC_GeneralTest extends TestCase
         $this->aliasContaoClass('DataContainer');
 
         $eventDispatcher = new EventDispatcher();
-        $container       = $GLOBALS['container'] = new \Pimple(
-            [
-            'event-dispatcher' => $eventDispatcher,
-            'translator'       => new StaticTranslator()
+        $container       = $GLOBALS['container'] = new \Pimple([
+                'event-dispatcher' => $eventDispatcher,
+                'translator'       => new StaticTranslator()
             ]
         );
 
@@ -76,20 +75,16 @@ class DC_GeneralTest extends TestCase
         require_once __DIR__ . '/../../../../../contao/config/services.php';
 
         $GLOBALS['TL_DCA']['tl_foo'] = [
-            'config'          =>
-                [
+            'config'          => [
                 'dataContainer'    => 'General',
                 ],
-            'dca_config'   =>
-                [
-                    'data_provider'  =>
-                        [
-                    'tl_foo' =>
-                        [
+            'dca_config'   => [
+                    'data_provider'  => [
+                    'tl_foo' => [
                             'source' => 'tl_foo',
                             'class'        => NoOpDataProvider::class,
                         ]
-                        ],
+                    ],
                 ],
             'palettes' => []
         ];
