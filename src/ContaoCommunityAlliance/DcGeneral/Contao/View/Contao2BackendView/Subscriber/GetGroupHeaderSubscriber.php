@@ -119,7 +119,7 @@ class GetGroupHeaderSubscriber
     {
         $evaluation = $property->getExtra();
 
-        if ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple']) {
+        if (!$evaluation['multiple'] && $property->getWidgetType() == 'checkbox') {
             return $this->formatCheckboxOptionLabel($model->getProperty($property->getName()));
         }
         if ($groupingMode != GroupAndSortingInformationInterface::GROUP_NONE) {

@@ -132,7 +132,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
             $input = $this->getInputProvider();
             $value = null;
 
-            if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue('tl_sort')) {
+            if ($input->hasValue('tl_sort') && $this->getPanel()->getContainer()->updateValues()) {
                 $value = $input->getValue('tl_sort');
 
                 $this->setPersistent($value);

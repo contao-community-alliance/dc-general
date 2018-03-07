@@ -217,7 +217,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             return implode(', ', $value);
         }
 
-        if ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple']) {
+        if (!$evaluation['multiple'] && $property->getWidgetType() == 'checkbox') {
             return !empty($value)
                 ? $this->translate('MSC.yes')
                 : $this->translate('MSC.no');
@@ -298,7 +298,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             ->getDefinition(Contao2BackendViewDefinitionInterface::NAME)
             ->getModelCommands();
 
-        if (!$parentDefinition->getBasicDefinition()->isEditable() || !$commands->hasCommandNamed('edit')) {
+        if (!$commands->hasCommandNamed('edit') || !$parentDefinition->getBasicDefinition()->isEditable()) {
             return null;
         }
 

@@ -55,7 +55,7 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
     protected function populateView(EnvironmentInterface $environment)
     {
         // Already populated or not in Backend? Get out then.
-        if ($environment->getView() || (TL_MODE != 'BE')) {
+        if ((TL_MODE != 'BE') || $environment->getView()) {
             return;
         }
 
@@ -97,7 +97,7 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
     protected function populatePanel(EnvironmentInterface $environment)
     {
         // Already populated or not in Backend? Get out then.
-        if (!(($environment->getView() instanceof BaseView) && (TL_MODE == 'BE'))) {
+        if (!((TL_MODE == 'BE') && ($environment->getView() instanceof BaseView))) {
             return;
         }
 

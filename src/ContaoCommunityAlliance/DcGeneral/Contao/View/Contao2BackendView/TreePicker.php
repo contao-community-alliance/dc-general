@@ -447,7 +447,7 @@ class TreePicker extends Widget
      */
     protected function validator($varInput)
     {
-        if (!(Input::post($this->strName . '_save') || $this->alwaysSave)) {
+        if (!($this->alwaysSave || Input::post($this->strName . '_save'))) {
             $this->blnSubmitInput = false;
         }
 

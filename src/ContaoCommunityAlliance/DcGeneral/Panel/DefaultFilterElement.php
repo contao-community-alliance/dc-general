@@ -116,7 +116,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
         $input   = $this->getInputProvider();
         $value   = null;
 
-        if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue($this->getPropertyName())) {
+        if ($input->hasValue($this->getPropertyName()) && $this->getPanel()->getContainer()->updateValues()) {
             $value = $input->getValue($this->getPropertyName());
 
             $this->setPersistent($value);
@@ -162,7 +162,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
     {
         $this->updateValue();
 
-        if ($this->getPropertyName() && (null !== $this->getValue()) && ($objElement !== $this)) {
+        if (($objElement !== $this) && $this->getPropertyName() && (null !== $this->getValue())) {
             $arrCurrent = $objConfig->getFilter();
             if (!is_array($arrCurrent)) {
                 $arrCurrent = array();

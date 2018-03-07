@@ -510,8 +510,8 @@ class TreeView extends BaseView
      */
     protected function formActionForSelect(ContaoBackendViewTemplate $objTemplate)
     {
-        if ($this->getEnvironment()->getInputProvider()->getParameter('act') !== 'select'
-            || !$objTemplate->select
+        if (!$objTemplate->select
+            || $this->getEnvironment()->getInputProvider()->getParameter('act') !== 'select'
         ) {
             return;
         }

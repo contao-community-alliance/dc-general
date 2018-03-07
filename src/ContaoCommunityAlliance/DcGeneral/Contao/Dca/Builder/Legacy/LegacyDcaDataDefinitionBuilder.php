@@ -850,7 +850,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 }
             }
 
-            if (isset($sortingDca['disableGrouping']) && $sortingDca['disableGrouping']) {
+            if ($sortingDca['disableGrouping'] && isset($sortingDca['disableGrouping'])) {
                 $groupAndSorting->setGroupingMode(GroupAndSortingInformationInterface::GROUP_NONE);
             }
         }

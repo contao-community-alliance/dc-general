@@ -48,7 +48,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
 
         foreach ($properties->getPropertyNames() as $propertyName) {
             $property = $properties->getProperty($propertyName);
-            if (!$property->getWidgetType() || isset($editProperties[$propertyName])) {
+            if (isset($editProperties[$propertyName]) || !$property->getWidgetType()) {
                 continue;
             }
 
@@ -735,7 +735,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
         $palettesDefinition = $this->getEnvironment()->getDataDefinition()->getPalettesDefinition();
 
         $legendPropertyNames = array();
-        if (1 === count($palettesDefinition->getPalettes()) && $inputProvider->hasValue('FORM_INPUTS')) {
+        if ($inputProvider->hasValue('FORM_INPUTS') && 1 === count($palettesDefinition->getPalettes())) {
             return $legendPropertyNames;
         }
 

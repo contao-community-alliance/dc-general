@@ -116,7 +116,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
         $value   = null;
         $field   = null;
 
-        if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue('tl_field')) {
+        if ($input->hasValue('tl_field') && $this->getPanel()->getContainer()->updateValues()) {
             $field = $input->getValue('tl_field');
             $value = $input->getValue('tl_value');
 

@@ -164,7 +164,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     {
         $this->requirePropertyValue($property);
 
-        if (!isset($this->errors[$property]) || !$append) {
+        if (!$append || !isset($this->errors[$property])) {
             $this->errors[$property] = array();
         }
 

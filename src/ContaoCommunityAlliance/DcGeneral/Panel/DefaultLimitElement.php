@@ -147,7 +147,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
             $amount = $this->getItemsPerPage();
 
             $input = $this->getInputProvider();
-            if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue('tl_limit')) {
+            if ($input->hasValue('tl_limit') && $this->getPanel()->getContainer()->updateValues()) {
                 $limit  = explode(',', $input->getValue('tl_limit'));
                 $offset = $limit[0];
                 $amount = $limit[1];

@@ -244,7 +244,7 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
-        if ($property->getWidgetType() == 'checkbox' && !$extra['multiple']) {
+        if (!$extra['multiple'] && $property->getWidgetType() == 'checkbox') {
             $map = array(false => 'no', true => 'yes');
             $event->setRendered($event->getEnvironment()->getTranslator()->translate('MSC.' . $map[(bool) $value]));
 
@@ -309,9 +309,9 @@ class Subscriber implements EventSubscriberInterface
         $definition  = $environment->getDataDefinition();
         $view        = $environment->getView();
 
-        if (!$definition->hasDefinition(Contao2BackendViewDefinitionInterface::NAME)
-            || !$view instanceof BaseView
+        if (!$view instanceof BaseView
             || !$view->getPanel()
+            || !$definition->hasDefinition(Contao2BackendViewDefinitionInterface::NAME)
         ) {
             return;
         }

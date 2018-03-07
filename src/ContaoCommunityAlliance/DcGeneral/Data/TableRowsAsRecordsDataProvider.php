@@ -254,7 +254,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
             throw new DcGeneralException('The parameter for this method has been change!');
         }
         $arrData = $objItem->getProperty('rows');
-        if (!($objItem->getID() && $arrData)) {
+        if (!($arrData && $objItem->getID())) {
             throw new DcGeneralException('invalid input data in model.', 1);
         }
 

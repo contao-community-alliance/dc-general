@@ -85,7 +85,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
      */
     public static function handleEvent(BuildWidgetEvent $event)
     {
-        if ($event->getWidget() || TL_MODE !== 'BE') {
+        if (TL_MODE !== 'BE' || $event->getWidget()) {
             return;
         }
 
@@ -407,9 +407,10 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $dispatcher->dispatch($event::NAME, $event);
         $varValue = $event->getValue();
 
-        if ((isset($propExtra['rgxp']) && in_array($propExtra['rgxp'], array('date', 'time', 'datim')))
+        if (is_numeric($varValue)
             && empty($propExtra['mandatory'])
-            && is_numeric($varValue) && $varValue == 0
+            && (isset($propExtra['rgxp']) && in_array($propExtra['rgxp'], array('date', 'time', 'datim')))
+            && $varValue == 0
         ) {
             $varValue = '';
         }
@@ -444,10 +445,10 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $arrPrepared = $event->getResult();
 
         if ($arrConfig['inputType'] == 'checkbox'
+            && $arrConfig['eval']['submitOnChange']
             && isset($GLOBALS['TL_DCA'][$defName]['subpalettes'])
             && is_array($GLOBALS['TL_DCA'][$defName]['subpalettes'])
             && array_key_exists($propertyName, $GLOBALS['TL_DCA'][$defName]['subpalettes'])
-            && $arrConfig['eval']['submitOnChange']
         ) {
             // We have to override the onclick, do not append to it as Contao adds it's own code here in
             // Widget::getAttributesFromDca() which kills our sub palette handling!
