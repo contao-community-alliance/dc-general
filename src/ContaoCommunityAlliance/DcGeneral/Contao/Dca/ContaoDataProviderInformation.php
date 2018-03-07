@@ -22,6 +22,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Dca;
 
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\DataProviderInformation;
+use ContaoCommunityAlliance\DcGeneral\Data\DefaultDataProvider;
 
 /**
  * Class ContaoDataProviderInformation.
@@ -42,7 +43,7 @@ class ContaoDataProviderInformation extends DataProviderInformation
      *
      * @var string
      */
-    protected $className = 'ContaoCommunityAlliance\DcGeneral\Data\DefaultDataProvider';
+    protected $className = DefaultDataProvider::class;
 
     /**
      * Custom initialization data to be passed to the constructor of the data provider class.

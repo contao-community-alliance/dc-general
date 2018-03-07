@@ -32,6 +32,8 @@ use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PreCreateDcGeneralEvent;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use ContaoCommunityAlliance\DcGeneral\DefaultEnvironment;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\DefaultContainer;
 
 /**
  * Factory to create a DcGeneral instance.
@@ -79,7 +81,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      *
      * @var string
      */
-    protected $environmentClassName = 'ContaoCommunityAlliance\DcGeneral\DefaultEnvironment';
+    protected $environmentClassName = DefaultEnvironment::class;
 
     /**
      * The name of the data container.
@@ -93,14 +95,14 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      *
      * @var string
      */
-    protected $containerClassName = 'ContaoCommunityAlliance\DcGeneral\DataDefinition\DefaultContainer';
+    protected $containerClassName = DefaultContainer::class;
 
     /**
      * The class name of the class to use as DcGeneral.
      *
      * @var string
      */
-    protected $dcGeneralClassName = 'ContaoCommunityAlliance\DcGeneral\DcGeneral';
+    protected $dcGeneralClassName = DcGeneral::class;
 
     /**
      * The event dispatcher to use.

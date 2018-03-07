@@ -44,8 +44,9 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetLe
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPaletteClassNameEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPaletteCollectionClassNameEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPaletteConditionChainClassNameEvent;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\
-SetPalettePropertyValueConditionClassNameEvent;
+// @codingStandardsIgnoreStart
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPalettePropertyValueConditionClassNameEvent;
+// @codingStandardsIgnoreEnd
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPropertyClassNameEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPropertyConditionChainClassNameEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPropertyValueConditionClassNameEvent;
@@ -63,6 +64,15 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteCollection;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Palette;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Legend;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Property;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\DefaultPaletteCondition;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition;
+// @codingStandardsIgnoreStart
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyValueCondition as PropertyPropertyValueCondition;
+// @codingStandardsIgnoreEnd
 
 /**
  * The palette builder is used to build palette collections, palettes, legends, properties and conditions.
@@ -93,8 +103,7 @@ class PaletteBuilder
      *
      * @var string
      */
-    protected $paletteCollectionClassName =
-        'ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteCollection';
+    protected $paletteCollectionClassName = PaletteCollection::class;
 
     /**
      * The class to use for palette collections.
@@ -108,7 +117,7 @@ class PaletteBuilder
      *
      * @var string
      */
-    protected $paletteClassName = 'ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Palette';
+    protected $paletteClassName = Palette::class;
 
     /**
      * The class to use for palettes.
@@ -122,7 +131,7 @@ class PaletteBuilder
      *
      * @var string
      */
-    protected $legendClassName = 'ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Legend';
+    protected $legendClassName = Legend::class;
 
     /**
      * The class to use for palette legends.
@@ -136,7 +145,7 @@ class PaletteBuilder
      *
      * @var string
      */
-    protected $propertyClassName = 'ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Property';
+    protected $propertyClassName = Property::class;
 
     /**
      * The class to use for palette properties.
@@ -150,8 +159,7 @@ class PaletteBuilder
      *
      * @var string
      */
-    protected $paletteConditionChainClassName =
-        'ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionChain';
+    protected $paletteConditionChainClassName = PaletteConditionChain::class;
 
     /**
      * The the class to use for palette condition chains.
@@ -165,8 +173,7 @@ class PaletteBuilder
      *
      * @var string
      */
-    protected $defaultPaletteConditionClassName =
-        'ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\DefaultPaletteCondition';
+    protected $defaultPaletteConditionClassName = DefaultPaletteCondition::class;
 
     /**
      * The the class to use for palette conditions.
@@ -180,8 +187,7 @@ class PaletteBuilder
      *
      * @var string
      */
-    protected $palettePropertyValueConditionClassName =
-        'ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition';
+    protected $palettePropertyValueConditionClassName = PropertyValueCondition::class;
 
     /**
      * The class to use for property value conditions.
@@ -195,8 +201,7 @@ class PaletteBuilder
      *
      * @var string
      */
-    protected $propertyConditionChainClassName =
-        'ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionChain';
+    protected $propertyConditionChainClassName = PropertyConditionChain::class;
 
     /**
      * The class to use for property condition chains.
@@ -210,8 +215,7 @@ class PaletteBuilder
      *
      * @var string
      */
-    protected $propertyValueConditionClassName =
-        'ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyValueCondition';
+    protected $propertyValueConditionClassName = PropertyPropertyValueCondition::class;
 
     /**
      * The the class to use for property value conditions.

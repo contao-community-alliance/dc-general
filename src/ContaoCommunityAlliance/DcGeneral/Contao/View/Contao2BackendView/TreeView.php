@@ -42,6 +42,8 @@ use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
 use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\Panel\LimitElementInterface;
+use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
 
 /**
  * Class TreeView.
@@ -557,8 +559,8 @@ class TreeView extends BaseView
 
         // A list with ignored panels.
         $arrIgnoredPanels = array(
-            '\ContaoCommunityAlliance\DcGeneral\Panel\LimitElementInterface',
-            '\ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface'
+            LimitElementInterface::class,
+            SortElementInterface::class
         );
 
         $arrReturn['panel']     = $this->panel($arrIgnoredPanels);
