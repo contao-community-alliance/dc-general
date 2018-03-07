@@ -192,7 +192,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
         // TODO translate sub headline.
         $template->set('subHeadline', 'Elemente auswählen');
         $template->set('tableName', null !== $definition->getName() ? $definition->getName() : 'none');
-        $template->set('select', ('select' === $this->environment->getInputProvider()->getParameter('act')));
+        $template->set('select', 'select' === $this->environment->getInputProvider()->getParameter('act'));
         $template->set('action', ampersand(Environment::get('request'), true));
         $template->set('selectButtons', $this->getSelectButtons());
         $template->set('sortable', $this->isSortable());
@@ -351,7 +351,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
             $label = $properties->getProperty($field)->getLabel();
 
             $tableHead[] = [
-                'class'   => 'tl_folder_tlist col_' . $field . ((in_array($field, $columns)) ? ' ordered_by' : ''),
+                'class'   => 'tl_folder_tlist col_' . $field . (in_array($field, $columns) ? ' ordered_by' : ''),
                 'content' => $label
             ];
         }

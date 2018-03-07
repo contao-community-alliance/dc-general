@@ -58,7 +58,7 @@ class AndFilterBuilder extends FilterBuilderWithChildren
         }
 
         if ($filters instanceof AndFilterBuilder) {
-            foreach ((clone $filters) as $filter) {
+            foreach (clone $filters as $filter) {
                 $this->add(clone $filter);
             }
 

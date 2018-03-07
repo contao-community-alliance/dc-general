@@ -583,7 +583,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             }
         }
 
-        $idProperty = (method_exists($dataProvider, 'getIdProperty')) ? $dataProvider->getIdProperty() : 'id';
+        $idProperty = method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
         $collection = $dataProvider->fetchAll(
             $dataProvider->getEmptyConfig()->setFilter(
                 array(

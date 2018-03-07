@@ -96,7 +96,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             $arrValue[$this->getEnvironment()->getDataDefinition()->getName()] = array();
         }
 
-        if ((($arrValue !== null)) && ($strValue != 'tl_' . $this->getPropertyName())) {
+        if ($arrValue !== null && ($strValue != 'tl_' . $this->getPropertyName())) {
             $arrValue[$definitionName][$this->getPropertyName()] = $strValue;
         } else {
             unset($arrValue[$definitionName][$this->getPropertyName()]);

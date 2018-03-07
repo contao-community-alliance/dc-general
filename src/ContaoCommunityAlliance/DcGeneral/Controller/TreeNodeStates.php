@@ -172,8 +172,8 @@ class TreeNodeStates
             return true;
         }
 
-        return (isset($this->states[$providerName][$modelId]) && ($this->states[$providerName][$modelId]))
-            || (isset($this->implicitOpen[$providerName][$modelId]) && ($this->implicitOpen[$providerName][$modelId]));
+        return (isset($this->states[$providerName][$modelId]) && $this->states[$providerName][$modelId])
+            || (isset($this->implicitOpen[$providerName][$modelId]) && $this->implicitOpen[$providerName][$modelId]);
     }
 
     /**

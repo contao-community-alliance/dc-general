@@ -704,7 +704,7 @@ class TreePicker extends Widget
                 $this->getToggleId(),
                 $this->getTreeNodeStates()->toggleModel($provider, $rootId)->getStates()
             );
-            $collection = $this->loadCollection($rootId, (intval($input->getValue('level')) + 1));
+            $collection = $this->loadCollection($rootId, intval($input->getValue('level')) + 1);
             echo $this->generateTreeView($collection, 'tree');
             exit;
         }
@@ -777,7 +777,7 @@ class TreePicker extends Widget
         $relationships = $this->getEnvironment()->getDataDefinition()->getModelRelationshipDefinition();
         $blnHasChild   = false;
 
-        $this->determineModelState($objModel, ($intLevel - 1));
+        $this->determineModelState($objModel, $intLevel - 1);
 
         $arrChildCollections = array();
         foreach ($arrSubTables as $strSubTable) {
@@ -813,7 +813,7 @@ class TreePicker extends Widget
                         $mySubTables[] = $condition->getDestinationName();
                     }
 
-                    $this->treeWalkModel($objChildModel, ($intLevel + 1), $mySubTables);
+                    $this->treeWalkModel($objChildModel, $intLevel + 1, $mySubTables);
                 }
                 $arrChildCollections[] = $objChildCollection;
 
@@ -888,7 +888,7 @@ class TreePicker extends Widget
                 foreach ($objRootCollection as $objRootModel) {
                     /** @var ModelInterface $objRootModel */
                     $objTableTreeData->push($objRootModel);
-                    $this->treeWalkModel($objRootModel, ($intLevel + 1), $mySubTables);
+                    $this->treeWalkModel($objRootModel, $intLevel + 1, $mySubTables);
                 }
             }
 
@@ -1042,7 +1042,7 @@ class TreePicker extends Widget
                     $arrLabel[] = array(
                         'colspan' => 1,
                         'class'   => 'tl_file_list col_' . $j . (($propertyName == $firstSorting) ? ' ordered_by' : ''),
-                        'content' => (($args[$propertyName] != '') ? $args[$propertyName] : '-')
+                        'content' => ($args[$propertyName] != '') ? $args[$propertyName] : '-'
                     );
                 }
             }

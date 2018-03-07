@@ -242,7 +242,7 @@ class TreeCollector implements EnvironmentAwareInterface
                     $model->setMeta(ModelInterface::PARENT_ID, $model->getID());
                     $model->setMeta(ModelInterface::PARENT_PROVIDER_NAME, $providerName);
 
-                    $this->treeWalkModel($childModel, ($intLevel + 1), $mySubTables);
+                    $this->treeWalkModel($childModel, $intLevel + 1, $mySubTables);
                 }
                 $childCollections[] = $childCollection;
             }

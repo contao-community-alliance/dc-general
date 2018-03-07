@@ -250,7 +250,7 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $inputProvider->getParameter('mode'));
 
         $intersectModel = $dataProvider->getEmptyModel();
-        $idProperty     = (method_exists($dataProvider, 'getIdProperty')) ? $dataProvider->getIdProperty() : 'id';
+        $idProperty     = method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
         foreach ($session['intersectValues'] as $intersectProperty => $intersectValue) {
             if ($idProperty === $intersectProperty) {
                 $intersectModel->setId($intersectValue);

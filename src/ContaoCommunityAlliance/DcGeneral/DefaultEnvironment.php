@@ -274,7 +274,7 @@ class DefaultEnvironment implements EnvironmentInterface
             $strSource = $this->getDataDefinition()->getBasicDefinition()->getDataProvider();
         }
 
-        return (isset($this->arrDataProvider[$strSource]));
+        return isset($this->arrDataProvider[$strSource]);
     }
 
     /**

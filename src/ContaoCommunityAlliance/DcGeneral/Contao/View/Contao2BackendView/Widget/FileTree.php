@@ -447,7 +447,7 @@ class FileTree extends AbstractWidget
 
         if (!empty($this->varValue)) {
             $files = \FilesModel::findMultipleByUuids((array) $this->varValue);
-            $this->renderList($icons, $files, ($this->isGallery || $this->isDownloads));
+            $this->renderList($icons, $files, $this->isGallery || $this->isDownloads);
             $icons = $this->applySorting($icons);
 
             // Files can be null.
@@ -464,7 +464,7 @@ class FileTree extends AbstractWidget
             ->set('name', $this->strName)
             ->set('id', $this->strId)
             ->set('value', implode(',', $values))
-            ->set('hasOrder', ($this->orderField != '' && is_array($this->orderFieldValue)))
+            ->set('hasOrder', $this->orderField != '' && is_array($this->orderFieldValue))
             ->set('icons', $icons)
             ->set('isGallery', $this->isGallery)
             ->set('orderId', $this->orderId)

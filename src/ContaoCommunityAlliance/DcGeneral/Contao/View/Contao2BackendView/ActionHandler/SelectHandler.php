@@ -322,7 +322,7 @@ class SelectHandler extends AbstractHandler
             $modelIds[] = ModelId::fromSerialized($modelId)->getId();
         }
 
-        $idProperty = (method_exists($dataProvider, 'getIdProperty')) ? $dataProvider->getIdProperty() : 'id';
+        $idProperty = method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
         $collection = $dataProvider->fetchAll(
             $dataProvider->getEmptyConfig()->setFilter(
                 array(

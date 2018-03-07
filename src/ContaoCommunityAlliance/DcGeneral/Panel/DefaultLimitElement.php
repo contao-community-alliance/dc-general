@@ -199,7 +199,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
         );
 
         $optionsPerPage = $this->getItemsPerPage();
-        $optionsTotal   = ceil(($this->intTotal / $optionsPerPage));
+        $optionsTotal   = ceil($this->intTotal / $optionsPerPage);
 
         for ($i = 0; $i < $optionsTotal; $i++) {
             $first      = ($i * $optionsPerPage);

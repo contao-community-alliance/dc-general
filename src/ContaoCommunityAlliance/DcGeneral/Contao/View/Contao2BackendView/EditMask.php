@@ -841,7 +841,7 @@ class EditMask
      */
     private function getLegendClass($first, $visible)
     {
-        $classes = array((($first) ? 'tl_tbox' : 'tl_box'));
+        $classes = array($first ? 'tl_tbox' : 'tl_box');
 
         if (!$visible) {
             $classes[] = ' collapsed';
