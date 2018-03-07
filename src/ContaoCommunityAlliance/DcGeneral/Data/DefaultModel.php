@@ -202,11 +202,7 @@ class DefaultModel extends AbstractModel
      */
     public function hasProperties()
     {
-        if (count($this->arrProperties) != 0) {
-            return true;
-        }
-
-        return false;
+        return count($this->arrProperties) != 0;
     }
 
     /**
