@@ -24,6 +24,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractPropertyOverrideEditAllHandler;
@@ -220,8 +221,6 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
      */
     private function getVisibleModel(ModelInterface $editModel, DataProviderInterface $dataProvider)
     {
-        $propertiesDefinition = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition();
-
         $selectProperties = (array) $this->getPropertiesFromSession();
 
         $visibleModel = $dataProvider->getEmptyModel();
@@ -230,10 +229,6 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         foreach (array_keys($selectProperties) as $visiblePropertyName) {
             $visiblePropertyValue = $editModel->getProperty($visiblePropertyName);
 
-            $property = $propertiesDefinition->getProperty($visiblePropertyName);
-            if (is_numeric($visiblePropertyValue) && (null !== $property->getWidgetType())) {
-                $visiblePropertyValue = (int) $visiblePropertyValue;
-            }
             $visibleModel->setProperty($visiblePropertyName, $visiblePropertyValue);
         }
 
