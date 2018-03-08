@@ -110,16 +110,16 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
                 $editPropertyValuesBag
             );
 
-            if (count($fields) < 1) {
+            if (\count($fields) < 1) {
                 continue;
             }
 
             $fieldSet = [
                 'label'   => $modelId->getSerialized(),
                 'model'   => $model,
-                'legend'  => str_replace('::', '____', $modelId->getSerialized()),
+                'legend'  => \str_replace('::', '____', $modelId->getSerialized()),
                 'class'   => 'tl_box',
-                'palette' => implode('', $fields)
+                'palette' => \implode('', $fields)
             ];
 
             $fieldSets[] = $fieldSet;
@@ -145,7 +145,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
             return $fieldSets;
         }
 
-        foreach (array_keys($fieldSets) as $index) {
+        foreach (\array_keys($fieldSets) as $index) {
             if ($editInformation->getModelError($fieldSets[$index]['model'])) {
                 continue;
             }
@@ -202,7 +202,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         }
 
         if (null === $fields[0]) {
-            $fields[] = sprintf(
+            $fields[] = \sprintf(
                 '<p>&nbsp;</p><strong>%s</strong><p>&nbsp;</p>',
                 $this->getEnvironment()->getTranslator()->translate('MSC.no_properties_available')
             );
@@ -226,7 +226,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         $visibleModel = $dataProvider->getEmptyModel();
         $visibleModel->setId($editModel->getId());
 
-        foreach (array_keys($selectProperties) as $visiblePropertyName) {
+        foreach (\array_keys($selectProperties) as $visiblePropertyName) {
             $visiblePropertyValue = $editModel->getProperty($visiblePropertyName);
 
             $visibleModel->setProperty($visiblePropertyName, $visiblePropertyValue);
@@ -273,7 +273,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
     ) {
         $editErrors = $propertyValuesBag->getInvalidPropertyErrors();
         if ($editErrors
-            && array_key_exists($selectProperty->getName(), $editErrors)
+            && \array_key_exists($selectProperty->getName(), $editErrors)
         ) {
             $propertyValuesBag->markPropertyValueAsInvalid(
                 $editProperty->getName(),
@@ -363,9 +363,9 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
      */
     private function buildEditProperty(PropertyInterface $originalProperty, ModelIdInterface $modelId)
     {
-        $editPropertyClass = get_class($originalProperty);
+        $editPropertyClass = \get_class($originalProperty);
 
-        $editPropertyName = str_replace('::', '____', $modelId->getSerialized()) . '_' . $originalProperty->getName();
+        $editPropertyName = \str_replace('::', '____', $modelId->getSerialized()) . '_' . $originalProperty->getName();
 
         $editProperty = new $editPropertyClass($editPropertyName);
         $editProperty->setLabel($originalProperty->getLabel());

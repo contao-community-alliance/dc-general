@@ -119,9 +119,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             case 'undo':
             case 'edit':
             case 'showAll':
-                $response = call_user_func_array(
+                $response = \call_user_func_array(
                     [$this, $name],
-                    array_merge([$action], $action->getArguments())
+                    \array_merge([$action], $action->getArguments())
                 );
                 $event->setResponse($response);
                 break;
@@ -288,16 +288,16 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $basicDefinition = $definition->getBasicDefinition();
         $buttons         = [];
 
-        $confirmMessage = htmlentities(
-            sprintf(
+        $confirmMessage = \htmlentities(
+            \sprintf(
                 '<h2 class="tl_error">%s</h2>' .
                 '<p></p>' .
                 '<div class="tl_submit_container">' .
                 '<input type="submit" name="close" class="%s" value="%s" onclick="%s">' .
                 '</div>',
-                specialchars($this->translate('MSC.nothingSelect')),
+                \specialchars($this->translate('MSC.nothingSelect')),
                 'tl_submit',
-                specialchars($this->translate('MSC.close')),
+                \specialchars($this->translate('MSC.close')),
                 'this.blur(); BackendGeneral.hideMessage(); return false;'
             )
         );
@@ -307,64 +307,64 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $input = '<input type="submit" name="%s" id="%s" class="tl_submit" accesskey="%s" value="%s" onclick="%s">';
 
         if ($basicDefinition->isDeletable()) {
-            $onClickDelete = sprintf(
+            $onClickDelete = \sprintf(
                 'BackendGeneral.confirmSelectDeleteAll(this, \'%s\', \'%s\', \'%s\', \'%s\', \'%s\'); return false;',
                 'models[]',
                 $confirmMessage,
-                specialchars($this->translate('MSC.delAllConfirm')),
-                specialchars($this->translate('MSC.confirmOk')),
-                specialchars($this->translate('MSC.confirmAbort'))
+                \specialchars($this->translate('MSC.delAllConfirm')),
+                \specialchars($this->translate('MSC.confirmOk')),
+                \specialchars($this->translate('MSC.confirmAbort'))
             );
 
-            $buttons['delete'] = sprintf(
+            $buttons['delete'] = \sprintf(
                 $input,
                 'delete',
                 'delete',
                 'd',
-                specialchars($this->translate('MSC.deleteSelected')),
+                \specialchars($this->translate('MSC.deleteSelected')),
                 $onClickDelete
             );
         }
 
         $sortingProperty = ViewHelpers::getManualSortingProperty($this->getEnvironment());
         if ($sortingProperty && $basicDefinition->isEditable()) {
-            $buttons['cut'] = sprintf(
+            $buttons['cut'] = \sprintf(
                 $input,
                 'cut',
                 'cut',
                 's',
-                specialchars($this->translate('MSC.moveSelected')),
+                \specialchars($this->translate('MSC.moveSelected')),
                 $onClick
             );
         }
 
         if ($basicDefinition->isCreatable()) {
-            $buttons['copy'] = sprintf(
+            $buttons['copy'] = \sprintf(
                 $input,
                 'copy',
                 'copy',
                 'c',
-                specialchars($this->translate('MSC.copySelected')),
+                \specialchars($this->translate('MSC.copySelected')),
                 $onClick
             );
         }
 
         if ($basicDefinition->isEditable()) {
-            $buttons['override'] = sprintf(
+            $buttons['override'] = \sprintf(
                 $input,
                 'override',
                 'override',
                 'v',
-                specialchars($this->translate('MSC.overrideSelected')),
+                \specialchars($this->translate('MSC.overrideSelected')),
                 $onClick
             );
 
-            $buttons['edit'] = sprintf(
+            $buttons['edit'] = \sprintf(
                 $input,
                 'edit',
                 'edit',
                 's',
-                specialchars($this->translate('MSC.editSelected')),
+                \specialchars($this->translate('MSC.editSelected')),
                 $onClick
             );
         }
@@ -385,7 +385,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     protected function isMultiLanguage($mixId)
     {
-        return count($this->getEnvironment()->getController()->getSupportedLanguages($mixId)) > 0;
+        return \count($this->getEnvironment()->getController()->getSupportedLanguages($mixId)) > 0;
     }
 
     /**
@@ -463,7 +463,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return $this->edit($action);
         }
 
-        return vsprintf($this->notImplMsg, 'move - Mode');
+        return \vsprintf($this->notImplMsg, 'move - Mode');
     }
 
     /**
@@ -475,7 +475,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return $this->edit($action);
         }
 
-        return vsprintf($this->notImplMsg, 'undo - Mode');
+        return \vsprintf($this->notImplMsg, 'undo - Mode');
     }
 
     /**
@@ -505,7 +505,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return $this->edit($action);
         }
 
-        return sprintf(
+        return \sprintf(
             $this->notImplMsg,
             'showAll - Mode ' . $this->environment->getDataDefinition()->getBasicDefinition()->getMode()
         );
@@ -553,7 +553,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $arrReturn = $event->getElements();
 
-        if (!is_array($arrReturn) || count($arrReturn) == 0) {
+        if (!\is_array($arrReturn) || \count($arrReturn) == 0) {
             return null;
         }
 
@@ -588,7 +588,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $propertiesDefinition = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition();
 
-        $propertyClass = get_class($originalProperty);
+        $propertyClass = \get_class($originalProperty);
 
         $property = new $propertyClass($inputProvider->getValue('name'));
         $property->setLabel($originalProperty->getLabel());
@@ -630,12 +630,12 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 break;
             }
 
-            $propertyNamePrefix = str_replace('::', '____', $modelId) . '_';
-            if ($propertyNamePrefix !== substr($propertyName, 0, strlen($propertyNamePrefix))) {
+            $propertyNamePrefix = \str_replace('::', '____', $modelId) . '_';
+            if ($propertyNamePrefix !== \substr($propertyName, 0, \strlen($propertyNamePrefix))) {
                 continue;
             }
 
-            $originalPropertyName = substr($propertyName, strlen($propertyNamePrefix));
+            $originalPropertyName = \substr($propertyName, \strlen($propertyNamePrefix));
         }
 
         $propertiesDefinition = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition();

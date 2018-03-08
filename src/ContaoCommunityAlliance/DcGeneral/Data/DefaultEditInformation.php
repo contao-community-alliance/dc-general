@@ -96,7 +96,7 @@ class DefaultEditInformation implements EditInformationInterface
             $this->modelErrors[$modelId->getSerialized()] = [];
         }
 
-        $this->modelErrors[$modelId->getSerialized()][$property->getName()] = array_merge(
+        $this->modelErrors[$modelId->getSerialized()][$property->getName()] = \array_merge(
             (array) $this->modelErrors[$modelId->getSerialized()][$property->getName()],
             $error
         );
@@ -126,7 +126,7 @@ class DefaultEditInformation implements EditInformationInterface
 
         $errors = [];
         foreach ($this->getModelError($model) as $modelError) {
-            $errors = array_merge($errors, $modelError);
+            $errors = \array_merge($errors, $modelError);
         }
 
         return $errors;

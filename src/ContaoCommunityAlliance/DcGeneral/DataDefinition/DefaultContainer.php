@@ -159,7 +159,7 @@ class DefaultContainer implements ContainerInterface
      */
     public function getDefinitionNames()
     {
-        return array_keys($this->definitions);
+        return \array_keys($this->definitions);
     }
 
     /**

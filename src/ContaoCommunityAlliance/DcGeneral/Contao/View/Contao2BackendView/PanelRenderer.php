@@ -141,7 +141,7 @@ class PanelRenderer
     {
         $parsedElements = [];
         $index          = 0;
-        $max            = (count($panel) - 1);
+        $max            = (\count($panel) - 1);
         foreach ($panel as $element) {
             /** @var PanelElementInterface $element */
             // If the current class in the list of ignored panels go to the next one.
@@ -188,14 +188,14 @@ class PanelRenderer
             $panels[] = $this->renderPanelRow($panel, $ignoredPanels);
         }
 
-        if (count($panels)) {
+        if (\count($panels)) {
             $template   = new ContaoBackendViewTemplate('dcbe_general_panel');
             $themeEvent = new GetThemeEvent();
 
             $dispatcher->dispatch(ContaoEvents::BACKEND_GET_THEME, $themeEvent);
 
             $template
-                ->set('action', ampersand($environment->getInputProvider()->getRequestUrl(), true))
+                ->set('action', \ampersand($environment->getInputProvider()->getRequestUrl(), true))
                 ->set('theme', $themeEvent->getTheme())
                 ->set('panel', $panels);
 

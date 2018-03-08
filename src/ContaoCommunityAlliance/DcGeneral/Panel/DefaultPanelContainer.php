@@ -112,6 +112,6 @@ class DefaultPanelContainer implements PanelContainerInterface
      */
     public function count()
     {
-        return count($this->arrPanels);
+        return \count($this->arrPanels);
     }
 }

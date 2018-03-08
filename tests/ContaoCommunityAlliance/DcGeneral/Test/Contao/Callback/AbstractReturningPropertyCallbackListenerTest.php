@@ -54,7 +54,7 @@ class AbstractReturningPropertyCallbackListenerTest extends TestCase
 
     protected function mockPropertyEvent($class, $tablename, $propertyName)
     {
-        if (method_exists($class, 'getProperty')) {
+        if (\method_exists($class, 'getProperty')) {
             $event = $this->getMock($class, ['getEnvironment', 'getProperty'], [], '', false);
             $event
                 ->expects($this->any())

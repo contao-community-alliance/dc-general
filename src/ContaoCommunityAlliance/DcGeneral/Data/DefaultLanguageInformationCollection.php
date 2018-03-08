@@ -59,6 +59,6 @@ class DefaultLanguageInformationCollection implements LanguageInformationCollect
      */
     public function count()
     {
-        return count($this->languages);
+        return \count($this->languages);
     }
 }

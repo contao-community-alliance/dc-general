@@ -100,7 +100,7 @@ class ToggleHandler extends AbstractHandler
 
         // Sad that we can not determine ajax requests better.
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')) {
-            header('HTTP/1.1 204 No Content');
+            \header('HTTP/1.1 204 No Content');
             exit;
         }
 
@@ -126,7 +126,7 @@ class ToggleHandler extends AbstractHandler
 
         // TODO find a way for output the permission message.
         $this->getEvent()->setResponse(
-            sprintf(
+            \sprintf(
                 '<div style="text-align:center; font-weight:bold; padding:40px;">
                     You have no permission for toggle %s.
                 </div>',

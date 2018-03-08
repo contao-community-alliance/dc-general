@@ -1,13 +1,13 @@
-<input type="hidden" name="<?php echo $this->name ?>" id="ctrl_<?php echo $this->id ?>" value="<?php echo implode(',', array_keys($this->values)); ?>">
+<input type="hidden" name="<?php echo $this->name ?>" id="ctrl_<?php echo $this->id ?>" value="<?php echo \implode(',', \array_keys($this->values)); ?>">
 
 <div class="selector_container">
-	<?php if ($this->hasOrder && count($this->values)): ?>
+	<?php if ($this->hasOrder && \count($this->values)): ?>
 		<p class="sort_hint">
 			<?php echo $this->dragItemsHint; ?>
 		</p>
 	<?php endif; ?>
 
-	<ul id="sort_<?php echo $this->id ?>" class="<?= trim(($this->hasOrder ? 'sortable ' : '') . ($this->isGallery ? 'sgallery' : '')) ?>">
+	<ul id="sort_<?php echo $this->id ?>" class="<?= \trim(($this->hasOrder ? 'sortable ' : '') . ($this->isGallery ? 'sgallery' : '')) ?>">
 		<?php foreach ($this->values as $k=>$v): ?>
 			<li data-id="<?php echo $k; ?>"><?php echo $v; ?></li>
 		<?php endforeach; ?>

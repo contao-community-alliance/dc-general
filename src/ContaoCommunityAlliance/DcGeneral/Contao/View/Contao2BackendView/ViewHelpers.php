@@ -140,7 +140,7 @@ class ViewHelpers
             $newSorting = [];
             foreach ($listingConfig->getGroupAndSortingDefinition()->getDefault() as $information) {
                 /** @var GroupAndSortingInformationInterface $information */
-                $newSorting[$information->getProperty()] = strtoupper($information->getSortingMode());
+                $newSorting[$information->getProperty()] = \strtoupper($information->getSortingMode());
             }
             $dataConfig->setSorting($newSorting);
         }
@@ -228,7 +228,7 @@ class ViewHelpers
         if ($input->hasParameter('table') && $input->hasParameter('pid')) {
             if ($input->hasParameter('pid')) {
                 $event = new RedirectEvent(
-                    sprintf(
+                    \sprintf(
                         'contao/main.php?do=%s&table=%s&pid=%s',
                         $input->getParameter('do'),
                         $input->getParameter('table'),
@@ -237,7 +237,7 @@ class ViewHelpers
                 );
             } else {
                 $event = new RedirectEvent(
-                    sprintf(
+                    \sprintf(
                         'contao/main.php?do=%s&table=%s',
                         $input->getParameter('do'),
                         $input->getParameter('table')
@@ -246,7 +246,7 @@ class ViewHelpers
             }
         } else {
             $event = new RedirectEvent(
-                sprintf(
+                \sprintf(
                     'contao/main.php?do=%s',
                     $input->getParameter('do')
                 )

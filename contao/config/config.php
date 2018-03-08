@@ -35,7 +35,7 @@ if (TL_MODE == 'BE') {
 
 $GLOBALS['BE_FFL']['DcGeneralTreePicker'] = TreePicker::class;
 
-$GLOBALS['TL_HOOKS']['executePostActions'] = array_merge(
+$GLOBALS['TL_HOOKS']['executePostActions'] = \array_merge(
     (array) $GLOBALS['TL_HOOKS']['executePostActions'],
     [
         [TreePicker::class, 'updateAjax'],

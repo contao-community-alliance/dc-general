@@ -68,7 +68,7 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
     {
         if (!$environment->getSessionStorage()) {
             $environment->setSessionStorage(
-                new SessionStorage('DC_GENERAL_' . strtoupper($environment->getDataDefinition()->getName()))
+                new SessionStorage('DC_GENERAL_' . \strtoupper($environment->getDataDefinition()->getName()))
             );
         }
 

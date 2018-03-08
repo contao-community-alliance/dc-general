@@ -147,7 +147,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $add        = [];
         $properties = $this->environment->getParentDataDefinition()->getPropertiesDefinition();
         foreach ($this->getViewSection()->getListingConfig()->getHeaderPropertyNames() as $field) {
-            $value = deserialize($parentModel->getProperty($field));
+            $value = \deserialize($parentModel->getProperty($field));
 
             if ($field == 'tstamp') {
                 $value = date(Config::get('datimFormat'), $value);
@@ -170,9 +170,9 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             $add = $event->getAdditional();
         }
 
-        return array_map(
+        return \array_map(
             function ($value) {
-                if (is_array($value)) {
+                if (\is_array($value)) {
                     return $value[0];
                 }
                 return $value;
@@ -194,7 +194,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         if ($field === 'tstamp') {
             $lang = $this->translate('MSC.tstamp');
         } else {
-            $lang = $this->translate(sprintf('%s.0', $field), $parentName);
+            $lang = $this->translate(\sprintf('%s.0', $field), $parentName);
         }
 
         return $lang;
@@ -212,8 +212,8 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
     {
         $evaluation = $property->getExtra();
 
-        if (is_array($value)) {
-            return implode(', ', $value);
+        if (\is_array($value)) {
+            return \implode(', ', $value);
         }
 
         if (!$evaluation['multiple'] && $property->getWidgetType() == 'checkbox') {
@@ -221,7 +221,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
                 ? $this->translate('MSC.yes')
                 : $this->translate('MSC.no');
         }
-        if ($value && in_array($evaluation['rgxp'], ['date', 'time', 'datim'])) {
+        if ($value && \in_array($evaluation['rgxp'], ['date', 'time', 'datim'])) {
             $event = new ParseDateEvent($value, Config::get($evaluation['rgxp'] . 'Format'));
             $this->environment->getEventDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $event);
             return $event->getResult();
@@ -230,7 +230,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             return $this->renderReference($value, $evaluation['reference']);
         }
         $options = $property->getOptions();
-        if ($evaluation['isAssociative'] || array_is_assoc($options)) {
+        if ($evaluation['isAssociative'] || \array_is_assoc($options)) {
             $value = $options[$value];
         }
 
@@ -247,7 +247,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
      */
     private function renderReference($value, $reference)
     {
-        if (is_array($reference[$value])) {
+        if (\is_array($reference[$value])) {
             return $reference[$value][0];
         }
 
@@ -279,7 +279,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $headerButtons['pasteNew']   = $this->getHeaderPasteNewButton($parentModel);
         $headerButtons['pasteAfter'] = $this->getHeaderPasteTopButton($parentModel);
 
-        return implode(' ', $headerButtons);
+        return \implode(' ', $headerButtons);
     }
 
     /**
@@ -340,16 +340,16 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
 
         $href = '';
         foreach ($parameters as $key => $value) {
-            $href .= sprintf('&%s=%s', $key, $value);
+            $href .= \sprintf('&%s=%s', $key, $value);
         }
         /** @var AddToUrlEvent $urlAfter */
         $urlAfter = $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, new AddToUrlEvent($href));
 
-        return sprintf(
+        return \sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $urlAfter->getUrl(),
-            specialchars(
-                sprintf($this->translate('editheader.1', $parentDefinition->getName()), $parentModel->getId())
+            \specialchars(
+                \sprintf($this->translate('editheader.1', $parentDefinition->getName()), $parentModel->getId())
             ),
             $imageEvent->getHtml()
         );
@@ -400,10 +400,10 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             )
         );
 
-        return sprintf(
+        return \sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $urlEvent->getUrl(),
-            specialchars($this->translate('pastenew.0', $parentDefinition->getName())),
+            \specialchars($this->translate('pastenew.0', $parentDefinition->getName())),
             $imageEvent->getHtml()
         );
     }
@@ -467,10 +467,10 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
                 )
             );
 
-            return sprintf(
+            return \sprintf(
                 '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
                 $urlEvent->getUrl(),
-                specialchars($this->translate('pasteafter.0', $definition->getName())),
+                \specialchars($this->translate('pasteafter.0', $definition->getName())),
                 $imageEvent->getHtml()
             );
         }

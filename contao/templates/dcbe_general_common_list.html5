@@ -9,7 +9,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSor
 <?= $this->getMessages(); ?>
 <?php if($this->info): ?>
 <div class="tl_message">
-  <p class="tl_info"><?php echo implode('<br />', $this->info); ?></p>
+  <p class="tl_info"><?php echo \implode('<br />', $this->info); ?></p>
 </div>
 <?php endif; ?>
 <?php $this->endblock(); ?>
@@ -105,7 +105,7 @@ if ($this->mode !== GroupAndSortingInformationInterface::GROUP_NONE) {
                   id="<?= $this->selectCheckBoxIdPrefix ?><?= $model->getId() ?>"
                   class="tl_tree_checkbox"
                   value="<?= ModelId::fromModel($model)->getSerialized() ?>"
-                  <?php if (in_array(ModelId::fromModel($model)->getSerialized(), $this->selectContainer)): ?>checked<?php endif; ?>
+                  <?php if (\in_array(ModelId::fromModel($model)->getSerialized(), $this->selectContainer)): ?>checked<?php endif; ?>
                   >
             </td>
         <?php else : ?>
@@ -135,7 +135,7 @@ SortableTableDnD.init(table);
 <?php if ($this->select) : ?>
     <div class="tl_formbody_submit"<?php if ($this->floatRightSelectButtons): ?> style="text-align:right;"<?php endif; ?>>
       <div class="tl_submit_container">
-        <?= implode(' ', $this->selectButtons); ?>
+        <?= \implode(' ', $this->selectButtons); ?>
       </div>
     </div>
   </div>

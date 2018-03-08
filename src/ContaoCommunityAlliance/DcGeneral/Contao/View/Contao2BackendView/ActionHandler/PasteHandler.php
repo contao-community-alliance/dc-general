@@ -155,7 +155,7 @@ class PasteHandler extends AbstractHandler
     {
         $filter = new Filter();
         $all    = $clipboard->fetch($filter);
-        return (1 === count($all)
+        return (1 === \count($all)
             && $all[0]->isCreate()
             && (null === $all[0]->getModelId())
             && $all[0]->getDataProviderName() === $provider);

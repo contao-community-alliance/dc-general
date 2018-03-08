@@ -212,7 +212,7 @@ class EditMask
     {
         if (!$propertyDefinitions->hasProperty($property)) {
             throw new DcGeneralInvalidArgumentException(
-                sprintf(
+                \sprintf(
                     'Property %s is mentioned in palette but not defined in propertyDefinition.',
                     $property
                 )
@@ -233,7 +233,7 @@ class EditMask
 
         if ($input->getValue('FORM_SUBMIT') == $this->getDataDefinition()->getName()) {
             $propertyValues = new PropertyValueBag();
-            $propertyNames  = array_intersect(
+            $propertyNames  = \array_intersect(
                 $this->getDataDefinition()->getPropertiesDefinition()->getPropertyNames(),
                 (array) $input->getValue('FORM_INPUTS')
             );
@@ -260,7 +260,7 @@ class EditMask
     protected function handlePrePersist()
     {
         if ($this->preFunction !== null) {
-            call_user_func($this->preFunction, $this->getEnvironment(), $this->model, $this->originalModel);
+            \call_user_func($this->preFunction, $this->getEnvironment(), $this->model, $this->originalModel);
         }
 
         $this->getEnvironment()->getEventDispatcher()->dispatch(
@@ -277,7 +277,7 @@ class EditMask
     protected function handlePostPersist()
     {
         if ($this->postFunction != null) {
-            call_user_func($this->postFunction, $this->getEnvironment(), $this->model, $this->originalModel);
+            \call_user_func($this->postFunction, $this->getEnvironment(), $this->model, $this->originalModel);
         }
 
         $event = new PostPersistModelEvent($this->getEnvironment(), $this->model, $this->originalModel);
@@ -321,18 +321,18 @@ class EditMask
         $definition      = $this->getDataDefinition();
         $basicDefinition = $definition->getBasicDefinition();
 
-        $buttons['save'] = sprintf(
+        $buttons['save'] = \sprintf(
             '<input type="submit" name="save" id="save" class="tl_submit" accesskey="s" value="%s" />',
             $this->getButtonLabel('save')
         );
 
-        $buttons['saveNclose'] = sprintf(
+        $buttons['saveNclose'] = \sprintf(
             '<input type="submit" name="saveNclose" id="saveNclose" class="tl_submit" accesskey="c" value="%s" />',
             $this->getButtonLabel('saveNclose')
         );
 
         if (!$this->isPopup() && $basicDefinition->isCreatable()) {
-            $buttons['saveNcreate'] = sprintf(
+            $buttons['saveNcreate'] = \sprintf(
                 '<input type="submit" name="saveNcreate" id="saveNcreate" class="tl_submit" accesskey="n" ' .
                 ' value="%s" />',
                 $this->getButtonLabel('saveNcreate')
@@ -340,7 +340,7 @@ class EditMask
         }
 
         if ($this->getEnvironment()->getInputProvider()->hasParameter('s2e')) {
-            $buttons['saveNedit'] = sprintf(
+            $buttons['saveNedit'] = \sprintf(
                 '<input type="submit" name="saveNedit" id="saveNedit" class="tl_submit" accesskey="e" value="%s" />',
                 $this->getButtonLabel('saveNedit')
             );
@@ -350,7 +350,7 @@ class EditMask
                       || $basicDefinition->isSwitchToEditEnabled()
                   )
         ) {
-            $buttons['saveNback'] = sprintf(
+            $buttons['saveNback'] = \sprintf(
                 '<input type="submit" name="saveNback" id="saveNback" class="tl_submit" accesskey="g" value="%s" />',
                 $this->getButtonLabel('saveNback')
             );
@@ -425,7 +425,7 @@ class EditMask
 
             $fieldSet['label']   = $legendName;
             $fieldSet['class']   = $this->getLegendClass($first, $legendVisible);
-            $fieldSet['palette'] = implode('', $fields);
+            $fieldSet['palette'] = \implode('', $fields);
             $fieldSet['legend']  = $legend->getName();
             $fieldSets[]         = $fieldSet;
 
@@ -738,7 +738,7 @@ class EditMask
             ]
         );
 
-        if (in_array(
+        if (\in_array(
             MultiLanguageDataProviderInterface::class,
             class_implements(
                 $environment->getDataProvider(
@@ -775,7 +775,7 @@ class EditMask
      */
     protected function clearBackendStates()
     {
-        setcookie('BE_PAGE_OFFSET', 0, 0, '/');
+        \setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
         $_SESSION['TL_INFO']    = [];
         $_SESSION['TL_ERROR']   = [];
@@ -792,7 +792,7 @@ class EditMask
      */
     private function isLegendVisible($legend, $legendStates)
     {
-        if (array_key_exists($legend->getName(), $legendStates)) {
+        if (\array_key_exists($legend->getName(), $legendStates)) {
             return $legendStates[$legend->getName()];
         }
 
@@ -810,7 +810,7 @@ class EditMask
         $definition   = $environment->getDataDefinition();
         $legendStates = $environment->getSessionStorage()->get('LEGENDS') ?: [];
 
-        if (array_key_exists($definition->getName(), $legendStates)) {
+        if (\array_key_exists($definition->getName(), $legendStates)) {
             $legendStates = $legendStates[$definition->getName()];
 
             return $legendStates;
@@ -837,6 +837,6 @@ class EditMask
             $classes[] = ' collapsed';
         }
 
-        return implode(' ', $classes);
+        return \implode(' ', $classes);
     }
 }

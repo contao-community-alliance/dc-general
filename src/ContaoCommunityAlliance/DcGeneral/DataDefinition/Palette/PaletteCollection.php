@@ -74,7 +74,7 @@ class PaletteCollection implements PaletteCollectionInterface
      */
     public function addPalette(PaletteInterface $palette)
     {
-        $hash = spl_object_hash($palette);
+        $hash = \spl_object_hash($palette);
 
         $this->palettes[$hash] = $palette;
         return $this;
@@ -85,7 +85,7 @@ class PaletteCollection implements PaletteCollectionInterface
      */
     public function removePalette(PaletteInterface $palette)
     {
-        $hash = spl_object_hash($palette);
+        $hash = \spl_object_hash($palette);
         unset($this->palettes[$hash]);
         return $this;
     }
@@ -95,7 +95,7 @@ class PaletteCollection implements PaletteCollectionInterface
      */
     public function getPalettes()
     {
-        return array_values($this->palettes);
+        return \array_values($this->palettes);
     }
 
     /**
@@ -103,7 +103,7 @@ class PaletteCollection implements PaletteCollectionInterface
      */
     public function hasPalette(PaletteInterface $palette)
     {
-        $hash = spl_object_hash($palette);
+        $hash = \spl_object_hash($palette);
         return isset($this->palettes[$hash]);
     }
 
@@ -130,13 +130,13 @@ class PaletteCollection implements PaletteCollectionInterface
         }
 
         // Sort by count.
-        ksort($matches);
+        \ksort($matches);
 
         // Get palettes with highest matching count.
-        $palettes = array_pop($matches);
+        $palettes = \array_pop($matches);
 
-        if (count($palettes) !== 1) {
-            throw new DcGeneralInvalidArgumentException(sprintf('%d matching palettes found.', count($palettes)));
+        if (\count($palettes) !== 1) {
+            throw new DcGeneralInvalidArgumentException(\sprintf('%d matching palettes found.', \count($palettes)));
         }
 
         return $palettes[0];

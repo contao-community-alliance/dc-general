@@ -137,7 +137,7 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
             $this->getEnvironment()->getEventDispatcher()->dispatch(
                 ContaoEvents::SYSTEM_LOG,
                 new LogEvent(
-                    sprintf(
+                    \sprintf(
                         'Table "%s" is not creatable',
                         'DC_General - DefaultController - copy()',
                         $this->getEnvironment()->getDataDefinition()->getName()
@@ -198,7 +198,7 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
         $modelId = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
 
         $this->getEvent()->setResponse(
-            sprintf(
+            \sprintf(
                 '<div style="text-align:center; font-weight:bold; padding:40px;">
                     You have no permission for copy model %s.
                 </div>',

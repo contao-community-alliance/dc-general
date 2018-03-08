@@ -218,12 +218,12 @@ class FileTree extends AbstractWidget
         $value = $this->dataContainer->getModel()->getProperty($this->orderField);
 
         // support serialized values.
-        if (!is_array($value)) {
-            $value = deserialize($value, true);
+        if (!\is_array($value)) {
+            $value = \deserialize($value, true);
         }
 
-        $this->orderId         = $this->orderField . str_replace($this->strField, '', $this->strId);
-        $this->orderFieldValue = (!empty($value) && is_array($value)) ? array_filter($value) : [];
+        $this->orderId         = $this->orderField . \str_replace($this->strField, '', $this->strId);
+        $this->orderFieldValue = (!empty($value) && \is_array($value)) ? \array_filter($value) : [];
     }
 
     /**
@@ -245,7 +245,7 @@ class FileTree extends AbstractWidget
             return '';
         }
 
-        $inputValue = array_map('\Contao\StringUtil::uuidToBin', array_filter(explode(',', $inputValue)));
+        $inputValue = \array_map('\Contao\StringUtil::uuidToBin', \array_filter(\explode(',', $inputValue)));
 
         return $this->multiple ? $inputValue : $inputValue[0];
     }
@@ -267,7 +267,7 @@ class FileTree extends AbstractWidget
 
         foreach ($collection->getModels() as $model) {
             // File system and database seem not in sync
-            if (!file_exists(TL_ROOT . '/' . $model->path)) {
+            if (!\file_exists(TL_ROOT . '/' . $model->path)) {
                 continue;
             }
 
@@ -293,10 +293,10 @@ class FileTree extends AbstractWidget
         static $allowedDownload;
 
         if ($allowedDownload === null) {
-            $allowedDownload = trimsplit(',', strtolower(Config::get('allowedDownload')));
+            $allowedDownload = \trimsplit(',', \strtolower(Config::get('allowedDownload')));
         }
 
-        return in_array($extension, $allowedDownload);
+        return \in_array($extension, $allowedDownload);
     }
 
     /**
@@ -308,7 +308,7 @@ class FileTree extends AbstractWidget
      */
     protected function renderFileInfo(File $file)
     {
-        return sprintf(
+        return \sprintf(
             '%s <span class="tl_gray">(%s%s)</span>',
             $file->path,
             static::getReadableSize($file->size),
@@ -372,12 +372,12 @@ class FileTree extends AbstractWidget
         if ($file->isSvgImage
             || $file->height <= Config::get('gdMaxImgHeight') && $file->width <= Config::get('gdMaxImgWidth')
         ) {
-            $width  = min($file->width, $this->thumbnailWidth);
-            $height = min($file->height, $this->thumbnailHeight);
+            $width  = \min($file->width, $this->thumbnailWidth);
+            $height = \min($file->height, $this->thumbnailHeight);
             $image  = Image::get($model->path, $width, $height, 'center_center');
         }
 
-        return Image::getHtml($image, '', 'class="gimage" title="' . specialchars($info) . '"');
+        return Image::getHtml($image, '', 'class="gimage" title="' . \specialchars($info) . '"');
     }
 
     /**
@@ -389,7 +389,7 @@ class FileTree extends AbstractWidget
      */
     private function applySorting($icons)
     {
-        if ($this->orderField != '' && is_array($this->orderFieldValue)) {
+        if ($this->orderField != '' && \is_array($this->orderFieldValue)) {
             $ordered = [];
 
             foreach ($this->orderFieldValue as $uuid) {
@@ -426,13 +426,13 @@ class FileTree extends AbstractWidget
             $modelId = $this->dataContainer->getModel()->getProviderName(). '::4294967295';
         }
 
-        return sprintf(
+        return \sprintf(
             '%s?do=%s&amp;field=%s&amp;act=show&amp;id=%s&amp;value=%s&amp;rt=%s',
             'system/modules/dc-general/backend/generalfile.php',
             $inputProvider->getParameter('do'),
             $this->strField,
             $modelId,
-            implode(',', $values),
+            \implode(',', $values),
             RequestToken::get()
         );
     }
@@ -463,8 +463,8 @@ class FileTree extends AbstractWidget
             ->setTranslator($this->getEnvironment()->getTranslator())
             ->set('name', $this->strName)
             ->set('id', $this->strId)
-            ->set('value', implode(',', $values))
-            ->set('hasOrder', $this->orderField != '' && is_array($this->orderFieldValue))
+            ->set('value', \implode(',', $values))
+            ->set('hasOrder', $this->orderField != '' && \is_array($this->orderFieldValue))
             ->set('icons', $icons)
             ->set('isGallery', $this->isGallery)
             ->set('orderId', $this->orderId)

@@ -51,7 +51,7 @@ class DefaultCollection implements CollectionInterface
      */
     public function length()
     {
-        return count($this->arrCollection);
+        return \count($this->arrCollection);
     }
 
     /**
@@ -67,7 +67,7 @@ class DefaultCollection implements CollectionInterface
      */
     public function offsetExists($offset)
     {
-        return array_key_exists($offset, $this->arrCollection);
+        return \array_key_exists($offset, $this->arrCollection);
     }
 
     /**
@@ -103,7 +103,7 @@ class DefaultCollection implements CollectionInterface
      */
     public function get($intIndex)
     {
-        if (array_key_exists($intIndex, $this->arrCollection)) {
+        if (\array_key_exists($intIndex, $this->arrCollection)) {
             return $this->arrCollection[$intIndex];
         }
 
@@ -137,8 +137,8 @@ class DefaultCollection implements CollectionInterface
      */
     public function pop()
     {
-        if (count($this->arrCollection) != 0) {
-            return array_pop($this->arrCollection);
+        if (\count($this->arrCollection) != 0) {
+            return \array_pop($this->arrCollection);
         }
 
         return null;
@@ -154,7 +154,7 @@ class DefaultCollection implements CollectionInterface
     public function unshift(ModelInterface $objModel)
     {
         if ($objModel->hasProperties()) {
-            array_unshift($this->arrCollection, $objModel);
+            \array_unshift($this->arrCollection, $objModel);
         }
     }
 
@@ -167,8 +167,8 @@ class DefaultCollection implements CollectionInterface
      */
     public function shift()
     {
-        if (count($this->arrCollection) != 0) {
-            return array_shift($this->arrCollection);
+        if (\count($this->arrCollection) != 0) {
+            return \array_shift($this->arrCollection);
         }
 
         return null;
@@ -188,7 +188,7 @@ class DefaultCollection implements CollectionInterface
     public function insert($intIndex, ModelInterface $objModel)
     {
         if ($objModel->hasProperties()) {
-            array_insert($this->arrCollection, $intIndex, [$objModel]);
+            \array_insert($this->arrCollection, $intIndex, [$objModel]);
         }
     }
 
@@ -203,7 +203,7 @@ class DefaultCollection implements CollectionInterface
      */
     public function remove($mixedValue)
     {
-        if (is_object($mixedValue)) {
+        if (\is_object($mixedValue)) {
             foreach ($this->arrCollection as $intIndex => $objModel) {
                 if ($mixedValue === $objModel) {
                     unset($this->arrCollection[$intIndex]);
@@ -213,7 +213,7 @@ class DefaultCollection implements CollectionInterface
             unset($this->arrCollection[$mixedValue]);
         }
 
-        $this->arrCollection = array_values($this->arrCollection);
+        $this->arrCollection = \array_values($this->arrCollection);
     }
 
     /**
@@ -391,7 +391,7 @@ class DefaultCollection implements CollectionInterface
     {
         $newCollection = clone $this;
 
-        $newCollection->arrCollection = array_reverse($this->arrCollection);
+        $newCollection->arrCollection = \array_reverse($this->arrCollection);
 
         return $newCollection;
     }
@@ -406,9 +406,9 @@ class DefaultCollection implements CollectionInterface
     public function sort($callback)
     {
         $newCollection = clone $this;
-        uasort($newCollection->arrCollection, $callback);
+        \uasort($newCollection->arrCollection, $callback);
 
-        $newCollection->arrCollection = array_values($newCollection->arrCollection);
+        $newCollection->arrCollection = \array_values($newCollection->arrCollection);
 
         return $newCollection;
     }

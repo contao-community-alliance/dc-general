@@ -66,7 +66,7 @@ class PasteAllHandler extends AbstractHandler
         $collection = $this->getCollection();
 
         // If one item in the clipboard we don´t paste all here.
-        if (count($collection) < 1) {
+        if (\count($collection) < 1) {
             return;
         }
 
@@ -185,7 +185,7 @@ class PasteAllHandler extends AbstractHandler
         foreach ($clipboardItems as $clipboardItem) {
             $modelId = $clipboardItem->getModelId();
             if (!$modelId
-                || array_key_exists($modelId->getSerialized(), $collection)
+                || \array_key_exists($modelId->getSerialized(), $collection)
             ) {
                 continue;
             }
@@ -234,7 +234,7 @@ class PasteAllHandler extends AbstractHandler
 
         $modelIds = $collection->getModelIds();
         foreach ($clipboardItems as $clipboardItem) {
-            if (!in_array($clipboardItem->getModelId()->getId(), $modelIds)) {
+            if (!\in_array($clipboardItem->getModelId()->getId(), $modelIds)) {
                 continue;
             }
 

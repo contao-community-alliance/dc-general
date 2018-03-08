@@ -65,14 +65,14 @@ class Ajax3X extends Ajax
         $widgetManager = new ContaoWidgetManager($environment, $model);
 
         // Process input and update changed properties.
-        $treeType      = substr($property->getWidgetType(), 0, 4);
+        $treeType      = \substr($property->getWidgetType(), 0, 4);
         $propertyValue = $this->getTreeValue($treeType, $propertyValue);
         if (($treeType == 'file') || ($treeType == 'page')) {
             $extra = $property->getExtra();
-            if (is_array($propertyValue) && !isset($extra['multiple'])) {
+            if (\is_array($propertyValue) && !isset($extra['multiple'])) {
                 $propertyValue = $propertyValue[0];
             } else {
-                $propertyValue = implode(',', (array) $propertyValue);
+                $propertyValue = \implode(',', (array) $propertyValue);
             }
         }
 
@@ -100,7 +100,7 @@ class Ajax3X extends Ajax
         $rootId      = $input->getValue('id');
 
         $ajaxId   = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $rootId);
-        $ajaxKey  = str_replace('_' . $ajaxId, '', $rootId);
+        $ajaxKey  = \str_replace('_' . $ajaxId, '', $rootId);
         $ajaxName = null;
         if ($input->getValue('act') == 'editAll') {
             $ajaxKey  = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $ajaxKey);
@@ -141,7 +141,7 @@ class Ajax3X extends Ajax
         $arrData['strTable'] = $input->getParameter('table');
         $arrData['id']       = $field;
         $arrData['name']     = $field;
-        $arrData             = array_merge(
+        $arrData             = \array_merge(
             $environment->getDataDefinition()->getPropertiesDefinition()->getProperty($field)->getExtra(),
             $arrData
         );
@@ -174,7 +174,7 @@ class Ajax3X extends Ajax
     {
         // Convert the selected values.
         if ($varValue != '') {
-            $varValue = trimsplit("\t", $varValue);
+            $varValue = \trimsplit("\t", $varValue);
 
             // Automatically add resources to the DBAFS.
             if ($strType == 'file') {
@@ -210,7 +210,7 @@ class Ajax3X extends Ajax
                 TL_ERROR
             );
             $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::SYSTEM_LOG, $event);
-            header('HTTP/1.1 400 Bad Request');
+            \header('HTTP/1.1 400 Bad Request');
             echo 'Bad Request';
             $this->exitScript();
         }
@@ -305,12 +305,12 @@ class Ajax3X extends Ajax
                 break;
             }
 
-            $propertyNamePrefix = str_replace('::', '____', $modelId) . '_';
-            if ($propertyNamePrefix !== substr($fieldName, 0, strlen($propertyNamePrefix))) {
+            $propertyNamePrefix = \str_replace('::', '____', $modelId) . '_';
+            if ($propertyNamePrefix !== \substr($fieldName, 0, \strlen($propertyNamePrefix))) {
                 continue;
             }
 
-            $originalPropertyName = substr($fieldName, strlen($propertyNamePrefix));
+            $originalPropertyName = \substr($fieldName, \strlen($propertyNamePrefix));
         }
 
         if (!$originalPropertyName) {

@@ -50,7 +50,7 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
      */
     public function getPropertyNames()
     {
-        return array_keys($this->properties);
+        return \array_keys($this->properties);
     }
 
     /**

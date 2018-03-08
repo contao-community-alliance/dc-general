@@ -73,7 +73,7 @@ class TreeView extends BaseView
         $sessionStorage = $this->getEnvironment()->getSessionStorage();
         $openElements   = $sessionStorage->get($this->getToggleId());
 
-        if (!is_array($openElements)) {
+        if (!\is_array($openElements)) {
             $openElements = [];
         }
 
@@ -272,7 +272,7 @@ class TreeView extends BaseView
             $toggleTitle = $this->getEnvironment()->getTranslator()->translate('expandNode', 'MSC');
         }
 
-        $toggleScript = sprintf(
+        $toggleScript = \sprintf(
             'Backend.getScrollOffset(); return BackendGeneral.loadSubTree(this, ' .
             '{\'toggler\':\'%s\', \'id\':\'%s\', \'providerName\':\'%s\', \'level\':\'%s\', \'mode\':\'%s\'});',
             $strToggleID,
@@ -349,7 +349,7 @@ class TreeView extends BaseView
             }
         }
 
-        return implode("\n", $arrHtml);
+        return \implode("\n", $arrHtml);
     }
 
     /**
@@ -393,10 +393,10 @@ class TreeView extends BaseView
             )
         );
 
-        return sprintf(
+        return \sprintf(
             ' <a href="%s" title="%s" %s>%s</a>',
             $event->getHref(),
-            specialchars($strLabel),
+            \specialchars($strLabel),
             'onclick="Backend.getScrollOffset()"',
             $imageEvent->getHtml()
         );
@@ -454,7 +454,7 @@ class TreeView extends BaseView
             $urlEvent = $dispatcher->dispatch(
                 ContaoEvents::BACKEND_ADD_TO_URL,
                 new AddToUrlEvent(
-                    sprintf(
+                    \sprintf(
                         'act=paste&amp;into=%s::0',
                         $definition->getName()
                     )
@@ -564,7 +564,7 @@ class TreeView extends BaseView
         $arrReturn['clipboard'] = $viewEvent->getResponse();
         $arrReturn['body']      = $this->viewTree($collection);
 
-        return implode("\n", $arrReturn);
+        return \implode("\n", $arrReturn);
     }
 
     /**
@@ -582,7 +582,7 @@ class TreeView extends BaseView
 
         switch ($input->getValue('action')) {
             case 'DcGeneralLoadSubTree':
-                header('Content-Type: text/html; charset=' . Config::get('characterSet'));
+                \header('Content-Type: text/html; charset=' . Config::get('characterSet'));
                 echo $this->ajaxTreeView(
                     $input->getValue('id'),
                     $input->getValue('providerName'),
@@ -648,7 +648,7 @@ class TreeView extends BaseView
         }
 
         $session = $this->getEnvironment()->getSessionStorage()->get($sessionName);
-        if (!array_key_exists($selectAction, $session)) {
+        if (!\array_key_exists($selectAction, $session)) {
             return [];
         }
 

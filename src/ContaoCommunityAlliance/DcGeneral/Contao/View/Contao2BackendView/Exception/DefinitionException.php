@@ -55,6 +55,6 @@ class DefinitionException extends DcGeneralRuntimeException
     {
         $this->name = $definitionName;
 
-        parent::__construct(sprintf($this->message, $definitionName), $code, $previous);
+        parent::__construct(\sprintf($this->message, $definitionName), $code, $previous);
     }
 }

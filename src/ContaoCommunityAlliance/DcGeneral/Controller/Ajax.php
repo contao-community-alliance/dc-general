@@ -189,7 +189,7 @@ abstract class Ajax implements EnvironmentAwareInterface
      */
     public function executePostActions(DataContainerInterface $objDc)
     {
-        header('Content-Type: text/html; charset=' . $GLOBALS['TL_CONFIG']['characterSet']);
+        \header('Content-Type: text/html; charset=' . $GLOBALS['TL_CONFIG']['characterSet']);
 
         $this->objDc = $objDc;
 

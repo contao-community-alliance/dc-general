@@ -126,7 +126,7 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
         $strHref       = '';
 
         foreach ($arrParameters as $key => $value) {
-            $strHref .= sprintf('&%s=%s', $key, $value);
+            $strHref .= \sprintf('&%s=%s', $key, $value);
         }
 
         return $strHref;

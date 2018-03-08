@@ -68,15 +68,15 @@ class ColorPickerWizardSubscriber
         $propExtra  = $propInfo->getExtra();
         $assetsPath = 'assets/mootools/colorpicker/' . $GLOBALS['TL_ASSETS']['COLORPICKER'] . '/images/';
 
-        if (is_array($propExtra) && array_key_exists('colorpicker', $propExtra) && $propExtra['colorpicker']) {
+        if (\is_array($propExtra) && \array_key_exists('colorpicker', $propExtra) && $propExtra['colorpicker']) {
             $pickerText = $translator->translate('colorpicker', 'MSC');
             $event      = new GenerateHtmlEvent(
                 'pickcolor.gif',
                 $pickerText,
-                sprintf(
+                \sprintf(
                     'style="%s" title="%s" id="moo_%s"',
                     'vertical-align:top;cursor:pointer',
-                    specialchars($pickerText),
+                    \specialchars($pickerText),
                     $propInfo->getName()
                 )
             );
@@ -86,7 +86,7 @@ class ColorPickerWizardSubscriber
             // Support single fields as well (see contao/core#5240)
             $strKey = $propExtra['multiple'] ? $propInfo->getName() . '_0' : $propInfo->getName();
 
-            $wizard .= sprintf(
+            $wizard .= \sprintf(
                 ' %1$s <script>var cl;window.addEvent("domready", function() { new MooRainbow("moo_%2$s", {' .
                 'id: "ctrl_%3$s", startColor: ((cl = $("ctrl_%3$s").value.hexToRgb(true)) ? cl : [255, 0, 0]),' .
                 'imgPath: "%4$s", onComplete: function(color) {$("ctrl_%3$s").value = color.hex.replace("#", "");}});' .

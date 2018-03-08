@@ -219,9 +219,9 @@ class SelectHandler extends AbstractHandler
 
         // If collection not empty set to the session and return it.
         if (!empty($collection)) {
-            $sessionCollection = array_map(
+            $sessionCollection = \array_map(
                 function ($item) use ($index) {
-                    if (!in_array($index, ['models', 'properties'])) {
+                    if (!\in_array($index, ['models', 'properties'])) {
                         return $item;
                     }
 
@@ -247,9 +247,9 @@ class SelectHandler extends AbstractHandler
         }
 
         // Get the verify collection from the session and return it.
-        $collection = array_map(
+        $collection = \array_map(
             function ($item) use ($index) {
-                if (!in_array($index, ['models', 'properties'])) {
+                if (!\in_array($index, ['models', 'properties'])) {
                     return $item;
                 }
 
@@ -467,7 +467,7 @@ class SelectHandler extends AbstractHandler
     private function handleNonEditAction()
     {
         $submitAction = $this->getSubmitAction();
-        if (!in_array($submitAction, ['delete', 'copy', 'cut'])) {
+        if (!\in_array($submitAction, ['delete', 'copy', 'cut'])) {
             return;
         }
 
@@ -499,7 +499,7 @@ class SelectHandler extends AbstractHandler
     private function handleNonSelectByShowAllAction()
     {
         $submitAction = $this->getSubmitAction(true);
-        if (in_array($submitAction, ['cut', 'delete', 'copy', 'override', 'edit'])) {
+        if (\in_array($submitAction, ['cut', 'delete', 'copy', 'override', 'edit'])) {
             return;
         }
 
@@ -556,7 +556,7 @@ class SelectHandler extends AbstractHandler
 
         $parametersBackButton = $backButton->getParameters();
 
-        if (in_array($this->getSelectAction(), ['properties', 'edit'])) {
+        if (\in_array($this->getSelectAction(), ['properties', 'edit'])) {
             $parametersBackButton->offsetSet('act', 'select');
             $parametersBackButton->offsetSet('select', ($this->getSelectAction() === 'edit') ? 'properties' : 'models');
             $parametersBackButton->offsetSet('mode', $this->getSubmitAction(true));
@@ -614,7 +614,7 @@ class SelectHandler extends AbstractHandler
         $modelIds = (array) $this->getEnvironment()->getInputProvider()->getValue('models');
 
         if (!empty($modelIds)) {
-            $modelIds = array_map(
+            $modelIds = \array_map(
                 function ($modelId) {
                     return ModelId::fromSerialized($modelId);
                 },
@@ -637,7 +637,7 @@ class SelectHandler extends AbstractHandler
      */
     private function clearClipboardBySubmitAction()
     {
-        if (in_array($this->getSubmitAction(), ['edit', 'override'])) {
+        if (\in_array($this->getSubmitAction(), ['edit', 'override'])) {
             return;
         }
 
@@ -662,7 +662,7 @@ class SelectHandler extends AbstractHandler
         }
 
         $items = $this->getEnvironment()->getClipboard()->fetch($filter);
-        if (count($items) < 1) {
+        if (\count($items) < 1) {
             return;
         }
 

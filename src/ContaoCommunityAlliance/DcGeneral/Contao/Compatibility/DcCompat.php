@@ -59,8 +59,8 @@ class DcCompat extends DC_General
     {
         // Prevent "Recoverable error: Argument X passed to SomClass::someMethod() must be an instance of DataContainer,
         // instance of ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat given" in callbacks.
-        if (!class_exists('\DataContainer', false)) {
-            class_alias('\Contao\DataContainer', '\DataContainer');
+        if (!\class_exists('\DataContainer', false)) {
+            \class_alias('\Contao\DataContainer', '\DataContainer');
         }
         $this->objEnvironment = $environment;
         $this->model          = $model;

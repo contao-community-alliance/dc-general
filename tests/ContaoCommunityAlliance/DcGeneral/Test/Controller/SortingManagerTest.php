@@ -167,7 +167,7 @@ class SortingManagerTest extends TestCase
             $siblingCollection->push($model);
             $siblings[$id] = $model;
 
-            if (in_array($id, $resortingIds)) {
+            if (\in_array($id, $resortingIds)) {
                 $modelCollection->push($model);
             }
 
@@ -214,7 +214,7 @@ class SortingManagerTest extends TestCase
         foreach ($expectedOrder as $id) {
             // Only compare if previous model is given and not identical with test model.
             // Only test affected items as well.
-            if ($previousModel && $previousModel->getId() != $id && in_array($id, $affected)) {
+            if ($previousModel && $previousModel->getId() != $id && \in_array($id, $affected)) {
                 $this->assertGreaterThan($position, $siblings[$id]->getProperty('sorting'));
                 $this->assertGreaterThanOrEqual(2, ($siblings[$id]->getProperty('sorting') - $position));
                 $this->assertLessThanOrEqual(128, ($siblings[$id]->getProperty('sorting') - $position));
@@ -227,7 +227,7 @@ class SortingManagerTest extends TestCase
         }
 
         // Explicit compare the new order with expected order.
-        ksort($ordered);
-        $this->assertEquals(array_values($ordered), $expectedOrder);
+        \ksort($ordered);
+        $this->assertEquals(\array_values($ordered), $expectedOrder);
     }
 }

@@ -63,13 +63,13 @@ class DumpingPropertyCondition implements PropertyConditionInterface
 
         // @codingStandardsIgnoreStart - We explicitely allow var_dump() here for debugging purposes.
         echo '<pre>$condition: </pre>';
-        var_dump($this->propertyCondition);
+        \var_dump($this->propertyCondition);
         echo '<pre>$model: </pre>';
-        var_dump($model);
+        \var_dump($model);
         echo '<pre>$input: </pre>';
-        var_dump($input);
+        \var_dump($input);
         echo '<pre>$condition->match() result: </pre>';
-        var_dump($result);
+        \var_dump($result);
         echo '<pre>';
         debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
         echo '</pre>';

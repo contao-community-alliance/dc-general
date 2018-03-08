@@ -111,7 +111,7 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
                 $arrFilter     = $condition->getFilter($objParent);
 
                 if ($arrBaseFilter) {
-                    $arrFilter = array_merge($arrBaseFilter, $arrFilter);
+                    $arrFilter = \array_merge($arrBaseFilter, $arrFilter);
                 }
 
                 $config->setFilter([['operation' => 'AND', 'children'  => $arrFilter,]]);

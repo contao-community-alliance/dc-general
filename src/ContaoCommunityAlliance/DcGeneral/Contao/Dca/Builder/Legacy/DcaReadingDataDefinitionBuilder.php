@@ -71,11 +71,11 @@ abstract class DcaReadingDataDefinitionBuilder extends AbstractEventDrivenDataDe
      */
     protected function getFromDca($path)
     {
-        $chunks = explode('/', trim($path, '/'));
+        $chunks = \explode('/', \trim($path, '/'));
         $dca    = $this->dca;
 
-        while (($chunk = array_shift($chunks)) !== null) {
-            if (!(is_array($dca) && array_key_exists($chunk, $dca))) {
+        while (($chunk = \array_shift($chunks)) !== null) {
+            if (!(\is_array($dca) && \array_key_exists($chunk, $dca))) {
                 return null;
             }
 

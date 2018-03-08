@@ -63,9 +63,9 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      */
     public function __construct($children = [])
     {
-        if (!is_array($children)) {
+        if (!\is_array($children)) {
             throw new DcGeneralInvalidArgumentException(
-                __CLASS__ . ' needs a valid child filter array ' . gettype($children) . 'given'
+                __CLASS__ . ' needs a valid child filter array ' . \gettype($children) . 'given'
             );
         }
 
@@ -139,7 +139,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      */
     public function valid()
     {
-        return ($this->index > -1) && ($this->index < count($this->children));
+        return ($this->index > -1) && ($this->index < \count($this->children));
     }
 
     /**
@@ -161,7 +161,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      */
     public function first()
     {
-        $this->index = count($this->children) ? 0 : (-1);
+        $this->index = \count($this->children) ? 0 : (-1);
 
         if ($this->index === -1) {
             return null;

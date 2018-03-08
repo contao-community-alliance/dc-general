@@ -164,7 +164,7 @@ class DefaultController implements ControllerInterface
     public function searchParentOfIn(ModelInterface $model, CollectionInterface $models)
     {
         // @codingStandardsIgnoreStart
-        @trigger_error(
+        @\trigger_error(
             'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOfIn().',
             E_USER_DEPRECATED
         );
@@ -185,7 +185,7 @@ class DefaultController implements ControllerInterface
     public function searchParentOf(ModelInterface $model)
     {
         // @codingStandardsIgnoreStart
-        @trigger_error(
+        @\trigger_error(
             'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOf().',
             E_USER_DEPRECATED
         );
@@ -204,7 +204,7 @@ class DefaultController implements ControllerInterface
     public function assembleAllChildrenFrom($objModel, $strDataProvider = '')
     {
         // @codingStandardsIgnoreStart
-        @trigger_error(
+        @\trigger_error(
             'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectChildrenOf()',
             E_USER_DEPRECATED
         );
@@ -234,7 +234,7 @@ class DefaultController implements ControllerInterface
         ModelIdInterface $parentId = null
     ) {
         // @codingStandardsIgnoreStart
-        @trigger_error(
+        @\trigger_error(
             'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectSiblingsOf()',
             E_USER_DEPRECATED
         );
@@ -395,7 +395,7 @@ class DefaultController implements ControllerInterface
         $properties   = $environment->getDataDefinition()->getPropertiesDefinition();
         $dataProvider = $environment->getDataProvider($clone->getProviderName());
 
-        foreach (array_keys($clone->getPropertiesAsArray()) as $propName) {
+        foreach (\array_keys($clone->getPropertiesAsArray()) as $propName) {
             // If the property is not known, remove it.
             if (!$properties->hasProperty($propName)) {
                 continue;
@@ -420,7 +420,7 @@ class DefaultController implements ControllerInterface
     public function fetchModelFromProvider($modelId, $providerName = null)
     {
         // @codingStandardsIgnoreStart
-        @trigger_error(
+        @\trigger_error(
             'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::getModel()',
             E_USER_DEPRECATED
         );
@@ -940,7 +940,7 @@ class DefaultController implements ControllerInterface
         }
         $environment = $this->getEnvironment();
 
-        if (in_array(
+        if (\in_array(
             $environment
                 ->getDataDefinition()
                 ->getBasicDefinition()

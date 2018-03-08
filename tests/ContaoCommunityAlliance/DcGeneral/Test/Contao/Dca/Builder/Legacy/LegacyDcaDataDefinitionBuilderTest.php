@@ -117,7 +117,7 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
         );
 
         $event->setProperty('testProperty');
-        $this->assertEquals(1, count($dispatcher->getListeners(EncodePropertyValueFromWidgetEvent::NAME)));
+        $this->assertEquals(1, \count($dispatcher->getListeners(EncodePropertyValueFromWidgetEvent::NAME)));
         foreach ($dispatcher->getListeners(EncodePropertyValueFromWidgetEvent::NAME) as $listener) {
             /** @var AbstractCallbackListener $listener */
             $this->assertTrue($listener->wantToExecute($event));

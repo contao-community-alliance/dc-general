@@ -292,7 +292,7 @@ class DefaultEnvironment implements EnvironmentInterface
             return $this->arrDataProvider[$strSource];
         }
 
-        throw new DcGeneralRuntimeException(sprintf('Data provider %s not defined', $strSource));
+        throw new DcGeneralRuntimeException(\sprintf('Data provider %s not defined', $strSource));
     }
 
     /**

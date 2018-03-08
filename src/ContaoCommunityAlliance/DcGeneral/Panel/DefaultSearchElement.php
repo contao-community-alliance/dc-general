@@ -63,7 +63,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
             $arrValue = $this->getSessionStorage()->get('search');
         }
 
-        if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
+        if (\array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
             return $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
         }
 
@@ -88,7 +88,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
         }
 
         if (!empty($strValue)) {
-            if (!is_array($arrValue[$definitionName])) {
+            if (!\is_array($arrValue[$definitionName])) {
                 $arrValue[$definitionName] = [];
             }
 
@@ -136,12 +136,12 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
         }
 
         $arrCurrent = $objConfig->getFilter();
-        if (!is_array($arrCurrent)) {
+        if (!\is_array($arrCurrent)) {
             $arrCurrent = [];
         }
 
         $objConfig->setFilter(
-            array_merge_recursive(
+            \array_merge_recursive(
                 $arrCurrent,
                 [
                     [
@@ -150,7 +150,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
                             [
                                 'operation' => 'LIKE',
                                 'property'  => $this->getSelectedProperty(),
-                                'value'     => sprintf('*%s*', $this->getValue())
+                                'value'     => \sprintf('*%s*', $this->getValue())
                             ]
                         ]
                     ]
@@ -164,7 +164,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
      */
     public function render(ViewTemplateInterface $objTemplate)
     {
-        $arrOptions = array();
+        $arrOptions = [];
 
         foreach ($this->getPropertyNames() as $field) {
             $arrLabel     = $this
@@ -173,12 +173,11 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
                 ->getPropertiesDefinition()
                 ->getProperty($field)
                 ->getLabel();
-            $arrOptions[] = array
-            (
-                'value'      => $field,
-                'content'    => is_array($arrLabel) ? $arrLabel[0] : $arrLabel,
-                'attributes' => ($field == $this->getSelectedProperty()) ? ' selected' : ''
-            );
+            $arrOptions[] = [
+                    'value'      => $field,
+                    'content'    => \is_array($arrLabel) ? $arrLabel[0] : $arrLabel,
+                    'attributes' => ($field == $this->getSelectedProperty()) ? ' selected' : ''
+                ];
         }
 
         $objTemplate->set('class', 'tl_select' . (($this->getValue() !== null) ? ' active' : ''));

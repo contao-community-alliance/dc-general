@@ -60,6 +60,6 @@ class DefaultFilterOptionCollection implements FilterOptionCollectionInterface
      */
     public function count()
     {
-        return count($this->filterValues);
+        return \count($this->filterValues);
     }
 }

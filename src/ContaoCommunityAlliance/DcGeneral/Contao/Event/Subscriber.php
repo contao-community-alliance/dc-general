@@ -118,14 +118,14 @@ class Subscriber implements EventSubscriberInterface
 
         if ($error instanceof \Exception) {
             $event->setError($error->getMessage());
-        } elseif (is_object($error)) {
-            if (method_exists($error, '__toString')) {
+        } elseif (\is_object($error)) {
+            if (\method_exists($error, '__toString')) {
                 $event->setError((string) $error);
             } else {
-                $event->setError(sprintf('[%s]', get_class($error)));
+                $event->setError(\sprintf('[%s]', \get_class($error)));
             }
-        } elseif (!is_string($error)) {
-            $event->setError(sprintf('[%s]', gettype($error)));
+        } elseif (!\is_string($error)) {
+            $event->setError(\sprintf('[%s]', \gettype($error)));
         }
     }
 
@@ -167,7 +167,7 @@ class Subscriber implements EventSubscriberInterface
             ->setProperty($property)
             ->setValue($value);
 
-        $environment->getEventDispatcher()->dispatch(sprintf('%s', $event::NAME), $event);
+        $environment->getEventDispatcher()->dispatch(\sprintf('%s', $event::NAME), $event);
 
         return $event->getValue();
     }
@@ -219,7 +219,7 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
-        if (is_array($value)) {
+        if (\is_array($value)) {
             self::renderArrayReadable($event, $value);
 
             return;
@@ -291,7 +291,7 @@ class Subscriber implements EventSubscriberInterface
      */
     public function initializePanels(ActionEvent $event)
     {
-        if (!in_array(
+        if (!\in_array(
             $event->getAction()->getName(),
             ['copy', 'create', 'paste', 'delete', 'move', 'undo', 'edit', 'toggle', 'showAll', 'show']
         )) {
@@ -372,13 +372,13 @@ class Subscriber implements EventSubscriberInterface
     private static function renderArrayReadable(RenderReadablePropertyValueEvent $event, $value)
     {
         foreach ($value as $kk => $vv) {
-            if (is_array($vv)) {
-                $vals       = array_values($vv);
+            if (\is_array($vv)) {
+                $vals       = \array_values($vv);
                 $value[$kk] = $vals[0] . ' (' . $vals[1] . ')';
             }
         }
 
-        $event->setRendered(implode(', ', $value));
+        $event->setRendered(\implode(', ', $value));
     }
 
     /**
@@ -415,15 +415,15 @@ class Subscriber implements EventSubscriberInterface
      */
     private static function renderReferenceReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
     {
-        if (!is_array($extra['reference'])) {
+        if (!\is_array($extra['reference'])) {
             return;
         }
 
-        if (!array_key_exists($value, $extra['reference'])) {
+        if (!\array_key_exists($value, $extra['reference'])) {
             return;
         }
 
-        if (is_array($extra['reference'][$value])) {
+        if (\is_array($extra['reference'][$value])) {
             $event->setRendered($extra['reference'][$value][0]);
 
             return;
@@ -447,7 +447,7 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
-        $event->setRendered(nl2br_html5(specialchars($value)));
+        $event->setRendered(\nl2br_html5(\specialchars($value)));
     }
 
     /**
@@ -469,7 +469,7 @@ class Subscriber implements EventSubscriberInterface
             }
         }
 
-        if (array_is_assoc($options)) {
+        if (\array_is_assoc($options)) {
             $event->setRendered($options[$value]);
         }
     }

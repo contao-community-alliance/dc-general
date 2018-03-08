@@ -120,7 +120,7 @@ class BaseComparingFilterBuilder extends BaseFilterBuilder
         }
 
         if (!(isset($value) && isset($property))) {
-            throw new DcGeneralInvalidArgumentException('Invalid filter array provided  ' . var_export($array, true));
+            throw new DcGeneralInvalidArgumentException('Invalid filter array provided  ' . \var_export($array, true));
         }
 
         return new static($property, $value, $isRemote, $isRemoteProp);

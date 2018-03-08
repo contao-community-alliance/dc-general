@@ -65,7 +65,7 @@ class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionI
      */
     public function addChildCondition($condition)
     {
-        $hash = spl_object_hash($condition);
+        $hash = \spl_object_hash($condition);
 
         $this->childConditions[$hash] = $condition;
 
@@ -120,7 +120,7 @@ class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionI
         foreach ($this->childConditions as $condition) {
             $bobaFett = clone $condition;
 
-            $conditions[spl_object_hash($bobaFett)] = $bobaFett;
+            $conditions[\spl_object_hash($bobaFett)] = $bobaFett;
         }
         $this->childConditions = $conditions;
     }

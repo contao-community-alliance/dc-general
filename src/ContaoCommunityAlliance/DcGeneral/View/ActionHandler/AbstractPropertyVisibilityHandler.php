@@ -56,7 +56,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
                 continue;
             }
 
-            $propertyClass = get_class($property);
+            $propertyClass = \get_class($property);
 
             $newProperty = new $propertyClass($propertyName . '.dummy');
             $newProperty->setLabel($property->getLabel());
@@ -89,7 +89,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
         $palettesDefinition = $this->getEnvironment()->getDataDefinition()->getPalettesDefinition();
 
         $excludeProperty = false;
-        if (1 === count($palettesDefinition->getPalettes())) {
+        if (1 === \count($palettesDefinition->getPalettes())) {
             return $excludeProperty;
         }
 
@@ -110,7 +110,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
             $event->setPropertyName($property->getName());
             $event->setOptions($property->getOptions());
             $this->getEnvironment()->getEventDispatcher()->dispatch(GetPropertyOptionsEvent::NAME, $event);
-            if (0 > count($event->getOptions())) {
+            if (0 > \count($event->getOptions())) {
                 continue;
             }
 
@@ -118,10 +118,10 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
             if (null === $event->getOptions()) {
                 continue;
             }
-            foreach (array_keys($event->getOptions()) as $paletteName) {
+            foreach (\array_keys($event->getOptions()) as $paletteName) {
                 $palettesDefinition->hasPaletteByName($paletteName) ? ++$paletteCounter : null;
             }
-            if ($paletteCounter !== count($event->getOptions())) {
+            if ($paletteCounter !== \count($event->getOptions())) {
                 continue;
             }
 
@@ -209,7 +209,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
     private function matchVisibilityOfPropertyInAnyPalette(PropertyInterface $property, $invisible)
     {
         $palettesDefinition = $this->getEnvironment()->getDataDefinition()->getPalettesDefinition();
-        if (true === $invisible || 1 === count($palettesDefinition->getPalettes())) {
+        if (true === $invisible || 1 === \count($palettesDefinition->getPalettes())) {
             return $invisible;
         }
 
@@ -260,7 +260,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
 
         $invisibleProperty       = false;
         $paletteSelectorProperty = $propertiesDefinition->getProperty($selectorProperty->getName());
-        foreach (array_keys($paletteSelectorProperty->getOptions()) as $paletteName) {
+        foreach (\array_keys($paletteSelectorProperty->getOptions()) as $paletteName) {
             if (!$palettesDefinition->hasPaletteByName($paletteName)) {
                 continue;
             }
@@ -360,14 +360,14 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
             $labelParentProperty = !$informationProperty->getLabel() ? $propertyName : $informationProperty->getLabel();
             $labelEditProperty   = !$property->getLabel() ? $property->getName() : $property->getLabel();
 
-            $information[] = sprintf(
+            $information[] = \sprintf(
                 '<p class="tl_new">' . $translator->translate('MSC.select_parent_property_info') . '</p>',
                 $labelParentProperty,
                 $labelEditProperty
             );
         }
 
-        return implode('', $information);
+        return \implode('', $information);
     }
 
     /**
@@ -396,13 +396,13 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
         foreach ($properties as $propertyName => $informationProperty) {
             $label = !$informationProperty->getLabel() ? $propertyName : $informationProperty->getLabel();
 
-            $information[] = sprintf(
+            $information[] = \sprintf(
                 '<p class="tl_new">' . $translator->translate('MSC.select_property_info') . '</p>',
                 $label
             );
         }
 
-        return implode('', $information);
+        return \implode('', $information);
     }
 
     /**
@@ -417,7 +417,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
     {
         $palettesDefinition = $this->getEnvironment()->getDataDefinition()->getPalettesDefinition();
 
-        if (!empty($invisibleProperties) || 1 > count($palettesDefinition->getPalettes())) {
+        if (!empty($invisibleProperties) || 1 > \count($palettesDefinition->getPalettes())) {
             return;
         }
 
@@ -427,7 +427,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
 
         $palette = $palettesDefinition->findPalette($model);
         foreach ($palette->getProperties() as $paletteProperty) {
-            if (!array_key_exists($paletteProperty->getName(), $session['intersectValues'])) {
+            if (!\array_key_exists($paletteProperty->getName(), $session['intersectValues'])) {
                 continue;
             }
 
@@ -460,7 +460,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
                 $this->matchInvisibleProperty($condition, $invisibleProperties);
             }
 
-            if (!method_exists($condition, 'getPropertyName')) {
+            if (!\method_exists($condition, 'getPropertyName')) {
                 continue;
             }
 
@@ -548,7 +548,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
                 $this->matchParentInvisibleProperty($condition, $property, $legendProperty, $invisibleProperties);
             }
 
-            if (!method_exists($condition, 'getPropertyName')
+            if (!\method_exists($condition, 'getPropertyName')
                 || ($property->getName() !== $condition->getPropertyName())
             ) {
                 continue;
@@ -585,7 +585,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
         $defaultPalette      = null;
         $legendPropertyNames = $this->getLegendPropertyNames($intersectModel, $defaultPalette);
 
-        $idProperty = method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
+        $idProperty = \method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
         foreach ($session['intersectValues'] as $intersectProperty => $intersectValue) {
             if (($idProperty === $intersectProperty)
                 || !$propertiesDefinition->hasProperty($intersectProperty)
@@ -633,7 +633,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
 
         if ($defaultPalette
             && (false === $useIntersectValue)
-            && in_array($intersectPropertyName, $legendPropertyNames)
+            && \in_array($intersectPropertyName, $legendPropertyNames)
         ) {
             $useIntersectValue = true;
         }
@@ -683,7 +683,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
 
         $parentField = null;
         foreach ($childCondition->getSetters() as $setter) {
-            if (!array_key_exists('to_field', $setter)) {
+            if (!\array_key_exists('to_field', $setter)) {
                 continue;
             }
 
@@ -714,7 +714,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
         $palettesDefinition = $this->getEnvironment()->getDataDefinition()->getPalettesDefinition();
 
         $legendPropertyNames = [];
-        if ($inputProvider->hasValue('FORM_INPUTS') && 1 === count($palettesDefinition->getPalettes())) {
+        if ($inputProvider->hasValue('FORM_INPUTS') && 1 === \count($palettesDefinition->getPalettes())) {
             return $legendPropertyNames;
         }
 

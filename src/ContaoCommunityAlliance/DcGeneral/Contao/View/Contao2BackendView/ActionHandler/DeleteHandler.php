@@ -133,7 +133,7 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
             $this->getEnvironment()->getEventDispatcher()->dispatch(
                 ContaoEvents::SYSTEM_LOG,
                 new LogEvent(
-                    sprintf(
+                    \sprintf(
                         'Table "%s" is not deletable',
                         'DC_General - DefaultController - delete()',
                         $this->getEnvironment()->getDataDefinition()->getName()
@@ -193,7 +193,7 @@ class DeleteHandler extends AbstractEnvironmentAwareHandler
         }
 
         $this->getEvent()->setResponse(
-            sprintf(
+            \sprintf(
                 '<div style="text-align:center; font-weight:bold; padding:40px;">
                     You have no permission for delete model %s.
                 </div>',

@@ -65,7 +65,7 @@ abstract class AbstractReturningPropertyCallbackListener extends AbstractReturni
      */
     public function wantToExecute($event)
     {
-        if (method_exists($event, 'getPropertyName')) {
+        if (\method_exists($event, 'getPropertyName')) {
             $property = $event->getPropertyName();
         } else {
             if ($event->getProperty() instanceof PropertyInterface) {

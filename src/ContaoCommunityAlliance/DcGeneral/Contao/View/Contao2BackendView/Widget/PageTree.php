@@ -54,7 +54,7 @@ class PageTree extends TreePicker
             return '';
         }
 
-        $inputValue = explode(',', $inputValue);
+        $inputValue = \explode(',', $inputValue);
 
         return $this->multiple ? $inputValue : $inputValue[0];
     }

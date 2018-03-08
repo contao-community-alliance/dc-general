@@ -109,7 +109,7 @@ class EditHandler extends AbstractHandler
         $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
 
         $this->getEvent()->setResponse(
-            sprintf(
+            \sprintf(
                 '<div style="text-align:center; font-weight:bold; padding:40px;">
                     You have no permission for edit model %s.
                 </div>',
@@ -151,7 +151,7 @@ class EditHandler extends AbstractHandler
             $model = $dataProvider->getVersion($modelId->getId(), $modelVersion);
 
             if ($model === null) {
-                $message = sprintf(
+                $message = \sprintf(
                     'Could not load version %s of record ID %s from %s',
                     $modelVersion,
                     $modelId->getId(),

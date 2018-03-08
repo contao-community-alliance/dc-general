@@ -59,7 +59,7 @@ class ShowHandler extends AbstractHandler
         $environment->getEventDispatcher()->dispatch(
             ContaoEvents::SYSTEM_LOG,
             new LogEvent(
-                sprintf(
+                \sprintf(
                     'Could not find ID %s in %s.',
                     'DC_General show()',
                     $modelId->getId(),
@@ -96,7 +96,7 @@ class ShowHandler extends AbstractHandler
             $label = $environment->getTranslator()->translate('MSC.' . $property->getName());
         }
 
-        if (is_array($label)) {
+        if (\is_array($label)) {
             $label = $label[0];
         }
 
@@ -207,8 +207,8 @@ class ShowHandler extends AbstractHandler
             $template
                 ->set('languages', $environment->getController()->getSupportedLanguages($model->getId()))
                 ->set('currentLanguage', $dataProvider->getCurrentLanguage())
-                ->set('languageSubmit', specialchars($translator->translate('MSC.showSelected')))
-                ->set('backBT', specialchars($translator->translate('MSC.backBT')));
+                ->set('languageSubmit', \specialchars($translator->translate('MSC.showSelected')))
+                ->set('backBT', \specialchars($translator->translate('MSC.backBT')));
         } else {
             $template->set('languages', null);
         }

@@ -21,9 +21,7 @@
  */
 
 // Register the templates.
-TemplateLoader::addFiles(
-    array
-    (
+TemplateLoader::addFiles([
         'dcbe_general_common_list'      => 'system/modules/dc-general/templates',
         'dcbe_general_edit'             => 'system/modules/dc-general/templates',
         'dcbe_general_field'            => 'system/modules/dc-general/templates',
@@ -54,5 +52,5 @@ TemplateLoader::addFiles(
         'widget_treepicker_popup'       => 'system/modules/dc-general/templates',
         'widget_treepicker_entry'       => 'system/modules/dc-general/templates',
         'widget_treepicker_child'       => 'system/modules/dc-general/templates',
-    )
+    ]
 );

@@ -115,7 +115,7 @@ abstract class AbstractCondition
                 return (self::getConditionValue($arrFilter, $objParentModel) < $arrFilter['value']);
 
             case 'IN':
-                return in_array($objParentModel->getProperty($arrFilter['property']), $arrFilter['value']);
+                return \in_array($objParentModel->getProperty($arrFilter['property']), $arrFilter['value']);
 
             case 'LIKE':
                 throw new DcGeneralRuntimeException('LIKE unsupported as of now.');
@@ -124,7 +124,7 @@ abstract class AbstractCondition
         }
 
         throw new DcGeneralRuntimeException(
-            'Error processing filter array - unknown operation ' . var_export($arrFilter, true),
+            'Error processing filter array - unknown operation ' . \var_export($arrFilter, true),
             1
         );
     }

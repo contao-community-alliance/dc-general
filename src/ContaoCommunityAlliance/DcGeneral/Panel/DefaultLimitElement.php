@@ -76,9 +76,9 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
             ->getDataProvider()
             ->fetchAll($objTempConfig->setIdOnly(true));
 
-        if (is_array($total)) {
-            $this->intTotal = $total ? count($total) : 0;
-        } elseif (is_object($total)) {
+        if (\is_array($total)) {
+            $this->intTotal = $total ? \count($total) : 0;
+        } elseif (\is_object($total)) {
             $this->intTotal = $total->length();
         } else {
             $this->intTotal = 0;
@@ -97,7 +97,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
             $arrValue = $this->getSessionStorage()->get('limit');
         }
 
-        if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
+        if (\array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
             return $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
         }
 
@@ -122,7 +122,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
         }
 
         if ($intOffset) {
-            if (!is_array($arrValue[$definitionName])) {
+            if (!\is_array($arrValue[$definitionName])) {
                 $arrValue[$definitionName] = [];
             }
 
@@ -148,7 +148,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 
             $input = $this->getInputProvider();
             if ($input->hasValue('tl_limit') && $this->getPanel()->getContainer()->updateValues()) {
-                $limit  = explode(',', $input->getValue('tl_limit'));
+                $limit  = \explode(',', $input->getValue('tl_limit'));
                 $offset = $limit[0];
                 $amount = $limit[1];
 
@@ -199,7 +199,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
         ];
 
         $optionsPerPage = $this->getItemsPerPage();
-        $optionsTotal   = ceil($this->intTotal / $optionsPerPage);
+        $optionsTotal   = \ceil($this->intTotal / $optionsPerPage);
 
         for ($i = 0; $i < $optionsTotal; $i++) {
             $first      = ($i * $optionsPerPage);

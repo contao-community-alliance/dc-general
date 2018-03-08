@@ -95,13 +95,13 @@ class FallbackResetSubscriber implements EventSubscriberInterface
         $dataProvider = $event->getEnvironment()->getDataProvider($model->getProviderName());
         $properties   = $event->getEnvironment()->getDataDefinition()->getPropertiesDefinition();
 
-        foreach (array_keys($model->getPropertiesAsArray()) as $propertyName) {
+        foreach (\array_keys($model->getPropertiesAsArray()) as $propertyName) {
             if (!$properties->hasProperty($propertyName)) {
                 continue;
             }
 
             $extra = (array) $properties->getProperty($propertyName)->getExtra();
-            if (array_key_exists('fallback', $extra) && (true === $extra['fallback'])) {
+            if (\array_key_exists('fallback', $extra) && (true === $extra['fallback'])) {
                 // BC Layer - use old reset fallback methodology until it get's removed.
                 if (null === ($config = $this->determineFilterConfig($event))) {
                     // @codingStandardsIgnoreStart
@@ -166,7 +166,7 @@ class FallbackResetSubscriber implements EventSubscriberInterface
         }
 
         // Trigger BC layer in handleFallback().
-        if ($root === null && count($relationship->getChildConditions()) == 0) {
+        if ($root === null && \count($relationship->getChildConditions()) == 0) {
             return null;
         }
 

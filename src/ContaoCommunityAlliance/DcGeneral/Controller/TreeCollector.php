@@ -240,7 +240,7 @@ class TreeCollector implements EnvironmentAwareInterface
         }
 
         // If expanded, store children.
-        if ($model->getMeta($model::SHOW_CHILDREN) && count($childCollections) != 0) {
+        if ($model->getMeta($model::SHOW_CHILDREN) && \count($childCollections) != 0) {
             $model->setMeta($model::CHILD_COLLECTIONS, $childCollections);
         }
 
@@ -270,7 +270,7 @@ class TreeCollector implements EnvironmentAwareInterface
 
         if ($basicDefinition->getParentDataProvider() !== $parentModel->getProviderName()) {
             throw new \RuntimeException(
-                sprintf(
+                \sprintf(
                     'Parent provider mismatch: %s vs. %s',
                     $basicDefinition->getParentDataProvider(),
                     $parentModel->getProviderName()
@@ -287,7 +287,7 @@ class TreeCollector implements EnvironmentAwareInterface
             $filter     = $parentCondition->getFilter($parentModel);
 
             if ($baseFilter) {
-                $filter = array_merge($baseFilter, $filter);
+                $filter = \array_merge($baseFilter, $filter);
             }
 
             $config->setFilter($filter);
@@ -356,7 +356,7 @@ class TreeCollector implements EnvironmentAwareInterface
             $filter     = $rootCondition->getFilterArray();
 
             if ($baseFilter) {
-                $filter = array_merge($baseFilter, $filter);
+                $filter = \array_merge($baseFilter, $filter);
             }
 
             $rootConfig->setFilter($filter);

@@ -247,10 +247,12 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function getEmptyFilterOptionCollection()
     {
-        trigger_error(
+        // @codingStandardsIgnoreStart
+        @\trigger_error(
             'Method ' . __METHOD__ . ' was never intended to be called via interface and will get removed',
             E_USER_DEPRECATED
         );
+        // @codingStandardsIgnoreEnd
         return new DefaultFilterOptionCollection();
     }
 
@@ -262,9 +264,9 @@ class DefaultDataProvider implements DataProviderInterface
     public function delete($item)
     {
         $modelId = null;
-        if (is_numeric($item) || is_string($item)) {
+        if (\is_numeric($item) || \is_string($item)) {
             $modelId = $item;
-        } elseif (is_object($item) && $item instanceof ModelInterface && null !== $item->getId()) {
+        } elseif (\is_object($item) && $item instanceof ModelInterface && null !== $item->getId()) {
             $modelId = $item->getId();
         } else {
             throw new DcGeneralRuntimeException("ID missing or given object not of type 'ModelInterface'.");
@@ -272,12 +274,12 @@ class DefaultDataProvider implements DataProviderInterface
 
         // Insert undo.
         $this->insertUndo(
-            sprintf(
+            \sprintf(
                 'DELETE FROM %1$s WHERE id = %2$s',
                 $this->strSource,
                 $modelId
             ),
-            sprintf(
+            \sprintf(
                 'SELECT * FROM %1$s WHERE id = %2$s',
                 $this->strSource,
                 $modelId
@@ -286,7 +288,7 @@ class DefaultDataProvider implements DataProviderInterface
         );
 
         $this->objDatabase
-            ->prepare(sprintf('DELETE FROM %s WHERE id=?', $this->strSource))
+            ->prepare(\sprintf('DELETE FROM %s WHERE id=?', $this->strSource))
             ->execute($modelId);
     }
 
@@ -307,7 +309,7 @@ class DefaultDataProvider implements DataProviderInterface
                 $objModel->setIdRaw($value);
             }
 
-            $objModel->setPropertyRaw($key, deserialize($value));
+            $objModel->setPropertyRaw($key, \deserialize($value));
         }
 
         return $objModel;
@@ -319,7 +321,7 @@ class DefaultDataProvider implements DataProviderInterface
     public function fetch(ConfigInterface $objConfig)
     {
         if ($objConfig->getId() != null) {
-            $query = sprintf(
+            $query = \sprintf(
                 'SELECT %s FROM %s WHERE id = ?',
                 DefaultDataProviderSqlUtils::buildFieldQuery($objConfig, $this->idProperty),
                 $this->strSource
@@ -332,7 +334,7 @@ class DefaultDataProvider implements DataProviderInterface
             $arrParams = [];
 
             // Build SQL.
-            $query = sprintf(
+            $query = \sprintf(
                 'SELECT %s FROM %s%s%s',
                 DefaultDataProviderSqlUtils::buildFieldQuery($objConfig, $this->idProperty),
                 $this->strSource,
@@ -361,7 +363,7 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $arrParams = [];
         // Build SQL.
-        $query = sprintf(
+        $query = \sprintf(
             'SELECT %s FROM %s%s%s',
             DefaultDataProviderSqlUtils::buildFieldQuery($objConfig, $this->idProperty),
             $this->strSource,
@@ -405,7 +407,7 @@ class DefaultDataProvider implements DataProviderInterface
         $arrProperties = $objConfig->getFields();
         $strProperty   = $arrProperties[0];
 
-        if (count($arrProperties) <> 1) {
+        if (\count($arrProperties) <> 1) {
             throw new DcGeneralRuntimeException('objConfig must contain exactly one property to be retrieved.');
         }
 
@@ -413,7 +415,7 @@ class DefaultDataProvider implements DataProviderInterface
 
         $objValues = $this->objDatabase
             ->prepare(
-                sprintf(
+                \sprintf(
                     'SELECT DISTINCT(%s) FROM %s %s',
                     $strProperty,
                     $this->strSource,
@@ -436,7 +438,7 @@ class DefaultDataProvider implements DataProviderInterface
     public function getCount(ConfigInterface $objConfig)
     {
         $parameters = [];
-        $query      = sprintf(
+        $query      = \sprintf(
             'SELECT COUNT(*) AS count FROM %s%s',
             $this->strSource,
             DefaultDataProviderSqlUtils::buildWhereQuery($objConfig, $parameters)
@@ -475,7 +477,7 @@ class DefaultDataProvider implements DataProviderInterface
     public function resetFallback($strField)
     {
         // @codingStandardsIgnoreStart
-        @trigger_error(__CLASS__ . '::' . __METHOD__ . ' is deprecated - handle resetting manually', E_USER_DEPRECATED);
+        @\trigger_error(__CLASS__ . '::' . __METHOD__ . ' is deprecated - handle resetting manually', E_USER_DEPRECATED);
         // @codingStandardsIgnoreEnd
 
         $this->objDatabase->query('UPDATE ' . $this->strSource . ' SET ' . $strField . ' = \'\'');
@@ -499,8 +501,8 @@ class DefaultDataProvider implements DataProviderInterface
                 continue;
             }
 
-            if (is_array($value)) {
-                $data[$key] = serialize($value);
+            if (\is_array($value)) {
+                $data[$key] = \serialize($value);
             } else {
                 $data[$key] = $value;
             }
@@ -530,7 +532,7 @@ class DefaultDataProvider implements DataProviderInterface
         }
 
         $insertResult = $this->objDatabase
-            ->prepare(sprintf('INSERT INTO %s %%s', $this->strSource))
+            ->prepare(\sprintf('INSERT INTO %s %%s', $this->strSource))
             ->set($data)
             ->execute();
 
@@ -552,7 +554,7 @@ class DefaultDataProvider implements DataProviderInterface
         $data = $this->convertModelToDataPropertyArray($model, $timestamp);
 
         $this->objDatabase
-            ->prepare(sprintf('UPDATE %s %%s WHERE id=?', $this->strSource))
+            ->prepare(\sprintf('UPDATE %s %%s WHERE id=?', $this->strSource))
             ->set($data)
             ->execute($model->getId());
     }
@@ -602,9 +604,9 @@ class DefaultDataProvider implements DataProviderInterface
             return null;
         }
 
-        $arrData = deserialize($objVersion->data);
+        $arrData = \deserialize($objVersion->data);
 
-        if (!is_array($arrData) || count($arrData) == 0) {
+        if (!\is_array($arrData) || \count($arrData) == 0) {
             return null;
         }
 
@@ -644,7 +646,7 @@ class DefaultDataProvider implements DataProviderInterface
             ->execute($this->strSource, $mixID)
             ->fetchAllAssoc();
 
-        if (count($arrVersion) == 0) {
+        if (\count($arrVersion) == 0) {
             return null;
         }
 
@@ -693,7 +695,7 @@ class DefaultDataProvider implements DataProviderInterface
         $arrInsert['version']   = $mixNewVersion;
         $arrInsert['fromTable'] = $this->strSource;
         $arrInsert['username']  = $strUsername;
-        $arrInsert['data']      = serialize($mixData);
+        $arrInsert['data']      = \serialize($mixData);
 
         $this->objDatabase->prepare('INSERT INTO tl_version %s')
             ->set($arrInsert)
@@ -756,12 +758,12 @@ class DefaultDataProvider implements DataProviderInterface
                 continue;
             }
 
-            if (is_array($value)) {
-                if (!is_array($objModel2->getProperty($key))) {
+            if (\is_array($value)) {
+                if (!\is_array($objModel2->getProperty($key))) {
                     return false;
                 }
 
-                if (serialize($value) != serialize($objModel2->getProperty($key))) {
+                if (\serialize($value) != \serialize($objModel2->getProperty($key))) {
                     return false;
                 }
             } elseif ($value != $objModel2->getProperty($key)) {
@@ -792,7 +794,7 @@ class DefaultDataProvider implements DataProviderInterface
             ->fetchAllAssoc();
 
         // Check if we have a result.
-        if (count($arrResult) == 0) {
+        if (\count($arrResult) == 0) {
             return;
         }
 
@@ -816,8 +818,8 @@ class DefaultDataProvider implements DataProviderInterface
                 $strTable,
                 $strPrefix .
                 $strSourceSQL,
-                count($arrSave[$strTable]),
-                serialize($arrSave)
+                \count($arrSave[$strTable]),
+                \serialize($arrSave)
             );
     }
 }

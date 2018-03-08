@@ -16,7 +16,7 @@ $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalTreeView.css';
         <input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>">
     <?php endif; ?>
     <div class="tl_listing_container tree_view table_<?php echo $this->tableName; ?>" id="tl_listing">
-        <?php if(strlen($this->breadcrumb)) echo $this->breadcrumb; ?>
+        <?php if(\strlen($this->breadcrumb)) echo $this->breadcrumb; ?>
 
         <?php if ($this->select): ?>
             <div class="tl_select_trigger">
@@ -30,7 +30,7 @@ $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalTreeView.css';
                 <div class="tl_left">
                     <?php echo $this->strLabelIcon ?> <label><?php echo $this->strLabelText; ?></label>
                 </div>
-                <div class="tl_right"><?php echo (strlen($this->strRootPasteinto)) ? $this->strRootPasteinto : '';  ?></div>
+                <div class="tl_right"><?php echo (\strlen($this->strRootPasteinto)) ? $this->strRootPasteinto : '';  ?></div>
                 <div style="clear:both;"></div>
             </li>
             <?php echo $this->strHTML; ?>
@@ -39,7 +39,7 @@ $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalTreeView.css';
         <?php if ($this->select): ?>
         <div class="tl_formbody_submit" style="text-align:right;">
             <div class="tl_submit_container">
-                <?php echo implode(' ', $this->selectButtons); ?>
+                <?php echo \implode(' ', $this->selectButtons); ?>
             </div>
         </div>
     </div>

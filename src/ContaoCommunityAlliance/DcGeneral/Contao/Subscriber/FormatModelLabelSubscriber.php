@@ -149,10 +149,12 @@ class FormatModelLabelSubscriber
     private function renderWithColumns($propertyNames, $args, $firstSorting)
     {
         $label = [];
-        if (!is_array($args)) {
-            trigger_error('Warning, column layout without arguments will not be supported.', E_USER_DEPRECATED);
+        if (!\is_array($args)) {
+            // @codingStandardsIgnoreStart
+            @\trigger_error('Warning, column layout without arguments will not be supported.', E_USER_DEPRECATED);
+            // @codingStandardsIgnoreEnd
             $label[] = [
-                'colspan' => count($propertyNames),
+                'colspan' => \count($propertyNames),
                 'class'   => 'tl_file_list col_all',
                 'content' => $args
             ];
@@ -186,14 +188,14 @@ class FormatModelLabelSubscriber
     private function renderSingleValue($label, $args, $maxLength = null)
     {
         // BC: sometimes the label was returned as string in the arguments instead of an array.
-        if (!is_array($args)) {
+        if (!\is_array($args)) {
             $string = $args;
         } else {
-            $string = vsprintf($label, $args);
+            $string = \vsprintf($label, $args);
         }
 
-        if ($maxLength !== null && strlen($string) > $maxLength) {
-            $string = substr($string, 0, $maxLength);
+        if ($maxLength !== null && \strlen($string) > $maxLength) {
+            $string = \substr($string, 0, $maxLength);
         }
 
         return $string;

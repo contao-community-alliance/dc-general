@@ -104,7 +104,7 @@ class CreateHandler extends AbstractHandler
         }
 
         $this->getEvent()->setResponse(
-            sprintf(
+            \sprintf(
                 '<div style="text-align:center; font-weight:bold; padding:40px;">
                     You have no permission for create model in %s.
                 </div>',

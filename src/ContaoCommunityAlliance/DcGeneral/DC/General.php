@@ -68,8 +68,8 @@ class DC_General extends DataContainer implements DataContainerInterface
     {
         // Prevent "Recoverable error: Argument X passed to SomClass::someMethod() must be an instance of DataContainer,
         // instance of ContaoCommunityAlliance\DcGeneral\DC_General given" in callbacks.
-        if (!class_exists('\DataContainer', false)) {
-            class_alias('\Contao\DataContainer', '\DataContainer');
+        if (!\class_exists('\DataContainer', false)) {
+            \class_alias('\Contao\DataContainer', '\DataContainer');
         }
         $strTable   = $this->getTablenameCallback($strTable);
         $translator = $this->getTranslator();
@@ -176,7 +176,7 @@ class DC_General extends DataContainer implements DataContainerInterface
     protected function getTablenameCallback($strTable)
     {
         if (isset($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback'])
-            && is_array($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback'])
+            && \is_array($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback'])
         ) {
             foreach ($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback'] as $callback) {
                 $strCurrentTable = Callbacks::call($callback, $strTable, $this);

@@ -172,27 +172,27 @@ class ContaoWidgetManager
                 continue;
             }
 
-            if (strncmp($extra['rte'], 'tiny', 4) !== 0 && strncmp($extra['rte'], 'ace', 3) !== 0) {
+            if (\strncmp($extra['rte'], 'tiny', 4) !== 0 && \strncmp($extra['rte'], 'ace', 3) !== 0) {
                 continue;
             }
 
-            list($file, $type) = explode('|', $extra['rte']);
+            list($file, $type) = \explode('|', $extra['rte']);
 
             $selector = $this->getUniqueId($property->getName());
 
-            if (!file_exists(TL_ROOT . '/system/config/' . $file . '.php')) {
-                throw new \Exception(sprintf('Cannot find editor configuration file "%s.php"', $file));
+            if (!\file_exists(TL_ROOT . '/system/config/' . $file . '.php')) {
+                throw new \Exception(\sprintf('Cannot find editor configuration file "%s.php"', $file));
             }
 
-            if (strncmp($extra['rte'], 'tiny', 4) !== 0) {
+            if (\strncmp($extra['rte'], 'tiny', 4) !== 0) {
                 // Backwards compatibility
                 $language = Backend::getTinyMceLanguage();
             }
 
-            ob_start();
+            \ob_start();
             include TL_ROOT . '/system/config/' . $file . '.php';
-            $updateMode = ob_get_contents();
-            ob_end_clean();
+            $updateMode = \ob_get_contents();
+            \ob_end_clean();
 
             $GLOBALS['TL_MOOTOOLS'][$extra['rte'] . '.' . $selector] = $updateMode;
         }
@@ -224,11 +224,11 @@ class ContaoWidgetManager
         $fields  = $sessionStorage->get($modelId->getDataProviderName() . '.edit')['properties'];
 
         $fieldId = new ModelId('property.' . $modelId->getDataProviderName(), $propertyName);
-        if (!in_array($fieldId->getSerialized(), $fields)) {
+        if (!\in_array($fieldId->getSerialized(), $fields)) {
             return $selector;
         }
 
-        $selector = 'ctrl_' . str_replace('::', '____', $modelId->getSerialized()) . '_' . $propertyName;
+        $selector = 'ctrl_' . \str_replace('::', '____', $modelId->getSerialized()) . '_' . $propertyName;
 
         return $selector;
     }
@@ -273,7 +273,7 @@ class ContaoWidgetManager
         $dispatcher->dispatch($event::NAME, $event);
         if (!$event->getWidget()) {
             throw new DcGeneralRuntimeException(
-                sprintf('Widget was not build for property %s::%s.', $this->model->getProviderName(), $property)
+                \sprintf('Widget was not build for property %s::%s.', $this->model->getProviderName(), $property)
             );
         }
 
@@ -336,7 +336,7 @@ class ContaoWidgetManager
         $label       = $propInfo->getDescription();
         $widgetType  = $propInfo->getWidgetType();
 
-        if ($widgetType == 'password' || !is_string($label) || !$GLOBALS['TL_CONFIG']['showHelp'] || null === $label) {
+        if ($widgetType == 'password' || !\is_string($label) || !$GLOBALS['TL_CONFIG']['showHelp'] || null === $label) {
             return '';
         }
 
@@ -414,7 +414,7 @@ class ContaoWidgetManager
         }
 
         // Now get and validate the widgets.
-        foreach (array_keys($propertyValues->getArrayCopy()) as $property) {
+        foreach (\array_keys($propertyValues->getArrayCopy()) as $property) {
             // NOTE: the passed input values are RAW DATA from the input provider - aka widget known values and not
             // native data as in the model.
             // Therefore we do not need to decode them but MUST encode them.
@@ -478,12 +478,12 @@ class ContaoWidgetManager
     {
         if ($ignoreErrors) {
             // Clean the errors array and fix up the CSS class.
-            $reflection = new \ReflectionProperty(get_class($widget), 'arrErrors');
+            $reflection = new \ReflectionProperty(\get_class($widget), 'arrErrors');
             $reflection->setAccessible(true);
             $reflection->setValue($widget, []);
-            $reflection = new \ReflectionProperty(get_class($widget), 'strClass');
+            $reflection = new \ReflectionProperty(\get_class($widget), 'strClass');
             $reflection->setAccessible(true);
-            $reflection->setValue($widget, str_replace('error', '', $reflection->getValue($widget)));
+            $reflection->setValue($widget, \str_replace('error', '', $reflection->getValue($widget)));
         }
     }
 

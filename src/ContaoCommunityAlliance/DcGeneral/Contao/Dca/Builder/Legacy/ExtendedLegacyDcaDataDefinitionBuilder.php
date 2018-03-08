@@ -163,10 +163,10 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
             if (!($definition instanceof ExtendedDca)) {
                 throw new DcGeneralInvalidArgumentException(
-                    sprintf(
+                    \sprintf(
                         'Definition with name %s must be an instance of ExtendedDca but instance of %s encountered.',
                         ExtendedDca::NAME,
-                        get_class($definition)
+                        \get_class($definition)
                     )
                 );
             }
@@ -197,7 +197,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
      */
     protected function isSpecialName($name)
     {
-        return in_array($name, ['default', 'root', 'parent']);
+        return \in_array($name, ['default', 'root', 'parent']);
     }
 
     /**
@@ -280,7 +280,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
         }
 
         // First check if we are using the "new" notation used in DcGeneral 0.9.
-        if (!is_array($this->getFromDca('dca_config/data_provider'))) {
+        if (!\is_array($this->getFromDca('dca_config/data_provider'))) {
             return;
         }
 
@@ -324,7 +324,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
                 }
 
                 $providerInformation->setInitializationData(
-                    array_merge(
+                    \array_merge(
                         $baseInitializationData,
                         $dataProviderDca,
                         $initializationData
@@ -346,7 +346,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
         $palettesDca = $this->getFromDca('palettes');
 
         // Skip while there is no extended palette definition.
-        if (!is_callable($palettesDca)) {
+        if (!\is_callable($palettesDca)) {
             return;
         }
 
@@ -398,7 +398,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
                 } else {
                     /** @var RootConditionInterface $relationship */
                     if ($relationship->getSetters()) {
-                        $setter = array_merge_recursive($mySetter, $relationship->getSetters());
+                        $setter = \array_merge_recursive($mySetter, $relationship->getSetters());
                     } else {
                         $setter = $mySetter;
                     }
@@ -441,8 +441,8 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
                     $setter  = $childCondition['setOn'];
                     $inverse = $childCondition['inverse'];
                 } else {
-                    $setter  = array_merge_recursive((array) $childCondition['setOn'], $relationship->getSetters());
-                    $inverse = array_merge_recursive(
+                    $setter  = \array_merge_recursive((array) $childCondition['setOn'], $relationship->getSetters());
+                    $inverse = \array_merge_recursive(
                         (array) $childCondition['inverse'],
                         $relationship->getInverseFilterArray()
                     );
@@ -592,7 +592,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
         }
 
         $childCondition->setFilterArray(
-            array_merge(
+            \array_merge(
                 $childCondition->getFilterArray(),
                 [
                     [

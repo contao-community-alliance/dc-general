@@ -45,9 +45,9 @@ class Callbacks
     public static function call($callback, $_ = null)
     {
         // Get method parameters as callback parameters.
-        $args = func_get_args();
+        $args = \func_get_args();
         // But skip $callback.
-        array_shift($args);
+        \array_shift($args);
 
         return static::callArgs($callback, $args);
     }
@@ -67,19 +67,19 @@ class Callbacks
         try {
             $callback = static::evaluateCallback($callback);
 
-            return call_user_func_array($callback, $args);
+            return \call_user_func_array($callback, $args);
         } catch (\Exception $e) {
             $message = $e->getMessage();
         }
 
-        if (is_array($callback) && is_object($callback[0])) {
-            $callback[0] = get_class($callback[0]);
+        if (\is_array($callback) && \is_object($callback[0])) {
+            $callback[0] = \get_class($callback[0]);
         }
 
         throw new DcGeneralRuntimeException(
-            sprintf(
+            \sprintf(
                 'Execute callback %s failed - Exception message: %s',
-                (is_array($callback) ? implode('::', $callback) : (is_string($callback) ? $callback : get_class(
+                (\is_array($callback) ? \implode('::', $callback) : (\is_string($callback) ? $callback : \get_class(
                     $callback
                 ))),
                 $message
@@ -99,7 +99,7 @@ class Callbacks
      */
     protected static function evaluateCallback($callback)
     {
-        if (is_array($callback) && count($callback) == 2 && is_string($callback[0]) && is_string($callback[1])) {
+        if (\is_array($callback) && \count($callback) == 2 && \is_string($callback[0]) && \is_string($callback[1])) {
             $class = new \ReflectionClass($callback[0]);
 
             // Ff the method is static, do not create an instance.

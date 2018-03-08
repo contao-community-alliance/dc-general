@@ -186,7 +186,7 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
             || $this->isPropertyAllowedByOverride($extra)
         ) {
             Message::addInfo(
-                sprintf(
+                \sprintf(
                     $translator->translate('MSC.not_allowed_property_info'),
                     $property->getLabel() ?: $property->getName(),
                     $translator->translate('MSC.' . $inputProvider->getParameter('mode') . 'Selected')
@@ -271,7 +271,7 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
                     </script>';
 
         $GLOBALS['TL_MOOTOOLS'][] =
-            sprintf(
+            \sprintf(
                 $script,
                 'properties_' . $property->getName(),
                 'properties_' . $extra['orderField'],
@@ -313,7 +313,7 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
 
         $template->set(
             'subHeadline',
-            sprintf(
+            \sprintf(
                 '%s: %s',
                 $this->translate('MSC.' . $inputProvider->getParameter('mode') . 'Selected'),
                 $this->translate('MSC.edit_all_select_properties')
@@ -325,13 +325,13 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
         $template->set('selectCheckBoxIdPrefix', 'properties_');
 
         if ((null !== $template->get('action'))
-            && (false !== strpos($template->get('action'), 'select=properties'))
+            && (false !== \strpos($template->get('action'), 'select=properties'))
         ) {
-            $template->set('action', str_replace('select=properties', 'select=edit', $template->get('action')));
+            $template->set('action', \str_replace('select=properties', 'select=edit', $template->get('action')));
         }
 
-        if (count($this->messages) > 0) {
-            foreach (array_keys($this->messages) as $messageType) {
+        if (\count($this->messages) > 0) {
+            foreach (\array_keys($this->messages) as $messageType) {
                 $template->set($messageType, $this->messages[$messageType]);
             }
         }
@@ -354,16 +354,16 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
             $continueName = $subAction;
         }
 
-        $confirmMessage = htmlentities(
-            sprintf(
+        $confirmMessage = \htmlentities(
+            \sprintf(
                 '<h2 class="tl_error">%s</h2>' .
                 '<p></p>' .
                 '<div class="tl_submit_container">' .
                 '<input class="%s" value="%s" onclick="%s">' .
                 '</div>',
-                specialchars($this->translate('MSC.nothingSelect')),
+                \specialchars($this->translate('MSC.nothingSelect')),
                 'tl_submit',
-                specialchars($this->translate('MSC.close')),
+                \specialchars($this->translate('MSC.close')),
                 'BackendGeneral.hideMessage(); return false;'
             )
         );
@@ -372,12 +372,12 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
 
         $input = '<input type="submit" name="%s" id="%s" class="tl_submit" accesskey="%s" value="%s" onclick="%s">';
 
-        $buttons['continue'] = sprintf(
+        $buttons['continue'] = \sprintf(
             $input,
             $continueName,
             $continueName,
             'c',
-            specialchars($this->translate('MSC.continue')),
+            \specialchars($this->translate('MSC.continue')),
             $onClick
         );
 

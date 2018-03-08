@@ -60,9 +60,9 @@ class FilterBuilder
      */
     public function __construct($filter = [], $isRoot = false)
     {
-        if (!is_array($filter)) {
+        if (!\is_array($filter)) {
             throw new DcGeneralInvalidArgumentException(
-                'FilterBuilder needs a valid filter array ' . gettype($filter) . 'given'
+                'FilterBuilder needs a valid filter array ' . \gettype($filter) . 'given'
             );
         }
 
@@ -206,7 +206,7 @@ class FilterBuilder
      */
     public static function isValidOperation($operation)
     {
-        return in_array($operation, ['AND', 'OR', '=', '>', '<', 'IN', 'LIKE']);
+        return \in_array($operation, ['AND', 'OR', '=', '>', '<', 'IN', 'LIKE']);
     }
 
     /**

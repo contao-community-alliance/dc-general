@@ -89,7 +89,7 @@ $result = [
 ];
 
 if ('BE' === TL_MODE) {
-    $result[PopulateEnvironmentEvent::NAME] = array_merge(
+    $result[PopulateEnvironmentEvent::NAME] = \array_merge(
         $result[PopulateEnvironmentEvent::NAME],
         [
             [

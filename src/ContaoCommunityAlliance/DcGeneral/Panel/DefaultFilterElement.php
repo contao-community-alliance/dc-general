@@ -65,10 +65,10 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             $arrValue = $this->getSessionStorage()->get('filter');
         }
 
-        if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
+        if (\array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
             $arrValue = $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
 
-            if (array_key_exists($this->getPropertyName(), $arrValue)) {
+            if (\array_key_exists($this->getPropertyName(), $arrValue)) {
                 return $arrValue[$this->getPropertyName()];
             }
         }
@@ -92,7 +92,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             $arrValue = $this->getSessionStorage()->get('filter');
         }
 
-        if (!is_array($arrValue[$definitionName])) {
+        if (!\is_array($arrValue[$definitionName])) {
             $arrValue[$this->getEnvironment()->getDataDefinition()->getName()] = [];
         }
 
@@ -164,7 +164,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
 
         if (($objElement !== $this) && $this->getPropertyName() && (null !== $this->getValue())) {
             $arrCurrent = $objConfig->getFilter();
-            if (!is_array($arrCurrent)) {
+            if (!\is_array($arrCurrent)) {
                 $arrCurrent = [];
             }
 
@@ -210,7 +210,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             ];
         }
 
-        $objTemplate->set('label', (is_array($arrLabel) ? $arrLabel[0] : $arrLabel));
+        $objTemplate->set('label', (\is_array($arrLabel) ? $arrLabel[0] : $arrLabel));
         $objTemplate->set('name', $this->getPropertyName());
         $objTemplate->set('id', $this->getPropertyName());
         $objTemplate->set('class', 'tl_select' . (($selectedValue !== null) ? ' active' : ''));

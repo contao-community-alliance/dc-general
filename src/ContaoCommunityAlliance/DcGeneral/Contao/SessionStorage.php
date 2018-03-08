@@ -97,7 +97,7 @@ class SessionStorage implements SessionStorageInterface
     public function replace(array $attributes)
     {
         $this->load();
-        $this->attributes = array_merge($this->attributes, $attributes);
+        $this->attributes = \array_merge($this->attributes, $attributes);
         $this->persist();
         return $this;
     }

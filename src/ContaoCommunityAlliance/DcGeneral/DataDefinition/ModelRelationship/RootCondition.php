@@ -116,7 +116,7 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
             foreach ($this->setOn as $rule) {
                 if (!($rule['property'] && isset($rule['value']))) {
                     throw new DcGeneralRuntimeException(
-                        'Error Processing root condition, you need to specify property and value: ' . var_export(
+                        'Error Processing root condition, you need to specify property and value: ' . \var_export(
                             $rule,
                             true
                         ),
@@ -173,7 +173,7 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
     {
         if ($model->getProviderName() !== $this->sourceProvider) {
             throw new \InvalidArgumentException(
-                sprintf('provider name %s is not equal to %s', $model->getProviderName(), $this->getSourceName())
+                \sprintf('provider name %s is not equal to %s', $model->getProviderName(), $this->getSourceName())
             );
         }
     }

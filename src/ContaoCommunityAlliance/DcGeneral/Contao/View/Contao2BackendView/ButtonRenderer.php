@@ -119,7 +119,7 @@ class ButtonRenderer
         $this->circularModelIds = [];
 
         // We must only check for CUT operation here as pasting copy'ed parents is allowed.
-        $cutItems = array_filter($this->clipboardItems, function ($item) {
+        $cutItems = \array_filter($this->clipboardItems, function ($item) {
             /** @var ItemInterface $item */
             return $item->getAction() === $item::CUT;
         });
@@ -168,7 +168,7 @@ class ButtonRenderer
         $modelId = ModelId::fromModel($model)->getSerialized();
 
         if ($this->clipboardItems) {
-            $isCircular = in_array(ModelId::fromModel($model)->getSerialized(), $this->circularModelIds);
+            $isCircular = \in_array(ModelId::fromModel($model)->getSerialized(), $this->circularModelIds);
         } else {
             $isCircular = false;
         }
@@ -186,8 +186,8 @@ class ButtonRenderer
 
         // Add paste into/after icons.
         if ($this->hasPasteButtons()) {
-            $urlAfter = $this->addToUrl(sprintf('act=paste&after=%s&', $modelId));
-            $urlInto  = $this->addToUrl(sprintf('act=paste&into=%s&', $modelId));
+            $urlAfter = $this->addToUrl(\sprintf('act=paste&after=%s&', $modelId));
+            $urlInto  = $this->addToUrl(\sprintf('act=paste&into=%s&', $modelId));
 
 
             $buttonEvent = new GetPasteButtonEvent($this->environment);
@@ -212,7 +212,7 @@ class ButtonRenderer
 
         $model->setMeta(
             $model::OPERATION_BUTTONS,
-            implode(' ', $buttons)
+            \implode(' ', $buttons)
         );
     }
 
@@ -277,10 +277,10 @@ class ButtonRenderer
         $attributes = '';
 
         if (!empty($extra['attributes'])) {
-            $attributes .= sprintf($extra['attributes'], $model->getID());
+            $attributes .= \sprintf($extra['attributes'], $model->getID());
         }
         $label = $this->getCommandLabel($command);
-        $title = sprintf($this->translate($command->getDescription()), $model->getID());
+        $title = \sprintf($this->translate($command->getDescription()), $model->getID());
         $icon  = $extra['icon'];
 
         if ($command instanceof ToggleCommandInterface) {
@@ -288,7 +288,7 @@ class ButtonRenderer
                 ? $extra['icon_disabled']
                 : 'invisible.gif';
 
-            $attributes .= sprintf(
+            $attributes .= \sprintf(
                 ' onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this, \'%s\', \'%s\');"',
                 $icon,
                 $iconDisabled
@@ -319,22 +319,22 @@ class ButtonRenderer
 
         if (null !== ($html = $buttonEvent->getHtml())) {
             // If the event created a button, use it.
-            return trim($html);
+            return \trim($html);
         }
 
         if ($buttonEvent->isDisabled()) {
             return $this->renderImageAsHtml(
-                substr_replace($icon, '_1', strrpos($icon, '.'), 0),
+                \substr_replace($icon, '_1', \strrpos($icon, '.'), 0),
                 $buttonEvent->getLabel()
             );
         }
 
-        return sprintf(
+        return \sprintf(
             ' <a class="%s" href="%s" title="%s" %s>%s</a>',
             $command->getName(),
             $buttonEvent->getHref(),
-            specialchars($buttonEvent->getTitle()),
-            ltrim($buttonEvent->getAttributes()),
+            \specialchars($buttonEvent->getTitle()),
+            \ltrim($buttonEvent->getAttributes()),
             $this->renderImageAsHtml($icon, $buttonEvent->getLabel())
         );
     }
@@ -417,11 +417,11 @@ class ButtonRenderer
      */
     private function renderPasteNewFor($modelId)
     {
-        $label = sprintf($this->translate('pastenew.1'), ModelId::fromSerialized($modelId)->getId());
-        return sprintf(
+        $label = \sprintf($this->translate('pastenew.1'), ModelId::fromSerialized($modelId)->getId());
+        return \sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $this->addToUrl('act=create&amp;after=' . $modelId),
-            specialchars($label),
+            \specialchars($label),
             $this->renderImageAsHtml('new.gif', $label)
         );
     }
@@ -445,15 +445,15 @@ class ButtonRenderer
         }
 
         if ('pasteinto.1' !== ($opDesc = $this->translate('pasteinto.1'))) {
-            $title = sprintf($opDesc, $event->getModel()->getId());
+            $title = \sprintf($opDesc, $event->getModel()->getId());
         } else {
-            $title = sprintf('%s id %s', $label, $event->getModel()->getId());
+            $title = \sprintf('%s id %s', $label, $event->getModel()->getId());
         }
 
-        return sprintf(
+        return \sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $event->getHrefInto(),
-            specialchars($title),
+            \specialchars($title),
             $this->renderImageAsHtml('pasteinto.gif', $label, 'class="blink"')
         );
     }
@@ -477,15 +477,15 @@ class ButtonRenderer
         }
 
         if ('pasteafter.1' !== ($opDesc = $this->translate('pasteafter.1'))) {
-            $title = sprintf($opDesc, $event->getModel()->getId());
+            $title = \sprintf($opDesc, $event->getModel()->getId());
         } else {
-            $title = sprintf('%s id %s', $label, $event->getModel()->getId());
+            $title = \sprintf('%s id %s', $label, $event->getModel()->getId());
         }
 
-        return sprintf(
+        return \sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $event->getHrefAfter(),
-            specialchars($title),
+            \specialchars($title),
             $this->renderImageAsHtml('pasteafter.gif', $label, 'class="blink"')
         );
     }
@@ -612,7 +612,7 @@ class ButtonRenderer
         $parameters = $this->calculateParameters($command, $modelId);
         $href       = '';
         foreach ($parameters as $key => $value) {
-            $href .= sprintf('&%s=%s', $key, $value);
+            $href .= \sprintf('&%s=%s', $key, $value);
         }
 
         return $this->addToUrl($href);
@@ -633,7 +633,7 @@ class ButtonRenderer
 
         $label = $this->translate($label);
 
-        if (is_array($label)) {
+        if (\is_array($label)) {
             $label = $label[0];
 
             return $label;

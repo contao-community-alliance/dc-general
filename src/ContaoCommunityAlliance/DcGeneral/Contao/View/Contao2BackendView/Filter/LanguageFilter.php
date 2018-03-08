@@ -105,7 +105,7 @@ class LanguageFilter implements EventSubscriberInterface
             $currentLanguage = $GLOBALS['TL_LANGUAGE'];
         }
 
-        if (!array_key_exists($currentLanguage, $languages)) {
+        if (!\array_key_exists($currentLanguage, $languages)) {
             $currentLanguage = $dataProvider->getFallbackLanguage($modelId)->getLocale();
         }
 
@@ -138,7 +138,7 @@ class LanguageFilter implements EventSubscriberInterface
 
         // Get/Check the new language.
         if ($inputProvider->hasValue('language')
-            && array_key_exists($inputProvider->getValue('language'), $languages)
+            && \array_key_exists($inputProvider->getValue('language'), $languages)
         ) {
             $session['ml_support'][$providerName] = $inputProvider->getValue('language');
             $sessionStorage->set('dc_general', $session);

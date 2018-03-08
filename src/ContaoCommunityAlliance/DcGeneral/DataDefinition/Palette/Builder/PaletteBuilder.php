@@ -851,7 +851,7 @@ class PaletteBuilder
             $this->finishProperty();
         }
 
-        $properties = func_get_args();
+        $properties = \func_get_args();
 
         $this->property = [];
         foreach ($properties as $property) {
@@ -861,8 +861,8 @@ class PaletteBuilder
             $this->property[] = $property;
         }
 
-        if (count($this->property) == 1) {
-            $this->property = array_shift($this->property);
+        if (\count($this->property) == 1) {
+            $this->property = \array_shift($this->property);
         }
 
         return $this;
@@ -886,7 +886,7 @@ class PaletteBuilder
             $this->finishProperty();
         }
 
-        $propertyNames = func_get_args();
+        $propertyNames = \func_get_args();
 
         $this->property = [];
         foreach ($propertyNames as $propertyName) {
@@ -899,8 +899,8 @@ class PaletteBuilder
             $this->property[] = $property;
         }
 
-        if (count($this->property) == 1) {
-            $this->property = array_shift($this->property);
+        if (\count($this->property) == 1) {
+            $this->property = \array_shift($this->property);
         }
 
         return $this;
@@ -925,7 +925,7 @@ class PaletteBuilder
             $this->finishCondition();
         }
 
-        $properties = is_object($this->property) ? [$this->property] : $this->property;
+        $properties = \is_object($this->property) ? [$this->property] : $this->property;
 
         foreach ($properties as $index => $tempProperty) {
             $event = new FinishPropertyEvent($tempProperty, $this);
@@ -1227,7 +1227,7 @@ class PaletteBuilder
             throw new DcGeneralRuntimeException('Property is missing, please create a property first');
         }
 
-        $properties = is_object($this->property) ? [$this->property] : $this->property;
+        $properties = \is_object($this->property) ? [$this->property] : $this->property;
 
         foreach ($properties as $property) {
             /** @var PropertyInterface $property */
@@ -1278,7 +1278,7 @@ class PaletteBuilder
         } elseif ($condition instanceof PropertyConditionInterface) {
             $this->addPropertyCondition($condition, $scope);
         } else {
-            $type = is_object($condition) ? get_class($condition) : gettype($condition);
+            $type = \is_object($condition) ? \get_class($condition) : \gettype($condition);
             throw new DcGeneralInvalidArgumentException('Cannot handle condition of type [' . $type . ']');
         }
 

@@ -89,7 +89,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      */
     public function addCondition(ConditionInterface $condition)
     {
-        $hash = spl_object_hash($condition);
+        $hash = \spl_object_hash($condition);
 
         $this->conditions[$hash] = $condition;
         return $this;
@@ -100,7 +100,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      */
     public function removeCondition(ConditionInterface $condition)
     {
-        $hash = spl_object_hash($condition);
+        $hash = \spl_object_hash($condition);
         unset($this->conditions[$hash]);
         return $this;
     }
@@ -110,7 +110,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      */
     public function getConditions()
     {
-        return array_values($this->conditions);
+        return \array_values($this->conditions);
     }
 
     /**
@@ -149,7 +149,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
         foreach ($this->conditions as $condition) {
             $bobaFett = clone $condition;
 
-            $conditions[spl_object_hash($bobaFett)] = $bobaFett;
+            $conditions[\spl_object_hash($bobaFett)] = $bobaFett;
         }
         $this->conditions = $conditions;
     }

@@ -233,8 +233,8 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     private function isValidSetter($setter)
     {
-        return (is_array($setter)
-            && (count($setter) == 2)
+        return (\is_array($setter)
+            && (\count($setter) == 2)
             && isset($setter['to_field'])
             && (isset($setter['from_field']) || isset($setter['value'])));
     }
@@ -250,9 +250,9 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
 
         $setters = $this->getSetters();
 
-        if (empty($setters) || !is_array($setters)) {
+        if (empty($setters) || !\is_array($setters)) {
             throw new DcGeneralRuntimeException(
-                sprintf(
+                \sprintf(
                     'No relationship setter defined from %s to %s.',
                     $this->getSourceName(),
                     $this->getDestinationName()
@@ -263,10 +263,10 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
         foreach ($setters as $setter) {
             if (!$this->isValidSetter($setter)) {
                 throw new DcGeneralRuntimeException(
-                    sprintf(
+                    \sprintf(
                         'Invalid relationship setter entry, ensure it is an array containing only "to_field" and
                     one of "from_field", "value": %s',
-                        var_export($setter, true)
+                        \var_export($setter, true)
                     )
                 );
             }
@@ -291,9 +291,9 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
 
         $setters = $this->getSetters();
 
-        if (empty($setters) || !is_array($setters)) {
+        if (empty($setters) || !\is_array($setters)) {
             throw new DcGeneralRuntimeException(
-                sprintf(
+                \sprintf(
                     'No relationship setter defined from %s to %s.',
                     $this->getSourceName(),
                     $this->getDestinationName()
@@ -304,10 +304,10 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
         foreach ($setters as $setter) {
             if (!$this->isValidSetter($setter)) {
                 throw new DcGeneralRuntimeException(
-                    sprintf(
+                    \sprintf(
                         'Invalid relationship setter entry, ensure it is an array containing only "to_field" and
                     one of "from_field", "value": %s',
-                        var_export($setter, true)
+                        \var_export($setter, true)
                     )
                 );
             }
@@ -365,7 +365,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
             'operation' => $rule['operation'],
         ];
 
-        if (in_array($rule['operation'], ['AND', 'OR'])) {
+        if (\in_array($rule['operation'], ['AND', 'OR'])) {
             $children = [];
 
             foreach ($rule['children'] as $childRule) {
@@ -427,7 +427,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     private function extractNeededProperties($rule)
     {
-        if (in_array($rule['operation'], ['AND', 'OR'])) {
+        if (\in_array($rule['operation'], ['AND', 'OR'])) {
             $properties = [];
             foreach ($rule['children'] as $childRule) {
                 $properties[] = $this->extractNeededProperties($childRule);
@@ -445,7 +445,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
             return $rule['property'];
         }
 
-        throw new \RuntimeException('Unexpected filter rule ' . var_export($rule, true));
+        throw new \RuntimeException('Unexpected filter rule ' . \var_export($rule, true));
     }
 
     /**
@@ -479,12 +479,12 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     {
         if (null !== $child && $child->getProviderName() !== $this->destinationProvider) {
             throw new \InvalidArgumentException(
-                sprintf('provider name %s is not equal to %s', $child->getProviderName(), $this->destinationProvider)
+                \sprintf('provider name %s is not equal to %s', $child->getProviderName(), $this->destinationProvider)
             );
         }
         if (null !== $parent && $parent->getProviderName() !== $this->sourceProvider) {
             throw new \InvalidArgumentException(
-                sprintf('provider name %s is not equal to %s', $parent->getProviderName(), $this->sourceProvider)
+                \sprintf('provider name %s is not equal to %s', $parent->getProviderName(), $this->sourceProvider)
             );
         }
     }

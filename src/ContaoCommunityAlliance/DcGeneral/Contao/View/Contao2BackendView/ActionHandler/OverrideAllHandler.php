@@ -109,12 +109,12 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
 
         $inputProvider = $this->getEnvironment()->getInputProvider();
 
-        foreach (array_keys($propertyValueBag->getArrayCopy()) as $propertyName) {
+        foreach (\array_keys($propertyValueBag->getArrayCopy()) as $propertyName) {
             $allErrors    = $propertyValueBag->getPropertyValueErrors($propertyName);
             $mergedErrors = [];
-            if (count($allErrors) > 0) {
+            if (\count($allErrors) > 0) {
                 foreach ($allErrors as $error) {
-                    if (in_array($error, $mergedErrors)) {
+                    if (\in_array($error, $mergedErrors)) {
                         continue;
                     }
 
@@ -132,7 +132,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
 
             $propertyValueBag->setPropertyValue($propertyName, $event->getValue());
 
-            if (count($mergedErrors) > 0) {
+            if (\count($mergedErrors) > 0) {
                 $propertyValueBag->markPropertyValueAsInvalid($propertyName, $mergedErrors);
             }
         }
@@ -172,7 +172,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
         $selectProperties = $this->getPropertiesFromSession();
 
         $properties = [];
-        foreach (array_keys($selectProperties) as $propertyName) {
+        foreach (\array_keys($selectProperties) as $propertyName) {
             $properties[$propertyName] = $selectProperties[$propertyName];
         }
 
@@ -197,12 +197,12 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
         $errors   = [];
         $fieldSet = ['palette' => '', 'class' => 'tl_box'];
 
-        $propertyNames = $propertyValues ? array_keys($propertyValues->getArrayCopy()) : array_keys($properties);
+        $propertyNames = $propertyValues ? \array_keys($propertyValues->getArrayCopy()) : \array_keys($properties);
 
         foreach ($propertyNames as $propertyName) {
             $errors = $this->getPropertyValueErrors($propertyValues, $propertyName, $errors);
 
-            if (false === array_key_exists($propertyName, $properties)) {
+            if (false === \array_key_exists($propertyName, $properties)) {
                 continue;
             }
 
@@ -245,7 +245,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
         }
 
         if (empty($fieldSet['palette'])) {
-            $fieldSet['palette'] = sprintf(
+            $fieldSet['palette'] = \sprintf(
                 '<p>&nbsp;</p><strong>%s</strong><p>&nbsp;</p>',
                 $this->getEnvironment()->getTranslator()->translate('MSC.no_properties_available')
             );
@@ -270,7 +270,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
             && $propertyValueBag->hasPropertyValue($propertyName)
             && $propertyValueBag->isPropertyValueInvalid($propertyName)
         ) {
-            $errors = array_merge(
+            $errors = \array_merge(
                 $errors,
                 $propertyValueBag->getPropertyValueErrors($propertyName)
             );

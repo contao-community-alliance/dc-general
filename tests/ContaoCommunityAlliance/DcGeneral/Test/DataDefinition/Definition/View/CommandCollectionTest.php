@@ -29,7 +29,7 @@ class CommandCollectionTest extends TestCase
 {
     protected function assertIndexIs($expected, $array, $command)
     {
-        $this->assertSame($expected, array_search($command, array_values($array)));
+        $this->assertSame($expected, \array_search($command, \array_values($array)));
     }
 
     public function testAddOne()

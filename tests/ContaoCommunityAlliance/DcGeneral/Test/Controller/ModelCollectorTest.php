@@ -125,7 +125,7 @@ class ModelCollectorTest extends TestCase
         $collector = new ModelCollector($environment);
 
         // Test with parent definition
-        if (false !== stripos($modelId, '::')) {
+        if (false !== \stripos($modelId, '::')) {
             $parentPropertiesDefinition = $this->mockPropertiesDefinition();
             $parentPropertiesDefinition->method('getPropertyNames')->willReturn(['test-parent-property']);
             $parentDataDefinition = $this->mockDefinitionContainer();

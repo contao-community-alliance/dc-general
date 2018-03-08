@@ -43,8 +43,8 @@ class DefaultDataProviderSqlUtils
             return $idProperty;
         }
         if (null !== $config->getFields()) {
-            $fields = implode(', ', $config->getFields());
-            if (false !== stripos($fields, 'DISTINCT')) {
+            $fields = \implode(', ', $config->getFields());
+            if (false !== \stripos($fields, 'DISTINCT')) {
                 return $fields;
             }
             return $idProperty . ', ' . $fields;
@@ -84,14 +84,14 @@ class DefaultDataProviderSqlUtils
         $result  = '';
         $fields  = [];
 
-        if (empty($sorting) || !is_array($sorting)) {
+        if (empty($sorting) || !\is_array($sorting)) {
             return '';
         }
         foreach ($sorting as $field => $direction) {
             // array could be a simple field list or list of field => direction combinations.
             if (!empty($direction)) {
-                $direction = strtoupper($direction);
-                if (!in_array($direction, [DCGE::MODEL_SORTING_ASC, DCGE::MODEL_SORTING_DESC])) {
+                $direction = \strtoupper($direction);
+                if (!\in_array($direction, [DCGE::MODEL_SORTING_ASC, DCGE::MODEL_SORTING_DESC])) {
                     $field     = $direction;
                     $direction = DCGE::MODEL_SORTING_ASC;
                 }
@@ -102,7 +102,7 @@ class DefaultDataProviderSqlUtils
             $fields[] = $field . ' ' . $direction;
         }
 
-        $result .= ' ORDER BY ' . implode(', ', $fields);
+        $result .= ' ORDER BY ' . \implode(', ', $fields);
 
         return $result;
     }
@@ -161,8 +161,8 @@ class DefaultDataProviderSqlUtils
      */
     private static function calculateSubfilter($filter, array &$parameters)
     {
-        if (!is_array($filter)) {
-            throw new DcGeneralRuntimeException('Error Processing sub filter: ' . var_export($filter, true), 1);
+        if (!\is_array($filter)) {
+            throw new DcGeneralRuntimeException('Error Processing sub filter: ' . \var_export($filter, true), 1);
         }
 
         switch ($filter['operation']) {
@@ -184,7 +184,7 @@ class DefaultDataProviderSqlUtils
             default:
         }
 
-        throw new DcGeneralRuntimeException('Error processing filter array ' . var_export($filter, true), 1);
+        throw new DcGeneralRuntimeException('Error processing filter array ' . \var_export($filter, true), 1);
     }
 
     /**
@@ -208,7 +208,7 @@ class DefaultDataProviderSqlUtils
             $combine[] = static::calculateSubfilter($child, $params);
         }
 
-        return implode(sprintf(' %s ', $operation['operation']), $combine);
+        return \implode(\sprintf(' %s ', $operation['operation']), $combine);
     }
 
     /**
@@ -223,7 +223,7 @@ class DefaultDataProviderSqlUtils
     {
         $params[] = $operation['value'];
 
-        return sprintf('(%s %s ?)', $operation['property'], $operation['operation']);
+        return \sprintf('(%s %s ?)', $operation['property'], $operation['operation']);
     }
 
     /**
@@ -236,10 +236,10 @@ class DefaultDataProviderSqlUtils
      */
     private static function filterInList($operation, &$params)
     {
-        $params    = array_merge($params, array_values($operation['values']));
-        $wildcards = rtrim(str_repeat('?,', count($operation['values'])), ',');
+        $params    = \array_merge($params, \array_values($operation['values']));
+        $wildcards = \rtrim(\str_repeat('?,', \count($operation['values'])), ',');
 
-        return sprintf('(%s IN (%s))', $operation['property'], $wildcards);
+        return \sprintf('(%s IN (%s))', $operation['property'], $wildcards);
     }
 
     /**
@@ -254,9 +254,9 @@ class DefaultDataProviderSqlUtils
      */
     private static function filterLike($operation, &$params)
     {
-        $wildcards = str_replace(['*', '?'], ['%', '_'], $operation['value']);
+        $wildcards = \str_replace(['*', '?'], ['%', '_'], $operation['value']);
         $params[]  = $wildcards;
 
-        return sprintf('(%s LIKE ?)', $operation['property'], $wildcards);
+        return \sprintf('(%s LIKE ?)', $operation['property'], $wildcards);
     }
 }

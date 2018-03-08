@@ -1,14 +1,14 @@
 <input type="hidden" name="<?= $this->name ?>" id="ctrl_<?= $this->id ?>" value="<?= $this->value ?>">
 
 <div class="selector_container">
-    <?php if ($this->hasOrder && count($this->icons) > 1): ?>
+    <?php if ($this->hasOrder && \count($this->icons) > 1): ?>
         <p class="sort_hint"><?= $this->translate('dragItemsHint', 'MSC') ?></p>
     <?php endif; ?>
-    <ul id="sort_<?= $this->id ?>" class="<?= trim(($this->hasOrder ? 'sortable ' : '') . ($this->isGallery ? 'sgallery' : '')) ?>">
+    <ul id="sort_<?= $this->id ?>" class="<?= \trim(($this->hasOrder ? 'sortable ' : '') . ($this->isGallery ? 'sgallery' : '')) ?>">
         <?php foreach ($this->icons as $icon): ?>
         <li data-id="<?php
         // PHP 7 compatibility, see https://github.com/contao/core-bundle/issues/309
-        if (version_compare(VERSION . '.' . BUILD, '3.5.5', '>=')) {
+        if (\version_compare(VERSION . '.' . BUILD, '3.5.5', '>=')) {
             echo \StringUtil::binToUuid($icon['uuid']);
         } else {
             echo \String::binToUuid($icon['uuid']);

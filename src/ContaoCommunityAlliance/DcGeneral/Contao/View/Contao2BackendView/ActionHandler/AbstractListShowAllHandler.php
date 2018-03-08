@@ -91,7 +91,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
         $result['clipboard'] = $clipboard->getResponse();
         $result['body']      = $template->parse();
 
-        $event->setResponse(implode("\n", $result));
+        $event->setResponse(\implode("\n", $result));
     }
 
     /**
@@ -192,7 +192,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
         $template->set('subHeadline', 'Elemente auswählen');
         $template->set('tableName', null !== $definition->getName() ? $definition->getName() : 'none');
         $template->set('select', 'select' === $this->environment->getInputProvider()->getParameter('act'));
-        $template->set('action', ampersand(Environment::get('request'), true));
+        $template->set('action', \ampersand(Environment::get('request'), true));
         $template->set('selectButtons', $this->getSelectButtons());
         $template->set('sortable', $this->isSortable());
         $template->set('showColumns', $showColumn);
@@ -205,9 +205,9 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
         $template->set('selectContainer', $this->getSelectContainer());
 
         if ((null !== $template->get('action'))
-            && (false !== strpos($template->get('action'), 'select=models'))
+            && (false !== \strpos($template->get('action'), 'select=models'))
         ) {
-            $template->set('action', str_replace('select=models', 'select=properties', $template->get('action')));
+            $template->set('action', \str_replace('select=models', 'select=properties', $template->get('action')));
         }
     }
 
@@ -308,7 +308,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
                 $cssClasses[] = 'tl_folder_clipped';
             }
 
-            $model->setMeta($model::CSS_ROW_CLASS, implode(' ', $cssClasses));
+            $model->setMeta($model::CSS_ROW_CLASS, \implode(' ', $cssClasses));
 
             $this->renderModel($model);
         }
@@ -350,7 +350,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
             $label = $properties->getProperty($field)->getLabel();
 
             $tableHead[] = [
-                'class'   => 'tl_folder_tlist col_' . $field . (in_array($field, $columns) ? ' ordered_by' : ''),
+                'class'   => 'tl_folder_tlist col_' . $field . (\in_array($field, $columns) ? ' ordered_by' : ''),
                 'content' => $label
             ];
         }
@@ -404,16 +404,16 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
         $basicDefinition = $definition->getBasicDefinition();
         $buttons         = [];
 
-        $confirmMessage = htmlentities(
-            sprintf(
+        $confirmMessage = \htmlentities(
+            \sprintf(
                 '<h2 class="tl_error">%s</h2>' .
                 '<p></p>' .
                 '<div class="tl_submit_container">' .
                 '<input type="submit" name="close" class="%s" value="%s" onclick="%s">' .
                 '</div>',
-                specialchars($this->translate('MSC.nothingSelect')),
+                \specialchars($this->translate('MSC.nothingSelect')),
                 'tl_submit',
-                specialchars($this->translate('MSC.close')),
+                \specialchars($this->translate('MSC.close')),
                 'this.blur(); BackendGeneral.hideMessage(); return false;'
             )
         );
@@ -423,64 +423,64 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
         $input = '<input type="submit" name="%s" id="%s" class="tl_submit" accesskey="%s" value="%s" onclick="%s">';
 
         if ($basicDefinition->isDeletable()) {
-            $onClickDelete = sprintf(
+            $onClickDelete = \sprintf(
                 'BackendGeneral.confirmSelectDeleteAll(this, \'%s\', \'%s\', \'%s\', \'%s\', \'%s\'); return false;',
                 'models[]',
                 $confirmMessage,
-                specialchars($this->translate('MSC.delAllConfirm')),
-                specialchars($this->translate('MSC.confirmOk')),
-                specialchars($this->translate('MSC.confirmAbort'))
+                \specialchars($this->translate('MSC.delAllConfirm')),
+                \specialchars($this->translate('MSC.confirmOk')),
+                \specialchars($this->translate('MSC.confirmAbort'))
             );
 
-            $buttons['delete'] = sprintf(
+            $buttons['delete'] = \sprintf(
                 $input,
                 'delete',
                 'delete',
                 'd',
-                specialchars($this->translate('MSC.deleteSelected')),
+                \specialchars($this->translate('MSC.deleteSelected')),
                 $onClickDelete
             );
         }
 
         $sortingProperty = ViewHelpers::getManualSortingProperty($this->getEnvironment());
         if ($sortingProperty && $basicDefinition->isEditable()) {
-            $buttons['cut'] = sprintf(
+            $buttons['cut'] = \sprintf(
                 $input,
                 'cut',
                 'cut',
                 's',
-                specialchars($this->translate('MSC.moveSelected')),
+                \specialchars($this->translate('MSC.moveSelected')),
                 $onClick
             );
         }
 
         if ($basicDefinition->isCreatable()) {
-            $buttons['copy'] = sprintf(
+            $buttons['copy'] = \sprintf(
                 $input,
                 'copy',
                 'copy',
                 'c',
-                specialchars($this->translate('MSC.copySelected')),
+                \specialchars($this->translate('MSC.copySelected')),
                 $onClick
             );
         }
 
         if ($basicDefinition->isEditable()) {
-            $buttons['override'] = sprintf(
+            $buttons['override'] = \sprintf(
                 $input,
                 'override',
                 'override',
                 'v',
-                specialchars($this->translate('MSC.overrideSelected')),
+                \specialchars($this->translate('MSC.overrideSelected')),
                 $onClick
             );
 
-            $buttons['edit'] = sprintf(
+            $buttons['edit'] = \sprintf(
                 $input,
                 'edit',
                 'edit',
                 's',
-                specialchars($this->translate('MSC.editSelected')),
+                \specialchars($this->translate('MSC.editSelected')),
                 $onClick
             );
         }
@@ -549,10 +549,10 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
             )
         );
 
-        return sprintf(
+        return \sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $urlEvent->getUrl(),
-            specialchars($this->translate('pasteafter.0')),
+            \specialchars($this->translate('pasteafter.0')),
             $imageEvent->getHtml()
         );
     }
@@ -630,7 +630,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
         }
 
         $session = $sessionStorage->get($sessionName);
-        if (!array_key_exists($selectAction, $session)) {
+        if (!\array_key_exists($selectAction, $session)) {
             return [];
         }
 

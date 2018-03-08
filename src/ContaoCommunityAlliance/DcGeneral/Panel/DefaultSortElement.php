@@ -88,7 +88,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
             $arrValue = $this->getSessionStorage()->get('sorting');
         }
 
-        if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
+        if (\array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
             return $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
         }
 
@@ -112,7 +112,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
         }
 
         if ($strProperty) {
-            if (!is_array($arrValue[$definitionName])) {
+            if (!\is_array($arrValue[$definitionName])) {
                 $arrValue[$definitionName] = [];
             }
             $arrValue[$definitionName] = $strProperty;
@@ -151,7 +151,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 
         $current = $objConfig->getSorting();
 
-        if (!is_array($current)) {
+        if (!\is_array($current)) {
             $current = [];
         }
 
@@ -182,14 +182,14 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
             }
 
             $arrOptions[] = [
-                'value'      => specialchars($information->getName()),
+                'value'      => \specialchars($information->getName()),
                 'attributes' => ($this->getSelected() == $information->getName()) ? ' selected' : '',
                 'content'    => $name
             ];
         }
 
         // Sort by option values.
-        uksort($arrOptions, 'strcasecmp');
+        \uksort($arrOptions, '\strcasecmp');
 
         /** @noinspection PhpUndefinedFieldInspection */
         $objTemplate->options = $arrOptions;

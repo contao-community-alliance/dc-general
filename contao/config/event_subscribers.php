@@ -32,7 +32,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\RichTextFileUuidSubscriber;
 
 if ('BE' === TL_MODE) {
-    return array(
+    return [
         new Subscriber(),
         new ClipboardController(),
         new LanguageFilter(),
@@ -41,9 +41,9 @@ if ('BE' === TL_MODE) {
         new CheckPermission(),
         new DynamicParentTableSubscriber(),
         new EditAllHandlerSubscriber()
-    );
+    ];
 }
 
-return array(
+return [
     new FallbackResetSubscriber()
-);
+];

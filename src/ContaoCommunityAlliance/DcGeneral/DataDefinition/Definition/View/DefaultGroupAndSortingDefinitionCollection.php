@@ -52,7 +52,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
         if (($index < 0) || ($this->getCount() <= $index)) {
             $this->information[] = $information;
         } else {
-            array_splice($this->information, $index, 0, [$information]);
+            \array_splice($this->information, $index, 0, [$information]);
         }
 
         return $information;
@@ -67,7 +67,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
             $this->default = -1;
         }
         unset($this->information[$index]);
-        $this->information = array_values($this->information);
+        $this->information = \array_values($this->information);
 
         return $this;
     }
@@ -77,7 +77,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
      */
     public function getCount()
     {
-        return count($this->information);
+        return \count($this->information);
     }
 
     /**
@@ -106,10 +106,10 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
     public function markDefault($information)
     {
         if ($information instanceof GroupAndSortingDefinitionInterface) {
-            $information = array_search($information, $this->information);
+            $information = \array_search($information, $this->information);
         }
 
-        if (!is_int($information)) {
+        if (!\is_int($information)) {
             throw new DcGeneralInvalidArgumentException('Invalid argument.');
         }
 

@@ -97,14 +97,14 @@ class LegacyPalettesParser
         }
 
         if (isset($palettes['__selector__'])) {
-            $selectorFieldNames = array_merge($selectorFieldNames, $palettes['__selector__']);
-            $selectorFieldNames = array_unique($selectorFieldNames);
+            $selectorFieldNames = \array_merge($selectorFieldNames, $palettes['__selector__']);
+            $selectorFieldNames = \array_unique($selectorFieldNames);
             unset($palettes['__selector__']);
         }
 
         foreach ($palettes as $selector => $fields) {
             // Fields list must be a string.
-            if (!is_string($fields)) {
+            if (!\is_string($fields)) {
                 continue;
             }
 
@@ -160,8 +160,8 @@ class LegacyPalettesParser
 
         // We ignore the difference between field set (separated by ";") and fields (separated by ",").
         $fields = preg_split('~[;,]~', $fields);
-        $fields = array_map('trim', $fields);
-        $fields = array_filter($fields);
+        $fields = \array_map('trim', $fields);
+        $fields = \array_filter($fields);
 
         $legend = null;
 
@@ -174,7 +174,7 @@ class LegacyPalettesParser
                     $legend = new Legend($matches[1]);
                     $palette->addLegend($legend);
                 }
-                if (array_key_exists(3, $matches)) {
+                if (\array_key_exists(3, $matches)) {
                     $legend->setInitialVisibility(false);
                 }
             } else {
@@ -221,9 +221,9 @@ class LegacyPalettesParser
         }
 
         // Legacy fallback, try to split on $selectors with optimistic suggestion of values.
-        if (strpos($paletteSelector, '|') === false) {
+        if (\strpos($paletteSelector, '|') === false) {
             foreach ($selectorFieldNames as $selectorFieldName) {
-                $paletteSelector = str_replace(
+                $paletteSelector = \str_replace(
                     $selectorFieldName,
                     '|' . $selectorFieldName . '|',
                     $paletteSelector
@@ -232,15 +232,15 @@ class LegacyPalettesParser
         }
 
         // Extended mode, split selectors and values with "|".
-        $paletteSelectorParts = explode('|', $paletteSelector);
-        $paletteSelectorParts = array_map('trim', $paletteSelectorParts);
-        $paletteSelectorParts = array_filter($paletteSelectorParts);
+        $paletteSelectorParts = \explode('|', $paletteSelector);
+        $paletteSelectorParts = \array_map('trim', $paletteSelectorParts);
+        $paletteSelectorParts = \array_filter($paletteSelectorParts);
 
         $condition = new PaletteConditionChain();
 
         foreach ($paletteSelectorParts as $paletteSelectorPart) {
             // The part is a property name (checkbox like selector).
-            if (in_array($paletteSelectorPart, $selectorFieldNames)) {
+            if (\in_array($paletteSelectorPart, $selectorFieldNames)) {
                 $condition->addCondition(
                     new PalettePropertyTrueCondition($paletteSelectorPart)
                 );
@@ -279,7 +279,7 @@ class LegacyPalettesParser
 
         foreach ($subpalettes as $subPaletteSelector => $childFields) {
             // Child fields list must be a string.
-            if (!is_string($childFields)) {
+            if (!\is_string($childFields)) {
                 continue;
             }
 
@@ -288,7 +288,7 @@ class LegacyPalettesParser
             $selectorProperty = [];
             // For selectable sub selector.
             if (isset($properties[$selectorFieldName])
-                && (0 < substr_count($subPaletteSelector, '_'))
+                && (0 < \substr_count($subPaletteSelector, '_'))
             ) {
                 $selectorProperty = $properties[$selectorFieldName];
             }
@@ -320,8 +320,8 @@ class LegacyPalettesParser
         array $selectorFieldNames = [],
         array $properties = []
     ) {
-        $childFields = explode(',', $childFields);
-        $childFields = array_map('trim', $childFields);
+        $childFields = \explode(',', $childFields);
+        $childFields = \array_map('trim', $childFields);
 
         $condition = $this->createSubpaletteCondition($subPaletteSelector, $selectorFieldNames);
 
@@ -353,15 +353,15 @@ class LegacyPalettesParser
      */
     public function createSubpaletteSelectorFieldName($subPaletteSelector, array $selectorFieldNames = [])
     {
-        $selectorValues     = explode('_', $subPaletteSelector);
-        $selectorFieldName  = array_shift($selectorValues);
-        $selectorValueCount = count($selectorValues);
+        $selectorValues     = \explode('_', $subPaletteSelector);
+        $selectorFieldName  = \array_shift($selectorValues);
+        $selectorValueCount = \count($selectorValues);
         while ($selectorValueCount) {
-            if (in_array($selectorFieldName, $selectorFieldNames)) {
+            if (\in_array($selectorFieldName, $selectorFieldNames)) {
                 break;
             }
-            $selectorFieldName .= '_' . array_shift($selectorValues);
-            $selectorValueCount = count($selectorValues);
+            $selectorFieldName .= '_' . \array_shift($selectorValues);
+            $selectorValueCount = \count($selectorValues);
         }
 
         return $selectorFieldName;
@@ -389,20 +389,20 @@ class LegacyPalettesParser
         $condition = null;
 
         // Try to find a select value first (case 1).
-        $selectorValues     = explode('_', $subPaletteSelector);
-        $selectorFieldName  = array_shift($selectorValues);
-        $selectorValueCount = count($selectorValues);
+        $selectorValues     = \explode('_', $subPaletteSelector);
+        $selectorFieldName  = \array_shift($selectorValues);
+        $selectorValueCount = \count($selectorValues);
 
         while ($selectorValueCount) {
             if (empty($selectorValues)) {
                 break;
             }
 
-            if (in_array($selectorFieldName, $selectorFieldNames)) {
-                $condition = new PropertyValueCondition($selectorFieldName, implode('_', $selectorValues));
+            if (\in_array($selectorFieldName, $selectorFieldNames)) {
+                $condition = new PropertyValueCondition($selectorFieldName, \implode('_', $selectorValues));
                 break;
             }
-            $selectorFieldName .= '_' . array_shift($selectorValues);
+            $selectorFieldName .= '_' . \array_shift($selectorValues);
         }
 
         // If case 1 was not successful, try implicitly case 2 must apply.

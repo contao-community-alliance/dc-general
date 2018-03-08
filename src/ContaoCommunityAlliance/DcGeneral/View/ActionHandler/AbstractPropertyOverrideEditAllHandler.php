@@ -113,25 +113,25 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
 
         $error = $renderInformation->offsetGet('error');
 
-        foreach (array_keys($modelError) as $modelId) {
+        foreach (\array_keys($modelError) as $modelId) {
             $newEditError = [
-                sprintf(
+                \sprintf(
                     '<strong><a href="%s#pal_%s">%s</a></strong>',
                     Environment::get('request'),
-                    str_replace('::', '____', $modelId),
+                    \str_replace('::', '____', $modelId),
                     $modelId
                 )
             ];
 
             foreach ($modelError[$modelId] as $modelIdError) {
-                $newEditError = array_merge($newEditError, $modelIdError);
+                $newEditError = \array_merge($newEditError, $modelIdError);
             }
 
-            if (count($error) > 0) {
-                $error = array_merge($error, ['']);
+            if (\count($error) > 0) {
+                $error = \array_merge($error, ['']);
             }
 
-            $error = array_merge($error, $newEditError);
+            $error = \array_merge($error, $newEditError);
         }
 
         $renderInformation->offsetSet('error', $error);
@@ -150,11 +150,11 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $sessionProperties = $this->getPropertiesFromSession();
 
         $clonePropertyValueBag = clone $propertyValueBag;
-        foreach (array_keys($propertyValueBag->getArrayCopy()) as $propertyName) {
+        foreach (\array_keys($propertyValueBag->getArrayCopy()) as $propertyName) {
             $clonePropertyValueBag->resetPropertyValueErrors($propertyName);
 
             if ($this->ensurePropertyVisibleInModel($propertyName, $model)) {
-                if (!array_key_exists($propertyName, $sessionProperties)
+                if (!\array_key_exists($propertyName, $sessionProperties)
                 ) {
                     $clonePropertyValueBag->setPropertyValue($propertyName, $model->getProperty($propertyName));
                 }
@@ -177,7 +177,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
      */
     private function resetPropertyValueErrors(PropertyValueBagInterface $propertyValueBag)
     {
-        foreach (array_keys($propertyValueBag->getInvalidPropertyErrors()) as $errorProperty) {
+        foreach (\array_keys($propertyValueBag->getInvalidPropertyErrors()) as $errorProperty) {
             $propertyValueBag->resetPropertyValueErrors($errorProperty);
         }
     }
@@ -204,8 +204,8 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             return;
         }
 
-        foreach (array_keys($errorInformation) as $errorPropertyName) {
-            array_map(
+        foreach (\array_keys($errorInformation) as $errorPropertyName) {
+            \array_map(
                 function ($error) use (
                     $errorPropertyName,
                     $model,
@@ -215,13 +215,13 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
                 ) {
                     $modelError = (array) $renderInformation->offsetGet('modelError');
 
-                    $inputField = sprintf(
+                    $inputField = \sprintf(
                         'ctrl_%s_%s',
-                        str_replace('::', '____', ModelId::fromModel($model)->getSerialized()),
+                        \str_replace('::', '____', ModelId::fromModel($model)->getSerialized()),
                         $errorPropertyName
                     );
 
-                    $modelError[ModelId::fromModel($model)->getSerialized()][$errorPropertyName][] = sprintf(
+                    $modelError[ModelId::fromModel($model)->getSerialized()][$errorPropertyName][] = \sprintf(
                         '<a href="%s#%s">No saved model[%s]. %s</a>',
                         Environment::get('request'),
                         $inputField,
@@ -266,7 +266,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $dataProvider      = $this->getEnvironment()->getDataProvider();
         $sessionProperties = $this->getPropertiesFromSession();
 
-        foreach (array_keys($sessionProperties) as $sessionPropertyName) {
+        foreach (\array_keys($sessionProperties) as $sessionPropertyName) {
             if (!$sourcePropertyValueBag->hasPropertyValue($sessionPropertyName)) {
                 continue;
             }
@@ -330,7 +330,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
 
         $errorInformation = $editInformation->getModelError($model);
         if (null !== $errorInformation) {
-            foreach (array_keys($errorInformation) as $errorPropertyName) {
+            foreach (\array_keys($errorInformation) as $errorPropertyName) {
                 if (false === $propertyValueBag->hasPropertyValue($errorPropertyName)) {
                     continue;
                 }
@@ -387,7 +387,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $inputProvider = $this->getEnvironment()->getInputProvider();
 
         $inputValues = [];
-        foreach (array_keys($_POST) as $valueName) {
+        foreach (\array_keys($_POST) as $valueName) {
             $inputValues[$valueName] = $inputProvider->getValue($valueName, true);
             $inputProvider->unsetValue($valueName);
 
@@ -399,9 +399,9 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
                     break;
 
                 case 'FORM_INPUTS':
-                    $inputProvider->setValue($valueName, array_keys($editProperties));
+                    $inputProvider->setValue($valueName, \array_keys($editProperties));
 
-                    foreach (array_keys($editProperties) as $editPropertyName) {
+                    foreach (\array_keys($editProperties) as $editPropertyName) {
                         $inputProvider->setValue($editPropertyName, $editProperties[$editPropertyName]);
                     }
 
@@ -439,11 +439,11 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $inputProvider = $environment->getInputProvider();
 
         unset($_POST);
-        foreach (array_keys($inputValues) as $postName) {
+        foreach (\array_keys($inputValues) as $postName) {
             $inputProvider->setValue($postName, $inputValues[$postName]);
         }
 
-        foreach (array_keys($editProperties) as $editedPropertyName) {
+        foreach (\array_keys($editProperties) as $editedPropertyName) {
             $propertyValueBag->setPropertyValue($editedPropertyName, $model->getProperty($editedPropertyName));
         }
     }
@@ -461,14 +461,14 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
 
         $buttons = [];
 
-        $buttons['save'] = sprintf(
+        $buttons['save'] = \sprintf(
             '<input type="submit" name="%s_save" id="%s_save" class="tl_submit" accesskey="s" value="%s" />',
             $mode,
             $mode,
             $translator->translate('MSC.save')
         );
 
-        $buttons['saveNclose'] = sprintf(
+        $buttons['saveNclose'] = \sprintf(
             '<input type="submit" name="%s_saveNback" id="%s_saveNback" class="tl_submit" accesskey="c" value="%s" />',
             $mode,
             $mode,
@@ -566,14 +566,14 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             $modelIds[] = ModelId::fromSerialized($modelId)->getId();
 
             if ($addEditProperties) {
-                $modelEditProperties = $inputProvider->getValue(str_replace('::', '____', $modelId) . '_', true);
-                $inputProvider->unsetValue(str_replace('::', '____', $modelId) . '_');
+                $modelEditProperties = $inputProvider->getValue(\str_replace('::', '____', $modelId) . '_', true);
+                $inputProvider->unsetValue(\str_replace('::', '____', $modelId) . '_');
 
                 $editProperties[$modelId] = $modelEditProperties;
             }
         }
 
-        $idProperty = method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
+        $idProperty = \method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
         $collection = $dataProvider->fetchAll(
             $dataProvider->getEmptyConfig()->setFilter(
                 [['operation' => 'IN', 'property' => $idProperty, 'values' => $modelIds]]
@@ -660,7 +660,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
 
             foreach ($properties as $property) {
                 if (('edit' === $this->getMode())
-                    && !in_array($property->getName(), $modelErrors)) {
+                    && !\in_array($property->getName(), $modelErrors)) {
                     continue;
                 }
 
@@ -729,7 +729,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
 
         $properties = [];
         foreach ($dataDefinition->getPropertiesDefinition()->getPropertyNames() as $propertyName) {
-            if (!in_array($propertyName, $selectPropertyNames)) {
+            if (!\in_array($propertyName, $selectPropertyNames)) {
                 continue;
             }
 

@@ -382,7 +382,7 @@ class TreePicker extends Widget
      */
     private function convertValue($varValue)
     {
-        if (empty($varValue) || is_array($varValue)) {
+        if (empty($varValue) || \is_array($varValue)) {
             return $varValue;
         }
 
@@ -390,9 +390,9 @@ class TreePicker extends Widget
             case 'radio':
                 return [$varValue];
             case 'checkbox':
-                $delimiter = (stripos($varValue, "\t") !== false) ? "\t" : ',';
+                $delimiter = (\stripos($varValue, "\t") !== false) ? "\t" : ',';
 
-                return trimsplit($delimiter, $varValue);
+                return \trimsplit($delimiter, $varValue);
             default:
         }
         throw new \RuntimeException('Unknown field type encountered: ' . $this->fieldType);
@@ -462,7 +462,7 @@ class TreePicker extends Widget
         $value      = $this->varValue;
         $idProperty = $this->idProperty ?: 'id';
 
-        if (is_array($value) && !empty($value)) {
+        if (\is_array($value) && !empty($value)) {
             $environment = $this->getEnvironment();
             $dataDriver  = $environment->getDataProvider();
             $config      = $environment->getBaseConfigRegistry()->getBaseConfig();
@@ -503,7 +503,7 @@ class TreePicker extends Widget
      */
     private function sortValues($values)
     {
-        if (!($this->orderField && is_array($this->{$this->orderField}))) {
+        if (!($this->orderField && \is_array($this->{$this->orderField}))) {
             return $values;
         }
 
@@ -563,7 +563,7 @@ class TreePicker extends Widget
 
         $additionalUrlParameter = '';
         if ($this->pickerOrderProperty && $this->pickerSortDirection) {
-            $additionalUrlParameter .= sprintf(
+            $additionalUrlParameter .= \sprintf(
                 'orderProperty=%s&amp;sortDirection=%s&amp;',
                 $this->pickerOrderProperty,
                 $this->pickerSortDirection
@@ -571,14 +571,14 @@ class TreePicker extends Widget
         }
 
         $popupUrl = 'system/modules/dc-general/backend/generaltree.php?' .
-                    sprintf(
+                    \sprintf(
                         'do=%s&amp;table=%s&amp;field=%s&amp;act=%s&amp;id=%s&amp;value=%s&amp;rt=%s',
                         Input::get('do'),
                         $this->strTable,
                         $field,
                         $action,
                         $environment->getInputProvider()->getParameter('id'),
-                        implode(',', array_keys($values)),
+                        \implode(',', \array_keys($values)),
                         REQUEST_TOKEN
                     );
 
@@ -649,7 +649,7 @@ class TreePicker extends Widget
             ->set('fieldType', $this->fieldType)
             ->set('resetSelected', $translator->translate('MSC.resetSelected'))
             ->set('selectAll', $translator->translate('MSC.selectAll'))
-            ->set('values', deserialize($this->varValue, true));
+            ->set('values', \deserialize($this->varValue, true));
 
         // Create Tree Render with custom root points.
         $tree = '';
@@ -674,8 +674,8 @@ class TreePicker extends Widget
     private function getRootIds()
     {
         $root = $this->root;
-        $root = is_array($root) ? $root : ((is_numeric($root) && $root > 0) ? [$root] : []);
-        $root = array_merge($root, [0]);
+        $root = \is_array($root) ? $root : ((\is_numeric($root) && $root > 0) ? [$root] : []);
+        $root = \array_merge($root, [0]);
 
         return $root;
     }
@@ -819,7 +819,7 @@ class TreePicker extends Widget
         }
 
         // If expanded, store children.
-        if ($objModel->getMeta($objModel::SHOW_CHILDREN) && count($arrChildCollections) != 0) {
+        if ($objModel->getMeta($objModel::SHOW_CHILDREN) && \count($arrChildCollections) != 0) {
             $objModel->setMeta($objModel::CHILD_COLLECTIONS, $arrChildCollections);
         }
 
@@ -853,7 +853,7 @@ class TreePicker extends Widget
                 $arrFilter     = $objRootCondition->getFilterArray();
 
                 if ($arrBaseFilter) {
-                    $arrFilter = array_merge($arrBaseFilter, $arrFilter);
+                    $arrFilter = \array_merge($arrBaseFilter, $arrFilter);
                 }
 
                 $objRootConfig->setFilter($arrFilter);
@@ -971,7 +971,7 @@ class TreePicker extends Widget
 
         $formatter = new DefaultModelFormatterConfig();
         $formatter->setPropertyNames($properties);
-        $formatter->setFormat(str_repeat('%s ', count($properties)));
+        $formatter->setFormat(\str_repeat('%s ', \count($properties)));
 
         return $formatter;
     }
@@ -992,8 +992,8 @@ class TreePicker extends Widget
         $definition   = $this->getEnvironment()->getDataDefinition();
         $listing      = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME)->getListingConfig();
         $properties   = $definition->getPropertiesDefinition();
-        $sorting      = array_keys((array) $listing->getDefaultSortingFields());
-        $firstSorting = reset($sorting);
+        $sorting      = \array_keys((array) $listing->getDefaultSortingFields());
+        $firstSorting = \reset($sorting);
         $formatter    = $this->getFormatter($model, $treeMode);
 
         $args = [];
@@ -1020,9 +1020,9 @@ class TreePicker extends Widget
             $fields = $formatter->getPropertyNames();
             $args   = $event->getArgs();
 
-            if (!is_array($args)) {
+            if (!\is_array($args)) {
                 $arrLabel[] = [
-                    'colspan' => count($fields),
+                    'colspan' => \count($fields),
                     'class'   => 'tl_file_list col_1',
                     'content' => $args
                 ];
@@ -1036,14 +1036,14 @@ class TreePicker extends Widget
                 }
             }
         } else {
-            if (!is_array($event->getArgs())) {
+            if (!\is_array($event->getArgs())) {
                 $string = $event->getArgs();
             } else {
-                $string = vsprintf($event->getLabel(), $event->getArgs());
+                $string = \vsprintf($event->getLabel(), $event->getArgs());
             }
 
-            if ($formatter->getMaxLength() !== null && strlen($string) > $formatter->getMaxLength()) {
-                $string = substr($string, 0, $formatter->getMaxLength());
+            if ($formatter->getMaxLength() !== null && \strlen($string) > $formatter->getMaxLength()) {
+                $string = \substr($string, 0, $formatter->getMaxLength());
             }
 
             $arrLabel[] = [
@@ -1074,7 +1074,7 @@ class TreePicker extends Widget
             $toggleTitle = $this->getEnvironment()->getTranslator()->translate('expandNode', 'MSC');
         }
 
-        $toggleScript = sprintf(
+        $toggleScript = \sprintf(
             'Backend.getScrollOffset(); return BackendGeneral.loadSubTree(this, ' .
             '{\'toggler\':\'%s\', \'id\':\'%s\', \'providerName\':\'%s\', \'level\':\'%s\'});',
             $strToggleID,
@@ -1152,7 +1152,7 @@ class TreePicker extends Widget
             }
         }
 
-        return implode("\n", $arrHtml);
+        return \implode("\n", $arrHtml);
     }
 
 
@@ -1213,8 +1213,8 @@ class TreePicker extends Widget
             return;
         }
 
-        $tableName      = explode('____', $this->getEnvironment()->getInputProvider()->getValue('name'))[0];
-        $sessionKey     = 'DC_GENERAL_' . strtoupper($tableName);
+        $tableName      = \explode('____', $this->getEnvironment()->getInputProvider()->getValue('name'))[0];
+        $sessionKey     = 'DC_GENERAL_' . \strtoupper($tableName);
         $sessionStorage = new SessionStorage($sessionKey);
 
         $selectAction = $this->getEnvironment()->getInputProvider()->getParameter('select');
@@ -1227,12 +1227,12 @@ class TreePicker extends Widget
                 break;
             }
 
-            $propertyNamePrefix = str_replace('::', '____', $modelId) . '_';
-            if ($propertyNamePrefix !== substr($this->strName, 0, strlen($propertyNamePrefix))) {
+            $propertyNamePrefix = \str_replace('::', '____', $modelId) . '_';
+            if ($propertyNamePrefix !== \substr($this->strName, 0, \strlen($propertyNamePrefix))) {
                 continue;
             }
 
-            $originalPropertyName = substr($this->strName, strlen($propertyNamePrefix));
+            $originalPropertyName = \substr($this->strName, \strlen($propertyNamePrefix));
         }
 
         if (!$originalPropertyName) {

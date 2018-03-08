@@ -48,7 +48,7 @@ class CheckPermissionTest extends TestCase
         $events = CheckPermission::getSubscribedEvents();
 
         $this->assertCount(1, $events);
-        $this->assertEquals([BuildDataDefinitionEvent::NAME], array_keys($events));
+        $this->assertEquals([BuildDataDefinitionEvent::NAME], \array_keys($events));
         $this->assertEquals('checkPermissionForProperties', $events[BuildDataDefinitionEvent::NAME]);
     }
 

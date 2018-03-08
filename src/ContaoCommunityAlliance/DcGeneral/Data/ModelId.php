@@ -108,18 +108,18 @@ class ModelId implements ModelIdInterface
      */
     public static function fromSerialized($serialized)
     {
-        $serialized = rawurldecode($serialized);
-        $serialized = html_entity_decode($serialized, ENT_QUOTES, 'UTF-8');
+        $serialized = \rawurldecode($serialized);
+        $serialized = \html_entity_decode($serialized, ENT_QUOTES, 'UTF-8');
 
-        $chunks = explode('::', $serialized);
+        $chunks = \explode('::', $serialized);
 
-        if (count($chunks) !== 2) {
-            throw new DcGeneralRuntimeException('Unparsable encoded id value: ' . var_export($serialized, true));
+        if (\count($chunks) !== 2) {
+            throw new DcGeneralRuntimeException('Unparsable encoded id value: ' . \var_export($serialized, true));
         }
 
-        if (!is_numeric($chunks[1])) {
-            $decodedSource = base64_decode($chunks[1]);
-            $decodedJson   = json_decode($decodedSource, true);
+        if (!\is_numeric($chunks[1])) {
+            $decodedSource = \base64_decode($chunks[1]);
+            $decodedJson   = \json_decode($decodedSource, true);
 
             $chunks[1] = $decodedJson ?: $decodedSource;
         }
@@ -134,11 +134,11 @@ class ModelId implements ModelIdInterface
      */
     public function getSerialized()
     {
-        if (is_numeric($this->modelId)) {
-            return sprintf('%s::%s', $this->dataProviderName, $this->modelId);
+        if (\is_numeric($this->modelId)) {
+            return \sprintf('%s::%s', $this->dataProviderName, $this->modelId);
         }
 
-        return sprintf('%s::%s', $this->dataProviderName, base64_encode(json_encode($this->modelId)));
+        return \sprintf('%s::%s', $this->dataProviderName, \base64_encode(\json_encode($this->modelId)));
     }
 
     /**

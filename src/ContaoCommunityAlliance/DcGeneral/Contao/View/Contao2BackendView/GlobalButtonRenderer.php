@@ -84,7 +84,7 @@ class GlobalButtonRenderer
             ->getGlobalCommands()
             ->getCommands();
 
-        if (!is_array($commands)) {
+        if (!\is_array($commands)) {
             $commands = [];
         }
 
@@ -100,7 +100,7 @@ class GlobalButtonRenderer
         $buttonsEvent->setButtons($buttons);
         $this->dispatcher->dispatch(GetGlobalButtonsEvent::NAME, $buttonsEvent);
 
-        return '<div id="tl_buttons">' . implode('', $buttonsEvent->getButtons()) . '</div>';
+        return '<div id="tl_buttons">' . \implode('', $buttonsEvent->getButtons()) . '</div>';
     }
 
     /**
@@ -140,8 +140,8 @@ class GlobalButtonRenderer
 
         $buttonEvent = new GetGlobalButtonEvent($this->environment);
         $buttonEvent
-            ->setAccessKey(isset($extra['accesskey']) ? trim($extra['accesskey']) : null)
-            ->setAttributes(' ' . ltrim($extra['attributes']))
+            ->setAccessKey(isset($extra['accesskey']) ? \trim($extra['accesskey']) : null)
+            ->setAttributes(' ' . \ltrim($extra['attributes']))
             ->setClass($extra['class'])
             ->setKey($command->getName())
             ->setHref($href)
@@ -155,11 +155,11 @@ class GlobalButtonRenderer
         }
 
         // Use the view native button building.
-        return sprintf(
+        return \sprintf(
             '<a href="%s" class="%s" title="%s"%s>%s</a> ',
             $buttonEvent->getHref(),
             $buttonEvent->getClass(),
-            specialchars($buttonEvent->getTitle()),
+            \specialchars($buttonEvent->getTitle()),
             $buttonEvent->getAttributes(),
             $buttonEvent->getLabel()
         );

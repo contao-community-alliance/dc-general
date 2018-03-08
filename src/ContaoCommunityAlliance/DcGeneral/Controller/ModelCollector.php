@@ -139,7 +139,7 @@ class ModelCollector
      */
     public function getModel($modelId, $providerName = null)
     {
-        if (is_string($modelId)) {
+        if (\is_string($modelId)) {
             try {
                 $modelId = ModelId::fromValues($providerName, $modelId);
             } catch (\Exception $swallow) {
@@ -148,7 +148,7 @@ class ModelCollector
         }
 
         if (!($modelId instanceof ModelIdInterface)) {
-            throw new \InvalidArgumentException('Invalid model id passed: ' . var_export($modelId, true));
+            throw new \InvalidArgumentException('Invalid model id passed: ' . \var_export($modelId, true));
         }
 
         $definition       = $this->environment->getDataDefinition();
@@ -174,7 +174,7 @@ class ModelCollector
             }
 
             // @codingStandardsIgnoreStart
-            @trigger_error
+            @\trigger_error
             (
                 'Only real property is allowed in the property definition.' .
                 'This will no longer be supported in the future.',
@@ -271,11 +271,11 @@ class ModelCollector
         $viewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
         if ($viewDefinition && $viewDefinition instanceof Contao2BackendViewDefinitionInterface) {
             $listingConfig        = $viewDefinition->getListingConfig();
-            $sortingProperties    = array_keys((array) $listingConfig->getDefaultSortingFields());
-            $sortingPropertyIndex = array_search($sortingProperty, $sortingProperties);
+            $sortingProperties    = \array_keys((array) $listingConfig->getDefaultSortingFields());
+            $sortingPropertyIndex = \array_search($sortingProperty, $sortingProperties);
 
             if (false !== $sortingPropertyIndex && $sortingPropertyIndex > 0) {
-                $sortingProperties = array_slice($sortingProperties, 0, $sortingPropertyIndex);
+                $sortingProperties = \array_slice($sortingProperties, 0, $sortingPropertyIndex);
                 $filters           = $config->getFilter();
 
                 foreach ($sortingProperties as $propertyName) {
@@ -331,7 +331,7 @@ class ModelCollector
                 }
 
                 // Head into recursion.
-                $ids = array_merge($ids, $this->collectChildrenOf($child, $providerName));
+                $ids = \array_merge($ids, $this->collectChildrenOf($child, $providerName));
             }
         }
 

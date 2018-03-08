@@ -72,7 +72,7 @@ class PropertyValueInFilterBuilder extends BaseFilterBuilder
         $property = $array['property'];
 
         if (!(isset($values) && isset($property))) {
-            throw new DcGeneralInvalidArgumentException('Invalid filter array provided  ' . var_export($array, true));
+            throw new DcGeneralInvalidArgumentException('Invalid filter array provided  ' . \var_export($array, true));
         }
 
         return new static($property, $values);

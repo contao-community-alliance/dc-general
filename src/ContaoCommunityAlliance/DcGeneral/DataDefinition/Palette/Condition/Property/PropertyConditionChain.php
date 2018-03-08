@@ -48,7 +48,7 @@ class PropertyConditionChain extends AbstractConditionChain implements PropertyC
         if ($this->conjunction == static::AND_CONJUNCTION) {
             foreach ($this->conditions as $condition) {
                 if (!($condition instanceof PropertyConditionInterface)) {
-                    throw new DcGeneralRuntimeException('Invalid condition in chain: ' . get_class($condition));
+                    throw new DcGeneralRuntimeException('Invalid condition in chain: ' . \get_class($condition));
                 }
 
                 if (!$condition->match($model, $input, $property, $legend)) {
@@ -61,7 +61,7 @@ class PropertyConditionChain extends AbstractConditionChain implements PropertyC
 
         foreach ($this->conditions as $condition) {
             if (!($condition instanceof PropertyConditionInterface)) {
-                throw new DcGeneralRuntimeException('Invalid condition in chain: ' . get_class($condition));
+                throw new DcGeneralRuntimeException('Invalid condition in chain: ' . \get_class($condition));
             }
 
             if ($condition->match($model, $input, $property, $legend)) {

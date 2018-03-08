@@ -64,14 +64,14 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
         if (isset($groupingInformation['mode'])
             && ($groupingInformation['mode'] === GroupAndSortingInformationInterface::GROUP_NONE)
         ) {
-            if (!is_array($value)) {
+            if (!\is_array($value)) {
                 return;
             }
 
             $this->updateTableMode($event, $value);
         }
 
-        if (!is_string($value)) {
+        if (!\is_string($value)) {
             return;
         }
 
@@ -93,7 +93,7 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
         }
 
         // HACK: we need to escape all % chars but preserve the %s and the like.
-        $value = str_replace('%', '%%', $value);
+        $value = \str_replace('%', '%%', $value);
         $value = preg_replace(
             '#%(%([0-9]+\$)?(\'.|0| )?-?([0-9]+)?(.[0-9]+)?(b|c|d|e|E|f|F|g|G|o|s|u|x|X))#',
             '\\1',

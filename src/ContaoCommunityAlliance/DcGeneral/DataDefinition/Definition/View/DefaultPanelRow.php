@@ -62,7 +62,7 @@ class DefaultPanelRow implements PanelRowInterface
         if (($index < 0) || ($this->getCount() <= $index)) {
             $this->elements[] = $element;
         } else {
-            array_splice($this->elements, $index, 0, [$element]);
+            \array_splice($this->elements, $index, 0, [$element]);
         }
 
         return $this;
@@ -84,7 +84,7 @@ class DefaultPanelRow implements PanelRowInterface
                     return $element == $indexOrNameOrInstance;
                 }
             );
-        } elseif (is_string($indexOrNameOrInstance)) {
+        } elseif (\is_string($indexOrNameOrInstance)) {
             foreach ($this as $index => $element) {
                 /** @var ElementInformationInterface $element */
                 if ($indexOrNameOrInstance == $element->getName()) {
@@ -92,7 +92,7 @@ class DefaultPanelRow implements PanelRowInterface
                     break;
                 }
             }
-        } elseif (is_numeric($indexOrNameOrInstance)) {
+        } elseif (\is_numeric($indexOrNameOrInstance)) {
             unset($this->elements[$indexOrNameOrInstance]);
         }
 
@@ -107,10 +107,10 @@ class DefaultPanelRow implements PanelRowInterface
     public function hasElement($instanceOrName)
     {
         if ($instanceOrName instanceof ElementInformationInterface) {
-            return in_array($instanceOrName, $this->elements);
+            return \in_array($instanceOrName, $this->elements);
         }
 
-        if (is_string($instanceOrName)) {
+        if (\is_string($instanceOrName)) {
             foreach ($this as $element) {
                 /** @var ElementInformationInterface $element */
                 if ($instanceOrName == $element->getName()) {
@@ -129,7 +129,7 @@ class DefaultPanelRow implements PanelRowInterface
      */
     public function getCount()
     {
-        return count($this->elements);
+        return \count($this->elements);
     }
 
     /**
@@ -140,14 +140,14 @@ class DefaultPanelRow implements PanelRowInterface
      */
     public function getElement($indexOrName)
     {
-        if (is_string($indexOrName)) {
+        if (\is_string($indexOrName)) {
             foreach ($this as $element) {
                 /** @var ElementInformationInterface $element */
                 if ($indexOrName == $element->getName()) {
                     return $element;
                 }
             }
-        } elseif (!is_numeric($indexOrName)) {
+        } elseif (!\is_numeric($indexOrName)) {
             throw new DcGeneralInvalidArgumentException('Invalid value for element name given.');
         }
 

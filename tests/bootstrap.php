@@ -18,11 +18,11 @@
  * @filesource
  */
 
-error_reporting(E_ALL);
+\error_reporting(E_ALL);
 
 function includeIfExists($file)
 {
-    return file_exists($file) ? include $file : false;
+    return \file_exists($file) ? include $file : false;
 }
 
 if (

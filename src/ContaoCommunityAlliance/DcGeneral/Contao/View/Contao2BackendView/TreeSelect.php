@@ -132,14 +132,14 @@ class TreeSelect
             ->getProperty($strField);
         $extra    = $property->getExtra();
 
-        $information['eval'] = array_merge($extra, $information['eval']);
+        $information['eval'] = \array_merge($extra, $information['eval']);
 
         /** @var \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker $objTreeSelector */
         $objTreeSelector = new $GLOBALS['BE_FFL']['DcGeneralTreePicker'](
             Widget::getAttributesFromDca(
                 $information,
                 $strField,
-                array_filter(explode(',', Input::get('value'))),
+                \array_filter(\explode(',', Input::get('value'))),
                 $strField,
                 $strTable,
                 new DcCompat($this->itemContainer->getEnvironment())
@@ -160,11 +160,11 @@ class TreeSelect
             ->set('theme', Backend::getTheme())
             ->set('base', Environment::get('base'))
             ->set('language', $GLOBALS['TL_LANGUAGE'])
-            ->set('title', specialchars($GLOBALS['TL_LANG']['MSC']['treepicker']))
+            ->set('title', \specialchars($GLOBALS['TL_LANG']['MSC']['treepicker']))
             ->set('charset', $GLOBALS['TL_CONFIG']['characterSet'])
             ->set('addSearch', $objTreeSelector->searchField)
             ->set('search', $GLOBALS['TL_LANG']['MSC']['search'])
-            ->set('action', ampersand(Environment::get('request')))
+            ->set('action', \ampersand(Environment::get('request')))
             ->set('value', Session::getInstance()->get($objTreeSelector->getSearchSessionKey()))
             ->set('manager', $GLOBALS['TL_LANG']['MSC']['treepickerManager'])
             ->set('breadcrumb', $GLOBALS['TL_DCA'][$objTreeSelector->foreignTable]['list']['sorting']['breadcrumb'])
@@ -173,7 +173,7 @@ class TreeSelect
         // Add the manager link.
         if ($objTreeSelector->managerHref) {
             $template
-                ->set('managerHref', 'contao/main.php?' . ampersand($objTreeSelector->managerHref) . '&amp;popup=1');
+                ->set('managerHref', 'contao/main.php?' . \ampersand($objTreeSelector->managerHref) . '&amp;popup=1');
         }
 
         // Prevent debug output at all cost.

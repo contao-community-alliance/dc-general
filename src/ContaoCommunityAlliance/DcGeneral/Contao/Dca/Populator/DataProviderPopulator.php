@@ -54,7 +54,7 @@ class DataProviderPopulator extends AbstractEventDrivenEnvironmentPopulator
             if ($information instanceof ContaoDataProviderInformation) {
                 if ($environment->hasDataProvider($information->getName())) {
                     throw new DcGeneralRuntimeException(
-                        sprintf(
+                        \sprintf(
                             'Data provider %s already added to environment.',
                             $information->getName()
                         )

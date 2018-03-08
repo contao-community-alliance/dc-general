@@ -107,7 +107,7 @@ class ClipboardController implements EventSubscriberInterface
 
         if (('create' === $actionName && true === $basicDefinition->isCreatable())
             || ('cut' === $actionName && true === $basicDefinition->isEditable())
-            || (false === in_array($actionName, ['create', 'cut']))
+            || (false === \in_array($actionName, ['create', 'cut']))
         ) {
             return true;
         }
@@ -126,7 +126,7 @@ class ClipboardController implements EventSubscriberInterface
         }
 
         $event->setResponse(
-            sprintf(
+            \sprintf(
                 '<div style="text-align:center; font-weight:bold; padding:40px;">%s.</div>',
                 $permissionMessage
             )
@@ -324,7 +324,7 @@ class ClipboardController implements EventSubscriberInterface
                 $formatModelLabelEvent = new FormatModelLabelEvent($environment, $model);
                 $eventDispatcher->dispatch(DcGeneralEvents::FORMAT_MODEL_LABEL, $formatModelLabelEvent);
                 $label = $formatModelLabelEvent->getLabel();
-                $label = array_shift($label);
+                $label = \array_shift($label);
                 $label = $label['content'];
             } else {
                 $model = $dataProvider->getEmptyModel();

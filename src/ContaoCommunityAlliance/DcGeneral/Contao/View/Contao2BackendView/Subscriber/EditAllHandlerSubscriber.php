@@ -166,7 +166,7 @@ class EditAllHandlerSubscriber implements EventSubscriberInterface
         $originalExtra = $copiedExtra = $originalProperty->getExtra();
 
         if (!empty($originalExtra['orderField'])) {
-            $orderId = str_replace('::', '____', $modelId->getSerialized()) . '_' . $copiedExtra['orderField'];
+            $orderId = \str_replace('::', '____', $modelId->getSerialized()) . '_' . $copiedExtra['orderField'];
 
             $copiedExtra['orderField'] = $orderId;
 
@@ -184,7 +184,7 @@ class EditAllHandlerSubscriber implements EventSubscriberInterface
 
         $originalEvent->getWidget()->id   = $event->getProperty()->getName();
         $originalEvent->getWidget()->name =
-            str_replace('::', '____', $modelId->getSerialized()) . '_[' . $originalPropertyName . ']';
+            \str_replace('::', '____', $modelId->getSerialized()) . '_[' . $originalPropertyName . ']';
 
         $originalEvent->getWidget()->tl_class = '';
 
@@ -215,7 +215,7 @@ class EditAllHandlerSubscriber implements EventSubscriberInterface
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $inputProvider->getParameter('mode'));
 
         foreach ($session['models'] as $model) {
-            if (0 !== strpos($event->getProperty()->getName(), str_replace('::', '____', $model))) {
+            if (0 !== \strpos($event->getProperty()->getName(), \str_replace('::', '____', $model))) {
                 continue;
             }
 
@@ -238,7 +238,7 @@ class EditAllHandlerSubscriber implements EventSubscriberInterface
     private function getOriginalPropertyName($propertyName, ModelIdInterface $modelId)
     {
         $originalPropertyName =
-            trim(substr($propertyName, strlen(str_replace('::', '____', $modelId->getSerialized()) . '_')), '[]');
+            \trim(\substr($propertyName, \strlen(\str_replace('::', '____', $modelId->getSerialized()) . '_')), '[]');
 
         return $originalPropertyName ?: null;
     }
