@@ -25,7 +25,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
-use MultiColumnWizard\Event\GetOptionsEvent;
+use MenAtWork\MultiColumnWizard\Event\GetOptionsEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -110,9 +110,9 @@ class EditAllHandlerSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $originalWidget        = clone $event->getWidget();
-        $originalWidget->id    = $propertyName;
-        $originalWidget->naame = $propertyName;
+        $originalWidget       = clone $event->getWidget();
+        $originalWidget->id   = $propertyName;
+        $originalWidget->name = $propertyName;
 
         $originalOptionsEvent =
             new GetOptionsEvent(
