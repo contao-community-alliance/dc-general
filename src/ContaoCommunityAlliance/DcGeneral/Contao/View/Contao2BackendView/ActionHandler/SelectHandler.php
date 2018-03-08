@@ -74,7 +74,9 @@ class SelectHandler extends AbstractHandler
         $this->clearClipboardBySubmitAction();
 
         if ('properties' === $this->getSelectAction()) {
-            $this->setIntersectProperties();
+            $collection = $this->getSelectCollection();
+            $this->setIntersectProperties($collection);
+            $this->setIntersectValues($collection);
             $this->handleBySelectActionProperties();
 
             return;
@@ -260,15 +262,16 @@ class SelectHandler extends AbstractHandler
     }
 
     /**
-     * Set the intersect properties to the session.
+     * Get all select models in a collection.
+     *
+     * @return CollectionInterface
      */
-    private function setIntersectProperties()
+    private function getSelectCollection()
     {
         $sessionStorage = $this->getEnvironment()->getSessionStorage();
         $dataDefinition = $this->getEnvironment()->getDataDefinition();
         $dataProvider   = $this->getEnvironment()->getDataProvider();
-
-        $session = $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction(true));
+        $session        = $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction(true));
 
         $modelIds = [];
         foreach ($session['models'] as $modelId) {
@@ -276,7 +279,7 @@ class SelectHandler extends AbstractHandler
         }
 
         $idProperty = \method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
-        $collection = $dataProvider->fetchAll(
+        return $dataProvider->fetchAll(
             $dataProvider->getEmptyConfig()->setFilter(
                 [
                     [
@@ -287,8 +290,41 @@ class SelectHandler extends AbstractHandler
                 ]
             )
         );
+    }
+
+    /**
+     * Set the intersect properties to the session.
+     *
+     * @param CollectionInterface $collection The collection of models.
+     */
+    private function setIntersectProperties(CollectionInterface $collection)
+    {
+        $sessionStorage = $this->getEnvironment()->getSessionStorage();
+        $dataDefinition = $this->getEnvironment()->getDataDefinition();
+
+        $session = $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction(true));
 
         $session['intersectProperties'] = $this->collectIntersectModelProperties($collection);
+        $sessionStorage->set($dataDefinition->getName() . '.' . $this->getSubmitAction(true), $session);
+    }
+
+    /**
+     * Set the intersect properties to the session.
+     *
+     * @param CollectionInterface $collection The collection of models.
+     */
+    private function setIntersectValues(CollectionInterface $collection)
+    {
+        $sessionStorage = $this->getEnvironment()->getSessionStorage();
+        $dataDefinition = $this->getEnvironment()->getDataDefinition();
+
+        $session = $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction(true));
+
+        if (!$session['intersectProperties'] || !\count($session['intersectProperties'])) {
+            return;
+        }
+
+        $session['intersectValues'] = $this->collectIntersectValues($collection);
         $sessionStorage->set($dataDefinition->getName() . '.' . $this->getSubmitAction(true), $session);
     }
 
@@ -324,6 +360,77 @@ class SelectHandler extends AbstractHandler
                 return $count === $collection->count();
             }
         );
+    }
+
+    /**
+     * Collect the intersect values from the model collection.
+     *
+     * @param CollectionInterface $collection
+     *
+     * @return array
+     */
+    private function collectIntersectValues(CollectionInterface $collection)
+    {
+        $sessionStorage = $this->getEnvironment()->getSessionStorage();
+        $dataDefinition = $this->getEnvironment()->getDataDefinition();
+
+        $session = $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction(true));
+
+        $values = [];
+        foreach ($collection->getIterator() as $model) {
+            $modelValues = \array_intersect_key($model->getPropertiesAsArray(), $session['intersectProperties']);
+            foreach ($modelValues as $modelProperty => $modelValue) {
+                if (1 === $collection->count()) {
+                    $values[$modelProperty] = $modelValue;
+
+                    continue;
+                }
+
+                $values[$modelProperty][] = $modelValue;
+            }
+        }
+
+        if (1 === $collection->count()) {
+            return $values;
+        }
+
+        $intersectValues = [];
+        foreach ($values as $propertyName => $propertyValues) {
+            if (!($value = $this->getUniqueValueFromArray($propertyValues))) {
+                continue;
+            }
+
+            $intersectValues[$propertyName] = $value;
+        }
+
+        return $intersectValues;
+    }
+
+    /**
+     * Get the unique value from a array. The value will return if the all values in the array the same.
+     *
+     * @param array $values
+     *
+     * @return string|array|null
+     */
+    private function getUniqueValueFromArray(array $values)
+    {
+        $serializedValues = false;
+        foreach ($values as $key => $value) {
+            if (!\is_array($value)) {
+                continue;
+            }
+
+            $values[$key] = \serialize($value);
+
+            $serializedValues = true;
+        }
+
+        if (!$serializedValues) {
+            return 1 === \count(\array_unique($values)) ? $values[0] : null;
+        }
+
+        return 1 === \count(\array_unique($values)) ? \unserialize($values[0]) : null;
     }
 
     /**
