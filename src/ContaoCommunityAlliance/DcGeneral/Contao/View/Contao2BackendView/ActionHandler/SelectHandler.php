@@ -35,6 +35,8 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\BackCommand;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractHandler;
 
 /**
@@ -72,7 +74,7 @@ class SelectHandler extends AbstractHandler
         $this->clearClipboardBySubmitAction();
 
         if ('properties' === $this->getSelectAction()) {
-            $this->sessionSetIntersectValues();
+            $this->setIntersectProperties();
             $this->handleBySelectActionProperties();
 
             return;
@@ -258,61 +260,13 @@ class SelectHandler extends AbstractHandler
     }
 
     /**
-     * Set the intersection values to the session.
-     * If all select models has the same value by their properties, then is set the value.
-     *
-     * @return void
+     * Set the intersect properties to the session.
      */
-    private function sessionSetIntersectValues()
+    private function setIntersectProperties()
     {
-        $inputProvider    = $this->getEnvironment()->getInputProvider();
-        $sessionStorage   = $this->getEnvironment()->getSessionStorage();
-        $dataDefinition   = $this->getEnvironment()->getDataDefinition();
-        $modelRelation    = $dataDefinition->getModelRelationshipDefinition();
-        $parentDefinition = $this->getEnvironment()->getParentDataDefinition();
-
-        $model = $this->getEnvironment()->getDataProvider()->getEmptyModel();
-        $model->setId(99999999);
-        if ($parentDefinition && $inputProvider->hasParameter('pid')) {
-            $childCondition =
-                $modelRelation->getChildCondition($parentDefinition->getName(), $dataDefinition->getName());
-
-            $parentModelId = ModelId::fromSerialized($inputProvider->getParameter('pid'));
-
-            foreach ($childCondition->getFilterArray() as $filter) {
-                if (!$dataDefinition->getPropertiesDefinition()->hasProperty($filter['local'])) {
-                    continue;
-                }
-
-                if ($dataDefinition->getPropertiesDefinition()->hasProperty($filter['local'])) {
-                    $model->setProperty($filter['local'], $parentModelId->getId());
-                }
-
-                break;
-            }
-        }
-
-        $this->setIntersectionValues($model);
-
-        $session                    =
-            $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction(true));
-        $session['intersectValues'] = $model->getPropertiesAsArray();
-        $sessionStorage->set($dataDefinition->getName() . '.' . $this->getSubmitAction(true), $session);
-    }
-
-    /**
-     * Set the intersection values to the model.
-     *
-     * @param ModelInterface $model The model.
-     *
-     * @return void
-     */
-    private function setIntersectionValues(ModelInterface $model)
-    {
-        $sessionStorage       = $this->getEnvironment()->getSessionStorage();
-        $dataDefinition       = $this->getEnvironment()->getDataDefinition();
-        $dataProvider         = $this->getEnvironment()->getDataProvider();
-        $propertiesDefinition = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition();
+        $sessionStorage = $this->getEnvironment()->getSessionStorage();
+        $dataDefinition = $this->getEnvironment()->getDataDefinition();
+        $dataProvider   = $this->getEnvironment()->getDataProvider();
 
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction(true));
 
@@ -321,7 +275,7 @@ class SelectHandler extends AbstractHandler
             $modelIds[] = ModelId::fromSerialized($modelId)->getId();
         }
 
-        $idProperty = method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
+        $idProperty = \method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
         $collection = $dataProvider->fetchAll(
             $dataProvider->getEmptyConfig()->setFilter(
                 [
@@ -334,64 +288,68 @@ class SelectHandler extends AbstractHandler
             )
         );
 
-        $count       = $collection->count();
-        $valuesCount = [];
-        $values      = [];
-
-        $this->getIntersectValues($collection, $values, $valuesCount);
-
-        if (0 === count($values)) {
-            return;
-        }
-        foreach ($values as $propertyName => $propertyValue) {
-            if (!isset($valuesCount[$propertyName])
-                || ($count !== $valuesCount[$propertyName])) {
-                continue;
-            }
-
-            $property = $propertiesDefinition->getProperty($propertyName);
-            if (is_numeric($propertyValue) && (null !== $property->getWidgetType())) {
-                $propertyValue = (int) $propertyValue;
-            }
-            $model->setProperty($propertyName, $propertyValue);
-        }
+        $session['intersectProperties'] = $this->collectIntersectModelProperties($collection);
+        $sessionStorage->set($dataDefinition->getName() . '.' . $this->getSubmitAction(true), $session);
     }
 
     /**
-     * Get the intersect values.
+     * Collecting intersect properties from the collection of models.
      *
-     * @param CollectionInterface $collection  The collection.
-     * @param array               $values      The values.
-     * @param array               $valuesCount The count of values.
+     * @param CollectionInterface $collection The collection of models.
      *
-     * @return void
+     * @return array
      */
-    private function getIntersectValues(CollectionInterface $collection, array &$values, array &$valuesCount)
+    private function collectIntersectModelProperties(CollectionInterface $collection)
     {
-        while ($collection->count() > 0) {
-            $intersectModel = $collection->shift();
+        $dataDefinition     = $this->getEnvironment()->getDataDefinition();
+        $palettesDefinition = $dataDefinition->getPalettesDefinition();
 
-            foreach ($intersectModel->getPropertiesAsArray() as $modelProperty => $modelValue) {
-                if (!isset($valuesCount[$modelProperty])) {
-                    $values[$modelProperty] = $modelValue;
+        $properties = [];
+        foreach ($collection->getIterator() as $model) {
+            $palette = $palettesDefinition->findPalette($model);
+
+            $modelProperties = $this->getVisibleAndEditAbleProperties($palette, $model);
+            foreach ($modelProperties as $modelProperty) {
+                if (!$properties[$modelProperty]) {
+                    $properties[$modelProperty] = 0;
                 }
 
-                if (isset($values[$modelProperty])
-                    && ($modelValue !== $values[$modelProperty])) {
-                    unset($values[$modelProperty], $valuesCount[$modelProperty]);
-                }
-
-                if (!isset($valuesCount[$modelProperty])) {
-                    $valuesCount[$modelProperty] = 0;
-                }
-
-                if (!isset($valuesCount[$modelProperty])) {
-                    continue;
-                }
-
-                ++$valuesCount[$modelProperty];
+                ++$properties[$modelProperty];
             }
         }
+
+        return \array_filter(
+            $properties,
+            function ($count) use ($collection) {
+                return $count === $collection->count();
+            }
+        );
+    }
+
+    /**
+     * Get the palette properties their are visible and editable.
+     *
+     * @param PaletteInterface $palette The palette.
+     * @param ModelInterface   $model   The model.
+     *
+     * @return array
+     */
+    private function getVisibleAndEditAbleProperties(PaletteInterface $palette, ModelInterface $model)
+    {
+        return \array_intersect(
+            \array_map(
+                function (PropertyInterface $property) {
+                    return $property->getName();
+                },
+                $palette->getVisibleProperties($model)
+            ),
+            \array_map(
+                function (PropertyInterface $property) {
+                    return $property->getName();
+                },
+                $palette->getEditableProperties($model)
+            )
+        );
     }
 
     /**

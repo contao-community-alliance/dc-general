@@ -30,8 +30,6 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionI
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\DefaultProperty;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\DefaultModelFormatterConfig;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface as PalettePropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -198,7 +196,7 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
             return false;
         }
 
-        return $this->isPropertyAllowedByIntersectModel($property);
+        return $this->isPropertyAllowedByIntersectProperties($property);
     }
 
     /**
@@ -228,40 +226,21 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
     }
 
     /**
-     * Is property allowed by intersect model.
+     * Is property allowed by intersect properties.
      *
      * @param PropertyInterface $property The property.
      *
      * @return bool
      */
-    private function isPropertyAllowedByIntersectModel(PropertyInterface $property)
+    private function isPropertyAllowedByIntersectProperties(PropertyInterface $property)
     {
-        $sessionStorage     = $this->getEnvironment()->getSessionStorage();
-        $inputProvider      = $this->getEnvironment()->getInputProvider();
-        $dataDefinition     = $this->getEnvironment()->getDataDefinition();
-        $dataProvider       = $this->getEnvironment()->getDataProvider();
-        $palettesDefinition = $dataDefinition->getPalettesDefinition();
-
-        // If one palette is configured, don´t need compare with intersect model.
-        if (1 === count($palettesDefinition->getPalettes())) {
-            return true;
-        }
+        $sessionStorage = $this->getEnvironment()->getSessionStorage();
+        $inputProvider  = $this->getEnvironment()->getInputProvider();
+        $dataDefinition = $this->getEnvironment()->getDataDefinition();
 
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $inputProvider->getParameter('mode'));
 
-        $intersectModel = $dataProvider->getEmptyModel();
-        $idProperty     = method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
-        foreach ($session['intersectValues'] as $intersectProperty => $intersectValue) {
-            if ($idProperty === $intersectProperty) {
-                $intersectModel->setId($intersectValue);
-            }
-
-            $intersectModel->setProperty($intersectProperty, $intersectValue);
-        }
-
-        $palette = $palettesDefinition->findPalette($intersectModel);
-
-        return \in_array($property->getName(), $this->getVisibleAndEditAbleProperties($palette, $intersectModel));
+        return \array_key_exists($property->getName(), $session['intersectProperties']);
     }
 
     /**
@@ -429,31 +408,5 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
     protected function determineTemplate($groupingInformation)
     {
         return $this->getTemplate('dcbe_general_listView');
-    }
-
-    /**
-     * Get the palette properties their are visible and editable.
-     *
-     * @param PaletteInterface $palette The palette.
-     * @param ModelInterface   $model   The model.
-     *
-     * @return array
-     */
-    private function getVisibleAndEditAbleProperties(PaletteInterface $palette, ModelInterface $model)
-    {
-        return \array_intersect(
-            \array_map(
-                function (PalettePropertyInterface $property) {
-                    return $property->getName();
-                },
-                $palette->getVisibleProperties($model)
-            ),
-            \array_map(
-                function (PalettePropertyInterface $property) {
-                    return $property->getName();
-                },
-                $palette->getEditableProperties($model)
-            )
-        );
     }
 }
